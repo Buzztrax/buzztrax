@@ -221,6 +221,7 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
       g_value_set_string(gvalue,svalue);
     } break;
     case G_TYPE_ENUM: {
+      /* we need the numbers in the pattern view
       GEnumClass *enum_class=g_type_class_peek_static(G_VALUE_TYPE(gvalue));
       GEnumValue *enum_value=g_enum_get_value_by_nick(enum_class,svalue);
       GST_DEBUG("'%s', %p, %p, [%s]",G_VALUE_TYPE_NAME(gvalue),enum_class,enum_value,svalue);
@@ -230,10 +231,13 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
       }
       else if(svalue && isdigit(*svalue)) {
         // legacy
+      */
         const gint val=atoi(svalue);
         //GST_INFO("-> %d",val);
         g_value_set_enum(gvalue,val);
+      /*
       }
+      */
     } break;
     case G_TYPE_INT: {
       const gint val=svalue?atoi(svalue):0;
@@ -296,6 +300,7 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
       res=g_value_dup_string(gvalue);
       break;
     case G_TYPE_ENUM: {
+      /* we need the numbers in the pattern view
       GEnumClass *enum_class=g_type_class_peek_static(G_VALUE_TYPE(gvalue));
       GEnumValue *enum_value=g_enum_get_value(enum_class,g_value_get_enum(gvalue));
       if(enum_value) {
@@ -304,9 +309,12 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
       }
       else {
         // legacy
+      */
         res=g_strdup_printf("%d",g_value_get_enum(gvalue));
+      /*
         //GST_INFO("-> %s",res);
       }
+      */
     } break;
     case G_TYPE_INT:
       res=g_strdup_printf("%d",g_value_get_int(gvalue));

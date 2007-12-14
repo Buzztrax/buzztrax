@@ -2,6 +2,13 @@
 
 	* src/lib/core/machine.c:
 	* src/lib/core/persistence.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Now enums work within their limmits. We need to clean this up :/.
+
+2007-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/persistence.c:
 	* src/lib/core/sequence.c:
 	* src/lib/core/wire.c:
 	* src/ui/edit/machine-properties-dialog.c:

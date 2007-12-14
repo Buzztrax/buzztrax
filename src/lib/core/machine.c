@@ -692,12 +692,15 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
         g_value_set_enum(value,GPOINTER_TO_INT(qdata));
         break;
       case G_TYPE_STRING:
+        /* what is in qdata for this type? for buzz this is a note, so its an int
         if(qdata) {
           g_value_set_string(value,qdata);
         }
         else {
           g_value_set_string(value,"");
         }
+        */
+        g_value_set_string(value,"");
         break;
       default:
         if(qdata) {

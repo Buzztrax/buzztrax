@@ -1471,6 +1471,7 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
     } break;
     case 1:
       str=bt_pattern_get_global_event(self->priv->pattern,row,param);
+      if(param==0 && row<2) GST_WARNING("get global event: %s",str);
       break;
     case 2:
       str=bt_pattern_get_voice_event(self->priv->pattern,row,(int)group->user_data,param);
@@ -1507,6 +1508,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       g_object_unref(wire_pattern);
     } break;
     case 1:
+      if(param==0 && row<2) GST_WARNING("set global event: %s",str);
       bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       break;
     case 2:
@@ -1587,7 +1589,7 @@ static PatternColumnConverters pcc[]={
   { note_str_to_float, note_float_to_str }
 };
 
-static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property) { 
+static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val) { 
   GType type=bt_g_type_get_base_type(property->value_type);
   gconstpointer const has_meta=g_param_spec_get_qdata(property,gst_property_meta_quark);
   gconstpointer const qdata=g_param_spec_get_qdata(property,gst_property_meta_quark_no_val);
@@ -1617,66 +1619,86 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
         col->max=1;
       }
       else {
-        const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
-        const GEnumClass *enum_class=enum_property->enum_class;
-    
         col->type=PCT_BYTE;
-        col->min=enum_class->minimum;
-        col->max=enum_class->maximum;
-        //col->def=enum_property->default_value;
+        if(min_val && max_val) {
+          col->min=g_value_get_enum(min_val);
+          col->max=g_value_get_enum(max_val);
+        }
+        else {
+          const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+          const GEnumClass *enum_class=enum_property->enum_class;
+          col->min=enum_class->minimum;
+          col->max=enum_class->maximum;
+        }
       }
       col->def=has_meta?GPOINTER_TO_INT(qdata):0;
       col->user_data=NULL;
       break;
-    case G_TYPE_INT: {
-      const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-  
+    case G_TYPE_INT:
       col->type=PCT_WORD;
-      col->min=int_property->minimum;
-      col->max=int_property->maximum;
-      //col->def=int_property->default_value;
+      if(min_val && max_val) {
+        col->min=g_value_get_int(min_val);
+        col->max=g_value_get_int(max_val);
+      }
+      else {
+        const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+        col->min=int_property->minimum;
+        col->max=int_property->maximum;
+      }
       col->def=has_meta?GPOINTER_TO_INT(qdata):0;
-      if(int_property->minimum>=0 && int_property->maximum<256) {
+      if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
       col->user_data=NULL;
-    } break;
-    case G_TYPE_UINT: {
-      const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-  
+      break;
+    case G_TYPE_UINT:
       col->type=PCT_WORD;
-      col->min=uint_property->minimum;
-      col->max=uint_property->maximum;
-      //col->def=uint_property->default_value;
+      if(min_val && max_val) {
+        col->min=g_value_get_uint(min_val);
+        col->max=g_value_get_uint(max_val);
+      }
+      else {
+        const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+        col->min=uint_property->minimum;
+        col->max=uint_property->maximum;
+      }
       col->def=has_meta?GPOINTER_TO_UINT(qdata):0;
-      if(uint_property->minimum>=0 && uint_property->maximum<256) {
+      if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
       col->user_data=NULL;
-    } break;
-    case G_TYPE_FLOAT: {
-      const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
-  
+      break;
+    case G_TYPE_FLOAT:
       col->type=PCT_WORD;
-      col->min=float_property->minimum;
-      col->max=float_property->maximum;
-      //col->def=float_property->default_value;
+      if(min_val && max_val) {
+        col->min=g_value_get_float(min_val);
+        col->max=g_value_get_float(max_val);
+      }
+      else {
+        const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
+        col->min=float_property->minimum;
+        col->max=float_property->maximum;
+      }
       col->def=has_meta?GPOINTER_TO_INT(qdata):0;
       // @todo: need scaling
       // scaling factor =  
       col->user_data=NULL;
-    } break;
-    case G_TYPE_DOUBLE: {
-      const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
-      
+      break;
+    case G_TYPE_DOUBLE:
       col->type=PCT_WORD;
-      col->min=double_property->minimum;
-      col->max=double_property->maximum;
-      //col->def=double_property->default_value;
+      if(min_val && max_val) {
+        col->min=g_value_get_double(min_val);
+        col->max=g_value_get_double(max_val);
+      }
+      else {
+        const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+        col->min=double_property->minimum;
+        col->max=double_property->maximum;
+      }
       col->def=has_meta?GPOINTER_TO_INT(qdata):0;
       // @todo: need scaling: min->0, max->65536
       col->user_data=NULL;
-    } break;
+      break;
     default:
       GST_WARNING("unhandled param type: '%s' for parameter '%s'",g_type_name(type),property->name);
       col->type=0;
@@ -1684,6 +1706,8 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->user_data=NULL;
   }
   GST_INFO("%s parameter '%s' min/max/def : %6.4lf/%6.4lf/%6.4lf",g_type_name(type), property->name, col->min,col->max,col->def);
+  g_free(min_val);
+  g_free(max_val);
 }
 
 static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
@@ -1734,7 +1758,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
         group->num_columns=wire_params;
         group->columns=g_new(PatternColumn,wire_params);
         for(i=0;i<wire_params;i++) {
-          pattern_edit_fill_column_type(&group->columns[i],bt_wire_get_param_spec(wire,i));
+          pattern_edit_fill_column_type(&group->columns[i],
+            bt_wire_get_param_spec(wire,i),
+            NULL,NULL);
         }
         g_object_unref(wire);
         group++;
@@ -1756,7 +1782,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       GST_INFO("global parameters");
       for(i=0;i<global_params;i++) {
         pattern_edit_fill_column_type(&group->columns[i],
-          bt_machine_get_global_param_spec(machine,i));
+          bt_machine_get_global_param_spec(machine,i),
+          bt_machine_get_global_param_min_value(machine,i),
+          bt_machine_get_global_param_max_value(machine,i));
       }
       group++;
     }
@@ -1771,7 +1799,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       GST_INFO("voice parameters");
       for(i=0;i<voice_params;i++) {
         pattern_edit_fill_column_type(&group->columns[i],
-          bt_machine_get_voice_param_spec(machine,i));
+          bt_machine_get_voice_param_spec(machine,i),
+          bt_machine_get_voice_param_min_value(machine,i),
+          bt_machine_get_voice_param_max_value(machine,i));
       }
       group++;
       for(i=1;i<voices;i++) {
