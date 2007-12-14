@@ -1,5 +1,11 @@
 2007-12-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	  Fix note columns and improve default value handling.
+
+2007-12-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wire.c:
 	  More thinking.
 

@@ -1473,7 +1473,7 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
       str=bt_pattern_get_global_event(self->priv->pattern,row,param);
       break;
     case 2:
-      str=bt_pattern_get_voice_event(self->priv->pattern,row,(int)group->user_data - 1,param);
+      str=bt_pattern_get_voice_event(self->priv->pattern,row,(int)group->user_data,param);
       break;
     default:
       GST_WARNING("invalid column group type");
@@ -1486,18 +1486,19 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
     else
       return g_ascii_strtod(str,NULL);
   }
-  return 0.0;
+  return group->columns[param].def;
 }
 
 static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param, float value) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
-  const gchar *str;
+  const gchar *str = NULL;
   PatternColumnGroup *group = &self->priv->param_groups[track];
   
   if(column_data)
     str=((PatternColumnConverters *)column_data)->float_to_str(value);
   else
-    str=bt_persistence_strfmt_double(value);
+    if(value!=group->columns[param].def)
+      str=bt_persistence_strfmt_double(value);
 
   switch (group->type) {
     case 0: {
@@ -1509,7 +1510,8 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       break;
     case 2:
-      bt_pattern_set_voice_event(self->priv->pattern,row,(int)group->user_data - 1,param,str);
+      GST_WARNING("set voice data [%d,%d,%d] : %s",row,(int)group->user_data,param,str);
+      bt_pattern_set_voice_event(self->priv->pattern,row,(int)group->user_data,param,str);
       break;
     default:
       GST_WARNING("invalid column group type");
@@ -1588,6 +1590,9 @@ static PatternColumnConverters pcc[]={
 
 static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property) { 
   GType type=bt_g_type_get_base_type(property->value_type);
+  
+  GST_DEBUG("trying param type: %d,'%s'/'%s' for parameter '%s'",
+    type, g_type_name(type),g_type_name(property->value_type),property->name);
 
   if(type==G_TYPE_STRING) {
     col->type=PCT_NOTE;
@@ -1603,7 +1608,7 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
     col->def=0;
     col->user_data=NULL;
   }
-  if(type==G_TYPE_BOOLEAN) {
+  else if(type==G_TYPE_BOOLEAN) {
     const GParamSpecBoolean *bool_property=G_PARAM_SPEC_BOOLEAN(property);
     col->type=PCT_SWITCH;
     col->min=0;
@@ -1667,11 +1672,12 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
     col->user_data=NULL;
   }
   else {
-    GST_WARNING("unhandled param type: '%s'",g_type_name(type));
+    GST_WARNING("unhandled param type: '%s' for parameter '%s'",g_type_name(type),property->name);
     col->type=0;
     col->min=col->max=col->def=0;
     col->user_data=NULL;
   }
+  GST_WARNING("min/max/def : %6.4lf/%6.4lf/%6.4lf",col->min,col->max,col->def);
 }
 
 static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
@@ -1737,7 +1743,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       // create mapping for global params
       group->type=1;
       group->name=g_strdup("globals");
-      group->user_data=(gpointer)0;
+      group->user_data=NULL;
       group->num_columns=global_params;
       group->columns=g_new(PatternColumn,global_params);
       for(i=0;i<global_params;i++) {
@@ -1751,7 +1757,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       // create mapping for voice params
       group->type=2;
       group->name=g_strdup("voice 1");
-      group->user_data=(gpointer)1;
+      group->user_data=(gpointer)0;
       group->num_columns=voice_params;
       group->columns=g_new(PatternColumn,voice_params);
       for(i=0;i<voice_params;i++) {
@@ -1762,7 +1768,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       for(i=1;i<voices;i++) {
         group->type=2;
         group->name=g_strdup_printf("voice %d",(int)i);
-        group->user_data=(gpointer)(1+i);
+        group->user_data=(gpointer)i;
         group->num_columns=voice_params;
         group->columns=g_memdup(stamp->columns,sizeof(PatternColumn)*voice_params);
         group++;        

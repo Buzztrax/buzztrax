@@ -36,9 +36,10 @@
  * - cursor step (different than Buzz - Buzz did it in a bad way)
  * - mouse handling
  * - implement GtkWidgetClass::set_scroll_adjustments_signal
- *   see gtk/gtkviewport.{c,h}
+ *   - see gtk/gtkviewport.{c,h}
  *     o left: ticks
  *     o top: groups (input, global, voice 1, voice 2)
+ *   - we need that to be able to control scrolling too (scroll-to-cursor)
  * - use raw-key codes for note-input (see FIXME below and
  *   main-page-pattern.c:on_pattern_table_key_release_event()
  * - a signal for column changed (group, parameter)
