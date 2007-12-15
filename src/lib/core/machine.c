@@ -173,8 +173,7 @@ struct _BtMachinePrivate {
   /* dynamic parameter control */
   GstController *global_controller;
   GstController **voice_controllers;
-  gchar **global_names,**voice_names;
-  GType *global_types,*voice_types;
+  GParamSpec **global_props,**voice_props;
   guint *global_flags,*voice_flags;
   GValue *global_no_val,*voice_no_val;
 
@@ -211,6 +210,13 @@ static GQuark error_domain=0;
 static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
+
+// macros
+
+#define GLOBAL_PARAM_NAME(ix) self->priv->global_props[ix]->name
+#define GLOBAL_PARAM_TYPE(ix) self->priv->global_props[ix]->value_type
+#define VOICE_PARAM_NAME(ix) self->priv->voice_props[ix]->name
+#define VOICE_PARAM_TYPE(ix) self->priv->voice_props[ix]->value_type
 
 //-- enums
 
@@ -957,17 +963,15 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
       }
     }
     GST_INFO("found %d global params",self->priv->global_params);
-    self->priv->global_types =(GType * )g_new0(GType   ,self->priv->global_params);
-    self->priv->global_names =(gchar **)g_new0(gpointer,self->priv->global_params);
-    self->priv->global_flags =(guint * )g_new0(guint   ,self->priv->global_params);
-    self->priv->global_no_val=(GValue *)g_new0(GValue  ,self->priv->global_params);
+    self->priv->global_props =(GParamSpec ** )g_new0(gpointer,self->priv->global_params);
+    self->priv->global_flags =(guint *       )g_new0(guint   ,self->priv->global_params);
+    self->priv->global_no_val=(GValue *      )g_new0(GValue  ,self->priv->global_params);
     for(i=j=0;i<number_of_properties;i++) {
       property=properties[i];
       if(property && property->flags&GST_PARAM_CONTROLLABLE) {
         GST_DEBUG("    adding global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         // add global param
-        self->priv->global_names[j]=property->name;
-        self->priv->global_types[j]=property->value_type;
+        self->priv->global_props[j]=property;
         self->priv->global_flags[j]=GST_PROPERTY_META_STATE;
         if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
           gconstpointer const has_meta=g_param_spec_get_qdata(property,gst_property_meta_quark);
@@ -1009,18 +1013,16 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
           if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->voice_params++;
         }
         GST_INFO("found %d voice params",self->priv->voice_params);
-        self->priv->voice_types =(GType * )g_new0(GType   ,self->priv->voice_params);
-        self->priv->voice_names =(gchar **)g_new0(gpointer,self->priv->voice_params);
-        self->priv->voice_flags =(guint * )g_new0(guint   ,self->priv->voice_params);
-        self->priv->voice_no_val=(GValue *)g_new0(GValue  ,self->priv->voice_params);
+        self->priv->voice_props =(GParamSpec ** )g_new0(gpointer,self->priv->voice_params);
+        self->priv->voice_flags =(guint *       )g_new0(guint   ,self->priv->voice_params);
+        self->priv->voice_no_val=(GValue *      )g_new0(GValue  ,self->priv->voice_params);
 
         for(i=j=0;i<number_of_properties;i++) {
           property=properties[i];
           if(property->flags&GST_PARAM_CONTROLLABLE) {
             GST_DEBUG("    adding voice_param %p, [%d/%d] \"%s\"",property, j,self->priv->voice_params,property->name);
             // add voice param
-            self->priv->voice_names[j]=property->name;
-            self->priv->voice_types[j]=property->value_type;
+            self->priv->voice_props[j]=property;
             self->priv->voice_flags[j]=GST_PROPERTY_META_STATE;
             if(GST_IS_PROPERTY_META(voice_child)) {
               gconstpointer const has_meta=g_param_spec_get_qdata(property,gst_property_meta_quark);
@@ -1805,7 +1807,7 @@ glong bt_machine_get_global_param_index(const BtMachine *const self, const gchar
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
 
   for(i=0;i<self->priv->global_params;i++) {
-    if(!strcmp(self->priv->global_names[i],name)) {
+    if(!strcmp(GLOBAL_PARAM_NAME(i),name)) {
       ret=i;
       found=TRUE;
       break;
@@ -1841,7 +1843,7 @@ glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
 
   for(i=0;i<self->priv->voice_params;i++) {
-    if(!strcmp(self->priv->voice_names[i],name)) {
+    if(!strcmp(VOICE_PARAM_NAME(i),name)) {
       ret=i;
       found=TRUE;
       break;
@@ -1869,10 +1871,7 @@ GParamSpec *bt_machine_get_global_param_spec(const BtMachine * const self, const
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->global_params,NULL);
 
-  return(g_object_class_find_property(
-    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),
-    self->priv->global_names[index])
-  );
+  return(self->priv->global_props[index]);
 }
 
 /**
@@ -1888,59 +1887,22 @@ GParamSpec *bt_machine_get_voice_param_spec(const BtMachine * const self, const 
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->voice_params,NULL);
 
-  GST_DEBUG("    voice-param %d '%s'",index,self->priv->voice_names[index]);
-  return(g_object_class_find_property(
-    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),
-    self->priv->voice_names[index])
-  );
+  return(self->priv->voice_props[index]);
 
 #if 0
   GstObject *voice_child;
   GParamSpec *pspec=NULL;
 
-  GST_INFO("    voice-param %d '%s'",index,self->priv->voice_names[index]);
+  GST_INFO("    voice-param %d '%s'",index,VOICE_PARAM_NAME(index));
 
   if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
     pspec=g_object_class_find_property(
       G_OBJECT_CLASS(GST_OBJECT_GET_CLASS(voice_child)),
-      self->priv->voice_names[index]);
+      VOICE_PARAM_NAME(index));
     g_object_unref(voice_child);
   }
   return(pspec);
 #endif
-}
-
-/**
- * bt_machine_get_global_param_type:
- * @self: the machine to search for the global param type
- * @index: the offset in the list of global params
- *
- * Retrieves the GType of a global param
- *
- * Returns: the requested GType
- */
-GType bt_machine_get_global_param_type(const BtMachine * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),0);
-  g_return_val_if_fail(index<self->priv->global_params,0);
-  g_return_val_if_fail(self->priv->global_types,0);
-
-  return(self->priv->global_types[index]);
-}
-
-/**
- * bt_machine_get_voice_param_type:
- * @self: the machine to search for the voice param type
- * @index: the offset in the list of voice params
- *
- * Retrieves the GType of a voice param
- *
- * Returns: the requested GType
- */
-GType bt_machine_get_voice_param_type(const BtMachine * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),0);
-  g_return_val_if_fail(index<self->priv->voice_params,0);
-
-  return(self->priv->voice_types[index]);
 }
 
 /**
@@ -1956,8 +1918,8 @@ void bt_machine_set_global_param_value(const BtMachine * const self, const gulon
   g_return_if_fail(G_IS_VALUE(event));
   g_return_if_fail(index<self->priv->global_params);
 
-  GST_DEBUG("set value for %s.%s",self->priv->id,self->priv->global_names[index]);
-  g_object_set_property(G_OBJECT(self->priv->machines[PART_MACHINE]),self->priv->global_names[index],event);
+  GST_DEBUG("set value for %s.%s",self->priv->id,GLOBAL_PARAM_NAME(index));
+  g_object_set_property(G_OBJECT(self->priv->machines[PART_MACHINE]),GLOBAL_PARAM_NAME(index),event);
 }
 
 /**
@@ -1978,7 +1940,7 @@ void bt_machine_set_voice_param_value(const BtMachine * const self, const gulong
   g_return_if_fail(index<self->priv->voice_params);
 
   if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice))) {
-    g_object_set_property(G_OBJECT(voice_child),self->priv->voice_names[index],event);
+    g_object_set_property(G_OBJECT(voice_child),VOICE_PARAM_NAME(index),event);
     g_object_unref(voice_child);
   }
 }
@@ -2030,7 +1992,7 @@ const gchar *bt_machine_get_global_param_name(const BtMachine * const self, cons
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->global_params,NULL);
 
-  return(self->priv->global_names[index]);
+  return(GLOBAL_PARAM_NAME(index));
 }
 
 /**
@@ -2046,157 +2008,137 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine * const self, const
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->voice_params,NULL);
 
-  return(self->priv->voice_names[index]);
+  return(VOICE_PARAM_NAME(index));
 }
 
-static GValue *bt_machine_get_param_min_value(const BtMachine * const self, GParamSpec * const property) {
-  GValue *value=g_new0(GValue,1);
+static void bt_machine_get_param_details(const BtMachine * const self, GParamSpec *property, GValue **min_val, GValue **max_val) {
+  gboolean done=FALSE;
 
-  // @todo: this should ev. check voice_child
-  if(!GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE]) ||
-    !bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_min_val)
-  ) {
+  if(min_val || max_val) {
     GType base_type=bt_g_type_get_base_type(property->value_type);
 
-    GST_INFO("    no property-meta min-val for param \"%s\"",property->name);
-    g_value_init(value,property->value_type);
-    switch(base_type) {
-      case G_TYPE_BOOLEAN:
-        g_value_set_boolean(value,0);
-      break;
-      case G_TYPE_INT: {
-        const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-        g_value_set_int(value,int_property->minimum);
-      } break;
-      case G_TYPE_UINT: {
-        const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-        g_value_set_uint(value,uint_property->minimum);
-      }  break;
-      case G_TYPE_FLOAT: {
-        const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
-        g_value_set_float(value,float_property->minimum);
-      } break;
-      case G_TYPE_DOUBLE: {
-        const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
-        g_value_set_double(value,double_property->minimum);
-      } break;
-      case G_TYPE_ENUM: {
-        const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
-        const GEnumClass *enum_class=enum_property->enum_class;
-        g_value_set_enum(value,enum_class->minimum);
-      } break;
-      default:
-        GST_ERROR("unsupported GType=%d:'%s' ('%s')",property->value_type,g_type_name(property->value_type),g_type_name(base_type));
+    if(min_val) *min_val=g_new0(GValue,1);
+    if(max_val) *max_val=g_new0(GValue,1);
+    if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+      if(min_val) done =bt_machine_get_property_meta_value(*min_val,property,gst_property_meta_quark_min_val);
+      if(max_val) {
+        if(!bt_machine_get_property_meta_value(*max_val,property,gst_property_meta_quark_max_val)) {
+          if(done) g_value_unset(*min_val);
+          done=FALSE;
+        }
+      }
+    }
+    if(!done) {
+      if(min_val) g_value_init(*min_val,property->value_type);
+      if(max_val) g_value_init(*max_val,property->value_type);     
+      switch(base_type) {
+        case G_TYPE_BOOLEAN:
+          if(min_val) g_value_set_boolean(*min_val,0);
+          if(max_val) g_value_set_boolean(*max_val,0);
+        break;
+        case G_TYPE_INT: {
+          const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+          if(min_val) g_value_set_int(*min_val,int_property->minimum);
+          if(max_val) g_value_set_int(*max_val,int_property->minimum);
+        } break;
+        case G_TYPE_UINT: {
+          const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+          if(min_val) g_value_set_uint(*min_val,uint_property->minimum);
+          if(max_val) g_value_set_uint(*max_val,uint_property->minimum);
+        } break;
+        case G_TYPE_FLOAT: {
+          const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
+          if(min_val) g_value_set_float(*min_val,float_property->minimum);
+          if(max_val) g_value_set_float(*max_val,float_property->minimum);
+        } break;
+        case G_TYPE_DOUBLE: {
+          const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+          if(min_val) g_value_set_double(*min_val,double_property->minimum);
+          if(max_val) g_value_set_double(*max_val,double_property->minimum);
+        } break;
+        case G_TYPE_ENUM: {
+          const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+          const GEnumClass *enum_class=enum_property->enum_class;
+          if(min_val) g_value_set_enum(*min_val,enum_class->minimum);
+          if(max_val) g_value_set_enum(*max_val,enum_class->minimum);
+        } break;
+        default:
+          GST_ERROR("unsupported GType=%d:'%s' ('%s')",property->value_type,g_type_name(property->value_type),g_type_name(base_type));
+      }
     }
   }
-  return(value);
 }
 
 /**
- * bt_machine_get_global_param_min_value:
- * @self: the machine to get the min param value from
+ * bt_machine_get_global_param_details:
+ * @self: the machine to search for the global param details
  * @index: the offset in the list of global params
+ * @pspec: place for the param spec
+ * @min_val: place to hold new GValue with minimum
+ * @max_val: place to hold new GValue with maximum 
  *
- * Gets the minimum value of a global param.
- *
- * Returns: the the minimum value as a new GValue
+ * Retrieves the details of a global param. Any detail can be %NULL if its not
+ * wanted.
  */
-GValue *bt_machine_get_global_param_min_value(const BtMachine * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(index<self->priv->global_params,NULL);
-
-  return(bt_machine_get_param_min_value(self,bt_machine_get_global_param_spec(self,index)));
-}
-
-/**
- * bt_machine_get_voice_param_min_value:
- * @self: the machine to get the min param value from
- * @index: the offset in the list of voice params
- *
- * Gets the minimum value of a voice param.
- *
- * Returns: the the minimum value as a new GValue
- */
-GValue *bt_machine_get_voice_param_min_value(const BtMachine * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(index<self->priv->voice_params,NULL);
-
-  return(bt_machine_get_param_min_value(self,bt_machine_get_voice_param_spec(self,index)));
-}
-
-static GValue *bt_machine_get_param_max_value(const BtMachine * const self, GParamSpec * const property) {
-  GValue *value=g_new0(GValue,1);
-
-  // @todo: this should ev. check voice_child
-  if(!GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE]) ||
-    !bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_max_val)
-  ) {
-    GType base_type=bt_g_type_get_base_type(property->value_type);
-
-    GST_INFO("    no property-meta max-val for param \"%s\"",property->name);
-    g_value_init(value,property->value_type);
-    switch(base_type) {
-      case G_TYPE_BOOLEAN:
-        g_value_set_boolean(value,1);
-      break;
-      case G_TYPE_INT: {
-        const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-        g_value_set_int(value,int_property->maximum);
-      } break;
-      case G_TYPE_UINT: {
-        const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-        g_value_set_uint(value,uint_property->maximum);
-      } break;
-      case G_TYPE_FLOAT: {
-        const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
-        g_value_set_float(value,float_property->maximum);
-      } break;
-      case G_TYPE_DOUBLE: {
-        const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
-        g_value_set_double(value,double_property->maximum);
-      } break;
-      case G_TYPE_ENUM: {
-        const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
-        const GEnumClass *enum_class=enum_property->enum_class;
-        g_value_set_enum(value,enum_class->maximum);
-      } break;
-      default:
-        GST_ERROR("unsupported GType=%d:'%s' ('%s')",property->value_type,g_type_name(property->value_type),g_type_name(base_type));
-    }
+void bt_machine_get_global_param_details(const BtMachine * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val) {
+  GParamSpec *property=bt_machine_get_global_param_spec(self,index);
+  
+  if(pspec) {
+    *pspec=property;
   }
-  return(value);
+  bt_machine_get_param_details(self, property, min_val, max_val);
 }
 
 /**
- * bt_machine_get_global_param_max_value:
- * @self: the machine to get the max param value from
+ * bt_machine_get_voice_param_details:
+ * @self: the machine to search for the voice param details
+ * @index: the offset in the list of voice params
+ * @pspec: place for the param spec
+ * @min_val: place to hold new GValue with minimum
+ * @max_val: place to hold new GValue with maximum 
+ *
+ * Retrieves the details of a voice param. Any detail can be %NULL if its not
+ * wanted.
+ */
+void bt_machine_get_voice_param_details(const BtMachine * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val) {
+  GParamSpec *property=bt_machine_get_voice_param_spec(self,index);
+
+  if(pspec) {
+    *pspec=property;
+  }
+  bt_machine_get_param_details(self, property, min_val, max_val);
+}
+
+/**
+ * bt_machine_get_global_param_type:
+ * @self: the machine to search for the global param type
  * @index: the offset in the list of global params
  *
- * Gets the maximum value of a global param.
+ * Retrieves the GType of a global param
  *
- * Returns: the the maximum value as a new GValue
+ * Returns: the requested GType
  */
-GValue *bt_machine_get_global_param_max_value(const BtMachine * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(index<self->priv->global_params,NULL);
+GType bt_machine_get_global_param_type(const BtMachine * const self, const gulong index) {
+  g_return_val_if_fail(BT_IS_MACHINE(self),0);
+  g_return_val_if_fail(index<self->priv->global_params,0);
 
-  return(bt_machine_get_param_max_value(self,bt_machine_get_global_param_spec(self,index)));
+  return(GLOBAL_PARAM_TYPE(index));
 }
 
 /**
- * bt_machine_get_voice_param_max_value:
- * @self: the machine to get the max param value from
+ * bt_machine_get_voice_param_type:
+ * @self: the machine to search for the voice param type
  * @index: the offset in the list of voice params
  *
- * Gets the maximum value of a voice param.
+ * Retrieves the GType of a voice param
  *
- * Returns: the the maximum value as a new GValue
+ * Returns: the requested GType
  */
-GValue *bt_machine_get_voice_param_max_value(const BtMachine * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(index<self->priv->voice_params,NULL);
+GType bt_machine_get_voice_param_type(const BtMachine * const self, const gulong index) {
+  g_return_val_if_fail(BT_IS_MACHINE(self),0);
+  g_return_val_if_fail(index<self->priv->voice_params,0);
 
-  return(bt_machine_get_param_max_value(self,bt_machine_get_voice_param_spec(self,index)));
+  return(VOICE_PARAM_TYPE(index));
 }
 
 /**
@@ -2295,7 +2237,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
     // check if the property is alredy controlled
     if(self->priv->global_controller) {
 #ifdef HAVE_GST_0_10_14
-      if((cs=gst_controller_get_control_source(self->priv->global_controller,self->priv->global_names[param]))) {
+      if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
         if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
           add=FALSE;
         }
@@ -2303,44 +2245,44 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       }
 #else
       GList *values;
-      if((values=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[param]))) {
+      if((values=(GList *)gst_controller_get_all(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
         add=FALSE;
         g_list_free(values);
       }
 #endif
     }
     if(add) {
-      GstController *ctrl=bt_machine_activate_controller(param_parent, self->priv->global_names[param], bt_machine_is_global_param_trigger(self,param));
+      GstController *ctrl=bt_machine_activate_controller(param_parent, GLOBAL_PARAM_NAME(param), bt_machine_is_global_param_trigger(self,param));
 
       g_object_try_unref(self->priv->global_controller);
       self->priv->global_controller=ctrl;
     }
-    //GST_INFO("%s set global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
+    //GST_INFO("%s set global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->global_controller,self->priv->global_names[param]))) {
+    if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
       gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
       g_object_unref(cs);
     }
 #else
-    gst_controller_set(self->priv->global_controller,self->priv->global_names[param],timestamp,value);
+    gst_controller_set(self->priv->global_controller,GLOBAL_PARAM_NAME(param),timestamp,value);
 #endif
   }
   else {
     gboolean remove=TRUE;
 
-    //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
+    //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->global_controller,self->priv->global_names[param]))) {
+    if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
       gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
       g_object_unref(cs);
     }
 #else
-    gst_controller_unset(self->priv->global_controller,self->priv->global_names[param],timestamp);
+    gst_controller_unset(self->priv->global_controller,GLOBAL_PARAM_NAME(param),timestamp);
 #endif
 
     // check if the property is not having control points anymore
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->global_controller,self->priv->global_names[param]))) {
+    if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
       if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
         remove=FALSE;
       }
@@ -2348,7 +2290,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
     }
 #else
     GList *values;
-    if((values=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[param]))) {
+    if((values=(GList *)gst_controller_get_all(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
       //if(g_list_length(values)>0) {
         remove=FALSE;
       //}
@@ -2356,7 +2298,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
     }
 #endif
     if(remove) {
-      bt_machine_deactivate_controller(param_parent, self->priv->global_names[param]);
+      bt_machine_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(param));
     }
   }
 }
@@ -2391,7 +2333,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
     // check if the property is alredy controlled
     if(self->priv->voice_controllers[voice]) {
 #ifdef HAVE_GST_0_10_14
-      if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],self->priv->voice_names[param]))) {
+      if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
         if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
           add=FALSE;
         }
@@ -2399,44 +2341,44 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
       }
 #else
       GList *values;
-      if((values=(GList *)gst_controller_get_all(self->priv->voice_controllers[voice],self->priv->voice_names[param]))) {
+      if((values=(GList *)gst_controller_get_all(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
         add=FALSE;
         g_list_free(values);
       }
 #endif
     }
     if(add) {
-      GstController *ctrl=bt_machine_activate_controller(param_parent, self->priv->voice_names[param], bt_machine_is_voice_param_trigger(self,param));
+      GstController *ctrl=bt_machine_activate_controller(param_parent, VOICE_PARAM_NAME(param), bt_machine_is_voice_param_trigger(self,param));
 
       g_object_try_unref(self->priv->voice_controllers[voice]);
       self->priv->voice_controllers[voice]=ctrl;
     }
-    //GST_INFO("%s set voice controller: %"GST_TIME_FORMAT" voice %d, param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,self->priv->voice_names[param]);
+    //GST_INFO("%s set voice controller: %"GST_TIME_FORMAT" voice %d, param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,VOICE_PARAM_NAME(param));
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],self->priv->voice_names[param]))) {
+    if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
       gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
       g_object_unref(cs);
     }
 #else
-    gst_controller_set(self->priv->voice_controllers[voice],self->priv->voice_names[param],timestamp,value);
+    gst_controller_set(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param),timestamp,value);
 #endif
   }
   else {
     gboolean remove=TRUE;
 
-    //GST_INFO("%s unset voice controller: %"GST_TIME_FORMAT" voice %d, param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,self->priv->voice_names[param]);
+    //GST_INFO("%s unset voice controller: %"GST_TIME_FORMAT" voice %d, param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,VOICE_PARAM_NAME(param));
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],self->priv->voice_names[param]))) {
+    if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
       gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
       g_object_unref(cs);
     }
 #else
-    gst_controller_unset(self->priv->voice_controllers[voice],self->priv->voice_names[param],timestamp);
+    gst_controller_unset(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param),timestamp);
 #endif
 
     // check if the property is not having control points anymore
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],self->priv->voice_names[param]))) {
+    if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
       if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
         remove=FALSE;
       }
@@ -2444,7 +2386,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
     }
 #else
     GList *values;
-    if((values=(GList *)gst_controller_get_all(self->priv->voice_controllers[voice],self->priv->voice_names[param]))) {
+    if((values=(GList *)gst_controller_get_all(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
       //if(g_list_length(values)>0) {
         remove=FALSE;
       //}
@@ -2452,7 +2394,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
     }
 #endif
     if(remove) {
-      bt_machine_deactivate_controller(param_parent, self->priv->voice_names[param]);
+      bt_machine_deactivate_controller(param_parent, VOICE_PARAM_NAME(param));
     }
   }
 }
@@ -2660,17 +2602,17 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
   for(i=0;i<self->priv->global_params;i++) {
     name=g_strdup_printf("/tmp/buzztard-%s_g%02lu.dat",self->priv->id,i);
     if((file=fopen(name,"wb"))) {
-      fprintf(file,"# global param \"%s\" for machine \"%s\"\n",self->priv->global_names[i],self->priv->id);
+      fprintf(file,"# global param \"%s\" for machine \"%s\"\n",GLOBAL_PARAM_NAME(i),self->priv->id);
 #ifdef HAVE_GST_0_10_14
       GstControlSource *cs;
 
       list=NULL;
-      if((cs=gst_controller_get_control_source(self->priv->global_controller,self->priv->global_names[i]))) {
+      if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(i)))) {
         list=gst_interpolation_control_source_get_all(GST_INTERPOLATION_CONTROL_SOURCE(cs));
         g_object_unref(cs);
       }
 #else
-      list=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[i]);
+      list=(GList *)gst_controller_get_all(self->priv->global_controller,GLOBAL_PARAM_NAME(i));
 #endif
       if(list) {
         for(node=list;node;node=g_list_next(node)) {
@@ -2719,13 +2661,13 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
     for(i=0;i<self->priv->global_params;i++) {
       // skip trigger parameters and parameters that are also used as voice params
       if(bt_machine_is_global_param_trigger(self,i)) continue;
-      if(self->priv->voice_params && bt_machine_get_voice_param_index(self,self->priv->global_names[i],NULL)>-1) continue;
+      if(self->priv->voice_params && bt_machine_get_voice_param_index(self,GLOBAL_PARAM_NAME(i),NULL)>-1) continue;
 
       if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("globaldata"),NULL))) {
-        g_value_init(&value,self->priv->global_types[i]);
-        g_object_get_property(G_OBJECT(machine),self->priv->global_names[i],&value);
+        g_value_init(&value,GLOBAL_PARAM_TYPE(i));
+        g_object_get_property(G_OBJECT(machine),GLOBAL_PARAM_NAME(i),&value);
         gchar * const str=bt_persistence_get_value(&value);
-        xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->global_names[i]));
+        xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(GLOBAL_PARAM_NAME(i)));
         xmlNewProp(child_node,XML_CHAR_PTR("value"),XML_CHAR_PTR(str));
         g_free(str);
         g_value_unset(&value);
@@ -2737,11 +2679,11 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
       for(i=0;i<self->priv->voice_params;i++) {
         if(bt_machine_is_voice_param_trigger(self,i)) continue;
         if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("voicedata"),NULL))) {
-          g_value_init(&value,self->priv->voice_types[i]);
-          g_object_get_property(G_OBJECT(machine_voice),self->priv->voice_names[i],&value);
+          g_value_init(&value,VOICE_PARAM_TYPE(i));
+          g_object_get_property(G_OBJECT(machine_voice),VOICE_PARAM_NAME(i),&value);
           gchar * const str=bt_persistence_get_value(&value);
           xmlNewProp(child_node,XML_CHAR_PTR("voice"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(j)));
-          xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->voice_names[i]));
+          xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(VOICE_PARAM_NAME(i)));
           xmlNewProp(child_node,XML_CHAR_PTR("value"),XML_CHAR_PTR(str));
           g_free(str);
           g_value_unset(&value);
@@ -2846,7 +2788,7 @@ static gboolean bt_machine_persistence_load(const BtPersistence * const persiste
         value_str=xmlGetProp(node,XML_CHAR_PTR("value"));
         param=bt_machine_get_global_param_index(self,(gchar *)name,&error);
         if(!error) {
-          g_value_init(&value,self->priv->global_types[param]);
+          g_value_init(&value,GLOBAL_PARAM_TYPE(param));
           bt_persistence_set_value(&value,(gchar *)value_str);
           g_object_set_property(G_OBJECT(machine),(gchar *)name,&value);
           g_value_unset(&value);
@@ -2870,7 +2812,7 @@ static gboolean bt_machine_persistence_load(const BtPersistence * const persiste
           machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
           g_assert(machine_voice);
 
-          g_value_init(&value,self->priv->voice_types[param]);
+          g_value_init(&value,VOICE_PARAM_TYPE(param));
           bt_persistence_set_value(&value,(gchar *)value_str);
           g_object_set_property(G_OBJECT(machine_voice),(gchar *)name,&value);
           g_value_unset(&value);
@@ -3130,7 +3072,7 @@ static void bt_machine_dispose(GObject * const object) {
     self->priv->voices);
   param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
   for(j=0;j<self->priv->global_params;j++) {
-    bt_machine_deactivate_controller(param_parent, self->priv->global_names[j]);
+    bt_machine_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(j));
   }
   self->priv->global_controller=NULL;
   //g_object_try_unref(self->priv->global_controller);
@@ -3138,7 +3080,7 @@ static void bt_machine_dispose(GObject * const object) {
     for(i=0;i<self->priv->voices;i++) {
       param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),i));
       for(j=0;j<self->priv->voice_params;j++) {
-        bt_machine_deactivate_controller(param_parent, self->priv->voice_names[j]);
+        bt_machine_deactivate_controller(param_parent, VOICE_PARAM_NAME(j));
       }
       self->priv->voice_controllers[i]=NULL;
       //g_object_try_unref(self->priv->voice_controllers[i]);
@@ -3217,10 +3159,8 @@ static void bt_machine_finalize(GObject * const object) {
   g_free(self->priv->global_no_val);
   g_free(self->priv->voice_flags);
   g_free(self->priv->global_flags);
-  g_free(self->priv->voice_types);
-  g_free(self->priv->global_types);
-  g_free(self->priv->global_names);
-  g_free(self->priv->voice_names);
+  g_free(self->priv->voice_props);
+  g_free(self->priv->global_props);
   g_free(self->priv->voice_controllers);
   // free list of patterns
   if(self->priv->patterns) {

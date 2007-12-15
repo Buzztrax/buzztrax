@@ -106,6 +106,7 @@ struct _BtWirePrivate {
   
   /* dynamic parameter control */
   GstController *wire_controller[MAX_NUM_PARAMS];
+  GParamSpec *wire_props[MAX_NUM_PARAMS];
 
   /* event patterns */
   GHashTable *patterns;  // each entry points to BtWirePattern using BtPattern as a key
@@ -118,6 +119,12 @@ struct _BtWirePrivate {
 };
 
 static GObjectClass *bt_wire_parent_class=NULL;
+
+// macros
+
+#define WIRE_PARAM_NAME(ix) self->priv->wire_props[ix]->name
+#define WIRE_PARAM_TYPE(ix) self->priv->wire_props[ix]->value_type
+
 
 /* this actualy produces two more relocations
 static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
@@ -139,6 +146,20 @@ static void on_format_negotiated(GstPad *pad, GParamSpec *arg, gpointer user_dat
 #endif
 
 //-- helper methods
+
+static void bt_wire_init_params(const BtWire * const self) {
+
+  self->priv->wire_props[0]=g_object_class_find_property(
+    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_GAIN])),
+    "volume");
+  self->priv->wire_props[1]=NULL;
+  /*
+  self->priv->wire_props[1]=g_object_class_find_property(
+    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_PAN])),
+    "panorama")
+  );
+  */
+}
 
 /*
  * bt_wire_get_peer_pad:
@@ -175,7 +196,6 @@ static GstPad *bt_wire_get_peer_pad(GstIterator *it) {
   gst_iterator_free(it);
   return(peer_pad);
 }
-
 
 /*
  * bt_wire_get_src_peer_pad:
@@ -633,6 +653,10 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   if(!bt_wire_link_machines(self)) {
     GST_ERROR("linking machines failed");goto Error;
   }
+  else {
+    // register params
+    bt_wire_init_params(self);
+  }
   GST_DEBUG("linking machines succeeded, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
 
   // needed for the adder format negotiation
@@ -730,11 +754,7 @@ GParamSpec *bt_wire_get_param_spec(const BtWire * const self, const gulong index
   g_return_val_if_fail(BT_IS_WIRE(self),NULL);
   g_return_val_if_fail(index<self->priv->num_params,NULL);
 
-  GST_DEBUG("    param 0 'volume'");
-  return(g_object_class_find_property(
-    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_GAIN])),
-    "volume")
-  );
+  return(self->priv->wire_props[index]);
 }
 
 /**
@@ -747,9 +767,72 @@ GParamSpec *bt_wire_get_param_spec(const BtWire * const self, const gulong index
  * Returns: the requested GType
  */
 GType bt_wire_get_param_type(const BtWire * const self, const gulong index) {
-  GParamSpec *pspec=bt_wire_get_param_spec(self,index);
+  return(WIRE_PARAM_TYPE(index));
+}
 
-  return(pspec->value_type);
+/**
+ * bt_wire_get_param_details:
+ * @self: the wire to search for the param details
+ * @index: the offset in the list of params
+ * @pspec: place for the param spec
+ * @min_val: place to hold new GValue with minimum
+ * @max_val: place to hold new GValue with maximum 
+ *
+ * Retrieves the details of a voice param. Any detail can be %NULL if its not
+ * wanted.
+ */
+void bt_wire_get_param_details(const BtWire * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val) {
+  GParamSpec *property=bt_wire_get_param_spec(self,index);
+
+  if(pspec) {
+    *pspec=property;
+  }
+  if(min_val || max_val) {
+    GType base_type=bt_g_type_get_base_type(property->value_type);
+
+    if(min_val) {
+      *min_val=g_new0(GValue,1);
+      g_value_init(*min_val,property->value_type);
+    }
+    if(max_val) {
+      *max_val=g_new0(GValue,1);
+      g_value_init(*max_val,property->value_type);
+    }
+    switch(base_type) {
+      case G_TYPE_BOOLEAN:
+        if(min_val) g_value_set_boolean(*min_val,0);
+        if(max_val) g_value_set_boolean(*max_val,0);
+      break;
+      case G_TYPE_INT: {
+        const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+        if(min_val) g_value_set_int(*min_val,int_property->minimum);
+        if(max_val) g_value_set_int(*max_val,int_property->minimum);
+      } break;
+      case G_TYPE_UINT: {
+        const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+        if(min_val) g_value_set_uint(*min_val,uint_property->minimum);
+        if(max_val) g_value_set_uint(*max_val,uint_property->minimum);
+      } break;
+      case G_TYPE_FLOAT: {
+        const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
+        if(min_val) g_value_set_float(*min_val,float_property->minimum);
+        if(max_val) g_value_set_float(*max_val,float_property->minimum);
+      } break;
+      case G_TYPE_DOUBLE: {
+        const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+        if(min_val) g_value_set_double(*min_val,double_property->minimum);
+        if(max_val) g_value_set_double(*max_val,double_property->minimum);
+      } break;
+      case G_TYPE_ENUM: {
+        const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+        const GEnumClass *enum_class=enum_property->enum_class;
+        if(min_val) g_value_set_enum(*min_val,enum_class->minimum);
+        if(max_val) g_value_set_enum(*max_val,enum_class->minimum);
+      } break;
+      default:
+        GST_ERROR("unsupported GType=%d:'%s' ('%s')",property->value_type,g_type_name(property->value_type),g_type_name(base_type));
+    }
+  }
 }
 
 #if 0

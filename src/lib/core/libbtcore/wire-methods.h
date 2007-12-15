@@ -32,6 +32,7 @@ extern BtWirePattern *bt_wire_get_pattern(const BtWire * const self, BtPattern *
 
 extern GParamSpec *bt_wire_get_param_spec(const BtWire * const self, const gulong index);
 extern GType bt_wire_get_param_type(const BtWire * const self, const gulong index);
+extern void bt_wire_get_param_details(const BtWire * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
 
 extern GList *bt_wire_get_element_list(const BtWire *self);
 extern void bt_wire_dbg_print_parts(const BtWire *self);

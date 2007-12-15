@@ -1,5 +1,17 @@
 2007-12-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Refactor and reduce the parameter handling code a bit. Now it uses
+	  less memory and makes some calls cheaper.
+
+2007-12-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-preferences-dialog.c:
 	* src/ui/edit/machine-properties-dialog.c:
 	* src/ui/edit/main-page-machines.c:

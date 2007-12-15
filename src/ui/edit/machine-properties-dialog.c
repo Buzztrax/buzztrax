@@ -1113,7 +1113,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
   GtkWidget *widget1,*widget2;
   GParamSpec *property;
   GValue *range_min,*range_max;
-  GType base_type,param_type;
+  GType base_type;
   gulong i,k,params;
 #ifndef HAVE_GTK_2_12
   GtkTooltips *tips=gtk_tooltips_new();
@@ -1137,19 +1137,17 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
     for(i=0,k=0;i<global_params;i++) {
       if(bt_machine_is_global_param_trigger(self->priv->machine,i)) continue;
       if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) continue;
-      property=bt_machine_get_global_param_spec(self->priv->machine,i);
+
+      bt_machine_get_global_param_details(self->priv->machine,i,&property,&range_min,&range_max);
       GST_INFO("global property %p has name '%s','%s'",property,property->name,bt_machine_get_global_param_name(self->priv->machine,i));
       // get name
       label=gtk_label_new((gchar *)bt_machine_get_global_param_name(self->priv->machine,i));
       gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
       gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
+     
+      base_type=bt_g_type_get_base_type(property->value_type);
+      GST_INFO("... base type is : %s",g_type_name(base_type));
 
-      param_type=bt_machine_get_global_param_type(self->priv->machine,i);
-      base_type=bt_g_type_get_base_type(param_type);
-      GST_INFO("... base type is : %s",g_type_name(param_type));
-
-      range_min=bt_machine_get_global_param_min_value(self->priv->machine,i);
-      range_max=bt_machine_get_global_param_max_value(self->priv->machine,i);
       // DEBUG
       if(range_min && range_max) {
         gchar *str_min=g_strdup_value_contents(range_min);
@@ -1186,7 +1184,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
           widget1=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
           break;
         case G_TYPE_ENUM: {
-          if(param_type==BT_TYPE_TRIGGER_SWITCH)
+          if(property->value_type==BT_TYPE_TRIGGER_SWITCH)
             widget1=make_checkbox_widget(self,GST_OBJECT(machine),property);
           else
             widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
@@ -1237,7 +1235,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
   GtkWidget *widget1,*widget2;
   GParamSpec *property;
   GValue *range_min,*range_max;
-  GType base_type, param_type;
+  GType base_type;
   GstObject *machine_voice;
   gchar *name;
   gulong i,k,params;
@@ -1272,19 +1270,16 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
         continue;
       }
 
-      property=bt_machine_get_voice_param_spec(self->priv->machine,i);
+      bt_machine_get_voice_param_details(self->priv->machine,i,&property,&range_min,&range_max);
       GST_INFO("voice property %p has name '%s','%s'",property,property->name,bt_machine_get_voice_param_name(self->priv->machine,i));
       // get name
       label=gtk_label_new((gchar *)bt_machine_get_voice_param_name(self->priv->machine,i));
       gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
       gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
 
-      param_type=bt_machine_get_voice_param_type(self->priv->machine,i);
-      base_type=bt_g_type_get_base_type(param_type);
-      GST_INFO("... base typoe is : %s",g_type_name(param_type));
-
-      range_min=bt_machine_get_voice_param_min_value(self->priv->machine,i);
-      range_max=bt_machine_get_voice_param_max_value(self->priv->machine,i);
+      base_type=bt_g_type_get_base_type(property->value_type);
+      GST_INFO("... base typoe is : %s",g_type_name(base_type));
+      
       // DEBUG
       if(range_min && range_max) {
         gchar *str_min=g_strdup_value_contents(range_min);
@@ -1321,7 +1316,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
           widget1=make_double_range_widget(self,machine_voice,property,range_min,range_max,widget2);
           break;
         case G_TYPE_ENUM: {
-          if(param_type==BT_TYPE_TRIGGER_SWITCH)
+          if(property->value_type==BT_TYPE_TRIGGER_SWITCH)
             widget1=make_checkbox_widget(self,machine_voice,property);
           else
             widget1=make_combobox_widget(self,machine_voice,property,range_min,range_max);

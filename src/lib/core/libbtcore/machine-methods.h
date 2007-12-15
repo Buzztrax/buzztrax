@@ -67,6 +67,9 @@ extern glong bt_machine_get_voice_param_index(const BtMachine * const self, cons
 extern GParamSpec *bt_machine_get_global_param_spec(const BtMachine * const self, const gulong index);
 extern GParamSpec *bt_machine_get_voice_param_spec(const BtMachine * const self, const gulong index);
 
+extern void bt_machine_get_global_param_details(const BtMachine * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
+extern void bt_machine_get_voice_param_details(const BtMachine * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
+
 extern GType bt_machine_get_global_param_type(const BtMachine * const self, const gulong index);
 extern GType bt_machine_get_voice_param_type(const BtMachine * const self, const gulong index);
 
@@ -79,11 +82,13 @@ extern void bt_machine_set_voice_param_no_value(const BtMachine * const self, co
 extern const gchar *bt_machine_get_global_param_name(const BtMachine * const self, const gulong index);
 extern const gchar *bt_machine_get_voice_param_name(const BtMachine * const self, const gulong index);
 
+#if 0
 extern GValue *bt_machine_get_global_param_min_value(const BtMachine * const self, const gulong index);
 extern GValue *bt_machine_get_voice_param_min_value(const BtMachine * const self, const gulong index);
 
 extern GValue *bt_machine_get_global_param_max_value(const BtMachine * const self, const gulong index);
 extern GValue *bt_machine_get_voice_param_max_value(const BtMachine * const self, const gulong index);
+#endif
 
 extern gchar *bt_machine_describe_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
 extern gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const gulong index, GValue * const event);
