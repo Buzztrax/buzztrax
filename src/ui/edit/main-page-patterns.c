@@ -405,6 +405,8 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
         "voices",&voices,
         NULL);
       col=self->priv->cursor_column;
+      
+      // @todo: now we have the wire params too
 
       // get ParamSpec for global or voice param
       if(col<global_params)
@@ -1471,7 +1473,7 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
     } break;
     case 1:
       str=bt_pattern_get_global_event(self->priv->pattern,row,param);
-      if(param==0 && row<2) GST_WARNING("get global event: %s",str);
+      //if(param==0 && row<2) GST_WARNING("get global event: %s",str);
       break;
     case 2:
       str=bt_pattern_get_voice_event(self->priv->pattern,row,(int)group->user_data,param);
@@ -1508,7 +1510,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       g_object_unref(wire_pattern);
     } break;
     case 1:
-      if(param==0 && row<2) GST_WARNING("set global event: %s",str);
+      //if(param==0 && row<2) GST_WARNING("set global event: %s",str);
       bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       break;
     case 2:
@@ -1591,8 +1593,6 @@ static PatternColumnConverters pcc[]={
 
 static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val) { 
   GType type=bt_g_type_get_base_type(property->value_type);
-  //gconstpointer const has_meta=g_param_spec_get_qdata(property,gst_property_meta_quark);
-  //gconstpointer const qdata=g_param_spec_get_qdata(property,gst_property_meta_quark_no_val);
 
   GST_DEBUG("trying param type: %d,'%s'/'%s' for parameter '%s'",
     type, g_type_name(type),g_type_name(property->value_type),property->name);
@@ -1603,7 +1603,6 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=0;
       col->max=((16*9)+12);
       col->def=0;
-      //col->def=has_meta?GPOINTER_TO_INT(qdata):0;
       col->user_data=&pcc[0];
       break;
     case G_TYPE_BOOLEAN:
@@ -1611,7 +1610,6 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=0;
       col->max=1;
       col->def=col->max+1;
-      //col->def=has_meta?GPOINTER_TO_INT(qdata):0;
       col->user_data=NULL;
       break;
     case G_TYPE_ENUM:
@@ -1626,7 +1624,6 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
         col->max=g_value_get_enum(max_val);
       }
       col->def=col->max+1;
-      //col->def=has_meta?GPOINTER_TO_INT(qdata):0;
       col->user_data=NULL;
       break;
     case G_TYPE_INT:
@@ -1634,7 +1631,6 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=g_value_get_int(min_val);
       col->max=g_value_get_int(max_val);
       col->def=col->max+1;
-      //col->def=has_meta?GPOINTER_TO_INT(qdata):0;
       if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
@@ -1645,7 +1641,6 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=g_value_get_uint(min_val);
       col->max=g_value_get_uint(max_val);
       col->def=col->max+1;
-      //col->def=has_meta?GPOINTER_TO_UINT(qdata):0;
       if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
@@ -1656,7 +1651,6 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=g_value_get_float(min_val);
       col->max=g_value_get_float(max_val);
       col->def=col->max+1;
-      //col->def=has_meta?GPOINTER_TO_INT(qdata):0;
       // @todo: need scaling
       // scaling factor =  
       col->user_data=NULL;
@@ -1666,7 +1660,6 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=g_value_get_double(min_val);
       col->max=g_value_get_double(max_val);
       col->def=col->max+1;
-      //col->def=has_meta?GPOINTER_TO_INT(qdata):0;
       // @todo: need scaling: min->0, max->65536
       col->user_data=NULL;
       break;
@@ -1942,6 +1935,9 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
   g_assert(user_data);
 
   self->priv->base_octave=gtk_combo_box_get_active(self->priv->base_octave_menu);
+#ifdef USE_PATTERN_EDITOR
+  g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,NULL);
+#endif
   if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
     gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
   }
@@ -2053,11 +2049,9 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
             // if it is the pattern we currently show, set play-line
             if(pattern==self->priv->pattern) {
               play_pos=(gdouble)(pos-j)/(gdouble)length;
-#ifndef USE_PATTERN_EDITOR
               g_object_set(self->priv->pattern_table,"play-position",play_pos,NULL);
+#ifndef USE_PATTERN_EDITOR
               g_object_set(self->priv->pattern_pos_table,"play-position",play_pos,NULL);
-#else
-              // @todo: need to set playpos
 #endif
               found=TRUE;
             }
@@ -2070,11 +2064,9 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   }
   if(!found) {
     // unfortunately the 2nd widget may lag behind with redrawing itself :(
+    g_object_set(self->priv->pattern_table,"play-position",-1.0,NULL);
 #ifndef USE_PATTERN_EDITOR
-    g_object_set(self->priv->pattern_table,"play-position",0.0,NULL);
-    g_object_set(self->priv->pattern_pos_table,"play-position",0.0,NULL);
-#else
-    // @todo: need to set playpos
+    g_object_set(self->priv->pattern_pos_table,"play-position",-1.0,NULL);
 #endif
   }
   // release the references
@@ -2479,8 +2471,10 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
 #ifdef USE_PATTERN_EDITOR
   self->priv->pattern_table=BT_PATTERN_EDITOR(bt_pattern_editor_new());
+  g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,"play-position",-1.0,NULL);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
+  //g_signal_connect(G_OBJECT(self->priv->pattern_table), "cursor-column-changed", G_CALLBACK(on_pattern_table_cursor_column_changed), (gpointer)self);
   gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(scrolled_window));
 #else
   self->priv->pattern_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));

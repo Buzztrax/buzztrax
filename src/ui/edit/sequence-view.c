@@ -138,7 +138,7 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
 static void bt_sequence_view_unrealize(GtkWidget *widget) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
 
-  // first let the parent realize itslf
+  // first let the parent unrealize itslf
   if(GTK_WIDGET_CLASS(parent_class)->unrealize) {
     (GTK_WIDGET_CLASS(parent_class)->unrealize)(widget);
   }

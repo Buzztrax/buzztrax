@@ -1,5 +1,16 @@
 2007-12-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	* src/ui/edit/pattern-view.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/ui-ressources-methods.h:
+	  Add play-pos bar and octave settings to pattern-editor. Reorder
+	  methods keep style in sync with the rest of the project.
+
+2007-12-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* src/lib/core/libbtcore/machine-methods.h:
 	* src/lib/core/libbtcore/wire-methods.h:

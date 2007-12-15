@@ -107,7 +107,7 @@ Error:
 static void bt_pattern_view_realize(GtkWidget *widget) {
   BtPatternView *self = BT_PATTERN_VIEW(widget);
 
-  // first let the parent realize itslf
+  // first let the parent unrealize itslf
   if(GTK_WIDGET_CLASS(parent_class)->realize) {
     (GTK_WIDGET_CLASS(parent_class)->realize)(widget);
   }

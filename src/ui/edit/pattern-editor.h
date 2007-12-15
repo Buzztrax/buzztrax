@@ -72,9 +72,13 @@ typedef struct _BtPatternEditorCallbacks
   void (*notify_cursor_func)(gpointer pattern_data, int row, int group, int param, int digit);
 } BtPatternEditorCallbacks;
 
+typedef struct _BtPatternEditorPrivate BtPatternEditorPrivate;
+
 typedef struct _BtPatternEditor
 {
   GtkWidget parent;
+
+  /*< private >*/
   /* cursor position */
   int row;
   int group;
@@ -97,7 +101,12 @@ typedef struct _BtPatternEditor
   gboolean size_changed;
   
   /* current octave number */
-  int octave;
+  guint octave;
+
+  /* position of playing pointer from 0.0 ... 1.0 */
+  gdouble play_pos;
+  GdkGC *play_pos_gc;
+
 } BtPatternEditor;
 
 typedef struct _BtPatternEditorClass
