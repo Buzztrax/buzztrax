@@ -259,3 +259,4 @@ GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name) {
   }
   return(GTK_TOOLBAR_BOTH);
 }
+

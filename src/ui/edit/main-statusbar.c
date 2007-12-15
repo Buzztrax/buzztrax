@@ -260,22 +260,14 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   // cpu load
   // @todo: make this dependend on settings (view menu?)
   self->priv->cpu_load=GTK_PROGRESS_BAR(gtk_progress_bar_new());
-#ifndef HAVE_GTK_2_12
-  gtk_tooltips_set_tip(tips,GTK_WIDGET(self->priv->cpu_load),_("CPU load"),NULL);
-#else
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->cpu_load),_("CPU load"));
-#endif
 
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->cpu_load),FALSE,FALSE,1);
   self->priv->cpu_load_handler_id=g_timeout_add(1000, on_cpu_load_update, (gpointer)self);
 
   // timer status-bars
   ev_box=gtk_event_box_new();
-#ifndef HAVE_GTK_2_12
-  gtk_tooltips_set_tip(tips,ev_box,_("Playback time"),NULL);
-#else
   gtk_widget_set_tooltip_text(ev_box,_("Playback time"));
-#endif
   self->priv->elapsed=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->elapsed_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->elapsed),_("default"));
   gtk_statusbar_set_has_resize_grip(self->priv->elapsed,FALSE);
@@ -285,11 +277,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);
 
   ev_box=gtk_event_box_new();
-#ifndef HAVE_GTK_2_12
-  gtk_tooltips_set_tip(tips,ev_box,_("Playback position"),NULL);
-#else
   gtk_widget_set_tooltip_text(ev_box,_("Playback position"));
-#endif
   self->priv->current=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->current_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->current),_("default"));
   gtk_statusbar_set_has_resize_grip(self->priv->current,FALSE);
@@ -299,11 +287,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);
 
   ev_box=gtk_event_box_new();
-#ifndef HAVE_GTK_2_12
-  gtk_tooltips_set_tip(tips,ev_box,_("Playback length"),NULL);
-#else
   gtk_widget_set_tooltip_text(ev_box,_("Playback length"));
-#endif
   self->priv->loop=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->loop_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->loop),_("default"));
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->loop),100,-1);

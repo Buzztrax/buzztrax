@@ -917,33 +917,21 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_FIT));
   gtk_widget_set_name(tool_item,_("Zoom Fit"));
-#ifndef HAVE_GTK_2_12
-  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Zoom in/out so that everything is visible"),NULL);
-#else
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Zoom in/out so that everything is visible"));
-#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_zoom_fit_clicked),(gpointer)self);
 
   self->priv->zoom_in=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_IN));
   gtk_widget_set_name(self->priv->zoom_in,_("Zoom In"));
   gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
-#ifndef HAVE_GTK_2_12
-  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(self->priv->zoom_in),GTK_TOOLTIPS(tips),_("Zoom in for more details"),NULL);
-#else
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Zoom in for more details"));
-#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_in),-1);
   g_signal_connect(G_OBJECT(self->priv->zoom_in),"clicked",G_CALLBACK(on_toolbar_zoom_in_clicked),(gpointer)self);
 
   self->priv->zoom_out=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_OUT));
   gtk_widget_set_name(self->priv->zoom_out,_("Zoom Out"));
   gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
-#ifndef HAVE_GTK_2_12
-  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(self->priv->zoom_out),GTK_TOOLTIPS(tips),_("Zoom out for better overview"),NULL);
-#else
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Zoom out for better overview"));
-#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_out),-1);
   g_signal_connect(G_OBJECT(self->priv->zoom_out),"clicked",G_CALLBACK(on_toolbar_zoom_out_clicked),(gpointer)self);
 
@@ -953,13 +941,8 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   image=gtk_image_new_from_filename("grid.png");
   tool_item=GTK_WIDGET(gtk_menu_tool_button_new(image,_("Grid")));
   gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(tool_item),GTK_WIDGET(self->priv->grid_density_menu));
-#ifndef HAVE_GTK_2_12
-  gtk_menu_tool_button_set_arrow_tooltip(GTK_MENU_TOOL_BUTTON(tool_item),GTK_TOOLTIPS(tips),_("Show background grid"),NULL);
-  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Show background grid"),NULL);
-#else
   gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(tool_item),_("Show background grid"));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Stop playback of this song"));
-#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
   //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
 

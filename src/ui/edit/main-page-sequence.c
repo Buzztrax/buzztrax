@@ -2493,11 +2493,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   // build the menu
   self->priv->bars_menu=GTK_COMBO_BOX(gtk_combo_box_new());
-#ifndef HAVE_GTK_2_12
-  gtk_tooltips_set_tip(tips,GTK_WIDGET(self->priv->bars_menu),_("Show every n-th line"),NULL);
-#else
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->bars_menu),_("Show every n-th line"));
-#endif
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,"text", 0,NULL);
@@ -2609,11 +2605,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
 
   // build label menu
   self->priv->label_menu=GTK_COMBO_BOX(gtk_combo_box_new());
-#ifndef HAVE_GTK_2_12
-  gtk_tooltips_set_tip(tips,GTK_WIDGET(self->priv->label_menu),_("Browse to labels in the sequence"),NULL);
-#else
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->label_menu),_("Browse to labels in the sequence"));
-#endif
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,FALSE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_POSSTR,NULL);

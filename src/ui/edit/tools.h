@@ -34,4 +34,19 @@ extern gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,c
 /* gtk toolbar helper */
 extern GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name);
 
+/* gtk+ compatibillity */
+
+#ifndef HAVE_GTK_2_12
+
+#define gtk_widget_set_tooltip_text(widget,text) \
+    gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,text,NULL)
+
+#define gtk_tool_item_set_tooltip_text(widget,text) \
+    gtk_tool_item_set_tooltip(widget,GTK_TOOLTIPS(tips),text,NULL)
+
+#define gtk_menu_tool_button_set_arrow_tooltip_text(widget,text) \
+    gtk_menu_tool_button_set_arrow_tooltip(widget,GTK_TOOLTIPS(tips),text,NULL)
+    
+#endif
+
 #endif // BT_EDIT_TOOLS_H

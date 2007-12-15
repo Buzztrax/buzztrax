@@ -1,5 +1,19 @@
 2007-12-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	  Better way to support the depreacated tooltips API on older gtk+.
+
+2007-12-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/persistence.c:
 	* src/ui/edit/main-page-patterns.c:
