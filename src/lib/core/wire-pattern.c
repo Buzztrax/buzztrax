@@ -202,7 +202,7 @@ BtWirePattern *bt_wire_pattern_new(const BtSong * const song, const BtWire * con
     goto Error;
   }
   // add the pattern to the wire
-  //bt_wire_add_pattern(wire,self);
+  bt_wire_add_wire_pattern(wire,pattern,self);
   return(self);
 Error:
   g_object_try_unref(self);
@@ -422,25 +422,23 @@ gboolean bt_wire_pattern_blend_full(const BtWirePattern * const self, const gulo
 //-- io interface
 
 static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
-  //const BtWirePattern * const self = BT_WIRE_PATTERN(persistence);
-  //gchar *id;
+  const BtWirePattern * const self = BT_WIRE_PATTERN(persistence);
+  gchar *id;
   xmlNodePtr node=NULL;
+  xmlNodePtr child_node,child_node2;
 
   GST_DEBUG("PERSISTENCE::wire-pattern");
 
-  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wire-pattern"),NULL))) {
-#if 0
-    gulong i,j,k;
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("pattern"),NULL))) {
+    gulong i,k;
     gchar *value;
-    xmlNodePtr child_node,child_node2;
-
-    xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
-    xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
-    xmlNewProp(node,XML_CHAR_PTR("length"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->length)));
-
-    g_object_get(G_OBJECT(self->priv->machine),"id",&id,NULL);
-    xmlNewProp(node,XML_CHAR_PTR("machine"),XML_CHAR_PTR(id));
+    BtWire *wire;
+    
+    g_object_get(G_OBJECT(self->priv->pattern),"id",&id,NULL);
+    xmlNewProp(node,XML_CHAR_PTR("pattern"),XML_CHAR_PTR(id));
     g_free(id);
+
+    g_object_get(G_OBJECT(self),"wire",&wire,NULL);
 
     // save pattern data
     for(i=0;i<self->priv->length;i++) {
@@ -449,27 +447,16 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
         child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tick"),NULL);
         xmlNewProp(child_node,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
         // save tick data
-        for(k=0;k<self->priv->global_params;k++) {
-          if((value=bt_wire_pattern_get_global_event(self,i,k))) {
-            child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("globaldata"),NULL);
-            xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_machine_get_global_param_name(self->priv->machine,k)));
+        for(k=0;k<self->priv->num_params;k++) {
+          if((value=bt_wire_pattern_get_event(self,i,k))) {
+            child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("wiredata"),NULL);
+            xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_wire_get_param_name(wire,k)));
             xmlNewProp(child_node2,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));g_free(value);
-          }
-        }
-        for(j=0;j<self->priv->voices;j++) {
-          const gchar * const voice_str=bt_persistence_strfmt_ulong(j);
-          for(k=0;k<self->priv->voice_params;k++) {
-            if((value=bt_wire_pattern_get_voice_event(self,i,j,k))) {
-              child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("voicedata"),NULL);
-              xmlNewProp(child_node2,XML_CHAR_PTR("voice"),XML_CHAR_PTR(voice_str));
-              xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_machine_get_voice_param_name(self->priv->machine,k)));
-              xmlNewProp(child_node2,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));g_free(value);
-            }
           }
         }
       }
     }
-#endif
+    g_object_unref(wire);
   }
   return(node);
 }
@@ -477,23 +464,32 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
 static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
   const BtWirePattern * const self = BT_WIRE_PATTERN(persistence);
   gboolean res=FALSE;
-#if 0
-  xmlChar *id,*name,*length_str,*tick_str,*value,*voice_str;
-  glong tick,voice,param;
-  gulong length;
+  xmlChar *name,*pattern_id,*tick_str,*value;
+  gulong tick,param;
+  BtPattern *pattern;
+  BtMachine *dst_machine;
+  BtWire *wire;
   xmlNodePtr child_node;
   GError *error=NULL;
-#endif
 
   GST_DEBUG("PERSISTENCE::wire-pattern");
   g_assert(node);
-
+  
+  pattern_id=xmlGetProp(node,XML_CHAR_PTR("pattern"));
+  g_object_get(self->priv->wire,"dst",&dst_machine,NULL);
+  pattern=bt_machine_get_pattern_by_id(dst_machine,(gchar *)pattern_id);
+  g_object_set(G_OBJECT(self),"pattern",pattern,NULL);
+  xmlFree(pattern_id);
+  g_object_unref(pattern);g_object_unref(dst_machine);
+  
   if(!bt_wire_pattern_init_data(self)) {
-    GST_WARNING("Can't init pattern data");
+    GST_WARNING("Can't init wire-pattern data");
     goto Error;
   }
-#if 0
-  // load wire-pattern data
+  
+  g_object_get(G_OBJECT(self),"wire",&wire,NULL);
+  
+  // load pattern data
   for(node=node->children;node;node=node->next) {
     if((!xmlNodeIsText(node)) && (!strncmp((gchar *)node->name,"tick\0",5))) {
       tick_str=xmlGetProp(node,XML_CHAR_PTR("time"));
@@ -504,30 +500,16 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
           name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
           value=xmlGetProp(child_node,XML_CHAR_PTR("value"));
           //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
-          if(!strncmp((char *)child_node->name,"globaldata\0",11)) {
-            param=bt_wire_pattern_get_global_param_index(self,(gchar *)name,&error);
+          if(!strncmp((char *)child_node->name,"wiredata\0",9)) {
+            param=bt_wire_get_param_index(wire,(gchar *)name,&error);
             if(!error) {
-              bt_wire_pattern_set_global_event(self,tick,param,(gchar *)value);
+              bt_wire_pattern_set_event(self,tick,param,(gchar *)value);
             }
             else {
-              GST_WARNING("error while loading global pattern data at tick %d, param %d: %s",tick,param,error->message);
+              GST_WARNING("error while loading wire pattern data at tick %d, param %d: %s",tick,param,error->message);
               g_error_free(error);error=NULL;
               BT_PERSISTENCE_ERROR(Error);
-            }
-          }
-          else if(!strncmp((char *)child_node->name,"voicedata\0",10)) {
-            voice_str=xmlGetProp(child_node,XML_CHAR_PTR("voice"));
-            voice=atol((char *)voice_str);
-            param=bt_wire_pattern_get_voice_param_index(self,(gchar *)name,&error);
-            if(!error) {
-              bt_wire_pattern_set_voice_event(self,tick,voice,param,(gchar *)value);
-            }
-            else {
-              GST_WARNING("error while loading voice pattern data at tick %d, param %d, voice %d: %s",tick,param,voice,error->message);
-              g_error_free(error);error=NULL;
-              BT_PERSISTENCE_ERROR(Error);
-            }
-            xmlFree(voice_str);
+            }  
           }
           xmlFree(name);
 	      xmlFree(value);
@@ -536,10 +518,9 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
       xmlFree(tick_str);
     }
   }
-#endif
-
   res=TRUE;
 Error:
+  g_object_unref(wire);
   return(res);
 }
 
@@ -694,14 +675,14 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
                                      "wire construct prop",
                                      "Wire object, the wire-pattern belongs to",
                                      BT_TYPE_WIRE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_PATTERN_PATTERN,
                                   g_param_spec_object("pattern",
                                      "pattern construct prop",
                                      "Pattern object, the wire-pattern belongs to",
                                      BT_TYPE_PATTERN, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_wire_pattern_get_type(void) {

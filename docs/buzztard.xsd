@@ -89,7 +89,6 @@
       </xsd:sequence>
       <xsd:attribute ref="id" use="required"/>
       <xsd:attribute ref="name" use="required"/>
-      <xsd:attribute ref="machine" use="required"/>
       <xsd:attribute ref="length" use="required"/>
     </xsd:complexType>
   </xsd:element>

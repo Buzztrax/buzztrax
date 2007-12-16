@@ -28,11 +28,17 @@
 extern BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine);
 
 extern gboolean bt_wire_reconnect(BtWire *self);
-extern BtWirePattern *bt_wire_get_pattern(const BtWire * const self, BtPattern *pattern);
 
+extern void bt_wire_add_wire_pattern(const BtWire * const self, const BtPattern * const pattern, const BtWirePattern * const wire_pattern);
+extern BtWirePattern *bt_wire_get_pattern(const BtWire * const self, const BtPattern * const pattern);
+
+extern glong bt_wire_get_param_index(const BtWire *const self, const gchar * const name, GError **error);
 extern GParamSpec *bt_wire_get_param_spec(const BtWire * const self, const gulong index);
 extern GType bt_wire_get_param_type(const BtWire * const self, const gulong index);
+const gchar *bt_wire_get_param_name(const BtWire * const self, const gulong index);
 extern void bt_wire_get_param_details(const BtWire * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
+
+//void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value);
 
 extern GList *bt_wire_get_element_list(const BtWire *self);
 extern void bt_wire_dbg_print_parts(const BtWire *self);

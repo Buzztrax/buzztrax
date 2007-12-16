@@ -7,16 +7,6 @@ when releasing do:
   * cd po;intltool-update -M
   * make dist
 
-* how do we implement multiple voices per machine?
-  * simulate
-    * source
-      * separate instances that are mixed together
-    * processors (e.g. multi-tap delay)
-      * separate instances that are getting the same input
-        and that are mixed together in the end
-  * natively
-    * instrument interface
-
 * gobject private members
   * we need guidelines for use of ->priv,
     when make members private, when public
@@ -36,4 +26,5 @@ when releasing do:
     mcstrip tools.c | cyclo -c | sort -k2 -n
 
 * quality checks
-for file in src/lib/core/*.c; do gtkdoc-depscan -v --book gstreamer-0.10:0.10.8 $file; done
+  for file in src/lib/core/*.c; do gtkdoc-depscan -v --book gstreamer-0.10:0.10.8 $file; done
+

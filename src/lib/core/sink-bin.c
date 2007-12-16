@@ -39,6 +39,7 @@
  *   notify
  * - we could implement the child-bin iface and add song-info as a child, in
  *   song-info we make tempo controlable
+ * - master-volume is difficult, as it is not in the bin.
  *
  * @todo: for upnp it would be nice to stream on-demand
  */

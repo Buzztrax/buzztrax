@@ -851,8 +851,7 @@ gboolean bt_pattern_blend_full(const BtPattern * const self, const gulong start_
 //-- io interface
 
 static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
-  const BtPattern * const self = BT_PATTERN(persistence);
-  gchar *id;
+  const BtPattern * const self = BT_PATTERN(persistence);;
   xmlNodePtr node=NULL;
   xmlNodePtr child_node,child_node2;
 
@@ -865,18 +864,10 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
     gulong i,j,k;
     gchar *value;
 
-    //id=g_alloca(strlen(machine_id)+strlen(name)+2);
-    //g_sprintf(id,"%s_%s",machine_id,name);
-    //g_object_set(G_OBJECT(pattern),"id",id,NULL);
-
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
     xmlNewProp(node,XML_CHAR_PTR("length"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->length)));
-
-    g_object_get(G_OBJECT(self->priv->machine),"id",&id,NULL);
-    xmlNewProp(node,XML_CHAR_PTR("machine"),XML_CHAR_PTR(id));
-    g_free(id);
-
+    
     // save pattern data
     for(i=0;i<self->priv->length;i++) {
       // check if there are any GValues stored ?
@@ -916,7 +907,7 @@ static gboolean bt_pattern_persistence_load(const BtPersistence * const persiste
   gulong length;
   xmlNodePtr child_node;
   GError *error=NULL;
-
+    
   GST_DEBUG("PERSISTENCE::pattern");
   g_assert(node);
 
@@ -931,7 +922,7 @@ static gboolean bt_pattern_persistence_load(const BtPersistence * const persiste
     GST_WARNING("Can't init pattern data");
     goto Error;
   }
-
+  
   // load pattern data
   for(node=node->children;node;node=node->next) {
     if((!xmlNodeIsText(node)) && (!strncmp((gchar *)node->name,"tick\0",5))) {

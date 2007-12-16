@@ -118,7 +118,9 @@ struct _BtWirePrivate {
   GList *analyzers;
 };
 
-static GObjectClass *bt_wire_parent_class=NULL;
+static GQuark error_domain=0;
+
+static GObjectClass *parent_class=NULL;
 
 // macros
 
@@ -722,6 +724,19 @@ gboolean bt_wire_reconnect(BtWire * const self) {
 }
 
 /**
+ * bt_wire_add_wire_pattern:
+ * @self: the wire to add the wire-pattern to
+ * @pattern: the pattern that the wire-pattern is associated with
+ * @wire_pattern: the new wire-pattern instance
+ *
+ * Add the supplied wire-pattern to the wire. This is automatically done by
+ * #bt_wire_pattern_new().
+ */
+void bt_wire_add_wire_pattern (const BtWire * const self, const BtPattern * const pattern, const BtWirePattern * const wire_pattern) {
+  g_hash_table_insert(self->priv->patterns,(gpointer)pattern,(gpointer)g_object_ref(G_OBJECT(wire_pattern)));
+}
+
+/**
  * bt_wire_get_pattern:
  * @self: the wire that has the pattern
  * @pattern: the pattern that the wire-pattern is associated with
@@ -730,15 +745,51 @@ gboolean bt_wire_reconnect(BtWire * const self) {
  *
  * Returns: a reference to the wire-pattern, unref when done.
  */
-BtWirePattern *bt_wire_get_pattern(const BtWire * const self, BtPattern *pattern) {
+BtWirePattern *bt_wire_get_pattern(const BtWire * const self, const BtPattern * const pattern) {
   BtWirePattern *wire_pattern;
 
-  if(!(wire_pattern=g_hash_table_lookup(self->priv->patterns,pattern))) {
-    GST_INFO("make new wire-pattern");
-    wire_pattern=bt_wire_pattern_new(self->priv->song, self, pattern);
-    g_hash_table_insert(self->priv->patterns,pattern,wire_pattern);
+  if((wire_pattern=g_hash_table_lookup(self->priv->patterns,pattern))) {
+    g_object_ref(wire_pattern);
   }
-  return(g_object_ref(wire_pattern));
+  return(wire_pattern);
+}
+
+/**
+ * bt_wire_get_param_index:
+ * @self: the wire to search for the param
+ * @name: the name of the param
+ * @error: the location of an error instance to fill with a message, if an error occures
+ *
+ * Searches the list of registered param of a wire for a param of
+ * the given name and returns the index if found.
+ *
+ * Returns: the index or sets error if it is not found and returns -1.
+ */
+glong bt_wire_get_param_index(const BtWire *const self, const gchar * const name, GError **error) {
+  glong ret=-1,i;
+  gboolean found=FALSE;
+
+  g_return_val_if_fail(BT_IS_WIRE(self),-1);
+  g_return_val_if_fail(BT_IS_STRING(name),-1);
+  g_return_val_if_fail(error == NULL || *error == NULL, -1);
+
+  for(i=0;i<self->priv->num_params;i++) {
+    if(!strcmp(WIRE_PARAM_NAME(i),name)) {
+      ret=i;
+      found=TRUE;
+      break;
+    }
+  }
+  if(!found) {
+    GST_WARNING("wire param for name %s not found", name);
+    if(error) {
+      g_set_error (error, error_domain, /* errorcode= */0,
+                  "wire param for name %s not found", name);
+    }
+  }
+  //g_assert((found || (error && *error)));
+  g_assert(((found && (ret>=0)) || ((ret==-1) && ((error && *error) || !error))));
+  return(ret);
 }
 
 /**
@@ -767,7 +818,26 @@ GParamSpec *bt_wire_get_param_spec(const BtWire * const self, const gulong index
  * Returns: the requested GType
  */
 GType bt_wire_get_param_type(const BtWire * const self, const gulong index) {
+  g_return_val_if_fail(BT_IS_WIRE(self),G_TYPE_INVALID);
+  g_return_val_if_fail(index<self->priv->num_params,G_TYPE_INVALID);
+
   return(WIRE_PARAM_TYPE(index));
+}
+
+/**
+ * bt_wire_get_param_name:
+ * @self: the wire to get the param name from
+ * @index: the offset in the list of params
+ *
+ * Gets the param name. Do not modify returned content.
+ *
+ * Returns: the requested name
+ */
+const gchar *bt_wire_get_param_name(const BtWire * const self, const gulong index) {
+  g_return_val_if_fail(BT_IS_WIRE(self),NULL);
+  g_return_val_if_fail(index<self->priv->num_params,NULL);
+
+  return(WIRE_PARAM_NAME(index));
 }
 
 /**
@@ -806,28 +876,28 @@ void bt_wire_get_param_details(const BtWire * const self, const gulong index, GP
       case G_TYPE_INT: {
         const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
         if(min_val) g_value_set_int(*min_val,int_property->minimum);
-        if(max_val) g_value_set_int(*max_val,int_property->minimum);
+        if(max_val) g_value_set_int(*max_val,int_property->maximum);
       } break;
       case G_TYPE_UINT: {
         const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
         if(min_val) g_value_set_uint(*min_val,uint_property->minimum);
-        if(max_val) g_value_set_uint(*max_val,uint_property->minimum);
+        if(max_val) g_value_set_uint(*max_val,uint_property->maximum);
       } break;
       case G_TYPE_FLOAT: {
         const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
         if(min_val) g_value_set_float(*min_val,float_property->minimum);
-        if(max_val) g_value_set_float(*max_val,float_property->minimum);
+        if(max_val) g_value_set_float(*max_val,float_property->maximum);
       } break;
       case G_TYPE_DOUBLE: {
         const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
         if(min_val) g_value_set_double(*min_val,double_property->minimum);
-        if(max_val) g_value_set_double(*max_val,double_property->minimum);
+        if(max_val) g_value_set_double(*max_val,double_property->maximum);
       } break;
       case G_TYPE_ENUM: {
         const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
         const GEnumClass *enum_class=enum_property->enum_class;
         if(min_val) g_value_set_enum(*min_val,enum_class->minimum);
-        if(max_val) g_value_set_enum(*max_val,enum_class->minimum);
+        if(max_val) g_value_set_enum(*max_val,enum_class->maximum);
       } break;
       default:
         GST_ERROR("unsupported GType=%d:'%s' ('%s')",property->value_type,g_type_name(property->value_type),g_type_name(base_type));
@@ -848,7 +918,6 @@ void bt_wire_get_param_details(const BtWire * const self, const gulong index, GP
  */
 void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value) {
   GObject *param_parent;
-  gchar *name;
 #ifdef HAVE_GST_0_10_14
   GstControlSource *cs;
 #endif
@@ -859,12 +928,10 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
   switch(param) {
     case 0:
       param_parent=G_OBJECT(self->priv->machines[PART_GAIN]);
-      name="volume";
       break;
     /*
     case 1:
       param_parent=G_OBJECT(self->priv->machines[PART_PAN]);
-      name="panorama";
       break,
     */
   }
@@ -875,7 +942,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
     // check if the property is alredy controlled
     if(self->priv->wire_controller[param]) {
 #ifdef HAVE_GST_0_10_14
-      if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],name))) {
+      if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
         if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
           add=FALSE;
         }
@@ -883,26 +950,26 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
       }
 #else
       GList *values;
-      if((values=(GList *)gst_controller_get_all(self->priv->global_controller,name))) {
+      if((values=(GList *)gst_controller_get_all(self->priv->global_controller,WIRE_PARAM_NAME(param)))) {
         add=FALSE;
         g_list_free(values);
       }
 #endif
     }
     if(add) {
-      GstController *ctrl=bt_wire_activate_controller(param_parent, name, FALSE);
+      GstController *ctrl=bt_wire_activate_controller(param_parent, WIRE_PARAM_NAME(param), FALSE);
 
       g_object_try_unref(self->priv->wire_controller[param]);
       self->priv->wire_controller[param]=ctrl;
     }
     //GST_INFO("set wire controller: %"GST_TIME_FORMAT" param %d:%s",GST_TIME_ARGS(timestamp),param,name);
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],name))) {
+    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
       gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
       g_object_unref(cs);
     }
 #else
-    gst_controller_set(self->priv->wire_controller[param],name,timestamp,value);
+    gst_controller_set(self->priv->wire_controller[param],WIRE_PARAM_NAME(param),timestamp,value);
 #endif
   }
   else {
@@ -910,17 +977,17 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
 
     //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],name))) {
+    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
       gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
       g_object_unref(cs);
     }
 #else
-    gst_controller_unset(self->priv->wire_controller[param],name,timestamp);
+    gst_controller_unset(self->priv->wire_controller[param],WIRE_PARAM_NAME(param),timestamp);
 #endif
 
     // check if the property is not having control points anymore
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],name))) {
+    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
       if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
         remove=FALSE;
       }
@@ -928,7 +995,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
     }
 #else
     GList *values;
-    if((values=(GList *)gst_controller_get_all(self->priv->wire_controller[param],name))) {
+    if((values=(GList *)gst_controller_get_all(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
       //if(g_list_length(values)>0) {
         remove=FALSE;
       //}
@@ -936,7 +1003,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
     }
 #endif
     if(remove) {
-      bt_wire_deactivate_controller(param_parent, name);
+      bt_wire_deactivate_controller(param_parent, WIRE_PARAM_NAME(param));
     }
   }
 }
@@ -995,12 +1062,22 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
     xmlNewProp(node,XML_CHAR_PTR("dst"),XML_CHAR_PTR(id));
     g_free(id);
 
+    xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double(self->priv->gain)));
+    // @todo: handle pan
+    
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
       if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
     }
     else goto Error;
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("patterns"),NULL))) {
+      GList *list=NULL;
+      
+      g_hash_table_foreach(self->priv->patterns,bt_persistence_collect_hashtable_entries,(gpointer)&list);
+      bt_persistence_save_list(list,child_node);
+      g_list_free(list);
+    }
+    else goto Error;
     
-    xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double(self->priv->gain)));
   }
 Error:
   return(node);
@@ -1011,6 +1088,7 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
   BtSetup * const setup;
   xmlChar *id, *gain;
   gboolean res=FALSE;
+  xmlNodePtr child_node;
 
   GST_DEBUG("PERSISTENCE::wire");
   g_assert(node);
@@ -1033,19 +1111,37 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
   }
   // @todo: handle pan
   
-  for(node=node->children;node;node=node->next) {
-    if(!xmlNodeIsText(node)) {
-      if(!strncmp((gchar *)node->name,"properties\0",11)) {
-        bt_persistence_load_hashtable(self->priv->properties,node);
-      }
-    }
-  }
-
   // this is simillar to the code in the constructor
   if(bt_wire_connect(self)) {
     bt_setup_add_wire(setup,self);
     res=TRUE;
   }
+  
+  for(node=node->children;node;node=node->next) {
+    if(!xmlNodeIsText(node)) {
+      if(!strncmp((gchar *)node->name,"properties\0",11)) {
+        bt_persistence_load_hashtable(self->priv->properties,node);
+      }
+      else if(!strncmp((gchar *)node->name,"patterns\0",9)) {
+        BtWirePattern *wire_pattern;
+  
+        for(child_node=node->children;child_node;child_node=child_node->next) {
+          if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"pattern\0",8))) {
+            wire_pattern=BT_WIRE_PATTERN(g_object_new(BT_TYPE_WIRE_PATTERN,"song",self->priv->song,"wire",self,NULL));
+            if(bt_persistence_load(BT_PERSISTENCE(wire_pattern),child_node,NULL)) {
+              BtPattern *pattern;
+  
+              g_object_get(wire_pattern,"pattern",&pattern,NULL);
+              bt_wire_add_wire_pattern(self,pattern,wire_pattern);
+              g_object_unref(pattern);
+            }
+            g_object_unref(wire_pattern);
+          }
+        }
+      }
+    }
+  }
+
   g_object_unref(setup);
   return(res);
 }
@@ -1062,7 +1158,7 @@ static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer 
 //-- class internals
 
 static GObject* bt_wire_constructor(GType type, guint n_construct_properties, GObjectConstructParam *construct_properties) {
-  BtWire * const self=BT_WIRE(G_OBJECT_CLASS(bt_wire_parent_class)->constructor(type,n_construct_properties,construct_properties));
+  BtWire * const self=BT_WIRE(G_OBJECT_CLASS(parent_class)->constructor(type,n_construct_properties,construct_properties));
   
   GST_INFO("wire constructor, self->priv=%p, between %p and %p",self->priv,self->priv->src,self->priv->dst);
   if(self->priv->src && self->priv->dst) {
@@ -1217,7 +1313,7 @@ static void bt_wire_dispose(GObject * const object) {
     self->priv->src,(self->priv->src?(G_OBJECT(self->priv->src))->ref_count:-1));
   g_object_try_unref(self->priv->src);
 
-  G_OBJECT_CLASS(bt_wire_parent_class)->dispose(object);
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_wire_finalize(GObject * const object) {
@@ -1228,7 +1324,7 @@ static void bt_wire_finalize(GObject * const object) {
   g_hash_table_destroy(self->priv->properties);
   g_hash_table_destroy(self->priv->patterns);
 
-  G_OBJECT_CLASS(bt_wire_parent_class)->finalize(object);
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_wire_init(BtWire *self) {
@@ -1245,7 +1341,9 @@ static void bt_wire_init(BtWire *self) {
 static void bt_wire_class_init(BtWireClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  bt_wire_parent_class=g_type_class_peek_parent(klass);
+  // @idea: g_type_qname(BT_TYPE_WIRE);
+  error_domain=g_quark_from_static_string("BtWire");
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWirePrivate));
 
   gobject_class->constructor  = bt_wire_constructor;

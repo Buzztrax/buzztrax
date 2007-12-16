@@ -427,7 +427,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     
     switch (group->type) {
       case 0: {
-        bt_wire_get_param_spec(group->user_data, self->priv->cursor_param);
+        property=bt_wire_get_param_spec(group->user_data, self->priv->cursor_param);
       } break;
       case 1: {
         BtMachine *machine;
@@ -1510,8 +1510,10 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
   switch (group->type) {
     case 0: {
       BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
-      str=bt_wire_pattern_get_event(wire_pattern,row,param);
-      g_object_unref(wire_pattern);
+      if(wire_pattern) {
+        str=bt_wire_pattern_get_event(wire_pattern,row,param);
+        g_object_unref(wire_pattern);
+      }
     } break;
     case 1:
       str=bt_pattern_get_global_event(self->priv->pattern,row,param);
@@ -1548,6 +1550,13 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   switch (group->type) {
     case 0: {
       BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
+      if(!wire_pattern) {
+        BtSong *song;
+        
+        g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+        wire_pattern=bt_wire_pattern_new(song,group->user_data,self->priv->pattern);
+        g_object_unref(song);
+      }
       bt_wire_pattern_set_event(wire_pattern,row,param,str);
       g_object_unref(wire_pattern);
     } break;
@@ -1757,6 +1766,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       GST_INFO("wire parameters");
       for(node=wires;node;node=g_list_next(node)) {
         BtMachine *src=NULL;
+
         wire=BT_WIRE(node->data);
         // check wire config
         g_object_get(G_OBJECT(wire),"num-params",&wire_params,"src",&src,NULL);
@@ -1769,6 +1779,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
           bt_wire_get_param_details(wire,i,&property,&min_val,&max_val);
           pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val);
         }
+        g_object_unref(src);
         g_object_unref(wire);
         group++;
       }

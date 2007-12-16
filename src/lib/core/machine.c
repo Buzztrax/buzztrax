@@ -1813,10 +1813,12 @@ glong bt_machine_get_global_param_index(const BtMachine *const self, const gchar
       break;
     }
   }
-  if(!found && error) {
+  if(!found) {
     GST_WARNING("global param for name %s not found", name);
-    g_set_error (error, error_domain, /* errorcode= */0,
-                "global param for name %s not found", name);
+    if(error) {
+      g_set_error (error, error_domain, /* errorcode= */0,
+                  "global param for name %s not found", name);
+    }
   }
   //g_assert((found || (error && *error)));
   g_assert(((found && (ret>=0)) || ((ret==-1) && ((error && *error) || !error))));
@@ -1849,10 +1851,12 @@ glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar
       break;
     }
   }
-  if(!found && error) {
+  if(!found) {
     GST_WARNING("voice param for name %s not found", name);
-    g_set_error (error, error_domain, /* errorcode= */0,
-                "voice param for name %s not found", name);
+    if(error) {
+      g_set_error (error, error_domain, /* errorcode= */0,
+                  "voice param for name %s not found", name);
+    }
   }
   g_assert(((found && (ret>=0)) || ((ret==-1) && ((error && *error) || !error))));
   return(ret);
@@ -2039,28 +2043,28 @@ static void bt_machine_get_param_details(const BtMachine * const self, GParamSpe
         case G_TYPE_INT: {
           const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
           if(min_val) g_value_set_int(*min_val,int_property->minimum);
-          if(max_val) g_value_set_int(*max_val,int_property->minimum);
+          if(max_val) g_value_set_int(*max_val,int_property->maximum);
         } break;
         case G_TYPE_UINT: {
           const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
           if(min_val) g_value_set_uint(*min_val,uint_property->minimum);
-          if(max_val) g_value_set_uint(*max_val,uint_property->minimum);
+          if(max_val) g_value_set_uint(*max_val,uint_property->maximum);
         } break;
         case G_TYPE_FLOAT: {
           const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
           if(min_val) g_value_set_float(*min_val,float_property->minimum);
-          if(max_val) g_value_set_float(*max_val,float_property->minimum);
+          if(max_val) g_value_set_float(*max_val,float_property->maximum);
         } break;
         case G_TYPE_DOUBLE: {
           const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
           if(min_val) g_value_set_double(*min_val,double_property->minimum);
-          if(max_val) g_value_set_double(*max_val,double_property->minimum);
+          if(max_val) g_value_set_double(*max_val,double_property->maximum);
         } break;
         case G_TYPE_ENUM: {
           const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
           const GEnumClass *enum_class=enum_property->enum_class;
           if(min_val) g_value_set_enum(*min_val,enum_class->minimum);
-          if(max_val) g_value_set_enum(*max_val,enum_class->minimum);
+          if(max_val) g_value_set_enum(*max_val,enum_class->maximum);
         } break;
         default:
           GST_ERROR("unsupported GType=%d:'%s' ('%s')",property->value_type,g_type_name(property->value_type),g_type_name(base_type));
@@ -2119,8 +2123,8 @@ void bt_machine_get_voice_param_details(const BtMachine * const self, const gulo
  * Returns: the requested GType
  */
 GType bt_machine_get_global_param_type(const BtMachine * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),0);
-  g_return_val_if_fail(index<self->priv->global_params,0);
+  g_return_val_if_fail(BT_IS_MACHINE(self),G_TYPE_INVALID);
+  g_return_val_if_fail(index<self->priv->global_params,G_TYPE_INVALID);
 
   return(GLOBAL_PARAM_TYPE(index));
 }
@@ -2135,8 +2139,8 @@ GType bt_machine_get_global_param_type(const BtMachine * const self, const gulon
  * Returns: the requested GType
  */
 GType bt_machine_get_voice_param_type(const BtMachine * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),0);
-  g_return_val_if_fail(index<self->priv->voice_params,0);
+  g_return_val_if_fail(BT_IS_MACHINE(self),G_TYPE_INVALID);
+  g_return_val_if_fail(index<self->priv->voice_params,G_TYPE_INVALID);
 
   return(VOICE_PARAM_TYPE(index));
 }
@@ -2631,17 +2635,6 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
 
 //-- io interface
 
-/*
- * persistence_save_control_data_entries:
- *
- * Save single controller assignments.
- */
-static void persistence_collect_control_data_entries(gpointer const key, gpointer const value, gpointer const user_data) {
-  GList **list=(GList **)user_data;
-
-  *list=g_list_prepend(*list,value);
-}
-
 static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persistence, const xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
   const BtMachine * const self = BT_MACHINE(persistence);
   GstObject *machine,*machine_voice;
@@ -2707,7 +2700,7 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
         gchar *device_name,*control_name;
         xmlNodePtr sub_node;
 
-        g_hash_table_foreach(self->priv->control_data,persistence_collect_control_data_entries,(gpointer)&list);
+        g_hash_table_foreach(self->priv->control_data,bt_persistence_collect_hashtable_entries,(gpointer)&list);
 
         for(lnode=list;lnode;lnode=g_list_next(lnode)) {
           data=(BtControlData *)lnode->data;
@@ -3189,6 +3182,7 @@ static void bt_machine_init(GTypeInstance * const instance, gconstpointer g_clas
 static void bt_machine_class_init(BtMachineClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
+  // @idea: g_type_qname(BT_TYPE_WIRE);
   error_domain=g_quark_from_static_string("BtMachine");
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePrivate));

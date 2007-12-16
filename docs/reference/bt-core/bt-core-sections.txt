@@ -156,6 +156,7 @@ bt_persistence_strfmt_long
 bt_persistence_strfmt_ulong
 bt_persistence_strfmt_double
 bt_persistence_save_list
+bt_persistence_collect_hashtable_entries
 bt_persistence_save_hashtable
 bt_persistence_load_hashtable
 bt_persistence_set_value
@@ -547,9 +548,12 @@ BtWavetablePrivate
 BtWire
 bt_wire_new
 bt_wire_reconnect
+bt_wire_add_wire_pattern
 bt_wire_get_pattern
+bt_wire_get_param_index
 bt_wire_get_param_spec
 bt_wire_get_param_type
+bt_wire_get_param_name
 bt_wire_get_param_details
 <SUBSECTION Standard>
 BtWireClass

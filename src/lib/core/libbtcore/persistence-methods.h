@@ -40,6 +40,7 @@ extern const gchar *bt_persistence_strfmt_double(const gdouble val);
 extern gboolean bt_persistence_save_list(const GList *list, xmlNodePtr const node);
 
 // hashtable helper
+extern void bt_persistence_collect_hashtable_entries(gpointer const key, gpointer const value, gpointer const user_data);
 extern gboolean bt_persistence_save_hashtable(GHashTable *hashtable, xmlNodePtr const node);
 extern gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node);
 

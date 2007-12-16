@@ -1,9 +1,26 @@
 2007-12-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* TODO:
+	* docs/buzztard.xsd:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Fixing param range in machine window. Add persistence for wire-
+	  patterns. Add some todo comments.
+
+2007-12-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/pattern-editor.c:
 	* src/ui/edit/pattern-editor.h:
-	  Add curos-location properties to editor. Now we have the parameter
+	  Add cursor-location properties to editor. Now we have the parameter
 	  info back on the bottom-line.
 
 2007-12-15  Stefan Kost  <ensonic@users.sf.net>

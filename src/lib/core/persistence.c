@@ -134,6 +134,20 @@ gboolean bt_persistence_load_list(const GList *list,xmlNodePtr node,const gchar 
 
 //-- hashtable helper
 
+/**
+ * bt_persistence_collect_hashtable_entries:
+ * @key: hashtable key
+ * @value: hashtable value 
+ * @user_data: GList **list
+ *
+ * Gather #GHashTable entries in a list. Should be used with g_hash_table_foreach().
+ */
+void bt_persistence_collect_hashtable_entries(gpointer const key, gpointer const value, gpointer const user_data) {
+  GList **list=(GList **)user_data;
+
+  *list=g_list_prepend(*list,value);
+}
+
 static void bt_persistence_save_hashtable_entries(gpointer const key, gpointer const value, gpointer const user_data) {
   xmlNodePtr node;
 
