@@ -79,11 +79,11 @@ struct _BtMainPagePatternsPrivate {
   GtkComboBox *base_octave_menu;
 
   /* the pattern table */
-#ifdef USE_PATTERN_EDITOR
-  BtPatternEditor *pattern_table;
-#else
+#ifndef USE_PATTERN_EDITOR
   GtkTreeView *pattern_pos_table;
   GtkTreeView *pattern_table;
+#else
+  BtPatternEditor *pattern_table;
 #endif
 
   /* local commands */
@@ -99,7 +99,11 @@ struct _BtMainPagePatternsPrivate {
   GdkColor *selection_bg1,*selection_bg2;
 
   /* cursor */
+#ifndef USE_PATTERN_EDITOR
   glong cursor_column;
+#else
+  guint cursor_group, cursor_param;
+#endif
   glong cursor_row;
   /* selection range */
   glong selection_start_column;
@@ -394,8 +398,9 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     const gchar *str=BT_MAIN_STATUSBAR_DEFAULT;
 
     if(self->priv->pattern) {
-      BtMachine *machine;
       GParamSpec *property=NULL;
+#ifndef USE_PATTERN_EDITOR
+      BtMachine *machine;
       gulong global_params,voice_params,voices,col;
 
       g_object_get(self->priv->pattern,"machine",&machine,NULL);
@@ -416,12 +421,35 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
         if(col<voices*voice_params)
           property=bt_machine_get_voice_param_spec(machine,col%voice_params);
       }
-
+      g_object_unref(machine);
+#else
+    PatternColumnGroup *group = &self->priv->param_groups[self->priv->cursor_group];
+    
+    switch (group->type) {
+      case 0: {
+        bt_wire_get_param_spec(group->user_data, self->priv->cursor_param);
+      } break;
+      case 1: {
+        BtMachine *machine;
+        
+        g_object_get(self->priv->pattern,"machine",&machine,NULL);
+        property=bt_machine_get_global_param_spec(machine,self->priv->cursor_param);
+        g_object_unref(machine);
+      } break;
+      case 2: {
+        BtMachine *machine;
+        
+        g_object_get(self->priv->pattern,"machine",&machine,NULL);
+        property=bt_machine_get_voice_param_spec(machine,self->priv->cursor_param);
+        g_object_unref(machine);
+      } break;
+      default:
+        GST_WARNING("invalid column group type");
+    }
+#endif
       // get parameter description
       if(property)
         str=g_param_spec_get_blurb(property);
-
-      g_object_unref(machine);
     }
     g_object_set(statusbar,"status",str,NULL);
   }
@@ -997,6 +1025,20 @@ static void on_pattern_voice_cell_edited(GtkCellRendererText *cellrenderertext,g
   else {
     GST_WARNING("Can't get tree-model");
   }
+}
+#else
+static void on_pattern_table_cursor_group_changed(const BtPatternEditor *editor,GParamSpec *arg,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  
+  g_object_get(G_OBJECT(editor), "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
+  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
+}
+
+static void on_pattern_table_cursor_param_changed(const BtPatternEditor *editor,GParamSpec *arg,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  
+  g_object_get(G_OBJECT(editor), "cursor-param", &self->priv->cursor_param, NULL);
+  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
 }
 #endif
 
@@ -2474,7 +2516,8 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,"play-position",-1.0,NULL);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
-  //g_signal_connect(G_OBJECT(self->priv->pattern_table), "cursor-column-changed", G_CALLBACK(on_pattern_table_cursor_column_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-group", G_CALLBACK(on_pattern_table_cursor_group_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-param", G_CALLBACK(on_pattern_table_cursor_param_changed), (gpointer)self);
   gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(scrolled_window));
 #else
   self->priv->pattern_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));

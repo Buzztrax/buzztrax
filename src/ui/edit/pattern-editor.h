@@ -87,8 +87,7 @@ typedef struct _BtPatternEditor
   /* scroll location */
   // FIXME: why, gtk+ is doing the scrolling for us
   int ofs_x, ofs_y;
-  /* pattern data
-   * FIXME: need to use num_groups and PatternColumnGroup* here */
+  /* pattern data */
   int num_lines, num_groups, num_rows;
   PatternColumnGroup *groups;
   BtPatternEditorCallbacks *callbacks;

@@ -42,8 +42,6 @@
  *   - we need that to be able to control scrolling too (scroll-to-cursor)
  * - use raw-key codes for note-input (see FIXME below and
  *   main-page-pattern.c:on_pattern_table_key_release_event()
- * - a signal for column changed (group, parameter)
- *   to be able to show the parameter details in the status bar
  */
 
 #include <ctype.h>
@@ -55,7 +53,10 @@
 
 enum {
   PATTERN_EDITOR_PLAY_POSITION=1,
-  PATTERN_EDITOR_OCTAVE
+  PATTERN_EDITOR_OCTAVE,
+  PATTERN_EDITOR_CURSOR_GROUP,
+  PATTERN_EDITOR_CURSOR_PARAM,
+  PATTERN_EDITOR_CURSOR_ROW
 };
 
 //-- helper methods
@@ -528,6 +529,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       if (self->row > 0) {
         bt_pattern_editor_refresh_cursor(self);
         self->row--;
+        g_object_notify(G_OBJECT(self),"cursor-row");
         bt_pattern_editor_refresh_cursor_or_scroll(self);
       }
       return TRUE;
@@ -535,6 +537,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       if (self->row < self->num_rows - 1) {
         bt_pattern_editor_refresh_cursor(self);
         self->row++;
+        g_object_notify(G_OBJECT(self),"cursor-row");
         bt_pattern_editor_refresh_cursor_or_scroll(self);
       }
       return TRUE;
@@ -545,10 +548,13 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         PatternColumn *pc;
         if (self->parameter > 0) {
           self->parameter--;
+          g_object_notify(G_OBJECT(self),"cursor-param");
         }
         else if (self->group > 0) { 
           self->group--;
           self->parameter = self->groups[self->group].num_columns - 1;
+          /* only notify group, param will be read along anyway */
+          g_object_notify(G_OBJECT(self),"cursor-group");
         }
         else
           return FALSE;
@@ -560,12 +566,18 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     case GDK_Right:
       {
         PatternColumn *pc = cur_column (self);
-        if (self->digit < param_types[pc->type].columns - 1)
+        if (self->digit < param_types[pc->type].columns - 1) {
           self->digit++;
-        else if (self->parameter < self->groups[self->group].num_columns - 1)
-          self->parameter++, self->digit = 0;
-        else if (self->group < self->num_groups - 1)
-          self->group++, self->parameter = 0, self->digit = 0;
+        }
+        else if (self->parameter < self->groups[self->group].num_columns - 1) {
+          self->parameter++; self->digit = 0;
+          g_object_notify(G_OBJECT(self),"cursor-param");
+        }
+        else if (self->group < self->num_groups - 1) {
+          self->group++; self->parameter = 0; self->digit = 0;
+          /* only notify group, param will be read along anyway */
+          g_object_notify(G_OBJECT(self),"cursor-group");
+        }
       }
       bt_pattern_editor_refresh_cursor (self);
       return TRUE;  
@@ -573,9 +585,11 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       {
         if (self->group < self->num_groups - 1) {
           /* jump to same column when jumping from track to track, otherwise jump to first column of the group */
-          if (self->groups[self->group].type != self->groups[self->group + 1].type)
-            self->parameter = 0, self->digit = 0;
+          if (self->groups[self->group].type != self->groups[self->group + 1].type) {
+            self->parameter = 0; self->digit = 0;
+          }
           self->group++;
+          g_object_notify(G_OBJECT(self),"cursor-group");
         }
         bt_pattern_editor_refresh_cursor (self);
         return TRUE;
@@ -584,8 +598,10 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       {
         if (self->group > 0) {
           self->group--;
-          if (self->groups[self->group].type != self->groups[self->group + 1].type)
-            self->parameter = 0, self->digit = 0;
+          if (self->groups[self->group].type != self->groups[self->group + 1].type) {
+            self->parameter = 0; self->digit = 0;
+          }
+          g_object_notify(G_OBJECT(self),"cursor-group");
         }
         else /* at leftmost group, reset cursor to first column */
           self->parameter = 0, self->digit = 0;
@@ -625,6 +641,8 @@ bt_pattern_editor_button_press (GtkWidget *widget,
         self->group = g;
         self->parameter = parameter;
         self->digit = digit;
+        g_object_notify(G_OBJECT(self),"cursor-row");
+        g_object_notify(G_OBJECT(self),"cursor-group");
         bt_pattern_editor_refresh_cursor_or_scroll(self);
         return TRUE;
       }
@@ -649,7 +667,18 @@ static void bt_pattern_editor_get_property(GObject      *object,
                                GValue       *value,
                                GParamSpec   *pspec)
 {
+  BtPatternEditor *self = BT_PATTERN_EDITOR(object);
+
   switch (property_id) {
+    case PATTERN_EDITOR_CURSOR_GROUP: {
+      g_value_set_uint(value, self->group);
+    } break;
+    case PATTERN_EDITOR_CURSOR_PARAM: {
+      g_value_set_uint(value, self->parameter);
+    } break;
+    case PATTERN_EDITOR_CURSOR_ROW: {
+      g_value_set_uint(value, self->row);
+    } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -715,6 +744,33 @@ bt_pattern_editor_class_init (BtPatternEditorClass *klass)
                                      12,
                                      2,
                                      G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,PATTERN_EDITOR_CURSOR_GROUP,
+                                  g_param_spec_uint("cursor-group",
+                                     "cursor group prop.",
+                                     "The current group the cursor is in",
+                                     0,
+                                     G_MAXUINT,
+                                     0,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,PATTERN_EDITOR_CURSOR_PARAM,
+                                  g_param_spec_uint("cursor-param",
+                                     "cursor param prop.",
+                                     "The current parameter the cursor is at",
+                                     0,
+                                     G_MAXUINT,
+                                     0,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,PATTERN_EDITOR_CURSOR_ROW,
+                                  g_param_spec_uint("cursor-row",
+                                     "cursor row prop.",
+                                     "The current cursor row",
+                                     0,
+                                     G_MAXUINT,
+                                     0,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
 }
 
