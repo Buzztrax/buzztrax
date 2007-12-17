@@ -466,7 +466,6 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
   gboolean res=FALSE;
   xmlChar *name,*pattern_id,*tick_str,*value;
   gulong tick,param;
-  BtPattern *pattern;
   BtMachine *dst_machine;
   BtWire *wire;
   xmlNodePtr child_node;
@@ -477,10 +476,13 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
   
   pattern_id=xmlGetProp(node,XML_CHAR_PTR("pattern"));
   g_object_get(self->priv->wire,"dst",&dst_machine,NULL);
-  pattern=bt_machine_get_pattern_by_id(dst_machine,(gchar *)pattern_id);
-  g_object_set(G_OBJECT(self),"pattern",pattern,NULL);
+  self->priv->pattern=bt_machine_get_pattern_by_id(dst_machine,(gchar *)pattern_id);
+  //g_object_set(G_OBJECT(self),"pattern",pattern,NULL);
+  g_object_try_weak_ref(self->priv->pattern);
+  // @todo shouldn't we just listen to notify::length and resize patterns automatically
+  g_object_get(G_OBJECT(self->priv->pattern),"length",&self->priv->length,NULL);
   xmlFree(pattern_id);
-  g_object_unref(pattern);g_object_unref(dst_machine);
+  g_object_unref(dst_machine);
   
   if(!bt_wire_pattern_init_data(self)) {
     GST_WARNING("Can't init wire-pattern data");
@@ -675,14 +677,14 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
                                      "wire construct prop",
                                      "Wire object, the wire-pattern belongs to",
                                      BT_TYPE_WIRE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_PATTERN_PATTERN,
                                   g_param_spec_object("pattern",
                                      "pattern construct prop",
                                      "Pattern object, the wire-pattern belongs to",
                                      BT_TYPE_PATTERN, /* object type */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_wire_pattern_get_type(void) {

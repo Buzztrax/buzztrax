@@ -1,3 +1,9 @@
+2007-12-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire-pattern.c:
+	  Keep the pattern property construct-only and implement deserializing
+	  more efficient.
+
 2007-12-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* TODO:
