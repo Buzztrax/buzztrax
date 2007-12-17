@@ -1205,6 +1205,39 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
 #endif
 }
 
+//-- child proxy interface
+
+#if 0
+/* @todo: this only works if I turn those into GstObject */
+static GstObject *bt_song_child_proxy_get_child_by_index(GstChildProxy * child_proxy, guint index) {
+  const BtSong * const self = BT_SONG(persistence);
+  GstObject *res = NULL;
+
+  switch(index) {
+    case 0: res=self->priv->song_info;
+    case 1: res=self->priv->sequence;
+    case 2: res=self->priv->setup;
+    case 3: res=self->priv->wavtable;
+  }
+  if(res)
+    g_object_ref (res);
+  return res;
+}
+
+guint bt_song_child_proxy_get_children_count(GstChildProxy * child_proxy) {
+  return 4;
+}
+
+static void
+bt_song_child_proxy_init (gpointer g_iface, gpointer iface_data)
+{
+  GstChildProxyInterface *iface = g_iface;
+
+  iface->get_children_count = bt_song_child_proxy_get_children_count;
+  iface->get_child_by_index = bt_song_child_proxy_get_child_by_index;
+}
+#endif
+
 //-- io interface
 
 static xmlNodePtr bt_song_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
@@ -1546,9 +1579,19 @@ GType bt_song_get_type(void) {
       NULL, // interface_finalize
       NULL  // interface_data
     };
+#if 0
+    static const GInterfaceInfo child_proxy_info = {
+      (GInterfaceInitFunc) bt_song_child_proxy_init,
+      NULL,
+      NULL
+    };
+#endif
 
     type = g_type_register_static(G_TYPE_OBJECT,"BtSong",&info,0);
     g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
+#if 0
+    g_type_add_interface_static(type, GST_TYPE_CHILD_PROXY, &child_proxy_info);
+#endif
   }
   return type;
 }

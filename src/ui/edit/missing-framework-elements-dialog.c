@@ -24,7 +24,22 @@
  *
  * A dialog to inform about missing core and application elements.
  */
-
+/*
+ * @todo: support gst-codec-install
+ * Since gst-plugin-base-0.10.15 there is gst_install_plugins_supported().
+ * If is supported we could do:
+ *
+ * GstInstallPluginsReturn result;
+ * gchar *details[] = {
+ *   gst_missing_element_installer_detail_new(factory-name1),
+ *   NULL
+ * };
+ * result = gst_install_plugins_sync (details, NULL);
+ * if (result == GST_INSTALL_PLUGINS_SUCCESS ||
+ *     result == GST_INSTALL_PLUGINS_PARTIAL_SUCCESS) {
+ *   gst_update_registry ();
+ * }
+*/
 #define BT_EDIT
 #define BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG_C
 

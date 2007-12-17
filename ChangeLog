@@ -1,5 +1,14 @@
 2007-12-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Ideas about using childproxy.
+
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	  Ideas about supporting plugin-install feature.
+
+2007-12-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wire-pattern.c:
 	  Keep the pattern property construct-only and implement deserializing
 	  more efficient.
