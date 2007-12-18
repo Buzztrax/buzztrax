@@ -1,3 +1,8 @@
+2007-12-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-canvas-item.c:
+	  Howto for the wire gfx.
+
 2007-12-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:

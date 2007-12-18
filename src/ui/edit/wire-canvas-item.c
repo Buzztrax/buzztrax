@@ -36,6 +36,11 @@
  *     \ V: 100 \
  *     / P: 50L /
  *     ---------
+ *    - we would also rotate labels on the wire
+ *      http://library.gnome.org/devel/libgnomecanvas/stable/GnomeCanvasItem.html#gnome-canvas-item-affine-relative
+ *      http://www.gnome.org/~mathieu/libart/libart-affine-transformation-matrices.html
+ *      double affine[]={cos(a),-sin(a),0,sin(a),cos(a),0};
+ *      gnome_canvas_item_affine_relative(citem,double affine[6])
  * - right now a click on the triangle pops up the volume slider
  *   - it could popup a whole mixer strip
  */
