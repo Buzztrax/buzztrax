@@ -45,13 +45,19 @@ static BtMachineClass *parent_class=NULL;
 
 static void bt_sink_machine_post_init(const BtSinkMachine * const self) {
   BtSong * const song;
+  GstElement *sink_bin,*gain;
   gchar * const id;
   
   g_object_get(G_OBJECT(self),"song",&song,"id",&id,NULL);
   
   GST_DEBUG("  %s this will be the master for the song",id);
   g_object_set(G_OBJECT(song),"master",G_OBJECT(self),NULL);
+  bt_machine_enable_input_gain(BT_MACHINE(self));
+  g_object_get(G_OBJECT(self),"machine",&sink_bin,"input-gain",&gain,NULL);
+  g_object_set(sink_bin,"input-gain",gain,NULL);
   
+  gst_object_unref(sink_bin);
+  gst_object_unref(gain);
   g_object_unref(song);
   g_free(id);
 }

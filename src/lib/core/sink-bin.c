@@ -23,6 +23,7 @@
  * @short_description: bin to be used by #BtSinkMachine
  *
  * The sink-bin provides switchable play and record facillities.
+ * It also provides controlable master-volume.
  */
 
 /* @todo: detect supported encoders
@@ -34,13 +35,10 @@
  * problem here is that we need extra option for each encoder (e.g. quality)
  *
  * @todo: add properties for bpm and master volume,
- * - implementing the tempo iface here wont help
- * - we could make it a dummy property and from the song listen to property
- *   notify
- * - we could implement the child-bin iface and add song-info as a child, in
- *   song-info we make tempo controlable
- * - master-volume is difficult, as it is not in the bin.
- *
+ * - bpm
+ *   - tempo-iface is implemented, but is hidden from the ui
+ *     (the iface properties are not controlable)
+ *   - we could have separate properties and forward the changes
  * @todo: for upnp it would be nice to stream on-demand
  */
 
@@ -56,6 +54,8 @@ enum {
   SINK_BIN_MODE=1,
   SINK_BIN_RECORD_FORMAT,
   SINK_BIN_RECORD_FILE_NAME,
+  SINK_BIN_INPUT_GAIN,
+  SINK_BIN_MASTER_VOLUME,
   // tempo iface
   SINK_BIN_TEMPO_BPM,
   SINK_BIN_TEMPO_TPB,
@@ -81,7 +81,11 @@ struct _BtSinkBinPrivate {
   BtSettings *settings;
 
   gulong bus_handler_id;
-
+  
+  /* master volume */
+  G_POINTER_ALIAS(GstElement *,gain);
+  gulong mv_handler_id;
+  
   /* tempo handling */
   gulong beats_per_minute;
   gulong ticks_per_beat;
@@ -590,6 +594,12 @@ static void on_system_audio_sink_changed(const BtSettings * const settings, GPar
   g_free(plugin_name);
 }
 
+static gboolean master_volume_sync_handler(GstPad *pad,GstBuffer *buffer, gpointer user_data) {
+  BtSinkBin *self = BT_SINK_BIN(user_data);
+  
+  gst_object_sync_values(G_OBJECT(self),GST_BUFFER_TIMESTAMP(buffer));
+  return(TRUE);
+}
 //-- methods
 
 //-- wrapper
@@ -613,6 +623,18 @@ static void bt_sink_bin_get_property(GObject      * const object,
     } break;
     case SINK_BIN_RECORD_FILE_NAME: {
       g_value_set_string(value, self->priv->record_file_name);
+    } break;
+    case SINK_BIN_INPUT_GAIN: {
+      g_value_set_object(value, self->priv->gain);
+    } break;
+    case SINK_BIN_MASTER_VOLUME: {
+      if(self->priv->gain) {
+        gdouble volume;
+
+        g_object_get(self->priv->gain,"volume",&volume,NULL);
+        g_value_set_double(value,volume);
+      }
+      else g_value_set_double(value,1.0);
     } break;
 	// tempo iface
     case SINK_BIN_TEMPO_BPM:
@@ -669,6 +691,21 @@ static void bt_sink_bin_set_property(GObject      * const object,
         bt_sink_bin_update(self);
       }
     } break;
+    case SINK_BIN_INPUT_GAIN: {
+      GstPad *sink_pad;
+      
+      g_object_try_weak_unref(self->priv->gain);
+      self->priv->gain = GST_ELEMENT(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->gain);
+      sink_pad=gst_element_get_pad(self->priv->gain,"sink");
+      self->priv->mv_handler_id=gst_pad_add_buffer_probe(sink_pad,G_CALLBACK(master_volume_sync_handler),(gpointer)self);
+      gst_object_unref(sink_pad);
+    } break;
+    case SINK_BIN_MASTER_VOLUME: {
+      if(self->priv->gain) {
+        g_object_set(self->priv->gain,"volume",g_value_get_double(value),NULL);
+      }
+    } break;
 	// tempo iface
     case SINK_BIN_TEMPO_BPM:
     case SINK_BIN_TEMPO_TPB:
@@ -708,14 +745,19 @@ static void bt_sink_bin_dispose(GObject * const object) {
 
   GST_INFO("self->sink=%p, refct=%d",self->priv->sink,(G_OBJECT(self->priv->sink))->ref_count);
   gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
-
-  g_free(self->priv->record_file_name);
+ 
+  if(self->priv->mv_handler_id) {
+    GstPad *sink_pad=gst_element_get_pad(self->priv->gain,"sink");
+    
+    if(sink_pad) {
+      gst_pad_remove_buffer_probe(sink_pad,self->priv->mv_handler_id);
+      gst_object_unref(sink_pad);
+    }
+  }  
+  g_object_try_weak_unref(self->priv->gain);
 
   GST_INFO("chaining up");
-
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_INFO("done");
 }
 
@@ -723,6 +765,8 @@ static void bt_sink_bin_finalize(GObject * const object) {
   const BtSinkBin * const self = BT_SINK_BIN(object);
 
   GST_DEBUG("!!!! self=%p",self);
+
+  g_free(self->priv->record_file_name);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -784,6 +828,22 @@ static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
                                      "the file-name to use for recording",
                                      NULL, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,SINK_BIN_INPUT_GAIN,
+                                  g_param_spec_object("input-gain",
+                                     "input-gain prop",
+                                     "the input-gain element, if any",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,SINK_BIN_MASTER_VOLUME,
+                                  g_param_spec_double("master-volume",
+                                     "master volume prop",
+                                     "master volume for the song",
+                                     0.0,
+                                     10.0,
+                                     1.0,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS|GST_PARAM_CONTROLLABLE));
 }
 
 GType bt_sink_bin_get_type(void) {

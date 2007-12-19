@@ -752,16 +752,26 @@ Error:
  */
 static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMachinePart part) {
   gboolean res=FALSE;
-  GstElement *peer;
+  GstElement *peer,*target=self->priv->machines[PART_MACHINE];
+  guint i;
 
-  // is the machine unconnected towards the input side (its sink)?
-  if(!(peer=bt_machine_get_sink_peer(self->priv->machines[PART_MACHINE]))) {
-    GST_DEBUG("machine '%s' is not yet connected on the input side",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-    if(!gst_element_link(self->priv->machines[part],self->priv->machines[PART_MACHINE])) {
+  // get next element on the source side
+  for(i=part+1;i<=PART_MACHINE;i++) {
+    if(self->priv->machines[i]) {
+      target=self->priv->machines[i];
+      GST_DEBUG("src side target at %d: %s",i,GST_OBJECT_NAME(target));
+      break;
+    }
+  }
+
+  // is the machine connected towards the input side (its sink)?
+  if(!(peer=bt_machine_get_sink_peer(target))) {
+    GST_DEBUG("target '%s' is not yet connected on the input side",GST_OBJECT_NAME(target));
+    if(!gst_element_link(self->priv->machines[part],target)) {
       // DEBUG
       // bt_machine_dbg_print_parts(self);
       // bt_gst_element_dbg_pads(self->priv->machines[ part]);
-      // bt_gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);
+      // bt_gst_element_dbg_pads(target);
       // DEBUG
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
@@ -769,7 +779,7 @@ static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMach
     GST_INFO("sucessfully prepended element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
   }
   else {
-    GST_DEBUG("machine '%s' is connected to '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]),GST_OBJECT_NAME(peer));
+    GST_DEBUG("target '%s' has peer element '%s', need to inseert",GST_OBJECT_NAME(target),GST_OBJECT_NAME(peer));
     if(!bt_machine_insert_element(self,peer,part)) {
       gst_object_unref(peer);
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
@@ -791,12 +801,22 @@ Error:
  */
 static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMachinePart part) {
   gboolean res=FALSE;
-  GstElement *peer;
+  GstElement *peer,*target=self->priv->machines[PART_MACHINE];
+  guint i;
+  
+  // get next element on the sink side
+  for(i=part-1;i>=PART_MACHINE;i--) {
+    if(self->priv->machines[i]) {
+      target=self->priv->machines[i];
+      GST_DEBUG("ssink side target at %d: %s",i,GST_OBJECT_NAME(target));
+      break;
+    }
+  }
 
   // is the machine unconnected towards the output side (its source)?
-  if(!(peer=bt_machine_get_source_peer(self->priv->machines[PART_MACHINE]))) {
-    GST_DEBUG("machine '%s' is not yet connected on the output side",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-    if(!gst_element_link(self->priv->machines[PART_MACHINE],self->priv->machines[part])) {
+  if(!(peer=bt_machine_get_source_peer(target))) {
+    GST_DEBUG("target '%s' is not yet connected on the output side",GST_OBJECT_NAME(target));
+    if(!gst_element_link(target,self->priv->machines[part])) {
       // DEBUG
       // bt_machine_dbg_print_parts(self);
       // bt_gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);
@@ -808,7 +828,7 @@ static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMac
     GST_INFO("sucessfully appended element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
   }
   else {
-    GST_DEBUG("machine '%s' is connected to '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]),GST_OBJECT_NAME(peer));
+    GST_DEBUG("target '%s' has peer element '%s', need to inseert",GST_OBJECT_NAME(target),GST_OBJECT_NAME(peer));
     if(!bt_machine_insert_element(self,peer,part)) {
       gst_object_unref(peer);
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
@@ -1086,7 +1106,7 @@ static gboolean bt_machine_setup(BtMachine * const self) {
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);
-  if(!BT_IS_SINK_MACHINE(self) && !(self->priv->global_params+self->priv->voice_params)) {
+  if(!(self->priv->global_params+self->priv->voice_params)) {
     GST_WARNING("  machine %s has no params",self->priv->id);
   }
 

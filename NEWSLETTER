@@ -1,9 +1,12 @@
 2008/01 ========================================================================
 
-* new pattern widget merged
+* new pattern widget merged and alread quite usable
 * sequence editing (insert/delete)
+* add wire-parameter infrastructure (input-volume, pan/balance)
+* add master-volume to sink-bin
+
 * sources moved to svn
-* buildbot build all modules now
+* buildbot builds all modules now
 * build clean against gtk-2.12 (fixed use of deprecated api)
 
 2007/12 ========================================================================

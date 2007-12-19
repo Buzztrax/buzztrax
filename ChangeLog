@@ -1,3 +1,21 @@
+2007-12-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Gather news.
+  
+	* src/lib/core/machine.c:
+	  Improve linking elements.
+
+	* src/lib/core/sink-bin.c:
+	  Add a proxy property for master-volume and sync with sink-machines
+	  input-gain.
+	
+	* src/lib/core/sink-machine.c:
+	  Activate input-gain and pass to sink-bin for master-volume.
+	
+	* src/ui/edit/edit-application.c:
+	  We always have master-volume.
+
 2007-12-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/wire-canvas-item.c:
