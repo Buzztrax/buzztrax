@@ -37,6 +37,12 @@
  *  On the other hand this is only the case, if we do not need converters and have no volume and no monitors.
  *
  * @todo: when connecting to several wires to one src, we need queue elements at the begin of the wire
+ *
+ * - wire has a gain property that will be forwarded to machines[GAIN].volume
+ *   - it is not listening to machines[GAIN].notify::volume thus others can't
+ *   - should we do that, or instead remove the property and expose the real element
+ *   - right now its only used in main-page-machines.c::bt_main_page_machines_wire_volume_popup() and
+ *     main-page-machines.c::on_volume_popup_changed()
  */
 
 #define BT_CORE

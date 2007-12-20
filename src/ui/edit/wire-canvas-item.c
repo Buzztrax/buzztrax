@@ -86,6 +86,8 @@ struct _BtWireCanvasItemPrivate {
 
   /* the graphcal components */
   GnomeCanvasItem *line,*triangle;
+  GnomeCanvasItem *vol_label_item,*pan_label_item;
+  GtkLabel *vol_label,*pan_label;
 
   /* wire context_menu */
   GtkMenu *context_menu;
@@ -102,23 +104,33 @@ static GnomeCanvasGroupClass *parent_class=NULL;
 
 //-- helper
 
-static void wire_set_line_points(GnomeCanvasPoints *points,gdouble w,gdouble h) {
+static void wire_set_line_points(BtWireCanvasItem *self) {
+  GnomeCanvasPoints *points;
+ 
+  points=gnome_canvas_points_new(2);
   points->coords[0]=0.0;
   points->coords[1]=0.0;
-  points->coords[2]=w;
-  points->coords[3]=h;
+  points->coords[2]=self->priv->w;
+  points->coords[3]=self->priv->h;
+  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->line),"points",points,NULL);
+  gnome_canvas_points_free(points);
 }
 
 /*
  * add a triangle pointing from src to dest at the middle of the wire
  */
-static void wire_set_triangle_points(GnomeCanvasPoints *points,gdouble w,gdouble h) {
+static void wire_set_triangle_points(BtWireCanvasItem *self) {
+  GnomeCanvasPoints *points;
+  gdouble w=self->priv->w,h=self->priv->h;
   gdouble mid_x,mid_y;
-  gdouble tip_x,tip_y;
+  gdouble part_x,part_y;
+  gdouble tip1_x,tip1_y;
   gdouble base_x,base_y;
-  gdouble base1_x,base1_y;
-  gdouble base2_x,base2_y;
-  gdouble df,dx,dy,s=MACHINE_VIEW_WIRE_PAD_SIZE,sa,sb;
+  gdouble base11_x,base11_y;
+  gdouble base12_x,base12_y;
+  gdouble base21_x,base21_y;
+  gdouble base22_x,base22_y;
+  gdouble df,dx,dy,s=MACHINE_VIEW_WIRE_PAD_SIZE,s2=s+s,sa,sb;
 
   // middle of wire
   mid_x=w/2.0;
@@ -142,36 +154,76 @@ static void wire_set_triangle_points(GnomeCanvasPoints *points,gdouble w,gdouble
   else {
     dx=dy=df=0.0;
   }
+  
+  // first triangle
+  part_x=mid_x+(s2*dx);
+  part_y=mid_y+(s2*dy);
   // tip of triangle
-  tip_x=mid_x+((s+s)*dx);
-  tip_y=mid_y+((s+s)*dy);
+  tip1_x=part_x+(s2*dx);
+  tip1_y=part_y+(s2*dy);
   // intersection point of triangle base
-  base_x=mid_x-(s*dx);
-  base_y=mid_y-(s*dy);
+  base_x=part_x-(s*dx);
+  base_y=part_y-(s*dy);
   sa=3.0*s;
   sb=sa/sqrt(3.0);
   // point under the line
-  base1_x=base_x-(sb*dy);
-  base1_y=base_y+(sb*dx);
+  base11_x=base_x-(sb*dy);
+  base11_y=base_y+(sb*dx);
   // point over the line
-  base2_x=base_x+(sb*dy);
-  base2_y=base_y-(sb*dx);
-  // debug
-  /*
+  base12_x=base_x+(sb*dy);
+  base12_y=base_y-(sb*dx);
+  
+  // second triangle
+  part_x=mid_x-(s2*dx);
+  part_y=mid_y-(s2*dy);
+  // intersection point of triangle base
+  base_x=part_x-(s*dx);
+  base_y=part_y-(s*dy);
+  sa=3.0*s;
+  sb=sa/sqrt(3.0);
+  // point under the line
+  base21_x=base_x-(sb*dy);
+  base21_y=base_y+(sb*dx);
+  // point over the line
+  base22_x=base_x+(sb*dy);
+  base22_y=base_y-(sb*dx);
+  
+  /* // debug
   GST_DEBUG(" delta=%f,%f, df=%f, s=%f, sa=%f sb=%f",dx,dy,df,s,sa,sb);
   GST_DEBUG(" w/h=%f,%f",w,h);
   GST_DEBUG(" mid=%f,%f",mid_x,mid_y);
-  GST_DEBUG(" tip=%f,%f",tip_x,tip_y);
+  GST_DEBUG(" tip1=%f,%f",tip1_x,tip_y);
   GST_DEBUG(" base=%f,%f",base_x,base_y);
-  GST_DEBUG(" base1=%f,%f",base1_x,base1_y);
-  GST_DEBUG(" base2=%f,%f",base2_x,base2_y);
+  GST_DEBUG(" base1=%f,%f",base11_x,base11_y);
+  GST_DEBUG(" base2=%f,%f",base12_x,base12_y);
   */
-  points->coords[0]=tip_x;
-  points->coords[1]=tip_y;
-  points->coords[2]=base1_x;
-  points->coords[3]=base1_y;
-  points->coords[4]=base2_x;
-  points->coords[5]=base2_y;
+  points=gnome_canvas_points_new(5);
+  points->coords[0]=base11_x;
+  points->coords[1]=base11_y;
+  points->coords[2]=tip1_x;
+  points->coords[3]=tip1_y;
+  points->coords[4]=base12_x;
+  points->coords[5]=base12_y;
+  
+  points->coords[6]=base22_x;
+  points->coords[7]=base22_y;
+  points->coords[8]=base21_x;
+  points->coords[9]=base21_y;
+  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->triangle),"points",points,NULL);
+  gnome_canvas_points_free(points);
+  
+  gdouble ang=-90.0 + (atan2(dx,dy)*180.0)/M_PI;
+  gtk_label_set_angle(self->priv->vol_label,ang);
+  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->vol_label_item),
+    "x",mid_x,"y", mid_y,
+    NULL);
+#if 0
+  // gnome-canvas cannot rotate text :(
+  gdouble affine[]={cos(ang),-sin(ang),0.0,sin(ang),cos(ang),0.0};
+  //gdouble affine[6]={dy,-dx,0,dx,dy,0};
+  gnome_canvas_item_affine_absolute(GNOME_CANVAS_ITEM(self->priv->vol_label_item),affine);
+#endif
+
 }
 
 //-- event handler
@@ -219,7 +271,6 @@ static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer
   BtMachine *machine;
   GHashTable *properties;
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
-  GnomeCanvasPoints *points;
 
   //GST_INFO("wire pos has changed : machine_item=%p, user_data=%p",machine_item,user_data);
 
@@ -241,15 +292,8 @@ static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer
                       "h", (pos_ye-pos_ys),
                       NULL);
   // we need to reset all the coords for our wire items now
-  points=gnome_canvas_points_new(2);
-  wire_set_line_points(points,self->priv->w,self->priv->h);
-  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->line),"points",points,NULL);
-  gnome_canvas_points_free(points);
-
-  points=gnome_canvas_points_new(3);
-  wire_set_triangle_points(points,self->priv->w,self->priv->h);
-  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->triangle),"points",points,NULL);
-  gnome_canvas_points_free(points);
+  wire_set_line_points(self);
+  wire_set_triangle_points(self);
 }
 
 static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -502,7 +546,6 @@ static void bt_wire_canvas_item_finalize(GObject *object) {
  */
 static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(citem);
-  GnomeCanvasPoints *points;
   gchar *prop;
 
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
@@ -510,28 +553,33 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
 
   GST_DEBUG("realize for wire occured, wire=%p : w=%f,h=%f",self->priv->wire,self->priv->w,self->priv->h);
 
-  points=gnome_canvas_points_new(2);
-  wire_set_line_points(points,self->priv->w,self->priv->h);
   self->priv->line=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_LINE,
-                           "points", points,
                            "fill-color", "black",
                            "width-pixels", 1,
                            NULL);
-  gnome_canvas_points_free(points);
-
-  // set up polygon
-  points=gnome_canvas_points_new(3);
-  wire_set_triangle_points(points,self->priv->w,self->priv->h);
+  wire_set_line_points(self);
 
   self->priv->triangle=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_POLYGON,
-                           "points", points,
                            "outline-color", "black",
                            "fill-color", "gray",
                            "width-pixels", 1,
                            NULL);
-  gnome_canvas_points_free(points);
+
+  // gnome-canvas cannot rotate text, but gtk can
+  // @todo: need real value, need to zoom text
+  self->priv->vol_label=GTK_LABEL(gtk_label_new(NULL));
+  gtk_label_set_markup(self->priv->vol_label,"<small>V 000</small>");
+  gtk_widget_show(GTK_WIDGET(self->priv->vol_label));
+  self->priv->vol_label_item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+                           GNOME_TYPE_CANVAS_WIDGET,
+                           "anchor",GTK_ANCHOR_CENTER,
+                           "widget",self->priv->vol_label,
+                           "width",(gdouble)50.0, // random lange value */
+                           "height",(gdouble)50.0,
+                           NULL);
+  wire_set_triangle_points(self);
 
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"analyzer-shown");
   if(prop && prop[0]=='1' && prop[1]=='\0') {

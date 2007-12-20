@@ -1,5 +1,14 @@
 2007-12-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wire.c:
+	  Some thoughts about refactoring the gain-property.
+
+	* src/ui/edit/wire-canvas-item.c:
+	  Change the wire-knob shape and add rotated text for the level. No real
+	  volume value yet.
+
+2007-12-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* src/lib/core/libbtcore/tools.h:
 	* src/lib/core/libbtcore/wire-methods.h:
