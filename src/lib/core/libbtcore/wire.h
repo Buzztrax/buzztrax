@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include "wire-pattern.h"
 
 #define BT_TYPE_WIRE            (bt_wire_get_type ())
 #define BT_WIRE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_WIRE, BtWire))
@@ -53,7 +54,16 @@ struct _BtWire {
 /* structure of the wire class */
 struct _BtWireClass {
   const GObjectClass parent;
+
+  void (*pattern_created_event)(const BtWire * const wire, const BtWirePattern * const wire_pattern, gconstpointer const user_data);
 };
+
+/**
+ * BT_WIRE_MAX_NUM_PARAMS:
+ * 
+ * Maximum number of parameters per wire.
+ */
+#define BT_WIRE_MAX_NUM_PARAMS 2
 
 /* used by WIRE_TYPE */
 GType bt_wire_get_type(void) G_GNUC_CONST;

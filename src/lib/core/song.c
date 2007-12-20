@@ -1461,9 +1461,10 @@ static void bt_song_init(const GTypeInstance * const instance, gconstpointer con
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG, BtSongPrivate);
 
+  /* don't change the order */
   self->priv->song_info=bt_song_info_new(self);
-  self->priv->sequence =bt_sequence_new(self);
   self->priv->setup    =bt_setup_new(self);
+  self->priv->sequence =bt_sequence_new(self);
   self->priv->wavetable=bt_wavetable_new(self);
 
   self->priv->position_query=gst_query_new_position(GST_FORMAT_TIME);

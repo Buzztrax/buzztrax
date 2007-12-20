@@ -37,13 +37,8 @@
  *     - mono-to-stereo (1->2): 1 parameter
  *     - mono-to-suround (1->4): 2 parameters
  *     - stereo-to-surround (2->4): 1 parameter
- * - BtWire should have a hashmap of BtWirePattern instances
- *   - the hashtable key is the BtWirePattern in BtMachine
- *     the wire is connected to
- *   - the BtWirePattern has volume and panning automation data
- *   - Initialy the hashmap is empty, the patterns are created on demand
- *   - BtWirePattern is not a good name :/
- *     - maybe we can make BtPattern a base class and also have BtMachinePattern
+ * - BtWirePattern is not a good name :/
+ *   - maybe we can make BtPattern a base class and also have BtMachinePattern
  */
 #define BT_CORE
 #define BT_WIRE_PATTERN_C
@@ -85,6 +80,9 @@ struct _BtWirePatternPrivate {
    * with the size of length*num_params
    */
   GValue *data;
+  
+  /* signal handler ids */
+  gint pattern_length_changed;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -122,7 +120,6 @@ static gboolean bt_wire_pattern_init_data(const BtWirePattern * const self) {
   return(ret);
 }
 
-#if 0
 /*
  * bt_wire_pattern_resize_data_length:
  * @self: the pattern to resize the length
@@ -131,8 +128,8 @@ static gboolean bt_wire_pattern_init_data(const BtWirePattern * const self) {
  * Resizes the event data grid to the new length. Keeps previous values.
  */
 static void bt_wire_pattern_resize_data_length(const BtWirePattern * const self, const gulong length) {
-  const gulong old_data_count=            length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
-  const gulong new_data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  const gulong old_data_count=            length*self->priv->num_params;
+  const gulong new_data_count=self->priv->length*self->priv->num_params;
   GValue * const data=self->priv->data;
 
   // allocate new space
@@ -145,21 +142,18 @@ static void bt_wire_pattern_resize_data_length(const BtWirePattern * const self,
       // free old data
       g_free(data);
     }
-    GST_DEBUG("extended pattern length from %d to %d : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
+    GST_DEBUG("extended pattern length from %d to %d : data_count=%d = length=%d * np=%d)",
       length,self->priv->length,
-      new_data_count,self->priv->length,
-      internal_params,self->priv->global_params,self->priv->voices,self->priv->voice_params);
+      new_data_count,self->priv->length,self->priv->num_params);
   }
   else {
-    GST_INFO("extending pattern length from %d to %d failed : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
+    GST_INFO("extending pattern length from %d to %d failed : data_count=%d = length=%d * np=%d)",
       length,self->priv->length,
-      new_data_count,self->priv->length,
-      internal_params,self->priv->global_params,self->priv->voices,self->priv->voice_params);
+      new_data_count,self->priv->length,self->priv->num_params);
     //self->priv->data=data;
     //self->priv->length=length;
   }
 }
-#endif
 
 /*
  * bt_wire_pattern_init_event:
@@ -175,6 +169,20 @@ static void bt_wire_pattern_init_event(const BtWirePattern * const self, GValue 
   //GST_DEBUG("at %d",param);
   g_value_init(event,bt_wire_get_param_type(self->priv->wire,param));
   g_assert(G_IS_VALUE(event));
+}
+
+//-- event handler
+
+static void on_pattern_length_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
+  BtWirePattern *self=BT_WIRE_PATTERN(user_data);
+  const gulong length=self->priv->length;
+
+  GST_INFO("pattern length changed : %p",self->priv->pattern);
+  g_object_get(G_OBJECT(self->priv->pattern),"length",&self->priv->length,NULL);
+  if(length!=self->priv->length) {
+    GST_DEBUG("set the length for wire-pattern: %d",self->priv->length);
+    bt_wire_pattern_resize_data_length(self,length);
+  }
 }
 
 //-- constructor methods
@@ -275,7 +283,7 @@ gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulon
     }
     if(res) {
       // notify others that the data has been changed
-      g_signal_emit(G_OBJECT(self),signals[PARAM_CHANGED_EVENT],0,tick,param);
+      g_signal_emit(G_OBJECT(self),signals[PARAM_CHANGED_EVENT],0,tick,self->priv->wire,param);
       bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
@@ -589,8 +597,9 @@ static void bt_wire_pattern_set_property(GObject      * const object,
       g_object_try_weak_unref(self->priv->pattern);
       if((self->priv->pattern = BT_PATTERN(g_value_get_object(value)))) {
         g_object_try_weak_ref(self->priv->pattern);
-        // @todo shouldn't we just listen to notify::length and resize patterns automatically
         g_object_get(G_OBJECT(self->priv->pattern),"length",&self->priv->length,NULL);
+        // watch the pattern
+        self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_length_changed),(gpointer)self);
         GST_INFO("set the length for the wire-pattern: %p",self->priv->length);
       }
     } break;
@@ -610,7 +619,11 @@ static void bt_wire_pattern_dispose(GObject * const object) {
 
   g_object_try_weak_unref(self->priv->song);
   g_object_try_weak_unref(self->priv->wire);
-  g_object_try_weak_unref(self->priv->pattern);
+  
+  if(self->priv->pattern) {
+    g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_length_changed);
+    g_object_try_weak_unref(self->priv->pattern);
+  }
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
@@ -648,6 +661,7 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
    * BtWirePattern::param-changed:
    * @self: the wire-pattern object that emitted the signal
    * @tick: the tick position inside the pattern
+   * @wire: the wire for which it changed
    * @param: the parameter index
    *
    * signals that a param of this wire-pattern has been changed
@@ -658,10 +672,10 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
                                  (guint)G_STRUCT_OFFSET(BtWirePatternClass,param_changed_event),
                                  NULL, // accumulator
                                  NULL, // acc data
-                                 bt_marshal_VOID__ULONG_ULONG,
+                                 bt_marshal_VOID__ULONG_OBJECT_ULONG,
                                  G_TYPE_NONE, // return type
-                                 2, // n_params
-                                 G_TYPE_ULONG,G_TYPE_ULONG // param data
+                                 3, // n_params
+                                 G_TYPE_ULONG,BT_TYPE_WIRE,G_TYPE_ULONG // param data
                                  );
 
 

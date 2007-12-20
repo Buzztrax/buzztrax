@@ -44,6 +44,13 @@
 
 #include <libbtcore/core.h>
 
+//-- signal ids
+
+enum {
+  PATTERN_CREATED_EVENT,
+  LAST_SIGNAL
+};
+
 //-- property ids
 
 enum {
@@ -79,9 +86,6 @@ typedef enum {
   PART_COUNT
 } BtWirePart;
 
-/* volume, panorama */
-#define MAX_NUM_PARAMS 2
-
 struct _BtWirePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
@@ -105,10 +109,10 @@ struct _BtWirePrivate {
   gulong num_params;
   
   /* dynamic parameter control */
-  GstController *wire_controller[MAX_NUM_PARAMS];
-  GParamSpec *wire_props[MAX_NUM_PARAMS];
+  GstController *wire_controller[BT_WIRE_MAX_NUM_PARAMS];
+  GParamSpec *wire_props[BT_WIRE_MAX_NUM_PARAMS];
 
-  /* event patterns */
+  /* event patterns in relation to patterns of the target machine */
   GHashTable *patterns;  // each entry points to BtWirePattern using BtPattern as a key
 
   /* the gstreamer elements that is used */
@@ -121,6 +125,8 @@ struct _BtWirePrivate {
 static GQuark error_domain=0;
 
 static GObjectClass *parent_class=NULL;
+
+static guint signals[LAST_SIGNAL]={0,};
 
 // macros
 
@@ -734,6 +740,8 @@ gboolean bt_wire_reconnect(BtWire * const self) {
  */
 void bt_wire_add_wire_pattern (const BtWire * const self, const BtPattern * const pattern, const BtWirePattern * const wire_pattern) {
   g_hash_table_insert(self->priv->patterns,(gpointer)pattern,(gpointer)g_object_ref(G_OBJECT(wire_pattern)));
+  // notify others that the pattern has been created
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CREATED_EVENT],0,wire_pattern);
 }
 
 /**
@@ -905,7 +913,6 @@ void bt_wire_get_param_details(const BtWire * const self, const gulong index, GP
   }
 }
 
-#if 0
 /**
  * bt_wire_controller_change_value:
  * @self: the wire to change the param for
@@ -917,7 +924,7 @@ void bt_wire_get_param_details(const BtWire * const self, const gulong index, GP
  * value for the specified param and at the given time.
  */
 void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value) {
-  GObject *param_parent;
+  GObject *param_parent=NULL;
 #ifdef HAVE_GST_0_10_14
   GstControlSource *cs;
 #endif
@@ -934,6 +941,9 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
       param_parent=G_OBJECT(self->priv->machines[PART_PAN]);
       break,
     */
+    default:
+      GST_WARNING("unimplemented wire param");
+      break;
   }
 
   if(value) {
@@ -957,7 +967,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
 #endif
     }
     if(add) {
-      GstController *ctrl=bt_wire_activate_controller(param_parent, WIRE_PARAM_NAME(param), FALSE);
+      GstController *ctrl=bt_gst_object_activate_controller(param_parent, WIRE_PARAM_NAME(param), FALSE);
 
       g_object_try_unref(self->priv->wire_controller[param]);
       self->priv->wire_controller[param]=ctrl;
@@ -1003,11 +1013,10 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
     }
 #endif
     if(remove) {
-      bt_wire_deactivate_controller(param_parent, WIRE_PARAM_NAME(param));
+      bt_gst_object_deactivate_controller(param_parent, WIRE_PARAM_NAME(param));
     }
   }
 }
-#endif
 
 //-- debug helper
 
@@ -1270,6 +1279,13 @@ static void bt_wire_dispose(GObject * const object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+  // unref controllers
+  GST_DEBUG("  releasing controllers");
+  bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_GAIN]), WIRE_PARAM_NAME(0));
+  self->priv->wire_controller[0]=NULL;
+  //bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_PAN]), WIRE_PARAM_NAME(1));
+  //self->priv->wire_controller[1]=NULL;
+
   // remove the GstElements from the bin
   if(self->priv->bin) {
     GstStateChangeReturn res;
@@ -1352,6 +1368,27 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   gobject_class->dispose      = bt_wire_dispose;
   gobject_class->finalize     = bt_wire_finalize;
 
+  /**
+   * BtWirePattern::param-changed:
+   * @self: the wire-pattern object that emitted the signal
+   * @tick: the tick position inside the pattern
+   * @param: the parameter index
+   *
+   * signals that a param of this wire-pattern has been changed
+   */
+  signals[PATTERN_CREATED_EVENT] = g_signal_new("pattern-created",
+                                   G_TYPE_FROM_CLASS(klass),
+                                   G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                   (guint)G_STRUCT_OFFSET(BtWireClass,pattern_created_event),
+                                   NULL, // accumulator
+                                   NULL, // acc data
+                                   g_cclosure_marshal_VOID__OBJECT,
+                                   G_TYPE_NONE, // return type
+                                   1, // n_params
+                                   BT_TYPE_WIRE_PATTERN // param data
+                                   );
+
+
   g_object_class_install_property(gobject_class,WIRE_PROPERTIES,
                                   g_param_spec_pointer("properties",
                                      "properties prop",
@@ -1393,7 +1430,7 @@ static void bt_wire_class_init(BtWireClass * const klass) {
                                      "num-params prop",
                                      "number of params for the wire",
                                      0,
-                                     MAX_NUM_PARAMS,
+                                     BT_WIRE_MAX_NUM_PARAMS,
                                      0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 

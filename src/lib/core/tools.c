@@ -168,6 +168,65 @@ GList *bt_gst_check_core_elements(void) {
   return(res);
 }
 
+//-- controller
+
+/**
+ * bt_gst_object_activate_controller:
+ * @param_parent: the object to attach the controller to
+ * @param_name: which parameter should be controlled
+ * @is_trigger: is it a trigger parameter
+ *
+ * Create the controller object and set interpolation mode.
+ *
+ * Returns: the controller object if the parameter could be attached.
+ */
+GstController *bt_gst_object_activate_controller(GObject *param_parent,gchar *param_name,gboolean is_trigger) {
+  GstController *ctrl;
+
+  GST_INFO("activate controller for %s:%s", GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"-",param_name);
+
+  if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
+#ifdef HAVE_GST_0_10_14
+    GstInterpolationControlSource *cs=gst_interpolation_control_source_new();
+    gst_controller_set_control_source(ctrl,param_name,GST_CONTROL_SOURCE(cs));
+    // set interpolation mode depending on param type
+    gst_interpolation_control_source_set_interpolation_mode(cs,is_trigger?GST_INTERPOLATE_TRIGGER:GST_INTERPOLATE_NONE);
+#else
+    // set interpolation mode depending on param type
+    gst_controller_set_interpolation_mode(ctrl,param_name,is_trigger?GST_INTERPOLATE_TRIGGER:GST_INTERPOLATE_NONE);
+#endif
+  }
+  return(ctrl);
+}
+
+/**
+ * bt_gst_object_deactivate_controller:
+ * @param_parent: the object to dettach the controller from
+ * @param_name: which parameter should be uncontrolled
+ *
+ * Remove the controller object.
+ */
+void bt_gst_object_deactivate_controller(GObject *param_parent,gchar *param_name) {
+#ifdef HAVE_GST_0_10_14
+  GstController *ctrl;
+#endif
+
+  GST_INFO("deactivate controller for %s:%s", GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"-",param_name);
+
+#ifdef HAVE_GST_0_10_14
+  if((ctrl=gst_object_get_controller(param_parent))) {
+    GstControlSource *cs=gst_controller_get_control_source(ctrl,param_name);
+    if(cs) {
+      gst_controller_set_control_source(ctrl,param_name,NULL);
+      // unref twice
+      g_object_unref(cs);g_object_unref(cs);
+    }
+  }
+#endif
+  gst_object_uncontrol_properties(param_parent, param_name, NULL);
+}
+
+
 //-- gst compat
 
 #ifndef HAVE_GST_0_10_11

@@ -1,3 +1,37 @@
+2007-12-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/libbtcore/wire-pattern.h:
+	* src/lib/core/libbtcore/wire.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/marshal.list:
+	* src/lib/core/sequence.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song.c:
+	* src/lib/core/tools.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Finalize the work of yesterday and watch for setup changes to update
+	  signal setup for wire-pattern changes.
+
+2007-12-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/libbtcore/wire.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/marshal.list:
+	* src/lib/core/sequence.c:
+	* src/lib/core/tools.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	  Yah, controller queues for wire-patterns. Means those pattern now also
+	  play. Wire-patterns also react to pattern resizes.
+
 2007-12-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

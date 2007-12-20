@@ -560,63 +560,6 @@ static void bt_machine_resize_pattern_voices(const BtMachine * const self) {
 }
 
 /*
- * bt_machine_activate_controller:
- * @param_parent: the object to attach the controller to
- * @param_name: which parameter should be controlled
- * @is_trigger: is it a trigger parameter
- *
- * Create the controller object and set interpolation mode.
- *
- * Returns: the controller object if the parameter could be attached.
- */
-static GstController *bt_machine_activate_controller(GObject *param_parent,gchar *param_name,gboolean is_trigger) {
-  GstController *ctrl;
-
-  GST_INFO("activate controller for %s:%s", GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"-",param_name);
-
-  if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
-#ifdef HAVE_GST_0_10_14
-    GstInterpolationControlSource *cs=gst_interpolation_control_source_new();
-    gst_controller_set_control_source(ctrl,param_name,GST_CONTROL_SOURCE(cs));
-    // set interpolation mode depending on param type
-    gst_interpolation_control_source_set_interpolation_mode (cs,is_trigger?GST_INTERPOLATE_TRIGGER:GST_INTERPOLATE_NONE);
-#else
-    // set interpolation mode depending on param type
-    gst_controller_set_interpolation_mode(ctrl,param_name,is_trigger?GST_INTERPOLATE_TRIGGER:GST_INTERPOLATE_NONE);
-#endif
-  }
-  return(ctrl);
-}
-
-/*
- * bt_machine_deactivate_controller:
- * @param_parent: the object to dettach the controller from
- * @param_name: which parameter should be uncontrolled
- *
- * Create the controller object and set interpolation mode.
- */
-static void bt_machine_deactivate_controller(GObject *param_parent,gchar *param_name) {
-#ifdef HAVE_GST_0_10_14
-  GstController *ctrl;
-#endif
-
-  GST_INFO("deactivate controller for %s:%s", GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"-",param_name);
-
-#ifdef HAVE_GST_0_10_14
-  if((ctrl=gst_object_get_controller(param_parent))) {
-    GstControlSource *cs=gst_controller_get_control_source(ctrl,param_name);
-    if(cs) {
-      gst_controller_set_control_source(ctrl,param_name,NULL);
-      // unref twice
-      g_object_unref(cs);g_object_unref(cs);
-    }
-  }
-#endif
-  gst_object_uncontrol_properties(param_parent, param_name, NULL);
-}
-
-
-/*
  * bt_machine_resize_voices:
  * @self: the machine which has changed its number of voices
  *
@@ -2276,7 +2219,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
 #endif
     }
     if(add) {
-      GstController *ctrl=bt_machine_activate_controller(param_parent, GLOBAL_PARAM_NAME(param), bt_machine_is_global_param_trigger(self,param));
+      GstController *ctrl=bt_gst_object_activate_controller(param_parent, GLOBAL_PARAM_NAME(param), bt_machine_is_global_param_trigger(self,param));
 
       g_object_try_unref(self->priv->global_controller);
       self->priv->global_controller=ctrl;
@@ -2322,7 +2265,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
     }
 #endif
     if(remove) {
-      bt_machine_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(param));
+      bt_gst_object_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(param));
     }
   }
 }
@@ -2372,7 +2315,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
 #endif
     }
     if(add) {
-      GstController *ctrl=bt_machine_activate_controller(param_parent, VOICE_PARAM_NAME(param), bt_machine_is_voice_param_trigger(self,param));
+      GstController *ctrl=bt_gst_object_activate_controller(param_parent, VOICE_PARAM_NAME(param), bt_machine_is_voice_param_trigger(self,param));
 
       g_object_try_unref(self->priv->voice_controllers[voice]);
       self->priv->voice_controllers[voice]=ctrl;
@@ -2418,7 +2361,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
     }
 #endif
     if(remove) {
-      bt_machine_deactivate_controller(param_parent, VOICE_PARAM_NAME(param));
+      bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(param));
     }
   }
 }
@@ -3085,7 +3028,7 @@ static void bt_machine_dispose(GObject * const object) {
     self->priv->voices);
   param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
   for(j=0;j<self->priv->global_params;j++) {
-    bt_machine_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(j));
+    bt_gst_object_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(j));
   }
   self->priv->global_controller=NULL;
   //g_object_try_unref(self->priv->global_controller);
@@ -3093,7 +3036,7 @@ static void bt_machine_dispose(GObject * const object) {
     for(i=0;i<self->priv->voices;i++) {
       param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),i));
       for(j=0;j<self->priv->voice_params;j++) {
-        bt_machine_deactivate_controller(param_parent, VOICE_PARAM_NAME(j));
+        bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(j));
       }
       self->priv->voice_controllers[i]=NULL;
       //g_object_try_unref(self->priv->voice_controllers[i]);

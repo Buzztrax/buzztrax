@@ -555,6 +555,7 @@ bt_wire_get_param_spec
 bt_wire_get_param_type
 bt_wire_get_param_name
 bt_wire_get_param_details
+bt_wire_controller_change_value
 <SUBSECTION Standard>
 BtWireClass
 BT_WIRE
@@ -612,6 +613,8 @@ bt_gst_registry_get_element_names_matching_all_categories
 bt_gst_check_elements
 bt_gst_check_core_elements
 bt_gst_element_factory_can_sink_media_type
+bt_gst_object_activate_controller
+bt_gst_object_deactivate_controller
 bt_gst_element_dbg_pads
 bt_g_type_get_base_type
 bt_cpu_load_get_current

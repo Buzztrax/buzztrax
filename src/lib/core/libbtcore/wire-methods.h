@@ -38,7 +38,7 @@ extern GType bt_wire_get_param_type(const BtWire * const self, const gulong inde
 const gchar *bt_wire_get_param_name(const BtWire * const self, const gulong index);
 extern void bt_wire_get_param_details(const BtWire * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
 
-//void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value);
+extern void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value);
 
 extern GList *bt_wire_get_element_list(const BtWire *self);
 extern void bt_wire_dbg_print_parts(const BtWire *self);

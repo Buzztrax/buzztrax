@@ -746,7 +746,7 @@ static void bt_sink_bin_dispose(GObject * const object) {
   GST_INFO("self->sink=%p, refct=%d",self->priv->sink,(G_OBJECT(self->priv->sink))->ref_count);
   gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
  
-  if(self->priv->mv_handler_id) {
+  if(self->priv->mv_handler_id && self->priv->gain) {
     GstPad *sink_pad=gst_element_get_pad(self->priv->gain,"sink");
     
     if(sink_pad) {

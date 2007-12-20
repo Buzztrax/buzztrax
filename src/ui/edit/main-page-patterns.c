@@ -411,8 +411,6 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
         NULL);
       col=self->priv->cursor_column;
       
-      // @todo: now we have the wire params too
-
       // get ParamSpec for global or voice param
       if(col<global_params)
         property=bt_machine_get_global_param_spec(machine,col);
@@ -825,7 +823,6 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           if(gtk_tree_model_get_iter(GTK_TREE_MODEL(store),&iter,path)) {
             // store the changed text in the model and pattern
             gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_TABLE_PRE_CT+param,g_strdup(str),-1);
-            // @todo: need to use_voice_event too!
             if(param<global_params) {
               bt_pattern_set_global_event(self->priv->pattern,tick,param,(BT_IS_STRING(str)?str:NULL));
             }
@@ -1702,8 +1699,16 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=g_value_get_float(min_val);
       col->max=g_value_get_float(max_val);
       col->def=col->max+1;
-      // @todo: need scaling
-      // scaling factor =  
+      /* @todo: need scaling
+       * in case of
+       *   wire.volume: 0.0->0x0000, 1.0->0x4000
+       *     col->user_data=&pcc[1]; // const scale
+       *     col->scaling factor =  4096.0
+       *   song.master_volume: 0db->0.0->0x0000, -80db->1/100.000.000->0x4000
+       *     scaling_factor is not enough
+       *     col->user_data=&pcc[2]; // log-map
+       * we might need to put the scaling factor into the user_data
+       */
       col->user_data=NULL;
       break;
     case G_TYPE_DOUBLE:
