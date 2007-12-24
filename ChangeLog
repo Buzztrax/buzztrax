@@ -1,3 +1,9 @@
+2007-12-24  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/pattern-editor.c: 
+	  Use hardware character codes for piano keys. Wider clicking range
+	  for note columns. Call callback after column change.
+
 2007-12-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wire.c:

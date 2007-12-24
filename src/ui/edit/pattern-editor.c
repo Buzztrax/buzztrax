@@ -226,6 +226,8 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 {
   int y = self->row * self->ch - self->ofs_y;
   gtk_widget_queue_draw_area (&self->parent, 0, y, self->parent.allocation.width, self->ch);
+  if (self->callbacks->notify_cursor_func)
+    self->callbacks->notify_cursor_func(self->pattern_data, self->row, self->group, self->parameter, self->digit);
 }
 
 static void
@@ -281,7 +283,10 @@ char_to_coords(int charpos,
     {
       for (j = 0; j < type->columns; j++)
       {
-        if (type->column_pos[j] == charpos) {
+        int cps = type->column_pos[j], cpe = cps;
+        if (columns[i].type == PCT_NOTE && j == 0)
+          cpe++;
+        if (charpos >= cps && charpos <= cpe) {
           *parameter = i;
           *digit = j;
           return TRUE;
@@ -293,6 +298,7 @@ char_to_coords(int charpos,
   }
   return FALSE;
 }
+
 
 //-- constructor methods
 
@@ -466,7 +472,8 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     }
     else {
       static const char hexdigits[] = "0123456789abcdef";
-      static const char notenames[] = "zsxdcvgbhnjm\t\t\t\tq2w3er5t6y7u\t\t\t\ti9o0p";
+      //static const char notenames[] = "zsxdcvgbhnjm\t\t\t\tq2w3er5t6y7u\t\t\t\ti9o0p";
+      static const char notenames[] = "\x34\x27\x35\x28\x36\x37\x2a\x38\x2b\x39\x2c\x3a\x3a\x3a\x3a\x3a\x18\x0b\x19\x0c\x1a\x1b\x0e\x1c\x0f\x1d\x10\x1e\x1e\x1e\x1e\x1e\x1f\x12\x20\x13\x21";
       float oldvalue = self->callbacks->get_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter);
       const char *p;
       switch(col->type) {
@@ -493,9 +500,9 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         }
         break;
       case PCT_NOTE:
-        if (self->digit == 0) {
+        if (self->digit == 0 && event->hardware_keycode <= 255) {
           // FIXME: use event->hardware_keycode because of y<>z
-          p = strchr(notenames, (char)event->keyval);
+          p = strchr(notenames, (char)event->hardware_keycode);
           if (p) {
             int value = 1 + (p - notenames) + 16 * self->octave;
             if (value < col->min) value = col->min;
