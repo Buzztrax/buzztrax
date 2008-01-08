@@ -1,13 +1,27 @@
 2008/01 ========================================================================
 
-* new pattern widget merged and alread quite usable
-* sequence editing (insert/delete)
-* add wire-parameter infrastructure (input-volume, pan/balance)
-* add master-volume to sink-bin
+I guess tracker-style music editors have to live with the heritage of tabular
+pattern input. Some feature rely heavily on it. FSM started with such a widget
+and I integrated it into buzztard. One can still switch between the previous and
+the new one by setting a define. The widget works quite nice already. The only
+missing feature is native scrolling support. To add that to an own widget
+requires an ugly hack. I can't figure why gtk does not use an interface for it.
 
-* sources moved to svn
-* buildbot builds all modules now
-* build clean against gtk-2.12 (fixed use of deprecated api)
+Patterns in buzz also carry volume and panorama events for the inputs of the
+machine. This was totally missing in buzztard. Now we have quite nice support
+for it. The volume control works and panorama/balance support is next on the
+to-do list. While working on that I made master-machine patterns useful by
+allowing to control master-volume,
+
+The sequence view got more commands. Finally one can insert and delete rows in
+all columns or only in the current track.
+
+If that wasn't enough, we also did a round of maintenance. All code has been
+moved to svn. The buildbot has been extended to build all modules now.
+And finally I got around to port the code to not use the deprecated gtk tooltip
+API if new gtk is available.
+
+That's a great start for 2008 I'd say!
 
 2007/12 ========================================================================
 

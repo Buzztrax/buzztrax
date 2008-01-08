@@ -1,3 +1,18 @@
+2008-01-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Wrote and sent NEWS.
+
+	* src/lib/core/song.c:
+	  Comments about the CHildProxy problems.
+
+	* src/lib/core/wire.c:
+	  Plan the needed refactoring.
+	
+	* src/ui/edit/wire-canvas-item.c:
+	  Add better wire visualisations (hard-coded values).
+	  
+
 2008-01-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wire.c:

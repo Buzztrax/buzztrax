@@ -36,11 +36,9 @@
  *     \ V: 100 \
  *     / P: 50L /
  *     ---------
- *    - we would also rotate labels on the wire
- *      http://library.gnome.org/devel/libgnomecanvas/stable/GnomeCanvasItem.html#gnome-canvas-item-affine-relative
- *      http://www.gnome.org/~mathieu/libart/libart-affine-transformation-matrices.html
- *      double affine[]={cos(a),-sin(a),0,sin(a),cos(a),0};
- *      gnome_canvas_item_affine_relative(citem,double affine[6])
+ *    - as rotation of textual labels does not work well, we could use graphics
+ *      - a speaker symbol for volume and ||||| for the level
+ *      - a (| |) symbol for panorama and again bars for the position
  * - right now a click on the triangle pops up the volume slider
  *   - it could popup a whole mixer strip
  */
@@ -86,7 +84,7 @@ struct _BtWireCanvasItemPrivate {
 
   /* the graphcal components */
   GnomeCanvasItem *line,*triangle;
-  GnomeCanvasItem *vol_label_item,*pan_label_item;
+  GnomeCanvasItem *vol_item,*pan_item;
   GtkLabel *vol_label,*pan_label;
 
   /* wire context_menu */
@@ -212,18 +210,27 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
   gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->triangle),"points",points,NULL);
   gnome_canvas_points_free(points);
   
-  gdouble ang=-90.0 + (atan2(dx,dy)*180.0)/M_PI;
-  gtk_label_set_angle(self->priv->vol_label,ang);
-  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->vol_label_item),
-    "x",mid_x,"y", mid_y,
-    NULL);
 #if 0
-  // gnome-canvas cannot rotate text :(
-  gdouble affine[]={cos(ang),-sin(ang),0.0,sin(ang),cos(ang),0.0};
-  //gdouble affine[6]={dy,-dx,0,dx,dy,0};
-  gnome_canvas_item_affine_absolute(GNOME_CANVAS_ITEM(self->priv->vol_label_item),affine);
+  gdouble ang=-90.0+(atan2(dx,dy)*180.0)/M_PI;
+  // rotated labels look really ugly and are slow
+  gtk_label_set_angle(self->priv->vol_label,ang);
+  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->vol_item),
+    "x",mid_x,
+    "y", mid_y,
+    NULL);
 #endif
-
+  gdouble ang=-M_PI_2+atan2(dx,dy);
+  gdouble affine[]={cos(ang),-sin(ang),sin(ang),cos(ang),0.0,0.0};
+  gnome_canvas_item_affine_absolute(GNOME_CANVAS_ITEM(self->priv->vol_item),affine);
+  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->vol_item),
+    "x",mid_x,
+    "y",mid_y,
+    NULL);
+  gnome_canvas_item_affine_absolute(GNOME_CANVAS_ITEM(self->priv->pan_item),affine);
+  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->pan_item),
+    "x",mid_x,
+    "y",mid_y,
+    NULL);
 }
 
 //-- event handler
@@ -546,7 +553,10 @@ static void bt_wire_canvas_item_finalize(GObject *object) {
  */
 static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(citem);
-  gchar *prop;
+  gchar *prop,*color1,*color2;
+  guint i;
+  GnomeCanvasPoints *points;
+  gdouble s=MACHINE_VIEW_WIRE_PAD_SIZE,oy=0.25*s,ox=2.5*s,px;
 
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
     (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
@@ -567,18 +577,97 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
                            "width-pixels", 1,
                            NULL);
 
+  // for the colors - grep "gray" /usr/share/X11/rgb.txt
+  self->priv->vol_item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+                           GNOME_TYPE_CANVAS_GROUP,NULL);
+  points=gnome_canvas_points_new(6);
+  points->coords[ 0]=-ox+0.0;  points->coords[ 1]=-oy-0.25*s;
+  points->coords[ 2]=-ox+0.6*s;points->coords[ 3]=-oy-0.25*s;
+  points->coords[ 4]=-ox+1.0*s;points->coords[ 5]=-oy-0.0;
+  points->coords[ 6]=-ox+1.0*s;points->coords[ 7]=-oy-1.0*s;
+  points->coords[ 8]=-ox+0.6*s;points->coords[ 9]=-oy-0.75*s;
+  points->coords[10]=-ox+0.0;  points->coords[11]=-oy-0.75*s;
+  gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->vol_item),
+                           GNOME_TYPE_CANVAS_POLYGON,
+                           "points", points,
+                           "outline-color", "gray16",
+                           "fill-color", "gray32",
+                           "width-pixels", 1,
+                           NULL);
+  gnome_canvas_points_free(points);
+  points=gnome_canvas_points_new(2);
+  px=-ox+(1.3*s);
+  for(i=0;i<=10;i++) {
+    px+=(0.2*s);
+    points->coords[0]=px;points->coords[1]=-oy-0.2*s;
+    points->coords[2]=px;points->coords[3]=-oy-0.8*s;
+    gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->vol_item),
+                             GNOME_TYPE_CANVAS_LINE,
+                             "points", points,
+                             "fill-color", (i<6)?"gray16":"gray48",
+                             "width-pixels", 1,
+                             NULL);
+  }
+  gnome_canvas_points_free(points);
+  //gnome_canvas_item_raise_to_top(self->priv->vol_item);
+
+  // @todo: check if wire has PAN and set color accordingly
+  color1="gray48";color2="gray64";
+  self->priv->pan_item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+                           GNOME_TYPE_CANVAS_GROUP,NULL);
+  points=gnome_canvas_points_new(3);
+  points->coords[ 0]=-ox+0.3*s;points->coords[ 1]=oy+0.0;
+  points->coords[ 2]=-ox+0.3*s;points->coords[ 3]=oy+1.0*s;
+  points->coords[ 4]=-ox+0.0  ;points->coords[ 5]=oy+0.5*s;
+  gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->pan_item),
+                           GNOME_TYPE_CANVAS_POLYGON,
+                           "points", points,
+                           "outline-color", color1,
+                           "fill-color", color2,
+                           "width-pixels", 1,
+                           NULL);
+  points->coords[ 0]=-ox+0.7*s;points->coords[ 1]=oy+0.0;
+  points->coords[ 2]=-ox+0.7*s;points->coords[ 3]=oy+1.0*s;
+  points->coords[ 4]=-ox+1.0*s;points->coords[ 5]=oy+0.5*s;
+  gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->pan_item),
+                           GNOME_TYPE_CANVAS_POLYGON,
+                           "points", points,
+                           "outline-color", color1,
+                           "fill-color", color2,
+                           "width-pixels", 1,
+                           NULL);
+  gnome_canvas_points_free(points);
+  gnome_canvas_points_free(points);
+  points=gnome_canvas_points_new(2);
+  px=-ox+(1.3*s);
+  for(i=0;i<=10;i++) {
+    px+=(0.2*s);
+    points->coords[0]=px;points->coords[1]=oy+0.2*s;
+    points->coords[2]=px;points->coords[3]=oy+0.8*s;
+    gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->pan_item),
+                             GNOME_TYPE_CANVAS_LINE,
+                             "points", points,
+                             "fill-color", ((i>5) && (i<9))?"gray16":"gray48",
+                             "width-pixels", 1,
+                             NULL);
+  }
+  gnome_canvas_points_free(points);
+
+  
+#if 0
   // gnome-canvas cannot rotate text, but gtk can
   // @todo: need real value, need to zoom text
   self->priv->vol_label=GTK_LABEL(gtk_label_new(NULL));
   gtk_label_set_markup(self->priv->vol_label,"<small>V 000</small>");
   gtk_widget_show(GTK_WIDGET(self->priv->vol_label));
-  self->priv->vol_label_item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+  self->priv->vol_item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_WIDGET,
                            "anchor",GTK_ANCHOR_CENTER,
                            "widget",self->priv->vol_label,
                            "width",(gdouble)50.0, // random lange value */
                            "height",(gdouble)50.0,
                            NULL);
+#endif
   wire_set_triangle_points(self);
 
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"analyzer-shown");

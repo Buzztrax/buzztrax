@@ -1208,7 +1208,10 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
 //-- child proxy interface
 
 #if 0
-/* @todo: this only works if I turn those into GstObject */
+/* @todo: this only works if I turn the children into GstObject
+ * the reason is that gst_child_proxy_get_child_by_name() is not a virtual method
+ * in the below case we could still map names to objects
+ */
 static GstObject *bt_song_child_proxy_get_child_by_index(GstChildProxy * child_proxy, guint index) {
   const BtSong * const self = BT_SONG(persistence);
   GstObject *res = NULL;
