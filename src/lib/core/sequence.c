@@ -473,17 +473,18 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   for(node=wires;node;node=g_list_next(node)) {
     wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
-    wire_pattern=bt_wire_get_pattern(wire,pattern);
-    for(i=0;i<length;i++) {
-      // check wire params
-      for(j=0;j<wire_params;j++,k++) {
-        if(bt_wire_pattern_test_event(wire_pattern,i,j)) {
-          // mark region covered by change as damaged
-          bt_sequence_invalidate_wire_param(self,machine,time+i,wire,j);
+    if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
+      for(i=0;i<length;i++) {
+        // check wire params
+        for(j=0;j<wire_params;j++,k++) {
+          if(bt_wire_pattern_test_event(wire_pattern,i,j)) {
+            // mark region covered by change as damaged
+            bt_sequence_invalidate_wire_param(self,machine,time+i,wire,j);
+          }
         }
       }
+      g_object_unref(wire_pattern);
     }
-    g_object_unref(wire_pattern);
     g_object_unref(wire);
   }
   g_list_free(wires);

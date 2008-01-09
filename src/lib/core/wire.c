@@ -37,15 +37,6 @@
  *  On the other hand this is only the case, if we do not need converters and have no volume and no monitors.
  *
  * @todo: when connecting to several wires to one src, we need queue elements at the begin of the wire
- *
- * @todo: refactor wire::gain
- * - wire has a gain property that will be forwarded to machines[GAIN].volume
- *   - it is not listening to machines[GAIN].notify::volume thus others can't
- *   - should we do that, or instead remove the property and expose the real element
- *   - right now its only used in main-page-machines.c::bt_main_page_machines_wire_volume_popup() and
- *     main-page-machines.c::on_volume_popup_changed()
- *   - for pan it would be good to expose the element instead of the value,
- *     as element==NULL means no pan
  */
 
 #define BT_CORE
@@ -68,6 +59,7 @@ enum {
   WIRE_SRC,
   WIRE_DST,
   WIRE_GAIN,
+  WIRE_PAN,
   WIRE_NUM_PARAMS,
   WIRE_ANALYZERS
 };
@@ -83,12 +75,11 @@ typedef enum {
   /* wire format conversion elements */
   PART_CONVERT,
   /*PART_SCALE, unused right now */
-  /*
-  @todo: need pan/balance here, if either src/dst has channesl>1
-         can we remove PART_CONVERT, GAIN doen convert the most formats
-         and pan does the channels
+  /* @todo: need pan/balance here, if either src/dst has channesl>1
+     can we remove PART_CONVERT, GAIN does convert the most formats
+     and pan does the channels
+  */
   PART_PAN,
-   */
   /* target element in the wire for convinience */
   PART_DST,
   /* how many elements are used */
@@ -169,13 +160,14 @@ static void bt_wire_init_params(const BtWire * const self) {
   self->priv->wire_props[0]=g_object_class_find_property(
     G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_GAIN])),
     "volume");
-  self->priv->wire_props[1]=NULL;
-  /*
-  self->priv->wire_props[1]=g_object_class_find_property(
-    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_PAN])),
-    "panorama")
-  );
-  */
+  if(self->priv->machines[PART_PAN]) {
+    self->priv->wire_props[1]=g_object_class_find_property(
+      G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_PAN])),
+      "panorama");
+  }
+  else {
+    self->priv->wire_props[1]=NULL;
+  }
 }
 
 /*
@@ -367,6 +359,7 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
   }
 }
 
+#if 0
 /*
  * bt_wire_change_gain:
  * @self: the wire for which the gain to change
@@ -380,6 +373,7 @@ static void bt_wire_change_gain(const BtWire * const self) {
   g_object_set(self->priv->machines[PART_GAIN],"volume",self->priv->gain,NULL);
   gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(self->priv->machines[PART_GAIN]),passthrough);
 }
+#endif
 
 /*
  * bt_wire_link_machines:
@@ -403,7 +397,9 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
 
   if(!self->priv->machines[PART_GAIN]) {
     if(!bt_wire_make_internal_element(self,PART_GAIN,"volume","gain")) return(FALSE);
+#if 0
     bt_wire_change_gain(self);
+#endif
     GST_DEBUG("created volume-gain element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   }
 
@@ -945,11 +941,9 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
     case 0:
       param_parent=G_OBJECT(self->priv->machines[PART_GAIN]);
       break;
-    /*
     case 1:
       param_parent=G_OBJECT(self->priv->machines[PART_PAN]);
-      break,
-    */
+      break;
     default:
       GST_WARNING("unimplemented wire param");
       break;
@@ -1080,6 +1074,7 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
     xmlNewProp(node,XML_CHAR_PTR("dst"),XML_CHAR_PTR(id));
     g_free(id);
 
+    // @todo: get gain from gain-element
     xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double(self->priv->gain)));
     // @todo: handle pan
     
@@ -1124,6 +1119,7 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
   xmlFree(id);
 
   if((gain=xmlGetProp(node,XML_CHAR_PTR("gain")))) {
+    // @todo: set gain in gain-element
     self->priv->gain=g_ascii_strtod((gchar *)gain,NULL);
     xmlFree(gain);
   }
@@ -1221,7 +1217,10 @@ static void bt_wire_get_property(GObject      * const object,
       g_value_set_object(value, self->priv->dst);
     } break;
     case WIRE_GAIN: {
-      g_value_set_double(value, self->priv->gain);
+      g_value_set_object(value, self->priv->machines[PART_GAIN]);
+    } break;
+    case WIRE_PAN: {
+      g_value_set_object(value, self->priv->machines[PART_PAN]);
     } break;
     case WIRE_NUM_PARAMS: {
       g_value_set_ulong(value, self->priv->num_params);
@@ -1260,12 +1259,6 @@ static void bt_wire_set_property(GObject      * const object,
       self->priv->dst=BT_MACHINE(g_value_dup_object(value));
       GST_DEBUG("set the target element for the wire: %p",self->priv->dst);
     } break;
-    case WIRE_GAIN: {
-      self->priv->gain=g_value_get_double(value);
-      if(self->priv->machines[PART_GAIN]) {
-        bt_wire_change_gain(self);
-      }
-    } break;
     case WIRE_NUM_PARAMS: {
       self->priv->num_params = g_value_get_ulong(value);
     } break;
@@ -1294,12 +1287,10 @@ static void bt_wire_dispose(GObject * const object) {
     bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_GAIN]), WIRE_PARAM_NAME(0));
     self->priv->wire_controller[0]=NULL;
   }
-  /*
   if(self->priv->machines[PART_PAN]) {
     bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_PAN]), WIRE_PARAM_NAME(1));
     self->priv->wire_controller[1]=NULL;
   }
-  */
 
   // remove the GstElements from the bin
   if(self->priv->bin) {
@@ -1432,13 +1423,18 @@ static void bt_wire_class_init(BtWireClass * const klass) {
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_GAIN,
-                                  g_param_spec_double("gain",
-                                     "gain prop",
-                                     "gain for the connection",
-                                     0.0,
-                                     4.0,
-                                     1.0,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                  g_param_spec_object("gain",
+                                     "gain element prop",
+                                     "the gain element for the connection",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,WIRE_PAN,
+                                  g_param_spec_object("pan",
+                                     "panorama element prop",
+                                     "the panorama element for the connection",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_NUM_PARAMS,
                                   g_param_spec_ulong("num-params",

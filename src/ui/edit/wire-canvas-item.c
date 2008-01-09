@@ -75,6 +75,8 @@ struct _BtWireCanvasItemPrivate {
   BtWire *wire;
   /* and its properties */
   GHashTable *properties;
+  /* gain and pan elements for monitoring */
+  GstElement *wire_gain,*wire_pan;
 
   /* end-points of the wire, relative to the group x,y pos */
   gdouble w,h;
@@ -85,7 +87,7 @@ struct _BtWireCanvasItemPrivate {
   /* the graphcal components */
   GnomeCanvasItem *line,*triangle;
   GnomeCanvasItem *vol_item,*pan_item;
-  GtkLabel *vol_label,*pan_label;
+  GnomeCanvasItem *vol_level_item,*pan_pos_item;
 
   /* wire context_menu */
   GtkMenu *context_menu;
@@ -210,15 +212,6 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
   gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->triangle),"points",points,NULL);
   gnome_canvas_points_free(points);
   
-#if 0
-  gdouble ang=-90.0+(atan2(dx,dy)*180.0)/M_PI;
-  // rotated labels look really ugly and are slow
-  gtk_label_set_angle(self->priv->vol_label,ang);
-  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->vol_item),
-    "x",mid_x,
-    "y", mid_y,
-    NULL);
-#endif
   gdouble ang=-M_PI_2+atan2(dx,dy);
   gdouble affine[]={cos(ang),-sin(ang),sin(ang),cos(ang),0.0,0.0};
   gnome_canvas_item_affine_absolute(GNOME_CANVAS_ITEM(self->priv->vol_item),affine);
@@ -338,6 +331,22 @@ static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer use
     gtk_window_present(GTK_WINDOW(self->priv->analysis_dialog));
   }
 }
+
+static void on_gain_changed(GstElement *element, GParamSpec *arg, gpointer user_data) {
+  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
+  gdouble s=MACHINE_VIEW_WIRE_PAD_SIZE,ox=2.5*s,px=-ox+(1.3*s);
+  gdouble gain;
+  
+  g_object_get(G_OBJECT(self->priv->wire_gain),"volume",&gain,NULL);
+  // do some sensible clamping
+  if(gain>4.0) gain=4.0;  
+  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->vol_level_item),"x2", px+(gain*0.55*s),NULL);
+}
+
+static void on_pan_changed(GstElement *element, GParamSpec *arg, gpointer user_data) {
+  /* @todo: update pan bar */
+}
+
 //-- helper methods
 
 //-- constructor methods
@@ -387,7 +396,7 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
                             NULL));
   gnome_canvas_item_lower_to_bottom(GNOME_CANVAS_ITEM(self));
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
-
+  
   //GST_INFO("wire canvas item added");
 
   g_object_try_unref(setup);
@@ -516,8 +525,16 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(G_OBJECT(setup),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
   g_object_try_unref(setup);
   g_object_try_unref(song);
+  if(self->priv->wire_gain) {
+    g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->wire_gain),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_gain_changed,(gpointer)self);
+    g_object_unref(self->priv->wire_gain);
+  }
+  if(self->priv->wire_pan) {
+    g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->wire_pan),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pan_changed,(gpointer)self);
+    g_object_unref(self->priv->wire_pan);
+  }
   GST_DEBUG("  signal disconected");
-
+  
   g_object_try_weak_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);
@@ -554,7 +571,6 @@ static void bt_wire_canvas_item_finalize(GObject *object) {
 static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(citem);
   gchar *prop,*color1,*color2;
-  guint i;
   GnomeCanvasPoints *points;
   gdouble s=MACHINE_VIEW_WIRE_PAD_SIZE,oy=0.25*s,ox=2.5*s,px;
 
@@ -563,6 +579,13 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
 
   GST_DEBUG("realize for wire occured, wire=%p : w=%f,h=%f",self->priv->wire,self->priv->w,self->priv->h);
 
+  g_object_get(self->priv->wire,"gain",&self->priv->wire_gain,"pan",&self->priv->wire_pan,NULL);
+  g_signal_connect(self->priv->wire_gain,"notify::volume",G_CALLBACK(on_gain_changed),(gpointer)self);
+  if(self->priv->wire_pan) {
+    g_signal_connect(self->priv->wire_pan,"notify::panorama",G_CALLBACK(on_pan_changed),(gpointer)self);
+  }
+
+  
   self->priv->line=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_LINE,
                            "fill-color", "black",
@@ -595,24 +618,36 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
                            "width-pixels", 1,
                            NULL);
   gnome_canvas_points_free(points);
-  points=gnome_canvas_points_new(2);
+
   px=-ox+(1.3*s);
-  for(i=0;i<=10;i++) {
-    px+=(0.2*s);
-    points->coords[0]=px;points->coords[1]=-oy-0.2*s;
-    points->coords[2]=px;points->coords[3]=-oy-0.8*s;
-    gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->vol_item),
-                             GNOME_TYPE_CANVAS_LINE,
-                             "points", points,
-                             "fill-color", (i<6)?"gray16":"gray48",
-                             "width-pixels", 1,
-                             NULL);
-  }
-  gnome_canvas_points_free(points);
+  gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->vol_item),
+                           GNOME_TYPE_CANVAS_RECT,
+                           "x1", px,
+                           "y1", -oy-0.2*s,
+                           "x2", px+(2.2*s),
+                           "y2", -oy-0.8*s,
+                           "fill-color", "gray48",
+                           "width-pixels", 0,
+                           NULL);
+  self->priv->vol_level_item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->vol_item),
+                           GNOME_TYPE_CANVAS_RECT,
+                           "x1", px,
+                           "y1", -oy-0.2*s,
+                           "x2", px,
+                           "y2", -oy-0.8*s,
+                           "fill-color", "gray16",
+                           "width-pixels", 0,
+                           NULL);
+  on_gain_changed(self->priv->wire_gain,NULL,(gpointer)self);
   //gnome_canvas_item_raise_to_top(self->priv->vol_item);
 
   // @todo: check if wire has PAN and set color accordingly
-  color1="gray48";color2="gray64";
+  if(self->priv->wire_pan) {
+    color1="gray16";color2="gray32";
+  }
+  else {
+    color1="gray48";color2="gray64";
+  }
   self->priv->pan_item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_GROUP,NULL);
   points=gnome_canvas_points_new(3);
@@ -637,37 +672,30 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
                            "width-pixels", 1,
                            NULL);
   gnome_canvas_points_free(points);
-  gnome_canvas_points_free(points);
-  points=gnome_canvas_points_new(2);
-  px=-ox+(1.3*s);
-  for(i=0;i<=10;i++) {
-    px+=(0.2*s);
-    points->coords[0]=px;points->coords[1]=oy+0.2*s;
-    points->coords[2]=px;points->coords[3]=oy+0.8*s;
-    gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->pan_item),
-                             GNOME_TYPE_CANVAS_LINE,
-                             "points", points,
-                             "fill-color", ((i>5) && (i<9))?"gray16":"gray48",
-                             "width-pixels", 1,
-                             NULL);
-  }
-  gnome_canvas_points_free(points);
 
-  
-#if 0
-  // gnome-canvas cannot rotate text, but gtk can
-  // @todo: need real value, need to zoom text
-  self->priv->vol_label=GTK_LABEL(gtk_label_new(NULL));
-  gtk_label_set_markup(self->priv->vol_label,"<small>V 000</small>");
-  gtk_widget_show(GTK_WIDGET(self->priv->vol_label));
-  self->priv->vol_item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
-                           GNOME_TYPE_CANVAS_WIDGET,
-                           "anchor",GTK_ANCHOR_CENTER,
-                           "widget",self->priv->vol_label,
-                           "width",(gdouble)50.0, // random lange value */
-                           "height",(gdouble)50.0,
+  px=-ox+(1.3*s);
+  gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->pan_item),
+                           GNOME_TYPE_CANVAS_RECT,
+                           "x1", px,
+                           "y1", oy+0.2*s,
+                           "x2", px+(2.2*s),
+                           "y2", oy+0.8*s,
+                           "fill-color", "gray48",
+                           "width-pixels", 0,
                            NULL);
-#endif
+  if(self->priv->wire_pan) {
+    self->priv->pan_pos_item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->pan_item),
+                             GNOME_TYPE_CANVAS_RECT,
+                             "x1", px+(1.1*s),
+                             "y1", oy+0.2*s,
+                             "x2", px+(1.1*s),
+                             "y2", oy+0.8*s,
+                             "fill-color", "gray16",
+                             "width-pixels", 0,
+                             NULL);
+    on_pan_changed(self->priv->wire_pan,NULL,(gpointer)self);
+  }
+  
   wire_set_triangle_points(self);
 
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"analyzer-shown");

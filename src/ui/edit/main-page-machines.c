@@ -93,7 +93,7 @@ struct _BtMainPageMachinesPrivate {
   /* volume popup slider */
   BtVolumePopup *vol_popup;
   GtkObject *vol_popup_adj;
-  BtWire *vol_popup_wire;
+  GstElement *wire_gain,*wire_pan;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -806,18 +806,8 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 
 static void on_volume_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  gdouble gain;
-
-  GST_INFO(">>>> CHANGED");
-
-  //if (self->priv->lock) return;
-  //self->priv->lock = TRUE;
-
-  gain = gtk_adjustment_get_value (adj);
-  g_object_set(G_OBJECT(self->priv->vol_popup_wire),"gain",gain,NULL);
-
-  //self->priv->lock = FALSE;
-  //self->priv->force_next_update = TRUE;
+  gdouble gain = gtk_adjustment_get_value (adj);
+  g_object_set(G_OBJECT(self->priv->wire_gain),"volume",gain,NULL);
 }
 
 
@@ -1087,9 +1077,10 @@ gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self,
   gtk_window_set_transient_for(GTK_WINDOW(self->priv->vol_popup),GTK_WINDOW(main_window));
   g_object_try_unref(main_window);
 
-  self->priv->vol_popup_wire=wire;
+  g_object_try_unref(self->priv->wire_gain);
+  g_object_get(wire,"gain",&self->priv->wire_gain,NULL);
   /* set initial value */
-  g_object_get(G_OBJECT(wire),"gain",&gain,NULL);
+  g_object_get(G_OBJECT(self->priv->wire_gain),"volume",&gain,NULL);
   gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj),gain);
 
   /* @todo: show directly over mouse-pos (check: bacon_volume_button_press) */
@@ -1155,6 +1146,8 @@ static void bt_main_page_machines_dispose(GObject *object) {
 
   // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
   gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
+
+  g_object_try_unref(self->priv->wire_gain);
 
   if(self->priv->vol_popup) {
     GST_DEBUG("  unrefing popup");
