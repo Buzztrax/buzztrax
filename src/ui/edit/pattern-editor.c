@@ -129,16 +129,21 @@ static struct ParamType param_types[] = {
 
 
 static int
+bt_pattern_editor_rownum_width (BtPatternEditor *self)
+{
+  return self->cw * 5;
+}
+
+static void
 bt_pattern_editor_draw_rownum (BtPatternEditor *self,
                           int x,
                           int y,
-                          int row,
-                          PangoLayout *pl)
+                          int row)
 {
   char buf[16];
-  int cw = self->cw, ch = self->ch;
   GtkWidget *widget = GTK_WIDGET(self);
-  int col_w = cw * 5;
+  int ch = self->ch;
+  int col_w = bt_pattern_editor_rownum_width(self);
 
   while (y < widget->allocation.height && row < self->num_rows) {
     gdk_draw_rectangle (widget->window,
@@ -146,13 +151,12 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
       TRUE, x, y, col_w, ch);
     
     sprintf(buf, "%04X", row);
-    pango_layout_set_text (pl, buf, 4);
-    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, pl,
+    pango_layout_set_text (self->pl, buf, 4);
+    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
       &widget->style->text[GTK_STATE_NORMAL], NULL);
     y += ch;
     row++;
   }
-  return col_w;
 }
 
 static int
@@ -163,8 +167,7 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
                           int group,
                           int param,
                           int row,
-                          int max_y,
-                          PangoLayout *pl)
+                          int max_y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
   struct ParamType *pt = &param_types[col->type];
@@ -191,13 +194,13 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
       TRUE, x, y, col_w, ch);
     
     pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
-    pango_layout_set_text (pl, buf, pt->chars);
-    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, pl,
+    pango_layout_set_text (self->pl, buf, pt->chars);
+    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
       &widget->style->text[GTK_STATE_NORMAL], NULL);
     if (row == self->row && param == self->parameter && group == self->group) {
       int cp = pt->column_pos[self->digit];
-      pango_layout_set_text (pl, buf + cp, 1);
-      gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x + cw * cp, y, pl,
+      pango_layout_set_text (self->pl, buf + cp, 1);
+      gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x + cw * cp, y, self->pl,
         &widget->style->bg[GTK_STATE_NORMAL], &widget->style->text[GTK_STATE_NORMAL]);
     }
     y += ch;
@@ -299,11 +302,17 @@ char_to_coords(int charpos,
   return FALSE;
 }
 
+//-- signal handlers
+
+static void on_hscroll(GtkAdjustment *adjustment, GParamSpec *arg, gpointer user_data)
+{
+  gtk_widget_queue_draw(GTK_WIDGET(user_data));
+}
 
 //-- constructor methods
 
 GtkWidget *
-bt_pattern_editor_new()
+bt_pattern_editor_new(void)
 {
   return GTK_WIDGET( g_object_new (BT_TYPE_PATTERN_EDITOR, NULL ));
 }
@@ -316,6 +325,9 @@ bt_pattern_editor_realize (GtkWidget *widget)
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
   GdkWindowAttr attributes;
   gint attributes_mask;
+  PangoContext *pc;
+  PangoFontDescription *pfd;
+  PangoFontMetrics *pfm;
 
   g_return_if_fail (BT_IS_PATTERN_EDITOR (widget));
   
@@ -343,15 +355,52 @@ bt_pattern_editor_realize (GtkWidget *widget)
   // allocation graphical contexts for drawing the overlay lines
   self->play_pos_gc=gdk_gc_new(widget->window);
   gdk_gc_set_rgb_fg_color(self->play_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
-  gdk_gc_set_line_attributes(self->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);  
+  gdk_gc_set_line_attributes(self->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
+  
+  /* calculate font-metrics */
+  pc = gtk_widget_get_pango_context (widget);
+  pfd = pango_font_description_new();
+  pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono");
+  pango_font_description_set_absolute_size (pfd, 12 * PANGO_SCALE);
+  pango_context_load_font (pc, pfd);
+
+  pfm = pango_context_get_metrics (pc, pfd, NULL);
+  self->cw = pango_font_metrics_get_approximate_digit_width (pfm) / PANGO_SCALE;
+  self->ch = (pango_font_metrics_get_ascent (pfm) + pango_font_metrics_get_descent (pfm)) / PANGO_SCALE;
+  pango_font_metrics_unref (pfm);
+
+  self->pl = pango_layout_new (pc);
+  pango_layout_set_font_description (self->pl, pfd);
+  pango_font_description_free (pfd);
+
+  // get adjustments
+  GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self));
+  if (GTK_IS_VIEWPORT(parent)) {
+    g_object_get(parent,"hadjustment",&self->hadj,"vadjustment",&self->vadj,NULL);
+    g_signal_connect(self->hadj,"notify::value",G_CALLBACK(on_hscroll),(gpointer)self);
+    // this speeds up the redraw, but then it flickers worse
+    //gtk_widget_set_double_buffered(GTK_WIDGET(self),FALSE);
+  }
 }
 
 static void bt_pattern_editor_unrealize(GtkWidget *widget)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
 
-  g_object_unref(self->play_pos_gc);
+  g_object_unref (self->play_pos_gc);
   self->play_pos_gc=NULL;
+
+  if(self->hadj) {
+    g_object_unref (self->hadj);
+    self->hadj=NULL;
+  }
+  if(self->vadj){
+    g_object_unref (self->vadj);
+    self->vadj=NULL;
+  }
+  
+  g_object_unref (self->pl);
+  self->pl = NULL;
 }
 
 static gboolean
@@ -359,13 +408,10 @@ bt_pattern_editor_expose (GtkWidget *widget,
                      GdkEventExpose *event)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
-  PangoContext *pc;
-  PangoLayout *pl;
-  PangoFontDescription *pfd;
-  PangoFontMetrics *pfm;
   GdkRectangle rect = event->area;
   int y, x, i, row, g, max_y;
   int start;
+  int scrollx = 0,scrolly = 0, rowhdr_x;
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
@@ -378,21 +424,6 @@ bt_pattern_editor_expose (GtkWidget *widget,
   gdk_window_clear_area (widget->window, 0, 0, widget->allocation.width, widget->allocation.height);
   //gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, widget->allocation.width, widget->allocation.height);
 
-  /* calculate font-metrics */  
-  pc = gtk_widget_get_pango_context (widget);
-  pfd = pango_font_description_new();
-  pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono");
-  pango_font_description_set_absolute_size (pfd, 12 * PANGO_SCALE);
-  pango_context_load_font (pc, pfd);
-
-  pfm = pango_context_get_metrics (pc, pfd, NULL);
-  self->cw = pango_font_metrics_get_approximate_digit_width (pfm) / PANGO_SCALE;
-  self->ch = (pango_font_metrics_get_ascent (pfm) + pango_font_metrics_get_descent (pfm)) / PANGO_SCALE;
-  pango_font_metrics_unref (pfm);
-
-  pl = pango_layout_new (pc);
-  pango_layout_set_font_description (pl, pfd);
-
   x = -self->ofs_x;
   y = -self->ofs_y;
   /* calculate which row to start from */
@@ -400,30 +431,34 @@ bt_pattern_editor_expose (GtkWidget *widget,
   y += row * self->ch;
   max_y = rect.y + rect.height; /* max y */
   
+  if (self->hadj) {
+    scrollx = (gint)gtk_adjustment_get_value(self->hadj);
+    scrolly = (gint)gtk_adjustment_get_value(self->vadj);
+  }
+    
   /* draw row-number column */
-  start = x;
-  x += bt_pattern_editor_draw_rownum(self, x, y, row, pl) + self->cw;
-  self->rowhdr_width = x - start;
+  rowhdr_x = scrollx+x;
+  self->rowhdr_width = bt_pattern_editor_rownum_width(self) + self->cw;
+  x += self->rowhdr_width;
 
   /* draw group parameter columns */
   for (g = 0; g < self->num_groups; g++) {
     PatternColumnGroup *cgrp = &self->groups[g];
     start = x;
     for (i = 0; i < cgrp->num_columns; i++) {
-      x += bt_pattern_editor_draw_column(self, x, y, &cgrp->columns[i], g, i, row, max_y, pl);
+      x += bt_pattern_editor_draw_column(self, x, y, &cgrp->columns[i], g, i, row, max_y);
     }
     x += self->cw;
     cgrp->width = x - start;
   }
+  
+  bt_pattern_editor_draw_rownum(self, rowhdr_x, y, row);
 
   /* draw play-pos */
   if(self->play_pos>=0.0) {
     y=(gint)(self->play_pos*(gdouble)bt_pattern_editor_get_col_height(self));
     gdk_draw_line(widget->window,self->play_pos_gc, 0,y,widget->allocation.width,y);
   }
-  
-  g_object_unref (pl);
-  pango_font_description_free (pfd);
 
   if (G_UNLIKELY(self->size_changed)) {  
     // do this for the after the first redraw

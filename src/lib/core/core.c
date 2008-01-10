@@ -131,6 +131,15 @@ static gboolean bt_init_post (void) {
   }
 #endif
 #endif
+
+#if 0
+#include <xmmintrin.h>
+#if HAVE_XMMINTRIN
+// @todo: denormal handling, needs configure check and testing
+_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+_mm_setcsr(_mm_getcsr() | 0x8040);
+#endif
+#endif
   
   res=TRUE;
   

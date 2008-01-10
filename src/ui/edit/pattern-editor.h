@@ -85,7 +85,6 @@ typedef struct _BtPatternEditor
   int parameter;
   int digit;
   /* scroll location */
-  // FIXME: why, gtk+ is doing the scrolling for us
   int ofs_x, ofs_y;
   /* pattern data */
   int num_lines, num_groups, num_rows;
@@ -94,6 +93,7 @@ typedef struct _BtPatternEditor
   gpointer pattern_data;
   
   /* font metrics */
+  PangoLayout *pl;
   int cw, ch;
   int rowhdr_width;
 
@@ -105,6 +105,9 @@ typedef struct _BtPatternEditor
   /* position of playing pointer from 0.0 ... 1.0 */
   gdouble play_pos;
   GdkGC *play_pos_gc;
+  
+  /* scroll adjustments */
+  GtkAdjustment *hadj,*vadj;
 
 } BtPatternEditor;
 
