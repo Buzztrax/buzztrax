@@ -1,5 +1,11 @@
 2008-01-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Listen to wire-pattern additionas elsewhere too. FIxes the issue
+	  described in last,last changelog entry.
+
+2008-01-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/core.c:
 	  Some ideas for denormal handling.
 

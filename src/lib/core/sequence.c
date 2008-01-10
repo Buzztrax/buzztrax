@@ -805,7 +805,7 @@ static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern *
   BtPattern *pattern;
   BtMachine *this_machine;
   gulong i,j,k;
-
+  
   g_object_get(G_OBJECT(wire_pattern),"pattern",&pattern,NULL);
   g_object_get(G_OBJECT(pattern),"machine",&this_machine,NULL);
   // for all occurences of pattern
@@ -1284,6 +1284,10 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
         if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
           g_signal_connect(G_OBJECT(wire_pattern),"param-changed",G_CALLBACK(bt_sequence_on_wire_pattern_wire_param_changed),(gpointer)self);
           g_object_unref(wire_pattern);
+        }
+        else {
+          // we need to wait for the first wire-pattern
+          g_signal_connect(G_OBJECT(wire),"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
         }
         g_object_unref(wire);
       }
