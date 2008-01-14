@@ -56,17 +56,13 @@ void bt_core_setup(void) {
   //g_mem_set_vtable(glib_mem_profiler_table);
 
   bt_init(&test_argc,&test_argvptr);
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
+  bt_check_init();
+  
   // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG);
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
-  // no ansi color codes in logfiles please
-  gst_debug_set_colored(FALSE);
-
-  // use our dummy settings
-  bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
+  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 }
 
 void bt_core_teardown(void) {

@@ -60,12 +60,12 @@ void bt_edit_setup(void) {
   btic_init(&test_argc,&test_argvptr);
   gtk_init(&test_argc,&test_argvptr);
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
+  bt_check_init();
 
   ///setup_log_capture();
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
-  ///g_log_set_always_fatal(G_LOG_LEVEL_ERROR);
+  //g_log_set_always_fatal(G_LOG_LEVEL_ERROR);
 
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
    // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING);
@@ -74,14 +74,8 @@ void bt_edit_setup(void) {
   gst_debug_category_set_threshold(bt_ic_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-  // no ansi color codes in logfiles please
-  gst_debug_set_colored(FALSE);
-
-  // use our dummy settings
-  bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
 
   check_setup_test_display();
-
   //gdk_threads_enter();
 
   GST_INFO("================================================================================");

@@ -39,7 +39,10 @@
  *   - tempo-iface is implemented, but is hidden from the ui
  *     (the iface properties are not controlable)
  *   - we could have separate properties and forward the changes
+ *
  * @todo: for upnp it would be nice to stream on-demand
+ *
+ * @todo: add caps-filter to enforce stereo
  */
 
 #define BT_CORE
@@ -881,9 +884,11 @@ static gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin) {
   return TRUE;
 }
 
-GST_PLUGIN_DEFINE_STATIC(GST_VERSION_MAJOR,
-    GST_VERSION_MINOR,
-    "bt-sink-bin",
-    "buzztard sink bin - encapsulates play and record functionality",
-    bt_sink_bin_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org"
-)
+const GstPluginDesc bt_sink_bin_plugin_desc = {
+  GST_VERSION_MAJOR,
+  GST_VERSION_MINOR,
+  "bt-sink-bin",
+  "buzztard sink bin - encapsulates play and record functionality",
+  bt_sink_bin_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org",
+};
+

@@ -77,6 +77,8 @@ static void __testname (int i __attribute__((unused)))\
 
 //-- testing helper methods
 
+extern void bt_check_init(void); 
+
 #define g_object_checked_unref(obj) \
 {\
   gpointer __objref;\

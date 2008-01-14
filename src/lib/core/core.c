@@ -77,6 +77,8 @@ static gboolean bt_init_pre (void) {
   return TRUE;
 }
 
+extern const GstPluginDesc bt_sink_bin_plugin_desc;
+
 static gboolean bt_init_post (void) {
   gboolean res=FALSE;
   
@@ -85,6 +87,8 @@ static gboolean bt_init_post (void) {
   //-- initialize dynamic parameter control module
   //gst_controller_init(argc,argv);
   gst_controller_init(NULL,NULL);
+  
+  gst_plugin_register_static(&bt_sink_bin_plugin_desc);
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 

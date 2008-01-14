@@ -40,8 +40,8 @@ gchar **test_argvptr;
 /* common setup and teardown code */
 void bt_cmd_setup(void) {
   bt_init(&test_argc,&test_argvptr);
+  bt_check_init();
 
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   GST_DEBUG_CATEGORY_INIT(bt_cmd_debug, "bt-cmd", 0, "music production environment / command ui");
   // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING);
@@ -49,11 +49,6 @@ void bt_cmd_setup(void) {
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_cmd_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-  // no ansi color codes in logfiles please
-  gst_debug_set_colored(FALSE);
-
-  // use our dummy settings
-  bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
 
   GST_INFO("================================================================================");
 }

@@ -372,9 +372,11 @@ static gboolean bt_test_plugin_init (GstPlugin * plugin) {
   return TRUE;
 }
 
-GST_PLUGIN_DEFINE_STATIC(GST_VERSION_MAJOR,
-    GST_VERSION_MINOR,
-    "bt-test",
-    "buzztard test plugin - several unit test support elements",
-    bt_test_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org"
-)
+const GstPluginDesc bt_test_plugin_desc = {
+  GST_VERSION_MAJOR,
+  GST_VERSION_MINOR,
+  "bt-test",
+  "buzztard test plugin - several unit test support elements",
+  bt_test_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org"
+};
+

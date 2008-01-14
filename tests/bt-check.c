@@ -29,6 +29,20 @@
 #include <sys/types.h>
 #include <signal.h>
 
+
+extern const GstPluginDesc bt_test_plugin_desc;
+
+void bt_check_init(void) {
+  gst_plugin_register_static(&bt_test_plugin_desc);
+  
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
+  // no ansi color codes in logfiles please
+  gst_debug_set_colored(FALSE);
+  // use our dummy settings
+  bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
+}
+
+
 /*
  * error trapping:
  * Check for certain log-output.
