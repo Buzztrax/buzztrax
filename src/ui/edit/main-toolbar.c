@@ -472,8 +472,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     gst_object_unref(bus);
 
     // get the pad from the input-level and listen there for channel negotiation
-    if((pad=gst_element_get_pad(level,"src"))) {
+    if((pad=gst_element_get_static_pad(level,"src"))) {
       g_signal_connect(pad,"notify::caps",G_CALLBACK(on_channels_negotiated),(gpointer)self);
+      gst_object_unref(pad);
     }
     // release the references
     gst_object_unref(level);

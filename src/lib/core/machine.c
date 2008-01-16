@@ -1485,8 +1485,6 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     // what about rate, endianness and signed
     ns=gst_structure_new(fmt_names[n_format],
       "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
-      NULL);
-    gst_structure_set(ns,
       "channels",GST_TYPE_INT_RANGE,n_channels,8,
       "width",GST_TYPE_INT_RANGE,n_width,32,
       "signedness",G_TYPE_INT,G_BYTE_ORDER,

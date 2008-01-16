@@ -459,10 +459,10 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       "depth = (int) [ 1, 32 ], "
       "signed = (boolean) { true, false };"
     "audio/x-raw-float, "
-      "width = (int) 32, "
+      "channels = (int) 2, "
       "rate = (int) [ 1, MAX ], "
-      "channels = (int) 1, "
-      "endianness = (int) BYTE_ORDER"
+      "width = (int) { 32, 64 }, "
+      "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }"
   );
   first_elem=gst_element_factory_make("capsfilter","capsfilter");
   g_object_set(first_elem,"caps",stereo_caps,NULL);
@@ -475,7 +475,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       if(list) {
         bt_sink_bin_add_many(self,list);
         //first_elem=GST_ELEMENT(list->data);
-        bt_sink_bin_link_many(self,first_elem,list->next);
+        bt_sink_bin_link_many(self,first_elem,list);
         g_list_free(list);
       }
       else {
@@ -488,7 +488,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       if(list) {
         bt_sink_bin_add_many(self,list);
         //first_elem=GST_ELEMENT(list->data);
-        bt_sink_bin_link_many(self,first_elem,list->next);
+        bt_sink_bin_link_many(self,first_elem,list);
         g_list_free(list);
       }
       else {

@@ -344,7 +344,31 @@ static void on_gain_changed(GstElement *element, GParamSpec *arg, gpointer user_
 }
 
 static void on_pan_changed(GstElement *element, GParamSpec *arg, gpointer user_data) {
-  /* @todo: update pan bar */
+  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
+  gdouble s=MACHINE_VIEW_WIRE_PAD_SIZE,ox=2.5*s,px=-ox+(1.3*s);
+  gdouble pan;
+  
+  g_object_get(G_OBJECT(self->priv->wire_pan),"panorama",&pan,NULL);
+  if(pan<0.0) {
+    gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->pan_pos_item),
+      "x1", px+(pan*-1.1*s),
+      "x2", px+(1.1*s),
+      NULL);
+  }
+  else {
+    gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->pan_pos_item),
+      "x1", px+(1.1*s),
+      "x2", px+(pan*1.1*s),
+      NULL);
+  }
+}
+
+static void on_wire_pan_changed(GstElement *element, GParamSpec *arg, gpointer user_data) {
+  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
+
+  g_object_get(self->priv->wire,"pan",&self->priv->wire_pan,NULL);
+  g_signal_connect(self->priv->wire_pan,"notify::panorama",G_CALLBACK(on_pan_changed),(gpointer)self);
+  // @todo: need to change colors of the pan-icon
 }
 
 //-- helper methods
@@ -583,6 +607,9 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
   g_signal_connect(self->priv->wire_gain,"notify::volume",G_CALLBACK(on_gain_changed),(gpointer)self);
   if(self->priv->wire_pan) {
     g_signal_connect(self->priv->wire_pan,"notify::panorama",G_CALLBACK(on_pan_changed),(gpointer)self);
+  }
+  else {
+    g_signal_connect(self->priv->wire,"notify::pan",G_CALLBACK(on_wire_pan_changed),(gpointer)self);
   }
 
   

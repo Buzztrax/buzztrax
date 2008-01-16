@@ -75,8 +75,7 @@ typedef enum {
   /* wire format conversion elements */
   PART_CONVERT,
   /*PART_SCALE, unused right now */
-  /* @todo: need pan/balance here, if either src/dst has channesl>1
-     can we remove PART_CONVERT, GAIN does convert the most formats
+  /* @todo: can we remove PART_CONVERT, GAIN does convert the most formats
      and pan does the channels
   */
   PART_PAN,
@@ -142,6 +141,31 @@ G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, G_TYPE_OBJECT,
     bt_wire_persistence_interface_init));
 */
 
+//-- helper methods
+
+/*
+ * bt_wire_make_internal_element:
+ * @self: the wire
+ * @part: which internal element to create
+ * @factory_name: the element-factories name
+ * @element_name: the name of the new #GstElement instance
+ *
+ * This helper is used by the bt_wire_link() function.
+ */
+static gboolean bt_wire_make_internal_element(const BtWire * const self, const BtWirePart part, const gchar * const factory_name, const gchar * const element_name) {
+  gboolean res=FALSE;
+
+  // add internal element
+  gchar * const name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
+  if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
+    GST_ERROR("failed to create %s",element_name);goto Error;
+  }
+  gst_bin_add(self->priv->bin,self->priv->machines[part]);
+  res=TRUE;
+Error:
+  return(res);
+}
+
 //-- signal handler
 
 #if 0
@@ -150,6 +174,60 @@ static void on_format_negotiated(GstPad *pad, GParamSpec *arg, gpointer user_dat
    * renegotiation
   bt_machine_renegotiate_adder_format(BT_MACHINE(user_data),pad);
   */
+}
+
+static void on_convert_format_negotiated(GstPad *pad, GParamSpec *arg, gpointer user_data) {
+  BtWire *self = BT_WIRE(user_data);
+  GstCaps *caps;
+
+  g_assert(user_data);
+
+  if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
+    GstStructure *structure;
+    gint channels=1;
+    
+    if(GST_CAPS_IS_SIMPLE(caps)) {
+      structure = gst_caps_get_structure(caps,0);
+      
+      if((gst_structure_get_int(structure,"channels",&channels))) {
+        GST_WARNING("channels on wire.dst=%d",channels);
+      }
+    }
+    else {
+      gint c,i,size=gst_caps_get_size(caps);
+      
+      for(i=0;i<size;i++) {
+        if((structure=gst_caps_get_structure(caps,i))) {
+          if(gst_structure_get_int(structure,"channels",&c)) {
+            if(c>channels) channels=c;
+          }            
+        }
+      }
+      GST_WARNING("channels on wire.dst=%d",channels);
+    }
+    if(channels==2) {
+      GstElement ** const machines=self->priv->machines;
+      /* insert panorama */
+
+      if(!machines[PART_PAN]) {
+        if(!bt_wire_make_internal_element(self,PART_PAN,"audiopanorama","pan")) return;
+        GST_DEBUG("created panorama/balance element for wire : %p '%s' -> %p '%s'",
+          self->priv->src->src_elem,GST_OBJECT_NAME(self->priv->src->src_elem),
+          self->priv->dst->dst_elem,GST_OBJECT_NAME(self->priv->dst->dst_elem));
+      }
+      // @todo: use gst_pad_link/unlink to avoid request-pad issues iwth dst_elem
+      gst_element_unlink(machines[PART_CONVERT], self->priv->dst->dst_elem);
+      if(!gst_element_link_many(machines[PART_CONVERT], machines[PART_PAN], self->priv->dst->dst_elem, NULL)) {
+        GST_DEBUG("failed to link panorama on wire");
+      }
+      self->priv->wire_props[1]=g_object_class_find_property(
+        G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machines[PART_PAN])),"panorama");
+      self->priv->num_params=2;
+      GST_WARNING("panorama activated");
+      g_object_notify(G_OBJECT(self),"pan");
+      g_object_notify(G_OBJECT(self),"num-params");
+    }
+  }
 }
 #endif
 
@@ -162,11 +240,8 @@ static void bt_wire_init_params(const BtWire * const self) {
     "volume");
   if(self->priv->machines[PART_PAN]) {
     self->priv->wire_props[1]=g_object_class_find_property(
-      G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_PAN])),
-      "panorama");
-  }
-  else {
-    self->priv->wire_props[1]=NULL;
+      G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_PAN])),"panorama");
+    self->priv->num_params=2;
   }
 }
 
@@ -228,29 +303,6 @@ static GstPad *bt_wire_get_src_peer_pad(GstElement * const elem) {
  */
 static GstPad *bt_wire_get_sink_peer_pad(GstElement * const elem) {
   return(bt_wire_get_peer_pad(gst_element_iterate_sink_pads(elem)));
-}
-
-/*
- * bt_wire_make_internal_element:
- * @self: the wire
- * @part: which internal element to create
- * @factory_name: the element-factories name
- * @element_name: the name of the new #GstElement instance
- *
- * This helper is used by the bt_wire_link() function.
- */
-static gboolean bt_wire_make_internal_element(const BtWire * const self, const BtWirePart part, const gchar * const factory_name, const gchar * const element_name) {
-  gboolean res=FALSE;
-
-  // add internal element
-  gchar * const name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
-  if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
-    GST_ERROR("failed to create %s",element_name);goto Error;
-  }
-  gst_bin_add(self->priv->bin,self->priv->machines[part]);
-  res=TRUE;
-Error:
-  return(res);
 }
 
 /*
@@ -389,37 +441,71 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   const BtMachine * const src = self->priv->src;
   const BtMachine * const dst = self->priv->dst;
   GstElement ** const machines=self->priv->machines;
+  GstElement *dst_machine;
+  GstCaps *caps;
+  GstPad *pad;
 
   g_assert(BT_IS_WIRE(self));
 
   g_assert(GST_IS_OBJECT(src->src_elem));
   g_assert(GST_IS_OBJECT(dst->dst_elem));
 
-  if(!self->priv->machines[PART_GAIN]) {
+  if(!machines[PART_GAIN]) {
     if(!bt_wire_make_internal_element(self,PART_GAIN,"volume","gain")) return(FALSE);
-#if 0
-    bt_wire_change_gain(self);
-#endif
     GST_DEBUG("created volume-gain element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   }
 
-  if(!self->priv->machines[PART_TEE]) {
+  if(!machines[PART_TEE]) {
     if(!bt_wire_make_internal_element(self,PART_TEE,"tee","tee")) return(FALSE);
     GST_DEBUG("created tee element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   }
-
-  /* @todo: if dst.channels==2 add panorama
-   * pad = gst_element_get_static_pad(dst.machines[PART_CAPS_FILTER],"sink");
-   * caps = gst_pad_get_pad_template_caps(pad);
-   * structure = gst_caps_get_structure(caps)
-   * gst_structure_get_int (structure, "channels", &channels);
-   */
+  
+  g_object_get(G_OBJECT(dst),"machine",&dst_machine,NULL);
+  if((pad=gst_element_get_static_pad(dst_machine,"sink"))) {
+    if((caps=gst_pad_get_allowed_caps(pad))) {
+      GstStructure *structure;
+      gint channels=1;
+      
+      if(GST_CAPS_IS_SIMPLE(caps)) {
+        structure = gst_caps_get_structure(caps,0);
+        
+        if((gst_structure_get_int(structure,"channels",&channels))) {
+          GST_WARNING("channels on wire.dst=%d",channels);
+        }
+      }
+      else {
+        gint c,i,size=gst_caps_get_size(caps);
+        
+        for(i=0;i<size;i++) {
+          if((structure=gst_caps_get_structure(caps,i))) {
+            if(gst_structure_get_int(structure,"channels",&c)) {
+              if(c>channels) channels=c;
+            }            
+          }
+        }
+        GST_WARNING("channels on wire.dst=%d, (checked %d caps)",channels, size);
+      }
+      if(channels==2) {
+        GstElement ** const machines=self->priv->machines;
+        /* insert panorama */
+  
+        if(!machines[PART_PAN]) {
+          if(!bt_wire_make_internal_element(self,PART_PAN,"audiopanorama","pan")) return(FALSE);
+          GST_DEBUG("created panorama/balance element for wire : %p '%s' -> %p '%s'",
+            self->priv->src->src_elem,GST_OBJECT_NAME(self->priv->src->src_elem),
+            self->priv->dst->dst_elem,GST_OBJECT_NAME(self->priv->dst->dst_elem));
+        }
+      }
+      gst_caps_unref(caps);
+    }
+  }
+  gst_object_unref(dst_machine);
   
   GST_DEBUG("trying to link machines directly : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   // try link src to dst {directly, with convert, with scale, with ...}
   /* @todo: if we try linking without audioconvert and this links to an adder,
    * then the first link enforces the format (if first is mono and later stereo
-   * sugnal is linked, this is downgraded).
+   * signal is linked, this is downgraded).
    * Right now we need to do this, because of http://bugzilla.gnome.org/show_bug.cgi?id=418982
    */
   /*
@@ -434,7 +520,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     GST_DEBUG("trying to link machines with convert");
     if(!gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL)) {
       gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL);
-			/*
+      /*
       if(!machines[PART_SCALE]) {
         bt_wire_make_internal_element(self,PART_SCALE,"audioresample","audioresample");
         g_assert(machines[PART_SCALE]!=NULL);
@@ -473,7 +559,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
         machines[PART_DST]=machines[PART_SCALE];
         GST_DEBUG("  wire okay with scale");
       }
-			*/
+      */
     }
     else {
       machines[PART_SRC]=machines[PART_TEE];
