@@ -372,11 +372,23 @@ static gboolean bt_test_plugin_init (GstPlugin * plugin) {
   return TRUE;
 }
 
+#ifdef HAVE_GST_PLUGIN_REGISTER_STATIC
+/* @todo: requires gst-0.10.16 */
 const GstPluginDesc bt_test_plugin_desc = {
   GST_VERSION_MAJOR,
   GST_VERSION_MINOR,
   "bt-test",
   "buzztard test plugin - several unit test support elements",
-  bt_test_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org"
+  bt_test_plugin_init, VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org",
+  GST_PADDING_INIT
 };
+#else
+GST_PLUGIN_DEFINE_STATIC(
+  GST_VERSION_MAJOR,
+  GST_VERSION_MINOR,
+  "bt-test",
+  "buzztard test plugin - several unit test support elements",
+  bt_test_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org"
+);
+#endif
 

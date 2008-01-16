@@ -346,6 +346,10 @@ CPPFLAGS="$CPPFLAGS $BASE_DEPS_CFLAGS"
 LDFLAGS="$LDFLAGS $BASE_DEPS_LIBS"
 AC_CHECK_HEADERS(gst/gstdebugutils.h)
 AC_CHECK_HEADERS(gst/gstpreset.h)
+dnl since 0.10.16
+AC_CHECK_LIB( gstreamer-0.10, gst_plugin_register_static, \ 	 
+  AC_DEFINE(HAVE_GST_PLUGIN_REGISTER_STATIC, [1], [Define to 1 if we have the gst_plugin_register_static]) \
+)
 CFLAGS="$ac_cflags_save"
 CPPFLAGS="$ac_cppflags_save"
 LDFLAGS="$ac_ldflags_save"

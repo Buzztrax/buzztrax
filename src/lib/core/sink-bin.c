@@ -417,7 +417,8 @@ Error:
  * Returns: %TRUE for success
  */
 static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
-  GstElement *first_elem=NULL;
+  GstElement *first_elem;
+  GstCaps *stereo_caps;
   GstState state;
   gboolean defer=FALSE;
 
@@ -447,6 +448,25 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   bt_sink_bin_clear(self);
 
   GST_INFO("initializing sink-bin");
+  
+  // @todo: always add caps-filter as a first element and enforce stereo
+  stereo_caps=gst_caps_from_string(
+    "audio/x-raw-int, "
+      "channels = (int) 2, "
+      "rate = (int) [ 1, MAX ], "
+      "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }, "
+      "width = (int) { 8, 16, 24, 32 }, "
+      "depth = (int) [ 1, 32 ], "
+      "signed = (boolean) { true, false };"
+    "audio/x-raw-float, "
+      "width = (int) 32, "
+      "rate = (int) [ 1, MAX ], "
+      "channels = (int) 1, "
+      "endianness = (int) BYTE_ORDER"
+  );
+  first_elem=gst_element_factory_make("capsfilter","capsfilter");
+  g_object_set(first_elem,"caps",stereo_caps,NULL);
+  gst_bin_add(GST_BIN(self),first_elem);
 
   // add new children
   switch(self->priv->mode) {
@@ -454,7 +474,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       GList * const list=bt_sink_bin_get_player_elements(self);
       if(list) {
         bt_sink_bin_add_many(self,list);
-        first_elem=GST_ELEMENT(list->data);
+        //first_elem=GST_ELEMENT(list->data);
         bt_sink_bin_link_many(self,first_elem,list->next);
         g_list_free(list);
       }
@@ -467,7 +487,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       GList * const list=bt_sink_bin_get_recorder_elements(self);
       if(list) {
         bt_sink_bin_add_many(self,list);
-        first_elem=GST_ELEMENT(list->data);
+        //first_elem=GST_ELEMENT(list->data);
         bt_sink_bin_link_many(self,first_elem,list->next);
         g_list_free(list);
       }
@@ -477,16 +497,18 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       }
       break;}
     case BT_SINK_BIN_MODE_PLAY_AND_RECORD:{
+      GstElement *tee;
       // add a tee element
       gchar * const name=g_strdup_printf("tee_%p",self);
-      first_elem=gst_element_factory_make("tee",name);
+      tee=gst_element_factory_make("tee",name);
       g_free(name);
-      gst_bin_add(GST_BIN(self),first_elem);
+      gst_bin_add(GST_BIN(self),tee);
+      gst_element_link(first_elem,tee);
       // add player elems
       GList * const list1=bt_sink_bin_get_player_elements(self);
       if(list1) {
         bt_sink_bin_add_many(self,list1);
-        bt_sink_bin_link_many(self,first_elem,list1);
+        bt_sink_bin_link_many(self,tee,list1);
         g_list_free(list1);
       }
       else {
@@ -497,7 +519,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       GList * const list2=bt_sink_bin_get_recorder_elements(self);
       if(list2) {
         bt_sink_bin_add_many(self,list2);
-        bt_sink_bin_link_many(self,first_elem,list2);
+        bt_sink_bin_link_many(self,tee,list2);
         g_list_free(list2);
       }
       else {
@@ -510,7 +532,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   }
 
   // set new ghostpad-target
-  if(first_elem && self->priv->sink) {
+  if(/*first_elem &&*/self->priv->sink) {
     GstPad *sink_pad=gst_element_get_static_pad(first_elem,"sink");
 
     GST_INFO("updating ghostpad: %p", self->priv->sink);
@@ -884,11 +906,23 @@ static gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin) {
   return TRUE;
 }
 
+#ifdef HAVE_GST_PLUGIN_REGISTER_STATIC
+/* @todo: requires gst-0.10.16 */
 const GstPluginDesc bt_sink_bin_plugin_desc = {
   GST_VERSION_MAJOR,
   GST_VERSION_MINOR,
   "bt-sink-bin",
   "buzztard sink bin - encapsulates play and record functionality",
-  bt_sink_bin_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org",
+  bt_sink_bin_plugin_init, VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org",
+  GST_PADDING_INIT
 };
+#else
+GST_PLUGIN_DEFINE_STATIC(
+  GST_VERSION_MAJOR,
+  GST_VERSION_MINOR,
+  "bt-sink-bin",
+  "buzztard sink bin - encapsulates play and record functionality",
+  bt_sink_bin_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org"
+);
+#endif
 

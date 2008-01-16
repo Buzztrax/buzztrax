@@ -29,11 +29,12 @@
 #include <sys/types.h>
 #include <signal.h>
 
-
-extern const GstPluginDesc bt_test_plugin_desc;
-
 void bt_check_init(void) {
+#ifdef HAVE_GST_PLUGIN_REGISTER_STATIC
+  /* @todo: requires gst-0.10.16 */
+  extern const GstPluginDesc bt_test_plugin_desc;
   gst_plugin_register_static(&bt_test_plugin_desc);
+#endif
   
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   // no ansi color codes in logfiles please
