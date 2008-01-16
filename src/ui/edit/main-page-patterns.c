@@ -1701,13 +1701,15 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->def=col->max+1;
       /* @todo: need scaling
        * in case of
-       *   wire.volume: 0.0->0x0000, 1.0->0x4000
+       *   wire.volume: 0.0->0x0000, 1.0->0x4000, 2.0->0x8000, 4.0->0xFFFF+1
        *     col->user_data=&pcc[1]; // const scale
        *     col->scaling factor =  4096.0
        *   song.master_volume: 0db->0.0->0x0000, -80db->1/100.000.000->0x4000
        *     scaling_factor is not enough
        *     col->user_data=&pcc[2]; // log-map
-       * we might need to put the scaling factor into the user_data
+       *
+       * - we might need to put the scaling factor into the user_data
+       * - how can we detect master-volume (log mapping)
        */
       col->user_data=NULL;
       break;
@@ -1749,9 +1751,14 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
     GST_DEBUG("  size is %2d,%2d",number_of_ticks,global_params);
 
+    for(i=0;i<self->priv->number_of_groups;i++) {
+      g_free(self->priv->param_groups[i].name);
+      g_free(self->priv->param_groups[i].columns);
+    }
+    g_free(self->priv->param_groups);
+    
     // wire pattern data
     self->priv->number_of_groups=(global_params>0?1:0)+voices;
-    g_free(self->priv->param_groups);
 
     if(!BT_IS_SOURCE_MACHINE(machine)) {
       BtSong *song;
@@ -2855,11 +2862,13 @@ static void bt_main_page_patterns_finalize(GObject *object) {
 
   g_free(self->priv->column_keymode);
   
+#ifdef USE_PATTERN_EDITOR
   for(i=0;i<self->priv->number_of_groups;i++) {
     g_free(self->priv->param_groups[i].name);
     g_free(self->priv->param_groups[i].columns);
   }
   g_free(self->priv->param_groups);
+#endif
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
