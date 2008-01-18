@@ -84,6 +84,8 @@ typedef struct _BtPatternEditor
   int group;
   int parameter;
   int digit;
+  /* cursor step */
+  int step;
   /* scroll location */
   int ofs_x, ofs_y;
   /* pattern data */
