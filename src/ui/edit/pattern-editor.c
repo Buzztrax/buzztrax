@@ -260,7 +260,9 @@ advance (BtPatternEditor *self)
 {
   if (self->row < self->num_rows - 1) {
     bt_pattern_editor_refresh_cursor(self);
-    self->row++;
+    self->row += self->step;
+    if (self->row > self->num_rows - 1)
+      self->row = self->num_rows - 1;
   }
   bt_pattern_editor_refresh_cursor_or_scroll(self);
 }
@@ -496,7 +498,8 @@ bt_pattern_editor_key_press (GtkWidget *widget,
                         GdkEventKey *event)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
-  if (self->num_groups && !(event->state & GDK_MODIFIER_MASK) &&
+  if (self->num_groups && 
+    !(event->state & (GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD1_MASK)) &&
     (event->keyval >= 32 && event->keyval < 127) &&
     self->callbacks->set_data_func)
   {
@@ -572,17 +575,17 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     switch(event->keyval)
     {
     case GDK_Up:
-      if (self->row - self->step >= 0) {
+      if (self->row > 0) {
         bt_pattern_editor_refresh_cursor(self);
-        self->row -= self->step;
+        self->row -= 1;
         g_object_notify(G_OBJECT(self),"cursor-row");
         bt_pattern_editor_refresh_cursor_or_scroll(self);
       }
       return TRUE;
     case GDK_Down:
-      if (self->row < self->num_rows - self->step) {
+      if (self->row < self->num_rows - 1) {
         bt_pattern_editor_refresh_cursor(self);
-        self->row += self->step;
+        self->row += 1;
         g_object_notify(G_OBJECT(self),"cursor-row");
         bt_pattern_editor_refresh_cursor_or_scroll(self);
       }

@@ -1,6 +1,12 @@
 2008-01-18  Krzysztof Foltman  <wdev@foltman.com>
 
 	* src/ui/edit/pattern-editor.c:
+	  Make step size support more compatible. Check for Shift, Control
+	  and Alt modifiers only when detecting data entry.
+
+2008-01-18  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/pattern-editor.c:
 	* src/ui/edit/pattern-editor.h:
 	  Add PageUp/PageDown support. Add step size (Ctrl+1..9). Ignore
 	  note/value entry when modifier keys are pressed.
