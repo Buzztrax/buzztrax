@@ -92,7 +92,8 @@ struct _BtMainPageMachinesPrivate {
 
   /* volume popup slider */
   BtVolumePopup *vol_popup;
-  GtkObject *vol_popup_adj;
+  BtPanoramaPopup *pan_popup;
+  GtkObject *vol_popup_adj, *pan_popup_adj;
   GstElement *wire_gain,*wire_pan;
 };
 
@@ -810,6 +811,12 @@ static void on_volume_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   g_object_set(G_OBJECT(self->priv->wire_gain),"volume",gain,NULL);
 }
 
+static void on_panorama_popup_changed(GtkAdjustment *adj, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  gfloat pan = (gfloat)gtk_adjustment_get_value (adj);
+  g_object_set(G_OBJECT(self->priv->wire_pan),"panorama",pan,NULL);
+}
+
 
 //-- helper methods
 
@@ -971,6 +978,11 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
   g_signal_connect(G_OBJECT(self->priv->vol_popup_adj),"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
 
+  // create panorama popup
+  self->priv->pan_popup_adj=gtk_adjustment_new(0.0, -1.0, 1.0, 0.05, 0.1, 0.0);
+  self->priv->pan_popup=BT_PANORAMA_POPUP(bt_panorama_popup_new(GTK_ADJUSTMENT(self->priv->pan_popup_adj)));
+  g_signal_connect(G_OBJECT(self->priv->pan_popup_adj),"value-changed",G_CALLBACK(on_panorama_popup_changed),(gpointer)self);
+  
   // set default widget
   gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->canvas));
   // register event handlers
@@ -1069,7 +1081,6 @@ void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWi
  * Returns: %TRUE for succes.
  */
 gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos) {
-  GtkWidget *popup=GTK_WIDGET(self->priv->vol_popup);
   BtMainWindow *main_window;
   gdouble gain;
 
@@ -1084,12 +1095,44 @@ gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self,
   gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj),gain);
 
   /* @todo: show directly over mouse-pos (check: bacon_volume_button_press) */
-  gtk_window_move(GTK_WINDOW(popup),xpos,ypos);
+  gtk_window_move(GTK_WINDOW(self->priv->vol_popup),xpos,ypos);
   bt_volume_popup_show(self->priv->vol_popup);
 
   return(TRUE);
 }
 
+/**
+ * bt_main_page_machines_wire_panorama_popup:
+ * @self: the machines page
+ * @wire: the wire to popup the panorama control for
+ * @xpos: the x-position for the popup
+ * @ypos: the y-position for the popup
+ *
+ * Activates the panorama-popup for the given wire.
+ *
+ * Returns: %TRUE for succes.
+ */
+gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos) {
+  BtMainWindow *main_window;
+  gfloat pan;
+
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  gtk_window_set_transient_for(GTK_WINDOW(self->priv->pan_popup),GTK_WINDOW(main_window));
+  g_object_try_unref(main_window);
+
+  g_object_try_unref(self->priv->wire_pan);
+  g_object_get(wire,"pan",&self->priv->wire_pan,NULL);
+  /* set initial value */
+  g_object_get(G_OBJECT(self->priv->wire_pan),"panorama",&pan,NULL);
+  GST_WARNING("initial pan on %p is %lf",self->priv->wire_pan,pan);
+  gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->pan_popup_adj),(gdouble)pan);
+
+  /* @todo: show directly over mouse-pos (check: bacon_volume_button_press) */
+  gtk_window_move(GTK_WINDOW(self->priv->pan_popup),xpos,ypos);
+  bt_panorama_popup_show(self->priv->pan_popup);
+
+  return(TRUE);
+}
 
 //-- wrapper
 
@@ -1147,13 +1190,17 @@ static void bt_main_page_machines_dispose(GObject *object) {
   // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
   gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
 
-  g_object_try_unref(self->priv->wire_gain);
+  GST_DEBUG("  unrefing popups");
 
+  g_object_try_unref(self->priv->wire_gain);
   if(self->priv->vol_popup) {
-    GST_DEBUG("  unrefing popup");
     bt_volume_popup_hide(self->priv->vol_popup);
-    //gtk_widget_unparent(GTK_WIDGET(self->priv->vol_popup));
     gtk_object_destroy(GTK_OBJECT(self->priv->vol_popup));
+  }
+  g_object_try_unref(self->priv->wire_pan);
+  if(self->priv->pan_popup) {
+    bt_panorama_popup_hide(self->priv->pan_popup);
+    gtk_object_destroy(GTK_OBJECT(self->priv->pan_popup));
   }
 
   //g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);

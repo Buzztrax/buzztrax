@@ -34,6 +34,7 @@ libbtedit_la_SOURCES   = \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
 	missing-framework-elements-dialog.c missing-framework-elements-dialog.h missing-framework-elements-dialog-methods.h \
 	missing-song-elements-dialog.c missing-song-elements-dialog.h missing-song-elements-dialog-methods.h \
+	panorama-popup.c panorama-popup.h \
 	pattern-properties-dialog.c pattern-properties-dialog.h pattern-properties-dialog-methods.h \
 	pattern-editor.c pattern-editor.h \
 	pattern-view.c pattern-view.h pattern-view-methods.h \

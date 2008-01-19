@@ -470,7 +470,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
         structure = gst_caps_get_structure(caps,0);
         
         if((gst_structure_get_int(structure,"channels",&channels))) {
-          GST_WARNING("channels on wire.dst=%d",channels);
+          GST_DEBUG("channels on wire.dst=%d",channels);
         }
       }
       else {
@@ -483,7 +483,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
             }            
           }
         }
-        GST_WARNING("channels on wire.dst=%d, (checked %d caps)",channels, size);
+        GST_DEBUG("channels on wire.dst=%d, (checked %d caps)",channels, size);
       }
       if(channels==2) {
         GstElement ** const machines=self->priv->machines;
@@ -508,71 +508,38 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
    * signal is linked, this is downgraded).
    * Right now we need to do this, because of http://bugzilla.gnome.org/show_bug.cgi?id=418982
    */
-  /*
-  if(!gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], dst->dst_elem, NULL)) {
-    gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], dst->dst_elem, NULL);
-  */
-    if(!machines[PART_CONVERT]) {
-      bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
-      g_object_set(machines[PART_CONVERT],"dithering",0,"noise-shaping",0,NULL);
-      g_assert(machines[PART_CONVERT]!=NULL);
+  if(!machines[PART_CONVERT]) {
+    bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
+    g_object_set(machines[PART_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+    g_assert(machines[PART_CONVERT]!=NULL);
+  }
+  if(machines[PART_PAN]) {
+    GST_DEBUG("trying to link machines with pan");
+    if(!(res=gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], dst->dst_elem, NULL))) {
+      gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], dst->dst_elem, NULL);
     }
-    GST_DEBUG("trying to link machines with convert");
-    if(!gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL)) {
+    else {
+      machines[PART_SRC]=machines[PART_TEE];
+      machines[PART_DST]=machines[PART_PAN];
+      GST_DEBUG("  wire okay with pan");
+    }
+  }
+  else {
+    GST_DEBUG("trying to link machines without pan");
+    if(!(res=gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL))) {
       gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL);
-      /*
-      if(!machines[PART_SCALE]) {
-        bt_wire_make_internal_element(self,PART_SCALE,"audioresample","audioresample");
-        g_assert(machines[PART_SCALE]!=NULL);
-      }
-      gst_bin_add(self->priv->bin, machines[PART_SCALE]);
-      GST_DEBUG("trying to link machines with resample");
-      if(!gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_SCALE], dst->dst_elem, NULL)) {
-        gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_SCALE], dst->dst_elem, NULL);
-        GST_DEBUG("trying to link machines with convert and resample");
-        if(!gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_SCALE], dst->dst_elem, NULL)) {
-          gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_SCALE], dst->dst_elem, NULL);
-          GST_DEBUG("trying to link machines with scale and convert");
-          if(!gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_SCALE], machines[PART_CONVERT], dst->dst_elem, NULL)) {
-            gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_SCALE], machines[PART_CONVERT], dst->dst_elem, NULL);
-			*/
-            GST_DEBUG("failed to link the machines");
-            // print out the content of both machines (using GST_DEBUG)
-            bt_machine_dbg_print_parts(src);bt_machine_dbg_print_parts(dst);
-            res=FALSE;
-			/*
-          }
-          else {
-            machines[PART_SRC]=machines[PART_TEE];
-            machines[PART_DST]=machines[PART_SCALE];
-            GST_DEBUG("  wire okay with scale and convert");
-          }
-        }
-        else {
-          machines[PART_SRC]=machines[PART_TEE];
-          machines[PART_DST]=machines[PART_CONVERT];
-          GST_DEBUG("  wire okay with convert and scale");
-        }
-      }
-      else {
-        machines[PART_SRC]=machines[PART_TEE];
-        machines[PART_DST]=machines[PART_SCALE];
-        GST_DEBUG("  wire okay with scale");
-      }
-      */
     }
     else {
       machines[PART_SRC]=machines[PART_TEE];
       machines[PART_DST]=machines[PART_CONVERT];
-      GST_DEBUG("  wire okay with convert");
+      GST_DEBUG("  wire okay without pan");
     }
-  /*}
-  else {
-    machines[PART_SRC]=machines[PART_TEE];
-    machines[PART_DST]=machines[PART_GAIN];
-    GST_DEBUG("  wire okay");
   }
-  */
+  if(!res) {
+    GST_DEBUG("failed to link the machines");
+    // print out the content of both machines (using GST_DEBUG)
+    bt_machine_dbg_print_parts(src);bt_machine_dbg_print_parts(dst);
+  }
   return(res);
 }
 
@@ -1129,12 +1096,13 @@ void bt_wire_dbg_print_parts(const BtWire * const self) {
   if(self->priv->dst) g_object_get(self->priv->dst,"id",&did,NULL);
 
   /* [Src T G C S Dst] */
-  GST_DEBUG("%s->%s [%s %s %s %s %s]", sid, did,
+  GST_DEBUG("%s->%s [%s %s %s %s %s %s]", sid, did,
     self->priv->machines[PART_SRC]?"SRC":"src",
     self->priv->machines[PART_TEE]?"T":"t",
     self->priv->machines[PART_GAIN]?"G":"g",
     self->priv->machines[PART_CONVERT]?"C":"c",
     /*self->priv->machines[PART_SCALE]?"S":"s",*/
+    self->priv->machines[PART_PAN]?"P":"p",
     self->priv->machines[PART_DST]?"DST":"dst"
   );
   g_free(sid);

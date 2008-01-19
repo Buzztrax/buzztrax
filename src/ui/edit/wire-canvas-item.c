@@ -346,19 +346,20 @@ static void on_gain_changed(GstElement *element, GParamSpec *arg, gpointer user_
 static void on_pan_changed(GstElement *element, GParamSpec *arg, gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   gdouble s=MACHINE_VIEW_WIRE_PAD_SIZE,ox=2.5*s,px=-ox+(1.3*s);
-  gdouble pan;
+  gfloat pan;
   
   g_object_get(G_OBJECT(self->priv->wire_pan),"panorama",&pan,NULL);
+  GST_WARNING("new pan on %p is %lf",self->priv->wire_pan,pan);
   if(pan<0.0) {
     gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->pan_pos_item),
-      "x1", px+(pan*-1.1*s),
+      "x1", px+((1.0+pan)*1.1*s),
       "x2", px+(1.1*s),
       NULL);
   }
   else {
     gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->pan_pos_item),
       "x1", px+(1.1*s),
-      "x2", px+(pan*1.1*s),
+      "x2", px+(1.1*s)+(pan*1.1*s),
       NULL);
   }
 }
@@ -748,7 +749,12 @@ static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *even
         GST_INFO("showing volume-popup at %lf,%lf  %lf,%lf",
           event->button.x,event->button.y,
           event->button.x_root,event->button.y_root);
-        bt_main_page_machines_wire_volume_popup(self->priv->main_page_machines, self->priv->wire, (gint)event->button.x_root, (gint)event->button.y_root);
+        if(!(event->button.state&GDK_SHIFT_MASK)) {
+          bt_main_page_machines_wire_volume_popup(self->priv->main_page_machines, self->priv->wire, (gint)event->button.x_root, (gint)event->button.y_root);
+        }
+        else {
+          bt_main_page_machines_wire_panorama_popup(self->priv->main_page_machines, self->priv->wire, (gint)event->button.x_root, (gint)event->button.y_root);
+        }
         res=TRUE;
       }
       else if(event->button.button==3) {

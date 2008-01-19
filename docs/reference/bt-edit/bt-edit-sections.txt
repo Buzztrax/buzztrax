@@ -29,6 +29,7 @@ bt_about_dialog_get_type
 BtAboutDialogPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>bteditapplication</FILE>
 <TITLE>BtEditApplication</TITLE>
@@ -53,6 +54,7 @@ bt_edit_application_get_type
 BtEditApplicationPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btinteractioncontrollermenu</FILE>
 <TITLE>BtInteractionControllerMenu</TITLE>
@@ -74,6 +76,7 @@ bt_interaction_controller_menu_type_get_type
 BtInteractionControllerMenuPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btinteractioncontrollerlearndialog</FILE>
 <TITLE>BtInteractionControllerLearnDialog</TITLE>
@@ -92,6 +95,7 @@ bt_interaction_controller_learn_dialog_get_type
 BtInteractionControllerLearnDialogPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btmachineactions</FILE>
 <TITLE>BtMachineActions</TITLE>
@@ -100,6 +104,7 @@ bt_machine_action_help
 <SUBSECTION Standard>
 <SUBSECTION Private>
 </SECTION>
+
 
 <SECTION>
 <FILE>btmachinecanvasitem</FILE>
@@ -119,6 +124,7 @@ bt_machine_canvas_item_get_type
 BtMachineCanvasItemPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btmachinemenu</FILE>
 <TITLE>BtMachineMenu</TITLE>
@@ -137,6 +143,7 @@ bt_machine_menu_get_type
 BtMachineMenuPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btmachinepreferencesdialog</FILE>
 <TITLE>BtMachinePreferencesDialog</TITLE>
@@ -154,6 +161,7 @@ BT_TYPE_MACHINE_PREFERENCES_DIALOG
 bt_machine_preferences_dialog_get_type
 BtMachinePreferencesDialogPrivate
 </SECTION>
+
 
 <SECTION>
 <FILE>btmachinepresetpropertiesdialog</FILE>
@@ -174,6 +182,7 @@ bt_machine_preset_properties_dialog_get_type
 BtMachinePresetPropertiesDialogPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btmachinepropertiesdialog</FILE>
 <TITLE>BtMachinePropertiesDialog</TITLE>
@@ -191,6 +200,7 @@ BT_TYPE_MACHINE_PROPERTIES_DIALOG
 bt_machine_properties_dialog_get_type
 BtMachinePropertiesDialogPrivate
 </SECTION>
+
 
 <SECTION>
 <FILE>btmachinerenamedialog</FILE>
@@ -211,6 +221,7 @@ bt_machine_rename_dialog_get_type
 BtMachineRenameDialogPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btmainmenu</FILE>
 <TITLE>BtMainMenu</TITLE>
@@ -228,6 +239,7 @@ BT_TYPE_MAIN_MENU
 bt_main_menu_get_type
 BtMainMenuPrivate
 </SECTION>
+
 
 <SECTION>
 <FILE>btmainpages</FILE>
@@ -247,6 +259,7 @@ bt_main_pages_get_type
 BtMainPagesPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btmainpageinfo</FILE>
 <TITLE>BtMainPageInfo</TITLE>
@@ -265,6 +278,7 @@ bt_main_page_info_get_type
 BtMainPageInfoPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btmainpagemachines</FILE>
 <TITLE>BtMainPageMachines</TITLE>
@@ -273,6 +287,7 @@ bt_main_page_machines_new
 bt_main_page_machines_remove_machine_item
 bt_main_page_machines_remove_wire_item
 bt_main_page_machines_wire_volume_popup
+bt_main_page_machines_wire_panorama_popup
 <SUBSECTION Standard>
 BtMainPageMachinesClass
 BT_MAIN_PAGE_MACHINES
@@ -295,6 +310,7 @@ MACHINE_VIEW_ZOOM_Y
 machine_view_get_machine_position
 </SECTION>
 
+
 <SECTION>
 <FILE>btmainpagepatterns</FILE>
 <TITLE>BtMainPagePatterns</TITLE>
@@ -316,6 +332,7 @@ BT_TYPE_MAIN_PAGE_PATTERNS
 bt_main_page_patterns_get_type
 BtMainPagePatternsPrivate
 </SECTION>
+
 
 <SECTION>
 <FILE>btmainpagesequence</FILE>
@@ -341,6 +358,7 @@ BtMainPageSequencePrivate
 SEQUENCE_ROW_ADDITION_INTERVAL
 </SECTION>
 
+
 <SECTION>
 <FILE>btmainpagewaves</FILE>
 <TITLE>BtMainPageWaves</TITLE>
@@ -358,6 +376,7 @@ BT_TYPE_MAIN_PAGE_WAVES
 bt_main_page_waves_get_type
 BtMainPageWavesPrivate
 </SECTION>
+
 
 <SECTION>
 <FILE>btmainstatusbar</FILE>
@@ -378,6 +397,7 @@ bt_main_statusbar_get_type
 BtMainStatusbarPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btmaintoolbar</FILE>
 <TITLE>BtMainToolbar</TITLE>
@@ -395,6 +415,7 @@ BT_TYPE_MAIN_TOOLBAR
 bt_main_toolbar_get_type
 BtMainToolbarPrivate
 </SECTION>
+
 
 <SECTION>
 <FILE>btmainwindow</FILE>
@@ -420,6 +441,7 @@ bt_main_window_get_type
 BtMainWindowPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btmissingframeworkelementsdialog</FILE>
 <TITLE>BtMissingFrameworkElementsDialog</TITLE>
@@ -439,6 +461,7 @@ bt_missing_framework_elements_dialog_get_type
 BtMissingFrameworkElementsDialogPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btmissingsongelementsdialog</FILE>
 <TITLE>BtMissingSongElementsDialog</TITLE>
@@ -456,6 +479,27 @@ BT_MISSING_SONG_ELEMENTS_DIALOG_GET_CLASS
 bt_missing_song_elements_dialog_get_type
 BtMissingSongElementsDialogPrivate
 </SECTION>
+
+
+<SECTION>
+<FILE>btpanoramapopup</FILE>
+<TITLE>BtPanoramaPopup</TITLE>
+BtPanoramaPopup
+bt_panorama_popup_new
+bt_panorama_popup_show
+bt_panorama_popup_hide
+<SUBSECTION Standard>
+BtPanoramaPopupClass
+BT_PANORAMA_POPUP
+BT_IS_PANORAMA_POPUP
+BT_PANORAMA_POPUP_CLASS
+BT_IS_PANORAMA_POPUP_CLASS
+BT_PANORAMA_POPUP_GET_CLASS
+BT_TYPE_PANORAMA_POPUP
+<SUBSECTION Private>
+bt_panorama_popup_get_type
+</SECTION>
+
 
 <SECTION>
 <FILE>btpatternpropertiesdialog</FILE>
@@ -476,6 +520,7 @@ bt_pattern_properties_dialog_get_type
 BtPatternPropertiesDialogPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btpatternview</FILE>
 <TITLE>BtPatternView</TITLE>
@@ -493,6 +538,7 @@ BT_TYPE_PATTERN_VIEW
 bt_pattern_view_get_type
 BtPatternViewPrivate
 </SECTION>
+
 
 <SECTION>
 <FILE>btplaybackcontrollersocket</FILE>
@@ -512,6 +558,7 @@ bt_playback_controller_socket_get_type
 BtPlaybackControllerSocketPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btrenderdialog</FILE>
 <TITLE>BtRenderDialog</TITLE>
@@ -529,6 +576,7 @@ BT_RENDER_DIALOG_GET_CLASS
 bt_render_dialog_get_type
 BtRenderDialogPrivate
 </SECTION>
+
 
 <SECTION>
 <FILE>btrenderprogress</FILE>
@@ -568,6 +616,7 @@ bt_sequence_view_get_type
 BtSequenceViewPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btsettingsdialog</FILE>
 <TITLE>BtSettingsDialog</TITLE>
@@ -589,6 +638,7 @@ bt_settings_page_get_type
 BtSettingsDialogPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btsettingspageaudiodevices</FILE>
 <TITLE>BtSettingsPageAudiodevices</TITLE>
@@ -607,6 +657,7 @@ bt_settings_page_audiodevices_get_type
 BtSettingsPageAudiodevicesPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btsettingspageinteractioncontroller</FILE>
 <TITLE>BtSettingsPageInteractionController</TITLE>
@@ -624,6 +675,7 @@ BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER
 bt_settings_page_interaction_controller_get_type
 BtSettingsPageInteractionControllerPrivate
 </SECTION>
+
 
 <SECTION>
 <FILE>btsettingspageplaybackcontroller</FILE>
@@ -692,6 +744,7 @@ bt_ui_ressources_get_type
 BtUIRessourcesPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btvolumepopup</FILE>
 <TITLE>BtVolumePopup</TITLE>
@@ -711,6 +764,7 @@ BT_TYPE_VOLUME_POPUP
 bt_volume_popup_get_type
 </SECTION>
 
+
 <SECTION>
 <FILE>btwireanalysisdialog</FILE>
 <TITLE>BtWireAnalysisDialog</TITLE>
@@ -729,6 +783,7 @@ bt_wire_analysis_dialog_get_type
 BtWireAnalysisDialogPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btwirecanvasitem</FILE>
 <TITLE>BtWireCanvasItem</TITLE>
@@ -746,6 +801,7 @@ BT_TYPE_WIRE_CANVAS_ITEM
 bt_wire_canvas_item_get_type
 BtWireCanvasItemPrivate
 </SECTION>
+
 
 <SECTION>
 <FILE>gtkvumeter</FILE>
@@ -767,6 +823,7 @@ GTK_TYPE_VUMETER
 <SUBSECTION Private>
 gtk_vumeter_get_type
 </SECTION>
+
 
 <SECTION>
 <FILE>btedit</FILE>

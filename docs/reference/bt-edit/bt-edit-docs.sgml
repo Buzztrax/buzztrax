@@ -27,6 +27,7 @@
 <!ENTITY BtMainWindow SYSTEM "xml/btmainwindow.xml">
 <!ENTITY BtMissingFrameworkElementsDialog SYSTEM "xml/btmissingframeworkelementsdialog.xml">
 <!ENTITY BtMissingSongElementsDialog SYSTEM "xml/btmissingsongelementsdialog.xml">
+<!ENTITY BtPanoramaPopup SYSTEM "xml/btpanoramapopup.xml">
 <!ENTITY BtPatternPropertiesDialog SYSTEM "xml/btpatternpropertiesdialog.xml">
 <!ENTITY BtPatternView SYSTEM "xml/btpatternview.xml">
 <!ENTITY BtPlaybackControllerSocket SYSTEM "xml/btplaybackcontrollersocket.xml">
@@ -99,6 +100,7 @@
     &BtMainToolbar;
     &BtMissingFrameworkElementsDialog;
     &BtPatternPropertiesDialog;
+    &BtPanoramaPopup;
     &BtPatternView;
     &BtPlaybackControllerSocket;
     &BtRenderDialog;

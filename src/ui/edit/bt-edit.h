@@ -73,6 +73,7 @@
 #include "main-window-methods.h"
 #include "missing-framework-elements-dialog-methods.h"
 #include "missing-song-elements-dialog-methods.h"
+#include "panorama-popup.h"
 #include "pattern-properties-dialog-methods.h"
 #include "pattern-editor.h"
 #include "pattern-view-methods.h"

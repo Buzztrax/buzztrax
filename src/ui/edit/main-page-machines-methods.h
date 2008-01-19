@@ -36,6 +36,7 @@ extern void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *
 extern void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWireCanvasItem *item);
 
 extern gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
+extern gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
 
 
 #endif // BT_MAIN_PAGE_MACHINES_METHDOS_H
