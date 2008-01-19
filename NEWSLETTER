@@ -1,3 +1,10 @@
+2008/02 ========================================================================
+
+* panorama support
+* new wire visualization
+* pattern editor, cursor stepping
+* bsl loads wire patterns, pan, volume and master-volume mappings
+
 2008/01 ========================================================================
 
 I guess tracker-style music editors have to live with the heritage of tabular
@@ -62,7 +69,7 @@ and keymap independent note entering (y vs z mapping on different key layouts),
 
 2007/10 ========================================================================
 
-Before its getting even later here is the monthly update. I worked a bit more
+Before its getting even later, here is the monthly update. I worked a bit more
 on the 'state persistence' - a song now tracks opened machine and analyser
 windows. There are restored when loading the song. In continuation of previous
 months efforts The machine view got some hot keys now too. 

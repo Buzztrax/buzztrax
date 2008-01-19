@@ -1,3 +1,11 @@
+0.3.0 ??? release (??.???.2008)
+================================================================================
+Improvements in all areas. We now have native buzzmachine support and better
+compatibility. The buzztard editor got an own pattern editor widget. The ui got
+lots of keyboard commands. We have settings for default diretories used. The ui
+has dialogs for recording mixdowns and also signle tracks.
+
+
 0.2.0 sunrise release (03.May.2007)
 ================================================================================
 This version has lots of UI usability improvements, bug fixes, more instant
@@ -11,3 +19,4 @@ ready yet. The fileformat of the songs can still change.
 
 Nonetheless if you find bugs or have comments, please take your time to contact
 us.
+

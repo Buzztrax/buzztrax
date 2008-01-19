@@ -1,5 +1,11 @@
 2008-01-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWS:
+	* NEWSLETTER:
+	  Release planning.
+
+2008-01-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/bt-edit.xml:
 	  Update user docs.
 
@@ -47,7 +53,7 @@
 	* src/lib/core/wire.c:
 	* src/ui/edit/main-toolbar.c:
 	* src/ui/edit/wire-canvas-item.c:
-	  First attempt at working panorama mode. Also fixes broekn playback
+	  First attempt at working panorama mode. Also fixes broken playback
 	  from last (partial) commit.
 
 2008-01-16  Stefan Kost  <ensonic@users.sf.net>
