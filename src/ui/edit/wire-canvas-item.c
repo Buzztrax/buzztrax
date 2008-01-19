@@ -349,7 +349,6 @@ static void on_pan_changed(GstElement *element, GParamSpec *arg, gpointer user_d
   gfloat pan;
   
   g_object_get(G_OBJECT(self->priv->wire_pan),"panorama",&pan,NULL);
-  GST_WARNING("new pan on %p is %lf",self->priv->wire_pan,pan);
   if(pan<0.0) {
     gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->pan_pos_item),
       "x1", px+((1.0+pan)*1.1*s),

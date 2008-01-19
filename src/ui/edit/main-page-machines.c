@@ -1094,7 +1094,7 @@ gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self,
   g_object_get(G_OBJECT(self->priv->wire_gain),"volume",&gain,NULL);
   gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj),gain);
 
-  /* @todo: show directly over mouse-pos (check: bacon_volume_button_press) */
+  /* show directly over mouse-pos */
   gtk_window_move(GTK_WINDOW(self->priv->vol_popup),xpos,ypos);
   bt_volume_popup_show(self->priv->vol_popup);
 
@@ -1122,15 +1122,15 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
 
   g_object_try_unref(self->priv->wire_pan);
   g_object_get(wire,"pan",&self->priv->wire_pan,NULL);
-  /* set initial value */
-  g_object_get(G_OBJECT(self->priv->wire_pan),"panorama",&pan,NULL);
-  GST_WARNING("initial pan on %p is %lf",self->priv->wire_pan,pan);
-  gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->pan_popup_adj),(gdouble)pan);
-
-  /* @todo: show directly over mouse-pos (check: bacon_volume_button_press) */
-  gtk_window_move(GTK_WINDOW(self->priv->pan_popup),xpos,ypos);
-  bt_panorama_popup_show(self->priv->pan_popup);
-
+  if(self->priv->wire_pan) {
+    /* set initial value */
+    g_object_get(G_OBJECT(self->priv->wire_pan),"panorama",&pan,NULL);
+    gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->pan_popup_adj),(gdouble)pan);
+  
+    /* show directly over mouse-pos */
+    gtk_window_move(GTK_WINDOW(self->priv->pan_popup),xpos,ypos);
+    bt_panorama_popup_show(self->priv->pan_popup);
+  }
   return(TRUE);
 }
 

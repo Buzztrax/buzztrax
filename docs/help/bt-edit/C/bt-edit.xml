@@ -128,21 +128,29 @@
   <sect2 id="bt-edit-intro-buzz">
     <title id='bt-edit-intro-buzz.title'>Comparison to <application>Buzz</application></title>
     <para>
+      &app; is inspired of lot by Buzz. Some features are still missing and some
+      things already work better.  
+      The UI in is not a 1-to-1 copy, for Buzz users the UI will still look familiar.
+    </para>
+    <para>
       &app;:
       <itemizedlist>
-        <listitem><para>can render songs to wav/mp3,ogg-vorbis/... including song-meta-data (tags)</para></listitem>
+        <listitem><para>can render songs to wav/mp3,ogg-vorbis/... including song-meta-data (tags) and multi track exports</para></listitem>
         <listitem><para>uses color-codes for machine-types through its ui</para></listitem>
         <listitem><para>generates cleaner machine UIs (collapsing parts, more distinct widgets)</para></listitem>
         <listitem><para>has a scalable machine view</para></listitem>
         <listitem><para>can use beats other that 4/4</para></listitem>
-        <listitem><para>has analyzers in sequence view</para></listitem>
+        <listitem><para>shows volume and pan on wire</para></listitem>
+        <listitem><para>does balance on stereo wires</para></listitem>
+        <listitem><para>has analyzers and mixing controls in sequence view</para></listitem>
         <listitem><para>can have multiple wire-analyzers open</para></listitem>
         <listitem><para>can be remote controlled with UPnP a/v software</para></listitem>
         <listitem><para>supports HID input devices for effect control (e.g. joysticks)</para></listitem>
       </itemizedlist>
-    </para>
-    <para>
-      Even there are some changes, for Buzz users the UI will still look familiar.
+      <itemizedlist>
+        <listitem><para>can't yet use samples</para></listitem>
+        <listitem><para>can't yet reconnect machines reliably while playing</para></listitem>
+      </itemizedlist>
     </para>
   </sect2>
 
@@ -152,7 +160,7 @@
       (FIXME:)
       <itemizedlist>
         <listitem><para>trackers are sample based, buzztard also uses software synthesizers</para></listitem>
-        <listitem><para>trackers have a fixed track concept, buzztard uses tracker per device (source/effect/sink)</para></listitem>
+        <listitem><para>trackers have a fixed track concept, buzztard uses tracks per device (source/effect/sink)</para></listitem>
         <listitem><para>trackers do not have the virtual machine routing</para></listitem>
       </itemizedlist>
     </para>
@@ -263,14 +271,14 @@
         Not all machines support all these states.
       </para>
       <para>
-        Machines and wires have context menus. The menu for the wire can be
-        accessed by right clicking over the triangle shape.
+        Wires have volume and panorama control support. A left-click on the
+        pointer-shape in the middle of the wire open a volume popup. A click
+        outside closes it again. Shift+left-click opens the panorama control. 
       </para>
-      <note><title>Limitations</title>
-        <para>
-          Panorama stuff is still missing and so are stereo elements.
-        </para>
-      </note>
+      <para>
+        Machines and wires have context menus. The menu for the wire can be
+        accessed by right clicking over the pointer shape in the middle.
+      </para>
     </sect3>
 
     <sect3 id="bt-edit-main-view-patterns">
@@ -306,8 +314,7 @@
       </para>
       <note><title>Limitations</title>
         <para>
-          Editing the pattern is currently not really comfortable (at least for
-          number value columns). That will be addressed real soon.
+          Editing floating point values is not yet done.
         </para>
       </note>
     </sect3>

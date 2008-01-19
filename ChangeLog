@@ -1,5 +1,15 @@
 2008-01-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Update user docs.
+
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Only show popup if we have panorama control. Remove some left-over
+	  debug prints,
+
+2008-01-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/bt-edit-docs.sgml:
 	* docs/reference/bt-edit/bt-edit-sections.txt:
 	* src/lib/core/machine.c:
