@@ -1,3 +1,10 @@
+2008-01-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/persistence.c:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-patterns.c:
+	  Add mappings for float and double parameters.
+
 2008-01-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWS:

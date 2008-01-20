@@ -22,6 +22,7 @@
 #ifndef BT_EDIT_H
 #define BT_EDIT_H
 
+//#define __USE_ISOC99 /* for round() and co. */
 #include <math.h>
 #include <stdio.h>
 

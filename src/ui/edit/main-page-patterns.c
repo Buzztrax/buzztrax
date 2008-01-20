@@ -1495,8 +1495,20 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 #else
 
 typedef struct {
-  gfloat (*str_to_float)(gchar *in);
-  const gchar *(*float_to_str)(gfloat in);
+  gfloat (*str_to_float)(gchar *in, gpointer user_data);
+  const gchar *(*float_to_str)(gfloat in, gpointer user_data);
+} PatternColumnConvertersCallbacks;
+
+typedef struct {
+  PatternColumnConvertersCallbacks callbacks;
+  float min,max;
+} PatternColumnConvertersFloatCallbacks;
+
+typedef struct {
+  union {
+    PatternColumnConvertersCallbacks any_cb;
+    PatternColumnConvertersFloatCallbacks float_cb;
+  };
 } PatternColumnConverters;
 
 static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param) {
@@ -1525,7 +1537,7 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
 
   if(str) {
     if(column_data) {
-      return ((PatternColumnConverters *)column_data)->str_to_float(str);
+      return ((PatternColumnConvertersCallbacks *)column_data)->str_to_float(str,column_data);
     }
     else
       return g_ascii_strtod(str,NULL);
@@ -1539,7 +1551,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   PatternColumnGroup *group = &self->priv->param_groups[track];
   
   if(column_data)
-    str=((PatternColumnConverters *)column_data)->float_to_str(value);
+    str=((PatternColumnConvertersCallbacks *)column_data)->float_to_str(value,column_data);
   else
     if(value!=group->columns[param].def)
       str=bt_persistence_strfmt_double(value);
@@ -1569,8 +1581,8 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   }
 }
 
-// @todo: this is a copy of gstbml:src/common.c
-static float  note_str_to_float(gchar *note) {
+// @todo: these two are a copy of gstbml:src/common.c
+static float note_str_to_float(gchar *note, gpointer user_data) {
   guint tone, octave;
 
   g_return_val_if_fail(note,0);
@@ -1617,7 +1629,7 @@ static float  note_str_to_float(gchar *note) {
   return (float)(1+(octave<<4)+tone);
 }
 
-static const gchar * note_float_to_str(gfloat in) {
+static const gchar * note_float_to_str(gfloat in, gpointer user_data) {
   guint tone, octave, note=(gint)in;
   static gchar str[4];
   static const gchar *key[12]= { "c-", "c#", "d-", "d#", "e-", "f-", "f#", "g-", "g#", "a-", "a#", "b-" };
@@ -1635,9 +1647,27 @@ static const gchar * note_float_to_str(gfloat in) {
   return(str);
 }
 
-static PatternColumnConverters pcc[]={
-  { note_str_to_float, note_float_to_str }
-};
+static float float_str_to_float(gchar *str, gpointer user_data) {
+  // scale value into 0...65535 range
+  PatternColumnConvertersFloatCallbacks *pcc=(PatternColumnConvertersFloatCallbacks *)user_data;
+  gdouble val=g_ascii_strtod(str,NULL);
+  gdouble factor=65535.0/(pcc->max-pcc->min);
+  
+  GST_WARNING("> val %lf(%s), factor %lf, result %lf",val,str,factor,(val-pcc->min)*factor); 
+  
+  return (val-pcc->min)*factor;
+}
+
+static const gchar * float_float_to_str(gfloat in, gpointer user_data) {
+  // scale value from 0...65535 range
+  PatternColumnConvertersFloatCallbacks *pcc=(PatternColumnConvertersFloatCallbacks *)user_data;
+  gdouble factor=65535.0/(pcc->max-pcc->min);
+  gdouble val=pcc->min+(in/factor);
+
+  GST_WARNING("< val %lf, factor %lf, result %lf(%s)",in,factor,val,bt_persistence_strfmt_double(val)); 
+  
+  return bt_persistence_strfmt_double(val);
+}
 
 static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val) { 
   GType type=bt_g_type_get_base_type(property->value_type);
@@ -1646,13 +1676,18 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
     type, g_type_name(type),g_type_name(property->value_type),property->name);
 
   switch(type) {
-    case G_TYPE_STRING:
+    case G_TYPE_STRING: {
+      PatternColumnConvertersCallbacks *pcc;
+
       col->type=PCT_NOTE;
       col->min=0;
       col->max=((16*9)+12);
       col->def=0;
-      col->user_data=&pcc[0];
-      break;
+      col->user_data=g_new(PatternColumnConverters,1);
+      pcc=(PatternColumnConvertersCallbacks *)col->user_data;
+      pcc->str_to_float=note_str_to_float;
+      pcc->float_to_str=note_float_to_str;
+    } break;
     case G_TYPE_BOOLEAN:
       col->type=PCT_SWITCH;
       col->min=0;
@@ -1694,11 +1729,19 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       }
       col->user_data=NULL;
       break;
-    case G_TYPE_FLOAT:
+    case G_TYPE_FLOAT: {
+      PatternColumnConvertersFloatCallbacks *pcc;
+
       col->type=PCT_WORD;
-      col->min=g_value_get_float(min_val);
-      col->max=g_value_get_float(max_val);
+      col->min=0.0;
+      col->max=65535.0;
       col->def=col->max+1;
+      col->user_data=g_new(PatternColumnConverters,1);
+      pcc=(PatternColumnConvertersFloatCallbacks *)col->user_data;
+      ((PatternColumnConvertersCallbacks*)pcc)->str_to_float=float_str_to_float;
+      ((PatternColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
+      pcc->min=g_value_get_float(min_val);
+      pcc->max=g_value_get_float(max_val);
       /* @todo: need scaling
        * in case of
        *   wire.volume: 0.0->0x0000, 1.0->0x4000, 2.0->0x8000, 4.0->0xFFFF+1
@@ -1711,16 +1754,21 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
        * - we might need to put the scaling factor into the user_data
        * - how can we detect master-volume (log mapping)
        */
-      col->user_data=NULL;
-      break;
-    case G_TYPE_DOUBLE:
+    } break;
+    case G_TYPE_DOUBLE: {
+      PatternColumnConvertersFloatCallbacks *pcc;
+
       col->type=PCT_WORD;
-      col->min=g_value_get_double(min_val);
-      col->max=g_value_get_double(max_val);
+      col->min=0.0;
+      col->max=65535.0;
       col->def=col->max+1;
-      // @todo: need scaling: min->0, max->65536
-      col->user_data=NULL;
-      break;
+      col->user_data=g_new(PatternColumnConverters,1);
+      pcc=(PatternColumnConvertersFloatCallbacks *)col->user_data;
+      ((PatternColumnConvertersCallbacks*)pcc)->str_to_float=float_str_to_float;
+      ((PatternColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
+      pcc->min=g_value_get_double(min_val);
+      pcc->max=g_value_get_double(max_val);
+    } break;
     default:
       GST_WARNING("unhandled param type: '%s' for parameter '%s'",g_type_name(type),property->name);
       col->type=0;
@@ -1730,6 +1778,19 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
   GST_INFO("%s parameter '%s' min/max/def : %6.4lf/%6.4lf/%6.4lf",g_type_name(type), property->name, col->min,col->max,col->def);
   g_free(min_val);
   g_free(max_val);
+}
+
+static void pattern_table_clear(const BtMainPagePatterns *self) {
+  gulong i,j;
+
+  for(i=0;i<self->priv->number_of_groups;i++) {
+    for(j=0;j<self->priv->param_groups[i].num_columns;j++) {
+      g_free(self->priv->param_groups[i].columns[j].user_data);
+    }
+    g_free(self->priv->param_groups[i].name);
+    g_free(self->priv->param_groups[i].columns);
+  }
+  g_free(self->priv->param_groups);
 }
 
 static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
@@ -1751,11 +1812,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
     GST_DEBUG("  size is %2d,%2d",number_of_ticks,global_params);
 
-    for(i=0;i<self->priv->number_of_groups;i++) {
-      g_free(self->priv->param_groups[i].name);
-      g_free(self->priv->param_groups[i].columns);
-    }
-    g_free(self->priv->param_groups);
+    pattern_table_clear(self);
     
     // wire pattern data
     self->priv->number_of_groups=(global_params>0?1:0)+voices;
@@ -2858,17 +2915,10 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 
 static void bt_main_page_patterns_finalize(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
-  gulong i;
 
   g_free(self->priv->column_keymode);
   
-#ifdef USE_PATTERN_EDITOR
-  for(i=0;i<self->priv->number_of_groups;i++) {
-    g_free(self->priv->param_groups[i].name);
-    g_free(self->priv->param_groups[i].columns);
-  }
-  g_free(self->priv->param_groups);
-#endif
+  pattern_table_clear(self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }

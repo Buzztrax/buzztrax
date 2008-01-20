@@ -286,7 +286,8 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
  */
 gchar *bt_persistence_get_value(GValue * const gvalue) {
 // we're not showing more digits in the pattern view right now
-#define FLOAT_BUFFER_LEN 8
+//#define FLOAT_BUFFER_LEN 8
+#define FLOAT_BUFFER_LEN G_ASCII_DTOSTR_BUF_SIZE
   GType base_type;
   gchar *res=NULL;
 
