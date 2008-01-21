@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzztard 0.2\n"
 "Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-12-09 10:42+0200\n"
+"POT-Creation-Date: 2007-12-09 22:22+0200\n"
 "PO-Revision-Date: 2007-05-02 21:55+0300\n"
 "Last-Translator: Stefan Kost <ensonic@users.sf.net>\n"
 "Language-Team: german <de@li.org>\n"
@@ -225,7 +225,7 @@ msgid "Delete machine ..."
 msgstr "Gerät entfernen ..."
 
 #: ../src/ui/edit/machine-canvas-item.c:341
-#: ../src/ui/edit/main-page-patterns.c:1969
+#: ../src/ui/edit/main-page-patterns.c:2055
 msgid "There is no undo for this."
 msgstr "Diese Änderung kann nicht zurückgenommen werden."
 
@@ -686,30 +686,30 @@ msgstr "Raster anzeigen"
 msgid "Stop playback of this song"
 msgstr "Abspielen dieses Songs beenden"
 
-#: ../src/ui/edit/main-page-patterns.c:1155
+#: ../src/ui/edit/main-page-patterns.c:1129
 #: ../src/ui/edit/main-page-sequence.c:735
 msgid "Pos."
 msgstr "Pos."
 
-#: ../src/ui/edit/main-page-patterns.c:1962
+#: ../src/ui/edit/main-page-patterns.c:2048
 #, c-format
 msgid "Delete used pattern '%s'"
 msgstr "Benutztes Fragment entfernen '%s'"
 
-#: ../src/ui/edit/main-page-patterns.c:1965
+#: ../src/ui/edit/main-page-patterns.c:2051
 #, c-format
 msgid "Delete unused pattern '%s'"
 msgstr "Unbenutztes Fragment entfernen '%s'"
 
-#: ../src/ui/edit/main-page-patterns.c:1969
+#: ../src/ui/edit/main-page-patterns.c:2055
 msgid "Delete pattern..."
 msgstr "Fragemnt entfernen ..."
 
-#: ../src/ui/edit/main-page-patterns.c:2047
+#: ../src/ui/edit/main-page-patterns.c:2135
 msgid "pattern view"
 msgstr "Fragmentansicht"
 
-#: ../src/ui/edit/main-page-patterns.c:2051
+#: ../src/ui/edit/main-page-patterns.c:2139
 msgid "pattern view tool bar"
 msgstr "Fragmentansichts-Werkzeugleiste"
 
@@ -718,48 +718,48 @@ msgstr "Fragmentansichts-Werkzeugleiste"
 #. * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
 #. * so, we need to subclass the combobox and add two signals: select-next, select-prev
 #.
-#: ../src/ui/edit/main-page-patterns.c:2073
-#: ../src/ui/edit/main-page-patterns.c:2077
+#: ../src/ui/edit/main-page-patterns.c:2161
+#: ../src/ui/edit/main-page-patterns.c:2165
 msgid "Machine"
 msgstr "Gerät"
 
-#: ../src/ui/edit/main-page-patterns.c:2096
-#: ../src/ui/edit/main-page-patterns.c:2101
+#: ../src/ui/edit/main-page-patterns.c:2184
+#: ../src/ui/edit/main-page-patterns.c:2189
 msgid "Pattern"
 msgstr "Fragment"
 
-#: ../src/ui/edit/main-page-patterns.c:2114
-#: ../src/ui/edit/main-page-patterns.c:2119
+#: ../src/ui/edit/main-page-patterns.c:2202
+#: ../src/ui/edit/main-page-patterns.c:2207
 #: ../src/ui/edit/main-page-waves.c:491
 msgid "Wave"
 msgstr "Wellenform"
 
-#: ../src/ui/edit/main-page-patterns.c:2134
-#: ../src/ui/edit/main-page-patterns.c:2139
+#: ../src/ui/edit/main-page-patterns.c:2222
+#: ../src/ui/edit/main-page-patterns.c:2227
 msgid "Octave"
 msgstr "Oktave"
 
-#: ../src/ui/edit/main-page-patterns.c:2209
+#: ../src/ui/edit/main-page-patterns.c:2302
 msgid "New track"
 msgstr "Neue Spur"
 
-#: ../src/ui/edit/main-page-patterns.c:2218
+#: ../src/ui/edit/main-page-patterns.c:2311
 msgid "Remove last track"
 msgstr "Letzte Spur entfernen"
 
-#: ../src/ui/edit/main-page-patterns.c:2232
+#: ../src/ui/edit/main-page-patterns.c:2325
 msgid "New pattern  ..."
 msgstr "Neues Fragment ..."
 
-#: ../src/ui/edit/main-page-patterns.c:2241
+#: ../src/ui/edit/main-page-patterns.c:2334
 msgid "Pattern properties ..."
 msgstr "Fragmenteigenschaften ..."
 
-#: ../src/ui/edit/main-page-patterns.c:2250
+#: ../src/ui/edit/main-page-patterns.c:2343
 msgid "Remove pattern ..."
 msgstr "Fragment entfernen ..."
 
-#: ../src/ui/edit/main-page-patterns.c:2259
+#: ../src/ui/edit/main-page-patterns.c:2352
 msgid "Copy pattern ..."
 msgstr "Fragment kopieren ..."
 
