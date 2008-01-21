@@ -1,5 +1,11 @@
 2008-01-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/panorama-popup.h:
+	  Add two missing files.
+
+2008-01-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/gst/link2.c:
 	  Updated test.
   
