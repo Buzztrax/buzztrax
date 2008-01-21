@@ -359,30 +359,20 @@ GType bt_test_poly_source_get_type(void) {
 
 //-- plugin handling
 
-static gboolean bt_test_plugin_init (GstPlugin * plugin) {
+#ifndef HAVE_GST_PLUGIN_REGISTER_STATIC
+static
+#endif
+gboolean bt_test_plugin_init (GstPlugin * plugin) {
   //GST_INFO("registering unit test plugin");
 
   gst_element_register(plugin,"buzztard-test-mono-source",GST_RANK_NONE,BT_TYPE_TEST_MONO_SOURCE);
   gst_element_register(plugin,"buzztard-test-poly-source",GST_RANK_NONE,BT_TYPE_TEST_POLY_SOURCE);
   //gst_element_register(plugin,"buzztard-test-mono-processor",GST_RANK_NONE,BT_TYPE_TEST_MONO_PROCESSOR);
   //gst_element_register(plugin,"buzztard-test-poly-processor",GST_RANK_NONE,BT_TYPE_TEST_POLY_PROCESSOR);
-  
-  // it not looks like we need to do it 
-  //gst_registry_pool_add_plugin(plugin);
   return TRUE;
 }
 
-#ifdef HAVE_GST_PLUGIN_REGISTER_STATIC
-/* @todo: requires gst-0.10.16 */
-const GstPluginDesc bt_test_plugin_desc = {
-  GST_VERSION_MAJOR,
-  GST_VERSION_MINOR,
-  "bt-test",
-  "buzztard test plugin - several unit test support elements",
-  bt_test_plugin_init, VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org",
-  GST_PADDING_INIT
-};
-#else
+#ifndef HAVE_GST_PLUGIN_REGISTER_STATIC
 GST_PLUGIN_DEFINE_STATIC(
   GST_VERSION_MAJOR,
   GST_VERSION_MINOR,

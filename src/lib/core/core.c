@@ -88,8 +88,13 @@ static gboolean bt_init_post (void) {
   
 #ifdef HAVE_GST_PLUGIN_REGISTER_STATIC
   /* @todo: requires gst-0.10.16 */
-  extern const GstPluginDesc bt_sink_bin_plugin_desc;
-  gst_plugin_register_static(&bt_sink_bin_plugin_desc);
+  extern gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin);
+  gst_plugin_register_static(GST_VERSION_MAJOR,
+    GST_VERSION_MINOR,
+    "bt-sink-bin",
+    "buzztard sink bin - encapsulates play and record functionality",
+    bt_sink_bin_plugin_init,
+    VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
 #endif
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");

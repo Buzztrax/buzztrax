@@ -899,24 +899,17 @@ GType bt_sink_bin_get_type(void) {
 
 //-- plugin handling
 
-static gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin) {
+#ifndef HAVE_GST_PLUGIN_REGISTER_STATIC
+static
+#endif
+gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin) {
   //GST_INFO("registering sink_bin plugin");
 
   gst_element_register(plugin,"bt-sink-bin",GST_RANK_NONE,BT_TYPE_SINK_BIN);
   return TRUE;
 }
 
-#ifdef HAVE_GST_PLUGIN_REGISTER_STATIC
-/* @todo: requires gst-0.10.16 */
-const GstPluginDesc bt_sink_bin_plugin_desc = {
-  GST_VERSION_MAJOR,
-  GST_VERSION_MINOR,
-  "bt-sink-bin",
-  "buzztard sink bin - encapsulates play and record functionality",
-  bt_sink_bin_plugin_init, VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org",
-  GST_PADDING_INIT
-};
-#else
+#ifndef HAVE_GST_PLUGIN_REGISTER_STATIC
 GST_PLUGIN_DEFINE_STATIC(
   GST_VERSION_MAJOR,
   GST_VERSION_MINOR,
