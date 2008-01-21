@@ -33,8 +33,6 @@
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
  *  when adding internal machines we need to fix the ghost pads (this may require relinking)
  *    gst_element_add_ghost_pad and gst_element_remove_ghost_pad
- *  What if we can directly connect src->dst, then the wire can't be an element (nothing there to use as ghost-pads).
- *  On the other hand this is only the case, if we do not need converters and have no volume and no monitors.
  *
  * @todo: when connecting to several wires to one src, we need queue elements at the begin of the wire
  */
@@ -67,7 +65,8 @@ enum {
 typedef enum {
   /* source element in the wire for convinience */
   PART_SRC=0,
-  /* @todo: what about having a queue here to avoid blocking when src has a spreader */
+  /* queue to avoid blocking when src has a spreader */
+  PART_QUEUE,
   /* used to link analyzers */
   PART_TEE,
   /* volume-control element */
@@ -450,14 +449,17 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   g_assert(GST_IS_OBJECT(src->src_elem));
   g_assert(GST_IS_OBJECT(dst->dst_elem));
 
-  if(!machines[PART_GAIN]) {
-    if(!bt_wire_make_internal_element(self,PART_GAIN,"volume","gain")) return(FALSE);
-    GST_DEBUG("created volume-gain element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
+  if(!machines[PART_QUEUE]) {
+    if(!bt_wire_make_internal_element(self,PART_QUEUE,"queue","queue")) return(FALSE);
+    GST_DEBUG("created queue element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   }
-
   if(!machines[PART_TEE]) {
     if(!bt_wire_make_internal_element(self,PART_TEE,"tee","tee")) return(FALSE);
     GST_DEBUG("created tee element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
+  }
+  if(!machines[PART_GAIN]) {
+    if(!bt_wire_make_internal_element(self,PART_GAIN,"volume","gain")) return(FALSE);
+    GST_DEBUG("created volume-gain element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   }
   
   g_object_get(G_OBJECT(dst),"machine",&dst_machine,NULL);
@@ -502,8 +504,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   gst_object_unref(dst_machine);
   
   GST_DEBUG("trying to link machines directly : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
-  // try link src to dst {directly, with convert, with scale, with ...}
-  /* @todo: if we try linking without audioconvert and this links to an adder,
+  /* if we try linking without audioconvert and this links to an adder,
    * then the first link enforces the format (if first is mono and later stereo
    * signal is linked, this is downgraded).
    * Right now we need to do this, because of http://bugzilla.gnome.org/show_bug.cgi?id=418982
@@ -515,22 +516,22 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   }
   if(machines[PART_PAN]) {
     GST_DEBUG("trying to link machines with pan");
-    if(!(res=gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], dst->dst_elem, NULL))) {
-      gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], dst->dst_elem, NULL);
+    if(!(res=gst_element_link_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], dst->dst_elem, NULL))) {
+      gst_element_unlink_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], dst->dst_elem, NULL);
     }
     else {
-      machines[PART_SRC]=machines[PART_TEE];
+      machines[PART_SRC]=machines[PART_QUEUE];
       machines[PART_DST]=machines[PART_PAN];
       GST_DEBUG("  wire okay with pan");
     }
   }
   else {
     GST_DEBUG("trying to link machines without pan");
-    if(!(res=gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL))) {
-      gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL);
+    if(!(res=gst_element_link_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL))) {
+      gst_element_unlink_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL);
     }
     else {
-      machines[PART_SRC]=machines[PART_TEE];
+      machines[PART_SRC]=machines[PART_QUEUE];
       machines[PART_DST]=machines[PART_CONVERT];
       GST_DEBUG("  wire okay without pan");
     }
@@ -552,7 +553,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
  */
 static void bt_wire_unlink_machines(const BtWire * const self) {
   GstElement ** const machines=self->priv->machines;
-  GstStateChangeReturn res;
+  //GstStateChangeReturn res;
 
   g_assert(BT_IS_WIRE(self));
 
@@ -560,26 +561,16 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
   if(self->priv->src->src_elem && self->priv->dst->dst_elem && machines[PART_TEE] && machines[PART_GAIN]) {
     GstPad *dst_pad=NULL,*src_pad=NULL;
 
-    src_pad=bt_wire_get_sink_peer_pad(machines[PART_TEE]);
+    src_pad=bt_wire_get_sink_peer_pad(machines[PART_QUEUE]);
 
     GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
-    /*if(machines[PART_CONVERT] && machines[PART_SCALE]) {
-      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_SCALE], self->priv->dst->dst_elem, NULL);
+    if(machines[PART_PAN]) {
+      dst_pad=bt_wire_get_src_peer_pad(machines[PART_PAN]);
+      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], self->priv->dst->dst_elem, NULL);
     }
-    else*/
-    if(machines[PART_CONVERT]) {
-      dst_pad=bt_wire_get_src_peer_pad(machines[PART_CONVERT]);
-      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], self->priv->dst->dst_elem, NULL);
-    }
-    /*
-    else if(machines[PART_SCALE]) {
-      dst_pad=bt_wire_get_src_peer_pad(machines[PART_SCALE]);
-      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_SCALE], self->priv->dst->dst_elem, NULL);
-    }
-    */
     else {
-      dst_pad=bt_wire_get_src_peer_pad(machines[PART_GAIN]);
-      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], self->priv->dst->dst_elem, NULL);
+      dst_pad=bt_wire_get_src_peer_pad(machines[PART_CONVERT]);
+      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], self->priv->dst->dst_elem, NULL);
     }
     GST_DEBUG("request pads: adder %s,%s  tee %s,%s",
       GST_DEBUG_PAD_NAME(dst_pad),GST_DEBUG_PAD_NAME(src_pad));
@@ -596,25 +587,25 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
       gst_object_unref(src_pad);
     }
   }
-  if(machines[PART_CONVERT]) {
-    GST_DEBUG("  removing convert from bin, obj->ref_count=%d",G_OBJECT(machines[PART_CONVERT])->ref_count);
-    if((res=gst_element_set_state(self->priv->machines[PART_CONVERT],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
-      GST_WARNING("can't go to null state");
-    else
-      GST_DEBUG("->NULL state change returned %d",res);
-    gst_bin_remove(self->priv->bin, machines[PART_CONVERT]);
-    machines[PART_CONVERT]=NULL;
-  }
   /*
-  if(self->priv->machines[PART_SCALE]) {
-    GST_DEBUG("  removing scale from bin, obj->ref_count=%d",G_OBJECT(machines[PART_SCALE])->ref_count);
-    if((res=gst_element_set_state(self->priv->machines[PART_SCALE],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
-      GST_WARNING("can't go to null state");
-    else
-      GST_DEBUG("->NULL state change returned %d",res);
-    gst_bin_remove(self->priv->bin, machines[PART_SCALE]);
-    machines[PART_SCALE]=NULL;
-  }
+    if(machines[PART_CONVERT]) {
+      GST_DEBUG("  removing convert from bin, obj->ref_count=%d",G_OBJECT(machines[PART_CONVERT])->ref_count);
+      if((res=gst_element_set_state(self->priv->machines[PART_CONVERT],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
+        GST_WARNING("can't go to null state");
+      else
+        GST_DEBUG("->NULL state change returned %d",res);
+      gst_bin_remove(self->priv->bin, machines[PART_CONVERT]);
+      machines[PART_CONVERT]=NULL;
+    }
+    if(self->priv->machines[PART_SCALE]) {
+      GST_DEBUG("  removing scale from bin, obj->ref_count=%d",G_OBJECT(machines[PART_SCALE])->ref_count);
+      if((res=gst_element_set_state(self->priv->machines[PART_SCALE],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
+        GST_WARNING("can't go to null state");
+      else
+        GST_DEBUG("->NULL state change returned %d",res);
+      gst_bin_remove(self->priv->bin, machines[PART_SCALE]);
+      machines[PART_SCALE]=NULL;
+    }
   */
 }
 
@@ -1096,8 +1087,9 @@ void bt_wire_dbg_print_parts(const BtWire * const self) {
   if(self->priv->dst) g_object_get(self->priv->dst,"id",&did,NULL);
 
   /* [Src T G C S Dst] */
-  GST_DEBUG("%s->%s [%s %s %s %s %s %s]", sid, did,
+  GST_DEBUG("%s->%s [%s %s %s %s %s %s %s]", sid, did,
     self->priv->machines[PART_SRC]?"SRC":"src",
+    self->priv->machines[PART_TEE]?"Q":"q",
     self->priv->machines[PART_TEE]?"T":"t",
     self->priv->machines[PART_GAIN]?"G":"g",
     self->priv->machines[PART_CONVERT]?"C":"c",

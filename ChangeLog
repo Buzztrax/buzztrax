@@ -1,6 +1,11 @@
 2008-01-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wire.c:
+	  Add queues to fix blocking issues we had with some buzz songs.
+
+2008-01-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
 	  Fix crasher found by the test suite.
 
 2008-01-21  Stefan Kost  <ensonic@users.sf.net>
