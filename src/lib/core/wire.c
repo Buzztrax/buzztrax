@@ -1337,11 +1337,11 @@ static void bt_wire_dispose(GObject * const object) {
 
   // unref controllers
   GST_DEBUG("  releasing controllers");
-  if(self->priv->machines[PART_GAIN]) {
+  if(self->priv->machines[PART_GAIN] && self->priv->wire_props[0]) {
     bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_GAIN]), WIRE_PARAM_NAME(0));
     self->priv->wire_controller[0]=NULL;
   }
-  if(self->priv->machines[PART_PAN]) {
+  if(self->priv->machines[PART_PAN] && self->priv->wire_props[1]) {
     bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_PAN]), WIRE_PARAM_NAME(1));
     self->priv->wire_controller[1]=NULL;
   }
