@@ -1,8 +1,9 @@
-personal_ws-1.1 en 17 
+personal_ws-1.1 en 19 
 Ctrl
 ui
 ogg
 wavetable
+multi
 FIXME
 UPnP
 UIs
@@ -12,6 +13,7 @@ FastTracker
 plugins
 wav
 buzztard
+popup
 SoundTracker
 vorbis
 Kost
