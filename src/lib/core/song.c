@@ -88,6 +88,8 @@ struct _BtSongPrivate {
   GstEvent *play_seek_event;
   GstEvent *loop_seek_event;
   GstEvent *idle_seek_event;
+  /* timeouthandlers */
+  guint paused_timeout_id,playback_timeout_id;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -415,6 +417,7 @@ static gboolean on_song_paused_timeout(gpointer user_data) {
     bt_song_write_to_lowlevel_dot_file(self);
     bt_song_stop(self);
   }
+  self->priv->paused_timeout_id=0;
   return(FALSE);
 }
 
@@ -426,6 +429,7 @@ static gboolean on_song_playback_timeout(gpointer user_data) {
     bt_song_write_to_lowlevel_dot_file(self);
     bt_song_stop(self);
   }
+  self->priv->playback_timeout_id=0;
   return(FALSE);
 }
 
@@ -466,7 +470,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         else if(res==GST_STATE_CHANGE_ASYNC) {
           GST_INFO("->PLAYING needs async wait");
           // start a short timeout that aborts playback if if get not started
-          g_timeout_add(BT_SONG_STATE_CHANGE_TIMEOUT, on_song_playback_timeout, (gpointer)self);
+          self->priv->playback_timeout_id=g_timeout_add(BT_SONG_STATE_CHANGE_TIMEOUT, on_song_playback_timeout, (gpointer)self);
         }
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
@@ -708,7 +712,7 @@ gboolean bt_song_play(const BtSong * const self) {
   else if(res==GST_STATE_CHANGE_ASYNC) {
     GST_INFO("->PAUSED needs async wait");
     // start a short timeout that aborts playback if if get not started
-    g_timeout_add(BT_SONG_STATE_CHANGE_TIMEOUT, on_song_paused_timeout, (gpointer)self);
+    self->priv->paused_timeout_id=g_timeout_add(BT_SONG_STATE_CHANGE_TIMEOUT, on_song_paused_timeout, (gpointer)self);
   }
 
 #if 0
@@ -1403,6 +1407,11 @@ static void bt_song_dispose(GObject * const object) {
   //DEBUG
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  if(self->priv->playback_timeout_id)
+    g_source_remove(self->priv->playback_timeout_id);
+  if(self->priv->paused_timeout_id)
+    g_source_remove(self->priv->paused_timeout_id);
 
   if(self->priv->is_playing) bt_song_stop(self);
   else if(self->priv->is_idle) bt_song_idle_stop(self);

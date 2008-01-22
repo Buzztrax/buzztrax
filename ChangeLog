@@ -1,5 +1,10 @@
 2008-01-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Better stop the timeout handlers when destroying the object.
+
+2008-01-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/aspell.pws:
 	  Update wordlist.
 
