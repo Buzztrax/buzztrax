@@ -1,3 +1,8 @@
+2008-01-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fix segfault, when adding tracks to paterns.
+
 2008-01-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wire.c:

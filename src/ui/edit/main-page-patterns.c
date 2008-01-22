@@ -1785,12 +1785,17 @@ static void pattern_table_clear(const BtMainPagePatterns *self) {
 
   for(i=0;i<self->priv->number_of_groups;i++) {
     for(j=0;j<self->priv->param_groups[i].num_columns;j++) {
+      // voice parameter groups are copies
+      if((self->priv->param_groups[i].type==2) && self->priv->param_groups[i].user_data!=NULL)
+        continue;
       g_free(self->priv->param_groups[i].columns[j].user_data);
     }
     g_free(self->priv->param_groups[i].name);
     g_free(self->priv->param_groups[i].columns);
   }
   g_free(self->priv->param_groups);
+  self->priv->param_groups=NULL;
+  //self->priv->number_of_groups=0;
 }
 
 static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
@@ -1893,7 +1898,11 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
         group->user_data=(gpointer)i;
         group->num_columns=voice_params;
         group->columns=g_memdup(stamp->columns,sizeof(PatternColumn)*voice_params);
-        group++;        
+        for(i=0;i<voice_params;i++) {
+          if(group->columns[i].user_data) {
+          }
+        }
+        group++;
       }
     }
 
