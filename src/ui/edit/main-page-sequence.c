@@ -1953,12 +1953,14 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       if(modifier==GDK_CONTROL_MASK) {
         GST_INFO("ctrl-b pressed, row %lu",row);
         sequence_view_set_pos(self,1,(glong)row);
+        res=TRUE;
       }
     }
     else if(event->keyval == GDK_e) {
       if(modifier==GDK_CONTROL_MASK) {
         GST_INFO("ctrl-e pressed, row %lu",row);
         sequence_view_set_pos(self,2,(glong)row);
+        res=TRUE;
       }
     }
     else if(event->keyval == GDK_i) {
@@ -1970,6 +1972,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
+        res=TRUE;
       }
     }
     else if(event->keyval == GDK_I) {
@@ -1981,6 +1984,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
+        res=TRUE;
       }
     }
     else if(event->keyval == GDK_d) {
@@ -1992,6 +1996,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
+        res=TRUE;
       }
     }
     else if(event->keyval == GDK_D) {
@@ -2003,6 +2008,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
+        res=TRUE;
       }
     }
     else if(event->keyval<0x100) {

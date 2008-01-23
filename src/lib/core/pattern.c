@@ -783,18 +783,33 @@ gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tic
   return(FALSE);
 }
 
-#if 0
-
-/*
+/**
  * bt_pattern_insert_row:
  * @self: the pattern
  * @tick: the postion to insert at
  * @param: the param
  *
  * Insert one empty row for given @param.
+ *
+ * Since: 0.3
  */
-gboolean bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
+void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
+  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  GValue *src=&self->priv->data[param+params*(self->priv->length-2)];
+  GValue *dst=&self->priv->data[param+params*(self->priv->length-1)];
+  gulong i;
+  
+  // @todo: need more work
+  for(i=tick;i<self->priv->length-1;i++) {
+    *dst=*src;
+    src-=params;
+    dst-=params;
+  }
+  g_value_unset(src);
+  //memset(src,0,sizeof(GValue));
 }
+
+#if 0
 
 /*
  * bt_pattern_insert_full_row:
@@ -803,7 +818,7 @@ gboolean bt_pattern_insert_row(const BtPattern * const self, const gulong tick, 
  *
  * Insert one empty row for all parameters.
  */
-gboolean bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick) {
+void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick) {
 }
 
 /*
@@ -814,7 +829,7 @@ gboolean bt_pattern_insert_full_row(const BtPattern * const self, const gulong t
  *
  * Delete row for given @param.
  */
-gboolean bt_pattern_delete_row(const BtPattern * const self, const gulong tick, const gulong param) {
+void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, const gulong param) {
 }
 
 /*
@@ -824,7 +839,7 @@ gboolean bt_pattern_delete_row(const BtPattern * const self, const gulong tick, 
  *
  * Delete row for all parameters.
  */
-gboolean bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick) {
+void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick) {
 }
 
 /*
@@ -832,7 +847,7 @@ gboolean bt_pattern_delete_full_row(const BtPattern * const self, const gulong t
  *
  * Fade values from @start_row to @end_row for each param.
  */
-gboolean bt_pattern_blend_full(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
+void bt_pattern_blend_full(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
   
 }
 
@@ -841,7 +856,7 @@ gboolean bt_pattern_blend_full(const BtPattern * const self, const gulong start_
  *
  * Randomizes values from @start_row to @end_row for each param.
  */
-gboolean bt_pattern_blend_full(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
+void bt_pattern_blend_full(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
   
 }
 

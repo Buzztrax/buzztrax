@@ -233,6 +233,11 @@ gboolean bt_song_io_load(gconstpointer const self, const BtSong * const song) {
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
     GST_INFO("loading done");
+    /* @todo: ui needs to block signal handlers in on_song_changed() otherwise
+     * song:unsaved get reverted
+    //while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
+    //GST_INFO("events handled");
+     */
     bt_song_set_unsaved(song,FALSE);
     //DEBUG
     //bt_song_write_to_highlevel_dot_file(song);

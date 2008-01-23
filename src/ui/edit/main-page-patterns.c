@@ -528,6 +528,7 @@ static void on_pattern_table_cursor_changed(GtkTreeView *treeview, gpointer user
   /* delay the action */
   g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_pattern_table_cursor_changed_idle,user_data,NULL);
 }
+#endif
 
 static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
@@ -561,8 +562,51 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     }
   }
   else if(event->keyval==GDK_Menu) {
-    gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());   
+    gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+    res=TRUE;
   }
+/*
+  else if (event->keyval == GDK_i) {
+    if(modifier&GDK_CONTROL_MASK) {
+      g_object_get(G_OBJECT(editor), "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
+      GST_INFO("ctrl-i pressed, row %lu",row);
+      bt_sequence_insert_full_rows(self->priv->pattern,row,self->priv->bars);
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      res=TRUE;
+    }
+  }
+*/
+  else if(event->keyval == GDK_I) {
+    if(modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
+      GST_INFO("ctrl-shift-i pressed, row %lu, group %lu, param %lu",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
+      // @todo: some insert will need to go to wire-patterns
+      bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, self->priv->cursor_param);
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      res=TRUE;
+    }
+  }
+/*
+  else if(event->keyval == GDK_d) {
+    if(modifier&GDK_CONTROL_MASK) {
+      GST_INFO("ctrl-d pressed, row %lu",row);
+      bt_sequence_delete_full_rows(sequence,row,self->priv->bars);
+      self->priv->list_length-=self->priv->bars;
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      res=TRUE;
+    }
+  }
+  else if(event->keyval == GDK_D) {
+    if(modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+      GST_INFO("ctrl-shift-d pressed, row %lu, track %lu",row,track-1);
+      bt_sequence_delete_rows(sequence,row,track-1,self->priv->bars);
+      //self->priv->list_length-=self->priv->bars;
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      res=TRUE;
+    }
+  }
+*/
+#ifndef USE_PATTERN_EDITOR
   else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
     if(self->priv->pattern) {
 #if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
@@ -736,7 +780,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       gchar oct_str[4];
       gboolean changed=FALSE;
 
-      if(event->keyval==GDK_space || event->keyval == GDK_period) {
+      if(event->keyval == GDK_space || event->keyval == GDK_period) {
         changed=TRUE;
       }
       else {
@@ -848,9 +892,9 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
     }
   }
+#endif
   return(res);
 }
-#endif
 
 static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
@@ -2604,6 +2648,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   self->priv->pattern_table=BT_PATTERN_EDITOR(bt_pattern_editor_new());
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,"play-position",-1.0,NULL);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
+  g_signal_connect(G_OBJECT(self->priv->pattern_table), "key-release-event", G_CALLBACK(on_pattern_table_key_release_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-group", G_CALLBACK(on_pattern_table_cursor_group_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-param", G_CALLBACK(on_pattern_table_cursor_param_changed), (gpointer)self);

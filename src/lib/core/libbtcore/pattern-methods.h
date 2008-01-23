@@ -47,4 +47,6 @@ extern BtPatternCmd bt_pattern_get_cmd(const BtPattern * const self, const gulon
 
 extern gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tick);
 
+extern void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param);
+
 #endif // BT_PATTERN_METHDOS_H
