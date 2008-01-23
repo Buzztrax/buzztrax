@@ -691,12 +691,11 @@ void check_setup_test_server(void) {
 #ifdef XFONT_PATH
     "-fp", XFONT_PATH, /*"/usr/X11R6/lib/X11/fonts/misc"*/
 #endif
-    /*"-fp","/usr/share/fonts/misc",*/
-    /*"-reset",
-    "-terminate",*/
+    "-noreset",
+    /*"-terminate",*/
     /* 32 bit does not work */
     "-screen","0","1024x786x24",
-    "-render",
+    "-render",/*"color",*/
     NULL
   };
   gboolean found=FALSE,launched=FALSE,trying=TRUE;
@@ -773,6 +772,7 @@ void check_setup_test_server(void) {
     GST_WARNING("no free display number found");
   }
   else {
+    //printf("####### Server started  \"%s\" is up (pid=%d)\n",display_name,server_pid);
     g_setenv("DISPLAY",display_name,TRUE);
     GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
     /* also launch:
@@ -854,7 +854,7 @@ void check_shutdown_test_display(void) {
     g_assert(GDK_IS_DISPLAY(test_display));
     g_assert(GDK_IS_DISPLAY(default_display));
 
-    GST_INFO("trying to shut down test server %d",server_pid);
+    GST_INFO("trying to shut down test display on server %d",server_pid);
     // restore default and close our display
     GST_DEBUG("display_manager=%p, test_display=%p,\"%s\" default_display=%p,\"%s\"",
         display_manager,
@@ -862,13 +862,13 @@ void check_shutdown_test_display(void) {
         default_display,gdk_display_get_name(default_display));
     gdk_display_manager_set_default_display(display_manager,default_display);
     GST_INFO("display has been restored");
-		// TODO here it hangs
+    // TODO: here it hangs, hmm not anymore
     //gdk_display_close(test_display);
-		/* gdk_display_close() does basically the following (which still hangs):
-		//g_object_run_dispose (G_OBJECT (test_display));
-		GST_INFO("test_display has been disposed");
+    /* gdk_display_close() does basically the following (which still hangs):
+    //g_object_run_dispose (G_OBJECT (test_display));
+    GST_INFO("test_display has been disposed");
     //g_object_unref (test_display);
-		*/
+    */
     GST_INFO("display has been closed");
     test_display=NULL;
   }
@@ -881,9 +881,9 @@ void check_shutdown_test_display(void) {
 void check_shutdown_test_server(void) {
 #ifdef XVFB_PATH
   if(server_pid) {
-		guint wait_count=5;
+    guint wait_count=5;
     wait_for_server=TRUE;
-		GST_INFO("shuting down test server");
+    GST_INFO("shuting down test server");
 
     // kill the testing server - @todo try other signals (SIGQUIT, SIGTERM).
     kill(server_pid, SIGINT);

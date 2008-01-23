@@ -1,3 +1,11 @@
+2008-01-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-check.c:
+	* tests/songs/melo3.xml:
+	  Add a pattern to make sure we see something in the test screenshots.
+	* tests/ui/edit/e-bt-edit-application.c:
+	  More tests for multiple songs.
+
 2008-01-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:

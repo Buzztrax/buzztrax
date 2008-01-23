@@ -172,6 +172,54 @@ BT_START_TEST(test_load1) {
 }
 BT_END_TEST
 
+// load a song, free it, load another
+BT_START_TEST(test_load2) {
+  BtEditApplication *app;
+  BtMainWindow *main_window;
+  BtSong *song1,*song2;
+  gboolean unsaved;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+
+  // load first song
+  bt_edit_application_load_song(app, check_get_test_song_path("melo1.xml"));
+  g_object_get(app,"song",&song1,NULL);
+  fail_unless(song1 != NULL, NULL);
+  // song should be unchanged
+  g_object_get(song1,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
+  g_object_unref(song1);
+  GST_INFO("song 1 loaded");
+
+  // load second song
+  bt_edit_application_load_song(app, check_get_test_song_path("melo3.xml"));
+  g_object_get(app,"song",&song2,NULL);
+  fail_unless(song2 != NULL, NULL);
+  fail_unless(song2 != song1, NULL);
+  // song should be unchanged
+  g_object_get(song2,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
+  g_object_unref(song2);
+  GST_INFO("song 2 loaded");
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
+  // close window
+  g_object_unref(main_window);
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
+  // free application
+  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  g_object_checked_unref(app);
+
+}
+BT_END_TEST
+
 // load a song and play it
 BT_START_TEST(test_load_and_play1) {
   BtEditApplication *app;
@@ -217,6 +265,63 @@ BT_START_TEST(test_load_and_play1) {
 }
 BT_END_TEST
 
+// load a song, free it, load another song and play it
+BT_START_TEST(test_load_and_play2) {
+  BtEditApplication *app;
+  BtMainWindow *main_window;
+  BtSong *song1,*song2;
+  gboolean unsaved;
+  gboolean playing;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+
+  // load first song
+  bt_edit_application_load_song(app, check_get_test_song_path("melo1.xml"));
+  g_object_get(app,"song",&song1,NULL);
+  fail_unless(song1 != NULL, NULL);
+  // song should be unchanged
+  g_object_get(song1,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
+  g_object_unref(song1);
+  GST_INFO("song 1 loaded");
+
+  // load second song
+  bt_edit_application_load_song(app, check_get_test_song_path("melo2.xml"));
+  g_object_get(app,"song",&song2,NULL);
+  fail_unless(song2 != NULL, NULL);
+  fail_unless(song2 != song1, NULL);
+  // song should be unchanged
+  g_object_get(song2,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
+  GST_INFO("song 2 loaded");
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
+  playing=bt_song_play(song2);
+  fail_unless(playing == TRUE, NULL);
+
+  while(gtk_events_pending()) gtk_main_iteration();
+  bt_song_stop(song2);
+
+  // close window
+  g_object_unref(main_window);
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+  //GST_INFO("mainlevel is %d",gtk_main_level());
+  //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
+
+  g_object_unref(song2);
+  // free application
+  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  g_object_checked_unref(app);
+
+}
+BT_END_TEST
+
 // view all tabs
 BT_START_TEST(test_tabs1) {
   BtEditApplication *app;
@@ -243,6 +348,11 @@ BT_START_TEST(test_tabs1) {
 
   // view all tabs
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  /* make sure the pattern view shows something
+  BtMainPagePatterns *pattern_page;
+  g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
+  bt_main_page_patterns_show_machine(pattern_page,src_machine);
+  */ 
   children=gtk_container_get_children(GTK_CONTAINER(pages));
   //num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));
   num_pages=g_list_length(children);
@@ -277,7 +387,9 @@ TCase *bt_edit_application_example_case(void) {
   tcase_add_test(tc,test_create_app);
   tcase_add_test(tc,test_new1);
   tcase_add_test(tc,test_load1);
+  tcase_add_test(tc,test_load2);
   tcase_add_test(tc,test_load_and_play1);
+  tcase_add_test(tc,test_load_and_play2);
   tcase_add_test(tc,test_tabs1);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);

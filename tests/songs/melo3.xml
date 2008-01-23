@@ -73,6 +73,19 @@
         <globaldata name="delaytime" value="25.0"/>
         <globaldata name="feedback" value="75.0"/>
         <globaldata name="drywet" value="50.0"/>
+        <patterns>
+          <pattern id="echo1::00" machine="echo1" name="00" length="16">
+            <tick time="0">
+              <globaldata name="drywet" value="50.0"/>
+            </tick>
+            <tick time="4">
+              <globaldata name="drywet" value="40.0"/>
+            </tick>
+            <tick time="8">
+              <globaldata name="drywet" value="30.0"/>
+            </tick>
+          </pattern>
+        </patterns>
       </machine>
     </machines>
     
@@ -99,7 +112,9 @@
         <position time="32" pattern="beep2::C-1"/>
         <position time="48" pattern="beep2::C-1"/>
       </track>
-      <track index="2" machine="echo1"/>
+      <track index="2" machine="echo1">
+        <position time="0" pattern="echo1::00"/>
+      </track>
       <track index="3" machine="audio_sink"/>
     </tracks>
   </sequence>
