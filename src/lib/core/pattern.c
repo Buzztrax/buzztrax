@@ -490,7 +490,7 @@ GValue *bt_pattern_get_global_event_data(const BtPattern * const self, const gul
   g_return_val_if_fail(tick<self->priv->length,NULL);
   g_return_val_if_fail(self->priv->data,NULL);
 
-  if(!(tick<self->priv->length)) { GST_ERROR("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
+  //if(!(tick<self->priv->length)) { GST_ERROR("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
   if(!(param<self->priv->global_params)) { GST_ERROR("param=%d beyond global_params=%d in pattern '%s'",param,self->priv->global_params,self->priv->id);return(NULL); }
 
   const gulong index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
@@ -518,7 +518,7 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern * const self, const gulo
   g_return_val_if_fail(tick<self->priv->length,NULL);
   g_return_val_if_fail(self->priv->data,NULL);
 
-  if(!(tick<self->priv->length)) { GST_ERROR("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
+  //if(!(tick<self->priv->length)) { GST_ERROR("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
   if(!(voice<self->priv->voices)) { GST_ERROR("voice=%d beyond voices=%d in pattern '%s'",voice,self->priv->voices,self->priv->id);return(NULL); }
   if(!(param<self->priv->voice_params)) { GST_ERROR("param=%d  beyond voice_ params=%d in pattern '%s'",param,self->priv->voice_params,self->priv->id);return(NULL); }
 
@@ -794,33 +794,58 @@ gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tic
  * Since: 0.3
  */
 void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
-  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
-  GValue *src=&self->priv->data[param+params*(self->priv->length-2)];
-  GValue *dst=&self->priv->data[param+params*(self->priv->length-1)];
-  gulong i;
-  
-  // @todo: need more work
-  for(i=tick;i<self->priv->length-1;i++) {
-    *dst=*src;
-    src-=params;
-    dst-=params;
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  if(!(tick<self->priv->length))
+    GST_ERROR("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);
+  else {
+    gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+    GValue *src=&self->priv->data[internal_params+param+params*(self->priv->length-2)];
+    GValue *dst=&self->priv->data[internal_params+param+params*(self->priv->length-1)];
+    gulong i;
+    
+    GST_INFO("insert row at %lu,%lu", tick, param);
+    //GST_INFO("one full row has %d params", params);
+
+    for(i=tick;i<self->priv->length-1;i++) {
+      if(G_IS_VALUE(src) || G_IS_VALUE(dst)) {
+        if(!G_IS_VALUE(src))
+          g_value_init(src,G_VALUE_TYPE(dst));
+        if(!G_IS_VALUE(dst))
+          g_value_init(dst,G_VALUE_TYPE(src));
+        g_value_copy(src,dst);
+        if(G_IS_VALUE(src))
+          g_value_unset(src);
+      }
+      src-=params;
+      dst-=params;
+    }
   }
-  g_value_unset(src);
-  //memset(src,0,sizeof(GValue));
 }
 
-#if 0
-
-/*
+/**
  * bt_pattern_insert_full_row:
  * @self: the pattern
  * @tick: the postion to insert at
  *
  * Insert one empty row for all parameters.
+ *
+ * Since: 0.3
  */
 void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick) {
+  gulong j=0;
+  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+
+  GST_DEBUG("insert full-rows at %lu", time);
+
+  for(j=0;j<params;j++) {
+    bt_pattern_insert_row(self,tick,j);
+  }
 }
 
+#if 0
 /*
  * bt_pattern_delete_row:
  * @self: the pattern

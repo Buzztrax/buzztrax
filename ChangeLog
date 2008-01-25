@@ -1,3 +1,17 @@
+2008-01-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Remove some debug logging.
+
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Ctrl-i and Ctrl-I work for global params. Need to do voice params and
+	  wire-params still.
+  
+	* tests/lib/core/e-pattern.c:
+	  New test for insert into patterns.
+
 2008-01-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/pattern-methods.h:

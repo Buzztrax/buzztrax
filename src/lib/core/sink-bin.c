@@ -803,14 +803,13 @@ static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_cla
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_BIN, BtSinkBinPrivate);
 
-  GST_INFO("init sink-bin %p",self);
   self->priv->sink=gst_ghost_pad_new_no_target("sink",GST_PAD_SINK);
   gst_element_add_pad(GST_ELEMENT(self),self->priv->sink);
   bt_sink_bin_update(self);
 
   // watch settings changes
   self->priv->settings=bt_settings_new();
-  GST_DEBUG("listen to settings changes (%p)",self->priv->settings);
+  //GST_DEBUG("listen to settings changes (%p)",self->priv->settings);
   g_signal_connect(G_OBJECT(self->priv->settings), "notify::audiosink", G_CALLBACK(on_audio_sink_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->settings), "notify::system-audiosink", G_CALLBACK(on_system_audio_sink_changed), (gpointer)self);
 }
@@ -903,8 +902,6 @@ GType bt_sink_bin_get_type(void) {
 static
 #endif
 gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin) {
-  //GST_INFO("registering sink_bin plugin");
-
   gst_element_register(plugin,"bt-sink-bin",GST_RANK_NONE,BT_TYPE_SINK_BIN);
   return TRUE;
 }

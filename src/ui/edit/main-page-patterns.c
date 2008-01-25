@@ -565,23 +565,33 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }
-/*
   else if (event->keyval == GDK_i) {
     if(modifier&GDK_CONTROL_MASK) {
-      g_object_get(G_OBJECT(editor), "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
-      GST_INFO("ctrl-i pressed, row %lu",row);
-      bt_sequence_insert_full_rows(self->priv->pattern,row,self->priv->bars);
+      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, NULL);
+      GST_INFO("ctrl-i pressed, row %lu",self->priv->cursor_row);
+      // @todo: need to call the same for all wire-patterns
+      bt_pattern_insert_full_row(self->priv->pattern,self->priv->cursor_row);
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
   }
-*/
   else if(event->keyval == GDK_I) {
     if(modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
       GST_INFO("ctrl-shift-i pressed, row %lu, group %lu, param %lu",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
-      // @todo: some insert will need to go to wire-patterns
-      bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, self->priv->cursor_param);
+      switch(self->priv->param_groups[self->priv->cursor_group].type) {
+        case 0:
+          // @todo: need to call insert for wire-pattern
+          break;
+        case 1:
+          bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, self->priv->cursor_param);
+          break;
+        case 2:
+          bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, 
+            //@todo: global_params+((gint)group->user_data*voice_params) +
+            self->priv->cursor_param);
+          break;
+      }
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
@@ -1697,7 +1707,7 @@ static float float_str_to_float(gchar *str, gpointer user_data) {
   gdouble val=g_ascii_strtod(str,NULL);
   gdouble factor=65535.0/(pcc->max-pcc->min);
   
-  GST_WARNING("> val %lf(%s), factor %lf, result %lf",val,str,factor,(val-pcc->min)*factor); 
+  //GST_WARNING("> val %lf(%s), factor %lf, result %lf",val,str,factor,(val-pcc->min)*factor); 
   
   return (val-pcc->min)*factor;
 }
@@ -1708,7 +1718,7 @@ static const gchar * float_float_to_str(gfloat in, gpointer user_data) {
   gdouble factor=65535.0/(pcc->max-pcc->min);
   gdouble val=pcc->min+(in/factor);
 
-  GST_WARNING("< val %lf, factor %lf, result %lf(%s)",in,factor,val,bt_persistence_strfmt_double(val)); 
+  //GST_WARNING("< val %lf, factor %lf, result %lf(%s)",in,factor,val,bt_persistence_strfmt_double(val)); 
   
   return bt_persistence_strfmt_double(val);
 }
