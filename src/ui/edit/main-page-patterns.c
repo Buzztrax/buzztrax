@@ -614,26 +614,55 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       res=TRUE;
     }
   }
-/*
   else if(event->keyval == GDK_d) {
     if(modifier&GDK_CONTROL_MASK) {
-      GST_INFO("ctrl-d pressed, row %lu",row);
-      bt_sequence_delete_full_rows(sequence,row,self->priv->bars);
-      self->priv->list_length-=self->priv->bars;
+      BtWirePattern *wire_pattern;
+      guint i=0;
+
+      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, NULL);
+      GST_INFO("ctrl-d pressed, row %lu",self->priv->cursor_row);
+      while(self->priv->param_groups[i].type==0) {
+        if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
+          bt_wire_pattern_delete_full_row(wire_pattern,self->priv->cursor_row);
+          g_object_unref(wire_pattern);
+        }
+        i++;
+      }
+      bt_pattern_delete_full_row(self->priv->pattern,self->priv->cursor_row);
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
   }
   else if(event->keyval == GDK_D) {
     if(modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
-      GST_INFO("ctrl-shift-d pressed, row %lu, track %lu",row,track-1);
-      bt_sequence_delete_rows(sequence,row,track-1,self->priv->bars);
-      //self->priv->list_length-=self->priv->bars;
+      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
+      GST_INFO("ctrl-shift-d pressed, row %lu, group %lu, param %lu",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
+      switch(self->priv->param_groups[self->priv->cursor_group].type) {
+        case 0: {
+          BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
+          if(wire_pattern) {
+            bt_wire_pattern_delete_row(wire_pattern,self->priv->cursor_row, self->priv->cursor_param);
+            g_object_unref(wire_pattern);
+          }
+        } break;
+        case 1:
+          bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, self->priv->cursor_param);
+          break;
+        case 2: {
+          BtMachine *machine;
+          gulong global_params, voice_params;
+          
+          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, 
+            global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params)+self->priv->cursor_param);
+          g_object_unref(machine);
+        } break;
+      }
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
   }
-*/
 #ifndef USE_PATTERN_EDITOR
   else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
     if(self->priv->pattern) {

@@ -388,15 +388,17 @@ void bt_wire_pattern_insert_row(const BtWirePattern * const self, const gulong t
   //GST_INFO("one full row has %d params", self->priv->num_params);
 
   for(i=tick;i<self->priv->length-1;i++) {
-    if(G_IS_VALUE(src) || G_IS_VALUE(dst)) {
-      if(!G_IS_VALUE(src))
-        g_value_init(src,G_VALUE_TYPE(dst));
+    if(G_IS_VALUE(src)) {
       if(!G_IS_VALUE(dst))
         g_value_init(dst,G_VALUE_TYPE(src));
       g_value_copy(src,dst);
-      if(G_IS_VALUE(src))
-        g_value_unset(src);
+      g_value_unset(src);
     }
+    else {
+      if(G_IS_VALUE(dst))
+        g_value_unset(dst);      
+    }
+
     src-=self->priv->num_params;
     dst-=self->priv->num_params;
   }
@@ -423,8 +425,7 @@ void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gul
   }
 }
 
-#if 0
-/*
+/**
  * bt_wire_pattern_delete_row:
  * @self: the pattern
  * @tick: the postion to delete
@@ -435,9 +436,34 @@ void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gul
  * Since: 0.3
  */
 void bt_wire_pattern_delete_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  GValue *src=&self->priv->data[param+self->priv->num_params*(tick+1)];
+  GValue *dst=&self->priv->data[param+self->priv->num_params*tick];
+  gulong i;
+  
+  GST_INFO("insert row at %lu,%lu", tick, param);
+  //GST_INFO("one full row has %d params", self->priv->num_params);
+
+  for(i=tick;i<self->priv->length-1;i++) {
+    if(G_IS_VALUE(src)) {
+      if(!G_IS_VALUE(dst))
+        g_value_init(dst,G_VALUE_TYPE(src));
+      g_value_copy(src,dst);
+      g_value_unset(src);
+    }
+    else {
+      if(G_IS_VALUE(dst))
+        g_value_unset(dst);      
+    }
+    src+=self->priv->num_params;
+    dst+=self->priv->num_params;
+  }
 }
 
-/*
+/**
  * bt_wire_pattern_delete_full_row:
  * @self: the pattern
  * @tick: the postion to delete
@@ -447,8 +473,18 @@ void bt_wire_pattern_delete_row(const BtWirePattern * const self, const gulong t
  * Since: 0.3
  */
 void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gulong tick) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+
+  gulong j=0;
+
+  GST_DEBUG("insert full-row at %lu", time);
+
+  for(j=0;j<self->priv->num_params;j++) {
+    bt_wire_pattern_delete_row(self,tick,j);
+  }
 }
 
+#if 0
 /*
  * bt_wire_pattern_blend_full:
  *

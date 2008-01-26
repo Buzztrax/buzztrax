@@ -807,14 +807,15 @@ void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, cons
   //GST_INFO("one full row has %d params", params);
 
   for(i=tick;i<self->priv->length-1;i++) {
-    if(G_IS_VALUE(src) || G_IS_VALUE(dst)) {
-      if(!G_IS_VALUE(src))
-        g_value_init(src,G_VALUE_TYPE(dst));
+    if(G_IS_VALUE(src)) {
       if(!G_IS_VALUE(dst))
         g_value_init(dst,G_VALUE_TYPE(src));
       g_value_copy(src,dst);
-      if(G_IS_VALUE(src))
-        g_value_unset(src);
+      g_value_unset(src);
+    }
+    else {
+      if(G_IS_VALUE(dst))
+        g_value_unset(dst);      
     }
     src-=params;
     dst-=params;
@@ -834,7 +835,8 @@ void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick)
   g_return_if_fail(BT_IS_PATTERN(self));
 
   gulong j=0;
-  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  // don't add internal_params here, bt_pattern_insert_row does already
+  gulong params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
 
   GST_DEBUG("insert full-row at %lu", time);
 
@@ -843,8 +845,7 @@ void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick)
   }
 }
 
-#if 0
-/*
+/**
  * bt_pattern_delete_row:
  * @self: the pattern
  * @tick: the postion to delete
@@ -855,9 +856,35 @@ void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick)
  * Since: 0.3
  */
 void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, const gulong param) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  GValue *src=&self->priv->data[internal_params+param+params*(tick+1)];
+  GValue *dst=&self->priv->data[internal_params+param+params*tick];
+  gulong i;
+  
+  GST_INFO("insert row at %lu,%lu", tick, param);
+  //GST_INFO("one full row has %d params", params);
+
+  for(i=tick;i<self->priv->length-1;i++) {
+    if(G_IS_VALUE(src)) {
+      if(!G_IS_VALUE(dst))
+        g_value_init(dst,G_VALUE_TYPE(src));
+      g_value_copy(src,dst);
+      g_value_unset(src);
+    }
+    else {
+      if(G_IS_VALUE(dst))
+        g_value_unset(dst);      
+    }
+    src+=params;
+    dst+=params;
+  }
 }
 
-/*
+/**
  * bt_pattern_delete_full_row:
  * @self: the pattern
  * @tick: the postion to delete
@@ -867,8 +894,20 @@ void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, cons
  * Since: 0.3
  */
 void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+
+  gulong j=0;
+  // don't add internal_params here, bt_pattern_insert_row does already
+  gulong params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
+
+  GST_DEBUG("insert full-row at %lu", time);
+
+  for(j=0;j<params;j++) {
+    bt_pattern_delete_row(self,tick,j);
+  }
 }
 
+#if 0
 /*
  * bt_pattern_blend_full:
  *

@@ -49,5 +49,7 @@ extern gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gul
 
 extern void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param);
 extern void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick);
+extern void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, const gulong param);
+extern void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick);
 
 #endif // BT_PATTERN_METHDOS_H
