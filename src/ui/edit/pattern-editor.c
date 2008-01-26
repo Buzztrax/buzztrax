@@ -120,11 +120,23 @@ to_string_word (char *buf, float value, int def)
     sprintf(buf, "%04X", v & 65535);
 }
 
+static void
+to_string_float (char *buf, float value, int def)
+{
+  int v = (int)value;
+  if (fabs(v - def) < 0.00001)
+    strcpy(buf, "........");
+  else
+    sprintf(buf, "%-8f", value);
+  
+}
+
 static struct ParamType param_types[] = {
   { 3, 2, to_string_note, NULL, {0, 2}},
   { 1, 1, to_string_trigger, NULL, {0}},
   { 2, 2, to_string_byte, NULL, {0, 1}},
   { 4, 4, to_string_word, NULL, {0, 1, 2, 3}},
+  { 8, 1, to_string_float, NULL, {0}},
 };
 
 
@@ -147,7 +159,7 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
 
   while (y < widget->allocation.height && row < self->num_rows) {
     gdk_draw_rectangle (widget->window,
-      (row&0x1) ? widget->style->bg_gc[widget->state] : widget->style->light_gc[widget->state],
+      (row&0x1) ? widget->style->mid_gc[widget->state] : widget->style->bg_gc[widget->state],
       TRUE, x, y, col_w, ch);
     
     sprintf(buf, "%04X", row);
@@ -157,6 +169,23 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
     y += ch;
     row++;
   }
+}
+
+static gboolean
+in_selection (BtPatternEditor *self,
+              int group,
+              int param,
+              int row)
+{
+  if (row < self->selection_start)
+    return FALSE;
+  if (row > self->selection_end)
+    return FALSE;
+  if (self->selection_mode == PESM_COLUMN)
+    return (group == self->selection_group) && (param == self->selection_param);
+  if (self->selection_mode == PESM_GROUP)
+    return (group == self->selection_group);
+  return TRUE; /* PESM_ALL */
 }
 
 static int
@@ -188,10 +217,29 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
   */  
 
   while (y < max_y && row < self->num_rows) {
-    gdk_draw_rectangle (widget->window,
-      /* gcs[row&0x7] */
-      (row&0x1) ? widget->style->bg_gc[widget->state] : widget->style->light_gc[widget->state],
-      TRUE, x, y, col_w, ch);
+    GdkGC *gc = (row&0x1) ? widget->style->mid_gc[widget->state] : widget->style->bg_gc[widget->state];
+    int col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
+    if (self->selection_enabled && in_selection(self, group, param, row)) {
+      /* the last space should be white if it's a within-group "glue" 
+         in multiple column selection, row colour otherwise */
+      if (self->selection_mode == PESM_COLUMN)
+      {
+        /* draw row-coloured "continuation" after column, unless last
+           column in a group */
+        if (param != self->groups[group].num_columns - 1)
+          gdk_draw_rectangle (widget->window, gc, TRUE, x + col_w - cw, y, cw, ch);
+        gc = widget->style->white_gc;
+        gdk_draw_rectangle (widget->window, gc, TRUE, x, y, col_w - cw, ch);
+      }
+      else {
+        /* draw white column+continuation (unless last column, then
+           don't draw continuation) */
+        gc = widget->style->white_gc;
+        gdk_draw_rectangle (widget->window, gc, TRUE, x, y, col_w2, ch);
+      }
+    } else
+      gdk_draw_rectangle (widget->window, gc, TRUE, x, y, 
+        col_w2, ch);
     
     pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
     pango_layout_set_text (self->pl, buf, pt->chars);
@@ -515,6 +563,9 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       float oldvalue = self->callbacks->get_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter);
       const char *p;
       switch(col->type) {
+      case PCT_FLOAT:
+        // no editing yet
+        break;
       case PCT_SWITCH:
         if (event->keyval == '0' || event->keyval == '1') {
           self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, event->keyval - '0');
@@ -568,9 +619,70 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     }
   }
   if (self->num_groups) {
+    int kup = toupper(event->keyval);
     if ((event->state & GDK_CONTROL_MASK) && event->keyval >= '1' && event->keyval <= '9') {
       self->step = event->keyval - '0';
       return TRUE;
+    }
+    else if ((event->state & GDK_CONTROL_MASK) && kup >= 'A' && kup <= 'Z') {
+      int same = 0, handled = 1;
+      switch(kup)
+      {
+      case 'B':
+      case 'E':
+        if (kup == 'B')
+        {
+          same = self->selection_enabled && (self->selection_start == self->row)
+            && (self->selection_group == self->group)
+            && (self->selection_param == self->parameter);
+          self->selection_enabled = TRUE;
+          self->selection_start = self->row;
+          if (self->selection_end < self->row)
+            self->selection_end = self->row;
+        } else { /* Ctrl+E */
+          same = self->selection_enabled && (self->selection_end == self->row)
+            && (self->selection_group == self->group)
+            && (self->selection_param == self->parameter);
+          self->selection_enabled = TRUE;
+          self->selection_end = self->row;
+          if (self->selection_start > self->row)
+            self->selection_start = self->row;
+        }
+        
+        /* if Ctrl+B(E) was pressed again, cycle selection mode */
+        if (same)
+        {
+          if (self->selection_mode < (self->num_groups == 1 ? PESM_GROUP : PESM_ALL))
+            self->selection_mode++;
+          else
+            self->selection_mode = PESM_COLUMN;
+        }
+        self->selection_group = self->group;
+        self->selection_param = self->parameter;
+        break;
+      case 'U':
+        self->selection_enabled = FALSE;
+        break;
+      case 'L':
+      case 'K':
+      case 'A':
+        self->selection_enabled = TRUE;
+        self->selection_mode = 
+          kup == 'K' ? PESM_GROUP : 
+            (kup == 'L' ? PESM_COLUMN : PESM_ALL);
+        self->selection_start = 0;
+        self->selection_end = self->num_rows - 1;
+        self->selection_group = self->group;
+        self->selection_param = self->parameter;
+        break;
+      default:
+        handled = 0;
+        break;
+      }
+      if (handled) {
+        gtk_widget_queue_draw (GTK_WIDGET(self));
+        return TRUE;
+      }
     }
     switch(event->keyval)
     {
@@ -855,6 +967,11 @@ bt_pattern_editor_init (BtPatternEditor *self)
   self->octave = 2;
   self->step = 1;
   self->size_changed = TRUE;
+  self->selection_mode = PESM_COLUMN;
+  self->selection_start = 0;
+  self->selection_end = 0;
+  self->selection_group = 0;
+  self->selection_param = 0;
 }
 
 /**
@@ -887,6 +1004,18 @@ bt_pattern_editor_set_pattern (BtPatternEditor *self,
   gtk_widget_queue_draw (widget);
 }
 
+gboolean bt_pattern_editor_get_selection (BtPatternEditor *self,
+                                          int *start, int *end, 
+                                          int *group, int *param)
+{
+  if (!self->selection_enabled)
+    return FALSE;
+  *start = self->selection_start;
+  *end = self->selection_end;
+  *group = self->selection_mode == PESM_ALL ? -1 : self->selection_group;
+  *param = self->selection_mode != PESM_COLUMN ? -1 : self->selection_param;
+  return TRUE;
+}
 
 GType
 bt_pattern_editor_get_type (void)

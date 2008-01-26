@@ -39,7 +39,8 @@ enum PatternColumnType
   PCT_NOTE,
   PCT_SWITCH,
   PCT_BYTE,
-  PCT_WORD
+  PCT_WORD,
+  PCT_FLOAT
 };
 
 typedef struct _PatternColumn
@@ -74,6 +75,13 @@ typedef struct _BtPatternEditorCallbacks
 
 typedef struct _BtPatternEditorPrivate BtPatternEditorPrivate;
 
+enum BtPatternEditorSelectionMode
+{
+  PESM_COLUMN,
+  PESM_GROUP,
+  PESM_ALL
+};
+
 typedef struct _BtPatternEditor
 {
   GtkWidget parent;
@@ -93,6 +101,10 @@ typedef struct _BtPatternEditor
   PatternColumnGroup *groups;
   BtPatternEditorCallbacks *callbacks;
   gpointer pattern_data;
+  /* selection */
+  gboolean selection_enabled;
+  enum BtPatternEditorSelectionMode selection_mode;
+  int selection_start, selection_end, selection_group, selection_param;
   
   /* font metrics */
   PangoLayout *pl;
@@ -130,6 +142,10 @@ bt_pattern_editor_set_pattern (BtPatternEditor *view,
 GtkWidget *bt_pattern_editor_new();
 
 GType bt_pattern_editor_get_type (void);
+
+gboolean bt_pattern_editor_get_selection (BtPatternEditor *self,
+                                          int *start, int *end, 
+                                          int *group, int *param);
 
 G_END_DECLS
 

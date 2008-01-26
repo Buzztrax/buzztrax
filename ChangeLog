@@ -1,3 +1,9 @@
+2008-01-26  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/pattern-editor.c: 
+	* src/ui/edit/pattern-editor.h:
+	  Initial selection support. Started read-only support for float columns.
+
 2008-01-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/wire-pattern-methods.h:
