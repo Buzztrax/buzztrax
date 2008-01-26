@@ -132,6 +132,10 @@ bt_pattern_test_global_event
 bt_pattern_test_voice_event
 bt_pattern_get_cmd
 bt_pattern_tick_has_data
+bt_pattern_insert_row
+bt_pattern_insert_full_row
+bt_pattern_delete_row
+bt_pattern_delete_full_row
 <SUBSECTION Standard>
 BtPatternClass
 BT_PATTERN
@@ -142,7 +146,7 @@ BT_PATTERN_GET_CLASS
 BT_TYPE_PATTERN
 BT_TYPE_PATTERN_CMD
 <SUBSECTION Private>
-bt_pattern_get_type
+bt_pattern_get_typebt_pattern_delete_full_row
 bt_pattern_cmd_get_type
 BtPatternPrivate
 </SECTION>
@@ -581,6 +585,10 @@ bt_wire_pattern_set_event
 bt_wire_pattern_get_event
 bt_wire_pattern_test_event
 bt_wire_pattern_tick_has_data
+bt_wire_pattern_insert_row
+bt_wire_pattern_insert_full_row
+bt_wire_pattern_delete_row
+bt_wire_pattern_delete_full_row
 <SUBSECTION Standard>
 BtWirePatternClass
 BT_WIRE_PATTERN

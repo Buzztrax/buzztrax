@@ -915,8 +915,34 @@ void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick)
  *
  * Since: 0.3
  */
-void bt_pattern_blend_full(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
+void bt_pattern_blend(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
+  GValue *end=&self->priv->data[internal_params+param+params*end_tick];
+  gulong i,ticks=end_tick-start_tick;
+
+  if(!G_IS_VALUE(beg) || !G_IS_VALUE(end)) {
+    GST_INFO("Can't blend, beg or end is empty");
+    return;
+  }
   
+  switch(G_VALUE_TYPE(end)) {
+    case G_INT: {
+      gint val=g_value_get_int(beg);
+      gdouble step=(gdouble)(g_value_get_int(end)-val)/(gdouble)ticks;
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_VALUE_TYPE(end));
+        g_value_set_int(beg,val+(gint)(step*ticks));
+        beg+=params;
+      }
+    } break;
+    // @todo: need this for more types
+  }
 }
 
 /*
