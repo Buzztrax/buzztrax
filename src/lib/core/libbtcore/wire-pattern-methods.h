@@ -34,4 +34,7 @@ extern gchar *bt_wire_pattern_get_event(const BtWirePattern * const self, const 
 extern gboolean bt_wire_pattern_test_event(const BtWirePattern * const self, const gulong tick, const gulong param);
 extern gboolean bt_wire_pattern_tick_has_data(const BtWirePattern * const self, const gulong tick);
 
+extern void bt_wire_pattern_insert_row(const BtWirePattern * const self, const gulong tick, const gulong param);
+extern void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gulong tick);
+
 #endif // BT_WIRE_PATTERN_METHDOS_H

@@ -567,9 +567,18 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   }
   else if (event->keyval == GDK_i) {
     if(modifier&GDK_CONTROL_MASK) {
+      BtWirePattern *wire_pattern;
+      guint i=0;
+
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, NULL);
       GST_INFO("ctrl-i pressed, row %lu",self->priv->cursor_row);
-      // @todo: need to call the same for all wire-patterns
+      while(self->priv->param_groups[i].type==0) {
+        if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
+          bt_wire_pattern_insert_full_row(wire_pattern,self->priv->cursor_row);
+          g_object_unref(wire_pattern);
+        }
+        i++;
+      }
       bt_pattern_insert_full_row(self->priv->pattern,self->priv->cursor_row);
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
@@ -580,17 +589,26 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
       GST_INFO("ctrl-shift-i pressed, row %lu, group %lu, param %lu",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
-        case 0:
-          // @todo: need to call insert for wire-pattern
-          break;
+        case 0: {
+          BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
+          if(wire_pattern) {
+            bt_wire_pattern_insert_row(wire_pattern,self->priv->cursor_row, self->priv->cursor_param);
+            g_object_unref(wire_pattern);
+          }
+        } break;
         case 1:
           bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, self->priv->cursor_param);
           break;
-        case 2:
+        case 2: {
+          BtMachine *machine;
+          gulong global_params, voice_params;
+          
+          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
           bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, 
-            //@todo: global_params+((gint)group->user_data*voice_params) +
-            self->priv->cursor_param);
-          break;
+            global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params)+self->priv->cursor_param);
+          g_object_unref(machine);
+        } break;
       }
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
@@ -1707,7 +1725,7 @@ static float float_str_to_float(gchar *str, gpointer user_data) {
   gdouble val=g_ascii_strtod(str,NULL);
   gdouble factor=65535.0/(pcc->max-pcc->min);
   
-  //GST_WARNING("> val %lf(%s), factor %lf, result %lf",val,str,factor,(val-pcc->min)*factor); 
+  //GST_DEBUG("> val %lf(%s), factor %lf, result %lf",val,str,factor,(val-pcc->min)*factor); 
   
   return (val-pcc->min)*factor;
 }
@@ -1718,7 +1736,7 @@ static const gchar * float_float_to_str(gfloat in, gpointer user_data) {
   gdouble factor=65535.0/(pcc->max-pcc->min);
   gdouble val=pcc->min+(in/factor);
 
-  //GST_WARNING("< val %lf, factor %lf, result %lf(%s)",in,factor,val,bt_persistence_strfmt_double(val)); 
+  //GST_DEBUG("< val %lf, factor %lf, result %lf(%s)",in,factor,val,bt_persistence_strfmt_double(val)); 
   
   return bt_persistence_strfmt_double(val);
 }
