@@ -565,6 +565,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }
+  // @todo: GDK_Insert
   else if (event->keyval == GDK_i) {
     if(modifier&GDK_CONTROL_MASK) {
       BtWirePattern *wire_pattern;
@@ -614,6 +615,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       res=TRUE;
     }
   }
+  // @todo: GDK_Delete
   else if(event->keyval == GDK_d) {
     if(modifier&GDK_CONTROL_MASK) {
       BtWirePattern *wire_pattern;

@@ -907,17 +907,17 @@ void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick)
   }
 }
 
-#if 0
 /*
- * bt_pattern_blend_full:
+ * bt_pattern_blend_column:
  *
- * Fade values from @start_row to @end_row for each param.
+ * Fade values from @start_tick to @end_tick for @param.
  *
  * Since: 0.3
  */
-void bt_pattern_blend(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
+void bt_pattern_blend_column(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong param) {
   g_return_if_fail(BT_IS_PATTERN(self));
-  g_return_if_fail(tick<self->priv->length);
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
@@ -931,13 +931,23 @@ void bt_pattern_blend(const BtPattern * const self, const gulong start_tick,cons
   }
   
   switch(G_VALUE_TYPE(end)) {
-    case G_INT: {
+    case G_TYPE_INT: {
       gint val=g_value_get_int(beg);
       gdouble step=(gdouble)(g_value_get_int(end)-val)/(gdouble)ticks;
       for(i=0;i<ticks;i++) {
         if(!G_IS_VALUE(beg))
-          g_value_init(beg,G_VALUE_TYPE(end));
+          g_value_init(beg,G_TYPE_INT);
         g_value_set_int(beg,val+(gint)(step*ticks));
+        beg+=params;
+      }
+    } break;
+    case G_TYPE_UINT: {
+      gint val=g_value_get_uint(beg);
+      gdouble step=(gdouble)(g_value_get_uint(end)-val)/(gdouble)ticks;
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_UINT);
+        g_value_set_uint(beg,val+(gint)(step*ticks));
         beg+=params;
       }
     } break;
@@ -945,6 +955,24 @@ void bt_pattern_blend(const BtPattern * const self, const gulong start_tick,cons
   }
 }
 
+/*
+ * bt_pattern_blend_columns:
+ *
+ * Fade values from @start_tick to @end_tick for @start_param to @end_param.
+ *
+ * Since: 0.3
+ */
+void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+
+  gulong j=0;
+
+  for(j=start_param;j<end_param;j++) {
+    bt_pattern_blend_column(self,start_tick,end_tick,j);
+  }
+}
+
+#if 0
 /*
  * bt_pattern_randomize_full:
  *

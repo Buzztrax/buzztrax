@@ -100,9 +100,6 @@ struct _BtWirePrivate {
   /* which machines are linked */
   BtMachine *src,*dst;
 
-  /* volume gain, set machines[PART_GAIN] to passthrough when gain=1.0 */
-  gdouble gain;
-
   /* the number of dynamic params the wire provides */
   gulong num_params;
   
@@ -1112,6 +1109,9 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
   GST_DEBUG("PERSISTENCE::wire");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wire"),NULL))) {
+    gdouble gain;
+    gfloat pan;
+  
     g_object_get(G_OBJECT(self->priv->src),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("src"),XML_CHAR_PTR(id));
     g_free(id);
@@ -1120,9 +1120,13 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
     xmlNewProp(node,XML_CHAR_PTR("dst"),XML_CHAR_PTR(id));
     g_free(id);
 
-    // @todo: get gain from gain-element
-    xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double(self->priv->gain)));
-    // @todo: handle pan
+    // serialize gain and panorama
+    g_object_get(G_OBJECT(self->priv->machines[PART_GAIN]),"volume",&gain,NULL);
+    xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double(gain)));
+    if(self->priv->machines[PART_PAN]) {
+       g_object_get(G_OBJECT(self->priv->machines[PART_PAN]),"panorama",&pan,NULL);
+       xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double((gdouble)pan)));
+    }
     
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
       if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
@@ -1145,7 +1149,7 @@ Error:
 static gboolean bt_wire_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
   const BtWire * const self = BT_WIRE(persistence);
   BtSetup * const setup;
-  xmlChar *id, *gain;
+  xmlChar *id, *gain_str, *pan_str;
   gboolean res=FALSE;
   xmlNodePtr child_node;
 
@@ -1163,18 +1167,22 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
   self->priv->dst=bt_setup_get_machine_by_id(setup,(gchar *)id);
   GST_DEBUG("dst %s -> %p",id,self->priv->dst);
   xmlFree(id);
-
-  if((gain=xmlGetProp(node,XML_CHAR_PTR("gain")))) {
-    // @todo: set gain in gain-element
-    self->priv->gain=g_ascii_strtod((gchar *)gain,NULL);
-    xmlFree(gain);
-  }
-  // @todo: handle pan
   
   // this is simillar to the code in the constructor
   if(bt_wire_connect(self)) {
     bt_setup_add_wire(setup,self);
     res=TRUE;
+  }
+
+  if((gain_str=xmlGetProp(node,XML_CHAR_PTR("gain")))) {
+    gdouble gain=g_ascii_strtod((gchar *)gain_str,NULL);
+    g_object_set(G_OBJECT(self->priv->machines[PART_GAIN]),"volume",gain,NULL);
+    xmlFree(gain_str);
+  }
+  if(self->priv->machines[PART_PAN] && (pan_str=xmlGetProp(node,XML_CHAR_PTR("gain")))) {
+    gfloat pan=g_ascii_strtod((gchar *)pan_str,NULL);
+    g_object_set(G_OBJECT(self->priv->machines[PART_PAN]),"panorama",pan,NULL);
+    xmlFree(pan_str);
   }
   
   for(node=node->children;node;node=node->next) {
@@ -1398,7 +1406,6 @@ static void bt_wire_finalize(GObject * const object) {
 static void bt_wire_init(BtWire *self) {
   GST_INFO("wire init, no priv data yet");
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE, BtWirePrivate);
-  self->priv->gain = 1.0;
   self->priv->num_params = 1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
   self->priv->patterns=g_hash_table_new_full(g_direct_hash,g_direct_equal,NULL,g_object_unref);
