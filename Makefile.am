@@ -9,6 +9,7 @@ songdatadir = $(datadir)/$(PACKAGE)/songs
 songdata_DATA = \
 	tests/songs/broken1.xml \
 	tests/songs/broken2.xml \
+	tests/songs/broken3.xml \
 	tests/songs/buzz1.xml \
 	tests/songs/buzz2.xml \
 	tests/songs/buzz3.xml \

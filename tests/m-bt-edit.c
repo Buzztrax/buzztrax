@@ -56,11 +56,13 @@ gchar **test_argvptr;
 /* common setup and teardown code */
 void bt_edit_setup(void) {
   //g_type_init();
+#if 1
+  gtk_init(&test_argc,&test_argvptr);
   bt_init(&test_argc,&test_argvptr);
   btic_init(&test_argc,&test_argvptr);
-  gtk_init(&test_argc,&test_argvptr);
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
   bt_check_init();
+#endif
 
   ///setup_log_capture();
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
@@ -76,15 +78,11 @@ void bt_edit_setup(void) {
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 
   check_setup_test_display();
-  //gdk_threads_enter();
-
   GST_INFO("================================================================================");
 }
 
 void bt_edit_teardown(void) {
   GST_INFO("................................................................................");
-  //gdk_threads_leave();
-
   check_shutdown_test_display();
   GST_INFO("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
 }
@@ -110,9 +108,13 @@ int main(int argc, char **argv) {
   g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   check_setup_test_server();
+#if 0
   gtk_init(&test_argc,&test_argvptr);
-  //bt_init(&test_argc,&test_argvptr);
-  //btic_init(&test_argc,&test_argvptr);
+  bt_init(&test_argc,&test_argvptr);
+  btic_init(&test_argc,&test_argvptr);
+  add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
+  bt_check_init();
+#endif
 
   sr=srunner_create(bt_about_dialog_suite());
   srunner_add_suite(sr, bt_edit_application_suite());

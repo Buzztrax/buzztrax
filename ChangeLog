@@ -1,3 +1,13 @@
+2008-01-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* tests/bt-cmd-info.sh:
+	* tests/songs/broken3.xml:
+	  Add one more test file.
+
+	* tests/m-bt-edit.c:
+	  Fix the ui tests.
+
 2008-01-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/pattern.c:
