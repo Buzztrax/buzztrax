@@ -1765,7 +1765,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     }
     else if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
       // first column is label
-      if((track>0) && (modifier==GDK_SHIFT_MASK)) {
+      if((track>0) /*&& (modifier==GDK_SHIFT_MASK)*/) {
         BtMainWindow *main_window;
         BtMainPages *pages;
         BtMainPagePatterns *patterns_page;
@@ -1963,9 +1963,19 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         res=TRUE;
       }
     }
-    else if(event->keyval == GDK_i) {
-      if(modifier&GDK_CONTROL_MASK) {
-        GST_INFO("ctrl-i pressed, row %lu",row);
+    else if(event->keyval == GDK_Insert) {
+      if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+        GST_INFO("ctrl-shift-insert pressed, row %lu, track %lu",row,track-1);
+        bt_sequence_insert_rows(sequence,row,track-1,self->priv->bars);
+        //self->priv->list_length+=self->priv->bars;
+        // reinit the view
+        sequence_table_refresh(self,song);
+        sequence_model_recolorize(self);
+        sequence_view_set_cursor_pos(self);
+        res=TRUE;
+      }
+      else {
+        GST_INFO("insert pressed, row %lu",row);
         bt_sequence_insert_full_rows(sequence,row,self->priv->bars);
         self->priv->list_length+=self->priv->bars;
         // reinit the view
@@ -1975,35 +1985,21 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         res=TRUE;
       }
     }
-    else if(event->keyval == GDK_I) {
-      if(modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
-        GST_INFO("ctrl-shift-i pressed, row %lu, track %lu",row,track-1);
-        bt_sequence_insert_rows(sequence,row,track-1,self->priv->bars);
-        //self->priv->list_length+=self->priv->bars;
-        // reinit the view
-        sequence_table_refresh(self,song);
-        sequence_model_recolorize(self);
-        sequence_view_set_cursor_pos(self);
-        res=TRUE;
-      }
-    }
-    else if(event->keyval == GDK_d) {
-      if(modifier&GDK_CONTROL_MASK) {
-        GST_INFO("ctrl-d pressed, row %lu",row);
-        bt_sequence_delete_full_rows(sequence,row,self->priv->bars);
-        self->priv->list_length-=self->priv->bars;
-        // reinit the view
-        sequence_table_refresh(self,song);
-        sequence_model_recolorize(self);
-        sequence_view_set_cursor_pos(self);
-        res=TRUE;
-      }
-    }
-    else if(event->keyval == GDK_D) {
-      if(modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
-        GST_INFO("ctrl-shift-d pressed, row %lu, track %lu",row,track-1);
+    else if(event->keyval == GDK_Delete) {
+      if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+        GST_INFO("ctrl-shift-delete pressed, row %lu, track %lu",row,track-1);
         bt_sequence_delete_rows(sequence,row,track-1,self->priv->bars);
         //self->priv->list_length-=self->priv->bars;
+        // reinit the view
+        sequence_table_refresh(self,song);
+        sequence_model_recolorize(self);
+        sequence_view_set_cursor_pos(self);
+        res=TRUE;
+      }
+      else {
+        GST_INFO("delete pressed, row %lu",row);
+        bt_sequence_delete_full_rows(sequence,row,self->priv->bars);
+        self->priv->list_length-=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
@@ -2804,18 +2800,10 @@ static int ntargets = G_N_ELEMENTS (targets);
  * <note>not yet working</note>
  */
 void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self) {
-  /* @todo implement me
-   * - where do we store this?
-   * - how do we store this?
-   * - later we might have multiple songs open, and like to copy from one-to-another
-   *   thus, we should not store the copy inside the song
-   * - we can use GtkClipboard
-  GtkClipboard *clipboard=gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
-  // and where do we put out data in ?
-  gtk_clipboard_set_with_data(clipboard, targets, ntargets,
-                gb_clipboard_get_cb, gb_clipboard_clear_cb,
-                user_data);
-    */
+  /* @todo implement me */
+#if 0
+- like copy, but clear pattern cells afterwards
+#endif
 }
 
 /**
@@ -2827,6 +2815,10 @@ void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self) {
  */
 void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
   /* @todo implement me */
+#if 0
+- store BtPattern **patterns;
+- remeber selection (track start/end and time start/end)
+#endif
 }
 
 /**
@@ -2838,6 +2830,11 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
  */
 void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self) {
   /* @todo implement me */
+#if 0
+- we can paste at any timeoffset
+  - maybe extend sequence if pos+selection.length> sequence.length)
+- we need to check if the tracks match
+#endif
 }
 
 /**

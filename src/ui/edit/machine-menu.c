@@ -59,12 +59,13 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
 
   g_assert(user_data);
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
-  GST_DEBUG("adding source machine \"%s\"",name);
+  id=(gchar*)gtk_label_get_text(GTK_LABEL((GTK_BIN(menuitem)->child)));
+  GST_DEBUG("adding source machine \"%s\" : \"%s\"",name,id);
 
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"setup",&setup,NULL);
 
-  id=bt_setup_get_unique_machine_id(setup,name);
+  id=bt_setup_get_unique_machine_id(setup,id);
   // try with 1 voice, if monophonic, voices will be reset to 0 in
   // bt_machine_init_voice_params()
   if((machine=BT_MACHINE(bt_source_machine_new(song,id,name,/*voices=*/1)))) {

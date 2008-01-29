@@ -1,3 +1,15 @@
+2008-01-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	  Unbreak sequence inserts.
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Use Ins/Del based shortcuts. Support insert/delete in group only.
+
+	* src/ui/edit/machine-menu.c:
+	  Drop 'bml' or 'ladspa' prefix from initial machine name.
+
 2008-01-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:

@@ -542,7 +542,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   GST_INFO("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
     event->state,event->keyval,event->hardware_keycode,gdk_keyval_name(event->keyval));
   if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
-    if(modifier==GDK_SHIFT_MASK) {
+    //if(modifier==GDK_SHIFT_MASK) {
       BtMainWindow *main_window;
       BtMainPages *pages;
       //BtMainPageSequence *sequence_page;
@@ -559,20 +559,20 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       g_object_try_unref(main_window);
 
       res=TRUE;
-    }
+    //}
   }
   else if(event->keyval==GDK_Menu) {
     gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }
-  // @todo: GDK_Insert
-  else if (event->keyval == GDK_i) {
-    if(modifier&GDK_CONTROL_MASK) {
+  else if (event->keyval == GDK_Insert) {
+    if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+      // insert full row
       BtWirePattern *wire_pattern;
       guint i=0;
 
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, NULL);
-      GST_INFO("ctrl-i pressed, row %lu",self->priv->cursor_row);
+      GST_INFO("ctrl-shift-insert pressed, row %lu",self->priv->cursor_row);
       while(self->priv->param_groups[i].type==0) {
         if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
           bt_wire_pattern_insert_full_row(wire_pattern,self->priv->cursor_row);
@@ -584,11 +584,46 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
-  }
-  else if(event->keyval == GDK_I) {
-    if(modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+    else if(modifier&GDK_SHIFT_MASK) {
+      // insert group
+      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, NULL);
+      GST_INFO("shift-insert pressed, row %lu, group %lu",self->priv->cursor_row,self->priv->cursor_group);
+      switch(self->priv->param_groups[self->priv->cursor_group].type) {
+        case 0: {
+          BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
+          if(wire_pattern) {
+            bt_wire_pattern_insert_full_row(wire_pattern,self->priv->cursor_row);
+            g_object_unref(wire_pattern);
+          }
+        } break;
+        case 1: {
+          guint i;
+          
+          for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
+            bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, i);
+          }
+        } break;
+        case 2: {
+          BtMachine *machine;
+          gulong global_params, voice_params, params;
+          guint i;
+          
+          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+          for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
+            bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, params+i);
+          }
+          g_object_unref(machine);
+        } break;
+      }
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      res=TRUE;
+    }
+    else {
+      // insert column
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
-      GST_INFO("ctrl-shift-i pressed, row %lu, group %lu, param %lu",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
+      GST_INFO("insert pressed, row %lu, group %lu, param %lu",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case 0: {
           BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
@@ -602,12 +637,12 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           break;
         case 2: {
           BtMachine *machine;
-          gulong global_params, voice_params;
+          gulong global_params, voice_params, params;
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, 
-            global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params)+self->priv->cursor_param);
+          params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+          bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, params+self->priv->cursor_param);
           g_object_unref(machine);
         } break;
       }
@@ -615,14 +650,14 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       res=TRUE;
     }
   }
-  // @todo: GDK_Delete
-  else if(event->keyval == GDK_d) {
-    if(modifier&GDK_CONTROL_MASK) {
+  else if(event->keyval == GDK_Delete) {
+    if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+      // delete full row
       BtWirePattern *wire_pattern;
       guint i=0;
 
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, NULL);
-      GST_INFO("ctrl-d pressed, row %lu",self->priv->cursor_row);
+      GST_INFO("ctrl-shift-delete pressed, row %lu",self->priv->cursor_row);
       while(self->priv->param_groups[i].type==0) {
         if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
           bt_wire_pattern_delete_full_row(wire_pattern,self->priv->cursor_row);
@@ -634,11 +669,46 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
-  }
-  else if(event->keyval == GDK_D) {
-    if(modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+    else if(modifier&GDK_SHIFT_MASK) {
+      // delete group
+      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, NULL);
+      GST_INFO("delete pressed, row %lu, group %lu",self->priv->cursor_row,self->priv->cursor_group);
+      switch(self->priv->param_groups[self->priv->cursor_group].type) {
+        case 0: {
+          BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
+          if(wire_pattern) {
+            bt_wire_pattern_delete_full_row(wire_pattern,self->priv->cursor_row);
+            g_object_unref(wire_pattern);
+          }
+        } break;
+        case 1: {
+          guint i;
+          
+          for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
+            bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, i);
+          }
+        } break;
+        case 2: {
+          BtMachine *machine;
+          gulong global_params, voice_params, params;
+          guint i;
+          
+          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+          for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
+            bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, params+i);
+          }
+          g_object_unref(machine);
+        } break;
+      }
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      res=TRUE;
+    }  
+    else {
+      // delete group
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
-      GST_INFO("ctrl-shift-d pressed, row %lu, group %lu, param %lu",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
+      GST_INFO("delete pressed, row %lu, group %lu, param %lu",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case 0: {
           BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
@@ -652,12 +722,12 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           break;
         case 2: {
           BtMachine *machine;
-          gulong global_params, voice_params;
+          gulong global_params, voice_params, params;
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, 
-            global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params)+self->priv->cursor_param);
+          params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+          bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, params+self->priv->cursor_param);
           g_object_unref(machine);
         } break;
       }

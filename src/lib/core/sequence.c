@@ -1426,11 +1426,18 @@ gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPatte
  * Since: 0.3
  */
 void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows) {
+  g_return_if_fail(BT_IS_SEQUENCE(self));
+
   BtPattern **src=&self->priv->patterns[track+self->priv->tracks*(self->priv->length-(1+rows))];
   BtPattern **dst=&self->priv->patterns[track+self->priv->tracks*(self->priv->length-1)];
   gulong i;
   
-  for(i=time;i<self->priv->length-1;i++) {
+  GST_INFO("insert %d rows at %lu,%lu", rows, time, track);
+  
+  for(i=1;i<=rows;i++) {
+    g_object_try_unref(src[i*self->priv->tracks]);
+  }
+  for(i=time;i<self->priv->length-rows;i++) {
     *dst=*src;
     *src=NULL;
     src-=self->priv->tracks;
@@ -1449,6 +1456,8 @@ void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, c
  * Since: 0.3
  */
 void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong time, const gulong rows) {
+  g_return_if_fail(BT_IS_SEQUENCE(self));
+
   gulong j=0;
 
   GST_DEBUG("insert %d full-rows at %lu / %lu", rows, time, self->priv->length);
@@ -1477,10 +1486,14 @@ void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong ti
  * Since: 0.3
  */
 void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows) {
+  g_return_if_fail(BT_IS_SEQUENCE(self));
+
   BtPattern **src=&self->priv->patterns[track+self->priv->tracks*(time+rows)];
   BtPattern **dst=&self->priv->patterns[track+self->priv->tracks*time];
   gulong i;
-    
+
+  GST_INFO("delete %d rows at %lu,%lu", rows, time, track);
+
   for(i=0;i<rows;i++) {
     g_object_try_unref(dst[i*self->priv->tracks]);
   }
@@ -1507,6 +1520,8 @@ void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, c
  * Since: 0.3
  */
 void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong time, const gulong rows) {
+  g_return_if_fail(BT_IS_SEQUENCE(self));
+
   gulong j=0;
   
   GST_DEBUG("delete %d full-rows at %lu / %lu", rows, time, self->priv->length);
