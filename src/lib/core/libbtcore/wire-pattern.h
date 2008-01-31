@@ -58,6 +58,7 @@ struct _BtWirePatternClass {
   const GObjectClass parent;
 
   void (*param_changed_event)(const BtWirePattern * const wire_pattern, const gulong tick, const struct _BtWire * const wire, const gulong param, gconstpointer const user_data);
+  void (*pattern_changed_event)(const BtPattern * const pattern, gconstpointer const user_data);
 };
 
 /* used by PATTERN_TYPE */

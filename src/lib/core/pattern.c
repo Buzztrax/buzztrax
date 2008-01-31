@@ -41,6 +41,7 @@
 enum {
   GLOBAL_PARAM_CHANGED_EVENT,
   VOICE_PARAM_CHANGED_EVENT,
+  PATTERN_CHANGED_EVENT,
   LAST_SIGNAL
 };
 
@@ -783,28 +784,13 @@ gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tic
   return(FALSE);
 }
 
-/**
- * bt_pattern_insert_row:
- * @self: the pattern
- * @tick: the postion to insert at
- * @param: the param
- *
- * Insert one empty row for given @param.
- *
- * Since: 0.3
- */
-void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
-  g_return_if_fail(BT_IS_PATTERN(self));
-  g_return_if_fail(tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
-
+static void _insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *src=&self->priv->data[internal_params+param+params*(self->priv->length-2)];
   GValue *dst=&self->priv->data[internal_params+param+params*(self->priv->length-1)];
   gulong i;
   
   GST_INFO("insert row at %lu,%lu", tick, param);
-  //GST_INFO("one full row has %d params", params);
 
   for(i=tick;i<self->priv->length-1;i++) {
     if(G_IS_VALUE(src)) {
@@ -820,6 +806,25 @@ void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, cons
     src-=params;
     dst-=params;
   }
+}
+
+/**
+ * bt_pattern_insert_row:
+ * @self: the pattern
+ * @tick: the postion to insert at
+ * @param: the param
+ *
+ * Insert one empty row for given @param.
+ *
+ * Since: 0.3
+ */
+void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  _insert_row(self,tick,param);
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -841,7 +846,32 @@ void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick)
   GST_DEBUG("insert full-row at %lu", time);
 
   for(j=0;j<params;j++) {
-    bt_pattern_insert_row(self,tick,j);
+    _insert_row(self,tick,j);
+  }
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
+
+static void _delete_row(const BtPattern * const self, const gulong tick, const gulong param) {
+  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  GValue *src=&self->priv->data[internal_params+param+params*(tick+1)];
+  GValue *dst=&self->priv->data[internal_params+param+params*tick];
+  gulong i;
+  
+  GST_INFO("insert row at %lu,%lu", tick, param);
+
+  for(i=tick;i<self->priv->length-1;i++) {
+    if(G_IS_VALUE(src)) {
+      if(!G_IS_VALUE(dst))
+        g_value_init(dst,G_VALUE_TYPE(src));
+      g_value_copy(src,dst);
+      g_value_unset(src);
+    }
+    else {
+      if(G_IS_VALUE(dst))
+        g_value_unset(dst);      
+    }
+    src+=params;
+    dst+=params;
   }
 }
 
@@ -860,28 +890,8 @@ void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, cons
   g_return_if_fail(tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
-  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
-  GValue *src=&self->priv->data[internal_params+param+params*(tick+1)];
-  GValue *dst=&self->priv->data[internal_params+param+params*tick];
-  gulong i;
-  
-  GST_INFO("insert row at %lu,%lu", tick, param);
-  //GST_INFO("one full row has %d params", params);
-
-  for(i=tick;i<self->priv->length-1;i++) {
-    if(G_IS_VALUE(src)) {
-      if(!G_IS_VALUE(dst))
-        g_value_init(dst,G_VALUE_TYPE(src));
-      g_value_copy(src,dst);
-      g_value_unset(src);
-    }
-    else {
-      if(G_IS_VALUE(dst))
-        g_value_unset(dst);      
-    }
-    src+=params;
-    dst+=params;
-  }
+  _delete_row(self,tick,param);
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -903,23 +913,12 @@ void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick)
   GST_DEBUG("insert full-row at %lu", time);
 
   for(j=0;j<params;j++) {
-    bt_pattern_delete_row(self,tick,j);
+    _delete_row(self,tick,j);
   }
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
-/*
- * bt_pattern_blend_column:
- *
- * Fade values from @start_tick to @end_tick for @param.
- *
- * Since: 0.3
- */
-void bt_pattern_blend_column(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong param) {
-  g_return_if_fail(BT_IS_PATTERN(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
-
+static void _blend_column(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong param) {
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
   GValue *end=&self->priv->data[internal_params+param+params*end_tick];
@@ -956,6 +955,23 @@ void bt_pattern_blend_column(const BtPattern * const self, const gulong start_ti
 }
 
 /*
+ * bt_pattern_blend_column:
+ *
+ * Fade values from @start_tick to @end_tick for @param.
+ *
+ * Since: 0.3
+ */
+void bt_pattern_blend_column(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong param) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  _blend_column(self,start_tick,end_tick,param);
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
+
+/*
  * bt_pattern_blend_columns:
  *
  * Fade values from @start_tick to @end_tick for @start_param to @end_param.
@@ -964,12 +980,16 @@ void bt_pattern_blend_column(const BtPattern * const self, const gulong start_ti
  */
 void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
   g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
 
   gulong j=0;
 
   for(j=start_param;j<end_param;j++) {
-    bt_pattern_blend_column(self,start_tick,end_tick,j);
+    _blend_column(self,start_tick,end_tick,j);
   }
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
 #if 0
@@ -1310,6 +1330,22 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
                                         G_TYPE_NONE, // return type
                                         3, // n_params
                                         G_TYPE_ULONG,G_TYPE_ULONG,G_TYPE_ULONG // param data
+                                        );
+  /**
+   * BtPattern::pattern-changed:
+   * @self: the pattern object that emitted the signal
+   *
+   * signals that this pattern has been changed (more than in one place)
+   */
+  signals[PATTERN_CHANGED_EVENT] = g_signal_new("pattern-changed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        (guint)G_STRUCT_OFFSET(BtPatternClass,pattern_changed_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__VOID,
+                                        G_TYPE_NONE, // return type
+                                        0 // n_params
                                         );
 
   g_object_class_install_property(gobject_class,PATTERN_SONG,

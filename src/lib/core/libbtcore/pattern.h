@@ -55,6 +55,7 @@ struct _BtPatternClass {
 
   void (*global_param_changed_event)(const BtPattern * const pattern, const gulong tick, const gulong param, gconstpointer const user_data);
   void (*voice_param_changed_event)(const BtPattern * const pattern, const gulong tick, const gulong voice, const gulong param, gconstpointer const user_data);
+  void (*pattern_changed_event)(const BtPattern * const pattern, gconstpointer const user_data);
 };
 
 #define BT_TYPE_PATTERN_CMD       (bt_pattern_cmd_get_type())

@@ -49,6 +49,7 @@
 
 enum {
   PARAM_CHANGED_EVENT,
+  PATTERN_CHANGED_EVENT,
   LAST_SIGNAL
 };
 
@@ -365,27 +366,12 @@ gboolean bt_wire_pattern_tick_has_data(const BtWirePattern * const self, const g
   return(FALSE);
 }
 
-/**
- * bt_wire_pattern_insert_row:
- * @self: the pattern
- * @tick: the postion to insert at
- * @param: the param
- *
- * Insert one empty row for given @param.
- *
- * Since: 0.3
- */
-void bt_wire_pattern_insert_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
-  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
-  g_return_if_fail(tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
-
+static void _insert_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
   GValue *src=&self->priv->data[param+self->priv->num_params*(self->priv->length-2)];
   GValue *dst=&self->priv->data[param+self->priv->num_params*(self->priv->length-1)];
   gulong i;
   
   GST_INFO("insert row at %lu,%lu", tick, param);
-  //GST_INFO("one full row has %d params", self->priv->num_params);
 
   for(i=tick;i<self->priv->length-1;i++) {
     if(G_IS_VALUE(src)) {
@@ -405,6 +391,25 @@ void bt_wire_pattern_insert_row(const BtWirePattern * const self, const gulong t
 }
 
 /**
+ * bt_wire_pattern_insert_row:
+ * @self: the pattern
+ * @tick: the postion to insert at
+ * @param: the param
+ *
+ * Insert one empty row for given @param.
+ *
+ * Since: 0.3
+ */
+void bt_wire_pattern_insert_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  _insert_row(self,tick,param);
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
+
+/**
  * bt_wire_pattern_insert_full_row:
  * @self: the pattern
  * @tick: the postion to insert at
@@ -421,25 +426,12 @@ void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gul
   GST_DEBUG("insert full-row at %lu", time);
 
   for(j=0;j<self->priv->num_params;j++) {
-    bt_wire_pattern_insert_row(self,tick,j);
+    _insert_row(self,tick,j);
   }
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
-/**
- * bt_wire_pattern_delete_row:
- * @self: the pattern
- * @tick: the postion to delete
- * @param: the param
- *
- * Delete row for given @param.
- *
- * Since: 0.3
- */
-void bt_wire_pattern_delete_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
-  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
-  g_return_if_fail(tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
-
+static void _delete_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
   GValue *src=&self->priv->data[param+self->priv->num_params*(tick+1)];
   GValue *dst=&self->priv->data[param+self->priv->num_params*tick];
   gulong i;
@@ -464,6 +456,25 @@ void bt_wire_pattern_delete_row(const BtWirePattern * const self, const gulong t
 }
 
 /**
+ * bt_wire_pattern_delete_row:
+ * @self: the pattern
+ * @tick: the postion to delete
+ * @param: the param
+ *
+ * Delete row for given @param.
+ *
+ * Since: 0.3
+ */
+void bt_wire_pattern_delete_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  _delete_row(self,tick,param);
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
+
+/**
  * bt_wire_pattern_delete_full_row:
  * @self: the pattern
  * @tick: the postion to delete
@@ -480,8 +491,9 @@ void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gul
   GST_DEBUG("insert full-row at %lu", time);
 
   for(j=0;j<self->priv->num_params;j++) {
-    bt_wire_pattern_delete_row(self,tick,j);
+    _delete_row(self,tick,j);
   }
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
 #if 0
@@ -758,6 +770,23 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
                                  3, // n_params
                                  G_TYPE_ULONG,BT_TYPE_WIRE,G_TYPE_ULONG // param data
                                  );
+
+  /**
+   * BtWirePattern::pattern-changed:
+   * @self: the wire-pattern object that emitted the signal
+   *
+   * signals that this wire-pattern has been changed (more than in one place)
+   */
+  signals[PATTERN_CHANGED_EVENT] = g_signal_new("pattern-changed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        (guint)G_STRUCT_OFFSET(BtWirePatternClass,pattern_changed_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__VOID,
+                                        G_TYPE_NONE, // return type
+                                        0 // n_params
+                                        );
 
 
   g_object_class_install_property(gobject_class,WIRE_PATTERN_SONG,

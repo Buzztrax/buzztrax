@@ -735,6 +735,19 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       res=TRUE;
     }
   }
+  else if(event->keyval == GDK_i) {
+    if(modifier&GDK_CONTROL_MASK) {
+      gint beg,end,group,param;
+      bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param);
+      /* @todo: blend
+      if group==-1 && param==-1 : eveything
+      if group!=-1 && param==-1 : whole group
+      if group!=-1 && param!=-1 : one param in one group 
+      
+      bt_pattern_blend_column(...)
+      */
+    }
+  }
 #ifndef USE_PATTERN_EDITOR
   else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
     if(self->priv->pattern) {
