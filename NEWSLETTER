@@ -1,9 +1,22 @@
 2008/02 ========================================================================
 
-* panorama support
-* new wire visualization
-* pattern editor, cursor stepping
-* bsl loads wire patterns, pan, volume and master-volume mappings
+We're heading for a release. There is a few more features that we'd like to
+finalize. Then its time for testing and this is were *you* can help.
+Featurewise buzztard improved nicely thsi month. I improved stereo support.
+We now have new look for the wires. They show animated volume levels and
+panorama positions. Both volume and panorama can be ajusted via popup-sliders.I
+like this a lot more that how it works in buzz. There it was a bit confusing in
+some cases (not clearly indicating which connections a panorama setting would
+affect). As an extra bonus, buzztard does stereo balance on stereo connections.
+
+I also updated the buzz song importer to make use and correctly import panorama
+and volume. Now also the master-volume is mapped to the scale used in buzztard.
+
+FSM worked on the pattern widget. It supports variable cursor stepping (going
+down several lines at once) and selection. I added column/group/all insert and
+delete actions.
+
+Finally waffel wrote a jhbuild module set for buzztard.
 
 2008/01 ========================================================================
 

@@ -1,3 +1,11 @@
+2008-02-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write news.
+
+	* src/ui/edit/panorama-popup.c:
+	  Add bug comment.
+
 2008-01-31  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/pattern.h:

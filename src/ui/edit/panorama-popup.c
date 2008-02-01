@@ -26,6 +26,10 @@
  *
  * Shows a popup widnow containing a vertical slider
  */
+/*
+ * level of range widgets are draw always from left-to-right for some themes.
+ * http://bugzilla.gnome.org/show_bug.cgi?id=511470
+ */
 
 #define BT_EDIT
 #define PANORAMA_POPUP_C
