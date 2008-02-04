@@ -100,10 +100,13 @@ BT_START_TEST(test_info1) {
   gchar *tmp_file_name;
 
   app=bt_cmd_application_new(TRUE);
-  tmp_file_name=tmpnam(NULL);
+  tmp_file_name=g_build_filename(g_get_tmp_dir(),"test-simple1.xml.txt",NULL);
   ret = bt_cmd_application_info(app, check_get_test_song_path("test-simple1.xml"), tmp_file_name);
   fail_unless(ret==TRUE, NULL);
   fail_unless(file_contains_str(tmp_file_name, "song.song_info.name: \"test simple 1\""), NULL);
+  // remove tmp-file and free filename
+  g_unlink(tmp_file_name);
+  g_free(tmp_file_name);
   // free application
   g_object_checked_unref(app);
 }

@@ -1,3 +1,9 @@
+2008-02-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-check.c:
+	* tests/ui/cmd/e-bt-cmd-application.c:
+	  Avoid using tmpnam() to silence gcc.
+
 2008-02-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

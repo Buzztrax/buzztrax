@@ -178,7 +178,7 @@ void setup_log(int argc, char **argv) {
     fprintf(stderr,"can't get basename from: '%s'\n",argv[0]);fflush(stderr);
   }
   // reset logfile
-  unlink(__log_file_name);
+  g_unlink(__log_file_name);
 }
 
 /**
