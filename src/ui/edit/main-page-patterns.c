@@ -739,13 +739,25 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     if(modifier&GDK_CONTROL_MASK) {
       gint beg,end,group,param;
       bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param);
-      /* @todo: blend
-      if group==-1 && param==-1 : eveything
-      if group!=-1 && param==-1 : whole group
-      if group!=-1 && param!=-1 : one param in one group 
-      
-      bt_pattern_blend_column(...)
-      */
+      if(group==-1 && param==-1) {
+        // @todo: blend full pattern
+      }
+      if(group!=-1 && param==-1) {
+        // @todo: blend whole group
+      }
+      if(group!=-1 && param!=-1) {
+        // blend one param in one group
+        switch(self->priv->param_groups[group].type) {
+          case 0:
+            break;
+          case 1:
+            bt_pattern_blend_column(self->priv->pattern,beg,end,param);
+            break;
+          case 2: {
+              
+          } break;
+        }
+      }
     }
   }
 #ifndef USE_PATTERN_EDITOR

@@ -918,7 +918,7 @@ void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick)
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
-static void _blend_column(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong param) {
+static void _blend_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
   GValue *end=&self->priv->data[internal_params+param+params*end_tick];
@@ -961,7 +961,7 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
  *
  * Since: 0.3
  */
-void bt_pattern_blend_column(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong param) {
+void bt_pattern_blend_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   g_return_if_fail(BT_IS_PATTERN(self));
   g_return_if_fail(start_tick<self->priv->length);
   g_return_if_fail(end_tick<self->priv->length);
@@ -978,7 +978,7 @@ void bt_pattern_blend_column(const BtPattern * const self, const gulong start_ti
  *
  * Since: 0.3
  */
-void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
+void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong start_param ,const gulong end_param) {
   g_return_if_fail(BT_IS_PATTERN(self));
   g_return_if_fail(start_tick<self->priv->length);
   g_return_if_fail(end_tick<self->priv->length);
