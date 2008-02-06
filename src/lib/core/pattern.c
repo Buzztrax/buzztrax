@@ -30,6 +30,19 @@
 /* @todo:
  * - BtWirePattern is not a good name :/
  *   - maybe we can make BtPattern a base class and also have BtMachinePattern
+ * - cut/copy/paste api
+ *   - need private BtPatternFragment object
+ *     - copy of the data
+ *     - pos and size of the region
+ *     - column-types
+ *   - api
+ *     fragment = bt_pattern_copy_fragment (pattern, col1, col2, row1, row2);
+ *       return a new fragment object, opaque for the callee
+ *     fragment = bt_pattern_cut_fragment (pattern, col1, col2, row1, row2);
+ *       calls copy and clears afterwards
+ *     success = bt_pattern_paste_fragment(pattern, fragment, col1, row1);
+ *       checks if column-types are compatible
+ *  
  */
 #define BT_CORE
 #define BT_PATTERN_C
@@ -812,7 +825,7 @@ static void _insert_row(const BtPattern * const self, const gulong tick, const g
  * bt_pattern_insert_row:
  * @self: the pattern
  * @tick: the postion to insert at
- * @param: the param
+ * @param: the parameter
  *
  * Insert one empty row for given @param.
  *
@@ -839,9 +852,8 @@ void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, cons
 void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick) {
   g_return_if_fail(BT_IS_PATTERN(self));
 
-  gulong j=0;
   // don't add internal_params here, bt_pattern_insert_row does already
-  gulong params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  gulong j,params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
 
   GST_DEBUG("insert full-row at %lu", time);
 
@@ -879,7 +891,7 @@ static void _delete_row(const BtPattern * const self, const gulong tick, const g
  * bt_pattern_delete_row:
  * @self: the pattern
  * @tick: the postion to delete
- * @param: the param
+ * @param: the parameter
  *
  * Delete row for given @param.
  *
@@ -906,9 +918,8 @@ void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, cons
 void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick) {
   g_return_if_fail(BT_IS_PATTERN(self));
 
-  gulong j=0;
   // don't add internal_params here, bt_pattern_insert_row does already
-  gulong params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  gulong j,params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
 
   GST_DEBUG("insert full-row at %lu", time);
 
@@ -929,6 +940,10 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
     return;
   }
   
+  GST_INFO("blending gvalue type %s",G_VALUE_TYPE_NAME(end));
+  
+  // @todo: should this honour the cursor stepping? e.g. enter only every second value
+  
   switch(G_VALUE_TYPE(end)) {
     case G_TYPE_INT: {
       gint val=g_value_get_int(beg);
@@ -936,7 +951,7 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
       for(i=0;i<ticks;i++) {
         if(!G_IS_VALUE(beg))
           g_value_init(beg,G_TYPE_INT);
-        g_value_set_int(beg,val+(gint)(step*ticks));
+        g_value_set_int(beg,val+(gint)(step*i));
         beg+=params;
       }
     } break;
@@ -946,16 +961,42 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
       for(i=0;i<ticks;i++) {
         if(!G_IS_VALUE(beg))
           g_value_init(beg,G_TYPE_UINT);
-        g_value_set_uint(beg,val+(gint)(step*ticks));
+        g_value_set_uint(beg,val+(guint)(step*i));
+        beg+=params;
+      }
+    } break;
+    case G_TYPE_FLOAT: {
+      gfloat val=g_value_get_float(beg);
+      gdouble step=(gdouble)(g_value_get_float(end)-val)/(gdouble)ticks;
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_FLOAT);
+        g_value_set_float(beg,val+(gfloat)(step*i));
+        beg+=params;
+      }
+    } break;
+    case G_TYPE_DOUBLE: {
+      gdouble val=g_value_get_double(beg);
+      gdouble step=(gdouble)(g_value_get_double(end)-val)/(gdouble)ticks;
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_DOUBLE);
+        g_value_set_double(beg,val+(step*i));
         beg+=params;
       }
     } break;
     // @todo: need this for more types
+    default:
+      GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(end));
   }
 }
 
-/*
+/**
  * bt_pattern_blend_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
  *
  * Fade values from @start_tick to @end_tick for @param.
  *
@@ -966,27 +1007,33 @@ void bt_pattern_blend_column(const BtPattern * const self, const gulong start_ti
   g_return_if_fail(start_tick<self->priv->length);
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
+  
+  GST_INFO("blending column: %d",param);
 
   _blend_column(self,start_tick,end_tick,param);
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
-/*
+/**
  * bt_pattern_blend_columns:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
  *
- * Fade values from @start_tick to @end_tick for @start_param to @end_param.
+ * Fade values from @start_tick to @end_tick for all params.
  *
  * Since: 0.3
  */
-void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong start_param ,const gulong end_param) {
+void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick) {
   g_return_if_fail(BT_IS_PATTERN(self));
   g_return_if_fail(start_tick<self->priv->length);
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
-  gulong j=0;
+  // don't add internal_params here, bt_pattern_insert_row does already
+  gulong j,params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
 
-  for(j=start_param;j<end_param;j++) {
+  for(j=0;j<params;j++) {
     _blend_column(self,start_tick,end_tick,j);
   }
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
@@ -1003,7 +1050,6 @@ void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_t
 void bt_pattern_blend_full(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
   
 }
-
 
 #endif
 

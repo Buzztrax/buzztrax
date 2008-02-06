@@ -53,6 +53,6 @@ extern void bt_pattern_delete_row(const BtPattern * const self, const gulong tic
 extern void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick);
 
 extern void bt_pattern_blend_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-extern void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong start_param, const gulong end_param);
+extern void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
 
 #endif // BT_PATTERN_METHDOS_H

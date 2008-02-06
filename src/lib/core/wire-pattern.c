@@ -394,7 +394,7 @@ static void _insert_row(const BtWirePattern * const self, const gulong tick, con
  * bt_wire_pattern_insert_row:
  * @self: the pattern
  * @tick: the postion to insert at
- * @param: the param
+ * @param: the parameter
  *
  * Insert one empty row for given @param.
  *
@@ -421,7 +421,7 @@ void bt_wire_pattern_insert_row(const BtWirePattern * const self, const gulong t
 void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gulong tick) {
   g_return_if_fail(BT_IS_WIRE_PATTERN(self));
 
-  gulong j=0;
+  gulong j;
 
   GST_DEBUG("insert full-row at %lu", time);
 
@@ -459,7 +459,7 @@ static void _delete_row(const BtWirePattern * const self, const gulong tick, con
  * bt_wire_pattern_delete_row:
  * @self: the pattern
  * @tick: the postion to delete
- * @param: the param
+ * @param: the parameter
  *
  * Delete row for given @param.
  *
@@ -486,7 +486,7 @@ void bt_wire_pattern_delete_row(const BtWirePattern * const self, const gulong t
 void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gulong tick) {
   g_return_if_fail(BT_IS_WIRE_PATTERN(self));
 
-  gulong j=0;
+  gulong j;
 
   GST_DEBUG("insert full-row at %lu", time);
 

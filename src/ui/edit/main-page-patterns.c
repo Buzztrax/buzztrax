@@ -738,24 +738,84 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   else if(event->keyval == GDK_i) {
     if(modifier&GDK_CONTROL_MASK) {
       gint beg,end,group,param;
-      bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param);
-      if(group==-1 && param==-1) {
-        // @todo: blend full pattern
-      }
-      if(group!=-1 && param==-1) {
-        // @todo: blend whole group
-      }
-      if(group!=-1 && param!=-1) {
-        // blend one param in one group
-        switch(self->priv->param_groups[group].type) {
-          case 0:
-            break;
-          case 1:
-            bt_pattern_blend_column(self->priv->pattern,beg,end,param);
-            break;
-          case 2: {
+      if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
+        GST_INFO("blending : %d %d , %d %d",beg,end,group,param);
+        if(group==-1 && param==-1) {
+          // blend full pattern
+          BtWirePattern *wire_pattern;
+          guint i=0;
+    
+          while(self->priv->param_groups[i].type==0) {
+            if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
+              // @todo: bt_wire_pattern_blend_columns(wire_pattern,beg,end);
+              g_object_unref(wire_pattern);
+            }
+            i++;
+          }
+          bt_pattern_blend_columns(self->priv->pattern,beg,end);
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+          res=TRUE;
+        }
+        if(group!=-1 && param==-1) {
+          // blend whole group
+          switch(self->priv->param_groups[group].type) {
+            case 0: {
+              BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
+              if(wire_pattern) {
+                // @todo: bt_wire_pattern_blend_columns(wire_pattern,beg,end);
+                g_object_unref(wire_pattern);
+              }
+            } break;
+            case 1: {
+              guint i;
               
-          } break;
+              for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
+                bt_pattern_blend_column(self->priv->pattern,beg,end,i);
+              }
+            } break;
+            case 2: {
+              BtMachine *machine;
+              gulong global_params, voice_params, params;
+              guint i;
+              
+              g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+              g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+              params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+              for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
+                bt_pattern_blend_column(self->priv->pattern,beg,end,params+i);
+              }
+              g_object_unref(machine);
+            } break;
+          }
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+          res=TRUE;
+        }
+        if(group!=-1 && param!=-1) {
+          // blend one param in one group
+          switch(self->priv->param_groups[group].type) {
+            case 0: {
+              BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
+              if(wire_pattern) {
+                // @todo: bt_wire_pattern_blend_column(wire_pattern,beg,end,param);
+                g_object_unref(wire_pattern);
+              }
+            } break;
+            case 1:
+              bt_pattern_blend_column(self->priv->pattern,beg,end,param);
+              break;
+            case 2: {
+              BtMachine *machine;
+              gulong global_params, voice_params, params;
+              
+              g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+              g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+              params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+              bt_pattern_blend_column(self->priv->pattern,beg,end,params+param);
+              g_object_unref(machine);
+            } break;
+          }
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+          res=TRUE;
         }
       }
     }

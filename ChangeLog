@@ -1,5 +1,15 @@
 2008-02-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire-pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Blending is done for patterns, needs wire-patterns still. Also added
+	  design-ideas for copy/paste.
+
+2008-02-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbtcore/pattern-methods.h:
 	* src/lib/core/pattern.c:
 	* src/ui/edit/main-page-patterns.c:

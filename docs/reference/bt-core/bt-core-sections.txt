@@ -136,6 +136,8 @@ bt_pattern_insert_row
 bt_pattern_insert_full_row
 bt_pattern_delete_row
 bt_pattern_delete_full_row
+bt_pattern_blend_column
+bt_pattern_blend_columns
 <SUBSECTION Standard>
 BtPatternClass
 BT_PATTERN
