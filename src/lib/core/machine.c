@@ -2187,37 +2187,39 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
 #endif
   }
   else {
-    gboolean remove=TRUE;
+    if(self->priv->global_controller) {
+      gboolean remove=TRUE;
 
-    //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
+      //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
-      gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
-      g_object_unref(cs);
-    }
-#else
-    gst_controller_unset(self->priv->global_controller,GLOBAL_PARAM_NAME(param),timestamp);
-#endif
-
-    // check if the property is not having control points anymore
-#ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
-      if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
-        remove=FALSE;
+      if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
+        gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
+        g_object_unref(cs);
       }
-      g_object_unref(cs);
-    }
 #else
-    GList *values;
-    if((values=(GList *)gst_controller_get_all(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
-      //if(g_list_length(values)>0) {
-        remove=FALSE;
-      //}
-      g_list_free(values);
-    }
+      gst_controller_unset(self->priv->global_controller,GLOBAL_PARAM_NAME(param),timestamp);
 #endif
-    if(remove) {
-      bt_gst_object_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(param));
+
+      // check if the property is not having control points anymore
+#ifdef HAVE_GST_0_10_14
+      if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
+        if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
+          remove=FALSE;
+        }
+        g_object_unref(cs);
+      }
+#else
+      GList *values;
+      if((values=(GList *)gst_controller_get_all(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
+        //if(g_list_length(values)>0) {
+          remove=FALSE;
+        //}
+        g_list_free(values);
+      }
+#endif
+      if(remove) {
+        bt_gst_object_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(param));
+      }
     }
   }
 }
@@ -2283,37 +2285,39 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
 #endif
   }
   else {
-    gboolean remove=TRUE;
+    if(self->priv->voice_controllers[voice]) {
+      gboolean remove=TRUE;
 
-    //GST_INFO("%s unset voice controller: %"GST_TIME_FORMAT" voice %d, param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,VOICE_PARAM_NAME(param));
+      //GST_INFO("%s unset voice controller: %"GST_TIME_FORMAT" voice %d, param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,VOICE_PARAM_NAME(param));
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
-      gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
-      g_object_unref(cs);
-    }
-#else
-    gst_controller_unset(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param),timestamp);
-#endif
-
-    // check if the property is not having control points anymore
-#ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
-      if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
-        remove=FALSE;
+      if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
+        gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
+        g_object_unref(cs);
       }
-      g_object_unref(cs);
-    }
 #else
-    GList *values;
-    if((values=(GList *)gst_controller_get_all(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
-      //if(g_list_length(values)>0) {
-        remove=FALSE;
-      //}
-      g_list_free(values);
-    }
+      gst_controller_unset(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param),timestamp);
 #endif
-    if(remove) {
-      bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(param));
+
+      // check if the property is not having control points anymore
+#ifdef HAVE_GST_0_10_14
+      if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
+        if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
+          remove=FALSE;
+        }
+        g_object_unref(cs);
+      }
+#else
+      GList *values;
+      if((values=(GList *)gst_controller_get_all(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
+        //if(g_list_length(values)>0) {
+          remove=FALSE;
+        //}
+        g_list_free(values);
+      }
+#endif
+      if(remove) {
+        bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(param));
+      }
     }
   }
 }

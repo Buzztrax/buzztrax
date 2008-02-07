@@ -1027,37 +1027,39 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
 #endif
   }
   else {
-    gboolean remove=TRUE;
+    if(self->priv->wire_controller[param]) {
+      gboolean remove=TRUE;
 
-    //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
+      //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
-      gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
-      g_object_unref(cs);
-    }
-#else
-    gst_controller_unset(self->priv->wire_controller[param],WIRE_PARAM_NAME(param),timestamp);
-#endif
-
-    // check if the property is not having control points anymore
-#ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
-      if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
-        remove=FALSE;
+      if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
+        gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
+        g_object_unref(cs);
       }
-      g_object_unref(cs);
-    }
 #else
-    GList *values;
-    if((values=(GList *)gst_controller_get_all(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
-      //if(g_list_length(values)>0) {
-        remove=FALSE;
-      //}
-      g_list_free(values);
-    }
+      gst_controller_unset(self->priv->wire_controller[param],WIRE_PARAM_NAME(param),timestamp);
 #endif
-    if(remove) {
-      bt_gst_object_deactivate_controller(param_parent, WIRE_PARAM_NAME(param));
+
+      // check if the property is not having control points anymore
+#ifdef HAVE_GST_0_10_14
+      if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
+        if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
+          remove=FALSE;
+        }
+        g_object_unref(cs);
+      }
+#else
+      GList *values;
+      if((values=(GList *)gst_controller_get_all(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
+        //if(g_list_length(values)>0) {
+          remove=FALSE;
+        //}
+        g_list_free(values);
+      }
+#endif
+      if(remove) {
+        bt_gst_object_deactivate_controller(param_parent, WIRE_PARAM_NAME(param));
+      }
     }
   }
 }
@@ -1169,17 +1171,18 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
   xmlFree(id);
   
   // this is simillar to the code in the constructor
-  if(bt_wire_connect(self)) {
-    bt_setup_add_wire(setup,self);
-    res=TRUE;
+  if(!bt_wire_connect(self)) {
+    return FALSE;
   }
-
+  bt_setup_add_wire(setup,self);
+  res=TRUE;
+  
   if((gain_str=xmlGetProp(node,XML_CHAR_PTR("gain")))) {
     gdouble gain=g_ascii_strtod((gchar *)gain_str,NULL);
     g_object_set(G_OBJECT(self->priv->machines[PART_GAIN]),"volume",gain,NULL);
     xmlFree(gain_str);
   }
-  if(self->priv->machines[PART_PAN] && (pan_str=xmlGetProp(node,XML_CHAR_PTR("gain")))) {
+  if(self->priv->machines[PART_PAN] && (pan_str=xmlGetProp(node,XML_CHAR_PTR("panorama")))) {
     gfloat pan=g_ascii_strtod((gchar *)pan_str,NULL);
     g_object_set(G_OBJECT(self->priv->machines[PART_PAN]),"panorama",pan,NULL);
     xmlFree(pan_str);

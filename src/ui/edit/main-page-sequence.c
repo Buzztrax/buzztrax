@@ -802,11 +802,12 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
     guint i;
 
     for(i=0;i<number_of_tracks;i++) {
-      machine=bt_sequence_get_machine(sequence,i);
-      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
-      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
-      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
-      g_object_try_unref(machine);
+      if((machine=bt_sequence_get_machine(sequence,i))) {
+        g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
+        g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
+        g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
+        g_object_unref(machine);
+      }
     }
   }
   g_object_unref(sequence);

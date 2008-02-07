@@ -310,7 +310,7 @@ static gboolean bt_wire_analysis_dialog_make_element(const BtWireAnalysisDialog 
   gchar *name;
 
   // add analyzer element
-  name=g_alloca(strlen(factory_name)+16);g_sprintf(name,"%s_%p",factory_name,self->priv->wire);
+  name=g_alloca(strlen("analyzer_")+strlen(factory_name)+16);g_sprintf(name,"analyzer_%s_%p",factory_name,self->priv->wire);
   if(!(self->priv->analyzers[part]=gst_element_factory_make(factory_name,name))) {
     GST_ERROR("failed to create %s",factory_name);goto Error;
   }
