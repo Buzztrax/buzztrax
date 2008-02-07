@@ -496,29 +496,236 @@ void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gul
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
-#if 0
-/*
- * bt_wire_pattern_blend_full:
- *
- * Fade values from @start_row to @end_row for each param.
- *
- * Since: 0.3
- */
-void bt_wire_pattern_blend_full(const BtWirePattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
- 
+static void _blend_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+  GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
+  GValue *end=&self->priv->data[param+self->priv->num_params*end_tick];
+  gulong i,ticks=end_tick-start_tick;
+
+  if(!G_IS_VALUE(beg) || !G_IS_VALUE(end)) {
+    GST_INFO("Can't blend, beg or end is empty");
+    return;
+  }
+  
+  GST_INFO("blending gvalue type %s",G_VALUE_TYPE_NAME(end));
+  
+  // @todo: should this honour the cursor stepping? e.g. enter only every second value
+  
+  switch(G_VALUE_TYPE(end)) {
+    case G_TYPE_INT: {
+      gint val=g_value_get_int(beg);
+      gdouble step=(gdouble)(g_value_get_int(end)-val)/(gdouble)ticks;
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_INT);
+        g_value_set_int(beg,val+(gint)(step*i));
+        beg+=self->priv->num_params;
+      }
+    } break;
+    case G_TYPE_UINT: {
+      gint val=g_value_get_uint(beg);
+      gdouble step=(gdouble)(g_value_get_uint(end)-val)/(gdouble)ticks;
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_UINT);
+        g_value_set_uint(beg,val+(guint)(step*i));
+        beg+=self->priv->num_params;
+      }
+    } break;
+    case G_TYPE_FLOAT: {
+      gfloat val=g_value_get_float(beg);
+      gdouble step=(gdouble)(g_value_get_float(end)-val)/(gdouble)ticks;
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_FLOAT);
+        g_value_set_float(beg,val+(gfloat)(step*i));
+        beg+=self->priv->num_params;
+      }
+    } break;
+    case G_TYPE_DOUBLE: {
+      gdouble val=g_value_get_double(beg);
+      gdouble step=(gdouble)(g_value_get_double(end)-val)/(gdouble)ticks;
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_DOUBLE);
+        g_value_set_double(beg,val+(step*i));
+        beg+=self->priv->num_params;
+      }
+    } break;
+    // @todo: need this for more types
+    default:
+      GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(end));
+  }
 }
 
-/*
- * bt_wire_pattern_randomize_full:
+/**
+ * bt_wire_pattern_blend_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
  *
- * Randomizes values from @start_row to @end_row for each param.
+ * Fade values from @start_tick to @end_tick for @param.
  *
  * Since: 0.3
  */
-void bt_wire_pattern_blend_full(const BtWirePattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
+void bt_wire_pattern_blend_column(const BtWirePattern * const self, const gulong start_tick,const gulong end_tick, const gulong param) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
   
+  _blend_column(self,start_tick,end_tick,param);
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
-#endif
+
+/**
+ * bt_wire_pattern_blend_columns:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ *
+ * Fade values from @start_tick to @end_tick for all params.
+ *
+ * Since: 0.3
+ */
+void bt_wire_pattern_blend_columns(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  gulong j;
+  
+  for(j=0;j<self->priv->num_params;j++) {
+    _blend_column(self,start_tick,end_tick,j);
+  }
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
+
+static void _randomize_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+  GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
+  GValue *end=&self->priv->data[param+self->priv->num_params*end_tick];
+  gulong i,ticks=(end_tick+1)-start_tick;
+  GParamSpec *property;
+  GType base_type;
+  gdouble rnd;
+  
+  property=bt_wire_get_param_spec(self->priv->wire, param);
+  base_type=bt_g_type_get_base_type(property->value_type);
+  
+  GST_INFO("blending gvalue type %s",g_type_name(property->value_type));
+  
+  // @todo: should this honour the cursor stepping? e.g. enter only every second value
+  // @todo: if beg and end are not empty, shall we use them as upper and lower
+  
+  switch(base_type) {
+    case G_TYPE_INT: {
+      const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_INT);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_int(beg, (gint) (int_property->minimum +
+          ((int_property->maximum - int_property->minimum) * rnd)));
+        beg+=self->priv->num_params;
+      }
+    } break;
+    case G_TYPE_UINT: {
+      const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_UINT);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_uint(beg, (guint) (uint_property->minimum +
+          ((uint_property->maximum - uint_property->minimum) * rnd)));
+        beg+=self->priv->num_params;
+      }
+    } break;
+    case G_TYPE_FLOAT: {
+      const GParamSpecFloat *float_property = G_PARAM_SPEC_FLOAT (property);
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_FLOAT);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_float(beg, (gfloat) (float_property->minimum +
+          ((float_property->maximum - float_property->minimum) * rnd)));
+        beg+=self->priv->num_params;
+      }
+    } break;
+    case G_TYPE_DOUBLE: {
+      const GParamSpecDouble *double_property = G_PARAM_SPEC_DOUBLE (property);
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_DOUBLE);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_double(beg, (gdouble) (double_property->minimum +
+          ((double_property->maximum - double_property->minimum) * rnd)));
+        beg+=self->priv->num_params;
+      }
+    } break;
+    case G_TYPE_ENUM:{
+      const GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
+      const GEnumClass *enum_class = enum_property->enum_class;
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,property->value_type);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_enum (beg, (gulong) (enum_class->minimum +
+          ((enum_class->maximum - enum_class->minimum) * rnd)));
+        beg+=self->priv->num_params;
+      }
+    } break;
+    // @todo: need this for more types
+    default:
+      GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(end));
+  }
+}
+
+/**
+ * bt_wire_pattern_randomize_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
+ *
+ * Randomize values from @start_tick to @end_tick for @param.
+ *
+ * Since: 0.3
+ */
+void bt_wire_pattern_randomize_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  _randomize_column(self,start_tick,end_tick,param);
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
+
+/**
+ * bt_wire_pattern_randomize_columns:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ *
+ * Randomize values from @start_tick to @end_tick for all params.
+ *
+ * Since: 0.3
+ */
+void bt_wire_pattern_randomize_columns(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  // don't add internal_params here, bt_pattern_insert_row does already
+  gulong j;
+
+  for(j=0;j<self->priv->num_params;j++) {
+    _randomize_column(self,start_tick,end_tick,j);
+  }
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
 
 //-- io interface
 

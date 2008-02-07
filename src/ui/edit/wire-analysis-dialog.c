@@ -413,7 +413,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     goto Error;
   }
   g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_FAKESINK]),
-      "sync", FALSE, "qos", FALSE, "silent", TRUE,
+      "sync", FALSE, "qos", FALSE, "silent", TRUE, "async", FALSE,
       NULL);
   // create spectrum analyzer
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_SPECTRUM,"spectrum")) {

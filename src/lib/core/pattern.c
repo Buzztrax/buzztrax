@@ -35,6 +35,7 @@
  *     - copy of the data
  *     - pos and size of the region
  *     - column-types
+ *     - eventually wire-pattern fragments
  *   - api
  *     fragment = bt_pattern_copy_fragment (pattern, col1, col2, row1, row2);
  *       return a new fragment object, opaque for the callee
@@ -1007,8 +1008,6 @@ void bt_pattern_blend_column(const BtPattern * const self, const gulong start_ti
   g_return_if_fail(start_tick<self->priv->length);
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
-  
-  GST_INFO("blending column: %d",param);
 
   _blend_column(self,start_tick,end_tick,param);
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
@@ -1039,19 +1038,137 @@ void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_t
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
-#if 0
-/*
- * bt_pattern_randomize_full:
+static void _randomize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
+  GValue *end=&self->priv->data[internal_params+param+params*end_tick];
+  gulong i,ticks=(end_tick+1)-start_tick;
+  GParamSpec *property;
+  GType base_type;
+  gdouble rnd;
+  
+  if(param<self->priv->global_params) {
+    property=bt_machine_get_global_param_spec(self->priv->machine, param);
+  }
+  else {
+    property=bt_machine_get_voice_param_spec(self->priv->machine, 
+      (param-self->priv->global_params)%self->priv->voice_params);
+  }
+  base_type=bt_g_type_get_base_type(property->value_type);
+  
+  GST_INFO("blending gvalue type %s",g_type_name(property->value_type));
+  
+  // @todo: should this honour the cursor stepping? e.g. enter only every second value
+  // @todo: if beg and end are not empty, shall we use them as upper and lower
+  
+  switch(base_type) {
+    case G_TYPE_INT: {
+      const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_INT);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_int(beg, (gint) (int_property->minimum +
+          ((int_property->maximum - int_property->minimum) * rnd)));
+        beg+=params;
+      }
+    } break;
+    case G_TYPE_UINT: {
+      const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_UINT);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_uint(beg, (guint) (uint_property->minimum +
+          ((uint_property->maximum - uint_property->minimum) * rnd)));
+        beg+=params;
+      }
+    } break;
+    case G_TYPE_FLOAT: {
+      const GParamSpecFloat *float_property = G_PARAM_SPEC_FLOAT (property);
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_FLOAT);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_float(beg, (gfloat) (float_property->minimum +
+          ((float_property->maximum - float_property->minimum) * rnd)));
+        beg+=params;
+      }
+    } break;
+    case G_TYPE_DOUBLE: {
+      const GParamSpecDouble *double_property = G_PARAM_SPEC_DOUBLE (property);
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,G_TYPE_DOUBLE);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_double(beg, (gdouble) (double_property->minimum +
+          ((double_property->maximum - double_property->minimum) * rnd)));
+        beg+=params;
+      }
+    } break;
+    case G_TYPE_ENUM:{
+      const GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
+      const GEnumClass *enum_class = enum_property->enum_class;
+      for(i=0;i<ticks;i++) {
+        if(!G_IS_VALUE(beg))
+          g_value_init(beg,property->value_type);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_enum (beg, (gulong) (enum_class->minimum +
+          ((enum_class->maximum - enum_class->minimum) * rnd)));
+        beg+=params;
+      }
+    } break;
+    // @todo: need this for more types
+    default:
+      GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(end));
+  }
+}
+
+/**
+ * bt_pattern_randomize_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
  *
- * Randomizes values from @start_row to @end_row for each param.
+ * Randomize values from @start_tick to @end_tick for @param.
  *
  * Since: 0.3
  */
-void bt_pattern_blend_full(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
-  
+void bt_pattern_randomize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  _randomize_column(self,start_tick,end_tick,param);
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
-#endif
+/**
+ * bt_pattern_randomize_columns:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ *
+ * Randomize values from @start_tick to @end_tick for all params.
+ *
+ * Since: 0.3
+ */
+void bt_pattern_randomize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  // don't add internal_params here, bt_pattern_insert_row does already
+  gulong j,params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
+
+  for(j=0;j<params;j++) {
+    _randomize_column(self,start_tick,end_tick,j);
+  }
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
 
 //-- io interface
 

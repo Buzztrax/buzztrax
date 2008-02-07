@@ -38,10 +38,9 @@ extern GValue *bt_pattern_get_voice_event_data(const BtPattern * const self, con
 extern gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong tick, const gulong param, const gchar * const value);
 extern gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param, const gchar * const value);
 extern gchar *bt_pattern_get_global_event(const BtPattern * const self, const gulong tick, const gulong param);
+extern gchar *bt_pattern_get_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
 extern gboolean bt_pattern_test_global_event(const BtPattern * const self, const gulong tick, const gulong param);
 extern gboolean bt_pattern_test_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
-
-extern gchar *bt_pattern_get_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
 
 extern BtPatternCmd bt_pattern_get_cmd(const BtPattern * const self, const gulong tick);
 
@@ -54,5 +53,7 @@ extern void bt_pattern_delete_full_row(const BtPattern * const self, const gulon
 
 extern void bt_pattern_blend_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
 extern void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+extern void bt_pattern_randomize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+extern void bt_pattern_randomize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
 
 #endif // BT_PATTERN_METHDOS_H

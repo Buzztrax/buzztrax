@@ -73,17 +73,21 @@
  *    gst_element_add_ghost_pad() and gst_element_remove_ghost_pad()
  *  - can we have sometimes-shost-pads (look at decodebin)?
  *
- * @todo: when using the tee, we need queue elements after
- *
- * @todo: it would be good to have the src-pad of the initialy blocked, then
+ * @todo: if a song has unlinked machines, it does not play: 
+ * 1) it would be good to have the src-pad of the initialy blocked, then
  * unblocked when there is a wire connected and again blocked, if the wire is
  * removed. If we use a tee, we would need to pre-create the request-pad and add
  * API, so that wire can get the src/dst pad from a machine for linking.
+ * 2) we could put a fakesrc in machines[PART_ADDER] and a fakesink into
+ * machines[PART_SPREADER] (depending on machine type).
+ * _activate_{adder,spreader} would remove them. bt_wire_unlink_machines would
+ * need to call new _deactivate_{adder,spreader}, which in the case of last pad
+ * would remove the elements and put fakesrc/sink there. we could even call the
+ * _deactivate in _setup() (no adder/spreader mean put fakesrc/ink there).
  *
  * @todo: we need BtMachineParameters object with a implementation for the global
  * and one for the voice parameters.
  * Then the machine has GList *self->priv->params that holds the BtMachineParameters.
- *
  */
 
 #define BT_CORE

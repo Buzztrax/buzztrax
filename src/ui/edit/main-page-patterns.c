@@ -746,8 +746,16 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           guint i=0;
     
           while(self->priv->param_groups[i].type==0) {
-            if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
-              // @todo: bt_wire_pattern_blend_columns(wire_pattern,beg,end);
+            wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern);
+            if(!wire_pattern) {
+              BtSong *song;
+      
+              g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+              wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[i].user_data,self->priv->pattern);
+              g_object_unref(song);
+            }
+            if(wire_pattern) {
+              bt_wire_pattern_blend_columns(wire_pattern,beg,end);
               g_object_unref(wire_pattern);
             }
             i++;
@@ -760,9 +768,16 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           // blend whole group
           switch(self->priv->param_groups[group].type) {
             case 0: {
-              BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
+              BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[group].user_data,self->priv->pattern);
+              if(!wire_pattern) {
+                BtSong *song;
+        
+                g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+                wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[group].user_data,self->priv->pattern);
+                g_object_unref(song);
+              }
               if(wire_pattern) {
-                // @todo: bt_wire_pattern_blend_columns(wire_pattern,beg,end);
+                bt_wire_pattern_blend_columns(wire_pattern,beg,end);
                 g_object_unref(wire_pattern);
               }
             } break;
@@ -794,9 +809,16 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           // blend one param in one group
           switch(self->priv->param_groups[group].type) {
             case 0: {
-              BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
+              BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[group].user_data,self->priv->pattern);
+              if(!wire_pattern) {
+                BtSong *song;
+        
+                g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+                wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[group].user_data,self->priv->pattern);
+                g_object_unref(song);
+              }
               if(wire_pattern) {
-                // @todo: bt_wire_pattern_blend_column(wire_pattern,beg,end,param);
+                bt_wire_pattern_blend_column(wire_pattern,beg,end,param);
                 g_object_unref(wire_pattern);
               }
             } break;
@@ -811,6 +833,113 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
               params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
               bt_pattern_blend_column(self->priv->pattern,beg,end,params+param);
+              g_object_unref(machine);
+            } break;
+          }
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+          res=TRUE;
+        }
+      }
+    }
+  }
+  else if(event->keyval == GDK_r) {
+    if(modifier&GDK_CONTROL_MASK) {
+      gint beg,end,group,param;
+      if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
+        GST_INFO("randomizing : %d %d , %d %d",beg,end,group,param);
+        if(group==-1 && param==-1) {
+          // randomize full pattern
+          BtWirePattern *wire_pattern;
+          guint i=0;
+    
+          while(self->priv->param_groups[i].type==0) {
+            wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern);
+            if(!wire_pattern) {
+              BtSong *song;
+      
+              g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+              wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[i].user_data,self->priv->pattern);
+              g_object_unref(song);
+            }
+            if(wire_pattern) {
+              bt_wire_pattern_randomize_columns(wire_pattern,beg,end);
+              g_object_unref(wire_pattern);
+            }
+            i++;
+          }
+          bt_pattern_randomize_columns(self->priv->pattern,beg,end);
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+          res=TRUE;
+        }
+        if(group!=-1 && param==-1) {
+          // randomize whole group
+          switch(self->priv->param_groups[group].type) {
+            case 0: {
+              BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[group].user_data,self->priv->pattern);
+              if(!wire_pattern) {
+                BtSong *song;
+        
+                g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+                wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[group].user_data,self->priv->pattern);
+                g_object_unref(song);
+              }
+              if(wire_pattern) {
+                bt_wire_pattern_randomize_columns(wire_pattern,beg,end);
+                g_object_unref(wire_pattern);
+              }
+            } break;
+            case 1: {
+              guint i;
+              
+              for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
+                bt_pattern_randomize_column(self->priv->pattern,beg,end,i);
+              }
+            } break;
+            case 2: {
+              BtMachine *machine;
+              gulong global_params, voice_params, params;
+              guint i;
+              
+              g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+              g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+              params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+              for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
+                bt_pattern_randomize_column(self->priv->pattern,beg,end,params+i);
+              }
+              g_object_unref(machine);
+            } break;
+          }
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+          res=TRUE;
+        }
+        if(group!=-1 && param!=-1) {
+          // randomize one param in one group
+          switch(self->priv->param_groups[group].type) {
+            case 0: {
+              BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[group].user_data,self->priv->pattern);
+              if(!wire_pattern) {
+                BtSong *song;
+        
+                g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+                wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[group].user_data,self->priv->pattern);
+                g_object_unref(song);
+              }
+              if(wire_pattern) {
+                bt_wire_pattern_randomize_column(wire_pattern,beg,end,param);
+                g_object_unref(wire_pattern);
+              }
+            } break;
+            case 1:
+              bt_pattern_randomize_column(self->priv->pattern,beg,end,param);
+              break;
+            case 2: {
+              BtMachine *machine;
+              gulong global_params, voice_params, params;
+              
+              g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+              g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+              params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+              bt_pattern_randomize_column(self->priv->pattern,beg,end,params+param);
               g_object_unref(machine);
             } break;
           }
