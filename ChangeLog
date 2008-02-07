@@ -1,3 +1,8 @@
+2008-02-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Improve look on dark-themes.
+
 2008-02-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:

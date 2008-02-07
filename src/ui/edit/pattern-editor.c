@@ -21,10 +21,6 @@
 
 /*
  * @todo:
- * - no-value handling
- * - gobject properties
- *       o current octave
- *       o playback position
  * - block operations
  *       o copy
  *       o paste
@@ -33,7 +29,6 @@
  *       o interpolate
  *       o expand
  *       o shrink 
- * - cursor step (different than Buzz - Buzz did it in a bad way)
  * - mouse handling
  * - implement GtkWidgetClass::set_scroll_adjustments_signal
  *   - see gtk/gtkviewport.{c,h}
@@ -159,13 +154,13 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
 
   while (y < widget->allocation.height && row < self->num_rows) {
     gdk_draw_rectangle (widget->window,
-      (row&0x1) ? widget->style->mid_gc[widget->state] : widget->style->bg_gc[widget->state],
+      (row&0x1) ? widget->style->base_gc[GTK_STATE_PRELIGHT] : widget->style->light_gc[GTK_STATE_PRELIGHT],
       TRUE, x, y, col_w, ch);
     
     sprintf(buf, "%04X", row);
     pango_layout_set_text (self->pl, buf, 4);
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
-      &widget->style->text[GTK_STATE_NORMAL], NULL);
+      &widget->style->fg[GTK_STATE_ACTIVE], NULL);
     y += ch;
     row++;
   }
@@ -203,21 +198,9 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
   char buf[16];
   int cw = self->cw, ch = self->ch;
   int col_w = cw * (pt->chars + 1);
-  /*
-  GdkGC *gcs[]={
-    widget->style->fg_gc[widget->state],
-    widget->style->bg_gc[widget->state],
-    widget->style->light_gc[widget->state],
-    widget->style->dark_gc[widget->state],
-    widget->style->mid_gc[widget->state],
-    widget->style->text_gc[widget->state],
-    widget->style->base_gc[widget->state],
-    widget->style->text_aa_gc[widget->state],
-  };
-  */  
 
   while (y < max_y && row < self->num_rows) {
-    GdkGC *gc = (row&0x1) ? widget->style->mid_gc[widget->state] : widget->style->bg_gc[widget->state];
+    GdkGC *gc = (row&0x1) ? widget->style->base_gc[GTK_STATE_PRELIGHT] : widget->style->light_gc[GTK_STATE_PRELIGHT];
     int col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
     if (self->selection_enabled && in_selection(self, group, param, row)) {
       /* the last space should be white if it's a within-group "glue" 
@@ -228,35 +211,35 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
            column in a group */
         if (param != self->groups[group].num_columns - 1)
           gdk_draw_rectangle (widget->window, gc, TRUE, x + col_w - cw, y, cw, ch);
-        gc = widget->style->white_gc;
+        gc = widget->style->base_gc[GTK_STATE_SELECTED];
         gdk_draw_rectangle (widget->window, gc, TRUE, x, y, col_w - cw, ch);
       }
       else {
         /* draw white column+continuation (unless last column, then
            don't draw continuation) */
-        gc = widget->style->white_gc;
+        gc = widget->style->base_gc[GTK_STATE_SELECTED];
         gdk_draw_rectangle (widget->window, gc, TRUE, x, y, col_w2, ch);
       }
     } else
-      gdk_draw_rectangle (widget->window, gc, TRUE, x, y, 
-        col_w2, ch);
+      gdk_draw_rectangle (widget->window, gc, TRUE, x, y, col_w2, ch);
     
     pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
     pango_layout_set_text (self->pl, buf, pt->chars);
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
-      &widget->style->text[GTK_STATE_NORMAL], NULL);
+      &widget->style->fg[GTK_STATE_ACTIVE], NULL);
     if (row == self->row && param == self->parameter && group == self->group) {
       int cp = pt->column_pos[self->digit];
       pango_layout_set_text (self->pl, buf + cp, 1);
       gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x + cw * cp, y, self->pl,
-        &widget->style->bg[GTK_STATE_NORMAL], &widget->style->text[GTK_STATE_NORMAL]);
+        &widget->style->bg[GTK_STATE_ACTIVE], &widget->style->fg[GTK_STATE_NORMAL]);
     }
     y += ch;
     row++;
   }
+  
   return col_w;
 }
-                          
+
 static int
 bt_pattern_editor_get_row_width (BtPatternEditor *self)
 {
@@ -501,6 +484,30 @@ bt_pattern_editor_expose (GtkWidget *widget,
     x += self->cw;
     cgrp->width = x - start;
   }
+  
+#if USE_DEBUG
+  /* DEBUG : for tuning the colors */
+  GdkGC **gcs[]={
+    GTK_WIDGET(self)->style->fg_gc,
+    GTK_WIDGET(self)->style->bg_gc,
+    GTK_WIDGET(self)->style->light_gc,
+    GTK_WIDGET(self)->style->dark_gc,
+    GTK_WIDGET(self)->style->mid_gc,
+    GTK_WIDGET(self)->style->text_gc,
+    GTK_WIDGET(self)->style->base_gc,
+    GTK_WIDGET(self)->style->text_aa_gc,
+  };
+  gint tx=x,ty;
+  for(g=0;g<5;g++) {
+    ty=y;
+    for(i=0;i<8;i++) {
+      gdk_draw_rectangle (widget->window, gcs[i][g] , TRUE, tx, ty, self->cw*2, self->ch);
+      ty+=self->ch;
+    }
+    tx+=self->cw*2;
+  }
+  /* DEBUG : for tuning the colors */
+#endif
   
   bt_pattern_editor_draw_rownum(self, rowhdr_x, y, row);
 
