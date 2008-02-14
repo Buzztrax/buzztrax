@@ -1,5 +1,10 @@
 2008-02-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Try to make the sequence header scrollable too.
+
+2008-02-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/setup.c:
 	  Only take plugin name for missing machines (easier to supress
 	  duplicates).

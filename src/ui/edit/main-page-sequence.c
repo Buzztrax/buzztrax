@@ -849,13 +849,18 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   vbox=gtk_vbox_new(FALSE,0);
   gtk_box_pack_start(GTK_BOX(header),vbox,TRUE,TRUE,0);
   gtk_box_pack_start(GTK_BOX(header),gtk_vseparator_new(),FALSE,FALSE,0);
+  
   label=gtk_label_new(_("Labels"));
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
   gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
+  
   gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(self->priv->label_menu),TRUE,TRUE,0);
+
+  /* FIXME: specifying 0, instead of -1, should yield 'as small as possible'
+   * in reality it result in distorted overlapping widgets :(
+   */
   gtk_widget_set_size_request(header,SEQUENCE_CELL_WIDTH,-1);
   gtk_widget_show_all(header);
-
   gtk_box_pack_start(GTK_BOX(self->priv->sequence_table_header),header,FALSE,FALSE,0);
   g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
 
@@ -1104,10 +1109,12 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       }
 
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
+      /* we have the label column already
       if(j==0) {
         // connect to the size-allocate signal to adjust the height of the other treeview header
         g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
       }
+      */
     }
     else {
       header=gtk_label_new("???");
@@ -1115,7 +1122,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     }
     gtk_widget_set_size_request(header,SEQUENCE_CELL_WIDTH,-1);
     gtk_widget_show_all(header);
-    gtk_box_pack_start(GTK_BOX(self->priv->sequence_table_header),header,FALSE,TRUE,0);
+    gtk_box_pack_start(GTK_BOX(self->priv->sequence_table_header),header,FALSE,FALSE,0);
 
     if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer, NULL))) {
       g_object_set(tree_col,
@@ -2470,13 +2477,14 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const BtMainPages *pages) {
   GtkWidget *toolbar;
-  GtkWidget *split_box,*box,*vbox,*tool_item,*eventbox;
-  GtkWidget *scrolled_window,*scrolled_sync_window;
+  GtkWidget *split_box,*box,*vbox,*tool_item;
+  GtkWidget *scrolled_window,*scrolled_vsync_window,*scrolled_hsync_window;
+  GtkWidget *hsync_viewport;
   GtkWidget *menu_item,*image;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
   GtkTreeSelection *tree_sel;
-  GtkAdjustment *vadjust;
+  GtkAdjustment *vadjust, *hadjust;
 #ifndef HAVE_GTK_2_12
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
@@ -2584,9 +2592,9 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   self->priv->sequence_pos_table_header=GTK_HBOX(gtk_hbox_new(FALSE,0));
   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(self->priv->sequence_pos_table_header), FALSE, FALSE, 0);
 
-  scrolled_sync_window=gtk_scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_NONE);
+  scrolled_vsync_window=gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_vsync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_vsync_window),GTK_SHADOW_NONE);
   self->priv->sequence_pos_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
   g_object_set(self->priv->sequence_pos_table,
     "enable-search",FALSE,
@@ -2599,8 +2607,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_pos_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   sequence_pos_table_init(self);
-  gtk_container_add(GTK_CONTAINER(scrolled_sync_window),GTK_WIDGET(self->priv->sequence_pos_table));
-  gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_sync_window), TRUE, TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(scrolled_vsync_window),GTK_WIDGET(self->priv->sequence_pos_table));
+  gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_vsync_window), TRUE, TRUE, 0);
   g_signal_connect(G_OBJECT(self->priv->sequence_pos_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
 
   // add vertical separator
@@ -2617,16 +2625,22 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_LABEL,NULL);
   g_signal_connect(G_OBJECT(self->priv->label_menu),"changed",G_CALLBACK(on_label_menu_changed), (gpointer)self);
 
-  // add sequence list-view
   vbox=gtk_vbox_new(FALSE,0);
   gtk_box_pack_start(GTK_BOX(box), vbox, TRUE, TRUE, 0);
-  eventbox=gtk_event_box_new();
-  gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(eventbox), FALSE, FALSE, 0);
+  
+  // add sequence header list-view
+  scrolled_hsync_window=gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_hsync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_hsync_window),GTK_SHADOW_NONE);
   self->priv->sequence_table_header=GTK_HBOX(gtk_hbox_new(FALSE,0));
-  //gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(self->priv->sequence_table_header), FALSE, FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(eventbox), GTK_WIDGET(self->priv->sequence_table_header));
-  g_signal_connect(G_OBJECT(eventbox), "button-press-event", G_CALLBACK(on_sequence_header_button_press_event), (gpointer)self);
+  hsync_viewport=gtk_viewport_new(NULL,NULL);
+  gtk_viewport_set_shadow_type(GTK_VIEWPORT(hsync_viewport),GTK_SHADOW_NONE);
+  gtk_container_add(GTK_CONTAINER(hsync_viewport),GTK_WIDGET(self->priv->sequence_table_header));
+  gtk_container_add(GTK_CONTAINER(scrolled_hsync_window),GTK_WIDGET(hsync_viewport));
+  gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_hsync_window), FALSE, FALSE, 0);
+  g_signal_connect(G_OBJECT(scrolled_hsync_window), "button-press-event", G_CALLBACK(on_sequence_header_button_press_event), (gpointer)self);
 
+  // add sequence list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
@@ -2648,9 +2662,13 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "motion-notify-event", G_CALLBACK(on_sequence_table_motion_notify_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "scroll-event", G_CALLBACK(on_sequence_table_scroll_event), (gpointer)self);
 
-  // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
+  // make pos scrolled-window also use the vertical-scrollbar of the sequence scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
-  gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_sync_window),vadjust);
+  gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_vsync_window),vadjust);
+  // make header scrolled-window also use the horizontal-scrollbar of the sequence scrolled-window
+  hadjust=gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
+  gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(scrolled_hsync_window),hadjust);
+  gtk_viewport_set_hadjustment(GTK_VIEWPORT(hsync_viewport),hadjust);
   //GST_DEBUG("pos_view=%p, data_view=%p", self->priv->sequence_pos_table,self->priv->sequence_table);
 
   // add vertical separator
