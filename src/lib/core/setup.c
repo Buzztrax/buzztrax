@@ -564,8 +564,23 @@ gchar *bt_setup_get_unique_machine_id(const BtSetup * const self, gchar * const 
  * property.
  */
 void bt_setup_remember_missing_machine(const BtSetup * const self, const gchar * const str) {
+  gboolean skip = FALSE;
+
   GST_INFO("missing machine %s",str);
-  self->priv->missing_machines=g_list_prepend(self->priv->missing_machines,(gpointer)str);
+  if(self->priv->missing_machines) {
+    GList *node;
+    for(node=self->priv->missing_machines;node;node=g_list_next(node)) {
+      if(!strcmp(node->data,str)) {
+        skip=TRUE;break;
+      }
+    }
+  }
+  if(!skip) {
+    self->priv->missing_machines=g_list_prepend(self->priv->missing_machines,(gpointer)str);
+  }
+  else {
+    g_free((gchar *)str);
+  }
 }
 
 //-- io interface
@@ -633,13 +648,10 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
                 }
                 else {
                   // collect failed machines
-                  gchar * const id,* const plugin_name;
+                  gchar * const plugin_name;
 
-                  g_object_get(machine,"id",&id,"plugin-name",&plugin_name,NULL);
-                  const gchar * const str=g_strdup_printf("%s: %s",id, plugin_name);  // str is freed elsewhere
-                  bt_setup_remember_missing_machine(self,str);
-                  g_free(id);
-                  g_free(plugin_name);
+                  g_object_get(machine,"plugin-name",&plugin_name,NULL);
+                  bt_setup_remember_missing_machine(self,plugin_name);
                   failed_parts=TRUE;
                 }
                 g_object_unref(machine);

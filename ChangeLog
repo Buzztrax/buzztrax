@@ -1,3 +1,13 @@
+2008-02-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Only take plugin name for missing machines (easier to supress
+	  duplicates).
+
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	  Try to improve dialog sizing (give space to the list).
+
 2008-02-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

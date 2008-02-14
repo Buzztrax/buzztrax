@@ -104,7 +104,7 @@ static void make_listview(GtkWidget *vbox,GList *missing_elements,const gchar *m
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_container_add(GTK_CONTAINER(missing_list_view), missing_list);
   gtk_widget_show(missing_list_view);
-  gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);
+  gtk_box_pack_start(GTK_BOX(vbox),missing_list_view,TRUE,TRUE,0);
 }
 
 static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFrameworkElementsDialog *self) {
@@ -144,7 +144,7 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
   gtk_label_set_markup(GTK_LABEL(label),str);
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
   g_free(str);
-  gtk_container_add(GTK_CONTAINER(vbox),label);
+  gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,FALSE,0);
   if(self->priv->core_elements) {
     GST_DEBUG("%d missing core elements",g_list_length(self->priv->core_elements));
     make_listview(vbox,self->priv->core_elements,_("The elements listed below are missing from you installation, but are required."));
@@ -190,7 +190,7 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
       make_listview(vbox,edit_elements,_("The elements listed below are missing from you installation, but are recommended for full functionality."));
 
       self->priv->ignore_button=gtk_check_button_new_with_label(_("don't warn again"));
-      gtk_container_add(GTK_CONTAINER(vbox),self->priv->ignore_button);
+      gtk_box_pack_start(GTK_BOX(vbox),self->priv->ignore_button,FALSE,FALSE,0);
 
       if(machine_ignore_list) {
         g_list_free(edit_elements);

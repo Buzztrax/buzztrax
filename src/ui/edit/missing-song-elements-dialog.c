@@ -91,7 +91,7 @@ static void make_listview(GtkWidget *vbox,GList *missing_elements,const gchar *m
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_container_add(GTK_CONTAINER(missing_list_view), missing_list);
   gtk_widget_show(missing_list_view);
-  gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);
+  gtk_box_pack_start(GTK_BOX(vbox),missing_list_view,TRUE,TRUE,0);
 }
 
 static gboolean bt_missing_song_elements_dialog_init_ui(const BtMissingSongElementsDialog *self) {
@@ -131,7 +131,7 @@ static gboolean bt_missing_song_elements_dialog_init_ui(const BtMissingSongEleme
   gtk_label_set_markup(GTK_LABEL(label),str);
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
   g_free(str);
-  gtk_container_add(GTK_CONTAINER(vbox),label);
+  gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,FALSE,0);
   if(self->priv->machines) {
     GST_DEBUG("%d missing machines",g_list_length(self->priv->machines));
     make_listview(vbox,self->priv->machines,_("The machines listed below are missing or failed to load."));
