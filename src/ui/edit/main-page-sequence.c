@@ -2633,10 +2633,16 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_hsync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_hsync_window),GTK_SHADOW_NONE);
   self->priv->sequence_table_header=GTK_HBOX(gtk_hbox_new(FALSE,0));
+  /*
   hsync_viewport=gtk_viewport_new(NULL,NULL);
   gtk_viewport_set_shadow_type(GTK_VIEWPORT(hsync_viewport),GTK_SHADOW_NONE);
   gtk_container_add(GTK_CONTAINER(hsync_viewport),GTK_WIDGET(self->priv->sequence_table_header));
   gtk_container_add(GTK_CONTAINER(scrolled_hsync_window),GTK_WIDGET(hsync_viewport));
+  */
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_hsync_window),GTK_WIDGET(self->priv->sequence_table_header));
+  hsync_viewport=gtk_bin_get_child(GTK_BIN(scrolled_hsync_window));
+  gtk_viewport_set_shadow_type(GTK_VIEWPORT(hsync_viewport),GTK_SHADOW_NONE);
+  
   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_hsync_window), FALSE, FALSE, 0);
   g_signal_connect(G_OBJECT(scrolled_hsync_window), "button-press-event", G_CALLBACK(on_sequence_header_button_press_event), (gpointer)self);
 
@@ -2668,7 +2674,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   // make header scrolled-window also use the horizontal-scrollbar of the sequence scrolled-window
   hadjust=gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(scrolled_hsync_window),hadjust);
-  gtk_viewport_set_hadjustment(GTK_VIEWPORT(hsync_viewport),hadjust);
+  //gtk_viewport_set_hadjustment(GTK_VIEWPORT(hsync_viewport),hadjust);
   //GST_DEBUG("pos_view=%p, data_view=%p", self->priv->sequence_pos_table,self->priv->sequence_table);
 
   // add vertical separator

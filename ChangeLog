@@ -1,5 +1,10 @@
 2008-02-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  More viewport & scrlled window experiments.
+
+2008-02-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/missing-framework-elements-dialog.c:
 	* src/ui/edit/missing-song-elements-dialog.c:
 	  Corrected dialog sizing and layout.
