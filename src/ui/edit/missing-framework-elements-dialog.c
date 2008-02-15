@@ -80,7 +80,7 @@ static void make_listview(GtkWidget *vbox,GList *missing_elements,const gchar *m
 
   label=gtk_label_new(msg);
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
-  gtk_container_add(GTK_CONTAINER(vbox),label);
+  gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,FALSE,0);
 
   for(node=missing_elements;node;node=g_list_next(node)) {
     length+=2+strlen((gchar *)(node->data));
@@ -90,6 +90,7 @@ static void make_listview(GtkWidget *vbox,GList *missing_elements,const gchar *m
     length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
     ptr=&ptr[length];
   }
+  ptr[-1]='\0'; // remove last '\n'
 
   missing_list = gtk_text_view_new();
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
