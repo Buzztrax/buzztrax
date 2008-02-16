@@ -1,7 +1,12 @@
+2008-02-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Set some minimal requsition to make the sequence header scrollable.
+
 2008-02-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
-	  More viewport & scrlled window experiments.
+	  More viewport & scrolled window experiments.
 
 2008-02-15  Stefan Kost  <ensonic@users.sf.net>
 
