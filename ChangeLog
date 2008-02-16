@@ -1,5 +1,13 @@
 2008-02-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	  Add element details.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Ideas about 'reset' and 'reset all' context menu entries.
+
+2008-02-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Set some minimal requsition to make the sequence header scrollable.
 

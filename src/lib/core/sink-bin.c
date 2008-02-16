@@ -798,6 +798,17 @@ static void bt_sink_bin_finalize(GObject * const object) {
   }
 }
 
+static void bt_sink_bin_base_init (gpointer klass) {
+  GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
+  const GstElementDetails element_details =
+  GST_ELEMENT_DETAILS ("Master AudioSink",
+    "Audio/Bin",
+    "Play/Record audio",
+    "Stefan Kost <ensonic@users.sf.net>");
+  
+  gst_element_class_set_details (element_class, &element_details);
+}
+
 static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtSinkBin * const self = BT_SINK_BIN(instance);
 
@@ -880,7 +891,7 @@ GType bt_sink_bin_get_type(void) {
     };
     const GTypeInfo info = {
       sizeof(BtSinkBinClass),
-      NULL, // base_init
+      (GBaseInitFunc)bt_sink_bin_base_init, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_sink_bin_class_init, // class_init
       NULL, // class_finalize
