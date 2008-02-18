@@ -265,7 +265,7 @@ gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulon
   g_return_val_if_fail(tick<self->priv->length,FALSE);
 
   if((event=bt_wire_pattern_get_event_data(self,tick,param))) {
-    if(value) {
+    if(BT_IS_STRING(value)) {
       if(!G_IS_VALUE(event)) {
         bt_wire_pattern_init_event(self,event,param);
       }

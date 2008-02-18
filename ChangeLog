@@ -1,3 +1,15 @@
+2008-02-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/wire-pattern.c:
+	  Also treat "" as empty string and therefore 'no value'.
+
+	* src/ui/edit/main-toolbar.c:
+	  Make vu-meters and volume wider.
+
 2008-02-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:

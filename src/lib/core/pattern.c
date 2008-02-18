@@ -566,7 +566,7 @@ gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong 
   g_return_val_if_fail(tick<self->priv->length,FALSE);
 
   if((event=bt_pattern_get_global_event_data(self,tick,param))) {
-    if(value) {
+    if(BT_IS_STRING(value)) {
       if(!G_IS_VALUE(event)) {
         bt_pattern_init_global_event(self,event,param);
       }
@@ -618,7 +618,7 @@ gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong t
   g_return_val_if_fail(tick<self->priv->length,FALSE);
 
   if((event=bt_pattern_get_voice_event_data(self,tick,voice,param))) {
-    if(value) {
+    if(BT_IS_STRING(value)) {
       if(!G_IS_VALUE(event)) {
         bt_pattern_init_voice_event(self,event,param);
       }

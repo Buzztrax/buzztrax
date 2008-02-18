@@ -62,6 +62,7 @@
 #include <gst/base/gstbasetransform.h>
 #include <gst/controller/gstcontroller.h>
 
+#include <gst/musicenums/musicenums.h>
 #include <gst/childbin/childbin.h>
 #include <gst/propertymeta/propertymeta.h>
 #include <gst/tempo/tempo.h>

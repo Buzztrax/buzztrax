@@ -2700,10 +2700,12 @@ static gboolean bt_machine_persistence_load(const BtPersistence * const persiste
         value_str=xmlGetProp(node,XML_CHAR_PTR("value"));
         param=bt_machine_get_global_param_index(self,(gchar *)name,&error);
         if(!error) {
-          g_value_init(&value,GLOBAL_PARAM_TYPE(param));
-          bt_persistence_set_value(&value,(gchar *)value_str);
-          g_object_set_property(G_OBJECT(machine),(gchar *)name,&value);
-          g_value_unset(&value);
+          if(value_str) {
+            g_value_init(&value,GLOBAL_PARAM_TYPE(param));
+            bt_persistence_set_value(&value,(gchar *)value_str);
+            g_object_set_property(G_OBJECT(machine),(gchar *)name,&value);
+            g_value_unset(&value);
+          }
           GST_INFO("initialized global machine data for param %d: %s",param, name);
           xmlFree(name);xmlFree(value_str);
         }
@@ -2721,16 +2723,18 @@ static gboolean bt_machine_persistence_load(const BtPersistence * const persiste
         value_str=xmlGetProp(node,XML_CHAR_PTR("value"));
         param=bt_machine_get_voice_param_index(self,(gchar *)name,&error);
         if(!error) {
-          machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
-          g_assert(machine_voice);
-
-          g_value_init(&value,VOICE_PARAM_TYPE(param));
-          bt_persistence_set_value(&value,(gchar *)value_str);
-          g_object_set_property(G_OBJECT(machine_voice),(gchar *)name,&value);
-          g_value_unset(&value);
+          if(value_str) {
+            machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
+            g_assert(machine_voice);
+  
+            g_value_init(&value,VOICE_PARAM_TYPE(param));
+            bt_persistence_set_value(&value,(gchar *)value_str);
+            g_object_set_property(G_OBJECT(machine_voice),(gchar *)name,&value);
+            g_value_unset(&value);
+            g_object_unref(machine_voice);
+          }
           GST_INFO("initialized voice machine data for param %d: %s",param, name);
           xmlFree(name);xmlFree(value_str);xmlFree(voice_str);
-          g_object_unref(machine_voice);
         }
         else {
           GST_WARNING("error while loading voice machine data for param %d, voice %d: %s",param,voice,error->message);
