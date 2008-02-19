@@ -393,8 +393,24 @@ bt_pattern_editor_realize (GtkWidget *widget)
   /* calculate font-metrics */
   pc = gtk_widget_get_pango_context (widget);
   pfd = pango_font_description_new();
-  pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono");
-  pango_font_description_set_absolute_size (pfd, 12 * PANGO_SCALE);
+
+  //pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono");
+  //pango_font_description_set_absolute_size (pfd, 12 * PANGO_SCALE);
+  /* copy size from default font and use default monospace font */
+  GST_DEBUG(" default font %p, size %d (is_absolute %d?), scl=%lf",
+    widget->style->font_desc,
+    pango_font_description_get_size(widget->style->font_desc),
+    pango_font_description_get_size_is_absolute(widget->style->font_desc),
+    (gdouble)PANGO_SCALE);
+  pango_font_description_set_family_static (pfd, "monospace");
+  if(pango_font_description_get_size_is_absolute(widget->style->font_desc)) {
+    pango_font_description_set_absolute_size (pfd,
+      pango_font_description_get_size (widget->style->font_desc));
+  }
+  else {
+    pango_font_description_set_size (pfd,
+      pango_font_description_get_size (widget->style->font_desc));
+  }
   pango_context_load_font (pc, pfd);
 
   pfm = pango_context_get_metrics (pc, pfd, NULL);

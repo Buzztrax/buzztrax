@@ -1,5 +1,14 @@
 2008-02-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Tune the level meters to be more alive.
+  
+	* src/ui/edit/pattern-editor.c:
+	  Clone font-size and use default monospace font.
+
+2008-02-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-menu.c:
 	  Use F1 for Help menu.
   

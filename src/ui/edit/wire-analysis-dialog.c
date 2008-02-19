@@ -430,8 +430,8 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     goto Error;
   }
   g_object_set(G_OBJECT(self->priv->analyzers[ANALYZER_LEVEL]),
-      "interval",(GstClockTime)(0.25*GST_SECOND),"message",TRUE,
-      "peak-ttl",(GstClockTime)(0.50*GST_SECOND),"peak-falloff", 20.0,
+      "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
+      "peak-ttl",(GstClockTime)(0.5*GST_SECOND),"peak-falloff", 50.0,
       NULL);
   // create queue
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_QUEUE,"queue")) {
