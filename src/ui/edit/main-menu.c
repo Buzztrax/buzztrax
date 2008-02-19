@@ -712,16 +712,17 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   // help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));
   gtk_widget_set_name(item,_("help menu"));
-  // shouldn't be used anymore
-  //gtk_menu_item_right_justify(GTK_MENU_ITEM(item));
   gtk_container_add(GTK_CONTAINER(self),item);
 
   menu=gtk_menu_new();
   gtk_widget_set_name(menu,_("help menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
+  gtk_menu_set_accel_group(GTK_MENU(menu), accel_group);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,accel_group);
   gtk_widget_set_name(subitem,_("Content"));
+  gtk_widget_remove_accelerator(subitem,accel_group,'h',GDK_CONTROL_MASK);
+  gtk_widget_add_accelerator(subitem,"activate",accel_group,GDK_F1,0,GTK_ACCEL_VISIBLE);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_help_activate),(gpointer)self);
 

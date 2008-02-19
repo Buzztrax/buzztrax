@@ -586,7 +586,7 @@ gtk_widget_set_name(GTK_WIDGET(self),_("main tool bar"));
 
   box=gtk_vbox_new(FALSE,0);
   gtk_container_set_border_width(GTK_CONTAINER(box),2);
-  gtk_widget_set_size_request(GTK_WIDGET(box),200,-1);
+  gtk_widget_set_size_request(GTK_WIDGET(box),250,-1);
   // add gtk_vumeter widgets and update from level_callback
   for(i=0;i<MAX_VUMETER;i++) {
     self->priv->vumeter[i]=GTK_VUMETER(gtk_vumeter_new(FALSE));
