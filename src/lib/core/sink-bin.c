@@ -320,13 +320,15 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   if(GST_IS_BASE_SINK(element)) {
     // enable syncing to timestamps
     gst_base_sink_set_sync(GST_BASE_SINK(element),TRUE);
-    // @todo: do this bt_sink_bin_tempo_change_tempo()
+    /* @todo: do this bt_sink_bin_tempo_change_tempo(),
+     * but there we don't have the GstElement *element :(
+     */
     if(GST_IS_BASE_AUDIO_SINK(element)) {
       if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
         // configure buffer size (e.g.  GST_SECONG*60/120*4
-        gint64 buffer_time=(GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat);
-        GST_INFO("changing buffer-size for sink to %"G_GUINT64_FORMAT,buffer_time);
-        g_object_set(element,"buffer-time",buffer_time,NULL);
+        gint64 chunk=(GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat);
+        GST_INFO("changing audio chunk-size for sink to %"G_GUINT64_FORMAT,chunk);
+        g_object_set(element,"latency-time",chunk,"buffer-time",chunk*4,NULL);
       }
     }
   }

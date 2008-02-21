@@ -1,3 +1,11 @@
+2008-02-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write notes.
+
+	* src/lib/core/sink-bin.c:
+	  Also configure latency.
+
 2008-02-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

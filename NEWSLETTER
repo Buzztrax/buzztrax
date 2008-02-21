@@ -1,7 +1,15 @@
 2008/03 ========================================================================
 
-* pattern-editor and dark-themes
+* pattern-editor
+  * better support for dark-themes
+  * better default font selection
 * blending and randomization of values in patterns
+* ui fixes and improvments
+  * tuning of level meters (more lively)
+  * horizontal scrolling of sequence
+  * keyboard shortcuts
+* buzz song loader fixes
+* bml has better test reports
 
 2008/02 ========================================================================
 
