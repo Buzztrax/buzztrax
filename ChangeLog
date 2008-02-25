@@ -1,3 +1,9 @@
+2008-02-25  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/pattern-editor.c:
+          Add Ctrl variants of Home/End/PgUp/PgDn. Make horizontal scroll
+	  position follow the cursor.
+
 2008-02-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

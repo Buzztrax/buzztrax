@@ -243,7 +243,7 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
 static int
 bt_pattern_editor_get_row_width (BtPatternEditor *self)
 {
-  int width = 0, g;
+  int width = self->rowhdr_width, g;
   for (g = 0; g < self->num_groups; g++)
     width += self->groups[g].width;
   return width;
@@ -267,8 +267,41 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 static void
 bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
 {
-  int first_row = self->ofs_y / self->ch;
-  int last_row = (self->ofs_y + self->parent.allocation.height) / self->ch - 1;
+  int first_row, last_row;
+  
+  if (self->group < self->num_groups)
+  {
+    int g, p;
+    int xpos = 0;
+    PatternColumnGroup *grp = NULL;
+    
+    for (g = 0; g < self->group; g++)
+      xpos += self->groups[g].width;
+    grp = &self->groups[g];
+    for (p = 0; p < self->parameter; p++)
+      xpos += self->cw * (param_types[grp->columns[p].type].chars + 1);
+    if (p < grp->num_columns) {
+      int rn = self->rowhdr_width; /* rownum width */
+      int cpos = gtk_adjustment_get_value(self->hadj); /* current hscroll */
+      int w = self->cw * param_types[grp->columns[p].type].chars; /* column width */
+      int ww = self->parent.allocation.width - rn; /* full (unscrolled) widget width, less rownum */
+      int pw = gtk_widget_get_parent(GTK_WIDGET(self))->allocation.width - rn; /* visible (scrolled) width, less rownum */
+      /* rownum is subtracted, because it is not taken into account in hscroll range */
+      /* printf("xpos = %d cpos = %d w = %d width = %d\n", xpos, cpos, w, pw); */
+      if (xpos < cpos || xpos + w > cpos + pw) {
+        /* if current parameter doesn't fit, try to center the cursor */
+        xpos = xpos - pw / 2;
+        if (xpos + pw > ww)
+          xpos = ww - pw;
+        if (xpos < 0)
+          xpos = 0;
+        gtk_adjustment_set_value(self->hadj, xpos);
+      }
+    }
+  }
+  
+  first_row = self->ofs_y / self->ch;
+  last_row = (self->ofs_y + self->parent.allocation.height) / self->ch - 1;
   if (self->row < first_row) {
     self->ofs_y = self->row * self->ch;
     gtk_widget_queue_draw (&self->parent);
@@ -643,11 +676,12 @@ bt_pattern_editor_key_press (GtkWidget *widget,
   }
   if (self->num_groups) {
     int kup = toupper(event->keyval);
-    if ((event->state & GDK_CONTROL_MASK) && event->keyval >= '1' && event->keyval <= '9') {
+    int control = (event->state & GDK_CONTROL_MASK) != 0;
+    if (control && event->keyval >= '1' && event->keyval <= '9') {
       self->step = event->keyval - '0';
       return TRUE;
     }
-    else if ((event->state & GDK_CONTROL_MASK) && kup >= 'A' && kup <= 'Z') {
+    else if (control && kup >= 'A' && kup <= 'Z') {
       int same = 0, handled = 1;
       switch(kup)
       {
@@ -728,7 +762,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     case GDK_Page_Up:
       if (self->row > 0) {
         bt_pattern_editor_refresh_cursor(self);
-        self->row -= 16;
+        self->row = control ? 0 : (self->row - 16);
         if (self->row < 0)
           self->row = 0;
         g_object_notify(G_OBJECT(self),"cursor-row");
@@ -738,12 +772,51 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     case GDK_Page_Down:
       if (self->row < self->num_rows - 1) {
         bt_pattern_editor_refresh_cursor(self);
-        self->row += 16;
+        self->row = control ? self->num_rows - 1 : self->row + 16;
         if (self->row > self->num_rows - 1)
           self->row = self->num_rows - 1;
         g_object_notify(G_OBJECT(self),"cursor-row");
         bt_pattern_editor_refresh_cursor_or_scroll(self);
       }
+      return TRUE;
+    case GDK_Home:
+      bt_pattern_editor_refresh_cursor(self);
+      if (control)
+      {
+        self->digit = 0;
+        self->parameter = 0;
+        g_object_notify(G_OBJECT(self),"cursor-param");
+      } else 
+      if (self->digit > 0)
+        self->digit = 0;
+      else
+      if (self->parameter > 0) {
+        self->parameter = 0;
+        g_object_notify(G_OBJECT(self),"cursor-param");
+      } else
+      if (self->group > 0) {
+        self->group = 0;
+        g_object_notify(G_OBJECT(self),"cursor-group");
+      } else {
+        self->row = 0;
+        g_object_notify(G_OBJECT(self),"cursor-row");
+      }
+      bt_pattern_editor_refresh_cursor_or_scroll(self);
+      return TRUE;
+    case GDK_End:
+      bt_pattern_editor_refresh_cursor(self);
+      if (control)
+      {
+        if (self->groups[self->group].num_columns > 0)
+          self->parameter = self->groups[self->group].num_columns - 1;
+        g_object_notify(G_OBJECT(self),"cursor-param");
+      }
+      else
+      {
+        self->row = self->num_rows - 1;
+        g_object_notify(G_OBJECT(self),"cursor-row");
+      }
+      bt_pattern_editor_refresh_cursor_or_scroll(self);
       return TRUE;
     case GDK_Left:
       if (self->digit > 0)
@@ -765,7 +838,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         pc = cur_column (self);
         self->digit = param_types[pc->type].columns - 1;
       }
-      bt_pattern_editor_refresh_cursor (self);
+      bt_pattern_editor_refresh_cursor_or_scroll (self);
       return TRUE;
     case GDK_Right:
       {
@@ -783,7 +856,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           g_object_notify(G_OBJECT(self),"cursor-group");
         }
       }
-      bt_pattern_editor_refresh_cursor (self);
+      bt_pattern_editor_refresh_cursor_or_scroll (self);
       return TRUE;  
     case GDK_Tab:
       {
@@ -795,7 +868,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           self->group++;
           g_object_notify(G_OBJECT(self),"cursor-group");
         }
-        bt_pattern_editor_refresh_cursor (self);
+        bt_pattern_editor_refresh_cursor_or_scroll (self);
         return TRUE;
       }
     case GDK_ISO_Left_Tab:
@@ -809,7 +882,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         }
         else /* at leftmost group, reset cursor to first column */
           self->parameter = 0, self->digit = 0;
-        bt_pattern_editor_refresh_cursor (self);
+        bt_pattern_editor_refresh_cursor_or_scroll (self);
         return TRUE;
       }
     }
