@@ -73,7 +73,7 @@
  *    gst_element_add_ghost_pad() and gst_element_remove_ghost_pad()
  *  - can we have sometimes-shost-pads (look at decodebin)?
  *
- * @todo: if a song has unlinked machines, it does not play: 
+ * @todo: if a song has unlinked machines, it does not play:
  * 1) it would be good to have the src-pad of the initialy blocked, then
  * unblocked when there is a wire connected and again blocked, if the wire is
  * removed. If we use a tee, we would need to pre-create the request-pad and add
@@ -84,10 +84,16 @@
  * need to call new _deactivate_{adder,spreader}, which in the case of last pad
  * would remove the elements and put fakesrc/sink there. we could even call the
  * _deactivate in _setup() (no adder/spreader mean put fakesrc/ink there).
+ * 3) we could use gst_element_set_locked_state() if a machine is unconnected.
+ * bt_machine_{lock,unlock} / or locked property. when adding/removing wires to
+ * the setup, it needs to check the states of the machines and update the
+ * locking-state. All machines that are not connected to the master should be
+ * locked.
+ * - what about effect connected to the master, but without source?
  *
- * @todo: we need BtMachineParameters object with a implementation for the global
- * and one for the voice parameters.
- * Then the machine has GList *self->priv->params that holds the BtMachineParameters.
+ * @todo: we need BtMachineParameters object with an implementation for the
+ * global and one for the voice parameters. Then the machine would have a
+ * GList *self->priv->params that holds the BtMachineParameters.
  */
 
 #define BT_CORE

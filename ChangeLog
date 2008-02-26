@@ -1,3 +1,15 @@
+2008-02-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Add another idea about playing a partially connected song.
+
+	* src/lib/core/sink-bin.c:
+	  Refactor tempo change handling (dies when changing the latency while
+	  playing).
+
+	* src/lib/core/wire.c:
+	  Configure queue to be small.
+
 2008-02-25  Krzysztof Foltman  <wdev@foltman.com>
 
 	* src/ui/edit/pattern-editor.c:

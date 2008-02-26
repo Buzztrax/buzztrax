@@ -97,6 +97,7 @@ struct _BtSinkBinPrivate {
 
 static GstBinClass *parent_class=NULL;
 
+static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElement *sink);
 static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data);
 
 //-- tempo interface implementations
@@ -127,8 +128,18 @@ static void bt_sink_bin_tempo_change_tempo(GstTempo *tempo, glong beats_per_minu
     }
   }
   if(changed) {
+    /* @todo: changing the parameters here segfaults with:
+     *  pcm_params.c:2351: sndrv_pcm_hw_params: Assertion `err >= 0' failed.
+     */
+    //GstElement *element = gst_bin_get_by_name(GST_BIN(self),"player");
+
     GST_DEBUG("changing tempo to %d BPM  %d TPB  %d STPT",self->priv->beats_per_minute,self->priv->ticks_per_beat,self->priv->subticks_per_tick);
-    // @todo: set buffersize
+    /*
+    if(element) {
+      bt_sink_bin_configure_latency(self,element);
+      gst_object_unref(element);
+    }
+    */
   }
 }
 
@@ -175,6 +186,17 @@ GType bt_sink_bin_record_format_get_type(void) {
 }
 
 //-- helper methods
+
+static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElement *sink) {
+  if(GST_IS_BASE_AUDIO_SINK(sink)) {
+    if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
+      // configure buffer size (e.g.  GST_SECONG*60/120*4
+      gint64 chunk=(GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat);
+      GST_INFO("changing audio chunk-size for sink to %"G_GUINT64_FORMAT,chunk);
+      g_object_set(sink,"latency-time",chunk,"buffer-time",chunk*4,NULL);
+    }
+  }
+}
 
 static void bt_sink_bin_clear(const BtSinkBin * const self) {
   GstBin * const bin=GST_BIN(self);
@@ -320,17 +342,7 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   if(GST_IS_BASE_SINK(element)) {
     // enable syncing to timestamps
     gst_base_sink_set_sync(GST_BASE_SINK(element),TRUE);
-    /* @todo: do this bt_sink_bin_tempo_change_tempo(),
-     * but there we don't have the GstElement *element :(
-     */
-    if(GST_IS_BASE_AUDIO_SINK(element)) {
-      if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
-        // configure buffer size (e.g.  GST_SECONG*60/120*4
-        gint64 chunk=(GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat);
-        GST_INFO("changing audio chunk-size for sink to %"G_GUINT64_FORMAT,chunk);
-        g_object_set(element,"latency-time",chunk,"buffer-time",chunk*4,NULL);
-      }
-    }
+    bt_sink_bin_configure_latency(self,element);
   }
   list=g_list_append(list,element);
 
@@ -451,7 +463,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
 
   GST_INFO("initializing sink-bin");
   
-  // @todo: always add caps-filter as a first element and enforce stereo
+  // always add caps-filter as a first element and enforce stereo
   stereo_caps=gst_caps_from_string(
     "audio/x-raw-int, "
       "channels = (int) 2, "

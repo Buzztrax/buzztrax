@@ -33,8 +33,6 @@
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
  *  when adding internal machines we need to fix the ghost pads (this may require relinking)
  *    gst_element_add_ghost_pad and gst_element_remove_ghost_pad
- *
- * @todo: when connecting to several wires to one src, we need queue elements at the begin of the wire
  */
 
 #define BT_CORE
@@ -448,6 +446,8 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
 
   if(!machines[PART_QUEUE]) {
     if(!bt_wire_make_internal_element(self,PART_QUEUE,"queue","queue")) return(FALSE);
+    // configure the queue
+    g_object_set(G_OBJECT (machines[PART_QUEUE]),"max-size-buffers",1,"max-size-bytes",0,"max-size-time",G_GUINT64_CONSTANT(0),NULL);
     GST_DEBUG("created queue element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   }
   if(!machines[PART_TEE]) {
