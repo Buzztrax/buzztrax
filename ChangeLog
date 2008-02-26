@@ -1,5 +1,14 @@
 2008-02-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* README:
+	  Don't change XDG_HOME.
+  
+	* src/lib/core/sink-bin.c:
+	  Reenable tempo changeing as the crash seems pulsesink specific. Needs
+	  more testing.
+
+2008-02-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Add another idea about playing a partially connected song.
 

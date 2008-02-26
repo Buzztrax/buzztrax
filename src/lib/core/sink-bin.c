@@ -129,17 +129,17 @@ static void bt_sink_bin_tempo_change_tempo(GstTempo *tempo, glong beats_per_minu
   }
   if(changed) {
     /* @todo: changing the parameters here segfaults with:
-     *  pcm_params.c:2351: sndrv_pcm_hw_params: Assertion `err >= 0' failed.
+     * pcm_params.c:2351: sndrv_pcm_hw_params: Assertion `err >= 0' failed.
+     * on pulseaudio?
      */
-    //GstElement *element = gst_bin_get_by_name(GST_BIN(self),"player");
+    GstElement *element = gst_bin_get_by_name(GST_BIN(self),"player");
 
     GST_DEBUG("changing tempo to %d BPM  %d TPB  %d STPT",self->priv->beats_per_minute,self->priv->ticks_per_beat,self->priv->subticks_per_tick);
-    /*
+    
     if(element) {
       bt_sink_bin_configure_latency(self,element);
       gst_object_unref(element);
     }
-    */
   }
 }
 
