@@ -1352,6 +1352,7 @@ static void bt_wire_dispose(GObject * const object) {
   // remove the GstElements from the bin
   if(self->priv->bin) {
     GstStateChangeReturn res;
+    guint i,j;
 
     GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
       (G_OBJECT(self->priv->bin))->ref_count,
@@ -1360,25 +1361,30 @@ static void bt_wire_dispose(GObject * const object) {
 
     bt_wire_unlink_machines(self); // removes helper elements if in use
     //bt_machine_renegotiate_adder_format(self->priv->dst);
-
-    if(self->priv->machines[PART_TEE]) {
-      GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[PART_TEE]),(G_OBJECT(self->priv->machines[PART_TEE]))->ref_count);
-      if((res=gst_element_set_state(self->priv->machines[PART_TEE],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
-        GST_WARNING("can't go to null state");
-      else
-        GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
-      gst_bin_remove(self->priv->bin, self->priv->machines[PART_TEE]);
-    }
-    if(self->priv->machines[PART_GAIN]) {
-      GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[PART_GAIN]),(G_OBJECT(self->priv->machines[PART_GAIN]))->ref_count);
-      if((res=gst_element_set_state(self->priv->machines[PART_GAIN],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
-        GST_WARNING("can't go to null state");
-      else
-        GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
-      gst_bin_remove(self->priv->bin, self->priv->machines[PART_GAIN]);
-    }
     bt_wire_deactivate_analyzers(self);
 
+    for(i=PART_SRC+1;i<PART_DST;i++) {
+      if(self->priv->machines[i]) {
+        g_assert(GST_IS_BIN(self->priv->bin));
+        g_assert(GST_IS_ELEMENT(self->priv->machines[i]));
+        for(j=i+1;j<PART_DST;j++) {
+          if(self->priv->machines[j]) {
+            GST_DEBUG("  unlinking machine \"%s\", \"%s\"",
+              gst_element_get_name(self->priv->machines[i]),
+              gst_element_get_name(self->priv->machines[j]));
+            gst_element_unlink(self->priv->machines[i],self->priv->machines[j]);
+            break;
+          }
+        }
+
+        GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
+        if((res=gst_element_set_state(self->priv->machines[i],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
+          GST_WARNING("can't go to null state");
+        else
+          GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
+        gst_bin_remove(self->priv->bin, self->priv->machines[i]);
+      }
+    }
     GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     gst_object_unref(self->priv->bin);
   }

@@ -1,3 +1,15 @@
+2008-02-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/song.c:
+	  Better detect unlinked elements.
+  
+	* src/lib/core/wire.c:
+	  Release elements correctly.
+	  
+	* src/lib/core/sink-bin.c:
+	  Its microseconds and not nanoseconds. FIxes crasher on pulse.
+
 2008-02-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* README:

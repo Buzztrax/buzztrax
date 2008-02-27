@@ -684,6 +684,7 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
 
   // add internal element
   name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
+  //name=g_alloca(strlen(element_name)+16+1+strlen(self->priv->id));g_sprintf(name,"%s_%p_%s",element_name,self,self->priv->id);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_WARNING("failed to create %s",element_name);goto Error;
   }
@@ -3028,6 +3029,7 @@ static void bt_machine_dispose(GObject * const object) {
               gst_element_get_name(self->priv->machines[i]),
               gst_element_get_name(self->priv->machines[j]));
             gst_element_unlink(self->priv->machines[i],self->priv->machines[j]);
+            break;
           }
         }
         GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);

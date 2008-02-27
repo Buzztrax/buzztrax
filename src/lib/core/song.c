@@ -246,6 +246,16 @@ static gboolean bt_song_is_playable(const BtSong * const self) {
                   all_linked=FALSE;
                   GST_INFO("%s.%s is not linked",
                     GST_OBJECT_NAME(element), GST_OBJECT_NAME(pad));
+                  /* @todo: now we'd like to which machine it belongs
+                   * 1:
+                   * iterate over machines from setup
+                   *   get elements with bt_machine_get_element_list(machine)
+                   *     check if its there
+                   * 2:
+                   * if machine would be a bin, we can just get the parent
+                   * 3:
+                   * we can set the machine as a qdata in debug versions
+                   */
                 }
                 gst_object_unref(pad);
                 pad_ct++;
