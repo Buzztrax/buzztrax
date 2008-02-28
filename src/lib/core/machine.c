@@ -1140,7 +1140,7 @@ gboolean bt_machine_enable_input_level(BtMachine * const self) {
     if(!bt_machine_make_internal_element(self,PART_INPUT_LEVEL,"level","input_level")) goto Error;
     g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),
       "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-      "peak-ttl",(GstClockTime)(0.5*GST_SECOND),"peak-falloff", 50.0,
+      "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 80.0,
       NULL);
     if(!bt_machine_add_input_element(self,PART_INPUT_LEVEL)) goto Error;
   }

@@ -534,7 +534,8 @@ bt_pattern_editor_expose (GtkWidget *widget,
     cgrp->width = x - start;
   }
   
-#if USE_DEBUG
+#if 0
+//#if USE_DEBUG
   /* DEBUG : for tuning the colors */
   GdkGC **gcs[]={
     GTK_WIDGET(self)->style->fg_gc,

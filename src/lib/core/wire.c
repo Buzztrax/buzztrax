@@ -493,6 +493,8 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
           GST_DEBUG("created panorama/balance element for wire : %p '%s' -> %p '%s'",
             self->priv->src->src_elem,GST_OBJECT_NAME(self->priv->src->src_elem),
             self->priv->dst->dst_elem,GST_OBJECT_NAME(self->priv->dst->dst_elem));
+          // @todo: the panorama of my laptop is quirky :/
+          g_object_set(G_OBJECT (machines[PART_PAN]),"method",1,NULL);
         }
       }
       gst_caps_unref(caps);

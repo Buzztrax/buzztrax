@@ -1,3 +1,23 @@
+2008-02-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/input/input.c:
+	  Add a missing description.
+
+	* src/lib/core/song.c:
+	  Fix playing again with pulseaudio.
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Faster level meters and more vivid spectrum. Wire-analyzers only
+	  handle their own mesaages.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Update cursor-pos before using it.
+
+	* src/ui/edit/pattern-editor.c:
+	  Disable color palette test.
+
 2008-02-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

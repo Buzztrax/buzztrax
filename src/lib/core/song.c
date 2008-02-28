@@ -775,11 +775,11 @@ gboolean bt_song_stop(const BtSong * const self) {
     return(TRUE);
   }
 
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to ready state");
     return(FALSE);
   }
-  GST_DEBUG("->READY state change returned '%s'",gst_element_state_change_return_get_name(res));
+  GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
 
   // do not stop if not playing or not preparing
   if(self->priv->is_preparing) {

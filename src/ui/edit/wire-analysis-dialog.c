@@ -193,10 +193,14 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
 
   g_assert(user_data);
 
+  // @todo: check if its our element (we can have multiple analyzers open)
   if(!strcmp(name,"level")) {
     const GValue *l_rms,*l_peak;
     guint i;
     gdouble val;
+    
+    if(GST_MESSAGE_SRC(message)!=GST_OBJECT(self->priv->analyzers[ANALYZER_LEVEL]))
+      return;
 
     //GST_INFO("get level data");
     l_rms=(GValue *)gst_structure_get_value(structure, "rms");
@@ -228,6 +232,9 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
     const GValue *list;
     const GValue *value;
     guint i;
+
+    if(GST_MESSAGE_SRC(message)!=GST_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]))
+      return;
 
     //GST_INFO("get spectrum data");
     if((list = gst_structure_get_value (structure, "magnitude"))) {
@@ -421,7 +428,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     goto Error;
   }
   g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]),
-      "interval",(GstClockTime)(0.5*GST_SECOND),"message",TRUE,
+      "interval",(GstClockTime)(0.25*GST_SECOND),"message",TRUE,
       "bands", self->priv->spect_bands, "threshold", -70,
       NULL);
   // create level meter
@@ -431,7 +438,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   }
   g_object_set(G_OBJECT(self->priv->analyzers[ANALYZER_LEVEL]),
       "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-      "peak-ttl",(GstClockTime)(0.5*GST_SECOND),"peak-falloff", 50.0,
+      "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 80.0,
       NULL);
   // create queue
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_QUEUE,"queue")) {
@@ -439,6 +446,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     goto Error;
   }
   g_object_set(G_OBJECT(self->priv->analyzers[ANALYZER_QUEUE]),
+      "max-size-buffers",1,"max-size-bytes",0,"max-size-time",G_GUINT64_CONSTANT(0),
       "leaky",2,NULL);
 
   g_object_set(G_OBJECT(self->priv->wire),"analyzers",self->priv->analyzers_list,NULL);

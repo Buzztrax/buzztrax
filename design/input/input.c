@@ -61,6 +61,7 @@ int main(int argc, char **argv) {
       printf("  Event type 0x%02x ", yalv);
       switch (yalv) {
         case EV_SYN:
+          printf(" (Syn?)\n");
           break;
         case EV_KEY:
           printf(" (Keys or Buttons)\n");

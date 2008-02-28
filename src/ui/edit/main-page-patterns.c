@@ -421,8 +421,11 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
       }
       g_object_unref(machine);
 #else
-    PatternColumnGroup *group = &self->priv->param_groups[self->priv->cursor_group];
+    PatternColumnGroup *group;
     
+    g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
+    
+    group = &self->priv->param_groups[self->priv->cursor_group];
     switch (group->type) {
       case 0: {
         property=bt_wire_get_param_spec(group->user_data, self->priv->cursor_param);
