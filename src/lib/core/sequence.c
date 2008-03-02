@@ -534,9 +534,14 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
         if((pattern=bt_sequence_get_pattern(self,j,i))) break;
       }
       if(pattern) {
-        // get value at tick position or NULL
-        if((cur_value=bt_pattern_get_global_event_data(pattern,tick-j,param)) && G_IS_VALUE(cur_value)) {
-          value=cur_value;
+        gulong length,pos=tick-j;
+
+        g_object_get(G_OBJECT(pattern),"length",&length,NULL);
+        if(pos<length) {
+          // get value at tick position or NULL
+          if((cur_value=bt_pattern_get_global_event_data(pattern,pos,param)) && G_IS_VALUE(cur_value)) {
+            value=cur_value;
+          }
         }
         g_object_unref(pattern);
       }
@@ -579,9 +584,14 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
         if((pattern=bt_sequence_get_pattern(self,j,i))) break;
       }
       if(pattern) {
-        // get value at tick position or NULL
-        if((cur_value=bt_pattern_get_voice_event_data(pattern,tick-j,voice,param)) && G_IS_VALUE(cur_value)) {
-          value=cur_value;
+        gulong length,pos=tick-j;
+
+        g_object_get(G_OBJECT(pattern),"length",&length,NULL);
+        if(pos<length) {
+          // get value at tick position or NULL
+          if((cur_value=bt_pattern_get_voice_event_data(pattern,tick-j,voice,param)) && G_IS_VALUE(cur_value)) {
+            value=cur_value;
+          }
         }
         g_object_unref(pattern);
       }
@@ -624,12 +634,17 @@ static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _valu
         if((pattern=bt_sequence_get_pattern(self,j,i))) break;
       }
       if(pattern) {
-        BtWirePattern *wire_pattern=bt_wire_get_pattern(wire,pattern);
-        // get value at tick position or NULL
-        if((cur_value=bt_wire_pattern_get_event_data(wire_pattern,tick-j,param)) && G_IS_VALUE(cur_value)) {
-          value=cur_value;
+        gulong length,pos=tick-j;
+
+        g_object_get(G_OBJECT(pattern),"length",&length,NULL);
+        if(pos<length) {
+          BtWirePattern *wire_pattern=bt_wire_get_pattern(wire,pattern);
+          // get value at tick position or NULL
+          if((cur_value=bt_wire_pattern_get_event_data(wire_pattern,tick-j,param)) && G_IS_VALUE(cur_value)) {
+            value=cur_value;
+          }
+          g_object_unref(wire_pattern);
         }
-        g_object_unref(wire_pattern);
         g_object_unref(pattern);
       }
     }

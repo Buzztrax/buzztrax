@@ -193,7 +193,7 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
       // configure buffer size (e.g.  GST_SECONG*60/120*4
       gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
       GST_WARNING("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs",chunk);
-      g_object_set(sink,"latency-time",chunk,"buffer-time",chunk<<2,NULL);
+      g_object_set(sink,"latency-time",chunk,"buffer-time",chunk<<1,NULL);
     }
   }
 }

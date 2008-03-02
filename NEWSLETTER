@@ -1,12 +1,19 @@
 2008/03 ========================================================================
 
+* playback engine
+  * latency tuning and lowering he latency
 * pattern-editor
   * better support for dark-themes
   * better default font selection
-* blending and randomization of values in patterns
+  * blending and randomization of values
+  * show value description in status bar where it applies
+* sequence editor
+  * horizontal scrolling of sequence
+  * colorize the M,S,B buttons in sequence headers
+  * implement switching position units
+  * update menu on label edits
 * ui fixes and improvments
   * tuning of level meters (more lively)
-  * horizontal scrolling of sequence
   * keyboard shortcuts
 * buzz song loader fixes
 * bml has better test reports

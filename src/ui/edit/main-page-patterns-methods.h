@@ -34,4 +34,9 @@ extern BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatt
 extern void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern *pattern);
 extern void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine *machine);
 
+extern void bt_main_page_pattern_delete_selection(const BtMainPagePatterns *self);
+extern void bt_main_page_pattern_cut_selection(const BtMainPagePatterns *self);
+extern void bt_main_page_pattern_copy_selection(const BtMainPagePatterns *self);
+extern void bt_main_page_pattern_paste_selection(const BtMainPagePatterns *self);
+
 #endif // BT_MAIN_PAGE_PATTERNS_METHDOS_H

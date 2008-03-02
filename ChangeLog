@@ -1,3 +1,40 @@
+2008-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Document what we did.
+
+	* README:
+	  Kill some more CVS reference. tell about needed stuff to build from
+	  svn.
+
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	  More copy/paste preparation. Don't assert in patterns on some values.
+  
+	* src/lib/core/sink-bin.c:
+	  Lower latency.
+
+	* src/lib/core/wire.c:
+	  idea about optimising number of queues used.
+
+	* src/ui/edit/main-menu.c:
+	  Move copy/paste preparation.
+
+	* src/ui/edit/main-page-patterns-methods.h:
+	* src/ui/edit/main-page-patterns.c:
+	  Show parameter descriptions where it applies.
+
+	* src/ui/edit/main-page-sequence-methods.h:
+	* src/ui/edit/main-page-sequence.c:
+	  Implement pos units and label menu updates. Keep refenrece on sequence
+	  to optimize acess.
+
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Write down ideas about improving the filtering.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Add todo section.
+
 2008-02-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/input/input.c:

@@ -445,6 +445,15 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   g_assert(GST_IS_OBJECT(dst->dst_elem));
 
   if(!machines[PART_QUEUE]) {
+    /* @todo: use the queue on demand.
+     * if(bt_machine_activate_spreader(src)
+     *    add the queue.
+     * else
+     *    remove the queue
+     *
+     * problem:
+     *   we need to relink all outgoing wires for this src when adding/removing a wire
+     */
     if(!bt_wire_make_internal_element(self,PART_QUEUE,"queue","queue")) return(FALSE);
     // configure the queue
     g_object_set(G_OBJECT (machines[PART_QUEUE]),"max-size-buffers",1,"max-size-bytes",0,"max-size-time",G_GUINT64_CONSTANT(0),NULL);

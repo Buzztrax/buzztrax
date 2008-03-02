@@ -432,6 +432,71 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
   return(pattern);
 }
 
+#if 0
+// @todo: need this also for wire-patterns
+// @todo: groups are not easy to handle here
+BtPattern *bt_pattern_copy_range(const BtPattern * const self, gint start, gint end, gint group, gint param) {
+  BtPattern *pattern;
+  
+  // the id/name does not matter so much
+  if((pattern=bt_pattern_new(self->priv->song,"copy","copy",self->priv->length,self->priv->machine))) {
+    gulong offset=0,count=0;
+    GValue *src, *dst;
+    
+    if(group==-1 && param==-1) {
+      // copy full pattern
+      count=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+    }
+    if(group!=-1) {
+      if(self->priv->global_param && group==0) {
+        offset=internal_params;
+      }
+      else {
+        offset=internal_params; // add prev voices
+        if(self->priv->global_params) {
+          offset+=self->priv->global_params+(group-1)*self->priv->voice_params;
+        }
+        else {
+          offset+=group*self->priv->voice_params;
+        }
+      }
+      if(param==-1) {
+        // copy whole group
+        if(self->priv->global_param && group==0) {
+          count=self->priv->global_param;
+        }
+        else {
+          count=self->priv->voice_param;
+        }
+      }
+      else {
+        // copy one param in one group
+        offset+=param;
+        count=1;
+      }
+    }
+
+    src=&self->priv->data[start*count];
+    dst=&pattern->priv->data[start*count];
+
+    for(i=start;i<end;i++) {
+      memcpy(dst,src,sizeof(GValue)*count);
+      src=&src[count];
+      dst=&dst[count];
+    }
+  }
+  return(pattern);
+}
+
+// @todo: groups are not easy to handle here
+void bt_pattern_paste(const BtPattern * const dst, const BtPattern * const src, gint row, gint group, gint param) {
+  // this needs to know what region the copied pattern covers
+  // when pasting and parameters (columns) are different -> return
+  //  later we could check if the types match
+}
+ 
+#endif
+
 //-- methods
 
 /**
@@ -504,11 +569,10 @@ gulong bt_pattern_get_voice_param_index(const BtPattern * const self, const gcha
 GValue *bt_pattern_get_global_event_data(const BtPattern * const self, const gulong tick, const gulong param) {
 
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
-  g_return_val_if_fail(tick<self->priv->length,NULL);
   g_return_val_if_fail(self->priv->data,NULL);
 
-  //if(!(tick<self->priv->length)) { GST_ERROR("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
-  if(!(param<self->priv->global_params)) { GST_ERROR("param=%d beyond global_params=%d in pattern '%s'",param,self->priv->global_params,self->priv->id);return(NULL); }
+  if(!(tick<self->priv->length)) { GST_WARNING("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
+  if(!(param<self->priv->global_params)) { GST_WARNING("param=%d beyond global_params=%d in pattern '%s'",param,self->priv->global_params,self->priv->id);return(NULL); }
 
   const gulong index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
        +       internal_params+param;
@@ -532,10 +596,9 @@ GValue *bt_pattern_get_global_event_data(const BtPattern * const self, const gul
 GValue *bt_pattern_get_voice_event_data(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param) {
 
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
-  g_return_val_if_fail(tick<self->priv->length,NULL);
   g_return_val_if_fail(self->priv->data,NULL);
 
-  //if(!(tick<self->priv->length)) { GST_ERROR("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
+  if(!(tick<self->priv->length)) { GST_ERROR("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
   if(!(voice<self->priv->voices)) { GST_ERROR("voice=%d beyond voices=%d in pattern '%s'",voice,self->priv->voices,self->priv->id);return(NULL); }
   if(!(param<self->priv->voice_params)) { GST_ERROR("param=%d  beyond voice_ params=%d in pattern '%s'",param,self->priv->voice_params,self->priv->id);return(NULL); }
 

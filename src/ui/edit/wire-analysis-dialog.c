@@ -27,6 +27,8 @@
  *
  * The dialog is not modal.
  */
+/* @todo: draw grid under spectrum
+ */
 
 #define BT_EDIT
 #define BT_WIRE_ANALYSIS_DIALOG_C
@@ -193,12 +195,12 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
 
   g_assert(user_data);
 
-  // @todo: check if its our element (we can have multiple analyzers open)
   if(!strcmp(name,"level")) {
     const GValue *l_rms,*l_peak;
     guint i;
     gdouble val;
-    
+
+    // check if its our element (we can have multiple analyzers open)
     if(GST_MESSAGE_SRC(message)!=GST_OBJECT(self->priv->analyzers[ANALYZER_LEVEL]))
       return;
 
@@ -233,6 +235,7 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
     const GValue *value;
     guint i;
 
+    // check if its our element (we can have multiple analyzers open)
     if(GST_MESSAGE_SRC(message)!=GST_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]))
       return;
 
@@ -343,7 +346,6 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
 
   g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
-  //gtk_window_set_resizable(GTK_WINDOW(self), FALSE);
 
   /* @todo: create and set *proper* window icon (analyzer, scope)
   if((window_icon=bt_ui_ressources_get_pixbuf_by_wire(self->priv->wire))) {

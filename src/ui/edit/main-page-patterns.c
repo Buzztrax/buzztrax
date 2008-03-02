@@ -45,7 +45,6 @@
  *     - set increment for cursor-down on edit
  * - copy gtk_cell_renderer_progress -> bt_cell_renderer_pattern_value
  *   - limmit acceptable keys for value entries: http://www.gtk.org/faq/#AEN843
- * - add parameter info when inside cell
  * - move cursor down on edit
  *
  * - also do controller-assignments like in machine-property window
@@ -395,7 +394,8 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     g_object_set(statusbar,"status",NULL,NULL);
 
   if(mode&UPDATE_COLUMN_PUSH) {
-    const gchar *str=BT_MAIN_STATUSBAR_DEFAULT;
+    gchar *str=NULL,*desc="\0";
+    const gchar *blurb="\0";
 
     if(self->priv->pattern) {
       GParamSpec *property=NULL;
@@ -423,25 +423,38 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
 #else
     PatternColumnGroup *group;
     
-    g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
+    g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
     
     group = &self->priv->param_groups[self->priv->cursor_group];
     switch (group->type) {
       case 0: {
         property=bt_wire_get_param_spec(group->user_data, self->priv->cursor_param);
+        /* there is no describe here
+        bt_wire_pattern_get_event_data(group->user_data,self->priv->cursor_row,self->priv->cursor_param)
+        */
       } break;
       case 1: {
         BtMachine *machine;
+        GValue *gval;
         
         g_object_get(self->priv->pattern,"machine",&machine,NULL);
         property=bt_machine_get_global_param_spec(machine,self->priv->cursor_param);
+        if((gval=bt_pattern_get_global_event_data(self->priv->pattern,self->priv->cursor_row,self->priv->cursor_param)) && G_IS_VALUE(gval)) {
+          if(!(desc=bt_machine_describe_global_param_value(machine,self->priv->cursor_param,gval)))
+            desc="\0";
+        }
         g_object_unref(machine);
       } break;
       case 2: {
         BtMachine *machine;
+        GValue *gval;
         
         g_object_get(self->priv->pattern,"machine",&machine,NULL);
         property=bt_machine_get_voice_param_spec(machine,self->priv->cursor_param);
+        if((gval=bt_pattern_get_voice_event_data(self->priv->pattern,self->priv->cursor_row,(int)group->user_data,self->priv->cursor_param)) && G_IS_VALUE(gval)) {
+          if(!(desc=bt_machine_describe_voice_param_value(machine,self->priv->cursor_param,gval)))
+            desc="\0";
+        }
         g_object_unref(machine);
       } break;
       default:
@@ -450,14 +463,132 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
 #endif
       // get parameter description
       if(property)
-        str=g_param_spec_get_blurb(property);
+        blurb=g_param_spec_get_blurb(property);
+      str=g_strdup_printf("%s %s",blurb,desc);
     }
-    g_object_set(statusbar,"status",str,NULL);
+    g_object_set(statusbar,"status",(str?str:BT_MAIN_STATUSBAR_DEFAULT),NULL);
+    g_free(str);
   }
 
   g_object_unref(statusbar);
   g_object_unref(main_window);
 }
+
+//-- selection helpers
+#if 0
+static boolean pattern_selection_apply(const BtMainPagePatterns *self,pattern_fn,wire_pattern_fn) {
+  /* @todo: use pattern_fn / wire_pattern_fn */
+  gint beg,end,group,param;
+  if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
+    PatternColumnGroup group;
+    GST_INFO("blending : %d %d , %d %d",beg,end,group,param);
+    if(group==-1 && param==-1) {
+      // blend full pattern
+      BtWirePattern *wire_pattern;
+      guint i=0;
+
+      group=self->priv->param_groups[0];
+      while(group.type==0) {
+        wire_pattern = bt_wire_get_pattern(group.user_data,self->priv->pattern);
+        if(!wire_pattern) {
+          BtSong *song;
+  
+          g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+          wire_pattern=bt_wire_pattern_new(song,group.user_data,self->priv->pattern);
+          g_object_unref(song);
+        }
+        if(wire_pattern) {
+          bt_wire_pattern_blend_columns(wire_pattern,beg,end);
+          g_object_unref(wire_pattern);
+        }
+        i++;
+        group=self->priv->param_groups[i];
+      }
+      bt_pattern_blend_columns(self->priv->pattern,beg,end);
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      res=TRUE;
+    }
+    if(group!=-1 && param==-1) {
+      // blend whole group
+      group=self->priv->param_groups[group];
+      switch(group.type) {
+        case 0: {
+          BtWirePattern *wire_pattern = bt_wire_get_pattern(group.user_data,self->priv->pattern);
+          if(!wire_pattern) {
+            BtSong *song;
+    
+            g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+            wire_pattern=bt_wire_pattern_new(song,group.user_data,self->priv->pattern);
+            g_object_unref(song);
+          }
+          if(wire_pattern) {
+            // 0,group.num_columns-1
+            bt_wire_pattern_blend_columns(wire_pattern,beg,end);
+            g_object_unref(wire_pattern);
+          }
+        } break;
+        case 1: {
+          guint i;
+          
+          for(i=0;i<group.num_columns;i++) {
+            bt_pattern_blend_column(self->priv->pattern,beg,end,i);
+          }
+        } break;
+        case 2: {
+          BtMachine *machine;
+          gulong global_params, voice_params, params;
+          guint i;
+          
+          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          params=global_params+((gint)group.user_data*voice_params);
+          for(i=0;i<group.num_columns;i++) {
+            bt_pattern_blend_column(self->priv->pattern,beg,end,params+i);
+          }
+          g_object_unref(machine);
+        } break;
+      }
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      res=TRUE;
+    }
+    if(group!=-1 && param!=-1) {
+      // blend one param in one group
+      group=self->priv->param_groups[group];
+      switch(group.type) {
+        case 0: {
+          BtWirePattern *wire_pattern = bt_wire_get_pattern(group.user_data,self->priv->pattern);
+          if(!wire_pattern) {
+            BtSong *song;
+    
+            g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+            wire_pattern=bt_wire_pattern_new(song,group.user_data,self->priv->pattern);
+            g_object_unref(song);
+          }
+          if(wire_pattern) {
+            bt_wire_pattern_blend_column(wire_pattern,beg,end,param);
+            g_object_unref(wire_pattern);
+          }
+        } break;
+        case 1:
+          bt_pattern_blend_column(self->priv->pattern,beg,end,param);
+          break;
+        case 2: {
+          BtMachine *machine;
+          gulong global_params, voice_params, params;
+          
+          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          params=global_params+((gint)group.user_data*voice_params);
+          bt_pattern_blend_column(self->priv->pattern,beg,end,params+param);
+          g_object_unref(machine);
+        } break;
+      }
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      res=TRUE;
+    }
+  }
+}
+#endif
 
 //-- event handlers
 
@@ -512,12 +643,16 @@ static gboolean on_pattern_table_cursor_changed_idle(gpointer user_data) {
 
   gtk_tree_view_get_cursor(self->priv->pattern_table,&path,&column);
   if(pattern_view_get_cursor_pos(self->priv->pattern_table,path,column,&cursor_column,&cursor_row)) {
-    if(self->priv->cursor_column!=cursor_column) {
+    if((self->priv->cursor_column!=cursor_column) || (self->priv->cursor_row!=cursor_row)) {
       // update statusbar
       self->priv->cursor_column=cursor_column;
+      self->priv->cursor_row=cursor_row;
       pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
     }
-    self->priv->cursor_row=cursor_row;
+    else {
+      self->priv->cursor_column=cursor_column;
+      self->priv->cursor_row=cursor_row;
+    }
     GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
     gtk_tree_view_scroll_to_cell(self->priv->pattern_table,path,column,FALSE,1.0,0.0);
     gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
@@ -1425,6 +1560,13 @@ static void on_pattern_table_cursor_param_changed(const BtPatternEditor *editor,
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   
   g_object_get(G_OBJECT(editor), "cursor-param", &self->priv->cursor_param, NULL);
+  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
+}
+
+static void on_pattern_table_cursor_row_changed(const BtPatternEditor *editor,GParamSpec *arg,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  
+  g_object_get(G_OBJECT(editor), "cursor-row", &self->priv->cursor_row, NULL);
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
 }
 #endif
@@ -2430,6 +2572,7 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
     g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_voices_changed);
     GST_INFO("unref old pattern: %p,refs=%d", self->priv->pattern,(G_OBJECT(self->priv->pattern))->ref_count);
     g_object_unref(self->priv->pattern);
+    self->priv->pattern_length_changed=self->priv->pattern_voices_changed=0;
   }
 
   // refresh pattern view
@@ -2998,6 +3141,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-group", G_CALLBACK(on_pattern_table_cursor_group_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-param", G_CALLBACK(on_pattern_table_cursor_param_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-row", G_CALLBACK(on_pattern_table_cursor_row_changed), (gpointer)self);
   gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(scrolled_window));
 #else
   self->priv->pattern_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));
@@ -3241,6 +3385,118 @@ void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine
   gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
   // focus pattern editor
   gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+}
+
+//-- cut/copy/paste
+
+/**
+ * bt_main_page_pattern_delete_selection:
+ * @self: the pattern subpage
+ *
+ * Delete (clear) the selected area.
+ */
+void bt_main_page_pattern_delete_selection(const BtMainPagePatterns *self) {
+  /* @todo implement me */
+#if 0
+  /* this can be used for blend/randomize,
+   * - would be good to generalize to use it also for insert/delete.
+   *   -> need to ignore row_end
+   * - would be good to use this for copy/cut/delete(clear)
+   *   -> copy/cut want to return a new pattern
+   * ideally we'd like to avoid separate column/columns functions
+   * - _column(BtPattern * self, gulong start_tick, gulong end_tick, gulong param)
+   * - _columns(BtPattern * self, gulong start_tick, gulong end_tick)
+   * - the groups would trigger the update several times as we need to use the column one a few times
+   * better would be:
+   * - _columns(BtPattern * self, gulong start_tick, gulong end_tick, gulong start_param, gulong end_param)
+   */
+  //pattern_selection_apply(self,
+  //  bt_pattern_delete_columns,bt_pattern_delete_column,
+  //  bt_wire_pattern_delete_columns,bt_wire_pattern_delete_column);
+
+  gint beg,end,group,param;
+  if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
+    GST_INFO("blending : %d %d , %d %d",beg,end,group,param);
+    if(group==-1 && param==-1) {
+      // full pattern
+      bt_pattern_delete_columns(self->priv->pattern,beg,end);
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+    }
+    if(group!=-1 && param==-1) {
+      // whole group
+    }
+    if(group!=-1 && param!=-1) {
+      // one param in one group
+      bt_pattern_delete_column(self->priv->pattern,start_tick,end_tick,param);
+    }
+  }
+#endif
+}
+
+/**
+ * bt_main_page_pattern_cut_selection:
+ * @self: the pattern subpage
+ *
+ * Cut selected area.
+ * <note>not yet working</note>
+ */
+void bt_main_page_pattern_cut_selection(const BtMainPagePatterns *self) {
+  /* @todo implement me */
+#if 0
+- like copy, but clear pattern cells afterwards
+#endif
+  bt_main_page_pattern_delete_selection(self);
+}
+
+/**
+ * bt_main_page_pattern_copy_selection:
+ * @self: the sequence subpage
+ *
+ * Copy selected area.
+ * <note>not yet working</note>
+ */
+void bt_main_page_pattern_copy_selection(const BtMainPagePatterns *self) {
+  /* @todo implement me */
+#if 0
+- store pattern + related wire patterns
+  - whats the data
+    - groups like in PatternColumnGroup
+    - gint ticks, types
+    - gtype-array[types]
+    - gvalue-array[types x ticks]
+  - problems
+    - can we still paste if a wires were added/removed?
+      - num_wire_params has changes
+      - wire-patterns can have different number of params
+    - can we still paste if voices are added/removed?
+      - num_pattern_params has changed
+      - skip the last ?
+  - ideas:
+    - just store the above
+    - serialize and deserialize on paste ?
+      - wire-patterns are serialized with the wires :/
+    - make a BtPatternFragment and BtWirePatternFragment
+      - pattern_copy = bt_pattern_copy_selection(self->priv->pattern))
+        for(,,) bt_wire_pattern_copy_selection(wire_pattern,pattern_copy)
+          - where to store those :(
+- remember selection (track start/end and time start/end)
+#endif
+}
+
+/**
+ * bt_main_page_pattern_paste_selection:
+ * @self: the pattern subpage
+ *
+ * Paste at the top of the selected area.
+ * <note>not yet working</note>
+ */
+void bt_main_page_pattern_paste_selection(const BtMainPagePatterns *self) {
+  /* @todo implement me */
+#if 0
+- we can paste at any timeoffset
+  - maybe extend sequence if pos+selection.length> sequence.length)
+- we need to check if the tracks match
+#endif
 }
 
 //-- wrapper

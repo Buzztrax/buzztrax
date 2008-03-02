@@ -6,18 +6,19 @@ is about. Buzztard is free software and distributed under the LGPL.
 
 = intro =
 Buzztard is a music composer similar to tracker applications.
-It is roughly modeled after the windows only closed source application called Buzz.
+It is roughly modeled after the windows only, closed source and now discontinued
+application called Buzz.
 
 = requirements =
 libxml2
 glib2
 gtk+2
-gstreamer(head cvs)
-gst-plugins-base (head gstreamer cvs)
-gst-plugins-good (head gstreamer cvs)
-gst-plugins-bad (head gstreamer cvs)
+gstreamer
+gst-plugins-base
+gst-plugins-good
+gst-plugins-bad
 gnome-canvas
-gst-buzztard (from buzztard cvs)
+gst-buzztard (from buzztard svn, use same version as this module)
 
 = supported packages =
 check (http://check.sf.net - for unit tests)
@@ -25,10 +26,11 @@ gconf (for persistent settings)
 hal (for interaction controller)
 libgnomeui (for help)
 
-= building from cvs =
+= building from svn =
 To build use autogen.sh instead of configure. This accept the same options like
 configure. Later one can use autoregen.sh to rerun the bootstrapping.
-To build from CVS one needs gconf2-dev (see #1530372).
+To build from SVN one needs gconf2-dev (see #1530372), gtk-doc and cvs (for
+autopoint from gettext) installed.
 
 = directories =
 design : little test sources, not needed for releases, not built during make

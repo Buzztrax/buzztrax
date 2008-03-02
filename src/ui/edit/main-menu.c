@@ -173,14 +173,18 @@ static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
       GST_INFO("menu copy event occurred for machine page");
     } break;
     case BT_MAIN_PAGES_PATTERNS_PAGE: {
+      BtMainPagePatterns *page;
       GST_INFO("menu copy event occurred for pattern page");
+      g_object_get(G_OBJECT(pages),"pattern-page",&page,NULL);
+      bt_main_page_pattern_copy_selection(page);
+      g_object_unref(page);
     } break;
     case BT_MAIN_PAGES_SEQUENCE_PAGE: {
-      BtMainPageSequence *sequence_page;
+      BtMainPageSequence *page;
       GST_INFO("menu copy event occurred for sequence page");
-      g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
-      bt_main_page_sequence_copy_selection(sequence_page);
-      g_object_unref(sequence_page);
+      g_object_get(G_OBJECT(pages),"sequence-page",&page,NULL);
+      bt_main_page_sequence_copy_selection(page);
+      g_object_unref(page);
     } break;
     case BT_MAIN_PAGES_WAVES_PAGE: {
       GST_INFO("menu copy event occurred for waves page");

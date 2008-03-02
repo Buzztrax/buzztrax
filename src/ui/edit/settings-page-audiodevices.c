@@ -108,10 +108,20 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
   g_free(str);
 
-  // @todo: sort list ?
   audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
   // this will also contain stuff like: "Sink/Analyzer/Audio"
   // solution would be to give all real AudioSinks a "Device" category
+
+  // @todo: sort list alphabetically ?
+  
+  /* @todo: use GST_IS_BIN(gst_element_factory_get_element_type(factory)) to skip bins
+   * add autoaudiosink as the first and make it default
+   * but then again bins seem to be filtered out already, by below
+   */
+   
+  /* we need to get rid of a few more entries still:
+   * ladspa (some are analyzers) and sfsink (is a formatter)
+   */
 
   // add audio sinks gstreamer provides
   for(node=audiosink_names,ct=1;node;node=g_list_next(node)) {
