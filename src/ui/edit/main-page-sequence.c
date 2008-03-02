@@ -2463,6 +2463,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   g_object_try_unref(self->priv->sequence);
   g_object_get(G_OBJECT(song),"song-info",&song_info,"setup",&setup,"sequence",&self->priv->sequence,"bin", &bin,NULL);
+  g_object_get(G_OBJECT(self->priv->sequence),"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
+  // make list_length and step_filter_pos accord to song length
+  self->priv->list_length=self->priv->row_filter_pos=sequence_length;
 
   if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
   self->priv->level_to_vumeter=g_hash_table_new_full(NULL,NULL,(GDestroyNotify)gst_object_unref,NULL);
@@ -2478,17 +2481,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update toolbar
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   update_bars_menu(self,bars);
-#if 0
-  // @todo: map bars to index (why -> we dont keep the filter selection persistent yet)
-  //        this is broken math anyway
-  index = (bars<4) ?(bars-1) : (1+(bars>>2));
-#endif
+
   // update sequence view
   sequence_calculate_visible_lines(self);
   sequence_model_recolorize(self);
-  g_object_get(G_OBJECT(self->priv->sequence),"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
-  // make list_length and step_filter_pos accord to song length
-  self->priv->list_length=self->priv->row_filter_pos=sequence_length;
   loop_start=(loop_start_pos>-1)?(gdouble)loop_start_pos/(gdouble)sequence_length:0.0;
   loop_end  =(loop_end_pos  >-1)?(gdouble)loop_end_pos  /(gdouble)sequence_length:1.0;
   g_object_set(self->priv->sequence_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);

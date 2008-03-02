@@ -1,7 +1,7 @@
 2008/03 ========================================================================
 
 * playback engine
-  * latency tuning and lowering he latency
+  * latency tuning and lowering the latency
 * pattern-editor
   * better support for dark-themes
   * better default font selection

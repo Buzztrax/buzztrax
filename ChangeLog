@@ -1,6 +1,14 @@
 2008-03-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
+	  Fix typo.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Fix regression where sequence wasn't updated right.
+
+2008-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
 	  Document what we did.
 
 	* README:
