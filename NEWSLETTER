@@ -1,22 +1,38 @@
 2008/03 ========================================================================
 
-* playback engine
-  * latency tuning and lowering the latency
-* pattern-editor
-  * better support for dark-themes
-  * better default font selection
-  * blending and randomization of values
-  * show value description in status bar where it applies
-* sequence editor
-  * horizontal scrolling of sequence
-  * colorize the M,S,B buttons in sequence headers
-  * implement switching position units
-  * update menu on label edits
-* ui fixes and improvments
-  * tuning of level meters (more lively)
-  * keyboard shortcuts
-* buzz song loader fixes
-* bml has better test reports
+The Linux Audio Conference 2008 was nice once again. Good talks, interesting
+know-how exchange and of course oppotunities for testing and hacking on
+buzztard.
+
+I have improved the playback engine a bit. It now uses less additional latency.
+Still one get much lower latency by using jack, instead of pulse audio (Can't
+see where I can configure pulse's latency).
+
+The pattern editor got better gtk+ theme support (especially on dark ones) and
+also tries to use the default monospace font and font-size to better match with
+the overall look of your desktop. I implemented blending value ranges and
+randomization of ranges. FSM implemented more keyboard shortcuts. I added value
+descriptions to the status bar where the plugin supports it.
+
+Also the sequence editor got some todo-fixing. The sequence was never
+horizontaly scrollable (adding columns would force the window to be wider). The
+M,S,B buttons are now color shaded when pressed to give better visual clues.
+Finally also the position unit switcher is functional (ticks/time) and the label
+navigator gets properly updated. Lots of small things I never got around until
+now
+
+Level meters in sequence and analyzer windows are now more lively and precise.
+Having several analyzers open now also produces the expected results.
+
+The buzz song importer got further fixes. It seems to load all of my songs just
+fine now.
+
+Some improvments also on the buzz emulation side. More machines load and work.
+We have a nice testsuite with html reports now. I spotted some issues which will
+fix more machines. Will try to implement this next.
+
+If noting urgent comes up. I'll prepare the release in the comming days. Stay
+tuned.
 
 2008/02 ========================================================================
 

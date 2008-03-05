@@ -464,7 +464,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
       // get parameter description
       if(property)
         blurb=g_param_spec_get_blurb(property);
-      str=g_strdup_printf("%s %s",blurb,desc);
+      str=g_strdup_printf("%s%s%s",blurb,(*desc?": ":""),desc);
     }
     g_object_set(statusbar,"status",(str?str:BT_MAIN_STATUSBAR_DEFAULT),NULL);
     g_free(str);
@@ -3456,30 +3456,34 @@ void bt_main_page_pattern_cut_selection(const BtMainPagePatterns *self) {
  * <note>not yet working</note>
  */
 void bt_main_page_pattern_copy_selection(const BtMainPagePatterns *self) {
-  /* @todo implement me */
 #if 0
-- store pattern + related wire patterns
-  - whats the data
-    - groups like in PatternColumnGroup
-    - gint ticks, types
-    - gtype-array[types]
-    - gvalue-array[types x ticks]
-  - problems
-    - can we still paste if a wires were added/removed?
-      - num_wire_params has changes
-      - wire-patterns can have different number of params
-    - can we still paste if voices are added/removed?
-      - num_pattern_params has changed
-      - skip the last ?
-  - ideas:
-    - just store the above
-    - serialize and deserialize on paste ?
-      - wire-patterns are serialized with the wires :/
-    - make a BtPatternFragment and BtWirePatternFragment
-      - pattern_copy = bt_pattern_copy_selection(self->priv->pattern))
-        for(,,) bt_wire_pattern_copy_selection(wire_pattern,pattern_copy)
-          - where to store those :(
-- remember selection (track start/end and time start/end)
+  /* @todo implement me
+  - store pattern + related wire patterns
+    - whats the data
+      - groups like in PatternColumnGroup
+        - type (wire_params, global_params, voice_params)
+        - start_param, end_param
+        - data (wire_params => wirepattern, voice_params => voice)
+      - gint ticks, types
+      - gtype-array[types]
+      - gvalue-array[types x ticks]
+    - problems
+      - can we still paste if a wires were added/removed?
+        - num_wire_params has changes
+        - wire-patterns can have different number of params
+      - can we still paste if voices are added/removed?
+        - num_pattern_params has changed
+        - skip the last ?
+    - ideas:
+      - just store the above
+      - serialize and deserialize on paste ?
+        - wire-patterns are serialized with the wires :/
+      - make a BtPatternFragment and BtWirePatternFragment
+        - pattern_copy = bt_pattern_copy_selection(self->priv->pattern))
+          for(,,) bt_wire_pattern_copy_selection(wire_pattern,pattern_copy)
+            - where to store those :(
+  - remember selection (parameter start/end and time start/end)
+  */
 #endif
 }
 
