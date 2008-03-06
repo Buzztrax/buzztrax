@@ -51,6 +51,11 @@
 #include <libbtcore/core.h>
 #include <libbtcore/sink-bin.h>
 
+/* this requires gstreamer-0.10.16 */
+#ifndef GST_TIME_AS_USECONDS
+#define GST_TIME_AS_USECONDS(time) ((time) / G_GINT64_CONSTANT (1000))
+#endif
+
 //-- property ids
 
 enum {

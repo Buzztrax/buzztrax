@@ -1,3 +1,8 @@
+2008-03-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Fix the build.
+
 2008-03-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
