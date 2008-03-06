@@ -763,6 +763,9 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     case GDK_Page_Up:
       if (self->row > 0) {
         bt_pattern_editor_refresh_cursor(self);
+        /* @todo: should we tell pattern editor about the meassure
+         * g_object_get(G_OBJECT(song_info),"bars",&bars,NULL); for 4/4 => 16
+         */
         self->row = control ? 0 : (self->row - 16);
         if (self->row < 0)
           self->row = 0;
@@ -773,6 +776,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     case GDK_Page_Down:
       if (self->row < self->num_rows - 1) {
         bt_pattern_editor_refresh_cursor(self);
+        /* @todo: see Page_Up */
         self->row = control ? self->num_rows - 1 : self->row + 16;
         if (self->row > self->num_rows - 1)
           self->row = self->num_rows - 1;

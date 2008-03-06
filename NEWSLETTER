@@ -1,12 +1,12 @@
 2008/03 ========================================================================
 
 The Linux Audio Conference 2008 was nice once again. Good talks, interesting
-know-how exchange and of course oppotunities for testing and hacking on
+know-how exchange and of course opportunities for testing and hacking on
 buzztard.
 
 I have improved the playback engine a bit. It now uses less additional latency.
-Still one get much lower latency by using jack, instead of pulse audio (Can't
-see where I can configure pulse's latency).
+Still one get much lower latency by using jack, instead of pulse audio
+(currently experimenting to lower latency there too).
 
 The pattern editor got better gtk+ theme support (especially on dark ones) and
 also tries to use the default monospace font and font-size to better match with
@@ -15,7 +15,7 @@ randomization of ranges. FSM implemented more keyboard shortcuts. I added value
 descriptions to the status bar where the plugin supports it.
 
 Also the sequence editor got some todo-fixing. The sequence was never
-horizontaly scrollable (adding columns would force the window to be wider). The
+horizontally scrollable (adding columns would force the window to be wider). The
 M,S,B buttons are now color shaded when pressed to give better visual clues.
 Finally also the position unit switcher is functional (ticks/time) and the label
 navigator gets properly updated. Lots of small things I never got around until
@@ -27,11 +27,11 @@ Having several analyzers open now also produces the expected results.
 The buzz song importer got further fixes. It seems to load all of my songs just
 fine now.
 
-Some improvments also on the buzz emulation side. More machines load and work.
+Some improvements also on the buzz emulation side. More machines load and work.
 We have a nice testsuite with html reports now. I spotted some issues which will
 fix more machines. Will try to implement this next.
 
-If noting urgent comes up. I'll prepare the release in the comming days. Stay
+If nothing urgent comes up. I'll prepare the release in the coming days. Stay
 tuned.
 
 2008/02 ========================================================================
