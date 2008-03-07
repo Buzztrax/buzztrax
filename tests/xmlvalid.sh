@@ -8,8 +8,10 @@ fi
 
 XML_OPTS="--noout --nonet"
 
+E_SONGS="$srcdir/songs/buzz*.xml $srcdir/songs/combi*.xml $srcdir/songs/melo*.xml $srcdir/songs/simple*.xml"
+
 # do wellformed checking
-xmllint $XML_OPTS $srcdir/songs/*.xml
+xmllint $XML_OPTS $E_SONGS
 if [ $? -ne 0 ]; then exit 1; fi
 
 # check the schema itself

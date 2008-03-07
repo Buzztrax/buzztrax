@@ -1,3 +1,9 @@
+2008-03-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-cmd-info.sh:
+	* tests/xmlvalid.sh:
+	  Tiny test improvment.
+
 2008-03-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
