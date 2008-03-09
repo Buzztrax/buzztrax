@@ -116,7 +116,7 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
  */
 GtkWidget *
 bt_panorama_popup_new(GtkAdjustment *adj) {
-  GtkWidget *table, *scale, *frame,*ruler,*rbox,*pad, *label;
+  GtkWidget *table, *scale, *frame,*ruler, *label;
   BtPanoramaPopup *self;
 
   self = g_object_new(BT_TYPE_PANORAMA_POPUP, "type", GTK_WINDOW_POPUP, NULL);
@@ -128,11 +128,12 @@ bt_panorama_popup_new(GtkAdjustment *adj) {
 
 
   label=gtk_label_new("");
+  gtk_widget_set_size_request(label, 40, -1);
   gtk_table_attach_defaults(GTK_TABLE(table), label, 0,1, 0,2);
 
   scale=gtk_hscale_new(adj);
   self->scale=GTK_RANGE(scale);
-  gtk_widget_set_size_request(scale, 150, -1);
+  gtk_widget_set_size_request(scale, 200, -1);
   gtk_scale_set_draw_value(GTK_SCALE(scale), FALSE);
   gtk_range_set_inverted(self->scale, FALSE);
   g_signal_connect(self->scale, "value-changed", G_CALLBACK(cb_scale_changed), label);
@@ -140,24 +141,17 @@ bt_panorama_popup_new(GtkAdjustment *adj) {
   gtk_table_attach_defaults(GTK_TABLE(table), scale, 1,2, 1,2);
 
 
-  // add ruler ?
-  rbox=gtk_hbox_new(FALSE,0);
-  gtk_table_attach_defaults(GTK_TABLE(table), rbox, 1,2, 0,1);
-  //gtk_widget_style_get(scale,"slider-length",slider_length,NULL);
-  pad=gtk_label_new("");
-  gtk_widget_set_size_request(pad,15,30);
-  gtk_box_pack_start(GTK_BOX(rbox),pad,FALSE,FALSE,0);
-
+  // add ruler
   ruler=gtk_hruler_new();
-  // we use -X instead of 0.0 because of:
-  // http://bugzilla.gnome.org/show_bug.cgi?id=465041
-  gtk_ruler_set_range(GTK_RULER(ruler),-110.0,110.0,000.0,200.0);
+  /* we use -X instead of 0.0 because of:
+   * http://bugzilla.gnome.org/show_bug.cgi?id=465041
+   * @todo: take slider knob size into account
+   * gtk_widget_style_get(scale,"slider-length",slider_length,NULL);
+   */
+  gtk_ruler_set_range(GTK_RULER(ruler),-120.0,120.0,000.0,30.0);
+  gtk_widget_set_size_request(ruler,-1,30);
   GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
-  gtk_box_pack_start(GTK_BOX(rbox),ruler,TRUE,TRUE,0);
-
-  pad=gtk_label_new("");
-  gtk_widget_set_size_request(pad,15,-1);
-  gtk_box_pack_start(GTK_BOX(rbox),pad,FALSE,FALSE,0);
+  gtk_table_attach_defaults(GTK_TABLE(table), ruler, 1,2, 0,1);
 
 
   gtk_container_add(GTK_CONTAINER(frame), table);

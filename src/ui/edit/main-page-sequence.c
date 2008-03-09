@@ -169,6 +169,8 @@ enum {
 #define POSITION_CELL_WIDTH 65
 #define HEADER_SPACING 2
 
+#define LOW_VUMETER_VAL -100.0
+
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
 
@@ -692,8 +694,8 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
         cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
         peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
       }
-      if(isinf(cur) || isnan(cur)) cur=-200.0;
-      if(isinf(peak) || isnan(peak)) peak=-200.0;
+      if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
+      if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
       //gtk_vumeter_set_levels(vumeter, (gint)(cur/size), (gint)(peak/size));
       gtk_vumeter_set_levels(vumeter, (gint)(peak/size), (gint)(cur/size));
     }
@@ -1163,8 +1165,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_bypass), (gpointer)button);
       }
       vumeter=GTK_VUMETER(gtk_vumeter_new(FALSE));
-      gtk_vumeter_set_min_max(vumeter, -200, 0);
-      gtk_vumeter_set_levels(vumeter, -200, -200);
+      gtk_vumeter_set_min_max(vumeter, LOW_VUMETER_VAL, 0);
+      gtk_vumeter_set_levels(vumeter, LOW_VUMETER_VAL, LOW_VUMETER_VAL);
       // no falloff in widget, we have falloff in GstLevel
       //gtk_vumeter_set_peaks_falloff(vumeter, GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
       gtk_vumeter_set_scale(vumeter, GTK_VUMETER_SCALE_LINEAR);
@@ -1629,7 +1631,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
 }
 
 static void reset_level_meter(gpointer key, gpointer value, gpointer user_data) {
-  gtk_vumeter_set_levels(GTK_VUMETER(value), -200, -200);
+  gtk_vumeter_set_levels(GTK_VUMETER(value), LOW_VUMETER_VAL, LOW_VUMETER_VAL);
 }
 
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {

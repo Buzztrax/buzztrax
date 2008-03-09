@@ -45,6 +45,7 @@ enum {
 //#define MAX_VUMETER 4
 #define MAX_VUMETER 2
 #define DEF_VUMETER 2
+#define LOW_VUMETER_VAL -120.0
 
 struct _BtMainToolbarPrivate {
   /* used to validate if dispose has run */
@@ -55,6 +56,7 @@ struct _BtMainToolbarPrivate {
 
   /* the level meters */
   GtkVUMeter *vumeter[MAX_VUMETER];
+  G_POINTER_ALIAS(GstElement *,level);
 
   /* the volume gain */
   GtkScale *volume;
@@ -132,7 +134,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),TRUE);
     // reset level meters
     for(i=0;i<MAX_VUMETER;i++) {
-      gtk_vumeter_set_levels(self->priv->vumeter[i], -200, -200);
+      gtk_vumeter_set_levels(self->priv->vumeter[i], LOW_VUMETER_VAL, LOW_VUMETER_VAL);
     }
 
     GST_INFO("song stop event handled");
@@ -311,6 +313,10 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
     gdouble cur, peak;
     guint i;
 
+    // check if its our element (we can have multiple level meters)
+    if(GST_MESSAGE_SRC(message)!=GST_OBJECT(self->priv->level))
+      return;
+    
     //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
     l_cur=(GValue *)gst_structure_get_value(structure, "peak");
     //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
@@ -318,8 +324,8 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
     for(i=0;i<gst_value_list_get_size(l_cur);i++) {
       cur=g_value_get_double(gst_value_list_get_value(l_cur,i));
       peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
-      if(isinf(cur) || isnan(cur)) cur=-200.0;
-      if(isinf(peak) || isnan(peak)) peak=-200.0;
+      if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
+      if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
       //GST_INFO("level.%d  %.3f %.3f", i, cur, peak);
       //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)cur, (gint)peak);
       gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)peak, (gint)cur);
@@ -437,7 +443,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSequence *sequence;
   BtSinkMachine *master;
   GstBin *bin;
-  GstElement *level;
   //gboolean loop;
 
   g_assert(user_data);
@@ -459,9 +464,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
     // get the input_level and input_gain properties from audio_sink
     g_object_try_weak_unref(self->priv->gain);
-    g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
+    g_object_try_weak_unref(self->priv->level);
+    g_object_get(G_OBJECT(master),"input-level",&self->priv->level,"input-gain",&self->priv->gain,NULL);
     g_object_try_weak_ref(self->priv->gain);
-    g_assert(GST_IS_ELEMENT(level));
+    g_object_try_weak_ref(self->priv->level);
 
     // connect bus signals
     bus=gst_element_get_bus(GST_ELEMENT(bin));
@@ -472,12 +478,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     gst_object_unref(bus);
 
     // get the pad from the input-level and listen there for channel negotiation
-    if((pad=gst_element_get_static_pad(level,"src"))) {
+    g_assert(GST_IS_ELEMENT(self->priv->level));
+    if((pad=gst_element_get_static_pad(self->priv->level,"src"))) {
       g_signal_connect(pad,"notify::caps",G_CALLBACK(on_channels_negotiated),(gpointer)self);
       gst_object_unref(pad);
     }
-    // release the references
-    gst_object_unref(level);
 
     g_assert(GST_IS_ELEMENT(self->priv->gain));
     // get the current input_gain and adjust volume widget
@@ -488,6 +493,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_signal_connect(G_OBJECT(self->priv->gain) ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
 
     gst_object_unref(self->priv->gain);
+    gst_object_unref(self->priv->level);
     g_object_unref(master);
   }
   else {
@@ -592,8 +598,8 @@ gtk_widget_set_name(GTK_WIDGET(self),_("main tool bar"));
     self->priv->vumeter[i]=GTK_VUMETER(gtk_vumeter_new(FALSE));
     // @idea have distinct tooltips
     gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->vumeter[i]),_("playback volume"));
-    gtk_vumeter_set_min_max(self->priv->vumeter[i], -200, 0);
-    gtk_vumeter_set_levels(self->priv->vumeter[i], -200, -200);
+    gtk_vumeter_set_min_max(self->priv->vumeter[i], LOW_VUMETER_VAL, 0);
+    gtk_vumeter_set_levels(self->priv->vumeter[i], LOW_VUMETER_VAL, LOW_VUMETER_VAL);
     // no falloff in widget, we have falloff in GstLevel
     //gtk_vumeter_set_peaks_falloff(self->priv->vumeter[i], GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
     gtk_vumeter_set_scale(self->priv->vumeter[i], GTK_VUMETER_SCALE_LINEAR);
@@ -734,6 +740,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
   }
 
   g_object_try_weak_unref(self->priv->gain);
+  g_object_try_weak_unref(self->priv->level);
   g_object_try_weak_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);

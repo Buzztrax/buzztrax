@@ -112,7 +112,7 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
  */
 GtkWidget *
 bt_volume_popup_new(GtkAdjustment *adj) {
-  GtkWidget *table, *scale, *frame,*ruler,*rbox,*pad, *label;
+  GtkWidget *table, *scale, *frame,*ruler/*,*rbox,*pad*/, *label;
   BtVolumePopup *self;
 
   self = g_object_new(BT_TYPE_VOLUME_POPUP, "type", GTK_WINDOW_POPUP, NULL);
@@ -128,7 +128,7 @@ bt_volume_popup_new(GtkAdjustment *adj) {
 
   scale=gtk_vscale_new(adj);
   self->scale=GTK_RANGE(scale);
-  gtk_widget_set_size_request(scale, -1,150);
+  gtk_widget_set_size_request(scale, -1, 200);
   gtk_scale_set_draw_value(GTK_SCALE(scale), FALSE);
   gtk_range_set_inverted(self->scale, TRUE);
   g_signal_connect(self->scale, "value-changed", G_CALLBACK(cb_scale_changed), label);
@@ -136,24 +136,17 @@ bt_volume_popup_new(GtkAdjustment *adj) {
   gtk_table_attach_defaults(GTK_TABLE(table), scale, 1,2, 1,2);
 
 
-  // add ruler ?
-  rbox=gtk_vbox_new(FALSE,0);
-  gtk_table_attach_defaults(GTK_TABLE(table), rbox, 0,1, 1,2);
-  //gtk_widget_style_get(scale,"slider-length",slider_length,NULL);
-  pad=gtk_label_new("");
-  gtk_widget_set_size_request(pad,30,15);
-  gtk_box_pack_start(GTK_BOX(rbox),pad,FALSE,FALSE,0);
-
+  // add ruler
   ruler=gtk_vruler_new();
-  // we use -X instead of 0.0 because of:
-  // http://bugzilla.gnome.org/show_bug.cgi?id=465041
-  gtk_ruler_set_range(GTK_RULER(ruler),400.0,-5.0,100.0,500.0);
+  /* we use -X instead of 0.0 because of:
+   * http://bugzilla.gnome.org/show_bug.cgi?id=465041
+   * @todo: take slider knob size into account
+   * gtk_widget_style_get(scale,"slider-length",slider_length,NULL);
+   */
+  gtk_ruler_set_range(GTK_RULER(ruler),435.0,-35.0,100.0,30.0);
+  gtk_widget_set_size_request(ruler,30,-1);
   GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
-  gtk_box_pack_start(GTK_BOX(rbox),ruler,TRUE,TRUE,0);
-
-  pad=gtk_label_new("");
-  gtk_widget_set_size_request(pad,-1,15);
-  gtk_box_pack_start(GTK_BOX(rbox),pad,FALSE,FALSE,0);
+  gtk_table_attach_defaults(GTK_TABLE(table), ruler, 0,1, 1,2);
 
 
   gtk_container_add(GTK_CONTAINER(frame), table);
