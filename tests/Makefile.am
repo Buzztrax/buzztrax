@@ -75,7 +75,8 @@ INCLUDES = \
 endif
 
 EXTRA_DIST = gtkdoccomplete.sh povalid.sh xmlvalid.sh \
-  bt-cfg.sh.in bt-cmd-info.sh bt-cmd-encode.sh
+  bt-cfg.sh.in bt-cmd-info.sh bt-cmd-encode.sh \
+  bt-cmd-cli.sh bt-edit-cli.sh
 
 clean-local:
 	rm -f $(top_builddir)/tests/songs/*.txt $(top_builddir)/tests/songs/*.ogg

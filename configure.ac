@@ -11,13 +11,13 @@ dnl 3: when the interface has changed (removing functions) : MAJOR++, MINOR=0, M
 dnl
 
 dnl Initialise the autoconf/automake tool
-AC_INIT([buzztard], [0.2.0], [buzztard-devel@lists.sourceforge.net])
+AC_INIT([buzztard], [0.3.0], [buzztard-devel@lists.sourceforge.net])
 AC_CONFIG_SRCDIR([ChangeLog])
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR(m4)
 
 BT_MAJOR_VERSION=0
-BT_MINOR_VERSION=2
+BT_MINOR_VERSION=3
 BT_MICRO_VERSION=0
 BT_VERSION=$BT_MAJOR_VERSION.$BT_MINOR_VERSION.$BT_MICRO_VERSION
 BT_VERSION_INFO=`expr $BT_MAJOR_VERSION + $BT_MINOR_VERSION`:$BT_MICRO_VERSION:$BT_MINOR_VERSION
@@ -245,7 +245,7 @@ PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
   ]
 )
 
-PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.2.0, [
+PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.3.0, [
     AC_DEFINE(USE_GSTBT, [1], [Define to 1 if we can use gst-buzztard])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTBT_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTBT_DEPS_LIBS"

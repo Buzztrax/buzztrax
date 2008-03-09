@@ -1,5 +1,20 @@
 2008-03-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* AUTHORS:
+	* Makefile.am:
+	* NEWS:
+	* configure.ac:
+	* docs/help/bt-edit/C/Makefile.am:
+	* docs/help/bt-edit/C/version.entities:
+	* po/de.po:
+	* src/lib/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/about-dialog.c:
+	* tests/Makefile.am:
+	  Preparing the release. Make distcheck fixes.
+
+2008-03-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/main-toolbar.c:
 	  Usinga a define for level meter range. Fixing flickering left-channel

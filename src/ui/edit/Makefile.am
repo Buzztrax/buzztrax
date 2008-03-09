@@ -70,16 +70,17 @@ INCLUDES = \
 
 desktopdir = ${with_desktop_dir}/applications
 desktop_in_files = bt-edit.desktop.in
-desktop_DATA = bt-edit.desktop
+desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
+bt-edit.desktop: bt-edit.desktop.in
 
-CLEANFILES = bt-edit.desktop
-EXTRA_DIST = $(desktop_DATA)
+CLEANFILES = $(desktop_DATA)
+EXTRA_DIST = $(desktop_in_files)
 
 # update desktop database
 install-data-hook:
 	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
-uninstal-local: uninstall-sharedmimepackageDATA
+uninstall-local: uninstall-sharedmimepackageDATA
 	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
 
 

@@ -121,14 +121,16 @@ install-data-local:
 ##	rm -r $(datadir)/$(PACKAGE)
 
 
+## We get warnings for left-over files when doing 'make distuninstallcheck'
 distuninstallcheck_listfiles = find . -type f -print
 
 ## Workaround for scrollkeeper bug
-## otherwise we get warnings for left-over files when doing 'make distuninstallcheck'
-distuninstallcheck_listfiles += | grep -v '/var/scrollkeeper' | grep -v '/share/mime'
-
+distuninstallcheck_listfiles += | grep -v '/var/scrollkeeper'
+## Workaround for installing files in own prefix
+distuninstallcheck_listfiles += | grep -v '/share/mime'
 ## Workaround for installing icon theme in own prefix
 distuninstallcheck_listfiles += | grep -v 'icon-theme.cache'
+
 
 .PHONY: help coverage valgrind dict todo stats splint
 

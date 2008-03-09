@@ -2,7 +2,13 @@ figdir = figures
 docname = bt-edit
 lang = C
 omffile = bt-edit-C.omf
-entities = legal.xml ../../../version.entities
+entities = legal.xml version.entities
+
+all-local:
+	cp ../../../version.entities version.entities
+
+clean-local:
+	rm -f version.entities
 
 include $(top_srcdir)/xmldocs.make
 dist-hook: app-dist-hook

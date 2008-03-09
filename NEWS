@@ -1,10 +1,9 @@
-0.3.0 ??? release (??.???.2008)
+0.3.0 a tale of ice and darkness (09.Mar.2008)
 ================================================================================
 Improvements in all areas. We now have native buzzmachine support and better
 compatibility. The buzztard editor got an own pattern editor widget. The ui got
-lots of keyboard commands. We have settings for default diretories used. The ui
-has dialogs for recording mixdowns and also signle tracks.
-
+lots of keyboard commands. We have settings for default directories used. The ui
+has dialogs for recording mix-downs and also single tracks.
 
 0.2.0 sunrise release (03.May.2007)
 ================================================================================

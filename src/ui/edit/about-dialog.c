@@ -56,6 +56,7 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
   GtkWidget *news,*news_view;
   static const gchar *authors[] = {
     "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
+    "Krzysztof Foltman <wdev@foltman.com>",
     "Thomas 'waffel' Wabner <waffel@users.sf.net>",
     "Patric Schmitz  <berzerka@users.sf.net>",
     NULL
@@ -79,7 +80,7 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
   g_object_set(G_OBJECT(self),
     "authors",authors,
     "comments",_("Music production environment"),
-    "copyright",_("Copyright \xc2\xa9 2003-2007 Buzztard developer team"),
+    "copyright",_("Copyright \xc2\xa9 2003-2008 Buzztard developer team"),
     "documenters", documenters,
     /* http://www.gnu.org/licenses/lgpl.html, http://www.gnu.de/lgpl-ger.html */
     "license", _(
@@ -114,9 +115,12 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
   gtk_text_view_set_editable(GTK_TEXT_VIEW(news), FALSE);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(news)),
-    _("This version has lots of UI usability improvements, bug fixes, "
-      "more instant apply settings and introduces some interactivity features "
-      "(interaction controller and upnp playback controller)."
+    _("Improvements in all areas. "
+      " We now have native buzzmachine support and better compatibility. "
+      "The buzztard editor got an own pattern editor widget. "
+      "The ui got lots of keyboard commands. "
+      "We have settings for default directories used. "
+      "The ui has dialogs for recording mix-downs and also single tracks."
     ),-1);
 
   news_view = gtk_scrolled_window_new(NULL, NULL);
