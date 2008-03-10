@@ -63,6 +63,7 @@ typedef enum {
 //#define SPECT_HEIGHT 64
 //#define LEVEL_WIDTH (SPECT_BANDS)
 #define LEVEL_HEIGHT 16
+#define LOW_VUMETER_VAL -90.0
 
 static const GtkRulerMetric ruler_metrics[] =
 {
@@ -147,8 +148,8 @@ static gboolean on_wire_analyzer_redraw(gpointer user_data) {
       }
     // DEBUG */
     // use RMS or peak or both?
-    gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, middle-self->priv->rms[0], 0, self->priv->rms[0]+self->priv->rms[1], LEVEL_HEIGHT);
-    gdk_draw_rectangle (da->window, self->priv->peak_gc, TRUE, middle-self->priv->peak[0], 0, 2, LEVEL_HEIGHT);
+    gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, middle    -self->priv->rms[0], 0, self->priv->rms[0]+self->priv->rms[1], LEVEL_HEIGHT);
+    gdk_draw_rectangle (da->window, self->priv->peak_gc, TRUE, middle    -self->priv->peak[0], 0, 2, LEVEL_HEIGHT);
     gdk_draw_rectangle (da->window, self->priv->peak_gc, TRUE, (middle-1)+self->priv->peak[1], 0, 2, LEVEL_HEIGHT);
     gdk_window_end_paint (da->window);
     /* @todo: if stereo draw pan-meter (L-R, R-L) */
@@ -196,7 +197,7 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
   g_assert(user_data);
 
   if(!strcmp(name,"level")) {
-    const GValue *l_rms,*l_peak;
+    const GValue *l_cur,*l_peak;
     guint i;
     gdouble val;
 
@@ -205,26 +206,30 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
       return;
 
     //GST_INFO("get level data");
-    l_rms=(GValue *)gst_structure_get_value(structure, "rms");
-    l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-    //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
+    //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
+    l_cur=(GValue *)gst_structure_get_value(structure, "peak");
+    //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+    l_peak=(GValue *)gst_structure_get_value(structure, "decay");
     // size of list is number of channels
-    // we use -120db as the minimum db value
-    switch(gst_value_list_get_size(l_rms)) {
-      case 1:
-          val=g_value_get_double(gst_value_list_get_value(l_rms,0));
-          self->priv->rms[0]=isinf(val)?0.0:120.0+val;
+    switch(gst_value_list_get_size(l_cur)) {
+      case 1: // mono
+          val=g_value_get_double(gst_value_list_get_value(l_cur,0));
+          if(isinf(val) || isnan(val)) val=LOW_VUMETER_VAL;
+          self->priv->rms[0]=-(LOW_VUMETER_VAL-val);
           self->priv->rms[1]=self->priv->rms[0];
           val=g_value_get_double(gst_value_list_get_value(l_peak,0));
-          self->priv->peak[0]=isinf(val)?0.0:120.0+val;
+          if(isinf(val) || isnan(val)) val=LOW_VUMETER_VAL;
+          self->priv->peak[0]=-(LOW_VUMETER_VAL-val);
           self->priv->peak[1]=self->priv->peak[0];
         break;
-      case 2:
+      case 2: // stereo
         for(i=0;i<2;i++) {
-          val=g_value_get_double(gst_value_list_get_value(l_rms,i));
-          self->priv->rms[i]=isinf(val)?0.0:120.0+val;
+          val=g_value_get_double(gst_value_list_get_value(l_cur,i));
+          if(isinf(val) || isnan(val)) val=LOW_VUMETER_VAL;
+          self->priv->rms[i]=-(LOW_VUMETER_VAL-val);
           val=g_value_get_double(gst_value_list_get_value(l_peak,i));
-          self->priv->peak[i]=isinf(val)?0.0:120.0+val;
+          if(isinf(val) || isnan(val)) val=LOW_VUMETER_VAL;
+          self->priv->peak[i]=-(LOW_VUMETER_VAL-val);
         }
         break;
     }

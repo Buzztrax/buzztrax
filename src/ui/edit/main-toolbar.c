@@ -45,7 +45,7 @@ enum {
 //#define MAX_VUMETER 4
 #define MAX_VUMETER 2
 #define DEF_VUMETER 2
-#define LOW_VUMETER_VAL -120.0
+#define LOW_VUMETER_VAL -90.0
 
 struct _BtMainToolbarPrivate {
   /* used to validate if dispose has run */

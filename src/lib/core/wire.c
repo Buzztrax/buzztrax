@@ -1138,7 +1138,7 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
     xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double(gain)));
     if(self->priv->machines[PART_PAN]) {
        g_object_get(G_OBJECT(self->priv->machines[PART_PAN]),"panorama",&pan,NULL);
-       xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double((gdouble)pan)));
+       xmlNewProp(node,XML_CHAR_PTR("panorama"),XML_CHAR_PTR(bt_persistence_strfmt_double((gdouble)pan)));
     }
     
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {

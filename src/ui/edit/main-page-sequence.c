@@ -169,7 +169,7 @@ enum {
 #define POSITION_CELL_WIDTH 65
 #define HEADER_SPACING 2
 
-#define LOW_VUMETER_VAL -100.0
+#define LOW_VUMETER_VAL -60.0
 
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
