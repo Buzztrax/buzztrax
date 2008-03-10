@@ -1,5 +1,4 @@
 [encoding: UTF-8]
-src/lib/buzztard.keys.in
 src/lib/buzztard.xml.in
 src/lib/core/application.c
 src/lib/core/core.c
