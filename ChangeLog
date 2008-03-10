@@ -1,3 +1,21 @@
+2008-03-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/Makefile.am:
+	* docs/help/bt-edit/C/Makefile.am:
+	* po/POTFILES.in:
+	* po/de.po:
+	  Make distcheck fixing.
+
+	* src/lib/Makefile.am:
+	* src/lib/buzztard.applications.in:
+	* src/lib/buzztard.keys.in:
+	* src/lib/buzztard.mime:
+	  Remove old mime stuff.
+
+	* src/lib/buzztard.xml.in:
+	  Recognise our xml files as buzztard songs.
+
 2008-03-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c:

@@ -1,12 +1,5 @@
 SUBDIRS = ic core
 
-.PHONY: splint
-
-# install .applications files
-dotapplicationsdir = $(datadir)/application-registry
-dotapplications_DATA = buzztard.applications
-EXTRA_DIST = $(dotapplications_DATA)
-
 # generate and install .xml mime info file
 sharedmimedir = $(datadir)/mime
 sharedmimepackagedir = $(sharedmimedir)/packages
@@ -14,17 +7,10 @@ sharedmimepackage_in_files = buzztard.xml.in
 sharedmimepackage_DATA = $(sharedmimepackage_in_files:.xml.in=.xml)
 @INTLTOOL_XML_RULE@
 buzztard.xml: buzztard.xml.in
-CLEANFILES = $(sharedmimepackage_DATA)
-EXTRA_DIST += $(sharedmimepackage_in_files)
 
-# generate and install .mime and .keys files
-mimedir = $(datadir)/mime-info
-mime_in_file = buzztard.mime buzztard.keys.in
-mime_DATA = $(mime_in_file:.keys.in=.keys)
-@INTLTOOL_KEYS_RULE@
-buzztard.keys: buzztard.keys.in
-CLEANFILES +=$(mime_DATA)
-EXTRA_DIST += $(mime_in_file)
+CLEANFILES = $(sharedmimepackage_DATA)
+EXTRA_DIST = $(sharedmimepackage_in_files)
+
 
 # update mime database
 install-data-hook:

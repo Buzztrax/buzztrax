@@ -455,9 +455,7 @@ AC_CONFIG_FILES(Makefile \
   po/Makefile.in \
   src/Makefile \
     src/lib/Makefile \
-    src/lib/buzztard.applications \
     src/lib/buzztard.xml \
-    src/lib/buzztard.keys \
       src/lib/core/Makefile \
       src/lib/core/libbtcore.pc \
         src/lib/core/libbtcore/Makefile \

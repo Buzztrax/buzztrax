@@ -5,7 +5,8 @@ omffile = bt-edit-C.omf
 entities = legal.xml version.entities
 
 all-local:
-	cp ../../../version.entities version.entities
+	@-chmod -R u+w $(srcdir)
+	cp $(top_builddir)/docs/version.entities $(srcdir)/version.entities
 
 clean-local:
 	rm -f version.entities
