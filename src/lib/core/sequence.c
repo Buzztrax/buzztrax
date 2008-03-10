@@ -936,8 +936,11 @@ static void bt_sequence_on_pattern_removed(const BtMachine * const machine, cons
     }
     g_object_try_unref(that_machine);
   }
+  /* @todo: make a quick version of bt_sequence_set_pattern()
+   * that does not repair damage and call this from here and the real one
   // repair damage
   bt_sequence_repair_damage(self);
+  */
   GST_DEBUG("Done");
 }
 
@@ -1284,6 +1287,7 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
   BtWire *wire;
   BtWirePattern *wire_pattern;
   GList *wires,*node;
+  gboolean changed=FALSE;
 
   g_return_if_fail(BT_IS_SEQUENCE(self));
   g_return_if_fail(time<self->priv->length);
@@ -1335,6 +1339,7 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
     }
     // mark region covered by old pattern as damaged
     bt_sequence_invalidate_pattern_region(self,time,track,self->priv->patterns[index]);
+    changed=TRUE;
     g_object_unref(self->priv->patterns[index]);
     self->priv->patterns[index]=NULL;
   }
@@ -1372,6 +1377,9 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
     }
     // mark region covered by new pattern as damaged
     bt_sequence_invalidate_pattern_region(self,time,track,pattern);
+    changed=TRUE;
+  }
+  if(changed) {
     // repair damage
     bt_sequence_repair_damage(self);
   }

@@ -1,5 +1,10 @@
 2008-03-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Fix reparing controller queues when removing patterns.
+
+2008-03-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wire.c:
 	  Fix song saving (gain attribute twice).
 
