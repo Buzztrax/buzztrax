@@ -1,6 +1,19 @@
 2008-03-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/Makefile.am:
+	* docs/help/bt-edit/Makefile.am:
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* po/de.po:
+	* src/ui/edit/Makefile.am:
+	* tests/Makefile.am:
+	  \o/ make distcheck works.
+
+2008-03-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/Makefile.am:
 	* po/POTFILES.in:
 	  More make distcheck fixes.
 

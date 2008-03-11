@@ -80,7 +80,7 @@ EXTRA_DIST = $(desktop_in_files)
 # update desktop database
 install-data-hook:
 	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
-uninstall-local: uninstall-sharedmimepackageDATA
+uninstall-local:
 	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
 
 

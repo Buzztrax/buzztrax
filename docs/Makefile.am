@@ -7,8 +7,8 @@ EXTRA_DIST = version.entities.in \
 
 # this is a hack to make sure gtkdoc find the file during "out of source build"
 all-local:
-	if [ "$(srcdir)" -ne "$(builddir)" ]; then \
-	  @-chmod -R u+w $(srcdir); \
-	  cp $(builddir)/version.entities $(srcdir)/version.entities; \
+	if [ "$(top_srcdir)" != "$(top_builddir)" ]; then \
+	  chmod u+w $(srcdir); \
+	  cp version.entities $(srcdir)/; \
 	fi;
 
