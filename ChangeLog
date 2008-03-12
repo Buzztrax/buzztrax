@@ -1,3 +1,8 @@
+2008-03-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-menu.c:
+	  Also apply machine menu naming fix to effects.
+
 2008-03-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/Makefile.am:
