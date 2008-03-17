@@ -380,7 +380,7 @@ echo timestamp > stamp-h.in 2> /dev/null
 
 tool_run "$autoconf"
 debug "automake: $automake"
-tool_run "$automake" "--add-missing --copy --gnu"
+tool_run "$automake" "--add-missing --copy --gnu -Wno-portability"
 
 test -n "$NOCONFIGURE" && {
   echo "skipping configure stage for package $package, as requested."

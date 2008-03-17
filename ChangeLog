@@ -1,3 +1,17 @@
+2008-03-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* autogen.sh:
+	  Supress automake portability warnings.
+
+	* src/ui/edit/bt-edit.desktop.in.in:
+	  Associate with all file types we handle.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Add idea.
+
+	* tests/Makefile.am:
+	  Readd tests.
+
 2008-03-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-menu.c:

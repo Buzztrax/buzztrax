@@ -37,7 +37,9 @@
  *     clicking on track headers
  *   - allow to switch meters (off, level, scope, spectrum)
  * - when we move between tracks, switch the current-machine in pattern-view
- * - go to next occurence when double clicking a pattern in the pattern list
+ * - pattern list
+ *   - go to next occurence when double clicking a pattern
+ *   - show tick-length in pattern list
  *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
