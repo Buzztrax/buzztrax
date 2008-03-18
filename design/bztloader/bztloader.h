@@ -1,10 +1,10 @@
 #ifndef BZTLOADER_H
 #define BZTLOADER_H
 
-#include <libgnomevfs/gnome-vfs.h>
-#include <gnome.h>
-
-#define BYTES_TO_PROCESS 256
+#include <gsf/gsf-input-stdio.h>
+#include <gsf/gsf-utils.h>
+#include <gsf/gsf-infile.h>
+#include <gsf/gsf-infile-zip.h>
 
 
 #endif //BZTLOADER_H
