@@ -16,4 +16,4 @@ clean:
 # generic rules
 
 %: %.c
-	gcc -Wall -g `pkg-config gnome-vfs-2.0 --cflags --libs` `pkg-config gnome-vfs-module-2.0 --cflags --libs` `pkg-config libgnomeui-2.0 --cflags --libs` $< -o $@
+	gcc -Wall -g `pkg-config libgsf-1 --cflags --libs` $< -o $@
