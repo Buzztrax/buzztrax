@@ -117,6 +117,18 @@ static gint bt_machine_menu_compare(const gchar *str1, const gchar *str2) {
   return(res);
 }
 
+static gboolean bt_machine_menu_check_pads(const GList *pads) {
+  const GList *node;
+  gint pad_dir_ct[4]={0,};
+  
+  for(node=pads;node;node=g_list_next(node)) {
+    pad_dir_ct[((GstStaticPadTemplate *)(node->data))->direction]++;
+  }
+  // skip everything with more that one src or sink pad
+  if((pad_dir_ct[GST_PAD_SRC]>1) || (pad_dir_ct[GST_PAD_SINK]>1)) return FALSE;
+  return TRUE;
+}
+
 static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *submenu, const gchar *root, GCallback handler) {
   GtkWidget *menu_item,*parentmenu;
   GList *node,*element_names;
@@ -130,8 +142,14 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
   // sort list by name
   element_names=g_list_sort(element_names,(GCompareFunc)bt_machine_menu_compare);
   for(node=element_names;node;node=g_list_next(node)) {
-    GST_LOG("found source element : '%s'",node->data);
+    GST_LOG("found element : '%s'",node->data);
     factory=gst_element_factory_find(node->data);
+    
+    // skip elements with too many pads
+    if(!(bt_machine_menu_check_pads(gst_element_factory_get_static_pad_templates(factory)))) {
+      GST_LOG("skipping element : '%s'",node->data);
+      continue;
+    }
 
     // add sub-menus for BML, LADSPA & Co.
     klass_name=gst_element_factory_get_klass(GST_ELEMENT_FACTORY(factory));
