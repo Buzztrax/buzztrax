@@ -56,7 +56,7 @@ BT_START_TEST(test_create_dialog) {
   fail_unless(song != NULL, NULL);
 
   // create a source machine
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0));
+  machine=BT_MACHINE(bt_source_machine_new(song,"synth","buzztard-test-mono-source",0));
   fail_unless(machine!=NULL, NULL);
 
   // create, show and destroy dialog

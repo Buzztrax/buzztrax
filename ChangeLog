@@ -1,5 +1,14 @@
 2008-03-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/Makefile.am:
+	* tests/bt-check.c:
+	  Experiment with the ui tests.
+
+	* tests/ui/edit/e-bt-machine-rename-dialog.c:
+	  Change name for nice screenshot.
+
+2008-03-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-menu.c:
 	  Filter out all elements with unsuitable pad counts.
 

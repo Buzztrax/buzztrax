@@ -655,6 +655,15 @@ gboolean check_gobject_properties(GObject *toCheck) {
 
 // gtk+ gui tests
 
+/* it could also be done in a makefile
+ * http://git.imendio.com/?p=timj/gtk%2B-testing.git;a=blob;f=gtk/tests/Makefile.am;hb=72227f8f808a0343cb420f09ca480fc1847b6601
+ *
+ * for testing:
+ * Xnest :2 -ac &
+ * metacity --display=:2 --sm-disable &
+ * ./bt-edit --display=:2 &
+ */
+
 #ifdef XVFB_PATH
 static GPid server_pid;
 static GdkDisplayManager *display_manager=NULL;
@@ -683,7 +692,7 @@ void check_setup_test_server(void) {
   GError *error=NULL;
   gchar display_file[18];
   gchar lock_file[14];
-  gchar *argv[]={
+  gchar *server_argv[]={
     "Xvfb",
     ":9",
     "-ac",
@@ -740,8 +749,8 @@ void check_setup_test_server(void) {
     // this display is not yet in use
     if(!g_file_test(display_file, G_FILE_TEST_EXISTS)) {
       // create the testing server
-      argv[1]=display_name;
-      if(!(g_spawn_async(NULL,argv,NULL,flags,NULL,NULL,&server_pid,&error))) {
+      server_argv[1]=display_name;
+      if(!(g_spawn_async(NULL,server_argv,NULL,flags,NULL,NULL,&server_pid,&error))) {
         GST_ERROR("error creating virtual x-server : \"%s\"", error->message);
         g_error_free(error);
       }
@@ -775,9 +784,19 @@ void check_setup_test_server(void) {
     //printf("####### Server started  \"%s\" is up (pid=%d)\n",display_name,server_pid);
     g_setenv("DISPLAY",display_name,TRUE);
     GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
-    /* also launch:
-    $ metacity --display=XXX
-    $ gnome-settings-daemon --display=XXX
+    /* a window manager is not that useful
+    gchar *wm_argv[]={"metacity", "--sm-disable", NULL };
+    if(!(g_spawn_async(NULL,wm_argv,NULL,flags,NULL,NULL,NULL,&error))) {
+      GST_WARNING("error running window manager : \"%s\"", error->message);
+      g_error_free(error);
+    }
+    */
+    /* this is not the right name
+    gchar *gsd_argv[]={"gnome-settings-daemon", "--sm-disable", NULL };
+    if(!(g_spawn_async(NULL,gsd_argv,NULL,flags,NULL,NULL,NULL,&error))) {
+      GST_WARNING("error gnome-settings daemon : \"%s\"", error->message);
+      g_error_free(error);
+    }
     */
   }
 #endif
