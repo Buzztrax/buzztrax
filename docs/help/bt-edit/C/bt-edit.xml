@@ -279,6 +279,12 @@
         Machines and wires have context menus. The menu for the wire can be
         accessed by right clicking over the pointer shape in the middle.
       </para>
+      <note><title>Limitations</title>
+        <para>
+          Adding/removing machines and adding new wires while a song is playing,
+          will most likely break playback.
+        </para>
+      </note>
     </sect3>
 
     <sect3 id="bt-edit-main-view-patterns">
@@ -312,11 +318,6 @@
       <para>
         To switch to the sequence editor press <keycap>Enter</keycap> while the pattern editor has focus.
       </para>
-      <note><title>Limitations</title>
-        <para>
-          Editing floating point values is not yet done.
-        </para>
-      </note>
     </sect3>
 
     <sect3 id="bt-edit-main-view-sequence">
@@ -376,13 +377,6 @@
         remove a full row. To only insert or remove inside the current track
         hold the <keycap>Shift</keycap> key in addition.
       </para>
-      <note><title>Limitations</title>
-        <para>
-          The unit-selector in the first column of the sequence header is not
-          yet functional. The label-navigator in the second column is not yet
-          dynamically updated.
-        </para>
-      </note>
       <para>
         (FIXME: special-patterns = {mute, break, solo, bypass})
       </para>
@@ -412,7 +406,7 @@
       </para>
       <note><title>Limitations</title>
         <para>
-          No waveform, no details and no use of loaded waves yet.
+          No waveform display, no details shown and no use of loaded waves yet.
         </para>
       </note>
     </sect3>
@@ -467,11 +461,8 @@
     <screenshot>
       <mediaobject>
         <imageobject>
-          <imagedata fileref="figures/settings.png" format="PNG"/>
+          <imagedata fileref="figures/settings-audio.png" format="PNG"/>
         </imageobject>
-        <textobject>
-          <phrase>Shows settings dialog.</phrase>
-        </textobject>
       </mediaobject>
     </screenshot>
   </figure>
@@ -484,6 +475,16 @@
       song is playing (will be switched after stopping).
       (FIXME: write more)
     </para>
+    <figure id="bt-edit-settings-audio-fig">
+      <title>Audio device settings</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/settings-audio.png" format="PNG"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
 
   <sect2 id="bt-edit-prefs-playback-controller">
@@ -493,6 +494,16 @@
       UPnP A/V remote control via Coherence.
       (FIXME:)
     </para>
+    <figure id="bt-edit-settings-pc-fig">
+      <title>Playback controller settings</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/settings-pc.png" format="PNG"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
 
   <sect2 id="bt-edit-prefs-interaction-controller">
@@ -502,7 +513,73 @@
       Interactive controller for machine parameters.
       (FIXME:)
     </para>
+    <figure id="bt-edit-settings-ic-fig">
+      <title>Interaction controller settings</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/settings-ic.png" format="PNG"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
+
+  <sect2 id="bt-edit-prefs-colors">
+    <title id='bt-edit-prefs-colors.title'>Color settings</title>
+
+    <para>
+      (FIXME:)
+    </para>
+    <figure id="bt-edit-settings-colors-fig">
+      <title>Colors settings</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/settings-colors.png" format="PNG"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+
+  <sect2 id="bt-edit-prefs-shortcuts">
+    <title id='bt-edit-prefs-shortcuts.title'>Shortcut settings</title>
+
+    <para>
+      (FIXME:)
+    </para>
+    <figure id="bt-edit-settings-shortcuts-fig">
+      <title>Shortcut settings</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/settings-shortcuts.png" format="PNG"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+
+  <sect2 id="bt-edit-prefs-directories">
+    <title id='bt-edit-prefs-directories.title'>Directory settings</title>
+
+    <para>
+      Configure default directories used for various filetypes.
+      (FIXME:)
+    </para>
+    <figure id="bt-edit-settings-directories-fig">
+      <title>Directory settings</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/settings-directories.png" format="PNG"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+
 </sect1>
 
 <sect1 id="bt-edit-reference">
@@ -515,6 +592,8 @@
     <title id='bt-edit-reference-shortcuts.title'>Keyboard shortcuts</title>
 
     <para>
+      Currently keyboard shortcuts are listed on
+      <ulink url="http://www.buzztard.org/index.php/Keyboard_shortcuts">the buzztard wiki</ulink>.
       (FIXME:)
     </para>
   </sect2>

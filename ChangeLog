@@ -1,5 +1,16 @@
 2008-03-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* TODO:
+	* docs/help/bt-edit/C/Makefile.am:
+	* docs/help/bt-edit/C/bt-edit.xml:
+	* docs/help/bt-edit/C/figures/page-wavetable-view.png:
+	  Update docs.
+
+	* tests/bt-check.c:
+	  More comments. Disable theme tweaking and use default.	  
+
+2008-03-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/cpu/cpuload.c:
 	  This does not use gstreamer.
 

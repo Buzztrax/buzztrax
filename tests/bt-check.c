@@ -692,8 +692,10 @@ void check_setup_test_server(void) {
   GError *error=NULL;
   gchar display_file[18];
   gchar lock_file[14];
+  // we can also use Xnest, but the without "-screen"
   gchar *server_argv[]={
     "Xvfb",
+    //"Xnest",
     ":9",
     "-ac",
     "-nolisten","tcp",
@@ -833,11 +835,12 @@ void check_setup_test_display(void) {
           GtkSettings *test_settings;
           //gdk_threads_enter();
           if((test_settings = gtk_settings_get_for_screen(test_screen))) {
+            // this just switches to the default theme
+            //g_object_set(test_settings,"gtk-theme-name",NULL,NULL);
             /* Is there a bug in gtk+? None of this reliable creates a working
              * theme setup
               */
             //g_object_set(test_settings,"gtk-theme-name",theme_name,NULL);
-            g_object_set(test_settings,"gtk-theme-name",NULL,NULL);
             //gtk_rc_reparse_all_for_settings(test_settings,TRUE);
             //gtk_rc_reset_styles(test_settings);
             GST_INFO("theme switched ");

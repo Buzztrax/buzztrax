@@ -28,3 +28,7 @@ when releasing do:
 * quality checks
   for file in src/lib/core/*.c; do gtkdoc-depscan -v --book gstreamer-0.10:0.10.8 $file; done
 
+* user docs
+ * try getting e.g. the shortcuts table from our wiki
+   http://freshmeat.net/projects/wt2db/
+   http://wiki.blender.org/index.php/Meta/DocBook_to_Wiki
