@@ -1,5 +1,5 @@
 /* determine cpuload
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` cpuload.c -o cpuload
+ * gcc -Wall -g cpuload.c -o cpuload
  */
 
 #include <stdio.h>
@@ -7,8 +7,6 @@
 #include <sys/time.h>
 #include <sys/times.h>
 #include <sys/resource.h>
-
-#include <gst/gst.h>
 
 int main (int argc, char **argv)
 {

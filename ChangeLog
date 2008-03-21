@@ -1,3 +1,11 @@
+2008-03-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/cpu/cpuload.c:
+	  This does not use gstreamer.
+
+	* design/cpu/fpu.c:
+	  Add fpu test.
+
 2008-03-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/Makefile.am:
