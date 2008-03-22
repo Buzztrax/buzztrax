@@ -22,10 +22,40 @@
 #ifndef BT_EDIT_H
 #define BT_EDIT_H
 
+//-- ansi c
 //#define __USE_ISOC99 /* for round() and co. */
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+//-- i18n
+#ifndef _
+#ifdef ENABLE_NLS
+  #include <langinfo.h>
+  #include <libintl.h>
 
+  #define _(String) gettext(String)
+  #ifdef gettext_noop
+    #define N_(String) gettext_noop(String)
+  #else
+    #define N_(String) (String)
+  #endif
+#else /* NLS is disabled */
+  #define _(String) (String)
+  #define __(String) (String)
+  #define N_(String) (String)
+  #ifdef gettext
+    #undef gettext
+  #endif
+  #define gettext(String) (String)
+  #ifdef dgettext
+    #undef dgettext
+  #endif
+  #define dgettext(Domain,String) (String)
+  #define textdomain(Domain)
+  #define bindtextdomain(Package, Directory)
+#endif
+#endif
 //-- libbtcore & libbtic
 #include <libbtcore/core.h>
 #include <libbtic/ic.h>
@@ -46,6 +76,8 @@
 #include <libgnome/gnome-help.h>
 #include <libgnome/gnome-url.h>
 #endif
+//-- gnome-vfs
+#include <libgnomevfs/gnome-vfs.h>
 //-- hildon
 #ifdef USE_HILDON
 #include <hildon-widgets/hildon-program.h>

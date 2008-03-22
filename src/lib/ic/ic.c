@@ -29,7 +29,8 @@
 
 #define BTIC_CORE
 #define BTIC_CORE_C
-#include <libbtic/ic.h>
+
+#include "ic_private.h"
 
 /**
  * btic_major_version:

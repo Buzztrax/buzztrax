@@ -26,7 +26,6 @@
  *       o paste
  *       o cut
  *       o clear
- *       o interpolate
  *       o expand
  *       o shrink 
  * - mouse handling
@@ -34,12 +33,11 @@
  *   - see gtk/gtkviewport.{c,h}
  *     o left: ticks
  *     o top: groups (input, global, voice 1, voice 2)
- *   - we need that to be able to control scrolling too (scroll-to-cursor)
- * - use raw-key codes for note-input (see FIXME below and
- *   main-page-pattern.c:on_pattern_table_key_release_event()
  */
 
 #include <ctype.h>
+#include <math.h>
+#include <stdlib.h>
 #include <string.h>
 #include <gdk/gdkkeysyms.h>
 

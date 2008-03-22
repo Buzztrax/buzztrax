@@ -31,7 +31,7 @@
 #define BT_CORE
 #define BT_WAVE_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 //-- signal ids
 

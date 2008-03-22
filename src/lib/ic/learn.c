@@ -28,8 +28,7 @@
 #define BTIC_CORE
 #define BTIC_LEARN_C
 
-#include <libbtic/ic.h>
-
+#include "ic_private.h"
 
 //-- helper
 

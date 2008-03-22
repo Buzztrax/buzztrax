@@ -99,7 +99,7 @@
 #define BT_CORE
 #define BT_MACHINE_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 #include <libbtic/ic.h>
 
 //-- signal ids

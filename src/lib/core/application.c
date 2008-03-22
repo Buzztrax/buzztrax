@@ -40,7 +40,7 @@
 #define BT_CORE
 #define BT_APPLICATION_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 enum {
   APPLICATION_BIN=1,

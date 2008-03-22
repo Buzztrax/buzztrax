@@ -43,7 +43,7 @@
 #define BT_CORE
 #define BT_WIRE_PATTERN_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 //-- signal ids
 

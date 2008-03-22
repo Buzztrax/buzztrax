@@ -1,7 +1,7 @@
-/* $Id: bt-cmd.h,v 1.8 2006-08-26 11:42:32 ensonic Exp $
+/* $Id$
  *
  * Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2008 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,15 +19,38 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BT_CMD_H
-#define BT_CMD_H
+#ifndef BT_IC_PRIVATE_H
+#define BT_IC_PRIVATE_H
+
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
 
 //-- ansi c
-//#define __USE_ISOC99 /* for round() and co. */
+#define __USE_ISOC99 /* for isinf() and co. */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+//#define _XOPEN_SOURCE /* glibc2 needs this */
+#define __USE_XOPEN
+#include <time.h>
+#include <unistd.h>
+//-- locale
+#ifdef HAVE_X11_XLOCALE_H
+  /* defines a more portable setlocale for X11 (_Xsetlocale) */
+  #include <X11/Xlocale.h>
+#else
+  #include <locale.h>
+#endif
+//-- hal/dbus
+#ifdef USE_HAL
+#include <glib.h>
+#include <hal/libhal.h>
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
+#endif
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS
@@ -57,16 +80,13 @@
 #endif
 #endif
 //-- libbtcore
-#include <libbtcore/core.h>
+#include "libbtcore/tools.h"
 
-#include "cmd-application-methods.h"
+#include <libbtic/ic.h>
 
-//-- misc
-#ifndef GST_CAT_DEFAULT
-  #define GST_CAT_DEFAULT bt_cmd_debug
-#endif
-#if defined(BT_CMD) && !defined(BT_CMD_APPLICATION_C)
+#define GST_CAT_DEFAULT bt_ic_debug
+#ifndef BTIC_CORE_C
   GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
 
-#endif // BT_CMD_H
+#endif // BT_IC_PRIVATE_H

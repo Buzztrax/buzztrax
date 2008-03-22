@@ -1,3 +1,64 @@
+2008-03-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/figures/settings-shortcuts.png:
+	  New screenshot.
+
+	* docs/reference/README:
+	* docs/reference/bt-cmd/bt-cmd-sections.txt:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	  Remove obsolete entries.
+
+	* src/lib/core/Makefile.am:
+	* src/lib/core/application.c:
+	* src/lib/core/core.c:
+	* src/lib/core/core_private.h:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbtcore/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence-location.c:
+	* src/lib/core/persistence-selection.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/plainfile-settings.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/settings.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/tools.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/abs-range-control.c:
+	* src/lib/ic/control.c:
+	* src/lib/ic/device.c:
+	* src/lib/ic/ic.c:
+	* src/lib/ic/ic_private.h:
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/learn.c:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/midi-device.c:
+	* src/lib/ic/registry.c:
+	* src/lib/ic/trigger-control.c:
+	* src/ui/cmd/bt-cmd.h:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/pattern-editor.c:
+	  Restructure headers, so that we have no include config.h in a public
+	  installed header.
+
 2008-03-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* TODO:

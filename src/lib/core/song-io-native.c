@@ -31,7 +31,7 @@
 #define BT_CORE
 #define BT_SONG_IO_NATIVE_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 struct _BtSongIONativePrivate {
   /* used to validate if dispose has run */

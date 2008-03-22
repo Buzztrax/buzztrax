@@ -19,74 +19,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BTIC_CORE_H
-#define BTIC_CORE_H
+#ifndef BT_IC_H
+#define BT_IC_H
 
 #include "config.h"
 
-//-- ansi c
-#define __USE_ISOC99 /* for isinf() and co. */
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-//#define _XOPEN_SOURCE /* glibc2 needs this */
-#define __USE_XOPEN
-#include <time.h>
-#include <unistd.h>
-//-- locale
-#ifdef HAVE_X11_XLOCALE_H
-/* defines a more portable setlocale for X11 (_Xsetlocale) */
-#include <X11/Xlocale.h>
-#else
-#include <locale.h>
-#endif
 //-- glib/gobject
 #include <glib.h>
 #include <glib-object.h>
 #include <glib/gprintf.h>
 //-- gstreamer
 #include <gst/gst.h>
-//-- i18n
-#ifndef _
-#ifdef ENABLE_NLS
-  #include <langinfo.h>
-  #include <libintl.h>
-
-  #define _(String) gettext(String)
-  #ifdef gettext_noop
-    #define N_(String) gettext_noop(String)
-  #else
-    #define N_(String) (String)
-  #endif
-#else /* NLS is disabled */
-  #define _(String) (String)
-  #define __(String) (String)
-  #define N_(String) (String)
-  #ifdef gettext
-    #undef gettext
-  #endif
-  #define gettext(String) (String)
-  #ifdef dgettext
-    #undef dgettext
-  #endif
-  #define dgettext(Domain,String) (String)
-  #define textdomain(Domain)
-  #define bindtextdomain(Package, Directory)
-#endif
-#endif
-
-//-- hal/dbus
-#ifdef USE_HAL
-#include <glib.h>
-#include <hal/libhal.h>
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
-#endif
-
-//-- libbtcore
-#include "libbtcore/tools.h"
 
 //-- libbtic
 // method prototype includes do include the data defs themself
@@ -102,22 +45,7 @@
 
 #include "version.h"
 
-//-- global defines ------------------------------------------------------------
-
-//-- misc
-#ifdef BTIC_CORE
-  /**
-   * GST_CAT_DEFAULT:
-   *
-   * default loging category. We use gstreamers logging facillities as we use
-   * gstreamer anyway. All buzztard logging categories are prefixed with "bt-".
-   */
-  #define GST_CAT_DEFAULT bt_ic_debug
-  #ifndef BTIC_CORE_C
-    GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
-  #endif
-#endif
-
+//-- prototypes ----------------------------------------------------------------
 
 #ifndef BTIC_CORE_C
   extern GOptionGroup *btic_init_get_option_group(void);
@@ -125,4 +53,4 @@
   extern void btic_init(int *argc, char **argv[]);
 #endif
 
-#endif // BTIC_CORE_H
+#endif // BT_IC_H

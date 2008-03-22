@@ -37,7 +37,7 @@
 #define BTIC_CORE
 #define BTIC_INPUT_DEVICE_C
 
-#include <libbtic/ic.h>
+#include "ic_private.h"
 
 #include <fcntl.h>
 

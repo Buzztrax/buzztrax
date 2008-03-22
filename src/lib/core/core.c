@@ -29,7 +29,7 @@
 
 #define BT_CORE
 #define BT_CORE_C
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 #ifdef HAVE_SCHED_SETSCHEDULER
 #include <sched.h>

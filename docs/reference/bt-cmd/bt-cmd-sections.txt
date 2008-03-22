@@ -6,7 +6,6 @@
 # <FILE>btxxx</FILE>
 # <TITLE>BtXxx</TITLE>
 # <SUBSECTION Standard>
-# <SUBSECTION Private>
 # </SECTION>
 
 <INCLUDE>"bt-cmd.h"</INCLUDE>
@@ -28,7 +27,6 @@ BT_CMD_APPLICATION_CLASS
 BT_IS_CMD_APPLICATION_CLASS
 BT_CMD_APPLICATION_GET_CLASS
 BT_TYPE_CMD_APPLICATION
-<SUBSECTION Private>
 bt_cmd_application_get_type
 BtCmdApplicationPrivate
 </SECTION>
@@ -36,6 +34,7 @@ BtCmdApplicationPrivate
 <SECTION>
 <FILE>btcmd</FILE>
 <TITLE>btcmd</TITLE>
-<SUBSECTION Private>
+<SUBSECTION Standard>
 GST_CAT_DEFAULT
 </SECTION>
+

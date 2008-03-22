@@ -36,7 +36,7 @@
 #define BT_CORE
 #define BT_SONG_IO_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 //-- property ids
 

@@ -27,7 +27,7 @@
 #define BTIC_CORE
 #define BTIC_CONTROL_C
 
-#include <libbtic/ic.h>
+#include "ic_private.h"
 
 enum {
   CONTROL_DEVICE=1,

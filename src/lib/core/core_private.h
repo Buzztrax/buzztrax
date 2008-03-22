@@ -1,7 +1,7 @@
-/* $Id: bt-cmd.h,v 1.8 2006-08-26 11:42:32 ensonic Exp $
+/* $Id$
  *
  * Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2008 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,15 +19,43 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BT_CMD_H
-#define BT_CMD_H
+#ifndef BT_CORE_PRIVATE_H
+#define BT_CORE_PRIVATE_H
+
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
 
 //-- ansi c
-//#define __USE_ISOC99 /* for round() and co. */
+#include <ctype.h>
+#include <dirent.h>
+#define __USE_ISOC99 /* for isinf() and co. */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+//#define _XOPEN_SOURCE /* glibc2 needs this */
+#define __USE_XOPEN
+#include <time.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <sys/resource.h>
+//-- locale
+#ifdef HAVE_X11_XLOCALE_H
+  /* defines a more portable setlocale for X11 (_Xsetlocale) */
+  #include <X11/Xlocale.h>
+#else
+  #include <locale.h>
+#endif
+//-- libxml2
+#include <libxml/parser.h>
+#include <libxml/parserInternals.h>
+#include <libxml/xmlmemory.h>
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
+//-- gnome-vfs
+#include <libgnomevfs/gnome-vfs.h>
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS
@@ -56,17 +84,26 @@
   #define bindtextdomain(Package, Directory)
 #endif
 #endif
-//-- libbtcore
+//-- gconf
+#ifdef USE_GCONF
+#include <gconf/gconf-client.h>
+#endif
+
 #include <libbtcore/core.h>
 
-#include "cmd-application-methods.h"
+//-- defines for workarounds ---------------------------------------------------
 
-//-- misc
-#ifndef GST_CAT_DEFAULT
-  #define GST_CAT_DEFAULT bt_cmd_debug
-#endif
-#if defined(BT_CMD) && !defined(BT_CMD_APPLICATION_C)
+/**
+ * XML_CHAR_PTR:
+ * @str: the string to cast
+ *
+ * Cast to xmlChar*
+ */
+#define XML_CHAR_PTR(str) ((xmlChar *)(str))
+
+#define GST_CAT_DEFAULT bt_core_debug
+#ifndef BT_CORE_C
   GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
 
-#endif // BT_CMD_H
+#endif // BT_CORE_PRIVATE_H

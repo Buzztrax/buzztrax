@@ -30,7 +30,7 @@
 #define BTIC_CORE
 #define BTIC_REGISTRY_C
 
-#include <libbtic/ic.h>
+#include "ic_private.h"
 
 enum {
   REGISTRY_DEVICE_LIST=1

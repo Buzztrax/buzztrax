@@ -30,7 +30,7 @@
 #define BT_CORE
 #define BT_PERSISTENCE_LOCATION_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 GType bt_persistence_location_get_type(void) {
   static GType type = 0;

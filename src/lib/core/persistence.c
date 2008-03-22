@@ -32,7 +32,7 @@
 #define BT_CORE
 #define BT_PERSISTENCE_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 //-- string formatting helper
 

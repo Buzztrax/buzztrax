@@ -38,7 +38,7 @@
 #define BT_CORE
 #define BT_WIRE_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 //-- signal ids
 
@@ -1448,7 +1448,7 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   gobject_class->finalize     = bt_wire_finalize;
 
   /**
-   * BtWirePattern::param-changed:
+   * BtWirePattern::pattern-created:
    * @self: the wire-pattern object that emitted the signal
    * @tick: the tick position inside the pattern
    * @param: the parameter index

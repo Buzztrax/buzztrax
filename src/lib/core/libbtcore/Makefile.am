@@ -31,3 +31,4 @@ libbtcore_HEADERS = \
 	wire.h wire-methods.h \
 	wire-pattern.h wire-pattern-methods.h \
 	../marshal.h
+

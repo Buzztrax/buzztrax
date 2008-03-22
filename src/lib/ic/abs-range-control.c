@@ -28,7 +28,7 @@
 #define BTIC_CORE
 #define BTIC_ABS_RANGE_CONTROL_C
 
-#include <libbtic/ic.h>
+#include "ic_private.h"
 
 enum {
   ABS_RANGE_CONTROL_VALUE=1,

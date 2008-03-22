@@ -30,7 +30,7 @@
 #define BT_CORE
 #define BT_SINK_MACHINE_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 #include <libbtcore/sink-machine.h>
 #include <libbtcore/machine-private.h>
 

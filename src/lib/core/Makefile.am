@@ -47,6 +47,8 @@ libbtcore_la_SOURCES = \
 	\
 	marshal.c marshal.h
 
+noinst_HEADERS = core_private.h
+
 INCLUDES = \
 	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \

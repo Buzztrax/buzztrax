@@ -32,7 +32,7 @@
 #define BT_CORE
 #define BT_SONG_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 // if a state change not happens within this time, cancel playback
 #define BT_SONG_STATE_CHANGE_TIMEOUT (5*1000)
@@ -1264,7 +1264,7 @@ static xmlNodePtr bt_song_persistence_save(const BtPersistence * const persisten
   GST_DEBUG("PERSISTENCE::song");
 
   if((node=xmlNewNode(NULL,XML_CHAR_PTR("buzztard")))) {
-    xmlNewProp(node,XML_CHAR_PTR("xmlns"),(const xmlChar *)BT_NS_URL);
+    xmlNewProp(node,XML_CHAR_PTR("xmlns"),(const xmlChar *)"http://www.buzztard.org/");
     xmlNewProp(node,XML_CHAR_PTR("xmlns:xsd"),XML_CHAR_PTR("http://www.w3.org/2001/XMLSchema-instance"));
     xmlNewProp(node,XML_CHAR_PTR("xsd:noNamespaceSchemaLocation"),XML_CHAR_PTR("buzztard.xsd"));
 

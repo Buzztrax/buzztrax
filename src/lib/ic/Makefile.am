@@ -19,6 +19,8 @@ libbtic_la_SOURCES = \
     abs-range-control.c libbtic/abs-range-control.h libbtic/abs-range-control-methods.h \
     trigger-control.c libbtic/trigger-control.h libbtic/trigger-control-methods.h
 
+noinst_HEADERS = ic_private.h
+
 INCLUDES = \
 	-I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \

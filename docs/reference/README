@@ -27,9 +27,7 @@ files to look into
   <module>-sections.txt
     group symbols to sections
     add sections in alpahbetical order
-		for gobject classes,
-      put standard gobject entries into <SUBSECTION Standard>
-      put private  gobject entries into <SUBSECTION Private>
+      put internal entries into <SUBSECTION Standard>
   templ/*.sgml
     temporary files
 		

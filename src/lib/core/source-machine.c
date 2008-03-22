@@ -28,7 +28,7 @@
 #define BT_CORE
 #define BT_SOURCE_MACHINE_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 #include <libbtcore/source-machine.h>
 #include <libbtcore/machine-private.h>
 

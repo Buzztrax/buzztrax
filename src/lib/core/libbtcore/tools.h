@@ -24,6 +24,8 @@
 
 #ifndef BT_TOOLS_C
 
+#include <gst/gst.h>
+
 //-- registry
 
 extern GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *class_filter);

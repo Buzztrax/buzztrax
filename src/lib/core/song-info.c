@@ -41,7 +41,7 @@
 #define BT_CORE
 #define BT_SONG_INFO_C
 
-#include <libbtcore/core.h>
+#include "core_private.h"
 
 enum {
   SONG_INFO_SONG=1,

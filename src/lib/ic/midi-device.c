@@ -36,7 +36,7 @@
 #define BTIC_CORE
 #define BTIC_MIDI_DEVICE_C
 
-#include <libbtic/ic.h>
+#include "ic_private.h"
 
 enum {
   DEVICE_DEVNODE=1,
