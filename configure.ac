@@ -11,13 +11,13 @@ dnl 3: when the interface has changed (removing functions) : MAJOR++, MINOR=0, M
 dnl
 
 dnl Initialise the autoconf/automake tool
-AC_INIT([buzztard], [0.3.0], [buzztard-devel@lists.sourceforge.net])
+AC_INIT([buzztard], [0.4.0], [buzztard-devel@lists.sourceforge.net])
 AC_CONFIG_SRCDIR([ChangeLog])
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR(m4)
 
 BT_MAJOR_VERSION=0
-BT_MINOR_VERSION=3
+BT_MINOR_VERSION=4
 BT_MICRO_VERSION=0
 BT_VERSION=$BT_MAJOR_VERSION.$BT_MINOR_VERSION.$BT_MICRO_VERSION
 BT_VERSION_INFO=`expr $BT_MAJOR_VERSION + $BT_MINOR_VERSION`:$BT_MICRO_VERSION:$BT_MINOR_VERSION
@@ -26,11 +26,12 @@ BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + 
 dnl our libraries and install dirs use major.minor as a version
 BT_MAJORMINOR=$BT_MAJOR_VERSION.$BT_MINOR_VERSION
 dnl we override it here for release candidates
-dnl BT_MAJORMINOR=0.2
+dnl BT_MAJORMINOR=0.3
 
 dnl update this for each release (year-month-day)
-BT_RELEASE_YEAR=2007
-BT_RELEASE_DATE=$BT_RELEASE_YEAR-05-03
+dnl FIXME: can't why just expand this with `date` command output ?
+BT_RELEASE_YEAR=2008
+BT_RELEASE_DATE=$BT_RELEASE_YEAR-03-26
 
 AC_SUBST(BT_MAJOR_VERSION)
 AC_SUBST(BT_MINOR_VERSION)
@@ -245,7 +246,7 @@ PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
   ]
 )
 
-PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.3.0, [
+PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.4.0, [
     AC_DEFINE(USE_GSTBT, [1], [Define to 1 if we can use gst-buzztard])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTBT_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTBT_DEPS_LIBS"
