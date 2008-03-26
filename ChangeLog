@@ -1,3 +1,14 @@
+2008-03-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	  Updating NEWS.
+	  
+	* docs/help/bt-edit/C/figures/page-info-view.png:
+	  New screenshot.
+
+	* src/lib/core/wire.c:
+	  Better logging.
+
 2008-03-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/figures/settings-shortcuts.png:

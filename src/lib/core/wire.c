@@ -502,7 +502,6 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
           GST_DEBUG("created panorama/balance element for wire : %p '%s' -> %p '%s'",
             self->priv->src->src_elem,GST_OBJECT_NAME(self->priv->src->src_elem),
             self->priv->dst->dst_elem,GST_OBJECT_NAME(self->priv->dst->dst_elem));
-          // @todo: the panorama of my laptop is quirky :/
           g_object_set(G_OBJECT (machines[PART_PAN]),"method",1,NULL);
         }
       }
@@ -511,7 +510,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   }
   gst_object_unref(dst_machine);
   
-  GST_DEBUG("trying to link machines directly : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
+  GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   /* if we try linking without audioconvert and this links to an adder,
    * then the first link enforces the format (if first is mono and later stereo
    * signal is linked, this is downgraded).
@@ -526,6 +525,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     GST_DEBUG("trying to link machines with pan");
     if(!(res=gst_element_link_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], dst->dst_elem, NULL))) {
       gst_element_unlink_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], dst->dst_elem, NULL);
+      GST_WARNING("failed to link machines with pan");
     }
     else {
       machines[PART_SRC]=machines[PART_QUEUE];
@@ -537,6 +537,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     GST_DEBUG("trying to link machines without pan");
     if(!(res=gst_element_link_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL))) {
       gst_element_unlink_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL);
+      GST_WARNING("failed to link machines without pan");
     }
     else {
       machines[PART_SRC]=machines[PART_QUEUE];
@@ -545,7 +546,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     }
   }
   if(!res) {
-    GST_DEBUG("failed to link the machines");
+    GST_INFO("failed to link the machines");
     // print out the content of both machines (using GST_DEBUG)
     bt_machine_dbg_print_parts(src);bt_machine_dbg_print_parts(dst);
   }
@@ -716,7 +717,8 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   GST_DEBUG("link prepared, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
 
   if(!bt_wire_link_machines(self)) {
-    GST_ERROR("linking machines failed");goto Error;
+    GST_ERROR("linking machines failed : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
+    goto Error;
   }
   else {
     // register params
