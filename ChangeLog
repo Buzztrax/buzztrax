@@ -1,5 +1,27 @@
 2008-03-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/figures/settings-audio.png:
+	* docs/help/bt-edit/C/figures/settings-colors.png:
+	* docs/help/bt-edit/C/figures/settings-pc.png:
+	* docs/help/bt-edit/C/figures/settings-ic.png:
+	* docs/help/bt-edit/C/figures/settings-directories.png:
+	* docs/help/bt-edit/C/figures/settings.png:
+	* docs/help/bt-edit/C/figures/main-window.png:
+	  Moap hasn't picked all changes correctly :/
+
+	* tests/lib/core/Makefile.am:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/lib/core/e-song-io.c:
+	* tests/lib/core/s-song-io-native.c:
+	* tests/lib/core/s-song-io.c:
+	* tests/lib/core/t-song-io.c:
+	  More tests for file-io and refcounts.
+
+	* tests/songs/example.xml:
+	  Fix the file.
+
+2008-03-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/figures/page-pattern-view.png:
 	* docs/help/bt-edit/C/figures/page-machine-view.png:
 	* docs/help/bt-edit/C/figures/pattern-properties.png:

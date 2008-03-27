@@ -12,8 +12,8 @@ libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-setup.c e-setup.c t-setup.c \
 	s-sink-machine.c t-sink-machine.c \
 	s-song.c t-song.c e-song.c \
-	s-song-io.c t-song-io.c \
-  s-song-io-native.c t-song-io-native.c \
+	s-song-io.c e-song-io.c t-song-io.c \
+	s-song-io-native.c e-song-io-native.c t-song-io-native.c \
 	s-song-info.c e-song-info.c t-song-info.c \
 	s-source-machine.c e-source-machine.c t-source-machine.c \
 	s-wire.c t-wire.c \
