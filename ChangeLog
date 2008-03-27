@@ -1,3 +1,14 @@
+2008-03-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/figures/page-pattern-view.png:
+	* docs/help/bt-edit/C/figures/page-machine-view.png:
+	* docs/help/bt-edit/C/figures/pattern-properties.png:
+	* docs/help/bt-edit/C/figures/page-sequence-view.png:
+	  Hmm, more images with changes ...
+
+	* src/lib/core/wire-pattern.c:
+	  Fix initialisation or wirepatterns while loading.
+
 2008-03-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

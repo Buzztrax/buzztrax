@@ -203,6 +203,7 @@ BtWirePattern *bt_wire_pattern_new(const BtSong * const song, const BtWire * con
 
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   g_return_val_if_fail(BT_IS_WIRE(wire),NULL);
+  g_return_val_if_fail(BT_IS_PATTERN(pattern),NULL);
 
   if(!(self=BT_WIRE_PATTERN(g_object_new(BT_TYPE_WIRE_PATTERN,"song",song,"wire",wire,"pattern",pattern,NULL)))) {
     goto Error;
@@ -775,7 +776,7 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
   xmlChar *name,*pattern_id,*tick_str,*value;
   gulong tick,param;
   BtMachine *dst_machine;
-  BtWire *wire;
+  BtPattern *pattern;
   xmlNodePtr child_node;
   GError *error=NULL;
 
@@ -784,11 +785,13 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
   
   pattern_id=xmlGetProp(node,XML_CHAR_PTR("pattern"));
   g_object_get(self->priv->wire,"dst",&dst_machine,NULL);
-  self->priv->pattern=bt_machine_get_pattern_by_id(dst_machine,(gchar *)pattern_id);
-  //g_object_set(G_OBJECT(self),"pattern",pattern,NULL);
-  g_object_try_weak_ref(self->priv->pattern);
-  // @todo shouldn't we just listen to notify::length and resize patterns automatically
-  g_object_get(G_OBJECT(self->priv->pattern),"length",&self->priv->length,NULL);
+  if((pattern=bt_machine_get_pattern_by_id(dst_machine,(gchar *)pattern_id))) {
+    g_object_set(G_OBJECT(self),"pattern",pattern,NULL);
+    g_object_unref(pattern);
+  }
+  else {
+    GST_WARNING("No pattern with id='%s'",pattern_id);
+  }
   xmlFree(pattern_id);
   g_object_unref(dst_machine);
   
@@ -796,8 +799,6 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
     GST_WARNING("Can't init wire-pattern data");
     goto Error;
   }
-  
-  g_object_get(G_OBJECT(self),"wire",&wire,NULL);
   
   // load pattern data
   for(node=node->children;node;node=node->next) {
@@ -811,7 +812,7 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
           value=xmlGetProp(child_node,XML_CHAR_PTR("value"));
           //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
           if(!strncmp((char *)child_node->name,"wiredata\0",9)) {
-            param=bt_wire_get_param_index(wire,(gchar *)name,&error);
+            param=bt_wire_get_param_index(self->priv->wire,(gchar *)name,&error);
             if(!error) {
               bt_wire_pattern_set_event(self,tick,param,(gchar *)value);
             }
@@ -830,7 +831,6 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
   }
   res=TRUE;
 Error:
-  g_object_unref(wire);
   return(res);
 }
 
@@ -900,7 +900,10 @@ static void bt_wire_pattern_set_property(GObject      * const object,
         g_object_get(G_OBJECT(self->priv->pattern),"length",&self->priv->length,NULL);
         // watch the pattern
         self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_length_changed),(gpointer)self);
-        GST_INFO("set the length for the wire-pattern: %p",self->priv->length);
+        GST_DEBUG("set the pattern for the wire-pattern: %p",self->priv->pattern);
+      }
+      else {
+        GST_WARNING("set NULL as the pattern for the wire-pattern");
       }
     } break;
     default: {
@@ -1015,7 +1018,7 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
                                      "pattern construct prop",
                                      "Pattern object, the wire-pattern belongs to",
                                      BT_TYPE_PATTERN, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_wire_pattern_get_type(void) {
