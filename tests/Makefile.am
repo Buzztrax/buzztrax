@@ -74,9 +74,43 @@ INCLUDES = \
 	@VALGRIND_CFLAGS@
 endif
 
-EXTRA_DIST = gtkdoccomplete.sh povalid.sh xmlvalid.sh \
-  bt-cfg.sh.in bt-cmd-info.sh bt-cmd-encode.sh \
-  bt-cmd-cli.sh bt-edit-cli.sh
+songdatadir = $(datadir)/$(PACKAGE)/songs
+songdata_DATA = \
+	songs/broken1.xml \
+	songs/broken2.xml \
+	songs/broken3.xml \
+	songs/buzz1.xml \
+	songs/buzz2.xml \
+	songs/buzz3.xml \
+	songs/buzz4.xml \
+	songs/buzz5.xml \
+	songs/buzz6.xml \
+	songs/buzz7.xml \
+	songs/buzz8.xml \
+	songs/buzz9.xml \
+	songs/combi1.xml \
+	songs/combi2.xml \
+	songs/combi3.xml \
+	songs/example.xml \
+	songs/melo1.xml \
+	songs/melo2.xml \
+	songs/melo3.xml \
+	songs/melo4.xml \
+	songs/melo5.xml \
+	songs/simple1.xml \
+	songs/simple2.xml \
+	songs/simple3.xml \
+	songs/simple4.xml \
+	songs/simple5.xml \
+	songs/test-simple1.xml \
+	songs/test-simple2.xml \
+	songs/test-simple3.xml
+
+EXTRA_DIST = \
+	$(songdata_DATA) \
+	gtkdoccomplete.sh povalid.sh xmlvalid.sh \
+	bt-cfg.sh.in bt-cmd-info.sh bt-cmd-encode.sh \
+	bt-cmd-cli.sh bt-edit-cli.sh
 
 clean-local:
 	rm -f $(top_builddir)/tests/songs/*.txt $(top_builddir)/tests/songs/*.ogg

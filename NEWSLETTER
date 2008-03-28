@@ -1,3 +1,14 @@
+2008/04 ========================================================================
+
+* new screenshots
+* mdk improvments (stereo fx)
+* gstbml with liboil support and stereo fx
+* include mess cleaned up
+* finally done the release
+* already a bug fixed
+* tests extended to track down one more
+* waffel started a demo for the zip loader based on libgsf
+
 2008/03 ========================================================================
 
 The Linux Audio Conference 2008 was nice once again. Good talks, interesting

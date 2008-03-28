@@ -35,9 +35,50 @@ static void test_teardown(void) {
   //puts(__FILE__":teardown");
 }
 
+//-- helper
+
+static void assert_machine_refcount(BtSetup *setup, const gchar *id, guint refs) {
+  BtMachine *machine=bt_setup_get_machine_by_id(setup,id);
+  
+  fail_unless(machine!=NULL,NULL);
+  GST_INFO("setup.machine[%s].ref-count=%d",id,G_OBJECT(machine)->ref_count);
+  fail_unless(G_OBJECT(machine)->ref_count==(1+refs),NULL);
+  g_object_unref(machine);
+}
+
+static void assert_song_part_refcounts(BtSong *song) {
+  BtSetup *setup;
+  BtSequence *sequence;
+  BtSongInfo *songinfo;
+  BtWavetable *wavetable;
+
+  g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&songinfo,"wavetable",&wavetable,NULL);
+
+  fail_unless(setup!=NULL,NULL);
+  GST_INFO("setup.ref-count=%d",G_OBJECT(setup)->ref_count);
+  fail_unless(G_OBJECT(setup)->ref_count==2,NULL);
+  
+  fail_unless(sequence!=NULL,NULL);
+  GST_INFO("sequence.ref-count=%d",G_OBJECT(sequence)->ref_count);
+  fail_unless(G_OBJECT(sequence)->ref_count==2,NULL);
+  
+  fail_unless(songinfo!=NULL,NULL);
+  GST_INFO("songinfo.ref-count=%d",G_OBJECT(songinfo)->ref_count);
+  fail_unless(G_OBJECT(songinfo)->ref_count==2,NULL);
+  
+  fail_unless(wavetable!=NULL,NULL);
+  GST_INFO("wavetable.ref-count=%d",G_OBJECT(wavetable)->ref_count);
+  fail_unless(G_OBJECT(wavetable)->ref_count==2,NULL);
+
+  g_object_unref(setup);
+  g_object_unref(sequence);
+  g_object_unref(songinfo);
+  g_object_unref(wavetable);  
+}
+
 //-- tests
 
-BT_START_TEST(test_btsong_io_native_obj1) {
+BT_START_TEST(test_btsong_io_native_refcounts) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSongIO *song_io;
@@ -46,7 +87,6 @@ BT_START_TEST(test_btsong_io_native_obj1) {
   BtSequence *sequence;
   BtSongInfo *songinfo;
   BtWavetable *wavetable;
-  BtMachine *machine;
  
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -55,11 +95,14 @@ BT_START_TEST(test_btsong_io_native_obj1) {
   /* create a new song */
   song=bt_song_new(app);
   
+  /* load the song */
   song_io=bt_song_io_new(check_get_test_song_path("example.xml"));
   fail_unless(song_io != NULL, NULL);
   
   res=bt_song_io_load(song_io,song);
   fail_unless(res == TRUE, NULL);
+  GST_INFO("song.ref-count=%d",G_OBJECT(song)->ref_count);
+  fail_unless(G_OBJECT(song)->ref_count==1,NULL);
   
   /* assert main song part refcounts */
   g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&songinfo,"wavetable",&wavetable,NULL);
@@ -81,26 +124,12 @@ BT_START_TEST(test_btsong_io_native_obj1) {
   fail_unless(G_OBJECT(wavetable)->ref_count==2,NULL);
   
   /* assert machine refcounts */
-  machine=bt_setup_get_machine_by_id(setup,"audio_sink");
-  fail_unless(machine!=NULL,NULL);
-  GST_INFO("setup.machine[audio_sink].ref-count=%d",G_OBJECT(machine)->ref_count);
   // 1 x setup, 1 x wire
-  fail_unless(G_OBJECT(machine)->ref_count==3,NULL);
-  g_object_unref(machine);
-
-  machine=bt_setup_get_machine_by_id(setup,"amp1");
-  fail_unless(machine!=NULL,NULL);
-  GST_INFO("setup.machine[amp1].ref-count=%d",G_OBJECT(machine)->ref_count);
+  assert_machine_refcount(setup,"audio_sink",2);
   // 1 x setup, 2 x wire
-  fail_unless(G_OBJECT(machine)->ref_count==4,NULL);
-  g_object_unref(machine);
-
-  machine=bt_setup_get_machine_by_id(setup,"sine1");
-  fail_unless(machine!=NULL,NULL);
-  GST_INFO("setup.machine[sine1].ref-count=%d",G_OBJECT(machine)->ref_count);
+  assert_machine_refcount(setup,"amp1",3);
   // 1 x setup, 1 x wire, 1 x sequence
-  fail_unless(G_OBJECT(machine)->ref_count==4,NULL);
-  g_object_unref(machine);
+  assert_machine_refcount(setup,"sine1",3);
 
   /* @todo: check more refcounts
    * grep ".ref-count=" /tmp/bt_core.log
@@ -117,11 +146,63 @@ BT_START_TEST(test_btsong_io_native_obj1) {
 }
 BT_END_TEST
 
+BT_START_TEST(test_btsong_io_native_song_refcounts) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSongIO *song_io;
+  gboolean res;
+  GstElement *bin;
+  gchar **song_name,*song_names[]={
+    "example.xml",
+    "test-simple1.xml",
+    "test-simple2.xml",
+    "test-simple3.xml",
+    NULL
+  };
+ 
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  g_object_get(app,"bin",&bin,NULL);
+  GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));
+  fail_unless(GST_BIN_NUMCHILDREN(bin) == 0, NULL);
+
+  song_name=song_names;
+  while(*song_name) {
+    /* load the song */
+    song_io=bt_song_io_new(check_get_test_song_path(*song_name));
+    fail_unless(song_io != NULL, NULL);
+    song=bt_song_new(app);
+    res=bt_song_io_load(song_io,song);
+    fail_unless(res == TRUE, NULL);
+    GST_INFO("song.ref-count=%d",G_OBJECT(song)->ref_count);
+    fail_unless(G_OBJECT(song)->ref_count==1,NULL);
+    GST_INFO("song[%s].elements=%d",*song_name,GST_BIN_NUMCHILDREN(bin));
+  
+    /* assert main song part refcounts */
+    assert_song_part_refcounts(song);
+  
+    g_object_checked_unref(song_io);
+    g_object_checked_unref(song);
+    GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));
+    fail_unless(GST_BIN_NUMCHILDREN(bin) == 0, NULL);
+
+    song_name++;
+  };
+
+  gst_object_unref(bin);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
 
 TCase *bt_song_io_native_example_case(void) {
   TCase *tc = tcase_create("BtSongIONativeExamples");
 
-  tcase_add_test(tc,test_btsong_io_native_obj1);
+  tcase_add_test(tc,test_btsong_io_native_refcounts);
+  tcase_add_test(tc,test_btsong_io_native_song_refcounts);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  // we need to raise the default timeout of 3 seconds
+  tcase_set_timeout(tc, 5);
   return(tc);
 }

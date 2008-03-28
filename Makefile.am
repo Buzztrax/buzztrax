@@ -5,37 +5,6 @@ SUBDIRS = $(SRCDIRS) po docs
 
 DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc --enable-debug
 
-songdatadir = $(datadir)/$(PACKAGE)/songs
-songdata_DATA = \
-	tests/songs/broken1.xml \
-	tests/songs/broken2.xml \
-	tests/songs/broken3.xml \
-	tests/songs/buzz1.xml \
-	tests/songs/buzz2.xml \
-	tests/songs/buzz3.xml \
-	tests/songs/buzz4.xml \
-	tests/songs/buzz5.xml \
-	tests/songs/buzz6.xml \
-	tests/songs/buzz7.xml \
-	tests/songs/buzz8.xml \
-	tests/songs/buzz9.xml \
-	tests/songs/combi1.xml \
-	tests/songs/combi2.xml \
-	tests/songs/combi3.xml \
-	tests/songs/example.xml \
-	tests/songs/melo1.xml \
-	tests/songs/melo2.xml \
-	tests/songs/melo3.xml \
-	tests/songs/melo4.xml \
-	tests/songs/melo5.xml \
-	tests/songs/simple1.xml \
-	tests/songs/simple2.xml \
-	tests/songs/simple3.xml \
-	tests/songs/simple4.xml \
-	tests/songs/simple5.xml \
-	tests/songs/test-simple1.xml \
-	tests/songs/test-simple2.xml
-
 pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps
 pixmapdata_DATA = \
 	pixmaps/grid.png \
@@ -71,7 +40,6 @@ schemas_in_files = buzztard.schemas.in
 schemas_DATA = $(schemas_in_files:.schemas.in=.schemas)
 
 EXTRA_DIST = \
-	$(songdata_DATA) \
 	$(pixmapdata_DATA) $(icon16_DATA) $(icon48_DATA) $(svgicon_DATA) \
 	$(schemas_DATA) \
 	intltool-extract.in \

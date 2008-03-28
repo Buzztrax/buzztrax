@@ -1,3 +1,26 @@
+2008-03-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect items for newsletter.
+
+	* Makefile.am:
+	* tests/Makefile.am:
+	  Move test-data to test's Makefile.
+
+	* tests/songs/example.xml:
+	* tests/songs/test-simple1.xml:
+	* tests/songs/test-simple2.xml:
+	* tests/songs/test-simple3.xml:
+	  Tweak files and add new one. The test-simple*.xml files should be
+	  expanded and add feature by feature.
+
+	* tests/lib/core/e-song-io-native.c:
+	  Refactor tests and add loop loading test.
+
+	* tests/ui/edit/e-bt-edit-application.c:
+	  Add new test that ensures that there are no left-overs when
+	  re-loading songs.
+
 2008-03-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/figures/settings-audio.png:

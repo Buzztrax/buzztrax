@@ -7,7 +7,7 @@
 
   <meta>
     <info>what a lovely tune</info>
-    <name>test simple 2</name>
+    <name>test simple 3</name>
     <genre>dark-wave</genre>
     <bpm>100</bpm>
     <tpb>8</tpb>
@@ -54,15 +54,36 @@
         </patterns>
       </machine>
 
+      <machine type="source" id="sine2" plugin-name="audiotestsrc" voices="0">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="0.0"/>
+        </properties>
+        <globaldata name="volume" value="0.1"/>
+        <patterns>
+          <pattern id="sine2_beep" machine="sine2" name="beeps" length="6">
+            <tick time="0">
+              <globaldata name="freq" value="110.0"/>
+            </tick>
+            <tick time="2">
+              <globaldata name="freq" value="220.0"/>
+            </tick>
+            <tick time="6">
+              <globaldata name="freq" value="55.0"/>
+            </tick>
+          </pattern>
+        </patterns>
+      </machine>
     </machines>
 
     <wires>
       <wire src="sine1" dst="amp1" gain="1.5"/>
+      <wire src="sine2" dst="amp1" gain="0.5"/>
       <wire src="amp1" dst="audio_sink" gain="1.0" pan="-0.5"/>
     </wires>
   </setup>
 
-  <sequence length="16" tracks="1">
+  <sequence length="16" tracks="2">
     <labels>
       <label time="0" name="start"/>
       <!--label time="1" name="end"/-->
@@ -70,6 +91,9 @@
     <tracks>
       <track index="0" machine="sine1">
         <position time="0" pattern="sine1_beep"/>
+      </track>
+      <track index="1" machine="sine2">
+        <position time="0" pattern="sine2_beep"/>
       </track>
     </tracks>
   </sequence>

@@ -220,6 +220,62 @@ BT_START_TEST(test_load2) {
 }
 BT_END_TEST
 
+// load a song, free it, load another
+BT_START_TEST(test_load3) {
+  BtEditApplication *app;
+  BtMainWindow *main_window;
+  BtSong *song;
+  GstElement *bin;
+  gboolean unsaved;
+  guint num;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+  g_object_get(app,"bin",&bin,NULL);
+  GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));
+
+  // load for first time
+  bt_edit_application_load_song(app, check_get_test_song_path("melo3.xml"));
+  g_object_get(app,"song",&song,NULL);
+  fail_unless(song != NULL, NULL);
+  // song should be unchanged
+  g_object_get(song,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
+  g_object_unref(song);
+  GST_INFO("song loaded");
+  num=GST_BIN_NUMCHILDREN(bin);
+  GST_INFO("song.elements=%d",num);
+
+  // load song for second time
+  bt_edit_application_load_song(app, check_get_test_song_path("melo3.xml"));
+  g_object_get(app,"song",&song,NULL);
+  fail_unless(song != NULL, NULL);
+  // song should be unchanged
+  g_object_get(song,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
+  g_object_unref(song);
+  GST_INFO("song loaded again");
+  GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));
+  fail_unless(num == GST_BIN_NUMCHILDREN(bin), NULL);
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
+  // close window
+  g_object_unref(main_window);
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
+  // free application
+  gst_object_unref(bin);
+  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  g_object_checked_unref(app);
+
+}
+BT_END_TEST
+
 // load a song and play it
 BT_START_TEST(test_load_and_play1) {
   BtEditApplication *app;
@@ -388,6 +444,7 @@ TCase *bt_edit_application_example_case(void) {
   tcase_add_test(tc,test_new1);
   tcase_add_test(tc,test_load1);
   tcase_add_test(tc,test_load2);
+  tcase_add_test(tc,test_load3);
   tcase_add_test(tc,test_load_and_play1);
   tcase_add_test(tc,test_load_and_play2);
   tcase_add_test(tc,test_tabs1);

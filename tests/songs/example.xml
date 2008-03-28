@@ -65,7 +65,7 @@
     
     <wires>
       <wire src="sine1" dst="amp1" gain="1.5"/>
-      <wire src="amp1" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="amp1" dst="audio_sink" gain="1.0" pan="-0.5"/>
     </wires>
   </setup>
   
