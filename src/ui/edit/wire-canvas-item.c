@@ -246,22 +246,20 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_assert(user_data);
   g_return_if_fail(BT_IS_MACHINE(machine));
 
-  GST_INFO("machine %p,machine->ref_ct=%d has been removed",machine,G_OBJECT(machine)->ref_count);
-
   g_object_get(self->priv->src,"machine",&src,NULL);
   g_object_get(self->priv->dst,"machine",&dst,NULL);
 
-  GST_INFO("... machine %p,machine->ref_ct=%d has been removed, checking wire %p->%p",machine,G_OBJECT(machine)->ref_count,src,dst);
+  GST_INFO("machine %p,machine->ref_ct=%d has been removed, checking wire %p->%p", machine,G_OBJECT(machine)->ref_count,src,dst);
   if((src==machine) || (dst==machine)) {
-    GST_INFO("the machine, this wire is connected to, has been removed");
+    GST_WARNING("the machine, this wire is connected to, has been removed");
     bt_setup_remove_wire(setup,self->priv->wire);
-    bt_main_page_machines_remove_wire_item(self->priv->main_page_machines,self);
+
+    GST_INFO("... machine %p,ref_count=%d has been removed, src %p,ref=%d, dst %p,ref=%d",
+      machine,G_OBJECT(machine)->ref_count,
+      src,G_OBJECT(src)->ref_count,
+      dst,G_OBJECT(dst)->ref_count
+    );
   }
-  GST_INFO("... machine %p,ref_count=%d has been removed, src %p,ref=%d, dst %p,ref=%d",
-    machine,G_OBJECT(machine)->ref_count,
-    src,G_OBJECT(src)->ref_count,
-    dst,G_OBJECT(dst)->ref_count
-  );
   g_object_try_unref(src);
   g_object_try_unref(dst);
 }
@@ -308,7 +306,6 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
   bt_setup_remove_wire(setup,self->priv->wire);
-  bt_main_page_machines_remove_wire_item(self->priv->main_page_machines,self);
 
   g_object_try_unref(setup);
   g_object_try_unref(song);

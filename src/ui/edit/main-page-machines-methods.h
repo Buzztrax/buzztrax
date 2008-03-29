@@ -32,9 +32,6 @@ extern BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *ap
 
 extern void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y);
 
-extern void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, BtMachineCanvasItem *item);
-extern void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWireCanvasItem *item);
-
 extern gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
 extern gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
 

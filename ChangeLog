@@ -1,3 +1,19 @@
+2008-03-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-machines-methods.h:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Refactor code, is more generic and saves two non static functions and
+	  some reffing.
+
+	* tests/Makefile.am:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/songs/test-simple3.xml:
+	* tests/songs/test-simple4.xml:
+	  Fix one test-file and add another.
+
 2008-03-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

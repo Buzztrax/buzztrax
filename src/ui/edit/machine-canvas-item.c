@@ -348,8 +348,6 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
     GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
     bt_setup_remove_machine(setup,self->priv->machine);
     GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
-    GST_INFO("now removing machine-item : %p",self);
-    bt_main_page_machines_remove_machine_item(self->priv->main_page_machines,self);
 
     g_object_try_unref(setup);
     g_object_try_unref(song);

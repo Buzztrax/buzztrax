@@ -393,6 +393,28 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   machine_item_new(self,machine,self->priv->mouse_x,self->priv->mouse_y);
 }
 
+static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  BtMachineCanvasItem *item=g_hash_table_lookup(self->priv->machines,machine);
+  
+  GST_INFO("now removing machine-item : %p",item);
+  g_hash_table_remove(self->priv->machines,machine);
+  gtk_object_destroy(GTK_OBJECT(item));
+
+  if(machine) GST_INFO("removed canvas item: %p,machine->ref_ct=%d",machine,G_OBJECT(machine)->ref_count);
+}
+
+static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  BtWireCanvasItem *item=g_hash_table_lookup(self->priv->wires,wire);
+  
+  GST_WARNING("now removing wire-item : %p",item);
+  g_hash_table_remove(self->priv->wires,wire);
+  gtk_object_destroy(GTK_OBJECT(item));
+
+  if(wire) GST_INFO("removed canvas item: %p,wire->ref_ct=%d",wire,G_OBJECT(wire)->ref_count);
+}
+
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtSong *song;
@@ -413,6 +435,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update page
   machine_view_refresh(self,setup);
   g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
+  g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
+  g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
   // release the reference
   g_object_try_unref(setup);
   g_object_try_unref(song);
@@ -1028,46 +1052,6 @@ Error:
 }
 
 //-- methods
-
-/**
- * bt_main_page_machines_remove_machine_item:
- * @self: the machines page the contains the item
- * @item: the machine canvas object to remove
- *
- * Removes a machine canvas item from the canvas.
- */
-void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, BtMachineCanvasItem *item) {
-  BtMachine *machine;
-
-  GST_INFO("now removing machine-item : %p",item);
-
-  g_object_get(G_OBJECT(item),"machine",&machine,NULL);
-  g_hash_table_remove(self->priv->machines,machine);
-  gtk_object_destroy(GTK_OBJECT(item));
-
-  if(machine) GST_INFO("removed canvas item: %p,machine->ref_ct=%d",machine,G_OBJECT(machine)->ref_count);
-  g_object_try_unref(machine);
-}
-
-/**
- * bt_main_page_machines_remove_wire_item:
- * @self: the machines page the contains the item
- * @item: the wire canvas object to remove
- *
- * Removes a wire canvas item from the canvas.
- */
-void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWireCanvasItem *item) {
-  BtWire *wire;
-
-  GST_INFO("now removing machine-item : %p",item);
-
-  g_object_get(G_OBJECT(item),"wire",&wire,NULL);
-  g_hash_table_remove(self->priv->wires,wire);
-  gtk_object_destroy(GTK_OBJECT(item));
-
-  if(wire) GST_INFO("removed canvas item: %p,wire->ref_ct=%d",wire,G_OBJECT(wire)->ref_count);
-  g_object_try_unref(wire);
-}
 
 /**
  * bt_main_page_machines_wire_volume_popup:
