@@ -1096,7 +1096,5 @@ TCase *bt_setup_test_case(void) {
   // @todo make test work
   //tcase_add_test(tc,test_btsetup_wire3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  // we need to raise the default timeout of 3 seconds
-  tcase_set_timeout(tc, 10);
   return(tc);
 }

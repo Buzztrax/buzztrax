@@ -121,7 +121,5 @@ TCase *bt_cmd_application_example_case(void) {
   tcase_add_test(tc,test_play3);
   tcase_add_test(tc,test_info1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  // we need to raise the default timeout of 3 seconds
-  tcase_set_timeout(tc, 6);
   return(tc);
 }

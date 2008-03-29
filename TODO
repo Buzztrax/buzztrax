@@ -1,8 +1,8 @@
 $Id: TODO,v 1.28 2007-12-03 19:42:31 ensonic Exp $
 
-run 'make todo' to get a list of todo comments from source
+* run 'make todo' to get a list of todo comments from source
 
-when releasing do:
+* when releasing do:
   * make check
   * cd po;intltool-update -M
   * make dist
@@ -27,6 +27,9 @@ when releasing do:
 
 * quality checks
   for file in src/lib/core/*.c; do gtkdoc-depscan -v --book gstreamer-0.10:0.10.8 $file; done
+
+* sparse
+  make CC=cgcc
 
 * user docs
  * try getting e.g. the shortcuts table from our wiki

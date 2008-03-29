@@ -55,7 +55,5 @@ TCase *bt_song_info_test_case(void) {
 
   tcase_add_test(tc,test_btsonginfo_obj1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  // we need to raise the default timeout of 3 seconds
-  tcase_set_timeout(tc, 10);
   return(tc);
 }

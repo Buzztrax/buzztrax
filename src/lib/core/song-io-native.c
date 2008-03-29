@@ -136,7 +136,7 @@ static gboolean bt_song_io_native_load(gconstpointer const _self, const BtSong *
    */
   
   // @todo read from zip_file
-  const xmlParserCtxtPtr const ctxt=xmlNewParserCtxt();
+  xmlParserCtxtPtr const ctxt=xmlNewParserCtxt();
   if(ctxt) {
     //xmlDocPtr song_doc=xmlCtxtReadMemory(ctxt,xml_doc_buffer,xml_doc_size,file_name,NULL,0L)
     xmlDocPtr const song_doc=xmlCtxtReadFile(ctxt,file_name,NULL,0L);
@@ -148,7 +148,7 @@ static gboolean bt_song_io_native_load(gconstpointer const _self, const BtSong *
         GST_WARNING("the supplied document is not a wellformed XML document");
       }
       else {
-        const xmlNodePtr const root_node=xmlDocGetRootElement(song_doc);
+        xmlNodePtr const root_node=xmlDocGetRootElement(song_doc);
 
         if(root_node==NULL) {
           GST_WARNING("xmlDoc is empty");
@@ -184,9 +184,9 @@ static gboolean bt_song_io_native_save(gconstpointer const _self, const BtSong *
   g_sprintf(status,msg,file_name);
   g_object_set(G_OBJECT(self),"status",status,NULL);
 
-  const xmlDocPtr const song_doc=xmlNewDoc(XML_CHAR_PTR("1.0"));
+  xmlDocPtr const song_doc=xmlNewDoc(XML_CHAR_PTR("1.0"));
   if(song_doc) {
-    const xmlNodePtr const root_node=bt_persistence_save(BT_PERSISTENCE(song),NULL,NULL);
+    xmlNodePtr const root_node=bt_persistence_save(BT_PERSISTENCE(song),NULL,NULL);
     if(root_node) {
       xmlDocSetRootElement(song_doc,root_node);
       if(xmlSaveFile(file_name,song_doc)!=-1) {

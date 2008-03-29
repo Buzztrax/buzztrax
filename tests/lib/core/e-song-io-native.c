@@ -203,7 +203,5 @@ TCase *bt_song_io_native_example_case(void) {
   tcase_add_test(tc,test_btsong_io_native_refcounts);
   tcase_add_test(tc,test_btsong_io_native_song_refcounts);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  // we need to raise the default timeout of 3 seconds
-  tcase_set_timeout(tc, 5);
   return(tc);
 }

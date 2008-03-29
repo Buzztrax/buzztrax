@@ -1,5 +1,38 @@
 2008-03-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* TODO:
+	  A note about sparse.
+
+	* src/lib/core/song-io-native.c:
+	  Fix two sparse warnings.
+
+	* tests/Makefile.am:
+	* tests/lib/core/e-machine.c:
+	* tests/lib/core/e-network.c:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/t-machine.c:
+	* tests/lib/core/t-setup.c:
+	* tests/lib/core/t-song-info.c:
+	* tests/lib/core/t-song.c:
+	* tests/lib/core/t-wire.c:
+	* tests/ui/cmd/e-bt-cmd-application.c:
+	* tests/ui/edit/e-bt-about-dialog.c:
+	* tests/ui/edit/e-bt-edit-application.c:
+	* tests/ui/edit/e-bt-machine-preferences-dialog.c:
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	* tests/ui/edit/e-bt-machine-properties-dialog.c:
+	* tests/ui/edit/e-bt-machine-rename-dialog.c:
+	* tests/ui/edit/e-bt-missing-framework-elements-dialog.c:
+	* tests/ui/edit/e-bt-missing-song-elements-dialog.c:
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c:
+	* tests/ui/edit/e-bt-render-dialog.c:
+	* tests/ui/edit/e-bt-settings-dialog.c:
+	* tests/ui/edit/e-bt-wire-analysis-dialog.c:
+	  Rework timeout handling.
+
+2008-03-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/gui/stylecolors.c:
 	* src/ui/edit/pattern-editor.c:
 	  Move to separate testapp.

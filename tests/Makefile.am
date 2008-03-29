@@ -26,8 +26,11 @@ TESTS = \
 # http://www.cynapses.org/tmp/gcc/malloc_perturb
 #    MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
 #
-TESTS_ENVIRONMENT = \
+TESTS_ENVIRONMENT_COMMON = \
 	ulimit -St20;
+TESTS_ENVIRONMENT = \
+	$(TESTS_ENVIRONMENT_COMMON) \
+	CK_DEFAULT_TIMEOUT=20
 
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
@@ -118,12 +121,14 @@ clean-local:
 
 # run any given test by running make <test>.check
 %.check: %
-	@$(TESTS_ENVIRONMENT) ./$*
+	@$(TESTS_ENVIRONMENT)	\
+	./$*
 
 # gdb any given test by running make <test>.gdb
 %.gdb: %
-	$(TESTS_ENVIRONMENT)		\
-	CK_FORK=no						  \
+	$(TESTS_ENVIRONMENT_COMMON)	\
+	CK_FORK=no				\
+	CK_DEFAULT_TIMEOUT=20	\
 	libtool --mode=execute	\
 	gdb ./$*
 
@@ -138,7 +143,9 @@ clean-local:
 .PHONY: splint valgrind todo
 
 if USE_VALGRIND
-VALPREFIX = $(TESTS_ENVIRONMENT) G_SLICE=always-malloc GLIBCPP_FORCE_NEW=
+VALPREFIX = $(TESTS_ENVIRONMENT_COMMON) \
+	CK_FORK=no CK_DEFAULT_TIMEOUT=360 \
+	G_SLICE=always-malloc GLIBCPP_FORCE_NEW=
 VALDEFAULT = @VALGRIND@/bin/valgrind
 VALSUPP = @VALGRIND@/lib/valgrind
 VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp

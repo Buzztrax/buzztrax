@@ -503,7 +503,5 @@ TCase *bt_edit_application_example_case(void) {
   tcase_add_test(tc,test_machine_view_edit);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  // we need to disable the default timeout of 3 seconds
-  tcase_set_timeout(tc, 0);
   return(tc);
 }

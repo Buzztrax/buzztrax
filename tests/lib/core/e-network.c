@@ -394,7 +394,5 @@ TCase *bt_network_example_case(void) {
   tcase_add_test(tc,test_btcore_net_example4);
   */
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  // we need to raise the default timeout of 3 seconds
-  tcase_set_timeout(tc, 20);
   return(tc);
 }
