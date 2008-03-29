@@ -1,5 +1,11 @@
 2008-03-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gui/stylecolors.c:
+	* src/ui/edit/pattern-editor.c:
+	  Move to separate testapp.
+
+2008-03-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/lib/core/e-song-io-native.c:
 	* tests/ui/edit/e-bt-edit-application.c:
 	  More tests.

@@ -532,31 +532,6 @@ bt_pattern_editor_expose (GtkWidget *widget,
     cgrp->width = x - start;
   }
   
-#if 0
-//#if USE_DEBUG
-  /* DEBUG : for tuning the colors */
-  GdkGC **gcs[]={
-    GTK_WIDGET(self)->style->fg_gc,
-    GTK_WIDGET(self)->style->bg_gc,
-    GTK_WIDGET(self)->style->light_gc,
-    GTK_WIDGET(self)->style->dark_gc,
-    GTK_WIDGET(self)->style->mid_gc,
-    GTK_WIDGET(self)->style->text_gc,
-    GTK_WIDGET(self)->style->base_gc,
-    GTK_WIDGET(self)->style->text_aa_gc,
-  };
-  gint tx=x,ty;
-  for(g=0;g<5;g++) {
-    ty=y;
-    for(i=0;i<8;i++) {
-      gdk_draw_rectangle (widget->window, gcs[i][g] , TRUE, tx, ty, self->cw*2, self->ch);
-      ty+=self->ch;
-    }
-    tx+=self->cw*2;
-  }
-  /* DEBUG : for tuning the colors */
-#endif
-  
   bt_pattern_editor_draw_rownum(self, rowhdr_x, y, row);
 
   /* draw play-pos */
