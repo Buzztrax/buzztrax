@@ -1,5 +1,11 @@
 2008-03-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/core/e-song-io-native.c:
+	* tests/ui/edit/e-bt-edit-application.c:
+	  More tests.
+
+2008-03-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/bt-edit-sections.txt:
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/main-page-machines-methods.h:

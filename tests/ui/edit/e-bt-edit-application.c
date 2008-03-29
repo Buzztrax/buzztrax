@@ -437,6 +437,58 @@ BT_START_TEST(test_tabs1) {
 }
 BT_END_TEST
 
+// load a song and remove a machine
+BT_START_TEST(test_machine_view_edit) {
+  BtEditApplication *app;
+  BtMainWindow *main_window;
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+
+  bt_edit_application_load_song(app, check_get_test_song_path("test-simple3.xml"));
+  g_object_get(app,"song",&song,NULL);
+  fail_unless(song != NULL, NULL);
+  GST_INFO("song loaded");
+  g_object_get(song,"setup",&setup,NULL);
+  
+  // remove a source
+  machine=bt_setup_get_machine_by_id(setup,"sine2");
+  bt_setup_remove_machine(setup,machine);
+  GST_INFO("setup.machine[sine2].ref-count=%d",G_OBJECT(machine)->ref_count);
+  // ref count should be 1 now
+  fail_unless(G_OBJECT(machine)->ref_count==1,NULL);
+  g_object_unref(machine);
+
+  // remove an effect
+  machine=bt_setup_get_machine_by_id(setup,"amp1");
+  bt_setup_remove_machine(setup,machine);
+  GST_INFO("setup.machine[amp1].ref-count=%d",G_OBJECT(machine)->ref_count);
+  // ref count should be 1 now
+  fail_unless(G_OBJECT(machine)->ref_count==1,NULL);
+  g_object_unref(machine);
+
+  g_object_unref(setup);
+  g_object_unref(song);
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
+  // close window
+  g_object_unref(main_window);
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
+  // free application
+  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+  
 TCase *bt_edit_application_example_case(void) {
   TCase *tc = tcase_create("BtEditApplicationExamples");
 
@@ -448,6 +500,7 @@ TCase *bt_edit_application_example_case(void) {
   tcase_add_test(tc,test_load_and_play1);
   tcase_add_test(tc,test_load_and_play2);
   tcase_add_test(tc,test_tabs1);
+  tcase_add_test(tc,test_machine_view_edit);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   // we need to disable the default timeout of 3 seconds

@@ -131,7 +131,7 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   // 1 x setup, 1 x wire, 1 x sequence
   assert_machine_refcount(setup,"sine1",3);
 
-  /* @todo: check more refcounts
+  /* @todo: check more refcounts (wires)
    * grep ".ref-count=" /tmp/bt_core.log
    */
 
