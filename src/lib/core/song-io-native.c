@@ -95,7 +95,7 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
       goto Error;
     }
     // @todo: check mime-type ?    
-    if(file_info) gnome_vfs_file_info_unref(file_info);
+    gnome_vfs_file_info_unref(file_info);
 
     // check extension
     gchar * const lc_file_name=g_ascii_strdown(file_name,-1);

@@ -1,5 +1,12 @@
 2008-03-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-io-native.c:
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/t-wire.c:
+	  More fixes.
+
+2008-03-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* gst.supp:
 	* src/lib/core/machine.c:
 	* src/lib/core/sink-bin.c:

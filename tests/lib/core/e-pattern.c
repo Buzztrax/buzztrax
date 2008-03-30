@@ -89,15 +89,15 @@ BT_START_TEST(test_btpattern_obj2) {
 
   g_object_get(machine,"machine",&element,NULL);
   voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(element));
-  g_object_unref(element);
+  gst_object_unref(element);
   fail_unless(voices==2, NULL);
 
   /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   fail_unless(pattern!=NULL, NULL);
 
   g_object_try_unref(pattern);
-  g_object_try_unref(machine);
+  g_object_checked_unref(machine);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }

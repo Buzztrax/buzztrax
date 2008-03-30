@@ -65,6 +65,7 @@ BT_START_TEST(test_btwire_obj1){
   fail_unless(check_has_error_trapped(), NULL);
   fail_unless(wire==NULL,NULL);
 
+  g_object_checked_unref(machine);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
