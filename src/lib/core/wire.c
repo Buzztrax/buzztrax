@@ -322,11 +322,11 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
     next=GST_ELEMENT(node->data);
 
     if(!(res=gst_bin_add(self->priv->bin,next))) {
-      GST_INFO("cannot add element \"%s\" to bin",gst_element_get_name(next));
+      GST_INFO("cannot add element \"%s\" to bin",GST_OBJECT_NAME(next));
     }
     if(prev) {
       if(!(res=gst_element_link(prev,next))) {
-        GST_INFO("cannot link elements \"%s\" -> \"%s\"",gst_element_get_name(prev),gst_element_get_name(next));
+        GST_INFO("cannot link elements \"%s\" -> \"%s\"",GST_OBJECT_NAME(prev),GST_OBJECT_NAME(next));
       }
     }
     prev=next;
@@ -340,7 +340,7 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
   for(node=self->priv->analyzers;node;node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
     if(!(gst_element_sync_state_with_parent(next))) {
-      GST_INFO("cannot sync state for elements \"%s\"",gst_element_get_name(next));
+      GST_INFO("cannot sync state for elements \"%s\"",GST_OBJECT_NAME(next));
     }
   }  
   GST_INFO("linking to tee");
@@ -384,7 +384,7 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
     next=GST_ELEMENT(node->data);
 
     if((state_ret=gst_element_set_state(next,GST_STATE_NULL))!=GST_STATE_CHANGE_SUCCESS) {
-      GST_INFO("cannot set state to NULL for element '%s', ret='%s'",gst_element_get_name(next),gst_element_state_change_return_get_name(state_ret));
+      GST_INFO("cannot set state to NULL for element '%s', ret='%s'",GST_OBJECT_NAME(next),gst_element_state_change_return_get_name(state_ret));
     }
     gst_element_unlink(prev,next);
     prev=next;
@@ -392,7 +392,7 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
     if(!(res=gst_bin_remove(self->priv->bin,next))) {
-      GST_INFO("cannot remove element '%s' from bin",gst_element_get_name(next));
+      GST_INFO("cannot remove element '%s' from bin",GST_OBJECT_NAME(next));
     }
   }
   if(src_pad) {
@@ -507,6 +507,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
       }
       gst_caps_unref(caps);
     }
+    gst_object_unref(pad);
   }
   gst_object_unref(dst_machine);
   
@@ -583,16 +584,20 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
     }
     GST_DEBUG("request pads: adder %s,%s  tee %s,%s",
       GST_DEBUG_PAD_NAME(dst_pad),GST_DEBUG_PAD_NAME(src_pad));
-    if(dst_pad && bt_machine_has_active_adder(self->priv->dst)) {
-      // remove request-pad
-      GST_INFO("releasing request pad for dst-adder");
-      gst_element_release_request_pad(self->priv->dst->dst_elem,dst_pad);
+    if(dst_pad) {
+      if (bt_machine_has_active_adder(self->priv->dst)) {
+        // remove request-pad
+        GST_INFO("releasing request pad for dst-adder");
+        gst_element_release_request_pad(self->priv->dst->dst_elem,dst_pad);
+      }
       gst_object_unref(dst_pad);
     }
-    if(src_pad && bt_machine_has_active_spreader(self->priv->src)) {
-      // remove request-pad
-      GST_INFO("releasing request pad for src-spreader");
-      gst_element_release_request_pad(self->priv->src->src_elem,src_pad);
+    if(src_pad) {
+      if(bt_machine_has_active_spreader(self->priv->src)) {
+        // remove request-pad
+        GST_INFO("releasing request pad for src-spreader");
+        gst_element_release_request_pad(self->priv->src->src_elem,src_pad);
+      }
       gst_object_unref(src_pad);
     }
   }
@@ -640,7 +645,6 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   BtMachine * const src=self->priv->src;
   BtMachine * const dst=self->priv->dst;
   const GstElement *old_peer;
-  //GstPad *sink_pad;
 
   g_assert(BT_IS_WIRE(self));
 
@@ -728,7 +732,8 @@ static gboolean bt_wire_connect(const BtWire * const self) {
 
   // needed for the adder format negotiation
 #if 0
-  if((sink_pad=gst_element_get_pad(self->priv->machines[PART_SRC],"sink"))) {
+  GstPad *sink_pad;
+  if((sink_pad=gst_element_get_static_pad(self->priv->machines[PART_SRC],"sink"))) {
     g_signal_connect(sink_pad,"notify::caps",G_CALLBACK(on_format_negotiated),(gpointer)self->priv->dst);
     gst_object_unref(sink_pad);
   }
@@ -1383,14 +1388,15 @@ static void bt_wire_dispose(GObject * const object) {
         for(j=i+1;j<PART_DST;j++) {
           if(self->priv->machines[j]) {
             GST_DEBUG("  unlinking machine \"%s\", \"%s\"",
-              gst_element_get_name(self->priv->machines[i]),
-              gst_element_get_name(self->priv->machines[j]));
+              GST_OBJECT_NAME(self->priv->machines[i]),
+              GST_OBJECT_NAME(self->priv->machines[j]));
             gst_element_unlink(self->priv->machines[i],self->priv->machines[j]);
             break;
           }
         }
 
-        GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
+        GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",
+          GST_OBJECT_NAME(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
         if((res=gst_element_set_state(self->priv->machines[i],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
           GST_WARNING("can't go to null state");
         else

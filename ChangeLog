@@ -1,3 +1,14 @@
+2008-03-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* gst.supp:
+	* src/lib/core/machine.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song.c:
+	* src/lib/core/tools.c:
+	* src/lib/core/wire.c:
+	* tests/Makefile.am:
+	  Refcount and leak fixes.
+
 2008-03-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* TODO:

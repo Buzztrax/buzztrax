@@ -1261,10 +1261,10 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     GST_DEBUG("  about to link adder -> convert -> dst_elem");
     if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
       gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);
-      GST_ERROR("failed to link the internal adder of machines '%s'",gst_element_get_name(self->priv->machines[PART_MACHINE]));goto Error;
+      GST_ERROR("failed to link the internal adder of machines '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
     else {
-      GST_DEBUG("  adder activated for '%s'",gst_element_get_name(self->priv->machines[PART_MACHINE]));
+      GST_DEBUG("  adder activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
       self->dst_elem=self->priv->machines[PART_ADDER];
     }
   }
@@ -1309,10 +1309,10 @@ gboolean bt_machine_activate_spreader(BtMachine * const self) {
     // create the spreader (tee)
     if(!(bt_machine_make_internal_element(self,PART_SPREADER,"tee","tee"))) goto Error;
     if(!gst_element_link(self->src_elem, self->priv->machines[PART_SPREADER])) {
-      GST_ERROR("failed to link the internal spreader of machines '%s'",gst_element_get_name(self->priv->machines[PART_MACHINE]));res=FALSE;
+      GST_ERROR("failed to link the internal spreader of machines '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));res=FALSE;
     }
     else {
-      GST_DEBUG("  spreader activated for '%s'",gst_element_get_name(self->priv->machines[PART_MACHINE]));
+      GST_DEBUG("  spreader activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
       self->src_elem=self->priv->machines[PART_SPREADER];
     }
   }
@@ -1390,7 +1390,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
       wire=BT_WIRE(node->data);
       g_object_get(wire,"src",&src,NULL);
 
-      if((pad=gst_element_get_pad(src->priv->machines[PART_MACHINE],"src"))) {
+      if((pad=gst_element_get_static_pad(src->priv->machines[PART_MACHINE],"src"))) {
         // @todo: only check template caps?
         if((pad_caps=gst_pad_get_negotiated_caps(pad)) ||
           (pad_tmpl_caps=gst_pad_get_pad_template_caps(pad))) {
@@ -1461,6 +1461,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     GST_INFO("set new caps %" GST_PTR_FORMAT, new_caps);
 
     g_object_set(self->priv->machines[PART_CAPS_FILTER],"caps",new_caps,NULL);
+    gst_caps_unref(new_caps);
   }
   g_object_unref(setup);
 }
@@ -3026,13 +3027,14 @@ static void bt_machine_dispose(GObject * const object) {
         for(j=i+1;j<PART_COUNT;j++) {
           if(self->priv->machines[j]) {
             GST_DEBUG("  unlinking machine \"%s\", \"%s\"",
-              gst_element_get_name(self->priv->machines[i]),
-              gst_element_get_name(self->priv->machines[j]));
+              GST_OBJECT_NAME(self->priv->machines[i]),
+              GST_OBJECT_NAME(self->priv->machines[j]));
             gst_element_unlink(self->priv->machines[i],self->priv->machines[j]);
             break;
           }
         }
-        GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
+        GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",
+          GST_OBJECT_NAME(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
         if((res=gst_element_set_state(self->priv->machines[i],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
           GST_WARNING("can't go to null state");
         else

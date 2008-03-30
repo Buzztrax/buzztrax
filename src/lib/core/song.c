@@ -313,7 +313,7 @@ static void bt_song_send_tags(const BtSong * const self) {
   while(!done) {
     switch(gst_iterator_next(it, &item)) {
       case GST_ITERATOR_OK:
-        GST_INFO("sending tags to '%s' element",gst_element_get_name(GST_ELEMENT(item)));
+        GST_INFO("sending tags to '%s' element",GST_OBJECT_NAME(GST_ELEMENT(item)));
         gst_tag_setter_merge_tags(GST_TAG_SETTER(item),taglist,GST_TAG_MERGE_REPLACE);
         gst_object_unref(item);
         break;
@@ -344,9 +344,9 @@ static void bt_song_send_tags(const BtSong * const self) {
   while(!done) {
     switch(gst_iterator_next(it, &item)) {
       case GST_ITERATOR_OK:
-        GST_INFO("sending tags to '%s' element",gst_element_get_name(GST_ELEMENT(item)));
+        GST_INFO("sending tags to '%s' element",GST_OBJECT_NAME(GST_ELEMENT(item)));
         if(!(gst_element_send_event(GST_ELEMENT(item),gst_event_ref(tag_event)))) {
-          //GST_WARNING("element '%s' failed to handle tag event",gst_element_get_name(GST_ELEMENT(item)));
+          //GST_WARNING("element '%s' failed to handle tag event",GST_OBJECT_NAME(GST_ELEMENT(item)));
         }
         gst_object_unref(item);
         break;

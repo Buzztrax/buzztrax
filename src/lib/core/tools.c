@@ -305,9 +305,8 @@ void bt_gst_element_dbg_pads(GstElement * const elem) {
           gchar * const str=gst_structure_to_string(structure);
           GST_DEBUG("    caps[%2d]: %s : %s",i,GST_STR_NULL(gst_structure_get_name(structure)),str);
           g_free(str);
-          //gst_object_unref(structure);
-        }
-        //gst_object_unref(caps);
+         }
+        gst_caps_unref(caps);
         gst_object_unref(pad);
         break;
       case GST_ITERATOR_RESYNC:

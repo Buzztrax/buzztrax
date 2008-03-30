@@ -149,10 +149,11 @@ VALPREFIX = $(TESTS_ENVIRONMENT_COMMON) \
 VALDEFAULT = @VALGRIND@/bin/valgrind
 VALSUPP = @VALGRIND@/lib/valgrind
 VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp
-VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztard.supp
+VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztard.supp \
+	--suppressions=$(top_builddir)/gst.supp
 VALSUPPRESSION = $(VALSUPPRESSIONDEF) $(VALSUPPRESSIONOWN)
 VALOPTIONS = -q --trace-children=yes --num-callers=20 \
-  --tool=memcheck  --show-reachable=yes --leak-check=full --leak-resolution=high
+  --tool=memcheck --leak-check=full --leak-resolution=high
 VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS) $(VALSUPPRESSION)
 
 valgrind:: $(TESTS_BIN)

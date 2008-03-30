@@ -243,12 +243,16 @@ static gboolean bt_sink_bin_add_many(const BtSinkBin * const self, GList * const
 static void bt_sink_bin_link_many(const BtSinkBin * const self, GstElement *last_elem, GList * const list) {
   const GList *node;
 
-  GST_DEBUG("link elements: last_elem=%p, list=%p",last_elem,list);
+  GST_DEBUG("link elements: last_elem=%s, list=%p",GST_OBJECT_NAME(last_elem),list);
   if(!list) return;
 
   for(node=list;node;node=node->next) {
     GstElement * const cur_elem=GST_ELEMENT(node->data);
-    gst_element_link(last_elem,cur_elem);
+    
+    if(!gst_element_link(last_elem,cur_elem)) {
+      GST_WARNING("can't link elements: last_elem=%s, cur_elem=%s",
+        GST_OBJECT_NAME(last_elem),GST_OBJECT_NAME(cur_elem));
+    }
     last_elem=cur_elem;
   }
 }
@@ -485,6 +489,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   );
   first_elem=gst_element_factory_make("capsfilter","capsfilter");
   g_object_set(first_elem,"caps",stereo_caps,NULL);
+  gst_caps_unref(stereo_caps);
   gst_bin_add(GST_BIN(self),first_elem);
 
   // add new children
@@ -553,12 +558,13 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   // set new ghostpad-target
   if(/*first_elem &&*/self->priv->sink) {
     GstPad *sink_pad=gst_element_get_static_pad(first_elem,"sink");
+    GstPad *req_sink_pad=NULL;
 
     GST_INFO("updating ghostpad: %p", self->priv->sink);
 
     if(!sink_pad) {
       GST_INFO("failed to get static 'sink' pad for element '%s'",GST_OBJECT_NAME(first_elem));
-      sink_pad=gst_element_get_request_pad(first_elem,"sink_%d");
+      sink_pad=req_sink_pad=gst_element_get_request_pad(first_elem,"sink_%d");
       if(!sink_pad) {
         GST_INFO("failed to get request 'sink' request-pad for element '%s'",GST_OBJECT_NAME(first_elem));
       }
@@ -568,8 +574,10 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       sink_pad,(G_OBJECT(sink_pad)->ref_count));
     gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad);
     GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
-    // @todo: request pads need to be released
-    gst_object_unref(sink_pad);
+    // request pads need to be released
+    if(!req_sink_pad) {
+      gst_object_unref(sink_pad);
+    }
   }
 
   GST_INFO("done");
@@ -741,7 +749,7 @@ static void bt_sink_bin_set_property(GObject      * const object,
       g_object_try_weak_unref(self->priv->gain);
       self->priv->gain = GST_ELEMENT(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->gain);
-      sink_pad=gst_element_get_pad(self->priv->gain,"sink");
+      sink_pad=gst_element_get_static_pad(self->priv->gain,"sink");
       self->priv->mv_handler_id=gst_pad_add_buffer_probe(sink_pad,G_CALLBACK(master_volume_sync_handler),(gpointer)self);
       gst_object_unref(sink_pad);
     } break;
@@ -786,12 +794,9 @@ static void bt_sink_bin_dispose(GObject * const object) {
   g_signal_handlers_disconnect_matched(self->priv->settings,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_audio_sink_changed,(gpointer)self);
   g_signal_handlers_disconnect_matched(self->priv->settings,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_system_audio_sink_changed,(gpointer)self);
   g_object_unref(self->priv->settings);
-
-  GST_INFO("self->sink=%p, refct=%d",self->priv->sink,(G_OBJECT(self->priv->sink))->ref_count);
-  gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
  
   if(self->priv->mv_handler_id && self->priv->gain) {
-    GstPad *sink_pad=gst_element_get_pad(self->priv->gain,"sink");
+    GstPad *sink_pad=gst_element_get_static_pad(self->priv->gain,"sink");
     
     if(sink_pad) {
       gst_pad_remove_buffer_probe(sink_pad,self->priv->mv_handler_id);
@@ -799,6 +804,9 @@ static void bt_sink_bin_dispose(GObject * const object) {
     }
   }  
   g_object_try_weak_unref(self->priv->gain);
+
+  GST_INFO("self->sink=%p, refct=%d",self->priv->sink,(G_OBJECT(self->priv->sink))->ref_count);
+  gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
 
   GST_INFO("chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
