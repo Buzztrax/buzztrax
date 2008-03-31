@@ -1,5 +1,10 @@
 2008-03-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-io-native.c:
+	  Put the _new back in. Gnomevfs seems to leak something here though.
+
+2008-03-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/sequence.c:
 	* src/lib/core/song-io-native.c:

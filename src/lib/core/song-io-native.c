@@ -84,17 +84,18 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   }
   else {
     // create new file info pointer.
-    GnomeVFSFileInfo *file_info = NULL;
+    GnomeVFSFileInfo *file_info = gnome_vfs_file_info_new();
     
     GST_INFO("given uri exists");
     
     // now we check the mime type
     if((result=gnome_vfs_get_file_info_uri(input_uri,file_info,GNOME_VFS_FILE_INFO_GET_MIME_TYPE))!=GNOME_VFS_OK) {
       GST_WARNING("Cannot determine mime type. Error: %s\n", gnome_vfs_result_to_string (result));
-      if(file_info) gnome_vfs_file_info_unref(file_info);
+      gnome_vfs_file_info_unref(file_info);
       goto Error;
     }
-    // @todo: check mime-type and set type accordingly
+    /* @todo: check mime-type and set type accordingly */
+    GST_INFO("Mime type: %s\n",gnome_vfs_file_info_get_mime_type (file_info));
     gnome_vfs_file_info_unref(file_info);
 
     // check extension
