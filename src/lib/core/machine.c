@@ -2328,6 +2328,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
       }
     }
   }
+  g_object_unref(param_parent);
 }
 
 //-- interaction control
@@ -2817,6 +2818,7 @@ static gboolean bt_machine_persistence_load(const BtPersistence * const persiste
                           voice=atol((char *)voice_str);
                           machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
                           bt_machine_bind_parameter_control(self,machine_voice,(gchar*)property_name,control);
+                          g_object_unref(machine_voice);
                           xmlFree(voice_str);
                         }
                       }
@@ -3006,6 +3008,7 @@ static void bt_machine_dispose(GObject * const object) {
       for(j=0;j<self->priv->voice_params;j++) {
         bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(j));
       }
+      g_object_unref(param_parent);
       self->priv->voice_controllers[i]=NULL;
       //g_object_try_unref(self->priv->voice_controllers[i]);
     }

@@ -279,10 +279,10 @@ BT_START_TEST(test_btsequence_pattern2) {
   fail_unless(pattern2==pattern3, NULL);
 
   /* clean up */
-  g_object_try_unref(pattern1);
-  g_object_try_unref(machine1);
-  g_object_try_unref(machine2);
-  g_object_try_unref(sequence);
+  g_object_unref(pattern1);
+  g_object_unref(machine1);
+  g_object_unref(machine2);
+  g_object_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }

@@ -1112,7 +1112,7 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
     }
     g_object_try_unref(*dst);
     if(count) {
-      memcpy(dst,src,count*sizeof(gpointer));
+      memmove(dst,src,count*sizeof(gpointer));
     }
     src[count-1]=NULL;
     src=&src[self->priv->tracks];
@@ -1125,7 +1125,7 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   }
   GST_INFO("and release machine %p,ref_count=%d",self->priv->machines[track],G_OBJECT(self->priv->machines[track])->ref_count);
   g_object_unref(G_OBJECT(self->priv->machines[track]));
-  memcpy(&self->priv->machines[track],&self->priv->machines[track+1],count*sizeof(gpointer));
+  memmove(&self->priv->machines[track],&self->priv->machines[track+1],count*sizeof(gpointer));
   self->priv->machines[self->priv->tracks-1]=NULL;
   g_object_set(G_OBJECT(self),"tracks",(gulong)(self->priv->tracks-1),NULL);
 

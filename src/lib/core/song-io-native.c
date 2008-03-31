@@ -84,7 +84,7 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   }
   else {
     // create new file info pointer.
-    GnomeVFSFileInfo * const file_info = gnome_vfs_file_info_new ();
+    GnomeVFSFileInfo *file_info = NULL;
     
     GST_INFO("given uri exists");
     
@@ -94,7 +94,7 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
       if(file_info) gnome_vfs_file_info_unref(file_info);
       goto Error;
     }
-    // @todo: check mime-type ?    
+    // @todo: check mime-type and set type accordingly
     gnome_vfs_file_info_unref(file_info);
 
     // check extension

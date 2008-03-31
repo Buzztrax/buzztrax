@@ -134,6 +134,8 @@ BT_START_TEST(test_btsetup_obj2){
 
   /* clean up */
   g_object_unref(wire1);
+  g_object_unref(source);
+  g_object_unref(sink);
   g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -450,6 +452,7 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine1) {
   fail_unless(check_has_error_trapped(), NULL);
 
   /* clean up */
+  g_object_unref(src_machine);
   g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);

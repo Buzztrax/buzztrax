@@ -143,7 +143,7 @@ static void bt_test_settings_set_property(GObject      * const object,
         prop=self->priv->settings[property_id]=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_STRING);
       }
-      g_value_set_string(prop, g_value_dup_string(value));
+      g_value_set_string(prop, g_value_get_string(value));
     } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
     case BT_SETTINGS_MENU_TABS_HIDE:

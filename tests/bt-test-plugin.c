@@ -207,6 +207,8 @@ GType bt_test_mono_source_get_type(void) {
 
 //-- test_poly_source
 
+static GObjectClass *poly_parent_class=NULL;
+
 static void bt_test_poly_source_get_property(GObject *object,
                                guint         property_id,
                                GValue       *value,
@@ -237,14 +239,18 @@ static void bt_test_poly_source_set_property(GObject *object,
       GST_INFO("machine %p, changing voices from %d to %d",object,num_voices,self->num_voices);
       if(self->num_voices>num_voices) {
         for(i=num_voices;i<self->num_voices;i++) {
-          self->voices=g_list_append(self->voices,g_object_new(BT_TYPE_TEST_MONO_SOURCE,NULL));
+          voice=g_object_new(BT_TYPE_TEST_MONO_SOURCE,NULL);
+          self->voices=g_list_append(self->voices,voice);
+          GST_DEBUG(" adding voice %p, ref_ct=%d",voice, G_OBJECT(voice)->ref_count);
+          gst_object_set_parent(GST_OBJECT(voice), GST_OBJECT(self));
+          GST_DEBUG(" parented voice %p, ref_ct=%d",voice, G_OBJECT(voice)->ref_count);
         }
       }
       else if(self->num_voices<num_voices) {
         for(i=num_voices;i>self->num_voices;i--) {
           voice=g_list_nth_data(self->voices,(i-1));
           self->voices=g_list_remove(self->voices,voice);
-          g_object_unref(voice);
+          gst_object_unparent(GST_OBJECT(voice));
         }
       }
       break;
@@ -257,15 +263,19 @@ static void bt_test_poly_source_set_property(GObject *object,
 static void bt_test_poly_source_finalize(GObject *object) {
   BtTestPolySource *self = BT_TEST_POLY_SOURCE(object);
 
+  GST_DEBUG(" !!! self=%p",object);
+
   if(self->voices) {
     GList* node;
     for(node=self->voices;node;node=g_list_next(node)) {
-      g_object_unref(node->data);
+      GST_DEBUG(" free voice %p, ref_ct=%d",node->data, G_OBJECT(node->data)->ref_count);
+      gst_object_unparent(node->data);
       node->data=NULL;
     }
     g_list_free(self->voices);
     self->voices=NULL;
   }
+  G_OBJECT_CLASS(poly_parent_class)->finalize(object);
 }
 
 static void bt_test_poly_source_init (GTypeInstance *instance, gpointer g_class) {
@@ -279,9 +289,12 @@ static void bt_test_poly_source_init (GTypeInstance *instance, gpointer g_class)
 
 static void bt_test_poly_source_class_init(BtTestPolySourceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  
+  poly_parent_class=g_type_class_peek_parent(klass);
 
   gobject_class->set_property = bt_test_poly_source_set_property;
   gobject_class->get_property = bt_test_poly_source_get_property;
+  //gobject_class->dispose      = bt_test_poly_source_dispose;
   gobject_class->finalize     = bt_test_poly_source_finalize;
   
   g_object_class_override_property(gobject_class, ARG_BPM, "beats-per-minute");
