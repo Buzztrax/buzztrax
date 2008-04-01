@@ -53,11 +53,21 @@ static BtSongIOClass *parent_class=NULL;
  */
 GType bt_song_io_native_detect(const gchar * const file_name) {
   GType type=0;
-  GnomeVFSResult result;
 
   // test filename first  
   GST_INFO("file_name='%s'",file_name);
   if(!file_name) return(type);
+
+  // check extension
+  gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
+  if(g_str_has_suffix(lc_file_name,".xml")) {
+    type=BT_TYPE_SONG_IO_NATIVE;
+  }
+  g_free(lc_file_name);
+
+#if 0
+  // lets replace this with GIO later
+  GnomeVFSResult result;
 
   // creating a absolute uri string from the given input string.
   // works also if the given string was a absolute uri.
@@ -77,7 +87,6 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
     // check extension
     gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
     if(g_str_has_suffix(lc_file_name,".xml")) {
-      GST_INFO(".xml extension -> accept");
       type=BT_TYPE_SONG_IO_NATIVE;
     }
     g_free(lc_file_name);
@@ -108,6 +117,8 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
 Error:
   gnome_vfs_uri_unref(input_uri);
   if(absolute_uri_string) g_free(absolute_uri_string);
+  
+#endif
   return(type);
 }
 

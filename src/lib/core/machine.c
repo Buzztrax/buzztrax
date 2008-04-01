@@ -3000,8 +3000,8 @@ static void bt_machine_dispose(GObject * const object) {
   for(j=0;j<self->priv->global_params;j++) {
     bt_gst_object_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(j));
   }
-  self->priv->global_controller=NULL;
-  //g_object_try_unref(self->priv->global_controller);
+  //self->priv->global_controller=NULL; // <- this is wrong, controllers have a refcount on the gstelement
+  g_object_try_unref(self->priv->global_controller);
   if(self->priv->voice_controllers) {
     for(i=0;i<self->priv->voices;i++) {
       param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),i));
@@ -3009,8 +3009,8 @@ static void bt_machine_dispose(GObject * const object) {
         bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(j));
       }
       g_object_unref(param_parent);
-      self->priv->voice_controllers[i]=NULL;
-      //g_object_try_unref(self->priv->voice_controllers[i]);
+      //self->priv->voice_controllers[i]=NULL; // <- this is wrong, controllers have a refcount on the gstelement
+      g_object_try_unref(self->priv->voice_controllers[i]);
     }
   }
 

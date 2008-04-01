@@ -1,3 +1,11 @@
+2008-04-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/song-io-native.c:
+	* tests/lib/core/e-sequence.c:
+	* tests/lib/core/t-source-machine.c:
+	  More refct and test fixes.
+
 2008-03-31  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-io-native.c:

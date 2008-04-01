@@ -110,6 +110,7 @@ BT_START_TEST(test_btsourcemachine_obj3){
                               NULL);
   g_error_free(error);
 
+  g_object_unref(machine);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
