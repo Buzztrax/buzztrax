@@ -278,7 +278,7 @@ static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_dat
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
     gtk_widget_show(GTK_WIDGET(toolbar));
     g_object_set(G_OBJECT(settings),"toolbar-hide",FALSE,NULL);
-}
+  }
   else {
     gtk_widget_hide(GTK_WIDGET(toolbar));
     g_object_set(G_OBJECT(settings),"toolbar-hide",TRUE,NULL);
@@ -304,7 +304,7 @@ static void on_menu_view_tabs_toggled(GtkMenuItem *menuitem,gpointer user_data) 
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(pages),TRUE);
     g_object_set(G_OBJECT(settings),"tabs-hide",FALSE,NULL);
-}
+  }
   else {
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(pages),FALSE);
     g_object_set(G_OBJECT(settings),"tabs-hide",TRUE,NULL);

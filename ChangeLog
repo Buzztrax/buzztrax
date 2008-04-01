@@ -1,5 +1,17 @@
 2008-04-01  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	  Seem that init is not needed to instantiate subclasses.
+
+	* src/lib/core/sequence.c:
+	  Check read data more careful.
+
+	* src/ui/edit/main-menu.c:
+	  Whitespace fix.
+
+2008-04-01  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/song-io-native.c:
 	* tests/lib/core/e-sequence.c:

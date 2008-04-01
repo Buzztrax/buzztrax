@@ -41,6 +41,7 @@
 <!ENTITY BtSettingsPageDirectories SYSTEM "xml/btsettingspagedirectories.xml">
 <!ENTITY BtUIRessources SYSTEM "xml/btuiressources.xml">
 <!ENTITY BtVolumePopup SYSTEM "xml/btvolumepopup.xml">
+<!ENTITY BtWireAnalysisDialog SYSTEM "xml/btwireanalysisdialog.xml">
 <!ENTITY BtWireCanvasItem SYSTEM "xml/btwirecanvasitem.xml">
 
 <!ENTITY GtkVUMeter SYSTEM "xml/gtkvumeter.xml">
@@ -112,6 +113,7 @@
     &BtSettingsPagePlaybackController;
     &BtSettingsPageDirectories;
     &BtUIRessources;
+    &BtWireAnalysisDialog;
     &BtWireCanvasItem;
     &BtVolumePopup;
 

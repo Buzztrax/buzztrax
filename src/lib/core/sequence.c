@@ -241,21 +241,24 @@ static void bt_sequence_resize_data_tracks(const BtSequence * const self, const 
       new_data_count,self->priv->length,self->priv->tracks);
   }
   // allocate new space
-  if((self->priv->machines=(BtMachine **)g_try_new0(gpointer,self->priv->tracks))) {
-    if(machines) {
-      // copy old values over
-      memcpy(self->priv->machines,machines,count*sizeof(gpointer));
-      // free old data
-      if(old_tracks>self->priv->tracks) {
-        gulong i;
-        for(i=self->priv->tracks;i<old_tracks;i++) {
-          GST_INFO("release machine %p,ref_count=%d for track %u",
-            machines[i],(machines[i]?G_OBJECT(machines[i])->ref_count:-1),i);
-          g_object_try_unref(machines[i]);
+  if(self->priv->tracks) {
+    if((self->priv->machines=(BtMachine **)g_try_new0(gpointer,self->priv->tracks))) {
+      if(machines) {
+        // copy old values over
+        memcpy(self->priv->machines,machines,count*sizeof(gpointer));
+        // free old data
+        if(old_tracks>self->priv->tracks) {
+          gulong i;
+          for(i=self->priv->tracks;i<old_tracks;i++) {
+            GST_INFO("release machine %p,ref_count=%d for track %u",
+              machines[i],(machines[i]?G_OBJECT(machines[i])->ref_count:-1),i);
+            g_object_try_unref(machines[i]);
+          }
         }
+        g_free(machines);
       }
-      g_free(machines);
     }
+    else self->priv->machines=NULL;
   }
   else {
     GST_INFO("extending sequence machines from %d to %d failed",old_tracks,self->priv->tracks);
@@ -1738,38 +1741,43 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
             xmlChar * const machine_id=xmlGetProp(child_node,XML_CHAR_PTR("machine"));
             xmlChar * const index_str=xmlGetProp(child_node,XML_CHAR_PTR("index"));
             const gulong index=index_str?atol((char *)index_str):0;
-	        BtMachine * const machine=bt_setup_get_machine_by_id(setup, (gchar *)machine_id);
+            BtMachine * const machine=bt_setup_get_machine_by_id(setup, (gchar *)machine_id);
 
             if(machine) {
               GST_INFO("add track for machine %p,ref_count=%d at position %d",machine,G_OBJECT(machine)->ref_count,index);
-              self->priv->machines[index]=machine;
-              GST_DEBUG("loading track with index=%s for machine=\"%s\"",index_str,machine_id);
-              for(child_node2=child_node->children;child_node2;child_node2=child_node2->next) {
-                if((!xmlNodeIsText(child_node2)) && (!strncmp((char *)child_node2->name,"position\0",9))) {
-                  xmlChar * const time_str=xmlGetProp(child_node2,XML_CHAR_PTR("time"));
-                  xmlChar * const pattern_id=xmlGetProp(child_node2,XML_CHAR_PTR("pattern"));
-                  GST_DEBUG("  at %s, machinepattern \"%s\"",time_str,safe_string(pattern_id));
-                  if(pattern_id) {
-                    // get pattern by name from machine
-		            BtPattern * const pattern=bt_machine_get_pattern_by_id(machine,(gchar *)pattern_id);
-                    if(pattern) {
-                      // this refs the pattern
-                      bt_sequence_set_pattern(self,atol((char *)time_str),index,pattern);
-                      g_object_unref(pattern);
+              if(index<tracks) {
+                self->priv->machines[index]=machine;
+                GST_DEBUG("loading track with index=%s for machine=\"%s\"",index_str,machine_id);
+                for(child_node2=child_node->children;child_node2;child_node2=child_node2->next) {
+                  if((!xmlNodeIsText(child_node2)) && (!strncmp((char *)child_node2->name,"position\0",9))) {
+                    xmlChar * const time_str=xmlGetProp(child_node2,XML_CHAR_PTR("time"));
+                    xmlChar * const pattern_id=xmlGetProp(child_node2,XML_CHAR_PTR("pattern"));
+                    GST_DEBUG("  at %s, machinepattern \"%s\"",time_str,safe_string(pattern_id));
+                    if(pattern_id) {
+                      // get pattern by name from machine
+                      BtPattern * const pattern=bt_machine_get_pattern_by_id(machine,(gchar *)pattern_id);
+                      if(pattern) {
+                        // this refs the pattern
+                        bt_sequence_set_pattern(self,atol((char *)time_str),index,pattern);
+                        g_object_unref(pattern);
+                      }
+                      else {
+                        GST_WARNING("  unknown pattern \"%s\"",pattern_id);
+                        xmlFree(pattern_id);xmlFree(time_str);
+                        xmlFree(index_str);xmlFree(machine_id);
+                        BT_PERSISTENCE_ERROR(Error);
+                      }
+                      xmlFree(pattern_id);
                     }
-                    else {
-                      GST_WARNING("  unknown pattern \"%s\"",pattern_id);
-                      xmlFree(pattern_id);xmlFree(time_str);
-                      xmlFree(index_str);xmlFree(machine_id);
-                      BT_PERSISTENCE_ERROR(Error);
-                    }
-                    xmlFree(pattern_id);
+                    xmlFree(time_str);
                   }
-                  xmlFree(time_str);
                 }
+                // we keep the ref in self->priv->machines[index]
               }
-              // we keep the ref in self->priv->machines[index]
-              //g_object_unref(machine);
+              else {
+                GST_WARNING("index beyond tracks: %d>=%d",index,tracks); 
+                g_object_unref(machine);
+              }
             }
             else {
               GST_INFO("invalid or missing machine %s referenced at track %d",(gchar *)machine_id,index);
