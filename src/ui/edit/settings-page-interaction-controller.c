@@ -248,8 +248,6 @@ static void bt_settings_page_interaction_controller_dispose(GObject *object) {
 
   g_object_try_weak_unref(self->priv->app);
 
-  gtk_object_destroy(GTK_OBJECT(self->priv->device_menu));
-
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 

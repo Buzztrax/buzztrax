@@ -251,7 +251,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
   GST_INFO("machine %p,machine->ref_ct=%d has been removed, checking wire %p->%p", machine,G_OBJECT(machine)->ref_count,src,dst);
   if((src==machine) || (dst==machine)) {
-    GST_WARNING("the machine, this wire is connected to, has been removed");
+    GST_INFO("the machine, this wire is connected to, has been removed");
     bt_setup_remove_wire(setup,self->priv->wire);
 
     GST_INFO("... machine %p,ref_count=%d has been removed, src %p,ref=%d, dst %p,ref=%d",
@@ -568,7 +568,8 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
     gtk_widget_destroy(self->priv->analysis_dialog);
   }
 
-  gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
+  gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
+  //g_object_unref(G_OBJECT(self->priv->context_menu));
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
@@ -796,7 +797,7 @@ static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE_CANVAS_ITEM, BtWireCanvasItemPrivate);
 
   // generate the context menu
-  self->priv->context_menu=GTK_MENU(gtk_menu_new());
+  self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
 
   menu_item=gtk_menu_item_new_with_label(_("Disconnect"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);

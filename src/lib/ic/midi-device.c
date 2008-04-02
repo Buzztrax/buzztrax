@@ -330,7 +330,7 @@ static void btic_midi_device_init(const GTypeInstance * const instance, gconstpo
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_MIDI_DEVICE, BtIcMidiDevicePrivate);
 
-  self->priv->controls=g_hash_table_new(g_direct_hash,g_direct_equal);
+  self->priv->controls=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
 }
 
 static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {

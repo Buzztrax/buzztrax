@@ -408,7 +408,7 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtWireCanvasItem *item=g_hash_table_lookup(self->priv->wires,wire);
   
-  GST_WARNING("now removing wire-item : %p",item);
+  GST_INFO("now removing wire-item : %p",item);
   g_hash_table_remove(self->priv->wires,wire);
   gtk_object_destroy(GTK_OBJECT(item));
 
@@ -847,7 +847,7 @@ static void on_panorama_popup_changed(GtkAdjustment *adj, gpointer user_data) {
 static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachines *self) {
   GtkWidget *menu_item,*menu,*image;
 
-  self->priv->context_menu=GTK_MENU(gtk_menu_new());
+  self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
 
   //menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
   menu_item=gtk_image_menu_item_new_with_label(_("Add machine"));
@@ -874,7 +874,7 @@ static void bt_main_page_machines_init_grid_density_menu(const BtMainPageMachine
   GtkWidget *menu_item;
 
   // create grid-density menu with grid-density={off,low,mid,high}
-  self->priv->grid_density_menu=GTK_MENU(gtk_menu_new());
+  self->priv->grid_density_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
 
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Off"));
   self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
@@ -1179,12 +1179,12 @@ static void bt_main_page_machines_dispose(GObject *object) {
   g_object_try_unref(self->priv->wire_gain);
   if(self->priv->vol_popup) {
     bt_volume_popup_hide(self->priv->vol_popup);
-    gtk_object_destroy(GTK_OBJECT(self->priv->vol_popup));
+    gtk_widget_destroy(GTK_WIDGET(self->priv->vol_popup));
   }
   g_object_try_unref(self->priv->wire_pan);
   if(self->priv->pan_popup) {
     bt_panorama_popup_hide(self->priv->pan_popup);
-    gtk_object_destroy(GTK_OBJECT(self->priv->pan_popup));
+    gtk_widget_destroy(GTK_WIDGET(self->priv->pan_popup));
   }
 
   //g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
@@ -1192,8 +1192,10 @@ static void bt_main_page_machines_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
   g_object_try_weak_unref(self->priv->app);
 
-  gtk_object_destroy(GTK_OBJECT(self->priv->grid_density_menu));
-  gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
+  gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
+  g_object_unref(G_OBJECT(self->priv->context_menu));
+  gtk_widget_destroy(GTK_WIDGET(self->priv->grid_density_menu));
+  g_object_unref(G_OBJECT(self->priv->grid_density_menu));
 
   gdk_cursor_unref(self->priv->drag_cursor);
 
@@ -1217,8 +1219,8 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
   self->priv->zoom=MACHINE_VIEW_ZOOM_FC;
   self->priv->grid_density=1;
 
-  self->priv->machines=g_hash_table_new(g_direct_hash,g_direct_equal);
-  self->priv->wires=g_hash_table_new(g_direct_hash,g_direct_equal);
+  self->priv->machines=g_hash_table_new(NULL,NULL);
+  self->priv->wires=g_hash_table_new(NULL,NULL);
 
   // the cursor for dragging
   self->priv->drag_cursor=gdk_cursor_new(GDK_FLEUR);

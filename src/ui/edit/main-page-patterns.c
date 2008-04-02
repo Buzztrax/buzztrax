@@ -3165,7 +3165,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   GST_DEBUG("  before context menu",self);
   // generate the context menu
   self->priv->accel_group=gtk_accel_group_new();
-  self->priv->context_menu=GTK_MENU(gtk_menu_new());
+  self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
   gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), self->priv->accel_group);
   gtk_menu_set_accel_path(GTK_MENU(self->priv->context_menu),"<Buzztard-Main>/PatternView/PatternContext");
 
@@ -3562,11 +3562,8 @@ static void bt_main_page_patterns_dispose(GObject *object) {
     self->priv->pattern,(self->priv->pattern?(G_OBJECT(self->priv->pattern))->ref_count:-1));
   g_object_try_unref(self->priv->pattern);
 
-  gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
-  gtk_object_destroy(GTK_OBJECT(self->priv->machine_menu));
-  gtk_object_destroy(GTK_OBJECT(self->priv->pattern_menu));
-  gtk_object_destroy(GTK_OBJECT(self->priv->wavetable_menu));
-  gtk_object_destroy(GTK_OBJECT(self->priv->base_octave_menu));
+  gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
+  g_object_unref(G_OBJECT(self->priv->context_menu));
 
   g_object_try_unref(self->priv->accel_group);
 

@@ -87,6 +87,8 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
 
     g_object_try_unref(settings);
     */
+    // @todo: if we do this the refcount goes from 1 to 3
+    //gtk_widget_hide_all(GTK_WIDGET(self));
     res=FALSE;
   }
   return(res);
@@ -95,7 +97,7 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
 static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
   GST_INFO("destroy occurred");
   if(gtk_main_level()) {
-    GST_DEBUG("  leaving main-loop");
+    GST_INFO("  leaving main-loop");
     gtk_main_quit();
   }
 }
@@ -643,9 +645,9 @@ static void bt_main_window_dispose(GObject *object) {
 }
 
 static void bt_main_window_finalize(GObject *object) {
-  //BtMainWindow *self = BT_MAIN_WINDOW(object);
+  BtMainWindow *self = BT_MAIN_WINDOW(object);
 
-  //GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");

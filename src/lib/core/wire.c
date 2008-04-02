@@ -1370,7 +1370,7 @@ static void bt_wire_dispose(GObject * const object) {
   // remove the GstElements from the bin
   if(self->priv->bin) {
     GstStateChangeReturn res;
-    guint i,j;
+    guint i;
 
     GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
       (G_OBJECT(self->priv->bin))->ref_count,
@@ -1385,6 +1385,7 @@ static void bt_wire_dispose(GObject * const object) {
       if(self->priv->machines[i]) {
         g_assert(GST_IS_BIN(self->priv->bin));
         g_assert(GST_IS_ELEMENT(self->priv->machines[i]));
+        /* we already unlink above
         for(j=i+1;j<PART_DST;j++) {
           if(self->priv->machines[j]) {
             GST_DEBUG("  unlinking machine \"%s\", \"%s\"",
@@ -1394,6 +1395,7 @@ static void bt_wire_dispose(GObject * const object) {
             break;
           }
         }
+        */
 
         GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",
           GST_OBJECT_NAME(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
@@ -1436,7 +1438,7 @@ static void bt_wire_init(BtWire *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE, BtWirePrivate);
   self->priv->num_params = 1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
-  self->priv->patterns=g_hash_table_new_full(g_direct_hash,g_direct_equal,NULL,g_object_unref);
+  self->priv->patterns=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
 
   GST_DEBUG("!!!! self=%p",self);
 }

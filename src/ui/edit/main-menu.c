@@ -136,6 +136,9 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   gboolean cont;
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
+  
+  // @todo: this should have the code from main-window.c:on_window_delete_event
+  // and on_window_delete_event() should trigger this
 
   g_assert(user_data);
 

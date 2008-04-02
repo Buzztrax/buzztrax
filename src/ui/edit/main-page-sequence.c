@@ -2567,7 +2567,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   GST_DEBUG("  before context menu",self);
   // generate the context menu
   self->priv->accel_group=gtk_accel_group_new();
-  self->priv->context_menu=GTK_MENU(gtk_menu_new());
+  self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
   gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), self->priv->accel_group);
   gtk_menu_set_accel_path(GTK_MENU(self->priv->context_menu),"<Buzztard-Main>/SequenceView/SequenceContext");
 
@@ -3023,9 +3023,8 @@ static void bt_main_page_sequence_dispose(GObject *object) {
     g_object_unref(self->priv->machine);
   }
 
-  gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
-  gtk_object_destroy(GTK_OBJECT(self->priv->bars_menu));
-  gtk_object_destroy(GTK_OBJECT(self->priv->label_menu));
+  gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
+  g_object_unref(G_OBJECT(self->priv->context_menu));
 
   g_object_try_unref(self->priv->accel_group);
 

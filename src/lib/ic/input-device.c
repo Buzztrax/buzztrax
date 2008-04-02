@@ -470,7 +470,7 @@ static void btic_input_device_init(const GTypeInstance * const instance, gconstp
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_INPUT_DEVICE, BtIcInputDevicePrivate);
 
-  self->priv->controls=g_hash_table_new(g_direct_hash,g_direct_equal);
+  self->priv->controls=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
 }
 
 static void btic_input_device_class_init(BtIcInputDeviceClass * const klass) {

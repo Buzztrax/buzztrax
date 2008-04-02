@@ -3110,7 +3110,7 @@ static void bt_machine_init(GTypeInstance * const instance, gconstpointer g_clas
   //self->priv->voices=1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
 
-  self->priv->control_data=g_hash_table_new_full(g_direct_hash,g_direct_equal,NULL,(GDestroyNotify)free_control_data);
+  self->priv->control_data=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)free_control_data);
 
   GST_DEBUG("!!!! self=%p",self);
 }

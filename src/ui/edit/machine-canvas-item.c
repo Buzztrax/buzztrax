@@ -631,8 +631,11 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 
   gdk_cursor_unref(self->priv->drag_cursor);
 
-  // this causes warnings on gtk 2.4
-  gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
+  GST_LOG("  about to unref menu %p, ref=%d",self->priv->context_menu,G_OBJECT(self->priv->context_menu)->ref_count);
+  gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
+  GST_LOG("  about to unref menu %p, ref=%d",self->priv->context_menu,G_OBJECT(self->priv->context_menu)->ref_count);
+  // Gtk-WARNING **: mnemonic "g" wasn't removed for widget (0x83cba08)
+  //g_object_try_unref(G_OBJECT(self->priv->context_menu));
   GST_DEBUG("  destroying done, machine: %p,ref_count %d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
 
   GST_DEBUG("  chaining up");
@@ -945,7 +948,7 @@ static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_clas
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_CANVAS_ITEM, BtMachineCanvasItemPrivate);
 
   // generate the context menu
-  self->priv->context_menu=GTK_MENU(gtk_menu_new());
+  self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
   // the menu-items are generated in bt_machine_canvas_item_init_context_menu()
 
   // the cursor for dragging
