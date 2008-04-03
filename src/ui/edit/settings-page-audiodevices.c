@@ -66,7 +66,7 @@ static void on_audiosink_menu_changed(GtkComboBox *combo_box, gpointer user_data
   else {
     g_object_set(settings,"audiosink","",NULL);
   }
-  g_object_try_unref(settings);
+  g_object_unref(settings);
 }
 
 //-- helper methods
@@ -174,7 +174,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   g_list_free(audiosink_names);
   //gst_caps_unref(int_caps);
   //gst_caps_unref(float_caps);
-  g_object_try_unref(settings);
+  g_object_unref(settings);
   return(TRUE);
 }
 

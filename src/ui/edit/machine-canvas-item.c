@@ -314,7 +314,7 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
 
     g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
     gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
-    g_object_try_unref(main_window);
+    g_object_unref(main_window);
     gtk_widget_show_all(dialog);
     answer=gtk_dialog_run(GTK_DIALOG(dialog));
     if(answer==GTK_RESPONSE_ACCEPT) {
@@ -349,10 +349,10 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
     bt_setup_remove_machine(setup,self->priv->machine);
     GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
 
-    g_object_try_unref(setup);
-    g_object_try_unref(song);
+    g_object_unref(setup);
+    g_object_unref(song);
   }
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
   g_free(msg);
 }
 
@@ -401,7 +401,7 @@ static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanva
       || (ci==self->priv->state_bypass) || (pci==self->priv->state_bypass)) {
       res=TRUE;
     }
-    g_object_try_unref(pci);
+    g_object_unref(pci);
   }
   g_object_unref(canvas);
   return(res);
@@ -521,8 +521,8 @@ BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_p
 
   //GST_INFO("machine canvas item added");
 
-  g_object_try_unref(canvas);
-  g_object_try_unref(app);
+  g_object_unref(canvas);
+  g_object_unref(app);
   return(self);
 }
 

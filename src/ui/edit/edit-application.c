@@ -86,7 +86,7 @@ static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer u
   g_object_get(songio,"status",&str,NULL);
   GST_INFO("songio_status has changed : \"%s\"",safe_string(str));
   g_object_set(statusbar,"status",str,NULL);
-  g_object_try_unref(statusbar);
+  g_object_unref(statusbar);
   g_free(str);
 }
 
@@ -306,8 +306,8 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
     g_free(id);
 
     // release references
-    g_object_try_unref(setup);
-    g_object_try_unref(sequence);
+    g_object_unref(setup);
+    g_object_unref(sequence);
     g_object_unref(song);
   }
   return(res);
@@ -389,7 +389,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
         else {
           GST_WARNING("Can't look up sink machine");
         }
-        g_object_try_unref(setup);
+        g_object_unref(setup);
         g_object_unref(wavetable);
       }
       else {
@@ -621,8 +621,8 @@ static void bt_edit_application_dispose(GObject *object) {
   if(self->priv->song) {
     GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
     bt_song_stop(self->priv->song);
+    g_object_unref(self->priv->song);
   }
-  g_object_try_unref(self->priv->song);
 
   if(self->priv->main_window) {
     GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);

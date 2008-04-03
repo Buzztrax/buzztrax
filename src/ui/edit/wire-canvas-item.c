@@ -260,8 +260,8 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
       dst,G_OBJECT(dst)->ref_count
     );
   }
-  g_object_try_unref(src);
-  g_object_try_unref(dst);
+  g_object_unref(src);
+  g_object_unref(dst);
 }
 
 static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {
@@ -307,8 +307,8 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
 
   bt_setup_remove_wire(setup,self->priv->wire);
 
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(setup);
+  g_object_unref(song);
 }
 
 static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -420,10 +420,10 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
   
   //GST_INFO("wire canvas item added");
 
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
-  g_object_try_unref(canvas);
-  g_object_try_unref(app);
+  g_object_unref(setup);
+  g_object_unref(song);
+  g_object_unref(canvas);
+  g_object_unref(app);
   return(self);
 }
 
@@ -544,8 +544,8 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   g_signal_handlers_disconnect_matched(G_OBJECT(setup),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(setup);
+  g_object_unref(song);
   if(self->priv->wire_gain) {
     g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->wire_gain),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_gain_changed,(gpointer)self);
     g_object_unref(self->priv->wire_gain);

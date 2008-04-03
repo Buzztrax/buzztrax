@@ -255,7 +255,7 @@ void bt_render_progress_run(const BtRenderProgress *self) {
     gst_object_unref(sink_bin);
     g_object_unref(machine);
   }
-  g_object_try_unref(song_info);
+  g_object_unref(song_info);
   g_object_unref(setup);
   g_object_unref(song);
 }

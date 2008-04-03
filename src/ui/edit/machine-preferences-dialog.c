@@ -476,8 +476,8 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
     gtk_container_add(GTK_CONTAINER(self),gtk_label_new(_("machine has no preferences")));
   }
 
-  g_object_try_unref(machine);
-  g_object_try_unref(main_window);
+  g_object_unref(machine);
+  g_object_unref(main_window);
   return(TRUE);
 }
 

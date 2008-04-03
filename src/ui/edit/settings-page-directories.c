@@ -129,7 +129,7 @@ static gboolean bt_settings_page_directories_init_ui(const BtSettingsPageDirecto
   g_free(song_folder);
   g_free(record_folder);
   g_free(sample_folder);
-  g_object_try_unref(settings);
+  g_object_unref(settings);
   return(TRUE);
 }
 

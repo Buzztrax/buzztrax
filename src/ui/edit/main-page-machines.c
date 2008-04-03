@@ -226,8 +226,8 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     dst_machine_item=g_hash_table_lookup(self->priv->machines,dst_machine);
     // draw wire
     wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,src_machine_item,dst_machine_item);
-    g_object_try_unref(src_machine);
-    g_object_try_unref(dst_machine);
+    g_object_unref(src_machine);
+    g_object_unref(dst_machine);
     // @todo: get "analyzer-window-state" and if set,
     // get xpos, ypos and open window
   }
@@ -311,10 +311,10 @@ static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
     wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,self->priv->new_wire_src,self->priv->new_wire_dst);
     g_object_unref(wire);
   }
-  g_object_try_unref(dst_machine);
-  g_object_try_unref(src_machine);
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(dst_machine);
+  g_object_unref(src_machine);
+  g_object_unref(setup);
+  g_object_unref(song);
 }
 
 static BtMachineCanvasItem *bt_main_page_machines_get_machine_canvas_item_at(const BtMainPageMachines *self,gdouble mouse_x,gdouble mouse_y) {
@@ -365,10 +365,10 @@ static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self)
       g_object_try_unref(wire2);
     }
   }
-  g_object_try_unref(dst_machine);
-  g_object_try_unref(src_machine);
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(dst_machine);
+  g_object_unref(src_machine);
+  g_object_unref(setup);
+  g_object_unref(song);
   return(ret);
 }
 
@@ -427,6 +427,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(!song) {
     machine_view_clear(self);
+    GST_INFO("song (null) has changed done");
     return;
   }
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
@@ -438,8 +439,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
   // release the reference
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(setup);
+  g_object_unref(song);
   GST_INFO("song has changed done");
 }
 
@@ -1070,7 +1071,7 @@ gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self,
 
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self->priv->vol_popup),GTK_WINDOW(main_window));
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
 
   g_object_try_unref(self->priv->wire_gain);
   g_object_get(wire,"gain",&self->priv->wire_gain,NULL);
@@ -1102,7 +1103,7 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
 
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self->priv->pan_popup),GTK_WINDOW(main_window));
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
 
   g_object_try_unref(self->priv->wire_pan);
   g_object_get(wire,"pan",&self->priv->wire_pan,NULL);

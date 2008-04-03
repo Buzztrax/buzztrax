@@ -290,8 +290,8 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
         printf("  %s\n",(gchar *)(node->data));
       }
     }
-    g_object_try_unref(setup);
-    g_object_try_unref(wavetable);
+    g_object_unref(setup);
+    g_object_unref(wavetable);
 
     if(bt_cmd_application_play_song(self,song)) {
       res=TRUE;
@@ -437,10 +437,10 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     }
 
     // release the references
-    g_object_try_unref(song_info);
-    g_object_try_unref(sequence);
-    g_object_try_unref(setup);
-    g_object_try_unref(wavetable);
+    g_object_unref(song_info);
+    g_object_unref(sequence);
+    g_object_unref(setup);
+    g_object_unref(wavetable);
     res=TRUE;
     GST_INFO("finished succesfully");
   }

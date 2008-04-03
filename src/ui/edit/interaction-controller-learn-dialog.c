@@ -146,6 +146,7 @@ BtInteractionControllerLearnDialog *bt_interaction_controller_learn_dialog_new(B
     goto Error;
   }
   
+  // @todo: set via property and weak-ref
   self->priv->device=device;
 
   // generate UI
@@ -201,7 +202,7 @@ static void bt_interaction_controller_learn_dialog_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-//  g_object_try_unref(self->priv->device);
+  //g_object_try_unref(self->priv->device);
   g_signal_handlers_disconnect_matched(self->priv->device,G_SIGNAL_MATCH_FUNC,0,0,NULL,notify_device_controlchange,NULL);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {

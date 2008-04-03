@@ -117,7 +117,7 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup * const self, con
     BtWire * const wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
     if(search_machine==machine) found=TRUE;
-    g_object_try_unref(search_machine);
+    g_object_unref(search_machine);
     if(found) return(g_object_ref(wire));
   }
   GST_DEBUG("no wire found for %s-machine %p",type,machine);
@@ -145,7 +145,7 @@ static GList *bt_setup_get_wires_by_machine_type(const BtSetup * const self,cons
     if(search_machine==machine) {
       wires=g_list_prepend(wires,g_object_ref(wire));
     }
-    g_object_try_unref(search_machine);
+    g_object_unref(search_machine);
   }
   return(wires);
 }
@@ -222,8 +222,8 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
     }
     g_object_try_unref(other_wire1);
     g_object_try_unref(other_wire2);
-    g_object_try_unref(src);
-    g_object_try_unref(dst);
+    g_object_unref(src);
+    g_object_unref(dst);
   }
   else {
     GST_WARNING("trying to add wire %p again",wire);
@@ -478,8 +478,8 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
     BtWire * const wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"src",&src_machine,"dst",&dst_machine,NULL);
     if((src_machine==src) && (dst_machine==dst)) found=TRUE;
-    g_object_try_unref(src_machine);
-    g_object_try_unref(dst_machine);
+    g_object_unref(src_machine);
+    g_object_unref(dst_machine);
     if(found) return(g_object_ref(wire));
   }
   GST_DEBUG("no wire found for machines %p %p",src,dst);

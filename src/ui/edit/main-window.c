@@ -85,7 +85,7 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
 
     g_object_set(G_OBJECT(settings),"window-xpos",x,"window-ypos",y,"window-width",w,"window-height",h,NULL);
 
-    g_object_try_unref(settings);
+    g_object_unref(settings);
     */
     // @todo: if we do this the refcount goes from 1 to 3
     //gtk_widget_hide_all(GTK_WIDGET(self));
@@ -115,9 +115,10 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   g_object_get(G_OBJECT(song_info),"name",&name,NULL);
   // we don't use PACKAGE_NAME = 'buzztard' for the window title
   title=g_strdup_printf("%s (%s) - Buzztard",name,(unsaved?_("unsaved"):_("saved")));g_free(name);
-  gtk_window_set_title(GTK_WINDOW(self), title);g_free(title);
+  gtk_window_set_title(GTK_WINDOW(self), title);
+  g_free(title);
   //-- release the references
-  g_object_try_unref(song_info);
+  g_object_unref(song_info);
 
   GST_INFO("song.unsaved has changed : song=%p, menu=%p, unsaved=%d",song,user_data,unsaved);
 }
@@ -137,7 +138,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   on_song_unsaved_changed(song,arg,self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   //-- release the references
-  g_object_try_unref(song);
+  g_object_unref(song);
 }
 
 static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gint y, GtkSelectionData *selection_data, guint info, guint t, gpointer user_data) {
@@ -464,8 +465,8 @@ void bt_main_window_save_song(const BtMainWindow *self) {
     bt_main_window_save_song_as(self);
   }
   g_free(file_name);
-  g_object_try_unref(song_info);
-  g_object_try_unref(song);
+  g_object_unref(song_info);
+  g_object_unref(song);
 }
 
 /**

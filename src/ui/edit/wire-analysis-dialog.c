@@ -374,8 +374,8 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   title=g_strdup_printf(_("%s -> %s analysis"),src_id,dst_id);
   gtk_window_set_title(GTK_WINDOW(self),title);
   g_free(src_id);g_free(dst_id);g_free(title);
-  g_object_try_unref(src_machine);
-  g_object_try_unref(dst_machine);
+  g_object_unref(src_machine);
+  g_object_unref(dst_machine);
 
   vbox = gtk_vbox_new(FALSE, 0);
 
@@ -471,8 +471,8 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   g_signal_connect(G_OBJECT(self),"expose-event",G_CALLBACK(bt_wire_analysis_dialog_expose),(gpointer)self);
 
 Error:
-  g_object_try_unref(song);
-  g_object_try_unref(main_window);
+  g_object_unref(song);
+  g_object_unref(main_window);
   return(res);
 }
 

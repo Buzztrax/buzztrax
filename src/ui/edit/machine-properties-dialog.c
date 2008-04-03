@@ -1619,9 +1619,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   }
   gtk_container_add(GTK_CONTAINER(self),hbox);
 
-  g_object_try_unref(machine);
-  g_object_try_unref(main_window);
-  g_object_try_unref(settings);
+  g_object_unref(machine);
+  g_object_unref(main_window);
+  g_object_unref(settings);
   return(TRUE);
 }
 

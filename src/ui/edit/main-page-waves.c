@@ -186,8 +186,8 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
     else {
       goto disable_toolitems;
     }
-    g_object_try_unref(wavetable);
-    g_object_try_unref(song);
+    g_object_unref(wavetable);
+    g_object_unref(song);
   }
   else {
     goto disable_toolitems;
@@ -216,8 +216,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update page
   waves_list_refresh(self,wavetable);
   // release the references
-  g_object_try_unref(wavetable);
-  g_object_try_unref(song);
+  g_object_unref(wavetable);
+  g_object_unref(song);
   GST_INFO("song has changed done");
 }
 
@@ -308,8 +308,8 @@ static void on_wavetable_toolbar_play_clicked(GtkButton *button, gpointer user_d
       g_free(uri);
     }
     // release the references
-    g_object_try_unref(wavetable);
-    g_object_try_unref(song);
+    g_object_unref(wavetable);
+    g_object_unref(song);
   }
 }
 
@@ -364,9 +364,9 @@ static void on_wavetable_toolbar_clear_clicked(GtkButton *button, gpointer user_
     // update page
     waves_list_refresh(self,wavetable);
     // release the references
-    g_object_try_unref(wave);
-    g_object_try_unref(wavetable);
-    g_object_try_unref(song);
+    g_object_unref(wave);
+    g_object_unref(wavetable);
+    g_object_unref(song);
   }
 }
 
@@ -403,8 +403,8 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     // update page
     waves_list_refresh(self,wavetable);
     // release the references
-    g_object_try_unref(wavetable);
-    g_object_try_unref(song);
+    g_object_unref(wavetable);
+    g_object_unref(song);
   }
 }
 

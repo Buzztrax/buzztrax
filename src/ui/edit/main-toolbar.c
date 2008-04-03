@@ -164,7 +164,7 @@ static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
   GST_INFO("toolbar new event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
 }
 
 static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
@@ -176,7 +176,7 @@ static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
   GST_INFO("toolbar open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
 }
 
 static void on_toolbar_save_clicked(GtkButton *button, gpointer user_data) {
@@ -188,7 +188,7 @@ static void on_toolbar_save_clicked(GtkButton *button, gpointer user_data) {
   GST_INFO("toolbar open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_save_song(main_window);
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
 }
 
 static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
@@ -211,7 +211,7 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     }
 
     // release the reference
-    g_object_try_unref(song);
+    g_object_unref(song);
   }
 }
 
@@ -227,7 +227,7 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   bt_song_stop(song);
   GST_INFO("  song stopped");
   // release the reference
-  g_object_try_unref(song);
+  g_object_unref(song);
 }
 
 static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
@@ -245,8 +245,8 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
   g_object_set(G_OBJECT(sequence),"loop",loop,NULL);
   // release the references
-  g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_unref(sequence);
+  g_object_unref(song);
 }
 
 static void on_song_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
@@ -273,8 +273,8 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
   g_free (dbg);
 
   // release the reference
-  g_object_try_unref(song);
-  g_object_try_unref(main_window);
+  g_object_unref(song);
+  g_object_unref(main_window);
 }
 
 static void on_song_warning(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
@@ -299,8 +299,8 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
   g_free (dbg);
 
   // release the reference
-  g_object_try_unref(song);
-  g_object_try_unref(main_window);
+  g_object_unref(song);
+  g_object_unref(main_window);
 }
 
 static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {

@@ -63,7 +63,7 @@ static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GST_INFO("menu new event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
 }
 
 static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -75,7 +75,7 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GST_INFO("menu open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
 }
 
 static void on_menu_save_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -87,7 +87,7 @@ static void on_menu_save_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GST_INFO("menu save event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_save_song(main_window);
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
 }
 
 static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -99,7 +99,7 @@ static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GST_INFO("menu saveas event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_save_song_as(main_window);
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
 }
 
 static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -128,7 +128,7 @@ static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
       }
     }
     gtk_widget_destroy(settings);
-    g_object_try_unref(main_window);
+    g_object_unref(main_window);
   }
 }
 
@@ -197,8 +197,8 @@ static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
     } break;
   }
 
-  g_object_try_unref(pages);
-  g_object_try_unref(main_window);
+  g_object_unref(pages);
+  g_object_unref(main_window);
 }
 
 static void on_menu_paste_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -242,8 +242,8 @@ static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
     } break;
   }
 
-  g_object_try_unref(pages);
-  g_object_try_unref(main_window);
+  g_object_unref(pages);
+  g_object_unref(main_window);
 }
 
 static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -258,7 +258,7 @@ static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) 
 
     g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
     gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
-    g_object_try_unref(main_window);
+    g_object_unref(main_window);
     gtk_widget_show_all(dialog);
 
     gtk_dialog_run(GTK_DIALOG(dialog));
@@ -287,9 +287,9 @@ static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_dat
     g_object_set(G_OBJECT(settings),"toolbar-hide",TRUE,NULL);
   }
 
-  g_object_try_unref(toolbar);
-  g_object_try_unref(settings);
-  g_object_try_unref(main_window);
+  g_object_unref(toolbar);
+  g_object_unref(settings);
+  g_object_unref(main_window);
 }
 
 static void on_menu_view_tabs_toggled(GtkMenuItem *menuitem,gpointer user_data) {
@@ -313,9 +313,9 @@ static void on_menu_view_tabs_toggled(GtkMenuItem *menuitem,gpointer user_data) 
     g_object_set(G_OBJECT(settings),"tabs-hide",TRUE,NULL);
   }
 
-  g_object_try_unref(pages);
-  g_object_try_unref(settings);
-  g_object_try_unref(main_window);
+  g_object_unref(pages);
+  g_object_unref(settings);
+  g_object_unref(main_window);
 }
 
 static void on_menu_goto_machine_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -330,8 +330,8 @@ static void on_menu_goto_machine_view_activate(GtkMenuItem *menuitem,gpointer us
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_MACHINES_PAGE);
 
-  g_object_try_unref(pages);
-  g_object_try_unref(main_window);
+  g_object_unref(pages);
+  g_object_unref(main_window);
 }
 
 static void on_menu_goto_pattern_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -346,8 +346,8 @@ static void on_menu_goto_pattern_view_activate(GtkMenuItem *menuitem,gpointer us
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
 
-  g_object_try_unref(pages);
-  g_object_try_unref(main_window);
+  g_object_unref(pages);
+  g_object_unref(main_window);
 }
 
 static void on_menu_goto_sequence_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -362,8 +362,8 @@ static void on_menu_goto_sequence_view_activate(GtkMenuItem *menuitem,gpointer u
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
 
-  g_object_try_unref(pages);
-  g_object_try_unref(main_window);
+  g_object_unref(pages);
+  g_object_unref(main_window);
 }
 
 static void on_menu_goto_waves_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -378,8 +378,8 @@ static void on_menu_goto_waves_view_activate(GtkMenuItem *menuitem,gpointer user
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
 
-  g_object_try_unref(pages);
-  g_object_try_unref(main_window);
+  g_object_unref(pages);
+  g_object_unref(main_window);
 }
 
 static void on_menu_goto_info_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -394,8 +394,8 @@ static void on_menu_goto_info_view_activate(GtkMenuItem *menuitem,gpointer user_
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
 
-  g_object_try_unref(pages);
-  g_object_try_unref(main_window);
+  g_object_unref(pages);
+  g_object_unref(main_window);
 }
 
 static void on_menu_play_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -408,7 +408,7 @@ static void on_menu_play_activate(GtkMenuItem *menuitem,gpointer user_data) {
     GST_WARNING("failed to play");
   }
   // release the reference
-  g_object_try_unref(song);
+  g_object_unref(song);
 }
 
 static void on_menu_stop_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -421,7 +421,7 @@ static void on_menu_stop_activate(GtkMenuItem *menuitem,gpointer user_data) {
     GST_WARNING("failed to stop");
   }
   // release the reference
-  g_object_try_unref(song);
+  g_object_unref(song);
 }
 
 static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {

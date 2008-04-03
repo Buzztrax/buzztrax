@@ -93,8 +93,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   }
 
   // release the reference
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(setup);
+  g_object_unref(song);
   GST_INFO("song has changed done");
 }
 
@@ -121,8 +121,8 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
   g_hash_table_insert(properties,g_strdup("active-page"),prop);
 
   // release the reference
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(setup);
+  g_object_unref(song);
   GST_INFO("page-switched done");
 }
 

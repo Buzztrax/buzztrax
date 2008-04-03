@@ -261,8 +261,8 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   else {
     self->priv->filename=g_strdup_printf(".ogg");
   }
-  g_object_try_unref(song_info);
-  g_object_try_unref(song);
+  g_object_unref(song_info);
+  g_object_unref(song);
 
   self->priv->file_name_entry=widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY (widget), self->priv->filename);

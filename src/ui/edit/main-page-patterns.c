@@ -381,8 +381,9 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     gint page_num;
 
     g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+    //g_object_get(G_OBJECT(pages),"page",&page_num,NULL);
     page_num=gtk_notebook_get_current_page(GTK_NOTEBOOK(pages));
-    g_object_try_unref(pages);
+    g_object_unref(pages);
 
     if(page_num!=BT_MAIN_PAGES_PATTERNS_PAGE) return;
   }
@@ -692,9 +693,9 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
       //bt_main_page_sequence_goto_???(sequence_page,pattern);
 
-      //g_object_try_unref(sequence_page);
-      g_object_try_unref(pages);
-      g_object_try_unref(main_window);
+      //g_object_unref(sequence_page);
+      g_object_unref(pages);
+      g_object_unref(main_window);
 
       res=TRUE;
     //}
@@ -2677,7 +2678,7 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
     // refresh context menu
     context_menu_refresh(self,machine);
     GST_INFO("2nd done for  machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
-    g_object_try_unref(machine);
+    g_object_unref(machine);
   }
   else {
     GST_WARNING("current machine == NULL");
@@ -2734,8 +2735,8 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
 #endif
   }
   // release the references
-  g_object_try_unref(sequence);
-  g_object_try_unref(cur_machine);
+  g_object_unref(sequence);
+  g_object_unref(cur_machine);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -3365,7 +3366,7 @@ void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern
   // focus pattern editor
   gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
   // release the references
-  g_object_try_unref(machine);
+  g_object_unref(machine);
 }
 
 /**

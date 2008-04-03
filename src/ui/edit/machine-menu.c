@@ -73,8 +73,8 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
     g_object_unref(machine);
   }
   g_free(id);
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(setup);
+  g_object_unref(song);
 }
 
 static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
@@ -100,8 +100,8 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
     g_object_unref(machine);
   }
   g_free(id);
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(setup);
+  g_object_unref(song);
 }
 
 //-- helper methods

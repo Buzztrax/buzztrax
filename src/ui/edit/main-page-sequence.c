@@ -765,7 +765,7 @@ static void on_pos_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   sequence_table_refresh(self,song);
   sequence_table_refresh_labels(self);
   sequence_model_recolorize(self);
-  g_object_try_unref(song);
+  g_object_unref(song);
 }
 
 //-- event handler helper
@@ -1062,7 +1062,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         if((pattern=bt_sequence_get_pattern(self->priv->sequence,i,j))) {
           g_object_get(pattern,"name",&str,NULL);
           free_str=TRUE;
-          g_object_try_unref(pattern);
+          g_object_unref(pattern);
         }
         else {
           str=" ";
@@ -1237,7 +1237,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   else GST_WARNING("can't create treeview column");
 
   // release the references
-  g_object_try_unref(setup);
+  g_object_unref(setup);
 }
 
 
@@ -1529,7 +1529,7 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
     g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
     g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
     g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
-    g_object_try_unref(machine);
+    g_object_unref(machine);
 
     bt_sequence_remove_track_by_ix(self->priv->sequence,number_of_tracks-1);
 
@@ -1842,9 +1842,9 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
           g_object_unref(machine);
         }
 
-        g_object_try_unref(patterns_page);
-        g_object_try_unref(pages);
-        g_object_try_unref(main_window);
+        g_object_unref(patterns_page);
+        g_object_unref(pages);
+        g_object_unref(main_window);
 
         res=TRUE;
       }
@@ -2157,7 +2157,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     //else if(!select) GST_INFO("  nothing assgned to this key");
 
     // release the references
-    g_object_try_unref(song);
+    g_object_unref(song);
     if(free_str) g_free(str);
   }
   return(res);
@@ -2505,9 +2505,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(G_OBJECT(song_info), "notify::bars", G_CALLBACK(on_song_info_bars_changed), (gpointer)self);
   //-- release the references
   gst_object_unref(bin);
-  g_object_try_unref(song_info);
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(song_info);
+  g_object_unref(setup);
+  g_object_unref(song);
   GST_INFO("song has changed done");
 }
 
