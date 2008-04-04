@@ -1358,7 +1358,6 @@ static guint get_int_value(GstStructure *str,gchar *name) {
  */
 void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   BtSetup *setup;
-  BtWire *wire;
   BtMachine *src;
   GList *wires,*node;
 
@@ -1369,6 +1368,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   if(!setup) return;
 
   if((wires=bt_setup_get_wires_by_dst_machine(setup,self))) {
+    BtWire *wire;
     GstPad *pad;
     GstCaps *pad_caps,*new_caps;
     const GstCaps *pad_tmpl_caps=NULL,*caps;

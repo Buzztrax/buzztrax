@@ -305,7 +305,9 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
+  GST_INFO("now removing wire : %p,ref_count=%d",self->priv->wire,G_OBJECT(self->priv->wire)->ref_count);
   bt_setup_remove_wire(setup,self->priv->wire);
+  //GST_INFO("... wire : %p,ref_count=%d",self->priv->wire,G_OBJECT(self->priv->wire)->ref_count);
 
   g_object_unref(setup);
   g_object_unref(song);
@@ -554,6 +556,7 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
     g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->wire_pan),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pan_changed,(gpointer)self);
     g_object_unref(self->priv->wire_pan);
   }
+  g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->wire),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_pan_changed,(gpointer)self);
   GST_DEBUG("  signal disconected");
   
   g_object_try_weak_unref(self->priv->app);
@@ -569,7 +572,7 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   }
 
   gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
-  //g_object_unref(G_OBJECT(self->priv->context_menu));
+  g_object_unref(G_OBJECT(self->priv->context_menu));
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);

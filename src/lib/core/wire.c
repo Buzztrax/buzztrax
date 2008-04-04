@@ -669,51 +669,53 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   }
   g_object_try_unref(other_wire);
 
-  GST_DEBUG("bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
+  GST_DEBUG("self=%p, bin->refs=%d, src->refs=%d, dst->refs=%d",self,G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
   GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
 
   // if there is already a connection from src && src has not yet an spreader (in use)
-  if((other_wire=bt_setup_get_wire_by_src_machine(setup,src))
-    && !bt_machine_has_active_spreader(src)) {
-    GST_DEBUG("  other wire from src found");
-    bt_wire_unlink_machines(other_wire);
-    // create spreader (if needed)
-    old_peer=src->src_elem;
-    if(!bt_machine_activate_spreader(src)) {
-      g_object_unref(other_wire);
-      goto Error;
-    }
-    // if there is no conversion element on the wire ..
-    if(other_wire->priv->machines[PART_SRC]==old_peer) {
-      // we need to fix the src_elem of the other connect, as we have inserted the spreader
-      other_wire->priv->machines[PART_SRC]=src->src_elem;
-    }
-    // correct the link for the other wire
-    if(!bt_wire_link_machines(other_wire)) {
-      GST_ERROR("failed to re-link the machines after inserting internal spreader");goto Error;
+  if((other_wire=bt_setup_get_wire_by_src_machine(setup,src))) {
+    if(!bt_machine_has_active_spreader(src)) {
+      GST_DEBUG("  other wire from src found");
+      bt_wire_unlink_machines(other_wire);
+      // create spreader (if needed)
+      old_peer=src->src_elem;
+      if(!bt_machine_activate_spreader(src)) {
+        g_object_unref(other_wire);
+        goto Error;
+      }
+      // if there is no conversion element on the wire ..
+      if(other_wire->priv->machines[PART_SRC]==old_peer) {
+        // we need to fix the src_elem of the other connect, as we have inserted the spreader
+        other_wire->priv->machines[PART_SRC]=src->src_elem;
+      }
+      // correct the link for the other wire
+      if(!bt_wire_link_machines(other_wire)) {
+        GST_ERROR("failed to re-link the machines after inserting internal spreader");goto Error;
+      }
     }
     g_object_unref(other_wire);
   }
 
   // if there is already a wire to dst and dst has not yet an adder (in use)
-  if((other_wire=bt_setup_get_wire_by_dst_machine(setup,dst))
-    && !bt_machine_has_active_adder(dst)) {
-    GST_DEBUG("  other wire to dst found");
-    bt_wire_unlink_machines(other_wire);
-    // create adder (if needed)
-    old_peer=dst->dst_elem;
-    if(!bt_machine_activate_adder(dst)) {
-      g_object_unref(other_wire);
-      goto Error;
-    }
-    // if there is no conversion element on the wire ..
-    if(other_wire->priv->machines[PART_DST]==old_peer) {
-      // we need to fix the dst_elem of the other connect, as we have inserted the adder
-      other_wire->priv->machines[PART_DST]=dst->dst_elem;
-    }
-    // correct the link for the other wire
-    if(!bt_wire_link_machines(other_wire)) {
-      GST_ERROR("failed to re-link the machines after inserting internal adder");goto Error;
+  if((other_wire=bt_setup_get_wire_by_dst_machine(setup,dst))) {
+    if(!bt_machine_has_active_adder(dst)) {
+      GST_DEBUG("  other wire to dst found");
+      bt_wire_unlink_machines(other_wire);
+      // create adder (if needed)
+      old_peer=dst->dst_elem;
+      if(!bt_machine_activate_adder(dst)) {
+        g_object_unref(other_wire);
+        goto Error;
+      }
+      // if there is no conversion element on the wire ..
+      if(other_wire->priv->machines[PART_DST]==old_peer) {
+        // we need to fix the dst_elem of the other connect, as we have inserted the adder
+        other_wire->priv->machines[PART_DST]=dst->dst_elem;
+      }
+      // correct the link for the other wire
+      if(!bt_wire_link_machines(other_wire)) {
+        GST_ERROR("failed to re-link the machines after inserting internal adder");goto Error;
+      }
     }
     g_object_unref(other_wire);
   }

@@ -995,7 +995,6 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
   }
   g_list_free(patterns);
   g_object_unref(machine);
-
 }
 
 //-- constructor methods
@@ -1349,7 +1348,7 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
   if(pattern) {
     GST_DEBUG("set new pattern");
     // enter the new pattern
-    self->priv->patterns[index]=g_object_try_ref(G_OBJECT(pattern));
+    self->priv->patterns[index]=g_object_ref(G_OBJECT(pattern));
     //g_object_add_weak_pointer(G_OBJECT(pattern),(gpointer *)(&self->priv->patterns[index]));
 
     // attatch a signal handler if this is the first usage

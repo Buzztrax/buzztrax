@@ -313,10 +313,19 @@ static void bt_render_progress_set_property(GObject      *object,
 
 static void bt_render_progress_dispose(GObject *object) {
   BtRenderProgress *self = BT_RENDER_PROGRESS(object);
+  BtSong *song;
+ 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+
+  g_object_get(self->priv->app,"song",&song,NULL);
+  if(song) {
+    g_signal_handlers_disconnect_matched(G_OBJECT(song),G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
+    g_object_unref(song);
+  }
+  
   g_object_try_weak_unref(self->priv->app);
   g_object_try_weak_unref(self->priv->settings);
 

@@ -438,8 +438,13 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   // make this menu item bold (default)
   label=gtk_bin_get_child(GTK_BIN(menu_item));
   if(GTK_IS_LABEL(label)) {
-    gchar *str=g_strdup_printf("<b>%s</b>",gtk_label_get_text(GTK_LABEL(label)));
-    gtk_label_set_markup(GTK_LABEL(label),str);
+    gchar *str=g_strdup_printf("<b>%s</b>",gtk_label_get_label(GTK_LABEL(label)));
+    if(gtk_label_get_use_underline(GTK_LABEL(label))) {
+      gtk_label_set_markup_with_mnemonic(GTK_LABEL(label),str);
+    }
+    else {
+      gtk_label_set_markup(GTK_LABEL(label),str);
+    }
     g_free(str);
   }
   gtk_widget_show(menu_item);
@@ -550,7 +555,7 @@ static void bt_machine_canvas_item_get_property(GObject      *object,
     case MACHINE_CANVAS_ITEM_MACHINE: {
       GST_INFO("getting machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
       g_value_set_object(value, self->priv->machine);
-      GST_INFO("... : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
+      //GST_INFO("... : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
     } break;
     case MACHINE_CANVAS_ITEM_ZOOM: {
       g_value_set_double(value, self->priv->zoom);
@@ -615,6 +620,10 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   GST_DEBUG("machine: %p,ref_count %d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
+  
+  g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->machine),G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
+  GST_DEBUG("  signal disconected");
+  
   g_object_try_weak_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
   g_object_try_weak_unref(self->priv->main_page_machines);
@@ -631,11 +640,8 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 
   gdk_cursor_unref(self->priv->drag_cursor);
 
-  GST_LOG("  about to unref menu %p, ref=%d",self->priv->context_menu,G_OBJECT(self->priv->context_menu)->ref_count);
   gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
-  GST_LOG("  about to unref menu %p, ref=%d",self->priv->context_menu,G_OBJECT(self->priv->context_menu)->ref_count);
-  // Gtk-WARNING **: mnemonic "g" wasn't removed for widget (0x83cba08)
-  //g_object_try_unref(G_OBJECT(self->priv->context_menu));
+  g_object_try_unref(G_OBJECT(self->priv->context_menu));
   GST_DEBUG("  destroying done, machine: %p,ref_count %d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
 
   GST_DEBUG("  chaining up");

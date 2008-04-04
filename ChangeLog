@@ -1,3 +1,26 @@
+2008-04-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Move var to lower scope.
+
+	* src/lib/core/sequence.c:
+	  No need to try_ref-
+
+	* src/lib/core/wire.c:
+	  Fix ref-leaks on wires.
+	
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	  Disconnect signals.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Fix the mnemonic warning and now unref the context menu.
+
+	* src/ui/edit/render-progress.c:
+	  Disconnect signals.
+
+	* src/ui/edit/wire-canvas-item.c:
+	  Disconnect signals. Unref the context menu.
+
 2008-04-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:

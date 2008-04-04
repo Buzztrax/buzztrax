@@ -114,12 +114,11 @@ static gboolean bt_interaction_controller_learn_dialog_init_ui(const BtInteracti
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox), label_naming);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox), self->priv->entry_name);
   
-  // TODO: are the casts of parameter 4 correct? gpointer is required
   g_signal_connect(self->priv->device, "notify::device-controlchange",
-		   G_CALLBACK(notify_device_controlchange), (BtInteractionControllerLearnDialog*)self);
+		   G_CALLBACK(notify_device_controlchange), (gpointer)self);
 
   g_signal_connect(GTK_DIALOG(self), "response",
-		   G_CALLBACK(on_dialog_response), (BtInteractionControllerLearnDialog*)self);
+		   G_CALLBACK(on_dialog_response), (gpointer)self);
 		   
 
   g_free(title);
