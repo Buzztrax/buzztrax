@@ -207,7 +207,7 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
   GstBin * const bin=GST_BIN(self);
   GstElement *elem;
 
-  GST_INFO("clearing sink-bin : %d",g_list_length(bin->children));
+  GST_INFO("clearing sink-bin : %d",GST_BIN_NUMCHILDREN(bin));
   if(bin->children) {
     GstStateChangeReturn res;
 
@@ -807,6 +807,9 @@ static void bt_sink_bin_dispose(GObject * const object) {
 
   GST_INFO("self->sink=%p, refct=%d",self->priv->sink,(G_OBJECT(self->priv->sink))->ref_count);
   gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
+  //gst_object_unref(self->priv->sink);
+  
+  GST_INFO("sink-bin : children=%d",GST_BIN_NUMCHILDREN(self));
 
   GST_INFO("chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
@@ -817,12 +820,11 @@ static void bt_sink_bin_finalize(GObject * const object) {
   const BtSinkBin * const self = BT_SINK_BIN(object);
 
   GST_DEBUG("!!!! self=%p",self);
+  GST_INFO("sink-bin : children=%d",GST_BIN_NUMCHILDREN(self));
 
   g_free(self->priv->record_file_name);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_sink_bin_base_init (gpointer klass) {

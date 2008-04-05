@@ -1,5 +1,22 @@
 2008-04-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	  Logging improvments.
+
+	* src/lib/core/song.c:
+	  Formatting.
+
+	* src/ui/edit/edit-application.c:
+	  Fix master ref-leak.
+
+	* src/ui/edit/main-page-waves.c:
+	  Fix a bus ref-leak.
+
+	* src/ui/edit/ui-ressources.c:
+	  The Combobox on patter-view seek to leak a pixbuf.
+
+2008-04-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Move var to lower scope.
 

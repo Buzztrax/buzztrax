@@ -340,25 +340,25 @@ static void bt_ui_ressources_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   
+  GST_DEBUG("  pb->ref_counts: %d, %d, %d", 
+    G_OBJECT(self->priv->source_machine_pixbuf)->ref_count,
+    G_OBJECT(self->priv->processor_machine_pixbuf)->ref_count,
+    G_OBJECT(self->priv->sink_machine_pixbuf)->ref_count);
   g_object_try_unref(self->priv->source_machine_pixbuf);
   g_object_try_unref(self->priv->processor_machine_pixbuf);
   g_object_try_unref(self->priv->sink_machine_pixbuf);
   
   g_object_try_unref(self->priv->accel_group);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_ui_ressources_finalize(GObject *object) {
-  //BtUIRessources *self = BT_UI_RESSOURCES(object);
+  BtUIRessources *self = BT_UI_RESSOURCES(object);
   
-  //GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_ui_ressources_init(GTypeInstance *instance, gpointer g_class) {

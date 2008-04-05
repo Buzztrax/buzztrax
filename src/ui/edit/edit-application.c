@@ -590,11 +590,13 @@ static void bt_edit_application_set_property(GObject      *object,
           for(;node;node=g_list_next(node)) {
             GST_INFO("  %p, ref_ct=%d, '%s'",node->data,G_OBJECT(node->data)->ref_count,GST_ELEMENT_NAME(node->data));
           }
-          gst_object_unref(bin);
         }
 #endif
         // DEBUG
       }
+      // DEBUG
+      gst_object_unref(bin);
+      // DEBUG
 
       self->priv->song=BT_SONG(g_value_dup_object(value));
       if(self->priv->song) GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT(self->priv->song)->ref_count);

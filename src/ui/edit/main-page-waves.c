@@ -659,6 +659,10 @@ static void bt_main_page_waves_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->app);
 
   gst_element_set_state(self->priv->playbin,GST_STATE_NULL);
+  GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->playbin));
+  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_playbin_state_changed,(gpointer)self);
+  gst_bus_remove_signal_watch(bus);
+  gst_object_unref(bus);
   gst_object_unref(self->priv->playbin);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {

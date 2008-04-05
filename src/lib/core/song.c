@@ -574,11 +574,13 @@ BtSong *bt_song_new(const BtApplication * const app) {
   g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
   gst_object_unref(bus);
   gst_object_unref(bin);
+
   g_signal_connect(self->priv->sequence,"notify::loop",G_CALLBACK(bt_song_on_loop_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::loop-start",G_CALLBACK(bt_song_on_loop_start_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::loop-end",G_CALLBACK(bt_song_on_loop_end_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::length",G_CALLBACK(bt_song_on_length_changed),(gpointer)self);
   GST_INFO("  loop-signals connected");
+
   bt_song_update_play_seek_event(BT_SONG(self));
   bt_song_idle_start(self);
   GST_INFO("  new song created: %p",self);
