@@ -1,3 +1,10 @@
+2008-04-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/Makefile.am:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/songs/test-simple5.xml:
+	  Add one more test-case.
+
 2008-04-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:

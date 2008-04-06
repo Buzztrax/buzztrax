@@ -108,7 +108,8 @@ songdata_DATA = \
 	songs/test-simple1.xml \
 	songs/test-simple2.xml \
 	songs/test-simple3.xml \
-	songs/test-simple4.xml
+	songs/test-simple4.xml \
+	songs/test-simple5.xml
 
 EXTRA_DIST = \
 	$(songdata_DATA) \

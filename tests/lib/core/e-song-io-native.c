@@ -158,6 +158,7 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
     "test-simple2.xml",
     "test-simple3.xml",
     "test-simple4.xml",
+    "test-simple5.xml",
     NULL
   };
  
