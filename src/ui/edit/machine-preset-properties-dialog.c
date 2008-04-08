@@ -122,6 +122,7 @@ static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePrese
   /*
   if((window_icon=bt_ui_ressources_get_pixbuf_by_machine(self->priv->machine))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
+    g_object_unref(window_icon);
   }
   */
 

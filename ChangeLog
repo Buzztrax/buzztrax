@@ -1,3 +1,18 @@
+2008-04-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	  Fix pixbuf refleaks. Add names to some widgets.
+
 2008-04-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/Makefile.am:

@@ -102,6 +102,7 @@ static gboolean bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *se
   /* e.v. tab_machine.png
   if((window_icon=bt_ui_ressources_get_pixbuf_by_machine(self->priv->machine))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
+    g_object_unref(window_icon);
   }
   */
 

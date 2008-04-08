@@ -2699,6 +2699,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "motion-notify-event", G_CALLBACK(on_sequence_table_motion_notify_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "scroll-event", G_CALLBACK(on_sequence_table_scroll_event), (gpointer)self);
+  gtk_widget_set_name(GTK_WIDGET(self->priv->sequence_table),_("sequence editor"));
 
   // make pos scrolled-window also use the vertical-scrollbar of the sequence scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));

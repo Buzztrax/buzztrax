@@ -988,6 +988,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
     -MACHINE_VIEW_ZOOM_X,-MACHINE_VIEW_ZOOM_Y,
      MACHINE_VIEW_ZOOM_X, MACHINE_VIEW_ZOOM_Y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+  gtk_widget_set_name(GTK_WIDGET(self->priv->canvas),_("machine and wire editor"));
 
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);

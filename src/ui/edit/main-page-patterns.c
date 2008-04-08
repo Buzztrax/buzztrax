@@ -1577,13 +1577,14 @@ static void on_pattern_table_cursor_row_changed(const BtPatternEditor *editor,GP
 static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,GtkListStore *store) {
   gchar *str;
   GtkTreeIter menu_iter;
+  GdkPixbuf *pixbuf=bt_ui_ressources_get_pixbuf_by_machine(machine);
 
   g_object_get(G_OBJECT(machine),"id",&str,NULL);
   GST_INFO("  adding %p, \"%s\"  (machine-refs: %d)",machine,str,(G_OBJECT(machine))->ref_count);
 
   gtk_list_store_append(store,&menu_iter);
   gtk_list_store_set(store,&menu_iter,
-    MACHINE_MENU_ICON,bt_ui_ressources_get_pixbuf_by_machine(machine),
+    MACHINE_MENU_ICON,pixbuf,
     MACHINE_MENU_LABEL,str,
     MACHINE_MENU_MACHINE,machine,
     -1);
@@ -1591,6 +1592,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
 
   GST_DEBUG("  (machine-refs: %d)",(G_OBJECT(machine))->ref_count);
   g_free(str);
+  g_object_unref(pixbuf);
 }
 
 static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
@@ -3156,6 +3158,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
   gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
 #endif
+  gtk_widget_set_name(GTK_WIDGET(self->priv->pattern_table),_("pattern editor"));
 
 #ifndef USE_PATTERN_EDITOR
   // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
