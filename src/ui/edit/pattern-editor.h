@@ -127,7 +127,12 @@ typedef struct _BtPatternEditor
 
 typedef struct _BtPatternEditorClass
 {
-  GtkWidgetClass parent_class;  
+  GtkWidgetClass parent_class;
+
+  /* signal slots */
+  void (*set_scroll_adjustments) (BtPatternEditor* self,
+				  GtkAdjustment  * horizontal,
+				  GtkAdjustment  * vertical);
 } BtPatternEditorClass;
 
 /* note: does not copy the PatternColumn * data (in this version) */

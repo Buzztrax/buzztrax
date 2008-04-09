@@ -1,5 +1,17 @@
 2008-04-09  Stefan Kost  <ensonic@users.sf.net>
 
+	patch by: Sven Herzberg sven@imendio.com
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/marshal.list:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Add proper scrolling for the pattern editor. In addition add initial
+	  header line.
+
+2008-04-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Write news.
 

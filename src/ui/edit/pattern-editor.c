@@ -43,6 +43,7 @@
 
 #include "pattern-editor.h"
 #include "ui-ressources-methods.h"
+#include "marshal.h"
 
 enum {
   PATTERN_EDITOR_PLAY_POSITION=1,
@@ -52,7 +53,8 @@ enum {
   PATTERN_EDITOR_CURSOR_ROW
 };
 
-//-- helper methods
+static GtkWidgetClass *parent_class=NULL;
+
 
 struct ParamType
 {
@@ -61,6 +63,8 @@ struct ParamType
   void (*from_key_func)(float *value_ptr, int key, int modifiers); 
   int column_pos[4];
 };
+
+//-- helper methods
 
 static void
 to_string_note (char *buf, float value, int def)
@@ -145,22 +149,51 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
                           int y,
                           int row)
 {
-  char buf[16];
   GtkWidget *widget = GTK_WIDGET(self);
-  int ch = self->ch;
+  char buf[16];
   int col_w = bt_pattern_editor_rownum_width(self);
 
+  gdk_draw_rectangle (widget->window,
+      widget->style->bg_gc[GTK_STATE_NORMAL],
+      TRUE, 0, 0, col_w, widget->allocation.height);
+
+  col_w-=self->cw;
   while (y < widget->allocation.height && row < self->num_rows) {
     gdk_draw_rectangle (widget->window,
       (row&0x1) ? widget->style->base_gc[GTK_STATE_PRELIGHT] : widget->style->light_gc[GTK_STATE_PRELIGHT],
-      TRUE, x, y, col_w, ch);
+      TRUE, x, y, col_w, self->ch);
+    
     
     sprintf(buf, "%04X", row);
     pango_layout_set_text (self->pl, buf, 4);
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
       &widget->style->fg[GTK_STATE_ACTIVE], NULL);
-    y += ch;
+    y += self->ch;
     row++;
+  }
+}
+
+static void
+bt_pattern_editor_draw_colnames(BtPatternEditor *self,
+                          int x,
+                          int y)
+{
+  GtkWidget *widget = GTK_WIDGET(self);
+  //char buf[16];
+  int g;
+
+  gdk_draw_rectangle (widget->window,
+      widget->style->bg_gc[GTK_STATE_NORMAL],
+      TRUE, 0, 0, widget->allocation.width, self->ch);
+
+  for (g = 0; g < self->num_groups; g++) {
+    PatternColumnGroup *cgrp = &self->groups[g];
+ 
+    pango_layout_set_text (self->pl, cgrp->name, -1);
+    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
+      &widget->style->fg[GTK_STATE_ACTIVE], NULL);
+    
+    x+=cgrp->width;
   }
 }
 
@@ -200,6 +233,7 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
   while (y < max_y && row < self->num_rows) {
     GdkGC *gc = (row&0x1) ? widget->style->base_gc[GTK_STATE_PRELIGHT] : widget->style->light_gc[GTK_STATE_PRELIGHT];
     int col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
+
     if (self->selection_enabled && in_selection(self, group, param, row)) {
       /* the last space should be white if it's a within-group "glue" 
          in multiple column selection, row colour otherwise */
@@ -366,13 +400,6 @@ char_to_coords(int charpos,
   return FALSE;
 }
 
-//-- signal handlers
-
-static void on_hscroll(GtkAdjustment *adjustment, GParamSpec *arg, gpointer user_data)
-{
-  gtk_widget_queue_draw(GTK_WIDGET(user_data));
-}
-
 //-- constructor methods
 
 GtkWidget *
@@ -452,15 +479,6 @@ bt_pattern_editor_realize (GtkWidget *widget)
   self->pl = pango_layout_new (pc);
   pango_layout_set_font_description (self->pl, pfd);
   pango_font_description_free (pfd);
-
-  // get adjustments
-  GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self));
-  if (GTK_IS_VIEWPORT(parent)) {
-    g_object_get(parent,"hadjustment",&self->hadj,"vadjustment",&self->vadj,NULL);
-    g_signal_connect(self->hadj,"notify::value",G_CALLBACK(on_hscroll),(gpointer)self);
-    // this speeds up the redraw, but then it flickers worse
-    //gtk_widget_set_double_buffered(GTK_WIDGET(self),FALSE);
-  }
 }
 
 static void bt_pattern_editor_unrealize(GtkWidget *widget)
@@ -491,7 +509,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   GdkRectangle rect = event->area;
   int y, x, i, row, g, max_y;
   int start;
-  int scrollx = 0,scrolly = 0, rowhdr_x;
+  int scrollx = 0, scrolly = 0, rowhdr_x, colhdr_y;
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
@@ -516,23 +534,27 @@ bt_pattern_editor_expose (GtkWidget *widget,
     scrolly = (gint)gtk_adjustment_get_value(self->vadj);
   }
     
-  /* draw row-number column */
-  rowhdr_x = scrollx+x;
+  /* leave space for headers */
+  rowhdr_x = x;
   self->rowhdr_width = bt_pattern_editor_rownum_width(self) + self->cw;
   x += self->rowhdr_width;
+  colhdr_y = y;
+  y+=self->ch;
 
   /* draw group parameter columns */
   for (g = 0; g < self->num_groups; g++) {
     PatternColumnGroup *cgrp = &self->groups[g];
     start = x;
     for (i = 0; i < cgrp->num_columns; i++) {
-      x += bt_pattern_editor_draw_column(self, x, y, &cgrp->columns[i], g, i, row, max_y);
+      x += bt_pattern_editor_draw_column(self, x-scrollx, y-scrolly, &cgrp->columns[i], g, i, row, max_y);
     }
     x += self->cw;
     cgrp->width = x - start;
   }
   
-  bt_pattern_editor_draw_rownum(self, rowhdr_x, y, row);
+  /* draw the headers */
+  bt_pattern_editor_draw_rownum(self, rowhdr_x, y-scrolly, row);
+  bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-scrollx, colhdr_y);
 
   /* draw play-pos */
   if(self->play_pos>=0.0) {
@@ -546,6 +568,24 @@ bt_pattern_editor_expose (GtkWidget *widget,
     gtk_widget_queue_resize_no_redraw (widget);
   }  
   return FALSE;
+}
+
+static void
+bt_pattern_editor_update_adjustments (BtPatternEditor *self)
+{
+  self->hadj->upper = bt_pattern_editor_get_row_width(self);
+  self->hadj->page_increment = GTK_WIDGET (self)->allocation.width;
+  self->hadj->page_size = GTK_WIDGET (self)->allocation.width;
+  self->hadj->step_increment = GTK_WIDGET (self)->allocation.width / 20.0;
+  gtk_adjustment_changed (self->hadj);
+  gtk_adjustment_set_value(self->hadj, MIN(self->hadj->value, self->hadj->upper - self->hadj->page_size));
+
+  self->vadj->upper = bt_pattern_editor_get_col_height(self);
+  self->vadj->page_increment = GTK_WIDGET (self)->allocation.height;
+  self->vadj->page_size = GTK_WIDGET (self)->allocation.height;
+  self->vadj->step_increment = GTK_WIDGET (self)->allocation.height / 20.0;
+  gtk_adjustment_changed (self->vadj);
+  gtk_adjustment_set_value(self->vadj, MIN(self->vadj->value, self->vadj->upper - self->vadj->page_size));
 }
 
 static void
@@ -564,11 +604,9 @@ static void
 bt_pattern_editor_size_allocate (GtkWidget *widget,
                             GtkAllocation *allocation)
 {
-  widget->allocation = *allocation;
-  if (GTK_WIDGET_REALIZED (widget))
-  {
-    gdk_window_move_resize (widget->window, allocation->x, allocation->y, allocation->width, allocation->height);
-  }
+  (GTK_WIDGET_CLASS(parent_class)->size_allocate)(widget,allocation);
+
+  bt_pattern_editor_update_adjustments (BT_PATTERN_EDITOR (widget));
 }
 
 static gboolean
@@ -916,8 +954,40 @@ bt_pattern_editor_button_release (GtkWidget *widget,
   return FALSE;
 }
 
+static void
+bt_pattern_editor_set_scroll_adjustments (BtPatternEditor* self,
+					  GtkAdjustment  * horizontal,
+					  GtkAdjustment  * vertical)
+{
+	if (!horizontal) {
+		horizontal = GTK_ADJUSTMENT (gtk_adjustment_new (0,0,0,0,0,0));
+	}
+	if (!vertical) {
+		vertical = GTK_ADJUSTMENT (gtk_adjustment_new (0,0,0,0,0,0));
+	}
+
+	if (self->hadj) {
+		g_signal_handlers_disconnect_by_func (self->hadj, gtk_widget_queue_draw, self);
+		g_object_unref (self->hadj);
+	}
+	if (self->vadj) {
+		g_signal_handlers_disconnect_by_func (self->vadj, gtk_widget_queue_draw, self);
+		g_object_unref (self->vadj);
+	}
+
+	self->hadj = g_object_ref_sink (horizontal);
+	g_signal_connect_swapped (self->hadj, "value-changed",
+				  G_CALLBACK (gtk_widget_queue_draw), self);
+	self->vadj = g_object_ref_sink (vertical);
+	g_signal_connect_swapped (self->vadj, "value-changed",
+				  G_CALLBACK (gtk_widget_queue_draw), self);
+
+	bt_pattern_editor_update_adjustments (self);
+}
+
 /* returns a property for the given property_id for this object */
-static void bt_pattern_editor_get_property(GObject      *object,
+static void
+bt_pattern_editor_get_property(GObject      *object,
                                guint         property_id,
                                GValue       *value,
                                GParamSpec   *pspec)
@@ -941,7 +1011,8 @@ static void bt_pattern_editor_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_pattern_editor_set_property(GObject      *object,
+static void
+bt_pattern_editor_set_property(GObject      *object,
                               guint         property_id,
                               const GValue *value,
                               GParamSpec   *pspec)
@@ -965,13 +1036,32 @@ static void bt_pattern_editor_set_property(GObject      *object,
 }
 
 static void
+bt_pattern_editor_dispose(GObject *object) {
+  BtPatternEditor *self = BT_PATTERN_EDITOR(object);
+  
+  if (self->hadj) {
+    g_object_unref(self->hadj);
+    self->hadj = NULL;
+  }
+  if (self->vadj) {
+    g_object_unref(self->vadj);
+    self->vadj = NULL;
+  }
+
+  (G_OBJECT_CLASS(parent_class)->dispose)(object);
+}
+
+static void
 bt_pattern_editor_class_init (BtPatternEditorClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
+  parent_class=g_type_class_peek_parent(klass);
+
   gobject_class->set_property = bt_pattern_editor_set_property;
   gobject_class->get_property = bt_pattern_editor_get_property;
+  gobject_class->dispose      = bt_pattern_editor_dispose;
 
   widget_class->realize = bt_pattern_editor_realize;
   widget_class->unrealize = bt_pattern_editor_unrealize;
@@ -981,6 +1071,17 @@ bt_pattern_editor_class_init (BtPatternEditorClass *klass)
   widget_class->key_press_event = bt_pattern_editor_key_press;
   widget_class->button_press_event = bt_pattern_editor_button_press;
   widget_class->button_release_event = bt_pattern_editor_button_release;
+
+  widget_class->set_scroll_adjustments_signal = g_signal_new("set-scroll-adjustments",
+							     BT_TYPE_PATTERN_EDITOR,
+							     G_SIGNAL_RUN_LAST,
+							     G_STRUCT_OFFSET (BtPatternEditorClass, set_scroll_adjustments),
+							     NULL, NULL,
+							     bt_marshal_VOID__OBJECT_OBJECT,
+							     G_TYPE_NONE, 2,
+							     GTK_TYPE_ADJUSTMENT, GTK_TYPE_ADJUSTMENT);
+
+  klass->set_scroll_adjustments = bt_pattern_editor_set_scroll_adjustments;
 
   g_object_class_install_property(gobject_class,PATTERN_EDITOR_PLAY_POSITION,
                                   g_param_spec_double("play-position",
@@ -1034,7 +1135,8 @@ bt_pattern_editor_init (BtPatternEditor *self)
 {
   self->row = self->parameter = self->digit = 0;
   self->group = 0;
-  self->ofs_x = 0, self->ofs_y = 0;
+  self->ofs_x = 0;
+  self->ofs_y = 0;
   self->groups = NULL;
   self->num_groups = 0;
   self->num_rows = 64;
