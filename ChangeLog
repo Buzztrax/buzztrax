@@ -1,3 +1,11 @@
+2008-04-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write news.
+
+	* src/ui/edit/main-window.c:
+	  One more pixbuf leak.
+
 2008-04-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c:
