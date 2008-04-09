@@ -71,14 +71,10 @@ CLEANFILES = marshal.c marshal.h
 DISTCLEANFILES = libbtcore/version.h
 
 marshal.h: marshal.list
-	glib-genmarshal --header --prefix=bt_marshal $(srcdir)/marshal.list > marshal.h.tmp
-	mv marshal.h.tmp marshal.h
+	glib-genmarshal --header --prefix=bt_marshal $(srcdir)/marshal.list > marshal.h
 
 marshal.c: marshal.list
-	echo "#include \"glib-object.h\"" >> marshal.c.tmp
-	echo "#include \"marshal.h\"" >> marshal.c.tmp
-	glib-genmarshal --body --prefix=bt_marshal $(srcdir)/marshal.list >> marshal.c.tmp
-	mv marshal.c.tmp marshal.c
+	glib-genmarshal --body --prefix=bt_marshal $(srcdir)/marshal.list >> marshal.c
 
 
 .PHONY: help todo stats splint

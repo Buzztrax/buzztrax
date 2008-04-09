@@ -1,5 +1,10 @@
 2008-04-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/Makefile.am:
+	  Simplify makefile.
+
+2008-04-09  Stefan Kost  <ensonic@users.sf.net>
+
 	patch by: Sven Herzberg sven@imendio.com
 
 	* src/ui/edit/Makefile.am:
