@@ -1,5 +1,23 @@
 2008-04-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbtcore/settings-private.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/song-io.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  TODO comment cleanups. Implemented small ones.
+
+2008-04-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/pattern-editor.c:
 	  Add header text. Add fixed first column text.

@@ -2577,7 +2577,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),GTK_WIDGET(self->priv->context_menu_add));
   gtk_widget_show(GTK_WIDGET(self->priv->context_menu_add));
 
-  // @idea should that be in the context menu of table headers?
   menu_item=gtk_image_menu_item_new_with_label(_("Remove track"));
   image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);

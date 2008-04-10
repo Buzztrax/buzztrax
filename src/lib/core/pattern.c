@@ -109,7 +109,7 @@ static guint signals[LAST_SIGNAL]={0,};
 /*
  * @todo we need more params:
  * - the machine state (BtMachineState: normal, mute, solo, bypass)
- * - the input and output gain
+ * - the input and output gain (is now in wirepattern)
  */
 static gulong internal_params=1;
 

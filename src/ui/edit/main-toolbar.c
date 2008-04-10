@@ -29,7 +29,6 @@
 /* @todo should we separate the toolbars?
  * - common - load, save, ...
  * - volume - gain, levels
- * - load - cpu load
  */
 #define BT_EDIT
 #define BT_MAIN_TOOLBAR_C
@@ -596,7 +595,7 @@ gtk_widget_set_name(GTK_WIDGET(self),_("main tool bar"));
   // add gtk_vumeter widgets and update from level_callback
   for(i=0;i<MAX_VUMETER;i++) {
     self->priv->vumeter[i]=GTK_VUMETER(gtk_vumeter_new(FALSE));
-    // @idea have distinct tooltips
+    // @idea have distinct tooltips with channel names
     gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->vumeter[i]),_("playback volume"));
     gtk_vumeter_set_min_max(self->priv->vumeter[i], LOW_VUMETER_VAL, 0);
     gtk_vumeter_set_levels(self->priv->vumeter[i], LOW_VUMETER_VAL, LOW_VUMETER_VAL);

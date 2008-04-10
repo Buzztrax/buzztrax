@@ -27,10 +27,19 @@
  */
 
 /* @todo more graphics:
- * - add level meter widgets
- * - machine apperance
- *   - use bold shaded M,S,B for mute, solo, bypass and
- *     make the click rectangle shaded borderless (just add a divider for the title bar)
+ * - add level meter widgets left and right (depending on type)
+ * - move state (mute, solo, bypass) elsehwere to have more space for the tile
+ * - use svg gfx
+ *   - gnome-canvas can't really (would need to render svg as pixbuf)
+ *   - ccc and goocanvas are cairo based, we would need to subclass the
+ *     ImageItem and draw on the cairo context with librsvg
+ * - state graphics
+ *   - have some gfx in the middle
+ *     mute: x over o
+ *     bypass: -/\- around o
+ *     solo: one filled o on top of 4 hollow o's
+ *   - use transparency for mute/bypass, solo would switch all other sources to
+ *     muted, can't differenciate mute from bypass on an fx
  */
 /* @todo subclass for source, sink, processor machine */
 

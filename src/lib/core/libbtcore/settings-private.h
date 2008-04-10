@@ -36,11 +36,11 @@ enum {
   BT_SETTINGS_FOLDER_SONG,
   BT_SETTINGS_FOLDER_RECORD,
   BT_SETTINGS_FOLDER_SAMPLE,
-  /* @todo additional application settings
+  /* @idea: additional application settings
   */
   BT_SETTINGS_SYSTEM_AUDIOSINK,
   BT_SETTINGS_SYSTEM_TOOLBAR_STYLE,
-  /* @todo additional system settings
+  /* @idea: additional system settings
   BT_SETTINGS_SYSTEM_TOOLBAR_DETACHABLE <gboolean> gconf:gnome/interface/toolbar_detachable
   BT_SETTINGS_SYSTEM_TOOLBAR_ICON_SIZE  <guint>    gconf:gnome/interface/toolbar_icon_size
   BT_SETTINGS_SYSTEM_MENUBAR_DETACHABLE <gboolean> gconf:gnome/interface/menubar_detachable

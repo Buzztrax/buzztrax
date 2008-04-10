@@ -192,7 +192,10 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
     g_object_get(G_OBJECT(machine),"machine",&sink_bin,NULL);
 
-    // @todo eventually have a method for the sink bin to only update once after the changes
+    /* @todo eventually have a method for the sink bin to only update once
+     * after the changes, right now keep the order as it is, as sink-bin only
+     * effectively switches once the file-name is set as well
+     */
     g_object_set(sink_bin,
       "mode",BT_SINK_BIN_MODE_RECORD,
       "record-format",format,

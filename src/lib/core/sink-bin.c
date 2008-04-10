@@ -633,16 +633,22 @@ static void on_audio_sink_changed(const BtSettings * const settings, GParamSpec 
 }
 
 static void on_system_audio_sink_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
-  //BtSinkBin *self = BT_SINK_BIN(user_data);
+  BtSinkBin *self = BT_SINK_BIN(user_data);
 
   g_assert(user_data);
 
   GST_INFO("system audio-sink has changed");
   gchar * const plugin_name=bt_sink_bin_determine_plugin_name();
-  GST_INFO("  -> '%s'",plugin_name);
+  gchar *sink_name;
 
-  // @todo exchange the machine (only if the system-audiosink is in use)
-  //bt_sink_bin_update(self);
+  // exchange the machine (only if the system-audiosink is in use)
+  g_object_get(G_OBJECT(settings),"system_audiosink_name",&sink_name,NULL);
+
+  GST_INFO("  -> '%s' (sytem_sink is '%s')",plugin_name,sink_name);
+  if (!strcmp(plugin_name,sink_name)) {
+    bt_sink_bin_update(self);
+  }
+  g_free(sink_name);
   g_free(plugin_name);
 }
 
@@ -652,6 +658,7 @@ static gboolean master_volume_sync_handler(GstPad *pad,GstBuffer *buffer, gpoint
   gst_object_sync_values(G_OBJECT(self),GST_BUFFER_TIMESTAMP(buffer));
   return(TRUE);
 }
+
 //-- methods
 
 //-- wrapper
@@ -713,7 +720,6 @@ static void bt_sink_bin_set_property(GObject      * const object,
   const BtSinkBin * const self = BT_SINK_BIN(object);
   return_if_disposed();
 
-  // @todo avoid non-sense updates
   switch (property_id) {
     case SINK_BIN_MODE: {
       self->priv->mode=g_value_get_enum(value);
@@ -758,7 +764,7 @@ static void bt_sink_bin_set_property(GObject      * const object,
         g_object_set(self->priv->gain,"volume",g_value_get_double(value),NULL);
       }
     } break;
-	// tempo iface
+    // tempo iface
     case SINK_BIN_TEMPO_BPM:
     case SINK_BIN_TEMPO_TPB:
     case SINK_BIN_TEMPO_STPT:

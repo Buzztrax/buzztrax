@@ -137,17 +137,13 @@ static gboolean bt_song_io_native_load(gconstpointer const _self, const BtSong *
   g_sprintf(status,msg,file_name);
   g_object_set(G_OBJECT(self),"status",status,NULL);
     
-  // @todo add gnome-vfs detection method. This method should detect the
-  // filetype of the given file and returns a gnome-vfs uri to open this
-  // file with gnome-vfs. For example if the given file is song.xml the method
-  // should return file:/home/waffel/buzztard/songs/song.xml
+  /* @todo add mime-type detection, so that we know wheter we are in zip mode */
   
   /* @todo add zip file processing
    * zip_file=bt_zip_file_new(file_name,BT_ZIP_FILE_MODE_READ);
    * xml_doc_buffer=bt_zip_file_read_file(zip_file,"song.xml",&xml_doc_size);
    */
   
-  // @todo read from zip_file
   xmlParserCtxtPtr const ctxt=xmlNewParserCtxt();
   if(ctxt) {
     //xmlDocPtr song_doc=xmlCtxtReadMemory(ctxt,xml_doc_buffer,xml_doc_size,file_name,NULL,0L)

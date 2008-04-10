@@ -1482,7 +1482,6 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
 
   if(!g_list_find(self->priv->patterns,pattern)) {
     self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref(G_OBJECT(pattern)));
-    // @todo do we need to manually invoke bt_machine_on_pattern_changed() once?
     g_signal_emit(G_OBJECT(self),signals[PATTERN_ADDED_EVENT], 0, pattern);
     bt_song_set_unsaved(self->priv->song,TRUE);
   }

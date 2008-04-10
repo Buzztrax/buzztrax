@@ -59,7 +59,7 @@ enum {
   WIRE_CANVAS_ITEM_DST
 };
 
-// @todo what do we set here?
+// @todo what do we set here? canvas dimensions?
 #define BT_WIRE_MAX_EXTEND 100000.0
 
 struct _BtWireCanvasItemPrivate {

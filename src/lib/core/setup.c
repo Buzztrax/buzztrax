@@ -26,9 +26,6 @@
  * The setup manages virtual gear. That is used #BtMachines and the #BtWires
  * that connect them.
  */
-/* @idea add a methods for dumping the setup as a dot-graph
- * machines and wires should be dumped with details (as subgraphs)!
- */
 
 #define BT_CORE
 #define BT_SETUP_C
@@ -319,7 +316,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
       //     default: value==data.compare_value;
       //   }
       //-> what about: gst_value_compare()
-      // @todo method puts key-key into a gvalue and gets the param-spec by name, then calls generalized search
+      // @todo method puts key into a gvalue and gets the param-spec by name, then calls generalized search
       //-> what about: g_param_values_cmp()
     }
 

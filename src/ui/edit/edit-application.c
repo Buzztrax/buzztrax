@@ -76,13 +76,8 @@ static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer u
   g_assert(BT_IS_SONG_IO(songio));
   g_assert(user_data);
 
+  /* @idea: bind properties */
   g_object_get(self->priv->main_window,"statusbar",&statusbar,NULL);
-
-  /* @todo push loader status changes into the statusbar
-   * - how to handle to push and pop stuff, first_acces=push_only, last_access=pop_only
-   *   - str!=NULL old.pop & new.push
-   *   - str==NULL old.pop & default.push
-   */
   g_object_get(songio,"status",&str,NULL);
   GST_INFO("songio_status has changed : \"%s\"",safe_string(str));
   g_object_set(statusbar,"status",str,NULL);
@@ -109,7 +104,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
   if((missing_core_elements=bt_gst_check_core_elements())) {
     missing=TRUE;res=FALSE;
   }
-  // @todo check 'formats' -> rendering (core?)
+  // @todo check recording 'formats' -> rendering (core?)
   edit_elements=g_list_prepend(NULL,"level");
   if((missing_elements=bt_gst_check_elements(edit_elements))) {
     missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));

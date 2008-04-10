@@ -73,7 +73,8 @@ static void bt_song_io_register_plugins(void) {
   DIR * const dirp=opendir(LIBDIR"/songio");
 
   /* @todo shoudn't the contents of the plugin list be structures
-   * (so that apart from the detect ptr, we could keep the modules handle. we need this to close the plugins at sometime ... )
+   * so that apart from the detect ptr, we could keep the modules handle.
+   * we need this to close the plugins at sometime ...
    */
   GST_INFO("register song-io plugins ...");
   // register internal song-io plugin
@@ -115,10 +116,11 @@ static void bt_song_io_register_plugins(void) {
  * bt_song_io_detect:
  * @filename: the full filename of the song
  *
- * factory method that returns the GType of the class that is able to handle
+ * Factory method that returns the GType of the class that is able to handle
  * the supplied file
  *
  * Returns: the type of the #SongIO sub-class that can handle the supplied file
+ * and %NULL otherwise
  */
 static GType bt_song_io_detect(const gchar * const file_name) {
   GType type=0;
@@ -133,13 +135,16 @@ static GType bt_song_io_detect(const gchar * const file_name) {
   for(node=plugins;node;node=g_list_next(node)) {
     detect=(BtSongIODetect)node->data;
     GST_INFO("  trying ...");
-    // the detect function return a GType if the file matches to the plugin or NULL otheriwse
+    // the detect function return a GType if the file matches to the plugin or
+    // NULL otheriwse
     if((type=detect(file_name))) {
+      /* @idea: would be good if the detect method could also return some extra
+       * data which the plugin can use for loading/saving (e.g. mime-type)
+       */
       GST_INFO("  found one!");
       break;
     }
   }
-  //return(BT_TYPE_SONG_IO_NATIVE);
   return(type);
 }
 
