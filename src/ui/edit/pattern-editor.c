@@ -29,10 +29,7 @@
  *       o expand
  *       o shrink 
  * - mouse handling
- * - implement GtkWidgetClass::set_scroll_adjustments_signal
- *   - see gtk/gtkviewport.{c,h}
- *     o left: ticks
- *     o top: groups (input, global, voice 1, voice 2)
+ * - if we want separator bars for headers, lok at gtkhseparator.c
  */
 
 #include <ctype.h>
@@ -189,11 +186,30 @@ bt_pattern_editor_draw_colnames(BtPatternEditor *self,
   for (g = 0; g < self->num_groups; g++) {
     PatternColumnGroup *cgrp = &self->groups[g];
  
-    pango_layout_set_text (self->pl, cgrp->name, -1);
+    pango_layout_set_text (self->pl, cgrp->name, ((cgrp->width/self->cw)-1));
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
       &widget->style->fg[GTK_STATE_ACTIVE], NULL);
     
     x+=cgrp->width;
+  }
+}
+
+static void
+bt_pattern_editor_draw_rowname(BtPatternEditor *self,
+                          int x,
+                          int y)
+{
+  GtkWidget *widget = GTK_WIDGET(self);
+  int col_w = bt_pattern_editor_rownum_width(self);
+
+  gdk_draw_rectangle (widget->window,
+      widget->style->bg_gc[GTK_STATE_NORMAL],
+      TRUE, 0, 0, col_w, self->ch);
+
+  if (self->num_groups) {
+    pango_layout_set_text (self->pl, "Tick", 4);
+    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
+      &widget->style->fg[GTK_STATE_ACTIVE], NULL);
   }
 }
 
@@ -284,7 +300,8 @@ bt_pattern_editor_get_row_width (BtPatternEditor *self)
 static int
 bt_pattern_editor_get_col_height (BtPatternEditor *self)
 {
-  return (self->num_rows * self->ch);
+  // 1+ because of header
+  return ((1+self->num_rows) * self->ch);
 }
 
 static void
@@ -539,7 +556,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   self->rowhdr_width = bt_pattern_editor_rownum_width(self) + self->cw;
   x += self->rowhdr_width;
   colhdr_y = y;
-  y+=self->ch;
+  y += self->ch;
 
   /* draw group parameter columns */
   for (g = 0; g < self->num_groups; g++) {
@@ -555,6 +572,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   /* draw the headers */
   bt_pattern_editor_draw_rownum(self, rowhdr_x, y-scrolly, row);
   bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-scrollx, colhdr_y);
+  bt_pattern_editor_draw_rowname(self, rowhdr_x, colhdr_y);
 
   /* draw play-pos */
   if(self->play_pos>=0.0) {

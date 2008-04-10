@@ -1,3 +1,9 @@
+2008-04-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	  Add header text. Add fixed first column text.
+
 2008-04-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/Makefile.am:
