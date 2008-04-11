@@ -176,7 +176,6 @@ bt_pattern_editor_draw_colnames(BtPatternEditor *self,
                           int y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
-  //char buf[16];
   int g;
 
   gdk_draw_rectangle (widget->window,
@@ -300,15 +299,19 @@ bt_pattern_editor_get_row_width (BtPatternEditor *self)
 static int
 bt_pattern_editor_get_col_height (BtPatternEditor *self)
 {
-  // 1+ because of header
-  return ((1+self->num_rows) * self->ch);
+  return (self->colhdr_height + self->num_rows * self->ch);
 }
 
 static void
 bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 {
-  int y = self->row * self->ch - self->ofs_y;
-  gtk_widget_queue_draw_area (&self->parent, 0, y, self->parent.allocation.width, self->ch);
+  // FIXME: there is something wrong with the region
+  //int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
+  
+  //GST_INFO("c.row=%d",self->row);
+  //gtk_widget_queue_draw_area (GTK_WIDGET(self), 0, y, self->parent.allocation.width, self->ch);
+  gtk_widget_queue_draw (GTK_WIDGET(self));
+
   if (self->callbacks->notify_cursor_func)
     self->callbacks->notify_cursor_func(self->pattern_data, self->row, self->group, self->parameter, self->digit);
 }
@@ -316,10 +319,9 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 static void
 bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
 {
-  int first_row, last_row;
-  
-  if (self->group < self->num_groups)
-  {
+  gboolean draw=TRUE;
+   
+  if (self->group < self->num_groups) {
     int g, p;
     int xpos = 0;
     PatternColumnGroup *grp = NULL;
@@ -330,13 +332,12 @@ bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
     for (p = 0; p < self->parameter; p++)
       xpos += self->cw * (param_types[grp->columns[p].type].chars + 1);
     if (p < grp->num_columns) {
-      int rn = self->rowhdr_width; /* rownum width */
-      int cpos = gtk_adjustment_get_value(self->hadj); /* current hscroll */
+      int cpos = self->ofs_x;
       int w = self->cw * param_types[grp->columns[p].type].chars; /* column width */
-      int ww = self->parent.allocation.width - rn; /* full (unscrolled) widget width, less rownum */
-      int pw = gtk_widget_get_parent(GTK_WIDGET(self))->allocation.width - rn; /* visible (scrolled) width, less rownum */
-      /* rownum is subtracted, because it is not taken into account in hscroll range */
-      /* printf("xpos = %d cpos = %d w = %d width = %d\n", xpos, cpos, w, pw); */
+      int ww = GTK_WIDGET(self)->requisition.width - self->rowhdr_width; /* full width, less rowheader */
+      int pw = GTK_WIDGET(self)->allocation.width - self->rowhdr_width; /* visible (scrolled) width, less rowheader */
+      /* rowheader is subtracted, because it is not taken into account in hscroll range */
+      GST_INFO("xpos = %d cpos = %d w = %d width = %d / %d", xpos, cpos, w, ww, pw);
       if (xpos < cpos || xpos + w > cpos + pw) {
         /* if current parameter doesn't fit, try to center the cursor */
         xpos = xpos - pw / 2;
@@ -345,27 +346,34 @@ bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
         if (xpos < 0)
           xpos = 0;
         gtk_adjustment_set_value(self->hadj, xpos);
+        draw=FALSE;
       }
     }
   }
   
-  first_row = self->ofs_y / self->ch;
-  last_row = (self->ofs_y + self->parent.allocation.height) / self->ch - 1;
-  if (self->row < first_row) {
-    self->ofs_y = self->row * self->ch;
-    gtk_widget_queue_draw (&self->parent);
-    return;
+  {
+    int ypos = self->row * self->ch;
+    int cpos = self->ofs_y;
+    int h = self->ch;
+    int wh = GTK_WIDGET(self)->requisition.height - self->colhdr_height; /* full heigth, less colheader */
+    int ph = GTK_WIDGET(self)->allocation.height - self->colhdr_height; /* visible (scrolled) heigth, less colheader */
+    /* colheader is subtracted, because it is not taken into account in vscroll range */
+    GST_INFO("ypos = %d cpos = %d h = %d height = %d / %d", ypos, cpos, h, wh, ph);
+    if (ypos < cpos || ypos + h > cpos + ph) {
+      /* if current parameter doesn't fit, try to center the cursor */
+      ypos = ypos - ph / 2;
+      if (ypos + ph > wh)
+        ypos = wh - ph;
+      if (ypos < 0)
+        ypos = 0;
+      gtk_adjustment_set_value(self->vadj, ypos);
+      draw=FALSE;
+    }
   }
-  if (self->row > last_row) {
-    int visible_rows = self->parent.allocation.height / self->ch;
-    first_row = self->row - visible_rows + 1;
-    if (first_row < 0)
-      first_row = 0;
-    self->ofs_y = first_row * self->ch;
-    gtk_widget_queue_draw (&self->parent);
-    return;
+  if(draw) {
+    // setting the adjustments already draws
+    bt_pattern_editor_refresh_cursor(self);
   }
-  bt_pattern_editor_refresh_cursor(self);
 }
 
 static void
@@ -526,7 +534,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   GdkRectangle rect = event->area;
   int y, x, i, row, g, max_y;
   int start;
-  int scrollx = 0, scrolly = 0, rowhdr_x, colhdr_y;
+  int rowhdr_x, colhdr_y;
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
@@ -534,45 +542,50 @@ bt_pattern_editor_expose (GtkWidget *widget,
   if (event->count > 0)
     return FALSE;
   
-  //printf("Area: %d,%d -> %d,%d\n",rect.x, rect.y, rect.width, rect.height);
+  // this is the dirty region
+  GST_DEBUG("Area: %d,%d -> %d,%d",rect.x, rect.y, rect.width, rect.height);
 
-  gdk_window_clear_area (widget->window, 0, 0, widget->allocation.width, widget->allocation.height);
+  //gdk_window_clear_area (widget->window, rect.x, rect.y, rect.width, rect.height);
   //gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, widget->allocation.width, widget->allocation.height);
 
-  x = -self->ofs_x;
-  y = -self->ofs_y;
-  /* calculate which row to start from */
-  row = (rect.y + self->ofs_y) / self->ch;
-  y += row * self->ch;
-  max_y = rect.y + rect.height; /* max y */
-  
   if (self->hadj) {
-    scrollx = (gint)gtk_adjustment_get_value(self->hadj);
-    scrolly = (gint)gtk_adjustment_get_value(self->vadj);
+    self->ofs_x = (gint)gtk_adjustment_get_value(self->hadj);
+    self->ofs_y = (gint)gtk_adjustment_get_value(self->vadj);
   }
+
+  x = rect.x;
+  y = rect.y;
+  max_y = rect.y + rect.height; /* max y */
+  /* calculate which row to start from */
+  row = rect.y / self->ch;
+
+  GST_DEBUG("Scroll: %d,%d, row=%d",self->ofs_x, self->ofs_y, row);
     
   /* leave space for headers */
   rowhdr_x = x;
   self->rowhdr_width = bt_pattern_editor_rownum_width(self) + self->cw;
   x += self->rowhdr_width;
   colhdr_y = y;
-  y += self->ch;
+  self->colhdr_height = self->ch;
+  y += self->colhdr_height;
 
   /* draw group parameter columns */
   for (g = 0; g < self->num_groups; g++) {
     PatternColumnGroup *cgrp = &self->groups[g];
     start = x;
     for (i = 0; i < cgrp->num_columns; i++) {
-      x += bt_pattern_editor_draw_column(self, x-scrollx, y-scrolly, &cgrp->columns[i], g, i, row, max_y);
+      x += bt_pattern_editor_draw_column(self, x-self->ofs_x, y-self->ofs_y, &cgrp->columns[i], g, i, row, max_y);
     }
     x += self->cw;
     cgrp->width = x - start;
   }
   
   /* draw the headers */
-  bt_pattern_editor_draw_rownum(self, rowhdr_x, y-scrolly, row);
-  bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-scrollx, colhdr_y);
-  bt_pattern_editor_draw_rowname(self, rowhdr_x, colhdr_y);
+  bt_pattern_editor_draw_rownum(self, rowhdr_x, y-self->ofs_y, row);
+  if(row==0) {
+    bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-self->ofs_x, colhdr_y);
+    bt_pattern_editor_draw_rowname(self, rowhdr_x, colhdr_y);
+  }
 
   /* draw play-pos */
   if(self->play_pos>=0.0) {
@@ -935,11 +948,12 @@ bt_pattern_editor_button_press (GtkWidget *widget,
   int g;
   if (x < self->rowhdr_width) {
     bt_pattern_editor_refresh_cursor(self);
-    self->row = y / self->ch;
+    self->row = (y-self->colhdr_height) / self->ch;
     bt_pattern_editor_refresh_cursor_or_scroll(self);
     return TRUE;
   }
   x -= self->rowhdr_width;
+  y -= self->colhdr_height;
   for (g = 0; g < self->num_groups; g++)
   {
     PatternColumnGroup *grp = &self->groups[g];

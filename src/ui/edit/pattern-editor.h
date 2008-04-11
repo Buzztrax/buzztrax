@@ -109,7 +109,7 @@ typedef struct _BtPatternEditor
   /* font metrics */
   PangoLayout *pl;
   int cw, ch;
-  int rowhdr_width;
+  int rowhdr_width, colhdr_height;
 
   gboolean size_changed;
   

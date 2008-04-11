@@ -1,5 +1,11 @@
 2008-04-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Unbreak the pattern editor.
+
+2008-04-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wire-pattern.c:
 	* src/lib/core/wire.c:
 	  Fix two docs typos.
