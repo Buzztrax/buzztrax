@@ -305,12 +305,10 @@ bt_pattern_editor_get_col_height (BtPatternEditor *self)
 static void
 bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 {
-  // FIXME: there is something wrong with the region
-  //int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
+  int y = self->colhdr_height + (self->row * self->ch);
   
-  //GST_INFO("c.row=%d",self->row);
-  //gtk_widget_queue_draw_area (GTK_WIDGET(self), 0, y, self->parent.allocation.width, self->ch);
-  gtk_widget_queue_draw (GTK_WIDGET(self));
+  gtk_widget_queue_draw_area (GTK_WIDGET(self), 0, y, GTK_WIDGET(self)->allocation.width, self->ch);
+  //gtk_widget_queue_draw (GTK_WIDGET(self));
 
   if (self->callbacks->notify_cursor_func)
     self->callbacks->notify_cursor_func(self->pattern_data, self->row, self->group, self->parameter, self->digit);
@@ -555,19 +553,24 @@ bt_pattern_editor_expose (GtkWidget *widget,
 
   x = rect.x;
   y = rect.y;
-  max_y = rect.y + rect.height; /* max y */
-  /* calculate which row to start from */
-  row = rect.y / self->ch;
-
-  GST_DEBUG("Scroll: %d,%d, row=%d",self->ofs_x, self->ofs_y, row);
+  max_y = rect.y + rect.height; /* end of dirty region */
     
   /* leave space for headers */
   rowhdr_x = x;
   self->rowhdr_width = bt_pattern_editor_rownum_width(self) + self->cw;
   x += self->rowhdr_width;
-  colhdr_y = y;
-  self->colhdr_height = self->ch;
-  y += self->colhdr_height;
+  if(!rect.y) {
+    colhdr_y = y;
+    self->colhdr_height = self->ch;
+    y += self->colhdr_height;
+    row=0;
+  }
+  else {
+    /* calculate which row to start from */
+    row = (rect.y - self->colhdr_height) / self->ch;
+  }
+
+  GST_DEBUG("Scroll: %d,%d, row=%d",self->ofs_x, self->ofs_y, row);
 
   /* draw group parameter columns */
   for (g = 0; g < self->num_groups; g++) {
@@ -582,7 +585,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   
   /* draw the headers */
   bt_pattern_editor_draw_rownum(self, rowhdr_x, y-self->ofs_y, row);
-  if(row==0) {
+  if(!rect.y) {
     bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-self->ofs_x, colhdr_y);
     bt_pattern_editor_draw_rowname(self, rowhdr_x, colhdr_y);
   }
