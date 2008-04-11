@@ -296,7 +296,7 @@ gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulon
 }
 
 /**
- * bt_wire_pattern_get__event:
+ * bt_wire_pattern_get_event:
  * @self: the pattern the cell belongs to
  * @tick: the tick (time) position starting with 0
  * @param: the number of the parameter starting with 0

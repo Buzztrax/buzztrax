@@ -1460,7 +1460,7 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   gobject_class->finalize     = bt_wire_finalize;
 
   /**
-   * BtWirePattern::pattern-created:
+   * BtWire::pattern-created:
    * @self: the wire-pattern object that emitted the signal
    * @tick: the tick position inside the pattern
    * @param: the parameter index
