@@ -1,5 +1,11 @@
 2008-04-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	  Add names to more widgets.
+
+2008-04-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-editor.c:
 	  Reenabled partial refreshs after cursor moves.
 

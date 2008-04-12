@@ -470,6 +470,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->waves_list=GTK_TREE_VIEW(gtk_tree_view_new());
+  gtk_widget_set_name(GTK_WIDGET(self->priv->waves_list),_("wave list"));
   g_object_set(self->priv->waves_list,"enable-search",FALSE,"rules-hint",TRUE,NULL);
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->waves_list),GTK_SELECTION_BROWSE);
   renderer=gtk_cell_renderer_text_new();
@@ -534,6 +535,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->wavelevels_list=GTK_TREE_VIEW(gtk_tree_view_new());
+  gtk_widget_set_name(GTK_WIDGET(self->priv->wavelevels_list),_("wave-level list"));
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->wavelevels_list),GTK_SELECTION_BROWSE);
   g_object_set(self->priv->wavelevels_list,"enable-search",FALSE,"rules-hint",TRUE,NULL);
   renderer=gtk_cell_renderer_text_new();
