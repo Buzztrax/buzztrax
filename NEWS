@@ -1,3 +1,9 @@
+0.3.1 after the ice (12.Apr.2008)
+================================================================================
+Lots of bugfixes, mostly memory leak and reference counting fixes. A few
+improvements on the new pattern editor widget (added native scrolling and column
+headers).
+
 0.3.0 a tale of ice and darkness (26.Mar.2008)
 ================================================================================
 Improvements in all areas. We now have native buzzmachine support and better

@@ -423,8 +423,8 @@ BT_START_TEST(test_btsequence_change_pattern) {
   BtSequence *sequence;
   BtMachine *machine;
   BtPattern *pattern;
-  //GstObject *element;
-  //gulong val;
+  GstObject *element;
+  gulong val;
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -448,15 +448,8 @@ BT_START_TEST(test_btsequence_change_pattern) {
   /* set pattern */
   bt_sequence_set_pattern(sequence,0,0,pattern);
 
-  /* schedule a parameter change,
-   * FIXME: this causes a ref leak on machine->machine
-   * it doe not matter if pattern is added to sequence before or after
-   * I assume its happening in the sequence updating, as if the pattern is not
-   * in the sequence, there is not ref-leak
-   */
   bt_pattern_set_global_event(pattern,0,0,"100");
 
-#if 0
   g_object_get(machine,"machine",&element,NULL);
 
   /* we should still have the default value */
@@ -471,7 +464,6 @@ BT_START_TEST(test_btsequence_change_pattern) {
   fail_unless(val==100, NULL);
 
   gst_object_unref(element);
-#endif
 
   /* clean up */
   g_object_unref(pattern);

@@ -26,7 +26,7 @@ BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + 
 dnl our libraries and install dirs use major.minor as a version
 BT_MAJORMINOR=$BT_MAJOR_VERSION.$BT_MINOR_VERSION
 dnl we override it here for release candidates
-dnl BT_MAJORMINOR=0.3
+dnl BT_MAJORMINOR=0.4
 
 dnl update this for each release (year-month-day)
 dnl FIXME: can't why just expand this with `date` command output ?

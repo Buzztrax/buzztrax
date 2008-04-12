@@ -31,15 +31,7 @@
  * - can we visualize the parameters on the wire better
  *   - the wire has volume
  *   - the wire can have 1/2 panorama sliders
- *   - what about changin the triangle into this
- *     ---------
- *     \ V: 100 \
- *     / P: 50L /
- *     ---------
- *    - as rotation of textual labels does not work well, we could use graphics
- *      - a speaker symbol for volume and ||||| for the level
- *      - a (| |) symbol for panorama and again bars for the position
- * - right now a click on the triangle pops up the volume slider
+ * - right now a click on the triangle pops up the volume or panorama slider
  *   - it could popup a whole mixer strip
  */
 #define BT_EDIT

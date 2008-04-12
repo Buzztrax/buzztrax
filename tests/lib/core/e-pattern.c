@@ -466,19 +466,15 @@ BT_END_TEST
 TCase *bt_pattern_example_case(void) {
   TCase *tc = tcase_create("BtPatternExamples");
 
-  if(0) {
   tcase_add_test(tc,test_btpattern_obj1);
   tcase_add_test(tc,test_btpattern_obj2);
   tcase_add_test(tc,test_btpattern_copy);
   tcase_add_test(tc,test_btpattern_has_data);
   tcase_add_test(tc,test_btpattern_enlarge_length);
   tcase_add_test(tc,test_btpattern_shrink_length);
-  }
   tcase_add_test(tc,test_btpattern_enlarge_voices);
-  if(0) {
   tcase_add_test(tc,test_btpattern_shrink_voices);
   tcase_add_test(tc,test_btpattern_insert_row);
-  }
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

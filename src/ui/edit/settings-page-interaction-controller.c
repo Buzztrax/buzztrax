@@ -82,8 +82,6 @@ static void on_ic_registry_devices_changed(BtIcRegistry *ic_registry,GParamSpec 
   for(node=list;node;node=g_list_next(node)) {
     device=BTIC_DEVICE(node->data);
     g_object_get(G_OBJECT(device),"name",&str,NULL);
-    
-    
     gtk_list_store_append(store,&menu_iter);
     gtk_list_store_set(store,&menu_iter,
       //DEVICE_MENU_ICON,pixbuf,
