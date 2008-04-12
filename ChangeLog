@@ -1,5 +1,16 @@
 2008-04-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  News sent.
+
+	* src/ui/edit/main-page-machines.c:
+	  Added ideas about how to use the nice new icons.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Forgot to save that file before doing my last commit.
+
+2008-04-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWS:
 	* configure.ac:
 	* src/ui/edit/settings-page-interaction-controller.c:

@@ -1,40 +1,39 @@
+2008/05 ========================================================================
+
+
+
 2008/04 ========================================================================
 
-Doing a release has some good sid eeffects like adding new screenshots [1] and
-cleaning up things (like installing headers that include config.h).
-
-After the release I demoed it some friends and oviosly found some issues. Now I
+After the release I demoed it some friends and obviously found some issues. Now I
 spend the rest of the month tracking then. Its mostly ref-counts issues. Why are
 the so nasty? Well unlike memory leaks, they are anonymous. Memory is allocated
-once and should be paired by one free. The id of the ressource is the memory
+once and should be paired by one free. The id of the resource is the memory
 address. Now every ref should be paired by an unref, but all the refs and unrefs
 share the same id (address of the object). So how to figure which ref is not
-having the unref? Refdbg [2] can trace object and gather backtraces for
-ref-count operations. So one has to go thru the list one by one, remove pairs
+having the unref? Refdbg [1] can trace object and gather backtraces for
+ref-count operations. So one has to go through the list one by one, remove pairs
 and study whats left. Its not easy, but it works. 
 Now why is this so important. If the refcount never reaches 0, the object is not
 disposed and occupies memory (until the application exits). Under valgrind it
-would appear under reachable memory usualy. For most apps it has no immediately
+would appear under reachable memory usually. For most apps it has no immediately
 visible effect. For gstreamer app it has. In buzztard I do dynamic stuff with
-pipelines, like addng and removing elements. If you get the ref-counting wrong.
+pipelines, like adding and removing elements. If you get the ref-counting wrong.
 The element is unlinked but not disposed. If the pipeline is set to PLAYING one
-gets dataflow errors. Bt then its not a gstreamer only problem. E.g. icon theme
-pixbufs in gtk. If the are not unreffed, gtk cannot unload the theme. Means if
-you try a bunch of themes, none of the is unloaded if even just one pannel
+gets data flow errors. But then its not a gstreamer only problem. E.g. icon theme
+pixbufs in gtk. If the are not unrefed, gtk cannot unload the theme. Means if
+you try a bunch of themes, none of the is unloaded if even just one panel
 applet has a ref-count issue. The sad thing is that the gnome libraries have
 quite some ref-count leaks. I've started to track and fix them as its hard to
-see something within all this noise.
+see something within all this noise [2][3].
 
-Back to buzztard. Two more developments to mention: Waffel started a demo for
-the zip loader based on libgsf and Deloun made great svg designs for the machine
-view canvas. Now I need to study canvases besides gnome-canvas, to see if any of
-them supports svg.
+I've released buzztard-0.3.1 with the fixes. A few more developments to mention:
+Waffel started a demo for the zip loader based on libgsf, Deloun made great svg
+designs for the machine view canvas and the tabs and Herzi send me a patch to
+add native scrolling in the pattern editor. Now back to new features, yah!
 
-[1] http://www.buzztard.org/index.php/Screenshots#Version_0.3
-[2] http://refdbg.sf.net
-
-http://bugzilla.gnome.org/show_bug.cgi?id=525815
-http://bugzilla.gnome.org/show_bug.cgi?id=66513
+[1] http://refdbg.sf.net
+[2] http://bugzilla.gnome.org/show_bug.cgi?id=525815
+[3] http://bugzilla.gnome.org/show_bug.cgi?id=66513
 
 2008/03 ========================================================================
 

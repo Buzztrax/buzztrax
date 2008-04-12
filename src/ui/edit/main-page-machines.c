@@ -25,7 +25,16 @@
  *
  * Displays the machine setup on a canvas.
  */
-
+/* @todo: use tango svg icons for machines
+ * http://library.gnome.org/devel/rsvg/stable/rsvg-GdkPixbuf.html:
+ * pixbuf=rsvg_pixbuf_from_file_at_size(file_name,width,height,&error);
+ * gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+ *    GNOME_TYPE_CANVAS_PIXBUF,
+ *    "pixbuf",pixbuf,
+ *    "x", xpos,
+ *    ...
+ *    NULL);
+ */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
 

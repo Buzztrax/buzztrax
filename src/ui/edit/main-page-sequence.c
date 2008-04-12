@@ -2724,7 +2724,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
   self->priv->pattern_list=GTK_TREE_VIEW(gtk_tree_view_new());
   g_object_set(self->priv->pattern_list,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
-  gtk_widget_set_name(GTK_WIDGET(self->priv->sequence_table),_("pattern list for sequence track"));
+  gtk_widget_set_name(GTK_WIDGET(self->priv->pattern_list),_("pattern list for sequence track"));
 
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),
