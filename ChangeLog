@@ -1,3 +1,21 @@
+2008-04-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Commenting on better handling failure situation here.
+  
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	  Plan for wavtable support.
+
+	* src/lib/core/wire.c:
+	  Fix copy'n'paste error that makes build fail with older gstreamer.
+
+	* src/ui/edit/edit-application.c:
+	  Change on try_unref into unref.
+	
+	* src/ui/edit/main-page-waves.c:
+	  Comments about borked filechooser widget.
+
 2008-04-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

@@ -1024,7 +1024,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
       }
 #else
       GList *values;
-      if((values=(GList *)gst_controller_get_all(self->priv->global_controller,WIRE_PARAM_NAME(param)))) {
+      if((values=(GList *)gst_controller_get_all(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
         add=FALSE;
         g_list_free(values);
       }

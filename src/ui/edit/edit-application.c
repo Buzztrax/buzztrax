@@ -624,9 +624,9 @@ static void bt_edit_application_dispose(GObject *object) {
   if(self->priv->main_window) {
     GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);
     //main-menu.c::on_menu_quit_activate
-    //gtk_widget_destroy(self->priv->main_window);
+    //gtk_widget_destroy(GTK_WIDGET(self->priv->main_window));
+    g_object_unref(self->priv->main_window);
   }
-  g_object_try_unref(self->priv->main_window);
 
   g_object_try_unref(self->priv->ui_ressources);
   g_object_try_unref(self->priv->pb_controller);

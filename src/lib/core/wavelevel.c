@@ -25,7 +25,10 @@
  * #BtWavelevel contain the digital audio data of a #BtWave to be used for a
  * certain key-range.
  */
-
+/* @todo: expose wavedata
+ * - add a gpointer WAVELEVEL_DATA property to get a gint16 pointer to the
+ *    wave-data.
+ */
 #define BT_CORE
 #define BT_WAVELEVEL_C
 

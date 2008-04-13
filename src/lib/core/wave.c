@@ -25,8 +25,9 @@
  * Represents one instrument. Contains one or more #BtWavelevels.
  */
 /* @todo: save sample file length and/or md5sum in file:
- * - if we miss files, we can do a file-system search and use the details to verify
- * - when loading, we might also use the details as a sanity check
+ * - if we miss files, we can do a xsesame search and use the details to verify
+ * @todo: need more data per wave:
+ * - cahnnels and loop-type
  */
 #define BT_CORE
 #define BT_WAVE_C
@@ -48,6 +49,10 @@ enum {
   WAVE_INDEX,
   WAVE_NAME,
   WAVE_URI
+  /*
+  WAVE_CHANNELS,
+  WAVE_LOOP_TYPE, // OFF, FORWARD, PINGPONG
+   */
 };
 
 struct _BtWavePrivate {
@@ -99,6 +104,9 @@ BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const g
   g_assert(wavetable!=NULL);
   bt_wavetable_add_wave(wavetable,self);
   g_object_unref(wavetable);
+  
+  // @todo: try to load wavedata
+  //res=bt_wave_load_from_uri(self);
 
   return(self);
 Error:
@@ -153,8 +161,19 @@ gboolean bt_wave_load_from_uri(const BtWave * const self) {
   // check if the url is valid
   if(!gnome_vfs_uri_exists(uri)) goto invalid_uri;
 
-  // @todo: load wave-data (into wavelevels)
-
+  /* @todo: load wave-data (into wavelevels)
+   * - when loading, we might also use the details as a sanity check
+   * - decode uri into raw audio data, onto a given fd
+   *   filesrc ! decodebin2 ! caps-filter ! fdsink sync=false
+   *   - filedescriptor
+   *     fileno(tmpfile()) / mkstemp("...XXXXXX")
+   *   - caps-filter
+   *     - we want signed 16 bit, mono or stereo, native endinaess
+   * - should we do some size checks to avoid unpacking the audio track of a full
+   *   video on a machine with low memory
+   *   - if so, how to get real/virtual memory sizes?
+   *     mallinfo() not enough, sysconf()?
+   */
 done:
   gnome_vfs_uri_unref(uri);
   return(res);

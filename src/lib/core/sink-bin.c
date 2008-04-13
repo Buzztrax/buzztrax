@@ -346,7 +346,11 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   plugin_name=bt_sink_bin_determine_plugin_name();
   GstElement * const element=gst_element_factory_make(plugin_name,"player");
   if(!element) {
-    GST_INFO("Can't instantiate '%d' element",plugin_name);goto Error;
+    /* todo: if this fails
+     * check if it was audiosink in settings and if so, unset it and retry
+     * else check if ir was system-audiosink and if so, what?
+     */
+    GST_WARNING("Can't instantiate '%s' element",plugin_name);goto Error;
   }
   if(GST_IS_BASE_SINK(element)) {
     // enable syncing to timestamps

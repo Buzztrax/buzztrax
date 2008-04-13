@@ -511,8 +511,10 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_box_pack_start(GTK_BOX(box),self->priv->browser_toolbar,FALSE,FALSE,0);
 
   //       file-chooser
-  // this causes warning on gtk 2.x
-  // Gtk-CRITICAL **: gtk_file_system_path_is_local: assertion `path != NULL' failed
+  /* this causes warning on gtk 2.x
+   * Gtk-CRITICAL **: gtk_file_system_path_is_local: assertion `path != NULL' failed
+   * Gdk-CRITICAL **: gdk_drawable_get_size: assertion `GDK_IS_DRAWABLE (drawable)' failed
+   */
   self->priv->file_chooser=gtk_file_chooser_widget_new(GTK_FILE_CHOOSER_ACTION_OPEN);
   g_signal_connect(G_OBJECT(self->priv->file_chooser),"file-activated",G_CALLBACK(on_file_chooser_load_sample),(gpointer)self);
   //g_signal_connect(G_OBJECT(self->priv->file_chooser),"update-preview",G_CALLBACK(on_file_chooser_info_sample),(gpointer)self);
