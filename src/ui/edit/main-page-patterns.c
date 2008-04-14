@@ -452,7 +452,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
         
         g_object_get(self->priv->pattern,"machine",&machine,NULL);
         property=bt_machine_get_voice_param_spec(machine,self->priv->cursor_param);
-        if((gval=bt_pattern_get_voice_event_data(self->priv->pattern,self->priv->cursor_row,(int)group->user_data,self->priv->cursor_param)) && G_IS_VALUE(gval)) {
+        if((gval=bt_pattern_get_voice_event_data(self->priv->pattern,self->priv->cursor_row,GPOINTER_TO_UINT(group->user_data),self->priv->cursor_param)) && G_IS_VALUE(gval)) {
           if(!(desc=bt_machine_describe_voice_param_value(machine,self->priv->cursor_param,gval)))
             desc="\0";
         }
@@ -2064,7 +2064,7 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
       //if(param==0 && row<2) GST_WARNING("get global event: %s",str);
       break;
     case 2:
-      str=bt_pattern_get_voice_event(self->priv->pattern,row,(int)group->user_data,param);
+      str=bt_pattern_get_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),param);
       break;
     default:
       GST_WARNING("invalid column group type");
@@ -2109,7 +2109,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       break;
     case 2:
-      bt_pattern_set_voice_event(self->priv->pattern,row,(int)group->user_data,param,str);
+      bt_pattern_set_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),param,str);
       break;
     default:
       GST_WARNING("invalid column group type");
@@ -2418,7 +2418,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       // create mapping for voice params
       group->type=2;
       group->name=g_strdup("Voice 1");
-      group->user_data=(gpointer)0;
+      group->user_data=GUINT_TO_POINTER(0);
       group->num_columns=voice_params;
       group->columns=g_new(PatternColumn,voice_params);
       GST_INFO("voice parameters");
@@ -2429,8 +2429,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       group++;
       for(i=1;i<voices;i++) {
         group->type=2;
-        group->name=g_strdup_printf("Voice %d",(int)i+1);
-        group->user_data=(gpointer)i;
+        group->name=g_strdup_printf("Voice %u",(guint)(i+1));
+        group->user_data=GUINT_TO_POINTER(i);
         group->num_columns=voice_params;
         group->columns=g_memdup(stamp->columns,sizeof(PatternColumn)*voice_params);
         for(i=0;i<voice_params;i++) {

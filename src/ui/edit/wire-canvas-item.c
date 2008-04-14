@@ -242,18 +242,18 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_object_get(self->priv->dst,"machine",&dst,NULL);
 
   GST_INFO("machine %p,machine->ref_ct=%d has been removed, checking wire %p->%p", machine,G_OBJECT(machine)->ref_count,src,dst);
-  if((src==machine) || (dst==machine)) {
+  if((src==machine) || (dst==machine) || (src==NULL) || (dst==NULL)) {
     GST_INFO("the machine, this wire is connected to, has been removed");
     bt_setup_remove_wire(setup,self->priv->wire);
 
     GST_INFO("... machine %p,ref_count=%d has been removed, src %p,ref=%d, dst %p,ref=%d",
       machine,G_OBJECT(machine)->ref_count,
-      src,G_OBJECT(src)->ref_count,
-      dst,G_OBJECT(dst)->ref_count
+      src,(src?G_OBJECT(src)->ref_count:0),
+      dst,(dst?G_OBJECT(dst)->ref_count:0)
     );
   }
-  g_object_unref(src);
-  g_object_unref(dst);
+  g_object_try_unref(src);
+  g_object_try_unref(dst);
 }
 
 static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {

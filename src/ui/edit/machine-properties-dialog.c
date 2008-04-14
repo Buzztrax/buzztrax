@@ -701,10 +701,10 @@ static void on_toolbar_preset_add_clicked(GtkButton *button,gpointer user_data) 
 
   g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
 
-  GST_INFO("about to add a new preset : '%s'",name);
-
   // ask for name & comment
   if(preset_list_edit_preset_meta(self,machine,&name,&comment)) {
+    GST_INFO("about to add a new preset : '%s'",name);
+
     gst_preset_save_preset(GST_PRESET(machine),name);
     gst_preset_set_meta(GST_PRESET(machine),name,"comment",comment);
     preset_list_refresh(self);
