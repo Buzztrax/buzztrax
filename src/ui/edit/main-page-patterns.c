@@ -542,7 +542,7 @@ static boolean pattern_selection_apply(const BtMainPagePatterns *self,pattern_fn
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+((gint)group.user_data*voice_params);
+          params=global_params+(GPOINTER_TO_UINT(group.user_data)*voice_params);
           for(i=0;i<group.num_columns;i++) {
             bt_pattern_blend_column(self->priv->pattern,beg,end,params+i);
           }
@@ -579,7 +579,7 @@ static boolean pattern_selection_apply(const BtMainPagePatterns *self,pattern_fn
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+((gint)group.user_data*voice_params);
+          params=global_params+(GPOINTER_TO_UINT(group.user_data)*voice_params);
           bt_pattern_blend_column(self->priv->pattern,beg,end,params+param);
           g_object_unref(machine);
         } break;
@@ -749,7 +749,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+          params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
           for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
             bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, params+i);
           }
@@ -780,7 +780,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+          params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
           bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, params+self->priv->cursor_param);
           g_object_unref(machine);
         } break;
@@ -834,7 +834,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+          params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
           for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
             bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, params+i);
           }
@@ -865,7 +865,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+          params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
           bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, params+self->priv->cursor_param);
           g_object_unref(machine);
         } break;
@@ -934,7 +934,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               
               g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
               g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-              params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+              params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
               for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
                 bt_pattern_blend_column(self->priv->pattern,beg,end,params+i);
               }
@@ -970,7 +970,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               
               g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
               g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-              params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+              params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
               bt_pattern_blend_column(self->priv->pattern,beg,end,params+param);
               g_object_unref(machine);
             } break;
@@ -1041,7 +1041,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               
               g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
               g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-              params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+              params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
               for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
                 bt_pattern_randomize_column(self->priv->pattern,beg,end,params+i);
               }
@@ -1077,7 +1077,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               
               g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
               g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-              params=global_params+((gint)self->priv->param_groups[self->priv->cursor_group].user_data*voice_params);
+              params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
               bt_pattern_randomize_column(self->priv->pattern,beg,end,params+param);
               g_object_unref(machine);
             } break;
@@ -2165,7 +2165,7 @@ static float note_str_to_float(gchar *note, gpointer user_data) {
 }
 
 static const gchar * note_float_to_str(gfloat in, gpointer user_data) {
-  guint tone, octave, note=(gint)in;
+  guint tone, octave, note=(guint)in;
   static gchar str[4];
   static const gchar *key[12]= { "c-", "c#", "d-", "d#", "e-", "f-", "f#", "g-", "g#", "a-", "a#", "b-" };
 
