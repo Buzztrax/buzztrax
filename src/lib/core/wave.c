@@ -26,6 +26,7 @@
  */
 /* @todo: save sample file length and/or md5sum in file:
  * - if we miss files, we can do a xsesame search and use the details to verify
+ * - when loading, we might also use the details as a sanity check
  * @todo: need more data per wave:
  * - cahnnels and loop-type
  */
@@ -77,6 +78,38 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper
 
+#if 0
+static void on_wave_loader_new_pad(GstDecodeBin2 *bin,GstPad *pad,gboolean islast,gpointer user_data) {
+  gst_element_link(bin,GST_ELEMENT(user_data));
+}
+
+static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
+  BtWave *self=BT_WAVE(user_data);
+  
+  /* @todo: mmap the file and emit some signal so that UI can redraw */
+}
+
+static void on_wave_loader_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  GError *err = NULL;
+  gchar *dbg = NULL;
+  
+  gst_message_parse_error(message, &err, &dbg);
+  GST_WARNING ("ERROR: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
+  g_error_free (err);
+  g_free (dbg);   
+}
+
+static void on_wave_loader_warning(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
+  GError *err = NULL;
+  gchar *dbg = NULL;
+  
+  gst_message_parse_warning(message, &err, &dbg);
+  GST_WARNING ("WARNING: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
+  g_error_free (err);
+  g_free (dbg);   
+}
+#endif
+
 //-- constructor methods
 
 /**
@@ -99,14 +132,15 @@ BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const g
   if(!self) {
     goto Error;
   }
+  // try to load wavedata
+  if(!bt_wave_load_from_uri(self)) {
+    goto Error;
+  }
   // add the wave to the wavetable of the song
   g_object_get(G_OBJECT(song),"wavetable",&wavetable,NULL);
   g_assert(wavetable!=NULL);
   bt_wavetable_add_wave(wavetable,self);
   g_object_unref(wavetable);
-  
-  // @todo: try to load wavedata
-  //res=bt_wave_load_from_uri(self);
 
   return(self);
 Error:
@@ -156,24 +190,72 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
  */
 gboolean bt_wave_load_from_uri(const BtWave * const self) {
   gboolean res=TRUE;
-
   GnomeVFSURI * const uri=gnome_vfs_uri_new(self->priv->uri);
+
+#if 0
+  GstElement *pipe,*src,*dec,*conv,*fmt,*sink;
+  GstBus *bus;
+  gint fd;
+  GstCaps *caps;
+#endif
+
   // check if the url is valid
   if(!gnome_vfs_uri_exists(uri)) goto invalid_uri;
+  
+#if 0
+  // create loader pipeline
+  pipe=gst_pipeline_new("wave-loader");
+  src=gst_element_make_from_uri(GST_URI_SRC,uri,NULL);
+  dec=gst_element_factory_make("decodebin2",NULL);
+  conv=gst_element_factory_make("audioconvert",NULL);
+  fmt=gst_element_factory_make("capsfilter",NULL);
+  sink=gst_element_factory_make("fdsink",NULL);
+  
+  // configure elements
+  caps=gst_caps_new_simple("audio/x-raw-int",
+    "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
+    "channels",GST_TYPE_INT_RANGE,1,2,
+    "width",GST_TYPE_INT,16,
+    "endianness",G_TYPE_INT,G_BYTE_ORDER,
+    "signedness",G_TYPE_INT,TRUE,
+    NULL);
+  g_object_set(fmt,"caps",caps,NULL);
+  gst_caps_unref(caps);
+  
+  fd=fileno(tmpfile()); // or mkstemp("...XXXXXX")
+  g_object_set(sink,"fd",fd,"sync",FALSE,NULL);
+
+  // add and link
+  gst_bin_add_many(GST_BIN(pipe),src,dec,conv,fmt,sink,NULL);
+  gst_element_link_many(src,dec,NULL);
+  gst_element_link_many(conv,fmt,sink,NULL);
+  g_signal_connect(G_OBJECT(dec),"new-decoded-pad",G_CALLBACK(on_wave_loader_new_pad),(gpointer)conv);
 
   /* @todo: load wave-data (into wavelevels)
-   * - when loading, we might also use the details as a sanity check
-   * - decode uri into raw audio data, onto a given fd
-   *   filesrc ! decodebin2 ! caps-filter ! fdsink sync=false
-   *   - filedescriptor
-   *     fileno(tmpfile()) / mkstemp("...XXXXXX")
-   *   - caps-filter
-   *     - we want signed 16 bit, mono or stereo, native endinaess
+   * - use statusbar for loader progress (same status mechanism like in song_io)
    * - should we do some size checks to avoid unpacking the audio track of a full
    *   video on a machine with low memory
    *   - if so, how to get real/virtual memory sizes?
    *     mallinfo() not enough, sysconf()?
+   * - need to store some context in self:  pipe, fd
    */
+  
+  bus=gst_element_get_bus(pipe);
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  g_signal_connect(bus, "message::error", G_CALLBACK(on_wave_loader_error), (gpointer)self);
+  g_signal_connect(bus, "message::warning", G_CALLBACK(on_wave_loader_warning), (gpointer)self);
+  g_signal_connect(bus, "message::eos", G_CALLBACK(on_wave_loader_eos), (gpointer)self);
+  gst_object_unref(bus);
+  
+  // play and wait for EOS 
+  gst_element_set_state(pipe,GST_STATE_PLAYING);
+
+  /* @todo: need to clean up in EOS or on error/warning
+  gst_element_set_state(pipe,GST_STATE_NULL);
+  gst_object_unref(pipe);
+  */
+  
+#endif
 done:
   gnome_vfs_uri_unref(uri);
   return(res);

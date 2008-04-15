@@ -1448,7 +1448,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
       "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
       "channels",GST_TYPE_INT_RANGE,n_channels,8,
       "width",GST_TYPE_INT_RANGE,n_width,32,
-      "signedness",G_TYPE_INT,G_BYTE_ORDER,
+      "endianness",G_TYPE_INT,G_BYTE_ORDER,
       NULL);
     if(n_format==0) {
       gst_structure_set(ns,

@@ -1,5 +1,13 @@
 2008-04-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Fix typo in caps.
+
+	* src/lib/core/wave.c:
+	  Draft wave loader more.
+
+2008-04-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  More 64bit cleanups.
 
