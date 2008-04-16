@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.20 2007-03-28 08:33:35 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

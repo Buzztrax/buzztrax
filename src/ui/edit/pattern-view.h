@@ -1,4 +1,4 @@
-/* $Id: pattern-view.h,v 1.3 2007-03-25 14:18:33 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.h,v 1.8 2006-08-24 20:00:54 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

@@ -1,4 +1,4 @@
-/* $Id: learn.c,v 1.2 2007-08-17 13:37:50 berzerka Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

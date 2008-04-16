@@ -1,4 +1,4 @@
-/* $Id: wavelevel.h,v 1.7 2006-09-03 13:21:44 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

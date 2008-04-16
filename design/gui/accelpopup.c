@@ -1,4 +1,4 @@
-/** $Id: accelpopup.c,v 1.2 2007-08-22 19:53:19 ensonic Exp $
+/** $Id$
  * test popup menus with accelerator keys
  *
  * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` accelpopup.c -o accelpopup

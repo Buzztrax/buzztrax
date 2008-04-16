@@ -1,4 +1,4 @@
-/** $Id: states.c,v 1.8 2007-11-22 16:10:15 ensonic Exp $
+/** $Id$
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states.c -o states

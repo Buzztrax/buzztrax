@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.46 2007-08-27 20:17:49 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

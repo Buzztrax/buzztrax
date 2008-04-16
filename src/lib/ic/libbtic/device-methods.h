@@ -1,4 +1,4 @@
-/* $Id: device-methods.h,v 1.4 2007-04-15 18:47:45 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

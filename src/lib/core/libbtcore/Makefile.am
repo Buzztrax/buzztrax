@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.10 2007-03-02 13:17:13 ensonic Exp $
+## $Id$
 
 libbtcoredir = $(includedir)/libbtcore
 libbtcore_HEADERS = \

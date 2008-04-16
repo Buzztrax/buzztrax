@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.26 2007-11-21 16:00:19 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.49 2007-12-08 18:08:44 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

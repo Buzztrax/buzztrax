@@ -1,4 +1,4 @@
-/* $Id: browser.c,v 1.3 2004-04-08 15:29:32 ensonic Exp $ */
+/* $Id$ */
 
 /* prints all available gst plugins to the console 
 */

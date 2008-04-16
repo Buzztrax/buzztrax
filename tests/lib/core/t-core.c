@@ -1,4 +1,4 @@
-/* $Id: t-core.c,v 1.12 2007-07-01 12:34:14 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

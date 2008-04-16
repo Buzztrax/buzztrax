@@ -1,4 +1,4 @@
-/** $Id: net1.c,v 1.5 2005-11-27 22:44:43 ensonic Exp $ */
+/** $Id$ */
  
 #include <stdio.h>
 

@@ -1,4 +1,4 @@
-/** $Id: halwatch.c,v 1.1 2007-02-20 07:39:28 ensonic Exp $
+/** $Id$
  * test hal device monitoring
  *
  * gcc -Wall -g `pkg-config glib-2.0 dbus-glib-1 hal --cflags --libs` halwatch.c -o halwatch

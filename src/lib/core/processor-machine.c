@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.48 2007-07-19 13:23:06 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

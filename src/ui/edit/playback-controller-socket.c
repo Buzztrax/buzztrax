@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.18 2007-07-19 13:23:08 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

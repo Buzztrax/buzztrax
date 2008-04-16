@@ -1,4 +1,4 @@
-/* $Id: e-bt-render-dialog.c,v 1.3 2007-08-30 07:22:24 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

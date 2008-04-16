@@ -1,4 +1,4 @@
-/** $Id: net.h,v 1.3 2005-08-05 09:36:12 ensonic Exp $
+/** $Id$
  * network 
  *   we need a helper to link two elements
  *   elements are identified by their ID, connections by src.ID,dst.ID

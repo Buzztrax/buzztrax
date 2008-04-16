@@ -1,4 +1,4 @@
-/** $Id: acceltoolbar.c,v 1.1 2007-09-02 18:38:17 ensonic Exp $
+/** $Id$
  * test accelerators for toolbar items
  *
  * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` acceltoolbar.c -o acceltoolbar

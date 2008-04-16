@@ -1,4 +1,4 @@
-/* $Id: wave-methods.h,v 1.8 2007-02-11 17:02:35 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

@@ -1,4 +1,4 @@
-/* $Id: s-bt-about-dialog.c,v 1.1 2007-07-20 07:58:27 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

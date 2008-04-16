@@ -1,4 +1,4 @@
-/* $Id: render-progress.c,v 1.7 2007-09-02 18:44:38 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

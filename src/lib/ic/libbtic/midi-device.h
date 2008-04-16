@@ -1,4 +1,4 @@
-/* $Id: midi-device.h,v 1.1 2007-03-14 22:51:36 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

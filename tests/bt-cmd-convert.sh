@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: bt-cmd-convert.sh,v 1.2 2007-11-20 16:36:33 ensonic Exp $
+# $Id$
 # run bt-cmd --command=convert on all example and test for crashes
 
 . ./bt-cfg.sh

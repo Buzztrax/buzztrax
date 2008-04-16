@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: xmlvalid.sh,v 1.5 2007-08-22 06:22:50 ensonic Exp $
+# $Id$
 # test validity of xml files
 
 if [ -z $srcdir ]; then

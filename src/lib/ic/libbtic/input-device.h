@@ -1,4 +1,4 @@
-/* $Id: input-device.h,v 1.1 2007-03-11 20:23:30 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

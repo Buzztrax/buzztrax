@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.49 2007-09-09 19:54:07 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

@@ -1,4 +1,4 @@
-/* $Id: learn-methods.h,v 1.1 2007-08-16 12:34:42 berzerka Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

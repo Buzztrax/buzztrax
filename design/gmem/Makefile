@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2005-03-13 11:33:23 ensonic Exp $
+# $Id$
 
 .PHONY: clean
 

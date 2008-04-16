@@ -1,4 +1,4 @@
-/** $Id: gst1.c,v 1.11 2005-08-05 09:36:12 ensonic Exp $
+/** $Id$
 * small example, how to create a pipeline with one source and one sink and how to
 * use dparams to control the volume. The volume in this example is decrementes from
 * the given volume to silence. After silence is reached, the example stpped.

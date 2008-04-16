@@ -1,4 +1,4 @@
-/* $Id: bztloader.c,v 1.9 2006-03-09 17:30:46 ensonic Exp $ */
+/* $Id$ */
 
 #include "bztloader.h"
 

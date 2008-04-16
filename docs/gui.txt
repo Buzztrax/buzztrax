@@ -1,4 +1,4 @@
-* $Id: gui.txt,v 1.5 2006-08-26 10:13:47 berzerka Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id$ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * mimic the apperance and behaviour of buzz

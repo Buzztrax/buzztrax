@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.50 2007-08-22 06:22:50 ensonic Exp $
+## $Id$
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui

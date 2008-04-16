@@ -1,4 +1,4 @@
-/** $Id: seek1.c,v 1.7 2007-11-24 19:07:36 ensonic Exp $
+/** $Id$
  *
  * Build a pipeline with testaudiosource->alsasink
  * and sweep frequency and volume

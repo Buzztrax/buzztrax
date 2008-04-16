@@ -1,4 +1,4 @@
-/** $Id: gst2.c,v 1.9 2005-11-27 22:44:43 ensonic Exp $
+/** $Id$
  * small example on how to use clocks
  */
  

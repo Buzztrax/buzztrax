@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: gtkdoccomplete.sh,v 1.8 2007-08-22 06:22:50 ensonic Exp $
+# $Id$
 
 res=0
 fails=0;

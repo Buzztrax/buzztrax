@@ -1,4 +1,4 @@
-/* $Id: e-pattern.c,v 1.17 2007-04-19 20:47:57 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

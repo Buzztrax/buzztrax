@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: bt-cmd-info.sh,v 1.12 2007-11-20 16:36:33 ensonic Exp $
+# $Id$
 # run bt-cmd --command=info on all example and test for crashes
 
 . ./bt-cfg.sh

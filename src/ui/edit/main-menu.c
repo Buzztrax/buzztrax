@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.79 2007-11-26 15:13:27 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

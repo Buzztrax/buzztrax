@@ -1,4 +1,4 @@
-/* $Id: bt-test-settings.h,v 1.1 2006-09-28 21:07:22 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

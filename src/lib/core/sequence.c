@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.146 2007-12-06 18:31:50 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

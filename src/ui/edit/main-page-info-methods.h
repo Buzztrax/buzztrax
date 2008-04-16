@@ -1,4 +1,4 @@
-/* $Id: main-page-info-methods.h,v 1.4 2006-09-03 13:34:33 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

@@ -1,4 +1,4 @@
-/* $Id: machine-preset-properties-dialog.c,v 1.9 2007-11-20 22:54:39 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

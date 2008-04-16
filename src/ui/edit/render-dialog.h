@@ -1,4 +1,4 @@
-/* $Id: render-dialog.h,v 1.3 2007-08-24 20:36:17 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

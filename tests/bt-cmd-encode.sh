@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: bt-cmd-encode.sh,v 1.13 2007-11-20 16:36:33 ensonic Exp $
+# $Id$
 # run bt-cmd --command=encode on all example and test for crashes
 
 . ./bt-cfg.sh

@@ -1,4 +1,4 @@
-/* $Id: midi-device.c,v 1.10 2007-09-02 18:53:16 berzerka Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

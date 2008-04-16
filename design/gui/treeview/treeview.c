@@ -1,4 +1,4 @@
-/** $Id: treeview.c,v 1.2 2007-06-28 20:02:00 ensonic Exp $
+/** $Id$
  * test own treemodel and cellrenderers
  *
  * http://scentric.net/tutorial/

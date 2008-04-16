@@ -1,4 +1,4 @@
-/* $Id: main-window.h,v 1.10 2007-02-01 16:05:31 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

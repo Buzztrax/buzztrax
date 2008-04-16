@@ -1,4 +1,4 @@
-/* $Id: render-progress-methods.h,v 1.1 2007-07-23 18:49:24 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

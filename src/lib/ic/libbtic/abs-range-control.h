@@ -1,4 +1,4 @@
-/* $Id: abs-range-control.h,v 1.1 2007-04-11 18:31:07 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

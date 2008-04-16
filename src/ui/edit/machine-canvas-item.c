@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.89 2007-09-09 15:32:15 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

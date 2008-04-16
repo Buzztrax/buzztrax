@@ -1,4 +1,4 @@
-/* $Id: e-bt-cmd-application.c,v 1.12 2007-07-11 20:41:31 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

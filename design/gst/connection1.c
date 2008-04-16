@@ -1,4 +1,4 @@
-/** $Id: connection1.c,v 1.3 2007-03-18 19:23:45 ensonic Exp $
+/** $Id$
  * test handling disconnected elements in gstreamer
  *
  * gcc -g `pkg-config gstreamer-0.10 --cflags --libs` connection1.c -o connection1

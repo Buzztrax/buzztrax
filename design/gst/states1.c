@@ -1,4 +1,4 @@
-/** $Id: states1.c,v 1.10 2007-03-18 19:23:45 ensonic Exp $
+/** $Id$
  * test mute, solo, bypass stuff in gst
  * - alternatively use a silence for src1 and src2
  *

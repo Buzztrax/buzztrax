@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.94 2007-08-24 20:36:17 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

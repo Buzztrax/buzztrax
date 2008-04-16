@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2004-04-27 15:22:36 waffel Exp $
+# $Id$
 
 .PHONY: clean
 

@@ -1,4 +1,4 @@
-/** $Id: states1c.c,v 1.3 2007-03-18 19:23:45 ensonic Exp $
+/** $Id$
  * test mute, solo, bypass stuff in gst
  * - just unlink muted element
  *

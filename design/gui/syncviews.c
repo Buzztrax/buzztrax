@@ -1,4 +1,4 @@
-/** $Id: syncviews.c,v 1.2 2006-08-08 19:46:13 ensonic Exp $
+/** $Id$
  * test synchonized scrolling of two treeviews
  *
  * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` syncviews.c -o syncviews

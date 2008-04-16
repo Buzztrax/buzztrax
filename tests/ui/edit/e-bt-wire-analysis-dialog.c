@@ -1,4 +1,4 @@
-/* $Id: e-bt-wire-analysis-dialog.c,v 1.3 2007-08-23 06:41:22 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

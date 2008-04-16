@@ -1,4 +1,4 @@
-/* $Id: application-methods.h,v 1.9 2006-09-06 20:17:40 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

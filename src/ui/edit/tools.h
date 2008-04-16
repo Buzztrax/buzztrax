@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.10 2007-09-02 18:44:38 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

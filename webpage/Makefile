@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2004-04-30 13:27:01 ensonic Exp $
+# $Id$
 
 SUFFIXES=.html .m4
 

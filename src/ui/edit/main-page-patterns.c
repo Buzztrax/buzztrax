@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.149 2007-12-04 21:51:58 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

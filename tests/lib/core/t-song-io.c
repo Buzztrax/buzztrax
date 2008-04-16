@@ -1,4 +1,4 @@
-/* $Id: t-song-io.c,v 1.17 2007-01-06 16:01:33 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

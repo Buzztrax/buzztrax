@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu-methods.h,v 1.1 2007-03-19 22:27:54 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

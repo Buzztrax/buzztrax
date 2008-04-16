@@ -1,4 +1,4 @@
-/* $Id: ic.c,v 1.3 2007-03-11 20:19:20 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

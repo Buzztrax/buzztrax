@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.77 2007-12-03 19:42:31 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

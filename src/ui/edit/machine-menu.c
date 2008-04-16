@@ -1,4 +1,4 @@
-/* $Id: machine-menu.c,v 1.19 2007-07-19 13:23:07 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

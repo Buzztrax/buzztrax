@@ -1,4 +1,4 @@
-/** $Id: link2.c,v 1.4 2007-11-22 16:10:15 ensonic Exp $
+/** $Id$
  * test linking in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` link2.c -o link2

@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.40 2007-09-23 19:13:28 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

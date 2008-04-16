@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.110 2007-12-07 19:14:10 ensonic Exp $
+dnl $Id$
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR

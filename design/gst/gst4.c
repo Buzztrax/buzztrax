@@ -1,4 +1,4 @@
-/** $Id: gst4.c,v 1.3 2005-08-05 09:36:12 ensonic Exp $
+/** $Id$
  * try to reproduce what I belive is a bug in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.8 --cflags --libs` gst4.c -o gst4

@@ -1,4 +1,4 @@
-/* $Id: registry-methods.h,v 1.2 2007-03-10 14:49:39 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

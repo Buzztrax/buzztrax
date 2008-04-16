@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.36 2007-08-20 10:15:21 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

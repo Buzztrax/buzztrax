@@ -1,4 +1,4 @@
-/* $Id: settings-page-playback-controller.c,v 1.6 2007-07-19 13:23:08 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

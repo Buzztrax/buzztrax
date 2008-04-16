@@ -1,4 +1,4 @@
-/* $Id: e-source-machine.c,v 1.12 2007-04-04 13:43:59 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

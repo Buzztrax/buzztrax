@@ -1,4 +1,4 @@
-/* $Id: song-methods.h,v 1.24 2007-03-02 13:17:13 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

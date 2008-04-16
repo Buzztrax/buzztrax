@@ -1,4 +1,4 @@
-/* $Id: pattern-editor.c,v 1.2 2007-12-05 21:34:51 kfoltman Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

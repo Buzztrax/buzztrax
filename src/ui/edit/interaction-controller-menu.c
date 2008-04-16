@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.c,v 1.12 2007-08-17 13:37:50 berzerka Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

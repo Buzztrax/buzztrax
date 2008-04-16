@@ -1,4 +1,4 @@
-/** $Id: dynlink.c,v 1.2 2007-05-07 16:34:33 ensonic Exp $
+/** $Id$
  * test dynamic linking
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink.c -o dynlink

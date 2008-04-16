@@ -1,4 +1,4 @@
-/* $Id: s-bt-machine-preferences-dialog.c,v 1.1 2007-07-13 20:53:22 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.12 2007-08-03 21:08:16 ensonic Exp $
+## $Id$
 
 noinst_LTLIBRARIES = libbt-cmd-check.la
 libbt_cmd_check_la_LIBADD = $(BASE_DEPS_LIBS) \

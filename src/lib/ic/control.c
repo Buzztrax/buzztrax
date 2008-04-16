@@ -1,4 +1,4 @@
-/* $Id: control.c,v 1.2 2007-05-07 14:45:39 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

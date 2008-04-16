@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.40 2007-08-27 20:17:48 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

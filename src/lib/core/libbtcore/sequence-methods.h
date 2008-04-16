@@ -1,4 +1,4 @@
-/* $Id: sequence-methods.h,v 1.25 2007-12-06 18:31:51 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

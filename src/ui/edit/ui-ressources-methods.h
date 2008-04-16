@@ -1,4 +1,4 @@
-/* $Id: ui-ressources-methods.h,v 1.4 2007-08-22 13:37:08 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

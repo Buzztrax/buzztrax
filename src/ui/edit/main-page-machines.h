@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.h,v 1.13 2006-09-06 21:54:27 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

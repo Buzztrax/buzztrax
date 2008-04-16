@@ -1,4 +1,4 @@
-/* $Id: gtkvumeter.c,v 1.15 2007-04-01 16:18:22 ensonic Exp $
+/* $Id$
  *
  * GtkVumeter
  * Copyright (C) 2003 Todd Goyen <wettoad@knighthoodofbuh.org>

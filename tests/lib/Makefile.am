@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.3 2005-04-15 17:08:16 ensonic Exp $
+## $Id$
 
 SUBDIRS = core
 

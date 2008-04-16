@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.12 2007-08-16 12:34:42 berzerka Exp $
+## $Id$
 
 SUBDIRS = . libbtic
 

@@ -1,4 +1,4 @@
-/* $Id: e-bt-missing-song-elements-dialog.c,v 1.2 2007-07-20 13:49:27 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

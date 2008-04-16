@@ -1,4 +1,4 @@
-/* $Id: settings-methods.h,v 1.4 2006-09-26 21:20:30 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

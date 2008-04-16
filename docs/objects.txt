@@ -1,4 +1,4 @@
-//$Id: objects.txt,v 1.15 2006-08-26 10:13:47 berzerka Exp $ :mode=c:collapseFolds=1:folding=indent:
+//$Id$ :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 // to find out which types exist do

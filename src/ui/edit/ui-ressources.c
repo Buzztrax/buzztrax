@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.c,v 1.15 2007-08-22 13:37:08 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

@@ -1,4 +1,4 @@
-/* $Id: settings-page-interaction-controller.c,v 1.5 2007-07-19 13:23:08 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

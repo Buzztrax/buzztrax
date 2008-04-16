@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.h,v 1.9 2007-02-01 20:44:50 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

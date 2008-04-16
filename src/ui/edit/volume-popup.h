@@ -1,4 +1,4 @@
-/* $Id: volume-popup.h,v 1.5 2007-03-25 14:18:33 ensonic Exp $
+/* $Id$
  *
  * GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>

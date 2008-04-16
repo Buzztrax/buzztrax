@@ -1,4 +1,4 @@
-/* $Id: s-machine.c,v 1.3 2006-08-24 20:00:54 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

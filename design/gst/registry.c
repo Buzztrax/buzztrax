@@ -1,4 +1,4 @@
-/** $Id: registry.c,v 1.1 2006-07-28 20:27:57 ensonic Exp $
+/** $Id$
  * test for elements in registry
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` registry.c -o registry

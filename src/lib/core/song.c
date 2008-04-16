@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.197 2007-12-07 15:44:02 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

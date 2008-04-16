@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: bt-cmd-cli.sh,v 1.1 2007-07-11 20:41:30 ensonic Exp $
+# $Id$
 # run bt-cmd commandline options
 
 . ./bt-cfg.sh

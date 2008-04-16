@@ -1,4 +1,4 @@
-/** $Id: tags1.c,v 1.3 2006-09-16 16:28:13 ensonic Exp $
+/** $Id$
  * test tag writing in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` tags1.c -o tags1

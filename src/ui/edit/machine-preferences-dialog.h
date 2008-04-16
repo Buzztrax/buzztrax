@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.h,v 1.6 2006-08-31 19:57:57 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

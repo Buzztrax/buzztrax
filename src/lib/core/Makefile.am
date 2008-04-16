@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.42 2007-08-03 21:08:14 ensonic Exp $
+## $Id$
 
 SUBDIRS = . libbtcore
 

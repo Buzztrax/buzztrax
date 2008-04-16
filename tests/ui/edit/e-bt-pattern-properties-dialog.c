@@ -1,4 +1,4 @@
-/* $Id: e-bt-pattern-properties-dialog.c,v 1.10 2007-07-20 13:49:27 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

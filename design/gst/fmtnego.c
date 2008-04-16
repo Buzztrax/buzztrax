@@ -1,4 +1,4 @@
-/** $Id: fmtnego.c,v 1.3 2007-05-13 19:42:59 ensonic Exp $
+/** $Id$
  * test dynamic format negotiation (http://bugzilla.gnome.org/show_bug.cgi?id=418982)
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` fmtnego.c -o fmtnego

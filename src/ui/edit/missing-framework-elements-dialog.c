@@ -1,4 +1,4 @@
-/* $Id: missing-framework-elements-dialog.c,v 1.7 2007-07-19 20:39:05 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

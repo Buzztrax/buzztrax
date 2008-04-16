@@ -1,4 +1,4 @@
-/** $Id: gst3.c,v 1.9 2005-11-27 22:44:43 ensonic Exp $
+/** $Id$
  * example that tries using a bin for the machine
  */
  

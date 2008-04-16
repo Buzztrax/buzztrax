@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.71 2007-09-23 14:43:46 ensonic Exp $
+## $Id$
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs

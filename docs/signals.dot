@@ -1,4 +1,4 @@
-/* $Id: signals.dot,v 1.2 2006-08-26 10:13:47 berzerka Exp $
+/* $Id$
  * compile with:
  *   dot -Tpng signals.dot -o signals.png
  */

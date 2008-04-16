@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.36 2007-11-02 15:29:54 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

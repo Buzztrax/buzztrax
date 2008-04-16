@@ -1,4 +1,4 @@
-/* $Id: settings-page-directories-methods.h,v 1.1 2007-08-27 20:17:49 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

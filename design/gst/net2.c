@@ -1,4 +1,4 @@
-/** $Id: net2.c,v 1.5 2005-11-27 22:44:43 ensonic Exp $
+/** $Id$
  * this is beta code !
  *  - it does not free any memory ;-)
  *  - it contains hardcoded stuff

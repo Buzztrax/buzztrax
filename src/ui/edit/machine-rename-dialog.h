@@ -1,4 +1,4 @@
-/* $Id: machine-rename-dialog.h,v 1.1 2007-07-20 13:49:24 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

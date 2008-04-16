@@ -1,4 +1,4 @@
-* $Id: file-format.txt,v 1.8 2006-08-26 10:13:47 berzerka Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id$ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * multi-file archive (like zip/tat/lha/lzx/jar)

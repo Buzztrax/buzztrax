@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.26 2007-08-22 13:46:10 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

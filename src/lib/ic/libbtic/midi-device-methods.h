@@ -1,4 +1,4 @@
-/* $Id: midi-device-methods.h,v 1.2 2007-03-17 22:50:12 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

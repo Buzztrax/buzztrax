@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: povalid.sh,v 1.9 2007-12-09 08:45:31 ensonic Exp $
+# $Id$
 # test po i18n files
 
 if [ -z $srcdir ]; then

@@ -1,4 +1,4 @@
-/* $Id: learn.h,v 1.3 2007-08-22 13:37:07 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

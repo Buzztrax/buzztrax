@@ -1,4 +1,4 @@
-/* $Id: registry.h,v 1.1 2007-03-09 19:39:19 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

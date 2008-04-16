@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.24 2007-03-11 20:19:19 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

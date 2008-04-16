@@ -1,4 +1,4 @@
-/* $Id: control-methods.h,v 1.1 2007-04-04 18:47:44 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>

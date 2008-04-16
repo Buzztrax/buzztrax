@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.107 2007-11-12 20:39:09 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

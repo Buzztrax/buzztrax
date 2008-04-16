@@ -1,4 +1,4 @@
-/* $Id: e-network.c,v 1.25 2007-04-30 14:15:26 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

@@ -1,4 +1,4 @@
-/* $Id: persistence-methods.h,v 1.12 2007-03-17 11:42:30 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

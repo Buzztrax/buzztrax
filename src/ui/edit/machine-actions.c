@@ -1,4 +1,4 @@
-/* $Id: machine-actions.c,v 1.2 2007-03-11 20:19:20 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

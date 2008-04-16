@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.51 2007-08-04 18:24:05 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

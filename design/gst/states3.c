@@ -1,4 +1,4 @@
-/** $Id: states3.c,v 1.11 2007-03-18 19:23:45 ensonic Exp $
+/** $Id$
  * test mute, solo, bypass stuff in gst
  * - swaps two sources
  *

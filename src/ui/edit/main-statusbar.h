@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.h,v 1.11 2007-01-04 18:13:56 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

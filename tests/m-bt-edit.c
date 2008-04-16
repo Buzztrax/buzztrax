@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.33 2007-07-20 13:49:26 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>

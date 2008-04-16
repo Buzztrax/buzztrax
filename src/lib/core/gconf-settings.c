@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.39 2007-11-17 18:08:22 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
