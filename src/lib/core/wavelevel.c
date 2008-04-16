@@ -63,6 +63,7 @@ struct _BtWavelevelPrivate {
   glong loop_start,loop_end;
   /* the sampling rate */
   gulong rate;
+  // @todo: need channels: 1/2
 
   // data format
 

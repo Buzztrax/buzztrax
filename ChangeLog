@@ -1,5 +1,11 @@
 2008-04-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	  Sample loading works.
+
+2008-04-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	* README:
 	* TODO:

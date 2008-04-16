@@ -70,6 +70,10 @@ struct _BtWavePrivate {
   gchar *uri;
 
   GList *wavelevels;    // each entry points to a BtWavelevel
+  
+  /* wave loader */
+  GstElement *pipeline;
+  gint fd;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -78,15 +82,39 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper
 
-#if 0
-static void on_wave_loader_new_pad(GstDecodeBin2 *bin,GstPad *pad,gboolean islast,gpointer user_data) {
+static void wave_loader_free(const BtWave *self) {
+  if(self->priv->pipeline) {
+    gst_object_unref(self->priv->pipeline);
+    self->priv->pipeline=NULL;
+  }
+  if(self->priv->fd!=-1) {
+    close(self->priv->fd);
+    self->priv->fd=-1;
+  }
+}
+
+static void on_wave_loader_new_pad(GstElement *bin,GstPad *pad,gboolean islast,gpointer user_data) {
   gst_element_link(bin,GST_ELEMENT(user_data));
 }
 
 static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   BtWave *self=BT_WAVE(user_data);
   
-  /* @todo: mmap the file and emit some signal so that UI can redraw */
+  GST_WARNING("sample loaded");
+  /* @todo:
+   * create wavelevel
+   * - mmap the file
+   * - query length and convert to samples
+   * - get caps for sample rate
+   * how to pass the data
+   */
+#if 0
+  bt_wavelevel_new(self->priv->song,self,0,length,-1,-1,44100);
+#endif
+  /* @todo: emit some signal so that UI can redraw */
+  
+  gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
+  wave_loader_free(self);
 }
 
 static void on_wave_loader_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
@@ -96,19 +124,22 @@ static void on_wave_loader_error(const GstBus * const bus, GstMessage *message, 
   gst_message_parse_error(message, &err, &dbg);
   GST_WARNING ("ERROR: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
   g_error_free (err);
-  g_free (dbg);   
+  g_free (dbg);
+  
+  //wave_loader_free(self);
 }
 
-static void on_wave_loader_warning(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
+static void on_wave_loader_warning(const GstBus * const bus, GstMessage * message, gconstpointer user_data) {
   GError *err = NULL;
   gchar *dbg = NULL;
   
   gst_message_parse_warning(message, &err, &dbg);
   GST_WARNING ("WARNING: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
   g_error_free (err);
-  g_free (dbg);   
+  g_free (dbg);
+  
+  //wave_loader_free(self);
 }
-#endif
 
 //-- constructor methods
 
@@ -190,22 +221,19 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
  */
 gboolean bt_wave_load_from_uri(const BtWave * const self) {
   gboolean res=TRUE;
-  GnomeVFSURI * const uri=gnome_vfs_uri_new(self->priv->uri);
-
-#if 0
-  GstElement *pipe,*src,*dec,*conv,*fmt,*sink;
+  GnomeVFSURI *uri=gnome_vfs_uri_new(self->priv->uri);
+  GstElement *src,*dec,*conv,*fmt,*sink;
   GstBus *bus;
-  gint fd;
   GstCaps *caps;
-#endif
+  
+  GST_WARNING("about to load sample %s",self->priv->uri);
 
   // check if the url is valid
   if(!gnome_vfs_uri_exists(uri)) goto invalid_uri;
   
-#if 0
   // create loader pipeline
-  pipe=gst_pipeline_new("wave-loader");
-  src=gst_element_make_from_uri(GST_URI_SRC,uri,NULL);
+  self->priv->pipeline=gst_pipeline_new("wave-loader");
+  src=gst_element_make_from_uri(GST_URI_SRC,self->priv->uri,NULL);
   dec=gst_element_factory_make("decodebin2",NULL);
   conv=gst_element_factory_make("audioconvert",NULL);
   fmt=gst_element_factory_make("capsfilter",NULL);
@@ -213,20 +241,20 @@ gboolean bt_wave_load_from_uri(const BtWave * const self) {
   
   // configure elements
   caps=gst_caps_new_simple("audio/x-raw-int",
-    "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
+    "rate", GST_TYPE_INT_RANGE,1,G_MAXINT,
     "channels",GST_TYPE_INT_RANGE,1,2,
-    "width",GST_TYPE_INT,16,
+    "width",G_TYPE_INT,16,
     "endianness",G_TYPE_INT,G_BYTE_ORDER,
     "signedness",G_TYPE_INT,TRUE,
     NULL);
   g_object_set(fmt,"caps",caps,NULL);
   gst_caps_unref(caps);
   
-  fd=fileno(tmpfile()); // or mkstemp("...XXXXXX")
-  g_object_set(sink,"fd",fd,"sync",FALSE,NULL);
+  self->priv->fd=fileno(tmpfile()); // or mkstemp("...XXXXXX")
+  g_object_set(sink,"fd",self->priv->fd,"sync",FALSE,NULL);
 
   // add and link
-  gst_bin_add_many(GST_BIN(pipe),src,dec,conv,fmt,sink,NULL);
+  gst_bin_add_many(GST_BIN(self->priv->pipeline),src,dec,conv,fmt,sink,NULL);
   gst_element_link_many(src,dec,NULL);
   gst_element_link_many(conv,fmt,sink,NULL);
   g_signal_connect(G_OBJECT(dec),"new-decoded-pad",G_CALLBACK(on_wave_loader_new_pad),(gpointer)conv);
@@ -237,10 +265,10 @@ gboolean bt_wave_load_from_uri(const BtWave * const self) {
    *   video on a machine with low memory
    *   - if so, how to get real/virtual memory sizes?
    *     mallinfo() not enough, sysconf()?
-   * - need to store some context in self:  pipe, fd
+   * - need to store some context in self: fd
    */
   
-  bus=gst_element_get_bus(pipe);
+  bus=gst_element_get_bus(self->priv->pipeline);
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
   g_signal_connect(bus, "message::error", G_CALLBACK(on_wave_loader_error), (gpointer)self);
   g_signal_connect(bus, "message::warning", G_CALLBACK(on_wave_loader_warning), (gpointer)self);
@@ -248,14 +276,7 @@ gboolean bt_wave_load_from_uri(const BtWave * const self) {
   gst_object_unref(bus);
   
   // play and wait for EOS 
-  gst_element_set_state(pipe,GST_STATE_PLAYING);
-
-  /* @todo: need to clean up in EOS or on error/warning
-  gst_element_set_state(pipe,GST_STATE_NULL);
-  gst_object_unref(pipe);
-  */
-  
-#endif
+  gst_element_set_state(self->priv->pipeline,GST_STATE_PLAYING);
 done:
   gnome_vfs_uri_unref(uri);
   return(res);
@@ -419,6 +440,8 @@ static void bt_wave_dispose(GObject * const object) {
       node=g_list_next(node);
     }
   }
+  
+  wave_loader_free(self);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -447,6 +470,7 @@ static void bt_wave_init(GTypeInstance * const instance, gconstpointer const g_c
   BtWave * const self = BT_WAVE(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVE, BtWavePrivate);
+  self->priv->fd = -1;
 }
 
 static void bt_wave_class_init(BtWaveClass * const klass) {
