@@ -769,7 +769,7 @@ static void on_toolbar_preset_random_clicked(GtkButton *button,gpointer user_dat
   GstElement *machine;
 
   g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
-  gst_preset_create_preset(GST_PRESET(machine));
+  gst_preset_randomize(GST_PRESET(machine));
   gst_object_unref(machine);
 }
 

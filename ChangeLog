@@ -1,3 +1,8 @@
+2008-04-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Update to new preset API.
+
 2008-04-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wave.c:
