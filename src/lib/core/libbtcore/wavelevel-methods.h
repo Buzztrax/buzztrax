@@ -24,6 +24,6 @@
 
 #include "wavelevel.h"
 
-extern BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate);
+extern BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate, const guint channels, gconstpointer sample);
 
 #endif // BT_WAVELEVEL_METHDOS_H

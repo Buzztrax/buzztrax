@@ -42,7 +42,9 @@ enum {
   WAVELEVEL_LENGTH,
   WAVELEVEL_LOOP_START,
   WAVELEVEL_LOOP_END,
-  WAVELEVEL_RATE
+  WAVELEVEL_RATE,
+  WAVELEVEL_CHANNELS,
+  WAVELEVEL_DATA
 };
 
 struct _BtWavelevelPrivate {
@@ -63,7 +65,8 @@ struct _BtWavelevelPrivate {
   glong loop_start,loop_end;
   /* the sampling rate */
   gulong rate;
-  // @todo: need channels: 1/2
+  /* the channels (1,2) */
+  guint channels;
 
   // data format
 
@@ -83,18 +86,21 @@ static GObjectClass *parent_class=NULL;
  * @loop_start: the start of the loop
  * @loop_end: the end of the loop
  * @rate: the sampling rate
+ * @channels: the number of channels
+ * @sample: the sample data
  *
  * Create a new instance
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate) {
+BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate, const guint channels, gconstpointer sample) {
   g_assert(BT_IS_SONG(song));
   g_assert(BT_IS_WAVE(wave));
 
   BtWavelevel * const self=BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,"song",song,
 						     "root-note",root_note,"length",length,"loop_start",loop_start,
-						     "loop_end",loop_end,"rate",rate,NULL));
+						     "loop_end",loop_end,"rate",rate,"channels",channels,
+                             "data",sample,NULL));
 
   if(!self) {
     goto Error;
@@ -121,8 +127,8 @@ static xmlNodePtr bt_wavelevel_persistence_save(const BtPersistence * const pers
   GST_DEBUG("PERSISTENCE::wavelevel");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wavelevel"),NULL))) {
+    // only serialize customizable properties
     xmlNewProp(node,XML_CHAR_PTR("root-note"),XML_CHAR_PTR(bt_persistence_strfmt_uchar(self->priv->root_note)));
-    xmlNewProp(node,XML_CHAR_PTR("length"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->length)));
     xmlNewProp(node,XML_CHAR_PTR("rate"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->rate)));
     xmlNewProp(node,XML_CHAR_PTR("loop-start"),XML_CHAR_PTR(bt_persistence_strfmt_long(self->priv->loop_start)));
     xmlNewProp(node,XML_CHAR_PTR("loop-end"),XML_CHAR_PTR(bt_persistence_strfmt_long(self->priv->loop_end)));
@@ -134,30 +140,29 @@ static xmlNodePtr bt_wavelevel_persistence_save(const BtPersistence * const pers
 static gboolean bt_wavelevel_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
   BtWavelevel * const self = BT_WAVELEVEL(persistence);
   gboolean res=FALSE;
-  xmlChar *root_note_str,*length_str,*rate_str,*loop_start_str,*loop_end_str;
+  xmlChar *root_note_str,*rate_str,*loop_start_str,*loop_end_str;
   glong loop_start,loop_end;
-  gulong length,rate;
+  gulong rate;
   guchar root_note;
 
   GST_DEBUG("PERSISTENCE::wavelevel");
   g_assert(node);
 
+  // only deserialize customizable properties
   root_note_str=xmlGetProp(node,XML_CHAR_PTR("root-note"));
-  length_str=xmlGetProp(node,XML_CHAR_PTR("length"));
   rate_str=xmlGetProp(node,XML_CHAR_PTR("rate"));
   loop_start_str=xmlGetProp(node,XML_CHAR_PTR("loop-start"));
   loop_end_str=xmlGetProp(node,XML_CHAR_PTR("loop-end"));
 
   root_note=root_note_str?atol((char *)root_note_str):0;
-  length=length_str?atol((char *)length_str):0;
   rate=rate_str?atol((char *)rate_str):0;
   loop_start=loop_start_str?atol((char *)loop_start_str):-1;
   loop_end=loop_end_str?atol((char *)loop_end_str):-1;
 
-  g_object_set(self,"root-note",root_note,"length",length,"rate",rate,
+  g_object_set(self,"root-note",root_note,"rate",rate,
     "loop-start",loop_start,"loop-end",loop_end,
     NULL);
-  xmlFree(root_note_str);xmlFree(length_str);xmlFree(rate_str);
+  xmlFree(root_note_str);xmlFree(rate_str);
   xmlFree(loop_start_str);xmlFree(loop_end_str);
 
   res=TRUE;
@@ -202,6 +207,12 @@ static void bt_wavelevel_get_property(GObject      * const object,
     case WAVELEVEL_RATE: {
       g_value_set_ulong(value, self->priv->rate);
     } break;
+    case WAVELEVEL_CHANNELS: {
+      g_value_set_uint(value, self->priv->channels);
+    } break;
+    case WAVELEVEL_DATA: {
+      g_value_set_pointer(value, self->priv->sample);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -223,25 +234,32 @@ static void bt_wavelevel_set_property(GObject      * const object,
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for wavelevel: %p",self->priv->song);
     } break;
-     case WAVELEVEL_ROOT_NOTE: {
+    case WAVELEVEL_ROOT_NOTE: {
       self->priv->root_note = g_value_get_uchar(value);
       GST_DEBUG("set the root-note for wavelevel: %d",self->priv->root_note);
     } break;
-     case WAVELEVEL_LENGTH: {
+    case WAVELEVEL_LENGTH: {
       self->priv->length = g_value_get_ulong(value);
       GST_DEBUG("set the length for wavelevel: %d",self->priv->length);
     } break;
-     case WAVELEVEL_LOOP_START: {
+    case WAVELEVEL_LOOP_START: {
       self->priv->loop_start = g_value_get_long(value);
       GST_DEBUG("set the loop-start for wavelevel: %d",self->priv->loop_start);
     } break;
-     case WAVELEVEL_LOOP_END: {
+    case WAVELEVEL_LOOP_END: {
       self->priv->loop_end = g_value_get_long(value);
       GST_DEBUG("set the loop-start for wavelevel: %d",self->priv->loop_start);
     } break;
-     case WAVELEVEL_RATE: {
+    case WAVELEVEL_RATE: {
       self->priv->rate = g_value_get_ulong(value);
       GST_DEBUG("set the rate for wavelevel: %d",self->priv->rate);
+    } break;
+    case WAVELEVEL_CHANNELS: {
+      self->priv->channels = g_value_get_uint(value);
+      GST_DEBUG("set the channels for wavelevel: %d",self->priv->channels);
+    } break;
+    case WAVELEVEL_DATA: {
+      self->priv->sample = g_value_get_pointer(value);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -344,6 +362,21 @@ static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,WAVELEVEL_CHANNELS,
+                                  g_param_spec_uint("channels",
+                                     "channels prop",
+                                     "number of channels in the sample",
+                                     0,
+                                     2,
+                                     0,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,WAVELEVEL_DATA,
+                                  g_param_spec_pointer("data",
+                                     "data prop",
+                                     "the sample data",
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 

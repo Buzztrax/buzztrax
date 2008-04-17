@@ -1,5 +1,16 @@
 2008-04-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbtcore/wavelevel-methods.h:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	  Serialize only editable properties on wavelevels. Get details of
+	  loaded wave.
+
+	* src/ui/edit/main-page-waves.c:
+	  Always have a default selection. Fix details and show channel.
+
+2008-04-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	  Update to new preset API.
 

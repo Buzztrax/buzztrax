@@ -28,7 +28,7 @@
  * - if we miss files, we can do a xsesame search and use the details to verify
  * - when loading, we might also use the details as a sanity check
  * @todo: need more data per wave:
- * - cahnnels and loop-type
+ * - loop-type
  */
 #define BT_CORE
 #define BT_WAVE_C
@@ -72,7 +72,7 @@ struct _BtWavePrivate {
   GList *wavelevels;    // each entry points to a BtWavelevel
   
   /* wave loader */
-  GstElement *pipeline;
+  GstElement *pipeline,*fmt;
   gint fd;
 };
 
@@ -86,6 +86,7 @@ static void wave_loader_free(const BtWave *self) {
   if(self->priv->pipeline) {
     gst_object_unref(self->priv->pipeline);
     self->priv->pipeline=NULL;
+    self->priv->fmt=NULL;
   }
   if(self->priv->fd!=-1) {
     close(self->priv->fd);
@@ -99,19 +100,52 @@ static void on_wave_loader_new_pad(GstElement *bin,GstPad *pad,gboolean islast,g
 
 static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   BtWave *self=BT_WAVE(user_data);
+  GstPad *pad;
+  GstCaps *caps;
+  gint64 duration;
+  guint64 length=0;
+  gint channels=1,rate=44100;
+  GstFormat format=GST_FORMAT_TIME;
+  gpointer data=NULL;
+  struct stat buf={0,};
   
-  GST_WARNING("sample loaded");
-  /* @todo:
-   * create wavelevel
-   * - mmap the file
-   * - query length and convert to samples
-   * - get caps for sample rate
-   * how to pass the data
-   */
-#if 0
-  bt_wavelevel_new(self->priv->song,self,0,length,-1,-1,44100);
-#endif
-  /* @todo: emit some signal so that UI can redraw */
+  // query length and convert to samples
+  gst_element_query_duration(self->priv->pipeline, &format, &duration);
+  
+  // get caps for sample rate and channels 
+  if((pad=gst_element_get_static_pad(self->priv->fmt,"src"))) {
+    caps=GST_PAD_CAPS(pad);
+    if(GST_CAPS_IS_SIMPLE(caps)) {
+      GstStructure *structure = gst_caps_get_structure(caps,0);
+      
+      gst_structure_get_int(structure,"channels",&channels);
+      gst_structure_get_int(structure,"rate",&rate);
+      length=gst_util_uint64_scale(duration,(guint64)rate,GST_SECOND);
+    }
+    else {
+      GST_WARNING("Format has not been fixed.");
+    }
+    gst_object_unref(pad);
+  }
+
+  GST_WARNING("sample decoded: channels=%d, rate=%d, length=%"GST_TIME_FORMAT,
+    channels, rate, GST_TIME_ARGS(duration));
+  
+  fstat(self->priv->fd, &buf);
+  if((data=g_try_malloc(buf.st_size))) {
+    /* mmap is unsave for removable drives :(
+     * gpointer data=mmap(void *start, buf->st_size, PROT_READ, MAP_SHARED, self->priv->fd, 0);
+     */
+    lseek(self->priv->fd,0,SEEK_SET);
+    read(self->priv->fd,data,buf.st_size);
+
+    bt_wavelevel_new(self->priv->song,self,0,(gulong)length,-1,-1,rate,channels,(gconstpointer)data);
+    /* @todo: emit "loaded" signal so that UI can redraw */
+    GST_WARNING("sample loaded");
+  }
+  else {
+    GST_WARNING("sample is too long (%d bytes), not trying to load",buf.st_size);
+  }
   
   gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
   wave_loader_free(self);
@@ -222,7 +256,7 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
 gboolean bt_wave_load_from_uri(const BtWave * const self) {
   gboolean res=TRUE;
   GnomeVFSURI *uri=gnome_vfs_uri_new(self->priv->uri);
-  GstElement *src,*dec,*conv,*fmt,*sink;
+  GstElement *src,*dec,*conv,*sink;
   GstBus *bus;
   GstCaps *caps;
   
@@ -236,7 +270,7 @@ gboolean bt_wave_load_from_uri(const BtWave * const self) {
   src=gst_element_make_from_uri(GST_URI_SRC,self->priv->uri,NULL);
   dec=gst_element_factory_make("decodebin2",NULL);
   conv=gst_element_factory_make("audioconvert",NULL);
-  fmt=gst_element_factory_make("capsfilter",NULL);
+  self->priv->fmt=gst_element_factory_make("capsfilter",NULL);
   sink=gst_element_factory_make("fdsink",NULL);
   
   // configure elements
@@ -247,25 +281,24 @@ gboolean bt_wave_load_from_uri(const BtWave * const self) {
     "endianness",G_TYPE_INT,G_BYTE_ORDER,
     "signedness",G_TYPE_INT,TRUE,
     NULL);
-  g_object_set(fmt,"caps",caps,NULL);
+  g_object_set(self->priv->fmt,"caps",caps,NULL);
   gst_caps_unref(caps);
   
   self->priv->fd=fileno(tmpfile()); // or mkstemp("...XXXXXX")
   g_object_set(sink,"fd",self->priv->fd,"sync",FALSE,NULL);
 
   // add and link
-  gst_bin_add_many(GST_BIN(self->priv->pipeline),src,dec,conv,fmt,sink,NULL);
+  gst_bin_add_many(GST_BIN(self->priv->pipeline),src,dec,conv,self->priv->fmt,sink,NULL);
   gst_element_link_many(src,dec,NULL);
-  gst_element_link_many(conv,fmt,sink,NULL);
+  gst_element_link_many(conv,self->priv->fmt,sink,NULL);
   g_signal_connect(G_OBJECT(dec),"new-decoded-pad",G_CALLBACK(on_wave_loader_new_pad),(gpointer)conv);
 
   /* @todo: load wave-data (into wavelevels)
-   * - use statusbar for loader progress (same status mechanism like in song_io)
+   * - use statusbar for loader progress ("status" property like in song_io)
    * - should we do some size checks to avoid unpacking the audio track of a full
    *   video on a machine with low memory
    *   - if so, how to get real/virtual memory sizes?
    *     mallinfo() not enough, sysconf()?
-   * - need to store some context in self: fd
    */
   
   bus=gst_element_get_bus(self->priv->pipeline);
@@ -311,7 +344,6 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
 
 static gboolean bt_wave_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
   const BtWave * const self = BT_WAVE(persistence);
-  xmlNodePtr child_node;
   gboolean res=FALSE;
 
   GST_DEBUG("PERSISTENCE::wave");
@@ -326,18 +358,25 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
   xmlFree(name);
   xmlFree(uri);
 
-  for(child_node=node->children;child_node;child_node=child_node->next) {
-    if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wavelevel\0",10))) {
-      BtWavelevel * const wave_level=BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,NULL));
-      if(bt_persistence_load(BT_PERSISTENCE(wave_level),child_node,NULL)) {
-        bt_wave_add_wavelevel(self,wave_level);
+  // try to load wavedata
+  if((res=bt_wave_load_from_uri(self))) {
+    xmlNodePtr child_node;
+    GList *lnode=self->priv->wavelevels;
+  
+    for(child_node=node->children;child_node;child_node=child_node->next) {
+      if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wavelevel\0",10))) {
+        /* loading the wave already creates wave-levels,
+         * here we just want to override e.g. loop, sampling-rate
+         */
+        if(lnode) {
+          BtWavelevel * const wave_level=BT_WAVELEVEL(lnode->data);
+
+          bt_persistence_load(BT_PERSISTENCE(wave_level),child_node,NULL);
+          lnode=g_list_next(lnode);
+        }
       }
-      g_object_unref(wave_level);
     }
   }
-  // try to load wavedata
-  res=bt_wave_load_from_uri(self);
-
   return(res);
 }
 
