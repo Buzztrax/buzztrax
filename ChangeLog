@@ -1,3 +1,16 @@
+2008-04-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/wave.h:
+	* src/lib/core/wave.c:
+	* src/ui/edit/main-page-waves.c:
+	  Add "loading-done" signal to wave class and update lists on success.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Reorder private data a bit.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Add idea for solo icon.
+
 2008-04-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/wavelevel-methods.h:

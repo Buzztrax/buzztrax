@@ -38,7 +38,8 @@
 //-- signal ids
 
 enum {
-  WAVELEVEL_ADDED_EVENT,
+  LOADING_DONE_EVENT,
+  //WAVELEVEL_ADDED_EVENT,
   LAST_SIGNAL
 };
 
@@ -78,7 +79,7 @@ struct _BtWavePrivate {
 
 static GObjectClass *parent_class=NULL;
 
-//static guint signals[LAST_SIGNAL]={0,};
+static guint signals[LAST_SIGNAL]={0,};
 
 //-- helper
 
@@ -140,11 +141,13 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
     read(self->priv->fd,data,buf.st_size);
 
     bt_wavelevel_new(self->priv->song,self,0,(gulong)length,-1,-1,rate,channels,(gconstpointer)data);
-    /* @todo: emit "loaded" signal so that UI can redraw */
+    /* emit signal so that UI can redraw */
     GST_WARNING("sample loaded");
+    g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, TRUE);
   }
   else {
     GST_WARNING("sample is too long (%d bytes), not trying to load",buf.st_size);
+    g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
   }
   
   gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
@@ -160,6 +163,7 @@ static void on_wave_loader_error(const GstBus * const bus, GstMessage *message, 
   g_error_free (err);
   g_free (dbg);
   
+  //g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
   //wave_loader_free(self);
 }
 
@@ -172,6 +176,7 @@ static void on_wave_loader_warning(const GstBus * const bus, GstMessage * messag
   g_error_free (err);
   g_free (dbg);
   
+  //g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
   //wave_loader_free(self);
 }
 
@@ -522,6 +527,28 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
   gobject_class->get_property = bt_wave_get_property;
   gobject_class->dispose      = bt_wave_dispose;
   gobject_class->finalize     = bt_wave_finalize;
+  
+  klass->loading_done_event = NULL;
+  
+  /**
+   * BtWave::loading-done:
+   * @self: the setup object that emitted the signal
+   * @success: the result
+   *
+   * Loading the sample has finished with @result.
+   */
+  signals[LOADING_DONE_EVENT] = g_signal_new("loading-done",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        (guint)G_STRUCT_OFFSET(BtWaveClass,loading_done_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__BOOLEAN,
+                                        G_TYPE_NONE, // return type
+                                        1, // n_params
+                                        G_TYPE_BOOLEAN // param data
+                                        );
+  
 
   g_object_class_install_property(gobject_class,WAVE_SONG,
                                   g_param_spec_object("song",

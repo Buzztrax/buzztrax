@@ -37,7 +37,9 @@
  *   - have some gfx in the middle
  *     mute: x over o
  *     bypass: -/\- around o
- *     solo: one filled o on top of 4 hollow o's
+ *     solo:
+ *       ! over x
+ *       one filled o on top of 4 hollow o's
  *   - use transparency for mute/bypass, solo would switch all other sources to
  *     muted, can't differenciate mute from bypass on an fx
  */

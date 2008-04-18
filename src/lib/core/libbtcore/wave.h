@@ -53,6 +53,8 @@ struct _BtWave {
 
 struct _BtWaveClass {
   const GObjectClass parent;
+  
+  void (*loading_done_event)(const BtWave * const wave, gboolean success, gconstpointer const user_data);
 };
 
 GType bt_wave_get_type(void) G_GNUC_CONST;

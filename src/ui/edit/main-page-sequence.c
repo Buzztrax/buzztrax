@@ -61,6 +61,10 @@ struct _BtMainPageSequencePrivate {
 
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
+  /* the sequence we are showing */
+  BtSequence *sequence;
+  /* machine for current column */
+  BtMachine *machine;
 
   /* bars selection menu */
   GtkComboBox *bars_menu;
@@ -111,10 +115,6 @@ struct _BtMainPageSequencePrivate {
   /* selection first cell */
   glong selection_column;
   glong selection_row;
-  /* the sequence we are showing */
-  BtSequence *sequence;
-  /* machine for current column */
-  BtMachine *machine;
 
   /* shortcut table */
   const char *pattern_keys;

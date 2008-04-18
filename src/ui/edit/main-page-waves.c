@@ -27,6 +27,7 @@
  * <note>This isn't very functional yet.</note>
  */
 /* @todo: listen to playbin messages and update play/stop buttons
+ * play wavetable entries from decoded data
  */
 
 #define BT_EDIT
@@ -45,6 +46,8 @@ struct _BtMainPageWavesPrivate {
 
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
+  /* the wavetable we are showing*/
+  BtWavetable *wavetable;
 
   /* the toolbar widgets */
   GtkWidget *list_toolbar,*browser_toolbar,*editor_toolbar;
@@ -83,11 +86,10 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
 /*
  * waves_list_refresh:
  * @self: the waves page
- * @wavetable: the wavetable that is the source for the list
  *
  * Build the list of waves from the songs wavetable
  */
-static void waves_list_refresh(const BtMainPageWaves *self,const BtWavetable *wavetable) {
+static void waves_list_refresh(const BtMainPageWaves *self) {
   BtWave *wave;
   GtkListStore *store;
   GtkTreeIter tree_iter;
@@ -98,7 +100,7 @@ static void waves_list_refresh(const BtMainPageWaves *self,const BtWavetable *wa
   gint i;
   gboolean have_selection=FALSE;
 
-  GST_INFO("refresh waves list: self=%p, wavetable=%p",self,wavetable);
+  GST_INFO("refresh waves list: self=%p, wavetable=%p",self,self->priv->wavetable);
 
   store=gtk_list_store_new(2,G_TYPE_ULONG,G_TYPE_STRING);
 
@@ -106,7 +108,7 @@ static void waves_list_refresh(const BtMainPageWaves *self,const BtWavetable *wa
   for(i=0;i<200;i++) {
     gtk_list_store_append(store, &tree_iter);
     gtk_list_store_set(store,&tree_iter,0,i,-1);
-    if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
+    if((wave=bt_wavetable_get_wave_by_index(self->priv->wavetable,i))) {
       g_object_get(G_OBJECT(wave),"name",&str,NULL);
       GST_INFO("  adding [%3d] \"%s\"",i,str);
       gtk_list_store_set(store,&tree_iter,1,str,-1);
@@ -196,6 +198,18 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
 
 //-- event handler
 
+static void on_wave_loading_done(BtWave *wave,gboolean success,gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  
+  if(success) {
+    waves_list_refresh(self);
+  }
+  else {
+    // @todo: error message
+    GST_WARNING("loading the wave failed");
+  }
+}
+
 static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   GtkTreeSelection *selection;
@@ -207,8 +221,6 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
   GST_INFO("waves list cursor changed");
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->waves_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-    BtSong *song;
-    BtWavetable *wavetable;
     BtWave *wave;
     GList *waves;
     gulong id;
@@ -216,10 +228,7 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
     gtk_tree_model_get(model,&iter,0,&id,-1);
     GST_INFO("selected entry id %d",id);
 
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    g_return_if_fail(song);
-    g_object_get(song,"wavetable",&wavetable,NULL);
-    g_object_get(wavetable,"waves",&waves,NULL);
+    g_object_get(self->priv->wavetable,"waves",&waves,NULL);
     wave=BT_WAVE(g_list_nth_data(waves,id));
     g_list_free(waves);
     if(wave) {
@@ -231,8 +240,6 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
     else {
       goto disable_toolitems;
     }
-    g_object_unref(wavetable);
-    g_object_unref(song);
   }
   else {
     goto disable_toolitems;
@@ -256,7 +263,6 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   BtSong *song;
-  BtWavetable *wavetable;
 
   g_assert(user_data);
 
@@ -266,11 +272,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   if(!song) return;
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
-  g_object_get(song,"wavetable",&wavetable,NULL);
+  g_object_try_unref(self->priv->wavetable);
+  g_object_get(song,"wavetable",&self->priv->wavetable,NULL);
   // update page
-  waves_list_refresh(self,wavetable);
+  waves_list_refresh(self);
   // release the references
-  g_object_unref(wavetable);
   g_object_unref(song);
   GST_INFO("song has changed done");
 }
@@ -334,8 +340,6 @@ static void on_wavetable_toolbar_play_clicked(GtkButton *button, gpointer user_d
 
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->waves_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-    BtSong *song;
-    BtWavetable *wavetable;
     BtWave *wave;
     gchar *uri;
     gulong id;
@@ -343,11 +347,7 @@ static void on_wavetable_toolbar_play_clicked(GtkButton *button, gpointer user_d
     gtk_tree_model_get(model,&iter,0,&id,-1);
     GST_INFO("selected entry id %d",id);
 
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    g_return_if_fail(song);
-    g_object_get(song,"wavetable",&wavetable,NULL);
-
-    wave=bt_wavetable_get_wave_by_index(wavetable,id);
+    wave=bt_wavetable_get_wave_by_index(self->priv->wavetable,id);
     g_object_get(wave,"uri",&uri,NULL);
 
     if(uri) {
@@ -361,9 +361,6 @@ static void on_wavetable_toolbar_play_clicked(GtkButton *button, gpointer user_d
 
       g_free(uri);
     }
-    // release the references
-    g_object_unref(wavetable);
-    g_object_unref(song);
   }
 }
 
@@ -402,25 +399,18 @@ static void on_wavetable_toolbar_clear_clicked(GtkButton *button, gpointer user_
 
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->waves_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-    BtSong *song;
-    BtWavetable *wavetable;
     BtWave *wave;
     gulong id;
 
     gtk_tree_model_get(model,&iter,0,&id,-1);
     GST_INFO("selected entry id %d",id);
 
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    g_return_if_fail(song);
-    g_object_get(song,"wavetable",&wavetable,NULL);
-    wave=bt_wavetable_get_wave_by_index(wavetable,id);
-    bt_wavetable_remove_wave(wavetable,wave);
+    wave=bt_wavetable_get_wave_by_index(self->priv->wavetable,id);
+    bt_wavetable_remove_wave(self->priv->wavetable,wave);
     // update page
-    waves_list_refresh(self,wavetable);
+    waves_list_refresh(self);
     // release the references
     g_object_unref(wave);
-    g_object_unref(wavetable);
-    g_object_unref(song);
   }
 }
 
@@ -433,7 +423,6 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->waves_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
     BtSong *song;
-    BtWavetable *wavetable;
     BtWave *wave;
     gchar *uri,*name,*tmp_name,*ext;
     gulong id;
@@ -445,8 +434,6 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     uri=gtk_file_chooser_get_uri(GTK_FILE_CHOOSER(self->priv->file_chooser));
 
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    g_return_if_fail(song);
-    g_object_get(song,"wavetable",&wavetable,NULL);
 
     // trim off protocol, path and extension
     tmp_name=g_filename_from_uri(uri,NULL,NULL);
@@ -454,12 +441,12 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     if((ext=strrchr(name,'.'))) *ext='\0';
     g_free(tmp_name);
     wave=bt_wave_new(song,name,uri,id);
-    // @todo: listen to status property on wave for loader updates
-    // update page
-    // @todo: listen to wave::loaded signal and refresh then
-    waves_list_refresh(self,wavetable);
+    // @idea: listen to status property on wave for loader updates
+    
+    // listen to wave::loaded signal and refresh the wave list on success
+    g_signal_connect(G_OBJECT(wave),"loading-done",G_CALLBACK(on_wave_loading_done),(gpointer)self);
+
     // release the references
-    g_object_unref(wavetable);
     g_object_unref(song);
   }
 }
@@ -720,6 +707,8 @@ static void bt_main_page_waves_dispose(GObject *object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+  g_object_try_unref(self->priv->wavetable);
+  
   g_object_try_weak_unref(self->priv->app);
 
   gst_element_set_state(self->priv->playbin,GST_STATE_NULL);
