@@ -74,7 +74,7 @@ marshal.h: marshal.list
 	glib-genmarshal --header --prefix=bt_marshal $(srcdir)/marshal.list > marshal.h
 
 marshal.c: marshal.list
-	glib-genmarshal --body --prefix=bt_marshal $(srcdir)/marshal.list >> marshal.c
+	glib-genmarshal --body --prefix=bt_marshal $(srcdir)/marshal.list > marshal.c
 
 
 .PHONY: help todo stats splint

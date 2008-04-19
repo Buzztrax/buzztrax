@@ -1,3 +1,9 @@
+2008-04-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	  Fix regenerating marshallers.
+
 2008-04-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/wave.h:
