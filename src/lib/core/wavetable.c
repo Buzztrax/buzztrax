@@ -25,6 +25,11 @@
  * Each wave table entry can constist of multiple #BtWaves, were each of the
  * waves has a #BtWaveLevel with the data for a note range.
  */
+/* @todo: defer freeing waves if playing
+ * - buzzmachines don't ref waves
+ * - we can replace waves in the wavetable, but we should put the old ones in a to-be-freed list
+ * - on song::stop we clear them
+ */
 
 #define BT_CORE
 #define BT_WAVETABLE_C
@@ -106,6 +111,20 @@ gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * co
   g_assert(BT_IS_WAVE(wave));
 
   if(!g_list_find(self->priv->waves,wave)) {
+    gulong index;
+    BtWave *other_wave;
+    
+    // check if there is already a wave with this id ad remove if so
+    g_object_get(G_OBJECT(wave),"index",&index,NULL);
+    if((other_wave=bt_wavetable_get_wave_by_index(self,index))) {
+      GST_DEBUG("replacing old wave with same id");
+      self->priv->waves=g_list_remove(self->priv->waves,other_wave);
+      //g_signal_emit(G_OBJECT(self),signals[WAVE_REMOVED_EVENT], 0, wave);
+      /* @todo: if song::is-playing==TRUE add this to a  self->priv->old_waves
+       * and wait for song::is-playing==FALSE and free then */
+      g_object_unref(G_OBJECT(other_wave));
+    }
+    
     self->priv->waves=g_list_append(self->priv->waves,g_object_ref(G_OBJECT(wave)));
     //g_signal_emit(G_OBJECT(self),signals[WAVE_ADDED_EVENT], 0, wave);
     bt_song_set_unsaved(self->priv->song,TRUE);

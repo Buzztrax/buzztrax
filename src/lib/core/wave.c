@@ -29,6 +29,16 @@
  * - when loading, we might also use the details as a sanity check
  * @todo: need more data per wave:
  * - loop-type
+ * @idea: record waveentries
+ * - record wave from alsasrc
+ *   - like we load & decode to tempfile, use this to record a sound
+ *   - needs some dedicated ui for choosing the input, and format (m/s)
+ * - recording from song playback
+ *   - would be nice to have ui in song-recorder to select a wavetable slot
+ *     - this would disable the file-selector, record to tempfile and load from
+ *       there
+ * - all recording feature need some error handling when saving to plain xml
+ *   song (no waves included)
  */
 #define BT_CORE
 #define BT_WAVE_C

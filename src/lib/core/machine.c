@@ -835,6 +835,23 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     g_object_unref(song_info);
     GST_INFO("  tempo iface initialized");
   }
+#if 0
+  // initialize buzzwavetable iface properties
+  // @todo: iface or just a property?
+  if(BT_IS_BUZZ_WAVETABLE(self->priv->machines[PART_MACHINE])) {
+    BtWavetable *wavetable;
+    gpointer buzz_wavetable;
+
+    g_object_get(G_OBJECT(self->priv->song),"wavetable",&wavetable,NULL);
+    
+    // @todo: both objects still need the buzz-wavetable property
+    g_object_get(G_OBJECT(swavetable),"buzz-wavetable",&buzz_wavetable,NULL);
+    g_object_set(self->priv->machines[PART_MACHINE]),"buzz-wavetable",buzz_wavetable,NULL);
+    g_object_unref(wavetable);
+    GST_INFO("  wavetable iface initialized");
+  }
+
+#endif
   GST_INFO("machine element instantiated and interfaces initialized");
 }
 
