@@ -1,3 +1,12 @@
+2008-04-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  More design comments.
+
+	* src/ui/edit/main-page-waves.c:
+	  Make wavenames editable. Fill wavelevel headers always. Use proper
+	  fill do dedicate space to waveform.
+
 2008-04-21  Krzysztof Foltman  <wdev@foltman.com>
 
 	* src/ui/edit/Makefile.am:
