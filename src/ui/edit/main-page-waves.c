@@ -252,12 +252,10 @@ disable_toolitems:
 }
 
 static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
-  //BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  // BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   
   GST_WARNING("wavelevels list cursor changed");
-  /* @todo: get wavelevel and update waveform widget
-   * bt_waveform_view_update(self->priv->waveformview,data,channels,length);
-   */
+  //bt_waveform_viewer_update(self->priv->waveformview,data,channels,length);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -456,7 +454,7 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
 static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainPages *pages) {
   BtSettings *settings;
   GtkWidget *vpaned,*hpaned,*box,*box2;
-  GtkWidget *tool_item;
+  GtkWidget *tool_item, *waveform_view;
   GtkWidget *scrolled_window;
   GtkCellRenderer *renderer;
 #ifndef HAVE_GTK_2_12
@@ -602,9 +600,10 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_container_add(GTK_CONTAINER(box2),scrolled_window);
   //gtk_container_add(GTK_CONTAINER(box2),gtk_label_new("no sample zone entries yet"));
 
+  waveform_view = bt_waveform_viewer_new();
   //       sampleview (which widget do we need?)
   //       properties (loop, envelope, ...)
-  gtk_container_add(GTK_CONTAINER(box2),gtk_label_new("no sample waveform view yet"));
+  gtk_container_add(GTK_CONTAINER(box2),waveform_view);
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->waves_list),"cursor-changed",G_CALLBACK(on_waves_list_cursor_changed),(gpointer)self);

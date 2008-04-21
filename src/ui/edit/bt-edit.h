@@ -122,6 +122,7 @@
 #include "tools.h"
 #include "ui-ressources-methods.h"
 #include "volume-popup.h"
+#include "wave-viewer.h"
 #include "wire-analysis-dialog-methods.h"
 #include "wire-canvas-item-methods.h"
 

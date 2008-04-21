@@ -1,3 +1,12 @@
+2008-04-21  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/wave-viewer.c:
+	* src/ui/edit/wave-viewer.h:
+	  Initial dummy wave viewer implementation.
+
 2008-04-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

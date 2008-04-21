@@ -1,0 +1,68 @@
+/* $Id: volume-popup.h 1742 2008-04-16 06:30:00Z ensonic $
+ *
+ * GNOME Volume Applet
+ * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
+ *               2006 Stefan Kost <ensonic@users.sf.net>
+ *
+ * gtkvolumepopup.h: floating window containing volume widgets
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+#ifndef BT_WAVEFORM_VIEWER_H
+#define BT_WAVEFORM_VIEWER_H
+
+#include <glib.h>
+
+G_BEGIN_DECLS
+
+#define BT_TYPE_WAVEFORM_VIEWER          (bt_waveform_viewer_get_type ())
+#define BT_WAVEFORM_VIEWER(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_WAVEFORM_VIEWER, BtWaveformViewer))
+#define BT_IS_WAVEFORM_VIEWER(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_WAVEFORM_VIEWER))
+#define BT_WAVEFORM_VIEWER_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  BT_TYPE_WAVEFORM_VIEWER, BtWaveformViewerClass))
+#define BT_IS_WAVEFORM_VIEWER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  BT_TYPE_WAVEFORM_VIEWER))
+
+typedef struct _BtWaveformViewer      BtWaveformViewer;
+typedef struct _BtWaveformViewerClass BtWaveformViewerClass;
+
+/**
+ * BtWaveformViewer:
+ *
+ * a volume popup widget
+ */
+struct _BtWaveformViewer {
+  GtkWindow parent;
+
+  float *peaks;
+  int peaks_size;
+  int channels;
+};
+
+struct _BtWaveformViewerClass {
+  GtkWindowClass klass;
+};
+
+GtkWidget *bt_waveform_viewer_new();
+
+void bt_waveform_viewer_show(BtWaveformViewer *self);
+void bt_waveform_viewer_hide(BtWaveformViewer *self);
+void bt_waveform_viewer_update(BtWaveformViewer *self, float *data, int channels, int length);
+
+GType bt_waveform_viewer_get_type(void) G_GNUC_CONST;
+
+G_END_DECLS
+
+#endif // BT_WAVEFORM_VIEWER_H
