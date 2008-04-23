@@ -60,10 +60,11 @@
 #include <libbtcore/core.h>
 #include <libbtic/ic.h>
 //-- gstreamer
-#include <gst/musicenums/musicenums.h>
-#include <gst/help/help.h>
+//-- gstbuzztard
+#include <libgstbuzztard/musicenums.h>
+#include <libgstbuzztard/help.h>
 #ifndef HAVE_GST_GSTPRESET_H
-#include <gst/preset/preset.h>
+#include <libgstbuzztard/preset.h>
 #endif
 //-- gtk+
 #include <gtk/gtk.h>

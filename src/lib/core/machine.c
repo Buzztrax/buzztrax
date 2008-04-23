@@ -842,9 +842,9 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
    *   if(g_object_class_find_property(BT_MACHINE_GET_KLASS(self->priv->machines[PART_MACHINE]),"buzz-wavetable"))
    * if we also want to emulate whole song features later, we should go for the iface
    */
-  if(BT_IS_BUZZ_MACHINE(self->priv->machines[PART_MACHINE])) {
+  if(BT_IS_SAMPLER(self->priv->machines[PART_MACHINE])) {
     BtWavetable *wavetable;
-    gpointer buzz_wavetable;
+    GList *waves;
 
     g_object_get(G_OBJECT(self->priv->song),"wavetable",&wavetable,NULL);
     
@@ -853,13 +853,18 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
      *   it could be worked around a bit, if we use CWaveLevel inside BtWaveLevel
      *   and reuse the pointers
      */
+    gpointer buzz_wavetable;
     g_object_get(G_OBJECT(swavetable),"buzz-wavetable",&buzz_wavetable,NULL);
     g_object_set(self->priv->machines[PART_MACHINE]),"buzz-wavetable",buzz_wavetable,NULL);
+
     /* @idea: pass wavetable itself and sync header with bml, so that it can map
      *   BtWave -> CWaveInfo
      *   BtWaveLevel -> CWaveLabel
-     *   on the fly. No need to sync.
+     *   on the fly. No need to sync. Problem, we want the private data of the
+     *   objects, or need g_object_get on the bml side:
      */
+    g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
+    g_object_set(self->priv->machines[PART_MACHINE]),"buzz-wavetable",waves,NULL);
     g_object_unref(wavetable);
     GST_INFO("  wavetable iface initialized");
   }

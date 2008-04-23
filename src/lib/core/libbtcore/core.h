@@ -34,11 +34,11 @@
 #include <gst/base/gstbasesink.h>
 #include <gst/base/gstbasetransform.h>
 #include <gst/controller/gstcontroller.h>
-
-#include <gst/musicenums/musicenums.h>
-#include <gst/childbin/childbin.h>
-#include <gst/propertymeta/propertymeta.h>
-#include <gst/tempo/tempo.h>
+//-- gstbuzztard
+#include <libgstbuzztard/musicenums.h>
+#include <libgstbuzztard/childbin.h>
+#include <libgstbuzztard/propertymeta.h>
+#include <libgstbuzztard/tempo.h>
 
 //-- libbtcore
 // method prototype includes do include the data defs themself

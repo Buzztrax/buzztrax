@@ -1,3 +1,10 @@
+2008-04-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/machine.c:
+	* src/ui/edit/bt-edit.h:
+	  Update to gst-buzztard changes.
+
 2008-04-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
