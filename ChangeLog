@@ -1,5 +1,10 @@
 2008-04-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gui/svgcanvas.c:
+	  More experiments.
+
+2008-04-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-machines.c:
 	  Speed up grid code.
 

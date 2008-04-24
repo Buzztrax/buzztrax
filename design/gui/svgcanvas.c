@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
 
   gtk_init (&argc,&argv);
   rsvg_init ();
-  
+
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW(window), "Style colors");
   g_signal_connect(G_OBJECT(window), "destroy",	G_CALLBACK (destroy), NULL);
@@ -75,12 +75,45 @@ int main(int argc, char **argv) {
   gnome_canvas_points_free(points);
   
   // add the svg
+#if 0
+  RsvgHandle *svg;
+  RsvgDimensionData dim;
+  const gchar *str;
+
+  svg = rsvg_handle_new_from_file ("generator-solo.svg", &error);
+  if(error) {
+    fprintf (stderr, "loading svg failed : %s", error->message);
+    g_error_free(error);
+    exit(1);
+  }
+  if ((str = rsvg_handle_get_desc (svg))) {
+    printf("svg description: %s\n",str);
+  }
+  if ((str = rsvg_handle_get_title (svg))) {
+    printf("svg title: %s\n",str);
+  }
+  rsvg_handle_get_dimensions (svg, &dim);
+  printf("svg dimensions: w,h = %d,%d,  em,ex = %lf,%lf\n",
+    dim.width, dim.height, dim.em, dim.ex);
+  
+  // I can affect the size :(
+  //rsvg_handle_set_dpi (svg, 10.0);
+  //rsvg_handle_set_dpi_x_y (svg, 30.0, 30.0);
+  pixbuf = rsvg_handle_get_pixbuf (svg);
+  g_object_unref (svg);
+  if (!pixbuf) {
+    fprintf (stderr, "no pixmap rendered");
+    exit(1);
+  }
+#else
+  // this is deprecated
   pixbuf = rsvg_pixbuf_from_file_at_size ("generator-solo.svg", 96, 96, &error);
   if(error) {
     fprintf (stderr, "loading svg failed : %s", error->message);
     g_error_free(error);
     exit(1);
   }
+#endif
   
   gnome_canvas_item_new (gnome_canvas_root (canvas),
      GNOME_TYPE_CANVAS_PIXBUF,
