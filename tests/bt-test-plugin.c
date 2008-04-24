@@ -114,9 +114,12 @@ static void bt_test_mono_source_get_property(GObject *object,
   BtTestMonoSource *self = BT_TEST_MONO_SOURCE(object);
 
   switch (property_id) {
-    case ARG_ULONG: {
+    case ARG_ULONG:
       g_value_set_ulong(value, self->ulong_val);
-    } break;
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      break;
   }
 }
 
@@ -130,6 +133,9 @@ static void bt_test_mono_source_set_property(GObject *object,
   switch (property_id) {
     case ARG_ULONG:
       self->ulong_val = g_value_get_ulong(value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
       break;
   }
 }
@@ -217,9 +223,12 @@ static void bt_test_poly_source_get_property(GObject *object,
   BtTestPolySource *self = BT_TEST_POLY_SOURCE(object);
 
   switch (property_id) {
-    case ARG_ULONG: {
+    case ARG_ULONG:
       g_value_set_ulong(value, self->ulong_val);
-    } break;
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      break;
   }
 }  
 
@@ -256,6 +265,9 @@ static void bt_test_poly_source_set_property(GObject *object,
       break;
     case ARG_ULONG:
       self->ulong_val = g_value_get_ulong(value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
       break;
   }
 }

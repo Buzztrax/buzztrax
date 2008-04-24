@@ -1,5 +1,10 @@
 2008-04-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/bt-test-plugin.c:
+	  Code cleanups.
+
+2008-04-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbtcore/core.h:
 	* src/lib/core/machine.c:
 	* src/ui/edit/bt-edit.h:
