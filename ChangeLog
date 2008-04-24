@@ -1,5 +1,11 @@
 2008-04-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gui/generator-solo.svg:
+	* design/gui/svgcanvas.c:
+	  Add test case for svg on canvas.
+
+2008-04-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/bt-test-plugin.c:
 	  Code cleanups.
 
