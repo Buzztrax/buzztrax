@@ -1,5 +1,16 @@
 2008-04-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* pixmaps/48x48/buzztard.png:
+	* pixmaps/Makefile.am:
+	* pixmaps/buzztard.png:
+	* pixmaps/buzztard.svg:
+	  Reorder files for better theme support.
+
+	* src/lib/core/wave.c:
+	  Add error handling.
+
+2008-04-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	* configure.ac:
 	* docs/reference/bt-edit/bt-edit-sections.txt:

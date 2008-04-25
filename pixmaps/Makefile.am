@@ -32,13 +32,13 @@ pixmapdata_DATA = \
 # delouns tab icons should go to tango
 
 icon16dir = $(datadir)/icons/hicolor/16x16/apps
-icon16_DATA = buzztard.png
+icon16_DATA = hicolor/16x16/buzztard.png
 
 icon48dir = $(datadir)/icons/hicolor/48x48/apps
-icon48_DATA = 48x48/buzztard.png
+icon48_DATA = hicolor/48x48/buzztard.png
 
 svgicondir = $(datadir)/icons/hicolor/scalable/apps
-svgicon_DATA = buzztard.svg
+svgicon_DATA = hicolor/scalable/buzztard.svg
 
 EXTRA_DIST = \
 	$(pixmapdata_DATA) \

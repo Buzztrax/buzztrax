@@ -106,7 +106,9 @@ static void wave_loader_free(const BtWave *self) {
 }
 
 static void on_wave_loader_new_pad(GstElement *bin,GstPad *pad,gboolean islast,gpointer user_data) {
-  gst_element_link(bin,GST_ELEMENT(user_data));
+  if(!gst_element_link(bin,GST_ELEMENT(user_data))) {
+    GST_WARNING("Can't link output of wave decoder.");
+  }
 }
 
 static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
@@ -142,23 +144,36 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
   GST_WARNING("sample decoded: channels=%d, rate=%d, length=%"GST_TIME_FORMAT,
     channels, rate, GST_TIME_ARGS(duration));
   
-  fstat(self->priv->fd, &buf);
-  if((data=g_try_malloc(buf.st_size))) {
-    /* mmap is unsave for removable drives :(
-     * gpointer data=mmap(void *start, buf->st_size, PROT_READ, MAP_SHARED, self->priv->fd, 0);
-     */
-    lseek(self->priv->fd,0,SEEK_SET);
-    read(self->priv->fd,data,buf.st_size);
-
-    bt_wavelevel_new(self->priv->song,self,0,(gulong)length,-1,-1,rate,channels,(gconstpointer)data);
-    /* emit signal so that UI can redraw */
-    GST_WARNING("sample loaded");
-    g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, TRUE);
+  if(!(fstat(self->priv->fd, &buf))) {
+    if((data=g_try_malloc(buf.st_size))) {
+      /* mmap is unsave for removable drives :(
+       * gpointer data=mmap(void *start, buf->st_size, PROT_READ, MAP_SHARED, self->priv->fd, 0);
+       */
+      if(lseek(self->priv->fd,0,SEEK_SET) == 0) {
+        ssize_t bytes;
+        
+        bytes=read(self->priv->fd,data,buf.st_size);
+    
+        bt_wavelevel_new(self->priv->song,self,0,(gulong)length,-1,-1,rate,channels,(gconstpointer)data);
+        /* emit signal so that UI can redraw */
+        GST_WARNING("sample loaded (%ld/%ld bytes)",bytes,buf.st_size);
+        g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, TRUE);
+      }
+      else {
+        GST_WARNING("can't seek to start of sample data");
+        g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
+      }
+    }
+    else {
+      GST_WARNING("sample is too long (%d bytes), not trying to load",buf.st_size);
+      g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
+    }
   }
   else {
-    GST_WARNING("sample is too long (%d bytes), not trying to load",buf.st_size);
+    GST_WARNING("can't stat() sample");
     g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
   }
+  
   
   gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
   wave_loader_free(self);
