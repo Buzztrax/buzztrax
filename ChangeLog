@@ -1,5 +1,10 @@
 2008-04-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  One more thought. We need to change this a little.
+
+2008-04-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbtcore/core.h:
 	* src/lib/core/machine.c:
 	  Pass the wavetable to the machine.

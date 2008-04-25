@@ -859,8 +859,11 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     /* @idea: pass wavetable itself and sync header with bml, so that it can map
      *   BtWave -> CWaveInfo
      *   BtWaveLevel -> CWaveLabel
-     *   on the fly. No need to sync. Problem, we want the private data of the
-     *   objects, or need g_object_get on the bml side:
+     * on the fly. No need to sync.
+     * Problem 1: we want the private data of the objects, or need g_object_get
+     *   on the bml side:
+     * Problem 2: its a list, when changing it, the address can change too.
+     *   so maybe better pass the wavetable ifslef and get the list when needed
      */
     g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
     g_object_set(self->priv->machines[PART_MACHINE],"wavetable",waves,NULL);
