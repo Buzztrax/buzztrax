@@ -26,6 +26,7 @@
 extern void add_pixmap_directory(const gchar *directory);
 extern GtkWidget *gtk_image_new_from_filename(const gchar *filename);
 extern GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename);
+extern GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size);
 
 /* helper for simple message/question dialogs */
 extern void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);

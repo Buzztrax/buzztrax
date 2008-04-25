@@ -186,25 +186,14 @@ static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer us
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
   GdkPixbuf *window_icon;
-  GError *error = NULL;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("main window"));
   gtk_window_set_role(GTK_WINDOW(self),"bt-edit::main");
 
   // create and set window icon
-  /* @todo: docs recommend to listen to GtkWidget::style-set and update icon or
-   * do gdk_pixbuf_copy() to avoid gtk keeping icon-theme loaded if it changes
-  */
-  if(!(window_icon=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztard",16,0,&error))) {
-    GST_WARNING("Couldn't load buzztard 16x16 icon: %s", error->message);
-    g_error_free(error);
-  }
-  else {
-    GdkPixbuf *window_icon_copy = gdk_pixbuf_copy(window_icon);
-    
+  if((window_icon=gdk_pixbuf_new_from_theme("buzztard",16))) {
+    gtk_window_set_icon(GTK_WINDOW(self),window_icon);
     g_object_unref(window_icon);
-    gtk_window_set_icon(GTK_WINDOW(self),window_icon_copy);
-    g_object_unref(window_icon_copy);
   }
 
   // create main layout container

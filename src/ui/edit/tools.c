@@ -91,7 +91,7 @@ GtkWidget *gtk_image_new_from_filename(const gchar *filename) {
  *
  * Creates a new pixbuf image for the image file.
  *
- * Returns: a new pixbuf
+ * Returns: a new pixbuf, g_object_unref() when done.
  */
 GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename) {
   gchar *pathname = NULL;
@@ -115,6 +115,35 @@ GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename) {
   g_free(pathname);
   return pixbuf;
 }
+
+/**
+ * gdk_pixbuf_new_from_theme:
+ * @name: the icon name
+ * @size: the pixel size
+ *
+ * Creates a new pixbuf image from the icon @name and @size.
+ *
+ * Returns: a new pixbuf, g_object_unref() when done.
+ */
+GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size) {
+  GdkPixbuf *pixbuf;
+  GError *error = NULL;
+
+  /* @todo: docs recommend to listen to GtkWidget::style-set and update icon or
+   * do gdk_pixbuf_copy() to avoid gtk keeping icon-theme loaded if it changes
+  */
+  if(!(pixbuf=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),name,size,0,&error))) {
+    GST_WARNING("Couldn't load %s 16x16 icon: %s", name,error->message);
+    g_error_free(error);
+    return NULL;
+  }
+  else {
+    GdkPixbuf *result = gdk_pixbuf_copy(pixbuf);
+    g_object_unref(pixbuf);
+    return result;
+  }
+}
+/* GtkWidget *gtk_image_new_from_icon_name(const gchar *icon_name,GtkIconSize size); */
 
 
 // @todo use GtkMessageDialog for the next two

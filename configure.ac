@@ -453,6 +453,7 @@ AC_CONFIG_FILES(Makefile \
       docs/reference/bt-core/Makefile \
       docs/reference/bt-edit/Makefile \
       docs/reference/bt-ic/Makefile \
+  pixmaps/Makefile \
   po/Makefile.in \
   src/Makefile \
     src/lib/Makefile \

@@ -1,46 +1,15 @@
 ## $Id$
 
 SRCDIRS = src tests
-SUBDIRS = $(SRCDIRS) po docs
+SUBDIRS = $(SRCDIRS) pixmaps po docs
 
 DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc --enable-debug
-
-pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps
-pixmapdata_DATA = \
-	pixmaps/grid.png \
-	pixmaps/menu_processor_machine.png \
-	pixmaps/menu_sink_machine.png \
-	pixmaps/menu_source_machine.png \
-	pixmaps/prefs-audio-card.png \
-	pixmaps/prefs-input-gaming.png \
-	pixmaps/prefs-input-keyboard.png \
-	pixmaps/stock_media-fwd.png \
-	pixmaps/stock_media-pause.png \
-	pixmaps/stock_media-play.png \
-	pixmaps/stock_media-prev.png \
-	pixmaps/stock_media-rec.png \
-	pixmaps/stock_media-rew.png \
-	pixmaps/stock_media-stop.png \
-	pixmaps/stock_repeat.png \
-	pixmaps/tab_machines.png \
-	pixmaps/tab_patterns.png \
-	pixmaps/tab_sequence.png \
-	pixmaps/tab_waves.png \
-	pixmaps/tab_info.png
-
-icon16dir = $(datadir)/icons/hicolor/16x16/apps
-icon16_DATA = pixmaps/buzztard.png
-icon48dir = $(datadir)/icons/hicolor/48x48/apps
-icon48_DATA = pixmaps/48x48/buzztard.png
-svgicondir = $(datadir)/icons/hicolor/scalable/apps
-svgicon_DATA = pixmaps/buzztard.svg
 
 schemasdir = $(GCONF_SCHEMA_FILE_DIR)
 schemas_in_files = buzztard.schemas.in
 schemas_DATA = $(schemas_in_files:.schemas.in=.schemas)
 
 EXTRA_DIST = \
-	$(pixmapdata_DATA) $(icon16_DATA) $(icon48_DATA) $(svgicon_DATA) \
 	$(schemas_DATA) \
 	intltool-extract.in \
 	intltool-merge.in \
@@ -60,18 +29,6 @@ DISTCLEANFILES = \
 
 clean-local:
 	rm -f po/.intltool-merge-cache
-
-gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor
-install-data-hook: update-icon-cache
-uninstall-hook: update-icon-cache
-update-icon-cache:
-	@-if test -z "$(DESTDIR)"; then \
-		echo "Updating Gtk icon cache."; \
-		$(gtk_update_icon_cache); \
-	else \
-		echo "*** Icon cache not updated.  After install, run this:"; \
-		echo "***   $(gtk_update_icon_cache)"; \
-	fi
 
 ##if GCONF_SCHEMAS_INSTALL (this should be conditional)
 install-data-local:

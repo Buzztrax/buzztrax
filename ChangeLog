@@ -1,3 +1,22 @@
+2008-04-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* configure.ac:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* pixmaps/Makefile.am:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	  Helper for getting pixmaps from themes.
+
+2008-04-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* configure.ac:
+	* pixmaps/Makefile.am:
+	  Have a dedicated Makefile for the pixmaps. Don't install the media-
+	  icons. They are in gtk since 2.6 and we require that.
+
 2008-04-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gui/svgcanvas.c:

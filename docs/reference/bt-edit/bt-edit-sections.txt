@@ -788,6 +788,7 @@ gtk_vumeter_get_type
 add_pixmap_directory
 gtk_image_new_from_filename
 gdk_pixbuf_new_from_filename
+gdk_pixbuf_new_from_theme
 bt_dialog_message
 bt_dialog_question
 gtk_toolbar_get_style_from_string
