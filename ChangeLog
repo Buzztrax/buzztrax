@@ -1,3 +1,11 @@
+2008-04-25  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/main-page-waves.c: 
+	* src/ui/edit/wave-viewer.c:
+	* src/ui/edit/wave-viewer.h:
+	  Add proper waveform level calculation (no detailed display for
+	  now). Feed level calculation with actual loaded waveforms.
+
 2008-04-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* pixmaps/48x48/buzztard.png:

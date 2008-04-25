@@ -44,8 +44,8 @@ bt_waveform_viewer_expose (GtkWidget *widget, GdkEventExpose *event)
 
   if (self->peaks) {
     GdkColor sc2 = { 0, 0, 65535, 65535 };
-    GdkColor sc3 = { 0, 0, 24575, 24575 };
-    cairo_set_line_join(c, CAIRO_LINE_JOIN_MITER);
+    GdkColor sc3 = { 0, 0, 24575/2, 24575/2 };
+    cairo_set_line_join(c, CAIRO_LINE_JOIN_ROUND);
     cairo_set_line_width(c, 0.5);
 
     for (ch = 0; ch < self->channels; ch++)
@@ -113,72 +113,76 @@ static void
 bt_waveform_viewer_init (BtWaveformViewer *self)
 {
   GtkWidget *widget = GTK_WIDGET(self);
-  int i;
   GTK_WIDGET_SET_FLAGS (widget, GTK_NO_WINDOW);
   widget->requisition.width = 40;
   widget->requisition.height = 40;
+  self->active = 0;
   self->channels = 2;
   self->peaks_size = 1000;
   self->peaks = malloc(sizeof(float) * self->channels * self->peaks_size);
-  for (i = 0; i < self->channels * self->peaks_size; i+=2)
-  {
-    self->peaks[i] = 0.5 + 0.5 * sin(i * 2 * M_PI / self->peaks_size);
-    self->peaks[i + 1] = 0.5 + 0.5 * cos(i * 2 * M_PI / self->peaks_size);
-  }
 }
 
-void bt_waveform_viewer_update(BtWaveformViewer *self, float *data, int channels, int length)
+void 
+bt_waveform_viewer_update(BtWaveformViewer *self, int16_t *data, int channels, int length)
 {
-#if 0
   // untested, probably doesn't work
-  int i, c, p;
+  int i, c, p, cc = channels;
+  int64_t len = length;
+  self->channels = channels;
+  if (!data || !length)
+  {
+    self->active = 0;
+    gtk_widget_queue_draw(GTK_WIDGET(self));
+    return;
+  }
   for (i = 0; i < self->peaks_size; i++)
   {
-    int p1 = self->length * i / self->peaks_size;
-    int p2 = self->length * (i + 1) / self->peaks_size;
+    int p1 = len * i / self->peaks_size;
+    int p2 = len * (i + 1) / self->peaks_size;
     for (c = 0; c < self->channels; c++)
     {
-      float vmin = data[p1], vmax = data[p1];
+      float vmin = data[p1 * cc + c], vmax = data[p1 * cc + c];
       for (p = p1 + 1; p < p2; p++)
       {
-        if (data[p] < vmin) vmin = data[p];
-        if (data[p] > vmax) vmax = data[p];
+        float d = data[p * cc + c];
+        if (d < vmin) vmin = d;
+        if (d > vmax) vmax = d;
       }
-      self->peaks[i * self->channels + c] = vmax - vmin;
+      self->peaks[i * cc + c] = (vmax - vmin) / 32768.0;
     }
   }
-#endif 
+  self->active = 1;
+  gtk_widget_queue_draw(GTK_WIDGET(self));
 }
-
 
 GtkWidget *
 bt_waveform_viewer_new()
 {
-    return GTK_WIDGET( g_object_new (BT_TYPE_WAVEFORM_VIEWER, NULL ));
+  return GTK_WIDGET( g_object_new (BT_TYPE_WAVEFORM_VIEWER, NULL ));
 }
 
 GType
 bt_waveform_viewer_get_type (void)
 {
-    static GType type = 0;
-    if (!type) {
-        static const GTypeInfo type_info = {
-            sizeof(BtWaveformViewerClass),
-            NULL, /* base_init */
-            NULL, /* base_finalize */
-            (GClassInitFunc)bt_waveform_viewer_class_init,
-            NULL, /* class_finalize */
-            NULL, /* class_data */
-            sizeof(BtWaveformViewer),
-            0,    /* n_preallocs */
-            (GInstanceInitFunc)bt_waveform_viewer_init
-        };
+  static GType type = 0;
+  if (!type) {
+    static const GTypeInfo type_info = {
+      sizeof(BtWaveformViewerClass),
+      NULL, /* base_init */
+      NULL, /* base_finalize */
+      (GClassInitFunc)bt_waveform_viewer_class_init,
+      NULL, /* class_finalize */
+      NULL, /* class_data */
+      sizeof(BtWaveformViewer),
+      0,    /* n_preallocs */
+      (GInstanceInitFunc)bt_waveform_viewer_init
+    };
 
-        type = g_type_register_static( GTK_TYPE_WIDGET,
-                                       "BtWaveformViewer",
-                                       &type_info,
-                                       (GTypeFlags)0);
-    }
-    return type;
+    type = g_type_register_static( GTK_TYPE_WIDGET,
+                                   "BtWaveformViewer",
+                                   &type_info,
+                                   (GTypeFlags)0);
+  }
+  return type;
 }
 

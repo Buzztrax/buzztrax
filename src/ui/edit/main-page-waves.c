@@ -51,6 +51,8 @@ struct _BtMainPageWavesPrivate {
   G_POINTER_ALIAS(BtEditApplication *,app);
   /* the wavetable we are showing*/
   BtWavetable *wavetable;
+  /* the waveform graph widget */
+  GtkWidget *waveform_viewer;
 
   /* the toolbar widgets */
   GtkWidget *list_toolbar,*browser_toolbar,*editor_toolbar;
@@ -85,6 +87,7 @@ enum {
 //-- event handler helper
 
 static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_data);
+static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer user_data);
 
 /*
  * waves_list_refresh:
@@ -272,18 +275,50 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
   else {
     goto disable_toolitems;
   }
+  on_wavelevels_list_cursor_changed(self->priv->wavelevels_list, self);
   return;
 disable_toolitems:
   // disable toolbar buttons
   gtk_widget_set_sensitive(self->priv->wavetable_play,FALSE);
   gtk_widget_set_sensitive(self->priv->wavetable_clear,FALSE);
+  on_wavelevels_list_cursor_changed(self->priv->wavelevels_list, self);
 }
 
 static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
-  // BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
-  
+  BtMainPageWaves  *self=BT_MAIN_PAGE_WAVES(user_data);
+  int               length = 0, channels = 1;
+  int16_t          *data;
+  GtkTreeSelection *selection;
+  GtkTreeModel     *model;
+  GtkTreeIter       iter;
+
   GST_WARNING("wavelevels list cursor changed");
-  //bt_waveform_viewer_update(self->priv->waveformview,data,channels,length);
+  selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->waves_list));
+  if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+    BtWave *wave;
+    GList *waves, *wavelevels;
+    gulong id;
+
+    gtk_tree_model_get(model,&iter,0,&id,-1);
+    GST_INFO("selected entry id %d",id);
+
+    g_object_get(self->priv->wavetable,"waves",&waves,NULL);
+    wave=BT_WAVE(g_list_nth_data(waves,id));
+
+    selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->wavelevels_list));
+    if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+      gtk_tree_model_get(model,&iter,0,&id,-1);
+      GST_INFO("selected entry id %d",id);
+
+      g_object_get(wave,"wavelevels",&wavelevels,NULL);
+
+      g_object_get(G_OBJECT(g_list_nth_data(wavelevels, id)), "length", &length, "channels", &channels, "data", &data, NULL);  
+      
+      bt_waveform_viewer_update(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer),data,channels,length);
+      return;
+    }
+  }
+  bt_waveform_viewer_update(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer), NULL, 0, 0);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -482,7 +517,7 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
 static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainPages *pages) {
   BtSettings *settings;
   GtkWidget *vpaned,*hpaned,*box,*box2;
-  GtkWidget *tool_item, *waveform_view;
+  GtkWidget *tool_item;
   GtkWidget *scrolled_window;
   GtkCellRenderer *renderer;
 #ifndef HAVE_GTK_2_12
@@ -635,8 +670,8 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
 
   //       sampleview (which widget do we need?)
   //       properties (loop, envelope, ...)
-  waveform_view = bt_waveform_viewer_new();
-  gtk_box_pack_start(GTK_BOX(box2),waveform_view,TRUE,TRUE,0);
+  self->priv->waveform_viewer = bt_waveform_viewer_new();
+  gtk_box_pack_start(GTK_BOX(box2),self->priv->waveform_viewer,TRUE,TRUE,0);
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->waves_list),"cursor-changed",G_CALLBACK(on_waves_list_cursor_changed),(gpointer)self);
