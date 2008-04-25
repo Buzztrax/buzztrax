@@ -1,3 +1,9 @@
+2008-04-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/machine.c:
+	  Pass the wavetable to the machine.
+
 2008-04-25  Krzysztof Foltman  <wdev@foltman.com>
 
 	* src/ui/edit/main-page-waves.c: 

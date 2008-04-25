@@ -835,7 +835,6 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     g_object_unref(song_info);
     GST_INFO("  tempo iface initialized");
   }
-#if 0
   // initialize buzzwavetable iface properties
   /* @todo: iface or just a property?
    * property is easy but a hack
@@ -852,11 +851,11 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
      *   this id ugly, we need to update this whenever any parameter changes :/
      *   it could be worked around a bit, if we use CWaveLevel inside BtWaveLevel
      *   and reuse the pointers
-     */
+     *
     gpointer buzz_wavetable;
     g_object_get(G_OBJECT(swavetable),"buzz-wavetable",&buzz_wavetable,NULL);
     g_object_set(self->priv->machines[PART_MACHINE]),"buzz-wavetable",buzz_wavetable,NULL);
-
+    */
     /* @idea: pass wavetable itself and sync header with bml, so that it can map
      *   BtWave -> CWaveInfo
      *   BtWaveLevel -> CWaveLabel
@@ -864,12 +863,10 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
      *   objects, or need g_object_get on the bml side:
      */
     g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
-    g_object_set(self->priv->machines[PART_MACHINE]),"buzz-wavetable",waves,NULL);
+    g_object_set(self->priv->machines[PART_MACHINE],"wavetable",waves,NULL);
     g_object_unref(wavetable);
     GST_INFO("  wavetable iface initialized");
   }
-
-#endif
   GST_INFO("machine element instantiated and interfaces initialized");
 }
 
