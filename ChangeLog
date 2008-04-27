@@ -1,3 +1,8 @@
+2008-04-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Pass the wavetable and not the list.
+
 2008-04-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

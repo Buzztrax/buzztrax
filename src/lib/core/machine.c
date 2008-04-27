@@ -843,7 +843,6 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
    */
   if(BT_IS_SAMPLER(self->priv->machines[PART_MACHINE])) {
     BtWavetable *wavetable;
-    GList *waves;
 
     g_object_get(G_OBJECT(self->priv->song),"wavetable",&wavetable,NULL);
     
@@ -865,8 +864,9 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
      * Problem 2: its a list, when changing it, the address can change too.
      *   so maybe better pass the wavetable ifslef and get the list when needed
      */
-    g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
-    g_object_set(self->priv->machines[PART_MACHINE],"wavetable",waves,NULL);
+    //GList *waves;
+    //g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
+    g_object_set(self->priv->machines[PART_MACHINE],"wavetable",wavetable,NULL);
     g_object_unref(wavetable);
     GST_INFO("  wavetable iface initialized");
   }
