@@ -621,7 +621,6 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
 
   if(has_meta) {
     gconstpointer const qdata=g_param_spec_get_qdata(property,key);
-    GType base_type=bt_g_type_get_base_type(property->value_type);
 
     // it can be that qdata is NULL if the value is NULL
     //if(!qdata) {
@@ -631,7 +630,7 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
 
     res=TRUE;
     g_value_init(value,property->value_type);
-    switch(base_type) {
+    switch(bt_g_type_get_base_type(property->value_type)) {
       case G_TYPE_BOOLEAN:
         // @todo: this does not work, for no_value it results in
         // g_value_set_boolean(value,255);
@@ -2382,7 +2381,6 @@ static void free_control_data(BtControlData *data) {
   g_free(data);
 }
 
-//#if 0
 static void on_boolean_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
   BtControlData *data=(BtControlData *)(user_data);
   gboolean value;
@@ -2499,6 +2497,128 @@ void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject
  */
 void bt_machine_unbind_parameter_controls(const BtMachine * const self) {
   g_hash_table_remove_all(self->priv->control_data);
+}
+
+//-- settings
+
+static void
+bt_g_object_randomize_parameter(GObject *self, GParamSpec *property) {
+  gdouble rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+
+  GST_DEBUG ("set random value for property: %s (type is %s)", property->name,
+      G_PARAM_SPEC_TYPE_NAME (property));
+
+  switch (bt_g_type_get_base_type(property->value_type)) {
+    case G_TYPE_BOOLEAN:{
+      g_object_set (self, property->name, (gboolean) (2.0 * rnd), NULL);
+    } break;
+    case G_TYPE_INT:{
+      const GParamSpecInt *int_property = G_PARAM_SPEC_INT (property);
+
+      g_object_set (self, property->name,
+          (gint) (int_property->minimum + ((int_property->maximum -
+                  int_property->minimum) * rnd)), NULL);
+    } break;
+    case G_TYPE_UINT:{
+      const GParamSpecUInt *uint_property = G_PARAM_SPEC_UINT (property);
+
+      g_object_set (self, property->name,
+          (guint) (uint_property->minimum + ((uint_property->maximum -
+                   uint_property->minimum) * rnd)), NULL);
+    } break;
+    case G_TYPE_FLOAT:{
+      const GParamSpecFloat *float_property =
+          G_PARAM_SPEC_FLOAT (property);
+
+      g_object_set (self, property->name,
+          (gfloat) (float_property->minimum + ((float_property->maximum -
+                    float_property->minimum) * rnd)), NULL);
+    } break;
+    case G_TYPE_DOUBLE:{
+      const GParamSpecDouble *double_property =
+          G_PARAM_SPEC_DOUBLE (property);
+
+      g_object_set (self, property->name,
+          (gdouble) (double_property->minimum + ((double_property->maximum -
+                     double_property->minimum) * rnd)), NULL);
+    } break;
+    case G_TYPE_ENUM:{
+      const GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
+      const GEnumClass *enum_class = enum_property->enum_class;
+
+      // @todo: handle sparse enums
+      g_object_set (self, property->name,
+          (gulong) (enum_class->minimum + ((enum_class->maximum -
+                    enum_class->minimum) * rnd)), NULL);
+    } break;
+    default:
+      GST_WARNING ("incomplete implementation for GParamSpec type '%s'",
+          G_PARAM_SPEC_TYPE_NAME (property));
+  }
+}
+
+/**
+ * bt_machine_randomize_parameters:
+ * @self: machine
+ *
+ * Randomizes machine parameters.
+ */
+void bt_machine_randomize_parameters(const BtMachine * const self) {
+#if 1
+  GObject *machine=G_OBJECT(self->priv->machines[PART_MACHINE]),*voice;
+  gulong i,j;
+
+  for(i=0;i<self->priv->global_params;i++) {
+    bt_g_object_randomize_parameter(machine,self->priv->global_props[i]);
+  }
+  for(j=0;j<self->priv->voices;j++) {
+    voice=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j));
+    for(i=0;i<self->priv->voice_params;i++) {
+      bt_g_object_randomize_parameter(voice,self->priv->voice_props[i]);
+    }
+  }
+#else
+  if(!GST_IS_PRESET(self->priv->machines[PART_MACHINE])) {
+    gst_preset_randomize(GST_PRESET(self->priv->machines[PART_MACHINE]));
+  }
+#endif
+}
+
+/**
+ * bt_machine_reset_parameters:
+ * @self: machine
+ *
+ * Resets machine parameters back to defaults.
+ */
+void bt_machine_reset_parameters(const BtMachine * const self) {
+  /* @todo: should we have bt_machine_reset_{global,voice}_parameter() and use
+   * below? can also be used from context menu in machine window.
+   */
+#if 1
+  GObject *machine=G_OBJECT(self->priv->machines[PART_MACHINE]),*voice;
+  GValue gvalue={0,};
+  gulong i,j;
+
+  for(i=0;i<self->priv->global_params;i++) {
+    g_value_init(&gvalue, GLOBAL_PARAM_TYPE(i));
+    g_param_value_set_default (self->priv->global_props[i], &gvalue);
+    g_object_set_property (machine, GLOBAL_PARAM_NAME(i), &gvalue);
+    g_value_unset(&gvalue);
+  }
+  for(j=0;j<self->priv->voices;j++) {
+    voice=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j));
+    for(i=0;i<self->priv->voice_params;i++) {
+      g_value_init(&gvalue, VOICE_PARAM_TYPE(i));
+      g_param_value_set_default (self->priv->voice_props[i], &gvalue);
+      g_object_set_property (voice, VOICE_PARAM_NAME(i), &gvalue);
+      g_value_unset(&gvalue);
+    }
+  }
+#else
+  if(!GST_IS_PRESET(self->priv->machines[PART_MACHINE])) {
+    gst_preset_reset(GST_PRESET(self->priv->machines[PART_MACHINE]));
+  }
+#endif
 }
 
 //-- debug helper

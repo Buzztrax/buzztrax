@@ -422,6 +422,13 @@ static void on_wavetable_toolbar_play_clicked(GtkButton *button, gpointer user_d
 
       g_free(uri);
     }
+    /* @todo: we actualy need to play the current wavelevel, of which we now
+     * only have a pointer to. It needs to take changed properties into account.
+     * That is rate and loop (segment).
+     * We need to try appsrc, but otherwise
+     * fakesrc ! capsfilter ! audioresample ! audioconvert ! autoaudiosink
+     * just wonder if segments work with fakesrc, probably needs to be in bytes
+     */
   }
 }
 

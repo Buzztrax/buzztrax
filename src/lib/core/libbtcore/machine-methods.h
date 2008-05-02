@@ -82,14 +82,6 @@ extern void bt_machine_set_voice_param_no_value(const BtMachine * const self, co
 extern const gchar *bt_machine_get_global_param_name(const BtMachine * const self, const gulong index);
 extern const gchar *bt_machine_get_voice_param_name(const BtMachine * const self, const gulong index);
 
-#if 0
-extern GValue *bt_machine_get_global_param_min_value(const BtMachine * const self, const gulong index);
-extern GValue *bt_machine_get_voice_param_min_value(const BtMachine * const self, const gulong index);
-
-extern GValue *bt_machine_get_global_param_max_value(const BtMachine * const self, const gulong index);
-extern GValue *bt_machine_get_voice_param_max_value(const BtMachine * const self, const gulong index);
-#endif
-
 extern gchar *bt_machine_describe_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
 extern gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const gulong index, GValue * const event);
 
@@ -102,6 +94,11 @@ extern void bt_machine_voice_controller_change_value(const BtMachine * const sel
 extern void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control);
 extern void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const char *property_name);
 extern void bt_machine_unbind_parameter_controls(const BtMachine * const self);
+
+//-- settings
+
+extern void bt_machine_randomize_parameters(const BtMachine * const self);
+extern void bt_machine_reset_parameters(const BtMachine * const self) ;
 
 // debug helper
 

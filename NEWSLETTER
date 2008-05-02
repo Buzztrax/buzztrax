@@ -1,6 +1,10 @@
 2008/05 ========================================================================
 
-
+* load waves to memory and implement functionality on wavetable-page
+* add waveform widget
+* prepare wavetable passing
+* reorganize gst-buzztard package
+* refactor preset more (randomize and defalt works independent of presets)
 
 2008/04 ========================================================================
 

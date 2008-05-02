@@ -1,3 +1,18 @@
+2008-05-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect NEWS.
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  All ranomize and reset machine settings for all machines (independent
+	  of preset support).
+
+	* src/ui/edit/main-page-waves.c:
+	  Ideas.
+
 2008-04-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

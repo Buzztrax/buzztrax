@@ -656,6 +656,18 @@ static void on_toolbar_about_clicked(GtkButton *button,gpointer user_data) {
   gst_object_unref(machine);
 }
 
+static void on_toolbar_random_clicked(GtkButton *button,gpointer user_data) {
+  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+
+  bt_machine_randomize_parameters(self->priv->machine);
+}
+
+static void on_toolbar_reset_clicked(GtkButton *button,gpointer user_data) {
+  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+
+  bt_machine_reset_parameters(self->priv->machine);
+}
+
 static void on_toolbar_show_hide_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
 
@@ -762,15 +774,6 @@ static void on_toolbar_preset_edit_clicked(GtkButton *button,gpointer user_data)
     g_free(comment);
     gst_object_unref(machine);
   }
-}
-
-static void on_toolbar_preset_random_clicked(GtkButton *button,gpointer user_data) {
-  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-  GstElement *machine;
-
-  g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
-  gst_preset_randomize(GST_PRESET(machine));
-  gst_object_unref(machine);
 }
 
 static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *path,GtkTreeViewColumn *column,gpointer user_data) {
@@ -1439,11 +1442,6 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(edit_tool_button),-1);
   g_signal_connect(G_OBJECT(edit_tool_button),"clicked",G_CALLBACK(on_toolbar_preset_edit_clicked),(gpointer)self);
 
-  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_NEW));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Generate and load random preset"));
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_random_clicked),(gpointer)self);
-
   gtk_box_pack_start(GTK_BOX(self->priv->preset_box),self->priv->preset_toolbar,FALSE,FALSE,0);
 
   // add preset list
@@ -1574,6 +1572,16 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_help_clicked),(gpointer)self);
   }
 
+  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_NEW));
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Randomize parameters"));
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_random_clicked),(gpointer)self);  
+
+  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_UNDO));
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Reset parameters to defaults"));
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_reset_clicked),(gpointer)self);
+  
   // @todo: add copy/paste buttons
 
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_INDEX));
