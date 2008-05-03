@@ -267,6 +267,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
 
   // timer status-bars
   ev_box=gtk_event_box_new();
+  g_object_set(ev_box,"visible-window",FALSE,NULL);
   gtk_widget_set_tooltip_text(ev_box,_("Playback time"));
   self->priv->elapsed=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->elapsed_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->elapsed),_("default"));
@@ -277,6 +278,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);
 
   ev_box=gtk_event_box_new();
+  g_object_set(ev_box,"visible-window",FALSE,NULL);
   gtk_widget_set_tooltip_text(ev_box,_("Playback position"));
   self->priv->current=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->current_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->current),_("default"));
@@ -287,6 +289,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);
 
   ev_box=gtk_event_box_new();
+  g_object_set(ev_box,"visible-window",FALSE,NULL);
   gtk_widget_set_tooltip_text(ev_box,_("Playback length"));
   self->priv->loop=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->loop_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->loop),_("default"));

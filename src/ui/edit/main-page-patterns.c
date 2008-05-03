@@ -43,6 +43,11 @@
  *     - low pass median filter over changes
  *   - Ctrl-<num> :  Stepping
  *     - set increment for cursor-down on edit
+ *   - prev/next for combobox entries
+ *     - trigger "move-active" action signal with GTK_SCROLL_STEP_UP/GTK_SCROLL_STEP_DOWN
+ *     - what mechanism to use:
+ *       - gtk_binding_entry_add_signal (do bindings work when not focused?)
+ *       - gtk_widget_add_accelerator (can't specify signal params)
  * - copy gtk_cell_renderer_progress -> bt_cell_renderer_pattern_value
  *   - limmit acceptable keys for value entries: http://www.gtk.org/faq/#AEN843
  * - move cursor down on edit

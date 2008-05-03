@@ -150,6 +150,7 @@ static void bt_main_pages_init_tab(const BtMainPages *self,guint index,gchar *st
   gtk_container_add(GTK_CONTAINER(box),label);
 
   event_box=gtk_event_box_new();
+  g_object_set(event_box,"visible-window",FALSE,NULL);
   gtk_container_add(GTK_CONTAINER(event_box),box);
 
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),index),event_box);
