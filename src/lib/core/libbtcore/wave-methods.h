@@ -28,6 +28,7 @@
 extern BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const uri, const gulong index);
 
 extern gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * const wavelevel);
+extern BtWavelevel *bt_wave_get_level_by_index(const BtWave * const self,const gulong index);
 
 extern gboolean bt_wave_load_from_uri(const BtWave * const self);
 

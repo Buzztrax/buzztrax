@@ -253,6 +253,13 @@ PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.4.0, [
   ]
 )
 
+PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.4.0, [
+    AC_DEFINE(USE_BML, [1], [Define to 1 if we can use bml])
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $BML_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $BML_DEPS_LIBS"
+  ]
+)
+
 PKG_CHECK_MODULES(GNOME_DEPS, libgnome-2.0 >= 2.6.0, [
     AC_DEFINE(USE_GNOME, [1], [Define to 1 if we can use gnome libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GNOME_DEPS_CFLAGS"

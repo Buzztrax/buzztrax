@@ -808,6 +808,16 @@ Error:
 }
 
 static void bt_machine_init_interfaces(const BtMachine * const self) {
+  /* initialize buzz-host-callbacks (structure with callbacks)
+   * buzzmachines can then call c function of the host
+   * would be good to set this as early as possible
+   */
+  if(g_object_class_find_property(G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),"host-callbacks")) {
+    extern void *bt_buzz_callbacks_get(BtSong *song);
+
+    g_object_set(self->priv->machines[PART_MACHINE],"host-callbacks",bt_buzz_callbacks_get(self->priv->song),NULL);
+    GST_INFO("  host-callbacks iface initialized");
+  }
   // initialize child-proxy iface properties
   if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
     if(!self->priv->voices) {
@@ -833,41 +843,6 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     g_signal_connect(G_OBJECT(song_info),"notify::tpb",G_CALLBACK(bt_machine_on_tpb_changed),(gpointer)self);
     g_object_unref(song_info);
     GST_INFO("  tempo iface initialized");
-  }
-  // initialize buzzwavetable iface properties
-  /* @todo: iface or just a property?
-   * property is easy but a hack
-   *   if(g_object_class_find_property(BT_MACHINE_GET_KLASS(self->priv->machines[PART_MACHINE]),"buzz-wavetable"))
-   * if we also want to emulate whole song features later, we should go for the iface
-   */
-  if(BT_IS_SAMPLER(self->priv->machines[PART_MACHINE])) {
-    BtWavetable *wavetable;
-
-    g_object_get(G_OBJECT(self->priv->song),"wavetable",&wavetable,NULL);
-    
-    /* @todo: both objects still need the buzz-wavetable property
-     *   this id ugly, we need to update this whenever any parameter changes :/
-     *   it could be worked around a bit, if we use CWaveLevel inside BtWaveLevel
-     *   and reuse the pointers
-     *
-    gpointer buzz_wavetable;
-    g_object_get(G_OBJECT(swavetable),"buzz-wavetable",&buzz_wavetable,NULL);
-    g_object_set(self->priv->machines[PART_MACHINE]),"buzz-wavetable",buzz_wavetable,NULL);
-    */
-    /* @idea: pass wavetable itself and sync header with bml, so that it can map
-     *   BtWave -> CWaveInfo
-     *   BtWaveLevel -> CWaveLabel
-     * on the fly. No need to sync.
-     * Problem 1: we want the private data of the objects, or need g_object_get
-     *   on the bml side:
-     * Problem 2: its a list, when changing it, the address can change too.
-     *   so maybe better pass the wavetable ifslef and get the list when needed
-     */
-    //GList *waves;
-    //g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
-    g_object_set(self->priv->machines[PART_MACHINE],"wavetable",wavetable,NULL);
-    g_object_unref(wavetable);
-    GST_INFO("  wavetable iface initialized");
   }
   GST_INFO("machine element instantiated and interfaces initialized");
 }

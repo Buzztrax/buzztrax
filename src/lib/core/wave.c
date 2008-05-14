@@ -276,6 +276,26 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
 }
 
 /**
+ * bt_wave_get_level_by_index:
+ * @self: the wave to search for the wavelevel
+ * @index: the index of the wavelevel
+ *
+ * Search the wave for a wavelevel by the supplied index.
+ * The wavelevel must have been added previously to this wave with bt_wave_add_wavelevel().
+ * Unref the wavelevel, when done with it.
+ *
+ * Returns: #BtWaveLevel instance or %NULL if not found
+ */
+BtWavelevel *bt_wave_get_level_by_index(const BtWave * const self,const gulong index) {
+  BtWavelevel *wavelevel;
+  
+  if((wavelevel=g_list_nth_data(self->priv->wavelevels,index))) {
+    g_object_ref(wavelevel);
+  }
+  return(NULL);
+}
+
+/**
  * bt_wave_load_from_uri:
  * @self: the wave to load
  *
@@ -395,7 +415,7 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
   
     for(child_node=node->children;child_node;child_node=child_node->next) {
       if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wavelevel\0",10))) {
-        /* loading the wave already creates wave-levels,
+        /* loading the wave already created wave-levels,
          * here we just want to override e.g. loop, sampling-rate
          */
         if(lnode) {

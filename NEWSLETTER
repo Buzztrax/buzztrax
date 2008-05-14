@@ -1,10 +1,21 @@
+2008/06 ========================================================================
+
+* samples start to play
+
 2008/05 ========================================================================
 
-* load waves to memory and implement functionality on wavetable-page
-* add waveform widget
-* prepare wavetable passing
-* reorganize gst-buzztard package
-* refactor preset more (randomize and defalt works independent of presets)
+As can be seen on our roadmap [1] sample support is scheduled for 0.4. As this
+is the major feature, we started working on it. I have to say that building
+buzztard on top of GStreamer was definitely the right thing to do. We can now
+load whatever GStreamer can handle. FSM did a nice cairo-based waveform widget.
+Right now I am working on the code that allows plugins to access the wavetable.
+It will hopefully be ready real soon.
+
+Besides that I've started to restructure the gst-buzztard package a bit further.
+I also plan to merge the buzz wrapper plugin into it. The aim is to reduce the
+number of packages that one needs to build.
+
+[1] http://www.buzztard.org/index.php/Roadmap
 
 2008/04 ========================================================================
 

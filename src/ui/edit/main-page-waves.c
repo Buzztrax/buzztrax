@@ -337,6 +337,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(song,"wavetable",&self->priv->wavetable,NULL);
   // update page
   waves_list_refresh(self);
+  on_wavelevels_list_cursor_changed(self->priv->waves_list,self);
   // release the references
   g_object_unref(song);
   GST_INFO("song has changed done");

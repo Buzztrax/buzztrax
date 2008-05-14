@@ -19,6 +19,7 @@ libbtcore_la_SOURCES = \
 	core.c libbtcore/core.h \
 	tools.c libbtcore/tools.h \
 	libbtcore/version.h \
+	buzzcallbacks.c \
 	\
 	application.c libbtcore/application.h libbtcore/application-methods.h libbtcore/application-private.h \
 	$(GCONF_SETTINGS_SRC) \

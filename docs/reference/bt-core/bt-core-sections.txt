@@ -478,6 +478,7 @@ BtSourceMachinePrivate
 BtWave
 bt_wave_new
 bt_wave_add_wavelevel
+bt_wave_get_level_by_index
 bt_wave_load_from_uri
 <SUBSECTION Standard>
 BtWaveClass

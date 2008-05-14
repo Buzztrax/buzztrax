@@ -58,6 +58,9 @@ struct _BtWavetablePrivate {
   /* the song the wavetable belongs to */
   G_POINTER_ALIAS(BtSong *,song);
 
+  /* @idea: change to GPtrArray, the baseptr does not change when modifying and
+   * we can save the 'index' field in BtWave
+   */
   GList *waves;         // each entry points to a BtWave
   GList *missing_waves; // each entry points to a gchar*
 };
@@ -170,7 +173,7 @@ gboolean bt_wavetable_remove_wave(const BtWavetable * const self, const BtWave *
  * @index: the index of the wave
  *
  * Search the wavetable for a wave by the supplied index.
- * The wave must have been added previously to this wavetable with #bt_wavetable_add_wave().
+ * The wave must have been added previously to this wavetable with bt_wavetable_add_wave().
  * Unref the wave, when done with it.
  *
  * Returns: #BtWave instance or %NULL if not found
@@ -228,7 +231,7 @@ static gboolean bt_wavetable_persistence_load(const BtPersistence * const persis
 
   for(child_node=node->children;child_node;child_node=child_node->next) {
     if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wave\0",5))) {
-      BtWave * const wave=BT_WAVE(g_object_new(BT_TYPE_WAVE,NULL));
+      BtWave * const wave=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",self->priv->song,NULL));
       if(bt_persistence_load(BT_PERSISTENCE(wave),child_node,NULL)) {
         bt_wavetable_add_wave(self,wave);
       }
