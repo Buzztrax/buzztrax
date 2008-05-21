@@ -113,6 +113,7 @@ static void on_wave_loader_new_pad(GstElement *bin,GstPad *pad,gboolean islast,g
 
 static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   BtWave *self=BT_WAVE(user_data);
+  BtWavelevel *wavelevel;
   GstPad *pad;
   GstCaps *caps;
   gint64 duration;
@@ -154,7 +155,8 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
         
         bytes=read(self->priv->fd,data,buf.st_size);
     
-        bt_wavelevel_new(self->priv->song,self,0,(gulong)length,-1,-1,rate,channels,(gconstpointer)data);
+        wavelevel=bt_wavelevel_new(self->priv->song,self,0,(gulong)length,-1,-1,rate,channels,(gconstpointer)data);
+        g_object_unref(wavelevel);
         /* emit signal so that UI can redraw */
         GST_WARNING("sample loaded (%ld/%ld bytes)",bytes,buf.st_size);
         g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, TRUE);
@@ -173,7 +175,6 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
     GST_WARNING("can't stat() sample");
     g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
   }
-  
   
   gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
   wave_loader_free(self);
@@ -227,9 +228,11 @@ BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const g
   if(!self) {
     goto Error;
   }
-  // try to load wavedata
-  if(!bt_wave_load_from_uri(self)) {
-    goto Error;
+  if(uri) {
+    // try to load wavedata
+    if(!bt_wave_load_from_uri(self)) {
+      goto Error;
+    }
   }
   // add the wave to the wavetable of the song
   g_object_get(G_OBJECT(song),"wavetable",&wavetable,NULL);
@@ -313,7 +316,7 @@ gboolean bt_wave_load_from_uri(const BtWave * const self) {
   GST_WARNING("about to load sample %s",self->priv->uri);
 
   // check if the url is valid
-  if(!gnome_vfs_uri_exists(uri)) goto invalid_uri;
+  if(!uri || !gnome_vfs_uri_exists(uri)) goto invalid_uri;
   
   // create loader pipeline
   self->priv->pipeline=gst_pipeline_new("wave-loader");
@@ -361,7 +364,7 @@ gboolean bt_wave_load_from_uri(const BtWave * const self) {
   // play and wait for EOS 
   gst_element_set_state(self->priv->pipeline,GST_STATE_PLAYING);
 done:
-  gnome_vfs_uri_unref(uri);
+  if(uri) gnome_vfs_uri_unref(uri);
   return(res);
 
   /* Errors */

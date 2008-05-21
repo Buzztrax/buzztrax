@@ -75,7 +75,14 @@ struct _BtMainPageWavesPrivate {
 static GtkVBoxClass *parent_class=NULL;
 
 enum {
-  WAVELEVEL_TABLE_ROOT_NOTE=0,
+  WAVE_TABLE_ID=0,
+  WAVE_TABLE_NAME,
+  WAVE_TABLE_CT
+};
+  
+enum {
+  WAVELEVEL_TABLE_ID=0,
+  WAVELEVEL_TABLE_ROOT_NOTE,
   WAVELEVEL_TABLE_LENGTH,
   WAVELEVEL_TABLE_RATE,
   WAVELEVEL_TABLE_CHANNELS,
@@ -108,16 +115,16 @@ static void waves_list_refresh(const BtMainPageWaves *self) {
 
   GST_INFO("refresh waves list: self=%p, wavetable=%p",self,self->priv->wavetable);
 
-  store=gtk_list_store_new(2,G_TYPE_ULONG,G_TYPE_STRING);
+  store=gtk_list_store_new(WAVE_TABLE_CT,G_TYPE_ULONG,G_TYPE_STRING);
 
   //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
   for(i=0;i<200;i++) {
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,0,i,-1);
+    gtk_list_store_set(store,&tree_iter,WAVE_TABLE_ID,i,-1);
     if((wave=bt_wavetable_get_wave_by_index(self->priv->wavetable,i))) {
       g_object_get(G_OBJECT(wave),"name",&str,NULL);
       GST_INFO("  adding [%3d] \"%s\"",i,str);
-      gtk_list_store_set(store,&tree_iter,1,str,-1);
+      gtk_list_store_set(store,&tree_iter,WAVE_TABLE_NAME,str,-1);
       g_free(str);
     }
   }
@@ -158,7 +165,7 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
 
   GST_INFO("refresh wavelevels list: self=%p, wave=%p",self,wave);
 
-  store=gtk_list_store_new(WAVELEVEL_TABLE_CT,G_TYPE_UINT,G_TYPE_ULONG,G_TYPE_ULONG,G_TYPE_UINT,G_TYPE_LONG,G_TYPE_LONG);
+  store=gtk_list_store_new(WAVELEVEL_TABLE_CT,G_TYPE_ULONG,G_TYPE_UINT,G_TYPE_ULONG,G_TYPE_ULONG,G_TYPE_UINT,G_TYPE_LONG,G_TYPE_LONG);
 
   if(wave) {
     BtWavelevel *wavelevel;
@@ -167,10 +174,11 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
     guint root_note,channels;
     gulong length,rate;
     glong loop_start,loop_end;
+    gulong i=0;
 
     //-- append wavelevels rows
     g_object_get(G_OBJECT(wave),"wavelevels",&list,NULL);
-    for(node=list;node;node=g_list_next(node)) {
+    for(node=list;node;node=g_list_next(node),i++) {
       wavelevel=BT_WAVELEVEL(node->data);
       g_object_get(G_OBJECT(wavelevel),
         "root-note",&tmp,
@@ -183,6 +191,7 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
       root_note=(guint)tmp;
       gtk_list_store_append(store, &tree_iter);
       gtk_list_store_set(store,&tree_iter,
+        WAVELEVEL_TABLE_ID,i,
         WAVELEVEL_TABLE_ROOT_NOTE,root_note,
         WAVELEVEL_TABLE_LENGTH,length,
         WAVELEVEL_TABLE_RATE,rate,
@@ -256,7 +265,7 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
     GList *waves;
     gulong id;
 
-    gtk_tree_model_get(model,&iter,0,&id,-1);
+    gtk_tree_model_get(model,&iter,WAVE_TABLE_ID,&id,-1);
     GST_INFO("selected entry id %d",id);
 
     g_object_get(self->priv->wavetable,"waves",&waves,NULL);
@@ -296,10 +305,11 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->waves_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
     BtWave *wave;
+    BtWavelevel *wavelevel;
     GList *waves, *wavelevels;
     gulong id;
 
-    gtk_tree_model_get(model,&iter,0,&id,-1);
+    gtk_tree_model_get(model,&iter,WAVE_TABLE_ID,&id,-1);
     GST_INFO("selected entry id %d",id);
 
     g_object_get(self->priv->wavetable,"waves",&waves,NULL);
@@ -307,15 +317,15 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
 
     selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->wavelevels_list));
     if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-      gtk_tree_model_get(model,&iter,0,&id,-1);
+      gtk_tree_model_get(model,&iter,WAVELEVEL_TABLE_ID,&id,-1);
       GST_INFO("selected entry id %d",id);
 
       g_object_get(wave,"wavelevels",&wavelevels,NULL);
-
-      g_object_get(G_OBJECT(g_list_nth_data(wavelevels, id)), "length", &length, "channels", &channels, "data", &data, NULL);  
-      
-      bt_waveform_viewer_update(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer),data,channels,length);
-      return;
+      if((wavelevel=g_list_nth_data(wavelevels, id))) {
+        g_object_get(G_OBJECT(wavelevel), "length", &length, "channels", &channels, "data", &data, NULL);  
+        bt_waveform_viewer_update(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer),data,channels,length);
+        return;
+      }
     }
   }
   bt_waveform_viewer_update(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer), NULL, 0, 0);

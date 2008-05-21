@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
     bmx.printConnSection();
     bmx.printSequSection();
     bmx.printBlahSection();
-		bmx.printWavtSection();
+    bmx.printWavtSection();
     bmx.dumpCwavSection();
 }
  

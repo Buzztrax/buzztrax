@@ -1,3 +1,13 @@
+2008-05-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bmxdump/bmxdump.cpp:
+	* design/bmxdump/bmxfile.cpp:
+	  Code cleanups.
+	  
+	* src/lib/core/wave.c:
+	* src/ui/edit/main-page-waves.c:
+	  Add ix for wavelevel-list entries. Cleanups.
+
 2008-05-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
