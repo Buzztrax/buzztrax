@@ -1,5 +1,14 @@
 2008-05-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wavelevel.c:
+	  Free the old wave when we update it.
+
+	* src/ui/edit/main-page-waves.c:
+	  Comments for playing the real data.
+	
+
+2008-05-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/bmxdump/bmxdump.cpp:
 	* design/bmxdump/bmxfile.cpp:
 	  Code cleanups.

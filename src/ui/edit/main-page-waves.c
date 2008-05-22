@@ -440,6 +440,11 @@ static void on_wavetable_toolbar_play_clicked(GtkButton *button, gpointer user_d
      * fakesrc ! capsfilter ! audioresample ! audioconvert ! autoaudiosink
      * just wonder if segments work with fakesrc, probably needs to be in bytes
      */
+#if 0
+    // get current wavelevel
+    // get parameters and build caps
+    // set playing
+#endif
   }
 }
 
