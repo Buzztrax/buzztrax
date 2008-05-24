@@ -187,6 +187,16 @@ static void on_table_size_request(GtkWidget *widget,GtkRequisition *requisition,
 
 //-- helper methods
 
+static gboolean skip_property(GstElement *element,GParamSpec *pspec) {
+  if(pspec->flags&GST_PARAM_CONTROLLABLE) return(TRUE);
+  else if(G_TYPE_IS_CLASSED(pspec->value_type)) return(TRUE);
+  else if(pspec->value_type==G_TYPE_POINTER) return(TRUE);
+  else if(!strncmp(pspec->name,"name\0",5)) return(TRUE);
+  // @todo: skip more baseclass properties
+  // @todo: skip know interface properties (tempo, childbin)
+  return(FALSE);
+}
+
 static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDialog *self) {
   BtMainWindow *main_window;
   GtkWidget *label,*widget1,*widget2,*table,*scrolled_window;
@@ -231,11 +241,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 
     props=number_of_properties;
     for(i=0;i<number_of_properties;i++) {
-      property=properties[i];
-      if(property->flags&GST_PARAM_CONTROLLABLE) props--;
-      else if(GST_IS_OBJECT(machine) && !strncmp(property->name,"name\0",5)) props--;
-      // @todo: skip more baseclass properties
-      // @todo: skip know interface properties (tempo, childbin)
+      if(skip_property(machine,properties[i])) props--;
     }
     GST_INFO("machine has %d preferences",props);
     if(props) {
@@ -252,10 +258,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
       for(i=0,k=0;i<number_of_properties;i++) {
         property=properties[i];
         // skip some properties
-        if(property->flags&GST_PARAM_CONTROLLABLE) continue;
-        if(GST_IS_OBJECT(machine) && !strncmp(property->name,"name\0",5)) continue;
-        // @todo: skip more baseclass properties
-        // @todo: skip know interface properties (tempo, childbin)
+        if(skip_property(machine,property)) continue;
 
         GST_INFO("property %p has name '%s'",property,property->name);
         // get name

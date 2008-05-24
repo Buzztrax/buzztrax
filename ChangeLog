@@ -1,3 +1,11 @@
+2008-05-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/about-dialog.c:
+	  Add artists.
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	  Improve property filtering.
+
 2008-05-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wavelevel.c:

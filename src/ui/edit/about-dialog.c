@@ -65,6 +65,11 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
     "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
     NULL
   };
+  static const gchar *artists[] = {
+    "Marc 'deloun' Broekhuis <deloun@gmail.com>",
+    "Jakub Steiner <jimmac@ximian.com>",
+    NULL
+  };
 
   /* we can get logo via icon name, so this here is just for educational purpose
   GdkPixbuf *logo;
@@ -78,6 +83,7 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
   */
 
   g_object_set(G_OBJECT(self),
+    "artists",artists,
     "authors",authors,
     "comments",_("Music production environment"),
     "copyright",_("Copyright \xc2\xa9 2003-2008 Buzztard developer team"),
