@@ -1,3 +1,10 @@
+2008-05-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wave.c:
+	* src/ui/edit/main-page-waves.c:
+	  Now play loaded samples from memory. Also some safety for stopping
+	  playback when reloading.
+
 2008-05-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/about-dialog.c:

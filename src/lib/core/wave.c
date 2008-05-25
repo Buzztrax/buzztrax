@@ -293,7 +293,7 @@ BtWavelevel *bt_wave_get_level_by_index(const BtWave * const self,const gulong i
   BtWavelevel *wavelevel;
   
   if((wavelevel=g_list_nth_data(self->priv->wavelevels,index))) {
-    g_object_ref(wavelevel);
+    return(g_object_ref(wavelevel));
   }
   return(NULL);
 }
