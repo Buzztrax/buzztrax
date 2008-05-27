@@ -786,6 +786,7 @@ gboolean bt_song_stop(const BtSong * const self) {
   // do not stop if not playing or not preparing
   if(self->priv->is_preparing) {
     self->priv->is_preparing=FALSE;
+    g_object_notify(G_OBJECT(self),"is-playing");
     return(TRUE);
   }
   if(!self->priv->is_playing)  return(TRUE);

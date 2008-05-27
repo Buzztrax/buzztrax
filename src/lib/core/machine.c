@@ -908,15 +908,15 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
     GParamSpec *property;
     GParamSpec **child_properties=NULL;
     //GstController *ctrl;
-    guint number_of_child_properties;
+    guint number_of_child_properties=0;
     guint i,j;
     gboolean skip;
 
-    // check if the elemnt implements the GstChildBin interface
+    // check if the elemnt implements the GstChildBin interface (implies GstChildProxy)
     if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
       GstObject *voice_child;
 
-      g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
+      //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
         child_properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_OBJECT_GET_CLASS(voice_child)),&number_of_child_properties);

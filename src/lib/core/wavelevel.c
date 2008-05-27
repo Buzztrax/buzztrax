@@ -300,6 +300,7 @@ static void bt_wavelevel_init(GTypeInstance * const instance, gpointer const g_c
   BtWavelevel * const self = BT_WAVELEVEL(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVELEVEL, BtWavelevelPrivate);
+  self->priv->root_note = 4 * 16; // C-4
 }
 
 static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {

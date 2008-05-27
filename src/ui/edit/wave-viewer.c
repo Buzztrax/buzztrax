@@ -101,12 +101,24 @@ bt_waveform_viewer_size_allocate (GtkWidget *widget,
 }
 
 static void
+bt_waveform_viewer_finalize (GObject * object)
+{
+  BtWaveformViewer *self = BT_WAVEFORM_VIEWER(object);
+  
+  g_free (self->peaks);
+}
+
+static void
 bt_waveform_viewer_class_init (BtWaveformViewer *klass)
 {
-    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-    widget_class->expose_event = bt_waveform_viewer_expose;
-    widget_class->size_request = bt_waveform_viewer_size_request;
-    widget_class->size_allocate = bt_waveform_viewer_size_allocate;
+  GObjectClass * gobject_class = G_OBJECT_CLASS(klass);
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+
+  widget_class->expose_event = bt_waveform_viewer_expose;
+  widget_class->size_request = bt_waveform_viewer_size_request;
+  widget_class->size_allocate = bt_waveform_viewer_size_allocate;
+  
+  gobject_class->finalize = bt_waveform_viewer_finalize;
 }
 
 static void

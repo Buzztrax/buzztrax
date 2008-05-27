@@ -1,3 +1,18 @@
+2008-05-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/ui/edit/main-page-waves.c:
+	  Comment changes.
+
+	* src/lib/core/song.c:
+	  WHen play times-out, notify so that we untoggle play-button.
+
+	* src/lib/core/wavelevel.c:
+	  Set default root-note.	
+
+	* src/ui/edit/wave-viewer.c:
+	  Fix mem leak.
+
 2008-05-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-waves.c:

@@ -134,7 +134,6 @@ static BtWavelevel *wavelevels_list_get_current(const BtMainPageWaves *self,BtWa
   return(wavelevel);
 }
 
-
 /*
  * waves_list_refresh:
  * @self: the waves page
