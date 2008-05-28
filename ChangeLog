@@ -1,3 +1,8 @@
+2008-05-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Unset GValues when finalizing machines.
+
 2008-05-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

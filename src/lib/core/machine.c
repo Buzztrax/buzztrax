@@ -3120,7 +3120,7 @@ static void bt_machine_dispose(GObject * const object) {
       g_object_unref(song_info);
     }
   }
-
+  
   // unref controllers
   GST_DEBUG("  releasing controllers, global.ref_ct=%d, voices=%d",
     (self->priv->global_controller?(G_OBJECT(self->priv->global_controller))->ref_count:-1),
@@ -3206,12 +3206,23 @@ static void bt_machine_dispose(GObject * const object) {
 
 static void bt_machine_finalize(GObject * const object) {
   const BtMachine * const self = BT_MACHINE(object);
+  guint i;
 
   GST_DEBUG("!!!! self=%p",self);
 
   g_hash_table_destroy(self->priv->properties);
   g_free(self->priv->id);
   g_free(self->priv->plugin_name);
+
+  // unset no_values
+  for(i=0;i<self->priv->global_params;i++) {
+    if(G_IS_VALUE(&self->priv->global_no_val[i]))
+      g_value_unset(&self->priv->global_no_val[i]);
+  }
+  for(i=0;i<self->priv->voice_params;i++) {
+    if(G_IS_VALUE(&self->priv->voice_no_val[i]))
+      g_value_unset(&self->priv->voice_no_val[i]);
+  }
 
   g_free(self->priv->voice_no_val);
   g_free(self->priv->global_no_val);
