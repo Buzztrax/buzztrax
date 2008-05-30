@@ -1,5 +1,10 @@
 2008-05-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbtcore/core.h:
+	  Fix the build. Spotted by Marc Broekhuis.
+
+2008-05-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/sink-bin.c:
 	  Experiments.

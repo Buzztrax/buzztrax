@@ -38,7 +38,6 @@
 #include <libgstbuzztard/musicenums.h>
 #include <libgstbuzztard/childbin.h>
 #include <libgstbuzztard/propertymeta.h>
-#include <libgstbuzztard/sampler.h>
 #include <libgstbuzztard/tempo.h>
 
 //-- libbtcore
