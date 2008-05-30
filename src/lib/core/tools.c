@@ -184,7 +184,7 @@ GList *bt_gst_check_core_elements(void) {
 GstController *bt_gst_object_activate_controller(GObject *param_parent,gchar *param_name,gboolean is_trigger) {
   GstController *ctrl;
 
-  GST_INFO("activate controller for %s:%s", GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"-",param_name);
+  GST_DEBUG("activate controller for %s:%s", GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"-",param_name);
 
   if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
 #ifdef HAVE_GST_0_10_14
@@ -212,7 +212,7 @@ void bt_gst_object_deactivate_controller(GObject *param_parent,gchar *param_name
   GstController *ctrl;
 #endif
 
-  GST_INFO("deactivate controller for %s:%s", GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"-",param_name);
+  GST_DEBUG("deactivate controller for %s:%s", GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"-",param_name);
 
 #ifdef HAVE_GST_0_10_14
   if((ctrl=gst_object_get_controller(param_parent))) {

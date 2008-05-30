@@ -35,7 +35,7 @@
 #include "core_private.h"
 
 // if a state change not happens within this time, cancel playback
-#define BT_SONG_STATE_CHANGE_TIMEOUT (5*1000)
+#define BT_SONG_STATE_CHANGE_TIMEOUT (10*1000)
 
 //-- signal ids
 
@@ -423,7 +423,7 @@ static gboolean on_song_paused_timeout(gpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
   if(self->priv->is_preparing) {
-    GST_INFO("->PAUSED timeout occured");
+    GST_WARNING("->PAUSED timeout occured");
     bt_song_write_to_lowlevel_dot_file(self);
     bt_song_stop(self);
   }
@@ -435,7 +435,7 @@ static gboolean on_song_playback_timeout(gpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
   if(!self->priv->is_playing) {
-    GST_INFO("->PLAYING timeout occured");
+    GST_WARNING("->PLAYING timeout occured");
     bt_song_write_to_lowlevel_dot_file(self);
     bt_song_stop(self);
   }
@@ -777,23 +777,26 @@ gboolean bt_song_stop(const BtSong * const self) {
     return(TRUE);
   }
 
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to ready state");
-    return(FALSE);
+  }
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to NULL state");
   }
   GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
 
   // do not stop if not playing or not preparing
   if(self->priv->is_preparing) {
     self->priv->is_preparing=FALSE;
-    g_object_notify(G_OBJECT(self),"is-playing");
-    return(TRUE);
+    goto done;
   }
-  if(!self->priv->is_playing)  return(TRUE);
+  if(!self->priv->is_playing)
+    goto done;
 
   self->priv->is_playing=FALSE;
-  g_object_notify(G_OBJECT(self),"is-playing");
 
+done:
+  g_object_notify(G_OBJECT(self),"is-playing");
   bt_song_idle_start(self);
 
   return(TRUE);
@@ -1218,7 +1221,10 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
   }
   g_free(song_name);
 #else
-  GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(self->priv->bin,GST_DEBUG_GRAPH_SHOW_ALL,PACKAGE_NAME);
+  GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(self->priv->bin,
+    /*GST_DEBUG_GRAPH_SHOW_ALL,*/
+    GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS|GST_DEBUG_GRAPH_SHOW_STATES,
+    PACKAGE_NAME);
 #endif
 }
 

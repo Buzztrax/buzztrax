@@ -353,8 +353,13 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
     GST_WARNING("Can't instantiate '%s' element",plugin_name);goto Error;
   }
   if(GST_IS_BASE_SINK(element)) {
-    // enable syncing to timestamps
-    gst_base_sink_set_sync(GST_BASE_SINK(element),TRUE);
+    // enable syncing to timestamps and tell that there is no need to go async to paused
+//#if HAVE_GST_0_10_15
+//    g_object_set(element,"sync",TRUE,"async",FALSE,NULL);
+//#else
+    g_object_set(element,"sync",TRUE,NULL);
+//#endif
+    //gst_base_sink_set_sync(GST_BASE_SINK(element),TRUE);
     bt_sink_bin_configure_latency(self,element);
   }
   list=g_list_append(list,element);
@@ -591,7 +596,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
 //-- event handler
 
 static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
-  // @todo: what wrong here?
+  // @todo: what went wrong here?
   if(!user_data) return;
 
   const BtSinkBin * const self = BT_SINK_BIN(user_data);

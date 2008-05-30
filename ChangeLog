@@ -1,3 +1,15 @@
+2008-05-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/sink-bin.c:
+	  Experiments.
+  
+	* src/lib/core/song.c:
+	  Try to improve playback failure handling.
+  
+	* src/lib/core/tools.c:
+	  Downgrade logs.
+
 2008-05-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
@@ -85,6 +97,11 @@
 	* src/ui/edit/main-pages.c:
 	* src/ui/edit/main-statusbar.c:
 	  Make event boxes invisible, looks nicer.
+
+2008-05-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Keep LIBS var tidy.
 
 2008-05-02  Stefan Kost  <ensonic@users.sf.net>
 
