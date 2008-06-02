@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzztard 0.2\n"
 "Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2008-03-11 15:58+0200\n"
+"POT-Creation-Date: 2008-04-01 22:03+0300\n"
 "PO-Revision-Date: 2007-05-02 21:55+0300\n"
 "Last-Translator: Stefan Kost <ensonic@users.sf.net>\n"
 "Language-Team: german <de@li.org>\n"
@@ -47,12 +47,12 @@ msgstr "solo"
 msgid "bypass"
 msgstr "durchschleifen"
 
-#: ../src/lib/core/song-io-native.c:123
+#: ../src/lib/core/song-io-native.c:135
 #, c-format
 msgid "Loading file '%s'"
 msgstr "Datei '%s' wird geladen"
 
-#: ../src/lib/core/song-io-native.c:182
+#: ../src/lib/core/song-io-native.c:194
 #, c-format
 msgid "Saving file '%s'"
 msgstr "Datei '%s' wird gespeichert"
@@ -61,15 +61,15 @@ msgstr "Datei '%s' wird gespeichert"
 msgid "untitled song"
 msgstr "unbennanter Song"
 
-#: ../src/lib/ic/ic.c:116
+#: ../src/lib/ic/ic.c:117
 msgid "Print the buzztard interaction controller version"
 msgstr "Die Buzztard Interaction Controller Version ausgeben"
 
-#: ../src/lib/ic/ic.c:120
+#: ../src/lib/ic/ic.c:121
 msgid "Buzztard interaction controller options"
 msgstr "Buzztard Interaction Controller Optionen"
 
-#: ../src/lib/ic/ic.c:120
+#: ../src/lib/ic/ic.c:121
 msgid "Show buzztard interaction controller options"
 msgstr "Buzztard Interaction Controller Optionen anzeigen"
 
@@ -235,41 +235,41 @@ msgstr "Gerät entfernen ..."
 msgid "There is no undo for this."
 msgstr "Diese Änderung kann nicht zurückgenommen werden."
 
-#: ../src/ui/edit/machine-canvas-item.c:416
+#: ../src/ui/edit/machine-canvas-item.c:414
 msgid "Mute"
 msgstr "Stumm"
 
-#: ../src/ui/edit/machine-canvas-item.c:421
+#: ../src/ui/edit/machine-canvas-item.c:419
 msgid "Solo"
 msgstr "Solo"
 
-#: ../src/ui/edit/machine-canvas-item.c:427
+#: ../src/ui/edit/machine-canvas-item.c:425
 msgid "Bypass"
 msgstr "Durchschleifen"
 
-#: ../src/ui/edit/machine-canvas-item.c:459
+#: ../src/ui/edit/machine-canvas-item.c:457
 msgid "Rename ..."
 msgstr "Umbenennen ..."
 
-#: ../src/ui/edit/machine-menu.c:174
+#: ../src/ui/edit/machine-menu.c:193
 msgid "add menu"
 msgstr "Hinzufügen menü"
 
 #. generators
-#: ../src/ui/edit/machine-menu.c:177
+#: ../src/ui/edit/machine-menu.c:196
 msgid "Generators"
 msgstr "Generatoren"
 
-#: ../src/ui/edit/machine-menu.c:184
+#: ../src/ui/edit/machine-menu.c:203
 msgid "generators menu"
 msgstr "Generatoren Menü"
 
 #. effects
-#: ../src/ui/edit/machine-menu.c:190
+#: ../src/ui/edit/machine-menu.c:209
 msgid "Effects"
 msgstr "Effekte"
 
-#: ../src/ui/edit/machine-menu.c:197
+#: ../src/ui/edit/machine-menu.c:216
 msgid "effects menu"
 msgstr "Effekt Menü"
 
@@ -611,76 +611,76 @@ msgid "free text info"
 msgstr "Freitextinformation"
 
 #. menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
-#: ../src/ui/edit/main-page-machines.c:829
+#: ../src/ui/edit/main-page-machines.c:853
 msgid "Add machine"
 msgstr "Gerät hinzufügen"
 
-#: ../src/ui/edit/main-page-machines.c:843
+#: ../src/ui/edit/main-page-machines.c:867
 msgid "Unmute all machines"
 msgstr "Stummschaltung für alle Machinen aufheben"
 
-#: ../src/ui/edit/main-page-machines.c:855
+#: ../src/ui/edit/main-page-machines.c:879
 msgid "Off"
 msgstr "Aus"
 
-#: ../src/ui/edit/main-page-machines.c:862
+#: ../src/ui/edit/main-page-machines.c:886
 msgid "Low"
 msgstr "Niedrig"
 
-#: ../src/ui/edit/main-page-machines.c:869
+#: ../src/ui/edit/main-page-machines.c:893
 msgid "Medium"
 msgstr "Mittel"
 
-#: ../src/ui/edit/main-page-machines.c:876
+#: ../src/ui/edit/main-page-machines.c:900
 msgid "High"
 msgstr "Hoch"
 
-#: ../src/ui/edit/main-page-machines.c:895
+#: ../src/ui/edit/main-page-machines.c:919
 msgid "machine view"
 msgstr "Geräteansicht"
 
-#: ../src/ui/edit/main-page-machines.c:913
+#: ../src/ui/edit/main-page-machines.c:937
 msgid "machine view tool bar"
 msgstr "Maschienenansichts-Werkzeugleiste"
 
-#: ../src/ui/edit/main-page-machines.c:916
+#: ../src/ui/edit/main-page-machines.c:940
 msgid "Zoom Fit"
 msgstr "Einpassen"
 
-#: ../src/ui/edit/main-page-machines.c:917
+#: ../src/ui/edit/main-page-machines.c:941
 msgid "Zoom in/out so that everything is visible"
 msgstr "Vergrößerung so anpassen, das Alles sichtbar ist"
 
-#: ../src/ui/edit/main-page-machines.c:922
+#: ../src/ui/edit/main-page-machines.c:946
 msgid "Zoom In"
 msgstr "Vergrößern"
 
-#: ../src/ui/edit/main-page-machines.c:924
+#: ../src/ui/edit/main-page-machines.c:948
 msgid "Zoom in for more details"
 msgstr "Für mehr Details vergrößern"
 
-#: ../src/ui/edit/main-page-machines.c:929
+#: ../src/ui/edit/main-page-machines.c:953
 msgid "Zoom Out"
 msgstr "Verkleinern"
 
-#: ../src/ui/edit/main-page-machines.c:931
+#: ../src/ui/edit/main-page-machines.c:955
 msgid "Zoom out for better overview"
 msgstr "Für eine bessere Übersicht verkleinern"
 
-#: ../src/ui/edit/main-page-machines.c:939
+#: ../src/ui/edit/main-page-machines.c:963
 msgid "Grid"
 msgstr "Raster"
 
-#: ../src/ui/edit/main-page-machines.c:941
+#: ../src/ui/edit/main-page-machines.c:965
 msgid "Show background grid"
 msgstr "Raster anzeigen"
 
-#: ../src/ui/edit/main-page-machines.c:942 ../src/ui/edit/main-toolbar.c:574
+#: ../src/ui/edit/main-page-machines.c:966 ../src/ui/edit/main-toolbar.c:574
 msgid "Stop playback of this song"
 msgstr "Abspielen dieses Songs beenden"
 
 #: ../src/ui/edit/main-page-patterns.c:1702
-#: ../src/ui/edit/main-page-sequence.c:788
+#: ../src/ui/edit/main-page-sequence.c:790
 msgid "Pos."
 msgstr "Pos."
 
@@ -756,82 +756,82 @@ msgstr "Fragment entfernen ..."
 msgid "Copy pattern ..."
 msgstr "Fragment kopieren ..."
 
-#: ../src/ui/edit/main-page-sequence.c:793
+#: ../src/ui/edit/main-page-sequence.c:795
 msgid "Ticks"
 msgstr "Ticks"
 
-#: ../src/ui/edit/main-page-sequence.c:794
+#: ../src/ui/edit/main-page-sequence.c:796
 msgid "Time"
 msgstr "Zeit"
 
-#: ../src/ui/edit/main-page-sequence.c:901
-#: ../src/ui/edit/main-page-sequence.c:932
+#: ../src/ui/edit/main-page-sequence.c:903
+#: ../src/ui/edit/main-page-sequence.c:934
 msgid "Labels"
 msgstr "Labels"
 
-#: ../src/ui/edit/main-page-sequence.c:1291
+#: ../src/ui/edit/main-page-sequence.c:1293
 msgid "  clear"
 msgstr "  löschen"
 
-#: ../src/ui/edit/main-page-sequence.c:1293
+#: ../src/ui/edit/main-page-sequence.c:1295
 msgid "  mute"
 msgstr "  stumm"
 
-#: ../src/ui/edit/main-page-sequence.c:1295
+#: ../src/ui/edit/main-page-sequence.c:1297
 msgid "  break"
 msgstr "  abbrechen"
 
-#: ../src/ui/edit/main-page-sequence.c:1298
+#: ../src/ui/edit/main-page-sequence.c:1300
 msgid "  thru"
 msgstr "  durchleiten"
 
-#: ../src/ui/edit/main-page-sequence.c:1304
+#: ../src/ui/edit/main-page-sequence.c:1306
 msgid "  solo"
 msgstr "  solo"
 
-#: ../src/ui/edit/main-page-sequence.c:2528
+#: ../src/ui/edit/main-page-sequence.c:2530
 msgid "sequence view"
 msgstr "Sequenzansicht"
 
-#: ../src/ui/edit/main-page-sequence.c:2532
+#: ../src/ui/edit/main-page-sequence.c:2534
 msgid "sequence view tool bar"
 msgstr "Sequenzansicht Werkzeugleiste"
 
-#: ../src/ui/edit/main-page-sequence.c:2541
+#: ../src/ui/edit/main-page-sequence.c:2543
 msgid "Show every n-th line"
 msgstr "Jede n-te Zeile anzeigen"
 
-#: ../src/ui/edit/main-page-sequence.c:2546
-#: ../src/ui/edit/main-page-sequence.c:2550
+#: ../src/ui/edit/main-page-sequence.c:2548
+#: ../src/ui/edit/main-page-sequence.c:2552
 msgid "Steps"
 msgstr "Unterteilungen"
 
-#: ../src/ui/edit/main-page-sequence.c:2572
+#: ../src/ui/edit/main-page-sequence.c:2574
 msgid "Add track"
 msgstr "Spur hinzufügen"
 
 #. @idea should that be in the context menu of table headers?
-#: ../src/ui/edit/main-page-sequence.c:2579
+#: ../src/ui/edit/main-page-sequence.c:2581
 msgid "Remove track"
 msgstr "Spur entfernen"
 
-#: ../src/ui/edit/main-page-sequence.c:2593
+#: ../src/ui/edit/main-page-sequence.c:2595
 msgid "Move track left"
 msgstr "Spur nach links verschieben"
 
-#: ../src/ui/edit/main-page-sequence.c:2602
+#: ../src/ui/edit/main-page-sequence.c:2604
 msgid "Move track right"
 msgstr "Spur nach recht verschieben"
 
-#: ../src/ui/edit/main-page-sequence.c:2653
+#: ../src/ui/edit/main-page-sequence.c:2655
 msgid "Browse to labels in the sequence"
 msgstr "Markierungen in der Sequenz anspringen"
 
-#: ../src/ui/edit/main-page-sequence.c:2731
+#: ../src/ui/edit/main-page-sequence.c:2733
 msgid "Key"
 msgstr "Taste"
 
-#: ../src/ui/edit/main-page-sequence.c:2745
+#: ../src/ui/edit/main-page-sequence.c:2747
 msgid "Patterns"
 msgstr "Fragmente"
 
@@ -1337,11 +1337,11 @@ msgstr "Verbinungsanalyse"
 msgid "%s -> %s analysis"
 msgstr "%s -> %s Analyse"
 
-#: ../src/ui/edit/wire-canvas-item.c:804
+#: ../src/ui/edit/wire-canvas-item.c:801
 msgid "Disconnect"
 msgstr "Trennen"
 
-#: ../src/ui/edit/wire-canvas-item.c:814
+#: ../src/ui/edit/wire-canvas-item.c:811
 msgid "Signal Analysis ..."
 msgstr "Signal Analyse ..."
 

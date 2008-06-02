@@ -1,3 +1,36 @@
+2008-06-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* pixmaps/Makefile.am:
+	* pixmaps/grid.png:
+	* pixmaps/menu_processor_machine.png:
+	* pixmaps/menu_sink_machine.png:
+	* pixmaps/menu_source_machine.png:
+	* pixmaps/tab_info.png:
+	* pixmaps/tab_machines.png:
+	* pixmaps/tab_patterns.png:
+	* pixmaps/tab_sequence.png:
+	* pixmaps/tab_waves.png:
+	* pixmaps/tango/22x22/buzztard.png:
+	* pixmaps/tango/scalable/buzztard.svg:
+	* pixmaps/tango/scalable/effect-bypass.svg:
+	* pixmaps/tango/scalable/effect-mute.svg:
+	* pixmaps/tango/scalable/effect.svg:
+	* pixmaps/tango/scalable/generator-mute.svg:
+	* pixmaps/tango/scalable/generator.svg:
+	* pixmaps/tango/scalable/master-mute.svg:
+	* pixmaps/tango/scalable/master.svg:
+	* po/de.po:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/ui-ressources.c:
+	  Better icons theme support. Add first round of Delouns great Tango
+	  treatment. Also try to adjust other UI color to that (need some
+	  tweaking).
+
 2008-05-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/core.h:

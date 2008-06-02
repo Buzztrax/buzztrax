@@ -470,6 +470,8 @@ AC_CONFIG_FILES(Makefile \
       docs/reference/bt-edit/Makefile \
       docs/reference/bt-ic/Makefile \
   pixmaps/Makefile \
+    pixmaps/hicolor/Makefile \
+    pixmaps/tango/Makefile \
   po/Makefile.in \
   src/Makefile \
     src/lib/Makefile \

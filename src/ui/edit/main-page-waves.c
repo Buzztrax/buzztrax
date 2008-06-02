@@ -421,7 +421,7 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
     g_object_unref(wave);
   }
   else {
-    GST_WARNING("no current wave");
+    GST_INFO("no current wave");
   }
   if(!drawn) {
     bt_waveform_viewer_update(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer), NULL, 0, 0);

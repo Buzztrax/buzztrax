@@ -58,18 +58,37 @@ static gpointer singleton=NULL;
 
 //-- helper methods
 
-#define MAKE_COLOR(ix,r,g,b) \
+#define MAKE_COLOR_FROM_FLOATS(ix,r,g,b) \
   self->priv->colors[ix].red=  (guint16)(r*65535); \
   self->priv->colors[ix].green=(guint16)(g*65535); \
   self->priv->colors[ix].blue= (guint16)(b*65535)
 
+#define MAKE_COLOR_FROM_HEX(ix,r,g,b) \
+  self->priv->colors[ix].red=  (guint16)((r*256)); \
+  self->priv->colors[ix].green=(guint16)((g*256)); \
+  self->priv->colors[ix].blue= (guint16)((b*256))
+
+#define MAKE_COLOR_FROM_HEX_MIX(ix,r1,g1,b1,r2,g2,b2) \
+  self->priv->colors[ix].red=  (guint16)((r2+((r1-r2)>>1))*256); \
+  self->priv->colors[ix].green=(guint16)((g2+((g1-g2)>>1))*256); \
+  self->priv->colors[ix].blue= (guint16)((b2+((b1-b2)>>1))*256)
+
 static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   GdkColormap *colormap;
+  GtkSettings *settings;
   gboolean color_res[BT_UI_RES_COLOR_COUNT];
   gulong res;
+  gchar *icon_theme_name;
+  
+  settings=gtk_settings_get_default();
+  /* get the theme name - we need different machine colors for tango
+   * http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
+   * http://tango.freedesktop.org/static/cvs/tango-art-tools/palettes/Tango-Palette.gpl
+   */
+  g_object_get (settings, "gtk-icon-theme-name", &icon_theme_name, NULL);
+  GST_INFO("Icon Theme: %s",icon_theme_name);
   
   /* @todo: can we get some colors from the theme ?
-   *
    * gtk_widget_style_get(widget,
    *   "cursor-color",&self->priv->colors[ix],
    *   "secondary-cursor-color",&self->priv->colors[ix],
@@ -77,40 +96,72 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
    */
   
   // cursor
-  MAKE_COLOR(BT_UI_RES_COLOR_CURSOR,                    0.85,0.85,0.20);
+  MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_CURSOR,                    0.85,0.85,0.20);
   
   // selection background
-  MAKE_COLOR(BT_UI_RES_COLOR_SELECTION1,                1.00,1.00,0.60);
-  MAKE_COLOR(BT_UI_RES_COLOR_SELECTION2,                0.95,0.95,0.55);
+  MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SELECTION1,                1.00,1.00,0.60);
+  MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SELECTION2,                0.95,0.95,0.55);
   
   // tree view lines
-  MAKE_COLOR(BT_UI_RES_COLOR_PLAYLINE,                  0.00,0.00,1.00);
-  MAKE_COLOR(BT_UI_RES_COLOR_LOOPLINE,                  1.00,0.75,0.00);
-  MAKE_COLOR(BT_UI_RES_COLOR_ENDLINE,                   1.00,0.30,0.20);
+  MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_PLAYLINE,                  0.00,0.00,1.00);
+  MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_LOOPLINE,                  1.00,0.75,0.00);
+  MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_ENDLINE,                   1.00,0.30,0.20);
   
   // source machine
-  MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,       1.00,0.60,0.60);
-  MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,    1.00,0.90,0.90);
-  MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,    1.00,0.80,0.80);
-  MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1,      0.60,0.40,0.40);
-  MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2,      0.50,0.20,0.20);
+  if(!strcasecmp(icon_theme_name,"tango")) {
+    /* #fcaf3e / #f57900 / #ce5c00 */
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,          0xf5,0x79,0x00);
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,       0xfc,0xaf,0x3e);
+    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,   0xfc,0xaf,0x3e,0xf5,0x79,0x00);
+    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1,     0xce,0x5c,0x00,0xf5,0x79,0x00);
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2,         0xce,0x5c,0x00);
+  }
+  else {
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,       1.00,0.60,0.60);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,    1.00,0.90,0.90);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,    1.00,0.80,0.80);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1,      0.60,0.40,0.40);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2,      0.50,0.20,0.20);
+  }
   
   // processor machine
-  MAKE_COLOR(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE,    0.60,1.00,0.60);
-  MAKE_COLOR(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1, 0.90,1.00,0.90);
-  MAKE_COLOR(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2, 0.80,1.00,0.80);
-  MAKE_COLOR(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1,   0.40,0.60,0.40);
-  MAKE_COLOR(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2,   0.20,0.50,0.20);
+  if(!strcasecmp(icon_theme_name,"tango")) {
+    /* #8ae234 / #73d216 / #4e9a06 */
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE,       0x73,0xd2,0x16);
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1,    0x8a,0xe2,0x34);
+    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2,0x8a,0xe2,0x34,0x73,0xd2,0x16);
+    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1,  0x4e,0x9a,0x06,0x73,0xd2,0x16);
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2,      0x4e,0x9a,0x06);
+  }
+  else {
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE,    0.60,1.00,0.60);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1, 0.90,1.00,0.90);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2, 0.80,1.00,0.80);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1,   0.40,0.60,0.40);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2,   0.20,0.50,0.20);
+  }
 
   // sink machine
-  MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_BASE,         0.60,0.60,1.00);
-  MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,      0.90,0.90,1.00);
-  MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,      0.80,0.80,1.00);
-  MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        0.40,0.40,0.60);
-  MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        0.20,0.20,0.50);
+  if(!strcasecmp(icon_theme_name,"tango")) {
+    /* #729fcf / #3465a4 / #204a87 */
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SINK_MACHINE_BASE,            0x34,0x65,0xa4);
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,         0x72,0x9f,0xcf);
+    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,     0x72,0x9f,0xcf,0x34,0x65,0xa4);
+    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SINK_MACHINE_DARK1,       0x20,0x4a,0x87,0x34,0x65,0xa4);
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SINK_MACHINE_DARK2,           0x20,0x4a,0x87);
+  }
+  else {
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SINK_MACHINE_BASE,         0.60,0.60,1.00);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,      0.90,0.90,1.00);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,      0.80,0.80,1.00);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        0.40,0.40,0.60);
+    MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        0.20,0.20,0.50);
+  }
   
   // analyzer window
-  MAKE_COLOR(BT_UI_RES_COLOR_ANALYZER_PEAK,             1.00,0.75,0.00);
+  MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_ANALYZER_PEAK,             1.00,0.75,0.00);
+  
+  g_free(icon_theme_name);
    
   // now allocate colors
   colormap=gdk_colormap_get_system();
@@ -128,9 +179,14 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
 }
 
 static gboolean bt_ui_ressources_init_icons(BtUIRessources *self) {
+  /*
   self->priv->source_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_source_machine.png");
   self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_processor_machine.png");
   self->priv->sink_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_sink_machine.png");
+  */
+  self->priv->source_machine_pixbuf=gdk_pixbuf_new_from_theme("menu_source_machine",GTK_ICON_SIZE_MENU);
+  self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_theme("menu_processor_machine",GTK_ICON_SIZE_MENU);
+  self->priv->sink_machine_pixbuf=gdk_pixbuf_new_from_theme("menu_sink_machine",GTK_ICON_SIZE_MENU);
 
   return(TRUE);
 }

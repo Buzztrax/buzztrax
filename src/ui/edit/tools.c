@@ -143,7 +143,6 @@ GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size) {
     return result;
   }
 }
-/* GtkWidget *gtk_image_new_from_icon_name(const gchar *icon_name,GtkIconSize size); */
 
 
 // @todo use GtkMessageDialog for the next two

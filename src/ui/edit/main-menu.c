@@ -624,7 +624,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to machine view"));
   gtk_widget_set_name(subitem,_("Machine view"));
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_machines.png"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_machines",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/MachineView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/MachineView", GDK_F3, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -632,7 +632,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to pattern view"));
   gtk_widget_set_name(subitem,_("Pattern view"));
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_patterns.png"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_patterns",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/PatternView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/PatternView", GDK_F2, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -640,7 +640,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to sequence view"));
   gtk_widget_set_name(subitem,_("Sequence view"));
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_sequence.png"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_sequence",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/SequenceView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/SequenceView", GDK_F4, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -648,7 +648,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to wave table view"));
   gtk_widget_set_name(subitem,_("Wave table view"));
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_waves.png"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_waves",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/WaveteableView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/WaveteableView", GDK_F9, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -656,7 +656,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to song information"));
   gtk_widget_set_name(subitem,_("Song information"));
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_info.png"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_info",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/InfoView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/InfoView", GDK_F10, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);

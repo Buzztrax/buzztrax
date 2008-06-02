@@ -971,7 +971,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
 
   // grid density toolbar icon
-  image=gtk_image_new_from_filename("grid.png");
+  image=gtk_image_new_from_icon_name("menu_grid",GTK_ICON_SIZE_MENU);
   tool_item=GTK_WIDGET(gtk_menu_tool_button_new(image,_("Grid")));
   gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(tool_item),GTK_WIDGET(self->priv->grid_density_menu));
   gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(tool_item),_("Show background grid"));
