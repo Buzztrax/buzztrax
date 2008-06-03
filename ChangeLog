@@ -1,3 +1,9 @@
+2008-06-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/hicolor/Makefile.am:
+	* pixmaps/tango/Makefile.am:
+	  Add missing makefiles.
+
 2008-06-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
