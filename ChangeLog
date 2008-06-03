@@ -1,5 +1,13 @@
 2008-06-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* pixmaps/tango/16x16/menu_processor_machine.png:
+	* pixmaps/tango/16x16/menu_sink_machine.png:
+	* pixmaps/tango/16x16/menu_source_machine.png:
+	* pixmaps/tango/Makefile.am:
+	  More icons.
+
+2008-06-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* pixmaps/hicolor/Makefile.am:
 	* pixmaps/tango/Makefile.am:
 	  Add missing makefiles.
