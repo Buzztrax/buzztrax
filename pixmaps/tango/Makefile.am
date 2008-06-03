@@ -7,7 +7,7 @@ icon16dir = $(iconthemedir)/16x16/apps
 icon16_DATA = 16x16/buzztard.png \
 	16x16/menu_processor_machine.png \
 	16x16/menu_sink_machine.png \
-	16x16/menu_source_machine.png
+	16x16/menu_source_machine.png \
 	16x16/tab_machines.png \
 	16x16/tab_patterns.png \
 	16x16/tab_sequence.png \

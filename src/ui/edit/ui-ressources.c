@@ -109,10 +109,16 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   
   // source machine
   if(!strcasecmp(icon_theme_name,"tango")) {
-    /* #fcaf3e / #f57900 / #ce5c00 */
+    /* (#ffd699) #fcaf3e / #f57900 / #ce5c00
+     * 252 175  62	Orange 1
+     * 245 121   0	Orange 2
+     * 206  92   0	Orange 3
+     */
     MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,          0xf5,0x79,0x00);
-    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,       0xfc,0xaf,0x3e);
-    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,   0xfc,0xaf,0x3e,0xf5,0x79,0x00);
+    //MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,       0xfc,0xaf,0x3e);
+    //MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,   0xfc,0xaf,0x3e,0xf5,0x79,0x00);
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,       0xff,0xd6,0x99);
+    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,   0xff,0xd6,0x99,0xf5,0x79,0x00);
     MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1,     0xce,0x5c,0x00,0xf5,0x79,0x00);
     MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2,         0xce,0x5c,0x00);
   }
@@ -126,10 +132,16 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   
   // processor machine
   if(!strcasecmp(icon_theme_name,"tango")) {
-    /* #8ae234 / #73d216 / #4e9a06 */
+    /* (#cbff99) #8ae234 / #73d216 / #4e9a06
+     * 138 226  52	Chameleon 1
+     * 115 210  22	Chameleon 2
+     *  78 154   6	Chameleon 3
+     */
     MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE,       0x73,0xd2,0x16);
-    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1,    0x8a,0xe2,0x34);
-    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2,0x8a,0xe2,0x34,0x73,0xd2,0x16);
+    //MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1,    0x8a,0xe2,0x34);
+    //MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2,0x8a,0xe2,0x34,0x73,0xd2,0x16);
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1,    0xcb,0xff,0x99);
+    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2,0xcb,0xff,0x99,0x73,0xd2,0x16);
     MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1,  0x4e,0x9a,0x06,0x73,0xd2,0x16);
     MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2,      0x4e,0x9a,0x06);
   }
@@ -143,10 +155,16 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
 
   // sink machine
   if(!strcasecmp(icon_theme_name,"tango")) {
-    /* #729fcf / #3465a4 / #204a87 */
+    /* (#99caff) #729fcf / #3465a4 / #204a87
+     * 114 159 207	Sky Blue 1 [62 58 43]
+     *  52 101 164	Sky Blue 2
+     *  32  74 135	Sky Blue 3 [20 27 29]
+     */
     MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SINK_MACHINE_BASE,            0x34,0x65,0xa4);
-    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,         0x72,0x9f,0xcf);
-    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,     0x72,0x9f,0xcf,0x34,0x65,0xa4);
+    //MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,         0x72,0x9f,0xcf);
+    //MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,     0x72,0x9f,0xcf,0x34,0x65,0xa4);
+    MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,         0x99,0xca,0xff);
+    MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,     0x99,0xca,0xff,0x34,0x65,0xa4);
     MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SINK_MACHINE_DARK1,       0x20,0x4a,0x87,0x34,0x65,0xa4);
     MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SINK_MACHINE_DARK2,           0x20,0x4a,0x87);
   }
