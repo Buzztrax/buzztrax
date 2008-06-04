@@ -1,3 +1,11 @@
+2008-06-04  Stefan Kost  <ensonic@users.sf.net>
+
+	patch by: Marc Broekhuis <deloun@gmail.com>
+
+	* src/ui/edit/bt-edit.desktop.in.in:
+	  Improved desktop file.
+	  
+
 2008-06-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* pixmaps/hicolor/16x16/menu_processor_machine.png:
@@ -6,6 +14,7 @@
 	* pixmaps/hicolor/Makefile.am:
 	* pixmaps/tango/Makefile.am:
 	* src/ui/edit/ui-ressources.c:
+	  Update icons and colors.
 
 2008-06-03  Stefan Kost  <ensonic@users.sf.net>
 
