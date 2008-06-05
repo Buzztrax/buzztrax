@@ -1,3 +1,13 @@
+2008-06-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/tango/16x16/buzztard.png:
+	* pixmaps/tango/16x16/tab_machines.png:
+	* pixmaps/tango/22x22/buzztard.png:
+	* pixmaps/tango/24x24/buzztard.png:
+	* pixmaps/tango/32x32/buzztard.png:
+	* pixmaps/tango/scalable/buzztard.svg:
+	  Update icons.
+
 2008-06-04  Stefan Kost  <ensonic@users.sf.net>
 
 	patch by: Marc Broekhuis <deloun@gmail.com>
