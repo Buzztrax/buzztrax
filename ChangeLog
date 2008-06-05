@@ -1,5 +1,41 @@
 2008-06-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Write news.
+
+	* configure.ac:
+	* pixmaps/Makefile.am:
+	* pixmaps/gnome/Makefile.am:
+	* pixmaps/tango/16x16/buzztard.png:
+	* pixmaps/tango/16x16/menu_processor_machine.png:
+	* pixmaps/tango/16x16/menu_sink_machine.png:
+	* pixmaps/tango/16x16/menu_source_machine.png:
+	* pixmaps/tango/16x16/tab_machines.png:
+	* pixmaps/tango/16x16/tab_patterns.png:
+	* pixmaps/tango/16x16/tab_sequence.png:
+	* pixmaps/tango/16x16/tab_waves.png:
+	* pixmaps/tango/22x22/buzztard.png:
+	* pixmaps/tango/24x24/buzztard.png:
+	* pixmaps/tango/24x24/menu_grid.png:
+	* pixmaps/tango/24x24/menu_processor_machine.png:
+	* pixmaps/tango/24x24/menu_sink_machine.png:
+	* pixmaps/tango/24x24/menu_source_machine.png:
+	* pixmaps/tango/32x32/buzztard.png:
+	* pixmaps/tango/48x48/buzztard.png:
+	* pixmaps/tango/Makefile.am:
+	* pixmaps/tango/scalable/buzztard.svg:
+	* pixmaps/tango/scalable/effect-bypass.svg:
+	* pixmaps/tango/scalable/effect-mute.svg:
+	* pixmaps/tango/scalable/effect.svg:
+	* pixmaps/tango/scalable/generator-mute.svg:
+	* pixmaps/tango/scalable/generator.svg:
+	* pixmaps/tango/scalable/master-mute.svg:
+	* pixmaps/tango/scalable/master.svg:
+	* src/ui/edit/ui-ressources.c:
+	  Install icons as gnome and not tango.
+
+2008-06-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* pixmaps/tango/16x16/buzztard.png:
 	* pixmaps/tango/16x16/tab_machines.png:
 	* pixmaps/tango/22x22/buzztard.png:

@@ -1,6 +1,17 @@
+2008/07 ========================================================================
+
 2008/06 ========================================================================
 
-* samples start to play
+In the previous month I worked further on sample support. Samples are played now
+from memory and can be transposed. Also the buzz song import plugin got sample
+support added. This means I can load now a big share of my existing songs. While
+testing those I could fix some more issues with plugin initialisation and those
+song sound like in original buzz now. Yah, we're getting there.
+
+The current version also brings some eye-candy, Marc (aka deloun) drew us great
+icons in tango style. I reworked the code to load all icons via theme mechanism.
+I also allocate other color based on chosen theme now. One thing left for June
+is to start using the svg on the canvas.
 
 2008/05 ========================================================================
 

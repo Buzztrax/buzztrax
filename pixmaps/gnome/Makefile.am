@@ -1,6 +1,6 @@
 ## $Id$
 
-iconthemedir=$(datadir)/icons/Tango
+iconthemedir=$(datadir)/icons/gnome
 gtk_update_icon_cache = gtk-update-icon-cache -f -t $(iconthemedir)
 
 icon16dir = $(iconthemedir)/16x16/apps

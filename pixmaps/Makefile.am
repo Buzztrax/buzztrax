@@ -1,6 +1,6 @@
 ## $Id$
 
-SUBDIRS = hicolor tango
+SUBDIRS = hicolor gnome
 
 ## FIXME: move those to theme icons
 pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps

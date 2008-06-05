@@ -79,6 +79,7 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   gboolean color_res[BT_UI_RES_COLOR_COUNT];
   gulong res;
   gchar *icon_theme_name;
+  gboolean use_tango_colors=FALSE;
   
   settings=gtk_settings_get_default();
   /* get the theme name - we need different machine colors for tango
@@ -94,6 +95,9 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
    *   "secondary-cursor-color",&self->priv->colors[ix],
    *   NULL);
    */
+   
+  if(!strcasecmp(icon_theme_name,"tango") || !strcasecmp(icon_theme_name,"gnome"))
+    use_tango_colors=TRUE;
   
   // cursor
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_CURSOR,                    0.85,0.85,0.20);
@@ -108,7 +112,7 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_ENDLINE,                   1.00,0.30,0.20);
   
   // source machine
-  if(!strcasecmp(icon_theme_name,"tango")) {
+  if(use_tango_colors) {
     /* (#ffd699) #fcaf3e / #f57900 / #ce5c00
      * 252 175  62	Orange 1
      * 245 121   0	Orange 2
@@ -131,7 +135,7 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   }
   
   // processor machine
-  if(!strcasecmp(icon_theme_name,"tango")) {
+  if(use_tango_colors) {
     /* (#cbff99) #8ae234 / #73d216 / #4e9a06
      * 138 226  52	Chameleon 1
      * 115 210  22	Chameleon 2
@@ -154,7 +158,7 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   }
 
   // sink machine
-  if(!strcasecmp(icon_theme_name,"tango")) {
+  if(use_tango_colors) {
     /* (#99caff) #729fcf / #3465a4 / #204a87
      * 114 159 207	Sky Blue 1 [62 58 43]
      *  52 101 164	Sky Blue 2
