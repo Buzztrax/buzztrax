@@ -48,6 +48,13 @@ struct _BtUIRessourcesPrivate {
   
   /* the keyboard shortcut table for the window */
   GtkAccelGroup *accel_group;
+
+#if 0
+  /* machine gfx */
+  GdkPixbuf *source_machine_pixbufs[BT_MACHINE_STATE_COUNT];
+  GdkPixbuf *processor_machine_pixbufs[BT_MACHINE_STATE_COUNT];
+  GdkPixbuf *sink_machine_pixbufs[BT_MACHINE_STATE_COUNT];
+#endif
 };
 
 static GObjectClass *parent_class=NULL;
@@ -376,6 +383,26 @@ GtkAccelGroup *bt_ui_ressources_get_accel_group(void) {
   
   return(ui_ressources->priv->accel_group);
 }
+
+#if 0
+GdkPixbuf *bt_ui_ressources_get_machine_graphics(const BtMachine *machine) {
+  BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
+  BtMachineState state;
+  
+  g_object_get(machine,"state",&state,NULL);
+
+  if(BT_IS_SOURCE_MACHINE(machine)) {
+    return(g_object_ref(ui_ressources->priv->source_machine_pixbufs[state]));
+  }
+  else if(BT_IS_PROCESSOR_MACHINE(machine)) {
+    return(g_object_ref(ui_ressources->priv->processor_machine_pixbufs[state]));
+  }
+  else if(BT_IS_SINK_MACHINE(machine)) {
+    return(g_object_ref(ui_ressources->priv->sink_machine_pixbufs[state]));
+  }
+  return(NULL);
+}
+#endif
 
 //-- wrapper
 

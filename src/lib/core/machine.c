@@ -407,6 +407,9 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
     case BT_MACHINE_STATE_NORMAL:
       //g_return_val_if_reached(FALSE);
       break;
+    default:
+      GST_WARNING("invalid old machine state: %d",self->priv->state);
+      break;
   }
   // set to new state
   switch(new_state) {
@@ -444,6 +447,9 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
     } break;
     case BT_MACHINE_STATE_NORMAL:
       //g_return_val_if_reached(FALSE);
+      break;
+    default:
+      GST_WARNING("invalid new machine state: %d",new_state);
       break;
   }
   self->priv->state=new_state;

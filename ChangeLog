@@ -1,3 +1,16 @@
+2008-06-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/machine.h:
+	* src/lib/core/machine.c:
+	  Adding enum val for number of states
+	
+	* src/lib/core/song.c:
+	  Improving debugging a bit.
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/ui-ressources.c:
+	  Drafting new API.
+
 2008-06-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

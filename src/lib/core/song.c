@@ -88,8 +88,8 @@ struct _BtSongPrivate {
   GstEvent *play_seek_event;
   GstEvent *loop_seek_event;
   GstEvent *idle_seek_event;
-  /* timeouthandlers */
-  guint paused_timeout_id,playback_timeout_id;
+  /* timeout handlers */
+  guint paused_timeout_id,playback_timeout_id; 
 };
 
 static GObjectClass *parent_class=NULL;
@@ -344,7 +344,7 @@ static void bt_song_send_tags(const BtSong * const self) {
   while(!done) {
     switch(gst_iterator_next(it, &item)) {
       case GST_ITERATOR_OK:
-        GST_INFO("sending tags to '%s' element",GST_OBJECT_NAME(GST_ELEMENT(item)));
+        GST_DEBUG("sending tags to '%s' element",GST_OBJECT_NAME(GST_ELEMENT(item)));
         if(!(gst_element_send_event(GST_ELEMENT(item),gst_event_ref(tag_event)))) {
           //GST_WARNING("element '%s' failed to handle tag event",GST_OBJECT_NAME(GST_ELEMENT(item)));
         }
@@ -460,8 +460,9 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         // here the formats are negotiated
-        bt_song_write_to_lowlevel_dot_file(self);
-        //
+        //bt_song_write_to_lowlevel_dot_file(self);
+
+        // we're prepared to play
         self->priv->is_preparing=FALSE;
         // this should be sequence->play_start
         self->priv->play_pos=0;

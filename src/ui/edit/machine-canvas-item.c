@@ -29,10 +29,15 @@
 /* @todo more graphics:
  * - add level meter widgets left and right (depending on type)
  * - move state (mute, solo, bypass) elsehwere to have more space for the tile
- * - use svg gfx
- *   - gnome-canvas can't really (would need to render svg as pixbuf)
- *   - ccc and goocanvas are cairo based, we would need to subclass the
- *     ImageItem and draw on the cairo context with librsvg
+ * - use svg gfx (design/gui/svgcanvas.c )
+ *   - need to have prerenderend images for current zoom level
+ *     - for each machine type / for each machine state = 3 x 4
+ *     - idealy have them in ui-ressources, in order to have them shared
+ *     - currently there is a ::zoom property to update the font-size
+ *       its set in update_machines_zoom(), there we would need to regenerate
+ *       the pixmaps too
+ *   - draw in bt_machine_canvas_item_realize() and stamp title on top of it
+ *     bt_ui_ressources_get_machine_graphics(self->priv->machine);
  * - state graphics
  *   - have some gfx in the middle
  *     mute: x over o
@@ -43,7 +48,9 @@
  *   - use transparency for mute/bypass, solo would switch all other sources to
  *     muted, can't differenciate mute from bypass on an fx
  */
-/* @todo subclass for source, sink, processor machine */
+/* @todo subclass for source, sink, processor machine
+ * - not really needed when using the icons
+ */
 
 #define BT_EDIT
 #define BT_MACHINE_CANVAS_ITEM_C
