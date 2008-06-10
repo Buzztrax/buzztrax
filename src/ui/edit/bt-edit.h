@@ -71,6 +71,8 @@
 #include <gdk/gdkkeysyms.h>
 //-- libgnomecanvas
 #include <libgnomecanvas/libgnomecanvas.h>
+//-- librsvg
+#include <librsvg/rsvg.h>
 //-- libgnome
 #ifdef USE_GNOME
 #include <libgnome/gnome-init.h>

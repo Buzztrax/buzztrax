@@ -1582,7 +1582,7 @@ static void on_pattern_table_cursor_row_changed(const BtPatternEditor *editor,GP
 static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,GtkListStore *store) {
   gchar *str;
   GtkTreeIter menu_iter;
-  GdkPixbuf *pixbuf=bt_ui_ressources_get_pixbuf_by_machine(machine);
+  GdkPixbuf *pixbuf=bt_ui_ressources_get_icon_pixbuf_by_machine(machine);
 
   g_object_get(G_OBJECT(machine),"id",&str,NULL);
   GST_INFO("  adding %p, \"%s\"  (machine-refs: %d)",machine,str,(G_OBJECT(machine))->ref_count);

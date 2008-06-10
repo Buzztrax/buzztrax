@@ -49,12 +49,10 @@ struct _BtUIRessourcesPrivate {
   /* the keyboard shortcut table for the window */
   GtkAccelGroup *accel_group;
 
-#if 0
-  /* machine gfx */
+  /* machine graphics */
   GdkPixbuf *source_machine_pixbufs[BT_MACHINE_STATE_COUNT];
   GdkPixbuf *processor_machine_pixbufs[BT_MACHINE_STATE_COUNT];
   GdkPixbuf *sink_machine_pixbufs[BT_MACHINE_STATE_COUNT];
-#endif
 };
 
 static GObjectClass *parent_class=NULL;
@@ -220,6 +218,50 @@ static gboolean bt_ui_ressources_init_icons(BtUIRessources *self) {
   return(TRUE);
 }
 
+/*
+static GdkPixbuf *bt_ui_ressources_load_svg(const gchar *file_name) {
+  GError *error = NULL;
+  GdkPixbuf *pixbuf;
+  
+  pixbuf = rsvg_pixbuf_from_file_at_size (file_name, 96, 96, &error);
+  if(error) {
+    GST_WARNING ("loading svg %s failed : %s", file_name, error->message);
+    g_error_free(error);
+  }
+  return(pixbuf);
+}
+*/
+  
+static gboolean bt_ui_ressources_init_graphics(BtUIRessources *self) {
+  // 12*6=72, 14*6=84
+  const gint size=GTK_ICON_SIZE_DIALOG*14;
+  
+  //self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL] = bt_ui_ressources_load_svg ("generator.svg");
+  
+  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_NORMAL] = gdk_pixbuf_new_from_theme("generator",size);
+  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_MUTE  ] = gdk_pixbuf_new_from_theme("generator-mute",size);
+  // @todo: need real icon
+  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_SOLO  ] = gdk_pixbuf_new_from_theme("generator",size);
+
+  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_NORMAL] = gdk_pixbuf_new_from_theme("effect",size);
+  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_MUTE  ] = gdk_pixbuf_new_from_theme("effect-mute",size);
+  // @todo: need real icon
+  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_SOLO  ] = gdk_pixbuf_new_from_theme("effect",size);
+  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_BYPASS] = gdk_pixbuf_new_from_theme("effect-bypass",size);
+
+  self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_NORMAL] = gdk_pixbuf_new_from_theme("master",size);
+  self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_MUTE  ] = gdk_pixbuf_new_from_theme("master-mute",size);
+  
+  /* DEBUG */
+  gint w,h;
+  g_object_get(self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL],"width",&w,"height",&h,NULL);
+  GST_WARNING("svg: w,h = %d, %d",w,h);  
+  
+  /**/
+
+  return(TRUE);
+}
+
 //-- constructor methods
 
 /**
@@ -235,16 +277,22 @@ BtUIRessources *bt_ui_ressources_new(void) {
     if(!(singleton=(gpointer)(g_object_new(BT_TYPE_UI_RESSOURCES,NULL)))) {
       goto Error;
     }
-    // initialise ressources
-    if(!bt_ui_ressources_init_colors(BT_UI_RESSOURCES(singleton))) {
-      goto Error;
+    else {
+      BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
+      // initialise ressources
+      if(!bt_ui_ressources_init_colors(ui_ressources)) {
+        goto Error;
+      }
+      if(!bt_ui_ressources_init_icons(ui_ressources)) {
+        goto Error;
+      }
+      if(!bt_ui_ressources_init_graphics(ui_ressources)) {
+        goto Error;
+      }
+      ui_ressources->priv->accel_group=gtk_accel_group_new();
+  
+      g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
     }
-    if(!bt_ui_ressources_init_icons(BT_UI_RESSOURCES(singleton))) {
-      goto Error;
-    }
-    BT_UI_RESSOURCES(singleton)->priv->accel_group=gtk_accel_group_new();
-
-    g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
   }
   else {
     singleton=g_object_ref(G_OBJECT(singleton));
@@ -258,14 +306,14 @@ Error:
 //-- methods
 
 /**
- * bt_ui_ressources_get_pixbuf_by_machine:
+ * bt_ui_ressources_get_icon_pixbuf_by_machine:
  * @machine: the machine to get the image for
  *
- * Gets a #GdkPixbuf image that matches the given machine type.
+ * Gets a #GdkPixbuf image that matches the given machine type for use in menus.
  *
  * Returns: a #GdkPixbuf image
  */
-GdkPixbuf *bt_ui_ressources_get_pixbuf_by_machine(const BtMachine *machine) {
+GdkPixbuf *bt_ui_ressources_get_icon_pixbuf_by_machine(const BtMachine *machine) {
   BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
 
   if(BT_IS_SOURCE_MACHINE(machine)) {
@@ -281,14 +329,41 @@ GdkPixbuf *bt_ui_ressources_get_pixbuf_by_machine(const BtMachine *machine) {
 }
 
 /**
- * bt_ui_ressources_get_image_by_machine:
+ * bt_ui_ressources_get_graphics_pixbuf_by_machine:
+ * @machine: the machine to get the image for
+ *
+ * Gets a #GdkPixbuf image that matches the given machine type for use on the
+ * canvas.
+ *
+ * Returns: a #GdkPixbuf image
+ */
+GdkPixbuf *bt_ui_ressources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine) {
+  BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
+  BtMachineState state;
+  
+  g_object_get(G_OBJECT(machine),"state",&state,NULL);
+
+  if(BT_IS_SOURCE_MACHINE(machine)) {
+    return(g_object_ref(ui_ressources->priv->source_machine_pixbufs[state]));
+  }
+  else if(BT_IS_PROCESSOR_MACHINE(machine)) {
+    return(g_object_ref(ui_ressources->priv->processor_machine_pixbufs[state]));
+  }
+  else if(BT_IS_SINK_MACHINE(machine)) {
+    return(g_object_ref(ui_ressources->priv->sink_machine_pixbufs[state]));
+  }
+  return(NULL);
+}
+
+/**
+ * bt_ui_ressources_get_icon_image_by_machine:
  * @machine: the machine to get the image for
  *
  * Gets a #GtkImage that matches the given machine type.
  *
  * Returns: a #GtkImage widget
  */
-GtkWidget *bt_ui_ressources_get_image_by_machine(const BtMachine *machine) {
+GtkWidget *bt_ui_ressources_get_icon_image_by_machine(const BtMachine *machine) {
   BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
 
   if(BT_IS_SOURCE_MACHINE(machine)) {
@@ -304,14 +379,14 @@ GtkWidget *bt_ui_ressources_get_image_by_machine(const BtMachine *machine) {
 }
 
 /**
- * bt_ui_ressources_get_image_by_machine_type:
+ * bt_ui_ressources_get_icon_image_by_machine_type:
  * @machine_type: the machine_type to get the image for
  *
  * Gets a #GtkImage that matches the given machine type.
  *
  * Returns: a #GtkImage widget
  */
-GtkWidget *bt_ui_ressources_get_image_by_machine_type(GType machine_type) {
+GtkWidget *bt_ui_ressources_get_icon_image_by_machine_type(GType machine_type) {
   BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
 
   if(machine_type==BT_TYPE_SOURCE_MACHINE) {
@@ -384,26 +459,6 @@ GtkAccelGroup *bt_ui_ressources_get_accel_group(void) {
   return(ui_ressources->priv->accel_group);
 }
 
-#if 0
-GdkPixbuf *bt_ui_ressources_get_machine_graphics(const BtMachine *machine) {
-  BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
-  BtMachineState state;
-  
-  g_object_get(machine,"state",&state,NULL);
-
-  if(BT_IS_SOURCE_MACHINE(machine)) {
-    return(g_object_ref(ui_ressources->priv->source_machine_pixbufs[state]));
-  }
-  else if(BT_IS_PROCESSOR_MACHINE(machine)) {
-    return(g_object_ref(ui_ressources->priv->processor_machine_pixbufs[state]));
-  }
-  else if(BT_IS_SINK_MACHINE(machine)) {
-    return(g_object_ref(ui_ressources->priv->sink_machine_pixbufs[state]));
-  }
-  return(NULL);
-}
-#endif
-
 //-- wrapper
 
 //-- class internals
@@ -440,6 +495,8 @@ static void bt_ui_ressources_set_property(GObject      *object,
 
 static void bt_ui_ressources_dispose(GObject *object) {
   BtUIRessources *self = BT_UI_RESSOURCES(object);
+  guint state;
+  
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
@@ -452,6 +509,12 @@ static void bt_ui_ressources_dispose(GObject *object) {
   g_object_try_unref(self->priv->source_machine_pixbuf);
   g_object_try_unref(self->priv->processor_machine_pixbuf);
   g_object_try_unref(self->priv->sink_machine_pixbuf);
+  
+  for(state=0;state<BT_MACHINE_STATE_COUNT;state++) {
+    g_object_try_unref(self->priv->source_machine_pixbufs[state]);
+    g_object_try_unref(self->priv->processor_machine_pixbufs[state]);
+    g_object_try_unref(self->priv->sink_machine_pixbufs[state]);
+  }
   
   g_object_try_unref(self->priv->accel_group);
 

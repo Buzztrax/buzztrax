@@ -105,7 +105,7 @@ static gboolean bt_missing_song_elements_dialog_init_ui(const BtMissingSongEleme
 
   // create and set window icon
   /*
-  if((window_icon=bt_ui_ressources_get_pixbuf_by_machine(self->priv->machine))) {
+  if((window_icon=bt_ui_ressources_get_icon_pixbuf_by_machine(self->priv->machine))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
     g_object_unref(window_icon);
   }

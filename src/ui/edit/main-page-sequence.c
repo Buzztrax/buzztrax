@@ -1363,7 +1363,7 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
 
     menu_item=gtk_image_menu_item_new_with_label(str);
     gtk_widget_set_name(GTK_WIDGET(menu_item),str);
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),bt_ui_ressources_get_image_by_machine(machine));
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),bt_ui_ressources_get_icon_image_by_machine(machine));
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
     gtk_widget_show(menu_item);
     widgets=gtk_container_get_children(GTK_CONTAINER(menu_item));

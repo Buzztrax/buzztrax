@@ -31,7 +31,15 @@ icon48dir = $(iconthemedir)/48x48/apps
 icon48_DATA = 48x48/buzztard.png
 
 svgicondir = $(iconthemedir)/scalable/apps
-svgicon_DATA = scalable/buzztard.svg
+svgicon_DATA = scalable/buzztard.svg \
+	scalable/effect-bypass.svg \
+	scalable/effect-mute.svg \
+	scalable/effect.svg \
+	scalable/generator-mute.svg \
+	scalable/generator.svg \
+	scalable/master-mute.svg \
+	scalable/master.svg
+
 
 EXTRA_DIST = \
 	$(icon16_DATA) $(icon22_DATA) $(icon24_DATA) \
