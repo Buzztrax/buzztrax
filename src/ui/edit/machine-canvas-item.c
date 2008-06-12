@@ -31,7 +31,6 @@
  * - move state (mute, solo, bypass) elsehwere to have more space for the tile
  * - use svg gfx (design/gui/svgcanvas.c )
  *   - need to have prerenderend images for current zoom level
- *     - for each machine type / for each machine state = 3 x 4
  *     - idealy have them in ui-ressources, in order to have them shared
  *     - currently there is a ::zoom property to update the font-size
  *       its set in update_machines_zoom(), there we would need to regenerate
@@ -56,6 +55,8 @@
 #define BT_MACHINE_CANVAS_ITEM_C
 
 #include "bt-edit.h"
+
+#define LOW_VUMETER_VAL -60.0
 
 #define USE_SVG_GRAPHICS 1
 
@@ -105,6 +106,9 @@ struct _BtMachineCanvasItemPrivate {
 #ifndef USE_SVG_GRAPHICS
   GnomeCanvasItem *state_switch,*state_mute,*state_solo,*state_bypass;
 #endif
+  GnomeCanvasItem *output_meter, *input_meter;
+  G_POINTER_ALIAS(GstElement *,output_level);
+  G_POINTER_ALIAS(GstElement *,input_level);
 
   /* cursor for moving */
   GdkCursor *drag_cursor;
@@ -122,6 +126,52 @@ static guint signals[LAST_SIGNAL]={0,};
 static GnomeCanvasGroupClass *parent_class=NULL;
 
 //-- event handler
+
+static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
+  const GstStructure *structure=gst_message_get_structure(message);
+  const gchar *name = gst_structure_get_name(structure);
+
+  if(!strcmp(name,"level")) {
+    BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+    // check if its our level-meter
+    if((GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->output_level)) || 
+      (GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->input_level))) {
+      gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
+      const GValue *l_cur,*l_peak;
+      gdouble cur=0.0, peak=0.0, val;
+      guint i,size;
+  
+      //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
+      l_cur=(GValue *)gst_structure_get_value(structure, "peak");
+      //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+      l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+      size=gst_value_list_get_size(l_cur);
+      for(i=0;i<size;i++) {
+        cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
+        peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+      }
+      if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
+      else cur/=size;
+      if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
+      else peak/=size;
+      val=cur;
+      if(val>0.0) val=0.0;
+      val=val/LOW_VUMETER_VAL;
+      if(val>1.0) val=1.0;
+      if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->output_level)) {
+        gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->output_meter),
+          "y1", h*0.05+(0.55*h*val),
+          NULL);
+      }
+      if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->input_level)) {
+        gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->input_meter),
+          "y1", h*0.05+(0.55*h*val),
+          NULL);
+      }
+    }
+  }
+}
 
 static void on_machine_id_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
@@ -635,12 +685,46 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
       g_object_try_unref(self->priv->machine);
       self->priv->machine = BT_MACHINE(g_value_dup_object(value));
       if(self->priv->machine) {
+        BtSong *song;
+        GstBin *bin;
+        GstBus *bus;
+
         GST_INFO("set the  machine %p,machine->ref_ct=%d for new canvas item",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
         g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
         g_signal_connect(G_OBJECT(self->priv->machine), "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);
         g_signal_connect(G_OBJECT(self->priv->machine), "notify::state", G_CALLBACK(on_machine_state_changed), (gpointer)self);
+
+        
+        g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+        g_object_get(G_OBJECT(song),"bin", &bin,NULL);
+        bus=gst_element_get_bus(GST_ELEMENT(bin));
+        g_signal_connect(bus, "message::element", G_CALLBACK(on_machine_level_change), (gpointer)self);
+        gst_object_unref(bus);
+        gst_object_unref(bin);
+        g_object_unref(song);
+
+        if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
+          if(bt_machine_enable_output_level(self->priv->machine)) {
+            g_object_get(G_OBJECT(self->priv->machine),"output-level",&self->priv->output_level,NULL);
+            g_object_try_weak_ref(self->priv->output_level);
+            gst_object_unref(self->priv->output_level);
+          }
+          else {
+            GST_INFO("enabling output level for machine failed");
+          }
+        }
+        if(!BT_IS_SOURCE_MACHINE(self->priv->machine)) {
+          if(bt_machine_enable_input_level(self->priv->machine)) {
+            g_object_get(G_OBJECT(self->priv->machine),"input-level",&self->priv->input_level,NULL);
+            g_object_try_weak_ref(self->priv->input_level);
+            gst_object_unref(self->priv->input_level);
+          }
+          else {
+            GST_INFO("enabling input level for machine failed");
+          }
+        }
       }
     } break;
     case MACHINE_CANVAS_ITEM_ZOOM: {
@@ -669,6 +753,8 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   GST_DEBUG("  signal disconected");
   
   g_object_try_weak_unref(self->priv->app);
+  g_object_try_weak_unref(self->priv->output_level);
+  g_object_try_weak_unref(self->priv->input_level);
   g_object_try_unref(self->priv->machine);
   g_object_try_weak_unref(self->priv->main_page_machines);
 
@@ -787,6 +873,33 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "clip-width",(w+w)*0.80,
                            "clip-height",h+h,
                            NULL);
+
+  // the input volume level meter
+  //if(!BT_IS_SOURCE_MACHINE(self->priv->machine)) {
+    self->priv->input_meter=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+                           GNOME_TYPE_CANVAS_RECT,
+                           "x1", -w*0.65,
+                           //"y1", +h*0.05,
+                           "y1", +h*0.6,
+                           "x2", -w*0.55,
+                           "y2", +h*0.6,
+                           "fill-color", "gray40",
+                           "width-pixels", 0,
+                           NULL);
+  //}
+  // the output volume level meter
+  //if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
+    self->priv->output_meter=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+                           GNOME_TYPE_CANVAS_RECT,
+                           "x1",  w*0.6,
+                           //"y1", +h*0.05,
+                           "y1", +h*0.6,
+                           "x2",  w*0.7,
+                           "y2", +h*0.6,
+                           "fill-color", "gray40",
+                           "width-pixels", 0,
+                           NULL);
+  //}
   g_free(id);
 
 #ifndef USE_SVG_GRAPHICS

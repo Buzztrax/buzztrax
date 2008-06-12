@@ -697,9 +697,11 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
         peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
       }
       if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
+      else cur/=size;
       if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-      //gtk_vumeter_set_levels(vumeter, (gint)(cur/size), (gint)(peak/size));
-      gtk_vumeter_set_levels(vumeter, (gint)(peak/size), (gint)(cur/size));
+      else peak/=size;
+      //gtk_vumeter_set_levels(vumeter, (gint)cur, (gint)peak);
+      gtk_vumeter_set_levels(vumeter, (gint)peak, (gint)cur);
     }
   }
 }
@@ -1141,6 +1143,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       box=gtk_hbox_new(FALSE,0);
       gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(box),TRUE,TRUE,0);
       // add M/S/B butons and connect signal handlers
+      // @todo: use colors from ui-ressources
       button=gtk_toggle_button_new_with_label("M");
       widget_shade_bg_color(button,GTK_STATE_ACTIVE  , 1.2, 1.0/1.2, 1.0/1.2);
       widget_shade_bg_color(button,GTK_STATE_PRELIGHT, 1.2, 1.0/1.2, 1.0/1.2);
