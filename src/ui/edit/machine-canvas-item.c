@@ -875,6 +875,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            NULL);
 
   // the input volume level meter
+  guint32 border_color=0x6666667F;
   //if(!BT_IS_SOURCE_MACHINE(self->priv->machine)) {
     self->priv->input_meter=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_RECT,
@@ -884,7 +885,8 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "x2", -w*0.55,
                            "y2", +h*0.6,
                            "fill-color", "gray40",
-                           "width-pixels", 0,
+                           "outline_color-rgba", border_color,
+                           "width-pixels", 2,
                            NULL);
   //}
   // the output volume level meter
@@ -897,7 +899,8 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "x2",  w*0.7,
                            "y2", +h*0.6,
                            "fill-color", "gray40",
-                           "width-pixels", 0,
+                           "outline_color-rgba", border_color,
+                           "width-pixels", 2,
                            NULL);
   //}
   g_free(id);
