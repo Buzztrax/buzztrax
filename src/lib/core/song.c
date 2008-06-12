@@ -35,7 +35,7 @@
 #include "core_private.h"
 
 // if a state change not happens within this time, cancel playback
-#define BT_SONG_STATE_CHANGE_TIMEOUT (10*1000)
+#define BT_SONG_STATE_CHANGE_TIMEOUT (20*1000)
 
 //-- signal ids
 

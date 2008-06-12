@@ -1,3 +1,14 @@
+2008-06-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-io-native.c:
+	  Oops. Add a +1 for string size.
+  
+	* src/lib/core/song.c:
+	  Keep timeout hight until we have figured out.
+
+	* src/ui/edit/main-page-machines.h:
+	  Enlarge canvas area to make machines less cluttered.
+
 2008-06-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

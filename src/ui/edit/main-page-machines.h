@@ -59,9 +59,10 @@ struct _BtMainPageMachinesClass {
 GType bt_main_page_machines_get_type(void) G_GNUC_CONST;
 
 
-// machine view area
-#define MACHINE_VIEW_ZOOM_X 400.0
-#define MACHINE_VIEW_ZOOM_Y 300.0
+// machine view area (4:3 aspect ratio)
+// @todo: should we check screens aspect ratio?
+#define MACHINE_VIEW_ZOOM_X (400.0*1.2)
+#define MACHINE_VIEW_ZOOM_Y (300.0*1.2)
 #define MACHINE_VIEW_ZOOM_FC  1.0
 
 #define MACHINE_VIEW_GRID_FC  4.0

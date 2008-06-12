@@ -133,8 +133,10 @@ static gboolean bt_song_io_native_load(gconstpointer const _self, const BtSong *
   GST_INFO("native io will now load song from \"%s\"",file_name);
 
   const gchar * const msg=_("Loading file '%s'");
-  gchar * const status=g_alloca(strlen(msg)+strlen(file_name));
+  gchar * const status=g_alloca(1+strlen(msg)+strlen(file_name));
   g_sprintf(status,msg,file_name);
+  //gchar * const status=g_alloca(1+strlen(_("Loading file '%s'"))+strlen(file_name));
+  //g_sprintf(status,_("Loading file '%s'"),file_name);
   g_object_set(G_OBJECT(self),"status",status,NULL);
     
   /* @todo add mime-type detection, so that we know wheter we are in zip mode */
@@ -188,8 +190,10 @@ static gboolean bt_song_io_native_save(gconstpointer const _self, const BtSong *
   GST_INFO("native io will now save song to \"%s\"",file_name);
 
   const gchar * const msg=_("Saving file '%s'");
-  gchar * const status=g_alloca(strlen(msg)+strlen(file_name));
+  gchar * const status=g_alloca(1+strlen(msg)+strlen(file_name));
   g_sprintf(status,msg,file_name);
+  //gchar * const status=g_alloca(1+strlen(_("Saving file '%s'"))+strlen(file_name));
+  //g_sprintf(status,_("Saving file '%s'"),file_name);
   g_object_set(G_OBJECT(self),"status",status,NULL);
 
   xmlDocPtr const song_doc=xmlNewDoc(XML_CHAR_PTR("1.0"));
