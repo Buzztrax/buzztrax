@@ -2212,25 +2212,21 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
     if(self->priv->global_controller) {
       gboolean remove=TRUE;
 
-      //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
+      GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
 #ifdef HAVE_GST_0_10_14
       if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
         gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
-        g_object_unref(cs);
-      }
-#else
-      gst_controller_unset(self->priv->global_controller,GLOBAL_PARAM_NAME(param),timestamp);
-#endif
-
-      // check if the property is not having control points anymore
-#ifdef HAVE_GST_0_10_14
-      if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
+        // check if the property is not having control points anymore
         if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
+          // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=538201
           remove=FALSE;
         }
         g_object_unref(cs);
       }
+      else remove=FALSE;
 #else
+      gst_controller_unset(self->priv->global_controller,GLOBAL_PARAM_NAME(param),timestamp);
+      // check if the property is not having control points anymore
       GList *values;
       if((values=(GList *)gst_controller_get_all(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
         //if(g_list_length(values)>0) {
@@ -2314,21 +2310,17 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
 #ifdef HAVE_GST_0_10_14
       if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
         gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
-        g_object_unref(cs);
-      }
-#else
-      gst_controller_unset(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param),timestamp);
-#endif
-
-      // check if the property is not having control points anymore
-#ifdef HAVE_GST_0_10_14
-      if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
+        // check if the property is not having control points anymore
         if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
+          // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=538201
           remove=FALSE;
         }
         g_object_unref(cs);
       }
+      else remove=FALSE;
 #else
+      gst_controller_unset(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param),timestamp);
+      // check if the property is not having control points anymore
       GList *values;
       if((values=(GList *)gst_controller_get_all(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
         //if(g_list_length(values)>0) {
