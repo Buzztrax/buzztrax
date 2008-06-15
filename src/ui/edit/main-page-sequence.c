@@ -1144,26 +1144,26 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(box),TRUE,TRUE,0);
       // add M/S/B butons and connect signal handlers
       // @todo: use colors from ui-resources
-      button=gtk_toggle_button_new_with_label("M");
-      widget_shade_bg_color(button,GTK_STATE_ACTIVE  , 1.2, 1.0/1.2, 1.0/1.2);
-      widget_shade_bg_color(button,GTK_STATE_PRELIGHT, 1.2, 1.0/1.2, 1.0/1.2);
+      button=gtk_toggle_button_new_with_label("M"); // red
+      widget_shade_bg_color(button,GTK_STATE_ACTIVE  , 1.2, 1.0/1.25, 1.0/1.25);
+      widget_shade_bg_color(button,GTK_STATE_PRELIGHT, 1.2, 1.0/1.25, 1.0/1.25);
       gtk_container_set_border_width(GTK_CONTAINER(button),0);
       gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
       g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
       g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_mute), (gpointer)button);
       if(BT_IS_SOURCE_MACHINE(machine)) {
-        button=gtk_toggle_button_new_with_label("S");
-        widget_shade_bg_color(button,GTK_STATE_ACTIVE  , 1.0, 1.0, 1.0/1.3);
-        widget_shade_bg_color(button,GTK_STATE_PRELIGHT, 1.0/1.1, 1.0/1.1, 1.0/1.3);
+        button=gtk_toggle_button_new_with_label("S"); // blue
+        widget_shade_bg_color(button,GTK_STATE_ACTIVE  , 1.0/1.2, 1.0/1.2, 1.1);
+        widget_shade_bg_color(button,GTK_STATE_PRELIGHT, 1.0/1.2, 1.0/1.2, 1.1);
         gtk_container_set_border_width(GTK_CONTAINER(button),0);
         gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
         g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_solo_toggled),(gpointer)machine);
         g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_solo), (gpointer)button);
       }
       if(BT_IS_PROCESSOR_MACHINE(machine)) {
-        button=gtk_toggle_button_new_with_label("B");
-        widget_shade_bg_color(button,GTK_STATE_ACTIVE,  1.0/1.2, 1.0/1.2, 1.2);
-        widget_shade_bg_color(button,GTK_STATE_PRELIGHT,1.0/1.2, 1.0/1.2, 1.2);
+        button=gtk_toggle_button_new_with_label("B"); // orange
+        widget_shade_bg_color(button,GTK_STATE_ACTIVE,  1.2, 1.0/1.1, 1.0/1.4);
+        widget_shade_bg_color(button,GTK_STATE_PRELIGHT,1.2, 1.0/1.1, 1.0/1.4);
         gtk_container_set_border_width(GTK_CONTAINER(button),0);
         gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
         g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_bypass_toggled),(gpointer)machine);
