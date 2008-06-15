@@ -1,5 +1,13 @@
 2008-06-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/Makefile.am:
+	  Move generated headers to noinst_HEADERS.
+	  
+	* src/lib/core/machine.c:
+	  Add some logging for http://bugzilla.gnome.org/show_bug.cgi?id=538201
+
+2008-06-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.h:
 	* src/ui/edit/edit-application.c:

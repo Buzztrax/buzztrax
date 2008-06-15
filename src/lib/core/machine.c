@@ -2179,9 +2179,11 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
     if(self->priv->global_controller) {
 #ifdef HAVE_GST_0_10_14
       if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
-        if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
+        gint ct;
+        if((ct=gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs)))) {
           add=FALSE;
         }
+        //GST_WARNING("add : ct = %d",ct);
         g_object_unref(cs);
       }
 #else
@@ -2215,12 +2217,14 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
 #ifdef HAVE_GST_0_10_14
       if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
+        gint ct;
         gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
         // check if the property is not having control points anymore
-        if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
+        if((ct=gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs)))) {
           // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=538201
           remove=FALSE;
         }
+        //GST_WARNING("rem : ct = %d",ct);
         g_object_unref(cs);
       }
       else remove=FALSE;
