@@ -1,3 +1,34 @@
+2008-06-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/pattern-view.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/ui-resources-methods.h:
+	* src/ui/edit/ui-resources.c:
+	* src/ui/edit/ui-resources.h:
+	* src/ui/edit/ui-ressources-methods.h:
+	* src/ui/edit/ui-ressources.c:
+	* src/ui/edit/ui-ressources.h:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Fix spelling of ui-resources class.
+
 2008-06-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

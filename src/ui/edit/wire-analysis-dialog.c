@@ -178,7 +178,7 @@ static void bt_wire_analysis_dialog_realize(GtkWidget *widget,gpointer user_data
 
   GST_DEBUG("dialog realize");
   self->priv->peak_gc=gdk_gc_new(GTK_WIDGET(self)->window);
-  gdk_gc_set_rgb_fg_color(self->priv->peak_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_ANALYZER_PEAK));
+  gdk_gc_set_rgb_fg_color(self->priv->peak_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_ANALYZER_PEAK));
 }
 
 static gboolean bt_wire_analysis_dialog_expose(GtkWidget *widget,GdkEventExpose *event,gpointer user_data) {
@@ -353,7 +353,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
   /* @todo: create and set *proper* window icon (analyzer, scope)
-  if((window_icon=bt_ui_ressources_get_pixbuf_by_wire(self->priv->wire))) {
+  if((window_icon=bt_ui_resources_get_pixbuf_by_wire(self->priv->wire))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
   */

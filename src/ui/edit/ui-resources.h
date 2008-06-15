@@ -19,43 +19,43 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BT_UI_RESSOURCES_H
-#define BT_UI_RESSOURCES_H
+#ifndef BT_UI_RESOURCES_H
+#define BT_UI_RESOURCES_H
 
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_UI_RESSOURCES            (bt_ui_ressources_get_type ())
-#define BT_UI_RESSOURCES(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_UI_RESSOURCES, BtUIRessources))
-#define BT_UI_RESSOURCES_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_UI_RESSOURCES, BtUIRessourcesClass))
-#define BT_IS_UI_RESSOURCES(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_UI_RESSOURCES))
-#define BT_IS_UI_RESSOURCES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_UI_RESSOURCES))
-#define BT_UI_RESSOURCES_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_UI_RESSOURCES, BtUIRessourcesClass))
+#define BT_TYPE_UI_RESOURCES            (bt_ui_resources_get_type ())
+#define BT_UI_RESOURCES(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_UI_RESOURCES, BtUIResources))
+#define BT_UI_RESOURCES_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_UI_RESOURCES, BtUIResourcesClass))
+#define BT_IS_UI_RESOURCES(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_UI_RESOURCES))
+#define BT_IS_UI_RESOURCES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_UI_RESOURCES))
+#define BT_UI_RESOURCES_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_UI_RESOURCES, BtUIResourcesClass))
 
 /* type macros */
 
-typedef struct _BtUIRessources BtUIRessources;
-typedef struct _BtUIRessourcesClass BtUIRessourcesClass;
-typedef struct _BtUIRessourcesPrivate BtUIRessourcesPrivate;
+typedef struct _BtUIResources BtUIResources;
+typedef struct _BtUIResourcesClass BtUIResourcesClass;
+typedef struct _BtUIResourcesPrivate BtUIResourcesPrivate;
 
 /**
- * BtUIRessources:
+ * BtUIResources:
  *
  * a collection of shared ui ressources
  */
-struct _BtUIRessources {
+struct _BtUIResources {
   GObject parent;
 
   /*< private >*/
-  BtUIRessourcesPrivate *priv;
+  BtUIResourcesPrivate *priv;
 };
-/* structure of the ui-ressources class */
-struct _BtUIRessourcesClass {
+/* structure of the ui-resources class */
+struct _BtUIResourcesClass {
   GObjectClass parent; 
 };
 
 /**
- * BtUIRessourcesColors:
+ * BtUIResourcesColors:
  *
  * Symbolic color names for the UI. 
  */
@@ -83,10 +83,10 @@ typedef enum {
   BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        /* --- */
   BT_UI_RES_COLOR_ANALYZER_PEAK,             /* analyzer widnow peak marks */
   BT_UI_RES_COLOR_COUNT
-} BtUIRessourcesColors;
+} BtUIResourcesColors;
 
 /**
- * BtUIRessourcesMachineColors:
+ * BtUIResourcesMachineColors:
  *
  * Symbolic color names for machines. 
  */
@@ -96,9 +96,9 @@ typedef enum {
   BT_UI_RES_COLOR_MACHINE_BRIGHT2,    /* list view even */
   BT_UI_RES_COLOR_MACHINE_DARK1,      /* --- */
   BT_UI_RES_COLOR_MACHINE_DARK2       /* --- */  
-} BtUIRessourcesMachineColors;
+} BtUIResourcesMachineColors;
 
-/* used by UI_RESSOURCES_TYPE */
-GType bt_ui_ressources_get_type(void) G_GNUC_CONST;
+/* used by UI_RESOURCES_TYPE */
+GType bt_ui_resources_get_type(void) G_GNUC_CONST;
 
-#endif // BT_UI_RESSOURCES_H
+#endif // BT_UI_RESOURCES_H

@@ -1143,7 +1143,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       box=gtk_hbox_new(FALSE,0);
       gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(box),TRUE,TRUE,0);
       // add M/S/B butons and connect signal handlers
-      // @todo: use colors from ui-ressources
+      // @todo: use colors from ui-resources
       button=gtk_toggle_button_new_with_label("M");
       widget_shade_bg_color(button,GTK_STATE_ACTIVE  , 1.2, 1.0/1.2, 1.0/1.2);
       widget_shade_bg_color(button,GTK_STATE_PRELIGHT, 1.2, 1.0/1.2, 1.0/1.2);
@@ -1366,7 +1366,7 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
 
     menu_item=gtk_image_menu_item_new_with_label(str);
     gtk_widget_set_name(GTK_WIDGET(menu_item),str);
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),bt_ui_ressources_get_icon_image_by_machine(machine));
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),bt_ui_resources_get_icon_image_by_machine(machine));
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
     gtk_widget_show(menu_item);
     widgets=gtk_container_get_children(GTK_CONTAINER(menu_item));
@@ -2557,15 +2557,15 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
   // get colors
-  self->priv->cursor_bg=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
-  self->priv->selection_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
-  self->priv->selection_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
-  self->priv->source_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1);
-  self->priv->source_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2);
-  self->priv->processor_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1);
-  self->priv->processor_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2);
-  self->priv->sink_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1);
-  self->priv->sink_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2);
+  self->priv->cursor_bg=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
+  self->priv->selection_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
+  self->priv->selection_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
+  self->priv->source_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1);
+  self->priv->source_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2);
+  self->priv->processor_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1);
+  self->priv->processor_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2);
+  self->priv->sink_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1);
+  self->priv->sink_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2);
 
   GST_DEBUG("  before context menu",self);
   // generate the context menu

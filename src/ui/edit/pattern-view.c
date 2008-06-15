@@ -115,7 +115,7 @@ static void bt_pattern_view_realize(GtkWidget *widget) {
 
   // allocation graphical contexts for drawing the overlay lines
   self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
-  gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
+  gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
   gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
 }
 

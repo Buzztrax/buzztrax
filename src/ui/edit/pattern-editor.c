@@ -39,7 +39,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "pattern-editor.h"
-#include "ui-ressources-methods.h"
+#include "ui-resources-methods.h"
 #include "marshal.h"
 
 enum {
@@ -468,7 +468,7 @@ bt_pattern_editor_realize (GtkWidget *widget)
   
   // allocation graphical contexts for drawing the overlay lines
   self->play_pos_gc=gdk_gc_new(widget->window);
-  gdk_gc_set_rgb_fg_color(self->play_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
+  gdk_gc_set_rgb_fg_color(self->play_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
   gdk_gc_set_line_attributes(self->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
   
   /* calculate font-metrics */

@@ -31,12 +31,12 @@
  * - move state (mute, solo, bypass) elsehwere to have more space for the tile
  * - use svg gfx (design/gui/svgcanvas.c )
  *   - need to have prerenderend images for current zoom level
- *     - idealy have them in ui-ressources, in order to have them shared
+ *     - idealy have them in ui-resources, in order to have them shared
  *     - currently there is a ::zoom property to update the font-size
  *       its set in update_machines_zoom(), there we would need to regenerate
  *       the pixmaps too
  *   - draw in bt_machine_canvas_item_realize() and stamp title on top of it
- *     bt_ui_ressources_get_machine_graphics_pixbuf_by_machine(self->priv->machine);
+ *     bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine);
  * - state graphics
  *   - have some gfx in the middle
  *     mute: x over o
@@ -197,7 +197,7 @@ static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpoint
   
 #ifdef USE_SVG_GRAPHICS
   gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->box),
-    "pixbuf", bt_ui_ressources_get_machine_graphics_pixbuf_by_machine(self->priv->machine),
+    "pixbuf", bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine),
     NULL);
 #endif
   
@@ -813,9 +813,9 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
 
   // add machine components
 #ifndef USE_SVG_GRAPHICS
-  bg_color=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BASE);
-  bg_color2=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BRIGHT2);
-  bg_color3=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_DARK1);
+  bg_color=bt_ui_resources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BASE);
+  bg_color2=bt_ui_resources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BRIGHT2);
+  bg_color3=bt_ui_resources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_DARK1);
 
   // the body
   self->priv->box=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
@@ -842,7 +842,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   // the body
   self->priv->box=gnome_canvas_item_new (GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_PIXBUF,
-                           "pixbuf", bt_ui_ressources_get_machine_graphics_pixbuf_by_machine(self->priv->machine),
+                           "pixbuf", bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine),
                            "anchor", GTK_ANCHOR_CENTER,
                            "x",0.0,
                            "y",-(w-h),

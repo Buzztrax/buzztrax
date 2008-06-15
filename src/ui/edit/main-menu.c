@@ -483,7 +483,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   GtkWidget *item,*menu,*subitem;
   BtSettings *settings;
   gboolean toolbar_hide,tabs_hide;
-  GtkAccelGroup *accel_group=bt_ui_ressources_get_accel_group();
+  GtkAccelGroup *accel_group=bt_ui_resources_get_accel_group();
 
   gtk_widget_set_name(GTK_WIDGET(self),_("main menu"));
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);

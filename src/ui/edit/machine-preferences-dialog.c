@@ -216,7 +216,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
   // create and set window icon
-  if((window_icon=bt_ui_ressources_get_icon_pixbuf_by_machine(self->priv->machine))) {
+  if((window_icon=bt_ui_resources_get_icon_pixbuf_by_machine(self->priv->machine))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
     g_object_unref(window_icon);
   }

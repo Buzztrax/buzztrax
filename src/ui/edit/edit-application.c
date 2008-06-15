@@ -53,7 +53,7 @@ struct _BtEditApplicationPrivate {
   /* the currently loaded song */
   BtSong *song;
   /* shared ui ressources */
-  BtUIRessources *ui_ressources;
+  BtUIResources *ui_resources;
   /* the top-level window of our app */
   BtMainWindow *main_window;
 
@@ -216,7 +216,7 @@ BtEditApplication *bt_edit_application_new(void) {
     goto Error;
   }
   // create or ref the shared ui ressources
-  if(!(self->priv->ui_ressources=bt_ui_ressources_new())) {
+  if(!(self->priv->ui_resources=bt_ui_resources_new())) {
     goto Error;
   }
   // create the playback controller
@@ -628,7 +628,7 @@ static void bt_edit_application_dispose(GObject *object) {
     g_object_unref(self->priv->main_window);
   }
 
-  g_object_try_unref(self->priv->ui_ressources);
+  g_object_try_unref(self->priv->ui_resources);
   g_object_try_unref(self->priv->pb_controller);
   g_object_try_unref(self->priv->ic_registry);
 

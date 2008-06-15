@@ -19,22 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BT_UI_RESSOURCES_METHODS_H
-#define BT_UI_RESSOURCES_METHODS_H
+#ifndef BT_UI_RESOURCES_METHODS_H
+#define BT_UI_RESOURCES_METHODS_H
 
-#include "ui-ressources.h"
+#include "ui-resources.h"
 #include <libbtcore/core.h>
 
-extern BtUIRessources *bt_ui_ressources_new(void);
+extern BtUIResources *bt_ui_resources_new(void);
 
-extern GdkPixbuf *bt_ui_ressources_get_icon_pixbuf_by_machine(const BtMachine *machine);
-extern GdkPixbuf *bt_ui_ressources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine);
-extern GtkWidget *bt_ui_ressources_get_icon_image_by_machine(const BtMachine *machine);
-extern GtkWidget *bt_ui_ressources_get_icon_image_by_machine_type(GType machine_type);
+extern GdkPixbuf *bt_ui_resources_get_icon_pixbuf_by_machine(const BtMachine *machine);
+extern GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine);
+extern GtkWidget *bt_ui_resources_get_icon_image_by_machine(const BtMachine *machine);
+extern GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type);
 
-extern GdkColor *bt_ui_ressources_get_gdk_color(BtUIRessourcesColors color_type);
-extern guint32 bt_ui_ressources_get_color_by_machine(const BtMachine *machine,BtUIRessourcesMachineColors color_type);
+extern GdkColor *bt_ui_resources_get_gdk_color(BtUIResourcesColors color_type);
+extern guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine,BtUIResourcesMachineColors color_type);
 
-extern GtkAccelGroup *bt_ui_ressources_get_accel_group(void);
+extern GtkAccelGroup *bt_ui_resources_get_accel_group(void);
 
-#endif // BT_UI_RESSOURCES_METHDOS_H
+#endif // BT_UI_RESOURCES_METHDOS_H

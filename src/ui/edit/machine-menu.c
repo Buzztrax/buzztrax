@@ -195,7 +195,7 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
   // generators
   menu_item=gtk_image_menu_item_new_with_label(_("Generators")); // red machine icon
   gtk_menu_shell_append(GTK_MENU_SHELL(self),menu_item);
-  image=bt_ui_ressources_get_icon_image_by_machine_type(BT_TYPE_SOURCE_MACHINE);
+  image=bt_ui_resources_get_icon_image_by_machine_type(BT_TYPE_SOURCE_MACHINE);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);
   // add another submenu
@@ -208,7 +208,7 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
   // effects
   menu_item=gtk_image_menu_item_new_with_label(_("Effects")); // green machine icon
   gtk_menu_shell_append(GTK_MENU_SHELL(self),menu_item);
-  image=bt_ui_ressources_get_icon_image_by_machine_type(BT_TYPE_PROCESSOR_MACHINE);
+  image=bt_ui_resources_get_icon_image_by_machine_type(BT_TYPE_PROCESSOR_MACHINE);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);
   // add another submenu

@@ -123,7 +123,7 @@
 #include "settings-page-interaction-controller-methods.h"
 #include "settings-page-playback-controller-methods.h"
 #include "tools.h"
-#include "ui-ressources-methods.h"
+#include "ui-resources-methods.h"
 #include "volume-popup.h"
 #include "wave-viewer.h"
 #include "wire-analysis-dialog-methods.h"

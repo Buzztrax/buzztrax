@@ -124,7 +124,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
 
   // create and set window icon
   /* e.v. tab_pattern.png
-  if((window_icon=bt_ui_ressources_get_icon_pixbuf_by_machine(self->priv->machine))) {
+  if((window_icon=bt_ui_resources_get_icon_pixbuf_by_machine(self->priv->machine))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
     g_object_unref(window_icon);
   }

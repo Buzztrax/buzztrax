@@ -1582,7 +1582,7 @@ static void on_pattern_table_cursor_row_changed(const BtPatternEditor *editor,GP
 static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,GtkListStore *store) {
   gchar *str;
   GtkTreeIter menu_iter;
-  GdkPixbuf *pixbuf=bt_ui_ressources_get_icon_pixbuf_by_machine(machine);
+  GdkPixbuf *pixbuf=bt_ui_resources_get_icon_pixbuf_by_machine(machine);
 
   g_object_get(G_OBJECT(machine),"id",&str,NULL);
   GST_INFO("  adding %p, \"%s\"  (machine-refs: %d)",machine,str,(G_OBJECT(machine))->ref_count);
@@ -3106,9 +3106,9 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   /*gtk_check_button_new();*/
 
   // get colors
-  self->priv->cursor_bg=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
-  self->priv->selection_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
-  self->priv->selection_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
+  self->priv->cursor_bg=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
+  self->priv->selection_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
+  self->priv->selection_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
 
 #ifndef USE_PATTERN_EDITOR
   // add hbox for pattern view

@@ -122,16 +122,16 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
 
   // allocation graphical contexts for drawing the overlay lines
   self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
-  gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
+  gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
   gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
 
   self->priv->loop_pos_gc=gdk_gc_new(self->priv->window);
-  gdk_gc_set_rgb_fg_color(self->priv->loop_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_LOOPLINE));
+  gdk_gc_set_rgb_fg_color(self->priv->loop_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_LOOPLINE));
   gdk_gc_set_line_attributes(self->priv->loop_pos_gc,2,GDK_LINE_ON_OFF_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
   gdk_gc_set_dashes(self->priv->loop_pos_gc,0,loop_pos_dash_list,1);
 
   self->priv->end_pos_gc=gdk_gc_new(self->priv->window);
-  gdk_gc_set_rgb_fg_color(self->priv->end_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_ENDLINE));
+  gdk_gc_set_rgb_fg_color(self->priv->end_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_ENDLINE));
   gdk_gc_set_line_attributes(self->priv->end_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
 }
 
