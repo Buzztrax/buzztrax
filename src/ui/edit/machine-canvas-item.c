@@ -509,7 +509,7 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   self->priv->id_mute=g_signal_connect(G_OBJECT(menu_item),"toggled",G_CALLBACK(on_context_menu_mute_toggled),(gpointer)self);
-  if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
+  if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
     self->priv->menu_item_solo=menu_item=gtk_check_menu_item_new_with_label(_("Solo"));
     gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
     gtk_widget_show(menu_item);

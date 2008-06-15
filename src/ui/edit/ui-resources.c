@@ -240,13 +240,10 @@ static gboolean bt_ui_resources_init_graphics(BtUIResources *self) {
   
   self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_NORMAL] = gdk_pixbuf_new_from_theme("generator",size);
   self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_MUTE  ] = gdk_pixbuf_new_from_theme("generator-mute",size);
-  // @todo: need real icon
-  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_SOLO  ] = gdk_pixbuf_new_from_theme("generator",size);
+  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_SOLO  ] = gdk_pixbuf_new_from_theme("generator-solo",size);
 
   self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_NORMAL] = gdk_pixbuf_new_from_theme("effect",size);
   self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_MUTE  ] = gdk_pixbuf_new_from_theme("effect-mute",size);
-  // @todo: need real icon
-  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_SOLO  ] = gdk_pixbuf_new_from_theme("effect",size);
   self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_BYPASS] = gdk_pixbuf_new_from_theme("effect-bypass",size);
 
   self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_NORMAL] = gdk_pixbuf_new_from_theme("master",size);

@@ -1151,7 +1151,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
       g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
       g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_mute), (gpointer)button);
-      if(!BT_IS_SINK_MACHINE(machine)) {
+      if(BT_IS_SOURCE_MACHINE(machine)) {
         button=gtk_toggle_button_new_with_label("S");
         widget_shade_bg_color(button,GTK_STATE_ACTIVE  , 1.0, 1.0, 1.0/1.3);
         widget_shade_bg_color(button,GTK_STATE_PRELIGHT, 1.0/1.1, 1.0/1.1, 1.0/1.3);

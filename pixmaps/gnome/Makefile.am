@@ -36,6 +36,7 @@ svgicon_DATA = scalable/buzztard.svg \
 	scalable/effect-mute.svg \
 	scalable/effect.svg \
 	scalable/generator-mute.svg \
+	scalable/generator-solo.svg \
 	scalable/generator.svg \
 	scalable/master-mute.svg \
 	scalable/master.svg

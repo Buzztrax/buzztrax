@@ -1,5 +1,17 @@
 2008-06-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* pixmaps/gnome/16x16/tab_waves.png:
+	* pixmaps/gnome/Makefile.am:
+	* pixmaps/gnome/scalable/generator-solo.svg:
+	* src/ui/edit/ui-resources.c:
+	  New icons.
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	  No solo for fx.
+
+2008-06-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/Makefile.am:
 	  Move generated headers to noinst_HEADERS.
 	  
