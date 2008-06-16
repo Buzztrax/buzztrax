@@ -1,5 +1,17 @@
 2008-06-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Collecting news.
+
+	* src/lib/core/sequence.c:
+	  Cleanup hashtables (was not a leak, but this way eases debugging).
+	  Also lower damage repair logging.
+
+	* src/ui/edit/main-page-machines.c:
+	  Center machine vie if we have no position.
+
+2008-06-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/bt-edit.types:
 	  Fix the build (also rename class here).
 
@@ -174,8 +186,7 @@
 	patch by: Marc Broekhuis <deloun@gmail.com>
 
 	* src/ui/edit/bt-edit.desktop.in.in:
-	  Improved desktop file.
-	  
+	  Improved desktop file.	  
 
 2008-06-03  Stefan Kost  <ensonic@users.sf.net>
 

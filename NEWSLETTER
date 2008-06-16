@@ -1,5 +1,10 @@
 2008/07 ========================================================================
 
+* svg machine canvas icons
+* color tuning and icons theme support improvemnts
+* level meters in machine view
+* some performance improvements
+
 2008/06 ========================================================================
 
 In the previous month I worked further on sample support. Samples are played now

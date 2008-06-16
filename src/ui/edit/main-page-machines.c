@@ -25,15 +25,7 @@
  *
  * Displays the machine setup on a canvas.
  */
-/* @todo: use tango svg icons for machines
- * http://library.gnome.org/devel/rsvg/stable/rsvg-GdkPixbuf.html:
- * pixbuf=rsvg_pixbuf_from_file_at_size(file_name,width,height,&error);
- * gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
- *    GNOME_TYPE_CANVAS_PIXBUF,
- *    "pixbuf",pixbuf,
- *    "x", xpos,
- *    ...
- *    NULL);
+/* @todo: re-center image when resizing window (notify on adjustments)
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
@@ -205,8 +197,20 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"xpos"))) {
     gtk_adjustment_set_value(self->priv->hadjustment,g_ascii_strtod(prop,NULL));
   }
+  else {
+    gdouble xs,xe,xp;
+    // center
+    g_object_get(G_OBJECT(self->priv->hadjustment),"lower",&xs,"upper",&xe,"page-size",&xp,NULL);
+    gtk_adjustment_set_value(self->priv->hadjustment,xs+((xe-xs-xp)*0.5));
+  }
   if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"ypos"))) {
     gtk_adjustment_set_value(self->priv->vadjustment,g_ascii_strtod(prop,NULL));
+  }
+  else {
+    gdouble ys,ye,yp;
+    // center
+    g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
+    gtk_adjustment_set_value(self->priv->vadjustment,ys+((ye-ys-yp)*0.5));
   }
 
   // draw all machines
@@ -648,10 +652,9 @@ static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
   gdouble val=gtk_adjustment_get_value(adjustment);
 
-  //GST_INFO("xpos: %lf",val);
+  GST_INFO("xpos: %lf",val);
   g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
 }
-
 
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
@@ -685,7 +688,6 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
   }
   prev_page_num = page_num;
 }
-
 
 static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
@@ -839,7 +841,6 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   gtk_toolbar_set_style(GTK_TOOLBAR(self->priv->toolbar),gtk_toolbar_get_style_from_string(toolbar_style));
   g_free(toolbar_style);
 }
-
 
 static void on_volume_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
