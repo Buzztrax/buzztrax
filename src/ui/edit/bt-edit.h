@@ -112,7 +112,6 @@
 #include "panorama-popup.h"
 #include "pattern-properties-dialog-methods.h"
 #include "pattern-editor.h"
-#include "pattern-view-methods.h"
 #include "playback-controller-socket-methods.h"
 #include "render-dialog-methods.h"
 #include "render-progress-methods.h"

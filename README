@@ -18,6 +18,7 @@ gst-plugins-base
 gst-plugins-good
 gst-plugins-bad
 gnome-canvas
+librsvg
 gst-buzztard (from buzztard svn, use same version as this module)
 
 = supported packages =

@@ -1,4 +1,4 @@
-/* $Id: wave-viewer.c  $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006-2008 Buzztard team <buzztard-devel@lists.sf.net>

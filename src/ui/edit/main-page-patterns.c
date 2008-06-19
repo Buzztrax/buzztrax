@@ -50,7 +50,6 @@
  *       - gtk_widget_add_accelerator (can't specify signal params)
  * - copy gtk_cell_renderer_progress -> bt_cell_renderer_pattern_value
  *   - limmit acceptable keys for value entries: http://www.gtk.org/faq/#AEN843
- * - move cursor down on edit
  *
  * - also do controller-assignments like in machine-property window
  */
@@ -59,8 +58,6 @@
 #define BT_MAIN_PAGE_PATTERNS_C
 
 #include "bt-edit.h"
-
-#define USE_PATTERN_EDITOR 1
 
 enum {
   MAIN_PAGE_PATTERNS_APP=1,
@@ -83,12 +80,7 @@ struct _BtMainPagePatternsPrivate {
   GtkComboBox *base_octave_menu;
 
   /* the pattern table */
-#ifndef USE_PATTERN_EDITOR
-  GtkTreeView *pattern_pos_table;
-  GtkTreeView *pattern_table;
-#else
   BtPatternEditor *pattern_table;
-#endif
 
   /* local commands */
   GtkAccelGroup *accel_group;
@@ -103,11 +95,7 @@ struct _BtMainPagePatternsPrivate {
   GdkColor *selection_bg1,*selection_bg2;
 
   /* cursor */
-#ifndef USE_PATTERN_EDITOR
-  glong cursor_column;
-#else
   guint cursor_group, cursor_param;
-#endif
   glong cursor_row;
   /* selection range */
   glong selection_start_column;
@@ -172,77 +160,6 @@ static GQuark voice_index_quark=0;
 static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data);
 static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpointer user_data);
 
-//-- tree cell data functions
-#ifndef USE_PATTERN_EDITOR
-static void generic_selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  gulong row,column;
-  GdkColor *bg_col=NULL;
-  gchar *str=NULL;
-
-  column=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
-
-  gtk_tree_model_get(model,iter,
-    PATTERN_TABLE_POS,&row,
-    PATTERN_TABLE_PRE_CT+column,&str,
-    -1);
-
-  //GST_INFO("col/row: %3d/%3d <-> %3d/%3d",column,row,self->priv->cursor_column,self->priv->cursor_row);
-
-  if((column==self->priv->cursor_column) && (row==self->priv->cursor_row)) {
-    bg_col=self->priv->cursor_bg;
-  }
-  else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
-    (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
-  ) {
-    bg_col=(row&1)?self->priv->selection_bg2:self->priv->selection_bg1;
-  }
-  g_object_set(G_OBJECT(renderer),
-    "background-gdk",bg_col,
-    "text",str,
-     NULL);
-  g_free(str);
-}
-
-static void enum_selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  gulong row,column;
-  GdkColor *bg_col=NULL;
-  GEnumClass *enum_class;
-  GEnumValue *enum_value;
-  gchar *str1=NULL;
-  const gchar *str2=NULL;
-
-  column=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
-
-  gtk_tree_model_get(model,iter,
-    PATTERN_TABLE_POS,&row,
-    PATTERN_TABLE_PRE_CT+column,&str1,
-    -1);
-
-  //GST_INFO("col/row: %3d/%3d <-> %3d/%3d",column,row,self->priv->cursor_column,self->priv->cursor_row);
-
-  if((column==self->priv->cursor_column) && (row==self->priv->cursor_row)) {
-    bg_col=self->priv->cursor_bg;
-  }
-  else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
-    (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
-  ) {
-    bg_col=(row&1)?self->priv->selection_bg2:self->priv->selection_bg1;
-  }
-  //enum_class=g_type_class_peek_static(gtk_tree_model_get_column_type(model,PATTERN_TABLE_PRE_CT+column));
-  enum_class=g_type_class_peek_static(BT_TYPE_TRIGGER_SWITCH);
-  if(BT_IS_STRING(str1) && (enum_value=g_enum_get_value(enum_class, atoi(str1)))) {
-    str2=enum_value->value_nick;
-  }
-  g_free(str1);
-  g_object_set(G_OBJECT(renderer),
-    "background-gdk",bg_col,
-    "text",str2,
-     NULL);
-}
-#endif
-
 //-- tree model helper
 
 static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *iter,BtMachine *that_machine) {
@@ -275,101 +192,6 @@ static void pattern_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *i
     g_object_unref(this_pattern);
   } while(gtk_tree_model_iter_next(store,iter));
 }
-
-#ifndef USE_PATTERN_EDITOR
-static gboolean pattern_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *path,GtkTreeViewColumn *column,gulong *col,gulong *row) {
-  gboolean res=FALSE;
-  GtkTreeModel *store;
-  GtkTreeIter iter;
-
-  g_return_val_if_fail(path,FALSE);
-
-  if((store=gtk_tree_view_get_model(tree_view))) {
-    if(gtk_tree_model_get_iter(GTK_TREE_MODEL(store),&iter,path)) {
-      if(col) {
-        GList *columns=gtk_tree_view_get_columns(tree_view);
-        *col=g_list_index(columns,(gpointer)column);
-        g_list_free(columns);
-      }
-      if(row) {
-        gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,row,-1);
-      }
-      res=TRUE;
-    }
-    else {
-      GST_INFO("No iter for path");
-    }
-  }
-  else {
-    GST_WARNING("Can't get tree-model");
-  }
-  return(res);
-}
-
-static gboolean pattern_view_set_cursor_pos(BtMainPagePatterns *self) {
-  GtkTreePath *path;
-  gboolean res=FALSE;
-
-  // @todo: http://bugzilla.gnome.org/show_bug.cgi?id=498010
-  if(!GTK_IS_TREE_VIEW(self->priv->pattern_table) || !gtk_tree_view_get_model(self->priv->pattern_table)) return(FALSE);
-
-  if((path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1))) {
-    GList *columns;
-
-    if((columns=gtk_tree_view_get_columns(self->priv->pattern_table))) {
-      GtkTreeViewColumn *column=GTK_TREE_VIEW_COLUMN(g_list_nth_data(columns,self->priv->cursor_column));
-      // set cell focus
-      gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
-
-      res=TRUE;
-      g_list_free(columns);
-    }
-    else {
-      GST_WARNING("Can't get columns for pos %d:%d",self->priv->cursor_row,self->priv->cursor_column);
-    }
-    gtk_tree_path_free(path);
-  }
-  else {
-    GST_WARNING("Can't create treepath for pos %d:%d",self->priv->cursor_row,self->priv->cursor_column);
-  }
-  if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
-    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
-  }
-  return res;
-}
-
-/*
- * pattern_get_current_pos:
- * @self: the pattern subpage
- * @time: pointer for time result
- * @track: pointer for track result
- *
- * Get the currently cursor position in the pattern table.
- * The result will be place in the respective pointers.
- * If one is NULL, no value is returned for it.
- *
- * Returns: %TRUE if the cursor is at a valid track position
- */
-static gboolean pattern_view_get_current_pos(const BtMainPagePatterns *self,gulong *time,gulong *track) {
-  gboolean res=FALSE;
-  GtkTreePath *path;
-  GtkTreeViewColumn *column;
-
-  if(!self->priv->pattern) return(FALSE);
-
-  //GST_INFO("get active pattern cell");
-
-  gtk_tree_view_get_cursor(self->priv->pattern_table,&path,&column);
-  if(column && path) {
-    res=pattern_view_get_cursor_pos(self->priv->pattern_table,path,column,track,time);
-  }
-  else {
-    GST_INFO("No cursor pos, column=%p, path=%p",column,path);
-  }
-  if(path) gtk_tree_path_free(path);
-  return(res);
-}
-#endif
 
 //-- status bar helpers
 
@@ -405,68 +227,45 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
 
     if(self->priv->pattern) {
       GParamSpec *property=NULL;
-#ifndef USE_PATTERN_EDITOR
-      BtMachine *machine;
-      gulong global_params,voice_params,voices,col;
-
-      g_object_get(self->priv->pattern,"machine",&machine,NULL);
-      g_object_get(machine,
-        "global-params",&global_params,
-        "voice-params",&voice_params,
-        "voices",&voices,
-        NULL);
-      col=self->priv->cursor_column;
+      PatternColumnGroup *group;
       
-      // get ParamSpec for global or voice param
-      if(col<global_params)
-        property=bt_machine_get_global_param_spec(machine,col);
-      else {
-        col-=global_params;
-        if(col<voices*voice_params)
-          property=bt_machine_get_voice_param_spec(machine,col%voice_params);
+      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
+      
+      group = &self->priv->param_groups[self->priv->cursor_group];
+      switch (group->type) {
+        case 0: {
+          property=bt_wire_get_param_spec(group->user_data, self->priv->cursor_param);
+          /* there is no describe here
+          bt_wire_pattern_get_event_data(group->user_data,self->priv->cursor_row,self->priv->cursor_param)
+          */
+        } break;
+        case 1: {
+          BtMachine *machine;
+          GValue *gval;
+          
+          g_object_get(self->priv->pattern,"machine",&machine,NULL);
+          property=bt_machine_get_global_param_spec(machine,self->priv->cursor_param);
+          if((gval=bt_pattern_get_global_event_data(self->priv->pattern,self->priv->cursor_row,self->priv->cursor_param)) && G_IS_VALUE(gval)) {
+            if(!(desc=bt_machine_describe_global_param_value(machine,self->priv->cursor_param,gval)))
+              desc="\0";
+          }
+          g_object_unref(machine);
+        } break;
+        case 2: {
+          BtMachine *machine;
+          GValue *gval;
+          
+          g_object_get(self->priv->pattern,"machine",&machine,NULL);
+          property=bt_machine_get_voice_param_spec(machine,self->priv->cursor_param);
+          if((gval=bt_pattern_get_voice_event_data(self->priv->pattern,self->priv->cursor_row,GPOINTER_TO_UINT(group->user_data),self->priv->cursor_param)) && G_IS_VALUE(gval)) {
+            if(!(desc=bt_machine_describe_voice_param_value(machine,self->priv->cursor_param,gval)))
+              desc="\0";
+          }
+          g_object_unref(machine);
+        } break;
+        default:
+          GST_WARNING("invalid column group type");
       }
-      g_object_unref(machine);
-#else
-    PatternColumnGroup *group;
-    
-    g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
-    
-    group = &self->priv->param_groups[self->priv->cursor_group];
-    switch (group->type) {
-      case 0: {
-        property=bt_wire_get_param_spec(group->user_data, self->priv->cursor_param);
-        /* there is no describe here
-        bt_wire_pattern_get_event_data(group->user_data,self->priv->cursor_row,self->priv->cursor_param)
-        */
-      } break;
-      case 1: {
-        BtMachine *machine;
-        GValue *gval;
-        
-        g_object_get(self->priv->pattern,"machine",&machine,NULL);
-        property=bt_machine_get_global_param_spec(machine,self->priv->cursor_param);
-        if((gval=bt_pattern_get_global_event_data(self->priv->pattern,self->priv->cursor_row,self->priv->cursor_param)) && G_IS_VALUE(gval)) {
-          if(!(desc=bt_machine_describe_global_param_value(machine,self->priv->cursor_param,gval)))
-            desc="\0";
-        }
-        g_object_unref(machine);
-      } break;
-      case 2: {
-        BtMachine *machine;
-        GValue *gval;
-        
-        g_object_get(self->priv->pattern,"machine",&machine,NULL);
-        property=bt_machine_get_voice_param_spec(machine,self->priv->cursor_param);
-        if((gval=bt_pattern_get_voice_event_data(self->priv->pattern,self->priv->cursor_row,GPOINTER_TO_UINT(group->user_data),self->priv->cursor_param)) && G_IS_VALUE(gval)) {
-          if(!(desc=bt_machine_describe_voice_param_value(machine,self->priv->cursor_param,gval)))
-            desc="\0";
-        }
-        g_object_unref(machine);
-      } break;
-      default:
-        GST_WARNING("invalid column group type");
-    }
-#endif
       // get parameter description
       if(property)
         blurb=g_param_spec_get_blurb(property);
@@ -635,44 +434,6 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
 
   g_free(str);
 }
-
-#ifndef USE_PATTERN_EDITOR
-static gboolean on_pattern_table_cursor_changed_idle(gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  GtkTreePath *path;
-  GtkTreeViewColumn *column;
-  gulong cursor_column,cursor_row;
-
-  g_return_val_if_fail(user_data,FALSE);
-
-  //GST_INFO("pattern cursor has changed : self=%p",user_data);
-
-  gtk_tree_view_get_cursor(self->priv->pattern_table,&path,&column);
-  if(pattern_view_get_cursor_pos(self->priv->pattern_table,path,column,&cursor_column,&cursor_row)) {
-    if((self->priv->cursor_column!=cursor_column) || (self->priv->cursor_row!=cursor_row)) {
-      // update statusbar
-      self->priv->cursor_column=cursor_column;
-      self->priv->cursor_row=cursor_row;
-      pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
-    }
-    else {
-      self->priv->cursor_column=cursor_column;
-      self->priv->cursor_row=cursor_row;
-    }
-    GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
-    gtk_tree_view_scroll_to_cell(self->priv->pattern_table,path,column,FALSE,1.0,0.0);
-    gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
-  }
-  if(path) gtk_tree_path_free(path);
-
-  return(FALSE);
-}
-
-static void on_pattern_table_cursor_changed(GtkTreeView *treeview, gpointer user_data) {
-  /* delay the action */
-  g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_pattern_table_cursor_changed_idle,user_data,NULL);
-}
-#endif
 
 static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
@@ -1093,293 +854,6 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       }
     }
   }
-#ifndef USE_PATTERN_EDITOR
-  else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
-    if(self->priv->pattern) {
-#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
-      gboolean changed=FALSE;
-#endif
-      BtMachine *machine;
-      gulong length,column_ct,voices,global_params,voice_params;
-
-      g_object_get(G_OBJECT(self->priv->pattern),"length",&length,"voices",&voices,"machine",&machine,NULL);
-      g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-      column_ct=global_params+voices*voice_params;
-      g_object_unref(machine);
-
-      // work around http://bugzilla.gnome.org/show_bug.cgi?id=371756
-#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
-      switch(event->keyval) {
-        case GDK_Up:
-          if(self->priv->cursor_row>0) {
-            self->priv->cursor_row--;
-            changed=TRUE;
-          }
-          break;
-        case GDK_Down:
-          if((self->priv->cursor_row+1)<length) {
-            self->priv->cursor_row++;
-            changed=TRUE;
-          }
-          break;
-      }
-      if(changed) {
-        pattern_view_set_cursor_pos(self);
-      }
-#endif
-
-      if(modifier==GDK_SHIFT_MASK) {
-        gboolean select=FALSE;
-
-        GST_INFO("handling selection");
-
-        // handle selection
-        switch(event->keyval) {
-          case GDK_Up:
-            if((self->priv->cursor_row>=0)
-#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
-              && changed
-#endif
-              ) {
-              GST_INFO("up   : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
-              if(self->priv->selection_start_row==-1) {
-                GST_INFO("up   : new selection");
-                self->priv->selection_start_column=self->priv->cursor_column;
-                self->priv->selection_end_column=self->priv->cursor_column;
-                self->priv->selection_start_row=self->priv->cursor_row;
-                self->priv->selection_end_row=self->priv->cursor_row+1;
-              }
-              else {
-                if(self->priv->selection_start_row==(self->priv->cursor_row+1)) {
-                  GST_INFO("up   : expand selection");
-                  self->priv->selection_start_row-=1;
-                }
-                else {
-                  GST_INFO("up   : shrink selection");
-                  self->priv->selection_end_row-=1;
-                }
-              }
-              GST_INFO("up   : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
-              select=TRUE;
-            }
-            break;
-          case GDK_Down:
-            if((self->priv->cursor_row<=length)
-#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
-              && changed
-#endif
-              ) {
-              GST_INFO("down : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
-              if(self->priv->selection_end_row==-1) {
-                GST_INFO("down : new selection");
-                self->priv->selection_start_column=self->priv->cursor_column;
-                self->priv->selection_end_column=self->priv->cursor_column;
-                self->priv->selection_start_row=self->priv->cursor_row-1;
-                self->priv->selection_end_row=self->priv->cursor_row;
-              }
-              else {
-                if(self->priv->selection_end_row==(self->priv->cursor_row-1)) {
-                  GST_INFO("down : expand selection");
-                  self->priv->selection_end_row+=1;
-                }
-                else {
-                  GST_INFO("down : shrink selection");
-                  self->priv->selection_start_row+=1;
-                }
-              }
-              GST_INFO("down : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
-              select=TRUE;
-            }
-            break;
-          case GDK_Left:
-            if(self->priv->cursor_column>=0) {
-              // move cursor
-              self->priv->cursor_column--;
-              pattern_view_set_cursor_pos(self);
-              GST_INFO("left : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
-              if(self->priv->selection_start_column==-1) {
-                GST_INFO("left : new selection");
-                self->priv->selection_start_column=self->priv->cursor_column;
-                self->priv->selection_end_column=self->priv->cursor_column+1;
-                self->priv->selection_start_row=self->priv->cursor_row;
-                self->priv->selection_end_row=self->priv->cursor_row;
-              }
-              else {
-                if(self->priv->selection_start_column==(self->priv->cursor_column+1)) {
-                  GST_INFO("left : expand selection");
-                  self->priv->selection_start_column--;
-                }
-                else {
-                  GST_INFO("left : shrink selection");
-                  self->priv->selection_end_column--;
-                }
-              }
-              GST_INFO("left : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
-              select=TRUE;
-            }
-            break;
-          case GDK_Right:
-            if(self->priv->cursor_column<=column_ct) {
-              // move cursor
-              self->priv->cursor_column++;
-              pattern_view_set_cursor_pos(self);
-              GST_INFO("right: %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
-              if(self->priv->selection_end_column==-1) {
-                GST_INFO("right: new selection");
-                self->priv->selection_start_column=self->priv->cursor_column-1;
-                self->priv->selection_end_column=self->priv->cursor_column;
-                self->priv->selection_start_row=self->priv->cursor_row;
-                self->priv->selection_end_row=self->priv->cursor_row;
-              }
-              else {
-                if(self->priv->selection_end_column==(self->priv->cursor_column-1)) {
-                  GST_INFO("right: expand selection");
-                  self->priv->selection_end_column++;
-                }
-                else {
-                  GST_INFO("right: shrink selection");
-                  self->priv->selection_start_column++;
-                }
-              }
-              GST_INFO("right: %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
-              select=TRUE;
-            }
-            break;
-        }
-        if(select) {
-          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
-          res=TRUE;
-        }
-      }
-      else {
-        if(self->priv->selection_start_column!=-1) {
-          self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
-          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
-        }
-      }
-    }
-  }
-  else {
-    gulong tick,param;
-
-    if(pattern_view_get_current_pos(self,&tick,&param)) {
-      gchar *str=NULL;
-      gchar oct_str[4];
-      gboolean changed=FALSE;
-
-      if(event->keyval == GDK_space || event->keyval == GDK_period) {
-        changed=TRUE;
-      }
-      else {
-        switch(self->priv->column_keymode[param]) {
-          case PATTERN_KEYMODE_NOTE:
-            /* handle y<->z of key-layouts (event->hardware_keycode)
-               keyval 0x7a, hw-code 0x34, name z
-               keyval 0x79, hw-code 0x1d, name y
-             */
-            /* @todo: handle h/b variation in notes (locale)
-             * http://en.wikipedia.org/wiki/Note#Note_name
-             */
-            switch(event->hardware_keycode) {
-              case 0x34: str="c-0";break;
-              case 0x27: str="c#0";break;
-              case 0x35: str="d-0";break;
-              case 0x28: str="d#0";break;
-              case 0x36: str="e-0";break;
-              case 0x37: str="f-0";break;
-              case 0x2a: str="f#0";break;
-              case 0x38: str="g-0";break;
-              case 0x2b: str="g#0";break;
-              case 0x39: str="a-0";break;
-              case 0x2c: str="a#0";break;
-              case 0x3a: str="h-0";break;
-              case 0x18: str="c-1";break;
-              case 0x0b: str="c#1";break;
-              case 0x19: str="d-1";break;
-              case 0x0c: str="d#1";break;
-              case 0x1a: str="e-1";break;
-              case 0x1b: str="f-1";break;
-              case 0x0e: str="f#1";break;
-              case 0x1c: str="g-1";break;
-              case 0x0f: str="g#1";break;
-              case 0x1d: str="a-1";break;
-              case 0x10: str="a#1";break;
-              case 0x1e: str="h-1";break;
-              case 0x1f: str="c-2";break;
-              case 0x12: str="c#2";break;
-              case 0x20: str="d-2";break;
-              case 0x13: str="d#2";break;
-              case 0x21: str="e-2";break;
-            }
-            if(str) {
-              oct_str[0]=str[0];
-              oct_str[1]=str[1];
-              oct_str[2]=(gchar)(((guint)str[2])+self->priv->base_octave);
-              oct_str[3]='\0';
-              str=oct_str;
-            }
-            break;
-          case PATTERN_KEYMODE_BOOL:
-            switch(event->keyval) {
-              case GDK_Delete:
-              case GDK_BackSpace:
-                str="0";
-                break;
-              case GDK_Insert:
-                str="1";
-                break;
-            }
-            break;
-        }
-        if(str) changed=TRUE;
-      }
-      if(changed) {
-        GtkTreeModel *store;
-        GtkTreePath *path;
-        BtMachine *machine;
-        gulong length,voices,global_params,voice_params;
-
-        g_object_get(G_OBJECT(self->priv->pattern),"length",&length,"voices",&voices,"machine",&machine,NULL);
-        g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-        g_object_unref(machine);
-
-        // change model and pattern
-        store=gtk_tree_view_get_model(self->priv->pattern_table);
-        gtk_tree_view_get_cursor(self->priv->pattern_table,&path,NULL);
-        if(path) {
-          GtkTreeIter iter;
-
-          GST_INFO("  update model");
-
-          if(gtk_tree_model_get_iter(GTK_TREE_MODEL(store),&iter,path)) {
-            // store the changed text in the model and pattern
-            gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_TABLE_PRE_CT+param,g_strdup(str),-1);
-            if(param<global_params) {
-              bt_pattern_set_global_event(self->priv->pattern,tick,param,(BT_IS_STRING(str)?str:NULL));
-            }
-            else {
-              gulong voice,vparams,vparam;
-
-              vparams=param-global_params;
-              voice=vparams/voice_params;
-              vparam=vparams-(voice*voice_params);
-
-              bt_pattern_set_voice_event(self->priv->pattern,tick,voice,vparam,(BT_IS_STRING(str)?str:NULL));
-            }
-          }
-          gtk_tree_path_free(path);
-        }
-        // move cursor down & set cell focus
-        if((self->priv->cursor_row+1)<length) {
-          GST_INFO("  move cursor down (row=%d/%d)",self->priv->cursor_row,length);
-          self->priv->cursor_row++;
-          pattern_view_set_cursor_pos(self);
-        }
-      }
-
-    }
-  }
-#endif
   return(res);
 }
 
@@ -1390,25 +864,6 @@ static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventBu
   g_assert(user_data);
 
   GST_INFO("pattern_table button_press : button 0x%x, type 0x%d",event->button,event->type);
-#ifndef USE_PATTERN_EDITOR
-  if(event->button==1) {
-    if(gtk_tree_view_get_bin_window(self->priv->pattern_table)==(event->window)) {
-      GtkTreePath *path;
-      GtkTreeViewColumn *column;
-      // determine sequence position from mouse coordinates
-      if(gtk_tree_view_get_path_at_pos(self->priv->pattern_table,event->x,event->y,&path,&column,NULL,NULL)) {
-        // set cell focus
-        gtk_tree_view_set_cursor_on_cell(self->priv->pattern_table,path,column,NULL,FALSE);
-        gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
-        // reset selection
-        self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
-        res=TRUE;
-      }
-      if(path) gtk_tree_path_free(path);
-    }
-  }
-  else
-#endif
   if(event->button==3) {
     gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
@@ -1416,145 +871,6 @@ static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventBu
   return(res);
 }
 
-#ifndef USE_PATTERN_EDITOR
-static gboolean on_pattern_table_motion_notify_event(GtkWidget *widget,GdkEventMotion *event,gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  gboolean res=FALSE;
-
-  g_assert(user_data);
-
-  // only activate in button_press ?
-  if(event->state&GDK_BUTTON1_MASK) {
-    if(gtk_tree_view_get_bin_window(GTK_TREE_VIEW(widget))==(event->window)) {
-      GtkTreePath *path;
-      GtkTreeViewColumn *column;
-      // determine sequence position from mouse coordinates
-      if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),event->x,event->y,&path,&column,NULL,NULL)) {
-        // handle selection
-        glong cursor_column=self->priv->cursor_column;
-        glong cursor_row=self->priv->cursor_row;
-        if(self->priv->selection_start_column==-1) {
-          self->priv->selection_column=cursor_column;
-          self->priv->selection_row=cursor_row;
-        }
-        gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
-        gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
-        // cursor updates are not yet processed
-        on_pattern_table_cursor_changed_idle(self);
-        GST_INFO("cursor new/old: %3d,%3d -> %3d,%3d",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
-        if((cursor_column!=self->priv->cursor_column) || (cursor_row!=self->priv->cursor_row)) {
-          GST_INFO("  selection before : %3d,%3d -> %3d,%3d [%3d,%3d]",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->selection_column,self->priv->selection_row);
-          if(self->priv->selection_start_column==-1) {
-            self->priv->selection_start_column=MIN(cursor_column,self->priv->selection_column);
-            self->priv->selection_start_row=MIN(cursor_row,self->priv->selection_row);
-            self->priv->selection_end_column=MAX(cursor_column,self->priv->selection_column);
-            self->priv->selection_end_row=MAX(cursor_row,self->priv->selection_row);
-          }
-          else {
-            if(self->priv->cursor_column<self->priv->selection_column) {
-              self->priv->selection_start_column=self->priv->cursor_column;
-              self->priv->selection_end_column=self->priv->selection_column;
-            }
-            else {
-              self->priv->selection_start_column=self->priv->selection_column;
-              self->priv->selection_end_column=self->priv->cursor_column;
-            }
-            if(self->priv->cursor_row<self->priv->selection_row) {
-              self->priv->selection_start_row=self->priv->cursor_row;
-              self->priv->selection_end_row=self->priv->selection_row;
-            }
-            else {
-              self->priv->selection_start_row=self->priv->selection_row;
-              self->priv->selection_end_row=self->priv->cursor_row;
-            }
-          }
-          GST_INFO("  selection after  : %3d,%3d -> %3d,%3d [%3d,%3d]",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->selection_column,self->priv->selection_row);
-          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
-        }
-        res=TRUE;
-      }
-      if(path) gtk_tree_path_free(path);
-    }
-  }
-  return(res);
-}
-
-static void on_pattern_global_cell_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  GtkTreeModel *store;
-  GtkTreeIter iter;
-
-  if((store=gtk_tree_view_get_model(self->priv->pattern_table))) {
-    if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
-      gulong param,tick;
-      gulong length;
-
-      param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
-      gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
-
-      GST_INFO("%p : global cell edited: path='%s', content='%s', param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),param,tick);
-      // store the changed text in the model and pattern
-      g_object_get(G_OBJECT(self->priv->pattern),"length",&length,NULL);
-      gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_TABLE_PRE_CT+param,g_strdup(new_text),-1);
-      bt_pattern_set_global_event(self->priv->pattern,tick,param,(BT_IS_STRING(new_text)?new_text:NULL));
-
-      // move cursor down & set cell focus
-      if((self->priv->cursor_row+1)<length) {
-        GST_INFO("  move cursor down (row=%d/%d)",self->priv->cursor_row,length);
-        self->priv->cursor_row++;
-        pattern_view_set_cursor_pos(self);
-      }
-    }
-    else {
-      GST_INFO("No iter for path");
-    }
-  }
-  else {
-    GST_WARNING("Can't get tree-model");
-  }
-}
-
-static void on_pattern_voice_cell_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  GtkTreeModel *store;
-  GtkTreeIter iter;
-
-  if((store=gtk_tree_view_get_model(self->priv->pattern_table))) {
-    if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
-      BtMachine *machine;
-      gulong voice,param,tick;
-      gulong ix,length,global_params,voice_params;
-
-      voice=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),voice_index_quark));
-      param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
-      gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
-      GST_INFO("%p, voice cell edited path='%s', content='%s', voice=%lu, param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),voice,param,tick);
-      // store the changed text in the model and pattern
-      g_object_get(G_OBJECT(self->priv->pattern),"length",&length,"machine",&machine,NULL);
-      g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-
-      ix=PATTERN_TABLE_PRE_CT+global_params+(voice*voice_params);
-      gtk_list_store_set(GTK_LIST_STORE(store),&iter,ix+param,g_strdup(new_text),-1);
-      bt_pattern_set_voice_event(self->priv->pattern,tick,voice,param,(BT_IS_STRING(new_text)?new_text:NULL));
-
-      g_object_unref(machine);
-
-      // move cursor down & set cell focus
-      if((self->priv->cursor_row+1)<length) {
-        GST_INFO("  move cursor down (row=%d/%d)",self->priv->cursor_row,length);
-        self->priv->cursor_row++;
-        pattern_view_set_cursor_pos(self);
-      }
-    }
-    else {
-      GST_INFO("No iter for path");
-    }
-  }
-  else {
-    GST_WARNING("Can't get tree-model");
-  }
-}
-#else
 static void on_pattern_table_cursor_group_changed(const BtPatternEditor *editor,GParamSpec *arg,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   
@@ -1575,7 +891,6 @@ static void on_pattern_table_cursor_row_changed(const BtPatternEditor *editor,GP
   g_object_get(G_OBJECT(editor), "cursor-row", &self->priv->cursor_row, NULL);
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
 }
-#endif
 
 //-- event handler helper
 
@@ -1687,352 +1002,6 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self) {
   g_object_unref(store); // drop with comboxbox
 }
 
-#ifndef USE_PATTERN_EDITOR
-/*
- * pattern_pos_table_init:
- * @self: the pattern page
- *
- * inserts the Pos column.
- */
-static void pattern_pos_table_init(const BtMainPagePatterns *self) {
-  GtkCellRenderer *renderer;
-  GtkTreeViewColumn *tree_col;
-  gint col_index=0;
-
-  // add static column
-  renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),
-    "mode",GTK_CELL_RENDERER_MODE_INERT,
-    "xalign",1.0,
-    "yalign",0.5,
-    NULL);
-  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
-  if((tree_col=gtk_tree_view_column_new_with_attributes(_("Pos."),renderer,
-    "text",PATTERN_TABLE_POS,
-    NULL))
-  ) {
-    g_object_set(tree_col,
-      "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
-      "fixed-width",40,
-      NULL);
-    col_index=gtk_tree_view_append_column(self->priv->pattern_pos_table,tree_col);
-  }
-  else GST_WARNING("can't create treeview column");
-
-  GST_DEBUG("    number of columns : %d",col_index);
-}
-
-/*
- * pattern_table_clear:
- * @self: the pattern page
- *
- * removes old columns
- */
-static void pattern_table_clear(const BtMainPagePatterns *self) {
-  GList *columns,*node;
-
-  // remove columns
-  g_assert(self->priv->pattern_table);
-  GST_INFO("clearing pattern table");
-  if((columns=gtk_tree_view_get_columns(self->priv->pattern_table))) {
-    GST_DEBUG("is not empty");
-    for(node=g_list_first(columns);node;node=g_list_next(node)) {
-      gtk_tree_view_remove_column(self->priv->pattern_table,GTK_TREE_VIEW_COLUMN(node->data));
-    }
-    g_list_free(columns);
-  }
-  GST_INFO("done");
-}
-
-/*
- * pattern_table_refresh:
- * @self:  the pattern page
- * @pattern: the new pattern to display
- *
- * rebuild the pattern table after a new pattern has been chosen
- */
-static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
-  GtkWidget *header;
-  GtkCellRenderer *renderer;
-  GtkListStore *store;
-  GType *store_types;
-  GtkTreeIter tree_iter;
-  gchar *str;
-  //GParamSpec *pspec;
-  GtkTreeViewColumn *tree_col;
-  GtkCellRendererMode cell_edit_mode;
-  GtkTreeCellDataFunc cell_data_func;
-
-  GST_INFO("refresh pattern table");
-  g_assert(GTK_IS_TREE_VIEW(self->priv->pattern_table));
-
-  // reset columns
-  pattern_table_clear(self);
-
-  if(pattern) {
-    gulong i,j,k,pos=0,ix,col_ct;
-    gulong number_of_ticks,voices,global_params,voice_params;
-    BtMachine *machine;
-    GType type;
-    gboolean trigger;
-
-    g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
-    g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-    GST_DEBUG("  size is %2d,%2d",number_of_ticks,global_params);
-
-    // build model
-    GST_DEBUG("  build model");
-    col_ct=1+global_params+voices*voice_params;
-    store_types=(GType *)g_new(GType,col_ct);
-    store_types[0]=G_TYPE_LONG;
-    for(i=1;i<col_ct;i++) {
-      // @todo: use specific type depending on parameter
-      store_types[i]=G_TYPE_STRING;
-    }
-    store=gtk_list_store_newv(col_ct,store_types);
-    g_free(store_types);
-    // edit modes
-    g_free(self->priv->column_keymode);
-    self->priv->column_keymode=(guint *)g_new(guint,col_ct);
-    // add events
-    for(i=0;i<number_of_ticks;i++) {
-      ix=PATTERN_TABLE_PRE_CT;
-      gtk_list_store_append(store, &tree_iter);
-      // set position
-      gtk_list_store_set(store,&tree_iter,
-        PATTERN_TABLE_POS,pos,
-        -1);
-      // global params
-      for(j=0;j<global_params;j++) {
-        if((str=bt_pattern_get_global_event(pattern,i,j))) {
-          GST_INFO("  cell %d,%d : %s",i,j,str);
-          gtk_list_store_set(store,&tree_iter,
-            ix,str,
-            -1);
-          g_free(str);
-        }
-        ix++;
-      }
-      // voice params
-      for(j=0;j<voices;j++) {
-        for(k=0;k<voice_params;k++) {
-          if((str=bt_pattern_get_voice_event(pattern,i,j,k))) {
-            gtk_list_store_set(store,&tree_iter,
-              ix,str,
-              -1);
-            g_free(str);
-          }
-          ix++;
-        }
-      }
-      pos++;
-    }
-    GST_DEBUG("    activating store: %p",store);
-    gtk_tree_view_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
-    gtk_tree_view_set_model(self->priv->pattern_pos_table,GTK_TREE_MODEL(store));
-
-    // build view
-    GST_DEBUG("  build view");
-    ix=PATTERN_TABLE_PRE_CT;
-    for(j=0;j<global_params;j++) {
-      // use specific cell-renderers by type
-      type=bt_machine_get_global_param_type(machine,j);
-      trigger=bt_machine_is_global_param_trigger(machine,j);
-      cell_edit_mode=GTK_CELL_RENDERER_MODE_EDITABLE;
-      cell_data_func=generic_selection_cell_data_function;
-      if(trigger) {
-        if(type==G_TYPE_STRING) {
-          cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
-          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NOTE;
-        }
-        else if(type==G_TYPE_BOOLEAN) {
-          cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
-          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_BOOL;
-        }
-        else if(type==BT_TYPE_TRIGGER_SWITCH) {
-          cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
-          cell_data_func=enum_selection_cell_data_function;
-          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_BOOL;
-
-        }
-        /*
-        else if(type==BT_TYPE_TRIGGER_NOTE) {
-          cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
-          cell_data_func=enum_selection_cell_data_function
-          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NOTE;
-
-        }
-        */
-        else {
-          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NUMBER;
-        }
-      }
-      else {
-        self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NUMBER;
-      }
-      /* @IDEA: we could also connect to
-        "editing-started"
-              void        user_function      (GtkCellRenderer *renderer,
-                                              GtkCellEditable *editable,
-                                              gchar           *path,
-                                              gpointer         user_data)
-        and then for the 'editable' (which is a GtkEntry) listen to the
-        "key-release-event"
-              gboolean    user_function      (GtkWidget   *widget,
-                                              GdkEventKey *event,
-                                              gpointer     user_data)
-        there we map the key to the note,
-          gtk_entry_set_text(GTK_ENTRY(widget),note_text);
-          gtk_cell_editable_editing_done(GTK_CELL_EDITABLE(widget));
-      */
-
-      renderer=gtk_cell_renderer_text_new();
-      g_object_set(G_OBJECT(renderer),
-        "mode",cell_edit_mode,
-        "xalign",1.0,
-        "family","Monospace",
-        "family-set",TRUE,
-        "editable",((cell_edit_mode==GTK_CELL_RENDERER_MODE_EDITABLE)?TRUE:FALSE),
-        "editable-set",TRUE,
-        NULL);
-      // set location data
-      g_object_set_qdata(G_OBJECT(renderer),column_index_quark,GUINT_TO_POINTER(j));
-      gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
-      if(cell_edit_mode==GTK_CELL_RENDERER_MODE_EDITABLE) {
-        g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_pattern_global_cell_edited),(gpointer)self);
-      }
-      if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
-          "text",ix,
-          NULL))
-      ) {
-        // use smaller font for the headers
-        str=g_strdup_printf("<span size=\"small\">%s</span>",bt_machine_get_global_param_name(machine,j));
-        header=gtk_label_new(NULL);
-        gtk_label_set_markup(GTK_LABEL(header),str);
-        gtk_widget_show(header);
-        g_free(str);
-
-        g_object_set(tree_col,
-          "widget",header,
-          "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
-          "fixed-width",PATTERN_CELL_WIDTH,
-          NULL);
-        g_object_set_qdata(G_OBJECT(tree_col),column_index_quark,GUINT_TO_POINTER(j));
-        gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
-        // @todo: also connect to different cell data function, depending on type
-        gtk_tree_view_column_set_cell_data_func(tree_col, renderer, cell_data_func, (gpointer)self, NULL);
-      }
-      else GST_WARNING("can't create treeview column");
-      ix++;
-    }
-    for(j=0;j<voices;j++) {
-      for(k=0;k<voice_params;k++) {
-        // use specific cell-renderers by type
-        type=bt_machine_get_voice_param_type(machine,k);
-        trigger=bt_machine_is_voice_param_trigger(machine,k);
-        cell_edit_mode=GTK_CELL_RENDERER_MODE_EDITABLE;
-        cell_data_func=generic_selection_cell_data_function;
-        if(trigger) {
-          if(type==G_TYPE_STRING) {
-            cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
-            self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NOTE;
-          }
-          else if(type==G_TYPE_BOOLEAN) {
-            cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
-            self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_BOOL;
-          }
-          else if(type==BT_TYPE_TRIGGER_SWITCH) {
-            cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
-            cell_data_func=enum_selection_cell_data_function;
-            self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_BOOL;
-
-          }
-          else {
-            self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NUMBER;
-          }
-        }
-        else {
-          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NUMBER;
-        }
-
-        renderer=gtk_cell_renderer_text_new();
-        g_object_set(G_OBJECT(renderer),
-          "mode",cell_edit_mode,
-          "xalign",1.0,
-          "family","Monospace",
-          "family-set",TRUE,
-          "editable",((cell_edit_mode==GTK_CELL_RENDERER_MODE_EDITABLE)?TRUE:FALSE),
-          "editable-set",TRUE,
-          NULL);
-        // set location data
-        g_object_set_qdata(G_OBJECT(renderer),voice_index_quark,GUINT_TO_POINTER(j));
-        g_object_set_qdata(G_OBJECT(renderer),column_index_quark,GUINT_TO_POINTER(k));
-        gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
-        if(cell_edit_mode==GTK_CELL_RENDERER_MODE_EDITABLE) {
-          g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_pattern_voice_cell_edited),(gpointer)self);
-        }
-        if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
-          "text",ix,
-          NULL))
-        ) {
-          // use smaller font for the headers
-          str=g_strdup_printf("<span size=\"small\">%s</span>",bt_machine_get_voice_param_name(machine,k));
-          header=gtk_label_new(NULL);
-          gtk_label_set_markup(GTK_LABEL(header),str);
-          gtk_widget_show(header);
-          g_free(str);
-
-          g_object_set(tree_col,
-            "widget",header,
-            "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
-            "fixed-width",PATTERN_CELL_WIDTH,
-            NULL);
-          g_object_set_qdata(G_OBJECT(tree_col),column_index_quark,GUINT_TO_POINTER(ix-PATTERN_TABLE_PRE_CT));
-          gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
-          gtk_tree_view_column_set_cell_data_func(tree_col, renderer, cell_data_func, (gpointer)self, NULL);
-        }
-        else GST_WARNING("can't create treeview column");
-        ix++;
-      }
-    }
-    g_object_unref(machine);
-
-    g_object_set(self->priv->pattern_table,"visible-rows",number_of_ticks,NULL);
-    g_object_set(self->priv->pattern_pos_table,"visible-rows",number_of_ticks,NULL);
-  }
-  else {
-    // create empty list model, so that the context menu works
-    store=gtk_list_store_new(1,G_TYPE_STRING);
-    // one empty field
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter, 0, "",-1);
-
-    GST_DEBUG("    activating dummy store: %p",store);
-    gtk_tree_view_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
-    gtk_tree_view_set_model(self->priv->pattern_pos_table,GTK_TREE_MODEL(store));
-  }
-  // add a final column that eats remaining space
-  renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),
-    "mode",GTK_CELL_RENDERER_MODE_INERT,
-    NULL);
-  if((tree_col=gtk_tree_view_column_new_with_attributes(/*title=*/NULL,renderer,NULL))) {
-    gint col_index=0;
-    g_object_set(tree_col,
-      "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
-      NULL);
-    col_index=gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
-    GST_DEBUG("    number of columns : %d",col_index);
-  }
-  else GST_WARNING("can't create treeview column");
-
-  //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_table),TRUE);
-
-  GST_DEBUG("  done");
-  // release the references
-  g_object_unref(store); // drop with treeview
-}
-#else
 
 typedef struct {
   gfloat (*str_to_float)(gchar *in, gpointer user_data);
@@ -2455,7 +1424,6 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self, 0, 0, NULL, &callbacks);
   }
 }
-#endif
 
 /*
  * context_menu_refresh:
@@ -2607,9 +1575,7 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
   g_assert(user_data);
 
   self->priv->base_octave=gtk_combo_box_get_active(self->priv->base_octave_menu);
-#ifdef USE_PATTERN_EDITOR
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,NULL);
-#endif
   if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
     gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
   }
@@ -2722,9 +1688,6 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
             if(pattern==self->priv->pattern) {
               play_pos=(gdouble)(pos-j)/(gdouble)length;
               g_object_set(self->priv->pattern_table,"play-position",play_pos,NULL);
-#ifndef USE_PATTERN_EDITOR
-              g_object_set(self->priv->pattern_pos_table,"play-position",play_pos,NULL);
-#endif
               found=TRUE;
             }
             g_object_unref(pattern);
@@ -2737,9 +1700,6 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   if(!found) {
     // unfortunately the 2nd widget may lag behind with redrawing itself :(
     g_object_set(self->priv->pattern_table,"play-position",-1.0,NULL);
-#ifndef USE_PATTERN_EDITOR
-    g_object_set(self->priv->pattern_pos_table,"play-position",-1.0,NULL);
-#endif
   }
   // release the references
   g_object_unref(sequence);
@@ -2996,11 +1956,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   GtkCellRenderer *renderer;
   gint i;
   gchar oct_str[2];
-#ifndef USE_PATTERN_EDITOR
-  GtkWidget *scrolled_sync_window;
-  GtkTreeSelection *tree_sel;
-  GtkAdjustment *vadjust;
-#endif
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -3110,30 +2065,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   self->priv->selection_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
   self->priv->selection_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
 
-#ifndef USE_PATTERN_EDITOR
-  // add hbox for pattern view
-  box=gtk_hbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(self),box);
-
-  // add pattern-pos list-view
-  scrolled_sync_window=gtk_scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_NONE);
-  self->priv->pattern_pos_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));
-  g_object_set(self->priv->pattern_pos_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
-  // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
-  gtk_widget_set_size_request(GTK_WIDGET(self->priv->pattern_pos_table),40,40);
-  tree_sel=gtk_tree_view_get_selection(self->priv->pattern_pos_table);
-  gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
-  pattern_pos_table_init(self);
-  gtk_container_add(GTK_CONTAINER(scrolled_sync_window),GTK_WIDGET(self->priv->pattern_pos_table));
-  gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_sync_window), FALSE, FALSE, 0);
-  //g_signal_connect(G_OBJECT(self->priv->pattern_pos_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
-
-  // add vertical separator
-  gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
-#endif
-
   /* @idea what about adding one control for global params and one for each voice,
    * - then these controls can be folded (hidden)
    */
@@ -3141,7 +2072,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
-#ifdef USE_PATTERN_EDITOR
+
   self->priv->pattern_table=BT_PATTERN_EDITOR(bt_pattern_editor_new());
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,"play-position",-1.0,NULL);
   //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
@@ -3151,25 +2082,9 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-param", G_CALLBACK(on_pattern_table_cursor_param_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-row", G_CALLBACK(on_pattern_table_cursor_row_changed), (gpointer)self);
   gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(scrolled_window));
-#else
-  self->priv->pattern_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));
-  tree_sel=gtk_tree_view_get_selection(self->priv->pattern_table);
-  gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
-  g_object_set(self->priv->pattern_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
-  g_signal_connect_after(G_OBJECT(self->priv->pattern_table), "cursor-changed", G_CALLBACK(on_pattern_table_cursor_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->pattern_table), "key-release-event", G_CALLBACK(on_pattern_table_key_release_event), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->pattern_table), "motion-notify-event", G_CALLBACK(on_pattern_table_motion_notify_event), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
-  gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
-#endif
+
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   gtk_widget_set_name(GTK_WIDGET(self->priv->pattern_table),_("pattern editor"));
-
-#ifndef USE_PATTERN_EDITOR
-  // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
-  vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
-  gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_sync_window),vadjust);
-#endif
 
   GST_DEBUG("  before context menu",self);
   // generate the context menu

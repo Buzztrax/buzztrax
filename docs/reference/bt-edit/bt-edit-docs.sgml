@@ -29,7 +29,6 @@
 <!ENTITY BtMissingSongElementsDialog SYSTEM "xml/btmissingsongelementsdialog.xml">
 <!ENTITY BtPanoramaPopup SYSTEM "xml/btpanoramapopup.xml">
 <!ENTITY BtPatternPropertiesDialog SYSTEM "xml/btpatternpropertiesdialog.xml">
-<!ENTITY BtPatternView SYSTEM "xml/btpatternview.xml">
 <!ENTITY BtPlaybackControllerSocket SYSTEM "xml/btplaybackcontrollersocket.xml">
 <!ENTITY BtRenderDialog SYSTEM "xml/btrenderdialog.xml">
 <!ENTITY BtRenderProgress SYSTEM "xml/btrenderprogress.xml">
@@ -41,6 +40,7 @@
 <!ENTITY BtSettingsPageDirectories SYSTEM "xml/btsettingspagedirectories.xml">
 <!ENTITY BtUIRessources SYSTEM "xml/btuiressources.xml">
 <!ENTITY BtVolumePopup SYSTEM "xml/btvolumepopup.xml">
+<!ENTITY BtWaveformViewer SYSTEM "xml/btwaveformviewer.xml">
 <!ENTITY BtWireAnalysisDialog SYSTEM "xml/btwireanalysisdialog.xml">
 <!ENTITY BtWireCanvasItem SYSTEM "xml/btwirecanvasitem.xml">
 
@@ -102,7 +102,6 @@
     &BtMissingFrameworkElementsDialog;
     &BtPatternPropertiesDialog;
     &BtPanoramaPopup;
-    &BtPatternView;
     &BtPlaybackControllerSocket;
     &BtRenderDialog;
     &BtRenderProgress;
@@ -113,6 +112,7 @@
     &BtSettingsPagePlaybackController;
     &BtSettingsPageDirectories;
     &BtUIRessources;
+    &BtWaveformViewer;
     &BtWireAnalysisDialog;
     &BtWireCanvasItem;
     &BtVolumePopup;

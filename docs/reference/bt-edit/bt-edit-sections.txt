@@ -494,24 +494,6 @@ BtPatternPropertiesDialogPrivate
 
 
 <SECTION>
-<FILE>btpatternview</FILE>
-<TITLE>BtPatternView</TITLE>
-BtPatternView
-bt_pattern_view_new
-<SUBSECTION Standard>
-BtPatternViewClass
-BT_PATTERN_VIEW
-BT_IS_PATTERN_VIEW
-BT_PATTERN_VIEW_CLASS
-BT_IS_PATTERN_VIEW_CLASS
-BT_PATTERN_VIEW_GET_CLASS
-BT_TYPE_PATTERN_VIEW
-bt_pattern_view_get_type
-BtPatternViewPrivate
-</SECTION>
-
-
-<SECTION>
 <FILE>btplaybackcontrollersocket</FILE>
 <TITLE>BtPlaybackControllerSocket</TITLE>
 BtPlaybackControllerSocket
@@ -723,6 +705,22 @@ BT_IS_VOLUME_POPUP_CLASS
 BT_VOLUME_POPUP_GET_CLASS
 BT_TYPE_VOLUME_POPUP
 bt_volume_popup_get_type
+</SECTION>
+
+
+<SECTION>
+<FILE>btwaveformviewer</FILE>
+<TITLE>BtWaveformViewer</TITLE>
+BtWaveformViewer
+bt_waveform_viewer_new
+<SUBSECTION Standard>
+BtWaveformViewer
+BT_WAVEFORM_VIEWER
+BT_IS_WAVEFORM_VIEWER
+BT_WAVEFORM_VIEWER_CLASS
+BT_IS_WAVEFORM_VIEWER_CLASS
+BT_TYPEWAVEFORM_VIEWER
+bt_waveform_viewer_get_type
 </SECTION>
 
 

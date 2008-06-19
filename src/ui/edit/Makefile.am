@@ -40,7 +40,6 @@ libbtedit_la_SOURCES	= \
 	missing-song-elements-dialog.c missing-song-elements-dialog.h missing-song-elements-dialog-methods.h \
 	panorama-popup.c panorama-popup.h \
 	pattern-properties-dialog.c pattern-properties-dialog.h pattern-properties-dialog-methods.h \
-	pattern-view.c pattern-view.h pattern-view-methods.h \
 	playback-controller-socket.c playback-controller-socket.h playback-controller-socket-methods.h \
 	sequence-view.c sequence-view.h sequence-view-methods.h \
 	render-dialog.c render-dialog.h render-dialog-methods.h \

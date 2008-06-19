@@ -47,8 +47,8 @@
  *   - use transparency for mute/bypass, solo would switch all other sources to
  *     muted, can't differenciate mute from bypass on an fx
  */
-/* @todo subclass for source, sink, processor machine
- * - not really needed when using the icons
+/* @todo: add alpha channel to pixbuf, when moving
+ * - gdk_pixbuf_add_alpha(), see put_pixel() example in GdkPixbuf docs
  */
 
 #define BT_EDIT
@@ -57,8 +57,6 @@
 #include "bt-edit.h"
 
 #define LOW_VUMETER_VAL -60.0
-
-#define USE_SVG_GRAPHICS 1
 
 //-- signal ids
 
@@ -103,9 +101,6 @@ struct _BtMachineCanvasItemPrivate {
   /* the graphical components */
   GnomeCanvasItem *label;
   GnomeCanvasItem *box;
-#ifndef USE_SVG_GRAPHICS
-  GnomeCanvasItem *state_switch,*state_mute,*state_solo,*state_bypass;
-#endif
   GnomeCanvasItem *output_meter, *input_meter;
   G_POINTER_ALIAS(GstElement *,output_level);
   G_POINTER_ALIAS(GstElement *,input_level);
@@ -195,19 +190,12 @@ static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpoint
   g_object_get(self->priv->machine,"state",&state,NULL);
   GST_INFO(" new state is %d",state);
   
-#ifdef USE_SVG_GRAPHICS
   gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->box),
     "pixbuf", bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine),
     NULL);
-#endif
   
   switch(state) {
     case BT_MACHINE_STATE_NORMAL:
-#ifndef USE_SVG_GRAPHICS
-      gnome_canvas_item_hide(self->priv->state_mute);
-      gnome_canvas_item_hide(self->priv->state_solo);
-      gnome_canvas_item_hide(self->priv->state_bypass);
-#endif
       if(self->priv->menu_item_mute && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute))) {
         g_signal_handler_block(self->priv->menu_item_mute,self->priv->id_mute);
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute),FALSE);
@@ -225,11 +213,6 @@ static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpoint
       }
       break;
     case BT_MACHINE_STATE_MUTE:
-#ifndef USE_SVG_GRAPHICS
-      gnome_canvas_item_show(self->priv->state_mute);
-      gnome_canvas_item_hide(self->priv->state_solo);
-      gnome_canvas_item_hide(self->priv->state_bypass);
-#endif
       if(self->priv->menu_item_mute && !gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute))) {
         g_signal_handler_block(self->priv->menu_item_mute,self->priv->id_mute);
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute),TRUE);
@@ -247,11 +230,6 @@ static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpoint
       }
       break;
     case BT_MACHINE_STATE_SOLO:
-#ifndef USE_SVG_GRAPHICS
-      gnome_canvas_item_hide(self->priv->state_mute);
-      gnome_canvas_item_show(self->priv->state_solo);
-      gnome_canvas_item_hide(self->priv->state_bypass);
-#endif
       if(self->priv->menu_item_mute && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute))) {
         g_signal_handler_block(self->priv->menu_item_mute,self->priv->id_mute);
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute),FALSE);
@@ -269,11 +247,6 @@ static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpoint
       }
       break;
     case BT_MACHINE_STATE_BYPASS:
-#ifndef USE_SVG_GRAPHICS
-      gnome_canvas_item_hide(self->priv->state_mute);
-      gnome_canvas_item_hide(self->priv->state_solo);
-      gnome_canvas_item_show(self->priv->state_bypass);
-#endif
       if(self->priv->menu_item_mute && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute))) {
         g_signal_handler_block(self->priv->menu_item_mute,self->priv->id_mute);
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute),FALSE);
@@ -477,7 +450,7 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
 //-- helper methods
 
 static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanvasItem *self,GdkEvent *event) {
-#ifndef USE_SVG_GRAPHICS
+#if 0
   GnomeCanvas *canvas;
   GnomeCanvasItem *ci,*pci;
   gboolean res=FALSE;
@@ -798,11 +771,6 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
   gdouble fh=MACHINE_VIEW_FONT_SIZE;
   gchar *id,*prop;
-#ifndef USE_SVG_GRAPHICS
-  guint32 bg_color,bg_color2,bg_color3;
-  gdouble mx1,mx2,my1,my2,mw,mh;
-  GnomeCanvasPoints *points;
-#endif
 
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
     (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
@@ -812,33 +780,6 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   g_object_get(self->priv->machine,"id",&id,NULL);
 
   // add machine components
-#ifndef USE_SVG_GRAPHICS
-  bg_color=bt_ui_resources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BASE);
-  bg_color2=bt_ui_resources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BRIGHT2);
-  bg_color3=bt_ui_resources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_DARK1);
-
-  // the body
-  self->priv->box=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
-                           GNOME_TYPE_CANVAS_RECT,
-                           "x1", -w,
-                           "y1", -h,
-                           "x2", +w,
-                           "y2", +h,
-                           "fill-color-rgba", bg_color,
-                           "outline_color", "black",
-                           "width-pixels", 1,
-                           NULL);
-  // title bar
-  gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
-                           GNOME_TYPE_CANVAS_RECT,
-                           "x1", -w+1,
-                           "y1", -h+2,
-                           "x2", +w-1,
-                           "y2", -h+5+fh,
-                           "fill-color-rgba", bg_color2,
-                           "width-pixels", 0,
-                           NULL);
-#else
   // the body
   self->priv->box=gnome_canvas_item_new (GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_PIXBUF,
@@ -847,20 +788,13 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "x",0.0,
                            "y",-(w-h),
                            NULL);
-#endif
-
   // the name label
   self->priv->label=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_TEXT,
                            /* can we use the x-anchor to position left ? */
                            /*"x-offset",-(w*0.1),*/
-#ifndef USE_SVG_GRAPHICS
-                           "x", +(w*0.2),
-                           "y", -h-1+fh,
-#else
                            "x", 0.0,
                            "y", -h+(fh+(w-h)),
-#endif
                            "justification", GTK_JUSTIFY_LEFT,
                            /* test if this ensures equal sizes among systems,
                             * maybe we should leave it blank */
@@ -904,85 +838,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            NULL);
   //}
   g_free(id);
-
-#ifndef USE_SVG_GRAPHICS
-  // the state switch button
-  mw=0.20;mh=0.30;
-  mx1=-w*0.90;mx2=-w*(0.90-mw);
-  my1=-h*0.85;my2=-h*(0.85-mh);
-  points=gnome_canvas_points_new(2);
-  self->priv->state_switch=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
-                           GNOME_TYPE_CANVAS_RECT,
-                           "x1", mx1,
-                           "y1", my1,
-                           "x2", mx2,
-                           "y2", my2,
-                           "fill-color-rgba", bg_color,
-                           "outline_color-rgba", bg_color3,
-                           "width-pixels", 1,
-                           NULL);
-  // the mute-state
-  self->priv->state_mute=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
-                           GNOME_TYPE_CANVAS_GROUP,
-                           "x", mx1,
-                           "y", my1,
-                           NULL);
-  points->coords[0]=0.0;points->coords[1]=0.0;points->coords[2]=(mx2-mx1);points->coords[3]=(my2-my1);
-  gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->state_mute),
-                           GNOME_TYPE_CANVAS_LINE,
-                           "points", points,
-                           "fill-color", "black",
-                           "width-pixels", 1,
-                           NULL);
-  points->coords[0]=(mx2-mx1);points->coords[1]=0.0;points->coords[2]=0.0;points->coords[3]=(my2-my1);
-  gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->state_mute),
-                           GNOME_TYPE_CANVAS_LINE,
-                           "points", points,
-                           "fill-color", "black",
-                           "width-pixels", 1,
-                           NULL);
-  gnome_canvas_item_raise_to_top(self->priv->state_mute);
-  gnome_canvas_item_hide(self->priv->state_mute);
-
-  // the solo-state
-  self->priv->state_solo=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
-                           GNOME_TYPE_CANVAS_ELLIPSE,
-                           "x1", mx1,
-                           "y1", my1,
-                           "x2", mx2,
-                           "y2", my2,
-                           "outline_color", "black",
-                           "width-pixels", 1,
-                           NULL);
-  gnome_canvas_item_raise_to_top(self->priv->state_solo);
-  gnome_canvas_item_hide(self->priv->state_solo);
-
-  // the bypass-state
-  self->priv->state_bypass=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
-                           GNOME_TYPE_CANVAS_GROUP,
-                           "x", mx1,
-                           "y", my1,
-                           NULL);
-  points->coords[0]=0.0;points->coords[1]=0.3*(my2-my1);points->coords[2]=(mx2-mx1);points->coords[3]=0.3*(my2-my1);
-  gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->state_bypass),
-                           GNOME_TYPE_CANVAS_LINE,
-                           "points", points,
-                           "fill-color", "black",
-                           "width-pixels", 1,
-                           NULL);
-  points->coords[0]=0.0;points->coords[1]=0.7*(my2-my1);points->coords[2]=(mx2-mx1);points->coords[3]=0.7*(my2-my1);
-  gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->state_bypass),
-                           GNOME_TYPE_CANVAS_LINE,
-                           "points", points,
-                           "fill-color", "black",
-                           "width-pixels", 1,
-                           NULL);
-  gnome_canvas_item_raise_to_top(self->priv->state_bypass);
-  gnome_canvas_item_hide(self->priv->state_bypass);
-
-  gnome_canvas_points_free(points);
-#endif
-  
+ 
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"properties-shown");
   if(prop && prop[0]=='1' && prop[1]=='\0') {
     if((self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine)))) {
@@ -998,9 +854,6 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   gboolean res=FALSE;
   gdouble dx, dy, px, py;
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-#ifndef USE_SVG_GRAPHICS
-  guint bg_color;
-#endif
 
   //GST_DEBUG("event for machine occured");
 
@@ -1043,11 +896,6 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       if(self->priv->dragging) {
         if(!self->priv->moved) {
           gnome_canvas_item_raise_to_top(citem);
-#ifndef USE_SVG_GRAPHICS
-          g_object_get(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",&bg_color,NULL);
-          bg_color&=0xFFFFFF7F;
-          gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",bg_color,NULL);
-#endif
           gnome_canvas_item_grab(citem, GDK_POINTER_MOTION_MASK |
                                 /* GDK_ENTER_NOTIFY_MASK | */
                                 /* GDK_LEAVE_NOTIFY_MASK | */
@@ -1077,11 +925,6 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         self->priv->dragging=FALSE;
         if(self->priv->moved) {
           gnome_canvas_item_ungrab(citem,event->button.time);
-#ifndef USE_SVG_GRAPHICS
-          g_object_get(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",&bg_color,NULL);
-          bg_color|=0x000000FF;
-          gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",bg_color,NULL);
-#endif
         }
         res=TRUE;
       }

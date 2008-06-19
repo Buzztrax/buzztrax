@@ -1,3 +1,20 @@
+2008-06-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* README:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-view-methods.h:
+	* src/ui/edit/pattern-view.c:
+	* src/ui/edit/pattern-view.h:
+	* src/ui/edit/wave-viewer.c:
+	* src/ui/edit/wave-viewer.h:
+	  Update dependencies. Remove old ifdef'ed code.
+
 2008-06-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

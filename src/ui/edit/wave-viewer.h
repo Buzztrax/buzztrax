@@ -1,10 +1,7 @@
-/* $Id: volume-popup.h 1742 2008-04-16 06:30:00Z ensonic $
+/* $Id$
  *
- * GNOME Volume Applet
- * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
- *               2006 Stefan Kost <ensonic@users.sf.net>
- *
- * gtkvolumepopup.h: floating window containing volume widgets
+ * Buzztard
+ * Copyright (C) 2008 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -58,8 +55,6 @@ struct _BtWaveformViewerClass {
 
 GtkWidget *bt_waveform_viewer_new();
 
-void bt_waveform_viewer_show(BtWaveformViewer *self);
-void bt_waveform_viewer_hide(BtWaveformViewer *self);
 void bt_waveform_viewer_update(BtWaveformViewer *self, int16_t *data, int channels, int length);
 
 GType bt_waveform_viewer_get_type(void) G_GNUC_CONST;
