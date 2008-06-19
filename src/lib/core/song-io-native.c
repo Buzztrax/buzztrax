@@ -32,6 +32,13 @@
 #define BT_SONG_IO_NATIVE_C
 
 #include "core_private.h"
+#ifdef USE_GSF
+//#include <gsf/gsf.h>
+#include <gsf/gsf-input-stdio.h>
+#include <gsf/gsf-utils.h>
+#include <gsf/gsf-infile.h>
+#include <gsf/gsf-infile-zip.h>
+#endif
 
 struct _BtSongIONativePrivate {
   /* used to validate if dispose has run */
@@ -60,7 +67,7 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
 
   // check extension
   gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
-  if(g_str_has_suffix(lc_file_name,".xml")) {
+  if(g_str_has_suffix(lc_file_name,".xml") || g_str_has_suffix(lc_file_name,".bzt")) {
     type=BT_TYPE_SONG_IO_NATIVE;
   }
   g_free(lc_file_name);
@@ -138,18 +145,60 @@ static gboolean bt_song_io_native_load(gconstpointer const _self, const BtSong *
   //gchar * const status=g_alloca(1+strlen(_("Loading file '%s'"))+strlen(file_name));
   //g_sprintf(status,_("Loading file '%s'"),file_name);
   g_object_set(G_OBJECT(self),"status",status,NULL);
-    
-  /* @todo add mime-type detection, so that we know wheter we are in zip mode */
-  
-  /* @todo add zip file processing
-   * zip_file=bt_zip_file_new(file_name,BT_ZIP_FILE_MODE_READ);
-   * xml_doc_buffer=bt_zip_file_read_file(zip_file,"song.xml",&xml_doc_size);
-   */
-  
+      
   xmlParserCtxtPtr const ctxt=xmlNewParserCtxt();
   if(ctxt) {
-    //xmlDocPtr song_doc=xmlCtxtReadMemory(ctxt,xml_doc_buffer,xml_doc_size,file_name,NULL,0L)
-    xmlDocPtr const song_doc=xmlCtxtReadFile(ctxt,file_name,NULL,0L);
+    xmlDocPtr song_doc=NULL;
+    
+    /* @todo add proper mime-type detection
+     * maybe we can even remember the result from detect() in  a static var
+     */
+    gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
+    if(g_str_has_suffix(lc_file_name,".xml")) {
+      song_doc=xmlCtxtReadFile(ctxt,file_name,NULL,0L);
+    }
+#ifdef USE_GSF
+    else if(g_str_has_suffix(lc_file_name,".bzt")) {
+      GsfInput *input;
+      GError *err=NULL;
+      
+      // open the file from the first argument
+      if((input=gsf_input_stdio_new (file_name, &err))) {
+        GsfInfile *infile;
+        // create an gsf input file
+        if((infile=gsf_infile_zip_new (input, &err))) {
+          GsfInput *data;
+          
+          GST_INFO("'%s' size: %" GSF_OFF_T_FORMAT, gsf_input_name (input),gsf_input_size (input));
+          
+          // get file from zip
+          if((data=gsf_infile_child_by_name(infile,"song.xml"))) {
+            const guint8 *bytes;
+            size_t len=(size_t)gsf_input_size(data);
+        
+            GST_INFO ("'%s' size: %" G_GSIZE_FORMAT, gsf_input_name(data), len);
+            
+            if((bytes=gsf_input_read(data,len,NULL))) {
+              song_doc=xmlCtxtReadMemory(ctxt,(const char *)bytes,len,"http://www.buzztard.org",NULL,0L);
+            }
+            g_object_unref(G_OBJECT(data));
+          }
+          g_object_unref(G_OBJECT(infile));
+        }
+        else {
+          GST_ERROR("'%s' is not a zip file: %s",file_name,err->message);
+          g_error_free(err);
+        }
+        g_object_unref(G_OBJECT(input));
+      }
+      else {
+        GST_ERROR("'%s' error: %s",file_name,err->message);
+        g_error_free(err);
+      }
+    }
+#endif
+    g_free(lc_file_name);
+    
     if(song_doc) {
       if(!ctxt->valid) {
         GST_WARNING("the supplied document is not a XML/Buzztard document");

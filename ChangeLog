@@ -1,3 +1,12 @@
+2008-06-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* design/bztloader/Makefile:
+	* design/bztloader/bztloader.c:
+	* design/bztloader/bztloader.h:
+	* src/lib/core/song-io-native.c:
+	  Initial integration of libgsf based zip loader.
+
 2008-06-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* README:

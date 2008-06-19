@@ -220,6 +220,8 @@ AC_SUBST(with_desktop_dir)
 
 
 dnl Checks for libraries.
+
+dnl mandarory deps
 PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.10.0 gobject-2.0  >= 2.10.0 gthread-2.0 >= 2.10.0 gmodule-2.0 >= 2.10.0 \
   gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
@@ -261,6 +263,7 @@ PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.4.0, [
   ]
 )
 
+dnl optional deps
 PKG_CHECK_MODULES(GNOME_DEPS, libgnome-2.0 >= 2.6.0, [
     AC_DEFINE(USE_GNOME, [1], [Define to 1 if we can use gnome libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GNOME_DEPS_CFLAGS"
@@ -285,6 +288,15 @@ PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HAL_DEPS_LIBS"
   ],[
     use_hal=no
+  ]
+)
+
+PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
+  AC_DEFINE(USE_GSF, [1], [Define to 1 if we can use gsf libraries])
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSF_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSF_DEPS_LIBS"
+  ],[
+    use_gsf=no
   ]
 )
 

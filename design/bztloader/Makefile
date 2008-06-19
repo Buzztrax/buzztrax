@@ -2,18 +2,12 @@
 
 .PHONY: clean
 
-#TARGETS = gst1 gst2 gst3 net1 net2 browser
-TARGETS = bztloader
+PROGRAMS = bztloader
 
-# targets
-
-all: $(TARGETS) bztloader.h
+all: $(PROGRAMS)
 
 clean:
-	@rm -rf core *.o *~ $(TARGETS)
-
-
-# generic rules
+	@rm -rf core *.o *~ $(PROGRAMS)
 
 %: %.c
 	gcc -Wall -g `pkg-config libgsf-1 --cflags --libs` $< -o $@
