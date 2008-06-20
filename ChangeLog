@@ -1,5 +1,20 @@
 2008-06-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-io-native.c:
+	  Cache detection. Needs to be improved, but now its in one place.
+
+	* src/lib/core/song-io.c:
+	  TODO about improving the plugin handling.
+
+	* src/lib/core/wave.c:
+	  Comment about uri resoling.
+
+	* src/ui/edit/main-window.c:
+	  Separate the filter in the file-chooser. Use them to fixup the 
+	  resulting filename in save-as.
+
+2008-06-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* design/bztloader/Makefile:
 	* design/bztloader/bztloader.c:

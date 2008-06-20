@@ -49,6 +49,13 @@ static GQuark error_domain=0;
 
 static BtSongIOClass *parent_class=NULL;
 
+enum {
+  BT_SONG_IO_NATIVE_MODE_UNDEF=0,
+  BT_SONG_IO_NATIVE_MODE_XML,
+  BT_SONG_IO_NATIVE_MODE_BZT
+};
+static gint last_detect_mode=BT_SONG_IO_NATIVE_MODE_UNDEF;
+
 //-- plugin detect
 /**
  * bt_song_io_native_detect:
@@ -65,10 +72,16 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   GST_INFO("file_name='%s'",file_name);
   if(!file_name) return(type);
 
+  /* @todo add proper mime-type detection (gio) */
   // check extension
   gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
-  if(g_str_has_suffix(lc_file_name,".xml") || g_str_has_suffix(lc_file_name,".bzt")) {
+  if(g_str_has_suffix(lc_file_name,".xml")) {
     type=BT_TYPE_SONG_IO_NATIVE;
+    last_detect_mode=BT_SONG_IO_NATIVE_MODE_XML;
+  }
+  else if(g_str_has_suffix(lc_file_name,".bzt")) {
+    type=BT_TYPE_SONG_IO_NATIVE;
+    last_detect_mode=BT_SONG_IO_NATIVE_MODE_BZT;
   }
   g_free(lc_file_name);
 
@@ -150,15 +163,11 @@ static gboolean bt_song_io_native_load(gconstpointer const _self, const BtSong *
   if(ctxt) {
     xmlDocPtr song_doc=NULL;
     
-    /* @todo add proper mime-type detection
-     * maybe we can even remember the result from detect() in  a static var
-     */
-    gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
-    if(g_str_has_suffix(lc_file_name,".xml")) {
+    if(last_detect_mode==BT_SONG_IO_NATIVE_MODE_XML) {
       song_doc=xmlCtxtReadFile(ctxt,file_name,NULL,0L);
     }
 #ifdef USE_GSF
-    else if(g_str_has_suffix(lc_file_name,".bzt")) {
+    else if(last_detect_mode==BT_SONG_IO_NATIVE_MODE_BZT) {
       GsfInput *input;
       GError *err=NULL;
       
@@ -197,7 +206,6 @@ static gboolean bt_song_io_native_load(gconstpointer const _self, const BtSong *
       }
     }
 #endif
-    g_free(lc_file_name);
     
     if(song_doc) {
       if(!ctxt->valid) {

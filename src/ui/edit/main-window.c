@@ -54,6 +54,9 @@ struct _BtMainWindowPrivate {
   BtMainPages *pages;
   /* the statusbar of the window */
   BtMainStatusbar *statusbar;
+  
+  /* GtkFileChooserFilters */
+  GtkFileFilter *filter_xml, *filter_bzt;
 };
 
 static GtkWindowClass *parent_class=NULL;
@@ -63,6 +66,46 @@ static GtkTargetEntry drop_types[] = {
    { "text/uri-list", 0, TARGET_URI_LIST }
 };
 static gint n_drop_types = sizeof(drop_types) / sizeof(GtkTargetEntry);
+
+//-- helper methods
+
+static gchar* update_filename_ext(const BtMainWindow *self,GtkFileChooser *dialog,gchar *file_name) {
+  GtkFileFilter *filter;
+  gchar *new_file_name=NULL;
+  gchar *ext;
+  
+  filter=gtk_file_chooser_get_filter(dialog);
+  
+  GST_WARNING("old song name = '%s', filter %p",file_name, filter);
+  GST_WARNING("filter_xml %p, filter_bzt %p",self->priv->filter_xml, self->priv->filter_bzt);
+  
+  ext=strrchr(file_name,'.');
+
+  if(ext) {
+    if((filter!=self->priv->filter_xml) && !strcmp(ext,".xml")) {
+      file_name[strlen(file_name)-strlen(".xml")]='\0';
+      GST_INFO("cut fn to: %s",file_name);
+    }
+    else if((filter!=self->priv->filter_bzt) && !strcmp(ext,".bzt")) {
+      file_name[strlen(file_name)-strlen(".bzt")]='\0';
+      GST_INFO("cut fn to: %s",file_name);
+    }
+  }
+
+  if((filter==self->priv->filter_xml) && (!ext || strcmp(ext,".xml"))) {
+    new_file_name=g_strdup_printf("%s.xml",file_name);
+  }
+  else if((filter==self->priv->filter_bzt) && (!ext || strcmp(ext,".bzt"))) {
+    new_file_name=g_strdup_printf("%s.bzt",file_name);
+  }
+  
+  if(new_file_name && strcmp(file_name,new_file_name)) {
+    GST_WARNING("new song name = '%s'",new_file_name);
+    return (new_file_name);
+  }
+  g_free (new_file_name);
+  return(NULL);
+}
 
 //-- event handler
 
@@ -167,6 +210,25 @@ static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gi
     g_free(file_name);
   }
 }
+
+#if 0
+// gtk does not allow us to filter the filename in a meaning full way
+static void on_chooser_filter_changed(GtkFileChooser *dialog,GParamSpec *arg,gpointer user_data) {
+  const BtMainWindow *self=BT_MAIN_WINDOW(user_data);
+  gchar *file_name,*new_file_name=NULL;
+  
+  file_name=gtk_file_chooser_get_filename(dialog);
+  if(!file_name) {
+    GST_WARNING("no filename yet");
+    return;
+  }
+  if((new_file_name=update_filename_ext(self,dialog,file_name))) {
+    gtk_file_chooser_set_filename(dialog,new_file_name);
+  }
+  g_free(file_name);
+  g_free(new_file_name);
+}
+#endif
 
 /* just for testing
 static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer user_data) {
@@ -478,12 +540,28 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   BtSongInfo *song_info;
   gchar *name,*folder_name,*file_name=NULL;
   gint result;
-  GtkFileFilter *filter;
   GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Save a song"),GTK_WINDOW(self),GTK_FILE_CHOOSER_ACTION_SAVE,
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
   
+  // @todo: integrate with bt_song_io
+  // set filters
+  self->priv->filter_xml=gtk_file_filter_new();
+  gtk_file_filter_set_name(self->priv->filter_xml,"buzztard song without waves");
+  gtk_file_filter_add_mime_type(self->priv->filter_xml,"audio/x-bzt-xml");
+  gtk_file_filter_add_pattern(self->priv->filter_xml,"*.xml");
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),self->priv->filter_xml);
+  self->priv->filter_bzt=gtk_file_filter_new();
+  gtk_file_filter_set_name(self->priv->filter_bzt,"buzztard song with waves");
+  gtk_file_filter_add_mime_type(self->priv->filter_bzt,"audio/x-bzt");
+  gtk_file_filter_add_pattern(self->priv->filter_bzt,"*.bzt");
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),self->priv->filter_bzt);
+#if 0
+  // gtk does not allow us to filter the filename in a meaning full way
+  g_signal_connect(G_OBJECT(dialog),"notify::filter",G_CALLBACK(on_chooser_filter_changed),(gpointer)self);
+#endif
+
   // get songs file-name
   g_object_get(G_OBJECT(self->priv->app),"song",&song,"settings",&settings,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
@@ -491,6 +569,10 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   g_object_get(settings,"song-folder",&folder_name,NULL);
   if(!file_name) {
     GST_WARNING("use defaults %s/%s",folder_name,name);
+#if 0
+    // gtk does not allow us to filter the filename in a meaning full way
+    file_name=update_filename_ext(self,GTK_FILE_CHOOSER(dialog),name);
+#endif
     /* the user just created a new document */
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(dialog), folder_name);
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER(dialog), name);
@@ -503,15 +585,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   g_free(file_name);file_name=NULL;
   g_free(folder_name);
   g_free(name);
-  
-  // set filter
-  filter=gtk_file_filter_new();
-  // @todo: integrate with bt_song_io
-  gtk_file_filter_set_name(filter,"buzztard song");
-  gtk_file_filter_add_mime_type(filter,"text/xml");
-  gtk_file_filter_add_mime_type(filter,"audio/x-bzt"); // this does not work yet
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
-  
+    
   g_object_unref(settings);
   g_object_unref(song_info);
   g_object_unref(song);
@@ -519,9 +593,16 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   result=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
-    case GTK_RESPONSE_OK:
+    case GTK_RESPONSE_OK: {
+      gchar *new_file_name=NULL;
+
+      // make sure it has the extension matching the filter
       file_name=gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-      break;
+      if((new_file_name=update_filename_ext(self,GTK_FILE_CHOOSER(dialog),file_name))) {
+        g_free(file_name);
+        file_name=new_file_name;      
+      }
+    } break;
     case GTK_RESPONSE_REJECT:
     case GTK_RESPONSE_CANCEL:
     case GTK_RESPONSE_CLOSE:
@@ -534,6 +615,8 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   if(file_name) {
     FILE *file;
     gboolean cont=TRUE;
+    
+    GST_WARNING("song name = '%s'",file_name);
 
     if((file=fopen(file_name,"rb"))) {
       GST_INFO("file already exists");

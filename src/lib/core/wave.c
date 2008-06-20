@@ -318,6 +318,12 @@ gboolean bt_wave_load_from_uri(const BtWave * const self) {
   // check if the url is valid
   if(!uri || !gnome_vfs_uri_exists(uri)) goto invalid_uri;
   
+  /* handle chained uris, use libgsf to load from song-file
+   * (see song-io-native.c)
+   * file:///data/samples/basedrums/909base.wav
+   * file://!/wavetable/dreampad.wav
+   */
+  
   // create loader pipeline
   self->priv->pipeline=gst_pipeline_new("wave-loader");
   src=gst_element_make_from_uri(GST_URI_SRC,self->priv->uri,NULL);

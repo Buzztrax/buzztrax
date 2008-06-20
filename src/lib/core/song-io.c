@@ -26,11 +26,16 @@
  * needs to be installed as a shared library into LIBDIR/songio. It is
  * recognized, if it exports method named bt_song_io_detect(). At runtime the
  * detect method of each module is called with the choosen file-name. The module
- * should return its type if it can handle the format or %NULL else.
+ * should return its #GType if it can handle the format or %NULL else.
  *
  * Such a module should overwrite bt_song_io_load() and/or bt_song_io_save().
  *
  * There is an internal subclass of this called #BtSongIONative.
+ *
+ * <note><para>
+ * This API is not yet fully stable. Please discuss with the deverloper team. if
+ * you intend to write a io plugin
+ * </para></note>
  */
 
 #define BT_CORE
@@ -58,7 +63,13 @@ struct _BtSongIOPrivate {
 
 static GObjectClass *parent_class=NULL;
 
-/* list of registered io-classes */
+/* list of registered io-classes, each entry points to a detect function
+ * @todo: we should gather a structure for each plugin
+ * - the structure will have the detect function pointer
+ * - the default extension
+ * - the mime type
+ * This would help with code in main-window.c
+ */
 static GList *plugins=NULL;
 
 
