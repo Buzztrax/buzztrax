@@ -1,3 +1,8 @@
+2008-06-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Disconnect from the bus, when removing a machine.
+
 2008-06-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-io-native.c:

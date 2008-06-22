@@ -715,6 +715,8 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
 
 static void bt_machine_canvas_item_dispose(GObject *object) {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(object);
+  BtSong *song;
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
@@ -723,6 +725,20 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   GST_DEBUG("machine: %p,ref_count %d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
   
   g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->machine),G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
+
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(song) {
+    GstBin *bin;
+    GstBus *bus;
+
+    g_object_get(G_OBJECT(song),"bin", &bin,NULL);
+    bus=gst_element_get_bus(GST_ELEMENT(bin));
+    g_signal_handlers_disconnect_matched(bus, G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_level_change,NULL);
+    gst_object_unref(bus);
+    gst_object_unref(bin);
+    g_object_unref(song);
+  }
+
   GST_DEBUG("  signal disconected");
   
   g_object_try_weak_unref(self->priv->app);
