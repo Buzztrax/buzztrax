@@ -34,10 +34,13 @@
 #include "core_private.h"
 #ifdef USE_GSF
 //#include <gsf/gsf.h>
-#include <gsf/gsf-input-stdio.h>
 #include <gsf/gsf-utils.h>
+#include <gsf/gsf-input-stdio.h>
 #include <gsf/gsf-infile.h>
 #include <gsf/gsf-infile-zip.h>
+#include <gsf/gsf-output-stdio.h>
+#include <gsf/gsf-outfile.h>
+#include <gsf/gsf-outfile-zip.h>
 #endif
 
 struct _BtSongIONativePrivate {
@@ -69,7 +72,6 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   GType type=0;
 
   // test filename first  
-  GST_INFO("file_name='%s'",file_name);
   if(!file_name) return(type);
 
   /* @todo add proper mime-type detection (gio) */
@@ -84,6 +86,8 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
     last_detect_mode=BT_SONG_IO_NATIVE_MODE_BZT;
   }
   g_free(lc_file_name);
+
+  GST_INFO("file_name='%s' => %d",file_name,last_detect_mode);
 
 #if 0
   // lets replace this with GIO later
@@ -150,7 +154,7 @@ static gboolean bt_song_io_native_load(gconstpointer const _self, const BtSong *
   gchar * const file_name;
   
   g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
-  GST_INFO("native io will now load song from \"%s\"",file_name);
+  GST_INFO("native io (%d) will now load song from \"%s\"",last_detect_mode,file_name);
 
   const gchar * const msg=_("Loading file '%s'");
   gchar * const status=g_alloca(1+strlen(msg)+strlen(file_name));
@@ -179,7 +183,7 @@ static gboolean bt_song_io_native_load(gconstpointer const _self, const BtSong *
           GsfInput *data;
           
           GST_INFO("'%s' size: %" GSF_OFF_T_FORMAT, gsf_input_name (input),gsf_input_size (input));
-          
+
           // get file from zip
           if((data=gsf_infile_child_by_name(infile,"song.xml"))) {
             const guint8 *bytes;
@@ -189,6 +193,9 @@ static gboolean bt_song_io_native_load(gconstpointer const _self, const BtSong *
             
             if((bytes=gsf_input_read(data,len,NULL))) {
               song_doc=xmlCtxtReadMemory(ctxt,(const char *)bytes,len,"http://www.buzztard.org",NULL,0L);
+            }
+            else {
+              GST_WARNING("'%s': error reading data",file_name);
             }
             g_object_unref(G_OBJECT(data));
           }
@@ -244,7 +251,7 @@ static gboolean bt_song_io_native_save(gconstpointer const _self, const BtSong *
   gchar * const file_name;
   
   g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
-  GST_INFO("native io will now save song to \"%s\"",file_name);
+  GST_INFO("native io (%d) will now save song to \"%s\"",last_detect_mode,file_name);
 
   const gchar * const msg=_("Saving file '%s'");
   gchar * const status=g_alloca(1+strlen(msg)+strlen(file_name));
@@ -258,10 +265,56 @@ static gboolean bt_song_io_native_save(gconstpointer const _self, const BtSong *
     xmlNodePtr const root_node=bt_persistence_save(BT_PERSISTENCE(song),NULL,NULL);
     if(root_node) {
       xmlDocSetRootElement(song_doc,root_node);
-      if(xmlSaveFile(file_name,song_doc)!=-1) {
-        result=TRUE;
+      if(last_detect_mode==BT_SONG_IO_NATIVE_MODE_XML) {
+        if(xmlSaveFile(file_name,song_doc)!=-1) {
+          result=TRUE;
+          GST_INFO("xml saved okay");
+        }
+        else GST_ERROR("failed to write song file \"%s\"",file_name);
       }
-      else GST_ERROR("failed to write song file \"%s\"",file_name);
+#ifdef USE_GSF
+      else if(last_detect_mode==BT_SONG_IO_NATIVE_MODE_BZT) {
+        GsfOutput *output;
+        GError *err=NULL;
+        
+        // open the file from the first argument
+        if((output=gsf_output_stdio_new (file_name, &err))) {
+          GsfOutfile *outfile;
+          // create an gsf output file
+          if((outfile=gsf_outfile_zip_new (output, &err))) {
+            GsfOutput *data;
+            
+            // create file in zip
+            if((data=gsf_outfile_new_child(outfile,"song.xml",FALSE))) {
+              xmlChar *bytes;
+              gint size;
+              
+              xmlDocDumpMemory(song_doc,&bytes,&size);
+              if(gsf_output_write(data, (size_t)size, (guint8 const *)bytes)) {
+                result=TRUE;
+                GST_INFO("bzt saved okay");
+              }
+              else GST_ERROR("failed to write song file \"%s\"",file_name);
+              xmlFree(bytes);
+              gsf_output_close(data);
+              g_object_unref(G_OBJECT(data));
+            }
+            gsf_output_close(GSF_OUTPUT(outfile));
+            g_object_unref(G_OBJECT(outfile));
+          }
+          else {
+            GST_ERROR("'%s' can't create zip file: %s",file_name,err->message);
+            g_error_free(err);
+          }
+          gsf_output_close(output);
+          g_object_unref(G_OBJECT(output));
+        }
+        else {
+          GST_ERROR("'%s' error: %s",file_name,err->message);
+          g_error_free(err);
+        }
+      }
+#endif
     }
   }
   

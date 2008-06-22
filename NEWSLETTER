@@ -1,9 +1,10 @@
 2008/07 ========================================================================
 
 * svg machine canvas icons
-* color tuning and icons theme support improvemnts
+* color tuning and icons theme support improvements
 * level meters in machine view
 * some performance improvements
+* basic zip-file loading and saving (still needs sample support)
 
 2008/06 ========================================================================
 

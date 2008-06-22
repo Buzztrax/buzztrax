@@ -7,7 +7,7 @@
 	  TODO about improving the plugin handling.
 
 	* src/lib/core/wave.c:
-	  Comment about uri resoling.
+	  Comment about uri resolving.
 
 	* src/ui/edit/main-window.c:
 	  Separate the filter in the file-chooser. Use them to fixup the 
