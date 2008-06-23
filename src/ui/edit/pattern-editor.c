@@ -305,7 +305,7 @@ bt_pattern_editor_get_col_height (BtPatternEditor *self)
 static void
 bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 {
-  int y = self->colhdr_height + (self->row * self->ch);
+  int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
   
   gtk_widget_queue_draw_area (GTK_WIDGET(self), 0, y, GTK_WIDGET(self)->allocation.width, self->ch);
   //gtk_widget_queue_draw (GTK_WIDGET(self));
@@ -532,7 +532,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   GdkRectangle rect = event->area;
   int y, x, i, row, g, max_y;
   int start;
-  int rowhdr_x, colhdr_y;
+  int rowhdr_x, colhdr_y, hh;
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
@@ -551,24 +551,21 @@ bt_pattern_editor_expose (GtkWidget *widget,
     self->ofs_y = (gint)gtk_adjustment_get_value(self->vadj);
   }
 
+  self->colhdr_height = hh = self->ch;
   x = rect.x;
   y = rect.y;
+  y = hh + (int)(self->ch * floor((y - hh) / self->ch));
+  if (y < hh)
+      y = hh;
   max_y = rect.y + rect.height; /* end of dirty region */
+  max_y = hh + (int)(self->ch * ceil((max_y - hh) / self->ch));
     
   /* leave space for headers */
   rowhdr_x = x;
   self->rowhdr_width = bt_pattern_editor_rownum_width(self) + self->cw;
   x += self->rowhdr_width;
-  if(!rect.y) {
-    colhdr_y = y;
-    self->colhdr_height = self->ch;
-    y += self->colhdr_height;
-    row=0;
-  }
-  else {
-    /* calculate which row to start from */
-    row = (rect.y - self->colhdr_height) / self->ch;
-  }
+  colhdr_y = 0;
+  row = (y - hh) / self->ch;
 
   GST_DEBUG("Scroll: %d,%d, row=%d",self->ofs_x, self->ofs_y, row);
 
