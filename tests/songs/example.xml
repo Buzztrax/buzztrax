@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- xsd:schemaLocation="http://www.buzztard.org buzztard.xsd" -->
 <buzztard
   xmlns="http://www.buzztard.org/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
+<!-- xsd:schemaLocation="http://www.buzztard.org buzztard.xsd" -->
 
   <meta>
     <info>what a lovely tune</info>

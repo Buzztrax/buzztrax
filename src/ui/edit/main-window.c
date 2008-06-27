@@ -467,8 +467,8 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   gtk_file_filter_set_name(filter,"buzztard song");
   gtk_file_filter_add_mime_type(filter,"audio/x-bzt-xml");
   gtk_file_filter_add_mime_type(filter,"audio/x-bzt");
-  gtk_file_filter_add_pattern(filter,"*.xml");
-  gtk_file_filter_add_pattern(filter,"*.bzt");
+  //gtk_file_filter_add_pattern(filter,"*.xml");
+  //gtk_file_filter_add_pattern(filter,"*.bzt");
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
   filter=gtk_file_filter_new();
   gtk_file_filter_set_name(filter,"all files");
@@ -503,6 +503,21 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       gchar *msg=g_strdup_printf(_("An error occured while loading the song from file '%s'"),file_name);
       bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);
       g_free(msg);
+    }
+    else {
+#ifdef HAVE_GTK_2_10
+      // store recent file
+      GtkRecentManager *manager=gtk_recent_manager_get_default();
+      gchar *uri=g_filename_to_uri(file_name,NULL,NULL);
+      
+      if(!gtk_recent_manager_add_item (manager, uri)) {
+	    GST_WARNING("Can't store recent file");
+      }
+      else {
+        GST_WARNING("Stored recent file");
+      }
+      g_free(uri);
+#endif
     }
     g_free(file_name);
   }
@@ -565,12 +580,12 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   self->priv->filter_xml=gtk_file_filter_new();
   gtk_file_filter_set_name(self->priv->filter_xml,"buzztard song without waves");
   gtk_file_filter_add_mime_type(self->priv->filter_xml,"audio/x-bzt-xml");
-  gtk_file_filter_add_pattern(self->priv->filter_xml,"*.xml");
+  //gtk_file_filter_add_pattern(self->priv->filter_xml,"*.xml");
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),self->priv->filter_xml);
   self->priv->filter_bzt=gtk_file_filter_new();
   gtk_file_filter_set_name(self->priv->filter_bzt,"buzztard song with waves");
   gtk_file_filter_add_mime_type(self->priv->filter_bzt,"audio/x-bzt");
-  gtk_file_filter_add_pattern(self->priv->filter_bzt,"*.bzt");
+  //gtk_file_filter_add_pattern(self->priv->filter_bzt,"*.bzt");
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),self->priv->filter_bzt);
 #if 0
   // gtk does not allow us to filter the filename in a meaning full way
@@ -583,7 +598,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   g_object_get(G_OBJECT(song_info),"name",&name,"file-name",&file_name,NULL);
   g_object_get(settings,"song-folder",&folder_name,NULL);
   if(!file_name) {
-    GST_WARNING("use defaults %s/%s",folder_name,name);
+    GST_DEBUG("use defaults %s/%s",folder_name,name);
 #if 0
     // gtk does not allow us to filter the filename in a meaning full way
     file_name=update_filename_ext(self,GTK_FILE_CHOOSER(dialog),name);
@@ -593,9 +608,28 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER(dialog), name);
   }
   else {
+    GtkFileFilterInfo ffi = { 
+      GTK_FILE_FILTER_FILENAME|GTK_FILE_FILTER_DISPLAY_NAME, 
+      file_name, 
+      NULL,
+      file_name,
+      NULL
+    };
     /* the user edited an existing document */
-    GST_WARNING("use last path %s",file_name);
     gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),file_name);
+    /* select a filter that would show this file */
+    if(gtk_file_filter_filter(self->priv->filter_xml,&ffi)) {
+      GST_DEBUG("use last path %s, format is xml",file_name);
+      gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),self->priv->filter_xml);
+    }
+    else if(gtk_file_filter_filter(self->priv->filter_bzt,&ffi)) {
+      GST_DEBUG("use last path %s, format is bzt",file_name);
+      gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),self->priv->filter_bzt);
+    }
+    else {
+      GST_DEBUG("use last path %s, format is ???, needed flags: 0x%x, 0x%x",
+        file_name,gtk_file_filter_get_needed(self->priv->filter_xml),gtk_file_filter_get_needed(self->priv->filter_bzt));
+    }
   }
   g_free(file_name);file_name=NULL;
   g_free(folder_name);

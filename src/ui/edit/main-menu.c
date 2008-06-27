@@ -78,6 +78,35 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   g_object_unref(main_window);
 }
 
+#ifdef HAVE_GTK_2_10
+static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  GtkRecentInfo *info;
+  gchar *file_name;
+  const gchar *uri;
+  
+  if(!(info=gtk_recent_chooser_get_current_item(chooser))) {
+    GST_WARNING ("Unable to retrieve the current recent-item, aborting...");
+    return;
+  }
+  uri=gtk_recent_info_get_uri(info);
+  file_name=g_filename_from_uri(uri,NULL,NULL);
+  
+  GST_INFO("menu open event occurred : %s",file_name);
+
+  if(!bt_edit_application_load_song(self->priv->app,file_name)) {
+    BtMainWindow *main_window;
+    gchar *msg=g_strdup_printf(_("An error occured while loading the song from file '%s'"),file_name);
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    
+    bt_dialog_message(main_window,_("Can't load song"),_("Can't load song"),msg);
+    g_free(msg);
+    g_object_unref(main_window);
+  }
+  g_free(file_name);
+}
+#endif
+
 static void on_menu_save_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
@@ -510,6 +539,29 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_open_activate),(gpointer)self);
 
+#ifdef HAVE_GTK_2_10
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Open Recent"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
+  item=gtk_recent_chooser_menu_new_for_manager(gtk_recent_manager_get_default());
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(subitem),item);
+  g_signal_connect (item, "item-activated", G_CALLBACK (on_menu_open_recent_activate), (gpointer)self);
+  
+  {
+    GtkRecentFilter *filter=gtk_recent_filter_new();
+    
+    // @todo: integrate with bt_song_io
+    // set filters
+    //gtk_recent_filter_add_application (filter, "bt-edit");
+    gtk_recent_filter_add_mime_type(filter,"audio/x-bzt-xml");
+    gtk_recent_filter_add_mime_type(filter,"audio/x-bzt");
+    //gtk_recent_filter_add_pattern(filter,"*.xml");
+    //gtk_recent_filter_add_pattern(filter,"*.bzt");
+    gtk_recent_chooser_add_filter(GTK_RECENT_CHOOSER(item),filter);
+    gtk_recent_chooser_set_filter(GTK_RECENT_CHOOSER(item),filter);
+  }
+#endif
+  
   subitem=gtk_separator_menu_item_new();
   gtk_widget_set_name(subitem,_("separator"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
