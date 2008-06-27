@@ -1,5 +1,17 @@
 2008-06-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/buzztard.xml.in:
+	  Better format detection.
+
+	* src/ui/edit/main-window.c:
+	  Add filters to loader dialog too and improve filter on saver (use to
+	  select format).
+
+	* src/lib/core/sink-bin.c:
+	  Downgrade a warning (was for debugging only).
+
+2008-06-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* src/lib/core/libbtcore/song-io-native-methods.h:
 	* src/lib/core/libbtcore/song-io-native.h:

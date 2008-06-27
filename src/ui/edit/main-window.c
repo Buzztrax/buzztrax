@@ -459,6 +459,21 @@ void bt_main_window_open_song(const BtMainWindow *self) {
 				      NULL);
   gint result;
   gchar *folder_name,*file_name=NULL;
+  GtkFileFilter *filter;
+
+  // @todo: integrate with bt_song_io
+  // set filters
+  filter=gtk_file_filter_new();
+  gtk_file_filter_set_name(filter,"buzztard song");
+  gtk_file_filter_add_mime_type(filter,"audio/x-bzt-xml");
+  gtk_file_filter_add_mime_type(filter,"audio/x-bzt");
+  gtk_file_filter_add_pattern(filter,"*.xml");
+  gtk_file_filter_add_pattern(filter,"*.bzt");
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+  filter=gtk_file_filter_new();
+  gtk_file_filter_set_name(filter,"all files");
+  gtk_file_filter_add_pattern(filter,"*");
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
 
   // set a default songs folder
   //gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
