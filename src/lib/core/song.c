@@ -55,13 +55,15 @@ enum {
   SONG_WAVETABLE,
   SONG_UNSAVED,
   SONG_PLAY_POS,
-  SONG_IS_PLAYING
+  SONG_IS_PLAYING,
+  SONG_IO
 };
 
 struct _BtSongPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
+  /* the parts of the song */
   BtSongInfo*  song_info;
   BtSequence*  sequence;
   BtSetup*     setup;
@@ -89,7 +91,10 @@ struct _BtSongPrivate {
   GstEvent *loop_seek_event;
   GstEvent *idle_seek_event;
   /* timeout handlers */
-  guint paused_timeout_id,playback_timeout_id; 
+  guint paused_timeout_id,playback_timeout_id;
+  
+  /* the song-io plugin during i/o operations */
+  BtSongIO *song_io;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -1366,6 +1371,9 @@ static void bt_song_get_property(GObject      * const object,
     case SONG_IS_PLAYING: {
       g_value_set_boolean(value, self->priv->is_playing);
     } break;
+    case SONG_IO: {
+      g_value_set_object(value, self->priv->song_io);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -1408,6 +1416,11 @@ static void bt_song_set_property(GObject      * const object,
       GST_DEBUG("set the play-pos for sequence: %lu",self->priv->play_pos);
       // seek on playpos changes (if playing)
       bt_song_seek_to_play_pos(self);
+    } break;
+    case SONG_IO: {
+      if(self->priv->song_io) g_object_unref(self->priv->song_io);
+      self->priv->song_io=BT_SONG_IO(g_value_dup_object(value));
+      GST_DEBUG("set the song-io plugin for the song: %p",self->priv->song_io);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -1590,6 +1603,13 @@ static void bt_song_class_init(BtSongClass * const klass) {
                                      "tell wheter the song is playing right now or not",
                                      FALSE,
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,SONG_IO,
+                                  g_param_spec_object("song-io",
+                                     "song-io prop",
+                                     "the song-io plugin during i/o operations",
+                                     BT_TYPE_SONG_IO, /* object type */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_song_get_type(void) {

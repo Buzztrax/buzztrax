@@ -367,6 +367,7 @@ static void on_wave_loading_done(BtWave *wave,gboolean success,gpointer user_dat
   
   if(success) {
     waves_list_refresh(self);
+    GST_DEBUG("loading done, refreshing");
   }
   else {
     // @todo: error message
@@ -431,6 +432,7 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   BtSong *song;
+  BtWave *wave;
 
   g_assert(user_data);
 
@@ -443,6 +445,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_try_unref(self->priv->wavetable);
   g_object_get(song,"wavetable",&self->priv->wavetable,NULL);
   // update page
+  if((wave=waves_list_get_current(self))) {
+    g_signal_connect(G_OBJECT(wave),"loading-done",G_CALLBACK(on_wave_loading_done),(gpointer)self);
+    g_object_unref(wave);
+  }
   waves_list_refresh(self);
   on_wavelevels_list_cursor_changed(self->priv->waves_list,self);
   // release the references

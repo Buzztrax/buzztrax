@@ -37,7 +37,7 @@
  *   - would be nice to have ui in song-recorder to select a wavetable slot
  *     - this would disable the file-selector, record to tempfile and load from
  *       there
- * - all recording feature need some error handling when saving to plain xml
+ * - all recording features need some error handling when saving to plain xml
  *   song (no waves included)
  */
 #define BT_CORE
@@ -84,7 +84,7 @@ struct _BtWavePrivate {
   
   /* wave loader */
   GstElement *pipeline,*fmt;
-  gint fd;
+  gint fd,ext_fd;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -102,6 +102,10 @@ static void wave_loader_free(const BtWave *self) {
   if(self->priv->fd!=-1) {
     close(self->priv->fd);
     self->priv->fd=-1;
+  }
+  if(self->priv->ext_fd!=-1) {
+    close(self->priv->ext_fd);
+    self->priv->ext_fd=-1;
   }
 }
 
@@ -142,7 +146,7 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
     gst_object_unref(pad);
   }
 
-  GST_WARNING("sample decoded: channels=%d, rate=%d, length=%"GST_TIME_FORMAT,
+  GST_DEBUG("sample decoded: channels=%d, rate=%d, length=%"GST_TIME_FORMAT,
     channels, rate, GST_TIME_ARGS(duration));
   
   if(!(fstat(self->priv->fd, &buf))) {
@@ -158,7 +162,7 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
         wavelevel=bt_wavelevel_new(self->priv->song,self,0,(gulong)length,-1,-1,rate,channels,(gconstpointer)data);
         g_object_unref(wavelevel);
         /* emit signal so that UI can redraw */
-        GST_WARNING("sample loaded (%ld/%ld bytes)",bytes,buf.st_size);
+        GST_DEBUG("sample loaded (%ld/%ld bytes)",bytes,buf.st_size);
         g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, TRUE);
       }
       else {
@@ -206,6 +210,74 @@ static void on_wave_loader_warning(const GstBus * const bus, GstMessage * messag
   //wave_loader_free(self);
 }
 
+/*
+ * bt_wave_load_from_uri:
+ * @self: the wave to load
+ * @uri: the location to load from
+ *
+ * Load the wavedata from the @uri.
+ *
+ * Returns: %TRUE if the wavedata could be loaded
+ */
+static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * const uri) {
+  gboolean res=TRUE;
+  GstElement *src,*dec,*conv,*sink;
+  GstBus *bus;
+  GstCaps *caps;
+  
+  GST_INFO("about to load sample %s / %s",self->priv->uri,uri);
+
+  // check if the url is valid
+  // if(!uri) goto invalid_uri;
+    
+  // create loader pipeline
+  self->priv->pipeline=gst_pipeline_new("wave-loader");
+  src=gst_element_make_from_uri(GST_URI_SRC,uri,NULL);
+  dec=gst_element_factory_make("decodebin2",NULL);
+  conv=gst_element_factory_make("audioconvert",NULL);
+  self->priv->fmt=gst_element_factory_make("capsfilter",NULL);
+  sink=gst_element_factory_make("fdsink",NULL);
+  
+  // configure elements
+  caps=gst_caps_new_simple("audio/x-raw-int",
+    "rate", GST_TYPE_INT_RANGE,1,G_MAXINT,
+    "channels",GST_TYPE_INT_RANGE,1,2,
+    "width",G_TYPE_INT,16,
+    "endianness",G_TYPE_INT,G_BYTE_ORDER,
+    "signedness",G_TYPE_INT,TRUE,
+    NULL);
+  g_object_set(self->priv->fmt,"caps",caps,NULL);
+  gst_caps_unref(caps);
+  
+  self->priv->fd=fileno(tmpfile()); // or mkstemp("...XXXXXX")
+  g_object_set(sink,"fd",self->priv->fd,"sync",FALSE,NULL);
+
+  // add and link
+  gst_bin_add_many(GST_BIN(self->priv->pipeline),src,dec,conv,self->priv->fmt,sink,NULL);
+  gst_element_link_many(src,dec,NULL);
+  gst_element_link_many(conv,self->priv->fmt,sink,NULL);
+  g_signal_connect(G_OBJECT(dec),"new-decoded-pad",G_CALLBACK(on_wave_loader_new_pad),(gpointer)conv);
+
+  /* @todo: during loading wave-data (into wavelevels)
+   * - use statusbar for loader progress ("status" property like in song_io)
+   * - should we do some size checks to avoid unpacking the audio track of a full
+   *   video on a machine with low memory
+   *   - if so, how to get real/virtual memory sizes?
+   *     mallinfo() not enough, sysconf()?
+   */
+  
+  bus=gst_element_get_bus(self->priv->pipeline);
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  g_signal_connect(bus, "message::error", G_CALLBACK(on_wave_loader_error), (gpointer)self);
+  g_signal_connect(bus, "message::warning", G_CALLBACK(on_wave_loader_warning), (gpointer)self);
+  g_signal_connect(bus, "message::eos", G_CALLBACK(on_wave_loader_eos), (gpointer)self);
+  gst_object_unref(bus);
+  
+  // play and wait for EOS 
+  gst_element_set_state(self->priv->pipeline,GST_STATE_PLAYING);
+  return(res);
+}
+
 //-- constructor methods
 
 /**
@@ -230,7 +302,7 @@ BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const g
   }
   if(uri) {
     // try to load wavedata
-    if(!bt_wave_load_from_uri(self)) {
+    if(!bt_wave_load_from_uri(self,uri)) {
       goto Error;
     }
   }
@@ -298,91 +370,11 @@ BtWavelevel *bt_wave_get_level_by_index(const BtWave * const self,const gulong i
   return(NULL);
 }
 
-/**
- * bt_wave_load_from_uri:
- * @self: the wave to load
- *
- * Will check the URI and if valid load the wavedata.
- *
- * Returns: %TRUE if the wavedata could be loaded
- */
-gboolean bt_wave_load_from_uri(const BtWave * const self) {
-  gboolean res=TRUE;
-  GnomeVFSURI *uri=gnome_vfs_uri_new(self->priv->uri);
-  GstElement *src,*dec,*conv,*sink;
-  GstBus *bus;
-  GstCaps *caps;
-  
-  GST_WARNING("about to load sample %s",self->priv->uri);
-
-  // check if the url is valid
-  if(!uri || !gnome_vfs_uri_exists(uri)) goto invalid_uri;
-  
-  /* handle chained uris, use libgsf to load from song-file
-   * (see song-io-native.c)
-   * file:///data/samples/basedrums/909base.wav
-   * file://!/wavetable/dreampad.wav
-   */
-  
-  // create loader pipeline
-  self->priv->pipeline=gst_pipeline_new("wave-loader");
-  src=gst_element_make_from_uri(GST_URI_SRC,self->priv->uri,NULL);
-  dec=gst_element_factory_make("decodebin2",NULL);
-  conv=gst_element_factory_make("audioconvert",NULL);
-  self->priv->fmt=gst_element_factory_make("capsfilter",NULL);
-  sink=gst_element_factory_make("fdsink",NULL);
-  
-  // configure elements
-  caps=gst_caps_new_simple("audio/x-raw-int",
-    "rate", GST_TYPE_INT_RANGE,1,G_MAXINT,
-    "channels",GST_TYPE_INT_RANGE,1,2,
-    "width",G_TYPE_INT,16,
-    "endianness",G_TYPE_INT,G_BYTE_ORDER,
-    "signedness",G_TYPE_INT,TRUE,
-    NULL);
-  g_object_set(self->priv->fmt,"caps",caps,NULL);
-  gst_caps_unref(caps);
-  
-  self->priv->fd=fileno(tmpfile()); // or mkstemp("...XXXXXX")
-  g_object_set(sink,"fd",self->priv->fd,"sync",FALSE,NULL);
-
-  // add and link
-  gst_bin_add_many(GST_BIN(self->priv->pipeline),src,dec,conv,self->priv->fmt,sink,NULL);
-  gst_element_link_many(src,dec,NULL);
-  gst_element_link_many(conv,self->priv->fmt,sink,NULL);
-  g_signal_connect(G_OBJECT(dec),"new-decoded-pad",G_CALLBACK(on_wave_loader_new_pad),(gpointer)conv);
-
-  /* @todo: load wave-data (into wavelevels)
-   * - use statusbar for loader progress ("status" property like in song_io)
-   * - should we do some size checks to avoid unpacking the audio track of a full
-   *   video on a machine with low memory
-   *   - if so, how to get real/virtual memory sizes?
-   *     mallinfo() not enough, sysconf()?
-   */
-  
-  bus=gst_element_get_bus(self->priv->pipeline);
-  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect(bus, "message::error", G_CALLBACK(on_wave_loader_error), (gpointer)self);
-  g_signal_connect(bus, "message::warning", G_CALLBACK(on_wave_loader_warning), (gpointer)self);
-  g_signal_connect(bus, "message::eos", G_CALLBACK(on_wave_loader_eos), (gpointer)self);
-  gst_object_unref(bus);
-  
-  // play and wait for EOS 
-  gst_element_set_state(self->priv->pipeline,GST_STATE_PLAYING);
-done:
-  if(uri) gnome_vfs_uri_unref(uri);
-  return(res);
-
-  /* Errors */
-invalid_uri:
-  res=FALSE;
-  goto done;
-}
-
 //-- io interface
 
 static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persistence, const xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
   const BtWave * const self = BT_WAVE(persistence);
+  BtSongIONative *song_io;
   xmlNodePtr node=NULL;
   xmlNodePtr child_node;
 
@@ -392,6 +384,30 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
     xmlNewProp(node,XML_CHAR_PTR("index"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->index)));
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
     xmlNewProp(node,XML_CHAR_PTR("uri"),XML_CHAR_PTR(self->priv->uri));
+    
+    /* @todo: save files when saving a song as a zip */
+    // check if we need to load external data
+    g_object_get(self->priv->song,"song-io",&song_io,NULL);
+    if (song_io) {
+      BtSongIONativeMode mode;
+      
+      g_object_get(song_io,"mode",&mode,NULL);
+      if(mode==BT_SONG_IO_NATIVE_MODE_BZT) {
+        gchar *fn,*fp;
+
+        // need to rewrite path
+        if(!(fn=strrchr(self->priv->uri,'/')))
+          fn=self->priv->uri;
+        else fn++;
+        fp=g_strdup_printf("waves/%s",fn);
+  
+        GST_INFO("saving external uri=%s -> zip=%s",self->priv->uri,fp); 
+        
+        bt_song_io_native_copy_from_uri(song_io,fp,self->priv->uri);
+        g_free(fp);
+      }
+      g_object_unref(song_io);
+    }
 
     // save wavelevels
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wavelevels"),NULL))) {
@@ -403,7 +419,9 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
 
 static gboolean bt_wave_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
   const BtWave * const self = BT_WAVE(persistence);
+  BtSongIONative *song_io;
   gboolean res=FALSE;
+  gchar *uri=NULL;
 
   GST_DEBUG("PERSISTENCE::wave");
   g_assert(node);
@@ -411,14 +429,49 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
   xmlChar * const index_str=xmlGetProp(node,XML_CHAR_PTR("index"));
   const gulong index=index_str?atol((char *)index_str):0;
   xmlChar * const name=xmlGetProp(node,XML_CHAR_PTR("name"));
-  xmlChar * const uri=xmlGetProp(node,XML_CHAR_PTR("uri"));
-  g_object_set(G_OBJECT(self),"index",index,"name",name,"uri",uri,NULL);
+  xmlChar * const uri_str=xmlGetProp(node,XML_CHAR_PTR("uri"));
+  g_object_set(G_OBJECT(self),"index",index,"name",name,"uri",uri_str,NULL);
   xmlFree(index_str);
   xmlFree(name);
-  xmlFree(uri);
+
+  // check if we need to load external data
+  g_object_get(self->priv->song,"song-io",&song_io,NULL);
+  if (song_io) {
+    BtSongIONativeMode mode;
+    
+    g_object_get(song_io,"mode",&mode,NULL);
+    if(mode==BT_SONG_IO_NATIVE_MODE_BZT) {
+      gchar *fn,*fp;
+
+      // need to rewrite path
+      if(!(fn=strrchr((gchar *)uri_str,'/')))
+        fn=(gchar *)uri_str;
+      else fn++;
+      fp=g_strdup_printf("waves/%s",fn);
+
+      GST_INFO("loading external uri=%s -> zip=%s",(gchar *)uri_str,fp); 
+      
+      // we need to copy the files from zip and change the uri to "fd://%d"
+      self->priv->ext_fd=fileno(tmpfile()); // or mkstemp("...XXXXXX")
+      if(bt_song_io_native_copy_to_fd(song_io,fp,self->priv->ext_fd)) {
+        uri=g_strdup_printf("fd://%d",self->priv->ext_fd);
+      }
+      else {
+        GST_ERROR("error loading %s",fp);
+        close(self->priv->ext_fd);
+        self->priv->ext_fd=-1;
+      }
+      g_free(fp);
+    }
+    g_object_unref(song_io);
+  }
+  if(!uri) {
+    uri=g_strdup((gchar *)uri_str);
+  }
+  xmlFree(uri_str);
 
   // try to load wavedata
-  if((res=bt_wave_load_from_uri(self))) {
+  if((res=bt_wave_load_from_uri(self,uri))) {
     xmlNodePtr child_node;
     GList *lnode=self->priv->wavelevels;
   
@@ -436,6 +489,7 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
       }
     }
   }
+  g_free(uri);
   return(res);
 }
 
@@ -567,8 +621,9 @@ static void bt_wave_finalize(GObject * const object) {
 static void bt_wave_init(GTypeInstance * const instance, gconstpointer const g_class) {
   BtWave * const self = BT_WAVE(instance);
 
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVE, BtWavePrivate);
-  self->priv->fd = -1;
+  self->priv=G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVE, BtWavePrivate);
+  self->priv->fd=-1;
+  self->priv->ext_fd=-1;
 }
 
 static void bt_wave_class_init(BtWaveClass * const klass) {

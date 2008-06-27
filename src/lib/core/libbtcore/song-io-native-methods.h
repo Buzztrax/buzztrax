@@ -24,6 +24,9 @@
 
 #include "song-io-native.h"
 
+extern gboolean bt_song_io_native_copy_to_fd(const BtSongIONative * const self, const gchar *file_name, gint fd);
+extern gboolean bt_song_io_native_copy_from_uri(const BtSongIONative * const self, const gchar *file_name, const gchar *uri);
+
 extern GType bt_song_io_native_detect(const gchar * const file_name);
 
 #endif // BT_SONG_IO_METHDOS_NATIVE_H

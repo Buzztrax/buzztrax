@@ -246,14 +246,10 @@ gboolean bt_song_io_load(gconstpointer const self, const BtSong * const song) {
   g_assert(BT_IS_SONG_IO(self));
 
   bt_song_idle_stop(self);
+  g_object_set(G_OBJECT(song),"song-io",self,NULL);
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
     GST_INFO("loading done");
-    /* @todo: ui needs to block signal handlers in on_song_changed() otherwise
-     * song:unsaved get reverted
-    //while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
-    //GST_INFO("events handled");
-     */
     bt_song_set_unsaved(song,FALSE);
     //DEBUG
     //bt_song_write_to_highlevel_dot_file(song);
@@ -278,6 +274,7 @@ gboolean bt_song_io_load(gconstpointer const self, const BtSong * const song) {
     */
     //DEBUG
   }
+  g_object_set(G_OBJECT(song),"song-io",NULL,NULL);
   bt_song_idle_start(self);
   return(result);
 }
@@ -303,10 +300,12 @@ gboolean bt_song_io_save(gconstpointer const self, const BtSong * const song) {
   g_object_unref(song_info);
 
   bt_song_idle_stop(self);
+  g_object_set(G_OBJECT(song),"song-io",self,NULL);
   if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
     bt_song_set_unsaved(song,FALSE);
   }
+  g_object_set(G_OBJECT(song),"song-io",NULL,NULL);
   bt_song_idle_start(self);
   return(result);
 }

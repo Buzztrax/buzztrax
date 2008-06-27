@@ -1,3 +1,16 @@
+2008-06-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/song-io-native-methods.h:
+	* src/lib/core/libbtcore/song-io-native.h:
+	* src/lib/core/libbtcore/wave-methods.h:
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	* src/lib/core/wave.c:
+	* src/ui/edit/main-page-waves.c:
+	  Also load and store samples in zip archives.
+
 2008-06-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

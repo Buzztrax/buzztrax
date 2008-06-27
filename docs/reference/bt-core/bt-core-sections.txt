@@ -442,7 +442,10 @@ BtSongIOPrivate
 <TITLE>BtSongIONative</TITLE>
 BtSongIONative
 BtSongIONativeClass
+BtSongIONativeMode
 bt_song_io_native_detect
+bt_song_io_native_copy_to_fd
+bt_song_io_native_copy_from_uri
 <SUBSECTION Standard>
 BT_SONG_IO_NATIVE
 BT_IS_SONG_IO_NATIVE
@@ -479,7 +482,6 @@ BtWave
 bt_wave_new
 bt_wave_add_wavelevel
 bt_wave_get_level_by_index
-bt_wave_load_from_uri
 <SUBSECTION Standard>
 BtWaveClass
 BT_WAVE
