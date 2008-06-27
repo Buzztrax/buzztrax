@@ -1,5 +1,10 @@
 2008-06-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-io-native.c:
+	  Only use gsf if we have it.
+
+2008-06-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/buzztard.xml.in:
 	  Better format detection.
 

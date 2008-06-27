@@ -186,9 +186,9 @@ Error:
  * Returns: %TRUE on success 
  */
 gboolean bt_song_io_native_copy_to_fd(const BtSongIONative * const self, const gchar *file_name, gint fd) {
-  GsfInput *data;
   gboolean res=FALSE;
-  
+#ifdef USE_GSF  
+  GsfInput *data;
 #if 1
   GsfInfile *infile=self->priv->infile,*tmp_infile=NULL;
   gchar **parts;
@@ -244,6 +244,7 @@ gboolean bt_song_io_native_copy_to_fd(const BtSongIONative * const self, const g
   else {
     GST_WARNING("error opening \"%s\"",file_name);
   }
+#endif
   return(res);
 }
 
@@ -261,8 +262,9 @@ gboolean bt_song_io_native_copy_to_fd(const BtSongIONative * const self, const g
  */
 
 gboolean bt_song_io_native_copy_from_uri(const BtSongIONative * const self, const gchar *file_name, const gchar *uri) {
-  GsfOutput *data;
   gboolean res=FALSE;
+#ifdef USE_GSF  
+  GsfOutput *data;
 
   if((data=gsf_outfile_new_child(self->priv->outfile,file_name,FALSE))) {
     GError *err=NULL;
@@ -289,7 +291,8 @@ gboolean bt_song_io_native_copy_from_uri(const BtSongIONative * const self, cons
     g_free(src_file_name);
     gsf_output_close(data);
     g_object_unref(G_OBJECT(data));
-  }  
+  }
+#endif
   return(res);
 }
 
