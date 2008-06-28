@@ -663,29 +663,29 @@ BtSettingsPageDirectoriesPrivate
 
 
 <SECTION>
-<FILE>btuiressources</FILE>
-<TITLE>BtUIRessources</TITLE>
-BtUIRessources
-BtUIRessourcesColors
-BtUIRessourcesMachineColors
-bt_ui_ressources_new
-bt_ui_ressources_get_icon_pixbuf_by_machine
-bt_ui_ressources_get_graphics_pixbuf_by_machine
-bt_ui_ressources_get_icon_image_by_machine
-bt_ui_ressources_get_icon_image_by_machine_type
-bt_ui_ressources_get_gdk_color
-bt_ui_ressources_get_color_by_machine
-bt_ui_ressources_get_accel_group
+<FILE>btuiresources</FILE>
+<TITLE>BtUIResources</TITLE>
+BtUIResources
+BtUIResourcesColors
+BtUIResourcesMachineColors
+bt_ui_resources_new
+bt_ui_resources_get_icon_pixbuf_by_machine
+bt_ui_resources_get_machine_graphics_pixbuf_by_machine
+bt_ui_resources_get_icon_image_by_machine
+bt_ui_resources_get_icon_image_by_machine_type
+bt_ui_resources_get_gdk_color
+bt_ui_resources_get_color_by_machine
+bt_ui_resources_get_accel_group
 <SUBSECTION Standard>
-BtUIRessourcesClass
-BT_UI_RESSOURCES
-BT_IS_UI_RESSOURCES
-BT_UI_RESSOURCES_CLASS
-BT_IS_UI_RESSOURCES_CLASS
-BT_UI_RESSOURCES_GET_CLASS
-BT_TYPE_UI_RESSOURCES
-bt_ui_ressources_get_type
-BtUIRessourcesPrivate
+BtUIResourcesClass
+BT_UI_RESOURCES
+BT_IS_UI_RESOURCES
+BT_UI_RESOURCES_CLASS
+BT_IS_UI_RESOURCES_CLASS
+BT_UI_RESOURCES_GET_CLASS
+BT_TYPE_UI_RESOURCES
+bt_ui_resources_get_type
+BtUIResourcesPrivate
 </SECTION>
 
 
@@ -714,7 +714,7 @@ bt_volume_popup_get_type
 BtWaveformViewer
 bt_waveform_viewer_new
 <SUBSECTION Standard>
-BtWaveformViewer
+BtWaveformViewerClass
 BT_WAVEFORM_VIEWER
 BT_IS_WAVEFORM_VIEWER
 BT_WAVEFORM_VIEWER_CLASS

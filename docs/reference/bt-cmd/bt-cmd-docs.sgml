@@ -1,14 +1,28 @@
 <?xml version="1.0"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
 <!ENTITY % version-entities SYSTEM "../../version.entities">
 %version-entities;
-<!ENTITY btcmd SYSTEM "xml/btcmd.xml">
-<!ENTITY BtCmdApplication SYSTEM "xml/btcmdapplication.xml">
+<!ELEMENT xi:include (xi:fallback?) >
+<!ATTLIST xi:include
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude"
+    href       CDATA       #IMPLIED
+    parse      (xml|text)  "xml"
+    xpointer   CDATA       #IMPLIED
+    encoding   CDATA       #IMPLIED 
+    accept     CDATA       #IMPLIED
+    accept-language CDATA  #IMPLIED >
 
-<!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
+<!ELEMENT xi:fallback ANY>
+<!ATTLIST xi:fallback
+    xmlns:xi   CDATA   #FIXED   "http://www.w3.org/2003/XInclude" >
+
+<!ATTLIST book
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude" >
+
+<!ENTITY % local.refentry.class "| xi:include">
 ]>
-<book id="index">
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
   <bookinfo>
     <title>Buzztard Bt-Cmd Reference Manual</title>
     <releaseinfo>
@@ -24,32 +38,32 @@
       The development of Buzz has been discontinued as the author lost all his source-codes.
     </para>
     <para>
-      The homepage of the buzztard project can be found at <ulink href="http://www.buzztard.org">www.buzztard.org</ulink>.
+      The homepage of the buzztard project can be found at
+      <ulink url="http://www.buzztard.org">www.buzztard.org</ulink>.
       It is based on a wiki and used to draft further development.
     </para>
   </preface>
 
-  <chapter id="uibtcmd">
+  <reference id="uibtcmd">
     <title>User Application Reference</title>
-    <para>
-      The classes described in this chapter are all part of end user application
-      code.
-      Please make sure you have read section <ulink url="../bt-core/conventions.html">conventions</ulink>
-      before reading further.
-    </para>
-    &btcmd;
-    &BtCmdApplication;
-    <!-- produces entity errors, because the entities from top are copied to the
-         xml fragments and don't resolve there (version.entities)
-    <xi_include href="xml/btcmd.xml"/>
-    <xi_include href="xml/btcmdapplication.xml"/>
-    -->
-  </chapter>
+    <partintro>
+      <abstract>
+        <para>
+          The classes described in this chapter are all part of end user application
+          code.
+          Please make sure you have read section <ulink url="../bt-core/conventions.html">conventions</ulink>
+          before reading further.
+        </para>
+      </abstract>
+    </partintro>
+    <xi:include href="xml/btcmd.xml"/>
+    <xi:include href="xml/btcmdapplication.xml"/>
+  </reference>
 
-  <chapter id="objecttree">
+  <appendix id="objecttree">
     <title>Object Hierarchy</title>
-    &object-tree-index;
-  </chapter>
+    <xi:include href="xml/tree_index.sgml" />
+  </appendix>
 
   <index id="api-index">
     <title>API Index</title>

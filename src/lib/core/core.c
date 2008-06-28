@@ -273,7 +273,7 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
  * This function will terminate your program if it was unable to initialize
  * the core for some reason.  If you want your program to fall back,
  * use bt_init_check() instead.
- * </note></para>
+ * </para></note>
  *
  * WARNING: This function does not work in the same way as corresponding
  * functions in other glib-style libraries, such as gtk_init(). In

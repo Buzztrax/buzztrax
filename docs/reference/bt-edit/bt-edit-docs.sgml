@@ -1,54 +1,28 @@
 <?xml version="1.0"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
 <!ENTITY % version-entities SYSTEM "../../version.entities">
 %version-entities;
-<!ENTITY btedit SYSTEM "xml/btedit.xml">
-<!ENTITY BtAboutDialog SYSTEM "xml/btaboutdialog.xml">
-<!ENTITY BtEditApplication SYSTEM "xml/bteditapplication.xml">
-<!ENTITY BtInteractionControllerMenu SYSTEM "xml/btinteractioncontrollermenu.xml">
-<!ENTITY BtInteractionControllerLearnDialog SYSTEM "xml/btinteractioncontrollerlearndialog.xml">
-<!ENTITY BtMachineActions SYSTEM "xml/btmachineactions.xml">
-<!ENTITY BtMachineCanvasItem SYSTEM "xml/btmachinecanvasitem.xml">
-<!ENTITY BtMachineMenu SYSTEM "xml/btmachinemenu.xml">
-<!ENTITY BtMachinePreferencesDialog SYSTEM "xml/btmachinepreferencesdialog.xml">
-<!ENTITY BtMachinePresetPropertiesDialog SYSTEM "xml/btmachinepresetpropertiesdialog.xml">
-<!ENTITY BtMachinePropertiesDialog SYSTEM "xml/btmachinepropertiesdialog.xml">
-<!ENTITY BtMachineRenameDialog SYSTEM "xml/btmachinerenamedialog.xml">
-<!ENTITY BtMainMenu SYSTEM "xml/btmainmenu.xml">
-<!ENTITY BtMainPageInfo SYSTEM "xml/btmainpageinfo.xml">
-<!ENTITY BtMainPageMachines SYSTEM "xml/btmainpagemachines.xml">
-<!ENTITY BtMainPagePatterns SYSTEM "xml/btmainpagepatterns.xml">
-<!ENTITY BtMainPageSequence SYSTEM "xml/btmainpagesequence.xml">
-<!ENTITY BtMainPageWaves SYSTEM "xml/btmainpagewaves.xml">
-<!ENTITY BtMainPages SYSTEM "xml/btmainpages.xml">
-<!ENTITY BtMainStatusbar SYSTEM "xml/btmainstatusbar.xml">
-<!ENTITY BtMainToolbar SYSTEM "xml/btmaintoolbar.xml">
-<!ENTITY BtMainWindow SYSTEM "xml/btmainwindow.xml">
-<!ENTITY BtMissingFrameworkElementsDialog SYSTEM "xml/btmissingframeworkelementsdialog.xml">
-<!ENTITY BtMissingSongElementsDialog SYSTEM "xml/btmissingsongelementsdialog.xml">
-<!ENTITY BtPanoramaPopup SYSTEM "xml/btpanoramapopup.xml">
-<!ENTITY BtPatternPropertiesDialog SYSTEM "xml/btpatternpropertiesdialog.xml">
-<!ENTITY BtPlaybackControllerSocket SYSTEM "xml/btplaybackcontrollersocket.xml">
-<!ENTITY BtRenderDialog SYSTEM "xml/btrenderdialog.xml">
-<!ENTITY BtRenderProgress SYSTEM "xml/btrenderprogress.xml">
-<!ENTITY BtSequenceView SYSTEM "xml/btsequenceview.xml">
-<!ENTITY BtSettingsDialog SYSTEM "xml/btsettingsdialog.xml">
-<!ENTITY BtSettingsPageAudiodevices SYSTEM "xml/btsettingspageaudiodevices.xml">
-<!ENTITY BtSettingsPageInteractionController SYSTEM "xml/btsettingspageinteractioncontroller.xml">
-<!ENTITY BtSettingsPagePlaybackController SYSTEM "xml/btsettingspageplaybackcontroller.xml">
-<!ENTITY BtSettingsPageDirectories SYSTEM "xml/btsettingspagedirectories.xml">
-<!ENTITY BtUIRessources SYSTEM "xml/btuiressources.xml">
-<!ENTITY BtVolumePopup SYSTEM "xml/btvolumepopup.xml">
-<!ENTITY BtWaveformViewer SYSTEM "xml/btwaveformviewer.xml">
-<!ENTITY BtWireAnalysisDialog SYSTEM "xml/btwireanalysisdialog.xml">
-<!ENTITY BtWireCanvasItem SYSTEM "xml/btwirecanvasitem.xml">
+<!ELEMENT xi:include (xi:fallback?) >
+<!ATTLIST xi:include
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude"
+    href       CDATA       #IMPLIED
+    parse      (xml|text)  "xml"
+    xpointer   CDATA       #IMPLIED
+    encoding   CDATA       #IMPLIED 
+    accept     CDATA       #IMPLIED
+    accept-language CDATA  #IMPLIED >
 
-<!ENTITY GtkVUMeter SYSTEM "xml/gtkvumeter.xml">
+<!ELEMENT xi:fallback ANY>
+<!ATTLIST xi:fallback
+    xmlns:xi   CDATA   #FIXED   "http://www.w3.org/2003/XInclude" >
 
-<!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
+<!ATTLIST book
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude" >
+
+<!ENTITY % local.refentry.class "| xi:include">
 ]>
-<book id="index">
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
   <bookinfo>
     <title>Buzztard Bt-Edit Reference Manual</title>
     <releaseinfo>
@@ -64,66 +38,72 @@
       The development of Buzz has been discontinued as the author lost all his source-codes.
     </para>
     <para>
-      The homepage of the buzztard project can be found at <ulink href="http://www.buzztard.org">www.buzztard.org</ulink>.
+      The homepage of the buzztard project can be found at
+      <ulink url="http://www.buzztard.org">www.buzztard.org</ulink>.
       It is based on a wiki and used to draft further development.
     </para>
   </preface>
 
-  <chapter id="uibtedit">
+  <reference id="uibtedit">
     <title>User Application Reference</title>
-    <para>
-      The classes described in this chapter are all part of end user application
-      code.
-      Please make sure you have read section <ulink url="../bt-core/conventions.html">conventions</ulink>
-      before reading further.
-    </para>
-    &btedit;
-    &BtAboutDialog;
-    &BtEditApplication;
-    &BtInteractionControllerMenu;
-    &BtInteractionControllerLearnDialog;
-    &BtMachineActions;
-    &BtMachineCanvasItem;
-    &BtMachineMenu;
-    &BtMachinePreferencesDialog;
-    &BtMachinePresetPropertiesDialog;
-    &BtMachinePropertiesDialog;
-    &BtMachineRenameDialog;
-    &BtMainWindow;
-    &BtMainMenu;
-    &BtMainPageInfo;
-    &BtMainPageMachines;
-    &BtMainPagePatterns;
-    &BtMainPageSequence;
-    &BtMainPages;
-    &BtMainPageWaves;
-    &BtMainStatusbar;
-    &BtMainToolbar;
-    &BtMissingFrameworkElementsDialog;
-    &BtPatternPropertiesDialog;
-    &BtPanoramaPopup;
-    &BtPlaybackControllerSocket;
-    &BtRenderDialog;
-    &BtRenderProgress;
-    &BtSequenceView;
-    &BtSettingsDialog;
-    &BtSettingsPageAudiodevices;
-    &BtSettingsPageInteractionController;
-    &BtSettingsPagePlaybackController;
-    &BtSettingsPageDirectories;
-    &BtUIRessources;
-    &BtWaveformViewer;
-    &BtWireAnalysisDialog;
-    &BtWireCanvasItem;
-    &BtVolumePopup;
+    <partintro>
+      <abstract>
+        <para>
+          The classes described in this chapter are all part of end user application
+          code.
+          Please make sure you have read section <ulink url="../bt-core/conventions.html">conventions</ulink>
+          before reading further.
+        </para>
+      </abstract>
+    </partintro>
+    <xi:include href="xml/btedit.xml" />
+    <xi:include href="xml/btaboutdialog.xml" />
+    <xi:include href="xml/bteditapplication.xml" />
+    <xi:include href="xml/btinteractioncontrollermenu.xml" />
+    <xi:include href="xml/btinteractioncontrollerlearndialog.xml" />
+    <xi:include href="xml/btmachineactions.xml" />
+    <xi:include href="xml/btmachinecanvasitem.xml" />
+    <xi:include href="xml/btmachinemenu.xml" />
+    <xi:include href="xml/btmachinepreferencesdialog.xml" />
+    <xi:include href="xml/btmachinepresetpropertiesdialog.xml" />
+    <xi:include href="xml/btmachinepropertiesdialog.xml" />
+    <xi:include href="xml/btmachinerenamedialog.xml" />
+    <xi:include href="xml/btmainmenu.xml" />
+    <xi:include href="xml/btmainpageinfo.xml" />
+    <xi:include href="xml/btmainpagemachines.xml" />
+    <xi:include href="xml/btmainpagepatterns.xml" />
+    <xi:include href="xml/btmainpagesequence.xml" />
+    <xi:include href="xml/btmainpagewaves.xml" />
+    <xi:include href="xml/btmainpages.xml" />
+    <xi:include href="xml/btmainstatusbar.xml" />
+    <xi:include href="xml/btmaintoolbar.xml" />
+    <xi:include href="xml/btmainwindow.xml" />
+    <xi:include href="xml/btmissingframeworkelementsdialog.xml" />
+    <xi:include href="xml/btmissingsongelementsdialog.xml" />
+    <xi:include href="xml/btpanoramapopup.xml" />
+    <xi:include href="xml/btpatternpropertiesdialog.xml" />
+    <xi:include href="xml/btplaybackcontrollersocket.xml" />
+    <xi:include href="xml/btrenderdialog.xml" />
+    <xi:include href="xml/btrenderprogress.xml" />
+    <xi:include href="xml/btsequenceview.xml" />
+    <xi:include href="xml/btsettingsdialog.xml" />
+    <xi:include href="xml/btsettingspageaudiodevices.xml" />
+    <xi:include href="xml/btsettingspageinteractioncontroller.xml" />
+    <xi:include href="xml/btsettingspageplaybackcontroller.xml" />
+    <xi:include href="xml/btsettingspagedirectories.xml" />
+    <xi:include href="xml/btuiresources.xml" />
+    <xi:include href="xml/btvolumepopup.xml" />
+    <xi:include href="xml/btwaveformviewer.xml" />
+    <xi:include href="xml/btwireanalysisdialog.xml" />
+    <xi:include href="xml/btwirecanvasitem.xml" />
 
-    &GtkVUMeter;
-  </chapter>
+    <xi:include href="xml/gtkvumeter.xml" />
+  </reference>
 
-	<chapter id="objecttree">
-		<title>Object Hierarchy</title>
-		&object-tree-index;
-	</chapter>
+  <appendix id="objecttree">
+    <title>Object Hierarchy</title>
+    <xi:include href="xml/tree_index.sgml" />
+  </appendix>
 
   <index id="api-index">
     <title>API Index</title>

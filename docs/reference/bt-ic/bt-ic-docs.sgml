@@ -1,20 +1,28 @@
 <?xml version="1.0"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
 <!ENTITY % version-entities SYSTEM "../../version.entities">
 %version-entities;
-<!ENTITY BtIcAbsRangeControl SYSTEM "xml/bticabsrangecontrol.xml">
-<!ENTITY BtIcControl SYSTEM "xml/bticcontrol.xml">
-<!ENTITY BtIcDevice SYSTEM "xml/bticdevice.xml">
-<!ENTITY BtIcInputDevice SYSTEM "xml/bticinputdevice.xml">
-<!ENTITY BtIcLearn SYSTEM "xml/bticlearn.xml">
-<!ENTITY BtIcMidiDevice SYSTEM "xml/bticmididevice.xml">
-<!ENTITY BtIcRegistry SYSTEM "xml/bticregistry.xml">
-<!ENTITY BtIcTriggerControl SYSTEM "xml/btictriggercontrol.xml">
+<!ELEMENT xi:include (xi:fallback?) >
+<!ATTLIST xi:include
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude"
+    href       CDATA       #IMPLIED
+    parse      (xml|text)  "xml"
+    xpointer   CDATA       #IMPLIED
+    encoding   CDATA       #IMPLIED 
+    accept     CDATA       #IMPLIED
+    accept-language CDATA  #IMPLIED >
 
-<!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
+<!ELEMENT xi:fallback ANY>
+<!ATTLIST xi:fallback
+    xmlns:xi   CDATA   #FIXED   "http://www.w3.org/2003/XInclude" >
+
+<!ATTLIST book
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude" >
+
+<!ENTITY % local.refentry.class "| xi:include">
 ]>
-<book id="index">
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
   <bookinfo>
     <title>Buzztard Bt-Ic Reference Manual</title>
     <releaseinfo>
@@ -23,24 +31,31 @@
     </releaseinfo>
   </bookinfo>
 
-  <chapter id="libbtic">
+  <reference id="libbtic">
     <title>Interaction Controller Reference</title>
-    <para>
-    </para>
-    &BtIcRegistry;
-    &BtIcDevice;
-    &BtIcInputDevice;
-    &BtIcMidiDevice;
-    &BtIcControl;
-    &BtIcAbsRangeControl;
-    &BtIcTriggerControl;
-    &BtIcLearn;
-  </chapter>
+    <partintro>
+      <abstract>
+        <para>
+          The interaction controler library provides unifies access to (hardware)
+          controlers that are suitable for interaction with parameters in sound
+          generatros and effects.
+        </para>
+      </abstract>
+    </partintro>
+    <xi:include href="xml/bticregistry.xml" />
+    <xi:include href="xml/bticdevice.xml" />
+    <xi:include href="xml/bticinputdevice.xml" />
+    <xi:include href="xml/bticmididevice.xml" />
+    <xi:include href="xml/bticcontrol.xml" />
+    <xi:include href="xml/bticabsrangecontrol.xml" />
+    <xi:include href="xml/btictriggercontrol.xml" />
+    <xi:include href="xml/bticlearn.xml" />
+  </reference>
 
-  <chapter id="objecttree">
+  <appendix id="objecttree">
     <title>Object Hierarchy</title>
-    &object-tree-index;
-  </chapter>
+    <xi:include href="xml/tree_index.sgml" />
+  </appendix>
 
   <index id="api-index">
     <title>API Index</title>

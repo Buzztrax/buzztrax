@@ -1,5 +1,17 @@
 2008-06-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/Makefile.am:
+	* docs/reference/bt-cmd/bt-cmd-docs.sgml:
+	* docs/reference/bt-core/bt-core-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* src/lib/core/core.c:
+	  Rework the docs to use xi:include instead of entities. Also make the
+	  documents valid.
+
+2008-06-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-menu.c:
 	* src/ui/edit/main-window.c:
 	  Add a recent menu.
