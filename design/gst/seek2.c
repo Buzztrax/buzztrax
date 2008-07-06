@@ -37,13 +37,13 @@ event_loop (GstElement * bin)
         gst_message_unref (message);
         return;
       case GST_MESSAGE_SEGMENT_DONE: {
-	event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-	    GST_SEEK_FLAG_SEGMENT,
-	    GST_SEEK_TYPE_SET, (GstClockTime)0 * GST_SECOND,
-	    GST_SEEK_TYPE_SET, (GstClockTime)6 * GST_SECOND);
-	if(!(gst_element_send_event(GST_ELEMENT(bin),event))) {
-	  GST_WARNING("element failed to handle seek event");
-	}
+        event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+            GST_SEEK_FLAG_SEGMENT,
+            GST_SEEK_TYPE_SET, (GstClockTime)0 * GST_SECOND,
+            GST_SEEK_TYPE_SET, (GstClockTime)6 * GST_SECOND);
+        if(!(gst_element_send_event(GST_ELEMENT(bin),event))) {
+          GST_WARNING("element failed to handle seek event");
+        }
       } break;
       case GST_MESSAGE_STATE_CHANGED:
         if(GST_MESSAGE_SRC(message) == GST_OBJECT(bin)) {

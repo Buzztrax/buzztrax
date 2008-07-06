@@ -1,4 +1,4 @@
-/** $Id$
+/* $Id$
  * test linking in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` link.c -o link

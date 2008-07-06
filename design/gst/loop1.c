@@ -11,7 +11,6 @@
 #define SINK_NAME "alsasink"
 #define SRC_NAME "audiotestsrc"
 
-static GstElement *bin=NULL;
 static GMainLoop *main_loop=NULL;
 static GstEvent *play_seek_event=NULL;
 
@@ -36,8 +35,7 @@ static void message_received (GstBus * bus, GstMessage * message, GstPipeline * 
   g_main_loop_quit(main_loop);
 }
 
-static void state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
-
+static void state_changed(const GstBus * const bus, GstMessage *message,  GstElement *bin) {
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(bin)) {
     GstStateChangeReturn res;
     GstState oldstate,newstate,pending;
@@ -65,11 +63,13 @@ static void state_changed(const GstBus * const bus, GstMessage *message, gconstp
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
         puts("playback started =======================================================\n");
         break;
+      default:
+        break;
     }
   }
 }
 
-static void segment_done(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
+static void segment_done(const GstBus * const bus, const GstMessage * const message,  GstElement *bin) {
   puts("loop playback ==========================================================\n");
   if(!(gst_element_send_event(bin,gst_event_ref(play_seek_event)))) {
     fprintf(stderr,"element failed to handle continuing play seek event\n");
@@ -79,6 +79,7 @@ static void segment_done(const GstBus * const bus, const GstMessage * const mess
 
 
 int main(int argc, char **argv) {
+  GstElement *bin;
   /* elements used in pipeline */
   GstElement *src1,*src2,*mix,*sink;
   GstController *ctrl1,*ctrl2;

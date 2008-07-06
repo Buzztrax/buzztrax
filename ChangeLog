@@ -1,5 +1,19 @@
 2008-07-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Wrote and sent NEWS.
+
+	* TODO:
+	  Plan song io refactoring.
+	  
+	* design/gst/link.c:
+	* design/gst/link2.c:
+	* design/gst/loop1.c:
+	* design/gst/seek2.c:
+	  Update examples.
+
+2008-07-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/about-dialog.c:
 	  Update Marc's email and nick.
 

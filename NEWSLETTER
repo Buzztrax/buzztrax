@@ -1,10 +1,30 @@
+2008/08 ========================================================================
+
 2008/07 ========================================================================
 
-* svg machine canvas icons
-* color tuning and icons theme support improvements
-* level meters in machine view
-* some performance improvements
-* basic zip-file loading and saving (still needs sample support)
+Some very visible changes this month - svg machine canvas icons. For that I
+needed to add better icon theme support. All icons are now themeable and colors
+are matched with the theme. Machines now have tiny level-meters embedded in the
+icon.
+
+I also found a solution for slow start of playback in complexer songs. Data-
+format-negotiation is not deterministic in all cyclic gstreamer graphs. Proposed
+patches are attached to Bug 540645 [1].
+
+Finally I got around implementing support for a zip based song format. This
+can contain binaries (like the samples being used). The loader is based on
+libgsf [2], which turned out to be a pleasant experience.
+
+I also added filters to the load and save file-choosers and to the recent-chooser
+in the new recent menu. Still fighting with the filter not doing a precise
+detection [3].
+
+Next on my todo list is refactoring the song io plugin api a bit. Right now
+there is too much hard-coded data (like mime-types, format names, extensions). 
+
+[1] http://bugzilla.gnome.org/show_bug.cgi?id=540645
+[2] http://directory.fsf.org/project/libgsf/
+[3] http://bugzilla.gnome.org/show_bug.cgi?id=541236
 
 2008/06 ========================================================================
 
