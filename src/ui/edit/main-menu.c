@@ -549,14 +549,22 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   
   {
     GtkRecentFilter *filter=gtk_recent_filter_new();
-    
-    // @todo: integrate with bt_song_io
-    // set filters
+    const GList *plugins, *node;
+    BtSongIOModuleInfo *info;
+    guint ix;
+
     //gtk_recent_filter_add_application (filter, "bt-edit");
-    gtk_recent_filter_add_mime_type(filter,"audio/x-bzt-xml");
-    gtk_recent_filter_add_mime_type(filter,"audio/x-bzt");
-    //gtk_recent_filter_add_pattern(filter,"*.xml");
-    //gtk_recent_filter_add_pattern(filter,"*.bzt");
+
+    // set filters
+    plugins=bt_song_io_get_module_info_list();
+    for(node=plugins;node;node=g_list_next(node)) {
+      info=(BtSongIOModuleInfo *)node->data;
+      ix=0;
+      while(info->formats[ix].name) {
+        gtk_recent_filter_add_mime_type(filter,info->formats[ix].mime_type);
+        ix++;
+      }
+    }
     gtk_recent_chooser_add_filter(GTK_RECENT_CHOOSER(item),filter);
     gtk_recent_chooser_set_filter(GTK_RECENT_CHOOSER(item),filter);
   }

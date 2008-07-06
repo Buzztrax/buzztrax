@@ -101,4 +101,46 @@ GType bt_song_io_get_type(void) G_GNUC_CONST;
  */
 typedef GType (*BtSongIODetect)(const gchar * const file_name);
 
+/* @todo: additional fields:
+ * - wheter it support load/save? (we have vmethods
+ * - some flags?
+ *
+ * Ugly:
+ * - still duplicated info with usr/share/mime database
+ * - files are detected twice (e.g. nautilus, buzztard)
+ */
+
+/**
+ * BtSongIOFormatInfo:
+ * @name: format name
+ * @mime_type: mime type
+ * @externsion: file extension
+ *
+ * Metadata structure for #BtSongIO plugins describing one format.
+ */
+typedef struct {
+  const gchar *name;
+  const gchar *mime_type;
+  const gchar *extension;
+} BtSongIOFormatInfo;
+
+/**
+ * BT_SONG_IO_MODULE_INFO_MAX_FORMATS:
+ *
+ * Maximum number of #BtSongIOFormatInfo per plugin (10).
+ */
+#define BT_SONG_IO_MODULE_INFO_MAX_FORMATS 10
+
+/**
+ * BtSongIOModuleInfo:
+ * @detect: pointer to detection function
+ * @formats: %NULL terminated array of formats supported by this plugin
+ *
+ * Metadata structure for #BtSongIO plugins.
+ */
+typedef struct {
+  BtSongIODetect detect;
+  BtSongIOFormatInfo formats[BT_SONG_IO_MODULE_INFO_MAX_FORMATS];
+} BtSongIOModuleInfo;
+
 #endif // BT_SONG_IO_H

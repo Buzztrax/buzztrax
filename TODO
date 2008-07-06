@@ -41,13 +41,11 @@ $Id$
     * plugins support format variants:
       * native : "audio/x-bzt", "audio/x-bzt-xml"
       * bsl    : "audio/x-bmw", "audio/x-bmx"
-    * when building filters in the ui (file-chooser, recent-chooser) we'd like
-      to have separate entries with names
     * when saving, we'd don't want to reparse the file-name to know what format
       has been selected.
-  * idea
-    * we could have an array of BtSongIOModuleInfo in each plugin
-      -> but then one mime-type and one extension should be enough
+  * done
+    * BtSongIOFormatInfo
+  * todo
     * use sub-classes:
       BtSongIONative -> BtSongIONativeXML, BtSongIONativeBZT
       BtSongIOBuzz   -> BtSongIONativeBMW, BtSongIONativeBMX

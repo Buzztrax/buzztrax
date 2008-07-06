@@ -54,9 +54,6 @@ struct _BtMainWindowPrivate {
   BtMainPages *pages;
   /* the statusbar of the window */
   BtMainStatusbar *statusbar;
-  
-  /* GtkFileChooserFilters */
-  GtkFileFilter *filter_xml, *filter_bzt;
 };
 
 static GtkWindowClass *parent_class=NULL;
@@ -69,34 +66,55 @@ static gint n_drop_types = sizeof(drop_types) / sizeof(GtkTargetEntry);
 
 //-- helper methods
 
-static gchar* update_filename_ext(const BtMainWindow *self,GtkFileChooser *dialog,gchar *file_name) {
-  GtkFileFilter *filter;
+static gchar* update_filename_ext(const BtMainWindow *self,GtkFileChooser *dialog,gchar *file_name,GList *filters) {
+  GtkFileFilter *this_filter,*that_filter;
   gchar *new_file_name=NULL;
   gchar *ext;
+  const GList *plugins, *pnode, *fnode;
+  BtSongIOModuleInfo *info;
+  guint ix;
   
-  filter=gtk_file_chooser_get_filter(dialog);
+  plugins=bt_song_io_get_module_info_list();
+  this_filter=gtk_file_chooser_get_filter(dialog);
   
-  GST_WARNING("old song name = '%s', filter %p",file_name, filter);
-  GST_WARNING("filter_xml %p, filter_bzt %p",self->priv->filter_xml, self->priv->filter_bzt);
+  GST_WARNING("old song name = '%s', filter %p",file_name, this_filter);
   
   ext=strrchr(file_name,'.');
 
   if(ext) {
-    if((filter!=self->priv->filter_xml) && !strcmp(ext,".xml")) {
-      file_name[strlen(file_name)-strlen(".xml")]='\0';
-      GST_INFO("cut fn to: %s",file_name);
-    }
-    else if((filter!=self->priv->filter_bzt) && !strcmp(ext,".bzt")) {
-      file_name[strlen(file_name)-strlen(".bzt")]='\0';
-      GST_INFO("cut fn to: %s",file_name);
+    ext++;
+    // cut off known extensions
+    for(pnode=plugins,fnode=filters;pnode;pnode=g_list_next(pnode)) {
+      info=(BtSongIOModuleInfo *)pnode->data;
+      ix=0;
+      while(info->formats[ix].name) {
+        that_filter=fnode->data;
+        
+        if((this_filter!=that_filter) && !strcmp(ext,info->formats[ix].extension)) {
+          file_name[strlen(file_name)-strlen(info->formats[ix].extension)]='\0';
+          GST_INFO("cut fn to: %s",file_name);
+          pnode=NULL;
+          break;
+        }
+        fnode=g_list_next(fnode);ix++;
+      }
     }
   }
 
-  if((filter==self->priv->filter_xml) && (!ext || strcmp(ext,".xml"))) {
-    new_file_name=g_strdup_printf("%s.xml",file_name);
-  }
-  else if((filter==self->priv->filter_bzt) && (!ext || strcmp(ext,".bzt"))) {
-    new_file_name=g_strdup_printf("%s.bzt",file_name);
+  // append new extension
+  for(pnode=plugins,fnode=filters;pnode;pnode=g_list_next(pnode)) {
+    info=(BtSongIOModuleInfo *)pnode->data;
+    ix=0;
+    while(info->formats[ix].name) {
+      that_filter=fnode->data;
+  
+      if((this_filter==that_filter) && (!ext || strcmp(ext,info->formats[ix].extension))) {
+        new_file_name=g_strdup_printf("%s.%s",file_name,info->formats[ix].extension);
+        pnode=NULL;
+        break;
+      }
+      fnode=g_list_next(fnode);ix++;
+    }
   }
   
   if(new_file_name && strcmp(file_name,new_file_name)) {
@@ -210,25 +228,6 @@ static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gi
     g_free(file_name);
   }
 }
-
-#if 0
-// gtk does not allow us to filter the filename in a meaning full way
-static void on_chooser_filter_changed(GtkFileChooser *dialog,GParamSpec *arg,gpointer user_data) {
-  const BtMainWindow *self=BT_MAIN_WINDOW(user_data);
-  gchar *file_name,*new_file_name=NULL;
-  
-  file_name=gtk_file_chooser_get_filename(dialog);
-  if(!file_name) {
-    GST_WARNING("no filename yet");
-    return;
-  }
-  if((new_file_name=update_filename_ext(self,dialog,file_name))) {
-    gtk_file_chooser_set_filename(dialog,new_file_name);
-  }
-  g_free(file_name);
-  g_free(new_file_name);
-}
-#endif
 
 /* just for testing
 static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer user_data) {
@@ -460,16 +459,24 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   gint result;
   gchar *folder_name,*file_name=NULL;
   GtkFileFilter *filter;
+  const GList *plugins, *node;
+  BtSongIOModuleInfo *info;
+  guint ix;
 
-  // @todo: integrate with bt_song_io
   // set filters
-  filter=gtk_file_filter_new();
-  gtk_file_filter_set_name(filter,"buzztard song");
-  gtk_file_filter_add_mime_type(filter,"audio/x-bzt-xml");
-  gtk_file_filter_add_mime_type(filter,"audio/x-bzt");
-  //gtk_file_filter_add_pattern(filter,"*.xml");
-  //gtk_file_filter_add_pattern(filter,"*.bzt");
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+  plugins=bt_song_io_get_module_info_list();
+  for(node=plugins;node;node=g_list_next(node)) {
+    info=(BtSongIOModuleInfo *)node->data;
+    ix=0;
+    while(info->formats[ix].name) {
+      filter=gtk_file_filter_new();
+      gtk_file_filter_set_name(filter,info->formats[ix].name);
+      gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
+      //gtk_file_filter_add_pattern(filter,"*.xml");
+      gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+      ix++;
+    }
+  }
   filter=gtk_file_filter_new();
   gtk_file_filter_set_name(filter,"all files");
   gtk_file_filter_add_pattern(filter,"*");
@@ -504,8 +511,8 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);
       g_free(msg);
     }
-    else {
 #ifdef HAVE_GTK_2_10
+    else {
       // store recent file
       GtkRecentManager *manager=gtk_recent_manager_get_default();
       gchar *uri=g_filename_to_uri(file_name,NULL,NULL);
@@ -513,12 +520,9 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       if(!gtk_recent_manager_add_item (manager, uri)) {
 	    GST_WARNING("Can't store recent file");
       }
-      else {
-        GST_WARNING("Stored recent file");
-      }
       g_free(uri);
-#endif
     }
+#endif
     g_free(file_name);
   }
 }
@@ -569,28 +573,33 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   BtSong *song;
   BtSongInfo *song_info;
   gchar *name,*folder_name,*file_name=NULL;
+  gchar *old_file_name=NULL;
   gint result;
   GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Save a song"),GTK_WINDOW(self),GTK_FILE_CHOOSER_ACTION_SAVE,
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
-  
-  // @todo: integrate with bt_song_io
+  GtkFileFilter *filter;
+  GList *filters=NULL;
+  const GList *plugins, *node;
+  BtSongIOModuleInfo *info;
+  guint ix;
+
   // set filters
-  self->priv->filter_xml=gtk_file_filter_new();
-  gtk_file_filter_set_name(self->priv->filter_xml,"buzztard song without waves");
-  gtk_file_filter_add_mime_type(self->priv->filter_xml,"audio/x-bzt-xml");
-  //gtk_file_filter_add_pattern(self->priv->filter_xml,"*.xml");
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),self->priv->filter_xml);
-  self->priv->filter_bzt=gtk_file_filter_new();
-  gtk_file_filter_set_name(self->priv->filter_bzt,"buzztard song with waves");
-  gtk_file_filter_add_mime_type(self->priv->filter_bzt,"audio/x-bzt");
-  //gtk_file_filter_add_pattern(self->priv->filter_bzt,"*.bzt");
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),self->priv->filter_bzt);
-#if 0
-  // gtk does not allow us to filter the filename in a meaning full way
-  g_signal_connect(G_OBJECT(dialog),"notify::filter",G_CALLBACK(on_chooser_filter_changed),(gpointer)self);
-#endif
+  plugins=bt_song_io_get_module_info_list();
+  for(node=plugins;node;node=g_list_next(node)) {
+    info=(BtSongIOModuleInfo *)node->data;
+    ix=0;
+    while(info->formats[ix].name) {
+      filter=gtk_file_filter_new();
+      gtk_file_filter_set_name(filter,info->formats[ix].name);
+      gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
+      //gtk_file_filter_add_pattern(filter,"*.xml");
+      gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+      ix++;
+      filters=g_list_append(filters,filter);
+    }
+  }
 
   // get songs file-name
   g_object_get(G_OBJECT(self->priv->app),"song",&song,"settings",&settings,NULL);
@@ -599,10 +608,6 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   g_object_get(settings,"song-folder",&folder_name,NULL);
   if(!file_name) {
     GST_DEBUG("use defaults %s/%s",folder_name,name);
-#if 0
-    // gtk does not allow us to filter the filename in a meaning full way
-    file_name=update_filename_ext(self,GTK_FILE_CHOOSER(dialog),name);
-#endif
     /* the user just created a new document */
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(dialog), folder_name);
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER(dialog), name);
@@ -618,20 +623,16 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     /* the user edited an existing document */
     gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),file_name);
     /* select a filter that would show this file */
-    if(gtk_file_filter_filter(self->priv->filter_xml,&ffi)) {
-      GST_DEBUG("use last path %s, format is xml",file_name);
-      gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),self->priv->filter_xml);
-    }
-    else if(gtk_file_filter_filter(self->priv->filter_bzt,&ffi)) {
-      GST_DEBUG("use last path %s, format is bzt",file_name);
-      gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),self->priv->filter_bzt);
-    }
-    else {
-      GST_DEBUG("use last path %s, format is ???, needed flags: 0x%x, 0x%x",
-        file_name,gtk_file_filter_get_needed(self->priv->filter_xml),gtk_file_filter_get_needed(self->priv->filter_bzt));
+    for(node=filters;node;node=g_list_next(node)) {
+      filter=node->data;
+      if(gtk_file_filter_filter(filter,&ffi)) {
+        GST_DEBUG("use last path %s, format is %s",file_name,gtk_file_filter_get_name(filter));
+        gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter);
+        break;
+      }
     }
   }
-  g_free(file_name);file_name=NULL;
+  old_file_name=file_name;file_name=NULL;
   g_free(folder_name);
   g_free(name);
     
@@ -647,7 +648,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
 
       // make sure it has the extension matching the filter
       file_name=gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-      if((new_file_name=update_filename_ext(self,GTK_FILE_CHOOSER(dialog),file_name))) {
+      if((new_file_name=update_filename_ext(self,GTK_FILE_CHOOSER(dialog),file_name,filters))) {
         g_free(file_name);
         file_name=new_file_name;      
       }
@@ -660,6 +661,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       GST_WARNING("unhandled response code = %d",result);
   }
   gtk_widget_destroy(dialog);
+  g_list_free(filters);
   // save after destoying the dialog, otherwise it stays open all time
   if(file_name) {
     FILE *file;
@@ -700,9 +702,30 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
         bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
         g_free(msg);
       }
+#ifdef HAVE_GTK_2_10
+      else {
+        // store recent file
+        GtkRecentManager *manager=gtk_recent_manager_get_default();
+        gchar *uri;
+        
+        if(old_file_name) {
+          uri=g_filename_to_uri(old_file_name,NULL,NULL);
+          if(!gtk_recent_manager_remove_item (manager, uri, NULL)) {
+            GST_WARNING("Can't store recent file");
+          }
+          g_free(uri);         
+        }
+        uri=g_filename_to_uri(file_name,NULL,NULL);
+        if(!gtk_recent_manager_add_item (manager, uri)) {
+          GST_WARNING("Can't store recent file");
+        }
+        g_free(uri);
+      }
+#endif
     }
     g_free(file_name);
   }
+  g_free(old_file_name);
 }
 
 //-- wrapper

@@ -64,10 +64,7 @@ struct _BtSongIOPrivate {
 static GObjectClass *parent_class=NULL;
 
 /* list of registered io-classes, each entry points to a detect function
- * @todo: we should gather a structure for each plugin
- * - the structure will have the detect function pointer
- * - the default extension
- * - the mime type
+ * @todo: we should gather a BtSongIOModuleInfo structure for each plugin
  * This would help with code in main-window.c
  */
 static GList *plugins=NULL;
@@ -89,34 +86,45 @@ static void bt_song_io_register_plugins(void) {
    */
   GST_INFO("register song-io plugins ...");
   // register internal song-io plugin
-  plugins=g_list_append(plugins,(gpointer)bt_song_io_native_detect);
+  plugins=g_list_append(plugins,(gpointer)&bt_song_io_native_module_info);
   // registering external song-io plugins
   GST_INFO("  scanning external song-io plugins in "LIBDIR"/songio/ ...");
   if(dirp) {
     const struct dirent *dire;
-    gpointer bt_song_io_plugin_detect=NULL;
+    gpointer bt_song_io_module_info=NULL;
     gchar link_target[FILENAME_MAX],plugin_name[FILENAME_MAX];
 
-    //   1.) scan plugin-folder (LIBDIR/songio)
+    // 1.) scan plugin-folder (LIBDIR/songio)
     while((dire=readdir(dirp))!=NULL) {
       // skip names starting with a dot
       if((!dire->d_name) || (*dire->d_name=='.')) continue;
       g_sprintf(plugin_name,LIBDIR"/songio/%s",dire->d_name);
       // skip symlinks
       if(readlink((const char *)plugin_name,link_target,FILENAME_MAX-1)!=-1) continue;
-      GST_INFO("    found file '%s'",dire->d_name);
-      //   2.) try to open each as g_module
+      GST_INFO("    found file '%s'",plugin_name);
+
+      // 2.) try to open each as g_module
       //if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
       GModule * const plugin=g_module_open(plugin_name,G_MODULE_BIND_LOCAL);
       if(plugin!=NULL) {
-        GST_INFO("    that is a shared object");
-        //   3.) gets the address of GType bt_song_io_detect(const gchar *);
-        if(g_module_symbol(plugin,"bt_song_io_detect",&bt_song_io_plugin_detect)) {
-          GST_INFO("    and implements a songio subclass");
-          //   4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
-          plugins=g_list_append(plugins,bt_song_io_plugin_detect);
+        // 3.) gets the address of GType bt_song_io_detect(const gchar *);
+        if(g_module_symbol(plugin,"bt_song_io_module_info",&bt_song_io_module_info)) {
+          if(!g_list_find(plugins,bt_song_io_module_info)) {
+            // 4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
+            plugins=g_list_append(plugins,bt_song_io_module_info);
+          }
+          else {
+            GST_WARNING("%s skipped as duplicate",plugin_name);
+            g_module_close(plugin);
+          }
         }
-        else g_module_close(plugin);
+        else {
+          GST_WARNING("%s is not a songio plugin",plugin_name);
+          g_module_close(plugin);
+        }
+      }
+      else {
+        GST_WARNING("%s is not a shared object",plugin_name); 
       }
     }
     closedir(dirp);
@@ -136,7 +144,7 @@ static void bt_song_io_register_plugins(void) {
 static GType bt_song_io_detect(const gchar * const file_name) {
   GType type=0;
   const GList *node;
-  BtSongIODetect detect;
+  BtSongIOModuleInfo *info;
 
   GST_INFO("detecting loader for file '%s'",file_name);
 
@@ -144,15 +152,16 @@ static GType bt_song_io_detect(const gchar * const file_name) {
 
   // try all registered plugins
   for(node=plugins;node;node=g_list_next(node)) {
-    detect=(BtSongIODetect)node->data;
+    info=(BtSongIOModuleInfo *)node->data;
     GST_INFO("  trying ...");
     // the detect function return a GType if the file matches to the plugin or
     // NULL otheriwse
-    if((type=detect(file_name))) {
+    if((type=info->detect(file_name))) {
       /* @idea: would be good if the detect method could also return some extra
        * data which the plugin can use for loading/saving (e.g. mime-type)
+       * would it make sense to add the GType to BtSongIOFormatInfo
        */
-      GST_INFO("  found one!");
+       GST_INFO("  found one: %s!", info->formats[0].name);
       break;
     }
   }
@@ -218,6 +227,22 @@ BtSongIO *bt_song_io_new(const gchar * const file_name) {
 
 
 //-- methods
+
+/**
+ * bt_song_io_get_module_info_list:
+ *
+ * Get read only access to list of #BtSongIOModuleInfo entries.
+ *
+ * Returns: the #GList.
+ */
+const GList *bt_song_io_get_module_info_list(void) {
+
+  if(!plugins) bt_song_io_register_plugins();
+
+  return (plugins);
+}
+
+//-- virtual methods
 
 static gboolean bt_song_io_default_load(gconstpointer const self, const BtSong * const song) {
   GST_ERROR("virtual method bt_song_io_load(self=%p,song=%p) called",self,song);

@@ -422,7 +422,11 @@ BtSongIOClass
 bt_song_io_new
 bt_song_io_load
 bt_song_io_save
+bt_song_io_get_module_info_list
 BtSongIODetect
+BtSongIOFormatInfo
+BtSongIOModuleInfo
+BT_SONG_IO_MODULE_INFO_MAX_FORMATS
 <SUBSECTION Virtual Methods>
 bt_song_io_virtual_load
 bt_song_io_virtual_save

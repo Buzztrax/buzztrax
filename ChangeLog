@@ -1,5 +1,19 @@
 2008-07-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* TODO:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/song-io-methods.h:
+	* src/lib/core/libbtcore/song-io-native-methods.h:
+	* src/lib/core/libbtcore/song-io.h:
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/song-io.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-window.c:
+	  Step 1/2 of the songio refactoring. Introducing BtSongIOModuleInfo and
+	  BtSongIOFormatInfo. More generic code that uses those data.
+
+2008-07-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Wrote and sent NEWS.
 

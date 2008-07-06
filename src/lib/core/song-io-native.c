@@ -85,7 +85,7 @@ GType bt_song_io_native_mode_get_type(void) {
 }
 
 //-- plugin detect
-/**
+/*
  * bt_song_io_native_detect:
  * @file_name: the file to check against
  *
@@ -93,7 +93,7 @@ GType bt_song_io_native_mode_get_type(void) {
  *
  * Returns: the GType of this plugin of %NULL
  */
-GType bt_song_io_native_detect(const gchar * const file_name) {
+static GType bt_song_io_native_detect(const gchar * const file_name) {
   GType type=0;
 
   // test filename first  
@@ -171,6 +171,21 @@ Error:
   return(type);
 }
 
+/**
+ * bt_song_io_native_module_info:
+ *
+ * Buzztard native format song loader/saver metadata.
+ */
+BtSongIOModuleInfo bt_song_io_native_module_info = {
+  bt_song_io_native_detect,
+  {
+    { "buzztard song with externals", "audio/x-bzt", "bzt" },
+    { "buzztard song without externals", "audio/x-bzt-xml", "xml" },
+    { NULL, }
+  }
+};
+
+
 //-- public methods
 
 /**
@@ -195,6 +210,7 @@ gboolean bt_song_io_native_copy_to_fd(const BtSongIONative * const self, const g
   gint i=0,num;
   
   // bahh, we need to get the dir for the file_name
+  // or use gsf_infile_child_by_vname(infile,parts[0],parts[1],...NULL);
   parts=g_strsplit(file_name,G_DIR_SEPARATOR_S,0);
   num=gsf_infile_num_children (infile);
   while(parts[i] && (num>0)) {
