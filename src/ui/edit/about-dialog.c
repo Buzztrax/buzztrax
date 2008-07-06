@@ -66,7 +66,7 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
     NULL
   };
   static const gchar *artists[] = {
-    "Marc 'deloun' Broekhuis <deloun@gmail.com>",
+    "Marc 'marcbroe' Broekhuis <marcbroe@gmail.com>",
     "Jakub Steiner <jimmac@ximian.com>",
     NULL
   };

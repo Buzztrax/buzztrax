@@ -1,3 +1,8 @@
+2008-07-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/about-dialog.c:
+	  Update Marc's email and nick.
+
 2008-06-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/Makefile.am:
