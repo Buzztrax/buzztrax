@@ -43,10 +43,13 @@ $Id$
       * bsl    : "audio/x-bmw", "audio/x-bmx"
     * when saving, we'd don't want to reparse the file-name to know what format
       has been selected.
+    * simplify code in wave.c
   * done
     * BtSongIOFormatInfo
-  * todo
     * use sub-classes:
       BtSongIONative -> BtSongIONativeXML, BtSongIONativeBZT
+  * todo
+    * use sub-classes:
       BtSongIOBuzz   -> BtSongIONativeBMW, BtSongIONativeBMX
+      (does it make sense here?)
 

@@ -122,6 +122,8 @@
     <xi:include href="xml/btsonginfo.xml" />
     <xi:include href="xml/btsongio.xml" />
     <xi:include href="xml/btsongionative.xml" />
+    <xi:include href="xml/btsongionativebzt.xml" />
+    <xi:include href="xml/btsongionativexml.xml" />
     <xi:include href="xml/btsourcemachine.xml" />
     <xi:include href="xml/btwave.xml" />
     <xi:include href="xml/btwavelevel.xml" />

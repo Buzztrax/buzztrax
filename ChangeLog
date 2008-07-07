@@ -1,3 +1,22 @@
+2008-07-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* TODO:
+	* configure.ac:
+	* docs/reference/bt-core/bt-core-docs.sgml:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-core/bt-core.types:
+	* src/lib/core/libbtcore/song-io-native-methods.h:
+	* src/lib/core/libbtcore/song-io-native-bzt.h:
+	* src/lib/core/libbtcore/song-io-native-bzt-methods.h:
+	* src/lib/core/libbtcore/song-io-native-xml.h:
+	* src/lib/core/libbtcore/song-io-native-xml-methods.h:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	  Step 2/2 of the songio refactoring. SongIONative is now abstract and
+	  subclassed for xml and bzt variants.
+
 2008-07-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* TODO:

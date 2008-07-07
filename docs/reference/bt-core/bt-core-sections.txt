@@ -446,10 +446,7 @@ BtSongIOPrivate
 <TITLE>BtSongIONative</TITLE>
 BtSongIONative
 BtSongIONativeClass
-BtSongIONativeMode
 bt_song_io_native_detect
-bt_song_io_native_copy_to_fd
-bt_song_io_native_copy_from_uri
 <SUBSECTION Standard>
 BT_SONG_IO_NATIVE
 BT_IS_SONG_IO_NATIVE
@@ -459,6 +456,40 @@ BT_SONG_IO_NATIVE_GET_CLASS
 BT_TYPE_SONG_IO_NATIVE
 bt_song_io_native_get_type
 BtSongIONativePrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsongionativebzt</FILE>
+<TITLE>BtSongIONativeBZT</TITLE>
+BtSongIONativeBZT
+BtSongIONativeBZTClass
+bt_song_io_native_bzt_copy_to_fd
+bt_song_io_native_bzt_copy_from_uri
+<SUBSECTION Standard>
+BT_SONG_IO_NATIVE_BZT
+BT_IS_SONG_IO_NATIVE_BZT
+BT_SONG_IO_NATIVE_BZT_CLASS
+BT_IS_SONG_IO_NATIVE_BZT_CLASS
+BT_SONG_IO_NATIVE_BZT_GET_CLASS
+BT_TYPE_SONG_IO_NATIVE_BZT
+bt_song_io_native_bzt_get_type
+BtSongIONativeBZTPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsongionativexml</FILE>
+<TITLE>BtSongIONativeXML</TITLE>
+BtSongIONativeXML
+BtSongIONativeXMLClass
+<SUBSECTION Standard>
+BT_SONG_IO_NATIVE_XML
+BT_IS_SONG_IO_NATIVE_XML
+BT_SONG_IO_NATIVE_XML_CLASS
+BT_IS_SONG_IO_NATIVE_XML_CLASS
+BT_SONG_IO_NATIVE_XML_GET_CLASS
+BT_TYPE_SONG_IO_NATIVE_XML
+bt_song_io_native_xml_get_type
+BtSongIONativeXMLPrivate
 </SECTION>
 
 <SECTION>

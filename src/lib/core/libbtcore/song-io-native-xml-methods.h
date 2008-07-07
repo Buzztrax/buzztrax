@@ -1,7 +1,7 @@
 /* $Id$
  *
  * Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2008 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,11 +19,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BT_SONG_IO_NATIVE_METHODS_H
-#define BT_SONG_IO_NATIVE_METHODS_H
+#ifndef BT_SONG_IO_NATIVE_XML_METHODS_H
+#define BT_SONG_IO_NATIVE_XML_METHODS_H
 
-#include "song-io-native.h"
+#include "song-io-native-xml.h"
 
-extern BtSongIOModuleInfo bt_song_io_native_module_info;
-
-#endif // BT_SONG_IO_NATIVE_METHDOS_H
+#endif // BT_SONG_IO_NATIVE_XML_METHDOS_H

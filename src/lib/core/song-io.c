@@ -80,9 +80,9 @@ static GList *plugins=NULL;
 static void bt_song_io_register_plugins(void) {
   DIR * const dirp=opendir(LIBDIR"/songio");
 
-  /* @todo shoudn't the contents of the plugin list be structures
+  /* @todo the plugin list now has structures
    * so that apart from the detect ptr, we could keep the modules handle.
-   * we need this to close the plugins at sometime ...
+   * we need this to close the plugins at sometime ... (do we?)
    */
   GST_INFO("register song-io plugins ...");
   // register internal song-io plugin
@@ -101,7 +101,10 @@ static void bt_song_io_register_plugins(void) {
       g_sprintf(plugin_name,LIBDIR"/songio/%s",dire->d_name);
       // skip symlinks
       if(readlink((const char *)plugin_name,link_target,FILENAME_MAX-1)!=-1) continue;
+      // skip files other then shared librares
+      if(!g_str_has_suffix(plugin_name,"."G_MODULE_SUFFIX)) continue;
       GST_INFO("    found file '%s'",plugin_name);
+      
 
       // 2.) try to open each as g_module
       //if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {

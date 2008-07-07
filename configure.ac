@@ -292,11 +292,12 @@ PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
 )
 
 PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
+  AM_CONDITIONAL(USE_GSF, true)
   AC_DEFINE(USE_GSF, [1], [Define to 1 if we can use gsf libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSF_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSF_DEPS_LIBS"
   ],[
-    use_gsf=no
+    AM_CONDITIONAL(USE_GSF, false)
   ]
 )
 
