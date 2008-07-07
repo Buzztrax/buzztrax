@@ -61,23 +61,6 @@ struct _BtSongIONativeClass {
   /*< private >*/
 };
 
-#define BT_TYPE_SONG_IO_NATIVE_MODE       (bt_song_io_native_mode_get_type())
-
-/**
- * BtSongIONativeMode:
- * @BT_SONG_IO_NATIVE_MODE_UNDEF: format not yet known
- * @BT_SONG_IO_NATIVE_MODE_XML: plain xml without external files
- * @BT_SONG_IO_NATIVE_MODE_BZT: zip'ed xml with externals included
- *
- * The supported filetype modes.
- */
-typedef enum {
-  BT_SONG_IO_NATIVE_MODE_UNDEF=0,
-  BT_SONG_IO_NATIVE_MODE_XML,
-  BT_SONG_IO_NATIVE_MODE_BZT
-} BtSongIONativeMode;
-
-
 /* used by SONG_IO_NATIVE_TYPE */
 GType bt_song_io_native_get_type(void) G_GNUC_CONST;
 

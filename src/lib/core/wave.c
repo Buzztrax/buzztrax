@@ -385,14 +385,10 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
     xmlNewProp(node,XML_CHAR_PTR("uri"),XML_CHAR_PTR(self->priv->uri));
     
-    /* @todo: save files when saving a song as a zip */
-    // check if we need to load external data
+    // check if we need to save external data
     g_object_get(self->priv->song,"song-io",&song_io,NULL);
     if (song_io) {
-      BtSongIONativeMode mode;
-      
-      g_object_get(song_io,"mode",&mode,NULL);
-      if(mode==BT_SONG_IO_NATIVE_MODE_BZT) {
+      if(BT_IS_SONG_IO_NATIVE_BZT(song_io)) {
         gchar *fn,*fp;
 
         // need to rewrite path
@@ -403,7 +399,7 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
   
         GST_INFO("saving external uri=%s -> zip=%s",self->priv->uri,fp); 
         
-        bt_song_io_native_copy_from_uri(song_io,fp,self->priv->uri);
+        bt_song_io_native_bzt_copy_from_uri(BT_SONG_IO_NATIVE_BZT(song_io),fp,self->priv->uri);
         g_free(fp);
       }
       g_object_unref(song_io);
@@ -437,10 +433,7 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
   // check if we need to load external data
   g_object_get(self->priv->song,"song-io",&song_io,NULL);
   if (song_io) {
-    BtSongIONativeMode mode;
-    
-    g_object_get(song_io,"mode",&mode,NULL);
-    if(mode==BT_SONG_IO_NATIVE_MODE_BZT) {
+    if(BT_IS_SONG_IO_NATIVE_BZT(song_io)) {
       gchar *fn,*fp;
 
       // need to rewrite path
@@ -453,7 +446,7 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
       
       // we need to copy the files from zip and change the uri to "fd://%d"
       self->priv->ext_fd=fileno(tmpfile()); // or mkstemp("...XXXXXX")
-      if(bt_song_io_native_copy_to_fd(song_io,fp,self->priv->ext_fd)) {
+      if(bt_song_io_native_bzt_copy_to_fd(BT_SONG_IO_NATIVE_BZT(song_io),fp,self->priv->ext_fd)) {
         uri=g_strdup_printf("fd://%d",self->priv->ext_fd);
       }
       else {

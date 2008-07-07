@@ -35,7 +35,7 @@
 #include "core_private.h"
 
 // if a state change not happens within this time, cancel playback
-#define BT_SONG_STATE_CHANGE_TIMEOUT (20*1000)
+#define BT_SONG_STATE_CHANGE_TIMEOUT (30*1000)
 
 //-- signal ids
 
@@ -461,7 +461,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     GstState oldstate,newstate,pending;
 
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
-    GST_INFO("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
+    GST_WARNING("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         // here the formats are negotiated

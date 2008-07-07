@@ -7,6 +7,11 @@ GCONF_SETTINGS_SRC = gconf-settings.c libbtcore/gconf-settings.h libbtcore/gconf
 else
 GCONF_SETTINGS_SRC =
 endif
+if USE_GSF
+CONF_SETTINGS_SRC = gconf-settings.c libbtcore/gconf-settings.h libbtcore/gconf-settings-methods.h
+else
+GCONF_SETTINGS_SRC =
+endif
 
 # these sources (also mentioned above) are generated.
 BUILT_SOURCES = marshal.h marshal.c
@@ -39,6 +44,8 @@ libbtcore_la_SOURCES = \
 	song-info.c libbtcore/song-info.h libbtcore/song-info-methods.h \
 	song-io.c libbtcore/song-io.h libbtcore/song-io-methods.h \
 	song-io-native.c libbtcore/song-io-native.h libbtcore/song-io-native-methods.h \
+	song-io-native-bzt.c libbtcore/song-io-native-bzt.h libbtcore/song-io-native-methods-bzt.h \
+	song-io-native-xml.c libbtcore/song-io-native-xml.h libbtcore/song-io-native-methods-xml.h \
 	source-machine.c libbtcore/source-machine.h libbtcore/source-machine-methods.h \
 	wavetable.c libbtcore/wavetable.h libbtcore/wavetable-methods.h \
 	wave.c libbtcore/wave.h libbtcore/wave-methods.h \
