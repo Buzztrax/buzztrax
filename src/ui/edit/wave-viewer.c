@@ -134,8 +134,17 @@ bt_waveform_viewer_init (BtWaveformViewer *self)
   self->peaks = malloc(sizeof(float) * self->channels * self->peaks_size);
 }
 
+/**
+ * bt_waveform_viewer_set_wave:
+ * @self: the widget
+ * @data: memory block of samples (interleaved for channels>1)
+ * @channels: number channels
+ * @length: number samples per channel
+ *
+ * Set wave data to show in the widget.
+ */
 void 
-bt_waveform_viewer_update(BtWaveformViewer *self, int16_t *data, int channels, int length)
+bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels, int length)
 {
   // untested, probably doesn't work
   int i, c, p, cc = channels;
@@ -167,6 +176,14 @@ bt_waveform_viewer_update(BtWaveformViewer *self, int16_t *data, int channels, i
   gtk_widget_queue_draw(GTK_WIDGET(self));
 }
 
+/**
+ * bt_waveform_viewer_new:
+ *
+ * Create a new waveform viewer widget. Use bt_waveform_viewer_set_wave() to
+ * pass wave data.
+ *
+ * Returns: the widget
+ */
 GtkWidget *
 bt_waveform_viewer_new()
 {

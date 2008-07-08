@@ -165,6 +165,7 @@ btic_major_version
 btic_minor_version
 btic_micro_version
 <SUBSECTION Standard>
+GST_CAT_DEFAULT
 # gettext extras
 _
 N_

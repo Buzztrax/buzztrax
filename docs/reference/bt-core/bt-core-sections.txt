@@ -446,7 +446,6 @@ BtSongIOPrivate
 <TITLE>BtSongIONative</TITLE>
 BtSongIONative
 BtSongIONativeClass
-bt_song_io_native_detect
 <SUBSECTION Standard>
 BT_SONG_IO_NATIVE
 BT_IS_SONG_IO_NATIVE
@@ -534,6 +533,7 @@ BtWavePrivate
 <TITLE>BtWavelevel</TITLE>
 BtWavelevel
 bt_wavelevel_new
+BT_WAVELEVEL_DEFAULT_ROOT_NOTE
 <SUBSECTION Standard>
 BtWavelevelClass
 BT_WAVELEVEL

@@ -55,7 +55,7 @@ struct _BtWaveformViewerClass {
 
 GtkWidget *bt_waveform_viewer_new();
 
-void bt_waveform_viewer_update(BtWaveformViewer *self, int16_t *data, int channels, int length);
+void bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels, int length);
 
 GType bt_waveform_viewer_get_type(void) G_GNUC_CONST;
 

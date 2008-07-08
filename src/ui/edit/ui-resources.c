@@ -325,7 +325,7 @@ GdkPixbuf *bt_ui_resources_get_icon_pixbuf_by_machine(const BtMachine *machine) 
 }
 
 /**
- * bt_ui_resources_get_graphics_pixbuf_by_machine:
+ * bt_ui_resources_get_machine_graphics_pixbuf_by_machine:
  * @machine: the machine to get the image for
  *
  * Gets a #GdkPixbuf image that matches the given machine type for use on the

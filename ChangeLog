@@ -1,5 +1,18 @@
 2008-07-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/ui-resources.c:
+	* src/ui/edit/wave-viewer.c:
+	* src/ui/edit/wave-viewer.h:
+	  Get docs up to date. Rename one method in wave-viewer to be in sync
+	  with api style.
+
+2008-07-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  Make sure loop-start/end are sane.
 

@@ -475,6 +475,24 @@ bt_panorama_popup_get_type
 
 
 <SECTION>
+<FILE>btpatterneditor</FILE>
+<TITLE>BtPatternEditor</TITLE>
+BtPatternEditor
+bt_pattern_editor_new
+bt_pattern_editor_set_pattern
+bt_pattern_editor_get_selection
+<SUBSECTION Standard>
+BtPatternEditorrClass
+BT_PATTERN_EDITOR
+BT_IS_PATTERN_EDITOR
+BT_PATTERN_EDITOR_CLASS
+BT_IS_PATTERN_EDITOR_CLASS
+BT_TYPE_PATTERN_EDITOR
+bt_pattern_editor_get_type
+</SECTION>
+
+
+<SECTION>
 <FILE>btpatternpropertiesdialog</FILE>
 <TITLE>BtPatternPropertiesDialog</TITLE>
 BtPatternPropertiesDialog
@@ -713,6 +731,7 @@ bt_volume_popup_get_type
 <TITLE>BtWaveformViewer</TITLE>
 BtWaveformViewer
 bt_waveform_viewer_new
+bt_waveform_viewer_set_wave
 <SUBSECTION Standard>
 BtWaveformViewerClass
 BT_WAVEFORM_VIEWER

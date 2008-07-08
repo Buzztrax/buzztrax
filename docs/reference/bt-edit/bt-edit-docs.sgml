@@ -81,6 +81,7 @@
     <xi:include href="xml/btmissingframeworkelementsdialog.xml" />
     <xi:include href="xml/btmissingsongelementsdialog.xml" />
     <xi:include href="xml/btpanoramapopup.xml" />
+    <xi:include href="xml/btpatterneditor.xml" />
     <xi:include href="xml/btpatternpropertiesdialog.xml" />
     <xi:include href="xml/btplaybackcontrollersocket.xml" />
     <xi:include href="xml/btrenderdialog.xml" />

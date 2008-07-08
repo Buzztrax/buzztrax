@@ -425,6 +425,14 @@ char_to_coords(int charpos,
 
 //-- constructor methods
 
+/**
+ * bt_pattern_editor_new:
+ *
+ * Create a new pattern editor widget. Use bt_pattern_editor_set_pattern() to
+ * pass pattern data.
+ *
+ * Returns: the widget
+ */
 GtkWidget *
 bt_pattern_editor_new(void)
 {
@@ -1184,6 +1192,14 @@ bt_pattern_editor_init (BtPatternEditor *self)
 
 /**
  * bt_pattern_editor_set_pattern:
+ * @self: the widget
+ * @pattern_data: memory block of values
+ * @num_rows: number of tick rows (y axis)
+ * @num_groups: number of groups (x axis)
+ * @groups: group parameters
+ * @cb: value transformation callbacks
+ *
+ * Set pattern data to show in the widget.
  */
 void
 bt_pattern_editor_set_pattern (BtPatternEditor *self,
@@ -1212,6 +1228,18 @@ bt_pattern_editor_set_pattern (BtPatternEditor *self,
   gtk_widget_queue_draw (widget);
 }
 
+/**
+ * bt_pattern_editor_get_selection:
+ * @self: the widget
+ * @start: location for start tick
+ * @end: location for end tick
+ * @group: location for group
+ * @param: location for parameter in group
+ *
+ * Get selection rectangle.
+ *
+ * Returns: %TRUE if there was a selection.
+ */
 gboolean bt_pattern_editor_get_selection (BtPatternEditor *self,
                                           int *start, int *end, 
                                           int *group, int *param)
