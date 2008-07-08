@@ -55,8 +55,14 @@ struct _BtWavelevelClass {
   const GObjectClass parent;
 };
 
+/**
+ * BT_WAVELEVEL_DEFAULT_ROOT_NOTE:
+ *
+ * Default base-note for a wavelevel (c-3).
+ */
+#define BT_WAVELEVEL_DEFAULT_ROOT_NOTE (1+(4*16))
+
 /* used by WAVELEVEL_TYPE */
 GType bt_wavelevel_get_type(void) G_GNUC_CONST;
-
 
 #endif // BT_WAVELEVEL_H

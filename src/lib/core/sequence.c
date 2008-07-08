@@ -1946,6 +1946,19 @@ static void bt_sequence_set_property(GObject      * const object,
     } break;
     case SEQUENCE_LOOP_START: {
       self->priv->loop_start = g_value_get_long(value);
+      if(self->priv->loop_start!=-1) {
+        // make sure its less then loop_end/length
+        if(self->priv->loop_end>0) {
+          if(self->priv->loop_start>=self->priv->loop_end)
+            self->priv->loop_start=self->priv->loop_end-1;
+        }
+        else if(self->priv->length>0) {
+          if(self->priv->loop_start>=self->priv->length)
+            self->priv->loop_start=self->priv->length-1;
+        }
+        else
+          self->priv->loop_start=-1;
+      }
       GST_DEBUG("set the loop-start for sequence: %ld",self->priv->loop_start);
       self->priv->play_start=(self->priv->loop_start!=-1)?self->priv->loop_start:0;
       bt_sequence_limit_play_pos_internal(self);
@@ -1953,6 +1966,20 @@ static void bt_sequence_set_property(GObject      * const object,
     } break;
     case SEQUENCE_LOOP_END: {
       self->priv->loop_end = g_value_get_long(value);
+      if(self->priv->loop_end!=-1) {
+        // make sure its more then loop-start
+        if(self->priv->loop_start>-1) {
+          if(self->priv->loop_end<self->priv->loop_start)
+            self->priv->loop_end=self->priv->loop_start+1;
+        }
+        // make sure its less then or equal to length
+        if(self->priv->length>0) {
+          if(self->priv->loop_end>self->priv->length)
+            self->priv->loop_end=self->priv->length;          
+        }
+        else
+          self->priv->loop_end=-1;
+      }
       GST_DEBUG("set the loop-end for sequence: %ld",self->priv->loop_end);
       self->priv->play_end=(self->priv->loop_end!=-1)?self->priv->loop_end:self->priv->length;
       bt_sequence_limit_play_pos_internal(self);

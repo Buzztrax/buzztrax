@@ -1,5 +1,22 @@
 2008-07-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Make sure loop-start/end are sane.
+
+	* src/lib/core/libbtcore/wavelevel.h:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-waves.c:
+	  Show root-key as a note. Allow editing root-key and loop-start/end.
+	  Planning for missing features.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Use buzz note conversion from gst-buzztard.
+	  
+
+2008-07-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/Makefile.am:
 	* src/lib/core/libbtcore/Makefile.am:
 	* src/lib/core/libbtcore/core.h:

@@ -25,10 +25,6 @@
  * #BtWavelevel contain the digital audio data of a #BtWave to be used for a
  * certain key-range.
  */
-/* @todo: expose wavedata
- * - add a gpointer WAVELEVEL_DATA property to get a gint16 pointer to the
- *    wave-data.
- */
 #define BT_CORE
 #define BT_WAVELEVEL_C
 
@@ -244,10 +240,37 @@ static void bt_wavelevel_set_property(GObject      * const object,
     } break;
     case WAVELEVEL_LOOP_START: {
       self->priv->loop_start = g_value_get_long(value);
+      if(self->priv->loop_start!=-1) {
+        // make sure its less then loop_end/length
+        if(self->priv->loop_end>0) {
+          if(self->priv->loop_start>=self->priv->loop_end)
+            self->priv->loop_start=self->priv->loop_end-1;
+        }
+        else if(self->priv->length>0) {
+          if(self->priv->loop_start>=self->priv->length)
+            self->priv->loop_start=self->priv->length-1;
+        }
+        else
+          self->priv->loop_start=-1;
+      }
       GST_DEBUG("set the loop-start for wavelevel: %d",self->priv->loop_start);
     } break;
     case WAVELEVEL_LOOP_END: {
       self->priv->loop_end = g_value_get_long(value);
+      if(self->priv->loop_end!=-1) {
+        // make sure its more then loop-start
+        if(self->priv->loop_start>-1) {
+          if(self->priv->loop_end<self->priv->loop_start)
+            self->priv->loop_end=self->priv->loop_start+1;
+        }
+        // make sure its less then or equal to length
+        if(self->priv->length>0) {
+          if(self->priv->loop_end>self->priv->length)
+            self->priv->loop_end=self->priv->length;          
+        }
+        else
+          self->priv->loop_end=-1;
+      }
       GST_DEBUG("set the loop-start for wavelevel: %d",self->priv->loop_start);
     } break;
     case WAVELEVEL_RATE: {
@@ -300,7 +323,7 @@ static void bt_wavelevel_init(GTypeInstance * const instance, gpointer const g_c
   BtWavelevel * const self = BT_WAVELEVEL(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVELEVEL, BtWavelevelPrivate);
-  self->priv->root_note = 4 * 16; // C-4
+  self->priv->root_note = BT_WAVELEVEL_DEFAULT_ROOT_NOTE;
 }
 
 static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {

@@ -27,8 +27,8 @@
 /* @todo: save sample file length and/or md5sum in file:
  * - if we miss files, we can do a xsesame search and use the details to verify
  * - when loading, we might also use the details as a sanity check
- * @todo: need more data per wave:
- * - loop-type
+ * @todo: need more data per wave
+ * - loop-type, volume
  * @idea: record waveentries
  * - record wave from alsasrc
  *   - like we load & decode to tempfile, use this to record a sound
@@ -159,7 +159,11 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
         
         bytes=read(self->priv->fd,data,buf.st_size);
     
-        wavelevel=bt_wavelevel_new(self->priv->song,self,0,(gulong)length,-1,-1,rate,channels,(gconstpointer)data);
+        wavelevel=bt_wavelevel_new(self->priv->song,self,
+          BT_WAVELEVEL_DEFAULT_ROOT_NOTE,(gulong)length,
+          -1,-1,
+          rate,channels,
+          (gconstpointer)data);
         g_object_unref(wavelevel);
         /* emit signal so that UI can redraw */
         GST_DEBUG("sample loaded (%ld/%ld bytes)",bytes,buf.st_size);

@@ -61,8 +61,9 @@
 #include <libbtic/ic.h>
 //-- gstreamer
 //-- gstbuzztard
-#include <libgstbuzztard/musicenums.h>
 #include <libgstbuzztard/help.h>
+#include <libgstbuzztard/musicenums.h>
+#include <libgstbuzztard/note2frequency.h>
 #ifndef HAVE_GST_GSTPRESET_H
 #include <libgstbuzztard/preset.h>
 #endif

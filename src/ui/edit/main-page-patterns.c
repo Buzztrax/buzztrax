@@ -1090,70 +1090,12 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   }
 }
 
-// @todo: these two are a copy of gstbml:src/common.c
 static float note_str_to_float(gchar *note, gpointer user_data) {
-  guint tone, octave;
-
-  g_return_val_if_fail(note,0);
-  g_return_val_if_fail((strlen(note)==3),0);
-  g_return_val_if_fail((note[1]=='-' || note[1]=='#'),0);
-
-  // parse note
-  switch(note[0]) {
-    case 'c':
-    case 'C':
-      tone=(note[1]=='-')?0:1;
-      break;
-    case 'd':
-    case 'D':
-      tone=(note[1]=='-')?2:3;
-      break;
-    case 'e':
-    case 'E':
-      tone=4;
-      break;
-    case 'f':
-    case 'F':
-      tone=(note[1]=='-')?5:6;
-      break;
-    case 'g':
-    case 'G':
-      tone=(note[1]=='-')?7:8;
-      break;
-    case 'a':
-    case 'A':
-      tone=(note[1]=='-')?9:10;
-      break;
-    case 'b':
-    case 'B':
-    case 'h':
-    case 'H':
-      tone=11;
-      break;
-    default:
-      g_return_val_if_reached(0.0);
-  }
-  octave=atoi(&note[2]);
-  // 0 is no-value
-  return (float)(1+(octave<<4)+tone);
+  return (float)gst_note_2_frequency_note_string_2_number(note);
 }
 
 static const gchar * note_float_to_str(gfloat in, gpointer user_data) {
-  guint tone, octave, note=(guint)in;
-  static gchar str[4];
-  static const gchar *key[12]= { "c-", "c#", "d-", "d#", "e-", "f-", "f#", "g-", "g#", "a-", "a#", "b-" };
-
-  // 0 is no-value
-  if (note==0) return("");
-
-  g_return_val_if_fail(note<((16*9)+12),0);
-
-  note-=1;
-  octave=note/16;
-  tone=note-(octave*16);
-
-  sprintf(str,"%2s%1d",key[tone],octave);
-  return(str);
+  return(gst_note_2_frequency_note_number_2_string((guint)in));
 }
 
 static float float_str_to_float(gchar *str, gpointer user_data) {

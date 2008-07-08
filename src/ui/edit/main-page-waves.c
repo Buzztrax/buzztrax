@@ -22,13 +22,12 @@
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
  *
- * Manage a list of wave files. Browsing and playing stuff in the browser works.
- *
- * <note>This isn't very functional yet.</note>
+ * Manage a list of audio clips files. Provides an embeded file browser to load
+ * files. A waveform viewer can show the selected clip.
  */
-/* @todo: make wavelevel loop columns editable and
- * @todo: in wavelevel list, add loop-mode combo = {off, forward, ping-pong}
- * @todo: in wavelevel list, add volume property (how is it applied?)
+/* @todo: in or below wavetable list:
+ *  - add loop-mode combo = {off, forward, ping-pong}
+ *  - add volume property (how is it applied?)
  * @todo: need envelop editor and everything for it
  * @todo: add segmented playback for loops
  */
@@ -93,7 +92,7 @@ enum {
   WAVELEVEL_TABLE_RATE,
   WAVELEVEL_TABLE_CHANNELS,
   WAVELEVEL_TABLE_LOOP_START,
-  WAVELEVEL_TABLE_LOOP_LENGTH,
+  WAVELEVEL_TABLE_LOOP_END,
   WAVELEVEL_TABLE_CT
 };
 
@@ -204,13 +203,13 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
 
   GST_INFO("refresh wavelevels list: self=%p, wave=%p",self,wave);
 
-  store=gtk_list_store_new(WAVELEVEL_TABLE_CT,G_TYPE_ULONG,G_TYPE_UINT,G_TYPE_ULONG,G_TYPE_ULONG,G_TYPE_UINT,G_TYPE_LONG,G_TYPE_LONG);
+  store=gtk_list_store_new(WAVELEVEL_TABLE_CT,G_TYPE_ULONG,G_TYPE_STRING,G_TYPE_ULONG,G_TYPE_ULONG,G_TYPE_UINT,G_TYPE_LONG,G_TYPE_LONG);
 
   if(wave) {
     BtWavelevel *wavelevel;
     GList *node,*list;
-    guchar tmp;
-    guint root_note,channels;
+    guchar root_note;
+    guint channels;
     gulong length,rate;
     glong loop_start,loop_end;
     gulong i=0;
@@ -220,23 +219,22 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
     for(node=list;node;node=g_list_next(node),i++) {
       wavelevel=BT_WAVELEVEL(node->data);
       g_object_get(G_OBJECT(wavelevel),
-        "root-note",&tmp,
+        "root-note",&root_note,
         "length",&length,
         "loop-start",&loop_start,
         "loop-end",&loop_end,
         "channels",&channels,
         "rate",&rate,
         NULL);
-      root_note=(guint)tmp;
       gtk_list_store_append(store, &tree_iter);
       gtk_list_store_set(store,&tree_iter,
         WAVELEVEL_TABLE_ID,i,
-        WAVELEVEL_TABLE_ROOT_NOTE,root_note,
+        WAVELEVEL_TABLE_ROOT_NOTE,gst_note_2_frequency_note_number_2_string(root_note),
         WAVELEVEL_TABLE_LENGTH,length,
         WAVELEVEL_TABLE_RATE,rate,
         WAVELEVEL_TABLE_CHANNELS,channels,
         WAVELEVEL_TABLE_LOOP_START,loop_start,
-        WAVELEVEL_TABLE_LOOP_LENGTH,loop_end,
+        WAVELEVEL_TABLE_LOOP_END,loop_end,
         -1);
     }
     g_list_free(list);
@@ -251,6 +249,27 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
   }
 
   g_object_unref(store); // drop with treeview 
+}
+
+static BtWavelevel *wavelevels_get_wavelevel_and_set_iter(BtMainPageWaves *self,GtkTreeIter *iter,GtkTreeModel **store,gchar *path_string) {
+  BtWavelevel *wavelevel=NULL;
+  BtWave *wave;
+  
+  g_assert(iter);
+  g_assert(store);
+ 
+  if((wave=waves_list_get_current(self))) {
+    if((*store=gtk_tree_view_get_model(self->priv->wavelevels_list))) {
+      if(gtk_tree_model_get_iter_from_string(*store,iter,path_string)) {
+        gulong id;
+  
+        gtk_tree_model_get(*store,iter,WAVELEVEL_TABLE_ID,&id,-1);
+        wavelevel=bt_wave_get_level_by_index(wave,id);
+      }
+    }
+    g_object_unref(wave);
+  }
+  return(wavelevel);
 }
 
 //-- event handler
@@ -286,6 +305,13 @@ static void on_preview_state_changed(GstBus * bus, GstMessage * message, gpointe
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
     GST_INFO("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
+      case GST_STATE_CHANGE_READY_TO_PAUSED:
+        /* if loop
+        if(!(gst_element_send_event(GST_ELEMENT(self->priv->preview),gst_event_ref(self->priv->play_seek_event)))) {
+          GST_WARNING("bin failed to handle seek event");
+        }
+        */
+        break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
         gtk_widget_set_sensitive(self->priv->wavetable_stop,TRUE);
         break;
@@ -311,6 +337,19 @@ static void on_preview_eos(GstBus * bus, GstMessage * message, gpointer user_dat
   }
 }
 
+static void on_preview_segment_done(GstBus * bus, GstMessage * message, gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+
+  if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->preview)) {
+    GST_INFO("received segment_done on the bin, looping");
+    /*
+    if(!(gst_element_send_event(GST_ELEMENT(self->priv->preview),gst_event_ref(self->priv->loop_seek_event)))) {
+      GST_WARNING("element failed to handle continuing play seek event");
+    }
+    */
+  }
+}
+
 static void on_wave_name_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   GtkTreeModel *store;
@@ -332,33 +371,67 @@ static void on_wave_name_edited(GtkCellRendererText *cellrenderertext,gchar *pat
   }
 }
 
+static void on_wavelevel_root_note_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  GtkTreeIter iter;
+  GtkTreeModel *store=NULL;
+  BtWavelevel *wavelevel;
+  
+  if((wavelevel=wavelevels_get_wavelevel_and_set_iter(self,&iter,&store,path_string))) {
+    guchar root_note=gst_note_2_frequency_note_string_2_number(new_text);
+    
+    if(root_note) {
+      g_object_set(wavelevel,"root-note",root_note,NULL); 
+      gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_ROOT_NOTE,gst_note_2_frequency_note_number_2_string(root_note),-1);
+    }
+    g_object_unref(wavelevel);
+  }
+}
+
 static void on_wavelevel_rate_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
-  BtWave *wave;
- 
-  if((wave=waves_list_get_current(self))) {
-    GtkTreeModel *store;
+  GtkTreeIter iter;
+  GtkTreeModel *store=NULL;
+  BtWavelevel *wavelevel;
+  
+  if((wavelevel=wavelevels_get_wavelevel_and_set_iter(self,&iter,&store,path_string))) {
+    gulong rate=atol(new_text);
 
-    if((store=gtk_tree_view_get_model(self->priv->wavelevels_list))) {
-      GtkTreeIter iter;
+    g_object_set(wavelevel,"rate",rate,NULL); 
+    gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_RATE,rate,-1);
+    g_object_unref(wavelevel);
+  }
+}
+
+static void on_wavelevel_loop_start_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  GtkTreeIter iter;
+  GtkTreeModel *store=NULL;
+  BtWavelevel *wavelevel;
   
-      if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
-        BtWavelevel *wavelevel;
-        gulong id;
+  if((wavelevel=wavelevels_get_wavelevel_and_set_iter(self,&iter,&store,path_string))) {
+    glong loop_start=atol(new_text);
+    
+    g_object_set(wavelevel,"loop-start",loop_start,NULL);
+    g_object_get(wavelevel,"loop-start",&loop_start,NULL);
+    gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_LOOP_START,loop_start,-1);
+    g_object_unref(wavelevel);
+  }
+}
+
+static void on_wavelevel_loop_end_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  GtkTreeIter iter;
+  GtkTreeModel *store=NULL;
+  BtWavelevel *wavelevel;
   
-        gtk_tree_model_get(store,&iter,WAVELEVEL_TABLE_ID,&id,-1);
-        if((wavelevel=bt_wave_get_level_by_index(wave,id))) {
-          gulong rate=atol(new_text);
-          
-          GST_WARNING("rate changed to %lu",rate);
-          
-          g_object_set(wavelevel,"rate",rate,NULL); 
-          gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_RATE,rate,-1);
-          g_object_unref(wavelevel);
-        }
-      }
-    }
-    g_object_unref(wave);
+  if((wavelevel=wavelevels_get_wavelevel_and_set_iter(self,&iter,&store,path_string))) {
+    glong loop_end=atol(new_text);
+
+    g_object_set(wavelevel,"loop-end",loop_end,NULL);
+    g_object_get(wavelevel,"loop-end",&loop_end,NULL);
+    gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_LOOP_END,loop_end,-1);
+    g_object_unref(wavelevel);
   }
 }
 
@@ -412,7 +485,7 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
       gulong length;
   
       g_object_get(G_OBJECT(wavelevel),"length",&length,"channels",&channels,"data",&data,NULL);  
-      bt_waveform_viewer_update(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer),data,channels,length);
+      bt_waveform_viewer_set_wave(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer),data,channels,length);
       g_object_unref(wavelevel);
       drawn=TRUE;
     }
@@ -425,7 +498,7 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
     GST_INFO("no current wave");
   }
   if(!drawn) {
-    bt_waveform_viewer_update(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer), NULL, 0, 0);
+    bt_waveform_viewer_set_wave(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer), NULL, 0, 0);
   }
 }
 
@@ -559,6 +632,7 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
         gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
         g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_preview_state_changed), (gpointer)self);
         g_signal_connect(bus, "message::eos", G_CALLBACK(on_preview_eos), (gpointer)self);
+        g_signal_connect(bus, "message::segment-done", G_CALLBACK(on_preview_segment_done), (gpointer)self);
         gst_object_unref(bus);
 
         // register callback
@@ -837,6 +911,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Root"),renderer,"text",WAVELEVEL_TABLE_ROOT_NOTE,NULL);
+  g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_root_note_edited),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Length"),renderer,"text",WAVELEVEL_TABLE_LENGTH,NULL);
   renderer=gtk_cell_renderer_text_new();
@@ -847,10 +922,12 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Channels"),renderer,"text",WAVELEVEL_TABLE_CHANNELS,NULL);
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
-  gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Loop begin"),renderer,"text",WAVELEVEL_TABLE_LOOP_START,NULL);
+  gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Loop start"),renderer,"text",WAVELEVEL_TABLE_LOOP_START,NULL);
+  g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_loop_start_edited),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
-  gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Loop end"),renderer,"text",WAVELEVEL_TABLE_LOOP_LENGTH,NULL);
+  gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Loop end"),renderer,"text",WAVELEVEL_TABLE_LOOP_END,NULL);
+  g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_loop_end_edited),(gpointer)self);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->wavelevels_list));
   gtk_box_pack_start(GTK_BOX(box2),scrolled_window,FALSE,FALSE,0);
 
