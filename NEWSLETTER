@@ -1,5 +1,9 @@
 2008/08 ========================================================================
 
+* wavetable view : loop start/end, notes
+* refactoring : merge duplicated note conversion code
+* refactoring : better sample io plugin api
+
 2008/07 ========================================================================
 
 Some very visible changes this month - svg machine canvas icons. For that I

@@ -1,5 +1,16 @@
 2008-07-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWS:
+	  Release planning.
+
+	* NEWSLETTER:
+	  Gather changes.
+
+	* po/de.po:
+	  Update translation.
+
+2008-07-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* docs/reference/bt-edit/bt-edit-docs.sgml:
 	* docs/reference/bt-edit/bt-edit-sections.txt:
