@@ -272,6 +272,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   self->priv->elapsed=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->elapsed_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->elapsed),_("default"));
   gtk_statusbar_set_has_resize_grip(self->priv->elapsed,FALSE);
+  gtk_misc_set_alignment(GTK_MISC(GTK_STATUSBAR(self->priv->elapsed)->label),1.0,0.5);
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->elapsed),100,-1);
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->elapsed),self->priv->elapsed_context_id,str);
   gtk_container_add(GTK_CONTAINER(ev_box),GTK_WIDGET(self->priv->elapsed));
@@ -283,6 +284,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   self->priv->current=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->current_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->current),_("default"));
   gtk_statusbar_set_has_resize_grip(self->priv->current,FALSE);
+  gtk_misc_set_alignment(GTK_MISC(GTK_STATUSBAR(self->priv->current)->label),1.0,0.5);
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->current),100,-1);
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->current),self->priv->current_context_id,str);
   gtk_container_add(GTK_CONTAINER(ev_box),GTK_WIDGET(self->priv->current));
@@ -294,6 +296,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   self->priv->loop=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->loop_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->loop),_("default"));
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->loop),100,-1);
+  gtk_misc_set_alignment(GTK_MISC(GTK_STATUSBAR(self->priv->loop)->label),1.0,0.5);
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->loop),self->priv->loop_context_id,str);
   gtk_container_add(GTK_CONTAINER(ev_box),GTK_WIDGET(self->priv->loop));
   gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);

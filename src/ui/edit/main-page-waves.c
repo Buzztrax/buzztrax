@@ -825,7 +825,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
 
   gtk_box_pack_start(GTK_BOX(box),self->priv->list_toolbar,FALSE,FALSE,0);
 
-  //       listview
+  //       wave listview
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
@@ -845,6 +845,8 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Wave"),renderer,"text",1,NULL);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->waves_list));
   gtk_container_add(GTK_CONTAINER(box),scrolled_window);
+  
+  // @todo: add loop-mode combo and volume slider
 
   //     vbox (file browser)
   box=gtk_vbox_new(FALSE,0);

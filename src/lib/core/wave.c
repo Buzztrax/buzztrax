@@ -399,7 +399,7 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
         if(!(fn=strrchr(self->priv->uri,'/')))
           fn=self->priv->uri;
         else fn++;
-        fp=g_strdup_printf("waves/%s",fn);
+        fp=g_strdup_printf("wavetable/%s",fn);
   
         GST_INFO("saving external uri=%s -> zip=%s",self->priv->uri,fp); 
         
@@ -444,7 +444,7 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
       if(!(fn=strrchr((gchar *)uri_str,'/')))
         fn=(gchar *)uri_str;
       else fn++;
-      fp=g_strdup_printf("waves/%s",fn);
+      fp=g_strdup_printf("wavetable/%s",fn);
 
       GST_INFO("loading external uri=%s -> zip=%s",(gchar *)uri_str,fp); 
       
