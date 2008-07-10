@@ -28,11 +28,10 @@
  */
 /*
  * @todo:
- * - can we visualize the parameters on the wire better
- *   - the wire has volume
- *   - the wire can have 1/2 panorama sliders
  * - right now a click on the triangle pops up the volume or panorama slider
  *   - it could popup a whole mixer strip
+ * - add "insert effect" to context menu, could use the machine menu and work
+ *   simillar to conect menu on canvas
  */
 #define BT_EDIT
 #define BT_WIRE_CANVAS_ITEM_C
@@ -659,7 +658,6 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
                            "width-pixels", 0,
                            NULL);
   on_gain_changed(self->priv->wire_gain,NULL,(gpointer)self);
-  //gnome_canvas_item_raise_to_top(self->priv->vol_item);
 
   // @todo: check if wire has PAN and set color accordingly
   if(self->priv->wire_pan) {
@@ -715,7 +713,7 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
                              NULL);
     on_pan_changed(self->priv->wire_pan,NULL,(gpointer)self);
   }
-  
+
   wire_set_triangle_points(self);
 
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"analyzer-shown");

@@ -324,6 +324,7 @@ static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
     machine_view_get_machine_position(properties,&pos_xe,&pos_ye);
     // draw wire
     wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,self->priv->new_wire_src,self->priv->new_wire_dst);
+    gnome_canvas_item_lower_to_bottom(self->priv->grid);
     g_object_unref(wire);
   }
   g_object_unref(dst_machine);
@@ -742,6 +743,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
                            "width-pixels", 1,
                            NULL);
               gnome_canvas_item_lower_to_bottom(self->priv->new_wire);
+              gnome_canvas_item_lower_to_bottom(self->priv->grid);
               self->priv->connecting=TRUE;
               self->priv->moved=FALSE;
               res=TRUE;
