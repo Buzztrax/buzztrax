@@ -160,6 +160,8 @@ bt_persistence_strfmt_uchar
 bt_persistence_strfmt_long
 bt_persistence_strfmt_ulong
 bt_persistence_strfmt_double
+bt_persistence_strfmt_enum
+bt_persistence_parse_enum
 bt_persistence_save_list
 bt_persistence_collect_hashtable_entries
 bt_persistence_save_hashtable
@@ -513,6 +515,7 @@ BtSourceMachinePrivate
 <FILE>btwave</FILE>
 <TITLE>BtWave</TITLE>
 BtWave
+BtWaveLoopMode
 bt_wave_new
 bt_wave_add_wavelevel
 bt_wave_get_level_by_index

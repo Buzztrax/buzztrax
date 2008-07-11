@@ -27,8 +27,6 @@
 /* @todo: save sample file length and/or md5sum in file:
  * - if we miss files, we can do a xsesame search and use the details to verify
  * - when loading, we might also use the details as a sanity check
- * @todo: need more data per wave
- * - loop-type, volume
  * @idea: record waveentries
  * - record wave from alsasrc
  *   - like we load & decode to tempfile, use this to record a sound
@@ -60,10 +58,11 @@ enum {
   WAVE_WAVELEVELS,
   WAVE_INDEX,
   WAVE_NAME,
-  WAVE_URI
+  WAVE_URI,
+  WAVE_VOLUME,
+  WAVE_LOOP_MODE // OFF, FORWARD, PINGPONG
   /*
-  WAVE_CHANNELS,
-  WAVE_LOOP_TYPE, // OFF, FORWARD, PINGPONG
+  WAVE_CHANNELS
    */
 };
 
@@ -79,6 +78,9 @@ struct _BtWavePrivate {
   /* the name of the wave and the the sample file */
   gchar *name;
   gchar *uri;
+  /* wave properties common to all wavelevels */
+  gdouble volume;
+  BtWaveLoopMode loop_mode;
 
   GList *wavelevels;    // each entry points to a BtWavelevel
   
@@ -90,6 +92,22 @@ struct _BtWavePrivate {
 static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
+
+//-- enums
+
+GType bt_wave_loop_mode_get_type(void) {
+  static GType type = 0;
+  if(G_UNLIKELY(type==0)) {
+    static const GEnumValue values[] = {
+      { BT_WAVE_LOOP_MODE_OFF,      "off",       "off" },
+      { BT_WAVE_LOOP_MODE_FORWARD,  "forward",   "forward" },
+      { BT_WAVE_LOOP_MODE_PINGPONG, "ping-pong", "ping-pong" },
+      { 0, NULL, NULL},
+    };
+    type = g_enum_register_static("BtWaveLoopMode", values);
+  }
+  return type;
+}
 
 //-- helper
 
@@ -290,17 +308,19 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
  * @name: the display name for the new wave
  * @uri: the location of the sample data
  * @index: the list slot for the new wave
+ * @volume: the volume of the wave
+ * @loop-mode: loop playback mode
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const uri, const gulong index) {
+BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const uri, const gulong index, const gdouble volume, const  BtWaveLoopMode loop_mode) {
   BtWavetable *wavetable;
 
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  BtWave * const self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"uri",uri,"index",index,NULL));
+  BtWave * const self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"uri",uri,"index",index,"volume",volume,"loop-mode",loop_mode,NULL));
   if(!self) {
     goto Error;
   }
@@ -388,6 +408,8 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
     xmlNewProp(node,XML_CHAR_PTR("index"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->index)));
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
     xmlNewProp(node,XML_CHAR_PTR("uri"),XML_CHAR_PTR(self->priv->uri));
+    xmlNewProp(node,XML_CHAR_PTR("volume"),XML_CHAR_PTR(bt_persistence_strfmt_double(self->priv->volume)));
+    xmlNewProp(node,XML_CHAR_PTR("loop-mode"),XML_CHAR_PTR(bt_persistence_strfmt_enum(BT_TYPE_WAVE_LOOP_MODE,self->priv->loop_mode)));
     
     // check if we need to save external data
     g_object_get(self->priv->song,"song-io",&song_io,NULL);
@@ -430,9 +452,16 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
   const gulong index=index_str?atol((char *)index_str):0;
   xmlChar * const name=xmlGetProp(node,XML_CHAR_PTR("name"));
   xmlChar * const uri_str=xmlGetProp(node,XML_CHAR_PTR("uri"));
-  g_object_set(G_OBJECT(self),"index",index,"name",name,"uri",uri_str,NULL);
+  xmlChar * const volume_str=xmlGetProp(node,XML_CHAR_PTR("volume"));
+  const gdouble volume=volume_str?g_ascii_strtod((char *)volume_str,NULL):0.0;
+  xmlChar * const loop_mode_str=xmlGetProp(node,XML_CHAR_PTR("loop-mode"));
+  gint loop_mode=bt_persistence_parse_enum(BT_TYPE_WAVE_LOOP_MODE,(char *)loop_mode_str);
+  if(loop_mode==-1) loop_mode=BT_WAVE_LOOP_MODE_OFF;
+  g_object_set(G_OBJECT(self),"index",index,"name",name,"uri",uri_str,"volume",volume,"loop-mode",loop_mode,NULL);
   xmlFree(index_str);
   xmlFree(name);
+  xmlFree(volume_str);
+  xmlFree(loop_mode_str);
 
   // check if we need to load external data
   g_object_get(self->priv->song,"song-io",&song_io,NULL);
@@ -525,6 +554,12 @@ static void bt_wave_get_property(GObject      * const object,
     case WAVE_URI: {
       g_value_set_string(value, self->priv->uri);
     } break;
+    case WAVE_VOLUME: {
+      g_value_set_double(value, self->priv->volume);
+    } break;
+    case WAVE_LOOP_MODE: {
+      g_value_set_enum(value, self->priv->loop_mode);
+    } break;    
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -560,6 +595,12 @@ static void bt_wave_set_property(GObject      * const object,
       self->priv->uri = g_value_dup_string(value);
       GST_DEBUG("set the uri for wave: %s",self->priv->uri);
     } break;
+    case WAVE_VOLUME: {
+      self->priv->volume = g_value_get_double(value);
+    } break;
+    case WAVE_LOOP_MODE: {
+      self->priv->loop_mode = g_value_get_enum(value);
+    } break;    
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -619,6 +660,7 @@ static void bt_wave_init(GTypeInstance * const instance, gconstpointer const g_c
   BtWave * const self = BT_WAVE(instance);
 
   self->priv=G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVE, BtWavePrivate);
+  self->priv->volume=1.0;
   self->priv->fd=-1;
   self->priv->ext_fd=-1;
 }
@@ -690,6 +732,23 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
                                      "uri prop",
                                      "The uri of the wave",
                                      NULL, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,WAVE_VOLUME,
+                                  g_param_spec_double("volume",
+                                     "volume prop",
+                                     "The volume of the wave in the wavtable",
+                                     0,
+                                     1.0,
+                                     1.0, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,WAVE_LOOP_MODE,
+                                  g_param_spec_enum("loop-mode",
+                                     "loop-mode prop",
+                                     "mode of loop playback",
+                                     BT_TYPE_WAVE_LOOP_MODE,  /* enum type */
+                                     BT_WAVE_LOOP_MODE_OFF, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 

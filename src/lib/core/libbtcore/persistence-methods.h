@@ -35,6 +35,10 @@ extern const gchar *bt_persistence_strfmt_uchar(const guchar val);
 extern const gchar *bt_persistence_strfmt_long(const glong val);
 extern const gchar *bt_persistence_strfmt_ulong(const gulong val);
 extern const gchar *bt_persistence_strfmt_double(const gdouble val);
+extern const gchar *bt_persistence_strfmt_enum(GType enum_type,gint value);
+
+// string parsing helper
+extern gint bt_persistence_parse_enum(GType enum_type,const gchar *str);
 
 // list helper
 extern gboolean bt_persistence_save_list(const GList *list, xmlNodePtr const node);

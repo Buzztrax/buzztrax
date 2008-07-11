@@ -1,3 +1,17 @@
+2008-07-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/persistence.c:
+	  Add methords to serialize and parse enums.
+	
+	* src/lib/core/libbtcore/wave-methods.h:
+	* src/lib/core/libbtcore/wave.h:
+	* src/lib/core/wave.c:
+	* src/ui/edit/main-page-waves.c:
+	  Add volume and loop-mode. Persitence support in wave. UI widgets in
+	  wave-page. Improved layout on wave-page.
+
 2008-07-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:

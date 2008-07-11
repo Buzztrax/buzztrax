@@ -57,6 +57,24 @@ struct _BtWaveClass {
   void (*loading_done_event)(const BtWave * const wave, gboolean success, gconstpointer const user_data);
 };
 
+#define BT_TYPE_WAVE_LOOP_MODE       (bt_wave_loop_mode_get_type())
+
+/**
+ * BtWaveLoopMode:
+ * @BT_WAVE_LOOP_MODE_OFF: no loop
+ * @BT_WAVE_LOOP_MODE_FORWARD: forward looping
+ * @BT_WAVE_LOOP_MODE_PINGPONG: forward/backward looping
+ *
+ * #BtWave clips can be played using several loop modes.
+ */
+typedef enum {
+  BT_WAVE_LOOP_MODE_OFF=0,
+  BT_WAVE_LOOP_MODE_FORWARD,
+  BT_WAVE_LOOP_MODE_PINGPONG
+} BtWaveLoopMode;
+
+GType bt_wave_loop_mode_get_type(void) G_GNUC_CONST;
+
 GType bt_wave_get_type(void) G_GNUC_CONST;
 
 

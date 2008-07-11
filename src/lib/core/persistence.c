@@ -96,6 +96,41 @@ const gchar *bt_persistence_strfmt_double(const gdouble val) {
   return(str);
 }
 
+// string parsing helper
+
+/**
+ * bt_persistence_strfmt_enum:
+ * @enum_type: the #GType for the enum
+ * @value: the integer value for the enum
+ *
+ * Convinience methods, that formats a value to be serialized as a string.
+ *
+ * Returns: a reference to static memory containg the formatted value.
+ */
+const gchar *bt_persistence_strfmt_enum(GType enum_type,gint value) {
+  GEnumClass *enum_class=g_type_class_ref(enum_type);
+  GEnumValue *enum_value=g_enum_get_value(enum_class,value);
+  g_type_class_unref(enum_class);
+  return(enum_value->value_nick);
+}
+
+/**
+ * bt_persistence_parse_enum:
+ * @enum_type: the #GType for the enum
+ * @str: the enum value name
+ *
+ * Convinience methods, that parses a enum value nick and to get the
+ * corresponding intger value.
+ *
+ * Returns: the interger value for the enum, or -1 for invalid strings.
+ */
+gint bt_persistence_parse_enum(GType enum_type,const gchar *str) {
+  GEnumClass *enum_class=g_type_class_ref(enum_type);
+  GEnumValue *enum_value=g_enum_get_value_by_nick(enum_class,str);
+  g_type_class_unref(enum_class);
+  return(enum_value?enum_value->value:-1);
+}
+
 //-- list helper
 
 /**

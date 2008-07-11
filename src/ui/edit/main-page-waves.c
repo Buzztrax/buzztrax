@@ -25,10 +25,7 @@
  * Manage a list of audio clips files. Provides an embeded file browser to load
  * files. A waveform viewer can show the selected clip.
  */
-/* @todo: in or below wavetable list:
- *  - add loop-mode combo = {off, forward, ping-pong}
- *  - add volume property (how is it applied?)
- * @todo: need envelop editor and everything for it
+/* @todo: need envelop editor and everything for it
  * @todo: add segmented playback for loops
  */
 
@@ -59,6 +56,9 @@ struct _BtMainPageWavesPrivate {
 
   /* the list of wavetable entries */
   GtkTreeView *waves_list;
+  /* and their parameters */
+  GtkHScale *volume;
+  GtkComboBox *loop_mode;
 
   /* the list of wavelevels */
   GtkTreeView *wavelevels_list;
@@ -458,14 +458,26 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
   wave=waves_list_get_current(self);
   wavelevels_list_refresh(self,wave);
   if(wave) {
+    gdouble volume;
+    BtWaveLoopMode loop_mode;
+
     // enable toolbar buttons
     gtk_widget_set_sensitive(self->priv->wavetable_play,TRUE);
     gtk_widget_set_sensitive(self->priv->wavetable_clear,TRUE);
+    // enable and update properties
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->volume),TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->loop_mode),TRUE);
+    g_object_get(wave,"volume",&volume,"loop-mode",&loop_mode,NULL);
+    gtk_range_set_value(GTK_RANGE(self->priv->volume),volume);
+    gtk_combo_box_set_active(self->priv->loop_mode,loop_mode);
   }
   else {
     // disable toolbar buttons
     gtk_widget_set_sensitive(self->priv->wavetable_play,FALSE);
     gtk_widget_set_sensitive(self->priv->wavetable_clear,FALSE);
+    // disable properties
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->volume),FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->loop_mode),FALSE);
   }
   on_wavelevels_list_cursor_changed(self->priv->wavelevels_list, self);
 }
@@ -499,6 +511,32 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
   }
   if(!drawn) {
     bt_waveform_viewer_set_wave(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer), NULL, 0, 0);
+  }
+}
+
+static void on_volume_changed(GtkRange *range,gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  BtWave *wave;
+
+  g_assert(user_data);
+
+  if((wave=waves_list_get_current(self))) {
+    gdouble volume=gtk_range_get_value(range);
+    g_object_set(wave,"volume",volume,NULL);
+    g_object_unref(wave);
+  }  
+}
+
+static void on_loop_mode_changed(GtkComboBox *menu, gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  BtWave *wave;
+
+  g_assert(user_data);
+
+  if((wave=waves_list_get_current(self))) {
+    BtWaveLoopMode loop_mode=gtk_combo_box_get_active(self->priv->loop_mode);
+    g_object_set(wave,"loop-mode",loop_mode,NULL);
+    g_object_unref(wave);
   }
 }
 
@@ -742,7 +780,7 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     name=g_path_get_basename(tmp_name);
     if((ext=strrchr(name,'.'))) *ext='\0';
     g_free(tmp_name);
-    wave=bt_wave_new(song,name,uri,id);
+    wave=bt_wave_new(song,name,uri,id,1.0,BT_WAVE_LOOP_MODE_OFF);
     // @idea: listen to status property on wave for loader updates
     
     // listen to wave::loaded signal and refresh the wave list on success
@@ -772,13 +810,16 @@ static void on_wavelevels_list_row_activated(GtkTreeView *tree_view,GtkTreePath 
 
 static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainPages *pages) {
   BtSettings *settings;
-  GtkWidget *vpaned,*hpaned,*box,*box2;
+  GtkWidget *vpaned,*hpaned,*box,*box2,*table;
   GtkWidget *tool_item;
   GtkWidget *scrolled_window;
   GtkCellRenderer *renderer;
 #ifndef HAVE_GTK_2_12
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
+  GEnumClass *enum_class;
+  GEnumValue *enum_value;
+  guint i;
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -792,7 +833,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
 
   //   hpane
   hpaned=gtk_hpaned_new();
-  gtk_paned_pack1(GTK_PANED(vpaned),GTK_WIDGET(hpaned),FALSE,FALSE);
+  gtk_paned_pack1(GTK_PANED(vpaned),GTK_WIDGET(hpaned),TRUE,FALSE);
 
   //     vbox (loaded sample list)
   box=gtk_vbox_new(FALSE,0);
@@ -846,11 +887,31 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->waves_list));
   gtk_container_add(GTK_CONTAINER(box),scrolled_window);
   
-  // @todo: add loop-mode combo and volume slider
+  // loop-mode combo and volume slider
+  table=gtk_table_new(2,2,FALSE);
+  gtk_table_attach(GTK_TABLE(table),gtk_label_new(_("Volume")), 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
+  self->priv->volume=GTK_HSCALE(gtk_hscale_new_with_range(0.0,1.0,0.01));
+  gtk_scale_set_value_pos(GTK_SCALE(self->priv->volume),GTK_POS_RIGHT);
+  g_signal_connect(G_OBJECT(self->priv->volume), "value-changed", G_CALLBACK(on_volume_changed), (gpointer)self);
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->volume), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),gtk_label_new(_("Loop")), 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
+  self->priv->loop_mode=GTK_COMBO_BOX(gtk_combo_box_new_text());
+  // g_type_class_peek_static() returns NULL :/
+  enum_class=g_type_class_ref(BT_TYPE_WAVE_LOOP_MODE);
+  for(i=enum_class->minimum;i<=enum_class->maximum;i++) {
+    if((enum_value=g_enum_get_value(enum_class,i))) {
+      gtk_combo_box_append_text(self->priv->loop_mode,enum_value->value_name);
+    }
+  }
+  g_type_class_unref(enum_class);
+  gtk_combo_box_set_active(self->priv->loop_mode,BT_WAVE_LOOP_MODE_OFF);
+  g_signal_connect(G_OBJECT(self->priv->loop_mode), "changed", G_CALLBACK(on_loop_mode_changed), (gpointer)self);
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->loop_mode), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+  gtk_box_pack_start(GTK_BOX(box),table,FALSE,FALSE,0);
 
   //     vbox (file browser)
   box=gtk_vbox_new(FALSE,0);
-  gtk_paned_pack2(GTK_PANED(hpaned),GTK_WIDGET(box),FALSE,FALSE);
+  gtk_paned_pack2(GTK_PANED(hpaned),GTK_WIDGET(box),TRUE,FALSE);
   //       toolbar
   self->priv->browser_toolbar=gtk_toolbar_new();
   gtk_widget_set_name(self->priv->browser_toolbar,_("sample browser tool bar"));
@@ -933,9 +994,10 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->wavelevels_list));
   gtk_box_pack_start(GTK_BOX(box2),scrolled_window,FALSE,FALSE,0);
 
-  //       sampleview (which widget do we need?)
-  //       properties (loop, envelope, ...)
+  //       tabs for waveform/envelope? or envelope overlayed?
+  //       sampleview
   self->priv->waveform_viewer = bt_waveform_viewer_new();
+  gtk_widget_set_size_request (self->priv->waveform_viewer, -1, 96);
   gtk_box_pack_start(GTK_BOX(box2),self->priv->waveform_viewer,TRUE,TRUE,0);
 
   // register event handlers
