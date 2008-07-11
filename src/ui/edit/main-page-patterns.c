@@ -983,22 +983,32 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   g_object_unref(store); // drop with comboxbox
 }
 
-static void wavetable_menu_refresh(const BtMainPagePatterns *self) {
-  BtWave *wave=NULL;
-  //GList *node,*list;
-  //gchar *str;
+static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *wavetable) {
+  BtWave *wave;
+  gchar *str;
   GtkListStore *store;
-  //GtkTreeIter menu_iter;
-  gint index=-1;
+  GtkTreeIter menu_iter;
+  gint i,index=-1;
 
   // update pattern menu
-  store=gtk_list_store_new(2,G_TYPE_STRING,BT_TYPE_WAVE);
+  store=gtk_list_store_new(2,G_TYPE_ULONG,G_TYPE_STRING);
 
-  // @todo: scan wavetable list for waves
+  //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
+  for(i=0;i<200;i++) {
+    if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
+      gtk_list_store_append(store, &menu_iter);
+      g_object_get(G_OBJECT(wave),"name",&str,NULL);
+      GST_INFO("  adding [%3d] \"%s\"",i,str);
+      gtk_list_store_set(store,&menu_iter,0,i,1,str,-1);
+      g_free(str);
+      g_object_unref(wave);
+      if(index==-1) index=i;
+    }
+  }
 
-  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->wavetable_menu),(wave!=NULL));
+  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->wavetable_menu),(index!=-1));
   gtk_combo_box_set_model(self->priv->wavetable_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->wavetable_menu,((wave!=NULL)?index:-1));
+  gtk_combo_box_set_active(self->priv->wavetable_menu,index);
   g_object_unref(store); // drop with comboxbox
 }
 
@@ -1574,6 +1584,12 @@ static void on_wire_added_or_removed(BtSetup *setup,BtWire *wire,gpointer user_d
 
 }
 
+static void on_wave_added_or_removed(BtWavetable *wavetable,BtWave *wave,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+  wavetable_menu_refresh(self,wavetable);
+}
+
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMachine *machine;
@@ -1647,6 +1663,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtSong *song;
   BtSetup *setup;
+  BtWavetable *wavetable;
 
   g_assert(user_data);
 
@@ -1656,18 +1673,21 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   if(!song) return;
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,"wavetable",&wavetable,NULL);
   // update page
   machine_menu_refresh(self,setup);
   //pattern_menu_refresh(self); // should be triggered by machine_menu_refresh()
-  wavetable_menu_refresh(self);
+  wavetable_menu_refresh(self,wavetable);
   g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   g_signal_connect(G_OBJECT(setup),"wire-added",G_CALLBACK(on_wire_added_or_removed),(gpointer)self);
   g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_added_or_removed),(gpointer)self);
+  g_signal_connect(G_OBJECT(wavetable),"wave-added",G_CALLBACK(on_wave_added_or_removed),(gpointer)self);
+  g_signal_connect(G_OBJECT(wavetable),"wave-removed",G_CALLBACK(on_wave_added_or_removed),(gpointer)self);
   // subscribe to play-pos changes of song->sequence
   g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
   // release the references
+  g_object_unref(wavetable);
   g_object_unref(setup);
   g_object_unref(song);
   GST_INFO("song has changed done");
@@ -1963,6 +1983,9 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 0,NULL);
+  renderer=gtk_cell_renderer_text_new();
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,TRUE);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 1,NULL);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Wave")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->wavetable_menu),TRUE,TRUE,2);
   //self->priv->wavetable_menu_changed=g_signal_connect(G_OBJECT(self->priv->wavetable_menu), "changed", G_CALLBACK(on_wavetable_menu_changed), (gpointer)self);

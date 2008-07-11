@@ -53,6 +53,9 @@ struct _BtWavetable {
 /* structure of the setup class */
 struct _BtWavetableClass {
   const GObjectClass parent;
+
+  void (*wave_added_event)(const BtWavetable * const setup, const BtWave * const machine, gconstpointer const user_data);
+  void (*wave_removed_event)(const BtWavetable * const setup, const BtWave * const machine, gconstpointer const user_data);
 };
 
 /* used by WAVETABLE_TYPE */

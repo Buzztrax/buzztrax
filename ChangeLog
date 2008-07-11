@@ -1,5 +1,14 @@
 2008-07-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbtcore/wavetable.h:
+	* src/lib/core/wavetable.c:
+	  Add wave-added/removed signals.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Refresh wavelist.
+
+2008-07-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wave.c:
 	* src/lib/core/wavelevel.c:
 	  Add todo comments about moving 'channels' var.

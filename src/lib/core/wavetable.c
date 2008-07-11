@@ -40,6 +40,7 @@
 
 enum {
   WAVE_ADDED_EVENT,
+  WAVE_REMOVED_EVENT,
   LAST_SIGNAL
 };
 
@@ -67,7 +68,7 @@ struct _BtWavetablePrivate {
 
 static GObjectClass *parent_class=NULL;
 
-//static guint signals[LAST_SIGNAL]={0,};
+static guint signals[LAST_SIGNAL]={0,};
 
 //-- constructor methods
 
@@ -129,7 +130,7 @@ gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * co
     }
     
     self->priv->waves=g_list_append(self->priv->waves,g_object_ref(G_OBJECT(wave)));
-    //g_signal_emit(G_OBJECT(self),signals[WAVE_ADDED_EVENT], 0, wave);
+    g_signal_emit(G_OBJECT(self),signals[WAVE_ADDED_EVENT], 0, wave);
     bt_song_set_unsaved(self->priv->song,TRUE);
     ret=TRUE;
   }
@@ -156,7 +157,7 @@ gboolean bt_wavetable_remove_wave(const BtWavetable * const self, const BtWave *
 
   if(g_list_find(self->priv->waves,wave)) {
     self->priv->waves=g_list_remove(self->priv->waves,wave);
-    //g_signal_emit(G_OBJECT(self),signals[WAVE_REMOVED_EVENT], 0, wave);
+    g_signal_emit(G_OBJECT(self),signals[WAVE_REMOVED_EVENT], 0, wave);
     g_object_unref(G_OBJECT(wave));
     bt_song_set_unsaved(self->priv->song,TRUE);
     ret=TRUE;
@@ -378,6 +379,44 @@ static void bt_wavetable_class_init(BtWavetableClass * const klass) {
   gobject_class->get_property = bt_wavetable_get_property;
   gobject_class->dispose      = bt_wavetable_dispose;
   gobject_class->finalize     = bt_wavetable_finalize;
+
+  /**
+   * BtWavetable::wave-added:
+   * @self: the wavetable object that emitted the signal
+   * @wave: the new wave
+   *
+   * A new wave item has been added to the wavetable
+   */
+  signals[WAVE_ADDED_EVENT] = g_signal_new("wave-added",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        (guint)G_STRUCT_OFFSET(BtWavetableClass,wave_added_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__OBJECT,
+                                        G_TYPE_NONE, // return type
+                                        1, // n_params
+                                        BT_TYPE_WAVE // param data
+                                        );
+
+  /**
+   * BtWavetable::wave-removed:
+   * @self: the setup object that emitted the signal
+   * @wave: the old wave
+   *
+   * A wave item has been removed from the wavetable
+   */
+  signals[WAVE_REMOVED_EVENT] = g_signal_new("wave-removed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        (guint)G_STRUCT_OFFSET(BtWavetableClass,wave_removed_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__OBJECT,
+                                        G_TYPE_NONE, // return type
+                                        1, // n_params
+                                        BT_TYPE_WAVE // param data
+                                        );
 
   g_object_class_install_property(gobject_class,WAVETABLE_SONG,
                                   g_param_spec_object("song",
