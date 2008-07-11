@@ -1,5 +1,15 @@
 2008-07-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	  Add todo comments about moving 'channels' var.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Sync selected machine in sequence with pattern view. Cleanup some
+	  code.
+
+2008-07-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* src/lib/core/libbtcore/persistence-methods.h:
 	* src/lib/core/persistence.c:

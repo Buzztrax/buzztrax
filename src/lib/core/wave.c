@@ -62,7 +62,7 @@ enum {
   WAVE_VOLUME,
   WAVE_LOOP_MODE // OFF, FORWARD, PINGPONG
   /*
-  WAVE_CHANNELS
+  WAVE_CHANNELS // move from wavelevel?
    */
 };
 

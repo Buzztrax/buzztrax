@@ -40,6 +40,9 @@
  * - pattern list
  *   - go to next occurence when double clicking a pattern
  *   - show tick-length in pattern list
+ * @todo:
+ * - we shoudl have a track-changed signal or so to allow pattern to sync with
+ *   seelcted machine and not passively syncing (bt_main_page_patterns_show_machine())
  *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
@@ -311,21 +314,6 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
 }
 
 //-- tree model helper
-
-static glong sequence_view_get_cursor_column(GtkTreeView *tree_view) {
-  glong res=-1;
-  GtkTreeViewColumn *column;
-
-  // get table column number (column 0 is for positions and colum 1 for labels)
-  gtk_tree_view_get_cursor(tree_view,NULL,&column);
-  if(column) {
-    GList *columns=gtk_tree_view_get_columns(tree_view);
-    res=g_list_index(columns,(gpointer)column);
-    g_list_free(columns);
-    GST_DEBUG("  -> cursor column is %d",res);
-  }
-  return(res);
-}
 
 static gboolean sequence_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *path,GtkTreeViewColumn *column,gulong *col,gulong *row) {
   gboolean res=FALSE;
@@ -1245,14 +1233,15 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
 
 /*
- * pattern_list_refresh:
+ * update_after_track_changed:
  * @self: the sequence page
  *
  * When the user moves the cursor in the sequence, update the list of patterns
  * so that it shows the patterns that belong to the machine in the current
  * sequence row.
+ * Also update the current selected machine in pattern view.
  */
-static void pattern_list_refresh(const BtMainPageSequence *self) {
+static void update_after_track_changed(const BtMainPageSequence *self) {
   BtPattern *pattern;
   BtMachine *machine;
   GtkListStore *store;
@@ -1278,64 +1267,81 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
       GST_INFO("ref new cur-machine: refs: %d",(G_OBJECT(machine))->ref_count);
       self->priv->pattern_added_handler=g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
       self->priv->pattern_removed_handler=g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
-      // ref the new machine
-      self->priv->machine=g_object_ref(machine);
-    }
-  }
-  if(machine) {
-    GList *node,*list;
-    gboolean is_internal,is_used;
-    gchar *str,key[2]={0,};
+      // remember the new machine
+      self->priv->machine=machine;
 
-    GST_INFO("... for machine : %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
-
-    //-- append default rows
-    self->priv->pattern_keys=sink_pattern_keys;
-    index=2;
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,".",PATTERN_TABLE_NAME,_("  clear"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"-",PATTERN_TABLE_NAME,_("  mute"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,",",PATTERN_TABLE_NAME,_("  break"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
-    if(BT_IS_PROCESSOR_MACHINE(machine)) {
+      // refresh the pattern menu
+      GList *node,*list;
+      gboolean is_internal,is_used;
+      gchar *str,key[2]={0,};
+  
+      GST_INFO("... for machine : %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+  
+      //-- append default rows
+      self->priv->pattern_keys=sink_pattern_keys;
+      index=2;
       gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  thru"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
-      self->priv->pattern_keys=processor_pattern_keys;
-      index++;
-    }
-    if(BT_IS_SOURCE_MACHINE(machine)) {
+      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,".",PATTERN_TABLE_NAME,_("  clear"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
       gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  solo"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
-      self->priv->pattern_keys=source_pattern_keys;
-      index++;
-    }
-
-    //-- append pattern rows
-    g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
-    for(node=list;node;node=g_list_next(node)) {
-      pattern=BT_PATTERN(node->data);
-      g_object_get(G_OBJECT(pattern),"name",&str,"is-internal",&is_internal,NULL);
-      if(!is_internal) {
-        //GST_DEBUG("  adding \"%s\" at index %d -> '%c'",str,index,self->priv->pattern_keys[index]);
-        key[0]=(index<64)?self->priv->pattern_keys[index]:' ';
-        //if(index<64) key[0]=self->priv->pattern_keys[index];
-        //else key[0]=' ';
-        //GST_DEBUG("  with shortcut \"%s\"",key);
-        // use gray color for unused patterns in pattern list
-        is_used=bt_sequence_is_pattern_used(self->priv->sequence,pattern);
+      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"-",PATTERN_TABLE_NAME,_("  mute"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
+      gtk_list_store_append(store, &tree_iter);
+      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,",",PATTERN_TABLE_NAME,_("  break"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
+      if(BT_IS_PROCESSOR_MACHINE(machine)) {
         gtk_list_store_append(store, &tree_iter);
-        gtk_list_store_set(store,&tree_iter,
-          PATTERN_TABLE_KEY,key,
-          PATTERN_TABLE_NAME,str,
-          PATTERN_TABLE_COLOR_SET,!is_used,
-          -1);
+        gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  thru"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
+        self->priv->pattern_keys=processor_pattern_keys;
         index++;
       }
-      g_free(str);
+      if(BT_IS_SOURCE_MACHINE(machine)) {
+        gtk_list_store_append(store, &tree_iter);
+        gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  solo"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
+        self->priv->pattern_keys=source_pattern_keys;
+        index++;
+      }
+  
+      //-- append pattern rows
+      g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
+      for(node=list;node;node=g_list_next(node)) {
+        pattern=BT_PATTERN(node->data);
+        g_object_get(G_OBJECT(pattern),"name",&str,"is-internal",&is_internal,NULL);
+        if(!is_internal) {
+          //GST_DEBUG("  adding \"%s\" at index %d -> '%c'",str,index,self->priv->pattern_keys[index]);
+          key[0]=(index<64)?self->priv->pattern_keys[index]:' ';
+          //if(index<64) key[0]=self->priv->pattern_keys[index];
+          //else key[0]=' ';
+          //GST_DEBUG("  with shortcut \"%s\"",key);
+          // use gray color for unused patterns in pattern list
+          is_used=bt_sequence_is_pattern_used(self->priv->sequence,pattern);
+          gtk_list_store_append(store, &tree_iter);
+          gtk_list_store_set(store,&tree_iter,
+            PATTERN_TABLE_KEY,key,
+            PATTERN_TABLE_NAME,str,
+            PATTERN_TABLE_COLOR_SET,!is_used,
+            -1);
+          index++;
+        }
+        g_free(str);
+      }
+      g_list_free(list);
+      
+      // sync machine in pattern page
+      BtMainWindow *main_window;
+      BtMainPages *pages;
+      BtMainPagePatterns *patterns_page;
+
+      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+      g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+      g_object_get(G_OBJECT(pages),"patterns-page",&patterns_page,NULL);
+
+      bt_main_page_patterns_show_machine(patterns_page,machine);
+      
+      g_object_unref(patterns_page);
+      g_object_unref(pages);
+      g_object_unref(main_window);     
     }
-    g_list_free(list);
-    g_object_unref(machine);
+  }
+  else {
+    g_object_try_unref(machine);
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
 
@@ -1482,7 +1488,7 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   g_list_free(columns);
 
   sequence_view_set_cursor_pos(self);
-  pattern_list_refresh(self);
+  update_after_track_changed(self);
 
   g_object_unref(song);
 }
@@ -1549,7 +1555,7 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
     GST_DEBUG("new cursor column: %d",self->priv->cursor_column);
     g_list_free(columns);
 
-    pattern_list_refresh(self);
+    update_after_track_changed(self);
   }
 
   g_object_unref(song);
@@ -1727,9 +1733,9 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       GST_INFO("new row = %3d <-> old row = %3d",cursor_row,self->priv->cursor_row);
       self->priv->cursor_row=cursor_row;
       GST_INFO("new col = %3d <-> old col = %3d",cursor_column,self->priv->cursor_column);
-      if(cursor_column!=self->priv->cursor_column) {
+      if(cursor_column!=self->priv->cursor_column) {       
         self->priv->cursor_column=cursor_column;
-        pattern_list_refresh(self);
+        update_after_track_changed(self);        
       }
       GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
 
@@ -2139,7 +2145,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
             }
 
             if(pattern_usage_changed) {
-              pattern_list_refresh(self);
+              update_after_track_changed(self);
               // idealy we like to refresh here: pattern_menu_refresh(self);
             }
           }
@@ -2391,7 +2397,7 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
 
   GST_INFO("pattern has been added/removed");
   // reinit the list
-  pattern_list_refresh(self);
+  update_after_track_changed(self);
 
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -2481,7 +2487,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update sequence and pattern list
   sequence_table_refresh(self,song);
   sequence_table_refresh_labels(self);
-  pattern_list_refresh(self);
+  update_after_track_changed(self);
   machine_menu_refresh(self,setup);
   g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
@@ -2814,17 +2820,7 @@ Error:
  * Returns: the #BtMachine instance or %NULL in case of an error
  */
 BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self) {
-  BtMachine *machine=NULL;
-  glong col;
-
-  GST_INFO("get active machine");
-
-  // get table column number (col 0 is for for labels)
-  if((col=sequence_view_get_cursor_column(self->priv->sequence_table))>0) {
-    GST_INFO(">>> active col is %d",col);
-    machine=bt_sequence_get_machine(self->priv->sequence,col-1);
-  }
-  return(machine);
+  return(bt_sequence_get_machine(self->priv->sequence,self->priv->cursor_column-1));
 }
 
 //-- cut/copy/paste
