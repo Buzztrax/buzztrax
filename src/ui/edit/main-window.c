@@ -458,12 +458,14 @@ void bt_main_window_open_song(const BtMainWindow *self) {
 				      NULL);
   gint result;
   gchar *folder_name,*file_name=NULL;
-  GtkFileFilter *filter;
+  GtkFileFilter *filter,*filter_all;
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
   guint ix;
 
   // set filters
+  filter_all=gtk_file_filter_new();
+  gtk_file_filter_set_name(filter_all,"all supported files");
   plugins=bt_song_io_get_module_info_list();
   for(node=plugins;node;node=g_list_next(node)) {
     info=(BtSongIOModuleInfo *)node->data;
@@ -472,15 +474,19 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       filter=gtk_file_filter_new();
       gtk_file_filter_set_name(filter,info->formats[ix].name);
       gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
+      gtk_file_filter_add_mime_type(filter_all,info->formats[ix].mime_type);
       //gtk_file_filter_add_pattern(filter,"*.xml");
       gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
       ix++;
     }
   }
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter_all);
   filter=gtk_file_filter_new();
   gtk_file_filter_set_name(filter,"all files");
   gtk_file_filter_add_pattern(filter,"*");
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+  // set default filter
+  gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter_all);
 
   // set a default songs folder
   //gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
