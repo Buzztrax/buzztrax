@@ -81,6 +81,7 @@ static GtkVBoxClass *parent_class=NULL;
 
 enum {
   WAVE_TABLE_ID=0,
+  WAVE_TABLE_HEX_ID,
   WAVE_TABLE_NAME,
   WAVE_TABLE_CT
 };
@@ -146,19 +147,20 @@ static void waves_list_refresh(const BtMainPageWaves *self) {
   GtkTreeSelection *selection;
   GtkTreePath *path=NULL;
   GtkTreeModel *old_store;
-  gchar *str;
+  gchar *str,hstr[3];
   gint i;
   gboolean have_selection=FALSE;
 
   GST_INFO("refresh waves list: self=%p, wavetable=%p",self,self->priv->wavetable);
 
-  store=gtk_list_store_new(WAVE_TABLE_CT,G_TYPE_ULONG,G_TYPE_STRING);
+  store=gtk_list_store_new(WAVE_TABLE_CT,G_TYPE_ULONG,G_TYPE_STRING,G_TYPE_STRING);
 
-  //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
-  for(i=0;i<200;i++) {
+  // append waves rows (buzz numbers them from 0x01 to 0xC8=200)
+  for(i=1;i<=200;i++) {
     gtk_list_store_append(store, &tree_iter);
-    // @todo: buzz shows index as hex, because trackers needs it this way
-    gtk_list_store_set(store,&tree_iter,WAVE_TABLE_ID,i,-1);
+    // buzz shows index as hex, because trackers needs it this way
+    sprintf(hstr,"%02x",i);
+    gtk_list_store_set(store,&tree_iter,WAVE_TABLE_ID,i,WAVE_TABLE_HEX_ID,hstr,-1);
     if((wave=bt_wavetable_get_wave_by_index(self->priv->wavetable,i))) {
       g_object_get(G_OBJECT(wave),"name",&str,NULL);
       GST_INFO("  adding [%3d] \"%s\"",i,str);
@@ -885,11 +887,11 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
 
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
-  gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Ix"),renderer,"text",0,NULL);
+  gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Ix"),renderer,"text",WAVE_TABLE_HEX_ID,NULL);
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wave_name_edited),(gpointer)self);
-  gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Wave"),renderer,"text",1,NULL);
+  gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Wave"),renderer,"text",WAVE_TABLE_NAME,NULL);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->waves_list));
   gtk_container_add(GTK_CONTAINER(box),scrolled_window);
   

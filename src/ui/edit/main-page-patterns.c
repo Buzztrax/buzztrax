@@ -985,13 +985,13 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 
 static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *wavetable) {
   BtWave *wave;
-  gchar *str;
+  gchar *str,hstr[3];
   GtkListStore *store;
   GtkTreeIter menu_iter;
   gint i,index=-1;
 
   // update pattern menu
-  store=gtk_list_store_new(2,G_TYPE_ULONG,G_TYPE_STRING);
+  store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
 
   //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
   for(i=0;i<200;i++) {
@@ -999,8 +999,9 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
       gtk_list_store_append(store, &menu_iter);
       g_object_get(G_OBJECT(wave),"name",&str,NULL);
       GST_INFO("  adding [%3d] \"%s\"",i,str);
-      // @todo: buzz shows index as hex, because trackers needs it this way
-      gtk_list_store_set(store,&menu_iter,0,i,1,str,-1);
+      // buzz shows index as hex, because trackers needs it this way
+      sprintf(hstr,"%02x",i);
+      gtk_list_store_set(store,&menu_iter,0,hstr,1,str,-1);
       g_free(str);
       g_object_unref(wave);
       if(index==-1) index=i;
