@@ -157,6 +157,7 @@ static void waves_list_refresh(const BtMainPageWaves *self) {
   //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
   for(i=0;i<200;i++) {
     gtk_list_store_append(store, &tree_iter);
+    // @todo: buzz shows index as hex, because trackers needs it this way
     gtk_list_store_set(store,&tree_iter,WAVE_TABLE_ID,i,-1);
     if((wave=bt_wavetable_get_wave_by_index(self->priv->wavetable,i))) {
       g_object_get(G_OBJECT(wave),"name",&str,NULL);
@@ -176,13 +177,18 @@ static void waves_list_refresh(const BtMainPageWaves *self) {
   gtk_tree_view_set_model(self->priv->waves_list,GTK_TREE_MODEL(store));
   if(path) {
     have_selection=gtk_tree_model_get_iter(GTK_TREE_MODEL(store),&tree_iter,path);
-    gtk_tree_path_free(path);
   }
   else {
     have_selection=gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store),&tree_iter);
+    path=gtk_tree_path_new_from_indices(0,-1);
   }
   if(have_selection) {
     gtk_tree_selection_select_iter(selection,&tree_iter);
+    gtk_tree_view_scroll_to_cell(self->priv->waves_list,path,NULL,TRUE,0.5,0.5);
+    
+  }
+  if(path) {
+    gtk_tree_path_free(path);
   }
   on_waves_list_cursor_changed(GTK_TREE_VIEW(self->priv->waves_list), (gpointer)self);
 

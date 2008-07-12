@@ -1,3 +1,9 @@
+2008-07-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-waves.c:
+	  Improve menu layout. Add to for hex display of waveindex.
+
 2008-07-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/wavetable.h:

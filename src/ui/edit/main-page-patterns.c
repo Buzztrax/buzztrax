@@ -999,6 +999,7 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
       gtk_list_store_append(store, &menu_iter);
       g_object_get(G_OBJECT(wave),"name",&str,NULL);
       GST_INFO("  adding [%3d] \"%s\"",i,str);
+      // @todo: buzz shows index as hex, because trackers needs it this way
       gtk_list_store_set(store,&menu_iter,0,i,1,str,-1);
       g_free(str);
       g_object_unref(wave);
@@ -1981,7 +1982,8 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   self->priv->wavetable_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   renderer=gtk_cell_renderer_text_new();
-  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,TRUE);
+  g_object_set(G_OBJECT(renderer), "width", 22, NULL);
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,FALSE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 0,NULL);
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,TRUE);
