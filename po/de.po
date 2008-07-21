@@ -410,7 +410,7 @@ msgstr "Öffnen"
 
 #: ../src/ui/edit/main-menu.c:543
 msgid "_Open Recent"
-msgstr ""
+msgstr "Zuletzt geöffnete Dateien"
 
 #: ../src/ui/edit/main-menu.c:574 ../src/ui/edit/main-menu.c:590
 #: ../src/ui/edit/main-menu.c:600 ../src/ui/edit/main-menu.c:639

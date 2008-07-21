@@ -1,3 +1,11 @@
+2008-07-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/de.po:
+	  Small translation update.
+
+	* src/lib/buzztard.xml.in:
+	  Don't override regular zip files.
+
 2008-07-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:
