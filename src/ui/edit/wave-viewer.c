@@ -23,6 +23,12 @@
 
 #include "bt-edit.h"
 
+enum {
+  WAVE_VIEWER_WAVE_LENGTH = 1,
+  WAVE_VIEWER_LOOP_BEGIN,
+  WAVE_VIEWER_LOOP_END,
+};
+
 static gboolean
 bt_waveform_viewer_expose (GtkWidget *widget, GdkEventExpose *event)
 {
@@ -69,7 +75,34 @@ bt_waveform_viewer_expose (GtkWidget *widget, GdkEventExpose *event)
       gdk_cairo_set_source_color(c, &sc3);
       cairo_fill_preserve(c);
       gdk_cairo_set_source_color(c, &sc2);
+      cairo_stroke(c);      
+    }
+    if (self->loop_begin != -1)
+    {
+      int x;
+      
+      cairo_set_source_rgba(c, 1, 0, 0, 0.75);
+      cairo_set_line_width(c, 1.0);
+      // casting to double loses precision, but we're not planning to deal with multiterabyte waveforms here :)
+      x = (int)(ox + self->loop_begin * (double) sx / self->wave_length);
+      cairo_move_to(c, x, oy + sy);
+      cairo_line_to(c, x, oy);
       cairo_stroke(c);
+      cairo_line_to(c, x + 5, oy);
+      cairo_line_to(c, x + 5, oy + 5);
+      cairo_line_to(c, x, oy + 5);
+      cairo_line_to(c, x, oy);
+      cairo_fill(c);
+
+      x = (int)(ox + self->loop_end * (double) sx / self->wave_length) - 1;
+      cairo_move_to(c, x, oy + sy);
+      cairo_line_to(c, x, oy);
+      cairo_stroke(c);
+      cairo_line_to(c, x - 5, oy);
+      cairo_line_to(c, x - 5, oy + 5);
+      cairo_line_to(c, x, oy + 5);
+      cairo_line_to(c, x, oy);
+      cairo_fill(c);
     }
   }
   
@@ -108,6 +141,60 @@ bt_waveform_viewer_finalize (GObject * object)
   g_free (self->peaks);
 }
 
+/* returns a property for the given property_id for this object */
+static void
+bt_waveform_viewer_get_property(GObject      *object,
+                               guint         property_id,
+                               GValue       *value,
+                               GParamSpec   *pspec)
+{
+  BtWaveformViewer *self = BT_WAVEFORM_VIEWER(object);
+
+  switch (property_id) {
+    case WAVE_VIEWER_WAVE_LENGTH: {
+      g_value_set_int64(value, self->wave_length);
+    } break;
+    case WAVE_VIEWER_LOOP_BEGIN: {
+      g_value_set_int64(value, self->loop_begin);
+    } break;
+    case WAVE_VIEWER_LOOP_END: {
+      g_value_set_int64(value, self->loop_end);
+    } break;
+    default: {
+       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
+  }
+}
+
+/* sets the given properties for this object */
+static void
+bt_waveform_viewer_set_property(GObject      *object,
+                              guint         property_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
+{
+  BtWaveformViewer *self = BT_WAVEFORM_VIEWER(object);
+
+  switch (property_id) {
+    case WAVE_VIEWER_LOOP_BEGIN: {
+      self->loop_begin = g_value_get_int64(value);
+      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+        gtk_widget_queue_draw(GTK_WIDGET(self));
+      }
+    } break;
+    case WAVE_VIEWER_LOOP_END: {
+      self->loop_end = g_value_get_int64(value);
+      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+        gtk_widget_queue_draw(GTK_WIDGET(self));
+      }
+    } break;
+    default: {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
+  }
+  /* printf("SetProperty: loop_begin=%d loop_end=%d\n", (int)self->loop_begin, (int)self->loop_end); */
+}
+
 static void
 bt_waveform_viewer_class_init (BtWaveformViewer *klass)
 {
@@ -118,7 +205,36 @@ bt_waveform_viewer_class_init (BtWaveformViewer *klass)
   widget_class->size_request = bt_waveform_viewer_size_request;
   widget_class->size_allocate = bt_waveform_viewer_size_allocate;
   
+  gobject_class->set_property = bt_waveform_viewer_set_property;
+  gobject_class->get_property = bt_waveform_viewer_get_property;
   gobject_class->finalize = bt_waveform_viewer_finalize;
+
+  g_object_class_install_property(gobject_class, WAVE_VIEWER_WAVE_LENGTH,
+                                  g_param_spec_int64("wave-length",
+                                     "waveform length property",
+                                     "The current waveform length",
+                                     0,
+                                     INT64_MAX,
+                                     0,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class, WAVE_VIEWER_LOOP_BEGIN,
+                                  g_param_spec_int64("loop-begin",
+                                     "waveform loop start position",
+                                     "First sample of the loop or -1 if there is no loop",
+                                     -1,
+                                     INT64_MAX,
+                                     -1,
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class, WAVE_VIEWER_LOOP_END,
+                                  g_param_spec_int64("loop-end",
+                                     "waveform loop end position",
+                                     "First sample after the loop or -1 if there is no loop",
+                                     -1,
+                                     INT64_MAX,
+                                     -1,
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 static void
@@ -132,6 +248,9 @@ bt_waveform_viewer_init (BtWaveformViewer *self)
   self->channels = 2;
   self->peaks_size = 1000;
   self->peaks = malloc(sizeof(float) * self->channels * self->peaks_size);
+  self->wave_length = 0;
+  self->loop_begin = -1;
+  self->loop_end = -1;
 }
 
 /**
@@ -150,6 +269,9 @@ bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels,
   int i, c, p, cc = channels;
   int64_t len = length;
   self->channels = channels;
+  self->wave_length = length;
+  self->loop_begin = -1;
+  self->loop_end = -1;
   if (!data || !length)
   {
     self->active = 0;
@@ -173,6 +295,9 @@ bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels,
     }
   }
   self->active = 1;
+  g_object_notify(G_OBJECT(self), "wave-length");
+  g_object_notify(G_OBJECT(self), "loop-begin");
+  g_object_notify(G_OBJECT(self), "loop-end");
   gtk_widget_queue_draw(GTK_WIDGET(self));
 }
 

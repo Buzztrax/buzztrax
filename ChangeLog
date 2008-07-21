@@ -1,3 +1,13 @@
+2008-07-21  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/wave-viewer.c: 
+	* src/ui/edit/wave-viewer.h:
+	  Implemented a primitive loop display based on GObject properties.
+	* src/ui/edit/main-page-waves.c: 
+	  Modified the way loop editing works so that setting loop start
+	  updates loop end and vice versa, to keep them in sync. Use the new
+	  wave viewer's loop display functionality.
+
 2008-07-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* po/de.po:

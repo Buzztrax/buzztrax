@@ -418,11 +418,26 @@ static void on_wavelevel_loop_start_edited(GtkCellRendererText *cellrenderertext
   BtWavelevel *wavelevel;
   
   if((wavelevel=wavelevels_get_wavelevel_and_set_iter(self,&iter,&store,path_string))) {
-    glong loop_start=atol(new_text);
+    glong loop_start=atol(new_text), loop_end = -1;
     
     g_object_set(wavelevel,"loop-start",loop_start,NULL);
-    g_object_get(wavelevel,"loop-start",&loop_start,NULL);
-    gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_LOOP_START,loop_start,-1);
+    g_object_get(wavelevel,"loop-start",&loop_start,"loop-end", &loop_end, NULL);
+    if (loop_start == -1 && loop_end != -1)
+    {
+      loop_end = -1;
+      g_object_set(wavelevel,"loop-end",loop_end,NULL);
+    }
+    if (loop_start != -1 && loop_end == -1)
+    {
+      g_object_get(wavelevel,"length", &loop_end,NULL);
+      if (loop_end > 0)
+        loop_end--;
+      g_object_set(wavelevel,"loop-end",loop_end,NULL);
+    }
+    gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_LOOP_START,loop_start,WAVELEVEL_TABLE_LOOP_END,loop_end,-1);
+    if (loop_end != -1)
+      loop_end++;
+    g_object_set(G_OBJECT(self->priv->waveform_viewer), "loop-begin", (int64_t)loop_start, "loop-end", (int64_t)loop_end, NULL);
     g_object_unref(wavelevel);
   }
 }
@@ -434,11 +449,24 @@ static void on_wavelevel_loop_end_edited(GtkCellRendererText *cellrenderertext,g
   BtWavelevel *wavelevel;
   
   if((wavelevel=wavelevels_get_wavelevel_and_set_iter(self,&iter,&store,path_string))) {
-    glong loop_end=atol(new_text);
+    glong loop_start = -1, loop_end=atol(new_text);
 
     g_object_set(wavelevel,"loop-end",loop_end,NULL);
-    g_object_get(wavelevel,"loop-end",&loop_end,NULL);
-    gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_LOOP_END,loop_end,-1);
+    g_object_get(wavelevel,"loop-start",&loop_start,"loop-end", &loop_end, NULL);
+    if (loop_start != -1 && loop_end == -1)
+    {
+      loop_start = -1;
+      g_object_set(wavelevel,"loop-end",loop_end,NULL);
+    }
+    if (loop_start == -1 && loop_end != -1)
+    {
+      loop_start = 0;
+      g_object_set(wavelevel,"loop-start",loop_start,NULL);
+    }
+    gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_LOOP_START,loop_start,WAVELEVEL_TABLE_LOOP_END,loop_end,-1);
+    if (loop_end != -1)
+      loop_end++;
+    g_object_set(G_OBJECT(self->priv->waveform_viewer), "loop-begin", (int64_t)loop_start, "loop-end", (int64_t)loop_end, NULL);
     g_object_unref(wavelevel);
   }
 }
@@ -503,9 +531,12 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
       int16_t *data;
       guint channels;
       gulong length;
+      glong loop_start, loop_end;
   
-      g_object_get(G_OBJECT(wavelevel),"length",&length,"channels",&channels,"data",&data,NULL);  
+      g_object_get(G_OBJECT(wavelevel),"length",&length,"channels",&channels,"data",&data,"loop-start", &loop_start, "loop-end", &loop_end, NULL);  
       bt_waveform_viewer_set_wave(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer),data,channels,length);
+      
+      g_object_set(G_OBJECT(self->priv->waveform_viewer), "loop-begin", (int64_t)loop_start, "loop-end", (int64_t)loop_end, NULL);
       g_object_unref(wavelevel);
       drawn=TRUE;
     }

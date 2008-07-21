@@ -38,7 +38,7 @@ typedef struct _BtWaveformViewerClass BtWaveformViewerClass;
 /**
  * BtWaveformViewer:
  *
- * a volume popup widget
+ * waveform view widget
  */
 struct _BtWaveformViewer {
   GtkWindow parent;
@@ -47,6 +47,9 @@ struct _BtWaveformViewer {
   float *peaks;
   int peaks_size;
   int channels;
+    
+  int64_t wave_length;
+  int64_t loop_begin, loop_end;
 };
 
 struct _BtWaveformViewerClass {
