@@ -41,11 +41,12 @@ enum {
   BT_SETTINGS_SYSTEM_AUDIOSINK,
   BT_SETTINGS_SYSTEM_TOOLBAR_STYLE,
   /* @idea: additional system settings
-  BT_SETTINGS_SYSTEM_TOOLBAR_DETACHABLE <gboolean> gconf:gnome/interface/toolbar_detachable
-  BT_SETTINGS_SYSTEM_TOOLBAR_ICON_SIZE  <guint>    gconf:gnome/interface/toolbar_icon_size
-  BT_SETTINGS_SYSTEM_MENUBAR_DETACHABLE <gboolean> gconf:gnome/interface/menubar_detachable
-  BT_SETTINGS_SYSTEM_MENU_HAVE_ICONS    <gboolean> gconf:gnome/interface/menus_have_icons
-  BT_SETTINGS_SYSTEM_MENU_HAVE_TEAROFF  <gboolean> gconf:gnome/interface/menus_have_tearoff
+  BT_SETTINGS_SYSTEM_TOOLBAR_DETACHABLE <gboolean> gconf:desktop/gnome/interface/toolbar_detachable
+  BT_SETTINGS_SYSTEM_TOOLBAR_ICON_SIZE  <guint>    gconf:desktop/gnome/interface/toolbar_icon_size
+  BT_SETTINGS_SYSTEM_MENUBAR_DETACHABLE <gboolean> gconf:desktop/gnome/interface/menubar_detachable
+  BT_SETTINGS_SYSTEM_MENU_HAVE_ICONS    <gboolean> gconf:desktop/gnome/interface/menus_have_icons
+  BT_SETTINGS_SYSTEM_MENU_HAVE_TEAROFF  <gboolean> gconf:desktop/gnome/interface/menus_have_tearoff
+  BT_SETTINGS_SYSTEM_KEYBOARD_LAYOUT    <gchar*>   gconf:desktop/gnome/peripherals/keyboard/{kbd,xkb}/layouts
   */
   BT_SETTINGS_COUNT
 };

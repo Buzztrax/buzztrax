@@ -211,7 +211,7 @@ static void on_wave_loader_error(const GstBus * const bus, GstMessage *message, 
   gchar *dbg = NULL;
   
   gst_message_parse_error(message, &err, &dbg);
-  GST_WARNING ("ERROR: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
+  GST_WARNING ("ERROR: %s (%s)", err->message, (dbg) ? dbg : "no details");
   g_error_free (err);
   g_free (dbg);
   
@@ -224,7 +224,7 @@ static void on_wave_loader_warning(const GstBus * const bus, GstMessage * messag
   gchar *dbg = NULL;
   
   gst_message_parse_warning(message, &err, &dbg);
-  GST_WARNING ("WARNING: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
+  GST_WARNING ("WARNING: %s (%s)", err->message, (dbg) ? dbg : "no details");
   g_error_free (err);
   g_free (dbg);
   
@@ -246,6 +246,7 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   GstElement *src,*dec,*conv,*sink;
   GstBus *bus;
   GstCaps *caps;
+  GstStateChangeReturn state_res;
   
   GST_INFO("about to load sample %s / %s",self->priv->uri,uri);
 
@@ -255,7 +256,8 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   // create loader pipeline
   self->priv->pipeline=gst_pipeline_new("wave-loader");
   src=gst_element_make_from_uri(GST_URI_SRC,uri,NULL);
-  dec=gst_element_factory_make("decodebin2",NULL);
+  //dec=gst_element_factory_make("decodebin2",NULL);
+  dec=gst_element_factory_make("decodebin",NULL);
   conv=gst_element_factory_make("audioconvert",NULL);
   self->priv->fmt=gst_element_factory_make("capsfilter",NULL);
   sink=gst_element_factory_make("fdsink",NULL);
@@ -276,8 +278,12 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
 
   // add and link
   gst_bin_add_many(GST_BIN(self->priv->pipeline),src,dec,conv,self->priv->fmt,sink,NULL);
-  gst_element_link_many(src,dec,NULL);
-  gst_element_link_many(conv,self->priv->fmt,sink,NULL);
+  res=gst_element_link(src,dec);
+  res=gst_element_link_many(conv,self->priv->fmt,sink,NULL);
+  if(!res) {
+    GST_WARNING ("Can't link wave loader pipeline.");
+    goto Error;
+  }
   g_signal_connect(G_OBJECT(dec),"new-decoded-pad",G_CALLBACK(on_wave_loader_new_pad),(gpointer)conv);
 
   /* @todo: during loading wave-data (into wavelevels)
@@ -296,7 +302,12 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   gst_object_unref(bus);
   
   // play and wait for EOS 
-  gst_element_set_state(self->priv->pipeline,GST_STATE_PLAYING);
+  if((state_res=gst_element_set_state(self->priv->pipeline,GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING ("Can't set wave loader pipeline to playing");
+    res=FALSE;
+  }
+
+Error:
   return(res);
 }
 

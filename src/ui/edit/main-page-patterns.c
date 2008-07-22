@@ -1843,6 +1843,7 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
   }
   g_free(id);
 
+  // @todo: don't ask if pattern is empty
   if(bt_dialog_question(main_window,_("Delete pattern..."),msg,_("There is no undo for this."))) {
     BtMachine *machine;
 

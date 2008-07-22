@@ -32,6 +32,8 @@
  * - shortcuts
  *   - Ctrl-<num> :  Stepping
  *     - set increment for cursor-down on edit
+ *   - Duplicate pattern: make a copy of pattern under cursor and go to pattern view
+ *   - New pattern: open new pattern dialog, insert pattern under cursor and go to pattern view
  * - sequence header
  *   - add the same context menu as the machines have in machine view when
  *     clicking on track headers

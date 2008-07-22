@@ -401,6 +401,7 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   msg=g_strdup_printf(_("Delete machine '%s'"),id);
   g_free(id);
 
+  // @todo: don't ask if machine has no patterns and is not connected
   if(bt_dialog_question(main_window,_("Delete machine ..."),msg,_("There is no undo for this."))) {
     BtSong *song;
     BtSetup *setup;
