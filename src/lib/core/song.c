@@ -180,7 +180,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
         GST_SEEK_TYPE_SET, 0,
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
     self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        0L,
+        GST_SEEK_FLAG_NONE,
         GST_SEEK_TYPE_SET, 0,
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
@@ -399,12 +399,13 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
     if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->loop_seek_event)))) {
       GST_WARNING("element failed to handle continuing play seek event");
     }
-    /*
     else {
+      GST_INFO("-> loop");
+      /*
       gst_pipeline_set_new_stream_time (GST_PIPELINE (self->priv->bin), 0);
       gst_element_get_state (GST_ELEMENT (self->priv->bin), NULL, NULL, 40 * GST_MSECOND);
+      */
     }
-    */
   }
   else {
     GST_WARNING("song isn't playing ?!?");
@@ -463,7 +464,8 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
     GST_WARNING("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
-      case GST_STATE_CHANGE_READY_TO_PAUSED:
+      /* if we do this in READY_TO_PAUSED, we get two PAUSED -> PAUSED transitions */
+      case GST_STATE_CHANGE_NULL_TO_READY:
         // here the formats are negotiated
         //bt_song_write_to_lowlevel_dot_file(self);
 

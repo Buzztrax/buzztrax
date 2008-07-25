@@ -1,5 +1,17 @@
 2008-07-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Disable one log.
+
+	* src/lib/core/song.c:
+	  Seek in null_to_ready to avoid double state_changes and start playing
+	  faster.
+
+	* src/lib/core/source-machine.c:
+	  Revert last change, numb-buffers does not help here.
+
+2008-07-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/pattern.c:
 	  More ideas.
 

@@ -2214,7 +2214,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
     if(self->priv->global_controller) {
       gboolean remove=TRUE;
 
-      GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
+      //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
 #ifdef HAVE_GST_0_10_14
       if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
         gint ct;

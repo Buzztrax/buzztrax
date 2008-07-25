@@ -39,24 +39,6 @@ struct _BtSourceMachinePrivate {
 
 static BtMachineClass *parent_class=NULL;
 
-// signal handlers
-
-static void bt_machine_on_length_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
-  BtSourceMachine * const self=BT_SOURCE_MACHINE(user_data);
-  GstElement * const element;
-  gulong length;
-  
-  g_object_get(self,"machine",&element,NULL);
-  g_object_get(sequence,"length",&length,NULL);
-
-  // set num-buffers, so that eos gets emitted
-  g_object_set(element,"num-buffers",(gint)length,NULL);
-  gst_object_unref(element);
-  
-  GST_WARNING("update num-buffers for src to %lu",length);
-}
-
-
 // helpers
 
 static void bt_source_machine_post_init(BtSourceMachine * const self) {
@@ -64,16 +46,6 @@ static void bt_source_machine_post_init(BtSourceMachine * const self) {
   
   g_object_get(self,"machine",&element,NULL);
   if(GST_IS_BASE_SRC(element)) {
-    BtSong * const song;
-    BtSequence * const sequence;
-    
-    g_object_get(G_OBJECT(self),"song",&song,NULL);
-    g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-    g_signal_connect(sequence,"notify::length",G_CALLBACK(bt_machine_on_length_changed),(gpointer)self);
-    bt_machine_on_length_changed(sequence,NULL,self);
-    g_object_unref(sequence);
-    g_object_unref(song);
-    
     gst_base_src_set_live(GST_BASE_SRC(element),FALSE);
   }
   gst_object_unref(element);
@@ -230,23 +202,9 @@ static void bt_source_machine_set_property(GObject      * const object,
 
 static void bt_source_machine_dispose(GObject * const object) {
   const BtSourceMachine * const self = BT_SOURCE_MACHINE(object);
-  BtSong * const song;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
-  
-  g_object_get(G_OBJECT(self),"song",&song,NULL);
-  if(song) {
-    BtSequence * const sequence;
-
-    g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-    if(sequence) {
-      g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_machine_on_length_changed,(gpointer)self);
-  
-      g_object_unref(sequence);
-    }
-    g_object_unref(song);   
-  }
 
   GST_DEBUG("!!!! self=%p",self);
   G_OBJECT_CLASS(parent_class)->dispose(object);
