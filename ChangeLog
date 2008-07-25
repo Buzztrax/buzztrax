@@ -1,3 +1,12 @@
+2008-07-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/pattern.c:
+	  More ideas.
+
+	* src/lib/core/source-machine.c:
+	  Set num-buffers on GstBaseSource sources, so that it sends EOS, helps
+	  to get rif of the unwanted oggmux patch (#464419).
+
 2008-07-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wave.c:

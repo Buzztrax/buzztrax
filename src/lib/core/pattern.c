@@ -30,6 +30,9 @@
 /* @todo:
  * - BtWirePattern is not a good name :/
  *   - maybe we can make BtPattern a base class and also have BtMachinePattern
+ * - pattern editing
+ *   - flip ticks cursor-column/selection
+ *   -inc/dec cursor-cell/selection
  * - cut/copy/paste api
  *   - need private BtPatternFragment object
  *     - copy of the data
