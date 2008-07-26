@@ -1,3 +1,9 @@
+2008-07-26  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/wave-viewer.c:
+	* src/ui/edit/wave-viewer.h:
+          Add playback cursor.
+
 2008-07-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

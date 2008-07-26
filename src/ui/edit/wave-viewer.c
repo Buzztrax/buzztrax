@@ -27,6 +27,7 @@ enum {
   WAVE_VIEWER_WAVE_LENGTH = 1,
   WAVE_VIEWER_LOOP_BEGIN,
   WAVE_VIEWER_LOOP_END,
+  WAVE_VIEWER_PLAYBACK_CURSOR
 };
 
 static gboolean
@@ -104,6 +105,21 @@ bt_waveform_viewer_expose (GtkWidget *widget, GdkEventExpose *event)
       cairo_line_to(c, x, oy);
       cairo_fill(c);
     }
+    if (self->playback_cursor != -1)
+    {
+      int x;
+      cairo_set_source_rgba(c, 1, 1, 0, 0.75);
+      cairo_set_line_width(c, 1.0);
+      x = (int)(ox + self->playback_cursor * (double) sx / self->wave_length) - 1;
+      cairo_move_to(c, x, oy + sy);
+      cairo_line_to(c, x, oy);
+      cairo_stroke(c);
+      cairo_move_to(c, x, oy + sy / 2 - 5);
+      cairo_line_to(c, x , oy + sy / 2 + 5);
+      cairo_line_to(c, x + 5, oy + sy / 2);
+      cairo_line_to(c, x, oy + sy / 2 - 5);
+      cairo_fill(c);
+    }
   }
   
   cairo_destroy(c);
@@ -160,6 +176,9 @@ bt_waveform_viewer_get_property(GObject      *object,
     case WAVE_VIEWER_LOOP_END: {
       g_value_set_int64(value, self->loop_end);
     } break;
+    case WAVE_VIEWER_PLAYBACK_CURSOR: {
+      g_value_set_int64(value, self->playback_cursor);
+    } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -184,6 +203,12 @@ bt_waveform_viewer_set_property(GObject      *object,
     } break;
     case WAVE_VIEWER_LOOP_END: {
       self->loop_end = g_value_get_int64(value);
+      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+        gtk_widget_queue_draw(GTK_WIDGET(self));
+      }
+    } break;
+    case WAVE_VIEWER_PLAYBACK_CURSOR: {
+      self->playback_cursor = g_value_get_int64(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
         gtk_widget_queue_draw(GTK_WIDGET(self));
       }
@@ -235,6 +260,15 @@ bt_waveform_viewer_class_init (BtWaveformViewer *klass)
                                      INT64_MAX,
                                      -1,
                                      G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class, WAVE_VIEWER_PLAYBACK_CURSOR,
+                                  g_param_spec_int64("playback-cursor",
+                                     "playback cursor position",
+                                     "Current playback position within a waveform or -1 if sample is not played",
+                                     -1,
+                                     INT64_MAX,
+                                     -1,
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 static void
@@ -272,6 +306,7 @@ bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels,
   self->wave_length = length;
   self->loop_begin = -1;
   self->loop_end = -1;
+  self->playback_cursor = -1;
   if (!data || !length)
   {
     self->active = 0;
@@ -298,6 +333,7 @@ bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels,
   g_object_notify(G_OBJECT(self), "wave-length");
   g_object_notify(G_OBJECT(self), "loop-begin");
   g_object_notify(G_OBJECT(self), "loop-end");
+  g_object_notify(G_OBJECT(self), "playback-cursor");
   gtk_widget_queue_draw(GTK_WIDGET(self));
 }
 

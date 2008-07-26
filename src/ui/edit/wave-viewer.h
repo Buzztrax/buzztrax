@@ -50,6 +50,7 @@ struct _BtWaveformViewer {
     
   int64_t wave_length;
   int64_t loop_begin, loop_end;
+  int64_t playback_cursor;
 };
 
 struct _BtWaveformViewerClass {
