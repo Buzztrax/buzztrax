@@ -1,5 +1,10 @@
 2008-07-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Go directly to playing and seek earlier to avoid double state changes.
+
+2008-07-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.c:
 	* src/ui/edit/btmemoryaudiosrc.c:

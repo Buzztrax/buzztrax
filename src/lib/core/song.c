@@ -177,11 +177,11 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
   else {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH,
-        GST_SEEK_TYPE_SET, 0,
+        GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
     self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_NONE,
-        GST_SEEK_TYPE_SET, 0,
+        GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
   /* the update needs to take the current play-position into account */
@@ -437,18 +437,6 @@ static gboolean on_song_paused_timeout(gpointer user_data) {
   return(FALSE);
 }
 
-static gboolean on_song_playback_timeout(gpointer user_data) {
-  const BtSong * const self = BT_SONG(user_data);
-
-  if(!self->priv->is_playing) {
-    GST_WARNING("->PLAYING timeout occured");
-    bt_song_write_to_lowlevel_dot_file(self);
-    bt_song_stop(self);
-  }
-  self->priv->playback_timeout_id=0;
-  return(FALSE);
-}
-
 static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
@@ -458,7 +446,6 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
   //  self->priv->bin,GST_MESSAGE_SRC(message),G_OBJECT_TYPE_NAME(GST_MESSAGE_SRC(message)));
 
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
-    GstStateChangeReturn res;
     GstState oldstate,newstate,pending;
 
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
@@ -474,21 +461,9 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         // this should be sequence->play_start
         self->priv->play_pos=0;
         // seek to start time
-        //GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
         GST_DEBUG("seek event");
         if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->play_seek_event)))) {
           GST_WARNING("bin failed to handle seek event");
-        }
-        // start playback
-        res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
-        if(res==GST_STATE_CHANGE_FAILURE) {
-          GST_WARNING("can't go to playing state");
-          bt_song_stop(self);
-        }
-        else if(res==GST_STATE_CHANGE_ASYNC) {
-          GST_INFO("->PLAYING needs async wait");
-          // start a short timeout that aborts playback if if get not started
-          self->priv->playback_timeout_id=g_timeout_add(BT_SONG_STATE_CHANGE_TIMEOUT, on_song_playback_timeout, (gpointer)self);
         }
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
@@ -722,7 +697,7 @@ gboolean bt_song_play(const BtSong * const self) {
 
   // prepare playback
   self->priv->is_preparing=TRUE;
-  res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
+  res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
   GST_DEBUG("->PAUSED state change returned '%s'",gst_element_state_change_return_get_name(res));
   if(res==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to paused state");
