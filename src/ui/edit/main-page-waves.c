@@ -27,6 +27,9 @@
  */
 /* @todo: need envelop editor and everything for it
  * @todo: add segmented playback for loops
+ * - do ping-pong with rate=1.0/-1.0
+ * - if on_loop_mode_changed(), on_wavelevel_loop_start/end_edited()
+ *   for current playing -> update seeks
  */
 
 #define BT_EDIT
@@ -68,13 +71,18 @@ struct _BtMainPageWavesPrivate {
 
   /* playbin for filechooser preview */
   GstElement *playbin;
+  /* seek events */
+  GstEvent *play_seek_event;
+  GstEvent *loop_seek_event;
   
   /* elements for wavetable preview */
-  GstElement *preview, *fmt;
-  gulong play_length,play_rate;
-  guint play_channels;
-  gint16 *play_data;
+  GstElement *preview, *preview_src;
   BtWave *play_wave;
+
+  /* the query is used in update_playback_position */
+  GstQuery *position_query;
+  /* update handler id */
+  guint preview_update_id;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -280,6 +288,17 @@ static BtWavelevel *wavelevels_get_wavelevel_and_set_iter(BtMainPageWaves *self,
   return(wavelevel);
 }
 
+static void preview_stop(const BtMainPageWaves *self) {
+  if(self->priv->preview_update_id) {
+    g_source_remove(self->priv->preview_update_id);
+    self->priv->preview_update_id=0;
+    g_object_set(self->priv->waveform_viewer,"playback-cursor",G_GINT64_CONSTANT(-1),NULL);
+  }
+  /* if I set state directly to NULL, I don't get inbetween state-change messages */
+  gst_element_set_state(self->priv->preview,GST_STATE_READY);
+  self->priv->play_wave=NULL;
+}
+
 //-- event handler
 
 static void on_playbin_state_changed(GstBus * bus, GstMessage * message, gpointer user_data) {
@@ -297,6 +316,7 @@ static void on_playbin_state_changed(GstBus * bus, GstMessage * message, gpointe
       case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
         gtk_widget_set_sensitive(self->priv->browser_stop,FALSE);
         gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->browser_play),FALSE);
+        gst_element_set_state(self->priv->playbin,GST_STATE_NULL);
         break;
       default:
         break;
@@ -313,12 +333,11 @@ static void on_preview_state_changed(GstBus * bus, GstMessage * message, gpointe
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
     GST_INFO("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
-      case GST_STATE_CHANGE_READY_TO_PAUSED:
-        /* if loop
+      case GST_STATE_CHANGE_NULL_TO_READY:
         if(!(gst_element_send_event(GST_ELEMENT(self->priv->preview),gst_event_ref(self->priv->play_seek_event)))) {
           GST_WARNING("bin failed to handle seek event");
         }
-        */
+        //gst_element_set_state(self->priv->preview,GST_STATE_PLAYING);
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
         gtk_widget_set_sensitive(self->priv->wavetable_stop,TRUE);
@@ -326,6 +345,7 @@ static void on_preview_state_changed(GstBus * bus, GstMessage * message, gpointe
       case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
         gtk_widget_set_sensitive(self->priv->wavetable_stop,FALSE);
         gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->wavetable_play),FALSE);
+        gst_element_set_state(self->priv->preview,GST_STATE_NULL);
         break;
       default:
         break;
@@ -337,11 +357,8 @@ static void on_preview_eos(GstBus * bus, GstMessage * message, gpointer user_dat
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
 
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->preview)) {
-    GstStateChangeReturn ret;
-
-    ret=gst_element_set_state(self->priv->preview,GST_STATE_READY);
-    GST_INFO("received eos on the bin, going to NULL, ret=%d",ret);
-    self->priv->play_wave=NULL;
+    GST_INFO("received eos on the bin");
+    preview_stop(self);
   }
 }
 
@@ -350,12 +367,36 @@ static void on_preview_segment_done(GstBus * bus, GstMessage * message, gpointer
 
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->preview)) {
     GST_INFO("received segment_done on the bin, looping");
-    /*
     if(!(gst_element_send_event(GST_ELEMENT(self->priv->preview),gst_event_ref(self->priv->loop_seek_event)))) {
       GST_WARNING("element failed to handle continuing play seek event");
+      /* if I set state directly to NULL, I don't get inbetween state-change messages */
+      gst_element_set_state(self->priv->preview,GST_STATE_READY);
     }
-    */
   }
+}
+
+static void on_preview_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  GError *err = NULL;
+  gchar *dbg = NULL;
+  
+  gst_message_parse_error(message, &err, &dbg);
+  GST_WARNING ("ERROR: %s (%s)", err->message, (dbg) ? dbg : "no details");
+  g_error_free (err);
+  g_free (dbg);
+  preview_stop(self);
+}
+
+static void on_preview_warning(const GstBus * const bus, GstMessage * message, gconstpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  GError *err = NULL;
+  gchar *dbg = NULL;
+  
+  gst_message_parse_warning(message, &err, &dbg);
+  GST_WARNING ("WARNING: %s (%s)", err->message, (dbg) ? dbg : "no details");
+  g_error_free (err);
+  g_free (dbg);
+  preview_stop(self);
 }
 
 static void on_wave_name_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
@@ -656,23 +697,21 @@ static void on_browser_toolbar_play_clicked(GtkToolButton *button, gpointer user
 static void on_browser_toolbar_stop_clicked(GtkToolButton *button, gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
 
+  /* if I set state directly to NULL, I don't get inbetween state-change messages */
   gst_element_set_state(self->priv->playbin,GST_STATE_READY);
 }
 
-static void on_fakesrc_handoff (GstElement* object, GstBuffer* buf, GstPad* pad, gpointer user_data) {
+static gboolean on_preview_playback_update(gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  gint64 pos_cur;
+
+  // query playback position and update playcursor;
+  gst_element_query(GST_ELEMENT(self->priv->preview),self->priv->position_query);
+  gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
+  // update play-cursor in samples
+  g_object_set(self->priv->waveform_viewer,"playback-cursor",pos_cur,NULL);
   
-  if(GST_BUFFER_OFFSET(buf)==0) {
-    GST_BUFFER_DATA(buf)=(gpointer)self->priv->play_data;
-    GST_BUFFER_SIZE(buf)=self->priv->play_length*sizeof(gint16)*self->priv->play_channels;
-    GST_BUFFER_TIMESTAMP(buf)=G_GUINT64_CONSTANT(0);
-    GST_BUFFER_DURATION(buf)=gst_util_uint64_scale_int(GST_SECOND,self->priv->play_length,self->priv->play_rate);
-    
-    GST_INFO("play seg %3"G_GUINT64_FORMAT" from ts %"GST_TIME_FORMAT
-      " with duration %"GST_TIME_FORMAT" and size of %u",
-      GST_BUFFER_OFFSET(buf),GST_TIME_ARGS(GST_BUFFER_TIMESTAMP(buf)),
-      GST_TIME_ARGS(GST_BUFFER_DURATION(buf)),GST_BUFFER_SIZE(buf));
-  }
+  return(TRUE);
 }
 
 static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer user_data) {
@@ -684,64 +723,105 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
 
   if((wave=waves_list_get_current(self))) {
     BtWavelevel *wavelevel;
+    BtWaveLoopMode loop_mode;
 
     self->priv->play_wave=wave;
 
     // get current wavelevel
     if((wavelevel=wavelevels_list_get_current(self,wave))) {
       GstCaps *caps;
+      gulong play_length, play_rate;
+      guint play_channels;
+      gint16 *play_data;
+      glong loop_start,loop_end;
+      gulong bytes_per_frame;
 
       // create playback pipeline on demand
       if(!self->priv->preview) {
-        GstElement *fakesrc, *ares, *aconv, *asink;
+        GstElement *ares, *aconv, *asink;
         GstBus *bus;
         
         self->priv->preview=gst_element_factory_make("pipeline",NULL);
-        fakesrc=gst_element_factory_make("fakesrc",NULL);
-        self->priv->fmt=gst_element_factory_make("capsfilter",NULL);
+        self->priv->preview_src=gst_element_factory_make("memoryaudiosrc",NULL);
         ares=gst_element_factory_make("audioresample",NULL);
         aconv=gst_element_factory_make("audioconvert",NULL);
         asink=gst_element_factory_make("autoaudiosink",NULL);
-        gst_bin_add_many(GST_BIN(self->priv->preview),fakesrc,self->priv->fmt,ares,aconv,asink,NULL);
-        gst_element_link_many(fakesrc,self->priv->fmt,ares,aconv,asink,NULL);
+        gst_bin_add_many(GST_BIN(self->priv->preview),self->priv->preview_src,ares,aconv,asink,NULL);
+        gst_element_link_many(self->priv->preview_src,ares,aconv,asink,NULL);
         
         bus=gst_element_get_bus(self->priv->preview);
         gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
         g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_preview_state_changed), (gpointer)self);
         g_signal_connect(bus, "message::eos", G_CALLBACK(on_preview_eos), (gpointer)self);
         g_signal_connect(bus, "message::segment-done", G_CALLBACK(on_preview_segment_done), (gpointer)self);
+        g_signal_connect(bus, "message::error", G_CALLBACK(on_preview_error), (gpointer)self);
+        g_signal_connect(bus, "message::warning", G_CALLBACK(on_preview_warning), (gpointer)self);
         gst_object_unref(bus);
-
-        // register callback
-        g_object_set(G_OBJECT(fakesrc),
-          "signal-handoffs",TRUE,
-          "sizetype", 1,
-          "filltype", 1,
-          "num-buffers", 1,
-          "silent",TRUE,
-          "sync",TRUE,
-          "format",GST_FORMAT_TIME,
-          NULL);
-        g_signal_connect(G_OBJECT(fakesrc),"handoff",G_CALLBACK(on_fakesrc_handoff),(gpointer)self);
+        
+        self->priv->position_query=gst_query_new_position(GST_FORMAT_DEFAULT);
       }
       
-      // get parameters and build caps
+      // get parameters
+      g_object_get(wave,"loop-mode",&loop_mode,NULL);
       g_object_get(G_OBJECT(wavelevel),
-        "length",&self->priv->play_length,
-        "channels",&self->priv->play_channels,
-        "rate",&self->priv->play_rate,
-        "data",&self->priv->play_data,
+        "length",&play_length,
+        "loop-start",&loop_start,
+        "loop-end",&loop_end,
+        "channels",&play_channels,
+        "rate",&play_rate,
+        "data",&play_data,
         NULL);
+      // build caps
       caps=gst_caps_new_simple("audio/x-raw-int",
-        "rate", G_TYPE_INT,self->priv->play_rate,
-        "channels",G_TYPE_INT,self->priv->play_channels,
+        "rate", G_TYPE_INT,play_rate,
+        "channels",G_TYPE_INT,play_channels,
         "width",G_TYPE_INT,16,
         "endianness",G_TYPE_INT,G_BYTE_ORDER,
         "signedness",G_TYPE_INT,TRUE,
         NULL);
-      g_object_set(self->priv->fmt,"caps",caps,NULL);
+      g_object_set(self->priv->preview_src,
+        "caps",caps,
+        "data",play_data,
+        "length",play_length,
+        NULL);
       gst_caps_unref(caps);
-          
+
+      // build seek events for looping
+      if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
+      if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
+      bytes_per_frame=sizeof(gint16)*play_channels;
+      if (loop_mode!=BT_WAVE_LOOP_MODE_OFF) {
+        GstClockTime play_beg=gst_util_uint64_scale_int(GST_SECOND,loop_start,play_rate);
+        GstClockTime play_end=gst_util_uint64_scale_int(GST_SECOND,loop_end,play_rate);
+        
+        GST_WARNING("prepare for loop play: %"GST_TIME_FORMAT" ... %"GST_TIME_FORMAT,
+          GST_TIME_ARGS(play_beg),GST_TIME_ARGS(play_end));
+        self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+            GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+            GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
+            GST_SEEK_TYPE_SET, play_end);
+        self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+            GST_SEEK_FLAG_SEGMENT,
+            GST_SEEK_TYPE_SET, play_beg,
+            GST_SEEK_TYPE_SET, play_end);
+      }
+      else {
+        GstClockTime play_end=gst_util_uint64_scale_int(GST_SECOND,play_length,play_rate);
+        
+        GST_WARNING("prepare for no loop play: 0 ... %"GST_TIME_FORMAT,GST_TIME_ARGS(play_end));
+        self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+            GST_SEEK_FLAG_FLUSH,
+            GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
+            GST_SEEK_TYPE_SET, play_end);
+        self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+            GST_SEEK_FLAG_NONE,
+            GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
+            GST_SEEK_TYPE_SET, play_end);
+      }
+
+      // update playback position 20 times a second
+      self->priv->preview_update_id=g_timeout_add(50,on_preview_playback_update,(gpointer)self);
+
       // set playing
       gst_element_set_state(self->priv->preview,GST_STATE_PLAYING);
       g_object_unref(wavelevel);
@@ -759,7 +839,7 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
 static void on_wavetable_toolbar_stop_clicked(GtkToolButton *button, gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
 
-  gst_element_set_state(self->priv->preview,GST_STATE_READY);
+  preview_stop(self);
 }
 
 static void on_wavetable_toolbar_clear_clicked(GtkToolButton *button, gpointer user_data) {
@@ -803,7 +883,7 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     
     if((wave=waves_list_get_current(self))) {
       if(wave==self->priv->play_wave) {
-        gst_element_set_state(self->priv->preview,GST_STATE_READY);
+        preview_stop(self);
       }
       g_object_unref(wave);
       wave=NULL;
@@ -1147,19 +1227,23 @@ static void bt_main_page_waves_dispose(GObject *object) {
   // shut down loader-preview playbin
   gst_element_set_state(self->priv->playbin,GST_STATE_NULL);
   bus=gst_element_get_bus(GST_ELEMENT(self->priv->playbin));
-  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_playbin_state_changed,(gpointer)self);
+  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
   gst_bus_remove_signal_watch(bus);
   gst_object_unref(bus);
   gst_object_unref(self->priv->playbin);
   
   // shut down wavetable-preview playbin
   if(self->priv->preview) {
-    gst_element_set_state(self->priv->preview,GST_STATE_NULL);
+    preview_stop(self);
     bus=gst_element_get_bus(GST_ELEMENT(self->priv->preview));
-    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_preview_state_changed,(gpointer)self);
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
     gst_bus_remove_signal_watch(bus);
     gst_object_unref(bus); 
     gst_object_unref(self->priv->preview);
+
+    if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
+    if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
+    gst_query_unref(self->priv->position_query);
   }
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
