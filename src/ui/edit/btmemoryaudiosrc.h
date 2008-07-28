@@ -70,6 +70,7 @@ struct _BtMemoryAudioSrc {
   gint64 n_samples_stop;
   gboolean check_seek_stop;
   gboolean eos_reached;
+  gdouble rate;
   gint generate_samples_per_buffer;	/* used to generate a partial buffer */  
 };
 

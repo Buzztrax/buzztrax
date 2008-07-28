@@ -26,8 +26,7 @@
  * files. A waveform viewer can show the selected clip.
  */
 /* @todo: need envelop editor and everything for it
- * @todo: add segmented playback for loops
- * - do ping-pong with rate=1.0/-1.0
+ * @todo: update loops
  * - if on_loop_mode_changed(), on_wavelevel_loop_start/end_edited()
  *   for current playing -> update seeks
  */
@@ -73,7 +72,8 @@ struct _BtMainPageWavesPrivate {
   GstElement *playbin;
   /* seek events */
   GstEvent *play_seek_event;
-  GstEvent *loop_seek_event;
+  GstEvent *loop_seek_event[2];
+  gint loop_seek_dir;
   
   /* elements for wavetable preview */
   GstElement *preview, *preview_src;
@@ -366,12 +366,13 @@ static void on_preview_segment_done(GstBus * bus, GstMessage * message, gpointer
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
 
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->preview)) {
-    GST_INFO("received segment_done on the bin, looping");
-    if(!(gst_element_send_event(GST_ELEMENT(self->priv->preview),gst_event_ref(self->priv->loop_seek_event)))) {
+    GST_INFO("received segment_done on the bin, looping %d",self->priv->loop_seek_dir);
+    if(!(gst_element_send_event(GST_ELEMENT(self->priv->preview),gst_event_ref(self->priv->loop_seek_event[self->priv->loop_seek_dir])))) {
       GST_WARNING("element failed to handle continuing play seek event");
       /* if I set state directly to NULL, I don't get inbetween state-change messages */
       gst_element_set_state(self->priv->preview,GST_STATE_READY);
     }
+    self->priv->loop_seek_dir=1-self->priv->loop_seek_dir;
   }
 }
 
@@ -788,19 +789,37 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
 
       // build seek events for looping
       if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
-      if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
+      if(self->priv->loop_seek_event[0]) gst_event_unref(self->priv->loop_seek_event[0]);
+      if(self->priv->loop_seek_event[1]) gst_event_unref(self->priv->loop_seek_event[1]);
       bytes_per_frame=sizeof(gint16)*play_channels;
+      self->priv->loop_seek_dir=0;
       if (loop_mode!=BT_WAVE_LOOP_MODE_OFF) {
         GstClockTime play_beg=gst_util_uint64_scale_int(GST_SECOND,loop_start,play_rate);
         GstClockTime play_end=gst_util_uint64_scale_int(GST_SECOND,loop_end,play_rate);
         
-        GST_WARNING("prepare for loop play: %"GST_TIME_FORMAT" ... %"GST_TIME_FORMAT,
-          GST_TIME_ARGS(play_beg),GST_TIME_ARGS(play_end));
         self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
             GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
             GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
             GST_SEEK_TYPE_SET, play_end);
-        self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        if(loop_mode==BT_WAVE_LOOP_MODE_FORWARD) {
+          GST_WARNING("prepare for forward loop play: %"GST_TIME_FORMAT" ... %"GST_TIME_FORMAT,
+            GST_TIME_ARGS(play_beg),GST_TIME_ARGS(play_end));
+  
+          self->priv->loop_seek_event[0] = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+              GST_SEEK_FLAG_SEGMENT,
+              GST_SEEK_TYPE_SET, play_beg,
+              GST_SEEK_TYPE_SET, play_end);
+        }
+        else {
+          GST_WARNING("prepare for pingpong loop play: %"GST_TIME_FORMAT" ... %"GST_TIME_FORMAT,
+            GST_TIME_ARGS(play_beg),GST_TIME_ARGS(play_end));
+
+          self->priv->loop_seek_event[0] = gst_event_new_seek(-1.0, GST_FORMAT_TIME,
+             GST_SEEK_FLAG_SEGMENT,
+             GST_SEEK_TYPE_SET, play_beg,
+             GST_SEEK_TYPE_SET, play_end);
+        }
+        self->priv->loop_seek_event[1] = gst_event_new_seek(1.0, GST_FORMAT_TIME,
             GST_SEEK_FLAG_SEGMENT,
             GST_SEEK_TYPE_SET, play_beg,
             GST_SEEK_TYPE_SET, play_end);
@@ -813,10 +832,11 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
             GST_SEEK_FLAG_FLUSH,
             GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
             GST_SEEK_TYPE_SET, play_end);
-        self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        self->priv->loop_seek_event[0] = gst_event_new_seek(1.0, GST_FORMAT_TIME,
             GST_SEEK_FLAG_NONE,
             GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
             GST_SEEK_TYPE_SET, play_end);
+        self->priv->loop_seek_event[1] = NULL;
       }
 
       // update playback position 20 times a second
@@ -1242,7 +1262,8 @@ static void bt_main_page_waves_dispose(GObject *object) {
     gst_object_unref(self->priv->preview);
 
     if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
-    if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
+    if(self->priv->loop_seek_event[0]) gst_event_unref(self->priv->loop_seek_event[0]);
+    if(self->priv->loop_seek_event[1]) gst_event_unref(self->priv->loop_seek_event[1]);
     gst_query_unref(self->priv->position_query);
   }
 

@@ -21,8 +21,16 @@
 /**
  * SECTION:element-memoryaudiosrc
  *
- * Play samples from memory
+ * Play samples from memory. Supports interleaved multi-channels audio.
  */
+/* seeking
+                              forward    backward
+   start =  0     
+loop_beg =  3       n_samples=3          =15-7= 8
+loop_end =  7  n_samples_stop=7          =15-3=12
+  length = 15
+*/
+
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -256,29 +264,40 @@ bt_memory_audio_src_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
   BtMemoryAudioSrc *src = BT_MEMORY_AUDIO_SRC (basesrc);
   GstClockTime time;
 
-  segment->time = segment->start;
+  src->rate = segment->rate;
+  
+  GST_INFO("rates : %lf %lf %lf",segment->rate, segment->abs_rate, segment->applied_rate);
+  
   time = segment->last_stop;
-
   /* now move to the time indicated */
   src->n_samples =
       gst_util_uint64_scale_int (time, src->samplerate, GST_SECOND);
-  src->running_time =
-      gst_util_uint64_scale_int (src->n_samples, GST_SECOND, src->samplerate);
 
-  g_assert (src->running_time <= time);
-
-  if (GST_CLOCK_TIME_IS_VALID (segment->stop)) {
-    time = segment->stop;
-    src->n_samples_stop = gst_util_uint64_scale_int (time, src->samplerate,
-        GST_SECOND);
-    src->check_seek_stop = TRUE;
-  } else {
-    if (src->length) {
+  if(src->rate>0.0) {
+    segment->time = segment->start;
+    src->running_time =
+        gst_util_uint64_scale_int (src->n_samples, GST_SECOND, src->samplerate);
+  
+    g_assert (src->running_time <= time);
+  
+    if (GST_CLOCK_TIME_IS_VALID (segment->stop)) {
+      time = segment->stop;
+      src->n_samples_stop = gst_util_uint64_scale_int (time, src->samplerate,
+          GST_SECOND);
+    } else {
       src->n_samples_stop = src->length;
-      src->check_seek_stop = TRUE;
     }
-    else {
-      src->check_seek_stop = FALSE;
+  }
+  else {
+    segment->time = segment->stop;
+    src->n_samples = src->length - src->n_samples;
+
+    if (GST_CLOCK_TIME_IS_VALID (segment->start)) {
+      time = segment->start;
+      src->n_samples_stop = src->length - gst_util_uint64_scale_int (time, src->samplerate,
+          GST_SECOND);
+    } else {
+      src->n_samples_stop = src->length;
     }
   }
   src->eos_reached = FALSE;
@@ -306,8 +325,7 @@ bt_memory_audio_src_create (GstBaseSrc * basesrc, guint64 offset,
     return GST_FLOW_UNEXPECTED;
 
   /* check for eos */
-  if (src->check_seek_stop &&
-      (src->n_samples_stop > src->n_samples) &&
+  if ((src->n_samples_stop > src->n_samples) &&
       (src->n_samples_stop < src->n_samples + src->samples_per_buffer)
       ) {
     /* calculate only partial buffer */
@@ -323,7 +341,28 @@ bt_memory_audio_src_create (GstBaseSrc * basesrc, guint64 offset,
       (guint64) src->samplerate);
   
   buf = gst_buffer_new ();
- 
+  
+  if(src->rate>0.0) {
+    GST_BUFFER_DATA(buf) = (gpointer)&src->data[src->n_samples * src->channels];
+    GST_BUFFER_TIMESTAMP (buf) = src->running_time;
+    GST_BUFFER_OFFSET (buf) = src->n_samples;
+    GST_BUFFER_OFFSET_END (buf) = n_samples;
+  }
+  else {
+    GstClockTime end_time = gst_util_uint64_scale (src->length, GST_SECOND,
+        (guint64) src->samplerate);
+
+    GST_BUFFER_DATA(buf) = (gpointer)&src->data[(src->length - src->n_samples) * src->channels];
+    GST_BUFFER_TIMESTAMP (buf) = end_time - src->running_time;
+    GST_BUFFER_OFFSET (buf) = src->length - src->n_samples;
+    GST_BUFFER_OFFSET_END (buf) = src->length - n_samples;
+    
+  }
+  GST_BUFFER_DURATION (buf) = next_time - src->running_time;
+  GST_BUFFER_SIZE (buf) =  src->generate_samples_per_buffer * (src->width/8);
+  GST_BUFFER_FLAGS (buf) = GST_BUFFER_FLAG_READONLY;
+
+/*
   GST_BUFFER_DATA(buf) = (gpointer)&src->data[src->n_samples * src->channels];
   GST_BUFFER_SIZE (buf) =  src->generate_samples_per_buffer * (src->width/8);
   GST_BUFFER_TIMESTAMP (buf) = src->running_time;
@@ -331,6 +370,7 @@ bt_memory_audio_src_create (GstBaseSrc * basesrc, guint64 offset,
   GST_BUFFER_OFFSET_END (buf) = n_samples;
   GST_BUFFER_DURATION (buf) = next_time - src->running_time;
   GST_BUFFER_FLAGS (buf) = GST_BUFFER_FLAG_READONLY;
+*/
 
   GST_LOG("play from ts %"GST_TIME_FORMAT
     " with duration %"GST_TIME_FORMAT", size %u, and data %p",
@@ -388,8 +428,6 @@ bt_memory_audio_src_set_property (GObject * object, guint prop_id,
       break;
     case PROP_LENGTH:
       src->length = g_value_get_ulong(value);
-      src->n_samples_stop = src->length;
-      src->check_seek_stop = TRUE;
       break;
     case PROP_SAMPLES_PER_BUFFER:
       src->samples_per_buffer = g_value_get_int (value);
