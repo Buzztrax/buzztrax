@@ -60,10 +60,8 @@ enum {
   WAVE_NAME,
   WAVE_URI,
   WAVE_VOLUME,
-  WAVE_LOOP_MODE // OFF, FORWARD, PINGPONG
-  /*
-  WAVE_CHANNELS // move from wavelevel?
-   */
+  WAVE_LOOP_MODE, // OFF, FORWARD, PINGPONG
+  WAVE_CHANNELS
 };
 
 struct _BtWavePrivate {
@@ -81,6 +79,7 @@ struct _BtWavePrivate {
   /* wave properties common to all wavelevels */
   gdouble volume;
   BtWaveLoopMode loop_mode;
+  guint channels; /* number of channels (1,2) */
 
   GList *wavelevels;    // each entry points to a BtWavelevel
   
@@ -176,12 +175,14 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
         ssize_t bytes;
         
         bytes=read(self->priv->fd,data,buf.st_size);
+        
+        self->priv->channels=channels;
+        g_object_notify(G_OBJECT(self),"channels");
     
         wavelevel=bt_wavelevel_new(self->priv->song,self,
           BT_WAVELEVEL_DEFAULT_ROOT_NOTE,(gulong)length,
-          -1,-1,
-          rate,channels,
-          (gconstpointer)data);
+          -1,-1, /* loop */
+          rate, (gconstpointer)data);
         g_object_unref(wavelevel);
         /* emit signal so that UI can redraw */
         GST_DEBUG("sample loaded (%ld/%ld bytes)",bytes,buf.st_size);
@@ -321,17 +322,18 @@ Error:
  * @index: the list slot for the new wave
  * @volume: the volume of the wave
  * @loop-mode: loop playback mode
+ * @channels: number of audio channels
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const uri, const gulong index, const gdouble volume, const  BtWaveLoopMode loop_mode) {
+BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const uri, const gulong index, const gdouble volume, const  BtWaveLoopMode loop_mode, const guint channels) {
   BtWavetable *wavetable;
 
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  BtWave * const self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"uri",uri,"index",index,"volume",volume,"loop-mode",loop_mode,NULL));
+  BtWave * const self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"uri",uri,"index",index,"volume",volume,"loop-mode",loop_mode,"channels",channels,NULL));
   if(!self) {
     goto Error;
   }
@@ -571,6 +573,9 @@ static void bt_wave_get_property(GObject      * const object,
     case WAVE_LOOP_MODE: {
       g_value_set_enum(value, self->priv->loop_mode);
     } break;    
+    case WAVE_CHANNELS: {
+      g_value_set_uint(value, self->priv->channels);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -612,6 +617,10 @@ static void bt_wave_set_property(GObject      * const object,
     case WAVE_LOOP_MODE: {
       self->priv->loop_mode = g_value_get_enum(value);
     } break;    
+    case WAVE_CHANNELS: {
+      self->priv->channels = g_value_get_uint(value);
+      GST_DEBUG("set the channels for wave: %d",self->priv->channels);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -760,6 +769,15 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
                                      "mode of loop playback",
                                      BT_TYPE_WAVE_LOOP_MODE,  /* enum type */
                                      BT_WAVE_LOOP_MODE_OFF, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,WAVE_CHANNELS,
+                                  g_param_spec_uint("channels",
+                                     "channels prop",
+                                     "number of channels in the sample",
+                                     0,
+                                     2,
+                                     0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 

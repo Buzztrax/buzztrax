@@ -1,3 +1,13 @@
+2008-07-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/wave-methods.h:
+	* src/lib/core/libbtcore/wavelevel-methods.h:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/ui/edit/main-page-waves.c:
+	  Refactor channels attribute to wave class. Also remove from list in ui
+	  as we can see it in the waveform view.
+
 2008-07-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/btmemoryaudiosrc.c:

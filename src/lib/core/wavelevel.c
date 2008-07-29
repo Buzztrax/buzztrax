@@ -39,7 +39,6 @@ enum {
   WAVELEVEL_LOOP_START,
   WAVELEVEL_LOOP_END,
   WAVELEVEL_RATE,
-  WAVELEVEL_CHANNELS, /* should we move that to wave ? */
   WAVELEVEL_DATA
 };
 
@@ -61,8 +60,6 @@ struct _BtWavelevelPrivate {
   glong loop_start,loop_end;
   /* the sampling rate */
   gulong rate;
-  /* the channels (1,2) */
-  guint channels;
 
   // data format
 
@@ -82,21 +79,19 @@ static GObjectClass *parent_class=NULL;
  * @loop_start: the start of the loop
  * @loop_end: the end of the loop
  * @rate: the sampling rate
- * @channels: the number of channels
  * @sample: the sample data
  *
  * Create a new instance
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate, const guint channels, gconstpointer sample) {
+BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate, gconstpointer sample) {
   g_assert(BT_IS_SONG(song));
   g_assert(BT_IS_WAVE(wave));
 
   BtWavelevel * const self=BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,"song",song,
 						     "root-note",root_note,"length",length,"loop_start",loop_start,
-						     "loop_end",loop_end,"rate",rate,"channels",channels,
-                             "data",sample,NULL));
+						     "loop_end",loop_end,"rate",rate,"data",sample,NULL));
 
   if(!self) {
     goto Error;
@@ -203,9 +198,6 @@ static void bt_wavelevel_get_property(GObject      * const object,
     case WAVELEVEL_RATE: {
       g_value_set_ulong(value, self->priv->rate);
     } break;
-    case WAVELEVEL_CHANNELS: {
-      g_value_set_uint(value, self->priv->channels);
-    } break;
     case WAVELEVEL_DATA: {
       g_value_set_pointer(value, self->priv->sample);
     } break;
@@ -276,10 +268,6 @@ static void bt_wavelevel_set_property(GObject      * const object,
     case WAVELEVEL_RATE: {
       self->priv->rate = g_value_get_ulong(value);
       GST_DEBUG("set the rate for wavelevel: %d",self->priv->rate);
-    } break;
-    case WAVELEVEL_CHANNELS: {
-      self->priv->channels = g_value_get_uint(value);
-      GST_DEBUG("set the channels for wavelevel: %d",self->priv->channels);
     } break;
     case WAVELEVEL_DATA: {
       g_free(self->priv->sample);
@@ -387,15 +375,6 @@ static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
                                      "sampling rate of the sample",
                                      0,
                                      G_MAXULONG,
-                                     0,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property(gobject_class,WAVELEVEL_CHANNELS,
-                                  g_param_spec_uint("channels",
-                                     "channels prop",
-                                     "number of channels in the sample",
-                                     0,
-                                     2,
                                      0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 

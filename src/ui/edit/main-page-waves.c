@@ -99,7 +99,6 @@ enum {
   WAVELEVEL_TABLE_ROOT_NOTE,
   WAVELEVEL_TABLE_LENGTH,
   WAVELEVEL_TABLE_RATE,
-  WAVELEVEL_TABLE_CHANNELS,
   WAVELEVEL_TABLE_LOOP_START,
   WAVELEVEL_TABLE_LOOP_END,
   WAVELEVEL_TABLE_CT
@@ -219,13 +218,12 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
 
   GST_INFO("refresh wavelevels list: self=%p, wave=%p",self,wave);
 
-  store=gtk_list_store_new(WAVELEVEL_TABLE_CT,G_TYPE_ULONG,G_TYPE_STRING,G_TYPE_ULONG,G_TYPE_ULONG,G_TYPE_UINT,G_TYPE_LONG,G_TYPE_LONG);
+  store=gtk_list_store_new(WAVELEVEL_TABLE_CT,G_TYPE_ULONG,G_TYPE_STRING,G_TYPE_ULONG,G_TYPE_ULONG,G_TYPE_LONG,G_TYPE_LONG);
 
   if(wave) {
     BtWavelevel *wavelevel;
     GList *node,*list;
     guchar root_note;
-    guint channels;
     gulong length,rate;
     glong loop_start,loop_end;
     gulong i=0;
@@ -239,7 +237,6 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
         "length",&length,
         "loop-start",&loop_start,
         "loop-end",&loop_end,
-        "channels",&channels,
         "rate",&rate,
         NULL);
       gtk_list_store_append(store, &tree_iter);
@@ -248,7 +245,6 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
         WAVELEVEL_TABLE_ROOT_NOTE,gst_note_2_frequency_note_number_2_string(root_note),
         WAVELEVEL_TABLE_LENGTH,length,
         WAVELEVEL_TABLE_RATE,rate,
-        WAVELEVEL_TABLE_CHANNELS,channels,
         WAVELEVEL_TABLE_LOOP_START,loop_start,
         WAVELEVEL_TABLE_LOOP_END,loop_end,
         -1);
@@ -575,10 +571,11 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
       gulong length;
       glong loop_start, loop_end;
   
-      g_object_get(G_OBJECT(wavelevel),"length",&length,"channels",&channels,"data",&data,"loop-start", &loop_start, "loop-end", &loop_end, NULL);  
+      g_object_get(G_OBJECT(wave),"channels",&channels,NULL);
+      g_object_get(G_OBJECT(wavelevel),"length",&length,"data",&data,"loop-start", &loop_start,"loop-end",&loop_end,NULL);  
       bt_waveform_viewer_set_wave(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer),data,channels,length);
       
-      g_object_set(G_OBJECT(self->priv->waveform_viewer), "loop-begin", (int64_t)loop_start, "loop-end", (int64_t)loop_end, NULL);
+      g_object_set(G_OBJECT(self->priv->waveform_viewer),"loop-begin",(int64_t)loop_start,"loop-end",(int64_t)loop_end,NULL);
       g_object_unref(wavelevel);
       drawn=TRUE;
     }
@@ -763,12 +760,14 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
       }
       
       // get parameters
-      g_object_get(wave,"loop-mode",&loop_mode,NULL);
-      g_object_get(G_OBJECT(wavelevel),
+      g_object_get(wave,
+        "loop-mode",&loop_mode,
+        "channels",&play_channels,
+        NULL);
+      g_object_get(wavelevel,
         "length",&play_length,
         "loop-start",&loop_start,
         "loop-end",&loop_end,
-        "channels",&play_channels,
         "rate",&play_rate,
         "data",&play_data,
         NULL);
@@ -919,7 +918,7 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     name=g_path_get_basename(tmp_name);
     if((ext=strrchr(name,'.'))) *ext='\0';
     g_free(tmp_name);
-    wave=bt_wave_new(song,name,uri,id,1.0,BT_WAVE_LOOP_MODE_OFF);
+    wave=bt_wave_new(song,name,uri,id,1.0,BT_WAVE_LOOP_MODE_OFF,0);
     // @idea: listen to status property on wave for loader updates
     
     // listen to wave::loaded signal and refresh the wave list on success
@@ -1120,8 +1119,6 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Rate"),renderer,"text",WAVELEVEL_TABLE_RATE,NULL);
   g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_rate_edited),(gpointer)self);
-  renderer=gtk_cell_renderer_text_new();
-  gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Channels"),renderer,"text",WAVELEVEL_TABLE_CHANNELS,NULL);
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Loop start"),renderer,"text",WAVELEVEL_TABLE_LOOP_START,NULL);
