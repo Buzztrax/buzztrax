@@ -1,5 +1,11 @@
 2008-07-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gst/seek1.c:
+	* design/gst/seek3.c:
+	  Fix one test code and start a new one.
+
+2008-07-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbtcore/wave-methods.h:
 	* src/lib/core/libbtcore/wavelevel-methods.h:
 	* src/lib/core/wave.c:

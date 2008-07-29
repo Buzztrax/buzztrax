@@ -1,6 +1,6 @@
 /** $Id$
  *
- * Build a pipeline with testaudiosource->alsasink
+ * Build a pipeline with audiotestsource->alsasink
  * and sweep frequency and volume
  * Use seeks to play partially or as a loop
  *
@@ -230,7 +230,6 @@ main (gint argc, gchar ** argv)
 Error:
   // cleanup
   g_object_unref (G_OBJECT (ctrl));
-  gst_object_unref (GST_OBJECT (clock));
   gst_object_unref (GST_OBJECT (bin));
   return (res);
 }
