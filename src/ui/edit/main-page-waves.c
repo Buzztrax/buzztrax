@@ -29,6 +29,7 @@
  * @todo: update loops
  * - if on_loop_mode_changed(), on_wavelevel_loop_start/end_edited()
  *   for current playing -> update seeks
+ * @todo: use rate for playing waves, when base_note has changed
  */
 
 #define BT_EDIT

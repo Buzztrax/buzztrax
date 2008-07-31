@@ -1,3 +1,11 @@
+2008-07-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/buzztard.xml.in:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-window.c:
+	  Fix share mime recognition file. Work around
+	  http://bugzilla.gnome.org/show_bug.cgi?id=541236
+
 2008-07-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/seek1.c:

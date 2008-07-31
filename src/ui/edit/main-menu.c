@@ -565,6 +565,8 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
         ix++;
       }
     }
+    /* workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236 */
+    gtk_recent_filter_add_pattern(filter,"*.xml");
     gtk_recent_chooser_add_filter(GTK_RECENT_CHOOSER(item),filter);
     gtk_recent_chooser_set_filter(GTK_RECENT_CHOOSER(item),filter);
   }
