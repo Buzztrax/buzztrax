@@ -82,6 +82,7 @@ songdata_DATA = \
 	songs/broken1.xml \
 	songs/broken2.xml \
 	songs/broken3.xml \
+	songs/broken4.xml \
 	songs/buzz1.xml \
 	songs/buzz2.xml \
 	songs/buzz3.xml \

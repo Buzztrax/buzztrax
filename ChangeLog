@@ -1,5 +1,21 @@
 2008-07-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Gather news.
+
+	* design/gst/seek3.c:
+	  Test for trickmode playback.
+	  
+	* src/lib/core/wave.c:
+	* src/ui/edit/main-page-waves.c:
+	  Ideas.
+
+	* tests/Makefile.am:
+	* tests/songs/broken4.xml:
+	  Add one more file for file type testing.
+
+2008-07-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/buzztard.xml.in:
 	* src/ui/edit/main-menu.c:
 	* src/ui/edit/main-window.c:

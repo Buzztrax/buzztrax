@@ -37,6 +37,12 @@
  *       there
  * - all recording features need some error handling when saving to plain xml
  *   song (no waves included)
+ * @todo: bpm support
+ * - listen for tags when loading and show BPM for waves if we have it
+ * -if we don't have bpm, but have the bpm detect plugin, offer detection in
+ *   context menu
+ * - if we have bpm and its different from song-bpm offer adjust in the contect
+ *   menu to change base_notes to match it
  */
 #define BT_CORE
 #define BT_WAVE_C

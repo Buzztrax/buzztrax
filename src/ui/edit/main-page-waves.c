@@ -296,6 +296,41 @@ static void preview_stop(const BtMainPageWaves *self) {
   self->priv->play_wave=NULL;
 }
 
+#if 0
+static void preview_update_seeks(const BtMainPageWaves *self) {
+  if(self->priv->play_wave) {
+    GstEvent *old_event0,*new_event0;
+    GstEvent *old_event1,*new_event1;
+    
+    old_event0=self->priv->loop_seek_event[0];
+    old_event1=self->priv->loop_seek_event[1];
+    /* new events */
+    if(loop_mode==BT_WAVE_LOOP_MODE_FORWARD) {
+      new_event0=gst_event_new_seek(1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_SEGMENT,
+          GST_SEEK_TYPE_SET, play_beg,
+          GST_SEEK_TYPE_SET, play_end);
+    }
+    else {
+      new_event0=gst_event_new_seek(-1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_SEGMENT,
+          GST_SEEK_TYPE_SET, play_beg,
+          GST_SEEK_TYPE_SET, play_end);
+    }
+    new_event1=gst_event_new_seek(1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_TYPE_SET, play_beg,
+        GST_SEEK_TYPE_SET, play_end);
+    /* swap and replace */
+    if(old_event0) {
+      g_atomic_pointer_compare_and_exchange(&self->priv->loop_seek_event[0],old_event0,new_event0);
+      gst_event_unref(old_event0);
+    }
+    if(old_event1) {
+      g_atomic_pointer_compare_and_exchange(&self->priv->loop_seek_event[1],old_event1,new_event1);
+      gst_event_unref(old_event1);
+    }
+  }
+}
+#endif
+
 //-- event handler
 
 static void on_playbin_state_changed(GstBus * bus, GstMessage * message, gpointer user_data) {

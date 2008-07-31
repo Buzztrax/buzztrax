@@ -1,8 +1,10 @@
 2008/08 ========================================================================
 
-* wavetable view : loop start/end, notes
+* wavetable view : loop start/end, notes, forward and ping-pong loops
 * refactoring : merge duplicated note conversion code
 * refactoring : better sample io plugin api
+
+[1] http://bugzilla.gnome.org/show_bug.cgi?id=541236
 
 2008/07 ========================================================================
 
