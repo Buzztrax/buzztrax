@@ -206,6 +206,7 @@ main (gint argc, gchar ** argv)
 Error:
   // cleanup
   g_object_unref (G_OBJECT (ctrl));
+  gst_clock_id_unref (clock_id);
   gst_object_unref (GST_OBJECT (clock));
   gst_object_unref (GST_OBJECT (bin));
   return (res);

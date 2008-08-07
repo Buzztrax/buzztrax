@@ -88,6 +88,10 @@ event_loop (GstElement * bin)
 static gboolean
 seek_back (GstElement * bin)
 {
+  GstEvent *event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+      GST_SEEK_FLAG_FLUSH|GST_SEEK_FLAG_SEGMENT,
+      GST_SEEK_TYPE_SET, (GstClockTime)0 * GST_SECOND,
+      GST_SEEK_TYPE_SET, (GstClockTime)5 * GST_SECOND);
 #if 0 /* needs flush, otherwise the two source get slighly off */
   GstEvent *event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
       GST_SEEK_FLAG_SEGMENT,

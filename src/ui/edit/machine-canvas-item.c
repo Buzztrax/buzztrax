@@ -46,9 +46,11 @@
  *       one filled o on top of 4 hollow o's
  *   - use transparency for mute/bypass, solo would switch all other sources to
  *     muted, can't differenciate mute from bypass on an fx
- */
-/* @todo: add alpha channel to pixbuf, when moving
+ *
+ * @todo: add alpha channel to pixbuf, when moving
  * - gdk_pixbuf_add_alpha(), see put_pixel() example in GdkPixbuf docs
+ *
+ * @todo: add insert before/after to context menu (see wire-canvas icon)
  */
 
 #define BT_EDIT

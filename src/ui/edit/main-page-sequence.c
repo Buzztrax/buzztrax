@@ -124,7 +124,9 @@ struct _BtMainPageSequencePrivate {
   /* shortcut table */
   const char *pattern_keys;
 
+  /* vumeter data */
   GHashTable *level_to_vumeter;
+  GstClock *clock;
 
   /* step filtering */
   gulong list_length;     /* number of [dummy] rows contained in the model */
@@ -664,34 +666,67 @@ static void on_machine_state_changed_bypass(BtMachine *machine,GParamSpec *arg,g
   gtk_toggle_button_set_active(button,(state==BT_MACHINE_STATE_BYPASS));
 }
 
+static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
+  gconstpointer * const params=(gconstpointer *)user_data;
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(params[0]);
+  GstMessage *message=(GstMessage *)params[1];
+  GtkVUMeter *vumeter;
+  
+  if(!GST_CLOCK_TIME_IS_VALID(time))
+    goto done;
+  
+  if((vumeter=g_hash_table_lookup(self->priv->level_to_vumeter,GST_MESSAGE_SRC(message)))) {
+    const GstStructure *structure=gst_message_get_structure(message);
+    const GValue *l_cur,*l_peak;
+    gdouble cur=0.0, peak=0.0;
+    guint i,size;
+
+    //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
+    l_cur=(GValue *)gst_structure_get_value(structure, "peak");
+    //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+    l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+    size=gst_value_list_get_size(l_cur);
+    for(i=0;i<size;i++) {
+      cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
+      peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+    }
+    if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
+    else cur/=size;
+    if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
+    else peak/=size;  
+
+    //gtk_vumeter_set_levels(vumeter, (gint)cur, (gint)peak);
+    gtk_vumeter_set_levels(vumeter, (gint)peak, (gint)cur);
+  }
+done:
+  gst_message_unref(message);
+  g_free(params);
+  return(TRUE);
+}
+
 static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
 
   if(!strcmp(name,"level")) {
     BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-    GtkVUMeter *vumeter;
+    GstClockTime endtime;
 
-    if((vumeter=g_hash_table_lookup(self->priv->level_to_vumeter,GST_MESSAGE_SRC(message)))) {
-      const GValue *l_cur,*l_peak;
-      gdouble cur=0.0, peak=0.0;
-      guint i,size;
+    if(gst_structure_get_clock_time (structure, "endtime", &endtime)) {
+      GstClockID clock_id;
+      GstClockTime basetime=gst_element_get_base_time(GST_ELEMENT(GST_MESSAGE_SRC(message)));
+      //GstClockTime curtime=gst_clock_get_time(self->priv->clock)-basetime;
+      gconstpointer *params=g_new(gconstpointer,2);
 
-      //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
-      l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-      //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-      l_peak=(GValue *)gst_structure_get_value(structure, "decay");
-      size=gst_value_list_get_size(l_cur);
-      for(i=0;i<size;i++) {
-        cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
-        peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
-      }
-      if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
-      else cur/=size;
-      if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-      else peak/=size;
-      //gtk_vumeter_set_levels(vumeter, (gint)cur, (gint)peak);
-      gtk_vumeter_set_levels(vumeter, (gint)peak, (gint)cur);
+      // this only work for the first loop :/      
+      //GST_WARNING("base %"GST_TIME_FORMAT" target %"GST_TIME_FORMAT,
+      //  GST_TIME_ARGS(basetime),GST_TIME_ARGS(endtime));
+    
+      params[0]=(gpointer)self;
+      params[1]=(gpointer)gst_message_copy(message);
+      clock_id=gst_clock_new_single_shot_id(self->priv->clock,basetime+endtime);
+      gst_clock_id_wait_async(clock_id,on_delayed_song_level_change,(gpointer)params);
+      gst_clock_id_unref(clock_id);
     }
   }
 }
@@ -2483,6 +2518,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   self->priv->list_length=self->priv->row_filter_pos=sequence_length;
 
   if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
+  if(self->priv->clock) gst_object_unref(self->priv->clock);
   self->priv->level_to_vumeter=g_hash_table_new_full(NULL,NULL,(GDestroyNotify)gst_object_unref,NULL);
 
   // update page
@@ -2508,6 +2544,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   bus=gst_element_get_bus(GST_ELEMENT(bin));
   g_signal_connect(bus, "message::element", G_CALLBACK(on_song_level_change), (gpointer)self);
   gst_object_unref(bus);
+#if 1
+  self->priv->clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
+#endif
 
   // subscribe to play-pos changes of song->sequence
   g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
@@ -3031,6 +3070,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   g_object_try_unref(self->priv->accel_group);
 
   g_hash_table_destroy(self->priv->level_to_vumeter);
+  gst_object_unref(self->priv->clock);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

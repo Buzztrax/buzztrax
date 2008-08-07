@@ -417,6 +417,7 @@ int main(int argc, char **argv) {
   gst_element_set_state (bin, GST_STATE_NULL);
 
   /* we don't need a reference to these objects anymore */
+  gst_clock_id_unref (clock_id);
   gst_object_unref (GST_OBJECT (bus));
   gst_object_unref (GST_OBJECT (clock));
   gst_object_unref (GST_OBJECT (bin));

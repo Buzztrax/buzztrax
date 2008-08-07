@@ -320,6 +320,25 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
     l_cur=(GValue *)gst_structure_get_value(structure, "peak");
     //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
     l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+    
+    /*
+    GstClockTime endtime;
+
+    if(gst_structure_get_clock_time (structure, "endtime", &endtime)) {
+      GstElement *bin;
+      GstClock *clock;
+      GstClockID clock_id;
+    
+      g_object_get(G_OBJECT(self->priv->app),"bin",&bin,NULL);
+      clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
+      clock_id=gst_clock_new_single_shot_id(clock,endtime); 
+      gst_clock_id_wait(clock_id,NULL);
+      gst_clock_id_unref(clock_id);
+      gst_object_unref(clock);
+      gst_object_unref(bin);
+    }
+    */
+    
     for(i=0;i<gst_value_list_get_size(l_cur);i++) {
       cur=g_value_get_double(gst_value_list_get_value(l_cur,i));
       peak=g_value_get_double(gst_value_list_get_value(l_peak,i));

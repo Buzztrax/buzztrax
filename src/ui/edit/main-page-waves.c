@@ -79,6 +79,8 @@ struct _BtMainPageWavesPrivate {
   /* elements for wavetable preview */
   GstElement *preview, *preview_src;
   BtWave *play_wave;
+  BtWavelevel *play_wavelevel;
+  GstNote2Frequency *n2f;
 
   /* the query is used in update_playback_position */
   GstQuery *position_query;
@@ -294,42 +296,111 @@ static void preview_stop(const BtMainPageWaves *self) {
   /* if I set state directly to NULL, I don't get inbetween state-change messages */
   gst_element_set_state(self->priv->preview,GST_STATE_READY);
   self->priv->play_wave=NULL;
+  self->priv->play_wavelevel=NULL;
 }
 
-#if 0
 static void preview_update_seeks(const BtMainPageWaves *self) {
   if(self->priv->play_wave) {
-    GstEvent *old_event0,*new_event0;
-    GstEvent *old_event1,*new_event1;
+    GstEvent *old_play_event,*new_play_event;
+    GstEvent *old_loop_event0,*new_loop_event0;
+    GstEvent *old_loop_event1,*new_loop_event1;
+    BtWaveLoopMode loop_mode;
+    glong loop_start,loop_end;
+    gulong length, srate;
+    guchar root_note;
+    gdouble prate;
+
+    /* get parameters */
+    g_object_get(self->priv->play_wave,
+      "loop-mode",&loop_mode,
+      NULL);
+    g_object_get(self->priv->play_wavelevel,
+      "root-note",&root_note,
+      "length",&length,
+      "loop-start",&loop_start,
+      "loop-end",&loop_end,
+      "rate",&srate,
+      NULL);
     
-    old_event0=self->priv->loop_seek_event[0];
-    old_event1=self->priv->loop_seek_event[1];
+    /* calculate pitch rate from root-note */
+    prate=gst_note_2_frequency_translate_from_number(self->priv->n2f,root_note)/
+      gst_note_2_frequency_translate_from_number(self->priv->n2f,BT_WAVELEVEL_DEFAULT_ROOT_NOTE);
+    
+    old_play_event =self->priv->play_seek_event;
+    old_loop_event0=self->priv->loop_seek_event[0];
+    old_loop_event1=self->priv->loop_seek_event[1];
     /* new events */
-    if(loop_mode==BT_WAVE_LOOP_MODE_FORWARD) {
-      new_event0=gst_event_new_seek(1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_SEGMENT,
+    if (loop_mode!=BT_WAVE_LOOP_MODE_OFF) {
+      GstClockTime play_beg=gst_util_uint64_scale_int(GST_SECOND,loop_start,srate);
+      GstClockTime play_end=gst_util_uint64_scale_int(GST_SECOND,loop_end,srate);
+
+      new_play_event = gst_event_new_seek(prate, GST_FORMAT_TIME,
+          GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+          GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
+          GST_SEEK_TYPE_SET, play_end);
+      if(loop_mode==BT_WAVE_LOOP_MODE_FORWARD) {
+        GST_DEBUG("prepare for forward loop play: %"GST_TIME_FORMAT" ... %"GST_TIME_FORMAT,
+            GST_TIME_ARGS(play_beg),GST_TIME_ARGS(play_end));
+
+        new_loop_event0=gst_event_new_seek(prate, GST_FORMAT_TIME, 
+            GST_SEEK_FLAG_SEGMENT,
+            GST_SEEK_TYPE_SET, play_beg,
+            GST_SEEK_TYPE_SET, play_end);
+      }
+      else {
+        GST_DEBUG("prepare for pingpong loop play: %"GST_TIME_FORMAT" ... %"GST_TIME_FORMAT,
+          GST_TIME_ARGS(play_beg),GST_TIME_ARGS(play_end));
+      
+        new_loop_event0=gst_event_new_seek(-1.0*prate, GST_FORMAT_TIME, 
+            GST_SEEK_FLAG_SEGMENT,
+            GST_SEEK_TYPE_SET, play_beg,
+            GST_SEEK_TYPE_SET, play_end);
+      }
+      new_loop_event1=gst_event_new_seek(prate, GST_FORMAT_TIME, 
+          GST_SEEK_FLAG_SEGMENT,
           GST_SEEK_TYPE_SET, play_beg,
           GST_SEEK_TYPE_SET, play_end);
     }
     else {
-      new_event0=gst_event_new_seek(-1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_SEGMENT,
-          GST_SEEK_TYPE_SET, play_beg,
-          GST_SEEK_TYPE_SET, play_end);
+        GstClockTime play_end=gst_util_uint64_scale_int(GST_SECOND,length,srate);
+        
+        GST_DEBUG("prepare for no loop play: 0 ... %"GST_TIME_FORMAT,GST_TIME_ARGS(play_end));
+
+        new_play_event = gst_event_new_seek(prate, GST_FORMAT_TIME,
+            GST_SEEK_FLAG_FLUSH,
+            GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
+            GST_SEEK_TYPE_SET, play_end);
+        new_loop_event0 = gst_event_new_seek(prate, GST_FORMAT_TIME,
+            GST_SEEK_FLAG_NONE,
+            GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
+            GST_SEEK_TYPE_SET, play_end);
+        new_loop_event1 = NULL;      
     }
-    new_event1=gst_event_new_seek(1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, play_beg,
-        GST_SEEK_TYPE_SET, play_end);
+    
     /* swap and replace */
-    if(old_event0) {
-      g_atomic_pointer_compare_and_exchange(&self->priv->loop_seek_event[0],old_event0,new_event0);
-      gst_event_unref(old_event0);
+    if(old_play_event) {
+      g_atomic_pointer_compare_and_exchange((gpointer *)&self->priv->play_seek_event,old_play_event,new_play_event);
+      gst_event_unref(old_play_event);
     }
-    if(old_event1) {
-      g_atomic_pointer_compare_and_exchange(&self->priv->loop_seek_event[1],old_event1,new_event1);
-      gst_event_unref(old_event1);
+    else {
+      self->priv->play_seek_event=new_play_event;
+    }
+    if(old_loop_event0) {
+      g_atomic_pointer_compare_and_exchange((gpointer *)&self->priv->loop_seek_event[0],old_loop_event0,new_loop_event0);
+      gst_event_unref(old_loop_event0);
+    }
+    else {
+      self->priv->loop_seek_event[0]=new_loop_event0;
+    }
+    if(old_loop_event1) {
+      g_atomic_pointer_compare_and_exchange((gpointer *)&self->priv->loop_seek_event[1],old_loop_event1,new_loop_event1);
+      gst_event_unref(old_loop_event1);
+    }
+    else {
+      self->priv->loop_seek_event[1]=new_loop_event1;
     }
   }
 }
-#endif
 
 //-- event handler
 
@@ -465,6 +536,7 @@ static void on_wavelevel_root_note_edited(GtkCellRendererText *cellrenderertext,
     if(root_note) {
       g_object_set(wavelevel,"root-note",root_note,NULL); 
       gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_ROOT_NOTE,gst_note_2_frequency_note_number_2_string(root_note),-1);
+      preview_update_seeks(self);
     }
     g_object_unref(wavelevel);
   }
@@ -479,8 +551,11 @@ static void on_wavelevel_rate_edited(GtkCellRendererText *cellrenderertext,gchar
   if((wavelevel=wavelevels_get_wavelevel_and_set_iter(self,&iter,&store,path_string))) {
     gulong rate=atol(new_text);
 
-    g_object_set(wavelevel,"rate",rate,NULL); 
-    gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_RATE,rate,-1);
+    if(rate) {
+      g_object_set(wavelevel,"rate",rate,NULL); 
+      gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_RATE,rate,-1);
+      preview_update_seeks(self);
+    }
     g_object_unref(wavelevel);
   }
 }
@@ -512,6 +587,7 @@ static void on_wavelevel_loop_start_edited(GtkCellRendererText *cellrenderertext
     if (loop_end != -1)
       loop_end++;
     g_object_set(G_OBJECT(self->priv->waveform_viewer), "loop-begin", (int64_t)loop_start, "loop-end", (int64_t)loop_end, NULL);
+    preview_update_seeks(self);
     g_object_unref(wavelevel);
   }
 }
@@ -541,6 +617,7 @@ static void on_wavelevel_loop_end_edited(GtkCellRendererText *cellrenderertext,g
     if (loop_end != -1)
       loop_end++;
     g_object_set(G_OBJECT(self->priv->waveform_viewer), "loop-begin", (int64_t)loop_start, "loop-end", (int64_t)loop_end, NULL);
+    preview_update_seeks(self);
     g_object_unref(wavelevel);
   }
 }
@@ -651,6 +728,7 @@ static void on_loop_mode_changed(GtkComboBox *menu, gpointer user_data) {
     BtWaveLoopMode loop_mode=gtk_combo_box_get_active(self->priv->loop_mode);
     g_object_set(wave,"loop-mode",loop_mode,NULL);
     g_object_unref(wave);
+    preview_update_seeks(self);
   }
 }
 
@@ -757,9 +835,6 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
 
   if((wave=waves_list_get_current(self))) {
     BtWavelevel *wavelevel;
-    BtWaveLoopMode loop_mode;
-
-    self->priv->play_wave=wave;
 
     // get current wavelevel
     if((wavelevel=wavelevels_list_get_current(self,wave))) {
@@ -767,8 +842,6 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
       gulong play_length, play_rate;
       guint play_channels;
       gint16 *play_data;
-      glong loop_start,loop_end;
-      gulong bytes_per_frame;
 
       // create playback pipeline on demand
       if(!self->priv->preview) {
@@ -797,13 +870,10 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
       
       // get parameters
       g_object_get(wave,
-        "loop-mode",&loop_mode,
         "channels",&play_channels,
         NULL);
       g_object_get(wavelevel,
         "length",&play_length,
-        "loop-start",&loop_start,
-        "loop-end",&loop_end,
         "rate",&play_rate,
         "data",&play_data,
         NULL);
@@ -822,58 +892,12 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
         NULL);
       gst_caps_unref(caps);
 
+      self->priv->play_wave=wave;
+      self->priv->play_wavelevel=wavelevel;
+
       // build seek events for looping
-      if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
-      if(self->priv->loop_seek_event[0]) gst_event_unref(self->priv->loop_seek_event[0]);
-      if(self->priv->loop_seek_event[1]) gst_event_unref(self->priv->loop_seek_event[1]);
-      bytes_per_frame=sizeof(gint16)*play_channels;
-      self->priv->loop_seek_dir=0;
-      if (loop_mode!=BT_WAVE_LOOP_MODE_OFF) {
-        GstClockTime play_beg=gst_util_uint64_scale_int(GST_SECOND,loop_start,play_rate);
-        GstClockTime play_end=gst_util_uint64_scale_int(GST_SECOND,loop_end,play_rate);
-        
-        self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-            GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-            GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
-            GST_SEEK_TYPE_SET, play_end);
-        if(loop_mode==BT_WAVE_LOOP_MODE_FORWARD) {
-          GST_WARNING("prepare for forward loop play: %"GST_TIME_FORMAT" ... %"GST_TIME_FORMAT,
-            GST_TIME_ARGS(play_beg),GST_TIME_ARGS(play_end));
-  
-          self->priv->loop_seek_event[0] = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-              GST_SEEK_FLAG_SEGMENT,
-              GST_SEEK_TYPE_SET, play_beg,
-              GST_SEEK_TYPE_SET, play_end);
-        }
-        else {
-          GST_WARNING("prepare for pingpong loop play: %"GST_TIME_FORMAT" ... %"GST_TIME_FORMAT,
-            GST_TIME_ARGS(play_beg),GST_TIME_ARGS(play_end));
-
-          self->priv->loop_seek_event[0] = gst_event_new_seek(-1.0, GST_FORMAT_TIME,
-             GST_SEEK_FLAG_SEGMENT,
-             GST_SEEK_TYPE_SET, play_beg,
-             GST_SEEK_TYPE_SET, play_end);
-        }
-        self->priv->loop_seek_event[1] = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-            GST_SEEK_FLAG_SEGMENT,
-            GST_SEEK_TYPE_SET, play_beg,
-            GST_SEEK_TYPE_SET, play_end);
-      }
-      else {
-        GstClockTime play_end=gst_util_uint64_scale_int(GST_SECOND,play_length,play_rate);
-        
-        GST_WARNING("prepare for no loop play: 0 ... %"GST_TIME_FORMAT,GST_TIME_ARGS(play_end));
-        self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-            GST_SEEK_FLAG_FLUSH,
-            GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
-            GST_SEEK_TYPE_SET, play_end);
-        self->priv->loop_seek_event[0] = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-            GST_SEEK_FLAG_NONE,
-            GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
-            GST_SEEK_TYPE_SET, play_end);
-        self->priv->loop_seek_event[1] = NULL;
-      }
-
+      preview_update_seeks(self);
+      
       // update playback position 20 times a second
       self->priv->preview_update_id=g_timeout_add(50,on_preview_playback_update,(gpointer)self);
 
@@ -1273,8 +1297,8 @@ static void bt_main_page_waves_dispose(GObject *object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+  g_object_unref(self->priv->n2f);
   g_object_try_unref(self->priv->wavetable);
-  
   g_object_try_weak_unref(self->priv->app);
 
   // shut down loader-preview playbin
@@ -1317,6 +1341,7 @@ static void bt_main_page_waves_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_WAVES, BtMainPageWavesPrivate);
+  self->priv->n2f = gst_note_2_frequency_new(GST_NOTE_2_FREQUENCY_CROMATIC);
 }
 
 static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {

@@ -26,12 +26,12 @@
  * Provides volume control on the wires, as well as a menu to disconnect wires
  * and to launch the analyzer screen.
  */
-/*
- * @todo:
+/* @todo:
  * - right now a click on the triangle pops up the volume or panorama slider
  *   - it could popup a whole mixer strip
  * - add "insert effect" to context menu, could use the machine menu and work
- *   simillar to conect menu on canvas
+ *   simillar to connect menu on canvas, would turn existing wire into 2nd wire
+ *   to preserve wirepatterns
  */
 #define BT_EDIT
 #define BT_WIRE_CANVAS_ITEM_C

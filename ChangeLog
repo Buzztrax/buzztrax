@@ -1,3 +1,25 @@
+2008-08-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Gather news.
+
+	* design/gst/dynlink.c:
+	* design/gst/fmtnego.c:
+	* design/gst/seek2.c:
+	* design/gst/seek3.c:
+	* design/gst/states.c:
+	* design/gst/states1.c:
+	* design/gst/states1a.c:
+	* design/gst/states1b.c:
+	* design/gst/states1c.c:
+	* design/gst/states3.c:
+	* design/gst/states3a.c:
+	* design/gst/tags1.c:
+	  Unrefs clock-ids.
+
+	* src/ui/edit/main-page-waves.c:
+	  Do live updates of loop and pitch while playing.
+
 2008-07-31  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
