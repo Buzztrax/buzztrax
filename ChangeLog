@@ -5,10 +5,12 @@
 
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/main-page-sequence.c:
-	* src/ui/edit/main-page-waves.c:
 	* src/ui/edit/main-toolbar.c:
 	* src/ui/edit/wire-analysis-dialog.c:
 	  Sync all level-meters and spectrum views to the playback clock.
+
+	* src/ui/edit/main-page-waves.c:
+	  Invert playback rate and clarify tooltip. We always play a C-4.
 
 2008-08-07  Stefan Kost  <ensonic@users.sf.net>
 
