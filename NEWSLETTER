@@ -4,20 +4,20 @@
 
 2008/08 ========================================================================
 
-Wow, July went fast. I spend most time with family. Still a few news from the
+Wow, July went fast. I spend most time with my family. Still a few news from the
 development front. I worked mostly on wavetable view. It now features more 
-proper sample playback. I wrote a memory audio source for GStreamer. I supports
+proper sample playback. I wrote a memory audio source for GStreamer. It supports
 forward and backward playback. This is needed for e.g. ping-pong loops. Also now
-changing things takes effect while a sample plays. Our wavetable view also shows
-a playback pointer and loop markers. I also got around to unify and merge
+changing things takes effect while a sample plays. Our waveform widget also
+shows a playback pointer and loop markers. I also got around to unify and merge
 duplicated note conversion code. You know, when you've copied something the 3rd
 time, its time to refactor.
 
 Earlier this month I refactored the song-io plugin API a bit. It has now more
-metadata. This help the UI to setup file and recent filters. Unfortunately I had
-to find out that the mime-type detection in glib was broken [1]. Its at least
-fixed in trunk. Now idea since when it actually worked. As a workaround I am now
-adding "*.xml" to the filters.
+metadata. This helps the UI to setup file and recent filters. Unfortunately I
+had to find out that the mime-type detection in glib was broken [1]. Its at
+least fixed in trunk. No idea since when it actually worked. As a workaround I
+am now adding "*.xml" to the filters.
 
 [1] http://bugzilla.gnome.org/show_bug.cgi?id=541236
 

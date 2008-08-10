@@ -190,13 +190,6 @@ static gboolean bt_wire_analysis_dialog_expose(GtkWidget *widget,GdkEventExpose 
   return(TRUE);
 }
 
-/* FIXME: we need to cacle those when closing the window
- * idea #1:
- *   gst_clock_id_unschedule(clock_id);
- * idea #2:
- *   weak-ref and nullify params[0]
- *
- */
 static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
   gconstpointer * const params=(gconstpointer *)user_data;
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(params[0]);

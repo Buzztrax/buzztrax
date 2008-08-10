@@ -1,5 +1,23 @@
 2008-08-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Sent news.
+
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* po/de.po:
+	  Fix broken tests.
+
+	* src/lib/core/sink-bin.c:
+	  More logging.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Fix crasher when scrolling with mouse over sequence.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Remove now obsolete comment.
+
+2008-08-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/cmd/cmd-application.c:
 	  Also print length when playing/encoding.
 

@@ -133,10 +133,6 @@ static void bt_sink_bin_tempo_change_tempo(GstTempo *tempo, glong beats_per_minu
     }
   }
   if(changed) {
-    /* @todo: changing the parameters here segfaults with:
-     * pcm_params.c:2351: sndrv_pcm_hw_params: Assertion `err >= 0' failed.
-     * on pulseaudio?
-     */
     GstElement *element = gst_bin_get_by_name(GST_BIN(self),"player");
 
     GST_DEBUG("changing tempo to %d BPM  %d TPB  %d STPT",self->priv->beats_per_minute,self->priv->ticks_per_beat,self->priv->subticks_per_tick);
@@ -144,6 +140,9 @@ static void bt_sink_bin_tempo_change_tempo(GstTempo *tempo, glong beats_per_minu
     if(element) {
       bt_sink_bin_configure_latency(self,element);
       gst_object_unref(element);
+    }
+    else {
+      GST_INFO("no player object created yet.");
     }
   }
 }
@@ -197,7 +196,9 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
     if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
       // configure buffer size (e.g.  GST_SECONG*60/120*4
       gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
-      GST_INFO("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs",chunk);
+      GST_WARNING("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
+        chunk, (chunk/G_GINT64_CONSTANT(1000)));
+      // @todo: bah, pulseaudio does no like those at all
       g_object_set(sink,"latency-time",chunk,"buffer-time",chunk<<1,NULL);
     }
   }
@@ -359,7 +360,6 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
 //#else
     g_object_set(element,"sync",TRUE,NULL);
 //#endif
-    //gst_base_sink_set_sync(GST_BASE_SINK(element),TRUE);
     bt_sink_bin_configure_latency(self,element);
   }
   list=g_list_append(list,element);

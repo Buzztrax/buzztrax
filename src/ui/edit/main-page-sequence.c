@@ -2364,21 +2364,10 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
 }
 
 static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScroll *event, gpointer user_data ) {
-  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  //BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
   if(event) {
     static GdkEventKey keyevent={0,};
-
-    keyevent.type = GDK_KEY_PRESS;
-    keyevent.window = event->window;
-    keyevent.time = GDK_CURRENT_TIME;
-    /*
-    keyevent.state = 0;
-    keyevent.send_event = 0;
-    keyevent.length = 0;
-    keyevent.string = 0;
-    keyevent.group =  0;
-    */
 
     if( event->direction == GDK_SCROLL_UP ) {
       keyevent.keyval = GDK_Up;
@@ -2391,9 +2380,23 @@ static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScrol
     else
       return FALSE;
 
-    g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-press-event", &keyevent );
+    keyevent.window = event->window;
+    keyevent.state = event->state;
+    keyevent.time = GDK_CURRENT_TIME;
+    /*
+    keyevent.send_event = 0;
+    keyevent.length = 0;
+    keyevent.string = 0;
+    keyevent.group =  0;
+    */
+    
+    keyevent.type = GDK_KEY_PRESS;
+    //g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-press-event", &keyevent );
+    gtk_main_do_event((GdkEvent *)&keyevent);
+    
     keyevent.type = GDK_KEY_RELEASE;
-    g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-release-event", &keyevent );
+    //g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-release-event", &keyevent );
+    gtk_main_do_event((GdkEvent *)&keyevent);
 
     return TRUE;
   }

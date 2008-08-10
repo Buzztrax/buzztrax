@@ -477,11 +477,11 @@ bt_panorama_popup_get_type
 <SECTION>
 <FILE>btpatterneditor</FILE>
 <TITLE>BtPatternEditor</TITLE>
-BtPatternEditor
 bt_pattern_editor_new
 bt_pattern_editor_set_pattern
 bt_pattern_editor_get_selection
 <SUBSECTION Standard>
+BtPatternEditor
 BtPatternEditorrClass
 BT_PATTERN_EDITOR
 BT_IS_PATTERN_EDITOR
