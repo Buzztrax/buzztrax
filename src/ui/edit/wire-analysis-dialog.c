@@ -97,6 +97,8 @@ struct _BtWireAnalysisDialogPrivate {
   guint spect_height;
   guint spect_bands;
   gfloat height_scale;
+  
+  GstClock *clock;
 
   // DEBUG
   //gdouble min_rms,max_rms, min_peak,max_peak;
@@ -188,22 +190,30 @@ static gboolean bt_wire_analysis_dialog_expose(GtkWidget *widget,GdkEventExpose 
   return(TRUE);
 }
 
-static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer user_data) {
-  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+/* FIXME: we need to cacle those when closing the window
+ * idea #1:
+ *   gst_clock_id_unschedule(clock_id);
+ * idea #2:
+ *   weak-ref and nullify params[0]
+ *
+ */
+static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
+  gconstpointer * const params=(gconstpointer *)user_data;
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(params[0]);
+  GstMessage *message=(GstMessage *)params[1];
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
   gboolean change=FALSE;
+  
+  if(!GST_CLOCK_TIME_IS_VALID(time) || !self)
+    goto done;
 
-  g_assert(user_data);
+  g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
 
   if(!strcmp(name,"level")) {
     const GValue *l_cur,*l_peak;
     guint i;
     gdouble val;
-
-    // check if its our element (we can have multiple analyzers open)
-    if(GST_MESSAGE_SRC(message)!=GST_OBJECT(self->priv->analyzers[ANALYZER_LEVEL]))
-      return;
 
     //GST_INFO("get level data");
     //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
@@ -240,10 +250,6 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
     const GValue *value;
     guint i;
 
-    // check if its our element (we can have multiple analyzers open)
-    if(GST_MESSAGE_SRC(message)!=GST_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]))
-      return;
-
     //GST_INFO("get spectrum data");
     if((list = gst_structure_get_value (structure, "magnitude"))) {
       for (i = 0; i < self->priv->spect_bands; ++i) {
@@ -267,6 +273,59 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
   if(!self->priv->paint_handler_id && change) {
     // add idle-handler that redraws gfx
     self->priv->paint_handler_id=g_idle_add_full(G_PRIORITY_LOW,on_wire_analyzer_redraw,(gpointer)self,NULL);
+  }
+  
+done:
+  gst_message_unref(message);
+  g_free(params);
+  return(TRUE);
+}
+
+static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+  const GstStructure *structure=gst_message_get_structure(message);
+  const gchar *name = gst_structure_get_name(structure);
+
+  g_assert(user_data);
+
+  if((!strcmp(name,"level")) || (!strcmp(name,"spectrum"))) {  
+    GstElement *meter=GST_ELEMENT(GST_MESSAGE_SRC(message));
+    
+    if((meter==self->priv->analyzers[ANALYZER_LEVEL]) ||
+      (meter==self->priv->analyzers[ANALYZER_SPECTRUM])) {
+      GstClockTime timestamp, duration;
+      GstClockTime waittime=GST_CLOCK_TIME_NONE;
+  
+      if(gst_structure_get_clock_time (structure, "running-time", &timestamp) &&
+        gst_structure_get_clock_time (structure, "duration", &duration)) {
+        /* wait for middle of buffer */
+        waittime=timestamp+duration/2;
+      }
+      else if(gst_structure_get_clock_time (structure, "endtime", &timestamp)) {
+        if(!strcmp(name,"level")) {
+          /* level send endtime as stream_time and not as running_time */
+          waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(meter)->segment, GST_FORMAT_TIME, timestamp);
+        }
+        else {
+          waittime=timestamp;
+        }
+      }
+      if(GST_CLOCK_TIME_IS_VALID(waittime)) {
+        gconstpointer *params=g_new(gconstpointer,2);
+        GstClockID clock_id;
+        GstClockTime basetime=gst_element_get_base_time(meter);
+  
+        //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
+        //  GST_TIME_ARGS(endtime),GST_TIME_ARGS(waittime));
+      
+        params[0]=(gpointer)self;
+        params[1]=(gpointer)gst_message_ref(message);
+        g_object_add_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+        clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
+        gst_clock_id_wait_async(clock_id,on_delayed_wire_analyzer_change,(gpointer)params);
+        gst_clock_id_unref(clock_id);
+      }
+    }
   }
 }
 
@@ -435,7 +494,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     goto Error;
   }
   g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]),
-      "interval",(GstClockTime)(0.25*GST_SECOND),"message",TRUE,
+      "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
       "bands", self->priv->spect_bands, "threshold", -70,
       NULL);
   // create level meter
@@ -463,6 +522,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   g_signal_connect(bus, "message::element", G_CALLBACK(on_wire_analyzer_change), (gpointer)self);
   g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_wire_analyzer_state_changed), (gpointer)self);
   gst_object_unref(bus);
+  self->priv->clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
   gst_object_unref(bin);
 
   // allocate visual ressources after the window has been realized
@@ -569,6 +629,8 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   GST_DEBUG("levels: rms =%7.4lf .. %7.4lf",self->priv->min_rms ,self->priv->max_rms);
   GST_DEBUG("levels: peak=%7.4lf .. %7.4lf",self->priv->min_peak,self->priv->max_peak);
   // DEBUG */
+  
+  if(self->priv->clock) gst_object_unref(self->priv->clock);
 
   if(self->priv->paint_handler_id) {
     g_source_remove(self->priv->paint_handler_id);

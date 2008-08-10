@@ -1,3 +1,15 @@
+2008-08-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Finalized news.
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Sync all level-meters and spectrum views to the playback clock.
+
 2008-08-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

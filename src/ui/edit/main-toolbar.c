@@ -56,6 +56,7 @@ struct _BtMainToolbarPrivate {
   /* the level meters */
   GtkVUMeter *vumeter[MAX_VUMETER];
   G_POINTER_ALIAS(GstElement *,level);
+  GstClock *clock;
 
   /* the volume gain */
   GtkScale *volume;
@@ -302,51 +303,75 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
   g_object_unref(main_window);
 }
 
+static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
+  gconstpointer * const params=(gconstpointer *)user_data;
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(params[0]);
+  GstMessage *message=(GstMessage *)params[1];
+  const GstStructure *structure=gst_message_get_structure(message);
+  const GValue *l_cur,*l_peak;
+  gdouble cur, peak;
+  guint i;
+  
+  if(!GST_CLOCK_TIME_IS_VALID(time))
+    goto done;
+  
+  //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
+  l_cur=(GValue *)gst_structure_get_value(structure, "peak");
+  //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+  l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+      
+  for(i=0;i<gst_value_list_get_size(l_cur);i++) {
+    cur=g_value_get_double(gst_value_list_get_value(l_cur,i));
+    peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
+    if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
+    if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
+    //GST_INFO("level.%d  %.3f %.3f", i, cur, peak);
+    //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)cur, (gint)peak);
+    gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)peak, (gint)cur);
+  }
+
+done:
+  gst_message_unref(message);
+  g_free(params);
+  return(TRUE);
+}
+
 static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
 
   if(!strcmp(name,"level")) {
     BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-    const GValue *l_cur,*l_peak;
-    gdouble cur, peak;
-    guint i;
+    GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
 
     // check if its our element (we can have multiple level meters)
-    if(GST_MESSAGE_SRC(message)!=GST_OBJECT(self->priv->level))
-      return;
-    
-    //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
-    l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-    //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-    l_peak=(GValue *)gst_structure_get_value(structure, "decay");
-    
-    /*
-    GstClockTime endtime;
-
-    if(gst_structure_get_clock_time (structure, "endtime", &endtime)) {
-      GstElement *bin;
-      GstClock *clock;
-      GstClockID clock_id;
-    
-      g_object_get(G_OBJECT(self->priv->app),"bin",&bin,NULL);
-      clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
-      clock_id=gst_clock_new_single_shot_id(clock,endtime); 
-      gst_clock_id_wait(clock_id,NULL);
-      gst_clock_id_unref(clock_id);
-      gst_object_unref(clock);
-      gst_object_unref(bin);
-    }
-    */
-    
-    for(i=0;i<gst_value_list_get_size(l_cur);i++) {
-      cur=g_value_get_double(gst_value_list_get_value(l_cur,i));
-      peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
-      if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
-      if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-      //GST_INFO("level.%d  %.3f %.3f", i, cur, peak);
-      //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)cur, (gint)peak);
-      gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)peak, (gint)cur);
+    if(level==self->priv->level) {
+      GstClockTime timestamp, duration;
+      GstClockTime waittime=GST_CLOCK_TIME_NONE;
+  
+      if(gst_structure_get_clock_time (structure, "running-time", &timestamp) &&
+        gst_structure_get_clock_time (structure, "duration", &duration)) {
+        /* wait for middle of buffer */
+        waittime=timestamp+duration/2;
+      }
+      else if(gst_structure_get_clock_time (structure, "endtime", &timestamp)) {
+        /* level send endtime as stream_time and not as running_time */
+        waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(level)->segment, GST_FORMAT_TIME, timestamp);
+      }
+      if(GST_CLOCK_TIME_IS_VALID(waittime)) {
+        gconstpointer *params=g_new(gconstpointer,2);
+        GstClockID clock_id;
+        GstClockTime basetime=gst_element_get_base_time(level);
+  
+        //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
+        //  GST_TIME_ARGS(endtime),GST_TIME_ARGS(waittime));
+      
+        params[0]=(gpointer)self;
+        params[1]=(gpointer)gst_message_ref(message);
+        clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
+        gst_clock_id_wait_async(clock_id,on_delayed_song_level_change,(gpointer)params);
+        gst_clock_id_unref(clock_id);
+      }
     }
   }
 }
@@ -494,6 +519,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_signal_connect(bus, "message::element", G_CALLBACK(on_song_level_change), (gpointer)self);
     g_signal_connect(bus, "message::application", G_CALLBACK(on_song_level_negotiated), (gpointer)self);
     gst_object_unref(bus);
+    
+    if(self->priv->clock) gst_object_unref(self->priv->clock);
+    self->priv->clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
 
     // get the pad from the input-level and listen there for channel negotiation
     g_assert(GST_IS_ELEMENT(self->priv->level));
@@ -760,6 +788,8 @@ static void bt_main_toolbar_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->gain);
   g_object_try_weak_unref(self->priv->level);
   g_object_try_weak_unref(self->priv->app);
+  
+  if(self->priv->clock) gst_object_unref(self->priv->clock);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

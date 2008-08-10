@@ -106,6 +106,8 @@ struct _BtMachineCanvasItemPrivate {
   GnomeCanvasItem *output_meter, *input_meter;
   G_POINTER_ALIAS(GstElement *,output_level);
   G_POINTER_ALIAS(GstElement *,input_level);
+  
+  GstClock *clock;
 
   /* cursor for moving */
   GdkCursor *drag_cursor;
@@ -124,47 +126,89 @@ static GnomeCanvasGroupClass *parent_class=NULL;
 
 //-- event handler
 
+static gboolean on_delayed_machine_level_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
+  gconstpointer * const params=(gconstpointer *)user_data;
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(params[0]);
+  GstMessage *message=(GstMessage *)params[1];
+  const GstStructure *structure=gst_message_get_structure(message);
+  const GValue *l_cur,*l_peak;
+  const gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
+  gdouble cur=0.0, peak=0.0, val;
+  guint i,size;
+  
+  if(!GST_CLOCK_TIME_IS_VALID(time))
+    goto done;
+
+  //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
+  l_cur=(GValue *)gst_structure_get_value(structure, "peak");
+  //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+  l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+  size=gst_value_list_get_size(l_cur);
+  for(i=0;i<size;i++) {
+    cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
+    peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+  }
+  if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
+  else cur/=size;
+  if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
+  else peak/=size;
+  val=cur;
+  if(val>0.0) val=0.0;
+  val=val/LOW_VUMETER_VAL;
+  if(val>1.0) val=1.0;
+  if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->output_level)) {
+    gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->output_meter),
+      "y1", h*0.05+(0.55*h*val),
+      NULL);
+  }
+  if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->input_level)) {
+    gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->input_meter),
+      "y1", h*0.05+(0.55*h*val),
+      NULL);
+  }
+  
+done:
+  gst_message_unref(message);
+  g_free(params);
+  return(TRUE);
+}
+
 static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
 
   if(!strcmp(name,"level")) {
     BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+    GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
 
     // check if its our level-meter
-    if((GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->output_level)) || 
-      (GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->input_level))) {
-      gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
-      const GValue *l_cur,*l_peak;
-      gdouble cur=0.0, peak=0.0, val;
-      guint i,size;
+    if((level==self->priv->output_level) || 
+      (level==self->priv->input_level)) {
+      GstClockTime timestamp, duration;
+      GstClockTime waittime=GST_CLOCK_TIME_NONE;
   
-      //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
-      l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-      //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-      l_peak=(GValue *)gst_structure_get_value(structure, "decay");
-      size=gst_value_list_get_size(l_cur);
-      for(i=0;i<size;i++) {
-        cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
-        peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+      if(gst_structure_get_clock_time (structure, "running-time", &timestamp) &&
+        gst_structure_get_clock_time (structure, "duration", &duration)) {
+        /* wait for middle of buffer */
+        waittime=timestamp+duration/2;
       }
-      if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
-      else cur/=size;
-      if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-      else peak/=size;
-      val=cur;
-      if(val>0.0) val=0.0;
-      val=val/LOW_VUMETER_VAL;
-      if(val>1.0) val=1.0;
-      if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->output_level)) {
-        gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->output_meter),
-          "y1", h*0.05+(0.55*h*val),
-          NULL);
+      else if(gst_structure_get_clock_time (structure, "endtime", &timestamp)) {
+        /* level send endtime as stream_time and not as running_time */
+        waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(level)->segment, GST_FORMAT_TIME, timestamp);
       }
-      if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->input_level)) {
-        gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->input_meter),
-          "y1", h*0.05+(0.55*h*val),
-          NULL);
+      if(GST_CLOCK_TIME_IS_VALID(waittime)) {
+        gconstpointer *params=g_new(gconstpointer,2);
+        GstClockID clock_id;
+        GstClockTime basetime=gst_element_get_base_time(level);
+  
+        //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
+        //  GST_TIME_ARGS(endtime),GST_TIME_ARGS(waittime));
+      
+        params[0]=(gpointer)self;
+        params[1]=(gpointer)gst_message_ref(message);
+        clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
+        gst_clock_id_wait_async(clock_id,on_delayed_machine_level_change,(gpointer)params);
+        gst_clock_id_unref(clock_id);
       }
     }
   }
@@ -678,6 +722,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
         bus=gst_element_get_bus(GST_ELEMENT(bin));
         g_signal_connect(bus, "message::element", G_CALLBACK(on_machine_level_change), (gpointer)self);
         gst_object_unref(bus);
+        self->priv->clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
         gst_object_unref(bin);
         g_object_unref(song);
 
@@ -748,7 +793,8 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->output_level);
   g_object_try_weak_unref(self->priv->input_level);
   g_object_try_unref(self->priv->machine);
-  g_object_try_weak_unref(self->priv->main_page_machines);
+  g_object_try_weak_unref(self->priv->main_page_machines);  
+  if(self->priv->clock) gst_object_unref(self->priv->clock);
 
   GST_DEBUG("  unrefing done");
 

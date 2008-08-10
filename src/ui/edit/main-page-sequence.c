@@ -666,7 +666,7 @@ static void on_machine_state_changed_bypass(BtMachine *machine,GParamSpec *arg,g
   gtk_toggle_button_set_active(button,(state==BT_MACHINE_STATE_BYPASS));
 }
 
-static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
+static gboolean on_delayed_track_level_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
   gconstpointer * const params=(gconstpointer *)user_data;
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(params[0]);
   GstMessage *message=(GstMessage *)params[1];
@@ -704,29 +704,42 @@ done:
   return(TRUE);
 }
 
-static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
+static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
 
   if(!strcmp(name,"level")) {
     BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-    GstClockTime endtime;
-
-    if(gst_structure_get_clock_time (structure, "endtime", &endtime)) {
-      GstClockID clock_id;
-      GstClockTime basetime=gst_element_get_base_time(GST_ELEMENT(GST_MESSAGE_SRC(message)));
-      //GstClockTime curtime=gst_clock_get_time(self->priv->clock)-basetime;
-      gconstpointer *params=g_new(gconstpointer,2);
-
-      // this only work for the first loop :/      
-      //GST_WARNING("base %"GST_TIME_FORMAT" target %"GST_TIME_FORMAT,
-      //  GST_TIME_ARGS(basetime),GST_TIME_ARGS(endtime));
+    GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
     
-      params[0]=(gpointer)self;
-      params[1]=(gpointer)gst_message_copy(message);
-      clock_id=gst_clock_new_single_shot_id(self->priv->clock,basetime+endtime);
-      gst_clock_id_wait_async(clock_id,on_delayed_song_level_change,(gpointer)params);
-      gst_clock_id_unref(clock_id);
+    // check if its our element (we can have multiple level meters)
+    if((g_hash_table_lookup(self->priv->level_to_vumeter,level))) {
+      GstClockTime timestamp, duration;
+      GstClockTime waittime=GST_CLOCK_TIME_NONE;
+  
+      if(gst_structure_get_clock_time (structure, "running-time", &timestamp) &&
+        gst_structure_get_clock_time (structure, "duration", &duration)) {
+        /* wait for middle of buffer */
+        waittime=timestamp+duration/2;
+      }
+      else if(gst_structure_get_clock_time (structure, "endtime", &timestamp)) {
+        /* level send endtime as stream_time and not as running_time */
+        waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(level)->segment, GST_FORMAT_TIME, timestamp);
+      }
+      if(GST_CLOCK_TIME_IS_VALID(waittime)) {
+        gconstpointer *params=g_new(gconstpointer,2);
+        GstClockID clock_id;
+        GstClockTime basetime=gst_element_get_base_time(level);
+  
+        //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
+        //  GST_TIME_ARGS(timestamp),GST_TIME_ARGS(waittime));
+      
+        params[0]=(gpointer)self;
+        params[1]=(gpointer)gst_message_ref(message);
+        clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
+        gst_clock_id_wait_async(clock_id,on_delayed_track_level_change,(gpointer)params);
+        gst_clock_id_unref(clock_id);
+      }
     }
   }
 }
@@ -2517,8 +2530,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // make list_length and step_filter_pos accord to song length
   self->priv->list_length=self->priv->row_filter_pos=sequence_length;
 
+  // reset vu-meter hash (rebuilt below)
   if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
-  if(self->priv->clock) gst_object_unref(self->priv->clock);
   self->priv->level_to_vumeter=g_hash_table_new_full(NULL,NULL,(GDestroyNotify)gst_object_unref,NULL);
 
   // update page
@@ -2540,13 +2553,12 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   loop_end  =(loop_end_pos  >-1)?(gdouble)loop_end_pos  /(gdouble)sequence_length:1.0;
   g_object_set(self->priv->sequence_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
   g_object_set(self->priv->sequence_pos_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
-  // connect vumeters
+  // vumeters
   bus=gst_element_get_bus(GST_ELEMENT(bin));
-  g_signal_connect(bus, "message::element", G_CALLBACK(on_song_level_change), (gpointer)self);
+  g_signal_connect(bus, "message::element", G_CALLBACK(on_track_level_change), (gpointer)self);
   gst_object_unref(bus);
-#if 1
+  if(self->priv->clock) gst_object_unref(self->priv->clock);
   self->priv->clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
-#endif
 
   // subscribe to play-pos changes of song->sequence
   g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
@@ -3044,7 +3056,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
     g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_info_bars_changed,NULL);
 
     bus=gst_element_get_bus(GST_ELEMENT(bin));
-    g_signal_handlers_disconnect_matched(bus, G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_level_change,NULL);
+    g_signal_handlers_disconnect_matched(bus, G_SIGNAL_MATCH_FUNC,0,0,NULL,on_track_level_change,NULL);
     gst_object_unref(bus);
 
     gst_object_unref(bin);
@@ -3070,7 +3082,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   g_object_try_unref(self->priv->accel_group);
 
   g_hash_table_destroy(self->priv->level_to_vumeter);
-  gst_object_unref(self->priv->clock);
+  if(self->priv->clock) gst_object_unref(self->priv->clock);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

@@ -323,8 +323,8 @@ static void preview_update_seeks(const BtMainPageWaves *self) {
       NULL);
     
     /* calculate pitch rate from root-note */
-    prate=gst_note_2_frequency_translate_from_number(self->priv->n2f,root_note)/
-      gst_note_2_frequency_translate_from_number(self->priv->n2f,BT_WAVELEVEL_DEFAULT_ROOT_NOTE);
+    prate=gst_note_2_frequency_translate_from_number(self->priv->n2f,BT_WAVELEVEL_DEFAULT_ROOT_NOTE)/
+        gst_note_2_frequency_translate_from_number(self->priv->n2f,root_note);
     
     old_play_event =self->priv->play_seek_event;
     old_loop_event0=self->priv->loop_seek_event[0];
@@ -1043,7 +1043,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   // add buttons (play,stop,clear)
   self->priv->wavetable_play=tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name(tool_item,_("Play"));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play current wave table entry"));
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play current wave table entry as C-4"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_play_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
