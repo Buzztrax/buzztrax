@@ -1,5 +1,10 @@
 2008-08-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/cmd/cmd-application.c:
+	  Also print length when playing/encoding.
+
+2008-08-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Finalized news.
 

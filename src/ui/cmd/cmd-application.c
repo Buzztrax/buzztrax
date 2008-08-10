@@ -80,8 +80,9 @@ static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpoin
 static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const BtSong *song) {
   gboolean res=FALSE;
   BtSequence *sequence=NULL;
-  gulong msec,sec,min;
+  gulong cmsec,csec,cmin,tmsec,tsec,tmin;
   gulong length,pos=0;
+  GstClockTime bar_time;
 
   // DEBUG
   //bt_song_write_to_highlevel_dot_file(song);
@@ -90,10 +91,14 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
   g_object_get(G_OBJECT(sequence),"length",&length,NULL);
 
+  bar_time=bt_sequence_get_bar_time(sequence);
+  tmsec=(gulong)((length*bar_time)/G_USEC_PER_SEC);
+  tmin=(gulong)(tmsec/60000);tmsec-=(tmin*60000);
+  tsec=(gulong)(tmsec/ 1000);tmsec-=(tsec* 1000);
+  
   // connection play and stop signals
   g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   if(bt_song_play(song)) {
-    GstClockTime bar_time=bt_sequence_get_bar_time(sequence);
     GST_INFO("playing is starting, is_playing=%d",is_playing);
     while(!is_playing) {
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
@@ -106,10 +111,12 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
 
       if(!self->priv->quiet) {
         // get song->play-pos and print progress
-        msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
-        min=(gulong)(msec/60000);msec-=(min*60000);
-        sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-        printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
+        cmsec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
+        cmin=(gulong)(cmsec/60000);cmsec-=(cmin*60000);
+        csec=(gulong)(cmsec/ 1000);cmsec-=(csec* 1000);
+        printf("\r%02lu:%02lu.%03lu / %02lu:%02lu.%03lu",
+          cmin,csec,cmsec,tmin,tsec,tmsec);
+        fflush(stdout);
       }
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
       g_usleep(100);
