@@ -1,3 +1,14 @@
+2008-08-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/POTFILES.in:
+	  Add two missing files.
+
+	* src/lib/ic/input-device.c:
+	  Add more logging.
+
+	* src/ui/edit/main-page-waves.c:
+	  Workaround gcc warning.
+
 2008-08-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

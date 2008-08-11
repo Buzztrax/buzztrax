@@ -142,7 +142,7 @@ static gboolean register_trigger_controls(const BtIcInputDevice * const self,int
         case BTN_STYLUS : name="Digitiser Stylus Button"; break;
         case BTN_STYLUS2 : name="Second Digitiser Stylus Button"; break;
         default:
-           GST_INFO("Unknown key");
+           GST_INFO("Unknown key: %d",ix);
       }
       if(name) {
         // create controller instances and register them
@@ -232,7 +232,7 @@ static gboolean register_controls(const BtIcInputDevice * const self) {
     GST_WARNING("evdev open failed on device %s: %s",self->priv->devnode,g_strerror(errno));
     return(FALSE);
   }
-  GST_INFO("openede device : %s",self->priv->devnode);
+  GST_INFO("opened device : %s",self->priv->devnode);
 
   // @todo: query capabillities and register controllers
 

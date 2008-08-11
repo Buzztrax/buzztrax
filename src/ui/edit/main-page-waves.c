@@ -379,7 +379,8 @@ static void preview_update_seeks(const BtMainPageWaves *self) {
     
     /* swap and replace */
     if(old_play_event) {
-      g_atomic_pointer_compare_and_exchange((gpointer *)&self->priv->play_seek_event,old_play_event,new_play_event);
+      // the double cast is a work-around for : dereferencing type-punned pointer will break strict-aliasing rules
+      g_atomic_pointer_compare_and_exchange((gpointer *)((gpointer)&self->priv->play_seek_event),old_play_event,new_play_event);
       gst_event_unref(old_play_event);
     }
     else {

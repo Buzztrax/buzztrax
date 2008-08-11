@@ -4,6 +4,8 @@ src/lib/core/application.c
 src/lib/core/core.c
 src/lib/core/pattern.c
 src/lib/core/song-io-native.c
+src/lib/core/song-io-native-bzt.c
+src/lib/core/song-io-native-xml.c
 src/lib/core/song-info.c
 src/lib/ic/ic.c
 src/ui/cmd/bt-cmd.c
