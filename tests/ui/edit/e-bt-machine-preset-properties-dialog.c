@@ -38,12 +38,17 @@ static void test_teardown(void) {
 // create app and then unconditionally destroy window
 BT_START_TEST(test_create_dialog) {
   BtEditApplication *app;
+  BtMainWindow *main_window;
   GtkWidget *dialog;
   gchar *name=NULL,*comment=NULL;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
 
   // create, show and destroy dialog
   dialog=GTK_WIDGET(bt_machine_preset_properties_dialog_new(app,NULL,&name,&comment));
@@ -58,6 +63,7 @@ BT_START_TEST(test_create_dialog) {
   gtk_widget_destroy(dialog);
   
   // close window
+  gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
   
   // free application

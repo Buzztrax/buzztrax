@@ -1,5 +1,21 @@
 2008-08-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/ui/edit/e-bt-about-dialog.c:
+	* tests/ui/edit/e-bt-edit-application.c:
+	* tests/ui/edit/e-bt-machine-preferences-dialog.c:
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	* tests/ui/edit/e-bt-machine-properties-dialog.c:
+	* tests/ui/edit/e-bt-machine-rename-dialog.c:
+	* tests/ui/edit/e-bt-missing-framework-elements-dialog.c:
+	* tests/ui/edit/e-bt-missing-song-elements-dialog.c:
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c:
+	* tests/ui/edit/e-bt-render-dialog.c:
+	* tests/ui/edit/e-bt-settings-dialog.c:
+	* tests/ui/edit/e-bt-wire-analysis-dialog.c:
+	  Fixed long standing UI test failure.
+
+2008-08-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/POTFILES.in:
 	  Add two missing files.
 

@@ -64,7 +64,6 @@ BT_START_TEST(test_create_app) {
   check_make_widget_screenshot(GTK_WIDGET(main_window),NULL);
 
   // close window
-  g_object_unref(main_window);
   GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
   // needs a main-loop (version 1,2)
   gtk_widget_destroy(GTK_WIDGET(main_window));
@@ -119,7 +118,6 @@ BT_START_TEST(test_new1) {
   fail_unless(main_window != NULL, NULL);
 
   // close window
-  g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
   //GST_INFO("mainlevel is %d",gtk_main_level());
@@ -159,7 +157,6 @@ BT_START_TEST(test_load1) {
   check_make_widget_screenshot(GTK_WIDGET(main_window),"song");
 
   // close window
-  g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
   //GST_INFO("mainlevel is %d",gtk_main_level());
@@ -209,7 +206,6 @@ BT_START_TEST(test_load2) {
   fail_unless(main_window != NULL, NULL);
 
   // close window
-  g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
 
@@ -264,7 +260,6 @@ BT_START_TEST(test_load3) {
   fail_unless(main_window != NULL, NULL);
 
   // close window
-  g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
 
@@ -307,7 +302,6 @@ BT_START_TEST(test_load_and_play1) {
   bt_song_stop(song);
 
   // close window
-  g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
   //GST_INFO("mainlevel is %d",gtk_main_level());
@@ -364,7 +358,6 @@ BT_START_TEST(test_load_and_play2) {
   bt_song_stop(song2);
 
   // close window
-  g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
   //GST_INFO("mainlevel is %d",gtk_main_level());
@@ -424,7 +417,6 @@ BT_START_TEST(test_tabs1) {
   g_object_unref(pages);
 
   // close window
-  g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
   //GST_INFO("mainlevel is %d",gtk_main_level());
@@ -479,7 +471,6 @@ BT_START_TEST(test_machine_view_edit) {
   fail_unless(main_window != NULL, NULL);
 
   // close window
-  g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
 

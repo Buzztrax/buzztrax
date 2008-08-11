@@ -73,7 +73,6 @@ BT_START_TEST(test_machine_preferences_dialog) {
   gtk_widget_destroy(dialog);
 
   // close window
-  g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
   //GST_INFO("mainlevel is %d",gtk_main_level());
