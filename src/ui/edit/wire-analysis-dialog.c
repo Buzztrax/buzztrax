@@ -175,7 +175,7 @@ static gboolean redraw_spectrum(gpointer user_data) {
     if(self->priv->spect) {
       /* @todo: draw grid under spectrum
        * 0... <srat>
-       * http://developer.apple.com/samplecode/FilterDemo/listing6.html
+       * the bin center frequencies are f(i)=i*srat/spect_bands
        */
       for (i = 0; i < self->priv->spect_bands; i++) {
         //db_value=20.0*log10(self->priv->spect[i]);
