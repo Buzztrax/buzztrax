@@ -565,7 +565,7 @@
     <title id='bt-edit-prefs-directories.title'>Directory settings</title>
 
     <para>
-      Configure default directories used for various filetypes.
+      Configure default directories used for various file types.
       (FIXME:)
     </para>
     <figure id="bt-edit-settings-directories-fig">

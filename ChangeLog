@@ -1,5 +1,11 @@
 2008-08-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/aspell.pws:
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Run spellchecker over manual.
+
+2008-08-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/ic/control.c:
 	  Comments to get wii controllers work.
