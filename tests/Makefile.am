@@ -30,7 +30,8 @@ TESTS_ENVIRONMENT_COMMON = \
 	ulimit -St20;
 TESTS_ENVIRONMENT = \
 	$(TESTS_ENVIRONMENT_COMMON) \
-	CK_DEFAULT_TIMEOUT=20
+	CK_DEFAULT_TIMEOUT=20 \
+	LD_LIBRARY_PATH=$(top_builddir)/src/lib/core/.libs:$(top_builddir)/src/lib/ic/.libs:$(LD_LIBRARY_PATH)
 
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
@@ -46,6 +47,7 @@ bt_core_LDADD = \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/tests/lib/core/libbtcore-check.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
+bt_core_LDFLAGS = -Wl,--rpath -Wl,$(top_builddir)/src/lib/core 
 bt_core_SOURCES= \
 	m-bt-core.c
 
@@ -53,6 +55,7 @@ bt_cmd_LDADD = \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
+bt_cmd_LDFLAGS = -Wl,--rpath -Wl,$(top_builddir)/src/lib/core 
 bt_cmd_SOURCES= \
 	m-bt-cmd.c
 
@@ -61,6 +64,9 @@ bt_edit_LDADD = \
 	$(top_builddir)/src/lib/ic/libbtic.la \
 	$(top_builddir)/tests/ui/edit/libbt-edit-check.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
+bt_edit_LDFLAGS = \
+	-Wl,--rpath -Wl,$(top_builddir)/src/lib/core \
+	-Wl,--rpath -Wl,$(top_builddir)/src/lib/ic 
 bt_edit_SOURCES= \
 	m-bt-edit.c
 

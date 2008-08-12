@@ -1,5 +1,10 @@
 2008-08-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/Makefile.am:
+	  Finally managed to run tests against uninstalled libs.
+
+2008-08-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbtcore.pc.in:
 	* src/lib/ic/libbtic.pc.in:
 	  Add the libnames.
