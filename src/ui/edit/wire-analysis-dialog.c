@@ -27,9 +27,9 @@
  *
  * The dialog is not modal.
  */
-/* @todo: draw grid under spectrum
+/* nice monitoring ideas:
+ * http://www.music-software-reviews.com/adobe_audition_2.html
  */
-
 #define BT_EDIT
 #define BT_WIRE_ANALYSIS_DIALOG_C
 
@@ -80,8 +80,6 @@ struct _BtWireAnalysisDialogPrivate {
   /* the wire we analyze */
   BtWire *wire;
 
-  /* the paint handler source id */
-  guint paint_handler_id;
   /* the analyzer-graphs */
   GtkWidget *spectrum_drawingarea, *level_drawingarea;
   GdkGC *peak_gc;
@@ -116,10 +114,11 @@ static GtkDialogClass *parent_class=NULL;
  * Called as idle function to repaint the analyzers. Data is gathered by
  * on_wire_analyzer_change()
  */
-static gboolean on_wire_analyzer_redraw(gpointer user_data) {
+static gboolean redraw_level(gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
 
-  if(!self->priv->peak_gc) return(TRUE);
+  if(!GTK_WIDGET_REALIZED(self)) return(TRUE);
+  if(!GDK_IS_GC(self->priv->peak_gc)) return(TRUE);
 
   //GST_DEBUG("redraw analyzers");
   // draw levels
@@ -156,6 +155,14 @@ static gboolean on_wire_analyzer_redraw(gpointer user_data) {
     gdk_window_end_paint (da->window);
     /* @todo: if stereo draw pan-meter (L-R, R-L) */
   }
+  return(TRUE);
+}
+
+static gboolean redraw_spectrum(gpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+
+  if(!GTK_WIDGET_REALIZED(self)) return(TRUE);
+  if(!GDK_IS_GC(self->priv->peak_gc)) return(TRUE);
 
   // draw spectrum
   if (self->priv->spectrum_drawingarea) {
@@ -166,7 +173,12 @@ static gboolean on_wire_analyzer_redraw(gpointer user_data) {
     gdk_window_begin_paint_rect (da->window, &rect);
     gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, self->priv->spect_bands, self->priv->spect_height);
     if(self->priv->spect) {
+      /* @todo: draw grid under spectrum
+       * 0... <srat>
+       * http://developer.apple.com/samplecode/FilterDemo/listing6.html
+       */
       for (i = 0; i < self->priv->spect_bands; i++) {
+        //db_value=20.0*log10(self->priv->spect[i]);
         gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, i, -self->priv->spect[i], 1, self->priv->spect_height + self->priv->spect[i]);
       }
     }
@@ -183,10 +195,17 @@ static void bt_wire_analysis_dialog_realize(GtkWidget *widget,gpointer user_data
   gdk_gc_set_rgb_fg_color(self->priv->peak_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_ANALYZER_PEAK));
 }
 
-static gboolean bt_wire_analysis_dialog_expose(GtkWidget *widget,GdkEventExpose *event,gpointer user_data) {
+static gboolean bt_wire_analysis_dialog_level_expose(GtkWidget *widget,GdkEventExpose *event,gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
 
-  on_wire_analyzer_redraw((gpointer)self);
+  redraw_level((gpointer)self);
+  return(TRUE);
+}
+
+static gboolean bt_wire_analysis_dialog_spectrum_expose(GtkWidget *widget,GdkEventExpose *event,gpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+
+  redraw_spectrum((gpointer)self);
   return(TRUE);
 }
 
@@ -196,7 +215,6 @@ static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime tim
   GstMessage *message=(GstMessage *)params[1];
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
-  gboolean change=FALSE;
   
   if(!GST_CLOCK_TIME_IS_VALID(time) || !self)
     goto done;
@@ -236,7 +254,7 @@ static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime tim
         }
         break;
     }
-    change=TRUE;
+    gtk_widget_queue_draw(self->priv->level_drawingarea);
   }
   else if(!strcmp(name,"spectrum")) {
     const GValue *list;
@@ -249,7 +267,7 @@ static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime tim
         value = gst_value_list_get_value (list, i);
         self->priv->spect[i] =  self->priv->height_scale * g_value_get_float (value);
       }
-      change=TRUE;
+      gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
     }
     else {
       if((list = gst_structure_get_value (structure, "spectrum"))) {
@@ -258,14 +276,9 @@ static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime tim
           value = gst_value_list_get_value (list, i);
           self->priv->spect[i] =  self->priv->height_scale * (gfloat)g_value_get_uchar (value);
         }
-        change=TRUE;
+        gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
       }
     }
-  }
-
-  if(!self->priv->paint_handler_id && change) {
-    // add idle-handler that redraws gfx
-    self->priv->paint_handler_id=g_idle_add_full(G_PRIORITY_LOW,on_wire_analyzer_redraw,(gpointer)self,NULL);
   }
   
 done:
@@ -318,26 +331,6 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
         gst_clock_id_wait_async(clock_id,on_delayed_wire_analyzer_change,(gpointer)params);
         gst_clock_id_unref(clock_id);
       }
-    }
-  }
-}
-
-static void on_wire_analyzer_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
-  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
-
-  if(GST_IS_PIPELINE(GST_MESSAGE_SRC(message))) {
-    GstState oldstate,newstate,pending;
-
-    gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
-    switch(GST_STATE_TRANSITION(oldstate,newstate)) {
-      case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
-        if(self->priv->paint_handler_id) {
-          g_source_remove(self->priv->paint_handler_id);
-          self->priv->paint_handler_id=0;
-        }
-        break;
-      default:
-        break;
     }
   }
 }
@@ -513,7 +506,6 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   g_object_get(G_OBJECT(song),"bin", &bin, NULL);
   bus=gst_element_get_bus(GST_ELEMENT(bin));
   g_signal_connect(bus, "message::element", G_CALLBACK(on_wire_analyzer_change), (gpointer)self);
-  g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_wire_analyzer_state_changed), (gpointer)self);
   gst_object_unref(bus);
   self->priv->clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
   gst_object_unref(bin);
@@ -521,7 +513,8 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   // allocate visual ressources after the window has been realized
   g_signal_connect(G_OBJECT(self),"realize",G_CALLBACK(bt_wire_analysis_dialog_realize),(gpointer)self);
   // redraw when needed
-  g_signal_connect(G_OBJECT(self),"expose-event",G_CALLBACK(bt_wire_analysis_dialog_expose),(gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->level_drawingarea),"expose-event",G_CALLBACK(bt_wire_analysis_dialog_level_expose),(gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->spectrum_drawingarea),"expose-event",G_CALLBACK(bt_wire_analysis_dialog_spectrum_expose),(gpointer)self);
 
 Error:
   g_object_unref(song);
@@ -625,10 +618,6 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   
   if(self->priv->clock) gst_object_unref(self->priv->clock);
 
-  if(self->priv->paint_handler_id) {
-    g_source_remove(self->priv->paint_handler_id);
-    self->priv->paint_handler_id=0;
-  }
   g_object_try_unref(self->priv->peak_gc);
 
   GST_DEBUG("!!!! removing signal handler");
@@ -642,7 +631,6 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
 
     bus=gst_element_get_bus(GST_ELEMENT(bin));
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_analyzer_change,NULL);
-    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_analyzer_state_changed,NULL);
     gst_object_unref(bus);
     gst_object_unref(bin);
     g_object_unref(song);

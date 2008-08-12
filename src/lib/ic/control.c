@@ -24,6 +24,8 @@
  *
  * Abstract base class for controls.
  */
+/* @todo: need flags=BTIC_CONTROL_ABS,...
+ */
 #define BTIC_CORE
 #define BTIC_CONTROL_C
 

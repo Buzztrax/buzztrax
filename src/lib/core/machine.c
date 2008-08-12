@@ -2430,6 +2430,9 @@ void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *
   g_object_get(G_OBJECT(data->control),"device",&device,NULL);
   btic_device_start(device);
   g_object_unref(device);
+  /* @todo: controls need flags to indicate wheter they are absolute or relative
+   * we conect a different handler for relative ones that add/sub values to current value
+   */
   // connect signal handler
   switch(bt_g_type_get_base_type(pspec->value_type)) {
     case G_TYPE_BOOLEAN:

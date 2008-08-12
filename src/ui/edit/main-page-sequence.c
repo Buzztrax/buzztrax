@@ -672,9 +672,11 @@ static gboolean on_delayed_track_level_change(GstClock *clock,GstClockTime time,
   GstMessage *message=(GstMessage *)params[1];
   GtkVUMeter *vumeter;
   
-  if(!GST_CLOCK_TIME_IS_VALID(time))
+  if(!GST_CLOCK_TIME_IS_VALID(time) || !self)
     goto done;
-  
+
+  g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+
   if((vumeter=g_hash_table_lookup(self->priv->level_to_vumeter,GST_MESSAGE_SRC(message)))) {
     const GstStructure *structure=gst_message_get_structure(message);
     const GValue *l_cur,*l_peak;
@@ -736,6 +738,7 @@ static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer u
       
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
+        g_object_add_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
         clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
         gst_clock_id_wait_async(clock_id,on_delayed_track_level_change,(gpointer)params);
         gst_clock_id_unref(clock_id);
