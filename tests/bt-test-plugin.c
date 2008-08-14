@@ -384,7 +384,7 @@ GType bt_test_poly_source_get_type(void) {
 
 //-- plugin handling
 
-#ifndef HAVE_GST_PLUGIN_REGISTER_STATIC
+#if !GST_CHECK_VERSION(0,10,16)
 static
 #endif
 gboolean bt_test_plugin_init (GstPlugin * plugin) {
@@ -397,7 +397,7 @@ gboolean bt_test_plugin_init (GstPlugin * plugin) {
   return TRUE;
 }
 
-#ifndef HAVE_GST_PLUGIN_REGISTER_STATIC
+#if !GST_CHECK_VERSION(0,10,16)
 GST_PLUGIN_DEFINE_STATIC(
   GST_VERSION_MAJOR,
   GST_VERSION_MINOR,

@@ -356,7 +356,7 @@ static void bt_song_info_set_property(GObject      * const object,
           strcpy(self->priv->change_dts,dts);
           // parse date and update tag
           strptime(dts, "%FT%TZ", &tm);
-#ifdef HAVE_GLIB_2_10
+#if GLIB_CHECK_VERSION(2,10,0)
           g_date_set_time_t(self->priv->tag_date,mktime(&tm));
 #else
           g_date_set_time(self->priv->tag_date,mktime(&tm));
@@ -367,7 +367,7 @@ static void bt_song_info_set_property(GObject      * const object,
       else {
         time_t now=time(NULL);
         strftime(self->priv->change_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
-#ifdef HAVE_GLIB_2_10
+#if GLIB_CHECK_VERSION(2,10,0)
         g_date_set_time_t(self->priv->tag_date,now);
 #else
         g_date_set_time(self->priv->tag_date,now);
@@ -434,7 +434,7 @@ static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_cl
 
   // init taglist
   self->priv->tag_date=g_date_new();
-#ifdef HAVE_GLIB_2_10
+#if GLIB_CHECK_VERSION(2,10,0)
   g_date_set_time_t(self->priv->tag_date,now);
 #else
   g_date_set_time(self->priv->tag_date,now);

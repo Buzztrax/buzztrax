@@ -310,50 +310,6 @@ AC_SUBST(GTK_PREFIX)
 AC_SUBST(GST_PREFIX)
 AC_SUBST(GCANVAS_PREFIX)
 
-AC_MSG_CHECKING([glib version >= 2.10])
-if pkg-config --atleast-version=2.10 glib-2.0; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GLIB_2_10, [1], [Define to 1 if we can use API new in glib-2.10])
-else
-  AC_MSG_RESULT(no)
-fi
-AC_MSG_CHECKING([glib version >= 2.12])
-if pkg-config --atleast-version=2.12 glib-2.0; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GLIB_2_12, [1], [Define to 1 if we can use API new in glib-2.12])
-else
-  AC_MSG_RESULT(no)
-fi
-AC_MSG_CHECKING([glib version >= 2.14])
-if pkg-config --atleast-version=2.14 glib-2.0; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GLIB_2_14, [1], [Define to 1 if we can use API new in glib-2.14])
-else
-  AC_MSG_RESULT(no)
-fi
-
-AC_MSG_CHECKING([gtk+ version >= 2.10])
-if pkg-config --atleast-version=2.10 gtk+-2.0; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GTK_2_10, [1], [Define to 1 if we can use API new in gtk-2.10])
-else
-  AC_MSG_RESULT(no)
-fi
-AC_MSG_CHECKING([gtk+ version >= 2.10.7])
-if pkg-config --atleast-version=2.10.7 gtk+-2.0; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GTK_2_10_7, [1], [Define to 1 if we can use API new in gtk-2.10.7])
-else
-  AC_MSG_RESULT(no)
-fi
-AC_MSG_CHECKING([gtk+ version >= 2.12])
-if pkg-config --atleast-version=2.12 gtk+-2.0; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GTK_2_12, [1], [Define to 1 if we can use API new in gtk-2.12])
-else
-  AC_MSG_RESULT(no)
-fi
-
 dnl check for pending gtk+ addditions
 dnl ac_libs_save="$LIBS"
 dnl AC_CHECK_LIB( gtk-x11-2.0, gtk_tree_view_column_set_wrap_header_widget, \
@@ -361,46 +317,18 @@ dnl   AC_DEFINE(HAVE_GTK_TREE_VIEW_COLUMN_PATCH, [1], [Define to 1 if we have th
 dnl )
 dnl LIBS="$ac_libs_save"
 
-dnl check for cvs gstreamer additions
-ac_cflags_save="$CFLAGS"
-ac_cppflags_save="$CPPFLAGS"
-ac_ldflags_save="$LDFLAGS"
-CFLAGS="$CFLAGS $BASE_DEPS_CFLAGS"
-CPPFLAGS="$CPPFLAGS $BASE_DEPS_CFLAGS"
-LDFLAGS="$LDFLAGS $BASE_DEPS_LIBS"
-AC_CHECK_HEADERS(gst/gstdebugutils.h)
-AC_CHECK_HEADERS(gst/gstpreset.h)
-dnl since 0.10.16
-ac_libs_save="$LIBS"
-AC_CHECK_LIB( gstreamer-0.10, gst_plugin_register_static, \ 	 
-  AC_DEFINE(HAVE_GST_PLUGIN_REGISTER_STATIC, [1], [Define to 1 if we have the gst_plugin_register_static]) \
-)
-LIBS="$ac_libs_save"
-CFLAGS="$ac_cflags_save"
-CPPFLAGS="$ac_cppflags_save"
-LDFLAGS="$ac_ldflags_save"
-
-AC_MSG_CHECKING([gstreamer version >= 0.10.11])
-if pkg-config --atleast-version=0.10.11 gstreamer-0.10; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GST_0_10_11, [1], [Define to 1 if we can use API new in gstreamer-0.10.11])
-else
-  AC_MSG_RESULT(no)
-fi
-AC_MSG_CHECKING([gstreamer version >= 0.10.14])
-if pkg-config --atleast-version=0.10.14 gstreamer-0.10; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GST_0_10_14, [1], [Define to 1 if we can use API new in gstreamer-0.10.14])
-else
-  AC_MSG_RESULT(no)
-fi
-AC_MSG_CHECKING([gstreamer version >= 0.10.15])
-if pkg-config --atleast-version=0.10.15 gstreamer-0.10; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GST_0_10_15, [1], [Define to 1 if we can use API new in gstreamer-0.10.15])
-else
-  AC_MSG_RESULT(no)
-fi
+#dnl check for cvs gstreamer additions
+#ac_cflags_save="$CFLAGS"
+#ac_cppflags_save="$CPPFLAGS"
+#ac_ldflags_save="$LDFLAGS"
+#CFLAGS="$CFLAGS $BASE_DEPS_CFLAGS"
+#CPPFLAGS="$CPPFLAGS $BASE_DEPS_CFLAGS"
+#LDFLAGS="$LDFLAGS $BASE_DEPS_LIBS"
+#AC_CHECK_HEADERS(gst/gstpreset.h)
+#LIBS="$ac_libs_save"
+#CFLAGS="$ac_cflags_save"
+#CPPFLAGS="$ac_cppflags_save"
+#LDFLAGS="$ac_ldflags_save"
 
 dnl Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"

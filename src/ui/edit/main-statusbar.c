@@ -243,7 +243,7 @@ static gboolean on_cpu_load_update(gpointer user_data) {
 static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditApplication *app) {
   GtkWidget *ev_box;
   gchar str[]="00:00.000";
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 

@@ -46,7 +46,7 @@ extern void bt_gst_element_dbg_pads(GstElement * const elem);
 
 //-- gst compat
 
-#ifndef HAVE_GST_0_10_11
+#if !GST_CHECK_VERSION(0,10,11)
 extern G_CONST_RETURN gchar *  gst_element_state_change_return_get_name(GstStateChangeReturn state_ret);
 #endif
 

@@ -521,7 +521,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);
       g_free(msg);
     }
-#ifdef HAVE_GTK_2_10
+#if GTK_CHECK_VERSION(2,10,0)
     else {
       // store recent file
       GtkRecentManager *manager=gtk_recent_manager_get_default();
@@ -712,7 +712,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
         bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
         g_free(msg);
       }
-#ifdef HAVE_GTK_2_10
+#if GTK_CHECK_VERSION(2,10,0)
       else {
         // store recent file
         GtkRecentManager *manager=gtk_recent_manager_get_default();

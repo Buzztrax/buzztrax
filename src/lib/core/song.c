@@ -1039,7 +1039,7 @@ void bt_song_write_to_highlevel_dot_file(const BtSong * const self) {
  * </programlisting></informalexample>
  */
 void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
-#ifndef HAVE_GST_GSTDEBUGUTILS_H
+#if !GST_CHECK_VERSION(0,10,15)
   FILE *out;
   gchar * const song_name;
 

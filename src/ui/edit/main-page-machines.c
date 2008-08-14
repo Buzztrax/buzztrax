@@ -925,7 +925,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   GtkWidget *image,*scrolled_window;
   GtkWidget *tool_item;
   gchar *density;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 

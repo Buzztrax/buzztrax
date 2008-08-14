@@ -86,7 +86,7 @@ static gboolean bt_init_post (void) {
   //gst_controller_init(argc,argv);
   gst_controller_init(NULL,NULL);
   
-#ifdef HAVE_GST_PLUGIN_REGISTER_STATIC
+#if GST_CHECK_VERSION(0,10,16)
   /* @todo: requires gst-0.10.16 */
   extern gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin);
   gst_plugin_register_static(GST_VERSION_MAJOR,

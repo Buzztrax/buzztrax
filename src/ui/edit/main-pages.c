@@ -130,7 +130,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
 
 static void bt_main_pages_init_tab(const BtMainPages *self,guint index,gchar *str,gchar *icon,gchar *tip) {
   GtkWidget *label,*event_box,*box,*image;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 

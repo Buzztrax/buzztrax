@@ -1,3 +1,33 @@
+2008-08-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/core.c:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song.c:
+	* src/lib/core/tools.c:
+	* src/lib/core/wire.c:
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/btmemoryaudiosrc.c:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/tools.h:
+	* tests/bt-check.c:
+	* tests/bt-test-plugin.c:
+	  Use XXX_CHECK_VERSION macros.
+
 2008-08-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/Makefile.am:

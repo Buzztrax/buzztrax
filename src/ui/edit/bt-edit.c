@@ -44,7 +44,7 @@
 #include "bt-edit.h"
 
 static void usage(int argc, char **argv, GOptionContext *ctx) {
-#if HAVE_GLIB_2_14
+#if GLIB_CHECK_VERSION(2,14,0)
 // @idea: show as dialog?
   gchar *help=g_option_context_get_help(ctx, TRUE, NULL);
   puts(help);
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
   g_set_application_name("Buzztard");
   gtk_window_set_default_icon_name("buzztard");
   
-#ifdef HAVE_GST_PLUGIN_REGISTER_STATIC
+#if GST_CHECK_VERSION(0,10,16)
   /* @todo: requires gst-0.10.16 */
   extern gboolean bt_memory_audio_src_plugin_init (GstPlugin * const plugin);
   gst_plugin_register_static(GST_VERSION_MAJOR,

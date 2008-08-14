@@ -991,7 +991,7 @@ void bt_wire_get_param_details(const BtWire * const self, const gulong index, GP
  */
 void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value) {
   GObject *param_parent=NULL;
-#ifdef HAVE_GST_0_10_14
+#if GST_CHECK_VERSION(0,10,14)
   GstControlSource *cs;
 #endif
 
@@ -1015,7 +1015,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
 
     // check if the property is alredy controlled
     if(self->priv->wire_controller[param]) {
-#ifdef HAVE_GST_0_10_14
+#if GST_CHECK_VERSION(0,10,14)
       if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
         if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
           add=FALSE;
@@ -1037,7 +1037,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
       self->priv->wire_controller[param]=ctrl;
     }
     //GST_INFO("set wire controller: %"GST_TIME_FORMAT" param %d:%s",GST_TIME_ARGS(timestamp),param,name);
-#ifdef HAVE_GST_0_10_14
+#if GST_CHECK_VERSION(0,10,14)
     if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
       gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
       g_object_unref(cs);
@@ -1051,7 +1051,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
       gboolean remove=TRUE;
 
       //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
-#ifdef HAVE_GST_0_10_14
+#if GST_CHECK_VERSION(0,10,14)
       if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
         gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
         g_object_unref(cs);
@@ -1061,7 +1061,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
 #endif
 
       // check if the property is not having control points anymore
-#ifdef HAVE_GST_0_10_14
+#if GST_CHECK_VERSION(0,10,14)
       if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],WIRE_PARAM_NAME(param)))) {
         if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
           remove=FALSE;

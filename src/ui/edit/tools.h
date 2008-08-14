@@ -37,7 +37,7 @@ extern GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name
 
 /* gtk+ compatibillity */
 
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
 
 #define gtk_widget_set_tooltip_text(widget,text) \
     gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,text,NULL)

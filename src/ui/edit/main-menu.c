@@ -78,7 +78,7 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   g_object_unref(main_window);
 }
 
-#ifdef HAVE_GTK_2_10
+#if GTK_CHECK_VERSION(2,10,0)
 static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   GtkRecentInfo *info;
@@ -539,7 +539,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_open_activate),(gpointer)self);
 
-#ifdef HAVE_GTK_2_10
+#if GTK_CHECK_VERSION(2,10,0)
   subitem = gtk_menu_item_new_with_mnemonic (_("_Recent used"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 

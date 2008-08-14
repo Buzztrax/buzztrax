@@ -30,7 +30,7 @@
 #include <signal.h>
 
 void bt_check_init(void) {
-#ifdef HAVE_GST_PLUGIN_REGISTER_STATIC
+#if GST_CHECK_VERSION(0,10,16)
   /* @todo: requires gst-0.10.16 */
   extern gboolean bt_test_plugin_init (GstPlugin * plugin);
   gst_plugin_register_static(GST_VERSION_MAJOR,

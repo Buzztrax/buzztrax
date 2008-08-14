@@ -58,7 +58,7 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkWidget *main_toolbar,*preset_toolbar;
   GtkWidget *preset_box;
   GtkWidget *preset_list;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *preset_tips;
 #endif
 
@@ -292,7 +292,7 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
       res=TRUE;
     }
-#ifdef HAVE_GST_0_10_14
+#if GST_CHECK_VERSION(0,10,14)
     else if(event->button == 1) {
       GstController *ctrl;
       if((ctrl=gst_object_get_controller(G_OBJECT(param_parent)))) {
@@ -305,7 +305,7 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
 }
 
 static gboolean on_button_release_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
-#ifdef HAVE_GST_0_10_14
+#if GST_CHECK_VERSION(0,10,14)
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
 
@@ -797,7 +797,7 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
   }
 }
 
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
 static void on_preset_list_motion_notify(GtkTreeView *tree_view,GdkEventMotion *event,gpointer user_data) {
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   GdkWindow *bin_window;
@@ -1123,7 +1123,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
   GValue *range_min,*range_max;
   GType base_type;
   gulong i,k,params;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 
@@ -1247,7 +1247,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
   GstObject *machine_voice;
   gchar *name;
   gulong i,k,params;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 
@@ -1418,7 +1418,7 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   GtkTreeSelection *tree_sel;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 
@@ -1453,7 +1453,7 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   gtk_widget_set_events(self->priv->preset_list,gtk_widget_get_events(self->priv->preset_list)|GDK_POINTER_MOTION_MASK);
   tree_sel=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_SINGLE);
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   self->priv->preset_tips=gtk_tooltips_new();
   gtk_tooltips_set_tip(self->priv->preset_tips,self->priv->preset_list,"",NULL);
   g_signal_connect(G_OBJECT(self->priv->preset_list), "motion-notify-event", G_CALLBACK(on_preset_list_motion_notify), (gpointer)self);
@@ -1503,7 +1503,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   gulong global_params,voice_params;
   GstElement *machine;
   BtSettings *settings;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
   

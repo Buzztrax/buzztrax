@@ -354,12 +354,8 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
     GST_WARNING("Can't instantiate '%s' element",plugin_name);goto Error;
   }
   if(GST_IS_BASE_SINK(element)) {
-    // enable syncing to timestamps and tell that there is no need to go async to paused
-//#if HAVE_GST_0_10_15
-//    g_object_set(element,"sync",TRUE,"async",FALSE,NULL);
-//#else
+    // enable syncing to timestamps
     g_object_set(element,"sync",TRUE,NULL);
-//#endif
     bt_sink_bin_configure_latency(self,element);
   }
   list=g_list_append(list,element);
@@ -953,7 +949,7 @@ GType bt_sink_bin_get_type(void) {
 
 //-- plugin handling
 
-#ifndef HAVE_GST_PLUGIN_REGISTER_STATIC
+#if !GST_CHECK_VERSION(0,10,16)
 static
 #endif
 gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin) {
@@ -961,7 +957,7 @@ gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin) {
   return TRUE;
 }
 
-#ifndef HAVE_GST_PLUGIN_REGISTER_STATIC
+#if !GST_CHECK_VERSION(0,10,16)
 GST_PLUGIN_DEFINE_STATIC(
   GST_VERSION_MAJOR,
   GST_VERSION_MINOR,

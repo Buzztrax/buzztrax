@@ -187,7 +187,7 @@ GstController *bt_gst_object_activate_controller(GObject *param_parent,gchar *pa
   GST_DEBUG("activate controller for %s:%s", GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"-",param_name);
 
   if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
-#ifdef HAVE_GST_0_10_14
+#if GST_CHECK_VERSION(0,10,14)
     GstInterpolationControlSource *cs=gst_interpolation_control_source_new();
     gst_controller_set_control_source(ctrl,param_name,GST_CONTROL_SOURCE(cs));
     // set interpolation mode depending on param type
@@ -208,13 +208,13 @@ GstController *bt_gst_object_activate_controller(GObject *param_parent,gchar *pa
  * Remove the controller object.
  */
 void bt_gst_object_deactivate_controller(GObject *param_parent,gchar *param_name) {
-#ifdef HAVE_GST_0_10_14
+#if GST_CHECK_VERSION(0,10,14)
   GstController *ctrl;
 #endif
 
   GST_DEBUG("deactivate controller for %s:%s", GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"-",param_name);
 
-#ifdef HAVE_GST_0_10_14
+#if GST_CHECK_VERSION(0,10,14)
   if((ctrl=gst_object_get_controller(param_parent))) {
     GstControlSource *cs=gst_controller_get_control_source(ctrl,param_name);
     if(cs) {
@@ -230,7 +230,7 @@ void bt_gst_object_deactivate_controller(GObject *param_parent,gchar *param_name
 
 //-- gst compat
 
-#ifndef HAVE_GST_0_10_11
+#if !GST_CHECK_VERSION(0,10,11)
 /**
  * gst_element_state_change_return_get_name:
  * @state_ret: a #GstStateChangeReturn to get the name of.

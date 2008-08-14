@@ -1916,7 +1916,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     }
     else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
       // work around http://bugzilla.gnome.org/show_bug.cgi?id=371756
-#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
+#if GTK_CHECK_VERSION(2,10,0) && !GTK_CHECK_VERSION(2,10,7)
       gboolean changed=FALSE;
 
       switch(event->keyval) {
@@ -1948,7 +1948,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         switch(event->keyval) {
           case GDK_Up:
             if((self->priv->cursor_row>=0)
-#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
+#if GTK_CHECK_VERSION(2,10,0) && !GTK_CHECK_VERSION(2,10,7)
               && changed
 #endif
               ) {
@@ -2589,7 +2589,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   GtkTreeViewColumn *tree_col;
   GtkTreeSelection *tree_sel;
   GtkAdjustment *vadjust, *hadjust;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 

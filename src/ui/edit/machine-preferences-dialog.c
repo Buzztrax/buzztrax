@@ -206,7 +206,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   GstElement *machine;
   GParamSpec **properties,*property;
   guint i,k,props,number_of_properties;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 

@@ -1013,7 +1013,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   GtkWidget *tool_item;
   GtkWidget *scrolled_window;
   GtkCellRenderer *renderer;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
   GEnumClass *enum_class;

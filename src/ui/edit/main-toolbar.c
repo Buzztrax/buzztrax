@@ -578,7 +578,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkWidget *tool_item;
   GtkWidget *box;
   gulong i;
-#ifndef HAVE_GTK_2_12
+#if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 
