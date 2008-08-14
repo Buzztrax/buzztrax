@@ -1,5 +1,19 @@
 2008-08-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/persistence.c:
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/wave.c:
+	* tests/Makefile.am:
+	* tests/bt-cmd-info.sh:
+	* tests/songs/samples1.bzt:
+	* tests/songs/samples2.bzt:
+	  Add two files with waves and fix two bugs.
+
+	* tests/lib/core/e-song-io-native.c:
+	  Add info why this seems to timeout.
+
+2008-08-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/Makefile.am:
 	* tests/bt-cmd-convert.sh:
 	* tests/bt-cmd-encode.sh:

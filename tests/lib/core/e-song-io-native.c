@@ -146,6 +146,7 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
 }
 BT_END_TEST
 
+/* for testing we use autoaudiosink and that slows down loging files here :/ */
 BT_START_TEST(test_btsong_io_native_song_refcounts) {
   BtApplication *app=NULL;
   BtSong *song=NULL;

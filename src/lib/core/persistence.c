@@ -125,6 +125,8 @@ const gchar *bt_persistence_strfmt_enum(GType enum_type,gint value) {
  * Returns: the interger value for the enum, or -1 for invalid strings.
  */
 gint bt_persistence_parse_enum(GType enum_type,const gchar *str) {
+  if(!str) return(-1);
+
   GEnumClass *enum_class=g_type_class_ref(enum_type);
   GEnumValue *enum_value=g_enum_get_value_by_nick(enum_class,str);
   g_type_class_unref(enum_class);

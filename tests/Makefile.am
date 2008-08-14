@@ -109,6 +109,8 @@ noinst_songdata = \
 	songs/broken3.xml \
 	songs/broken4.xml \
 	songs/example.xml \
+	songs/samples1.bzt \
+	songs/samples2.bzt \
 	songs/simple1.xml \
 	songs/simple2.xml \
 	songs/simple3.xml \

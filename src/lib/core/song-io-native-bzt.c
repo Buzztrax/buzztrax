@@ -94,9 +94,10 @@ gboolean bt_song_io_native_bzt_copy_to_fd(const BtSongIONativeBZT * const self, 
     }
     else {
       GST_WARNING("error opening \"%s\"",parts[i]);
+      num=0;
     }
     if(infile!=self->priv->infile)
-      g_object_unref(G_OBJECT(self->priv->infile));
+      g_object_unref(G_OBJECT(infile));
     infile=tmp_infile;
   }
   g_strfreev(parts);
@@ -106,6 +107,7 @@ gboolean bt_song_io_native_bzt_copy_to_fd(const BtSongIONativeBZT * const self, 
 #else
   // this won't work : http://bugzilla.gnome.org/show_bug.cgi?id=540521
   // there will be new api in libgsf-1.14.9
+  // opensuse-11.0 has 1.14.8
   // gsf_infile_child_by_aname / gsf_infile_child_by_vaname
   if((data=gsf_infile_child_by_name(self->priv->infile,file_name))) {
 #endif

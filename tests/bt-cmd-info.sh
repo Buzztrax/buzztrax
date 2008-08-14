@@ -7,6 +7,7 @@
 E_SONGS="$TESTSONGDIR/buzz*.xml \
     $TESTSONGDIR/combi*.xml \
     $TESTSONGDIR/melo*.xml \
+    $TESTSONGDIR/samples*.bzt \
     $TESTSONGDIR/simple*.xml \
     $TESTSONGDIR/simple*.bzt \
     $TESTSONGDIR/broken2.xml \

@@ -502,7 +502,7 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
         uri=g_strdup_printf("fd://%d",self->priv->ext_fd);
       }
       else {
-        GST_ERROR("error loading %s",fp);
+        GST_ERROR("error loading [%d] %s",index,fp);
         close(self->priv->ext_fd);
         self->priv->ext_fd=-1;
       }
