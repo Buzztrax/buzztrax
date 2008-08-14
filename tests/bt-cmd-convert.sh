@@ -5,8 +5,11 @@
 . ./bt-cfg.sh
 
 #E_SONGS="$TESTSONGDIR/buzz*.xml $TESTSONGDIR/combi*.xml $TESTSONGDIR/melo*.xml $TESTSONGDIR/simple*.xml"
-E_SONGS="$TESTSONGDIR/melo*.xml $TESTSONGDIR/simple*.xml"
-T_SONGS="$TESTSONGDIR/broken*.xml $TESTSONGDIR/test*.xml"
+E_SONGS="$TESTSONGDIR/melo*.xml \
+    $TESTSONGDIR/simple*.xml"
+
+T_SONGS="$TESTSONGDIR/broken*.xml \
+    $TESTSONGDIR/test*.xml"
 
 rm -f /tmp/bt_cmd_convert.log
 mkdir -p $TESTRESULTDIR

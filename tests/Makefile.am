@@ -85,10 +85,6 @@ endif
 
 songdatadir = $(datadir)/$(PACKAGE)/songs
 songdata_DATA = \
-	songs/broken1.xml \
-	songs/broken2.xml \
-	songs/broken3.xml \
-	songs/broken4.xml \
 	songs/buzz1.xml \
 	songs/buzz2.xml \
 	songs/buzz3.xml \
@@ -101,17 +97,28 @@ songdata_DATA = \
 	songs/combi1.xml \
 	songs/combi2.xml \
 	songs/combi3.xml \
-	songs/example.xml \
 	songs/melo1.xml \
 	songs/melo2.xml \
 	songs/melo3.xml \
 	songs/melo4.xml \
-	songs/melo5.xml \
+	songs/melo5.xml
+noinst_songdata = \
+	songs/broken1.xml \
+	songs/broken1.bzt \
+	songs/broken2.xml \
+	songs/broken3.xml \
+	songs/broken4.xml \
+	songs/example.xml \
 	songs/simple1.xml \
 	songs/simple2.xml \
 	songs/simple3.xml \
 	songs/simple4.xml \
 	songs/simple5.xml \
+	songs/simple1.bzt \
+	songs/simple2.bzt \
+	songs/simple3.bzt \
+	songs/simple4.bzt \
+	songs/simple5.bzt \
 	songs/test-simple1.xml \
 	songs/test-simple2.xml \
 	songs/test-simple3.xml \
@@ -119,7 +126,7 @@ songdata_DATA = \
 	songs/test-simple5.xml
 
 EXTRA_DIST = \
-	$(songdata_DATA) \
+	$(songdata_DATA) $(noinst_songdata) \
 	gtkdoccomplete.sh povalid.sh xmlvalid.sh \
 	bt-cfg.sh.in bt-cmd-info.sh bt-cmd-encode.sh \
 	bt-cmd-cli.sh bt-edit-cli.sh

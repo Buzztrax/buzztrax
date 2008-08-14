@@ -4,8 +4,17 @@
 
 . ./bt-cfg.sh
 
-E_SONGS="$TESTSONGDIR/buzz*.xml $TESTSONGDIR/combi*.xml $TESTSONGDIR/melo*.xml $TESTSONGDIR/simple*.xml $TESTSONGDIR/broken2.xml $TESTSONGDIR/test*.xml"
-T_SONGS="$TESTSONGDIR/broken1.xml $TESTSONGDIR/broken3.xml"
+E_SONGS="$TESTSONGDIR/buzz*.xml \
+    $TESTSONGDIR/combi*.xml \
+    $TESTSONGDIR/melo*.xml \
+    $TESTSONGDIR/simple*.xml \
+    $TESTSONGDIR/simple*.bzt \
+    $TESTSONGDIR/broken2.xml \
+    $TESTSONGDIR/test*.xml"
+
+T_SONGS="$TESTSONGDIR/broken1.xml \
+    $TESTSONGDIR/broken1.bzt \
+    $TESTSONGDIR/broken3.xml"
 
 rm -f /tmp/bt_cmd_info.log
 mkdir -p $TESTRESULTDIR

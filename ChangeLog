@@ -1,5 +1,19 @@
 2008-08-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/Makefile.am:
+	* tests/bt-cmd-convert.sh:
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	* tests/songs/broken1.bzt:
+	* tests/songs/simple2.bzt
+	* tests/songs/simple3.bzt
+	* tests/songs/simple4.bzt
+	* tests/songs/simple5.bzt
+	  Add test files for bzt. Don't install silly test files.
+	
+
+2008-08-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/core.c:
 	* src/lib/core/libbtcore/tools.h:
