@@ -1455,8 +1455,10 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
       if(main_window) {
         gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+#if !GTK_CHECK_VERSION(2,12,0)
         // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
         g_signal_emit_by_name (main_window, "keys-changed", 0);
+#endif
         g_object_unref(main_window);
       }
       // delay the pattern_table grab

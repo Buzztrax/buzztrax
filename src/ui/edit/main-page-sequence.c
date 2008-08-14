@@ -562,8 +562,10 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
       if(main_window) {
         gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+#if !GTK_CHECK_VERSION(2,12,0)
         // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
         g_signal_emit_by_name (main_window, "keys-changed", 0);
+#endif
         g_object_unref(main_window);
       }
       // delay the sequence_table grab
@@ -1295,17 +1297,17 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
  * Also update the current selected machine in pattern view.
  */
 static void update_after_track_changed(const BtMainPageSequence *self) {
-  BtPattern *pattern;
   BtMachine *machine;
-  GtkListStore *store;
-  GtkTreeIter tree_iter;
-  gulong index;
 
   GST_INFO("refresh pattern list");
-  store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
 
   machine=bt_main_page_sequence_get_current_machine(self);
   if(machine!=self->priv->machine) {
+    GtkListStore *store;
+    GtkTreeIter tree_iter;
+
+    store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
+
     if(self->priv->machine) {
       GST_INFO("unref old cur-machine %p,refs=%d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
       g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
@@ -1317,6 +1319,9 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
       self->priv->pattern_removed_handler=0;
     }
     if(machine) {
+      BtPattern *pattern;
+      gulong index;
+
       GST_INFO("ref new cur-machine: refs: %d",(G_OBJECT(machine))->ref_count);
       self->priv->pattern_added_handler=g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
       self->priv->pattern_removed_handler=g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
@@ -1392,13 +1397,16 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
       g_object_unref(pages);
       g_object_unref(main_window);     
     }
+    else {
+      GST_INFO("no machine for cursor_column: %d",self->priv->cursor_column);
+    }
+    gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
+  
+    g_object_unref(store); // drop with treeview
   }
   else {
     g_object_try_unref(machine);
   }
-  gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
-
-  g_object_unref(store); // drop with treeview
 }
 
 /*
@@ -1534,10 +1542,11 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   sequence_table_refresh(self,song);
   sequence_model_recolorize(self);
 
-  // update cursor_column and focus cell (-2 because last column is empty)
+  // update cursor_column and focus cell
+  // (-2 because last column is empty and first is label)
   columns=gtk_tree_view_get_columns(self->priv->sequence_table);
   self->priv->cursor_column=g_list_length(columns)-2;
-  GST_DEBUG("new cursor column: %d",self->priv->cursor_column);
+  GST_INFO("new cursor column: %d",self->priv->cursor_column);
   g_list_free(columns);
 
   sequence_view_set_cursor_pos(self);
@@ -1602,7 +1611,8 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
     sequence_table_refresh(self,song);
     sequence_model_recolorize(self);
 
-    // update cursor_column and focus cell (-2 because last column is empty)
+  // update cursor_column and focus cell
+  // (-2 because last column is empty and first is label)
     columns=gtk_tree_view_get_columns(self->priv->sequence_table);
     self->priv->cursor_column=g_list_length(columns)-2;
     GST_DEBUG("new cursor column: %d",self->priv->cursor_column);
