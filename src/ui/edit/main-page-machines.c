@@ -1095,6 +1095,10 @@ gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self,
   gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj),gain);
 
   /* show directly over mouse-pos */
+  /* @todo: move it so that the knob is under the mouse */
+  //gint mid; // works only after t has once been shown, but we know the height
+  //mid=GTK_WIDGET(self->priv->vol_popup)->allocation.height / 2;
+  //gtk_window_move(GTK_WINDOW(self->priv->vol_popup),xpos,ypos-mid);
   gtk_window_move(GTK_WINDOW(self->priv->vol_popup),xpos,ypos);
   bt_volume_popup_show(self->priv->vol_popup);
 
@@ -1128,6 +1132,7 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
     gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->pan_popup_adj),(gdouble)pan);
   
     /* show directly over mouse-pos */
+    /* @todo: move it so that the knob is under the mouse */
     gtk_window_move(GTK_WINDOW(self->priv->pan_popup),xpos,ypos);
     bt_panorama_popup_show(self->priv->pan_popup);
   }

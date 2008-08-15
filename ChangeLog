@@ -1,5 +1,22 @@
 2008-08-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* Makefile.am:
+	  Dist pot file for translation.
+
+	* src/lib/core/Makefile.am:
+	  Fix make dist.
+
+	* src/lib/core/song.c:
+	  Remove some obsolete code and add more warning.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  This is not a doc-comment for a public symbol.
+
+	* src/ui/edit/main-page-machines.c:
+	  Add todos.
+
+2008-08-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/main-page-sequence.c:
 	  Drop workaround if we have new enough gtk+. Update seuquence column

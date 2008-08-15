@@ -829,7 +829,7 @@ static void bt_machine_canvas_item_finalize(GObject *object) {
   GST_DEBUG("  done");
 }
 
-/**
+/*
  * bt_machine_canvas_item_realize:
  *
  * draw something that looks a bit like a buzz-machine
