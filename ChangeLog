@@ -1,5 +1,10 @@
 2008-08-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Only grab focus when we are visible.
+
+2008-08-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	  Dist pot file for translation.
 

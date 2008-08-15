@@ -2252,8 +2252,10 @@ void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern
   store=gtk_combo_box_get_model(self->priv->pattern_menu);
   pattern_model_get_iter_by_pattern(store,&iter,pattern);
   gtk_combo_box_set_active_iter(self->priv->pattern_menu,&iter);
-  // focus pattern editor
-  gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  if(GTK_WIDGET_REALIZED(self->priv->pattern_table) && GTK_WIDGET_MAPPED(self->priv->pattern_table)) {
+    // focus pattern editor
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  }
   // release the references
   g_object_unref(machine);
 }
@@ -2273,8 +2275,10 @@ void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine
   store=gtk_combo_box_get_model(self->priv->machine_menu);
   machine_model_get_iter_by_machine(store,&iter,machine);
   gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
-  // focus pattern editor
-  gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  if(GTK_WIDGET_REALIZED(self->priv->pattern_table) && GTK_WIDGET_MAPPED(self->priv->pattern_table)) {
+    // focus pattern editor
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  }
 }
 
 //-- cut/copy/paste
