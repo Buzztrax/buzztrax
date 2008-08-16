@@ -1,5 +1,13 @@
 2008-08-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-info.c:
+	  Don't crash on NULL details.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Set cursor to top-left cell, after loading a new song.
+
+2008-08-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWS:
 	* NEWSLETTER:
 	  Prepare for release and gather NEWS.

@@ -272,36 +272,40 @@ static void bt_song_info_set_property(GObject      * const object,
       GST_DEBUG("set the file-name for song_info: %s",self->priv->file_name);
     } break;
     case SONG_INFO_INFO: {
-      if(!self->priv->info || strcmp(self->priv->info,g_value_get_string(value))) {
+      const gchar *str=g_value_get_string(value);
+      if((self->priv->info!=str) || strcmp(self->priv->info,str)) {
         g_free(self->priv->info);
-        self->priv->info = g_value_dup_string(value);
+        self->priv->info = str ? g_value_dup_string(value) : NULL;
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DESCRIPTION, self->priv->info,NULL);
         bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the info for song_info: %s",self->priv->info);
       }
     } break;
     case SONG_INFO_NAME: {
-      if(!self->priv->name || strcmp(self->priv->name,g_value_get_string(value))) {
+      const gchar *str=g_value_get_string(value);
+      if((self->priv->name!=str) || strcmp(self->priv->name,str)) {
         g_free(self->priv->name);
-        self->priv->name = g_value_dup_string(value);
+        self->priv->name = str ? g_value_dup_string(value) : NULL;
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_TITLE, self->priv->name,NULL);
         bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the name for song_info: %s",self->priv->name);
       }
     } break;
     case SONG_INFO_GENRE: {
-      if(!self->priv->genre || strcmp(self->priv->genre,g_value_get_string(value))) {
+      const gchar *str=g_value_get_string(value);
+      if((self->priv->genre!=str) || strcmp(self->priv->genre,str)) {
         g_free(self->priv->genre);
-        self->priv->genre = g_value_dup_string(value);
+        self->priv->genre = str ? g_value_dup_string(value) : NULL;
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_GENRE, self->priv->genre,NULL);
         bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the genre for song_info: %s",self->priv->genre);
       }
     } break;
     case SONG_INFO_AUTHOR: {
-      if(!self->priv->author || strcmp(self->priv->author,g_value_get_string(value))) {
+      const gchar *str=g_value_get_string(value);
+      if((self->priv->author!=str) || strcmp(self->priv->author,str)) {
         g_free(self->priv->author);
-        self->priv->author = g_value_dup_string(value);
+        self->priv->author = str ? g_value_dup_string(value) : NULL;
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_ARTIST, self->priv->author,NULL);
         bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the author for song_info: %s",self->priv->author);

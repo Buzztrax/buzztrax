@@ -2554,6 +2554,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
   self->priv->level_to_vumeter=g_hash_table_new_full(NULL,NULL,(GDestroyNotify)gst_object_unref,NULL);
 
+  // reset cursor pos
+  self->priv->cursor_column=1;
+  self->priv->cursor_row=0;
+  
   // update page
   // update sequence and pattern list
   sequence_table_refresh(self,song);
