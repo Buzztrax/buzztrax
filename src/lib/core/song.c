@@ -416,7 +416,7 @@ static gboolean on_song_paused_timeout(gpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
   if(self->priv->is_preparing) {
-    GST_WARNING("->PAUSED timeout occured");
+    GST_WARNING("->PAUSED timeout occurred");
     bt_song_write_to_lowlevel_dot_file(self);
     bt_song_stop(self);
   }

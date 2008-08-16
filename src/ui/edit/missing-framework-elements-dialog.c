@@ -149,7 +149,7 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
   gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,FALSE,0);
   if(self->priv->core_elements) {
     GST_DEBUG("%d missing core elements",g_list_length(self->priv->core_elements));
-    make_listview(vbox,self->priv->core_elements,_("The elements listed below are missing from you installation, but are required."));
+    make_listview(vbox,self->priv->core_elements,_("The elements listed below are missing from your installation, but are required."));
   }
   if(self->priv->edit_elements) {
     BtSettings *settings;
@@ -189,7 +189,7 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
     }
 
     if(edit_elements) {
-      make_listview(vbox,edit_elements,_("The elements listed below are missing from you installation, but are recommended for full functionality."));
+      make_listview(vbox,edit_elements,_("The elements listed below are missing from your installation, but are recommended for full functionality."));
 
       self->priv->ignore_button=gtk_check_button_new_with_label(_("don't warn again"));
       gtk_box_pack_start(GTK_BOX(vbox),self->priv->ignore_button,FALSE,FALSE,0);

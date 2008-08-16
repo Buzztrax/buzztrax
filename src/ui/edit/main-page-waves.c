@@ -1078,6 +1078,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
 
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
+  /* Ix: index in wavetable */
   gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Ix"),renderer,"text",WAVE_TABLE_HEX_ID,NULL);
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
@@ -1113,7 +1114,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_paned_pack2(GTK_PANED(hpaned),GTK_WIDGET(box),TRUE,FALSE);
   //       toolbar
   self->priv->browser_toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(self->priv->browser_toolbar,_("sample browser tool bar"));
+  gtk_widget_set_name(self->priv->browser_toolbar,_("sample browser toolbar"));
 
   // add buttons (play,stop,load)
   self->priv->browser_play=tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));

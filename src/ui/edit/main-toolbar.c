@@ -121,7 +121,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   if(!is_playing) {
     gint i;
 
-    GST_INFO("song stop event occured: %p",g_thread_self());
+    GST_INFO("song stop event occurred: %p",g_thread_self());
     if(self->priv->playback_update_id) {
       g_source_remove(self->priv->playback_update_id);
       self->priv->playback_update_id=0;

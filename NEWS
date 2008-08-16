@@ -1,5 +1,12 @@
-0.4.0 ??? (??.???.2008)
+0.4.0 the light in your eyes (??.???.2008)
 ================================================================================
+As planned, main focus for this release was the wavetable support. Its done -
+buzztard can load what gstreamer can decode. The wavetable view has a nice
+waveform widget. Related to that buzztard has a new song-format that bundles the
+XML together with external files in a zip archive. 
+Also the UI has seen a lot of improvements. The machine view looks nicer - Marc
+drew spiffy machine icons. In addition they now show real volume meters when
+playing. All meters are now properly synced.
 
 0.3.1 after the ice (12.Apr.2008)
 ================================================================================

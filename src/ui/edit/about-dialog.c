@@ -70,6 +70,9 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
     "Jakub Steiner <jimmac@ximian.com>",
     NULL
   };
+  
+  gchar *copyright=g_alloca(strlen(_("Copyright \xc2\xa9 2003-%d Buzztard developer team"))+3);
+  sprintf(copyright,_("Copyright \xc2\xa9 2003-%d Buzztard developer team"),2008);
 
   /* we can get logo via icon name, so this here is just for educational purpose
   GdkPixbuf *logo;
@@ -86,7 +89,7 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
     "artists",artists,
     "authors",authors,
     "comments",_("Music production environment"),
-    "copyright",_("Copyright \xc2\xa9 2003-2008 Buzztard developer team"),
+    "copyright",copyright,
     "documenters", documenters,
     /* http://www.gnu.org/licenses/lgpl.html, http://www.gnu.de/lgpl-ger.html */
     "license", _(
@@ -121,12 +124,15 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
   gtk_text_view_set_editable(GTK_TEXT_VIEW(news), FALSE);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(news)),
-    _("Improvements in all areas. "
-      " We now have native buzzmachine support and better compatibility. "
-      "The buzztard editor got an own pattern editor widget. "
-      "The ui got lots of keyboard commands. "
-      "We have settings for default directories used. "
-      "The ui has dialogs for recording mix-downs and also single tracks."
+    _("As planned, main focus for this release was the wavetable support. "
+      "Its done - buzztard can load what gstreamer can decode."
+      "The wavetable view has a nice waveform widget. "
+      "Related to that buzztard has a new song-format that bundles the XML "
+      "together with external files in a zip archive. "
+      "Also the UI has seen a lot of improvements. "
+      "The machine view looks nicer - Marc drew spiffy machine icons. "
+      "In addition they now show real volume meters when playing. "
+      "All meters are now properly synced."
     ),-1);
 
   news_view = gtk_scrolled_window_new(NULL, NULL);

@@ -96,7 +96,7 @@ static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user
 
   if(!bt_edit_application_load_song(self->priv->app,file_name)) {
     BtMainWindow *main_window;
-    gchar *msg=g_strdup_printf(_("An error occured while loading the song from file '%s'"),file_name);
+    gchar *msg=g_strdup_printf(_("An error occurred while loading the song from file '%s'"),file_name);
     g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
     
     bt_dialog_message(main_window,_("Can't load song"),_("Can't load song"),msg);
@@ -540,7 +540,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_open_activate),(gpointer)self);
 
 #if GTK_CHECK_VERSION(2,10,0)
-  subitem = gtk_menu_item_new_with_mnemonic (_("_Recent used"));
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Recently"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 
   item=gtk_recent_chooser_menu_new_for_manager(gtk_recent_manager_get_default());

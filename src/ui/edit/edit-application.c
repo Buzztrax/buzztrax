@@ -569,7 +569,7 @@ static void bt_edit_application_set_property(GObject      *object,
 
       if(self->priv->song) {
         if(G_OBJECT(self->priv->song)->ref_count>1) {
-          GST_WARNING("old song->ref_ct=%d !",G_OBJECT(self->priv->song)->ref_count);
+          GST_WARNING("old song->ref_ct=%d!",G_OBJECT(self->priv->song)->ref_count);
         }
         else {
           GST_INFO("old song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);

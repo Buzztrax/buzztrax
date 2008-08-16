@@ -84,11 +84,11 @@ static void bt_song_io_register_plugins(void) {
    * so that apart from the detect ptr, we could keep the modules handle.
    * we need this to close the plugins at sometime ... (do we?)
    */
-  GST_INFO("register song-io plugins ...");
+  GST_INFO("register song-io plugins...");
   // register internal song-io plugin
   plugins=g_list_append(plugins,(gpointer)&bt_song_io_native_module_info);
   // registering external song-io plugins
-  GST_INFO("  scanning external song-io plugins in "LIBDIR"/songio/ ...");
+  GST_INFO("  scanning external song-io plugins in "LIBDIR"/songio/...");
   if(dirp) {
     const struct dirent *dire;
     gpointer bt_song_io_module_info=NULL;
@@ -156,7 +156,7 @@ static GType bt_song_io_detect(const gchar * const file_name) {
   // try all registered plugins
   for(node=plugins;node;node=g_list_next(node)) {
     info=(BtSongIOModuleInfo *)node->data;
-    GST_INFO("  trying ...");
+    GST_INFO("  trying...");
     // the detect function return a GType if the file matches to the plugin or
     // NULL otheriwse
     if((type=info->detect(file_name))) {

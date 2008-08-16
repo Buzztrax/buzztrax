@@ -87,7 +87,7 @@ void bt_machine_action_about(GstElement *machine,BtMainWindow *main_window) {
       _("by %s\n\n%s"),
       str_author,element_description
     );
-    bt_dialog_message(main_window,_("About ..."),element_longname,str);
+    bt_dialog_message(main_window,_("About..."),element_longname,str);
     
     g_free(str);g_free(str_author);
   }

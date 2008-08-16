@@ -593,7 +593,7 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
     (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
 
-  GST_DEBUG("realize for wire occured, wire=%p : w=%f,h=%f",self->priv->wire,self->priv->w,self->priv->h);
+  GST_DEBUG("realize for wire occurred, wire=%p : w=%f,h=%f",self->priv->wire,self->priv->w,self->priv->h);
 
   g_object_get(self->priv->wire,"gain",&self->priv->wire_gain,"pan",&self->priv->wire_pan,NULL);
   g_signal_connect(self->priv->wire_gain,"notify::volume",G_CALLBACK(on_gain_changed),(gpointer)self);
@@ -730,7 +730,7 @@ static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *even
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(citem);
   gboolean res=FALSE;
 
-  //GST_DEBUG("event for wire occured");
+  //GST_DEBUG("event for wire occurred");
 
   switch(event->type) {
     case GDK_BUTTON_PRESS:
@@ -802,7 +802,7 @@ static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) 
   gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
-  menu_item=gtk_menu_item_new_with_label(_("Signal Analysis ..."));
+  menu_item=gtk_menu_item_new_with_label(_("Signal Analysis..."));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_analysis_activate),(gpointer)self);

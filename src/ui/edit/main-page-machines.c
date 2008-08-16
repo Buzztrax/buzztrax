@@ -337,7 +337,7 @@ static BtMachineCanvasItem *bt_main_page_machines_get_machine_canvas_item_at(con
   BtMachineCanvasItem *mitem=NULL;
   GnomeCanvasItem *ci,*pci;
 
-  //GST_DEBUG("is there a machine at pos ?");
+  //GST_DEBUG("is there a machine at pos?");
 
   if((ci=gnome_canvas_get_item_at(self->priv->canvas,mouse_x,mouse_y))) {
     g_object_get(G_OBJECT(ci),"parent",&pci,NULL);
@@ -357,7 +357,7 @@ static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self)
   BtWire *wire1=NULL,*wire2=NULL;
   BtMachine *src_machine,*dst_machine;
 
-  GST_INFO("can we link to it ?");
+  GST_INFO("can we link to it?");
 
   g_assert(self->priv->new_wire_src);
   g_assert(self->priv->new_wire_dst);

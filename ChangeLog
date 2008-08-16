@@ -1,5 +1,29 @@
 2008-08-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWS:
+	* NEWSLETTER:
+	  Prepare for release and gather NEWS.
+
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/machine-actions.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Apply suggestions from translation project to improve strings. Many
+	  thanks to Benno Schulenberg.
+
+2008-08-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Add mapped -check to all grabs here, maybe we should do this globally
 	  in a helper. Also create new patterns when adding a new source-

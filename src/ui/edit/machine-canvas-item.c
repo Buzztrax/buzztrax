@@ -451,7 +451,7 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   g_free(id);
 
   // @todo: don't ask if machine has no patterns and is not connected
-  if(bt_dialog_question(main_window,_("Delete machine ..."),msg,_("There is no undo for this."))) {
+  if(bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no undo for this."))) {
     BtSong *song;
     BtSetup *setup;
 
@@ -576,7 +576,7 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
-  menu_item=gtk_menu_item_new_with_label(_("Rename ..."));
+  menu_item=gtk_menu_item_new_with_label(_("Rename..."));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_rename_activate),(gpointer)self);
@@ -843,7 +843,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
     (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
 
-  //GST_DEBUG("realize for machine occured, machine=%p",self->priv->machine);
+  //GST_DEBUG("realize for machine occurred, machine=%p",self->priv->machine);
 
   g_object_get(self->priv->machine,"id",&id,NULL);
 
@@ -923,7 +923,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   gdouble dx, dy, px, py;
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
 
-  //GST_DEBUG("event for machine occured");
+  //GST_DEBUG("event for machine occurred");
 
   switch (event->type) {
     case GDK_2BUTTON_PRESS:

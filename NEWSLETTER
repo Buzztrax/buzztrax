@@ -1,6 +1,8 @@
 2008/09 ========================================================================
 
 * synced meters (vu-meters and spectrum)
+* focus grabing fixes
+* add empty pattern by default when adding sources
 
 2008/08 ========================================================================
 

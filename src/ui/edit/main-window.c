@@ -219,7 +219,7 @@ static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gi
     gboolean res=TRUE;
 
     if(!bt_edit_application_load_song(self->priv->app,file_name)) {
-      gchar *msg=g_strdup_printf(_("An error occured while trying to load the song from file '%s'"),file_name);
+      gchar *msg=g_strdup_printf(_("An error occurred while trying to load the song from file '%s'"),file_name);
       bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);
       g_free(msg);
       res=FALSE;
@@ -409,7 +409,7 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
     g_object_unref(song);
   }
   if(unsaved) {
-    res=bt_dialog_question(self,_("Really quit ?"),_("Really quit ?"),_("All unsaved changes will be lost then."));
+    res=bt_dialog_question(self,_("Really quit?"),_("Really quit?"),_("All unsaved changes will be lost then."));
   }
 
   return(res);
@@ -433,7 +433,7 @@ void bt_main_window_new_song(const BtMainWindow *self) {
   }
   if(unsaved) {
     // @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
-    res=bt_dialog_question(self,_("New song ?"),_("New song ?"),_("All unsaved changes will be lost then."));
+    res=bt_dialog_question(self,_("New song?"),_("New song?"),_("All unsaved changes will be lost then."));
   }
   if(res) {
     if(!bt_edit_application_new_song(self->priv->app)) {
@@ -517,7 +517,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   // load after destoying the dialog, otherwise it stays open all time
   if(file_name) {
     if(!bt_edit_application_load_song(self->priv->app,file_name)) {
-      gchar *msg=g_strdup_printf(_("An error occured while loading the song from file '%s'"),file_name);
+      gchar *msg=g_strdup_printf(_("An error occurred while loading the song from file '%s'"),file_name);
       bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);
       g_free(msg);
     }
@@ -557,7 +557,7 @@ void bt_main_window_save_song(const BtMainWindow *self) {
   // check the file_name of the song
   if(file_name) {
     if(!bt_edit_application_save_song(self->priv->app,file_name)) {
-      gchar *msg=g_strdup_printf(_("An error occured while saving the song to file '%s'."),file_name);
+      gchar *msg=g_strdup_printf(_("An error occurred while saving the song to file '%s'."),file_name);
       bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
       g_free(msg);
     }
@@ -696,7 +696,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       switch(errno) {
         case EACCES:  // Permission denied.
           cont=FALSE;
-          msg=g_strdup_printf(_("An error occured while trying to open the file '%s' for writing: %s"),file_name,reason);
+          msg=g_strdup_printf(_("An error occurred while trying to open the file '%s' for writing: %s"),file_name,reason);
           bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
           g_free(msg);
           break;
@@ -708,7 +708,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     }
     if(cont) {
       if(!bt_edit_application_save_song(self->priv->app,file_name)) {
-        gchar *msg=g_strdup_printf(_("An error occured while trying to save the song to file '%s'."),file_name);
+        gchar *msg=g_strdup_printf(_("An error occurred while trying to save the song to file '%s'."),file_name);
         bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
         g_free(msg);
       }
