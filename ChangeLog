@@ -1,3 +1,15 @@
+2008-08-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add mapped -check to all grabs here, maybe we should do this globally
+	  in a helper. Also create new patterns when adding a new source-
+	  machine, like in buzz.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Update pattern list also when machine is the same, but pattern has
+	  been added/removed.
+	  
+
 2008-08-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

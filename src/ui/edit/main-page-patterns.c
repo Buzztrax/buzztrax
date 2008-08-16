@@ -1422,12 +1422,39 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   }
 }
 
+static BtPattern * add_new_pattern(const BtMainPagePatterns *self,BtMachine *machine) {
+  BtSong *song;
+  BtSongInfo *song_info;
+  BtPattern *pattern;
+  gchar *mid,*id,*name;
+  gulong bars;
+
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
+  g_object_get(G_OBJECT(machine),"id",&mid,NULL);
+
+  name=bt_machine_get_unique_pattern_name(machine);
+  id=g_strdup_printf("%s %s",mid,name);
+  // new_pattern
+  pattern=bt_pattern_new(song, id, name, bars, machine);
+  
+  // free ressources
+  g_free(mid);
+  g_free(id);
+  g_free(name);
+  g_object_unref(song_info);
+  g_object_unref(song);
+
+  return(pattern);
+}
+
 //-- event handler
 
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
-  if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
+  if(GTK_WIDGET_REALIZED(self->priv->pattern_table) && GTK_WIDGET_MAPPED(self->priv->pattern_table)) {
     gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
   }
   return(FALSE);
@@ -1510,7 +1537,7 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   GST_INFO("new pattern selected : %p",self->priv->pattern);
   pattern_table_refresh(self,self->priv->pattern);
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
-  if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
+  if(GTK_WIDGET_REALIZED(self->priv->pattern_table) && GTK_WIDGET_MAPPED(self->priv->pattern_table)) {
     gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
   }
   if(self->priv->pattern) {
@@ -1527,7 +1554,7 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
 
   self->priv->base_octave=gtk_combo_box_get_active(self->priv->base_octave_menu);
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,NULL);
-  if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
+  if(GTK_WIDGET_REALIZED(self->priv->pattern_table) && GTK_WIDGET_MAPPED(self->priv->pattern_table)) {
     gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
   }
 }
@@ -1540,6 +1567,12 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   g_assert(user_data);
 
   GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
+  
+  if(BT_IS_SOURCE_MACHINE(machine)) {
+    BtPattern *pattern=add_new_pattern(self, machine);
+    g_object_unref(pattern);
+  }
+  
   store=gtk_combo_box_get_model(self->priv->machine_menu);
   machine_menu_add(self,machine,GTK_LIST_STORE(store));
 
@@ -1740,28 +1773,18 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
 static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMainWindow *main_window;
-  BtSong *song;
-  BtSongInfo *song_info;
   BtMachine *machine;
   BtPattern *pattern;
-  gchar *mid,*id,*name;
   GtkWidget *dialog;
-  gulong bars;
 
   g_assert(user_data);
 
   machine=bt_main_page_patterns_get_current_machine(self);
   g_return_if_fail(machine);
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-  g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
-  g_object_get(G_OBJECT(machine),"id",&mid,NULL);
-
-  name=bt_machine_get_unique_pattern_name(machine);
-  id=g_strdup_printf("%s %s",mid,name);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   // new_pattern
-  pattern=bt_pattern_new(song, id, name, bars, machine);
+  pattern=add_new_pattern(self, machine);
 
   // pattern_properties
   if((dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern)))) {
@@ -1782,12 +1805,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
   }
 
   // free ressources
-  g_free(mid);
-  g_free(id);
-  g_free(name);
   g_object_unref(pattern);
-  g_object_unref(song_info);
-  g_object_unref(song);
   g_object_unref(machine);
   g_object_unref(main_window);
   GST_DEBUG("new pattern done");
