@@ -1039,7 +1039,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_paned_pack1(GTK_PANED(hpaned),GTK_WIDGET(box),FALSE,FALSE);
   //       toolbar
   self->priv->list_toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(self->priv->list_toolbar,_("sample list tool bar"));
+  gtk_widget_set_name(self->priv->list_toolbar,_("sample list toolbar"));
 
   // add buttons (play,stop,clear)
   self->priv->wavetable_play=tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
@@ -1153,7 +1153,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_paned_pack2(GTK_PANED(vpaned),GTK_WIDGET(box),FALSE,FALSE);
   //     toolbar
   self->priv->editor_toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(self->priv->editor_toolbar,_("sample edit tool bar"));
+  gtk_widget_set_name(self->priv->editor_toolbar,_("sample edit toolbar"));
 
   gtk_box_pack_start(GTK_BOX(box),self->priv->editor_toolbar,FALSE,FALSE,0);
 

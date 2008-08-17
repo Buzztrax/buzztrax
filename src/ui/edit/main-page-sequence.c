@@ -2617,7 +2617,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
 
   // add toolbar
   toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(toolbar,_("sequence view tool bar"));
+  gtk_widget_set_name(toolbar,_("sequence view toolbar"));
   gtk_box_pack_start(GTK_BOX(self),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
   // add toolbar widgets

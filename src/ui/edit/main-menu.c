@@ -540,7 +540,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_open_activate),(gpointer)self);
 
 #if GTK_CHECK_VERSION(2,10,0)
-  subitem = gtk_menu_item_new_with_mnemonic (_("_Recently"));
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Recently used"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 
   item=gtk_recent_chooser_menu_new_for_manager(gtk_recent_manager_get_default());

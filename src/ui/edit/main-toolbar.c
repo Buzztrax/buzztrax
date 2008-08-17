@@ -582,7 +582,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 
-gtk_widget_set_name(GTK_WIDGET(self),_("main tool bar"));
+gtk_widget_set_name(GTK_WIDGET(self),_("main toolbar"));
 
   //-- file controls
 

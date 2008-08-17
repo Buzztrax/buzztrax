@@ -61,9 +61,9 @@ BT_START_TEST(test_btsinkmachine_settings1) {
 
   //g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
 
-  g_object_unref(settings);
   //g_free(saved_audiosink_name);
   g_object_unref(machine);
+  g_object_unref(settings);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }

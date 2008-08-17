@@ -80,6 +80,7 @@ static void assert_song_part_refcounts(BtSong *song) {
 
 BT_START_TEST(test_btsong_io_native_refcounts) {
   BtApplication *app=NULL;
+  BtSettings *settings;
   BtSong *song=NULL;
   BtSongIO *song_io;
   gboolean res;
@@ -91,6 +92,9 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
+  
+  settings=bt_settings_new();
+  g_object_set(settings,"audiosink","fakesink sync=false",NULL);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -139,6 +143,7 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   g_object_unref(sequence);
   g_object_unref(songinfo);
   g_object_unref(wavetable);
+  g_object_unref(settings);
 
   g_object_checked_unref(song_io);
   g_object_checked_unref(song);

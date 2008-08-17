@@ -842,7 +842,7 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
   g_object_class_install_property(gobject_class,MAIN_WINDOW_TOOLBAR,
                                   g_param_spec_object("toolbar",
                                      "toolbar prop",
-                                     "Get the tool bar",
+                                     "Get the toolbar",
                                      BT_TYPE_MAIN_TOOLBAR, /* object type */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 

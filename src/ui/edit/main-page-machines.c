@@ -949,7 +949,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
 
   // add toolbar
   self->priv->toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(self->priv->toolbar,_("machine view tool bar"));
+  gtk_widget_set_name(self->priv->toolbar,_("machine view toolbar"));
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_FIT));
   gtk_widget_set_name(tool_item,_("Zoom Fit"));
