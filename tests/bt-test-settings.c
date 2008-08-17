@@ -29,6 +29,8 @@
 #define BT_CORE
 #define BT_TEST_SETTINGS_C
 
+#include "bt-check.h"
+
 #include <libbtcore/core.h>
 #include "bt-test-settings.h"
 
@@ -140,7 +142,7 @@ static void bt_test_settings_set_property(GObject      * const object,
     case BT_SETTINGS_FOLDER_SAMPLE:
     {
       if(!prop) {
-        prop=self->priv->settings[property_id]=g_new0(GValue,1);
+        self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_STRING);
       }
       g_value_set_string(prop, g_value_get_string(value));
@@ -149,7 +151,7 @@ static void bt_test_settings_set_property(GObject      * const object,
     case BT_SETTINGS_MENU_TABS_HIDE:
     {
       if(!prop) {
-        prop=self->priv->settings[property_id]=g_new0(GValue,1);
+        self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_BOOLEAN);
       }
       g_value_set_boolean(prop, g_value_get_boolean(value));

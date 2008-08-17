@@ -101,7 +101,7 @@ void bt_settings_set_factory(BtSettingsFactory factory) {
     bt_settings_factory=factory;
   }
   else {
-    GST_INFO("can't change factory while having %d living instances",G_OBJECT(singleton)->ref_count);
+    GST_WARNING("can't change factory while having %d living instances",G_OBJECT(singleton)->ref_count);
   }
 }
 

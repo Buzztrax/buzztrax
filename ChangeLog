@@ -1,3 +1,14 @@
+2008-08-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/settings.c:
+	  Turn INFO in WARNING.
+
+	* tests/bt-test-settings.c:
+	  Preserve changed values.
+
+	* tests/lib/core/e-song-io-native.c:
+	  Override audiosink for right test.
+
 2008-08-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:
