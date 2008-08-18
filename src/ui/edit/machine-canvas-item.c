@@ -750,6 +750,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
             GST_INFO("enabling input level for machine failed");
           }
         }
+        GST_INFO("activating level-meters done : %p, %p",self->priv->output_level,self->priv->input_level);
       }
     } break;
     case MACHINE_CANVAS_ITEM_ZOOM: {

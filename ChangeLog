@@ -1,6 +1,11 @@
 2008-08-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-canvas-item.c:
+	  More tracing.
+
+2008-08-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
 	  Add more logging to track test failure.
 
 2008-08-18  Stefan Kost  <ensonic@users.sf.net>
