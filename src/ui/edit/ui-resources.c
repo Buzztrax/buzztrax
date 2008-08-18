@@ -205,16 +205,6 @@ static gboolean bt_ui_resources_init_colors(BtUIResources *self) {
   return(TRUE);
 }
 
-static GdkPixbuf *bt_gdk_pixbuf_new_from_theme(const gchar *name,gint size) {
-  GdkPixbuf *icon=NULL;
-  
-  icon=gdk_pixbuf_new_from_theme(name,size);
-  if(!icon) {
-    GST_WARNING("Can't load theme icon: %s",name);
-    icon=gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,size,size);
-  }
-  return(icon);
-}
 
 static gboolean bt_ui_resources_init_icons(BtUIResources *self) {
   /*
@@ -222,9 +212,9 @@ static gboolean bt_ui_resources_init_icons(BtUIResources *self) {
   self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_processor_machine.png");
   self->priv->sink_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_sink_machine.png");
   */
-  self->priv->source_machine_pixbuf=bt_gdk_pixbuf_new_from_theme("menu_source_machine",GTK_ICON_SIZE_MENU);
-  self->priv->processor_machine_pixbuf=bt_gdk_pixbuf_new_from_theme("menu_processor_machine",GTK_ICON_SIZE_MENU);
-  self->priv->sink_machine_pixbuf=bt_gdk_pixbuf_new_from_theme("menu_sink_machine",GTK_ICON_SIZE_MENU);
+  self->priv->source_machine_pixbuf   =gdk_pixbuf_new_from_theme("menu_source_machine",GTK_ICON_SIZE_MENU);
+  self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_theme("menu_processor_machine",GTK_ICON_SIZE_MENU);
+  self->priv->sink_machine_pixbuf     =gdk_pixbuf_new_from_theme("menu_sink_machine",GTK_ICON_SIZE_MENU);
 
   return(TRUE);
 }
@@ -249,16 +239,16 @@ static gboolean bt_ui_resources_init_graphics(BtUIResources *self) {
   
   //self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL] = bt_ui_resources_load_svg ("generator.svg");
   
-  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_NORMAL]=bt_gdk_pixbuf_new_from_theme("generator",size);
-  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_MUTE  ]=bt_gdk_pixbuf_new_from_theme("generator-mute",size);
-  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_SOLO  ]=bt_gdk_pixbuf_new_from_theme("generator-solo",size);
+  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("generator",size);
+  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("generator-mute",size);
+  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_SOLO  ]=gdk_pixbuf_new_from_theme("generator-solo",size);
 
-  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_NORMAL]=bt_gdk_pixbuf_new_from_theme("effect",size);
-  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_MUTE  ]=bt_gdk_pixbuf_new_from_theme("effect-mute",size);
-  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_BYPASS]=bt_gdk_pixbuf_new_from_theme("effect-bypass",size);
+  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("effect",size);
+  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("effect-mute",size);
+  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_BYPASS]=gdk_pixbuf_new_from_theme("effect-bypass",size);
 
-  self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_NORMAL]=bt_gdk_pixbuf_new_from_theme("master",size);
-  self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_MUTE  ]=bt_gdk_pixbuf_new_from_theme("master-mute",size);
+  self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("master",size);
+  self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("master-mute",size);
   
    
   /* DEBUG

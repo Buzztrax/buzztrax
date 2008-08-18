@@ -135,7 +135,8 @@ GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size) {
   if(!(pixbuf=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),name,size,0,&error))) {
     GST_WARNING("Couldn't load %s 16x16 icon: %s", name,error->message);
     g_error_free(error);
-    return NULL;
+    return gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,size,size);
+    //return NULL;
   }
   else {
     GdkPixbuf *result = gdk_pixbuf_copy(pixbuf);

@@ -232,6 +232,10 @@ static gboolean on_cpu_load_update(gpointer user_data) {
   gchar str[strlen("CPU: 000 %") + 3];
 
   g_assert(user_data);
+
+  // @todo: we nned to handle multi core cpus and divide by num-cores  
+  if(cpu_load>100.0) cpu_load=100.0;
+
   g_sprintf(str,"CPU: %d %%",cpu_load);
   gtk_progress_bar_set_fraction(self->priv->cpu_load,(gdouble)cpu_load/100.0);
   gtk_progress_bar_set_text(self->priv->cpu_load,str);
