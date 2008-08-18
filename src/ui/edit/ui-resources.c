@@ -499,9 +499,9 @@ static void bt_ui_resources_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   
   GST_DEBUG("  pb->ref_counts: %d, %d, %d", 
-    G_OBJECT(self->priv->source_machine_pixbuf)->ref_count,
-    G_OBJECT(self->priv->processor_machine_pixbuf)->ref_count,
-    G_OBJECT(self->priv->sink_machine_pixbuf)->ref_count);
+    self->priv->source_machine_pixbuf?G_OBJECT(self->priv->source_machine_pixbuf)->ref_count:0,
+    self->priv->processor_machine_pixbuf?G_OBJECT(self->priv->processor_machine_pixbuf)->ref_count:0,
+    self->priv->sink_machine_pixbuf?G_OBJECT(self->priv->sink_machine_pixbuf)->ref_count:0);
   g_object_try_unref(self->priv->source_machine_pixbuf);
   g_object_try_unref(self->priv->processor_machine_pixbuf);
   g_object_try_unref(self->priv->sink_machine_pixbuf);

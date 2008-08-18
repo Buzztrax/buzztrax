@@ -1,5 +1,10 @@
 2008-08-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/ui-resources.c:
+	  Don't crash in the log command, when the objects are NULL.
+
+2008-08-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/settings.c:
 	  Turn INFO in WARNING.
 
