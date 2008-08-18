@@ -719,7 +719,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
         g_signal_connect(G_OBJECT(self->priv->machine), "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);
         g_signal_connect(G_OBJECT(self->priv->machine), "notify::state", G_CALLBACK(on_machine_state_changed), (gpointer)self);
 
-        
+        GST_INFO("get bus and clock");
         g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
         g_object_get(G_OBJECT(song),"bin", &bin,NULL);
         bus=gst_element_get_bus(GST_ELEMENT(bin));
@@ -729,6 +729,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
         gst_object_unref(bin);
         g_object_unref(song);
 
+        GST_INFO("activating level-meters");
         if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
           if(bt_machine_enable_output_level(self->priv->machine)) {
             g_object_get(G_OBJECT(self->priv->machine),"output-level",&self->priv->output_level,NULL);
