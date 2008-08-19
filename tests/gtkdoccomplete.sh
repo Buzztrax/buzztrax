@@ -2,8 +2,8 @@
 # $Id$
 
 res=0
-fails=0;
-checks=0;
+fails=0
+checks=0
 report="\n"
 
 echo -n "Running suite(s): "
@@ -42,7 +42,11 @@ echo
 if [ $checks -gt 0 ];then
   rate=$((($checks-$fails)*100/$checks))
   echo -n "$rate%: Checks: $checks, Failures: $fails"
-  echo -e -n $report
+  if [ $fails -gt 0 ]; then
+    echo -e -n $report
+  else
+    echo
+  fi
 fi
 
 exit $res
