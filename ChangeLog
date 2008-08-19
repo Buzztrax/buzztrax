@@ -1,5 +1,10 @@
 2008-08-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/m-bt-edit.c:
+	  Comments for UI tests.
+
+2008-08-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/gtkdoccomplete.sh:
 	  Fix output formatting and calculation.
 
