@@ -490,6 +490,7 @@ static void sequence_calculate_visible_lines(const BtMainPageSequence *self) {
   g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
 
   visible_rows=sequence_length/self->priv->bars;
+  GST_INFO("visible_rows=%d = %d / %d",visible_rows,sequence_length,self->priv->bars);
   g_object_set(self->priv->sequence_table,"visible-rows",visible_rows,NULL);
   g_object_set(self->priv->sequence_pos_table,"visible-rows",visible_rows,NULL);
 }
@@ -1313,7 +1314,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,",",PATTERN_TABLE_NAME,_("  break"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
     if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
       gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  thru"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
+      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  bypass"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
       self->priv->pattern_keys=processor_pattern_keys;
       index++;
     }
@@ -2212,8 +2213,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
             }
 
             if(pattern_usage_changed) {
-              update_after_track_changed(self);
-              // idealy we like to refresh here: pattern_menu_refresh(self);
+              pattern_list_refresh(self);
             }
           }
           else {

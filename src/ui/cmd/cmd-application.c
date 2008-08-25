@@ -417,6 +417,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_fprintf(output_file,"song.setup.number_of_wires: %u\n",g_list_length(wires));
     for(node=machines;node;node=g_list_next(node)) {
       g_object_get(G_OBJECT(node->data),"patterns",&patterns,NULL);
+      // @todo: this include internal ones
       n_patterns+=g_list_length(patterns);
       g_list_free(patterns);
     }

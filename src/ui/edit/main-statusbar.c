@@ -234,6 +234,7 @@ static gboolean on_cpu_load_update(gpointer user_data) {
   g_assert(user_data);
 
   // @todo: we nned to handle multi core cpus and divide by num-cores  
+  // http://lxr.linux.no/linux/include/linux/cpumask.h
   if(cpu_load>100.0) cpu_load=100.0;
 
   g_sprintf(str,"CPU: %d %%",cpu_load);

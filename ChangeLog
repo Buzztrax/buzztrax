@@ -1,3 +1,19 @@
+2008-08-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	  Comment insert/delete operation for sequence. Refactor to properly
+	  update controller queues.
+
+	* src/ui/cmd/cmd-application.c:
+	  Add a fixme.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Use "bypass" instead of "thru" like in pattern names. Now that we have
+	  refactored pattern list refresh, use new method.
+
+	* src/ui/edit/main-statusbar.c:
+	  Add comment.
+
 2008-08-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/m-bt-edit.c:
