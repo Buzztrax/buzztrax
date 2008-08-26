@@ -377,9 +377,7 @@ static gboolean sequence_view_set_cursor_pos(const BtMainPageSequence *self) {
   else {
     GST_WARNING("Can't create treepath for pos %d:%d",self->priv->cursor_row,self->priv->cursor_column);
   }
-  if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
-    gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
-  }
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
   return res;
 }
 
@@ -1750,9 +1748,7 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
     if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
       gtk_tree_model_filter_refilter(filtered_store);
     }
-    if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
-      gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
-    }
+    gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
   }
 }
 
@@ -1833,9 +1829,7 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
           gtk_tree_model_filter_refilter(filtered_store);
         }
         gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
-        if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
-          gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
-        }
+        gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
       }
       gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,column,FALSE,1.0,0.0);
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
@@ -2287,7 +2281,7 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
           else {
             // set cell focus
             gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
-            gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+            gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
             // reset selection
             self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
           }
@@ -2341,7 +2335,7 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
           self->priv->selection_row=self->priv->cursor_row;
         }
         gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
-        gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+        gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
         // cursor updates are not yet processed
         on_sequence_table_cursor_changed_idle(self);
         GST_INFO("cursor new/old: %3d,%3d -> %3d,%3d",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);

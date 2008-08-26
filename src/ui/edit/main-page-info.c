@@ -67,9 +67,7 @@ static GtkVBoxClass *parent_class=NULL;
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
 
-  if(GTK_WIDGET_REALIZED(self->priv->info)) {
-    gtk_widget_grab_focus(GTK_WIDGET(self->priv->info));
-  }
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->info));
   return(FALSE);
 }
 

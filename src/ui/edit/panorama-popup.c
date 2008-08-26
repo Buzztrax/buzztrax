@@ -177,7 +177,7 @@ void bt_panorama_popup_show(BtPanoramaPopup *self) {
   //gtk_window_set_focus(GTK_WINDOW(popup),GTK_WIDGET(self->priv->vol_popup->scale));
 
   /* grab focus */
-  gtk_widget_grab_focus(GTK_WIDGET(self));
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self));
   gtk_grab_add(GTK_WIDGET(self));
   gdk_pointer_grab(GTK_WIDGET(self)->window, TRUE,
         GDK_BUTTON_PRESS_MASK |

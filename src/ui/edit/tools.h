@@ -35,6 +35,9 @@ extern gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,c
 /* gtk toolbar helper */
 extern GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name);
 
+/* save focus grab */
+extern void gtk_widget_grab_focus_savely(GtkWidget *widget);
+
 /* gtk+ compatibillity */
 
 #if !GTK_CHECK_VERSION(2,12,0)

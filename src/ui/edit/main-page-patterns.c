@@ -1454,9 +1454,7 @@ static BtPattern * add_new_pattern(const BtMainPagePatterns *self,BtMachine *mac
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
-  if(GTK_WIDGET_REALIZED(self->priv->pattern_table) && GTK_WIDGET_MAPPED(self->priv->pattern_table)) {
-    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
-  }
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
   return(FALSE);
 }
 
@@ -1537,9 +1535,7 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   GST_INFO("new pattern selected : %p",self->priv->pattern);
   pattern_table_refresh(self,self->priv->pattern);
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
-  if(GTK_WIDGET_REALIZED(self->priv->pattern_table) && GTK_WIDGET_MAPPED(self->priv->pattern_table)) {
-    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
-  }
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
   if(self->priv->pattern) {
     // watch the pattern
     self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
@@ -1554,9 +1550,7 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
 
   self->priv->base_octave=gtk_combo_box_get_active(self->priv->base_octave_menu);
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,NULL);
-  if(GTK_WIDGET_REALIZED(self->priv->pattern_table) && GTK_WIDGET_MAPPED(self->priv->pattern_table)) {
-    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
-  }
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
 }
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
@@ -2270,10 +2264,8 @@ void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern
   store=gtk_combo_box_get_model(self->priv->pattern_menu);
   pattern_model_get_iter_by_pattern(store,&iter,pattern);
   gtk_combo_box_set_active_iter(self->priv->pattern_menu,&iter);
-  if(GTK_WIDGET_REALIZED(self->priv->pattern_table) && GTK_WIDGET_MAPPED(self->priv->pattern_table)) {
-    // focus pattern editor
-    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
-  }
+  // focus pattern editor
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
   // release the references
   g_object_unref(machine);
 }
@@ -2293,10 +2285,8 @@ void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine
   store=gtk_combo_box_get_model(self->priv->machine_menu);
   machine_model_get_iter_by_machine(store,&iter,machine);
   gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
-  if(GTK_WIDGET_REALIZED(self->priv->pattern_table) && GTK_WIDGET_MAPPED(self->priv->pattern_table)) {
-    // focus pattern editor
-    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
-  }
+  // focus pattern editor
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
 }
 
 //-- cut/copy/paste

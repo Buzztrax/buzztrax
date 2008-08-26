@@ -1,3 +1,15 @@
+2008-08-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	* src/ui/edit/volume-popup.c:
+	  Use save focus-grabs everywhere.
+
 2008-08-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c:

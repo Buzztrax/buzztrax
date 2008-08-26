@@ -289,3 +289,18 @@ GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name) {
   return(GTK_TOOLBAR_BOTH);
 }
 
+
+// save focus grab
+
+/**
+ * gtk_widget_grab_focus_savely:
+ * @widget: the widget
+ *
+ * Grab focus only if widget has been realized and is mapped.
+ */
+void gtk_widget_grab_focus_savely(GtkWidget *widget) {
+  if(GTK_WIDGET_REALIZED(widget) && GTK_WIDGET_MAPPED(widget)) {
+    gtk_widget_grab_focus(widget);
+  }
+}
+
