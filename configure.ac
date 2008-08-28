@@ -376,6 +376,8 @@ dnl Checks for library functions.
 dnl libc functions
 AC_CHECK_FUNCS( sched_setscheduler)
 AC_CHECK_FUNCS( mlockall)
+AC_CHECK_FUNCS( getrusage)
+AC_CHECK_FUNCS( setrlimit)
 
 dnl Extra vars
 BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'

@@ -17,7 +17,7 @@ TESTS = \
   povalid.sh \
   xmlvalid.sh
 
-# prevent endless loops
+# prevent endless loops, this requires bash, see idea in bt-check.c
 #   ulimit -St20;
 # 
 # adding this can help debug gconfd
@@ -26,10 +26,7 @@ TESTS = \
 # http://www.cynapses.org/tmp/gcc/malloc_perturb
 #    MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
 #
-TESTS_ENVIRONMENT_COMMON = \
-	ulimit -St20;
 TESTS_ENVIRONMENT = \
-	$(TESTS_ENVIRONMENT_COMMON) \
 	CK_DEFAULT_TIMEOUT=20 \
 	LD_LIBRARY_PATH=$(top_builddir)/src/lib/core/.libs:$(top_builddir)/src/lib/ic/.libs:$(LD_LIBRARY_PATH)
 
@@ -143,7 +140,6 @@ clean-local:
 
 # gdb any given test by running make <test>.gdb
 %.gdb: %
-	$(TESTS_ENVIRONMENT_COMMON)	\
 	CK_FORK=no				\
 	CK_DEFAULT_TIMEOUT=20	\
 	libtool --mode=execute	\
@@ -160,7 +156,7 @@ clean-local:
 .PHONY: splint valgrind todo
 
 if USE_VALGRIND
-VALPREFIX = $(TESTS_ENVIRONMENT_COMMON) \
+VALPREFIX = \
 	CK_FORK=no CK_DEFAULT_TIMEOUT=360 \
 	G_SLICE=always-malloc GLIBCPP_FORCE_NEW=
 VALDEFAULT = @VALGRIND@/bin/valgrind

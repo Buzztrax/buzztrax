@@ -1,3 +1,10 @@
+2008-08-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* tests/Makefile.am:
+	* tests/bt-check.c:
+	  Play with more effectively limiting test runs.
+
 2008-08-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-info.c:

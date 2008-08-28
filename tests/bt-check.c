@@ -29,6 +29,11 @@
 #include <sys/types.h>
 #include <signal.h>
 
+#ifdef HAVE_SETRLIMIT
+  #include <sys/time.h>
+  #include <sys/resource.h>
+#endif
+
 void bt_check_init(void) {
 #if GST_CHECK_VERSION(0,10,16)
   /* @todo: requires gst-0.10.16 */
@@ -46,6 +51,19 @@ void bt_check_init(void) {
   gst_debug_set_colored(FALSE);
   // use our dummy settings
   bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
+  
+#ifdef HAVE_SETRLIMIT
+  struct rlimit rl;
+  
+  rl.rlim_max = RLIM_INFINITY;
+  
+  // limit cpu in seconds
+  rl.rlim_cur = 20;
+  if(setrlimit(RLIMIT_CPU,&rl)<0) perror("setrlimit(RLIMIT_CPU) failed");
+  // limit process’s virtual memory in bytes
+  rl.rlim_cur = 1024 * 1024 * 256; // 256 Mb
+  if(setrlimit(RLIMIT_AS,&rl)<0) perror("setrlimit(RLIMIT_AS) failed");
+#endif
 }
 
 
