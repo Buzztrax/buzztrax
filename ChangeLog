@@ -1,5 +1,10 @@
 2008-09-01  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/bt-edit.h:
+	  Add a workaround for use of deprecated gtk macros in gnomecanvas.
+
+2008-09-01  Stefan Kost  <ensonic@users.sf.net>
+
 	* pixmaps/gnome/16x16/menu_processor_machine.png:
 	* pixmaps/gnome/16x16/menu_sink_machine.png:
 	* pixmaps/gnome/16x16/menu_source_machine.png:
