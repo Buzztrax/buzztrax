@@ -373,7 +373,7 @@ BtPattern *bt_pattern_new_with_event(const BtSong * const song, const BtMachine 
   id=g_strdup_printf("%s___%s",mid,cmd_names[cmd]);
   name=g_strdup_printf("   %s",_(cmd_names[cmd]));
   g_object_get(G_OBJECT(machine),"voices",&voices,NULL);
-  if(!(self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"length",1,"voices",voices,"machine",machine,"is-internal",TRUE,NULL)))) {
+  if(!(self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"length",1L,"voices",voices,"machine",machine,"is-internal",TRUE,NULL)))) {
     goto Error;
   }
   if(!bt_pattern_init_data(self)) {

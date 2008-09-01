@@ -52,5 +52,6 @@ extern void bt_sequence_insert_full_rows(const BtSequence * const self, const gu
 extern void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows);
 extern void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong time, const gulong rows);
 
+extern void bt_sequence_update_tempo(const BtSequence * const self);
 
 #endif // BT_SEQUENCE_METHDOS_H

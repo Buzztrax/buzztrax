@@ -159,12 +159,12 @@ static gboolean on_delayed_machine_level_change(GstClock *clock,GstClockTime tim
   val=val/LOW_VUMETER_VAL;
   if(val>1.0) val=1.0;
   if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->output_level)) {
-    gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->output_meter),
+    gnome_canvas_item_set(self->priv->output_meter,
       "y1", h*0.05+(0.55*h*val),
       NULL);
   }
   if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->input_level)) {
-    gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->input_meter),
+    gnome_canvas_item_set(self->priv->input_meter,
       "y1", h*0.05+(0.55*h*val),
       NULL);
   }
@@ -226,7 +226,7 @@ static void on_machine_id_changed(BtMachine *machine, GParamSpec *arg, gpointer 
     gchar *id;
 
     g_object_get(self->priv->machine,"id",&id,NULL);
-    gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"text",id,NULL);
+    gnome_canvas_item_set(self->priv->label,"text",id,NULL);
     g_free(id);
   }
 }
@@ -239,7 +239,7 @@ static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpoint
   g_object_get(self->priv->machine,"state",&state,NULL);
   GST_INFO(" new state is %d",state);
   
-  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->box),
+  gnome_canvas_item_set(self->priv->box,
     "pixbuf", bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine),
     NULL);
   
@@ -754,7 +754,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
       self->priv->zoom=g_value_get_double(value);
       //GST_DEBUG("set the zoom for machine_canvas_item: %f",self->priv->zoom);
       if(self->priv->label) {
-        gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"size-points",MACHINE_VIEW_FONT_SIZE*self->priv->zoom,NULL);
+        gnome_canvas_item_set(self->priv->label,"size-points",MACHINE_VIEW_FONT_SIZE*self->priv->zoom,NULL);
       }
     } break;
     default: {
@@ -922,7 +922,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   gdouble dx, dy, px, py;
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
 
-  //GST_DEBUG("event for machine occurred");
+  //GST_INFO("event for machine occurred");
 
   switch (event->type) {
     case GDK_2BUTTON_PRESS:
@@ -938,7 +938,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       break;
     case GDK_BUTTON_PRESS:
       GST_DEBUG("GDK_BUTTON_PRESS: %d, 0x%x",event->button.button,event->button.state);
-      if(event->button.button==1) {
+      if((event->button.button==1) && !(event->button.state&GDK_SHIFT_MASK)) {
         if(!bt_machine_canvas_item_is_over_state_switch(self,event)) {
           // dragx/y coords are world coords of button press
           self->priv->dragx=event->button.x;
@@ -950,7 +950,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         else {
           self->priv->switching=TRUE;
         }
-         res=TRUE;
+        res=TRUE;
       }
       else if(event->button.button==3) {
         // show context menu
@@ -1041,6 +1041,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       res=(GNOME_CANVAS_ITEM_CLASS(parent_class)->event)(citem,event);
     }
   }
+  //GST_INFO("event for machine occurred : %d",res);
   return res;
 }
 

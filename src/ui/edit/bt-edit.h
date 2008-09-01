@@ -71,7 +71,23 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 //-- libgnomecanvas
+/* glib macro wrappers (compatibility) - they have been deprecated */
+#ifndef GTK_CHECK_CAST
+#define GTK_CHECK_CAST		G_TYPE_CHECK_INSTANCE_CAST
+#define GTK_CHECK_CLASS_CAST	G_TYPE_CHECK_CLASS_CAST
+#define GTK_CHECK_GET_CLASS	G_TYPE_INSTANCE_GET_CLASS
+#define GTK_CHECK_TYPE		G_TYPE_CHECK_INSTANCE_TYPE
+#define GTK_CHECK_CLASS_TYPE	G_TYPE_CHECK_CLASS_TYPE
 #include <libgnomecanvas/libgnomecanvas.h>
+#undef GTK_CHECK_CAST
+#undef GTK_CHECK_CLASS_CAST
+#undef GTK_CHECK_GET_CLASS
+#undef GTK_CHECK_TYPE
+#undef GTK_CHECK_CLASS_TYPE
+#else
+#include <libgnomecanvas/libgnomecanvas.h>
+#endif
+
 //-- librsvg
 #include <librsvg/rsvg.h>
 //-- libgnome

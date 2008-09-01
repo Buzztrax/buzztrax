@@ -1,3 +1,35 @@
+2008-09-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/gnome/16x16/menu_processor_machine.png:
+	* pixmaps/gnome/16x16/menu_sink_machine.png:
+	* pixmaps/gnome/16x16/menu_source_machine.png:
+	* pixmaps/gnome/22x22/buzztard.png:
+	* pixmaps/gnome/24x24/buzztard.png:
+	* pixmaps/gnome/32x32/buzztard.png:
+	* pixmaps/gnome/48x48/buzztard.png:
+	* pixmaps/gnome/scalable/buzztard.svg:
+	* pixmaps/gnome/scalable/effect-bypass.svg:
+	* pixmaps/gnome/scalable/effect-mute.svg:
+	* pixmaps/gnome/scalable/effect.svg:
+	* pixmaps/gnome/scalable/generator-mute.svg:
+	* pixmaps/gnome/scalable/generator-solo.svg:
+	* pixmaps/gnome/scalable/generator.svg:
+	* pixmaps/gnome/scalable/master-mute.svg:
+	* pixmaps/gnome/scalable/master.svg:
+	  Icon update by Marc.
+	
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	* src/lib/core/song-info.c:
+	  Update tempo corectly.
+
+	* src/lib/core/pattern.c:
+	  Fix on 64 bit platform by putting correct type on the stack.
+	  
+	* src/ui/edit/machine-canvas-item.c:
+	  Don't cast, we have the right type already.
+
 2008-08-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

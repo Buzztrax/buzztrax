@@ -95,6 +95,16 @@ static GObjectClass *parent_class=NULL;
 // date time stamp format YYYY-MM-DDThh:mm:ssZ
 #define DTS_LEN 20
 
+//-- helper methods
+
+static void bt_song_info_tempo_changed(const BtSongInfo * const self) {
+  BtSequence *sequence;
+  
+  g_object_get(self->priv->song,"sequence",&sequence,NULL);
+  bt_sequence_update_tempo(sequence);
+  g_object_unref(sequence);
+}
+
 //-- constructor methods
 
 /**
@@ -318,6 +328,7 @@ static void bt_song_info_set_property(GObject      * const object,
 #if (GST_VERSION_MAJOR>=0 && GST_VERSION_MINOR>=10 && GST_VERSION_MICRO>=12) || (GST_VERSION_MAJOR>=0 && GST_VERSION_MINOR>=10 && GST_VERSION_MICRO>=11 && GST_VERSION_NANO>0 )
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_BEATS_PER_MINUTE, (gdouble)self->priv->beats_per_minute,NULL);
 #endif
+        bt_song_info_tempo_changed(self);
         bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the bpm for song_info: %d",self->priv->beats_per_minute);
       }
@@ -326,6 +337,7 @@ static void bt_song_info_set_property(GObject      * const object,
       gulong val=g_value_get_ulong(value);
       if(self->priv->ticks_per_beat!=val) {
         self->priv->ticks_per_beat = g_value_get_ulong(value);
+        bt_song_info_tempo_changed(self);
         bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the tpb for song_info: %d",self->priv->ticks_per_beat);
       }
@@ -334,6 +346,7 @@ static void bt_song_info_set_property(GObject      * const object,
       gulong val=g_value_get_ulong(value);
       if(self->priv->bars!=val) {
         self->priv->bars = g_value_get_ulong(value);
+        bt_song_info_tempo_changed(self);
         bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the bars for song_info: %d",self->priv->bars);
       }

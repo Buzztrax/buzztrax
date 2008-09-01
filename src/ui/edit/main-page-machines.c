@@ -699,9 +699,9 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
       /*
       {
         GdkEventButton *e=(GdkEventButton*)event;
-        GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",e->type,e->window,e->send_event,e->time);
-        GST_INFO("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",e->x,e->y,e->axes,e->state);
-        GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
+        GST_WARNING("type=%4d, window=%p, send_event=%3d, time=%8d",e->type,e->window,e->send_event,e->time);
+        GST_WARNING("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",e->x,e->y,e->axes,e->state);
+        GST_WARNING("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
       }
       */
       // store mouse coordinates, so that we can later place a newly added machine there
@@ -848,6 +848,11 @@ static void on_panorama_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   g_object_set(G_OBJECT(self->priv->wire_pan),"panorama",pan,NULL);
 }
 
+// DEBUG
+static void on_canvas_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
+  GST_WARNING("canvas size %d x %d",allocation->width,allocation->height);
+}
+// DEBUG
 
 //-- helper methods
 
@@ -984,7 +989,6 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   gtk_widget_push_colormap(gdk_rgb_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
   /* the non antialisaed (and faster) version
-  gtk_widget_push_colormap(gdk_imlib_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new());
   */
   gtk_widget_pop_colormap();
@@ -995,6 +999,10 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
      MACHINE_VIEW_ZOOM_X, MACHINE_VIEW_ZOOM_Y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   gtk_widget_set_name(GTK_WIDGET(self->priv->canvas),_("machine and wire editor"));
+  // DEBUG
+  // we have refresh issues as soon as the canvas gets bigger that 961 x 721
+  g_signal_connect(G_OBJECT(self->priv->canvas),"size-allocate",G_CALLBACK(on_canvas_size_allocate),(gpointer)self);
+  // DEBUG
 
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);

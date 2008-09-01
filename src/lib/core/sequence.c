@@ -1697,7 +1697,6 @@ void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, c
   bt_sequence_repair_damage(self);
 }
 
-
 /**
  * bt_sequence_delete_full_rows:
  * @self: the sequence
@@ -1733,6 +1732,27 @@ void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong ti
   bt_sequence_repair_damage(self);
 }
 
+/**
+ * bt_sequence_update_tempo:
+ * @self: the sequence
+ *
+ * Refresh sequence after tempo changes.
+ */
+void bt_sequence_update_tempo(const BtSequence * const self) {
+  BtPattern **pattern=self->priv->patterns;
+  gulong i,j;
+  
+  for(i=0;i<self->priv->length;i++) {
+    for(j=0;j<self->priv->tracks;j++) {
+      if(*pattern) {
+        bt_sequence_invalidate_pattern_region(self,i,j,*pattern);
+      }
+      pattern++;
+    }
+  }
+  bt_sequence_repair_damage(self);
+}
+  
 //-- io interface
 
 static xmlNodePtr bt_sequence_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
