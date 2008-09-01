@@ -1,6 +1,15 @@
 2008-09-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/bt-edit.h:
+	  Move include to right place to fix the build.
+
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/gtkvumeter.h:
+	  Also don't use deprecated gtk stuff here.
+
+2008-09-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/bt-edit.h:
 	  Add a workaround for use of deprecated gtk macros in gnomecanvas.
 
 2008-09-01  Stefan Kost  <ensonic@users.sf.net>

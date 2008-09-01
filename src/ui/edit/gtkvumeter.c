@@ -44,7 +44,7 @@ static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter, gint lev
 
 static GtkWidgetClass *parent_class = NULL;
 
-GtkType gtk_vumeter_get_type (void)
+GType gtk_vumeter_get_type (void)
 {
     static GType vumeter_type = 0;
 

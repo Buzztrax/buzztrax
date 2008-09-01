@@ -80,8 +80,8 @@
 #define GTK_CHECK_GET_CLASS	G_TYPE_INSTANCE_GET_CLASS
 #define GTK_CHECK_TYPE		G_TYPE_CHECK_INSTANCE_TYPE
 #define GTK_CHECK_CLASS_TYPE	G_TYPE_CHECK_CLASS_TYPE
-#include <libgnomecanvas/libgnomecanvas.h>
 #endif
+#include <libgnomecanvas/libgnomecanvas.h>
 
 //-- librsvg
 #include <librsvg/rsvg.h>
