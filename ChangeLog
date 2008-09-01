@@ -1,5 +1,13 @@
 2008-09-01  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Refactor ticktime calculation and add todos.
+
+	* tests/bt-check.h:
+	  Update api.
+
+2008-09-01  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/bt-edit.h:
 	  Move include to right place to fix the build.
 

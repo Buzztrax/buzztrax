@@ -80,6 +80,9 @@ struct _BtSequencePrivate {
 
   /* playback range variables */
   gulong play_start,play_end;
+  
+  /* cached */
+  GstClockTime wait_per_position;
 
   /* manages damage regions for updating gst-controller queues after changes
    * each entry (per machine) has another GHashTable
@@ -739,6 +742,32 @@ static void bt_sequence_repair_damage(const BtSequence * const self) {
     }
   }
   g_object_try_unref(setup);
+}
+
+static void bt_sequence_calculate_wait_per_position(const BtSequence * const self) {
+  BtSongInfo * const song_info;
+  gulong beats_per_minute,ticks_per_beat;
+
+  g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
+  g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
+  /* the number of pattern-events for one playline-step,
+   * when using 4 ticks_per_beat then
+   * for 4/4 bars it is 16 (standart dance rhythm)
+   * for 3/4 bars it is 12 (walz)
+   */
+
+  const gulong ticks_per_minute=(gdouble)(beats_per_minute*ticks_per_beat);
+  self->priv->wait_per_position=((GST_SECOND*60)/(GstClockTime)ticks_per_minute);
+  
+  {
+    double ticktime=((GST_SECOND*60.0)/(gdouble)(beats_per_minute*ticks_per_beat));
+    GST_WARNING("bar-time %"G_GUINT64_FORMAT" %lf",self->priv->wait_per_position,ticktime);
+  }
+
+  // release the references
+  g_object_unref(song_info);
+
+  GST_DEBUG("getting songs bar-time %"G_GUINT64_FORMAT,self->priv->wait_per_position);
 }
 
 //-- event handler
@@ -1428,31 +1457,18 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
  *
  * Returns: the length of one sequence bar in microseconds
  */
-// @todo rename to bt_sequence_get_tick_time() ?
+/* @todo rename to bt_sequence_get_tick_time(), or turn into property ?
+ * @todo: make it a double because of the rounding errors
+ *    or add a bt_sequence_get_pos_time(self,pos) that multiplies
+ */ 
 GstClockTime bt_sequence_get_bar_time(const BtSequence * const self) {
-  BtSongInfo * const song_info;
-  gulong beats_per_minute,ticks_per_beat;
-
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
-
-  g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
-  g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
-  /* the number of pattern-events for one playline-step,
-   * when using 4 ticks_per_beat then
-   * for 4/4 bars it is 16 (standart dance rhythm)
-   * for 3/4 bars it is 12 (walz)
-   */
-
-  const gulong ticks_per_minute=(gdouble)(beats_per_minute*ticks_per_beat);
-  const GstClockTime wait_per_position=((GST_SECOND*60)/(GstClockTime)ticks_per_minute);
-  //res=(gulong)(wait_per_position/G_USEC_PER_SEC);
-
-  // release the references
-  g_object_unref(song_info);
-
-  GST_LOG("getting songs bar-time %"G_GUINT64_FORMAT,wait_per_position);
-
-  return(wait_per_position);
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),G_GUINT64_CONSTANT(0));
+  
+  if(G_UNLIKELY(!GST_CLOCK_TIME_IS_VALID(self->priv->wait_per_position))) {
+    bt_sequence_calculate_wait_per_position(self);
+  }
+  
+  return(self->priv->wait_per_position);
 }
 
 /**
@@ -1739,9 +1755,14 @@ void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong ti
  * Refresh sequence after tempo changes.
  */
 void bt_sequence_update_tempo(const BtSequence * const self) {
+  g_return_if_fail(BT_IS_SEQUENCE(self));
+  
   BtPattern **pattern=self->priv->patterns;
   gulong i,j;
   
+  GST_INFO("updating gst-controller queues");
+  bt_sequence_calculate_wait_per_position(self);
+
   for(i=0;i<self->priv->length;i++) {
     for(j=0;j<self->priv->tracks;j++) {
       if(*pattern) {
@@ -2146,6 +2167,7 @@ static void bt_sequence_init(GTypeInstance * const instance, gconstpointer g_cla
   self->priv->loop_start=-1;
   self->priv->loop_end=-1;
   self->priv->damage=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_hash_table_destroy);
+  self->priv->wait_per_position=GST_CLOCK_TIME_NONE;
 }
 
 static void bt_sequence_class_init(BtSequenceClass * const klass) {

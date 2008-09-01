@@ -64,7 +64,7 @@ static void __testname (void)\
   tcase_fn_start (""# __testname, __FILE__, __LINE__);
 #else
 #define BT_START_TEST(__testname) \
-static void __testname (int i __attribute__((unused)))\
+static void __testname (int _i __attribute__((unused)))\
 {\
   GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
   tcase_fn_start (""# __testname, __FILE__, __LINE__);
