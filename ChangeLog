@@ -1,3 +1,16 @@
+2008-09-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	* src/lib/core/song.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/playback-controller-socket.c:
+	* src/ui/edit/render-progress.c:
+	  Change api to use tick-time as double to make most bpm work and not
+	  swallow notes. Also adjust seek-events on tempo changes.
+
 2008-09-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c:

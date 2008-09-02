@@ -184,7 +184,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     gchar *state[]={"stopped","playing"};
     gchar *mode[]={"on","off"};
     gulong pos,msec,sec,min;
-    GstClockTime bar_time;
+    gdouble bar_time;
     gdouble volume;
     gboolean loop;
 

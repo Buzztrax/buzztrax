@@ -103,7 +103,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   // the +4 is not really needed, but I get a stack smashing error on ubuntu without
   gchar str[2+2+3+3 + 4];
   gulong pos,msec,sec,min;
-  GstClockTime bar_time;
+  gdouble bar_time;
 
   g_assert(user_data);
   GST_DEBUG("tick update");

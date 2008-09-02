@@ -82,7 +82,7 @@ struct _BtSequencePrivate {
   gulong play_start,play_end;
   
   /* cached */
-  GstClockTime wait_per_position;
+  gdouble wait_per_position;
 
   /* manages damage regions for updating gst-controller queues after changes
    * each entry (per machine) has another GHashTable
@@ -557,7 +557,7 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
   }
   // set controller value
   //if(value) {
-    const GstClockTime timestamp=bt_sequence_get_bar_time(self)*tick;
+    const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
     bt_machine_global_controller_change_value(machine,param,timestamp,value);
   //}
   return(TRUE);
@@ -607,7 +607,7 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
   }
   // set controller value
   //if(value) {
-    const GstClockTime timestamp=bt_sequence_get_bar_time(self)*tick;
+    const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
     bt_machine_voice_controller_change_value(machine,param,voice,timestamp,value);
   //}
   return(TRUE);
@@ -659,7 +659,7 @@ static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _valu
   }
   // set controller value
   //if(value) {
-    const GstClockTime timestamp=bt_sequence_get_bar_time(self)*tick;
+    const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
     bt_wire_controller_change_value(wire,param,timestamp,value);
   //}
   return(TRUE);
@@ -756,18 +756,14 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
    * for 3/4 bars it is 12 (walz)
    */
 
-  const gulong ticks_per_minute=(gdouble)(beats_per_minute*ticks_per_beat);
-  self->priv->wait_per_position=((GST_SECOND*60)/(GstClockTime)ticks_per_minute);
-  
-  {
-    double ticktime=((GST_SECOND*60.0)/(gdouble)(beats_per_minute*ticks_per_beat));
-    GST_WARNING("bar-time %"G_GUINT64_FORMAT" %lf",self->priv->wait_per_position,ticktime);
-  }
+  const gdouble ticks_per_minute=(gdouble)(beats_per_minute*ticks_per_beat);
+  //self->priv->wait_per_position=((GST_SECOND*60)/(GstClockTime)ticks_per_minute);
+  self->priv->wait_per_position=(GST_SECOND*60.0)/ticks_per_minute;
 
   // release the references
   g_object_unref(song_info);
 
-  GST_DEBUG("getting songs bar-time %"G_GUINT64_FORMAT,self->priv->wait_per_position);
+  GST_DEBUG("getting songs bar-time %lf",self->priv->wait_per_position);
 }
 
 //-- event handler
@@ -1461,10 +1457,10 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
  * @todo: make it a double because of the rounding errors
  *    or add a bt_sequence_get_pos_time(self,pos) that multiplies
  */ 
-GstClockTime bt_sequence_get_bar_time(const BtSequence * const self) {
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),G_GUINT64_CONSTANT(0));
+gdouble bt_sequence_get_bar_time(const BtSequence * const self) {
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),0.0);
   
-  if(G_UNLIKELY(!GST_CLOCK_TIME_IS_VALID(self->priv->wait_per_position))) {
+  if(G_UNLIKELY(self->priv->wait_per_position==0.0)) {
     bt_sequence_calculate_wait_per_position(self);
   }
   
@@ -1479,12 +1475,11 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence * const self) {
  * Divide it by %G_USEC_PER_SEC to get it in milliseconds.
  *
  * Returns: the length of the song loop in microseconds
- *
  */
 GstClockTime bt_sequence_get_loop_time(const BtSequence * const self) {
   g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
 
-  const GstClockTime res=(GstClockTime)(self->priv->play_end-self->priv->play_start)*bt_sequence_get_bar_time(self);
+  const GstClockTime res=(GstClockTime)(self->priv->play_end-self->priv->play_start*bt_sequence_get_bar_time(self));
   return(res);
 }
 
@@ -2167,7 +2162,7 @@ static void bt_sequence_init(GTypeInstance * const instance, gconstpointer g_cla
   self->priv->loop_start=-1;
   self->priv->loop_end=-1;
   self->priv->damage=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_hash_table_destroy);
-  self->priv->wait_per_position=GST_CLOCK_TIME_NONE;
+  self->priv->wait_per_position=0.0;
 }
 
 static void bt_sequence_class_init(BtSequenceClass * const klass) {

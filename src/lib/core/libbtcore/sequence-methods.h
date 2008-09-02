@@ -41,7 +41,7 @@ extern void bt_sequence_set_label(const BtSequence * const self, const gulong ti
 extern BtPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulong time, const gulong track);
 extern void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern);
 
-extern GstClockTime bt_sequence_get_bar_time(const BtSequence * const self);
+extern gdouble bt_sequence_get_bar_time(const BtSequence * const self);
 extern GstClockTime bt_sequence_get_loop_time(const BtSequence * const self);
 extern gulong bt_sequence_limit_play_pos(const BtSequence * const self, const gulong play_pos);
 
