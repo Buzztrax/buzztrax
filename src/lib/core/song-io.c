@@ -78,7 +78,7 @@ static GList *plugins=NULL;
  * Registers all song-io plugins for later use by bt_song_io_detect().
  */
 static void bt_song_io_register_plugins(void) {
-  DIR * const dirp=opendir(LIBDIR"/songio");
+  DIR * const dirp=opendir(LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
 
   /* @todo the plugin list now has structures
    * so that apart from the detect ptr, we could keep the modules handle.
@@ -88,7 +88,7 @@ static void bt_song_io_register_plugins(void) {
   // register internal song-io plugin
   plugins=g_list_append(plugins,(gpointer)&bt_song_io_native_module_info);
   // registering external song-io plugins
-  GST_INFO("  scanning external song-io plugins in "LIBDIR"/songio/...");
+  GST_INFO("  scanning external song-io plugins in "LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
   if(dirp) {
     const struct dirent *dire;
     gpointer bt_song_io_module_info=NULL;
@@ -98,7 +98,7 @@ static void bt_song_io_register_plugins(void) {
     while((dire=readdir(dirp))!=NULL) {
       // skip names starting with a dot
       if((!dire->d_name) || (*dire->d_name=='.')) continue;
-      g_sprintf(plugin_name,LIBDIR"/songio/%s",dire->d_name);
+      g_sprintf(plugin_name,LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio"G_DIR_SEPARATOR_S"%s",dire->d_name);
       // skip symlinks
       if(readlink((const char *)plugin_name,link_target,FILENAME_MAX-1)!=-1) continue;
       // skip files other then shared librares
