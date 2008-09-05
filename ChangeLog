@@ -1,3 +1,8 @@
+2008-09-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-info.c:
+	  Another attempt to get all variants caught to avoid crashing on NULL.
+
 2008-09-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-io.c:
