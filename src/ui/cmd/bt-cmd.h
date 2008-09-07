@@ -57,7 +57,7 @@
 #endif
 #endif
 //-- libbtcore
-#include <libbtcore/core.h>
+#include <libbuzztard-core/core.h>
 
 #include "cmd-application-methods.h"
 

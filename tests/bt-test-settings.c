@@ -31,7 +31,7 @@
 
 #include "bt-check.h"
 
-#include <libbtcore/core.h>
+#include <libbuzztard-core/core.h>
 #include "bt-test-settings.h"
 
 struct _BtTestSettingsPrivate {

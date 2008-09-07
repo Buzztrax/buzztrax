@@ -57,8 +57,8 @@
 #endif
 #endif
 //-- libbtcore & libbtic
-#include <libbtcore/core.h>
-#include <libbtic/ic.h>
+#include <libbuzztard-core/core.h>
+#include <libbuzztard-ic/ic.h>
 //-- gstreamer
 //-- gstbuzztard
 #include <libgstbuzztard/help.h>

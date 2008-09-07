@@ -1,4 +1,4 @@
-#include "libbtcore/core.h"
+#include "libbuzztard-core/core.h"
 
 bt_application_get_type
 bt_gconf_settings_get_type

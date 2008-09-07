@@ -31,7 +31,7 @@
 #define BT_EDIT_APPLICATION_C
 
 #include "bt-edit.h"
-#include <libbtcore/application-private.h>
+#include <libbuzztard-core/application-private.h>
 
 //-- signal ids
 

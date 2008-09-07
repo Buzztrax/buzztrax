@@ -39,7 +39,7 @@
 //-- gstreamer
 #include <gst/gst.h>
 //-- buzztard
-#include <libbtcore/core.h>
+#include <libbuzztard-core/core.h>
 #include "bt-test-plugin.h"
 #include "bt-test-settings.h"
 

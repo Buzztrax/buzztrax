@@ -380,7 +380,7 @@ AC_CHECK_FUNCS( getrusage)
 AC_CHECK_FUNCS( setrlimit)
 
 dnl Extra vars
-BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
+BT_INCLUDEDIR='-I${includedir}'
 dnl -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
 BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
@@ -422,12 +422,12 @@ AC_CONFIG_FILES(Makefile \
     src/lib/buzztard.xml \
       src/lib/core/Makefile \
       src/lib/core/libbuzztard-core.pc \
-        src/lib/core/libbtcore/Makefile \
-        src/lib/core/libbtcore/version.h \
+        src/lib/core/libbuzztard-core/Makefile \
+        src/lib/core/libbuzztard-core/version.h \
       src/lib/ic/Makefile \
 	  src/lib/ic/libbuzztard-ic.pc \
-        src/lib/ic/libbtic/Makefile \
-		src/lib/ic/libbtic/version.h \
+        src/lib/ic/libbuzztard-ic/Makefile \
+		src/lib/ic/libbuzztard-ic/version.h \
     src/ui/Makefile \
       src/ui/cmd/Makefile \
       src/ui/edit/Makefile \

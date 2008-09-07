@@ -1,4 +1,4 @@
-#include <libbtic/ic.h>
+#include <libbuzztard-ic/ic.h>
 
 btic_control_get_type
 btic_device_get_type

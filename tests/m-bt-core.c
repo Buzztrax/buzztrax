@@ -24,7 +24,7 @@
 #define BT_CHECK
 
 #include "bt-check.h"
-#include "../src/lib/core/libbtcore/core.h"
+#include "../src/lib/core/libbuzztard-core/core.h"
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);

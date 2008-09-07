@@ -23,7 +23,7 @@
 #define BT_UI_RESOURCES_METHODS_H
 
 #include "ui-resources.h"
-#include <libbtcore/core.h>
+#include <libbuzztard-core/core.h>
 
 extern BtUIResources *bt_ui_resources_new(void);
 

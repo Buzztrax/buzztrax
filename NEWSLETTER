@@ -1,8 +1,27 @@
 2008/09 ========================================================================
 
-* synced meters (vu-meters and spectrum)
+Out of some irc conversation, I gave implementing synced meters a go. Until so
+far level and spectrum meters in buzztard were ahead of time. The reason is that
+gstreamer tells me about the values once they are computed, but thats not when
+the actual data segment gets played. Luckily the message has a timestamp. So all
+it needs is to sync drawing with the audio sink. MikeS gave me some good
+pointers on irc. It wasn't that straight forward. I found and fixed a bug in 
+level meter plugin so that it now puts useful timestamps on messages when it
+play loops. It works really great now.
+
 * focus grabing fixes
 * add empty pattern by default when adding sources
+* song tempo fixes, bsl load bmp/tpb and master volume values from song
+
+
+A big recommendation to everyone. Pick a decent prefix for your project. I've
+been a bit blue eyed and had choosen 'bt'. Part of my package is a core library
+called libbtcore. Now unfortunately ktorrent did the same mistake and have a
+libbtcore (bt stands for bittorrent there). As neither of them are really
+general purpose they should be uniquely named. I analyzed all files I install
+and went thought the great pains of renaming everything - libs, binaries, docs
+includes, pkg-config files, desktop files and so on. Hope I never have to do 
+that ever again.
 
 2008/08 ========================================================================
 

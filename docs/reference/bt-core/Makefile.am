@@ -37,7 +37,7 @@ FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/gobject \
 	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/gstreamer-libs
 
 # Used for dependencies. The docs will be rebuilt if any of these change.
-HFILE_GLOB=$(top_srcdir)/src/lib/core/libbtcore/*.h
+HFILE_GLOB=$(top_srcdir)/src/lib/core/libbuzztard-core/*.h
 CFILE_GLOB=$(top_srcdir)/src/lib/core/*.c
 
 # Header files to ignore when scanning.

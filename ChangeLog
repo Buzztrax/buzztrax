@@ -1,5 +1,29 @@
 2008-09-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Write news.
+
+	* configure.ac:
+	* docs/reference/bt-cmd/buzztard-cmd.types:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-core/buzztard-core.types:
+	* docs/reference/bt-edit/buzztard-edit.types:
+	* docs/reference/bt-ic/Makefile.am:
+	* docs/reference/bt-ic/buzztard-ic.types:
+	* src/ui/cmd/bt-cmd.h:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/ui-resources-methods.h:
+	* tests/bt-check.h:
+	* tests/bt-test-settings.c:
+	* tests/bt-test-settings.h:
+	* tests/lib/core/m-bt-core.h:
+	* tests/m-bt-core.c:
+	  Rename includes.
+
+2008-09-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/Makefile.am:
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-edit/Makefile.am:
