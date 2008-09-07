@@ -1,6 +1,6 @@
 ## $Id$
 
-SUBDIRS = . libbtic
+SUBDIRS = . libbuzztard-ic
 
 lib_LTLIBRARIES = libbuzztard-ic.la
 libbuzztard_ic_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS)

@@ -82,7 +82,7 @@
 //-- libbtcore
 #include "libbtcore/tools.h"
 
-#include <libbtic/ic.h>
+#include <libbuzztard-ic/ic.h>
 
 #define GST_CAT_DEFAULT bt_ic_debug
 #ifndef BTIC_CORE_C

@@ -1,6 +1,6 @@
 ## $Id$
 
-libbtcoredir = $(includedir)/libbtic
+libbtcoredir = $(includedir)/libbuzztard-ic
 libbtcore_HEADERS = \
 	ic.h \
 	version.h \
