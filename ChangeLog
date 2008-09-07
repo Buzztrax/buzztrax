@@ -1,5 +1,13 @@
 2008-09-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* Makefile.am:
+	* configure.ac:
+	* docs/help/bt-edit/C/bt-edit.xml:
+	* docs/help/bt-edit/Makefile.am:
+	  Rename help-doc files. Makefile cleanups.
+
+2008-09-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.desktop.in.in:

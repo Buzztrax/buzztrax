@@ -407,7 +407,7 @@ AC_CONFIG_FILES(Makefile \
     docs/help/Makefile \
       docs/help/bt-edit/Makefile \
         docs/help/bt-edit/C/Makefile \
-        docs/help/bt-edit/C/bt-edit-C.omf \
+        docs/help/bt-edit/C/buzztard-edit-C.omf \
     docs/reference/Makefile \
       docs/reference/bt-cmd/Makefile \
       docs/reference/bt-core/Makefile \

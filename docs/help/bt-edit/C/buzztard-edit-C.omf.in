@@ -25,7 +25,7 @@ http://scrollkeeper.sourceforge.net/documentation/writing_scrollkeeper_omf_files
       user's guide
     </type>
     <format mime="text/xml" dtd="-//OASIS//DTD DocBook XML V4.1.2//EN"/>
-    <identifier url="bt-edit.xml"/>
+    <identifier url="buzztard-edit.xml"/>
     <language code="C"/>
     <!-- generated via scrollkeeper-gen-seriesid -->
     <relation seriesid="106bc53e-12d9-11d9-8d41-8e1628322787"/>

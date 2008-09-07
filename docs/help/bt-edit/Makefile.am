@@ -1,6 +1,6 @@
 SUBDIRS = C
 
-DOC_MODULE = bt-edit
+DOC_MODULE = buzztard-edit
 
 EXTRA_DIST = C/aspell.pws
 

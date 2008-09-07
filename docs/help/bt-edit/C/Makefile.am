@@ -1,7 +1,7 @@
 figdir = figures
-docname = bt-edit
+docname = buzztard-edit
 lang = C
-omffile = bt-edit-C.omf
+omffile = buzztard-edit-C.omf
 entities = legal.xml version.entities
 
 all-local:

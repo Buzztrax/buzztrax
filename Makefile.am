@@ -31,10 +31,8 @@ DISTCLEANFILES = \
 clean-local:
 	rm -f po/.intltool-merge-cache
 
-##if GCONF_SCHEMAS_INSTALL (this should be conditional)
+##if GCONF_SCHEMAS_INSTALL (TODO: this should be conditional)
 install-data-local:
-	-$(mkinstalldirs) $(songdatadir)
-	-$(mkinstalldirs) $(pixmapdatadir)
 	if test -z "$(DESTDIR)" ; then \
 		for p in $(schemas_DATA) ; do \
 			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) \
