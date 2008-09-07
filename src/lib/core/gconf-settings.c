@@ -31,7 +31,7 @@
 #define BT_GCONF_SETTINGS_C
 
 #include "core_private.h"
-#include <libbtcore/settings-private.h>
+#include <libbuzztard-core/settings-private.h>
 
 struct _BtGConfSettingsPrivate {
   /* used to validate if dispose has run */

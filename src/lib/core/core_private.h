@@ -89,7 +89,7 @@
 #include <gconf/gconf-client.h>
 #endif
 
-#include <libbtcore/core.h>
+#include <libbuzztard-core/core.h>
 
 //-- defines for workarounds ---------------------------------------------------
 

@@ -30,8 +30,8 @@
 #define BT_PROCESSOR_MACHINE_C
 
 #include "core_private.h"
-#include <libbtcore/machine.h>
-#include <libbtcore/machine-private.h>
+#include <libbuzztard-core/machine.h>
+#include <libbuzztard-core/machine-private.h>
 
 struct _BtProcessorMachinePrivate {
   /* used to validate if dispose has run */

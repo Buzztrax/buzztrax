@@ -1,6 +1,6 @@
 ## $Id$
 
-libbtcoredir = $(includedir)/libbtcore
+libbtcoredir = $(includedir)/libbuzztard-core
 libbtcore_HEADERS = \
 	core.h \
 	tools.h \

@@ -29,8 +29,8 @@
 #define BT_SOURCE_MACHINE_C
 
 #include "core_private.h"
-#include <libbtcore/source-machine.h>
-#include <libbtcore/machine-private.h>
+#include <libbuzztard-core/source-machine.h>
+#include <libbuzztard-core/machine-private.h>
 
 struct _BtSourceMachinePrivate {
   /* used to validate if dispose has run */

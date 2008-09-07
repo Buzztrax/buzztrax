@@ -25,7 +25,7 @@
 #include "machine.h"
 #include "pattern.h"
 
-#include <libbtic/ic.h>
+#include <libbuzztard-ic/ic.h>
 
 extern gboolean bt_machine_enable_input_level(BtMachine * const self);
 extern gboolean bt_machine_enable_output_level(BtMachine * const self);

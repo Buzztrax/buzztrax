@@ -49,7 +49,7 @@
 #define BT_SINK_BIN_C
 
 #include "core_private.h"
-#include <libbtcore/sink-bin.h>
+#include <libbuzztard-core/sink-bin.h>
 
 /* this requires gstreamer-0.10.16 */
 #ifndef GST_TIME_AS_USECONDS

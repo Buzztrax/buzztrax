@@ -31,8 +31,8 @@
 #define BT_SINK_MACHINE_C
 
 #include "core_private.h"
-#include <libbtcore/sink-machine.h>
-#include <libbtcore/machine-private.h>
+#include <libbuzztard-core/sink-machine.h>
+#include <libbuzztard-core/machine-private.h>
 
 struct _BtSinkMachinePrivate {
   /* used to validate if dispose has run */

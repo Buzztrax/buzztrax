@@ -100,7 +100,7 @@
 #define BT_MACHINE_C
 
 #include "core_private.h"
-#include <libbtic/ic.h>
+#include <libbuzztard-ic/ic.h>
 
 //-- signal ids
 
