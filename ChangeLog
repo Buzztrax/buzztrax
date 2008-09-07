@@ -1,5 +1,13 @@
 2008-09-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-cmd/bt-cmd-sections.txt:
+	* docs/reference/bt-cmd/bt-cmd.types:
+	* docs/reference/bt-ic/Makefile.am:
+	  Rename docs.
+
+2008-09-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/POTFILES.in:
 	* po/POTFILES.skip:
 	  Update after renames.
