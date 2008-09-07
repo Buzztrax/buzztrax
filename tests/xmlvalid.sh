@@ -23,6 +23,6 @@ if [ $? -ne 0 ]; then exit 1; fi
 #if [ $? -ne 0 ]; then exit 1; fi
 
 # test the docs
-xmllint $XML_OPTS --xinclude --postvalid $srcdir/../docs/help/bt-edit/C/bt-edit.xml
+xmllint $XML_OPTS --xinclude --postvalid $srcdir/../docs/help/buzztard-edit/C/buzztard-edit.xml
 if [ $? -ne 0 ]; then exit 1; fi
 

@@ -4,8 +4,8 @@ Encoding=UTF-8
 Type=Application
 _Name=Buzztard Music Editor
 _Comment=Edit buzztard song files
-TryExec=bt-edit
-Exec=bt-edit --command=load --input-file=%f
+TryExec=buzztard-edit
+Exec=buzztard-edit --command=load --input-file=%f
 Terminal=false
 Icon=@prefix@/share/buzztard/pixmaps/buzztard
 DocPath=buzztard/buzztard.xml

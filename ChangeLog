@@ -1,5 +1,19 @@
 2008-09-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/buzztard-edit.desktop.in.in:
+	* tests/bt-cfg.sh.in:
+	* tests/bt-cmd-cli.sh:
+	* tests/bt-cmd-convert.sh:
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	* tests/bt-edit-cli.sh:
+	* tests/xmlvalid.sh:
+	  Rename application binaries.
+
+2008-09-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	* configure.ac:
 	* docs/help/bt-edit/C/bt-edit.xml:

@@ -1,6 +1,6 @@
 #!/bin/sh
 # $Id$
-# run bt-cmd --command=encode on all example and test for crashes
+# run buzztard-cmd --command=encode on all example and test for crashes
 
 . ./bt-cfg.sh
 
@@ -29,7 +29,7 @@ for song in $E_SONGS; do
   audio=`basename $song .xml`
   audio="$TESTRESULTDIR/$audio.ogg"
   echo >>/tmp/bt_cmd_encode.log "== $song =="
-  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute ../src/ui/cmd/bt-cmd 2>>/tmp/bt_cmd_encode.log -q --command=encode --input-file=$song --output-file=$audio
+  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute $BUZZTARD_CMD 2>>/tmp/bt_cmd_encode.log -q --command=encode --input-file=$song --output-file=$audio
   if [ $? -ne 0 ]; then res=1; fi
 done
 

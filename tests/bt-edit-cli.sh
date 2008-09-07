@@ -1,16 +1,14 @@
 #!/bin/sh
 # $Id$
-# run bt-edit commandline options
+# run buzztard-edit commandline options
 
 . ./bt-cfg.sh
 
-BINARY=../src/ui/edit/bt-edit
-
 # test the output a little
-libtool --mode=execute $BINARY --help | grep >/dev/null -- "--help-bt-core"
+libtool --mode=execute $BUZZTARD_EDIT --help | grep >/dev/null -- "--help-bt-core"
 if [ $? -ne 0 ]; then exit 1; fi
 
-libtool --mode=execute $BINARY --version | grep >/dev/null -- "bt-edit from buzztard"
+libtool --mode=execute $BUZZTARD_EDIT --version | grep >/dev/null -- "buzztard-edit from buzztard"
 if [ $? -ne 0 ]; then exit 1; fi
 
 # other tests would launch the UI :/

@@ -3,3 +3,7 @@
 
 TESTSONGDIR="@top_srcdir@/tests/songs"
 TESTRESULTDIR="@top_builddir@/tests/songs"
+
+BUZZTARD_CMD=@top_builddir@/src/ui/cmd/buzztard-cmd
+BUZZTARD_EDIT=@top_builddir@/src/ui/edit/buzztard-edit
+

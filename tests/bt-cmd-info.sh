@@ -1,6 +1,6 @@
 #!/bin/sh
 # $Id$
-# run bt-cmd --command=info on all example and test for crashes
+# run buzztard-cmd --command=info on all example and test for crashes
 
 . ./bt-cfg.sh
 
@@ -34,7 +34,7 @@ for song in $E_SONGS; do
   info=`basename $song .xml`
   info="$TESTRESULTDIR/$info.txt"
   echo >>/tmp/bt_cmd_info.log "== $song =="
-  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute ../src/ui/cmd/bt-cmd >$info 2>>/tmp/bt_cmd_info.log --command=info --input-file=$song
+  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute $BUZZTARD_CMD >$info 2>>/tmp/bt_cmd_info.log --command=info --input-file=$song
   if [ $? -ne 0 ]; then
     echo "!!! failed"
     res=1;
@@ -47,7 +47,7 @@ for song in $T_SONGS; do
   info=`basename $song .xml`
   info="$TESTRESULTDIR/$info.txt"
   echo >>/tmp/bt_cmd_info.log "== $song =="
-  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute ../src/ui/cmd/bt-cmd >$info 2>>/tmp/bt_cmd_info.log --command=info --input-file=$song
+  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute $BUZZTARD_CMD >$info 2>>/tmp/bt_cmd_info.log --command=info --input-file=$song
   if [ $? -eq 0 ]; then
     echo "!!! failed"
     res=1;

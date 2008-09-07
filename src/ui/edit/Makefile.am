@@ -1,12 +1,12 @@
 ## Makefile.am for src/ui/edit
 
-bin_PROGRAMS=bt-edit
+bin_PROGRAMS=buzztard-edit
 
-bt_edit_LDADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
+buzztard_edit_LDADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/src/lib/ic/libbtic.la \
 	libbtedit.la
-bt_edit_SOURCES= \
+buzztard_edit_SOURCES= \
 	bt-edit.c bt-edit.h
 
 # these sources (also mentioned above) are generated.

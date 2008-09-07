@@ -1,11 +1,11 @@
 ## Makefile.am for src/ui/cmd
 
-bin_PROGRAMS=bt-cmd
+bin_PROGRAMS=buzztard-cmd
 
-bt_cmd_LDADD = $(BASE_DEPS_LIBS) $(BT_LIBS) \
+buzztard_cmd_LDADD = $(BASE_DEPS_LIBS) $(BT_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	libbtcmd.la
-bt_cmd_SOURCES= \
+buzztard_cmd_SOURCES= \
 	bt-cmd.c bt-cmd.h
 
 noinst_LTLIBRARIES      = libbtcmd.la
