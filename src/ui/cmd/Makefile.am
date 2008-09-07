@@ -3,7 +3,7 @@
 bin_PROGRAMS=buzztard-cmd
 
 buzztard_cmd_LDADD = $(BASE_DEPS_LIBS) $(BT_LIBS) \
-	$(top_builddir)/src/lib/core/libbtcore.la \
+	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	libbtcmd.la
 buzztard_cmd_SOURCES= \
 	bt-cmd.c bt-cmd.h

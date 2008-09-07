@@ -2,10 +2,10 @@
 
 SUBDIRS = . libbtic
 
-lib_LTLIBRARIES = libbtic.la
-libbtic_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS)
-libbtic_la_LDFLAGS = -version-info @BT_VERSION_INFO@
-libbtic_la_SOURCES = \
+lib_LTLIBRARIES = libbuzztard-ic.la
+libbuzztard_ic_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS)
+libbuzztard_ic_la_LDFLAGS = -version-info @BT_VERSION_INFO@
+libbuzztard_ic_la_SOURCES = \
 	ic.c libbtic/ic.h \
 	libbtic/version.h \
 	registry.c libbtic/registry.h libbtic/registry-methods.h \

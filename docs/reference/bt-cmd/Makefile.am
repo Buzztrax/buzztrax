@@ -64,8 +64,8 @@ INCLUDES = \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = \
-	$(top_builddir)/src/lib/core/libbtcore.la \
-	$(top_builddir)/src/lib/ic/libbtic.la \
+	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	$(top_builddir)/src/ui/cmd/libbtcmd.la \
 	$(BASE_DEPS_LIBS) \
 	$(BT_LIBS)

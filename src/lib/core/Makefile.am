@@ -16,11 +16,11 @@ endif
 # these sources (also mentioned above) are generated.
 BUILT_SOURCES = marshal.h marshal.c
 
-lib_LTLIBRARIES = libbtcore.la
-libbtcore_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS) -lgstaudio-0.10 \
+lib_LTLIBRARIES = libbuzztard-core.la
+libbuzztard_core_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS) -lgstaudio-0.10 \
 	$(top_builddir)/src/lib/ic/libbtic.la
-libbtcore_la_LDFLAGS = -version-info @BT_VERSION_INFO@
-libbtcore_la_SOURCES = \
+libbuzztard_core_la_LDFLAGS = -version-info @BT_VERSION_INFO@
+libbuzztard_core_la_SOURCES = \
 	core.c libbtcore/core.h \
 	tools.c libbtcore/tools.h \
 	libbtcore/version.h \

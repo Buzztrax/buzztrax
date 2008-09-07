@@ -4,7 +4,7 @@
 AUTOMAKE_OPTIONS = 1.6
 
 # The name of the module, e.g. 'glib'.
-DOC_MODULE=bt-edit
+DOC_MODULE=buzztard-edit
 
 # The top-level SGML file. You can change this if you want to.
 DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
@@ -69,8 +69,8 @@ INCLUDES = \
 	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = \
-	$(top_builddir)/src/lib/core/libbtcore.la \
-	$(top_builddir)/src/lib/ic/libbtic.la \
+	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	$(top_builddir)/src/ui/edit/libbtedit.la \
 	$(BASE_DEPS_LIBS) \
 	$(GUI_DEPS_LIBS) \

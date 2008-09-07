@@ -1,5 +1,20 @@
 2008-09-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbuzztard-core.pc.in:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/libbuzztard-ic.pc.in:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* tests/Makefile.am:
+	  Rename libs.
+
+2008-09-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/Makefile.am:
 	* src/lib/ic/Makefile.am:
