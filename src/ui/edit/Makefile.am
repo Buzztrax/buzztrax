@@ -77,10 +77,10 @@ INCLUDES = \
 	$(BT_CFLAGS)
 
 desktopdir = ${with_desktop_dir}/applications
-desktop_in_files = bt-edit.desktop.in
+desktop_in_files = buzztard-edit.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
-bt-edit.desktop: bt-edit.desktop.in
+buzztard-edit.desktop: buzztard-edit.desktop.in
 
 marshal.h: marshal.list
 	glib-genmarshal --header --prefix=bt_marshal $(srcdir)/marshal.list > marshal.h

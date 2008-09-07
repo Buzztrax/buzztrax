@@ -431,7 +431,7 @@ AC_CONFIG_FILES(Makefile \
     src/ui/Makefile \
       src/ui/cmd/Makefile \
       src/ui/edit/Makefile \
-      src/ui/edit/bt-edit.desktop.in \
+      src/ui/edit/buzztard-edit.desktop.in \
   tests/Makefile \
   tests/bt-cfg.sh \
     tests/lib/Makefile \
