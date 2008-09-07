@@ -12,7 +12,7 @@ src/ui/cmd/bt-cmd.c
 src/ui/cmd/cmd-application.c
 src/ui/edit/about-dialog.c
 src/ui/edit/bt-edit.c
-src/ui/edit/bt-edit.desktop.in
+src/ui/edit/buzztard-edit.desktop
 src/ui/edit/edit-application.c
 src/ui/edit/interaction-controller-menu.c
 src/ui/edit/machine-actions.c

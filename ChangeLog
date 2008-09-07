@@ -1,5 +1,11 @@
 2008-09-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* po/POTFILES.in:
+	* po/POTFILES.skip:
+	  Update after renames.
+
+2008-09-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/cmd/Makefile.am:
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/buzztard-edit.desktop.in.in:
