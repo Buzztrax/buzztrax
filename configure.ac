@@ -421,11 +421,11 @@ AC_CONFIG_FILES(Makefile \
     src/lib/Makefile \
     src/lib/buzztard.xml \
       src/lib/core/Makefile \
-      src/lib/core/libbtcore.pc \
+      src/lib/core/libbuzztard-core.pc \
         src/lib/core/libbtcore/Makefile \
         src/lib/core/libbtcore/version.h \
       src/lib/ic/Makefile \
-	  src/lib/ic/libbtic.pc \
+	  src/lib/ic/libbuzztard-ic.pc \
         src/lib/ic/libbtic/Makefile \
 		src/lib/ic/libbtic/version.h \
     src/ui/Makefile \

@@ -1,5 +1,12 @@
 2008-09-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  Rename the pkg-config files.
+
+2008-09-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-cmd/bt-cmd-sections.txt:
 	* docs/reference/bt-cmd/bt-cmd.types:
