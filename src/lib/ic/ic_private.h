@@ -80,7 +80,7 @@
 #endif
 #endif
 //-- libbtcore
-#include "libbtcore/tools.h"
+#include <libbuzztard-core/tools.h>
 
 #include <libbuzztard-ic/ic.h>
 
