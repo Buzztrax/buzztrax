@@ -32,10 +32,12 @@
  * And if 'ticks per beat' is 4 one will have 4 beats - a classic 4/4 meassure.
  * For a 3/4 meassure, 'bars' would be 12. Thus bars = beats * tpb.
  */
- /* @todo: add more metadata
- * copyright: GST_TAG_COPYRIGHT
- * license: GST_TAG_LICENSE (http://creativecommons.org/licenses/)
+/* @todo: add more metadata
+ *  - copyright: GST_TAG_COPYRIGHT
+ *  - license: GST_TAG_LICENSE (http://creativecommons.org/licenses/)
  *
+ * @todo: add sample-rate and channels properties
+ *  - they will be set on sink-bin
  */
 
 #define BT_CORE

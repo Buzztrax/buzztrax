@@ -42,7 +42,11 @@
  *
  * @todo: for upnp it would be nice to stream on-demand
  *
- * @todo: add caps-filter to enforce stereo
+ * @todo: add parameters for sampling rate and channels
+ *   - channels can be used in the capsfilter
+ *   - sampling rate could be used there too (ev. need resample afterwards)
+ *   - both should be sink-bin properties, so that we can configure them
+ *     externaly
  */
 
 #define BT_CORE

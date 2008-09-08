@@ -1,27 +1,43 @@
+2008/10 ========================================================================
+
+
+
 2008/09 ========================================================================
 
 Out of some irc conversation, I gave implementing synced meters a go. Until so
 far level and spectrum meters in buzztard were ahead of time. The reason is that
-gstreamer tells me about the values once they are computed, but thats not when
+gstreamer tells me about the values once they are computed, but that's not when
 the actual data segment gets played. Luckily the message has a timestamp. So all
 it needs is to sync drawing with the audio sink. MikeS gave me some good
 pointers on irc. It wasn't that straight forward. I found and fixed a bug in 
 level meter plugin so that it now puts useful timestamps on messages when it
 play loops. It works really great now.
 
-* focus grabing fixes
-* add empty pattern by default when adding sources
-* song tempo fixes, bsl load bmp/tpb and master volume values from song
+gtk_widget_grab_focus() is a nasty function. It asserts when the widget is not
+mapped/realized and steals the focus in any case. This is problematic if you
+have tabs and update widgets when things changed. I now have a wrapper added
+that does the extra checks. Wonder if that would be a good change for upstream.
 
+I did lot of testing with real buzz songs and machines. I have now about 80
+original plugins in use. Real testing always leads to some good fixes :) We now
+add an empty pattern by default when adding new source machines (like buzz did).
+I also noticed that bpm/tpb information was not loaded from buzz songs. This is
+now fixed (also master volume was missing). After that I spotted that most bpm
+tempi did not work well. Now timing precision is much better.
 
 A big recommendation to everyone. Pick a decent prefix for your project. I've
-been a bit blue eyed and had choosen 'bt'. Part of my package is a core library
+been a bit blue eyed and had chosen 'bt'. Part of my package is a core library
 called libbtcore. Now unfortunately ktorrent did the same mistake and have a
 libbtcore (bt stands for bittorrent there). As neither of them are really
 general purpose they should be uniquely named. I analyzed all files I install
 and went thought the great pains of renaming everything - libs, binaries, docs
 includes, pkg-config files, desktop files and so on. Hope I never have to do 
-that ever again.
+that ever again. I also filed a bug for ktorrent [1] so that they can fix it
+before its causing problems. Interesting how they dealt with the report - "I was
+first with libbtcore - RESOLVED AS WONTFIX". Interestingly I was 1.5 years
+earlier, but that wasn't the point at all.
+
+[1] http://bugs.kde.org/show_bug.cgi?id=170674
 
 2008/08 ========================================================================
 
