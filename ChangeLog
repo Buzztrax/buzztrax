@@ -1,3 +1,8 @@
+2008-09-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	  Fix one more use of old libname.
+
 2008-09-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/ic_private.h:
