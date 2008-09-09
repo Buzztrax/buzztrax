@@ -80,7 +80,7 @@ struct _BtMainPageWavesPrivate {
   GstElement *preview, *preview_src;
   BtWave *play_wave;
   BtWavelevel *play_wavelevel;
-  GstNote2Frequency *n2f;
+  GstBtToneConversion *n2f;
 
   /* the query is used in update_playback_position */
   GstQuery *position_query;
@@ -245,7 +245,7 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
       gtk_list_store_append(store, &tree_iter);
       gtk_list_store_set(store,&tree_iter,
         WAVELEVEL_TABLE_ID,i,
-        WAVELEVEL_TABLE_ROOT_NOTE,gst_note_2_frequency_note_number_2_string(root_note),
+        WAVELEVEL_TABLE_ROOT_NOTE,gstbt_tone_conversion_note_number_2_string(root_note),
         WAVELEVEL_TABLE_LENGTH,length,
         WAVELEVEL_TABLE_RATE,rate,
         WAVELEVEL_TABLE_LOOP_START,loop_start,
@@ -323,8 +323,8 @@ static void preview_update_seeks(const BtMainPageWaves *self) {
       NULL);
     
     /* calculate pitch rate from root-note */
-    prate=gst_note_2_frequency_translate_from_number(self->priv->n2f,BT_WAVELEVEL_DEFAULT_ROOT_NOTE)/
-        gst_note_2_frequency_translate_from_number(self->priv->n2f,root_note);
+    prate=gstbt_tone_conversion_translate_from_number(self->priv->n2f,BT_WAVELEVEL_DEFAULT_ROOT_NOTE)/
+        gstbt_tone_conversion_translate_from_number(self->priv->n2f,root_note);
     
     old_play_event =self->priv->play_seek_event;
     old_loop_event0=self->priv->loop_seek_event[0];
@@ -532,11 +532,11 @@ static void on_wavelevel_root_note_edited(GtkCellRendererText *cellrenderertext,
   BtWavelevel *wavelevel;
   
   if((wavelevel=wavelevels_get_wavelevel_and_set_iter(self,&iter,&store,path_string))) {
-    guchar root_note=gst_note_2_frequency_note_string_2_number(new_text);
+    guchar root_note=gstbt_tone_conversion_note_string_2_number(new_text);
     
     if(root_note) {
       g_object_set(wavelevel,"root-note",root_note,NULL); 
-      gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_ROOT_NOTE,gst_note_2_frequency_note_number_2_string(root_note),-1);
+      gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVELEVEL_TABLE_ROOT_NOTE,gstbt_tone_conversion_note_number_2_string(root_note),-1);
       preview_update_seeks(self);
     }
     g_object_unref(wavelevel);
@@ -1343,7 +1343,7 @@ static void bt_main_page_waves_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_WAVES, BtMainPageWavesPrivate);
-  self->priv->n2f = gst_note_2_frequency_new(GST_NOTE_2_FREQUENCY_CROMATIC);
+  self->priv->n2f = gstbt_tone_conversion_new(GSTBT_TONE_CONVERSION_CROMATIC);
 }
 
 static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {

@@ -1192,7 +1192,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
           widget1=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
           break;
         case G_TYPE_ENUM: {
-          if(property->value_type==BT_TYPE_TRIGGER_SWITCH)
+          if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH)
             widget1=make_checkbox_widget(self,GST_OBJECT(machine),property);
           else
             widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
@@ -1324,7 +1324,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
           widget1=make_double_range_widget(self,machine_voice,property,range_min,range_max,widget2);
           break;
         case G_TYPE_ENUM: {
-          if(property->value_type==BT_TYPE_TRIGGER_SWITCH)
+          if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH)
             widget1=make_checkbox_widget(self,machine_voice,property);
           else
             widget1=make_combobox_widget(self,machine_voice,property,range_min,range_max);
@@ -1565,7 +1565,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_HELP));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Help for this machine"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  if(!GST_IS_HELP(machine)) {
+  if(!GSTBT_IS_HELP(machine)) {
     gtk_widget_set_sensitive(tool_item,FALSE);
   }
   else {

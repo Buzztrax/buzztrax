@@ -1,3 +1,18 @@
+2008-09-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  collect news.
+  
+	* src/lib/core/machine.c:
+	* src/lib/core/sink-bin.c:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-waves.c:
+	* tests/bt-test-plugin.c:
+	  Adjust to gst-buzztard api break.
+
 2008-09-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

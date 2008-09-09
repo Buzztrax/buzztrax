@@ -72,12 +72,12 @@ GST_STATIC_PAD_TEMPLATE (
 
 //-- tempo interface implementation
 
-static void bt_test_tempo_change_tempo(GstTempo *tempo, glong beats_per_minute, glong ticks_per_beat, glong subticks_per_tick) {  
+static void bt_test_tempo_change_tempo(GstBtTempo *tempo, glong beats_per_minute, glong ticks_per_beat, glong subticks_per_tick) {  
   GST_INFO("changing tempo to %d BPM  %d TPB  %d STPT",beats_per_minute,ticks_per_beat,subticks_per_tick);
 }
 
 static void bt_test_tempo_interface_init(gpointer g_iface, gpointer iface_data) {
-  GstTempoInterface *iface = g_iface;
+  GstBtTempoInterface *iface = g_iface;
   
   iface->change_tempo = bt_test_tempo_change_tempo;
 }
@@ -206,7 +206,7 @@ GType bt_test_mono_source_get_type(void) {
       NULL                /* interface_data */
     };
     type = g_type_register_static(GST_TYPE_ELEMENT,"BtTestMonoSource",&info,0);
-    g_type_add_interface_static(type, GST_TYPE_TEMPO, &tempo_interface_info);
+    g_type_add_interface_static(type, GSTBT_TYPE_TEMPO, &tempo_interface_info);
   }
   return type;
 }
@@ -371,9 +371,9 @@ GType bt_test_poly_source_get_type(void) {
     };
 
     type = g_type_register_static(GST_TYPE_ELEMENT,"BtTestPolySource",&info,0);
-    g_type_add_interface_static(type, GST_TYPE_TEMPO, &tempo_interface_info);
+    g_type_add_interface_static(type, GSTBT_TYPE_TEMPO, &tempo_interface_info);
     g_type_add_interface_static(type, GST_TYPE_CHILD_PROXY, &child_proxy_interface_info);
-    g_type_add_interface_static(type, GST_TYPE_CHILD_BIN, &child_bin_interface_info);
+    g_type_add_interface_static(type, GSTBT_TYPE_CHILD_BIN, &child_bin_interface_info);
   }
   return type;
 }

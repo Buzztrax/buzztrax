@@ -111,7 +111,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
 
 //-- tempo interface implementations
 
-static void bt_sink_bin_tempo_change_tempo(GstTempo *tempo, glong beats_per_minute, glong ticks_per_beat, glong subticks_per_tick) {
+static void bt_sink_bin_tempo_change_tempo(GstBtTempo *tempo, glong beats_per_minute, glong ticks_per_beat, glong subticks_per_tick) {
   BtSinkBin *self=BT_SINK_BIN(tempo);
   gboolean changed=FALSE;
 
@@ -152,7 +152,7 @@ static void bt_sink_bin_tempo_change_tempo(GstTempo *tempo, glong beats_per_minu
 }
 
 static void bt_sink_bin_tempo_interface_init(gpointer g_iface, gpointer iface_data) {
-  GstTempoInterface *iface = g_iface;
+  GstBtTempoInterface *iface = g_iface;
 
   iface->change_tempo = bt_sink_bin_tempo_change_tempo;
 }
@@ -777,7 +777,7 @@ static void bt_sink_bin_set_property(GObject      * const object,
     case SINK_BIN_TEMPO_BPM:
     case SINK_BIN_TEMPO_TPB:
     case SINK_BIN_TEMPO_STPT:
-	  GST_WARNING("use gst_tempo_change_tempo()");
+	  GST_WARNING("use gstbt_tempo_change_tempo()");
       break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -946,7 +946,7 @@ GType bt_sink_bin_get_type(void) {
       NULL // value_table
     };
     type = g_type_register_static(GST_TYPE_BIN,"BtSinkBin",&info,0);
-    g_type_add_interface_static(type, GST_TYPE_TEMPO, &tempo_interface_info);
+    g_type_add_interface_static(type, GSTBT_TYPE_TEMPO, &tempo_interface_info);
   }
   return type;
 }

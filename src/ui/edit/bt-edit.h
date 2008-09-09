@@ -63,7 +63,7 @@
 //-- gstbuzztard
 #include <libgstbuzztard/help.h>
 #include <libgstbuzztard/musicenums.h>
-#include <libgstbuzztard/note2frequency.h>
+#include <libgstbuzztard/toneconversion.h>
 #if !GST_CHECK_VERSION(0,10,20)
 #include <libgstbuzztard/preset.h>
 #endif

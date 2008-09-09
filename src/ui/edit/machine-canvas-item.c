@@ -595,7 +595,7 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   g_object_get(self->priv->machine,"machine",&machine,NULL);
-  if(!GST_IS_HELP(machine)) {
+  if(!GSTBT_IS_HELP(machine)) {
     gtk_widget_set_sensitive(menu_item,FALSE);
   }
   gst_object_unref(machine);

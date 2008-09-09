@@ -249,7 +249,7 @@ void bt_machine_on_bpm_changed(BtSongInfo * const song_info, const GParamSpec * 
   gulong bpm;
 
   g_object_get(song_info,"bpm",&bpm,NULL);
-  gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,-1,-1);
+  gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,-1,-1);
 }
 
 void bt_machine_on_tpb_changed(BtSongInfo * const song_info, const GParamSpec * const arg, gconstpointer const user_data) {
@@ -257,7 +257,7 @@ void bt_machine_on_tpb_changed(BtSongInfo * const song_info, const GParamSpec * 
   gulong tpb;
 
   g_object_get(song_info,"tpb",&tpb,NULL);
-  gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),-1,(glong)tpb,-1);
+  gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),-1,(glong)tpb,-1);
 }
 
 //-- helper methods
@@ -581,8 +581,8 @@ static void bt_machine_resize_pattern_voices(const BtMachine * const self) {
 static void bt_machine_resize_voices(const BtMachine * const self, const gulong voices) {
   GST_INFO("changing machine %s:%p voices from %d to %d",self->priv->id,self->priv->machines[PART_MACHINE],voices,self->priv->voices);
 
-  // @todo GST_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
-  if((!self->priv->machines[PART_MACHINE]) || (!GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]))) {
+  // @todo GSTBT_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
+  if((!self->priv->machines[PART_MACHINE]) || (!GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]))) {
     GST_WARNING("machine %s:%p is NULL or not polyphonic!",self->priv->id,self->priv->machines[PART_MACHINE]);
     return;
   }
@@ -623,7 +623,7 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
  */
 static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamSpec * const property, const GQuark key) {
   gboolean res=FALSE;
-  gconstpointer const has_meta=g_param_spec_get_qdata(property,gst_property_meta_quark);
+  gconstpointer const has_meta=g_param_spec_get_qdata(property,gstbt_property_meta_quark);
 
   if(has_meta) {
     gconstpointer const qdata=g_param_spec_get_qdata(property,key);
@@ -825,7 +825,7 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     GST_INFO("  host-callbacks iface initialized");
   }
   // initialize child-proxy iface properties
-  if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+  if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
     if(!self->priv->voices) {
       GST_WARNING("voices==0");
       //g_object_get(self->priv->machines[PART_MACHINE],"children",&self->priv->voices,NULL);
@@ -836,14 +836,14 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     GST_INFO("  child proxy iface initialized");
   }
   // initialize tempo iface properties
-  if(GST_IS_TEMPO(self->priv->machines[PART_MACHINE])) {
+  if(GSTBT_IS_TEMPO(self->priv->machines[PART_MACHINE])) {
     BtSongInfo *song_info;
     gulong bpm,tpb;
 
     g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
     // @todo handle stpb later (subtick per beat)
     g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
-    gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,-1);
+    gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,-1);
 
     g_signal_connect(G_OBJECT(song_info),"notify::bpm",G_CALLBACK(bt_machine_on_bpm_changed),(gpointer)self);
     g_signal_connect(G_OBJECT(song_info),"notify::tpb",G_CALLBACK(bt_machine_on_tpb_changed),(gpointer)self);
@@ -918,8 +918,8 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
     guint i,j;
     gboolean skip;
 
-    // check if the elemnt implements the GstChildBin interface (implies GstChildProxy)
-    if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+    // check if the elemnt implements the GstBtChildBin interface (implies GstChildProxy)
+    if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
       GstObject *voice_child;
 
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
@@ -958,13 +958,13 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
         GST_DEBUG("    adding global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         // add global param
         self->priv->global_props[j]=property;
-        self->priv->global_flags[j]=GST_PROPERTY_META_STATE;
-        if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-          gconstpointer const has_meta=g_param_spec_get_qdata(property,gst_property_meta_quark);
+        self->priv->global_flags[j]=GSTBT_PROPERTY_META_STATE;
+        if(GSTBT_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+          gconstpointer const has_meta=g_param_spec_get_qdata(property,gstbt_property_meta_quark);
 
           if(has_meta) {
-            self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-            if(!(bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val))) {
+            self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gstbt_property_meta_quark_flags));
+            if(!(bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gstbt_property_meta_quark_no_val))) {
               GST_WARNING("    can't get no-val property-meta for global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
             }
           }
@@ -984,7 +984,7 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
   guint number_of_properties;
 
   // check if the elemnt implements the GstChildProxy interface
-  if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+  if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
 
     // register voice params
@@ -1009,13 +1009,13 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
             GST_DEBUG("    adding voice_param %p, [%d/%d] \"%s\"",property, j,self->priv->voice_params,property->name);
             // add voice param
             self->priv->voice_props[j]=property;
-            self->priv->voice_flags[j]=GST_PROPERTY_META_STATE;
-            if(GST_IS_PROPERTY_META(voice_child)) {
-              gconstpointer const has_meta=g_param_spec_get_qdata(property,gst_property_meta_quark);
+            self->priv->voice_flags[j]=GSTBT_PROPERTY_META_STATE;
+            if(GSTBT_IS_PROPERTY_META(voice_child)) {
+              gconstpointer const has_meta=g_param_spec_get_qdata(property,gstbt_property_meta_quark);
 
               if(has_meta) {
-                self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-                if(!(bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val))) {
+                self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gstbt_property_meta_quark_flags));
+                if(!(bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gstbt_property_meta_quark_no_val))) {
                   GST_WARNING("    can't get no-val property-meta for voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
                 }
               }
@@ -1639,7 +1639,7 @@ gboolean bt_machine_is_polyphonic(const BtMachine * const self) {
   gboolean res;
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
 
-  res=GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]);
+  res=GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]);
   GST_INFO(" is machine \"%s\" polyphonic ? %d",self->priv->id,res);
   return(res);
 }
@@ -1658,7 +1658,7 @@ gboolean bt_machine_is_global_param_trigger(const BtMachine * const self, const 
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(index<self->priv->global_params,FALSE);
 
-  if(!(self->priv->global_flags[index]&GST_PROPERTY_META_STATE)) return(TRUE);
+  if(!(self->priv->global_flags[index]&GSTBT_PROPERTY_META_STATE)) return(TRUE);
   return(FALSE);
 }
 
@@ -1676,7 +1676,7 @@ gboolean bt_machine_is_voice_param_trigger(const BtMachine * const self, const g
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(index<self->priv->voice_params,FALSE);
 
-  if(!(self->priv->voice_flags[index]&GST_PROPERTY_META_STATE)) return(TRUE);
+  if(!(self->priv->voice_flags[index]&GSTBT_PROPERTY_META_STATE)) return(TRUE);
   return(FALSE);
 }
 
@@ -1960,10 +1960,10 @@ static void bt_machine_get_param_details(const BtMachine * const self, GParamSpe
 
     if(min_val) *min_val=g_new0(GValue,1);
     if(max_val) *max_val=g_new0(GValue,1);
-    if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-      if(min_val) done =bt_machine_get_property_meta_value(*min_val,property,gst_property_meta_quark_min_val);
+    if(GSTBT_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+      if(min_val) done =bt_machine_get_property_meta_value(*min_val,property,gstbt_property_meta_quark_min_val);
       if(max_val) {
-        if(!bt_machine_get_property_meta_value(*max_val,property,gst_property_meta_quark_max_val)) {
+        if(!bt_machine_get_property_meta_value(*max_val,property,gstbt_property_meta_quark_max_val)) {
           if(done) g_value_unset(*min_val);
           done=FALSE;
         }
@@ -2100,8 +2100,8 @@ gchar *bt_machine_describe_global_param_value(const BtMachine * const self, cons
   g_return_val_if_fail(index<self->priv->global_params,NULL);
   g_return_val_if_fail(G_IS_VALUE(event),NULL);
 
-  if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-    str=gst_property_meta_describe_property(GST_PROPERTY_META(self->priv->machines[PART_MACHINE]),index,event);
+  if(GSTBT_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+    str=gstbt_property_meta_describe_property(GSTBT_PROPERTY_META(self->priv->machines[PART_MACHINE]),index,event);
   }
   return(str);
 }
@@ -2126,13 +2126,13 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const
   g_return_val_if_fail(index<self->priv->voice_params,NULL);
   g_return_val_if_fail(G_IS_VALUE(event),NULL);
 
-  if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+  if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
 
     // get child for voice 0
     if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
-      if(GST_IS_PROPERTY_META(voice_child)) {
-        str=gst_property_meta_describe_property(GST_PROPERTY_META(voice_child),index,event);
+      if(GSTBT_IS_PROPERTY_META(voice_child)) {
+        str=gstbt_property_meta_describe_property(GSTBT_PROPERTY_META(voice_child),index,event);
       }
       //else {
         //GST_WARNING("%s is not PROPERTY_META",self->priv->id);
@@ -2266,7 +2266,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
   g_return_if_fail(BT_IS_MACHINE(self));
   g_return_if_fail(param<self->priv->voice_params);
   g_return_if_fail(voice<self->priv->voices);
-  g_return_if_fail(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]));
+  g_return_if_fail(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]));
 
   param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice));
 
@@ -2777,7 +2777,7 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
             xmlNewProp(sub_node,XML_CHAR_PTR("global"),XML_CHAR_PTR("0"));
           }
           else {
-            if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+            if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
               GstObject *voice_child;
               gulong i;
               gboolean found=FALSE;
@@ -3074,7 +3074,7 @@ static void bt_machine_set_property(GObject * const object, const guint property
     case MACHINE_VOICES: {
       const gulong voices=self->priv->voices;
       self->priv->voices = g_value_get_ulong(value);
-      if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+      if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
         if(voices!=self->priv->voices) {
           GST_DEBUG("set the voices for machine: %d",self->priv->voices);
           bt_machine_resize_voices(self,voices);

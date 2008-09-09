@@ -1103,11 +1103,11 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
 }
 
 static float note_str_to_float(gchar *note, gpointer user_data) {
-  return (float)gst_note_2_frequency_note_string_2_number(note);
+  return (float)gstbt_tone_conversion_note_string_2_number(note);
 }
 
 static const gchar * note_float_to_str(gfloat in, gpointer user_data) {
-  return(gst_note_2_frequency_note_number_2_string((guint)in));
+  return(gstbt_tone_conversion_note_number_2_string((guint)in));
 }
 
 static float float_str_to_float(gchar *str, gpointer user_data) {
@@ -1159,7 +1159,7 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->user_data=NULL;
       break;
     case G_TYPE_ENUM:
-      if(property->value_type==BT_TYPE_TRIGGER_SWITCH) {
+      if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH) {
         col->type=PCT_SWITCH;
         col->min=0;
         col->max=1;
