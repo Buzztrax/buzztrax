@@ -482,10 +482,12 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   GST_INFO("initializing sink-bin");
   
   // always add caps-filter as a first element and enforce stereo
+  // @todo: we would also enforce samplerate here
   stereo_caps=gst_caps_from_string(
     "audio/x-raw-int, "
       "channels = (int) 2, "
       "rate = (int) [ 1, MAX ], "
+      /*"rate = (int) 22050, "*/
       "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }, "
       "width = (int) { 8, 16, 24, 32 }, "
       "depth = (int) [ 1, 32 ], "
@@ -493,6 +495,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     "audio/x-raw-float, "
       "channels = (int) 2, "
       "rate = (int) [ 1, MAX ], "
+      /*"rate = (int) 22050, "*/
       "width = (int) { 32, 64 }, "
       "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }"
   );

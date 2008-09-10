@@ -1,5 +1,10 @@
 2008-09-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	  Mark the place where we can enforce a sample-rate.
+
+2008-09-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  libbml is optional.
 
