@@ -1,5 +1,14 @@
 2008-09-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  libbml is optional.
+
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbuzztard-core/Makefile.am:
+	  Move DISTCLEAN to where the file is.
+
+2008-09-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
 	* src/ui/cmd/cmd-application.c:
 	  Some more logging and cleanups.
