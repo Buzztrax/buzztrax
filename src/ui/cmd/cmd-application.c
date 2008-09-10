@@ -123,12 +123,6 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
     }
     GST_INFO("finished playing: is_playing=%d, pos=%ld < length=%d",is_playing,pos,length);
     if(!self->priv->quiet) puts("");
-    /*
-    GMainLoop *main_loop; // make global
-    main_loop=g_main_loop_new(NULL,FALSE);
-    g_timeout_add(1000,bt_song_play_pos_changed,song); // ggf. main-loop beenden
-    g_main_loop_run(main_loop);
-    */
     res=TRUE;
   }
   else {
@@ -171,24 +165,6 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
     }
   }
   if(!matched) {
-#if 0
-  if(g_str_has_suffix(lc_file_name,".ogg")) {
-    format=BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS;
-  }
-  else if(g_str_has_suffix(lc_file_name,".mp3")) {
-    format=BT_SINK_BIN_RECORD_FORMAT_MP3;
-  }
-  else if(g_str_has_suffix(lc_file_name,".wav")) {
-    format=BT_SINK_BIN_RECORD_FORMAT_WAV;
-  }
-  else if(g_str_has_suffix(lc_file_name,".flac")) {
-    format=BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC;
-  }
-  else if(g_str_has_suffix(lc_file_name,".raw")) {
-    format=BT_SINK_BIN_RECORD_FORMAT_RAW;
-  }
-  else {
-#endif
     GST_WARNING("unknown file-format extension, using ogg vorbis");
     format=BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS;
     file_name=g_strdup_printf("%s.ogg",output_file_name);

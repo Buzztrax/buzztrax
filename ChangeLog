@@ -1,3 +1,14 @@
+2008-09-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	* src/ui/cmd/cmd-application.c:
+	  Some more logging and cleanups.
+
+	* tests/Makefile.am:
+	* tests/bt-cmd-cli.sh:
+	* tests/bt-edit-cli.sh:
+	  Run tests via libtool to pickup uninstalled libs.
+
 2008-09-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

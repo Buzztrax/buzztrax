@@ -5,6 +5,7 @@
 . ./bt-cfg.sh
 
 # test the output a little
+echo "testing output"
 libtool --mode=execute $BUZZTARD_CMD --help | grep >/dev/null -- "--help-bt-core"
 if [ $? -ne 0 ]; then exit 1; fi
 
@@ -12,6 +13,7 @@ libtool --mode=execute $BUZZTARD_CMD --version | grep >/dev/null -- "buzztard-cm
 if [ $? -ne 0 ]; then exit 1; fi
 
 # here we test that these don't crash
+echo "testing options"
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --quiet
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --command
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --command=info
@@ -25,6 +27,7 @@ libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --output-file
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --output-file=$TESTRESULTDIR
 
 # do something real
+echo "testing scenarios"
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --command=play -q --input-file=$TESTSONGDIR/test-simple1.xml
 
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --command=convert -q --input-file=$TESTSONGDIR/test-simple1.xml --output-file=$TESTRESULTDIR/test-simple1.out.xml

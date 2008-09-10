@@ -472,6 +472,16 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
   }
 }
 
+static void on_song_async_done(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  const BtSong * const self = BT_SONG(user_data);
+
+  g_assert(user_data);
+  
+  if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
+    GST_WARNING("async state-change done");
+  }
+}
+
 static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event(BT_SONG(user_data));
 }
@@ -532,6 +542,7 @@ BtSong *bt_song_new(const BtApplication * const app) {
   g_signal_connect(bus, "message::segment-done", G_CALLBACK(on_song_segment_done), (gpointer)self);
   g_signal_connect(bus, "message::eos", G_CALLBACK(on_song_eos), (gpointer)self);
   g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
+  g_signal_connect(bus, "message::async-done", G_CALLBACK(on_song_async_done), (gpointer)self);
   gst_object_unref(bus);
   gst_object_unref(bin);
 
@@ -694,6 +705,7 @@ gboolean bt_song_play(const BtSong * const self) {
       GST_WARNING("unexpected state-change-return %d",res);
       break;
   }
+  GST_INFO("playback started");
   return(TRUE);
 }
 
@@ -791,10 +803,14 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
   gst_element_query(GST_ELEMENT(self->priv->bin),self->priv->position_query);
   gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
   if(pos_cur!=-1) {
-    // update self->priv->play-pos (in ticks)
-    self->priv->play_pos=(gulong)(pos_cur/bt_sequence_get_bar_time(self->priv->sequence));
-    GST_DEBUG("query playback-pos: cur=%"G_GINT64_FORMAT", %ul",pos_cur,self->priv->play_pos);
-    g_object_notify(G_OBJECT(self),"play-pos");
+    // calculate new play-pos (in ticks)
+    gdouble bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+    gulong play_pos=(gulong)(pos_cur/bar_time);
+    if(play_pos!=self->priv->play_pos) {
+      self->priv->play_pos=play_pos;
+      GST_DEBUG("query playback-pos: cur=%"G_GINT64_FORMAT", tick=%ul",pos_cur,self->priv->play_pos);
+      g_object_notify(G_OBJECT(self),"play-pos");
+    }
   }
   return(TRUE);
 }
@@ -1398,6 +1414,7 @@ static void bt_song_dispose(GObject * const object) {
   g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_state_changed,(gpointer)self);
   g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_segment_done,(gpointer)self);
   g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_eos,(gpointer)self);
+  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_async_done,(gpointer)self);
   gst_bus_remove_signal_watch(bus);
   gst_object_unref(bus);
 

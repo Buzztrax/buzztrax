@@ -5,6 +5,7 @@
 . ./bt-cfg.sh
 
 # test the output a little
+echo "testing output"
 libtool --mode=execute $BUZZTARD_EDIT --help | grep >/dev/null -- "--help-bt-core"
 if [ $? -ne 0 ]; then exit 1; fi
 
