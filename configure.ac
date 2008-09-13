@@ -113,12 +113,14 @@ if test "$enable_debug" = "yes"; then
   AC_DEFINE(USE_DEBUG, [1], [enable runtime debugging code])
   DEBUG_CFLAGS="-O0 -Wall -Werror -g"
   # DEBUG_CFLAGS="-O0 -Wall -Werror -Wno-strict-aliasing -g"
+  DEBUG_LDFLAGS="-Wl,--warn-common"
   AM_CONDITIONAL(USE_DEBUG, true)
 else
   AC_DEFINE(G_DISABLE_ASSERT, [1], [if no runtime debugging, do not enable g_asserts])
   AC_DEFINE(G_DISABLE_CHECKS, [1], [if no runtime debugging, do not enable g_return_if_fail variants])
   AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, do not enable dynamic type checks])
   DEBUG_CFLAGS=""
+  DEBUG_LDFLAGS=""
   AM_CONDITIONAL(USE_DEBUG, false)
 fi
 
@@ -386,7 +388,7 @@ BT_INCLUDEDIR='-I${includedir}'
 dnl -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
 BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
-BT_LIBS="$COVERAGE_LIBS"
+BT_LIBS="$DEBUG_LDFLAGS $COVERAGE_LIBS"
 
 dnl check for desktop and mimetype utilities
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)
