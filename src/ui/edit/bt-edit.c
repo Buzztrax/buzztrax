@@ -27,7 +27,7 @@
  * 
  * You can try to run the uninstalled program via
  * <informalexample><programlisting>
- *   libtool --mode=execute bt-edit
+ *   libtool --mode=execute buzztard-edit
  * </programlisting></informalexample>
  * to enable debug output add:
  * <informalexample><programlisting>
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
   GError *err=NULL;
   
   GOptionEntry options[] = {
-    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg,     N_("Print the application version"),    NULL },
+    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg,     N_("Print application version"),    NULL },
     {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,         N_("Command name"),    "{load}" },
     {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name, N_("Input file name"), N_("<songfile>") },
     {NULL}
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
   // init libraries
   ctx = g_option_context_new(NULL);
   //g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
-  group=g_option_group_new("main", _("bt-edit options"),_("Show bt-edit options"), argv[0], NULL);
+  group=g_option_group_new("main", _("buzztard-edit options"),_("Show buzztard-edit options"), argv[0], NULL);
   g_option_group_add_entries(group, options);
   g_option_group_set_translation_domain(group, PACKAGE_NAME);
   g_option_context_set_main_group (ctx, group);
@@ -104,6 +104,8 @@ int main(int argc, char **argv) {
     g_print("Error initializing: %s\n", safe_string(err->message));
     exit(1);
   }
+  // if we use this, all other libs are initialized and their options are processed
+  // this causes #1777461 (fail if we don't have X)
   //if(arg_version) {
   //  g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
   //  exit(0);
@@ -129,7 +131,7 @@ int main(int argc, char **argv) {
 
 #ifdef USE_GNOME
   GST_DEBUG("before gnome_program_init()");
-  gnome_app=gnome_program_init("bt-edit", VERSION, LIBGNOME_MODULE, argc, argv, 
+  gnome_app=gnome_program_init("buzztard-edit", VERSION, LIBGNOME_MODULE, argc, argv, 
     GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
 #endif
 

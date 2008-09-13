@@ -23,7 +23,7 @@
  * @short_description: sockets based playback controller
  *
  * Allows the coherence upnp backend for buzztard to remote control and query
- * bt-edit.
+ * buzztard-edit.
  *
  * Function can be tested doing "netcat -n 127.0.0.1 7654".
  */

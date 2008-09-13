@@ -1,3 +1,13 @@
+2008-09-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/playback-controller-socket.c:
+	  Some more bt-edit -> buzztard-edit replacement. Also harmonize option
+	  strings.
+
 2008-09-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:

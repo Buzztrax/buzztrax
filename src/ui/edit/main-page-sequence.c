@@ -1465,7 +1465,7 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
 
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(song,"play-pos",&play_pos,NULL);
-  g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
+  g_object_get(self->priv->sequence,"length",&sequence_length,"loop-end",&loop_end,NULL);
   if(row==-1) row=sequence_length;
   // use a keyboard qualifier to set loop_start and end
   /* @todo should the sequence-view listen to notify::xxx ? */
@@ -1491,14 +1491,14 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
       }
       break;
     case 2: // loop end
-      // pos is beyond length adjust length
-      if(row>sequence_length) {
+      // pos is beyond length or is on loop-end already -> adjust length
+      if((row>sequence_length) || (row==loop_end)) {
         GST_INFO("adjusted length = %ld -> %ld",sequence_length,row);
         sequence_length=row;
         g_object_set(self->priv->sequence,"length",sequence_length,NULL);
         // this triggers redraw
         sequence_calculate_visible_lines(self);
-        g_object_get(self->priv->sequence,"loop-end",&loop_end,"loop-start",&loop_start,NULL);
+        g_object_get(self->priv->sequence,"loop-start",&loop_start,NULL);
       }
       else {
         g_object_set(self->priv->sequence,"loop-end",row,NULL);

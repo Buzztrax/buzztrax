@@ -27,7 +27,7 @@
  *
  * You can try to run the uninstalled program via
  * <informalexample><programlisting>
- *  libtool --mode=execute bt-cmd --command=info --input-file=&lt;filename&gt;
+ *  libtool --mode=execute buzztard-cmd --command=info --input-file=&lt;filename&gt;
  * </programlisting></informalexample>
  * to enable debug output add:
  * <informalexample><programlisting>
@@ -60,10 +60,11 @@ int main(int argc, char **argv) {
   gchar *command=NULL,*input_file_name=NULL,*output_file_name=NULL;
   BtCmdApplication *app;
   GOptionContext *ctx;
+  GOptionGroup *group;
   GError *err=NULL;
   
   GOptionEntry options[] = {
-    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_version,      N_("Show version"),     NULL },
+    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_version,      N_("Print application version"),     NULL },
     {"quiet",       'q',  G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_quiet,        N_("Be quiet"),         NULL },
     {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,          N_("Command name"),     "{info, play, convert, encode}" },
     {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name,  N_("Input file name"),  N_("<songfile>") },
@@ -78,7 +79,12 @@ int main(int argc, char **argv) {
 
   // init libraries
   ctx = g_option_context_new(NULL);
-  g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
+  //g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
+  group=g_option_group_new("main", _("buzztard-cmd options"),_("Show buzztard-cmd options"), argv[0], NULL);
+  g_option_group_add_entries(group, options);
+  g_option_group_set_translation_domain(group, PACKAGE_NAME);
+  g_option_context_set_main_group (ctx, group);
+
   bt_init_add_option_groups(ctx);
   if(!g_option_context_parse(ctx, &argc, &argv, &err)) {
     g_print("Error initializing: %s\n", safe_string(err->message));
