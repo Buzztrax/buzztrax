@@ -84,6 +84,7 @@ struct _BtSinkBinPrivate {
   /* mode of operation */
   BtSinkBinMode mode;
   BtSinkBinRecordFormat record_format;
+  guint sample_rate;
 
   gchar *record_file_name;
 
@@ -156,7 +157,6 @@ static void bt_sink_bin_tempo_interface_init(gpointer g_iface, gpointer iface_da
 
   iface->change_tempo = bt_sink_bin_tempo_change_tempo;
 }
-
 
 //-- enums
 
@@ -449,7 +449,8 @@ Error:
  * Returns: %TRUE for success
  */
 static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
-  GstElement *first_elem;
+  GstElement *caps_filter,*audio_resample;
+  GstStructure *stereo_structures[2];
   GstCaps *stereo_caps;
   GstState state;
   gboolean defer=FALSE;
@@ -482,12 +483,41 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   GST_INFO("initializing sink-bin");
   
   // always add caps-filter as a first element and enforce stereo
-  // @todo: we would also enforce samplerate here
-  stereo_caps=gst_caps_from_string(
+  /* @todo: we would also enforce samplerate here
+   * - for that we need to check the caps of the audiosink for offered caps
+   *   - not sure how well that would work with autoaudiosink/gconfaudiosink
+   * - we could plug audioresample right behind and then use any sampling rate
+   * - sensible values : 8000, 11025, 22050, 32000, 44100, 48000, 96000
+   */
+  stereo_structures[0]=gst_structure_from_string("audio/x-raw-int, "
+    "channels = (int) 2, "
+    "rate = (int) 44100, "
+    "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }, "
+    "width = (int) { 8, 16, 24, 32 }, "
+    "depth = (int) [ 1, 32 ], "
+    "signed = (boolean) { true, false };",
+    NULL
+  );
+  stereo_structures[1]=gst_structure_from_string("audio/x-raw-float, "
+    "channels = (int) 2, "
+    "rate = (int) 44100, "
+    "width = (int) { 32, 64 }, "
+    "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }",
+    NULL
+  );
+  gst_structure_set(stereo_structures[0],
+    "rate",G_TYPE_INT,self->priv->sample_rate,
+    NULL);
+  gst_structure_set(stereo_structures[1],
+    "rate",G_TYPE_INT,self->priv->sample_rate,
+    NULL);
+  stereo_caps=gst_caps_new_full(stereo_structures[0],stereo_structures[1],NULL);
+  
+#if 0
+  gst_caps_from_string(
     "audio/x-raw-int, "
       "channels = (int) 2, "
       "rate = (int) [ 1, MAX ], "
-      /*"rate = (int) 22050, "*/
       "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }, "
       "width = (int) { 8, 16, 24, 32 }, "
       "depth = (int) [ 1, 32 ], "
@@ -495,14 +525,22 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     "audio/x-raw-float, "
       "channels = (int) 2, "
       "rate = (int) [ 1, MAX ], "
-      /*"rate = (int) 22050, "*/
       "width = (int) { 32, 64 }, "
       "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }"
   );
-  first_elem=gst_element_factory_make("capsfilter","capsfilter");
-  g_object_set(first_elem,"caps",stereo_caps,NULL);
+#endif
+  
+  caps_filter=gst_element_factory_make("capsfilter","capsfilter");
+  g_object_set(caps_filter,"caps",stereo_caps,NULL);
   gst_caps_unref(stereo_caps);
-  gst_bin_add(GST_BIN(self),first_elem);
+  gst_bin_add(GST_BIN(self),caps_filter);
+  
+  /* add audioresample */ 
+  audio_resample=gst_element_factory_make("audioresample","audioresample");
+  gst_bin_add(GST_BIN(self),audio_resample);
+  if(!gst_element_link(caps_filter,audio_resample)) {
+    GST_WARNING("Can't link caps-filter and audio-resample");
+  }
 
   // add new children
   switch(self->priv->mode) {
@@ -510,8 +548,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       GList * const list=bt_sink_bin_get_player_elements(self);
       if(list) {
         bt_sink_bin_add_many(self,list);
-        //first_elem=GST_ELEMENT(list->data);
-        bt_sink_bin_link_many(self,first_elem,list);
+        bt_sink_bin_link_many(self,audio_resample,list);
         g_list_free(list);
       }
       else {
@@ -523,8 +560,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       GList * const list=bt_sink_bin_get_recorder_elements(self);
       if(list) {
         bt_sink_bin_add_many(self,list);
-        //first_elem=GST_ELEMENT(list->data);
-        bt_sink_bin_link_many(self,first_elem,list);
+        bt_sink_bin_link_many(self,audio_resample,list);
         g_list_free(list);
       }
       else {
@@ -539,7 +575,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       tee=gst_element_factory_make("tee",name);
       g_free(name);
       gst_bin_add(GST_BIN(self),tee);
-      gst_element_link(first_elem,tee);
+      gst_element_link(audio_resample,tee);
       // add player elems
       GList * const list1=bt_sink_bin_get_player_elements(self);
       if(list1) {
@@ -568,21 +604,21 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   }
 
   // set new ghostpad-target
-  if(/*first_elem &&*/self->priv->sink) {
-    GstPad *sink_pad=gst_element_get_static_pad(first_elem,"sink");
+  if(self->priv->sink) {
+    GstPad *sink_pad=gst_element_get_static_pad(caps_filter,"sink");
     GstPad *req_sink_pad=NULL;
 
     GST_INFO("updating ghostpad: %p", self->priv->sink);
 
     if(!sink_pad) {
-      GST_INFO("failed to get static 'sink' pad for element '%s'",GST_OBJECT_NAME(first_elem));
-      sink_pad=req_sink_pad=gst_element_get_request_pad(first_elem,"sink_%d");
+      GST_INFO("failed to get static 'sink' pad for element '%s'",GST_OBJECT_NAME(caps_filter));
+      sink_pad=req_sink_pad=gst_element_get_request_pad(caps_filter,"sink_%d");
       if(!sink_pad) {
-        GST_INFO("failed to get request 'sink' request-pad for element '%s'",GST_OBJECT_NAME(first_elem));
+        GST_INFO("failed to get request 'sink' request-pad for element '%s'",GST_OBJECT_NAME(caps_filter));
       }
     }
     GST_INFO ("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
-      first_elem,(G_OBJECT(first_elem)->ref_count),GST_OBJECT_NAME(first_elem),
+      caps_filter,(G_OBJECT(caps_filter)->ref_count),GST_OBJECT_NAME(caps_filter),
       sink_pad,(G_OBJECT(sink_pad)->ref_count));
     gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad);
     GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
@@ -860,6 +896,9 @@ static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_cla
   BtSinkBin * const self = BT_SINK_BIN(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_BIN, BtSinkBinPrivate);
+  
+  /* @todo: get this from settings and follow changes */
+  self->priv->sample_rate=GST_AUDIO_DEF_RATE;
 
   self->priv->sink=gst_ghost_pad_new_no_target("sink",GST_PAD_SINK);
   gst_element_add_pad(GST_ELEMENT(self),self->priv->sink);

@@ -515,6 +515,23 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
 }
 
 /*
+ * bt_sequence_get_tick_time:
+ * @self: the #BtSequence of the song
+ * @tick: tick for the event
+ *
+ * Calculate a timestamp for the event quantizes to samples
+ */
+static GstClockTime bt_sequence_get_tick_time(const BtSequence * const self,const gulong tick) {
+  /* @todo: get this from settings and follow changes */
+  guint sample_rate=GST_AUDIO_DEF_RATE;
+  GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
+  guint64 samples=gst_util_uint64_scale(timestamp,(guint64)sample_rate,GST_SECOND);
+  
+  timestamp=gst_util_uint64_scale(samples,GST_SECOND,(guint64)sample_rate);
+  return(timestamp);
+}
+
+/*
  * bt_sequence_repair_global_damage_entry:
  *
  * Lookup the global parameter value that needs to become effective for the given
@@ -557,7 +574,8 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
   }
   // set controller value
   //if(value) {
-    const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
+    //const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
+    const GstClockTime timestamp=bt_sequence_get_tick_time(self,tick);
     bt_machine_global_controller_change_value(machine,param,timestamp,value);
   //}
   return(TRUE);
@@ -607,7 +625,8 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
   }
   // set controller value
   //if(value) {
-    const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
+    //const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
+    const GstClockTime timestamp=bt_sequence_get_tick_time(self,tick);
     bt_machine_voice_controller_change_value(machine,param,voice,timestamp,value);
   //}
   return(TRUE);
@@ -659,7 +678,8 @@ static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _valu
   }
   // set controller value
   //if(value) {
-    const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
+    //const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
+    const GstClockTime timestamp=bt_sequence_get_tick_time(self,tick);
     bt_wire_controller_change_value(wire,param,timestamp,value);
   //}
   return(TRUE);
@@ -752,8 +772,13 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
   g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
   /* the number of pattern-events for one playline-step,
    * when using 4 ticks_per_beat then
-   * for 4/4 bars it is 16 (standart dance rhythm)
-   * for 3/4 bars it is 12 (walz)
+   *   for 4/4 bars it is 16 (standart dance rhythm)
+   *   for 3/4 bars it is 12 (walz)
+   * correlation of values:
+   *   bpm    60     60  
+   *   tpb     4      8
+   *   tpm   240    480 bpm*tpb
+   *   wpp  0.25  0.125 60/tpm
    */
 
   const gdouble ticks_per_minute=(gdouble)(beats_per_minute*ticks_per_beat);
@@ -763,7 +788,57 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
   // release the references
   g_object_unref(song_info);
 
-  GST_DEBUG("getting songs bar-time %lf",self->priv->wait_per_position);
+  GST_WARNING("calculating songs bar-time %lf",self->priv->wait_per_position);
+#if 0
+  /* we need to ensure that the trigger events work for every combinations
+   * of bpm, tpb and sampling rate
+   * 
+   * 1: quantize events
+   *  - ugly as we don't know the samplingrate
+   *  - sink-bin could tell us
+   *
+   * 2: trigger would need a fuzzy range
+   *  - we can't configure GST_INTERPOLATE_TRIGGER
+   *  - need a different control source for it?
+   *
+   * 3: handle rounding errors in plugins
+   *  - unlikely, seeking etc.
+   */
+  // DEBUG
+  {
+    guint i;
+    const guint rate=GST_AUDIO_DEF_RATE;
+    GstClockTime ts,time,atime;
+    GstClockTimeDiff diff;
+    guint64 samples,accum=G_GUINT64_CONSTANT(0);
+    gdouble samples_done,ideal_samples_per_buffer;
+    guint samples_per_buffer;
+
+    ideal_samples_per_buffer=(((gdouble)rate*60.0)/ticks_per_minute);
+    
+    printf("time per sample=%lf, sample per buffer=%lf\n",
+      ((gdouble)GST_SECOND/(gdouble)rate),
+      ideal_samples_per_buffer);
+
+    printf("tick %15s %15s %15s\n","ideal","real","diff");
+    for(i=0;i<15;i++) {
+      ts = (GstClockTime)(self->priv->wait_per_position*i);
+      samples = gst_util_uint64_scale(ts,(guint64)rate,GST_SECOND);
+      time = gst_util_uint64_scale(samples,GST_SECOND,(guint64)rate);
+      diff = ((gint64)ts-(gint64)time);
+      
+      samples_done = (gdouble)ts*(gdouble)rate/(gdouble)GST_SECOND;
+      samples_per_buffer=(guint)(ideal_samples_per_buffer+((gdouble)accum-samples_done));
+      atime = gst_util_uint64_scale(accum,GST_SECOND,(guint64)rate);
+      
+      printf("%2u : %15"G_GUINT64_FORMAT" %15"G_GUINT64_FORMAT" %15"G_GINT64_FORMAT" : %15"G_GINT64_FORMAT"\n",
+        i,ts,time,diff,atime);
+
+      accum+=samples_per_buffer;
+    }
+  }
+  // DEBUG
+#endif
 }
 
 //-- event handler
@@ -1453,10 +1528,7 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
  *
  * Returns: the length of one sequence bar in microseconds
  */
-/* @todo rename to bt_sequence_get_tick_time(), or turn into property ?
- * @todo: make it a double because of the rounding errors
- *    or add a bt_sequence_get_pos_time(self,pos) that multiplies
- */ 
+/* @todo rename to bt_sequence_get_tick_duration(), or turn into property ?*/ 
 gdouble bt_sequence_get_bar_time(const BtSequence * const self) {
   g_return_val_if_fail(BT_IS_SEQUENCE(self),0.0);
   

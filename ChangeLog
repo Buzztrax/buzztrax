@@ -1,5 +1,15 @@
 2008-09-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Add some test code to figure out needed quantisation fixes for trigger
+	  parameters. Quantize to samples, more work needed.
+
+	* src/lib/core/sink-bin.c:
+	  Enforce rendering at 44100 Hz + add resampler (if needed). Foundation
+	  to use other sampling rates later.
+
+2008-09-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  We should rename debug mode flag, but as we enable more build
 	  warnings there already also cehck for link warnings.
