@@ -1,6 +1,9 @@
 2008/10 ========================================================================
 
 * translation project http://translationproject.org/latest/buzztard/
+* more namespace cleanups
+* drop late level meter updates
+* timing improvements
 
 2008/09 ========================================================================
 
