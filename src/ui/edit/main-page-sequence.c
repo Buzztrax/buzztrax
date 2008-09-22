@@ -134,6 +134,9 @@ struct _BtMainPageSequencePrivate {
 
   /* signal handler id's */
   gulong pattern_added_handler, pattern_removed_handler;
+
+  /* playback state */
+  gboolean is_playing;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -300,7 +303,6 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
     SEQUENCE_TABLE_SINK_BG,&bg_col,
     SEQUENCE_TABLE_LABEL+column,&str,
     -1);
-
 
   if((column==self->priv->cursor_column) && (row==self->priv->cursor_row)) {
     bg_col=self->priv->cursor_bg;
@@ -671,35 +673,38 @@ static gboolean on_delayed_track_level_change(GstClock *clock,GstClockTime time,
   gconstpointer * const params=(gconstpointer *)user_data;
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(params[0]);
   GstMessage *message=(GstMessage *)params[1];
-  GtkVUMeter *vumeter;
   
-  if(!GST_CLOCK_TIME_IS_VALID(time) || !self)
-    goto done;
+  if(self) {
+    GtkVUMeter *vumeter;
 
-  g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+    g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
 
-  if((vumeter=g_hash_table_lookup(self->priv->level_to_vumeter,GST_MESSAGE_SRC(message)))) {
-    const GstStructure *structure=gst_message_get_structure(message);
-    const GValue *l_cur,*l_peak;
-    gdouble cur=0.0, peak=0.0;
-    guint i,size;
+    if(!GST_CLOCK_TIME_IS_VALID(time) || !self->priv->is_playing)
+      goto done;
 
-    //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
-    l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-    //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-    l_peak=(GValue *)gst_structure_get_value(structure, "decay");
-    size=gst_value_list_get_size(l_cur);
-    for(i=0;i<size;i++) {
-      cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
-      peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+    if((vumeter=g_hash_table_lookup(self->priv->level_to_vumeter,GST_MESSAGE_SRC(message)))) {
+      const GstStructure *structure=gst_message_get_structure(message);
+      const GValue *l_cur,*l_peak;
+      gdouble cur=0.0, peak=0.0;
+      guint i,size;
+  
+      //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
+      l_cur=(GValue *)gst_structure_get_value(structure, "peak");
+      //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+      l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+      size=gst_value_list_get_size(l_cur);
+      for(i=0;i<size;i++) {
+        cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
+        peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+      }
+      if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
+      else cur/=size;
+      if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
+      else peak/=size;  
+  
+      //gtk_vumeter_set_levels(vumeter, (gint)cur, (gint)peak);
+      gtk_vumeter_set_levels(vumeter, (gint)peak, (gint)cur);
     }
-    if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
-    else cur/=size;
-    if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-    else peak/=size;  
-
-    //gtk_vumeter_set_levels(vumeter, (gint)cur, (gint)peak);
-    gtk_vumeter_set_levels(vumeter, (gint)peak, (gint)cur);
   }
 done:
   gst_message_unref(message);
@@ -1713,12 +1718,11 @@ static void reset_level_meter(gpointer key, gpointer value, gpointer user_data) 
 
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  gboolean is_playing;
 
   g_assert(user_data);
 
-  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
-  if(!is_playing) {
+  g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
+  if(!self->priv->is_playing) {
     g_hash_table_foreach(self->priv->level_to_vumeter,reset_level_meter,NULL);
   }
 }

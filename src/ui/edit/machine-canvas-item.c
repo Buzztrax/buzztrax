@@ -118,6 +118,9 @@ struct _BtMachineCanvasItemPrivate {
   /* interaction state */
   gboolean dragging,moved,switching;
   gdouble offx,offy,dragx,dragy;
+
+  /* playback state */
+  gboolean is_playing;
 };
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -126,49 +129,68 @@ static GnomeCanvasGroupClass *parent_class=NULL;
 
 //-- event handler
 
+static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+  g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
+  if(!self->priv->is_playing) {
+    const gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
+
+    gnome_canvas_item_set(self->priv->output_meter,
+      "y1", h*0.6,
+      NULL);
+    gnome_canvas_item_set(self->priv->input_meter,
+      "y1", h*0.6,
+      NULL);
+
+  }
+}
+
 static gboolean on_delayed_machine_level_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
   gconstpointer * const params=(gconstpointer *)user_data;
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(params[0]);
   GstMessage *message=(GstMessage *)params[1];
-  const GstStructure *structure=gst_message_get_structure(message);
-  const GValue *l_cur,*l_peak;
-  const gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
-  gdouble cur=0.0, peak=0.0, val;
-  guint i,size;
-  
-  if(!GST_CLOCK_TIME_IS_VALID(time) || !self)
-    goto done;
 
-  g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+  if(self) {
+    const GstStructure *structure=gst_message_get_structure(message);
+    const GValue *l_cur,*l_peak;
+    const gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
+    gdouble cur=0.0, peak=0.0, val;
+    guint i,size;
 
-  //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
-  l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-  //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-  l_peak=(GValue *)gst_structure_get_value(structure, "decay");
-  size=gst_value_list_get_size(l_cur);
-  for(i=0;i<size;i++) {
-    cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
-    peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+    g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+
+    if(!GST_CLOCK_TIME_IS_VALID(time) || !self->priv->is_playing)
+      goto done;
+
+    //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
+    l_cur=(GValue *)gst_structure_get_value(structure, "peak");
+    //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+    l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+    size=gst_value_list_get_size(l_cur);
+    for(i=0;i<size;i++) {
+      cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
+      peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+    }
+    if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
+    else cur/=size;
+    if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
+    else peak/=size;
+    val=cur;
+    if(val>0.0) val=0.0;
+    val=val/LOW_VUMETER_VAL;
+    if(val>1.0) val=1.0;
+    if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->output_level)) {
+      gnome_canvas_item_set(self->priv->output_meter,
+        "y1", h*0.05+(0.55*h*val),
+        NULL);
+    }
+    if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->input_level)) {
+      gnome_canvas_item_set(self->priv->input_meter,
+        "y1", h*0.05+(0.55*h*val),
+        NULL);
+    }
   }
-  if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
-  else cur/=size;
-  if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-  else peak/=size;
-  val=cur;
-  if(val>0.0) val=0.0;
-  val=val/LOW_VUMETER_VAL;
-  if(val>1.0) val=1.0;
-  if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->output_level)) {
-    gnome_canvas_item_set(self->priv->output_meter,
-      "y1", h*0.05+(0.55*h*val),
-      NULL);
-  }
-  if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->input_level)) {
-    gnome_canvas_item_set(self->priv->input_meter,
-      "y1", h*0.05+(0.55*h*val),
-      NULL);
-  }
-  
 done:
   gst_message_unref(message);
   g_free(params);
@@ -720,6 +742,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
         g_signal_connect(G_OBJECT(self->priv->machine), "notify::state", G_CALLBACK(on_machine_state_changed), (gpointer)self);
 
         g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+        g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
         g_object_get(G_OBJECT(song),"bin", &bin,NULL);
         bus=gst_element_get_bus(GST_ELEMENT(bin));
         g_signal_connect(bus, "message::element", G_CALLBACK(on_machine_level_change), (gpointer)self);
@@ -780,6 +803,8 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   if(song) {
     GstBin *bin;
     GstBus *bus;
+    
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
 
     g_object_get(G_OBJECT(song),"bin", &bin,NULL);
     bus=gst_element_get_bus(GST_ELEMENT(bin));

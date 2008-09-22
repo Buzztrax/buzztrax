@@ -70,6 +70,9 @@ struct _BtMainToolbarPrivate {
 
   /* update handler id */
   guint playback_update_id;
+
+  /* playback state */
+  gboolean is_playing;
 };
 
 static GtkHandleBoxClass *parent_class=NULL;
@@ -113,12 +116,11 @@ static gboolean on_song_playback_update(gpointer user_data) {
 
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  gboolean is_playing;
 
   g_assert(user_data);
 
-  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
-  if(!is_playing) {
+  g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
+  if(!self->priv->is_playing) {
     gint i;
 
     GST_INFO("song stop event occurred: %p",g_thread_self());
@@ -307,31 +309,33 @@ static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,G
   gconstpointer * const params=(gconstpointer *)user_data;
   BtMainToolbar *self=BT_MAIN_TOOLBAR(params[0]);
   GstMessage *message=(GstMessage *)params[1];
-  const GstStructure *structure=gst_message_get_structure(message);
-  const GValue *l_cur,*l_peak;
-  gdouble cur, peak;
-  guint i;
   
-  if(!GST_CLOCK_TIME_IS_VALID(time) || !self)
-    goto done;
+  if(self) {
+    const GstStructure *structure=gst_message_get_structure(message);
+    const GValue *l_cur,*l_peak;
+    gdouble cur, peak;
+    guint i;
 
-  g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
-  
-  //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
-  l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-  //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-  l_peak=(GValue *)gst_structure_get_value(structure, "decay");
-      
-  for(i=0;i<gst_value_list_get_size(l_cur);i++) {
-    cur=g_value_get_double(gst_value_list_get_value(l_cur,i));
-    peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
-    if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
-    if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-    //GST_INFO("level.%d  %.3f %.3f", i, cur, peak);
-    //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)cur, (gint)peak);
-    gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)peak, (gint)cur);
+    g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+
+    if(!GST_CLOCK_TIME_IS_VALID(time) || !self->priv->is_playing)
+      goto done;
+
+    //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
+    l_cur=(GValue *)gst_structure_get_value(structure, "peak");
+    //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+    l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+        
+    for(i=0;i<gst_value_list_get_size(l_cur);i++) {
+      cur=g_value_get_double(gst_value_list_get_value(l_cur,i));
+      peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
+      if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
+      if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
+      //GST_INFO("level.%d  %.3f %.3f", i, cur, peak);
+      //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)cur, (gint)peak);
+      gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)peak, (gint)cur);
+    }
   }
-
 done:
   gst_message_unref(message);
   g_free(params);
