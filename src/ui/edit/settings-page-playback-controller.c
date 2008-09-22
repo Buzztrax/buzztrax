@@ -120,7 +120,7 @@ static gboolean bt_settings_page_playback_controller_init_ui(const BtSettingsPag
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
 
-  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)port, 1024.0, 65536.0, 1.0, 5.0, 5.0));
+  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)port, 1024.0, 65536.0, 1.0, 5.0, 0.0));
   self->priv->port_entry=gtk_spin_button_new(spin_adjustment,1.0,0);
   gtk_table_attach(GTK_TABLE(self),self->priv->port_entry, 2, 3, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
 

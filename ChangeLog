@@ -1,5 +1,13 @@
 2008-09-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/settings-page-playback-controller.c:
+	  Set page-size in spin-buttons to 0.0 as the docs suggest.
+
+2008-09-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Collect news.
 
