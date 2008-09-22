@@ -1,3 +1,8 @@
+2008-09-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Display summary after configure.
+
 2008-09-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c:
@@ -12,7 +17,7 @@
 
 	* configure.ac:
 	  We should rename debug mode flag, but as we enable more build
-	  warnings there already also cehck for link warnings.
+	  warnings there already also check for link warnings.
 
 2008-09-13  Stefan Kost  <ensonic@users.sf.net>
 

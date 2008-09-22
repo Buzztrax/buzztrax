@@ -25,13 +25,12 @@ BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + 
 
 dnl our libraries and install dirs use major.minor as a version
 BT_MAJORMINOR=$BT_MAJOR_VERSION.$BT_MINOR_VERSION
-dnl we override it here for release candidates
+dnl we override it here for release candidates - not needed as be bump after releases
 dnl BT_MAJORMINOR=0.4
 
-dnl update this for each release (year-month-day)
-dnl FIXME: can't why just expand this with `date` command output ?
-BT_RELEASE_YEAR=2008
-BT_RELEASE_DATE=$BT_RELEASE_YEAR-03-26
+dnl release year and date
+BT_RELEASE_YEAR=`date +%Y`
+BT_RELEASE_DATE=`date +%Y-%m-%d`
 
 AC_SUBST(BT_MAJOR_VERSION)
 AC_SUBST(BT_MINOR_VERSION)
@@ -445,3 +444,18 @@ AC_CONFIG_FILES(Makefile \
       tests/ui/edit/Makefile \
 )
 AC_OUTPUT
+
+echo "
+
+Configuration
+	Version                    : ${VERSION}
+	Source code location       : ${srcdir}
+	Prefix                     : ${prefix}
+	Compiler                   : ${CC}
+
+	Documentation (API)        : ${enable_gtk_doc}
+
+	Debug                      : ${enable_debug}
+	Coverage profiling         : ${enable_coverage}
+	Use of deprecated API      : ${set_enable_deprecated}
+"
