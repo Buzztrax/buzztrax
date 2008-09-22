@@ -3,12 +3,12 @@
 SUBDIRS = . libbuzztard-core
 
 if USE_GCONF
-GCONF_SETTINGS_SRC = gconf-settings.c libbtcore/gconf-settings.h libbtcore/gconf-settings-methods.h
+GCONF_SETTINGS_SRC = gconf-settings.c libbuzztard-core/gconf-settings.h libbuzztard-core/gconf-settings-methods.h
 else
 GCONF_SETTINGS_SRC =
 endif
 if USE_GSF
-CONF_SETTINGS_SRC = gconf-settings.c libbtcore/gconf-settings.h libbtcore/gconf-settings-methods.h
+CONF_SETTINGS_SRC = gconf-settings.c libbuzztard-core/gconf-settings.h libbuzztard-core/gconf-settings-methods.h
 else
 GCONF_SETTINGS_SRC =
 endif
@@ -21,37 +21,37 @@ libbuzztard_core_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS) -lgstaudio-0.10 \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la
 libbuzztard_core_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbuzztard_core_la_SOURCES = \
-	core.c libbtcore/core.h \
-	tools.c libbtcore/tools.h \
-	libbtcore/version.h \
+	core.c libbuzztard-core/core.h \
+	tools.c libbuzztard-core/tools.h \
+	libbuzztard-core/version.h \
 	buzzcallbacks.c \
 	\
-	application.c libbtcore/application.h libbtcore/application-methods.h libbtcore/application-private.h \
+	application.c libbuzztard-core/application.h libbuzztard-core/application-methods.h libbuzztard-core/application-private.h \
 	$(GCONF_SETTINGS_SRC) \
-	machine.c libbtcore/machine.h libbtcore/machine-methods.h libbtcore/machine-private.h \
-	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
-	persistence.c libbtcore/persistence.h libbtcore/persistence-methods.h \
-	persistence-location.c libbtcore/persistence-location.h \
-	persistence-selection.c libbtcore/persistence-selection.h \
-	plainfile-settings.c libbtcore/plainfile-settings.h libbtcore/plainfile-settings-methods.h \
-	processor-machine.c libbtcore/processor-machine.h libbtcore/processor-machine-methods.h \
-	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \
-	settings.c libbtcore/settings.h libbtcore/settings-methods.h libbtcore/settings-private.h \
-	setup.c libbtcore/setup.h libbtcore/setup-methods.h \
-	sink-bin.c libbtcore/sink-bin.h libbtcore/sink-bin-methods.h \
-	sink-machine.c libbtcore/sink-machine.h libbtcore/sink-machine-methods.h \
-	song.c libbtcore/song.h libbtcore/song-methods.h \
-	song-info.c libbtcore/song-info.h libbtcore/song-info-methods.h \
-	song-io.c libbtcore/song-io.h libbtcore/song-io-methods.h \
-	song-io-native.c libbtcore/song-io-native.h libbtcore/song-io-native-methods.h \
-	song-io-native-bzt.c libbtcore/song-io-native-bzt.h libbtcore/song-io-native-bzt-methods.h \
-	song-io-native-xml.c libbtcore/song-io-native-xml.h libbtcore/song-io-native-xml-methods.h \
-	source-machine.c libbtcore/source-machine.h libbtcore/source-machine-methods.h \
-	wavetable.c libbtcore/wavetable.h libbtcore/wavetable-methods.h \
-	wave.c libbtcore/wave.h libbtcore/wave-methods.h \
-	wavelevel.c libbtcore/wavelevel.h libbtcore/wavelevel-methods.h \
-	wire.c libbtcore/wire.h libbtcore/wire-methods.h \
-	wire-pattern.c libbtcore/wire-pattern.h libbtcore/wire-pattern-methods.h \
+	machine.c libbuzztard-core/machine.h libbuzztard-core/machine-methods.h libbuzztard-core/machine-private.h \
+	pattern.c libbuzztard-core/pattern.h libbuzztard-core/pattern-methods.h \
+	persistence.c libbuzztard-core/persistence.h libbuzztard-core/persistence-methods.h \
+	persistence-location.c libbuzztard-core/persistence-location.h \
+	persistence-selection.c libbuzztard-core/persistence-selection.h \
+	plainfile-settings.c libbuzztard-core/plainfile-settings.h libbuzztard-core/plainfile-settings-methods.h \
+	processor-machine.c libbuzztard-core/processor-machine.h libbuzztard-core/processor-machine-methods.h \
+	sequence.c libbuzztard-core/sequence.h libbuzztard-core/sequence-methods.h \
+	settings.c libbuzztard-core/settings.h libbuzztard-core/settings-methods.h libbuzztard-core/settings-private.h \
+	setup.c libbuzztard-core/setup.h libbuzztard-core/setup-methods.h \
+	sink-bin.c libbuzztard-core/sink-bin.h libbuzztard-core/sink-bin-methods.h \
+	sink-machine.c libbuzztard-core/sink-machine.h libbuzztard-core/sink-machine-methods.h \
+	song.c libbuzztard-core/song.h libbuzztard-core/song-methods.h \
+	song-info.c libbuzztard-core/song-info.h libbuzztard-core/song-info-methods.h \
+	song-io.c libbuzztard-core/song-io.h libbuzztard-core/song-io-methods.h \
+	song-io-native.c libbuzztard-core/song-io-native.h libbuzztard-core/song-io-native-methods.h \
+	song-io-native-bzt.c libbuzztard-core/song-io-native-bzt.h libbuzztard-core/song-io-native-bzt-methods.h \
+	song-io-native-xml.c libbuzztard-core/song-io-native-xml.h libbuzztard-core/song-io-native-xml-methods.h \
+	source-machine.c libbuzztard-core/source-machine.h libbuzztard-core/source-machine-methods.h \
+	wavetable.c libbuzztard-core/wavetable.h libbuzztard-core/wavetable-methods.h \
+	wave.c libbuzztard-core/wave.h libbuzztard-core/wave-methods.h \
+	wavelevel.c libbuzztard-core/wavelevel.h libbuzztard-core/wavelevel-methods.h \
+	wire.c libbuzztard-core/wire.h libbuzztard-core/wire-methods.h \
+	wire-pattern.c libbuzztard-core/wire-pattern.h libbuzztard-core/wire-pattern-methods.h \
 	\
 	marshal.c
 

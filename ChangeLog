@@ -1,5 +1,16 @@
 2008-09-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* Makefile.am:
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	  make distcehck fixes. correct uninstall for gconf schemas.
+	  
+	* src/ui/edit/main-menu.c:
+	  add a todo.
+
+2008-09-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-preferences-dialog.c:
 	* src/ui/edit/main-page-info.c:
 	* src/ui/edit/pattern-properties-dialog.c:

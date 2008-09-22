@@ -795,6 +795,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_help_activate),(gpointer)self);
 
   /* @todo 'tip of the day' */
+  /* @todo 'submit bug' */
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT,accel_group);
   gtk_widget_set_name(subitem,_("About"));

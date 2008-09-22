@@ -52,7 +52,7 @@ libbtedit_la_SOURCES	= \
 	tools.c tools.h \
 	ui-resources.c ui-resources.h ui-resources-methods.h \
 	volume-popup.c volume-popup.h \
-	wave-viewer.c \
+	wave-viewer.c wave-viewer.h \
 	wire-analysis-dialog.c wire-analysis-dialog.h wire-analysis-dialog-methods.h \
 	wire-canvas-item.c wire-canvas-item.h wire-canvas-item-methods.h \
 	\
