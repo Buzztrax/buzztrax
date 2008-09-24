@@ -17,7 +17,7 @@ libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-settings-dialog.c e-bt-settings-dialog.c \
 	s-bt-wire-analysis-dialog.c e-bt-wire-analysis-dialog.c
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/core \
 	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
@@ -31,4 +31,4 @@ INCLUDES = \
 .PHONY: splint
 
 splint::
-	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbt_edit_check_la_SOURCES)
+	splint +posixlib -weak -I$(top_builddir) $(AM_CPPFLAGS) $(libbt_edit_check_la_SOURCES)

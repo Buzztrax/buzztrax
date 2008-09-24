@@ -63,7 +63,7 @@ libbtedit_la_SOURCES	= \
 	\
 	marshal.c
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/core \
 	-I$(top_srcdir)/src/lib/ic \
 	-DPREFIX=\"$(prefix)\" \
@@ -98,7 +98,6 @@ install-data-hook:
 uninstall-local:
 	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
 
-
 .PHONY: help todo stats splint
 
 todo::
@@ -113,7 +112,7 @@ stats:: tags
 	@for file in *.c; do size=`grep $${file} tags | wc -l`;echo $${size} $${file}; done | sort -rn
 
 splint::
-	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtedit_la_SOURCES)
+	splint +posixlib -weak -I$(top_builddir) $(AM_CPPFLAGS) $(libbtedit_la_SOURCES)
 
 help::
 	@echo "make todo                    -- generate a list of TODO items in the form of gcc error/warnings"

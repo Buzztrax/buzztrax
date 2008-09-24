@@ -1,3 +1,15 @@
+2008-09-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* tests/Makefile.am:
+	* tests/lib/core/Makefile.am:
+	* tests/ui/cmd/Makefile.am:
+	* tests/ui/edit/Makefile.am:
+          Get rid of INCLUDES variable (automake deprecates it).
+
 2008-09-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:

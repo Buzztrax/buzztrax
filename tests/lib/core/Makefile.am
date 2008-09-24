@@ -19,7 +19,7 @@ libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-wire.c t-wire.c \
 	s-settings.c t-settings.c
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/ic \
 	-I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
@@ -33,4 +33,4 @@ INCLUDES = \
 .PHONY: splint
 
 splint::
-	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtcore_check_la_SOURCES)
+	splint +posixlib -weak -I$(top_builddir) $(AM_CPPFLAGS) $(libbtcore_check_la_SOURCES)

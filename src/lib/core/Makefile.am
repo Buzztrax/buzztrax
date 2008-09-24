@@ -54,10 +54,7 @@ libbuzztard_core_la_SOURCES = \
 	wire-pattern.c libbuzztard-core/wire-pattern.h libbuzztard-core/wire-pattern-methods.h \
 	\
 	marshal.c
-
-noinst_HEADERS = core_private.h  marshal.h
-
-INCLUDES = \
+libbuzztard_core_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
@@ -65,6 +62,8 @@ INCLUDES = \
 	-DG_LOG_DOMAIN=\"buzztard\" \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
+
+noinst_HEADERS = core_private.h  marshal.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libbuzztard-core.pc
@@ -97,7 +96,7 @@ stats:: tags
 	@for file in *.c; do size=`grep $${file} tags | wc -l`;echo $${size} $${file}; done | sort -rn
 
 splint::
-	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtcore_la_SOURCES)
+	splint +posixlib -weak -I$(top_builddir) -I$(top_srcdir)/src/lib/ic $(libbtcore_la_SOURCES)
 
 help::
 	@echo "make todo                    -- generate a list of TODO items in the form of gcc error/warnings"

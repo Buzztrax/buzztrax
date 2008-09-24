@@ -67,7 +67,7 @@ bt_edit_LDFLAGS = \
 bt_edit_SOURCES= \
 	m-bt-edit.c
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/core \
 	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
@@ -182,7 +182,7 @@ valgrind:: $(TESTS_BIN)
 endif
 
 splint::
-	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(buzztard_SOURCES) $(bt_cmd_SOURCES) $(bt_edit_SOURCES)
+	splint +posixlib -weak -I$(top_builddir) $(AM_CPPFLAGS) $(buzztard_SOURCES) $(bt_cmd_SOURCES) $(bt_edit_SOURCES)
 	for dir in $(SUBDIRS); do $(MAKE) -C $$dir splint ; done
 
 ##find . -name "*.c" -exec grep -A7 -Hn "#ifdef __CHECK_DISABLED__" {}; echo "--" \;

@@ -6,7 +6,7 @@ libbt_cmd_check_la_LIBADD = $(BASE_DEPS_LIBS) \
 libbt_cmd_check_la_SOURCES = m-bt-cmd.h \
 	s-bt-cmd-application.c e-bt-cmd-application.c t-bt-cmd-application.c
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/core \
 	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
@@ -20,4 +20,4 @@ INCLUDES = \
 .PHONY: splint
 
 splint::
-	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbt_cmd_check_la_SOURCES)
+	splint +posixlib -weak -I$(top_builddir) $(AM_CPPFLAGS) $(libbt_cmd_check_la_SOURCES)

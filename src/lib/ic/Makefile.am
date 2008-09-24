@@ -14,14 +14,11 @@ libbuzztard_ic_la_SOURCES = \
 	learn.c libbuzztard-ic/learn.h libbuzztard-ic/learn-methods.h \
 	input-device.c libbuzztard-ic/input-device.h libbuzztard-ic/input-device-methods.h \
 	midi-device.c libbuzztard-ic/midi-device.h libbuzztard-ic/midi-device-methods.h \
-    \
-    control.c libbuzztard-ic/control.h libbuzztard-ic/control-methods.h \
-    abs-range-control.c libbuzztard-ic/abs-range-control.h libbuzztard-ic/abs-range-control-methods.h \
-    trigger-control.c libbuzztard-ic/trigger-control.h libbuzztard-ic/trigger-control-methods.h
-
-noinst_HEADERS = ic_private.h
-
-INCLUDES = \
+	\
+	control.c libbuzztard-ic/control.h libbuzztard-ic/control-methods.h \
+	abs-range-control.c libbuzztard-ic/abs-range-control.h libbuzztard-ic/abs-range-control-methods.h \
+	trigger-control.c libbuzztard-ic/trigger-control.h libbuzztard-ic/trigger-control-methods.h
+libbuzztard_ic_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
@@ -29,6 +26,8 @@ INCLUDES = \
 	-DG_LOG_DOMAIN=\"buzztard\" \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
+
+noinst_HEADERS = ic_private.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libbuzztard-ic.pc
@@ -53,7 +52,7 @@ stats:: tags
 	@for file in *.c; do size=`grep $${file} tags | wc -l`;echo $${size} $${file}; done | sort -rn
 
 splint::
-	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtcore_la_SOURCES)
+	splint +posixlib -weak -I$(top_builddir) -I$(top_srcdir)/src/lib/core $(libbtcore_la_SOURCES)
 
 help::
 	@echo "make todo                    -- generate a list of TODO items in the form of gcc error/warnings"

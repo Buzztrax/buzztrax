@@ -12,7 +12,7 @@ noinst_LTLIBRARIES      = libbtcmd.la
 libbtcmd_la_SOURCES   =	\
 	cmd-application.c cmd-application.h cmd-application-methods.h
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/core \
 	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
@@ -36,7 +36,7 @@ stats:: tags
 	@for file in *.c; do size=`grep $${file} tags | wc -l`;echo $${size} $${file}; done | sort -rn
 
 splint::
-	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtcmd_la_SOURCES)
+	splint +posixlib -weak -I$(top_builddir) $(AM_CPPFLAGS) $(libbtcmd_la_SOURCES)
 
 help::
 	@echo "make todo                    -- generate a list of TODO items in the form of gcc error/warnings"
