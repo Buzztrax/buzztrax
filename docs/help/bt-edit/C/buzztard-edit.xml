@@ -8,8 +8,8 @@
 <!--
   (Do not remove this comment block.)
   Maintained by Buzztard Developer team <buzztard-devel@lists.sourceforge.net>
-  Template version: 0.1
-  Template last modified: Dec 12, 2002
+  Template version: 0.4
+  Template last modified: Sep 20, 2008
 -->
 <!-- ===========Document Header ======================== -->
 <article id="index" lang="en">
@@ -76,15 +76,6 @@
 
 <indexterm><primary>&app;</primary></indexterm>
 <indexterm><primary>buzztard</primary></indexterm>
-
-<!--
-@todo: dialogs
-  machine properties
-  machine preferences
-  wire analysis
-  pattern properties
-  missing machines and waves
--->
 
 <sect1 id="bt-edit-introduction">
   <title>Introduction</title>
@@ -205,6 +196,7 @@
 
   <sect2 id="bt-edit-main-menu">
     <title id='bt-edit-main-menu.title'>The menu bar</title>
+    <indexterm><primary>main menu</primary></indexterm>
     <para>
       The menu bar gives you access to file operations, standard editing function,
       settings and help.
@@ -316,7 +308,8 @@
         modify existing ones.
       </para>
       <para>
-        To switch to the sequence editor press <keycap>Enter</keycap> while the pattern editor has focus.
+        To switch to the sequence editor press <keycap>Enter</keycap> while the
+        pattern editor has focus.
       </para>
     </sect3>
 
@@ -364,8 +357,10 @@
         To expand the sequence, scroll down with the cursor and press
         <keycombo><keycap>Ctrl</keycap><keycap>e</keycap></keycombo> to
         set the end-line. If the cursor is above the end-line, pressing
-        <keycombo><keycap>Ctrl</keycap><keycap>E</keycap></keycombo>
-        will set the loop-end marker. To set the loop-begin marker press
+        <keycombo><keycap>Ctrl</keycap><keycap>e</keycap></keycombo>
+        will set the loop-end marker. When the cursor is on the loop-end marker
+        <keycombo><keycap>Ctrl</keycap><keycap>e</keycap></keycombo> will
+        shorten the sequence. To set the loop-begin marker press
         <keycombo><keycap>Ctrl</keycap><keycap>b</keycap></keycombo>.
       </para>
       <para>
@@ -402,13 +397,17 @@
         </screenshot>
       </figure>
       <para>
-        Samples can be loaded, played and previewed when browsing.
+        The left column is the wavetable. Samples are loaded by double clicking them 
+        in the right side file-browser. The toolbar above the browser allows to
+        prehear before loading. Waves in the table can also be played, renamed
+        and removed. 
       </para>
-      <note><title>Limitations</title>
-        <para>
-          No waveform display, no details shown and no use of loaded waves yet.
-        </para>
-      </note>
+      <para>
+        Each wavetable entry can have multiple wavelevels, which are shown below
+        the wavetable for the selected wave. Some of the details are editable.
+        Right to the wavelevel list is a waveform preview widget. It shows loop
+        markers and a playback position indicator.
+      </para>
     </sect3>
 
     <sect3 id="bt-edit-main-view-info">
@@ -448,35 +447,25 @@
 
 </sect1>
 
-<sect1 id="bt-edit-prefs">
-  <title id='bt-edit-prefs.title'>The settings window</title>
+<sect1 id="bt-edit-dialogs">
+  <title id='bt-edit-dialogs.title'>Dialog windows</title>
+  <indexterm><primary>main menu</primary></indexterm>
+
   <para>
-    This window contains all settings for the <application>&app;</application>
-    application. All settings are grouped into categories that can be chosen from
-    the list on the left side.
+    There are various dialogs that are invoked from the main-menu or from
+    context menus.
   </para>
 
-  <figure id="bt-edit-settings-fig">
-    <title>Settings dialog</title>
-    <screenshot>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="figures/settings-audio.png" format="PNG"/>
-        </imageobject>
-      </mediaobject>
-    </screenshot>
-  </figure>
-
-  <sect2 id="bt-edit-prefs-audio">
-    <title id='bt-edit-prefs-audio.title'>Audio device settings</title>
-
+  <sect2 id="bt-edit-prefs">
+    <title id='bt-edit-prefs.title'>The settings window</title>
     <para>
-      Select the audiosink to use. It will be changed immediately, except when a
-      song is playing (will be switched after stopping).
-      (FIXME: write more)
+      This window contains all settings for the <application>&app;</application>
+      application. All settings are grouped into categories that can be chosen from
+      the list on the left side.
     </para>
-    <figure id="bt-edit-settings-audio-fig">
-      <title>Audio device settings</title>
+  
+    <figure id="bt-edit-settings-fig">
+      <title>Settings dialog</title>
       <screenshot>
         <mediaobject>
           <imageobject>
@@ -485,101 +474,129 @@
         </mediaobject>
       </screenshot>
     </figure>
+  
+    <sect3 id="bt-edit-prefs-audio">
+      <title id='bt-edit-prefs-audio.title'>Audio device settings</title>
+  
+      <para>
+        Select the audiosink to use. It will be changed immediately, except when a
+        song is playing (will be switched after stopping).
+        (FIXME: write more)
+      </para>
+      <figure id="bt-edit-settings-audio-fig">
+        <title>Audio device settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-audio.png" format="PNG"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+  
+    <sect3 id="bt-edit-prefs-playback-controller">
+      <title id='bt-edit-prefs-playback-controller.title'>Playback controller settings</title>
+  
+      <para>
+        UPnP A/V remote control via Coherence.
+        (FIXME: explain)
+      </para>
+      <figure id="bt-edit-settings-pc-fig">
+        <title>Playback controller settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-pc.png" format="PNG"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+  
+    <sect3 id="bt-edit-prefs-interaction-controller">
+      <title id='bt-edit-prefs-interaction-controller.title'>Interaction controller settings</title>
+  
+      <para>
+        Interactive controller for machine parameters.
+        (FIXME: no settings yet)
+      </para>
+      <figure id="bt-edit-settings-ic-fig">
+        <title>Interaction controller settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-ic.png" format="PNG"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+  
+    <sect3 id="bt-edit-prefs-colors">
+      <title id='bt-edit-prefs-colors.title'>Color settings</title>
+  
+      <para>
+        (FIXME:)
+      </para>
+      <figure id="bt-edit-settings-colors-fig">
+        <title>Colors settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-colors.png" format="PNG"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+  
+    <sect3 id="bt-edit-prefs-shortcuts">
+      <title id='bt-edit-prefs-shortcuts.title'>Shortcut settings</title>
+  
+      <para>
+        (FIXME:)
+      </para>
+      <figure id="bt-edit-settings-shortcuts-fig">
+        <title>Shortcut settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-shortcuts.png" format="PNG"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+  
+    <sect3 id="bt-edit-prefs-directories">
+      <title id='bt-edit-prefs-directories.title'>Directory settings</title>
+  
+      <para>
+        Configure default directories used for various file types.
+      </para>
+      <figure id="bt-edit-settings-directories-fig">
+        <title>Directory settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-directories.png" format="PNG"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
   </sect2>
+<!--
+@todo: more dialogs
+  machine properties
+  machine preferences
+  wire analysis
+  pattern properties
 
-  <sect2 id="bt-edit-prefs-playback-controller">
-    <title id='bt-edit-prefs-playback-controller.title'>Playback controller settings</title>
-
-    <para>
-      UPnP A/V remote control via Coherence.
-      (FIXME:)
-    </para>
-    <figure id="bt-edit-settings-pc-fig">
-      <title>Playback controller settings</title>
-      <screenshot>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="figures/settings-pc.png" format="PNG"/>
-          </imageobject>
-        </mediaobject>
-      </screenshot>
-    </figure>
-  </sect2>
-
-  <sect2 id="bt-edit-prefs-interaction-controller">
-    <title id='bt-edit-prefs-interaction-controller.title'>Interaction controller settings</title>
-
-    <para>
-      Interactive controller for machine parameters.
-      (FIXME:)
-    </para>
-    <figure id="bt-edit-settings-ic-fig">
-      <title>Interaction controller settings</title>
-      <screenshot>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="figures/settings-ic.png" format="PNG"/>
-          </imageobject>
-        </mediaobject>
-      </screenshot>
-    </figure>
-  </sect2>
-
-  <sect2 id="bt-edit-prefs-colors">
-    <title id='bt-edit-prefs-colors.title'>Color settings</title>
-
-    <para>
-      (FIXME:)
-    </para>
-    <figure id="bt-edit-settings-colors-fig">
-      <title>Colors settings</title>
-      <screenshot>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="figures/settings-colors.png" format="PNG"/>
-          </imageobject>
-        </mediaobject>
-      </screenshot>
-    </figure>
-  </sect2>
-
-  <sect2 id="bt-edit-prefs-shortcuts">
-    <title id='bt-edit-prefs-shortcuts.title'>Shortcut settings</title>
-
-    <para>
-      (FIXME:)
-    </para>
-    <figure id="bt-edit-settings-shortcuts-fig">
-      <title>Shortcut settings</title>
-      <screenshot>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="figures/settings-shortcuts.png" format="PNG"/>
-          </imageobject>
-        </mediaobject>
-      </screenshot>
-    </figure>
-  </sect2>
-
-  <sect2 id="bt-edit-prefs-directories">
-    <title id='bt-edit-prefs-directories.title'>Directory settings</title>
-
-    <para>
-      Configure default directories used for various file types.
-      (FIXME:)
-    </para>
-    <figure id="bt-edit-settings-directories-fig">
-      <title>Directory settings</title>
-      <screenshot>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="figures/settings-directories.png" format="PNG"/>
-          </imageobject>
-        </mediaobject>
-      </screenshot>
-    </figure>
-  </sect2>
-
+  about dialog
+  missing machines and waves
+-->
 </sect1>
 
 <sect1 id="bt-edit-reference">
@@ -599,5 +616,9 @@
   </sect2>
 
 </sect1>
+
+<index id="bt-edit-keyword-index">
+  <title id='bt-edit-keyword-index.title'>Index</title>
+</index>
 
 </article>
