@@ -522,12 +522,14 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
  * Calculate a timestamp for the event quantizes to samples
  */
 static GstClockTime bt_sequence_get_tick_time(const BtSequence * const self,const gulong tick) {
+  GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
+#if 0
   /* @todo: get this from settings and follow changes */
   guint sample_rate=GST_AUDIO_DEF_RATE;
-  GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
   guint64 samples=gst_util_uint64_scale(timestamp,(guint64)sample_rate,GST_SECOND);
   
   timestamp=gst_util_uint64_scale(samples,GST_SECOND,(guint64)sample_rate);
+#endif
   return(timestamp);
 }
 
@@ -789,56 +791,6 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
   g_object_unref(song_info);
 
   GST_WARNING("calculating songs bar-time %lf",self->priv->wait_per_position);
-#if 0
-  /* we need to ensure that the trigger events work for every combinations
-   * of bpm, tpb and sampling rate
-   * 
-   * 1: quantize events
-   *  - ugly as we don't know the samplingrate
-   *  - sink-bin could tell us
-   *
-   * 2: trigger would need a fuzzy range
-   *  - we can't configure GST_INTERPOLATE_TRIGGER
-   *  - need a different control source for it?
-   *
-   * 3: handle rounding errors in plugins
-   *  - unlikely, seeking etc.
-   */
-  // DEBUG
-  {
-    guint i;
-    const guint rate=GST_AUDIO_DEF_RATE;
-    GstClockTime ts,time,atime;
-    GstClockTimeDiff diff;
-    guint64 samples,accum=G_GUINT64_CONSTANT(0);
-    gdouble samples_done,ideal_samples_per_buffer;
-    guint samples_per_buffer;
-
-    ideal_samples_per_buffer=(((gdouble)rate*60.0)/ticks_per_minute);
-    
-    printf("time per sample=%lf, sample per buffer=%lf\n",
-      ((gdouble)GST_SECOND/(gdouble)rate),
-      ideal_samples_per_buffer);
-
-    printf("tick %15s %15s %15s\n","ideal","real","diff");
-    for(i=0;i<15;i++) {
-      ts = (GstClockTime)(self->priv->wait_per_position*i);
-      samples = gst_util_uint64_scale(ts,(guint64)rate,GST_SECOND);
-      time = gst_util_uint64_scale(samples,GST_SECOND,(guint64)rate);
-      diff = ((gint64)ts-(gint64)time);
-      
-      samples_done = (gdouble)ts*(gdouble)rate/(gdouble)GST_SECOND;
-      samples_per_buffer=(guint)(ideal_samples_per_buffer+((gdouble)accum-samples_done));
-      atime = gst_util_uint64_scale(accum,GST_SECOND,(guint64)rate);
-      
-      printf("%2u : %15"G_GUINT64_FORMAT" %15"G_GUINT64_FORMAT" %15"G_GINT64_FORMAT" : %15"G_GINT64_FORMAT"\n",
-        i,ts,time,diff,atime);
-
-      accum+=samples_per_buffer;
-    }
-  }
-  // DEBUG
-#endif
 }
 
 //-- event handler

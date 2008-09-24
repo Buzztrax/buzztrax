@@ -1,5 +1,16 @@
 2008-09-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gst/timing.c:
+	  Timing test code.
+
+	* src/lib/core/sequence.c:
+	  Remove some debug code and disable quantization again.
+
+	* src/ui/edit/main-toolbar.c:
+	  Don't stop playback on warnings.
+
+2008-09-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-core/Makefile.am:
 	* docs/reference/bt-edit/Makefile.am:

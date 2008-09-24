@@ -291,7 +291,7 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
 
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
-  bt_song_stop(song);
+  //bt_song_stop(song);
 
   gst_message_parse_warning(message, &err, &dbg);
   // @todo: check domain and code
