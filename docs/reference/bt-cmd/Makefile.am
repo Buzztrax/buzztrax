@@ -21,7 +21,7 @@ SCANGOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv)"
 SCAN_OPTIONS=--deprecated-guards="BT_DISABLE_DEPRECATED"
 
 # Extra options to supply to gtkdoc-mkdb.
-MKDB_OPTIONS=--sgml-mode --output-format=xml
+MKDB_OPTIONS=--sgml-mode --name-space=bt
 
 # Extra options to supply to gtkdoc-mktmpl
 # e.g. MKTMPL_OPTIONS=--only-section-tmpl
@@ -56,7 +56,7 @@ expand_content_files=
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 # Only needed if you are using gtkdoc-scangobj to dynamically query widget
 # signals and properties.
-INCLUDES = \
+GTKDOC_CFLAGS = \
 	-I$(top_srcdir)/src/lib/core \
 	-I$(top_srcdir)/src/lib/ic \
 	-I$(top_srcdir)/src/ui/cmd \
