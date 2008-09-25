@@ -1,3 +1,19 @@
+2008-09-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/timing.c:
+	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	* src/lib/core/song.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/playback-controller-socket.c:
+	* src/ui/edit/render-progress.c:
+	  Now that error propagation is fixed in plugins, bring bar time back to
+	  guint64 to make seeking work again. It means that not all bpms are
+	  done exactly, but on the other hand stuff won't drift out of sync
+	  suddenly.
+
 2008-09-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/timing.c:

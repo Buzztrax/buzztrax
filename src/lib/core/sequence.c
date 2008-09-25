@@ -82,7 +82,7 @@ struct _BtSequencePrivate {
   gulong play_start,play_end;
   
   /* cached */
-  gdouble wait_per_position;
+  GstClockTime wait_per_position;
 
   /* manages damage regions for updating gst-controller queues after changes
    * each entry (per machine) has another GHashTable
@@ -522,7 +522,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
  * Calculate a timestamp for the event quantizes to samples
  */
 static GstClockTime bt_sequence_get_tick_time(const BtSequence * const self,const gulong tick) {
-  GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
+  GstClockTime timestamp=bt_sequence_get_bar_time(self)*tick;
 #if 0
   /* @todo: get this from settings and follow changes */
   guint sample_rate=GST_AUDIO_DEF_RATE;
@@ -576,7 +576,6 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
   }
   // set controller value
   //if(value) {
-    //const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
     const GstClockTime timestamp=bt_sequence_get_tick_time(self,tick);
     bt_machine_global_controller_change_value(machine,param,timestamp,value);
   //}
@@ -627,7 +626,6 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
   }
   // set controller value
   //if(value) {
-    //const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
     const GstClockTime timestamp=bt_sequence_get_tick_time(self,tick);
     bt_machine_voice_controller_change_value(machine,param,voice,timestamp,value);
   //}
@@ -680,7 +678,6 @@ static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _valu
   }
   // set controller value
   //if(value) {
-    //const GstClockTime timestamp=(GstClockTime)(bt_sequence_get_bar_time(self)*tick);
     const GstClockTime timestamp=bt_sequence_get_tick_time(self,tick);
     bt_wire_controller_change_value(wire,param,timestamp,value);
   //}
@@ -785,12 +782,13 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
 
   const gdouble ticks_per_minute=(gdouble)(beats_per_minute*ticks_per_beat);
   //self->priv->wait_per_position=((GST_SECOND*60)/(GstClockTime)ticks_per_minute);
-  self->priv->wait_per_position=(GST_SECOND*60.0)/ticks_per_minute;
+  //self->priv->wait_per_position=(GST_SECOND*60.0)/ticks_per_minute;
+  self->priv->wait_per_position=(GstClockTime)(0.5+((GST_SECOND*60.0)/ticks_per_minute));
 
   // release the references
   g_object_unref(song_info);
 
-  GST_WARNING("calculating songs bar-time %lf",self->priv->wait_per_position);
+  GST_WARNING("calculating songs bar-time %"G_GUINT64_FORMAT,self->priv->wait_per_position);
 }
 
 //-- event handler
@@ -1481,7 +1479,7 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
  * Returns: the length of one sequence bar in microseconds
  */
 /* @todo rename to bt_sequence_get_tick_duration(), or turn into property ?*/ 
-gdouble bt_sequence_get_bar_time(const BtSequence * const self) {
+GstClockTime bt_sequence_get_bar_time(const BtSequence * const self) {
   g_return_val_if_fail(BT_IS_SEQUENCE(self),0.0);
   
   if(G_UNLIKELY(self->priv->wait_per_position==0.0)) {
@@ -1503,7 +1501,7 @@ gdouble bt_sequence_get_bar_time(const BtSequence * const self) {
 GstClockTime bt_sequence_get_loop_time(const BtSequence * const self) {
   g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
 
-  const GstClockTime res=(GstClockTime)(self->priv->play_end-self->priv->play_start*bt_sequence_get_bar_time(self));
+  const GstClockTime res=bt_sequence_get_tick_time(self,self->priv->play_end-self->priv->play_start);
   return(res);
 }
 

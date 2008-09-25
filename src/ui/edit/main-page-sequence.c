@@ -504,7 +504,7 @@ static gchar *sequence_format_positions(const BtMainPageSequence *self,gulong po
       break;
     case PATTERN_POS_FORMAT_TIME: {
       gulong msec,sec,min;
-      gdouble bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+      const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
 
       // update current statusbar
       msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);

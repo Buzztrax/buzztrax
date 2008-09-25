@@ -82,7 +82,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   BtSequence *sequence=NULL;
   gulong cmsec,csec,cmin,tmsec,tsec,tmin;
   gulong length,pos=0;
-  gdouble bar_time;
+  GstClockTime bar_time;
 
   // DEBUG
   //bt_song_write_to_highlevel_dot_file(song);

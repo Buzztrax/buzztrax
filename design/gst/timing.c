@@ -19,11 +19,12 @@ static void timing(const guint rate,const gdouble ticks_per_minute) {
   guint64 samples,asamples=G_GUINT64_CONSTANT(0);
   gdouble samples_done,adjust;
   guint samples_per_buffer;
-  gdouble wait_per_position       =(   GST_SECOND*60.0)/ticks_per_minute;
-  gdouble ideal_samples_per_buffer=((gdouble)rate*60.0)/ticks_per_minute;
+  //gdouble wait_per_position       =(   GST_SECOND*60.0)/ticks_per_minute;
+  GstClockTime wait_per_position  =(GstClockTime)(0.5+((GST_SECOND*60.0)/ticks_per_minute));
+  gdouble ideal_samples_per_buffer=                 ((gdouble)rate*60.0)/ticks_per_minute;
   
   printf("wait per position=%lf, time per sample=%lf, sample per buffer=%lf\n",
-    wait_per_position,
+    (gdouble)wait_per_position,
     ((gdouble)GST_SECOND/(gdouble)rate),
     ideal_samples_per_buffer);
 
