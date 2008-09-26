@@ -25,7 +25,7 @@
  *
  * Displays the machine setup on a canvas.
  */
-/* @todo: re-center image when resizing window (notify on adjustments)
+/*
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
@@ -635,20 +635,26 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
 
 static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-  gdouble val=gtk_adjustment_get_value(adjustment);
-
-  //GST_INFO("ypos: %lf",val);
-  g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
+  
+  if(self->priv->properties) {
+    gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+    gdouble val=gtk_adjustment_get_value(adjustment);
+  
+    //GST_INFO("ypos: %lf",val);
+    g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
+  }
 }
 
 static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-  gdouble val=gtk_adjustment_get_value(adjustment);
-
-  GST_INFO("xpos: %lf",val);
-  g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
+  
+  if(self->priv->properties) {
+    gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+    gdouble val=gtk_adjustment_get_value(adjustment);
+  
+    //GST_INFO("xpos: %lf",val);
+    g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
+  }
 }
 
 static gboolean on_page_switched_idle(gpointer user_data) {
@@ -848,11 +854,25 @@ static void on_panorama_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   g_object_set(G_OBJECT(self->priv->wire_pan),"panorama",pan,NULL);
 }
 
-// DEBUG
 static void on_canvas_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
-  GST_WARNING("canvas size %d x %d",allocation->width,allocation->height);
-}
+#if 0
+  /* we need to store the relative position in on_hadjustment_changed() and on_vadjustment_changed
+   * instead of having the 0.5 hardcoded as below
+   */
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  gdouble xs,xe,xp;
+  gdouble ys,ye,yp;
+
+  // center
+  g_object_get(G_OBJECT(self->priv->hadjustment),"lower",&xs,"upper",&xe,"page-size",&xp,NULL);
+  gtk_adjustment_set_value(self->priv->hadjustment,xs+((xe-xs-xp)*0.5));
+  g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
+  gtk_adjustment_set_value(self->priv->vadjustment,ys+((ye-ys-yp)*0.5));
+#endif
 // DEBUG
+//  GST_WARNING("canvas size %d x %d",allocation->width,allocation->height);
+// DEBUG
+}
 
 //-- helper methods
 
@@ -999,10 +1019,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
      MACHINE_VIEW_ZOOM_X, MACHINE_VIEW_ZOOM_Y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   gtk_widget_set_name(GTK_WIDGET(self->priv->canvas),_("machine and wire editor"));
-  // DEBUG
-  // we have refresh issues as soon as the canvas gets bigger that 961 x 721
   g_signal_connect(G_OBJECT(self->priv->canvas),"size-allocate",G_CALLBACK(on_canvas_size_allocate),(gpointer)self);
-  // DEBUG
 
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
