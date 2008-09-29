@@ -2878,7 +2878,7 @@ BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app,const
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  if(self) gtk_object_destroy(GTK_OBJECT(self));
   return(NULL);
 }
 
@@ -3106,6 +3106,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   g_hash_table_destroy(self->priv->level_to_vumeter);
   if(self->priv->clock) gst_object_unref(self->priv->clock);
 
+  GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 

@@ -568,7 +568,7 @@ BtPlaybackControllerSocket *bt_playback_controller_socket_new(const BtEditApplic
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  if(self) gtk_object_destroy(GTK_OBJECT(self));
   return(NULL);
 }
 

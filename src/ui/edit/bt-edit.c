@@ -137,35 +137,37 @@ int main(int argc, char **argv) {
 
   GST_INFO("starting: thread=%p",g_thread_self());
 
-  //gdk_threads_enter();
-  app=bt_edit_application_new();
-  if(command) {
-    // depending on the popt options call the correct method
-    if(!strncmp(command,"load",4)) {
-      if(!input_file_name) {
+  if((app=bt_edit_application_new())) {
+    if(command) {
+      // depending on the popt options call the correct method
+      if(!strncmp(command,"load",4)) {
+        if(!input_file_name) {
+          usage(argc, argv, ctx);
+          // if commandline options where wrong, just start
+          res=bt_edit_application_run(app);
+        }
+        else {
+          res=bt_edit_application_load_and_run(app,input_file_name);
+        }
+      }
+      else {
         usage(argc, argv, ctx);
         // if commandline options where wrong, just start
         res=bt_edit_application_run(app);
       }
-      else {
-        res=bt_edit_application_load_and_run(app,input_file_name);
-      }
     }
     else {
-      usage(argc, argv, ctx);
-      // if commandline options where wrong, just start
       res=bt_edit_application_run(app);
     }
+  
+    // free application
+    GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+    g_object_unref(app);
   }
   else {
-    res=bt_edit_application_run(app);
+    GST_WARNING("creating the application failed");
   }
-  //gdk_threads_leave();
-  
-  // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_option_context_free(ctx);
-  g_object_unref(app);
   
 #ifdef USE_GNOME
   g_object_unref(gnome_app);

@@ -624,10 +624,13 @@ static void bt_edit_application_dispose(GObject *object) {
   if(self->priv->main_window) {
     GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);
     //main-menu.c::on_menu_quit_activate
-    //gtk_widget_destroy(GTK_WIDGET(self->priv->main_window));
-    g_object_unref(self->priv->main_window);
+    gtk_widget_destroy(GTK_WIDGET(self->priv->main_window));
+    // we get this if we unref
+    // GLib-GObject-WARNING **: instance of invalid non-instantiatable type `<invalid>'
+    //////g_object_unref(self->priv->main_window);
   }
 
+  GST_DEBUG("  more unrefs");
   g_object_try_unref(self->priv->ui_resources);
   g_object_try_unref(self->priv->pb_controller);
   g_object_try_unref(self->priv->ic_registry);

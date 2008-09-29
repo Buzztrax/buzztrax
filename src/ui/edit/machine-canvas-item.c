@@ -35,8 +35,6 @@
  *     - currently there is a ::zoom property to update the font-size
  *       its set in update_machines_zoom(), there we would need to regenerate
  *       the pixmaps too
- *   - draw in bt_machine_canvas_item_realize() and stamp title on top of it
- *     bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine);
  * - state graphics
  *   - have some gfx in the middle
  *     mute: x over o
@@ -255,15 +253,18 @@ static void on_machine_id_changed(BtMachine *machine, GParamSpec *arg, gpointer 
 
 static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+  GdkPixbuf *pixbuf;
   BtMachineState state;
 
   g_assert(user_data);
   g_object_get(self->priv->machine,"state",&state,NULL);
   GST_INFO(" new state is %d",state);
   
+  pixbuf=bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine);
   gnome_canvas_item_set(self->priv->box,
-    "pixbuf", bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine),
+    "pixbuf",pixbuf,
     NULL);
+  g_object_unref(pixbuf);
   
   switch(state) {
     case BT_MACHINE_STATE_NORMAL:
@@ -860,6 +861,7 @@ static void bt_machine_canvas_item_finalize(GObject *object) {
  */
 static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
+  GdkPixbuf *pixbuf;
   gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
   gdouble fh=MACHINE_VIEW_FONT_SIZE;
   gchar *id,*prop;
@@ -873,13 +875,15 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
 
   // add machine components
   // the body
+  pixbuf=bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine);
   self->priv->box=gnome_canvas_item_new (GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_PIXBUF,
-                           "pixbuf", bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine),
+                           "pixbuf", pixbuf,
                            "anchor", GTK_ANCHOR_CENTER,
                            "x",0.0,
                            "y",-(w-h),
                            NULL);
+  g_object_unref(pixbuf);
   // the name label
   self->priv->label=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_TEXT,

@@ -161,7 +161,7 @@ BtSettingsPageDirectories *bt_settings_page_directories_new(const BtEditApplicat
   gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
 Error:
-  g_object_try_unref(self);
+  if(self) gtk_object_destroy(GTK_OBJECT(self));
   return(NULL);
 }
 

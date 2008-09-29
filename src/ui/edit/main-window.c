@@ -368,7 +368,7 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   return(self);
 Error:
   GST_WARNING("new main_window failed");
-  g_object_try_unref(self);
+  if(self) gtk_object_destroy(GTK_OBJECT(self));
   return(NULL);
 }
 
@@ -809,7 +809,7 @@ static void bt_main_window_dispose(GObject *object) {
 static void bt_main_window_finalize(GObject *object) {
   BtMainWindow *self = BT_MAIN_WINDOW(object);
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p, ref_ct=%d",self,G_OBJECT(self)->ref_count);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");

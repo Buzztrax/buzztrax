@@ -443,7 +443,7 @@ BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app,const BtMainP
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  if(self) gtk_object_destroy(GTK_OBJECT(self));
   return(NULL);
 }
 
@@ -496,12 +496,15 @@ static void bt_main_page_info_dispose(GObject *object) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
+  
+  GST_DEBUG("!!!! self=%p",self);
 
   // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
   gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
 
   g_object_try_weak_unref(self->priv->app);
 
+  GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 

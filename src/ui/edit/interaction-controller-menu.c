@@ -257,7 +257,7 @@ BtInteractionControllerMenu *bt_interaction_controller_menu_new(const BtEditAppl
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  if(self) gtk_object_destroy(GTK_OBJECT(self));
   return(NULL);
 }
 

@@ -715,7 +715,7 @@ BtMainToolbar *bt_main_toolbar_new(const BtEditApplication *app) {
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  if(self) gtk_object_destroy(GTK_OBJECT(self));
   return(NULL);
 }
 

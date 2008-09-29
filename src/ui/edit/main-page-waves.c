@@ -1243,7 +1243,7 @@ BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app,const BtMai
   gst_object_unref(bus);
   return(self);
 Error:
-  g_object_try_unref(self);
+  if(self) gtk_object_destroy(GTK_OBJECT(self));
   return(NULL);
 }
 
@@ -1298,6 +1298,8 @@ static void bt_main_page_waves_dispose(GObject *object) {
   
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
+  
+  GST_DEBUG("!!!! self=%p",self);
 
   g_object_unref(self->priv->n2f);
   g_object_try_unref(self->priv->wavetable);
@@ -1326,9 +1328,8 @@ static void bt_main_page_waves_dispose(GObject *object) {
     gst_query_unref(self->priv->position_query);
   }
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  GST_DEBUG("  chaining up");
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_main_page_waves_finalize(GObject *object) {

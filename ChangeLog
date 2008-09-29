@@ -1,3 +1,31 @@
+2008-09-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/interaction-controller-menu.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-machines.h:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/playback-controller-socket.c:
+	* src/ui/edit/render-progress.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-directories.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	* src/ui/edit/settings-page-playback-controller.c:
+	  Leak fixes and hopefully non-crashing shutdown in the case of no
+	  working audio sink.
+
 2008-09-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

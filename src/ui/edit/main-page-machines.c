@@ -1080,7 +1080,7 @@ BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app,const
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  if(self) gtk_object_destroy(GTK_OBJECT(self));
   return(NULL);
 }
 
@@ -1237,6 +1237,7 @@ static void bt_main_page_machines_dispose(GObject *object) {
 
   gdk_cursor_unref(self->priv->drag_cursor);
 
+  GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 

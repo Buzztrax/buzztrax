@@ -2168,7 +2168,7 @@ BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app,const
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  if(self) gtk_object_destroy(GTK_OBJECT(self));
   return(NULL);
 }
 
@@ -2460,7 +2460,7 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
 
   g_object_try_weak_unref(self->priv->app);
-  GST_INFO("unref pattern: %p,refs=%d",
+  GST_DEBUG("unref pattern: %p,refs=%d",
     self->priv->pattern,(self->priv->pattern?(G_OBJECT(self->priv->pattern))->ref_count:-1));
   g_object_try_unref(self->priv->pattern);
 
@@ -2469,6 +2469,7 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 
   g_object_try_unref(self->priv->accel_group);
 
+  GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
