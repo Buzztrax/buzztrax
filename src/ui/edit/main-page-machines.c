@@ -96,6 +96,9 @@ struct _BtMainPageMachinesPrivate {
   BtPanoramaPopup *pan_popup;
   GtkObject *vol_popup_adj, *pan_popup_adj;
   GstElement *wire_gain,*wire_pan;
+  
+  /* relative scrollbar position */
+  gdouble scroll_x,scroll_y;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -635,10 +638,13 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
 
 static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  gdouble vs,ve,vp,val/*=gtk_adjustment_get_value(adjustment)*/;
   
+  g_object_get(G_OBJECT(self->priv->vadjustment),"value",&val,"lower",&vs,"upper",&ve,"page-size",&vp,NULL);
+  self->priv->scroll_y=(val-vs)/(ve-vs-vp);
+
   if(self->priv->properties) {
     gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-    gdouble val=gtk_adjustment_get_value(adjustment);
   
     //GST_INFO("ypos: %lf",val);
     g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
@@ -647,10 +653,13 @@ static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 
 static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  gdouble vs,ve,vp,val/*=gtk_adjustment_get_value(adjustment)*/;
   
+  g_object_get(G_OBJECT(self->priv->hadjustment),"value",&val,"lower",&vs,"upper",&ve,"page-size",&vp,NULL);
+  self->priv->scroll_x=(val-vs)/(ve-vs-vp);
+
   if(self->priv->properties) {
     gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-    gdouble val=gtk_adjustment_get_value(adjustment);
   
     //GST_INFO("xpos: %lf",val);
     g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
@@ -855,20 +864,15 @@ static void on_panorama_popup_changed(GtkAdjustment *adj, gpointer user_data) {
 }
 
 static void on_canvas_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
-#if 0
-  /* we need to store the relative position in on_hadjustment_changed() and on_vadjustment_changed
-   * instead of having the 0.5 hardcoded as below
-   */
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gdouble xs,xe,xp;
   gdouble ys,ye,yp;
 
   // center
   g_object_get(G_OBJECT(self->priv->hadjustment),"lower",&xs,"upper",&xe,"page-size",&xp,NULL);
-  gtk_adjustment_set_value(self->priv->hadjustment,xs+((xe-xs-xp)*0.5));
+  gtk_adjustment_set_value(self->priv->hadjustment,xs+((xe-xs-xp)*self->priv->scroll_x));
   g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
-  gtk_adjustment_set_value(self->priv->vadjustment,ys+((ye-ys-yp)*0.5));
-#endif
+  gtk_adjustment_set_value(self->priv->vadjustment,ys+((ye-ys-yp)*self->priv->scroll_y));
 // DEBUG
 //  GST_WARNING("canvas size %d x %d",allocation->width,allocation->height);
 // DEBUG
@@ -1263,6 +1267,8 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
 
   // the cursor for dragging
   self->priv->drag_cursor=gdk_cursor_new(GDK_FLEUR);
+  
+  self->priv->scroll_x=self->priv->scroll_y=0.5;
 }
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {

@@ -664,7 +664,7 @@ BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_p
                             "zoom", zoom,
                             NULL));
 
-  //GST_INFO("machine canvas item added");
+  //GST_INFO("machine canvas item added, ref-ct=%d",G_OBJECT(self)->ref_count);
 
   g_object_unref(canvas);
   g_object_unref(app);
