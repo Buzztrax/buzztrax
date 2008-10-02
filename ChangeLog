@@ -1,3 +1,8 @@
+2008-10-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/buzztard.xsd:
+	  Docuemnt schema.
+
 2008-09-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-canvas-item.c:
