@@ -1,3 +1,8 @@
+2008-10-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Don't crash on pattern with no parameters.
+
 2008-10-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/buzztard.xsd:

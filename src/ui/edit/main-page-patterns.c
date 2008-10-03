@@ -225,11 +225,12 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     gchar *str=NULL,*desc="\0";
     const gchar *blurb="\0";
 
-    if(self->priv->pattern) {
+    if(self->priv->pattern && self->priv->number_of_groups) {
       GParamSpec *property=NULL;
       PatternColumnGroup *group;
       
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
+
       
       group = &self->priv->param_groups[self->priv->cursor_group];
       switch (group->type) {
