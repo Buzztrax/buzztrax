@@ -91,9 +91,16 @@
  * locked.
  * - what about effect connected to the master, but without source?
  *
- * @todo: we need BtMachineParameters object with an implementation for the
+ * @todo: we need BtParameterGroup object with an implementation for the
  * global and one for the voice parameters. Then the machine would have a
- * GList *self->priv->params that holds the BtMachineParameters.
+ * self->priv->global_params and self->priv->voice_params
+ * bt_machine_init_global_params()
+ * -> bt_parameter_group_new(self->priv->machines[PART_MACHINE],"global",num_params,GParamSpec **properties)
+ * bt_machine_init_voice_params()
+ * -> bt_parameter_group_new(voice_child,"voice 0",num_params,GParamSpec **properties)
+ *
+ * Do we want one ParameterGroup per voice or just one for all voices?
+ * bt_machine_set_voice_param_value() and bt_machine_voice_controller_change_value() are voice specific
  */
 
 #define BT_CORE
@@ -1887,40 +1894,6 @@ void bt_machine_set_voice_param_value(const BtMachine * const self, const gulong
 }
 
 /**
- * bt_machine_set_global_param_no_value:
- * @self: the machine to set the global param value to the no-value
- * @index: the offset in the list of global params
- *
- * Sets a the specified global param to the neutral no-value.
- */
-void bt_machine_set_global_param_no_value(const BtMachine * const self, const gulong index) {
-  g_return_if_fail(BT_IS_MACHINE(self));
-  g_return_if_fail(index<self->priv->global_params);
-
-  if(bt_machine_is_global_param_trigger(self,index)) {
-    bt_machine_set_global_param_value(self,index,&self->priv->global_no_val[index]);
-  }
-}
-
-/**
- * bt_machine_set_voice_param_no_value:
- * @self: the machine to set the voice param value to the no-value
- * @voice: the voice to change
- * @index: the offset in the list of voice params
- *
- * Sets a the specified voice param to the neutral no-value.
- */
-void bt_machine_set_voice_param_no_value(const BtMachine * const self, const gulong voice, const gulong index) {
-  g_return_if_fail(BT_IS_MACHINE(self));
-  g_return_if_fail(voice<self->priv->voices);
-  g_return_if_fail(index<self->priv->global_params);
-
-  if(bt_machine_is_voice_param_trigger(self,index)) {
-    bt_machine_set_voice_param_value(self,voice,index,&self->priv->voice_no_val[index]);
-  }
-}
-
-/**
  * bt_machine_get_global_param_name:
  * @self: the machine to get the param name from
  * @index: the offset in the list of global params
@@ -2161,8 +2134,9 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const
  * Depending on wheter the given value is NULL, sets or unsets the controller
  * value for the specified param and at the given time.
  */
-void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue * const value) {
+void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue *value) {
   GObject *param_parent;
+  GValue def_value={0,};
 #if GST_CHECK_VERSION(0,10,14)
   GstControlSource *cs;
 #endif
@@ -2171,6 +2145,12 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
   g_return_if_fail(param<self->priv->global_params);
 
   param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
+  
+  if(!timestamp && !value) {
+    g_value_init(&def_value,GLOBAL_PARAM_TYPE(param));
+    g_object_get_property(param_parent,GLOBAL_PARAM_NAME(param),&def_value);
+    value=&def_value;
+  }
 
   if(value) {
     gboolean add=TRUE;
@@ -2244,6 +2224,9 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       }
     }
   }
+  if(value==&def_value) {
+    g_value_unset(&def_value);
+  }
 }
 
 /**
@@ -2257,8 +2240,9 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
  * Depending on wheter the given value is NULL, sets or unsets the controller
  * value for the specified param and at the given time.
  */
-void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong param, const gulong voice, const GstClockTime timestamp, GValue * const value) {
+void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong param, const gulong voice, const GstClockTime timestamp, GValue *value) {
   GObject *param_parent;
+  GValue def_value={0,};
 #if GST_CHECK_VERSION(0,10,14)
   GstControlSource *cs;
 #endif
@@ -2269,6 +2253,12 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
   g_return_if_fail(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]));
 
   param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice));
+
+  if(!timestamp && !value) {
+    g_value_init(&def_value,VOICE_PARAM_TYPE(param));
+    g_object_get_property(param_parent,VOICE_PARAM_NAME(param),&def_value);
+    value=&def_value;
+  }
 
   if(value) {
     gboolean add=TRUE;
@@ -2337,6 +2327,9 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
         bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(param));
       }
     }
+  }
+  if(value==&def_value) {
+    g_value_unset(&def_value);
   }
   g_object_unref(param_parent);
 }

@@ -200,7 +200,7 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
     if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
       // configure buffer size (e.g.  GST_SECONG*60/120*4
       gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
-      GST_WARNING("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
+      GST_INFO("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
         chunk, (chunk/G_GINT64_CONSTANT(1000)));
       // @todo: bah, pulseaudio does no like those at all
       g_object_set(sink,"latency-time",chunk,"buffer-time",chunk<<1,NULL);
@@ -635,8 +635,11 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
 //-- event handler
 
 static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
-  // @todo: what went wrong here?
-  if(!user_data) return;
+  if(!user_data) {
+    // @todo: what went wrong here?
+    GST_WARNING("!! invalid args");
+    return;
+  }
 
   const BtSinkBin * const self = BT_SINK_BIN(user_data);
 

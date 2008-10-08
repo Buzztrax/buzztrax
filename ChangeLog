@@ -1,3 +1,20 @@
+2008-10-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  sent news.
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	  Cleanup API. Use current values as defaults in controller timelines.
+
+	* src/lib/core/sequence.c:
+	* src/lib/core/sink-bin.c:
+	  Downgrade some debug logs.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Sync the code in simillar methods.
+
 2008-10-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

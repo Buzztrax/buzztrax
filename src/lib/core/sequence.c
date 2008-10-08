@@ -788,7 +788,7 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
   // release the references
   g_object_unref(song_info);
 
-  GST_WARNING("calculating songs bar-time %"G_GUINT64_FORMAT,self->priv->wait_per_position);
+  GST_INFO("calculating songs bar-time %"G_GUINT64_FORMAT,self->priv->wait_per_position);
 }
 
 //-- event handler

@@ -362,7 +362,7 @@ static void on_double_range_property_notify(const GstElement *machine,GParamSpec
 }
 
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data) {
-  GstElement *machine=GST_ELEMENT(user_data);
+  GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
   GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
   gdouble value=gtk_range_get_value(range);
@@ -371,9 +371,9 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   g_assert(user_data);
   //GST_INFO("property value change received : %lf",value);
 
-  g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
-  g_object_set(machine,name,value,NULL);
-  g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
+  g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
+  g_object_set(param_parent,name,value,NULL);
+  g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
   g_sprintf(str,"%lf",value);
   gtk_label_set_text(label,str);
 }
@@ -408,7 +408,7 @@ static void on_float_range_property_notify(const GstElement *machine,GParamSpec 
 }
 
 static void on_float_range_property_changed(GtkRange *range,gpointer user_data) {
-  GstElement *machine=GST_ELEMENT(user_data);
+  GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
   GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
   gfloat value=gtk_range_get_value(range);
@@ -417,9 +417,9 @@ static void on_float_range_property_changed(GtkRange *range,gpointer user_data) 
   g_assert(user_data);
   //GST_INFO("property value change received : %f",value);
 
-  g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_notify,(gpointer)range);
-  g_object_set(machine,name,value,NULL);
-  g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_notify,(gpointer)range);
+  g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_notify,(gpointer)range);
+  g_object_set(param_parent,name,value,NULL);
+  g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_notify,(gpointer)range);
   g_sprintf(str,"%f",value);
   gtk_label_set_text(label,str);
 }

@@ -76,9 +76,6 @@ extern GType bt_machine_get_voice_param_type(const BtMachine * const self, const
 extern void bt_machine_set_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
 extern void bt_machine_set_voice_param_value(const BtMachine * const self, const gulong voice, const gulong index, GValue * const event);
 
-extern void bt_machine_set_global_param_no_value(const BtMachine * const self, const gulong index);
-extern void bt_machine_set_voice_param_no_value(const BtMachine * const self, const gulong voice, const gulong index);
-
 extern const gchar *bt_machine_get_global_param_name(const BtMachine * const self, const gulong index);
 extern const gchar *bt_machine_get_voice_param_name(const BtMachine * const self, const gulong index);
 
@@ -87,8 +84,8 @@ extern gchar *bt_machine_describe_voice_param_value(const BtMachine * const self
 
 // controller handling
 
-extern void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue * const value);
-extern void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong param, const gulong voice,  const GstClockTime timestamp, GValue * const value);
+extern void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue *value);
+extern void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong param, const gulong voice,  const GstClockTime timestamp, GValue *value);
 
 //-- interaction control
 extern void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control);

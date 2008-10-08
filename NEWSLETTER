@@ -1,9 +1,18 @@
 2008/10 ========================================================================
 
-* translation project http://translationproject.org/latest/buzztard/
-* more namespace cleanups
-* drop late level meter updates
-* timing improvements, all bpms work
+I began the month with the remainder of the namespace cleanups. Should be all
+fine now. The ktorrent guy was not giving in. Well that's their way of handling
+it then.
+
+I have registered buzztard with the translation project. All strings are frozen
+for 0.4. Now of course I look for translators who are willing to help.
+
+During testing, I discovered that for some bpm and tick resolutions, notes where
+swallowed. This was due to different rounding behaviour in the sequencer and the
+plugins. This is now fixed. As a side effect, I can now render in any sampling
+rate. That will help my mameo version :)
+
+[1] http://translationproject.org/latest/buzztard/
 
 2008/09 ========================================================================
 
