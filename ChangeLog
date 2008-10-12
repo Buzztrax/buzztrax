@@ -1,3 +1,21 @@
+2008-10-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* design/python/play.py:
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  Check for gir tools and build typelib. Example for python bindings.
+
+	* src/lib/ic/libbuzztard-ic/Makefile.am:
+	  Move distclean target.
+
+	* src/lib/ic/libbuzztard-ic/ic.h:
+	  Don't include config.h here.
+
+	* src/ui/cmd/bt-cmd.h:
+	* src/ui/edit/bt-edit.h:
+	  Include config.h here instead.
+
 2008-10-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

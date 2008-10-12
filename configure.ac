@@ -304,6 +304,24 @@ PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
   ]
 )
 
+# GObject Introspection, required
+PKG_CHECK_MODULES(GOBJECT_INTROSPECTION, [gobject-introspection-1.0],[
+    AM_CONDITIONAL(USE_GIR, true)
+    G_IR_SCANNER=`$PKG_CONFIG --variable=g_ir_scanner gobject-introspection-1.0`
+    AC_SUBST(G_IR_SCANNER)
+    G_IR_COMPILER=`$PKG_CONFIG --variable=g_ir_compiler gobject-introspection-1.0`
+    AC_SUBST(G_IR_COMPILER)
+    G_IR_GENERATE=`$PKG_CONFIG --variable=g_ir_generate gobject-introspection-1.0`
+    AC_SUBST(G_IR_GENERATE)
+    GIRDIR=`$PKG_CONFIG --variable=girdir gobject-introspection-1.0`
+    AC_SUBST(GIRDIR)
+    enable_gir="yes"
+  ],[
+    AM_CONDITIONAL(USE_GIR, false)
+    enable_gir="no"
+  ]
+)
+
 GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
 GTK_PREFIX="`$PKG_CONFIG --variable=prefix gtk+-2.0`"
 GST_PREFIX="`$PKG_CONFIG --variable=prefix gstreamer-0.10`"
@@ -454,6 +472,7 @@ Configuration
 	Compiler                   : ${CC}
 
 	Documentation (API)        : ${enable_gtk_doc}
+	Bindings Metadata (GIR)    : ${enable_gir}
 
 	Debug                      : ${enable_debug}
 	Coverage profiling         : ${enable_coverage}

@@ -22,8 +22,6 @@
 #ifndef BT_IC_H
 #define BT_IC_H
 
-#include "config.h"
-
 //-- glib/gobject
 #include <glib.h>
 #include <glib-object.h>

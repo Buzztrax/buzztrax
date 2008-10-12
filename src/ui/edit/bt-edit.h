@@ -22,6 +22,10 @@
 #ifndef BT_EDIT_H
 #define BT_EDIT_H
 
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 //-- ansi c
 //#define __USE_ISOC99 /* for round() and co. */
 #include <math.h>
