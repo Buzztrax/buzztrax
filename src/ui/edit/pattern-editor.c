@@ -560,6 +560,8 @@ bt_pattern_editor_expose (GtkWidget *widget,
   }
 
   self->colhdr_height = hh = self->ch;
+#if QUICK_REPAINT
+  /* this is an attempt to repain only the damaged region */
   x = rect.x;
   y = rect.y;
   y = hh + (int)(self->ch * floor((y - hh) / self->ch));
@@ -567,6 +569,14 @@ bt_pattern_editor_expose (GtkWidget *widget,
       y = hh;
   max_y = rect.y + rect.height; /* end of dirty region */
   max_y = hh + (int)(self->ch * ceil((max_y - hh) / self->ch));
+#else
+  x = 0; 
+  y = hh + (int)(self->ch * floor((0 - hh) / self->ch));
+  if (y < hh)
+      y = hh;
+  max_y = widget->allocation.height;
+  max_y = hh + (int)(self->ch * ceil((max_y - hh) / self->ch));
+#endif
     
   /* leave space for headers */
   rowhdr_x = x;
@@ -590,7 +600,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   
   /* draw the headers */
   bt_pattern_editor_draw_rownum(self, rowhdr_x, y-self->ofs_y, row);
-  if(!rect.y) {
+  if(rect.y<self->ch) {
     bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-self->ofs_x, colhdr_y);
     bt_pattern_editor_draw_rowname(self, rowhdr_x, colhdr_y);
   }

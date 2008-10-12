@@ -30,6 +30,7 @@
  * - if on_loop_mode_changed(), on_wavelevel_loop_start/end_edited()
  *   for current playing -> update seeks
  * @todo: use rate for playing waves, when base_note has changed
+ * @todo: gray wavetable enries for unused waves
  */
 
 #define BT_EDIT
@@ -177,6 +178,9 @@ static void waves_list_refresh(const BtMainPageWaves *self) {
       gtk_list_store_set(store,&tree_iter,WAVE_TABLE_NAME,str,-1);
       g_free(str);
       g_object_unref(wave);
+    }
+    else {
+      GST_INFO("no wave for index: %d",i);
     }
   }
 
@@ -686,7 +690,9 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
       glong loop_start, loop_end;
   
       g_object_get(G_OBJECT(wave),"channels",&channels,NULL);
-      g_object_get(G_OBJECT(wavelevel),"length",&length,"data",&data,"loop-start", &loop_start,"loop-end",&loop_end,NULL);  
+      g_object_get(G_OBJECT(wavelevel),"length",&length,"data",&data,"loop-start", &loop_start,"loop-end",&loop_end,NULL);
+      GST_INFO("select wave: %p, %lu",data,length);
+      
       bt_waveform_viewer_set_wave(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer),data,channels,length);
       
       g_object_set(G_OBJECT(self->priv->waveform_viewer),"loop-begin",(int64_t)loop_start,"loop-end",(int64_t)loop_end,NULL);

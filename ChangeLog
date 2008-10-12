@@ -1,5 +1,27 @@
 2008-10-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/buzzcallbacks.c:
+	  Fix wave index and implement volume+flag queries.
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/sink-bin.c:
+	  Fix enums for bindings.
+
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	  Ideas and debug log tweaking.
+
+	* src/ui/edit/pattern-editor.c:
+	  Clutch for redraw bug. Need proper fix for faster redraws.
+
+	* src/ui/edit/wave-viewer.c:
+	  Set peaks to zero if data is NULL.
+
+2008-10-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* design/python/play.py:
 	* src/lib/core/Makefile.am:

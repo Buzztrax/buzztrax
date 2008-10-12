@@ -310,6 +310,7 @@ bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels,
   if (!data || !length)
   {
     self->active = 0;
+    memset(self->peaks,0,sizeof(float)*self->peaks_size);
     gtk_widget_queue_draw(GTK_WIDGET(self));
     return;
   }

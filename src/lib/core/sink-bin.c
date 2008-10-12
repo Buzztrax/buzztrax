@@ -164,9 +164,9 @@ GType bt_sink_bin_mode_get_type(void) {
   static GType type = 0;
   if(G_UNLIKELY(type==0)) {
     static const GEnumValue values[] = {
-      { BT_SINK_BIN_MODE_PLAY,            "BT_SINK_BIN_MODE_PLAY",            "play the song" },
-      { BT_SINK_BIN_MODE_RECORD,          "BT_SINK_BIN_MODE_RECORD",          "record to file" },
-      { BT_SINK_BIN_MODE_PLAY_AND_RECORD, "BT_SINK_BIN_MODE_PLAY_AND_RECORD", "play and record together" },
+      { BT_SINK_BIN_MODE_PLAY,            "BT_SINK_BIN_MODE_PLAY",            "play" },
+      { BT_SINK_BIN_MODE_RECORD,          "BT_SINK_BIN_MODE_RECORD",          "record" },
+      { BT_SINK_BIN_MODE_PLAY_AND_RECORD, "BT_SINK_BIN_MODE_PLAY_AND_RECORD", "play-and-record" },
       { 0, NULL, NULL},
     };
     type = g_enum_register_static("BtSinkBinMode", values);
@@ -178,10 +178,10 @@ GType bt_sink_bin_record_format_get_type(void) {
   static GType type = 0;
   if(G_UNLIKELY(type==0)) {
     static const GEnumValue values[] = {
-      { BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, ".ogg", "ogg vorbis" },
+      { BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, ".ogg", "ogg-vorbis" },
       { BT_SINK_BIN_RECORD_FORMAT_MP3,        ".mp3",        "mp3" },
       { BT_SINK_BIN_RECORD_FORMAT_WAV,        ".wav",        "wav" },
-      { BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,   ".flac",   "ogg flac" },
+      { BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,   ".flac",   "ogg-flac" },
       { BT_SINK_BIN_RECORD_FORMAT_RAW,        ".raw",        "raw" },
       /*
       { BT_SINK_BIN_RECORD_FORMAT_MP4_AAC,   ".m4a",   "mp4 aac" },

@@ -1447,7 +1447,7 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
     widgets=gtk_container_get_children(GTK_CONTAINER(menu_item));
     label=g_list_nth_data(widgets,0);
     if(GTK_IS_LABEL(label)) {
-      GST_INFO("menu item for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+      GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
     }
     g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);

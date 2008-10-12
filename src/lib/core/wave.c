@@ -169,7 +169,7 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
     gst_object_unref(pad);
   }
 
-  GST_DEBUG("sample decoded: channels=%d, rate=%d, length=%"GST_TIME_FORMAT,
+  GST_INFO("sample decoded: channels=%d, rate=%d, length=%"GST_TIME_FORMAT,
     channels, rate, GST_TIME_ARGS(duration));
   
   if(!(fstat(self->priv->fd, &buf))) {
@@ -191,7 +191,7 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
           rate, (gconstpointer)data);
         g_object_unref(wavelevel);
         /* emit signal so that UI can redraw */
-        GST_DEBUG("sample loaded (%ld/%ld bytes)",bytes,buf.st_size);
+        GST_INFO("sample loaded (%ld/%ld bytes)",bytes,buf.st_size);
         g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, TRUE);
       }
       else {

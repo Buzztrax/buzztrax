@@ -122,11 +122,11 @@ GType bt_pattern_cmd_get_type(void) {
   static GType type = 0;
   if(G_UNLIKELY(type == 0)) {
     static const GEnumValue values[] = {
-      { BT_PATTERN_CMD_NORMAL,"BT_PATTERN_CMD_NORMAL","just working" },
-      { BT_PATTERN_CMD_MUTE,  "BT_PATTERN_CMD_MUTE",  "be quiet immediately" },
-      { BT_PATTERN_CMD_BREAK, "BT_PATTERN_CMD_BREAK", "no more notes" },
-      { BT_PATTERN_CMD_SOLO,  "BT_PATTERN_CMD_SOLO",  "be the only one playing" },
-      { BT_PATTERN_CMD_BYPASS,"BT_PATTERN_CMD_BYPASS","be uneffective (pass through)" },
+      { BT_PATTERN_CMD_NORMAL,"BT_PATTERN_CMD_NORMAL","normal" },
+      { BT_PATTERN_CMD_MUTE,  "BT_PATTERN_CMD_MUTE",  "mute" },
+      { BT_PATTERN_CMD_BREAK, "BT_PATTERN_CMD_BREAK", "break" },
+      { BT_PATTERN_CMD_SOLO,  "BT_PATTERN_CMD_SOLO",  "solo" },
+      { BT_PATTERN_CMD_BYPASS,"BT_PATTERN_CMD_BYPASS","bypass" },
       { 0, NULL, NULL},
     };
     type = g_enum_register_static("BtPatternCmd", values);

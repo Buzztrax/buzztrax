@@ -52,23 +52,32 @@ typedef struct {
 
 static void const *GetWave(CHostCallbacks *self, int const i) {
   static BuzzWaveInfo res;
+  BtSong *song=BT_SONG(self->user_data);
+  BtWavetable *wavetable;
+  BtWave *wave;
+  BtWaveLoopMode loop_mode;
+  gdouble volume;
   
   GST_WARNING("(%p,%d)",self,i);
   
-  /*
-  BtSong *song=BT_SONG(self->user_data);
-  BtWaveTable *wavetable;
-  BtWave *wave;
-  
   g_object_get(song,"wavetable",&wavetable,NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
-    // we don't have volume and flags are per wavelevel right now ...
+    g_object_get(wave,"volume",&volume,"loop-mode",&loop_mode,NULL);
+    res.Volume=volume;
+    switch(loop_mode) {
+      case BT_WAVE_LOOP_MODE_OFF:
+        res.Flags=0;
+        break;
+      case BT_WAVE_LOOP_MODE_FORWARD:
+        res.Flags=1;
+        break;
+      case BT_WAVE_LOOP_MODE_PINGPONG:
+        res.Flags=1+16;
+        break;
+    }
     g_object_unref(wave);
   }
   g_object_unref(wavetable);
-  */
-  res.Flags=0;
-  res.Volume=1.0;
 
   return(&res);
 }
@@ -83,7 +92,7 @@ static void const *GetWaveLevel(CHostCallbacks *self, int const i, int const lev
   GST_WARNING("(%p,%d,%d)",self,i,level);
   
   g_object_get(song,"wavetable",&wavetable,NULL);
-  if((wave=bt_wavetable_get_wave_by_index(wavetable,i-1))) {
+  if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
     if((wavelevel=bt_wave_get_level_by_index(wave,level))) {
       gulong length,rate;
       glong ls, le;
@@ -118,7 +127,7 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
   GST_WARNING("(%p,%d,%d)",self,i,note);
 
   g_object_get(song,"wavetable",&wavetable,NULL);
-  if((wave=bt_wavetable_get_wave_by_index(wavetable,i-1))) {
+  if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
     GList *list,*node;
 
     g_object_get(wave,"wavelevels",&list,NULL);

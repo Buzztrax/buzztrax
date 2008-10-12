@@ -272,7 +272,7 @@ static void bt_wavelevel_set_property(GObject      * const object,
     case WAVELEVEL_DATA: {
       g_free(self->priv->sample);
       self->priv->sample = g_value_get_pointer(value);
-      GST_DEBUG("set the data-pointer for wavelevel: %d",self->priv->sample);
+      GST_DEBUG("set the data-pointer for wavelevel: %p",self->priv->sample);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

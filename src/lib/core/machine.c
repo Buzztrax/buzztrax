@@ -238,10 +238,10 @@ GType bt_machine_state_get_type(void) {
   static GType type = 0;
   if(G_UNLIKELY(type == 0)) {
     static const GEnumValue values[] = {
-      { BT_MACHINE_STATE_NORMAL,"BT_MACHINE_STATE_NORMAL","just working" },
-      { BT_MACHINE_STATE_MUTE,  "BT_MACHINE_STATE_MUTE",   "be quiet" },
-      { BT_MACHINE_STATE_SOLO,  "BT_MACHINE_STATE_SOLO",  "be the only one playing" },
-      { BT_MACHINE_STATE_BYPASS,"BT_MACHINE_STATE_BYPASS","be uneffective (pass through)" },
+      { BT_MACHINE_STATE_NORMAL,"BT_MACHINE_STATE_NORMAL","normal" },
+      { BT_MACHINE_STATE_MUTE,  "BT_MACHINE_STATE_MUTE",  "mute" },
+      { BT_MACHINE_STATE_SOLO,  "BT_MACHINE_STATE_SOLO",  "solo" },
+      { BT_MACHINE_STATE_BYPASS,"BT_MACHINE_STATE_BYPASS","bypass" },
       { 0, NULL, NULL},
     };
     type = g_enum_register_static("BtMachineState", values);
