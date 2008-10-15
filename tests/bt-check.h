@@ -24,6 +24,10 @@
 #ifndef BT_CHECK_H
 #define BT_CHECK_H
 
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,5 +1,14 @@
 2008-10-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/bt-check.h:
+	  Also remove include here (belongs to constructor cleanup).
+
+	* tests/gtkdoccomplete.sh:
+	* tests/xmlvalid.sh:
+	  Fix tests.
+
+2008-10-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/buzzcallbacks.c:
 	  Implement missing function. Be more failsave.
 

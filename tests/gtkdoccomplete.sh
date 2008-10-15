@@ -9,7 +9,7 @@ report="\n"
 echo -n "Running suite(s): "
 for dir in ../docs/reference/bt-*; do
   file=$dir/*-undocumented.txt;
-  if [ -e $file ]; then
+  if [ -e "$file" ]; then
     echo -n `basename $dir` ""
     checks=$(($checks+3))
 
@@ -19,7 +19,7 @@ for dir in ../docs/reference/bt-*; do
       report=$report`echo -n $file`":1:E: undocumented symbols\n"
     fi
     file=$dir/*-unused.txt;
-    if [ -e $file ]; then
+    if [ -e "$file" ]; then
       lines=`wc -l $file | cut -f1 -d\ `
       if [ $lines -gt 0 ]; then
         res=1
@@ -28,7 +28,7 @@ for dir in ../docs/reference/bt-*; do
       fi
     fi
     file=$dir/*-undeclared.txt;
-    if [ -e $file ]; then
+    if [ -e "$file" ]; then
       lines=`wc -l $file | cut -f1 -d\ `
       if [ $lines -gt 0 ]; then
         res=1
