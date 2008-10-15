@@ -45,7 +45,6 @@ BT_START_TEST(test_btsequence_enlarge_length) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -72,7 +71,6 @@ BT_START_TEST(test_btsequence_enlarge_length_vals) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -127,7 +125,6 @@ BT_START_TEST(test_btsequence_shrink_length) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -158,7 +155,6 @@ BT_START_TEST(test_btsequence_enlarge_track) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -194,7 +190,6 @@ BT_START_TEST(test_btsequence_enlarge_track_vals) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -251,7 +246,6 @@ BT_START_TEST(test_btsequence_shrink_track) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -294,7 +288,6 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -380,7 +373,6 @@ BT_START_TEST(test_btsequence_update) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -428,7 +420,6 @@ BT_START_TEST(test_btsequence_change_pattern) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -484,7 +475,6 @@ BT_START_TEST(test_btsequence_validate_loop) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);

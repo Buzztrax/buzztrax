@@ -22,7 +22,6 @@
 #include <check.h>
 #include <signal.h>
 #include <libbuzztard-core/core.h>
-#include <libbuzztard-core/application-private.h>
 #include "../../bt-check.h"
 
 //-- globals

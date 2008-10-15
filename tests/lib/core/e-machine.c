@@ -43,7 +43,6 @@ BT_START_TEST(test_btmachine_obj1) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
 
@@ -71,7 +70,6 @@ BT_START_TEST(test_btmachine_enable_input_level1) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
 
@@ -100,7 +98,6 @@ BT_START_TEST(test_btmachine_enable_input_level2) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
 
@@ -136,7 +133,6 @@ BT_START_TEST(test_btmachine_enable_input_gain1) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
 
@@ -164,7 +160,6 @@ BT_START_TEST(test_btmachine_enable_output_gain1) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
 

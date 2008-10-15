@@ -47,7 +47,6 @@ BT_START_TEST(test_btsinkmachine_settings1) {
 
   /* create a dummy app, song and get settings */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   song=bt_song_new(app);
   settings=bt_settings_new();
   mark_point();
@@ -83,7 +82,6 @@ BT_START_TEST(test_btsinkmachine_settings2) {
 
   /* create a dummy app, song and get settings */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   settings=bt_settings_new();
@@ -111,7 +109,6 @@ BT_START_TEST(test_btsinkmachine_settings3) {
 
   /* create a dummy app, song and get settings */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   song=bt_song_new(app);
   settings=bt_settings_new();
   mark_point();
@@ -138,7 +135,6 @@ BT_START_TEST(test_btsinkmachine_settings4) {
 
   /* create a dummy app, song and get settings */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   song=bt_song_new(app);
   settings=bt_settings_new();
   mark_point();
@@ -166,7 +162,6 @@ BT_START_TEST(test_btsinkmachine_play1) {
   gboolean res;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   settings=bt_settings_new();
   g_object_set(settings,"audiosink","fakesink",NULL);
@@ -200,7 +195,6 @@ BT_START_TEST(test_btsinkmachine_play2) {
   gboolean res;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   settings=bt_settings_new();
   g_object_set(settings,"audiosink","alsasink device=invalid:666",NULL);

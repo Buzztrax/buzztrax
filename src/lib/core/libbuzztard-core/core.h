@@ -71,9 +71,10 @@
 #include "tools.h"
 #include "version.h"
 
-#ifdef USE_GCONF
+// this does not hurt if gconf is off, but the 'ifdef breaks the build as we don't include config.h here
+//#ifdef USE_GCONF
 #include "gconf-settings-methods.h"
-#endif
+//#endif
 
 //-- prototypes ----------------------------------------------------------------
 

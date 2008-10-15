@@ -152,7 +152,7 @@ static gboolean bt_wire_make_internal_element(const BtWire * const self, const B
   // add internal element
   gchar * const name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
-    GST_ERROR("failed to create %s",element_name);goto Error;
+    GST_ERROR("failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
   gst_bin_add(self->priv->bin,self->priv->machines[part]);
   res=TRUE;

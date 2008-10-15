@@ -45,7 +45,6 @@ BT_START_TEST(test_btsequence_properties) {
   gboolean check_prop_ret=FALSE;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
@@ -80,7 +79,6 @@ BT_START_TEST(test_btsequence_add_track1) {
   BtSequence *sequence=NULL;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
@@ -105,7 +103,6 @@ BT_START_TEST(test_btsequence_add_track2) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   /* create a new song */
   song=bt_song_new(app);
@@ -132,7 +129,6 @@ BT_START_TEST(test_btsequence_rem_track1) {
   BtSequence *sequence=NULL;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
@@ -157,7 +153,6 @@ BT_START_TEST(test_btsequence_rem_track2) {
   BtSourceMachine *machine=NULL;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
@@ -184,7 +179,6 @@ BT_START_TEST(test_btsequence_length1) {
   BtSequence *sequence=NULL;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
@@ -213,7 +207,6 @@ BT_START_TEST(test_btsequence_pattern1) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -250,7 +243,6 @@ BT_START_TEST(test_btsequence_pattern2) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);

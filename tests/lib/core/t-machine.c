@@ -70,7 +70,6 @@ BT_START_TEST(test_btmachine_state1) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   /* create a new song */
   song=bt_song_new(app);
@@ -143,7 +142,6 @@ BT_START_TEST(test_btmachine_state2) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   /* create a new song */
   song=bt_song_new(app);

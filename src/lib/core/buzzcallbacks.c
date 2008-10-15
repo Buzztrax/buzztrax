@@ -59,8 +59,10 @@ static void const *GetWave(CHostCallbacks *self, int const i) {
   gdouble volume;
   
   GST_WARNING("(%p,%d)",self,i);
+  if(!song) return(NULL);
   
   g_object_get(song,"wavetable",&wavetable,NULL);
+  if(!wavetable) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
     g_object_get(wave,"volume",&volume,"loop-mode",&loop_mode,NULL);
     res.Volume=volume;
@@ -90,8 +92,10 @@ static void const *GetWaveLevel(CHostCallbacks *self, int const i, int const lev
   BtWavelevel *wavelevel;
   
   GST_WARNING("(%p,%d,%d)",self,i,level);
+  if(!song) return(NULL);
   
   g_object_get(song,"wavetable",&wavetable,NULL);
+  if(!wavetable) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
     if((wavelevel=bt_wave_get_level_by_index(wave,level))) {
       gulong length,rate;
@@ -125,8 +129,10 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
   guchar root_note;
   
   GST_WARNING("(%p,%d,%d)",self,i,note);
+  if(!song) return(NULL);
 
   g_object_get(song,"wavetable",&wavetable,NULL);
+  if(!wavetable) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
     GList *list,*node;
 

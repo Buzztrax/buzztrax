@@ -264,8 +264,8 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
 
 /**
  * bt_init:
- * @argc: pointer to application's argc
- * @argv: pointer to application's argv
+ * @argc: (inout): pointer to application's argc
+ * @argv: (array) (inout): pointer to application's argv
  *
  * Initializes the Buzztard Core library.
  *

@@ -1,3 +1,57 @@
+2008-10-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/buzzcallbacks.c:
+	  Implement missing function. Be more failsave.
+
+	* src/lib/core/core.c:
+	  Try annotations.
+
+	* src/lib/core/libbuzztard-core/core.h:
+	  Include always.
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/application.c:
+	* src/lib/core/libbuzztard-core/application-private.h:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/edit-application.c:
+	* tests/lib/core/m-bt-core.h:
+	* tests/lib/core/t-song-io-native.c:
+	* tests/lib/core/t-setup.c:
+	* tests/lib/core/e-processor-machine.c:
+	* tests/lib/core/t-machine.c:
+	* tests/lib/core/t-sink-machine.c:
+	* tests/lib/core/t-song.c:
+	* tests/lib/core/t-wire.c:
+	* tests/lib/core/t-sequence.c:
+	* tests/lib/core/e-network.c:
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/t-network.c:
+	* tests/lib/core/e-sequence.c:
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/t-source-machine.c:
+	* tests/lib/core/t-pattern.c:
+	* tests/lib/core/e-song-info.c:
+	* tests/lib/core/e-setup.c:
+	* tests/lib/core/e-source-machine.c:
+	* tests/lib/core/e-machine.c:
+	* tests/lib/core/e-song-io-native.c:
+	  Overload constructors for proper post init.
+
+	* src/lib/core/libbuzztard-core/song-io-methods.h:
+	* src/lib/core/song-io.c:
+	  Fix method signatures.
+  
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	  Better loggings
+
+	* src/ui/edit/machine-actions.c:
+	  Escape markup in description too.
+
+	* src/ui/edit/main-page-machines.c:
+	  Ideas.
+	
+
 2008-10-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/buzzcallbacks.c:

@@ -73,8 +73,9 @@ void bt_machine_action_about(GstElement *machine,BtMainWindow *main_window) {
     const gchar *element_longname=gst_element_factory_get_longname(element_factory);
     const gchar *element_author=gst_element_factory_get_author(element_factory);
     const gchar *element_description=gst_element_factory_get_description(element_factory);
-    gchar *str,*str_author;
+    gchar *str,*str_author,*str_desc;
 
+    str_desc=g_markup_escape_text(element_description,strlen(element_description));
     str_author=g_markup_escape_text(element_author,strlen(element_author));
     // add a '\n' after each ',' to nicely format the message_box
     str=str_author;
@@ -85,10 +86,10 @@ void bt_machine_action_about(GstElement *machine,BtMainWindow *main_window) {
     
     str=g_strdup_printf(
       _("by %s\n\n%s"),
-      str_author,element_description
+      str_author,str_desc
     );
     bt_dialog_message(main_window,_("About..."),element_longname,str);
     
-    g_free(str);g_free(str_author);
+    g_free(str);g_free(str_author);g_free(str_desc);
   }
 }

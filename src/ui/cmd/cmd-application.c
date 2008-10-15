@@ -34,7 +34,6 @@
 #define BT_CMD_APPLICATION_C
 
 #include "bt-cmd.h"
-#include <libbuzztard-core/application-private.h>
 
 // this needs to be here because of gtk-doc and unit-tests
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
@@ -205,19 +204,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
  * Returns: the new instance or %NULL in case of an error
  */
 BtCmdApplication *bt_cmd_application_new(gboolean quiet) {
-  BtCmdApplication *self;
-
-  if(!(self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,"quiet",quiet,NULL)))) {
-    goto Error;
-  }
-  if(!(bt_application_new(BT_APPLICATION(self)))) {
-    goto Error;
-  }
-  GST_INFO("new cmd app created");
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,"quiet",quiet,NULL)));
 }
 
 //-- methods
@@ -593,6 +580,20 @@ static void bt_cmd_application_set_property(GObject      *object,
   }
 }
 
+#if 0
+static GObject* bt_cmd_application_construct (GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
+  GObject *self;
+
+  //GST_DEBUG("<<<");
+  self = G_OBJECT_CLASS (parent_class)->constructor (type, n_construct_params, construct_params);
+  GST_INFO("new cmd app instantiated");
+  // do post construct here
+  //GST_DEBUG(">>>");
+  return(self);
+}
+#endif
+
+
 static void bt_cmd_application_dispose(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
 
@@ -615,15 +616,20 @@ static void bt_cmd_application_finalize(GObject *object) {
 static void bt_cmd_application_init(GTypeInstance *instance, gpointer g_class) {
   BtCmdApplication *self = BT_CMD_APPLICATION(instance);
 
+  GST_DEBUG("!!!! self=%p",self);
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_CMD_APPLICATION, BtCmdApplicationPrivate);
 }
 
 static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
+  GST_DEBUG("!!!!");
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtCmdApplicationPrivate));
 
+#if 0
+  gobject_class->constructor  = bt_cmd_application_construct;
+#endif
   gobject_class->set_property = bt_cmd_application_set_property;
   gobject_class->get_property = bt_cmd_application_get_property;
   gobject_class->dispose      = bt_cmd_application_dispose;

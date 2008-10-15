@@ -31,7 +31,6 @@
 #define BT_EDIT_APPLICATION_C
 
 #include "bt-edit.h"
-#include <libbuzztard-core/application-private.h>
 
 //-- signal ids
 
@@ -207,37 +206,7 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
  * Returns: the new instance or %NULL in case of an error
  */
 BtEditApplication *bt_edit_application_new(void) {
-  BtEditApplication *self;
-
-  if(!(self=BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL)))) {
-    goto Error;
-  }
-  if(!bt_application_new(BT_APPLICATION(self))) {
-    goto Error;
-  }
-  // create or ref the shared ui ressources
-  if(!(self->priv->ui_resources=bt_ui_resources_new())) {
-    goto Error;
-  }
-  // create the playback controller
-  self->priv->pb_controller=bt_playback_controller_socket_new(self);
-  // create the interaction controller registry
-  self->priv->ic_registry=btic_registry_new();
-  // create main window
-  GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
-  if(!(self->priv->main_window=bt_main_window_new(self))) {
-    goto Error;
-  }
-#ifdef USE_HILDON
-  hildon_program_add_window(HILDON_PROGRAM(hildon_program_get_instance()),
-    HILDON_WINDOW(self->priv->main_window));
-#endif
-  GST_INFO("new edit app window created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
-  return(self);
-Error:
-  GST_WARNING("new edit app failed");
-  g_object_try_unref(self);
-  return(NULL);
+  return(BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL)));
 }
 
 //-- methods
@@ -447,7 +416,6 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
   return(res);
 }
 
-
 /**
  * bt_edit_application_run:
  * @self: the application instance to run
@@ -602,6 +570,39 @@ static void bt_edit_application_set_property(GObject      *object,
   }
 }
 
+static GObject* bt_edit_application_construct (GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
+  BtEditApplication *self;
+  
+  //GST_DEBUG("<<<");
+  self = BT_EDIT_APPLICATION (G_OBJECT_CLASS (parent_class)->constructor (type, n_construct_params, construct_params));
+  GST_INFO("new edit app instantiated");
+  // create or ref the shared ui ressources
+  if(!(self->priv->ui_resources=bt_ui_resources_new())) {
+    goto Error;
+  }
+  // create the playback controller
+  self->priv->pb_controller=bt_playback_controller_socket_new(self);
+  // create the interaction controller registry
+  self->priv->ic_registry=btic_registry_new();
+  // create main window
+  GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
+  if(!(self->priv->main_window=bt_main_window_new(self))) {
+    goto Error;
+  }
+#ifdef USE_HILDON
+  hildon_program_add_window(HILDON_PROGRAM(hildon_program_get_instance()),
+    HILDON_WINDOW(self->priv->main_window));
+#endif
+  GST_INFO("new edit app window created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
+  //GST_DEBUG(">>>");
+  return(G_OBJECT(self));
+Error:
+  g_object_try_unref(self);
+  //GST_DEBUG(">>>");
+  return NULL;
+}
+
+
 static void bt_edit_application_dispose(GObject *object) {
   BtEditApplication *self = BT_EDIT_APPLICATION(object);
 
@@ -661,6 +662,7 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtEditApplicationPrivate));
 
+  gobject_class->constructor  = bt_edit_application_construct;
   gobject_class->set_property = bt_edit_application_set_property;
   gobject_class->get_property = bt_edit_application_get_property;
   gobject_class->dispose      = bt_edit_application_dispose;

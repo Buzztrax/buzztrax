@@ -65,39 +65,6 @@ static GObjectClass *parent_class=NULL;
 
 //-- constructor methods
 
-/**
- * bt_application_new:
- * @self: instance to finish construction of
- *
- * This is the common part of application construction. It needs to be called from
- * within the sub-classes constructor methods.
- *
- * Returns: %TRUE for succes, %FALSE otherwise
- */
-gboolean bt_application_new(const BtApplication * const self) {
-  gboolean res=FALSE;
-
-  g_return_val_if_fail(BT_IS_APPLICATION(self),FALSE);
-
-  /*
-  { // DEBUG
-    gchar *audiosink_name,*system_audiosink_name;
-    g_object_get(self->priv->settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
-    if(system_audiosink_name) {
-      GST_INFO("default audiosink is \"%s\"",system_audiosink_name);
-      g_free(system_audiosink_name);
-    }
-    if(audiosink_name) {
-      GST_INFO("buzztard audiosink is \"%s\"",audiosink_name);
-      g_free(audiosink_name);
-    }
-  } // DEBUG
-  */
-  res=TRUE;
-//Error:
-  return(res);
-}
-
 //-- methods
 
 //-- wrapper
@@ -140,6 +107,32 @@ static void bt_application_set_property(GObject      * const object,
   }
 }
 
+#if 0
+static GObject* bt_application_construct (GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
+  GObject *object;
+  
+  GST_DEBUG("<<<");
+  object = G_OBJECT_CLASS (parent_class)->constructor (type, n_construct_params, construct_params);
+  GST_INFO("new app instantiated");
+  /*
+  { // DEBUG
+    gchar *audiosink_name,*system_audiosink_name;
+    g_object_get(self->priv->settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
+    if(system_audiosink_name) {
+      GST_INFO("default audiosink is \"%s\"",system_audiosink_name);
+      g_free(system_audiosink_name);
+    }
+    if(audiosink_name) {
+      GST_INFO("buzztard audiosink is \"%s\"",audiosink_name);
+      g_free(audiosink_name);
+    }
+  } // DEBUG
+  */
+  GST_DEBUG(">>>");
+  return object;
+}
+#endif
+
 static void bt_application_dispose(GObject * const object) {
   const BtApplication * const self = BT_APPLICATION(object);
 
@@ -169,13 +162,20 @@ static void bt_application_finalize(GObject * const object) {
   GST_DEBUG("  done");
 }
 
+#if 0
+static void bt_application_base_init (gpointer g_class) {
+  GST_DEBUG("!!!! self=%p",g_class);
+}
+#endif
+
 static void bt_application_init(const GTypeInstance * const instance, gconstpointer const g_class) {
   BtApplication * const self = BT_APPLICATION(instance);
 
+  GST_DEBUG("!!!! self=%p",self);
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_APPLICATION, BtApplicationPrivate);
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_ELEMENT(self->priv->bin));
-  GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
+  GST_DEBUG("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
 
   // tried this when debuging a case where we don't get bus messages
   //gst_pipeline_set_auto_flush_bus(GST_PIPELINE(self->priv->bin),FALSE);
@@ -189,9 +189,13 @@ static void bt_application_init(const GTypeInstance * const instance, gconstpoin
 static void bt_application_class_init(BtApplicationClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
+  GST_DEBUG("!!!!");
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtApplicationPrivate));
 
+#if 0
+  gobject_class->constructor  = bt_application_construct;
+#endif
   gobject_class->set_property = bt_application_set_property;
   gobject_class->get_property = bt_application_get_property;
   gobject_class->dispose      = bt_application_dispose;
@@ -217,7 +221,7 @@ GType bt_application_get_type(void) {
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       (guint16)(sizeof(BtApplicationClass)),
-      NULL, // base_init
+      /*(GBaseInitFunc)bt_application_base_init,*/ NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_application_class_init, // class_init
       NULL, // class_finalize

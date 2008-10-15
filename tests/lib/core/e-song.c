@@ -56,7 +56,6 @@ BT_START_TEST(test_btsong_obj1) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   /* create a new song */
   song=bt_song_new(app);
@@ -80,7 +79,6 @@ BT_START_TEST(test_btsong_load1) {
   gboolean unsaved;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
@@ -113,7 +111,6 @@ BT_START_TEST(test_btsong_load2) {
   gboolean load_ret = FALSE;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
@@ -146,7 +143,6 @@ BT_START_TEST(test_btsong_load3) {
   BtSinkMachine *master;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
@@ -181,7 +177,6 @@ BT_START_TEST(test_btsong_play1) {
   gboolean res;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
@@ -222,7 +217,6 @@ BT_START_TEST(test_btsong_new1){
 
   // create a dummy application
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   // create a new, empty song
   song=bt_song_new(app);

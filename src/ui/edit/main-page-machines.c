@@ -25,7 +25,14 @@
  *
  * Displays the machine setup on a canvas.
  */
-/*
+/* @todo: multiselect
+ * - when clicking on the background
+ *   - remove old selection if any
+ *   - start new selection (transparent rect)
+ * - have context menu on the selection
+ *   - delete
+ *   - mute/solo/bypass ?
+ * - move machines when moving the selection
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C

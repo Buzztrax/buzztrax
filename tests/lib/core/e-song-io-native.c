@@ -90,7 +90,6 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
  
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -170,7 +169,6 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
 
  /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   g_object_get(app,"bin",&bin,NULL);
   GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));
   fail_unless(GST_BIN_NUMCHILDREN(bin) == 0, NULL);

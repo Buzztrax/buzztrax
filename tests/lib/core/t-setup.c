@@ -45,7 +45,6 @@ BT_START_TEST(test_btsetup_properties) {
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -72,7 +71,6 @@ BT_START_TEST(test_btsetup_obj1){
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -108,7 +106,6 @@ BT_START_TEST(test_btsetup_obj2){
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -165,7 +162,6 @@ BT_START_TEST(test_btsetup_obj4) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -194,7 +190,6 @@ BT_START_TEST(test_btsetup_obj5) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -224,7 +219,6 @@ BT_START_TEST(test_btsetup_obj6) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -254,7 +248,6 @@ BT_START_TEST(test_btsetup_obj7) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -284,7 +277,6 @@ BT_START_TEST(test_btsetup_obj8) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -314,7 +306,6 @@ BT_START_TEST(test_btsetup_obj9) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -344,7 +335,6 @@ BT_START_TEST(test_btsetup_obj10) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -374,7 +364,6 @@ BT_START_TEST(test_btsetup_get_wire_by_src_machine1) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -404,7 +393,6 @@ BT_START_TEST(test_btsetup_get_wire_by_src_machine2) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -435,7 +423,6 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine1) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -471,7 +458,6 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine2) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -505,7 +491,6 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine3) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -542,7 +527,6 @@ BT_START_TEST(test_btsetup_get_wire_by_dst_machine1) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -572,7 +556,6 @@ BT_START_TEST(test_btsetup_get_wire_by_dst_machine2) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -602,7 +585,6 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine1) {
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -635,7 +617,6 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine2) {
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -666,7 +647,6 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine3) {
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -701,7 +681,6 @@ BT_START_TEST(test_btsetup_obj13) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -726,7 +705,6 @@ BT_START_TEST(test_btsetup_obj14) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -754,7 +732,6 @@ BT_START_TEST(test_btsetup_obj15) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -784,7 +761,6 @@ BT_START_TEST(test_btsetup_obj16) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -815,7 +791,6 @@ BT_START_TEST(test_btsetup_obj17) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -858,7 +833,6 @@ BT_START_TEST(test_btsetup_obj18) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -912,7 +886,6 @@ BT_START_TEST(test_btsetup_wire1) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -963,7 +936,6 @@ BT_START_TEST(test_btsetup_wire2) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
@@ -1020,7 +992,6 @@ BT_START_TEST(test_btsetup_wire3) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);

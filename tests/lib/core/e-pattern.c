@@ -44,7 +44,6 @@ BT_START_TEST(test_btpattern_obj1) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
@@ -78,7 +77,6 @@ BT_START_TEST(test_btpattern_obj2) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
@@ -112,7 +110,6 @@ BT_START_TEST(test_btpattern_copy) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
@@ -154,7 +151,6 @@ BT_START_TEST(test_btpattern_has_data) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
@@ -209,7 +205,6 @@ BT_START_TEST(test_btpattern_enlarge_length) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
@@ -265,7 +260,6 @@ BT_START_TEST(test_btpattern_shrink_length) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
@@ -317,7 +311,6 @@ BT_START_TEST(test_btpattern_enlarge_voices) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
@@ -372,7 +365,6 @@ BT_START_TEST(test_btpattern_shrink_voices) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
@@ -423,7 +415,6 @@ BT_START_TEST(test_btpattern_insert_row) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */

@@ -29,7 +29,7 @@ extern BtSongIO *bt_song_io_new(const gchar * const file_name);
 
 extern const GList *bt_song_io_get_module_info_list(void);
 
-extern gboolean bt_song_io_load(gconstpointer const self, const BtSong * const song);
-extern gboolean bt_song_io_save(gconstpointer const self, const BtSong * const song);
+extern gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song);
+extern gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song);
 
 #endif // BT_SONG_IO_METHDOS_H

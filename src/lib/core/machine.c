@@ -698,7 +698,7 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
   name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
   //name=g_alloca(strlen(element_name)+16+1+strlen(self->priv->id));g_sprintf(name,"%s_%p_%s",element_name,self,self->priv->id);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
-    GST_WARNING("failed to create %s",element_name);goto Error;
+    GST_WARNING("failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
   gst_bin_add(self->priv->bin,self->priv->machines[part]);
   res=TRUE;

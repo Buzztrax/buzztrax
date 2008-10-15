@@ -54,7 +54,6 @@ BT_START_TEST(test_btcore_net_example1) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   /* create a new song */
   song=bt_song_new(app);
@@ -136,7 +135,6 @@ BT_START_TEST(test_btcore_net_example2) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   /* create a new song */
   song=bt_song_new(app);
@@ -213,7 +211,6 @@ BT_START_TEST(test_btcore_net_example3) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   /* create a new song */
   song=bt_song_new(app);
@@ -306,7 +303,6 @@ BT_START_TEST(test_btcore_net_example4) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
 
   /* create a new song */
   song=bt_song_new(app);

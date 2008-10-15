@@ -48,7 +48,6 @@ BT_START_TEST(test_btsonginfo_createdate) {
 
   // creating new empty app
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
   mark_point();
   // creating new song
   song=bt_song_new(app);
