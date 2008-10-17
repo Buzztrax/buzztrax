@@ -79,10 +79,11 @@ BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
 	libtool --mode=execute $(G_IR_SCANNER) -v \
 	     --namespace BuzztardCore --nsversion 0.0 \
 	     --strip-prefix=bt \
-	     --include=GObject-2.0.gir \
-	     --include=Gst-0.10.gir \
-	     --include=libxml2-2.0.gir \
-	     --include=$(top_builddir)/src/lib/ic/BuzztardIc-0.0.gir \
+	     --add-include-path=$(top_builddir)/src/lib/ic/ \
+	     --include=GObject-2.0 \
+	     --include=Gst-0.10 \
+	     --include=libxml2-2.0 \
+	     --include=BuzztardIc-0.0 \
 	     --library=buzztard-core \
              --pkg gobject-2.0 \
              --pkg libbuzztard-ic \

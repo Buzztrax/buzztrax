@@ -37,8 +37,8 @@ BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
 	libtool --mode=execute $(G_IR_SCANNER) -v \
 	     --namespace BuzztardIc --nsversion 0.0 \
 	     --strip-prefix=btic \
-	     --include=GObject-2.0.gir \
-	     --include=Gst-0.10.gir \
+	     --include=GObject-2.0 \
+	     --include=Gst-0.10 \
 	     --library=buzztard-ic \
              --pkg gobject-2.0 \
              --pkg gstreamer-0.10 \
