@@ -218,8 +218,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // subscribe to property changes in sequence
   g_signal_connect(G_OBJECT(sequence), "notify::length", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
   g_signal_connect(G_OBJECT(sequence), "notify::loop", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
-  g_signal_connect(G_OBJECT(sequence), "notify::loop_start", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
-  g_signal_connect(G_OBJECT(sequence), "notify::loop_end", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
+  g_signal_connect(G_OBJECT(sequence), "notify::loop-start", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
+  g_signal_connect(G_OBJECT(sequence), "notify::loop-end", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
   // release the references
   g_object_unref(song_info);
   g_object_unref(sequence);

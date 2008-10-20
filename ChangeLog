@@ -1,3 +1,8 @@
+2008-10-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-statusbar.c:
+	  Use "-" instead of "_" in signal names.
+
 2008-10-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/Makefile.am:
