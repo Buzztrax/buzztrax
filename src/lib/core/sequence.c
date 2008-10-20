@@ -1500,6 +1500,12 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence * const self) {
  */
 GstClockTime bt_sequence_get_loop_time(const BtSequence * const self) {
   g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
+  
+  GST_DEBUG("%lu .. %lu : %"GST_TIME_FORMAT" : %"GST_TIME_FORMAT,
+    self->priv->play_start,
+    self->priv->play_end,
+    GST_TIME_ARGS(self->priv->wait_per_position),
+    GST_TIME_ARGS((self->priv->play_end-self->priv->play_start)*self->priv->wait_per_position));
 
   const GstClockTime res=bt_sequence_get_tick_time(self,self->priv->play_end-self->priv->play_start);
   return(res);

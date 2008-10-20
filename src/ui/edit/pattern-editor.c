@@ -40,6 +40,8 @@
 
 #include "pattern-editor.h"
 #include "ui-resources-methods.h"
+#include "tools.h"
+
 #include "marshal.h"
 
 enum {
@@ -964,6 +966,9 @@ bt_pattern_editor_button_press (GtkWidget *widget,
   int y = self->ofs_y + event->y;
   int parameter, digit;
   int g;
+  
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self));
+  
   if (x < self->rowhdr_width) {
     bt_pattern_editor_refresh_cursor(self);
     self->row = (y-self->colhdr_height) / self->ch;

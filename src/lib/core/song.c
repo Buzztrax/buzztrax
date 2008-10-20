@@ -408,8 +408,14 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
 static void on_song_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
-  GST_INFO("received EOS bus message from: %s", GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
-  bt_song_stop(self);
+  if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
+    GST_WARNING("received EOS bus message from: %s", 
+      GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
+    // @todo: we're getting this too early
+    // gst_base_audio_sink_callback() post eos, this runs
+    // gst_base_audio_sink_drain()
+    bt_song_stop(self);
+  }
 }
 
 static gboolean on_song_paused_timeout(gpointer user_data) {
@@ -436,7 +442,8 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     GstState oldstate,newstate,pending;
 
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
-    GST_WARNING("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
+    GST_WARNING("state change on the bin: %s -> %s", 
+      gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
       /* if we do this in READY_TO_PAUSED, we get two PAUSED -> PAUSED transitions
        * seems to be not the case with gstreamer core.

@@ -137,6 +137,23 @@ static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const pers
   GST_DEBUG("PERSISTENCE::song-info");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("meta"),NULL))) {
+    if(!strcmp(self->priv->name,_("untitled song"))) {
+      BtSongIONative *song_io;
+      gchar *file_path,*file_name,*ext;
+      
+      g_object_get(self->priv->song,"song-io",&song_io,NULL);
+      g_object_get(G_OBJECT(song_io),"file-name",&file_path,NULL);
+      file_name=g_path_get_basename(file_path);
+      if((ext=g_strrstr(file_name,"."))) {
+        *ext='\0';
+      }
+      GST_INFO("using '%s' instead of default title",file_name);  
+      g_object_set(G_OBJECT(self),"name",file_name,NULL);
+      g_free(file_name);
+      g_free(file_path);
+      g_object_unref(song_io);
+    }
+    
     if(self->priv->info) {
       xmlNewChild(node,NULL,XML_CHAR_PTR("info"),XML_CHAR_PTR(self->priv->info));
     }
@@ -506,7 +523,7 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
                                   g_param_spec_string("name",
                                      "name prop",
                                      "songs name",
-                                     "unnamed", /* default value */
+                                     _("untitled song"), /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_GENRE,

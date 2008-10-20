@@ -321,6 +321,11 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       <xsd:attribute ref="name" use="required"/>
       <xsd:attribute ref="url" use="required"/>
     </xsd:complexType>
+    <xsd:annotation>
+      <xsd:documentation>
+        Wave in a wavetable.
+      </xsd:documentation>
+    </xsd:annotation>
   </xsd:element>
   
   <xsd:element name="wavetable">
@@ -329,6 +334,11 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
         <xsd:element ref="wave" minOccurs="1" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
+    <xsd:annotation>
+      <xsd:documentation>
+        List of waves.
+      </xsd:documentation>
+    </xsd:annotation>
   </xsd:element>
   
   <xsd:element name="buzztard">
@@ -341,5 +351,10 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
         <xsd:element ref="wavetable" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
+    <xsd:annotation>
+      <xsd:documentation>
+        Toplevel elements for a buzztard song.
+      </xsd:documentation>
+    </xsd:annotation>
   </xsd:element>
 </xsd:schema>

@@ -22,6 +22,8 @@
 #ifndef BT_EDIT_TOOLS_H
 #define BT_EDIT_TOOLS_H
 
+#include "main-window.h"
+
 /* pixmap/buf helpers */
 extern void add_pixmap_directory(const gchar *directory);
 extern GtkWidget *gtk_image_new_from_filename(const gchar *filename);

@@ -230,6 +230,16 @@ static void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
   g_object_unref(song);
 }
 
+static void on_name_notify(const BtSongInfo *song_info,GParamSpec *arg,gpointer user_data) {
+  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+  gchar *name;
+
+  g_object_get(G_OBJECT(song_info),"name",&name,NULL);
+  g_signal_handlers_block_matched(self->priv->name,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);
+  gtk_entry_set_text(self->priv->name,safe_string(name));g_free(name);
+  g_signal_handlers_unblock_matched(self->priv->name,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);  
+}
+
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   BtSong *song;
@@ -282,6 +292,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   gtk_text_buffer_set_text(buffer,safe_string(info),-1);g_free(info);
   g_signal_handlers_unblock_matched(G_OBJECT(buffer),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_info_changed,(gpointer)self);
 
+  g_signal_connect(G_OBJECT(song_info), "notify::name", G_CALLBACK(on_name_notify), (gpointer)self);
+  
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);

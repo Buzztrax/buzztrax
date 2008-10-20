@@ -1,5 +1,23 @@
 2008-10-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/buzztard.xsd:
+	  More docs.
+
+	* src/lib/core/sequence.c:
+	* src/lib/core/song.c:
+	  More logging.
+
+	* src/lib/core/song-info.c:
+	* src/ui/edit/main-page-info.c:
+	  Put file-name into song title if we save and title is still the
+	  default.
+
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/tools.h:
+	  Focus on clicks
+
+2008-10-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-statusbar.c:
 	  Use "-" instead of "_" in signal names.
 
