@@ -128,12 +128,13 @@ GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename) {
 GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size) {
   GdkPixbuf *pixbuf;
   GError *error = NULL;
+  GtkIconTheme *it=gtk_icon_theme_get_default();
 
   /* @todo: docs recommend to listen to GtkWidget::style-set and update icon or
    * do gdk_pixbuf_copy() to avoid gtk keeping icon-theme loaded if it changes
   */
-  if(!(pixbuf=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),name,size,0,&error))) {
-    GST_WARNING("Couldn't load %s 16x16 icon: %s", name,error->message);
+  if(!(pixbuf=gtk_icon_theme_load_icon(it,name,size,0,&error))) {
+    GST_WARNING("Couldn't load %s %dx%d icon: %s",name,size,size,error->message);
     g_error_free(error);
     return gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,size,size);
     //return NULL;
