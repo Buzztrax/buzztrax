@@ -182,7 +182,8 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
     }
 
     gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
-    //GST_INFO("view=%p, visible rect: %d x %d, %d x %d",widget,vr.x,vr.y,vr.width,vr.height);
+    GST_INFO("view=%p, visible rect: %d x %d, %d x %d, alloc: %d x %d",
+      widget,vr.x,vr.y,vr.width,vr.height,widget->allocation.width,widget->allocation.height);
 
     //h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
     //w=vr.width;
@@ -204,13 +205,16 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
     }
 
     // draw loop-start/-end
+    // draw these always from 0 as they are dashed and we can't adjust the start of the dash pattern
     y=(gint)(self->priv->loop_start*h)-vr.y;
     if((y>=0) && (y<vr.height)) {
-      gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,vr.x+0,y,vr.x+w,y);
+      //gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,vr.x+0,y,vr.x+w,y);
+      gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,vr.x+w,y);
     }
     y=(gint)(self->priv->loop_end*h)-(1+vr.y);
     if((y>=0) && (y<vr.height)) {
-      gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,vr.x+0,y,vr.x+w,y);
+      //gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,vr.x+0,y,vr.x+w,y);
+      gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,vr.x+w,y);
     }
   }
   return(FALSE);

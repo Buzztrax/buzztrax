@@ -1,3 +1,12 @@
+2008-10-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Rework handling of allocations to fix horizontal scrolling.
+
+	* src/ui/edit/sequence-view.c:
+	  Always draw dashed lines from zero to avoid misallignments of
+	  patterns.
+
 2008-10-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/tools.c:

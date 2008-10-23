@@ -607,10 +607,23 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 static void on_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
-  GST_INFO("#### header label size %d x %d",allocation->width,allocation->height);
+  GST_DEBUG("#### header label size %d x %d",allocation->width,allocation->height);
 
   gtk_widget_set_size_request(self->priv->pos_header,-1,allocation->height);
 }
+
+/* DEBUG
+static void on_sequence_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
+  GtkRequisition requisition;
+  
+  gtk_widget_size_request(widget,&requisition);
+  GST_WARNING("#### header %s alloc:  %d x %d, req: %d x %d",
+    (gchar *)user_data,
+    allocation->width,allocation->height,
+    requisition.width,requisition.height
+    );
+}
+// DEBUG */
 
 static void on_mute_toggled(GtkToggleButton *togglebutton,gpointer user_data) {
   BtMachine *machine=BT_MACHINE(user_data);
@@ -2752,11 +2765,15 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_hsync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_hsync_window),GTK_SHADOW_NONE);
   self->priv->sequence_table_header=GTK_HBOX(gtk_hbox_new(FALSE,0));
-  // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
-  gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_table_header),SEQUENCE_CELL_WIDTH,-1);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_hsync_window),GTK_WIDGET(self->priv->sequence_table_header));
   hsync_viewport=gtk_bin_get_child(GTK_BIN(scrolled_hsync_window));
   gtk_viewport_set_shadow_type(GTK_VIEWPORT(hsync_viewport),GTK_SHADOW_NONE);
+  // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
+  gtk_widget_set_size_request(GTK_WIDGET(hsync_viewport),SEQUENCE_CELL_WIDTH,-1);
+  /* DEBUG
+  g_signal_connect(G_OBJECT(self->priv->sequence_table_header),"size-allocate",G_CALLBACK(on_sequence_header_size_allocate),(gpointer)"box");
+  g_signal_connect(G_OBJECT(self->priv->sequence_table_header),"size-allocate",G_CALLBACK(on_sequence_header_size_allocate),(gpointer)"vport");
+  // DEBUG */
   
   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_hsync_window), FALSE, FALSE, 0);
   g_signal_connect(G_OBJECT(scrolled_hsync_window), "button-press-event", G_CALLBACK(on_sequence_header_button_press_event), (gpointer)self);
