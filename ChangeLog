@@ -1,3 +1,9 @@
+2008-10-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-machines.c:
+	  Avoid relative scroll positions to become NAN (when window is big
+	  enough to not need scrolling).
+
 2008-10-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:

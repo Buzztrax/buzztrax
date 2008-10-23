@@ -645,10 +645,13 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
 
 static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  gdouble vs,ve,vp,val/*=gtk_adjustment_get_value(adjustment)*/;
+  gdouble vs,ve,vp,val,v;
   
   g_object_get(G_OBJECT(self->priv->vadjustment),"value",&val,"lower",&vs,"upper",&ve,"page-size",&vp,NULL);
-  self->priv->scroll_y=(val-vs)/(ve-vs-vp);
+  v=(ve-vs-vp);
+  if(v) {
+    self->priv->scroll_y=(val-vs)/(ve-vs-vp);
+  }
 
   if(self->priv->properties) {
     gchar str[G_ASCII_DTOSTR_BUF_SIZE];
@@ -660,10 +663,13 @@ static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 
 static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  gdouble vs,ve,vp,val/*=gtk_adjustment_get_value(adjustment)*/;
+  gdouble vs,ve,vp,val,v;
   
   g_object_get(G_OBJECT(self->priv->hadjustment),"value",&val,"lower",&vs,"upper",&ve,"page-size",&vp,NULL);
-  self->priv->scroll_x=(val-vs)/(ve-vs-vp);
+  v=(ve-vs-vp);
+  if(v) {
+    self->priv->scroll_x=(val-vs)/(ve-vs-vp);
+  }
 
   if(self->priv->properties) {
     gchar str[G_ASCII_DTOSTR_BUF_SIZE];
@@ -880,9 +886,14 @@ static void on_canvas_size_allocate(GtkWidget *widget,GtkAllocation *allocation,
   gtk_adjustment_set_value(self->priv->hadjustment,xs+((xe-xs-xp)*self->priv->scroll_x));
   g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
   gtk_adjustment_set_value(self->priv->vadjustment,ys+((ye-ys-yp)*self->priv->scroll_y));
-// DEBUG
-//  GST_WARNING("canvas size %d x %d",allocation->width,allocation->height);
-// DEBUG
+/* DEBUG
+   GST_WARNING("canvas: abs. scroll pos %lf x %lf, abs. scroll pos %lf x %lf",
+    xs+((xe-xs-xp)*self->priv->scroll_x),
+    ys+((ye-ys-yp)*self->priv->scroll_y),
+    self->priv->scroll_x,self->priv->scroll_y);
+
+  GST_WARNING("canvas size %d x %d",allocation->width,allocation->height);
+// DEBUG */
 }
 
 //-- helper methods
