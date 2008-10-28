@@ -202,6 +202,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   // called too early
   if(!main_window) return;
+
   // our page is not the current
   if(mode&UPDATE_COLUMN_UPDATE) {
     BtMainPages *pages;
@@ -212,7 +213,10 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     page_num=gtk_notebook_get_current_page(GTK_NOTEBOOK(pages));
     g_object_unref(pages);
 
-    if(page_num!=BT_MAIN_PAGES_PATTERNS_PAGE) return;
+    if(page_num!=BT_MAIN_PAGES_PATTERNS_PAGE) {
+      g_object_unref(main_window);
+      return;
+    }
   }
 
   g_object_get(main_window,"statusbar",&statusbar,NULL);
@@ -230,7 +234,6 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
       PatternColumnGroup *group;
       
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
-
       
       group = &self->priv->param_groups[self->priv->cursor_group];
       switch (group->type) {
@@ -271,6 +274,9 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
       if(property)
         blurb=g_param_spec_get_blurb(property);
       str=g_strdup_printf("%s%s%s",blurb,(*desc?": ":""),desc);
+    }
+    else {
+      GST_DEBUG("no or empty pattern");
     }
     g_object_set(statusbar,"status",(str?str:BT_MAIN_STATUSBAR_DEFAULT),NULL);
     g_free(str);
@@ -1456,6 +1462,8 @@ static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
+  // only set new text
+  pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);
   return(FALSE);
 }
 
@@ -1470,8 +1478,6 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       BtMachine *machine;
   
       GST_DEBUG("enter pattern page");
-      // only set new text
-      pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);
       if((machine=bt_main_page_patterns_get_current_machine(self))) {
         // refresh to update colors in the menu (as usage might have changed)
         pattern_menu_refresh(self,machine);

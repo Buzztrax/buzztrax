@@ -308,11 +308,58 @@ static gboolean on_button_release_event(GtkWidget *widget, GdkEventButton *event
 #if GST_CHECK_VERSION(0,10,14)
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
 
   if(event->button == 1 && event->type == GDK_BUTTON_RELEASE) {
     GstController *ctrl;
     if((ctrl=gst_object_get_controller(G_OBJECT(param_parent)))) {
+      // if no pattern event at ts=0
+      {
+        GstElement *machine;
+        gulong param;
+        glong voice=-1;
+       
+        g_object_get(self->priv->machine,"machine",&machine,NULL);
+        
+        if((param_parent!=GST_OBJECT(machine)) && GST_IS_CHILD_PROXY(machine)) { 
+          gulong i,voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(machine));
+          
+          for(i=0;i<voices;i++) {
+            if(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),i)==param_parent) {
+              voice=i;
+              break;
+            }
+          }
+        }
+        
+        // update the default value at ts=0
+        // @idea: can we have api to set the default?
+        if(voice==-1) {
+          GST_WARNING("updating global param at ts=0");
+          param=bt_machine_get_global_param_index(self->priv->machine,property_name,NULL);
+          // if(bt_machine_has_global_param_default_set(self->priv->machine,param))
+          bt_machine_global_controller_change_value(self->priv->machine,param,G_GUINT64_CONSTANT(0),NULL);
+        }
+        else {
+          GST_WARNING("updating voice %d param at ts=0",voice);
+          param=bt_machine_get_voice_param_index(self->priv->machine,property_name,NULL);
+          // if(bt_machine_has_voice_param_default_set(self->priv->machine,param,voice))
+          bt_machine_voice_controller_change_value(self->priv->machine,param,voice,G_GUINT64_CONSTANT(0),NULL);
+        }
+        g_object_unref(machine);
+      }
+      /*
+       * @todo: it should actualy postpone the disable to the next timestamp
+       * (not possible right now).
+       *
+       * @idea: can we have a livecontrolsource that subclasses interpolationcs
+       * - when enabling, if would need to delay the enabled to the next control-point
+       * - it would need to peek at the control-point list :/
+       */
       gst_controller_set_property_disabled(ctrl,(gchar *)property_name,FALSE);
+    }
+    else {
+      GST_WARNING("param not controlled");
     }
   }
 #endif

@@ -589,6 +589,7 @@ static GObject* bt_edit_application_construct (GType type, guint n_construct_par
   if(!(self->priv->main_window=bt_main_window_new(self))) {
     goto Error;
   }
+  g_object_add_weak_pointer(G_OBJECT(self->priv->main_window),(gpointer*)&self->priv->main_window);
 #ifdef USE_HILDON
   hildon_program_add_window(HILDON_PROGRAM(hildon_program_get_instance()),
     HILDON_WINDOW(self->priv->main_window));

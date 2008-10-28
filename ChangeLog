@@ -1,3 +1,18 @@
+2008-10-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Add todos.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Reset default controller values at ts=0, after live changes. Needs
+	  api in machine.c for final fix.
+
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Fix one refcount leak. Fix access to dangling pointer shadowed by the
+	  leak. Fix initial statusbar update on pattern-page.
+
 2008-10-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:

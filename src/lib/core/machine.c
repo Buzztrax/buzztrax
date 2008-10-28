@@ -2147,6 +2147,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
   param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
   
   if(!timestamp && !value) {
+    // @todo: need to remember that we set a sdefault default, so that we can update it
     g_value_init(&def_value,GLOBAL_PARAM_TYPE(param));
     g_object_get_property(param_parent,GLOBAL_PARAM_NAME(param),&def_value);
     value=&def_value;
@@ -2255,6 +2256,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
   param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice));
 
   if(!timestamp && !value) {
+    // @todo: need to remember that we set a set default, so that we can update it
     g_value_init(&def_value,VOICE_PARAM_TYPE(param));
     g_object_get_property(param_parent,VOICE_PARAM_NAME(param),&def_value);
     value=&def_value;

@@ -175,7 +175,7 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_signal_emit_by_name(G_OBJECT(main_window),"delete_event",(gpointer)main_window,&cont);
   g_object_unref(main_window);
-  GST_DEBUG("  result = %d",cont);
+  GST_INFO("  result = %d",cont);
   if(!cont) {
     gtk_widget_destroy(GTK_WIDGET(main_window));
   }
