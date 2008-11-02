@@ -117,7 +117,7 @@ msgstr "Buzztard Kern Optionen anzeigen"
 #. * the "about" box. Example: Stefan 'ensonic' Kost <ensonic@users.sf.net>
 #: ../src/ui/edit/about-dialog.c:75
 msgid "translator-credits"
-msgstr ""
+msgstr "Stefan 'ensonic' Kost <ensonic@users.sf.net>"
 
 #: ../src/ui/edit/about-dialog.c:77 ../src/ui/edit/about-dialog.c:78
 #, fuzzy, c-format

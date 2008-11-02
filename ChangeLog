@@ -1,5 +1,10 @@
 2008-11-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* po/de.po:
+	  Add official german translations.
+
+2008-11-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/Makefile.am:
 	  And fix "make dist".
 
