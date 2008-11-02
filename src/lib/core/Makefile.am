@@ -26,7 +26,7 @@ libbuzztard_core_la_SOURCES = \
 	libbuzztard-core/version.h \
 	buzzcallbacks.c \
 	\
-	application.c libbuzztard-core/application.h libbuzztard-core/application-methods.h libbuzztard-core/application-private.h \
+	application.c libbuzztard-core/application.h libbuzztard-core/application-methods.h \
 	$(GCONF_SETTINGS_SRC) \
 	machine.c libbuzztard-core/machine.h libbuzztard-core/machine-methods.h libbuzztard-core/machine-private.h \
 	pattern.c libbuzztard-core/pattern.h libbuzztard-core/pattern-methods.h \
