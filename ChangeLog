@@ -1,5 +1,16 @@
 2008-11-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* po/de.po:
+	* src/lib/core/core.c:
+	* src/lib/ic/ic.c:
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/bt-edit.c:
+	  Fix gettext handling.
+
+2008-11-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Write news.
 

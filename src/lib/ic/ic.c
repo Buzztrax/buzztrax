@@ -64,7 +64,9 @@ static gboolean btic_init_pre (void) {
 
 #ifdef ENABLE_NLS
   setlocale (LC_ALL, "");
-  bindtextdomain ("bt-core", LOCALEDIR);
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+  textdomain (GETTEXT_PACKAGE);
 #endif /* ENABLE_NLS */
 
   //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);

@@ -54,24 +54,27 @@ static void on_about_dialog_url_clicked(GtkAboutDialog *about, const gchar *link
 
 static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
   GtkWidget *news,*news_view;
-  static const gchar *authors[] = {
+  const gchar *authors[] = {
     "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
     "Krzysztof Foltman <wdev@foltman.com>",
     "Thomas 'waffel' Wabner <waffel@users.sf.net>",
     "Patric Schmitz  <berzerka@users.sf.net>",
     NULL
   };
-  static const gchar *documenters[] = {
+  const gchar *documenters[] = {
     "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
     NULL
   };
-  static const gchar *artists[] = {
+  const gchar *artists[] = {
     "Marc 'marcbroe' Broekhuis <marcbroe@gmail.com>",
     "Jakub Steiner <jimmac@ximian.com>",
     NULL
   };
+  /* Note to translators: put here your name and email so it will show up in
+   * the "about" box. Example: Stefan 'ensonic' Kost <ensonic@users.sf.net> */
+  gchar *translators =_("translator-credits");
   
-  gchar *copyright=g_alloca(strlen(_("Copyright \xc2\xa9 2003-%d Buzztard developer team"))+3);
+  gchar *copyright = g_alloca(strlen(_("Copyright \xc2\xa9 2003-%d Buzztard developer team"))+3);
   sprintf(copyright,_("Copyright \xc2\xa9 2003-%d Buzztard developer team"),2008);
 
   /* we can get logo via icon name, so this here is just for educational purpose
@@ -109,6 +112,7 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
       "Boston, MA 02111-1307, USA."
     ),
     "logo-icon-name",PACKAGE_NAME,
+    "translator-credits",(!strcmp(translators,"translator-credits"))?translators:NULL,
     "version", PACKAGE_VERSION,
     "website","http://www.buzztard.org",
     "wrap-license",TRUE,
