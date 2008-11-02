@@ -190,6 +190,7 @@ struct _BtMachinePrivate {
   GParamSpec **global_props,**voice_props;
   guint *global_flags,*voice_flags;
   GValue *global_no_val,*voice_no_val;
+  GQuark *global_quarks,*voice_quarks;
 
   /* event patterns */
   GList *patterns;  // each entry points to BtPattern
@@ -959,13 +960,20 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
     self->priv->global_props =(GParamSpec ** )g_new0(gpointer,self->priv->global_params);
     self->priv->global_flags =(guint *       )g_new0(guint   ,self->priv->global_params);
     self->priv->global_no_val=(GValue *      )g_new0(GValue  ,self->priv->global_params);
+    self->priv->global_quarks=(GQuark *      )g_new0(GQuark  ,self->priv->global_params);
+
     for(i=j=0;i<number_of_properties;i++) {
       property=properties[i];
       if(property && property->flags&GST_PARAM_CONTROLLABLE) {
+        gchar *qname=g_strdup_printf("BtMachine::%s",property->name);
+        
         GST_DEBUG("    adding global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         // add global param
         self->priv->global_props[j]=property;
         self->priv->global_flags[j]=GSTBT_PROPERTY_META_STATE;
+        self->priv->global_quarks[j]=g_quark_from_string(qname);
+        g_free(qname);
+
         if(GSTBT_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
           gconstpointer const has_meta=g_param_spec_get_qdata(property,gstbt_property_meta_quark);
 
@@ -1009,14 +1017,20 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
         self->priv->voice_props =(GParamSpec ** )g_new0(gpointer,self->priv->voice_params);
         self->priv->voice_flags =(guint *       )g_new0(guint   ,self->priv->voice_params);
         self->priv->voice_no_val=(GValue *      )g_new0(GValue  ,self->priv->voice_params);
+        self->priv->voice_quarks=(GQuark *      )g_new0(GQuark  ,self->priv->voice_params);
 
         for(i=j=0;i<number_of_properties;i++) {
           property=properties[i];
           if(property->flags&GST_PARAM_CONTROLLABLE) {
+            gchar *qname=g_strdup_printf("BtMachine::%s",property->name);
+
             GST_DEBUG("    adding voice_param %p, [%d/%d] \"%s\"",property, j,self->priv->voice_params,property->name);
             // add voice param
             self->priv->voice_props[j]=property;
             self->priv->voice_flags[j]=GSTBT_PROPERTY_META_STATE;
+            self->priv->voice_quarks[j]=g_quark_from_string(qname);
+            g_free(qname);
+
             if(GSTBT_IS_PROPERTY_META(voice_child)) {
               gconstpointer const has_meta=g_param_spec_get_qdata(property,gstbt_property_meta_quark);
 
@@ -1732,6 +1746,52 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine * const self, const 
 }
 
 /**
+ * bt_machine_has_global_param_default_set:
+ * @self: the machine to check params from
+ * @index: the offset in the list of global params
+ *
+ * Tests if the global param uses the default at timestamp=0. Parameters have a
+ * default if there is no control-point at that timestamp. When interactively
+ * changing the parameter, the default needs to be updated by calling
+ * bt_machine_global_controller_change_value().
+ *
+ * Returns: %TRUE if it has a default there
+ */
+gboolean bt_machine_has_global_param_default_set(const BtMachine * const self, const gulong index) {
+  GObject *param_parent;
+
+  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail(index<self->priv->global_params,FALSE);
+  
+  param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
+  return GPOINTER_TO_INT(g_object_get_qdata(param_parent,self->priv->global_quarks[index]));
+}
+
+/**
+ * bt_machine_has_voice_param_default_set:
+ * @self: the machine to check params from
+ * @voice: the voice number
+ * @index: the offset in the list of global params
+ *
+ * Tests if the voice param uses the default at timestamp=0. Parameters have a
+ * default if there is no control-point at that timestamp. When interactively
+ * changing the parameter, the default needs to be updated by calling
+ * bt_machine_global_controller_change_value().
+ *
+ * Returns: %TRUE if it has a default there
+ */
+gboolean bt_machine_has_voice_param_default_set(const BtMachine * const self, const gulong voice, const gulong index) {
+  GObject *param_parent;
+
+  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail(index<self->priv->voice_params,FALSE);
+
+  param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice));
+  return GPOINTER_TO_INT(g_object_get_qdata(param_parent,self->priv->voice_quarks[index]));
+}
+
+
+/**
  * bt_machine_get_global_param_index:
  * @self: the machine to search for the global param
  * @name: the name of the global param
@@ -2133,6 +2193,8 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const
  *
  * Depending on wheter the given value is NULL, sets or unsets the controller
  * value for the specified param and at the given time.
+ * If @timestamp is 0 and @value is %NULL it set a default value for the start
+ * of the controller sequence, taken from the current value of the parameter.
  */
 void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue *value) {
   GObject *param_parent;
@@ -2146,11 +2208,17 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
 
   param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
   
-  if(!timestamp && !value) {
-    // @todo: need to remember that we set a sdefault default, so that we can update it
-    g_value_init(&def_value,GLOBAL_PARAM_TYPE(param));
-    g_object_get_property(param_parent,GLOBAL_PARAM_NAME(param),&def_value);
-    value=&def_value;
+  if(!timestamp) {
+    if(!value) {
+      g_value_init(&def_value,GLOBAL_PARAM_TYPE(param));
+      g_object_get_property(param_parent,GLOBAL_PARAM_NAME(param),&def_value);
+      value=&def_value;
+      // need to remember that we set a sdefault default, so that we can update it
+      g_object_set_qdata(param_parent,self->priv->global_quarks[param],GINT_TO_POINTER(TRUE));
+    }
+    else {
+      g_object_set_qdata(param_parent,self->priv->global_quarks[param],GINT_TO_POINTER(FALSE));
+    }
   }
 
   if(value) {
@@ -2233,15 +2301,17 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
 /**
  * bt_machine_voice_controller_change_value:
  * @self: the machine to change the param for
- * @param: the voice parameter index
  * @voice: the voice number
+ * @param: the voice parameter index
  * @timestamp: the time stamp of the change
  * @value: the new value or %NULL to unset a previous one
  *
  * Depending on wheter the given value is NULL, sets or unsets the controller
  * value for the specified param and at the given time.
+ * If @timestamp is 0 and @value is %NULL it set a default value for the start
+ * of the controller sequence, taken from the current value of the parameter.
  */
-void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong param, const gulong voice, const GstClockTime timestamp, GValue *value) {
+void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong voice, const gulong param, const GstClockTime timestamp, GValue *value) {
   GObject *param_parent;
   GValue def_value={0,};
 #if GST_CHECK_VERSION(0,10,14)
@@ -2255,11 +2325,17 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
 
   param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice));
 
-  if(!timestamp && !value) {
-    // @todo: need to remember that we set a set default, so that we can update it
-    g_value_init(&def_value,VOICE_PARAM_TYPE(param));
-    g_object_get_property(param_parent,VOICE_PARAM_NAME(param),&def_value);
-    value=&def_value;
+  if(!timestamp) {
+    if(!value) {
+      g_value_init(&def_value,VOICE_PARAM_TYPE(param));
+      g_object_get_property(param_parent,VOICE_PARAM_NAME(param),&def_value);
+      value=&def_value;
+      // need to remember that we set a set default, so that we can update it
+      g_object_set_qdata(param_parent,self->priv->voice_quarks[param],GINT_TO_POINTER(TRUE));
+    }
+    else {
+      g_object_set_qdata(param_parent,self->priv->voice_quarks[param],GINT_TO_POINTER(FALSE));
+    }
   }
 
   if(value) {
@@ -3224,6 +3300,8 @@ static void bt_machine_finalize(GObject * const object) {
       g_value_unset(&self->priv->voice_no_val[i]);
   }
 
+  g_free(self->priv->voice_quarks);
+  g_free(self->priv->global_quarks);
   g_free(self->priv->voice_no_val);
   g_free(self->priv->global_no_val);
   g_free(self->priv->voice_flags);
@@ -3260,6 +3338,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
 
   // @idea: g_type_qname(BT_TYPE_WIRE);
   error_domain=g_quark_from_static_string("BtMachine");
+  
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePrivate));
 

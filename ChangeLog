@@ -1,3 +1,13 @@
+2008-11-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/sequence.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Add API to reset default values only if there is no control-point at
+	  ts=0. Reorder 'voice' param in machine api for consistency.
+
 2008-10-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

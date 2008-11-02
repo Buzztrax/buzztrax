@@ -627,7 +627,7 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
   // set controller value
   //if(value) {
     const GstClockTime timestamp=bt_sequence_get_tick_time(self,tick);
-    bt_machine_voice_controller_change_value(machine,param,voice,timestamp,value);
+    bt_machine_voice_controller_change_value(machine,voice,param,timestamp,value);
   //}
   return(TRUE);
 }
