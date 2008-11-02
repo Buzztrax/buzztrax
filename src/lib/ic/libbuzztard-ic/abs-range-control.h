@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "control.h"
+
 /* type macros */
 
 #define BTIC_TYPE_ABS_RANGE_CONTROL            (btic_abs_range_control_get_type ())

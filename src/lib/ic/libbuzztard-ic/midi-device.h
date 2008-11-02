@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "device.h"
+
 /* type macros */
 
 #define BTIC_TYPE_MIDI_DEVICE            (btic_midi_device_get_type ())

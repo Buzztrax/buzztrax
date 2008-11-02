@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "control.h"
+
 /* type macros */
 
 #define BTIC_TYPE_TRIGGER_CONTROL            (btic_trigger_control_get_type ())
