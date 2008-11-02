@@ -1,5 +1,13 @@
 2008-11-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Write news.
+
+	* TODO:
+	  Planning.
+
+2008-11-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/libbuzztard-ic/abs-range-control.h:
 	* src/lib/ic/libbuzztard-ic/midi-device.h:
 	* src/lib/ic/libbuzztard-ic/trigger-control.h:

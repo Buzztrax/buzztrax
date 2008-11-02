@@ -53,3 +53,17 @@ $Id$
       BtSongIOBuzz   -> BtSongIONativeBMW, BtSongIONativeBMX
       (does it make sense here?)
 
+* controller api
+  * defer controller reactivation
+    * gst_interpolation_control_source_set_property_disabled(ctrl,property_name,ts,FALSE);
+      - enable/disable property at next timestamp after 'ts'
+      - in the UI we don't know about current ts
+    * when a ControlSrc is disabled and we get notifies for the param, we could use this
+      as a last value and use last_requested_value->timestamp for the timestamp
+  * allow to modify interpolation control sequence inplace (scale time or value range)
+    - we need a gst_interpolation_control_foreach(cs, callback, user_data)
+    - the callback will be called for each controlpoint and can change the
+      timestamp and/or value
+    - need a way to do it without exposing GstControlPoint internals
+      - void callback(GstClockTime *timestamp, GValue *value, gpointer user_data);
+
