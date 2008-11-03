@@ -1,9 +1,13 @@
+2008/12 ========================================================================
+
+* fixed i18n (domain)
+
 2008/11 ========================================================================
 
 Beginning of October I've been at the Boston Gnome summit and learning about the
-GObject Introspect project [1]. The project will help to add language bindings
+GObject Introspection project [1]. The project will help to add language bindings
 to libraries in a easy and consistent way. I added the stuff to buzztard libs and
-it sort of works a bit already.
+it sort of works a bit already. Cool!
 
 I was showing buzztard to some people at the summit and noticed that samples are
 not always imported correctly from buzz songs. This is now fixed. I've tries all
@@ -12,7 +16,7 @@ implemented some missing methods in the buzz emulation layer - sample playback
 seems to be fully emulated now. 
 
 I also looked into some ui issues. One was an obscure repaint issue with gnome-
-canvas that we use in the machine view. OpenSUSE released an update recently
+canvas that we use in the machine view [2]. OpenSUSE released an update recently
 that has the fix. Unfortunately there is no tarball release that has it. I fixed
 another issue where the canvas became blank. I keep the content position fixed
 when resizing the window. I was also doing this when the window was bigger than
@@ -31,6 +35,7 @@ that we need some API to keep the sequence disabled until the next
 control-point.
 
 [1] http://live.gnome.org/GObjectIntrospection
+[2] http://bugzilla.gnome.org/show_bug.cgi?id=553997
 
 2008/10 ========================================================================
 

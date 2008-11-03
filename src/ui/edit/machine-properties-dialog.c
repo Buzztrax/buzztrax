@@ -37,6 +37,8 @@
 
 #include "bt-edit.h"
 
+#define DEFAULT_LABEL_WIDTH 70
+
 //-- property ids
 
 enum {
@@ -1264,7 +1266,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
          * hack would be to set some 'good' default size
          * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
          */
-        gtk_widget_set_size_request(widget2,50,-1);
+        gtk_widget_set_size_request(widget2,DEFAULT_LABEL_WIDTH,-1);
         if(GTK_IS_LABEL(widget2)) {
           gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
           gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
@@ -1396,7 +1398,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
          * hack would be to set some 'good' default size
          * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
          */
-        gtk_widget_set_size_request(widget2,50,-1);
+        gtk_widget_set_size_request(widget2,DEFAULT_LABEL_WIDTH,-1);
         if(GTK_IS_LABEL(widget2)) {
           gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
           gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
