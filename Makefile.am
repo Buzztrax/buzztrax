@@ -99,6 +99,13 @@ stats::
 splint::
 	for dir in $(SRCDIRS); do $(MAKE) -C $$dir splint ; done
 
+# -k2 in sort for Tranditional McCabe Cyclomatic Complexity
+cc10:
+ @pmccabe `find src -name '*.c'` | sort -nr | awk '($$1 > 10)'
+
+cc20:
+ @pmccabe `find src -name '*.c'` | sort -nr | awk '($$1 > 20)'
+
 help::
 	@echo "make coverage                -- run all checks and generate html coverage report"
 	@echo "                                only availble when built using --enable-coverage"
