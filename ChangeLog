@@ -1,3 +1,10 @@
+2008-11-06  Stefan Kost  <ensonic@users.sf.net>
+
+	patch by: Marc Broekhuis <deloun@gmail.com>
+
+	* Makefile.am:
+	  Use real tabs.
+
 2008-11-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:
