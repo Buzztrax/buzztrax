@@ -1,3 +1,9 @@
+2008-11-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	 gir typelibs are now in libdir.
+
 2008-11-06  Stefan Kost  <ensonic@users.sf.net>
 
 	patch by: Marc Broekhuis <deloun@gmail.com>

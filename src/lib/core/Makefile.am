@@ -99,7 +99,7 @@ BUILT_GIRSOURCES = BuzztardCore-0.0.gir
 girdir = $(datadir)/gir
 dist_gir_DATA = $(BUILT_GIRSOURCES)
 
-typelibsdir = $(datadir)/girepository
+typelibsdir = $(libdir)/girepository
 typelibs_DATA = $(dist_gir_DATA:.gir=.typelib)
 
 TXML = $(dist_gir_DATA:.gir=.gir.txml)
