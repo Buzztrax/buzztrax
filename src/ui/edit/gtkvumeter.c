@@ -97,14 +97,12 @@ static void gtk_vumeter_init (GtkVUMeter *vumeter)
     vumeter->scale = GTK_VUMETER_SCALE_LINEAR;
 }
 
-static void gtk_vumeter_class_init (GtkVUMeterClass *class)
+static void gtk_vumeter_class_init (GtkVUMeterClass *klass)
 {
-    GtkObjectClass *object_class;
-    GtkWidgetClass *widget_class;
+    GtkObjectClass *object_class = (GtkObjectClass*) klass;
+    GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
-    object_class = (GtkObjectClass*) class;
-    widget_class = (GtkWidgetClass*) class;
-    parent_class = gtk_type_class(gtk_widget_get_type());
+    parent_class = g_type_class_peek_parent (klass);
 
     object_class->destroy = gtk_vumeter_destroy;
 
