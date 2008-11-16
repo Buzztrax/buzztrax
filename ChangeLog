@@ -1,3 +1,10 @@
+2008-11-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/LINGUAS:
+	* po/de.po:
+	* po/nl.po (added):
+	  Add dutch translations. Fix fuzzyness of german ones.
+
 2008-11-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/gtkvumeter.c:

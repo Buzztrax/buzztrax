@@ -77,7 +77,6 @@ msgid "Show buzztard interaction controller options"
 msgstr "Buzztard Interaction Controller Optionen anzeigen"
 
 #: ../src/ui/cmd/bt-cmd.c:67 ../src/ui/edit/bt-edit.c:77
-#, fuzzy
 msgid "Print application version"
 msgstr "Die Version der Anwendung ausgeben"
 
@@ -104,14 +103,12 @@ msgstr "Ausgabedateiname"
 
 #. g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
 #: ../src/ui/cmd/bt-cmd.c:90
-#, fuzzy
 msgid "buzztard-cmd options"
 msgstr "Buzztard Kern Optionen"
 
 #: ../src/ui/cmd/bt-cmd.c:90
-#, fuzzy
 msgid "Show buzztard-cmd options"
-msgstr "Buzztard Kern Optionen anzeigen"
+msgstr "buzztard-cmd Optionen anzeigen"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Kost <ensonic@users.sf.net>
@@ -120,9 +117,9 @@ msgid "translator-credits"
 msgstr "Stefan 'ensonic' Kost <ensonic@users.sf.net>"
 
 #: ../src/ui/edit/about-dialog.c:77 ../src/ui/edit/about-dialog.c:78
-#, fuzzy, c-format
+#, c-format
 msgid "Copyright © 2003-%d Buzztard developer team"
-msgstr "Copyright © 2003-2008 Buzztard Entwicklerteam"
+msgstr "Copyright © 2003-%d Buzztard Entwicklerteam"
 
 #: ../src/ui/edit/about-dialog.c:94
 msgid "Music production environment"
@@ -171,14 +168,12 @@ msgstr ""
 
 #. g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
 #: ../src/ui/edit/bt-edit.c:101
-#, fuzzy
 msgid "buzztard-edit options"
-msgstr "bt-edit optionen"
+msgstr "buzztard-edit optionen"
 
 #: ../src/ui/edit/bt-edit.c:101
-#, fuzzy
 msgid "Show buzztard-edit options"
-msgstr "bt-edit Optionen anzeigen"
+msgstr "buzztard-edit Optionen anzeigen"
 
 #: ../src/ui/edit/edit-application.c:110
 msgid "-> You will not see any level-meters."
@@ -224,7 +219,6 @@ msgstr ""
 "%s"
 
 #: ../src/ui/edit/machine-actions.c:91
-#, fuzzy
 msgid "About..."
 msgstr "Über ..."
 
@@ -235,7 +229,6 @@ msgstr "Gerät '%s' entfernen"
 
 #. @todo: don't ask if machine has no patterns and is not connected
 #: ../src/ui/edit/machine-canvas-item.c:477
-#, fuzzy
 msgid "Delete machine..."
 msgstr "Gerät entfernen ..."
 
@@ -257,7 +250,6 @@ msgid "Bypass"
 msgstr "Durchschleifen"
 
 #: ../src/ui/edit/machine-canvas-item.c:602
-#, fuzzy
 msgid "Rename..."
 msgstr "Umbenennen ..."
 
@@ -388,9 +380,8 @@ msgid "Show/Hide preset pane"
 msgstr "Voreinstellungen anzeigen/verstecken"
 
 #: ../src/ui/edit/machine-rename-dialog.c:99
-#, fuzzy
 msgid "rename machine"
-msgstr "Stummschaltung für alle Machinen aufheben"
+msgstr "Gerät umbenennen"
 
 #. set a title
 #: ../src/ui/edit/machine-rename-dialog.c:115
@@ -399,7 +390,7 @@ msgid "%s name"
 msgstr "%s Name"
 
 #: ../src/ui/edit/main-menu.c:99 ../src/ui/edit/main-window.c:520
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while loading the song from file '%s'"
 msgstr "Beim Laden des Songs '%s' trat ein Fehler auf"
 
@@ -432,9 +423,8 @@ msgid "Open"
 msgstr "Öffnen"
 
 #: ../src/ui/edit/main-menu.c:543
-#, fuzzy
 msgid "_Recently used"
-msgstr "Zulezt ve_rwendete"
+msgstr "Zuletzt ve_rwendete"
 
 #: ../src/ui/edit/main-menu.c:576 ../src/ui/edit/main-menu.c:592
 #: ../src/ui/edit/main-menu.c:602 ../src/ui/edit/main-menu.c:641
@@ -670,7 +660,6 @@ msgid "machine view"
 msgstr "Geräteansicht"
 
 #: ../src/ui/edit/main-page-machines.c:991
-#, fuzzy
 msgid "machine view toolbar"
 msgstr "Maschienenansichts-Werkzeugleiste"
 
@@ -734,7 +723,6 @@ msgid "pattern view"
 msgstr "Fragmentansicht"
 
 #: ../src/ui/edit/main-page-patterns.c:1947
-#, fuzzy
 msgid "pattern view toolbar"
 msgstr "Fragmentansichts-Werkzeugleiste"
 
@@ -777,22 +765,18 @@ msgid "Remove last track"
 msgstr "Letzte Spur entfernen"
 
 #: ../src/ui/edit/main-page-patterns.c:2104
-#, fuzzy
 msgid "New pattern ..."
 msgstr "Neues Fragment ..."
 
 #: ../src/ui/edit/main-page-patterns.c:2113
-#, fuzzy
 msgid "Pattern properties..."
 msgstr "Fragmenteigenschaften ..."
 
 #: ../src/ui/edit/main-page-patterns.c:2122
-#, fuzzy
 msgid "Remove pattern..."
 msgstr "Fragment entfernen ..."
 
 #: ../src/ui/edit/main-page-patterns.c:2131
-#, fuzzy
 msgid "Copy pattern..."
 msgstr "Fragment kopieren ..."
 
@@ -826,7 +810,6 @@ msgid "  break"
 msgstr "  abbrechen"
 
 #: ../src/ui/edit/main-page-sequence.c:1333
-#, fuzzy
 msgid "  bypass"
 msgstr "durchschleifen"
 
@@ -839,7 +822,6 @@ msgid "sequence view"
 msgstr "Sequenzansicht"
 
 #: ../src/ui/edit/main-page-sequence.c:2631
-#, fuzzy
 msgid "sequence view toolbar"
 msgstr "Sequenzansicht Werkzeugleiste"
 
@@ -893,7 +875,6 @@ msgid "wave table view"
 msgstr "Wellenformtabellenansicht"
 
 #: ../src/ui/edit/main-page-waves.c:1048
-#, fuzzy
 msgid "sample list toolbar"
 msgstr "Samplelisten Werkzeugleiste"
 
@@ -932,7 +913,6 @@ msgid "Loop"
 msgstr "Wiederholen"
 
 #: ../src/ui/edit/main-page-waves.c:1123
-#, fuzzy
 msgid "sample browser toolbar"
 msgstr "Samplebrowser Werkzeugleiste"
 
@@ -949,7 +929,6 @@ msgid "Load current sample into selected wave table entry"
 msgstr "Aktuelles Sample in den ausgewählten Wellenformeintrag laden"
 
 #: ../src/ui/edit/main-page-waves.c:1162
-#, fuzzy
 msgid "sample edit toolbar"
 msgstr "Sampleeditor Werkzeugleiste"
 
@@ -1067,7 +1046,6 @@ msgid "A problem occurred"
 msgstr "Ein Fehler trat auf"
 
 #: ../src/ui/edit/main-toolbar.c:589
-#, fuzzy
 msgid "main toolbar"
 msgstr "Geräteansichts-Werkzeugleiste"
 
@@ -1114,7 +1092,7 @@ msgid "saved"
 msgstr "gespeichert"
 
 #: ../src/ui/edit/main-window.c:222
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while trying to load the song from file '%s'"
 msgstr "Beim Laden des Songs '%s' trat ein Fehler auf"
 
@@ -1123,7 +1101,6 @@ msgid "main window"
 msgstr "Geräteansicht"
 
 #: ../src/ui/edit/main-window.c:412
-#, fuzzy
 msgid "Really quit?"
 msgstr "Wirklich beenden ?"
 
@@ -1133,7 +1110,6 @@ msgstr "Alle ungespeicherten Änderungen werden dann verloren gehen."
 
 #. @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
 #: ../src/ui/edit/main-window.c:436
-#, fuzzy
 msgid "New song?"
 msgstr "Neuen Song ?"
 
@@ -1142,7 +1118,7 @@ msgid "Open a song"
 msgstr "Öffnen"
 
 #: ../src/ui/edit/main-window.c:560
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while saving the song to file '%s'."
 msgstr "Beim Speichern des Songs '%s' trat ein Fehler auf."
 
@@ -1166,12 +1142,12 @@ msgstr ""
 "speichern."
 
 #: ../src/ui/edit/main-window.c:699
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while trying to open the file '%s' for writing: %s"
 msgstr "Beim Öffnen des Songs '%s' zum Schreibzugriff trat ein Fehler auf: %s"
 
 #: ../src/ui/edit/main-window.c:711
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while trying to save the song to file '%s'."
 msgstr "Beim Speichern des Songs '%s' trat ein Fehler auf."
 
@@ -1191,7 +1167,6 @@ msgid "Missing GStreamer elements"
 msgstr "Fehlende GStreamer Elemente"
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:152
-#, fuzzy
 msgid ""
 "The elements listed below are missing from your installation, but are "
 "required."
@@ -1200,7 +1175,6 @@ msgstr ""
 "werden jedoch benötigt."
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:192
-#, fuzzy
 msgid ""
 "The elements listed below are missing from your installation, but are "
 "recommended for full functionality."
@@ -1405,7 +1379,6 @@ msgid "Disconnect"
 msgstr "Trennen"
 
 #: ../src/ui/edit/wire-canvas-item.c:805
-#, fuzzy
 msgid "Signal Analysis..."
 msgstr "Signal Analyse ..."
 
