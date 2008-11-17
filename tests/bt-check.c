@@ -115,6 +115,8 @@ static void check_print_handler(const gchar * const message) {
     FILE *logfile;
     gboolean add_nl=FALSE;
     guint sl=strlen(message);
+    size_t written;
+
     //-- check if messages has no newline
     if((sl>1) && (message[sl-1]!='\n')) add_nl=TRUE;
 
@@ -124,8 +126,8 @@ static void check_print_handler(const gchar * const message) {
     else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
 
     if((logfile=fopen(__log_file_name, "a")) || (logfile=fopen(__log_file_name, "w"))) {
-      (void)fwrite(message,strlen(message),1,logfile);
-      if(add_nl) (void)fwrite("\n",1,1,logfile);
+      written=fwrite(message,strlen(message),1,logfile);
+      if(add_nl) written=fwrite("\n",1,1,logfile);
       fclose(logfile);
     }
     else { /* Fall back to console output if unable to open file */
@@ -748,16 +750,18 @@ void check_setup_test_server(void) {
 
       // read pid
       if((pid_file=fopen(lock_file,"rt"))) {
-        fgets(pid_str,20,pid_file);
+        gchar *pid_str_res=fgets(pid_str,20,pid_file);
         fclose(pid_file);
 
-        pid=atol(pid_str);
-        g_sprintf(proc_file,"/proc/%d",pid);
-        // check proc entry
-        if(!g_file_test(proc_file, G_FILE_TEST_EXISTS)) {
-          // try to remove file and reuse display number
-          if(!g_unlink(lock_file) && !g_unlink(display_file)) {
-            found=TRUE;
+        if(pid_str_res) {
+          pid=atol(pid_str);
+          g_sprintf(proc_file,"/proc/%d",pid);
+          // check proc entry
+          if(!g_file_test(proc_file, G_FILE_TEST_EXISTS)) {
+            // try to remove file and reuse display number
+            if(!g_unlink(lock_file) && !g_unlink(display_file)) {
+              found=TRUE;
+            }
           }
         }
       }
