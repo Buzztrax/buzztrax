@@ -1,6 +1,6 @@
 # http://live.gnome.org/GObjectIntrospection
 # cd /home/ensonic/projects/pybank
-# PYTHONPATH=$PWD python ~/projects/buzztard/buzztard/design/bindings/play.py
+# GI_TYPELIB_PATH=/home/ensonic/buzztard/lib/girepository PYTHONPATH=$PWD python ~/projects/buzztard/buzztard/design/bindings/play.py
 #
 
 import bank

@@ -470,7 +470,9 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   
   g_object_get(G_OBJECT(dst),"machine",&dst_machine,NULL);
   if((pad=gst_element_get_static_pad(dst_machine,"sink"))) {
+    // this does not work for unlinked pads
     if((caps=gst_pad_get_allowed_caps(pad))) {
+    //if((caps=gst_pad_get_caps(pad))) {
       GstStructure *structure;
       gint channels=1;
       
@@ -505,7 +507,13 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
           g_object_set(G_OBJECT (machines[PART_PAN]),"method",1,NULL);
         }
       }
+      else {
+        GST_DEBUG("channels on wire.dst=1, no panorama needed");
+      }
       gst_caps_unref(caps);
+    }
+    else {
+      GST_INFO("empty caps :(");
     }
     gst_object_unref(pad);
   }
@@ -549,7 +557,9 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   if(!res) {
     GST_INFO("failed to link the machines");
     // print out the content of both machines (using GST_DEBUG)
-    bt_machine_dbg_print_parts(src);bt_machine_dbg_print_parts(dst);
+    bt_machine_dbg_print_parts(src);
+    bt_wire_dbg_print_parts(self);
+    bt_machine_dbg_print_parts(dst);
   }
   return(res);
 }

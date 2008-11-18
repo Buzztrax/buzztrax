@@ -1,3 +1,11 @@
+2008-11-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bindings/play.py:
+	  Add comment about env-var.
+
+	* src/lib/core/wire.c:
+	  Better logging.
+
 2008-11-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/bt-check.c:
