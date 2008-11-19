@@ -61,6 +61,7 @@ struct _BtMainToolbarPrivate {
   /* the volume gain */
   GtkScale *volume;
   G_POINTER_ALIAS(GstElement *,gain);
+  G_POINTER_ALIAS(BtMachine *,master);
 
   /* action buttons */
   GtkWidget *save_button;
@@ -418,6 +419,56 @@ static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
   g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
 }
 
+static gboolean on_song_volume_slider_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+  if(event->type == GDK_BUTTON_PRESS) {
+    if(event->button == 1) {
+      BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+      GstElement *machine;
+      GstController *ctrl;
+
+      g_object_get(G_OBJECT(self->priv->master),"machine",&machine,NULL);
+      if((ctrl=gst_object_get_controller(G_OBJECT(machine)))) {
+        gst_controller_set_property_disabled(ctrl,"master-volume",TRUE);
+      }
+      g_object_unref(machine);
+    }
+  }
+  return(FALSE);
+}
+
+static gboolean on_song_volume_slider_release_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+  if(event->button == 1 && event->type == GDK_BUTTON_RELEASE) {
+    BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+    GstElement *machine;
+    GstController *ctrl;
+
+    g_object_get(G_OBJECT(self->priv->master),"machine",&machine,NULL);
+    if((ctrl=gst_object_get_controller(G_OBJECT(self->priv->master)))) {
+      // if no pattern event at ts=0
+      gulong param;
+      
+      // update the default value at ts=0
+      GST_WARNING("updating global param at ts=0");
+      param=bt_machine_get_global_param_index(self->priv->master,"master-volume",NULL);
+      if(bt_machine_has_global_param_default_set(self->priv->master,param))
+        bt_machine_global_controller_change_value(self->priv->master,param,G_GUINT64_CONSTANT(0),NULL);
+
+      /*
+       * @todo: it should actualy postpone the disable to the next timestamp
+       * (not possible right now).
+       *
+       * @idea: can we have a livecontrolsource that subclasses interpolationcs
+       * - when enabling, if would need to delay the enabled to the next control-point
+       * - it would need to peek at the control-point list :/
+       */
+      gst_controller_set_property_disabled(ctrl,"master-volume",FALSE);
+    }
+    g_object_unref(machine);
+  }
+  return(FALSE);
+}
+
+
 static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gdouble value;
@@ -428,7 +479,6 @@ static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer u
 
   // get value from Element and change HScale
   g_object_get(self->priv->gain,"volume",&value,NULL);
-  GST_INFO("volume has changed : %f",value);
   g_signal_handlers_block_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
   gtk_range_set_value(GTK_RANGE(self->priv->volume),value);
   g_signal_handlers_unblock_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
@@ -489,7 +539,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtSong *song;
   BtSequence *sequence;
-  BtSinkMachine *master;
   GstBin *bin;
   //gboolean loop;
 
@@ -497,23 +546,25 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
 
-  // get the audio_sink (song->master is a bt_sink_machine) if there is one already
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(!song) return;
 
-  g_object_get(G_OBJECT(song),"master",&master,"sequence",&sequence,"bin", &bin,NULL);
+  // get the audio_sink (song->master is a bt_sink_machine) if there is one already
+  g_object_try_weak_unref(self->priv->master);
+  g_object_get(G_OBJECT(song),"master",&self->priv->master,"sequence",&sequence,"bin", &bin,NULL);
 
-  if(master) {
+  if(self->priv->master) {
     GstPad *pad;
     gdouble volume;
     GstBus *bus;
 
-    GST_INFO("connect to input-level : song=%p,  master=%p (refs: %d)",song,master,(G_OBJECT(master))->ref_count);
+    GST_INFO("connect to input-level : song=%p,  master=%p (refs: %d)",song,self->priv->master,(G_OBJECT(self->priv->master))->ref_count);
+    g_object_try_weak_ref(self->priv->master);
 
     // get the input_level and input_gain properties from audio_sink
     g_object_try_weak_unref(self->priv->gain);
     g_object_try_weak_unref(self->priv->level);
-    g_object_get(G_OBJECT(master),"input-level",&self->priv->level,"input-gain",&self->priv->gain,NULL);
+    g_object_get(G_OBJECT(self->priv->master),"input-level",&self->priv->level,"input-gain",&self->priv->gain,NULL);
     g_object_try_weak_ref(self->priv->gain);
     g_object_try_weak_ref(self->priv->level);
 
@@ -541,11 +592,13 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     gtk_range_set_value(GTK_RANGE(self->priv->volume),volume);
     // connect slider changed and volume changed events
     g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_slider_change),(gpointer)self);
+    g_signal_connect(G_OBJECT(self->priv->volume),"button-press-event",G_CALLBACK(on_song_volume_slider_press_event),(gpointer)self);
+    g_signal_connect(G_OBJECT(self->priv->volume),"button-release-event",G_CALLBACK(on_song_volume_slider_release_event),(gpointer)self);   
     g_signal_connect(G_OBJECT(self->priv->gain) ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
 
     gst_object_unref(self->priv->gain);
     gst_object_unref(self->priv->level);
-    g_object_unref(master);
+    g_object_unref(self->priv->master);
   }
   else {
     GST_WARNING("failed to get the master element of the song");
@@ -790,6 +843,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
     g_object_unref(song);
   }
 
+  g_object_try_weak_unref(self->priv->master);
   g_object_try_weak_unref(self->priv->gain);
   g_object_try_weak_unref(self->priv->level);
   g_object_try_weak_unref(self->priv->app);

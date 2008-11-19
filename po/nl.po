@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: buzztard-0.4.0\n"
 "Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2008-08-17 13:44+0300\n"
-"PO-Revision-Date: 2008-11-13 10:07+0100\n"
+"PO-Revision-Date: 2008-11-18 13:08+0100\n"
 "Last-Translator: Erwin Poeze <erwin.poeze@gmail.com>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
 "MIME-Version: 1.0\n"
@@ -97,7 +97,7 @@ msgstr "Naam invoerbestand"
 #: ../src/ui/cmd/bt-cmd.c:69 ../src/ui/cmd/bt-cmd.c:70
 #: ../src/ui/edit/bt-edit.c:79
 msgid "<songfile>"
-msgstr "<bestand nummer>"
+msgstr "<nummerbestand>"
 
 #: ../src/ui/cmd/bt-cmd.c:70
 msgid "Output file name"
@@ -368,7 +368,7 @@ msgstr "%s-naam"
 #: ../src/ui/edit/main-menu.c:99 ../src/ui/edit/main-window.c:520
 #, c-format
 msgid "An error occurred while loading the song from file '%s'"
-msgstr "Laden van het nummer uit bestand '%s' ging fout"
+msgstr "Laden van het nummer uit bestand '%s' is mislukt"
 
 #: ../src/ui/edit/main-menu.c:102 ../src/ui/edit/main-window.c:223
 #: ../src/ui/edit/main-window.c:521
@@ -469,7 +469,7 @@ msgstr "Werkbalk"
 #. @todo 'Statusbar' show/hide toggle
 #: ../src/ui/edit/main-menu.c:670 ../src/ui/edit/main-menu.c:671
 msgid "Tabs"
-msgstr "Tabbladden"
+msgstr "Tabbladen"
 
 #: ../src/ui/edit/main-menu.c:687
 msgid "Go to machine view"
@@ -489,7 +489,7 @@ msgstr "Patroonweergave"
 
 #: ../src/ui/edit/main-menu.c:703
 msgid "Go to sequence view"
-msgstr "Naar Reeksweergave gaan"
+msgstr "Naar reeksweergave gaan"
 
 #: ../src/ui/edit/main-menu.c:704
 msgid "Sequence view"
@@ -563,7 +563,7 @@ msgstr "_Hulp"
 
 #: ../src/ui/edit/main-menu.c:782 ../src/ui/edit/main-menu.c:786
 msgid "help menu"
-msgstr "menu Hulp"
+msgstr "menu hulp"
 
 #: ../src/ui/edit/main-menu.c:791
 msgid "Content"
@@ -677,7 +677,7 @@ msgstr "Afspelen van dit nummer stoppen"
 
 #: ../src/ui/edit/main-page-machines.c:1005
 msgid "machine and wire editor"
-msgstr "machine- en draadbewerker"
+msgstr "machine en signaalbewerker"
 
 #: ../src/ui/edit/main-page-patterns.c:1859
 #, c-format
@@ -942,7 +942,7 @@ msgstr "machines"
 
 #: ../src/ui/edit/main-pages.c:169
 msgid "machines used in the song and their wires"
-msgstr "machines gebruikt in nummers en hun draden"
+msgstr "machines gebruikt in nummers en hun signalen"
 
 #: ../src/ui/edit/main-pages.c:174
 msgid "patterns"
@@ -1056,7 +1056,7 @@ msgstr "geluidsterkte bij afspelen"
 #. step=
 #: ../src/ui/edit/main-toolbar.c:667
 msgid "Change playback volume"
-msgstr "geluidsterke bij afspelen veranderen"
+msgstr "geluidsterkte bij afspelen veranderen"
 
 #. we don't use PACKAGE_NAME = 'buzztard' for the window title
 #: ../src/ui/edit/main-window.c:178
@@ -1082,7 +1082,7 @@ msgstr "Echt afsluiten?"
 
 #: ../src/ui/edit/main-window.c:412 ../src/ui/edit/main-window.c:436
 msgid "All unsaved changes will be lost then."
-msgstr "Veranderingen die niet bewaard zijn gaan dan verloren"
+msgstr "Veranderingen die niet bewaard zijn gaan dan verloren."
 
 #. @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
 #: ../src/ui/edit/main-window.c:436
@@ -1331,7 +1331,7 @@ msgstr "Kan afbeeldingsbestand %s niet vinden"
 
 #: ../src/ui/edit/wire-analysis-dialog.c:395
 msgid "wire analysis"
-msgstr "draadanalyse"
+msgstr "signaalanalyse"
 
 #: ../src/ui/edit/wire-analysis-dialog.c:419
 #, c-format
