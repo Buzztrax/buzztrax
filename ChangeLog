@@ -1,3 +1,18 @@
+2008-11-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bindings/play.js:
+	  Add javascript example.
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  Fix gi support (also scann *c files).
+
+	* src/lib/core/core.c:
+	  Add annotation.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Add comment abou glib warning we get.
+
 2008-11-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* TODO:

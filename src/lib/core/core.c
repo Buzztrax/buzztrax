@@ -220,8 +220,8 @@ void bt_init_add_option_groups(GOptionContext * const ctx) {
 
 /**
  * bt_init_check:
- * @argc: pointer to application's argc
- * @argv: pointer to application's argv
+ * @argc: (inout): pointer to application's argc
+ * @argv: (array length=argc) (inout): pointer to application's argv
  * @err: pointer to a #GError to which a message will be posted on error
  *
  * Initializes the Buzztard core library.
@@ -267,7 +267,7 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
 /**
  * bt_init:
  * @argc: (inout): pointer to application's argc
- * @argv: (array) (inout): pointer to application's argv
+ * @argv: (array length=argc) (inout): pointer to application's argv
  *
  * Initializes the Buzztard Core library.
  *

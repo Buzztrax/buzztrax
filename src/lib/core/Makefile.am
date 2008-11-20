@@ -93,6 +93,7 @@ BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
              --output $@ \
 	     -I$(top_srcdir)/src/lib/ic/libbuzztard-ic/ \
 	     -I$(srcdir)/libbuzztard_core/ \
+             $(srcdir)/*.c \
              $(srcdir)/libbuzztard-core/*.h
 BUILT_GIRSOURCES = BuzztardCore-0.0.gir
 

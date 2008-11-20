@@ -690,6 +690,7 @@ static gboolean on_delayed_track_level_change(GstClock *clock,GstClockTime time,
   if(self) {
     GtkVUMeter *vumeter;
 
+    // GLib-GObject-WARNING **: IA__g_object_weak_unref: couldn't find weak ref 0xb7174480(0xa1c0908)
     g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
 
     if(!GST_CLOCK_TIME_IS_VALID(time) || !self->priv->is_playing)
