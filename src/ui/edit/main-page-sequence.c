@@ -137,6 +137,9 @@ struct _BtMainPageSequencePrivate {
 
   /* playback state */
   gboolean is_playing;
+  
+  /* lock for multithreaded access */
+  GMutex        *lock;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -690,8 +693,9 @@ static gboolean on_delayed_track_level_change(GstClock *clock,GstClockTime time,
   if(self) {
     GtkVUMeter *vumeter;
 
-    // GLib-GObject-WARNING **: IA__g_object_weak_unref: couldn't find weak ref 0xb7174480(0xa1c0908)
+    g_mutex_lock(self->priv->lock);
     g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+    g_mutex_unlock(self->priv->lock);
 
     if(!GST_CLOCK_TIME_IS_VALID(time) || !self->priv->is_playing)
       goto done;
@@ -753,12 +757,13 @@ static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer u
         GstClockID clock_id;
         GstClockTime basetime=gst_element_get_base_time(level);
   
-        //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
-        //  GST_TIME_ARGS(timestamp),GST_TIME_ARGS(waittime));
+        //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT, GST_TIME_ARGS(timestamp),GST_TIME_ARGS(waittime));
       
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
+        g_mutex_lock(self->priv->lock);
         g_object_add_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+        g_mutex_unlock(self->priv->lock);
         clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
         gst_clock_id_wait_async(clock_id,on_delayed_track_level_change,(gpointer)params);
         gst_clock_id_unref(clock_id);
@@ -3129,9 +3134,10 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 }
 
 static void bt_main_page_sequence_finalize(GObject *object) {
-  //BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
+  BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
 
-  //GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p",self);
+  g_mutex_free (self->priv->lock);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
@@ -3150,6 +3156,8 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
   self->priv->selection_end_row=-1;
   self->priv->row_filter_pos=SEQUENCE_ROW_ADDITION_INTERVAL;
   self->priv->list_length=SEQUENCE_ROW_ADDITION_INTERVAL;
+  
+  self->priv->lock=g_mutex_new ();
 }
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {

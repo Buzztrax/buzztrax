@@ -1,5 +1,10 @@
 2008-11-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Use a mutex to protect access to self from two thread contexts.
+
+2008-11-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/bindings/play.js:
 	  Add javascript example.
 
