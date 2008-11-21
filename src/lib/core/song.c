@@ -103,6 +103,11 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper
 
+/* Ideally this would be 0. But unfortunately our songs stop too early for yet
+ * unknown reason.
+ */
+#define SEEK_END_EXTRA_BARS 8
+
 /*
  * bt_song_seek_to_play_pos:
  * @self: #BtSong to seek
@@ -133,7 +138,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH,
         GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
-        GST_SEEK_TYPE_SET, length*bar_time);
+        GST_SEEK_TYPE_SET, (length+SEEK_END_EXTRA_BARS)*bar_time);
   }
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
       GST_WARNING("element failed to seek to play_pos event");
@@ -178,11 +183,11 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH,
         GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
-        GST_SEEK_TYPE_SET, length*bar_time);
+        GST_SEEK_TYPE_SET, (length+SEEK_END_EXTRA_BARS)*bar_time);
     self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_NONE,
         GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
-        GST_SEEK_TYPE_SET, length*bar_time);
+        GST_SEEK_TYPE_SET, (length+SEEK_END_EXTRA_BARS)*bar_time);
   }
   /* the update needs to take the current play-position into account */
   bt_song_seek_to_play_pos(self);
