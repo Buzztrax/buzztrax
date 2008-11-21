@@ -1026,11 +1026,11 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
     } break;
     case G_TYPE_UINT: {
       gint val=g_value_get_uint(beg);
-      gdouble step=(gdouble)(g_value_get_uint(end)-val)/(gdouble)ticks;
+      gdouble step=((gdouble)g_value_get_uint(end)-val)/(gdouble)ticks;
       for(i=0;i<ticks;i++) {
         if(!G_IS_VALUE(beg))
           g_value_init(beg,G_TYPE_UINT);
-        g_value_set_uint(beg,val+(guint)(step*i));
+        g_value_set_uint(beg,val+(gint)(step*i));
         beg+=params;
       }
     } break;
