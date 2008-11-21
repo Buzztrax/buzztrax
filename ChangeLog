@@ -1,3 +1,8 @@
+2008-11-21  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/main-toolbar.c:
+	  Make volume slider logarithmic.
+
 2008-11-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:

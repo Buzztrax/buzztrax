@@ -403,6 +403,20 @@ static void on_song_level_negotiated(GstBus * bus, GstMessage * message, gpointe
   }
 }
 
+static gdouble volume_slider2real(gdouble lin)
+{
+  if (lin <= 0)
+    return 0.0;
+  return pow(10000.0, lin - 1.0);
+}
+
+static gdouble volume_real2slider(gdouble logv)
+{
+  if (logv <= (1.0 / 10000.0))
+    return 0.0;
+  return log(logv) / log(10000.0) + 1.0;
+}
+
 static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gdouble value;
@@ -415,7 +429,7 @@ static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
   value=gtk_range_get_value(GTK_RANGE(self->priv->volume));
   GST_INFO("volume-slider has changed : %f",value);
   g_signal_handlers_block_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
-  g_object_set(self->priv->gain,"volume",value,NULL);
+  g_object_set(self->priv->gain,"volume",volume_slider2real(value),NULL);
   g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
 }
 
@@ -479,6 +493,7 @@ static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer u
 
   // get value from Element and change HScale
   g_object_get(self->priv->gain,"volume",&value,NULL);
+  value = volume_real2slider(value);
   g_signal_handlers_block_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
   gtk_range_set_value(GTK_RANGE(self->priv->volume),value);
   g_signal_handlers_unblock_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
