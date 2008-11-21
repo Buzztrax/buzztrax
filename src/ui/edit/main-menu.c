@@ -207,7 +207,7 @@ static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
     case BT_MAIN_PAGES_PATTERNS_PAGE: {
       BtMainPagePatterns *page;
       GST_INFO("menu copy event occurred for pattern page");
-      g_object_get(G_OBJECT(pages),"pattern-page",&page,NULL);
+      g_object_get(G_OBJECT(pages),"patterns-page",&page,NULL);
       bt_main_page_pattern_copy_selection(page);
       g_object_unref(page);
     } break;
