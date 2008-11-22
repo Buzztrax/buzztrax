@@ -24,9 +24,32 @@ update_figures:
 	if [ -e "/tmp/check_buzzard_main window.png" ]; then \
 	  pngtopnm "/tmp/check_buzzard_main window.png" | ../../mk-shadow.sh | pnmtopng >figures/main-window.png; \
 	fi; \
+	if [ -e "/tmp/check_buzzard_song views_machine view.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_song views_machine view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-machine-view.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_song views_pattern view.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_song views_pattern view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-pattern-view.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_song views_sequence view.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_song views_sequence view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-sequence-view.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_song views_song information.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_song views_song information.png" | ../../mk-shadow.sh | pnmtopng >figures/page-info-view.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_song views_wave table view.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_song views_wave table view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-wavetable-view.png; \
+	fi; \
+	\
 	if [ -e "/tmp/check_buzzard_pattern properties.png" ]; then \
 	  pngtopnm "/tmp/check_buzzard_pattern properties.png" | ../../mk-shadow.sh | pnmtopng >figures/pattern-properties.png; \
 	fi; \
+	if [ -e "/tmp/check_buzzard_machine properties.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_machine properties.png" | ../../mk-shadow.sh | pnmtopng >figures/machine-properties.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_machine preferences.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_machine preferences.png" | ../../mk-shadow.sh | pnmtopng >figures/machine-preferences.png; \
+	fi; \
+	\
 	if [ -e "/tmp/check_buzzard_buzztard settings_audio devices.png" ]; then \
 	  pngtopnm "/tmp/check_buzzard_buzztard settings_audio devices.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-audio.png; \
 	fi; \
@@ -44,21 +67,6 @@ update_figures:
 	fi; \
 	if [ -e "/tmp/check_buzzard_buzztard settings_shortcuts.png" ]; then \
 	  pngtopnm "/tmp/check_buzzard_buzztard settings_shortcuts.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-shortcuts.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_song views_machine view.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song views_machine view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-machine-view.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_song views_pattern view.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song views_pattern view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-pattern-view.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_song views_sequence view.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song views_sequence view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-sequence-view.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_song views_song information.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song views_song information.png" | ../../mk-shadow.sh | pnmtopng >figures/page-info-view.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_song views_wave table view.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song views_wave table view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-wavetable-view.png; \
 	fi;
 
 ## add shadows (now integrated above)

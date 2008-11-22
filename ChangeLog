@@ -1,5 +1,29 @@
 2008-11-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/Makefile.am:
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/figures/machine-preferences.png:
+	* docs/help/bt-edit/C/figures/machine-properties.png:
+	* docs/help/bt-edit/C/figures/main-window.png:
+	* docs/help/bt-edit/C/figures/page-info-view.png:
+	* docs/help/bt-edit/C/figures/page-machine-view.png:
+	* docs/help/bt-edit/C/figures/page-pattern-view.png:
+	* docs/help/bt-edit/C/figures/page-sequence-view.png:
+	* docs/help/bt-edit/C/figures/page-wavetable-view.png:
+	* docs/help/bt-edit/C/figures/pattern-properties.png:
+	* docs/help/bt-edit/C/figures/settings-audio.png:
+	* docs/help/bt-edit/C/figures/settings-colors.png:
+	* docs/help/bt-edit/C/figures/settings-directories.png:
+	* docs/help/bt-edit/C/figures/settings-ic.png:
+	* docs/help/bt-edit/C/figures/settings-pc.png:
+	* docs/help/bt-edit/C/figures/settings-shortcuts.png:
+	  Improve docs.
+
+	* src/ui/edit/main-toolbar.c:
+	  Comment update (stereo is working fine since 0.3).
+
+2008-11-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-bin.c:
 	* src/lib/core/song.c:
 	  Make testing code conditional. Do position queries on master and not

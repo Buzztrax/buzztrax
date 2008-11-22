@@ -40,7 +40,7 @@ enum {
   MAIN_TOOLBAR_APP=1,
 };
 
-/* lets get stereo working first :) */
+/* lets keep multichannel audio for later :) */
 //#define MAX_VUMETER 4
 #define MAX_VUMETER 2
 #define DEF_VUMETER 2
