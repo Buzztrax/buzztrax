@@ -106,7 +106,8 @@ static GObjectClass *parent_class=NULL;
 /* Ideally this would be 0. But unfortunately our songs stop too early for yet
  * unknown reason.
  */
-#define SEEK_END_EXTRA_BARS 8
+//#define SEEK_END_EXTRA_BARS 8
+#define SEEK_END_EXTRA_BARS 0
 
 /*
  * bt_song_seek_to_play_pos:
@@ -191,6 +192,15 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
   }
   /* the update needs to take the current play-position into account */
   bt_song_seek_to_play_pos(self);
+  // DEBUG
+#if 0
+  {
+    GstClockTime extra_time=8*bar_time;
+    GST_WARNING("extra time %"GST_TIME_FORMAT,GST_TIME_ARGS(extra_time));
+    // bar_time is what the pipeline calculates as LATENCY
+  }
+#endif
+  // DEBUG
 }
 
 /*
@@ -812,7 +822,7 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
   if(!self->priv->is_playing) return(FALSE);
 
   // query playback position and update self->priv->play-pos;
-  gst_element_query(GST_ELEMENT(self->priv->bin),self->priv->position_query);
+  gst_element_query(GST_ELEMENT(self->priv->master_bin),self->priv->position_query);
   gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
   if(pos_cur!=-1) {
     // calculate new play-pos (in ticks)

@@ -1,3 +1,11 @@
+2008-11-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song.c:
+	  Make testing code conditional. Do position queries on master and not
+	  on the whole pipeline. Seems to fix the premature stop and is faster
+	  too.
+
 2008-11-21  Krzysztof Foltman  <kfoltman@users.sf.net>
 
 	* src/lib/core/pattern.c:
