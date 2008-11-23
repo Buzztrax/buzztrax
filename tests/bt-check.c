@@ -815,8 +815,10 @@ void check_setup_test_server(void) {
       g_error_free(error);
     }
     */
-    /* this is not the right name
-    gchar *gsd_argv[]={"gnome-settings-daemon", "--sm-disable", NULL };
+    /* this is not working
+    ** (gnome-settings-daemon:17715): WARNING **: Failed to acquire org.gnome.SettingsDaemon
+    ** (gnome-settings-daemon:17715): WARNING **: Could not acquire name
+    gchar *gsd_argv[]={"/usr/lib/gnome-settings-daemon/gnome-settings-daemon", NULL };
     if(!(g_spawn_async(NULL,gsd_argv,NULL,flags,NULL,NULL,NULL,&error))) {
       GST_WARNING("error gnome-settings daemon : \"%s\"", error->message);
       g_error_free(error);
@@ -863,6 +865,8 @@ void check_setup_test_display(void) {
              * theme setup
               */
             //g_object_set(test_settings,"gtk-theme-name",theme_name,NULL);
+            /* Again this shows no effect */
+            //g_object_set(test_settings,"gtk-toolbar-style",GTK_TOOLBAR_ICONS,NULL);
             //gtk_rc_reparse_all_for_settings(test_settings,TRUE);
             //gtk_rc_reset_styles(test_settings);
             GST_INFO("theme switched ");

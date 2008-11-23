@@ -365,7 +365,10 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   }
   if(GST_IS_BASE_SINK(element)) {
     // enable syncing to timestamps
-    g_object_set(element,"sync",TRUE,NULL);
+    g_object_set(element,
+      "sync",TRUE,
+      /*"slave-method",2,*/
+      NULL);
     bt_sink_bin_configure_latency(self,element);
   }
   list=g_list_append(list,element);

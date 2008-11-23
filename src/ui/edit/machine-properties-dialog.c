@@ -949,8 +949,8 @@ static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gp
 
   GST_LOG("#### box size req %d x %d (max-height=%d)", requisition->width,requisition->height,max_height);
   // have a minimum width
-  if(requisition->width<250) {
-    width=250;
+  if(requisition->width<300) {
+    width=300;
   }
   // constrain the height by screen height
   if(height>max_height) {
@@ -1632,6 +1632,8 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_INDEX));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Show/Hide preset pane"));
+  // @todo: enable after release
+  // gtk_tool_button_set_label(GTK_TOOL_BUTTON(_("Presets"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   if(!GST_IS_PRESET(machine)) {
     gtk_widget_set_sensitive(tool_item,FALSE);

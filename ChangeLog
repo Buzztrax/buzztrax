@@ -1,3 +1,38 @@
+2008-11-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/figures/machine-preferences.png:
+	* docs/help/bt-edit/C/figures/machine-properties.png:
+	* docs/help/bt-edit/C/figures/main-window.png:
+	* docs/help/bt-edit/C/figures/page-info-view.png:
+	* docs/help/bt-edit/C/figures/page-machine-view.png:
+	* docs/help/bt-edit/C/figures/page-pattern-view.png:
+	* docs/help/bt-edit/C/figures/page-sequence-view.png:
+	* docs/help/bt-edit/C/figures/page-wavetable-view.png:
+	* docs/help/bt-edit/C/figures/pattern-properties.png:
+	* docs/help/bt-edit/C/figures/settings-audio.png:
+	* docs/help/bt-edit/C/figures/settings-colors.png:
+	* docs/help/bt-edit/C/figures/settings-directories.png:
+	* docs/help/bt-edit/C/figures/settings-ic.png:
+	* docs/help/bt-edit/C/figures/settings-pc.png:
+	* docs/help/bt-edit/C/figures/settings-shortcuts.png:
+	* tests/Makefile.am:
+	  Update all screenshot and force english locale.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Make machien windows a bit wider.
+
+	* tests/bt-check.c:
+	  More experiments with settings.
+
+	* tests/songs/melo3.xml:
+	  Improve machine placement for screenshot.
+
+	* po/de.po:
+	  Add official translation.
+
+	* src/lib/core/sink-bin.c:
+	  Play with one more option for the premature end issues.
+
 2008-11-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/Makefile.am:

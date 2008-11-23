@@ -1,4 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
+# German translation for Buzztard.
 # Copyright (C) 2008 Buzztard project team
 # This file is distributed under the same license as the buzztard package.
 # Stefan Kost <ensonic@users.sf.net>, 2008.
@@ -7,25 +7,25 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzztard 0.4\n"
 "Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2008-11-02 23:05+0200\n"
+"POT-Creation-Date: 2008-08-17 13:44+0300\n"
 "PO-Revision-Date: 2007-05-02 21:55+0300\n"
 "Last-Translator: Stefan Kost <ensonic@users.sf.net>\n"
-"Language-Team: german <de@li.org>\n"
+"Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../src/lib/core/core.c:196
+#: ../src/lib/core/core.c:194
 msgid "Print the buzztard core version"
-msgstr "Die Buzztard Kern Version ausgeben"
+msgstr "Die Buzztard Kernversion ausgeben"
 
-#: ../src/lib/core/core.c:200
+#: ../src/lib/core/core.c:198
 msgid "Buzztard core options"
-msgstr "Buzztard Kern Optionen"
+msgstr "Buzztard Kernoptionen"
 
-#: ../src/lib/core/core.c:200
+#: ../src/lib/core/core.c:198
 msgid "Show buzztard core options"
-msgstr "Buzztard Kern Optionen anzeigen"
+msgstr "Buzztard Kernoptionen anzeigen"
 
 #: ../src/lib/core/pattern.c:367
 msgid "normal"
@@ -59,73 +59,57 @@ msgstr "Datei '%s' wird geladen"
 msgid "Saving file '%s'"
 msgstr "Datei '%s' wird gespeichert"
 
-#: ../src/lib/core/song-info.c:140 ../src/lib/core/song-info.c:458
-#: ../src/lib/core/song-info.c:526
+#: ../src/lib/core/song-info.c:426
 msgid "untitled song"
 msgstr "unbennanter Song"
 
-#: ../src/lib/ic/ic.c:119
+#: ../src/lib/ic/ic.c:117
 msgid "Print the buzztard interaction controller version"
 msgstr "Die Buzztard Interaction Controller Version ausgeben"
 
-#: ../src/lib/ic/ic.c:123
+#: ../src/lib/ic/ic.c:121
 msgid "Buzztard interaction controller options"
 msgstr "Buzztard Interaction Controller Optionen"
 
-#: ../src/lib/ic/ic.c:123
+#: ../src/lib/ic/ic.c:121
 msgid "Show buzztard interaction controller options"
 msgstr "Buzztard Interaction Controller Optionen anzeigen"
 
-#: ../src/ui/cmd/bt-cmd.c:67 ../src/ui/edit/bt-edit.c:77
-msgid "Print application version"
-msgstr "Die Version der Anwendung ausgeben"
+#: ../src/ui/cmd/bt-cmd.c:66
+msgid "Show version"
+msgstr "Version anzeigen"
 
-#: ../src/ui/cmd/bt-cmd.c:68
+#: ../src/ui/cmd/bt-cmd.c:67
 msgid "Be quiet"
 msgstr "Keine Ausgaben"
 
-#: ../src/ui/cmd/bt-cmd.c:69 ../src/ui/edit/bt-edit.c:78
+#: ../src/ui/cmd/bt-cmd.c:68 ../src/ui/edit/bt-edit.c:78
 msgid "Command name"
 msgstr "Kommandoname"
 
-#: ../src/ui/cmd/bt-cmd.c:70 ../src/ui/edit/bt-edit.c:79
+#: ../src/ui/cmd/bt-cmd.c:69 ../src/ui/edit/bt-edit.c:79
 msgid "Input file name"
 msgstr "Eingabedateiname"
 
-#: ../src/ui/cmd/bt-cmd.c:70 ../src/ui/cmd/bt-cmd.c:71
+#: ../src/ui/cmd/bt-cmd.c:69 ../src/ui/cmd/bt-cmd.c:70
 #: ../src/ui/edit/bt-edit.c:79
 msgid "<songfile>"
 msgstr "<Song Datei>"
 
-#: ../src/ui/cmd/bt-cmd.c:71
+#: ../src/ui/cmd/bt-cmd.c:70
 msgid "Output file name"
 msgstr "Ausgabedateiname"
 
-#. g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
-#: ../src/ui/cmd/bt-cmd.c:90
-msgid "buzztard-cmd options"
-msgstr "Buzztard Kern Optionen"
-
-#: ../src/ui/cmd/bt-cmd.c:90
-msgid "Show buzztard-cmd options"
-msgstr "buzztard-cmd Optionen anzeigen"
-
-#. Note to translators: put here your name and email so it will show up in
-#. * the "about" box. Example: Stefan 'ensonic' Kost <ensonic@users.sf.net>
-#: ../src/ui/edit/about-dialog.c:75
-msgid "translator-credits"
-msgstr "Stefan 'ensonic' Kost <ensonic@users.sf.net>"
-
-#: ../src/ui/edit/about-dialog.c:77 ../src/ui/edit/about-dialog.c:78
+#: ../src/ui/edit/about-dialog.c:74 ../src/ui/edit/about-dialog.c:75
 #, c-format
 msgid "Copyright © 2003-%d Buzztard developer team"
 msgstr "Copyright © 2003-%d Buzztard Entwicklerteam"
 
-#: ../src/ui/edit/about-dialog.c:94
+#: ../src/ui/edit/about-dialog.c:91
 msgid "Music production environment"
 msgstr "Musikproduktionsumgebung"
 
-#: ../src/ui/edit/about-dialog.c:99
+#: ../src/ui/edit/about-dialog.c:96
 msgid ""
 "This package is free software; you can redistribute it and/or modify it "
 "under the terms of the GNU Library General Public License as published by "
@@ -141,8 +125,8 @@ msgid ""
 "along with this package; if not, write to the Free Software Foundation, "
 "Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
 msgstr ""
-"Dises Paket ist freie Software; Sie dürfen sie unter den Bedingungen der GNU "
-"Lesser General Public License, wie von der Free Software Foundation "
+"Dieses Paket ist freie Software; Sie dürfen sie unter den Bedingungen der "
+"GNU Lesser General Public License, wie von der Free Software Foundation "
 "veröffentlicht, weiterverteilen und/oder modifizieren; entweder gemäß "
 "Version 2 der Lizenz oder (nach Ihrer Option) jeder späteren Version.\n"
 "\n"
@@ -155,7 +139,7 @@ msgstr ""
 "diesem Paket erhalten haben; falls nicht, schreiben Sie an die Free Software "
 "Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA."
 
-#: ../src/ui/edit/about-dialog.c:131
+#: ../src/ui/edit/about-dialog.c:127
 msgid ""
 "As planned, main focus for this release was the wavetable support. Its done "
 "- buzztard can load what gstreamer can decode.The wavetable view has a nice "
@@ -166,20 +150,32 @@ msgid ""
 "All meters are now properly synced."
 msgstr ""
 
+#: ../src/ui/edit/bt-edit.c:77
+msgid "Print the application version"
+msgstr "Die Version der Anwendung ausgeben"
+
 #. g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
-#: ../src/ui/edit/bt-edit.c:101
-msgid "buzztard-edit options"
-msgstr "buzztard-edit optionen"
+#: ../src/ui/edit/bt-edit.c:94
+msgid "bt-edit options"
+msgstr "bt-edit optionen"
 
-#: ../src/ui/edit/bt-edit.c:101
-msgid "Show buzztard-edit options"
-msgstr "buzztard-edit Optionen anzeigen"
+#: ../src/ui/edit/bt-edit.c:94
+msgid "Show bt-edit options"
+msgstr "bt-edit Optionen anzeigen"
 
-#: ../src/ui/edit/edit-application.c:110
+#: ../src/ui/edit/bt-edit.desktop.in.h:1
+msgid "Buzztard Music Editor"
+msgstr "Buzztard Musik Editor"
+
+#: ../src/ui/edit/bt-edit.desktop.in.h:2
+msgid "Edit buzztard song files"
+msgstr "Buzzztard Musikstücke bearbeiten"
+
+#: ../src/ui/edit/edit-application.c:111
 msgid "-> You will not see any level-meters."
 msgstr "-> Sie werden keinen Pegelanzeigen sehen."
 
-#: ../src/ui/edit/edit-application.c:117
+#: ../src/ui/edit/edit-application.c:118
 msgid "-> You will not see the frequency spectrum in the analyzer window."
 msgstr "-> Sie werden kein Frequenzspektum im Analysefenster sehen."
 
@@ -207,7 +203,7 @@ msgstr "Fernsteuerung aufheben"
 msgid "Unbind all controllers"
 msgstr "Alle Fernsteuerungen aufheben"
 
-#: ../src/ui/edit/machine-actions.c:88
+#: ../src/ui/edit/machine-actions.c:87
 #, c-format
 msgid ""
 "by %s\n"
@@ -218,44 +214,44 @@ msgstr ""
 "\n"
 "%s"
 
-#: ../src/ui/edit/machine-actions.c:91
+#: ../src/ui/edit/machine-actions.c:90
 msgid "About..."
 msgstr "Über ..."
 
-#: ../src/ui/edit/machine-canvas-item.c:473
+#: ../src/ui/edit/machine-canvas-item.c:450
 #, c-format
 msgid "Delete machine '%s'"
 msgstr "Gerät '%s' entfernen"
 
 #. @todo: don't ask if machine has no patterns and is not connected
-#: ../src/ui/edit/machine-canvas-item.c:477
+#: ../src/ui/edit/machine-canvas-item.c:454
 msgid "Delete machine..."
 msgstr "Gerät entfernen ..."
 
-#: ../src/ui/edit/machine-canvas-item.c:477
-#: ../src/ui/edit/main-page-patterns.c:1868
+#: ../src/ui/edit/machine-canvas-item.c:454
+#: ../src/ui/edit/main-page-patterns.c:1867
 msgid "There is no undo for this."
 msgstr "Diese Änderung kann nicht zurückgenommen werden."
 
-#: ../src/ui/edit/machine-canvas-item.c:554
+#: ../src/ui/edit/machine-canvas-item.c:531
 msgid "Mute"
 msgstr "Stumm"
 
-#: ../src/ui/edit/machine-canvas-item.c:559
+#: ../src/ui/edit/machine-canvas-item.c:536
 msgid "Solo"
 msgstr "Solo"
 
-#: ../src/ui/edit/machine-canvas-item.c:565
+#: ../src/ui/edit/machine-canvas-item.c:542
 msgid "Bypass"
 msgstr "Durchschleifen"
 
-#: ../src/ui/edit/machine-canvas-item.c:602
+#: ../src/ui/edit/machine-canvas-item.c:579
 msgid "Rename..."
 msgstr "Umbenennen ..."
 
 #: ../src/ui/edit/machine-menu.c:193
 msgid "add menu"
-msgstr "Hinzufügen menü"
+msgstr "Hinzufügen Menü"
 
 #. generators
 #: ../src/ui/edit/machine-menu.c:196
@@ -296,7 +292,7 @@ msgstr "Voreinstellungsname und -kommentar"
 #. GtkEntry : pattern name
 #: ../src/ui/edit/machine-preset-properties-dialog.c:149
 #: ../src/ui/edit/machine-rename-dialog.c:142
-#: ../src/ui/edit/main-page-info.c:338
+#: ../src/ui/edit/main-page-info.c:328
 #: ../src/ui/edit/pattern-properties-dialog.c:165
 msgid "name"
 msgstr "Name"
@@ -323,65 +319,65 @@ msgstr "keine Einstellungen"
 msgid "machine has no preferences"
 msgstr "Gerät hat keine Einstellungen"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1185
+#: ../src/ui/edit/machine-properties-dialog.c:1139
 msgid "global properties"
 msgstr "globale Eigenschaften"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1308
+#: ../src/ui/edit/machine-properties-dialog.c:1262
 #, c-format
 msgid "voice %lu properties"
 msgstr "Eigenschaften für Stimme %lu"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1477
+#: ../src/ui/edit/machine-properties-dialog.c:1431
 msgid "Add new preset"
 msgstr "Neue Voreinstellung hinzufügen"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1482
+#: ../src/ui/edit/machine-properties-dialog.c:1436
 msgid "Remove preset"
 msgstr "Voreinstellung entfernen"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1487
+#: ../src/ui/edit/machine-properties-dialog.c:1441
 msgid "Edit preset name and comment"
 msgstr "Voreinstellungsnamen und -kommentar bearbeiten"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1518
+#: ../src/ui/edit/machine-properties-dialog.c:1472
 msgid "Preset"
 msgstr "Voreinstellung"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1556
+#: ../src/ui/edit/machine-properties-dialog.c:1510
 msgid "machine properties"
 msgstr "Geräteeigenschaften"
 
 #. set a title
-#: ../src/ui/edit/machine-properties-dialog.c:1580
+#: ../src/ui/edit/machine-properties-dialog.c:1534
 #: ../src/ui/edit/pattern-properties-dialog.c:138
 #, c-format
 msgid "%s properties"
 msgstr "%s Eigenschaften"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1607
+#: ../src/ui/edit/machine-properties-dialog.c:1561
 msgid "Info about this machine"
-msgstr "Information über diese Gerät"
+msgstr "Information über dieses Gerät"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1612
+#: ../src/ui/edit/machine-properties-dialog.c:1566
 msgid "Help for this machine"
-msgstr "Hilfe für diese Gerät"
+msgstr "Hilfe für dieses Gerät"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1622
+#: ../src/ui/edit/machine-properties-dialog.c:1576
 msgid "Randomize parameters"
 msgstr "Parameter zufällig einstellen"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1627
+#: ../src/ui/edit/machine-properties-dialog.c:1581
 msgid "Reset parameters to defaults"
 msgstr "Parameter auf Vorgaben zurücksetzen"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1634
+#: ../src/ui/edit/machine-properties-dialog.c:1588
 msgid "Show/Hide preset pane"
 msgstr "Voreinstellungen anzeigen/verstecken"
 
 #: ../src/ui/edit/machine-rename-dialog.c:99
 msgid "rename machine"
-msgstr "Gerät umbenennen"
+msgstr "Machine umbenennen"
 
 #. set a title
 #: ../src/ui/edit/machine-rename-dialog.c:115
@@ -413,18 +409,18 @@ msgstr "_Datei"
 msgid "file menu"
 msgstr "Datei Menü"
 
-#: ../src/ui/edit/main-menu.c:533 ../src/ui/edit/main-toolbar.c:594
+#: ../src/ui/edit/main-menu.c:533 ../src/ui/edit/main-toolbar.c:590
 msgid "New"
 msgstr "Neu"
 
-#: ../src/ui/edit/main-menu.c:538 ../src/ui/edit/main-page-waves.c:1140
-#: ../src/ui/edit/main-toolbar.c:600
+#: ../src/ui/edit/main-menu.c:538 ../src/ui/edit/main-page-waves.c:1134
+#: ../src/ui/edit/main-toolbar.c:596
 msgid "Open"
 msgstr "Öffnen"
 
 #: ../src/ui/edit/main-menu.c:543
 msgid "_Recently used"
-msgstr "Zuletzt ve_rwendete"
+msgstr "Zulezt ve_rwendete"
 
 #: ../src/ui/edit/main-menu.c:576 ../src/ui/edit/main-menu.c:592
 #: ../src/ui/edit/main-menu.c:602 ../src/ui/edit/main-menu.c:641
@@ -432,7 +428,7 @@ msgstr "Zuletzt ve_rwendete"
 msgid "separator"
 msgstr "Trenner"
 
-#: ../src/ui/edit/main-menu.c:581 ../src/ui/edit/main-toolbar.c:607
+#: ../src/ui/edit/main-menu.c:581 ../src/ui/edit/main-toolbar.c:603
 msgid "Save"
 msgstr "Speichern"
 
@@ -569,13 +565,13 @@ msgstr "_Wiedergabe"
 msgid "playback menu"
 msgstr "Wiedergabe Menü"
 
-#: ../src/ui/edit/main-menu.c:765 ../src/ui/edit/main-page-waves.c:1052
-#: ../src/ui/edit/main-page-waves.c:1127 ../src/ui/edit/main-toolbar.c:618
+#: ../src/ui/edit/main-menu.c:765 ../src/ui/edit/main-page-waves.c:1046
+#: ../src/ui/edit/main-page-waves.c:1121 ../src/ui/edit/main-toolbar.c:614
 msgid "Play"
 msgstr "Abspielen"
 
-#: ../src/ui/edit/main-menu.c:772 ../src/ui/edit/main-page-waves.c:1059
-#: ../src/ui/edit/main-page-waves.c:1133 ../src/ui/edit/main-toolbar.c:626
+#: ../src/ui/edit/main-menu.c:772 ../src/ui/edit/main-page-waves.c:1053
+#: ../src/ui/edit/main-page-waves.c:1127 ../src/ui/edit/main-toolbar.c:622
 msgid "Stop"
 msgstr "Anhalten"
 
@@ -593,136 +589,136 @@ msgstr "Hilfe Menü"
 msgid "Content"
 msgstr "Inhalt"
 
-#: ../src/ui/edit/main-menu.c:801
+#: ../src/ui/edit/main-menu.c:800
 msgid "About"
 msgstr "Über"
 
-#: ../src/ui/edit/main-page-info.c:314
+#: ../src/ui/edit/main-page-info.c:304
 msgid "song information"
 msgstr "Songinformationen"
 
-#: ../src/ui/edit/main-page-info.c:319 ../src/ui/edit/main-page-info.c:325
+#: ../src/ui/edit/main-page-info.c:309 ../src/ui/edit/main-page-info.c:315
 msgid "song meta data"
 msgstr "Song Metadaten"
 
-#: ../src/ui/edit/main-page-info.c:345
+#: ../src/ui/edit/main-page-info.c:335
 msgid "genre"
-msgstr "Gernre"
+msgstr "Genre"
 
-#: ../src/ui/edit/main-page-info.c:352
+#: ../src/ui/edit/main-page-info.c:342
 msgid "author"
-msgstr "Author"
+msgstr "Autor"
 
-#: ../src/ui/edit/main-page-info.c:363
+#: ../src/ui/edit/main-page-info.c:353
 msgid "beats per minute"
 msgstr "Beats pro Minute"
 
-#: ../src/ui/edit/main-page-info.c:371
+#: ../src/ui/edit/main-page-info.c:361
 msgid "beats"
 msgstr "Schläge"
 
-#: ../src/ui/edit/main-page-info.c:379
+#: ../src/ui/edit/main-page-info.c:369
 msgid "ticks per beat"
 msgstr "Ticks pro Beat"
 
-#: ../src/ui/edit/main-page-info.c:395 ../src/ui/edit/main-page-info.c:401
-#: ../src/ui/edit/main-page-info.c:417
+#: ../src/ui/edit/main-page-info.c:385 ../src/ui/edit/main-page-info.c:391
+#: ../src/ui/edit/main-page-info.c:407
 msgid "free text info"
 msgstr "Freitextinformation"
 
 #. menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
-#: ../src/ui/edit/main-page-machines.c:907
+#: ../src/ui/edit/main-page-machines.c:868
 msgid "Add machine"
 msgstr "Gerät hinzufügen"
 
-#: ../src/ui/edit/main-page-machines.c:921
+#: ../src/ui/edit/main-page-machines.c:882
 msgid "Unmute all machines"
 msgstr "Stummschaltung für alle Machinen aufheben"
 
-#: ../src/ui/edit/main-page-machines.c:933
+#: ../src/ui/edit/main-page-machines.c:894
 msgid "Off"
 msgstr "Aus"
 
-#: ../src/ui/edit/main-page-machines.c:940
+#: ../src/ui/edit/main-page-machines.c:901
 msgid "Low"
 msgstr "Niedrig"
 
-#: ../src/ui/edit/main-page-machines.c:947
+#: ../src/ui/edit/main-page-machines.c:908
 msgid "Medium"
 msgstr "Mittel"
 
-#: ../src/ui/edit/main-page-machines.c:954
+#: ../src/ui/edit/main-page-machines.c:915
 msgid "High"
 msgstr "Hoch"
 
-#: ../src/ui/edit/main-page-machines.c:973
+#: ../src/ui/edit/main-page-machines.c:934
 msgid "machine view"
 msgstr "Geräteansicht"
 
-#: ../src/ui/edit/main-page-machines.c:991
+#: ../src/ui/edit/main-page-machines.c:952
 msgid "machine view toolbar"
 msgstr "Maschienenansichts-Werkzeugleiste"
 
-#: ../src/ui/edit/main-page-machines.c:994
+#: ../src/ui/edit/main-page-machines.c:955
 msgid "Zoom Fit"
 msgstr "Einpassen"
 
-#: ../src/ui/edit/main-page-machines.c:995
+#: ../src/ui/edit/main-page-machines.c:956
 msgid "Zoom in/out so that everything is visible"
 msgstr "Vergrößerung so anpassen, das Alles sichtbar ist"
 
-#: ../src/ui/edit/main-page-machines.c:1000
+#: ../src/ui/edit/main-page-machines.c:961
 msgid "Zoom In"
 msgstr "Vergrößern"
 
-#: ../src/ui/edit/main-page-machines.c:1002
+#: ../src/ui/edit/main-page-machines.c:963
 msgid "Zoom in for more details"
 msgstr "Für mehr Details vergrößern"
 
-#: ../src/ui/edit/main-page-machines.c:1007
+#: ../src/ui/edit/main-page-machines.c:968
 msgid "Zoom Out"
 msgstr "Verkleinern"
 
-#: ../src/ui/edit/main-page-machines.c:1009
+#: ../src/ui/edit/main-page-machines.c:970
 msgid "Zoom out for better overview"
 msgstr "Für eine bessere Übersicht verkleinern"
 
-#: ../src/ui/edit/main-page-machines.c:1017
+#: ../src/ui/edit/main-page-machines.c:978
 msgid "Grid"
 msgstr "Raster"
 
-#: ../src/ui/edit/main-page-machines.c:1019
+#: ../src/ui/edit/main-page-machines.c:980
 msgid "Show background grid"
 msgstr "Raster anzeigen"
 
-#: ../src/ui/edit/main-page-machines.c:1020 ../src/ui/edit/main-toolbar.c:627
+#: ../src/ui/edit/main-page-machines.c:981 ../src/ui/edit/main-toolbar.c:623
 msgid "Stop playback of this song"
 msgstr "Abspielen dieses Songs beenden"
 
-#: ../src/ui/edit/main-page-machines.c:1043
+#: ../src/ui/edit/main-page-machines.c:1005
 msgid "machine and wire editor"
-msgstr "Maschienen und Verbindungseditor"
+msgstr "Gerät und Verbindungseditor"
 
-#: ../src/ui/edit/main-page-patterns.c:1860
+#: ../src/ui/edit/main-page-patterns.c:1859
 #, c-format
 msgid "Delete used pattern '%s'"
 msgstr "Benutztes Fragment entfernen '%s'"
 
-#: ../src/ui/edit/main-page-patterns.c:1863
+#: ../src/ui/edit/main-page-patterns.c:1862
 #, c-format
 msgid "Delete unused pattern '%s'"
 msgstr "Unbenutztes Fragment entfernen '%s'"
 
 #. @todo: don't ask if pattern is empty
-#: ../src/ui/edit/main-page-patterns.c:1868
+#: ../src/ui/edit/main-page-patterns.c:1867
 msgid "Delete pattern..."
 msgstr "Fragemnt entfernen ..."
 
-#: ../src/ui/edit/main-page-patterns.c:1943
+#: ../src/ui/edit/main-page-patterns.c:1942
 msgid "pattern view"
 msgstr "Fragmentansicht"
 
-#: ../src/ui/edit/main-page-patterns.c:1947
+#: ../src/ui/edit/main-page-patterns.c:1946
 msgid "pattern view toolbar"
 msgstr "Fragmentansichts-Werkzeugleiste"
 
@@ -731,228 +727,228 @@ msgstr "Fragmentansichts-Werkzeugleiste"
 #. * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
 #. * so, we need to subclass the combobox and add two signals: select-next, select-prev
 #.
-#: ../src/ui/edit/main-page-patterns.c:1969
-#: ../src/ui/edit/main-page-patterns.c:1973
+#: ../src/ui/edit/main-page-patterns.c:1968
+#: ../src/ui/edit/main-page-patterns.c:1972
 msgid "Machine"
 msgstr "Gerät"
 
-#: ../src/ui/edit/main-page-patterns.c:1992
-#: ../src/ui/edit/main-page-patterns.c:1997
+#: ../src/ui/edit/main-page-patterns.c:1991
+#: ../src/ui/edit/main-page-patterns.c:1996
 msgid "Pattern"
 msgstr "Fragment"
 
-#: ../src/ui/edit/main-page-patterns.c:2014
-#: ../src/ui/edit/main-page-patterns.c:2019
-#: ../src/ui/edit/main-page-waves.c:1092
+#: ../src/ui/edit/main-page-patterns.c:2013
+#: ../src/ui/edit/main-page-patterns.c:2018
+#: ../src/ui/edit/main-page-waves.c:1086
 msgid "Wave"
 msgstr "Wellenform"
 
-#: ../src/ui/edit/main-page-patterns.c:2034
-#: ../src/ui/edit/main-page-patterns.c:2039
+#: ../src/ui/edit/main-page-patterns.c:2033
+#: ../src/ui/edit/main-page-patterns.c:2038
 msgid "Octave"
 msgstr "Oktave"
 
-#: ../src/ui/edit/main-page-patterns.c:2072
+#: ../src/ui/edit/main-page-patterns.c:2071
 msgid "pattern editor"
 msgstr "Fragemnteditor"
 
-#: ../src/ui/edit/main-page-patterns.c:2081
+#: ../src/ui/edit/main-page-patterns.c:2080
 msgid "New track"
 msgstr "Neue Spur"
 
-#: ../src/ui/edit/main-page-patterns.c:2090
+#: ../src/ui/edit/main-page-patterns.c:2089
 msgid "Remove last track"
 msgstr "Letzte Spur entfernen"
 
-#: ../src/ui/edit/main-page-patterns.c:2104
+#: ../src/ui/edit/main-page-patterns.c:2103
 msgid "New pattern ..."
 msgstr "Neues Fragment ..."
 
-#: ../src/ui/edit/main-page-patterns.c:2113
+#: ../src/ui/edit/main-page-patterns.c:2112
 msgid "Pattern properties..."
 msgstr "Fragmenteigenschaften ..."
 
-#: ../src/ui/edit/main-page-patterns.c:2122
+#: ../src/ui/edit/main-page-patterns.c:2121
 msgid "Remove pattern..."
 msgstr "Fragment entfernen ..."
 
-#: ../src/ui/edit/main-page-patterns.c:2131
+#: ../src/ui/edit/main-page-patterns.c:2130
 msgid "Copy pattern..."
 msgstr "Fragment kopieren ..."
 
-#: ../src/ui/edit/main-page-sequence.c:852
+#: ../src/ui/edit/main-page-sequence.c:835
 msgid "Pos."
 msgstr "Pos."
 
-#: ../src/ui/edit/main-page-sequence.c:857
+#: ../src/ui/edit/main-page-sequence.c:840
 msgid "Ticks"
 msgstr "Ticks"
 
-#: ../src/ui/edit/main-page-sequence.c:858
+#: ../src/ui/edit/main-page-sequence.c:841
 msgid "Time"
 msgstr "Zeit"
 
-#: ../src/ui/edit/main-page-sequence.c:965
-#: ../src/ui/edit/main-page-sequence.c:996
+#: ../src/ui/edit/main-page-sequence.c:948
+#: ../src/ui/edit/main-page-sequence.c:979
 msgid "Labels"
 msgstr "Labels"
 
-#: ../src/ui/edit/main-page-sequence.c:1326
+#: ../src/ui/edit/main-page-sequence.c:1309
 msgid "  clear"
 msgstr "  löschen"
 
-#: ../src/ui/edit/main-page-sequence.c:1328
+#: ../src/ui/edit/main-page-sequence.c:1311
 msgid "  mute"
 msgstr "  stumm"
 
-#: ../src/ui/edit/main-page-sequence.c:1330
+#: ../src/ui/edit/main-page-sequence.c:1313
 msgid "  break"
 msgstr "  abbrechen"
 
-#: ../src/ui/edit/main-page-sequence.c:1333
-msgid "  bypass"
-msgstr "durchschleifen"
+#: ../src/ui/edit/main-page-sequence.c:1316
+msgid "  thru"
+msgstr "  durchleiten"
 
-#: ../src/ui/edit/main-page-sequence.c:1339
+#: ../src/ui/edit/main-page-sequence.c:1322
 msgid "  solo"
 msgstr "  solo"
 
-#: ../src/ui/edit/main-page-sequence.c:2627
+#: ../src/ui/edit/main-page-sequence.c:2616
 msgid "sequence view"
 msgstr "Sequenzansicht"
 
-#: ../src/ui/edit/main-page-sequence.c:2631
+#: ../src/ui/edit/main-page-sequence.c:2620
 msgid "sequence view toolbar"
-msgstr "Sequenzansicht Werkzeugleiste"
+msgstr "Sequenzansicht-Werkzeugleiste"
 
-#: ../src/ui/edit/main-page-sequence.c:2640
+#: ../src/ui/edit/main-page-sequence.c:2629
 msgid "Show every n-th line"
 msgstr "Jede n-te Zeile anzeigen"
 
-#: ../src/ui/edit/main-page-sequence.c:2645
-#: ../src/ui/edit/main-page-sequence.c:2649
+#: ../src/ui/edit/main-page-sequence.c:2634
+#: ../src/ui/edit/main-page-sequence.c:2638
 msgid "Steps"
 msgstr "Unterteilungen"
 
-#: ../src/ui/edit/main-page-sequence.c:2671
+#: ../src/ui/edit/main-page-sequence.c:2660
 msgid "Add track"
 msgstr "Spur hinzufügen"
 
-#: ../src/ui/edit/main-page-sequence.c:2677
+#: ../src/ui/edit/main-page-sequence.c:2666
 msgid "Remove track"
 msgstr "Spur entfernen"
 
-#: ../src/ui/edit/main-page-sequence.c:2691
+#: ../src/ui/edit/main-page-sequence.c:2680
 msgid "Move track left"
 msgstr "Spur nach links verschieben"
 
-#: ../src/ui/edit/main-page-sequence.c:2700
+#: ../src/ui/edit/main-page-sequence.c:2689
 msgid "Move track right"
 msgstr "Spur nach recht verschieben"
 
-#: ../src/ui/edit/main-page-sequence.c:2751
+#: ../src/ui/edit/main-page-sequence.c:2740
 msgid "Browse to labels in the sequence"
 msgstr "Markierungen in der Sequenz anspringen"
 
-#: ../src/ui/edit/main-page-sequence.c:2802
+#: ../src/ui/edit/main-page-sequence.c:2787
 msgid "sequence editor"
 msgstr "Song Abfolgeeditor"
 
-#: ../src/ui/edit/main-page-sequence.c:2828
+#: ../src/ui/edit/main-page-sequence.c:2813
 msgid "pattern list for sequence track"
 msgstr "Fragmentliste für Sequenzspur"
 
-#: ../src/ui/edit/main-page-sequence.c:2835
+#: ../src/ui/edit/main-page-sequence.c:2820
 msgid "Key"
 msgstr "Taste"
 
-#: ../src/ui/edit/main-page-sequence.c:2849
+#: ../src/ui/edit/main-page-sequence.c:2834
 msgid "Patterns"
 msgstr "Fragmente"
 
-#: ../src/ui/edit/main-page-waves.c:1031
+#: ../src/ui/edit/main-page-waves.c:1025
 msgid "wave table view"
 msgstr "Wellenformtabellenansicht"
 
-#: ../src/ui/edit/main-page-waves.c:1048
+#: ../src/ui/edit/main-page-waves.c:1042
 msgid "sample list toolbar"
-msgstr "Samplelisten Werkzeugleiste"
+msgstr "Samplelisten-Werkzeugleiste"
 
-#: ../src/ui/edit/main-page-waves.c:1053
+#: ../src/ui/edit/main-page-waves.c:1047
 msgid "Play current wave table entry as C-4"
 msgstr "Aktuelle Wellenform als C-4 abspielen"
 
-#: ../src/ui/edit/main-page-waves.c:1060
+#: ../src/ui/edit/main-page-waves.c:1054
 msgid "Stop playback of current wave table entry"
 msgstr "Abspielen der aktuellen Wellenform anhalten"
 
-#: ../src/ui/edit/main-page-waves.c:1066
+#: ../src/ui/edit/main-page-waves.c:1060
 msgid "Clear"
 msgstr "Freigeben"
 
-#: ../src/ui/edit/main-page-waves.c:1067
+#: ../src/ui/edit/main-page-waves.c:1061
 msgid "Clear current wave table entry"
 msgstr "Aktuelle Wellenform entfernen"
 
-#: ../src/ui/edit/main-page-waves.c:1079
+#: ../src/ui/edit/main-page-waves.c:1073
 msgid "wave list"
 msgstr "Wellenformtabelle"
 
 #. Ix: index in wavetable
-#: ../src/ui/edit/main-page-waves.c:1088
+#: ../src/ui/edit/main-page-waves.c:1082
 msgid "Ix"
 msgstr "Ix"
 
-#: ../src/ui/edit/main-page-waves.c:1098 ../src/ui/edit/main-toolbar.c:678
+#: ../src/ui/edit/main-page-waves.c:1092 ../src/ui/edit/main-toolbar.c:674
 msgid "Volume"
 msgstr "Lautstärke"
 
-#: ../src/ui/edit/main-page-waves.c:1103 ../src/ui/edit/main-toolbar.c:635
-#: ../src/ui/edit/main-toolbar.c:636
+#: ../src/ui/edit/main-page-waves.c:1097 ../src/ui/edit/main-toolbar.c:631
+#: ../src/ui/edit/main-toolbar.c:632
 msgid "Loop"
 msgstr "Wiederholen"
 
-#: ../src/ui/edit/main-page-waves.c:1123
+#: ../src/ui/edit/main-page-waves.c:1117
 msgid "sample browser toolbar"
-msgstr "Samplebrowser Werkzeugleiste"
+msgstr "Samplebrowser-Werkzeugleiste"
 
-#: ../src/ui/edit/main-page-waves.c:1128
+#: ../src/ui/edit/main-page-waves.c:1122
 msgid "Play current sample"
 msgstr "Aktuelles Sample abspielen"
 
-#: ../src/ui/edit/main-page-waves.c:1134
+#: ../src/ui/edit/main-page-waves.c:1128
 msgid "Stop playback of current sample"
 msgstr "Abspielen des aktuellen Samples anhalten"
 
-#: ../src/ui/edit/main-page-waves.c:1141
+#: ../src/ui/edit/main-page-waves.c:1135
 msgid "Load current sample into selected wave table entry"
 msgstr "Aktuelles Sample in den ausgewählten Wellenformeintrag laden"
 
-#: ../src/ui/edit/main-page-waves.c:1162
+#: ../src/ui/edit/main-page-waves.c:1156
 msgid "sample edit toolbar"
-msgstr "Sampleeditor Werkzeugleiste"
+msgstr "Sampleeditor-Werkzeugleiste"
 
-#: ../src/ui/edit/main-page-waves.c:1174
+#: ../src/ui/edit/main-page-waves.c:1168
 msgid "wave-level list"
-msgstr "Wellenformebenen liste"
+msgstr "Wellenformebenenliste"
 
-#: ../src/ui/edit/main-page-waves.c:1182
+#: ../src/ui/edit/main-page-waves.c:1176
 msgid "Root"
 msgstr "Basis"
 
-#: ../src/ui/edit/main-page-waves.c:1185
+#: ../src/ui/edit/main-page-waves.c:1179
 msgid "Length"
 msgstr "Länge"
 
-#: ../src/ui/edit/main-page-waves.c:1188
+#: ../src/ui/edit/main-page-waves.c:1182
 msgid "Rate"
 msgstr "Rate"
 
-#: ../src/ui/edit/main-page-waves.c:1192
+#: ../src/ui/edit/main-page-waves.c:1186
 msgid "Loop start"
 msgstr "Loopanfang"
 
-#: ../src/ui/edit/main-page-waves.c:1196
+#: ../src/ui/edit/main-page-waves.c:1190
 msgid "Loop end"
 msgstr "Loopende"
 
@@ -1000,77 +996,77 @@ msgstr "Songinformationen"
 msgid "song meta data editor"
 msgstr "Song Metadateneditor"
 
-#: ../src/ui/edit/main-statusbar.c:255
+#: ../src/ui/edit/main-statusbar.c:250
 msgid "status bar"
 msgstr "Statusleiste"
 
-#: ../src/ui/edit/main-statusbar.c:260 ../src/ui/edit/main-statusbar.c:278
-#: ../src/ui/edit/main-statusbar.c:290 ../src/ui/edit/main-statusbar.c:302
+#: ../src/ui/edit/main-statusbar.c:255 ../src/ui/edit/main-statusbar.c:273
+#: ../src/ui/edit/main-statusbar.c:285 ../src/ui/edit/main-statusbar.c:297
 msgid "default"
 msgstr "Vorgabe"
 
-#: ../src/ui/edit/main-statusbar.c:262 ../src/ui/edit/main-statusbar.c:386
+#: ../src/ui/edit/main-statusbar.c:257 ../src/ui/edit/main-statusbar.c:381
 msgid "Ready to rock!"
 msgstr "Bereit zum rocken!"
 
-#: ../src/ui/edit/main-statusbar.c:268
+#: ../src/ui/edit/main-statusbar.c:263
 msgid "CPU load"
 msgstr "CPU Last"
 
-#: ../src/ui/edit/main-statusbar.c:276
+#: ../src/ui/edit/main-statusbar.c:271
 msgid "Playback time"
 msgstr "Abspielzeit"
 
-#: ../src/ui/edit/main-statusbar.c:288
+#: ../src/ui/edit/main-statusbar.c:283
 msgid "Playback position"
 msgstr "Abspielposition"
 
-#: ../src/ui/edit/main-statusbar.c:300
+#: ../src/ui/edit/main-statusbar.c:295
 msgid "Playback length"
 msgstr "Abspiellänge"
 
-#: ../src/ui/edit/main-toolbar.c:273
+#: ../src/ui/edit/main-toolbar.c:271
 msgid "Error"
 msgstr "Fehler"
 
-#: ../src/ui/edit/main-toolbar.c:273
+#: ../src/ui/edit/main-toolbar.c:271
 msgid "An error occurred"
 msgstr "Ein Fehler trat auf"
 
-#: ../src/ui/edit/main-toolbar.c:299
+#: ../src/ui/edit/main-toolbar.c:297
 msgid "Warning"
 msgstr "Warnung"
 
-#: ../src/ui/edit/main-toolbar.c:299
+#: ../src/ui/edit/main-toolbar.c:297
 msgid "A problem occurred"
-msgstr "Ein Fehler trat auf"
+msgstr "Ein Problem trat auf"
 
-#: ../src/ui/edit/main-toolbar.c:589
+#: ../src/ui/edit/main-toolbar.c:585
 msgid "main toolbar"
-msgstr "Geräteansichts-Werkzeugleiste"
+msgstr "Hauptwerkzeugleiste"
 
-#: ../src/ui/edit/main-toolbar.c:595
+#: ../src/ui/edit/main-toolbar.c:591
 msgid "Prepare a new empty song"
 msgstr "Einen leeren Song anlegen"
 
-#: ../src/ui/edit/main-toolbar.c:601
+#: ../src/ui/edit/main-toolbar.c:597
 msgid "Load a new song"
 msgstr "Einen neuen Song laden"
 
-#: ../src/ui/edit/main-toolbar.c:608
+#: ../src/ui/edit/main-toolbar.c:604
 msgid "Save this song"
 msgstr "Diesen Song abspeichern"
 
-#: ../src/ui/edit/main-toolbar.c:619
+#: ../src/ui/edit/main-toolbar.c:615
 msgid "Play this song"
 msgstr "Diesen Song abspielen"
 
-#: ../src/ui/edit/main-toolbar.c:637
+#: ../src/ui/edit/main-toolbar.c:633
 msgid "Toggle looping of playback"
 msgstr "Wiederholen der Wiedergabe umschalten"
 
 #. @idea have distinct tooltips with channel names
-#: ../src/ui/edit/main-toolbar.c:653
+#: ../src/ui/edit/main-toolbar.c:649
 msgid "playback volume"
 msgstr "Abspiellautstärke ändern"
 
@@ -1078,7 +1074,7 @@ msgstr "Abspiellautstärke ändern"
 #. min=
 #. max=
 #. step=
-#: ../src/ui/edit/main-toolbar.c:671
+#: ../src/ui/edit/main-toolbar.c:667
 msgid "Change playback volume"
 msgstr "Abspiellautstärke ändern"
 
@@ -1102,7 +1098,7 @@ msgstr "Geräteansicht"
 
 #: ../src/ui/edit/main-window.c:412
 msgid "Really quit?"
-msgstr "Wirklich beenden ?"
+msgstr "Wirklich beenden?"
 
 #: ../src/ui/edit/main-window.c:412 ../src/ui/edit/main-window.c:436
 msgid "All unsaved changes will be lost then."
@@ -1111,7 +1107,7 @@ msgstr "Alle ungespeicherten Änderungen werden dann verloren gehen."
 #. @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
 #: ../src/ui/edit/main-window.c:436
 msgid "New song?"
-msgstr "Neuen Song ?"
+msgstr "Neuen Song?"
 
 #: ../src/ui/edit/main-window.c:455
 msgid "Open a song"
@@ -1259,7 +1255,7 @@ msgstr "Afnahme nach: %s"
 
 #: ../src/ui/edit/render-progress.c:122 ../src/ui/edit/render-progress.c:124
 msgid "song render progress"
-msgstr "Song Gernerierungsfortschritt"
+msgstr "Song Generierungsfortschritt"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:141 ../src/ui/edit/settings-dialog.c:144
@@ -1326,7 +1322,7 @@ msgstr "Systemvorgabe (%s)"
 
 #: ../src/ui/edit/settings-page-directories.c:83
 msgid "default directory settings"
-msgstr "Standartverzeichnis-Einstellungen"
+msgstr "Standardverzeichnis-Einstellungen"
 
 #: ../src/ui/edit/settings-page-directories.c:99
 msgid "Songs"
@@ -1367,7 +1363,7 @@ msgstr "Kann pixmap Datei nicht finden: %s"
 
 #: ../src/ui/edit/wire-analysis-dialog.c:395
 msgid "wire analysis"
-msgstr "Verbinungsanalyse"
+msgstr "Verbindungsanalyse"
 
 #: ../src/ui/edit/wire-analysis-dialog.c:419
 #, c-format
@@ -1382,18 +1378,6 @@ msgstr "Trennen"
 msgid "Signal Analysis..."
 msgstr "Signal Analyse ..."
 
-#~ msgid "Show version"
-#~ msgstr "Version anzeigen"
-
-#~ msgid "Buzztard Music Editor"
-#~ msgstr "Buzztard Music Editor"
-
-#~ msgid "Edit buzztard song files"
-#~ msgstr "Bearbeite buzzztard Musikstücke"
-
-#~ msgid "  thru"
-#~ msgstr "  durchleiten"
-
 #~ msgid ""
 #~ "Improvements in all areas.  We now have native buzzmachine support and "
 #~ "better compatibility. The buzztard editor got an own pattern editor "
@@ -1407,12 +1391,6 @@ msgstr "Signal Analyse ..."
 #~ "vielen Tastaturkommandos ausgestattet. Es gibt Einstellungen für die "
 #~ "Vorgabeverzeichnisse. Es gibt Dialog für die Aufnahme eines Mixdowns oder "
 #~ "Einzeltracks."
-
-#~ msgid "machine rename"
-#~ msgstr "Gerät umbenennen"
-
-#~ msgid "_Open Recent"
-#~ msgstr "Zuletzt geöffnete Dateien"
 
 #~ msgid "Channels"
 #~ msgstr "Kanäle"

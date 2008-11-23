@@ -28,6 +28,7 @@ TESTS = \
 #
 TESTS_ENVIRONMENT = \
 	CK_DEFAULT_TIMEOUT=20 \
+	LANG=en_GB \
 	$(LIBTOOL) --mode=execute
 
 if BUILD_CHECK_TESTS
