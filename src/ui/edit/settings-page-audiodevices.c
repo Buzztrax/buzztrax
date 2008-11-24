@@ -109,8 +109,9 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   g_free(str);
 
   audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
-  // this will also contain stuff like: "Sink/Analyzer/Audio"
-  // solution would be to give all real AudioSinks a "Device" category
+  // this will also contain stuff like: "Sink/Analyzer/Audio" and "../LADSPA" stuff
+  // solution 1: would be to give all real AudioSinks a "Device" category
+  // solution 2: give negative categories as well
 
   // @todo: sort list alphabetically ?
   

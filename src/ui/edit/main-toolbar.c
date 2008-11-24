@@ -74,6 +74,9 @@ struct _BtMainToolbarPrivate {
 
   /* playback state */
   gboolean is_playing;
+  
+  /* lock for multithreaded access */
+  GMutex        *lock;
 };
 
 static GtkHandleBoxClass *parent_class=NULL;
@@ -315,7 +318,9 @@ static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,G
     gdouble cur, peak;
     guint i;
 
+    g_mutex_lock(self->priv->lock);
     g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+    g_mutex_unlock(self->priv->lock);
 
     if(!GST_CLOCK_TIME_IS_VALID(time) || !self->priv->is_playing)
       goto done;
@@ -373,7 +378,9 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
       
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
+        g_mutex_lock(self->priv->lock);
         g_object_add_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+        g_mutex_unlock(self->priv->lock);
         clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
         gst_clock_id_wait_async(clock_id,on_delayed_song_level_change,(gpointer)params);
         gst_clock_id_unref(clock_id);
@@ -869,9 +876,10 @@ static void bt_main_toolbar_dispose(GObject *object) {
 }
 
 static void bt_main_toolbar_finalize(GObject *object) {
-  //BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
+  BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
 
-  //GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p",self);
+  g_mutex_free (self->priv->lock);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
@@ -880,6 +888,8 @@ static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_TOOLBAR, BtMainToolbarPrivate);
+  
+  self->priv->lock=g_mutex_new ();
 }
 
 static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {

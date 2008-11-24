@@ -1,3 +1,12 @@
+2008-11-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-toolbar.c:
+	  Also use a mutex here to fix concurret access.
+
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Add todo.
+
 2008-11-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/figures/machine-preferences.png:
