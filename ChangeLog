@@ -1,5 +1,12 @@
 2008-11-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/buzzcallbacks.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-toolbar.c:
+	  Downgrade some warning-logs from development.
+
+2008-11-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* README:
 	* src/lib/core/sink-bin.c:
 	* src/lib/core/song.c:

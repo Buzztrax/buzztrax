@@ -225,7 +225,7 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
 
   g_assert(user_data);
 
-  GST_WARNING("toolbar stop event occurred");
+  GST_INFO("toolbar stop event occurred");
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   bt_song_stop(song);
@@ -469,7 +469,7 @@ static gboolean on_song_volume_slider_release_event(GtkWidget *widget, GdkEventB
       gulong param;
       
       // update the default value at ts=0
-      GST_WARNING("updating global param at ts=0");
+      //GST_WARNING("updating global param at ts=0");
       param=bt_machine_get_global_param_index(self->priv->master,"master-volume",NULL);
       if(bt_machine_has_global_param_default_set(self->priv->master,param))
         bt_machine_global_controller_change_value(self->priv->master,param,G_GUINT64_CONSTANT(0),NULL);

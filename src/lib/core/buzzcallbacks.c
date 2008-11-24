@@ -58,7 +58,7 @@ static void const *GetWave(CHostCallbacks *self, int const i) {
   BtWaveLoopMode loop_mode;
   gdouble volume;
   
-  GST_WARNING("(%p,%d)",self,i);
+  GST_DEBUG("(%p,%d)",self,i);
   if(!song) return(NULL);
   
   g_object_get(song,"wavetable",&wavetable,NULL);
@@ -91,7 +91,7 @@ static void const *GetWaveLevel(CHostCallbacks *self, int const i, int const lev
   BtWave *wave;
   BtWavelevel *wavelevel;
   
-  GST_WARNING("(%p,%d,%d)",self,i,level);
+  GST_DEBUG("(%p,%d,%d)",self,i,level);
   if(!song) return(NULL);
   
   g_object_get(song,"wavetable",&wavetable,NULL);
@@ -128,7 +128,7 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
   gint max_diff=/*NOTE_MAX*/200+1;
   guchar root_note;
   
-  GST_WARNING("(%p,%d,%d)",self,i,note);
+  GST_DEBUG("(%p,%d,%d)",self,i,note);
   if(!song) return(NULL);
 
   g_object_get(song,"wavetable",&wavetable,NULL);
@@ -140,7 +140,7 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
     for(node=list;node;node=g_list_next(node)) {
       wavelevel=BT_WAVELEVEL(node->data);
       g_object_get(wavelevel,"root-note",&root_note,NULL);
-      GST_WARNING("  note=%d, diff=%d, max_diff=%d",
+      GST_DEBUG("  note=%d, diff=%d, max_diff=%d",
         (gint)root_note,abs((gint)note-root_note),max_diff);
 
       if(abs(note-(gint)root_note)<max_diff) {
@@ -152,7 +152,7 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
       gulong length,rate;
       glong ls, le;
       
-      GST_WARNING("  wavelevel found");
+      GST_DEBUG("  wavelevel found");
       
       // fill BuzzWaveLevel
       g_object_get(best,"length",&length, "rate",&rate,

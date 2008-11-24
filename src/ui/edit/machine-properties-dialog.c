@@ -335,13 +335,13 @@ static gboolean on_button_release_event(GtkWidget *widget, GdkEventButton *event
       
       // update the default value at ts=0
       if(voice==-1) {
-        GST_WARNING("updating global param at ts=0");
+        //GST_WARNING("updating global param at ts=0");
         param=bt_machine_get_global_param_index(self->priv->machine,property_name,NULL);
         if(bt_machine_has_global_param_default_set(self->priv->machine,param))
           bt_machine_global_controller_change_value(self->priv->machine,param,G_GUINT64_CONSTANT(0),NULL);
       }
       else {
-        GST_WARNING("updating voice %d param at ts=0",voice);
+        //GST_WARNING("updating voice %d param at ts=0",voice);
         param=bt_machine_get_voice_param_index(self->priv->machine,property_name,NULL);
         if(bt_machine_has_voice_param_default_set(self->priv->machine,voice,param))
           bt_machine_voice_controller_change_value(self->priv->machine,voice,param,G_GUINT64_CONSTANT(0),NULL);
