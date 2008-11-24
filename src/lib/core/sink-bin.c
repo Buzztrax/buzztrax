@@ -56,7 +56,7 @@
 #include <libbuzztard-core/sink-bin.h>
 
 /* define this to get diagnostics of the sink data flow */
-#define BT_MONITOR_SINK_DATA_FLOW
+//#define BT_MONITOR_SINK_DATA_FLOW
 /* define this to verify continuos timestamps */
 //#define BT_MONITOR_TIMESTAMPS
 

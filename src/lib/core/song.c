@@ -103,12 +103,6 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper
 
-/* Ideally this would be 0. But unfortunately our songs stop too early for yet
- * unknown reason.
- */
-//#define SEEK_END_EXTRA_BARS 8
-#define SEEK_END_EXTRA_BARS 0
-
 /*
  * bt_song_seek_to_play_pos:
  * @self: #BtSong to seek
@@ -139,7 +133,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH,
         GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
-        GST_SEEK_TYPE_SET, (length+SEEK_END_EXTRA_BARS)*bar_time);
+        GST_SEEK_TYPE_SET, (length+1)*bar_time);
   }
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
       GST_WARNING("element failed to seek to play_pos event");
@@ -184,11 +178,11 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH,
         GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
-        GST_SEEK_TYPE_SET, (length+SEEK_END_EXTRA_BARS)*bar_time);
+        GST_SEEK_TYPE_SET, (length+1)*bar_time);
     self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_NONE,
         GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
-        GST_SEEK_TYPE_SET, (length+SEEK_END_EXTRA_BARS)*bar_time);
+        GST_SEEK_TYPE_SET, (length+1)*bar_time);
   }
   /* the update needs to take the current play-position into account */
   bt_song_seek_to_play_pos(self);
@@ -424,11 +418,8 @@ static void on_song_eos(const GstBus * const bus, const GstMessage * const messa
   const BtSong * const self = BT_SONG(user_data);
 
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
-    GST_WARNING("received EOS bus message from: %s", 
+    GST_INFO("received EOS bus message from: %s", 
       GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
-    // @todo: we're getting this too early
-    // gst_base_audio_sink_callback() post eos, this runs
-    // gst_base_audio_sink_drain()
     bt_song_stop(self);
   }
 }
@@ -457,7 +448,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     GstState oldstate,newstate,pending;
 
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
-    GST_WARNING("state change on the bin: %s -> %s", 
+    GST_INFO("state change on the bin: %s -> %s", 
       gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
       /* if we do this in READY_TO_PAUSED, we get two PAUSED -> PAUSED transitions
@@ -500,7 +491,7 @@ static void on_song_async_done(const GstBus * const bus, GstMessage *message, gc
   g_assert(user_data);
   
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
-    GST_WARNING("async state-change done");
+    GST_INFO("async state-change done");
   }
 }
 
@@ -749,7 +740,7 @@ gboolean bt_song_stop(const BtSong * const self) {
   if(!(self->priv->is_preparing || self->priv->is_playing)) {
     return(TRUE);
   }
-
+  
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to ready state");
   }

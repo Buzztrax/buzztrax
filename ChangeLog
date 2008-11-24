@@ -1,5 +1,13 @@
 2008-11-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* README:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song.c:
+	  Remove hack, now that premature eos is fixed in GStreamer (needs
+	  gst-plugins-base 0.10.22).
+
+2008-11-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/main-toolbar.c:
 	  Also use a mutex here to fix concurret access.

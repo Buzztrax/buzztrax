@@ -21,6 +21,8 @@ gnome-canvas
 librsvg
 gst-buzztard (from buzztard svn, use same version as this module)
 
+Regarding gstreamer - the newer the better.
+
 = supported packages =
 check (http://check.sf.net - for unit tests)
 gconf (for persistent settings)
