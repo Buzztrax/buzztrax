@@ -1,3 +1,13 @@
+2008-11-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	  Prepare release.
+
+	* po/LINGUAS:
+	* po/da.po:
+	* po/da.po (added):
+	  Add new translation.
+
 2008-11-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/buzzcallbacks.c:

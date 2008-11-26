@@ -1,4 +1,4 @@
-0.4.0 the light in your eyes (??.???.2008)
+0.4.0 the light in your eyes (26.Nov.2008)
 ================================================================================
 As planned, main focus for this release was the wavetable support. Its done -
 buzztard can load what gstreamer can decode. The wavetable view has a nice
