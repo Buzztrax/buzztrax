@@ -80,7 +80,7 @@ static gboolean bt_settings_page_directories_init_ui(const BtSettingsPageDirecto
   gchar *str;
   gchar *song_folder,*record_folder,*sample_folder;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("default directory settings"));
+  gtk_widget_set_name(GTK_WIDGET(self),"default directory settings");
 
   // get settings
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);

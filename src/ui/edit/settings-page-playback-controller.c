@@ -93,7 +93,7 @@ static gboolean bt_settings_page_playback_controller_init_ui(const BtSettingsPag
   guint port;
   gchar *str;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("playback controller settings"));
+  gtk_widget_set_name(GTK_WIDGET(self),"playback controller settings");
 
   // get settings
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);

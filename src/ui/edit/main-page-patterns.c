@@ -1940,11 +1940,11 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
 
   GST_DEBUG("!!!! self=%p",self);
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("pattern view"));
+  gtk_widget_set_name(GTK_WIDGET(self),"pattern view");
 
   // add toolbar
   toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(toolbar,_("pattern view toolbar"));
+  gtk_widget_set_name(toolbar,"pattern view toolbar");
   gtk_box_pack_start(GTK_BOX(self),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
 
@@ -1970,7 +1970,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->machine_menu),TRUE,TRUE,2);
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
-  gtk_widget_set_name(tool_item,_("Machine"));
+  gtk_widget_set_name(tool_item,"Machine");
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
@@ -1994,7 +1994,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   self->priv->pattern_menu_changed=g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", G_CALLBACK(on_pattern_menu_changed), (gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
-  gtk_widget_set_name(tool_item,_("Pattern"));
+  gtk_widget_set_name(tool_item,"Pattern");
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
@@ -2016,7 +2016,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   //self->priv->wavetable_menu_changed=g_signal_connect(G_OBJECT(self->priv->wavetable_menu), "changed", G_CALLBACK(on_wavetable_menu_changed), (gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
-  gtk_widget_set_name(tool_item,_("Wave"));
+  gtk_widget_set_name(tool_item,"Wave");
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
@@ -2036,7 +2036,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   g_signal_connect(G_OBJECT(self->priv->base_octave_menu), "changed", G_CALLBACK(on_base_octave_menu_changed), (gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
-  gtk_widget_set_name(tool_item,_("Octave"));
+  gtk_widget_set_name(tool_item,"Octave");
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
@@ -2069,7 +2069,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(scrolled_window));
 
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
-  gtk_widget_set_name(GTK_WIDGET(self->priv->pattern_table),_("pattern editor"));
+  gtk_widget_set_name(GTK_WIDGET(self->priv->pattern_table),"pattern editor");
 
   GST_DEBUG("  before context menu",self);
   // generate the context menu

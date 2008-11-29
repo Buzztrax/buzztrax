@@ -116,7 +116,7 @@ static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePrese
   //GdkPixbuf *window_icon=NULL;
   GList *buttons;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("preset name and comment"));
+  gtk_widget_set_name(GTK_WIDGET(self),"preset name and comment");
 
   // create and set window icon
   /*

@@ -2630,11 +2630,11 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
 
   GST_DEBUG("!!!! self=%p",self);
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("sequence view"));
+  gtk_widget_set_name(GTK_WIDGET(self),"sequence view");
 
   // add toolbar
   toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(toolbar,_("sequence view toolbar"));
+  gtk_widget_set_name(toolbar,"sequence view toolbar");
   gtk_box_pack_start(GTK_BOX(self),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
   // add toolbar widgets
@@ -2652,7 +2652,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->bars_menu),TRUE,TRUE,2);
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
-  gtk_widget_set_name(tool_item,_("Steps"));
+  gtk_widget_set_name(tool_item,"Steps");
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
@@ -2805,7 +2805,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "motion-notify-event", G_CALLBACK(on_sequence_table_motion_notify_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "scroll-event", G_CALLBACK(on_sequence_table_scroll_event), (gpointer)self);
-  gtk_widget_set_name(GTK_WIDGET(self->priv->sequence_table),_("sequence editor"));
+  gtk_widget_set_name(GTK_WIDGET(self->priv->sequence_table),"sequence editor");
 
   // make pos scrolled-window also use the vertical-scrollbar of the sequence scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
@@ -2831,7 +2831,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
   self->priv->pattern_list=GTK_TREE_VIEW(gtk_tree_view_new());
   g_object_set(self->priv->pattern_list,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
-  gtk_widget_set_name(GTK_WIDGET(self->priv->pattern_list),_("pattern list for sequence track"));
+  gtk_widget_set_name(GTK_WIDGET(self->priv->pattern_list),"pattern list for sequence track");
 
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),

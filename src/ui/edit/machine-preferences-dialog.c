@@ -210,7 +210,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("machine preferences"));
+  gtk_widget_set_name(GTK_WIDGET(self),"machine preferences");
 
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));

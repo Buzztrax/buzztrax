@@ -68,28 +68,40 @@
  */
 /*
  * @todo: try to derive this from GstBin!
- *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
- *  - when adding internal machines we need to fix the ghost pads (this may require relinking)
- *    gst_element_add_ghost_pad() and gst_element_remove_ghost_pad()
- *  - can we have sometimes-shost-pads (look at decodebin)?
+ *  - then put the machines into itself (and not into the songs bin,
+ *    but insert the machine directly into the song->bin
+ *  - when adding internal machines we need to fix the ghost pads
+ *    gst_ghost_pad_set_target()
+ *  - can we have sometimes-ghost-pads (look at decodebin)?
+ *    we need this for tee/adder
  *
  * @todo: if a song has unlinked machines, it does not play:
  * 1) it would be good to have the src-pad of the initialy blocked, then
  * unblocked when there is a wire connected and again blocked, if the wire is
  * removed. If we use a tee, we would need to pre-create the request-pad and add
  * API, so that wire can get the src/dst pad from a machine for linking.
+ *
  * 2) we could put a fakesrc in machines[PART_ADDER] and a fakesink into
  * machines[PART_SPREADER] (depending on machine type).
  * _activate_{adder,spreader} would remove them. bt_wire_unlink_machines would
  * need to call new _deactivate_{adder,spreader}, which in the case of last pad
  * would remove the elements and put fakesrc/sink there. we could even call the
  * _deactivate in _setup() (no adder/spreader mean put fakesrc/ink there).
+ *
  * 3) we could use gst_element_set_locked_state() if a machine is unconnected.
  * bt_machine_{lock,unlock} / or locked property. when adding/removing wires to
  * the setup, it needs to check the states of the machines and update the
  * locking-state. All machines that are not connected to the master should be
  * locked.
  * - what about effect connected to the master, but without source?
+ *
+ * 4) we could add the machine only to the pipeline once its fully connected
+ * - when ever we link/unlink two machine we need to update the pipeline
+ *   - remove everything from pipeline
+ *   - check all sources
+ *     - walk all paths to the master
+ *     - for each complete path add all elements not yet added (parent==NULL)
+ *   - can we do this more efficient?
  *
  * @todo: we need BtParameterGroup object with an implementation for the
  * global and one for the voice parameters. Then the machine would have a

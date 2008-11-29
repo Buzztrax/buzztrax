@@ -190,7 +190,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
 static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
   GtkWidget *menu_item,*submenu,*image;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("add menu"));
+  gtk_widget_set_name(GTK_WIDGET(self),"add machine menu");
 
   // generators
   menu_item=gtk_image_menu_item_new_with_label(_("Generators")); // red machine icon
@@ -200,7 +200,7 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
   gtk_widget_show(menu_item);
   // add another submenu
   submenu=gtk_menu_new();
-  gtk_widget_set_name(submenu,_("generators menu"));
+  gtk_widget_set_name(submenu,"generators menu");
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
 
   bt_machine_menu_init_submenu(self,submenu,"Source/Audio",G_CALLBACK(on_source_machine_add_activated));
@@ -213,7 +213,7 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
   gtk_widget_show(menu_item);
   // add another submenu
   submenu=gtk_menu_new();
-  gtk_widget_set_name(submenu,_("effects menu"));
+  gtk_widget_set_name(submenu,"effects menu");
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
 
   bt_machine_menu_init_submenu(self,submenu,"Filter/Effect/Audio",G_CALLBACK(on_processor_machine_add_activated));

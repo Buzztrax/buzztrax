@@ -248,7 +248,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
   GdkPixbuf *window_icon;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("main window"));
+  gtk_widget_set_name(GTK_WIDGET(self),"main window");
   gtk_window_set_role(GTK_WINDOW(self),"buzztard-edit::main");
 
   // create and set window icon

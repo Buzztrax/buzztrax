@@ -1028,7 +1028,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
 
   GST_DEBUG("!!!! self=%p",self);
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("wave table view"));
+  gtk_widget_set_name(GTK_WIDGET(self),"wave table view");
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   
@@ -1045,25 +1045,25 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_paned_pack1(GTK_PANED(hpaned),GTK_WIDGET(box),FALSE,FALSE);
   //       toolbar
   self->priv->list_toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(self->priv->list_toolbar,_("sample list toolbar"));
+  gtk_widget_set_name(self->priv->list_toolbar,"sample list toolbar");
 
   // add buttons (play,stop,clear)
   self->priv->wavetable_play=tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
-  gtk_widget_set_name(tool_item,_("Play"));
+  gtk_widget_set_name(tool_item,"Play");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play current wave table entry as C-4"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_play_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
 
   self->priv->wavetable_stop=tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
-  gtk_widget_set_name(tool_item,_("Stop"));
+  gtk_widget_set_name(tool_item,"Stop");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Stop playback of current wave table entry"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
 
   self->priv->wavetable_clear=tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR));
-  gtk_widget_set_name(tool_item,_("Clear"));
+  gtk_widget_set_name(tool_item,"Clear");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Clear current wave table entry"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_clear_clicked),(gpointer)self);
@@ -1076,7 +1076,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->waves_list=GTK_TREE_VIEW(gtk_tree_view_new());
-  gtk_widget_set_name(GTK_WIDGET(self->priv->waves_list),_("wave list"));
+  gtk_widget_set_name(GTK_WIDGET(self->priv->waves_list),"wave list");
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->waves_list),GTK_SELECTION_BROWSE);
   g_object_set(self->priv->waves_list,"enable-search",FALSE,"rules-hint",TRUE,NULL);
   g_signal_connect(G_OBJECT(self->priv->waves_list),"cursor-changed",G_CALLBACK(on_waves_list_cursor_changed),(gpointer)self);
@@ -1120,24 +1120,24 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_paned_pack2(GTK_PANED(hpaned),GTK_WIDGET(box),TRUE,FALSE);
   //       toolbar
   self->priv->browser_toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(self->priv->browser_toolbar,_("sample browser toolbar"));
+  gtk_widget_set_name(self->priv->browser_toolbar,"sample browser toolbar");
 
   // add buttons (play,stop,load)
   self->priv->browser_play=tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
-  gtk_widget_set_name(tool_item,_("Play"));
+  gtk_widget_set_name(tool_item,"Play");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play current sample"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_browser_toolbar_play_clicked),(gpointer)self);
 
   self->priv->browser_stop=tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
-  gtk_widget_set_name(tool_item,_("Stop"));
+  gtk_widget_set_name(tool_item,"Stop");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Stop playback of current sample"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_browser_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_OPEN));
-  gtk_widget_set_name(tool_item,_("Open"));
+  gtk_widget_set_name(tool_item,"Open");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Load current sample into selected wave table entry"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_browser_toolbar_open_clicked),(gpointer)self);
@@ -1159,7 +1159,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_paned_pack2(GTK_PANED(vpaned),GTK_WIDGET(box),FALSE,FALSE);
   //     toolbar
   self->priv->editor_toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(self->priv->editor_toolbar,_("sample edit toolbar"));
+  gtk_widget_set_name(self->priv->editor_toolbar,"sample edit toolbar");
 
   gtk_box_pack_start(GTK_BOX(box),self->priv->editor_toolbar,FALSE,FALSE,0);
 
@@ -1171,7 +1171,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->wavelevels_list=GTK_TREE_VIEW(gtk_tree_view_new());
-  gtk_widget_set_name(GTK_WIDGET(self->priv->wavelevels_list),_("wave-level list"));
+  gtk_widget_set_name(GTK_WIDGET(self->priv->wavelevels_list),"wave-level list");
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->wavelevels_list),GTK_SELECTION_BROWSE);
   g_object_set(self->priv->wavelevels_list,"enable-search",FALSE,"rules-hint",TRUE,NULL);
   g_signal_connect(G_OBJECT(self->priv->wavelevels_list),"cursor-changed",G_CALLBACK(on_wavelevels_list_cursor_changed),(gpointer)self);

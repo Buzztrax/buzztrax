@@ -138,7 +138,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   GtkListStore *store;
   GtkTreeIter tree_iter;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("buzztard settings"));
+  gtk_widget_set_name(GTK_WIDGET(self),"buzztard settings");
 
   //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
   gtk_window_set_title(GTK_WINDOW(self), _("buzztard settings"));
@@ -219,7 +219,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
 
   // add notebook
   self->priv->settings_pages=GTK_NOTEBOOK(gtk_notebook_new());
-  gtk_widget_set_name(GTK_WIDGET(self->priv->settings_pages),_("settings pages"));
+  gtk_widget_set_name(GTK_WIDGET(self->priv->settings_pages),"settings pages");
   gtk_notebook_set_show_tabs(self->priv->settings_pages,FALSE);
   gtk_notebook_set_show_border(self->priv->settings_pages,FALSE);
   gtk_container_add(GTK_CONTAINER(box),GTK_WIDGET(self->priv->settings_pages));
@@ -247,7 +247,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
 
   // add notebook page #4
   page=gtk_vbox_new(FALSE,0);
-  gtk_widget_set_name(GTK_WIDGET(page),_("color settings"));
+  gtk_widget_set_name(GTK_WIDGET(page),"color settings");
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 4 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
@@ -256,7 +256,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
 
   // add notebook page #5
   page=gtk_vbox_new(FALSE,0);
-  gtk_widget_set_name(GTK_WIDGET(page),_("keyboard shortcut settings"));
+  gtk_widget_set_name(GTK_WIDGET(page),"keyboard shortcut settings");
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 5 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),

@@ -205,7 +205,7 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
 static gboolean bt_interaction_controller_menu_init_ui(const BtInteractionControllerMenu *self) {
   GtkWidget *menu_item,*submenu,*image;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("interaction controller menu"));
+  gtk_widget_set_name(GTK_WIDGET(self),"interaction controller menu");
 
   menu_item=gtk_image_menu_item_new_with_label(_("Bind controller"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self),menu_item);
@@ -214,7 +214,7 @@ static gboolean bt_interaction_controller_menu_init_ui(const BtInteractionContro
   gtk_widget_show(menu_item);
   // add another submenu
   submenu=gtk_menu_new();
-  gtk_widget_set_name(submenu,_("interaction controllers menu"));
+  gtk_widget_set_name(submenu,"interaction controller submenu");
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
 
   bt_interaction_controller_menu_init_device_menu(self,submenu);

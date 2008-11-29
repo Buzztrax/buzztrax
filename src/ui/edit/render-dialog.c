@@ -215,9 +215,9 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
 
   GST_DEBUG("read settings");
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("song rendering"));
+  gtk_widget_set_name(GTK_WIDGET(self),"song rendering");
 
-  gtk_window_set_title(GTK_WINDOW(self), _("song rendering"));
+  gtk_window_set_title(GTK_WINDOW(self),_("song rendering"));
 
   // add dialog commision widgets (okay, cancel)
   gtk_dialog_add_buttons(GTK_DIALOG(self),

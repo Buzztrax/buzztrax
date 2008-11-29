@@ -514,7 +514,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gboolean toolbar_hide,tabs_hide;
   GtkAccelGroup *accel_group=bt_ui_resources_get_accel_group();
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("main menu"));
+  gtk_widget_set_name(GTK_WIDGET(self),"main menu");
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,"tabs-hide",&tabs_hide,NULL);
   g_object_unref(settings);
@@ -522,20 +522,16 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
 
   //-- file menu
   item=gtk_menu_item_new_with_mnemonic(_("_File"));
-  gtk_widget_set_name(item,_("file menu"));
   gtk_container_add(GTK_CONTAINER(self),item);
 
   menu=gtk_menu_new();
-  gtk_widget_set_name(menu,_("file menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,accel_group);
-  gtk_widget_set_name(subitem,_("New"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_new_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN,accel_group);
-  gtk_widget_set_name(subitem,_("Open"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_open_activate),(gpointer)self);
 
@@ -573,93 +569,75 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
 #endif
   
   subitem=gtk_separator_menu_item_new();
-  gtk_widget_set_name(subitem,_("separator"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   gtk_widget_set_sensitive(subitem,FALSE);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE,accel_group);
-  gtk_widget_set_name(subitem,_("Save"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_save_activate),(gpointer)self);
   self->priv->save_item=subitem;
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE_AS,accel_group);
-  gtk_widget_set_name(subitem,_("Save as"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_saveas_activate),(gpointer)self);
 
   subitem=gtk_separator_menu_item_new();
-  gtk_widget_set_name(subitem,_("separator"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   gtk_widget_set_sensitive(subitem,FALSE);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_MEDIA_RECORD,accel_group);
-  gtk_widget_set_name(subitem,_("Render"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_render_activate),(gpointer)self);
 
   subitem=gtk_separator_menu_item_new();
-  gtk_widget_set_name(subitem,_("separator"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   gtk_widget_set_sensitive(subitem,FALSE);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT,accel_group);
-  gtk_widget_set_name(subitem,_("Quit"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_quit_activate),(gpointer)self);
 
   // edit menu
   item=gtk_menu_item_new_with_mnemonic(_("_Edit"));
-  gtk_widget_set_name(item,_("edit menu"));
   gtk_container_add(GTK_CONTAINER(self),item);
 
   menu=gtk_menu_new();
-  gtk_widget_set_name(menu,_("edit menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_CUT,accel_group);
-  gtk_widget_set_name(subitem,_("Cut"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_cut_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_COPY,accel_group);
-  gtk_widget_set_name(subitem,_("Copy"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_copy_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_PASTE,accel_group);
-  gtk_widget_set_name(subitem,_("Paste"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_paste_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_DELETE,accel_group);
-  gtk_widget_set_name(subitem,_("Delete"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_delete_activate),(gpointer)self);
 
   subitem=gtk_separator_menu_item_new();
-  gtk_widget_set_name(subitem,_("separator"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   gtk_widget_set_sensitive(subitem,FALSE);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES,accel_group);
-  gtk_widget_set_name(subitem,_("Settings"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_settings_activate),(gpointer)self);
 
   // view menu
   item=gtk_menu_item_new_with_mnemonic(_("_View"));
-  gtk_widget_set_name(item,_("view menu"));
   gtk_container_add(GTK_CONTAINER(self),item);
 
   menu=gtk_menu_new();
-  gtk_widget_set_name(menu,_("view menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
   gtk_menu_set_accel_group(GTK_MENU(menu), accel_group);
   gtk_menu_set_accel_path(GTK_MENU(menu),"<Buzztard-Main>/MainMenu/View");
 
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Toolbar"));
-  gtk_widget_set_name(subitem,_("Toolbar"));
   // from here we can't hide the toolbar as it is not yet created and shown
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),!toolbar_hide);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -668,7 +646,6 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   /* @todo 'Statusbar' show/hide toggle */
 
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Tabs"));
-  gtk_widget_set_name(subitem,_("Tabs"));
   // from here we can't hide the tabs as they are not yet created and shown
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),!tabs_hide);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -680,12 +657,10 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   /* @todo 'Fullscreen' toggle */
   
   subitem=gtk_separator_menu_item_new();
-  gtk_widget_set_name(subitem,_("separator"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   gtk_widget_set_sensitive(subitem,FALSE);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to machine view"));
-  gtk_widget_set_name(subitem,_("Machine view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_machines",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/MachineView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/MachineView", GDK_F3, 0);
@@ -693,7 +668,6 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_machine_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to pattern view"));
-  gtk_widget_set_name(subitem,_("Pattern view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_patterns",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/PatternView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/PatternView", GDK_F2, 0);
@@ -701,7 +675,6 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_pattern_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to sequence view"));
-  gtk_widget_set_name(subitem,_("Sequence view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_sequence",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/SequenceView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/SequenceView", GDK_F4, 0);
@@ -709,7 +682,6 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_sequence_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to wave table view"));
-  gtk_widget_set_name(subitem,_("Wave table view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_waves",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/WaveteableView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/WaveteableView", GDK_F9, 0);
@@ -717,7 +689,6 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_waves_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to song information"));
-  gtk_widget_set_name(subitem,_("Song information"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_info",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/InfoView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/InfoView", GDK_F10, 0);
@@ -730,46 +701,38 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
    *
    
   subitem=gtk_separator_menu_item_new();
-  gtk_widget_set_name(subitem,_("separator"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   gtk_widget_set_sensitive(subitem,FALSE);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_FIT,accel_group);
-  gtk_widget_set_name(subitem,_("Zoom Fit"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_fit_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_IN,accel_group);
-  gtk_widget_set_name(subitem,_("Zoom In"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_in_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_OUT,accel_group);
-  gtk_widget_set_name(subitem,_("Zoom Out"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
   */
   
   // playback menu
   item=gtk_menu_item_new_with_mnemonic(_("_Playback"));
-  gtk_widget_set_name(item,_("playback menu"));
   gtk_container_add(GTK_CONTAINER(self),item);
 
   menu=gtk_menu_new();
-  gtk_widget_set_name(menu,_("playback menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
   gtk_menu_set_accel_group(GTK_MENU(menu), accel_group);
   gtk_menu_set_accel_path(GTK_MENU(menu),"<Buzztard-Main>/MainMenu/Playback");
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_MEDIA_PLAY,accel_group);
-  gtk_widget_set_name(subitem,_("Play"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/Playback/Play");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Playback/Play", GDK_F5, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_play_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_MEDIA_STOP,accel_group);
-  gtk_widget_set_name(subitem,_("Stop"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/Playback/Stop");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Playback/Stop", GDK_F8, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -779,16 +742,13 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   
   // help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));
-  gtk_widget_set_name(item,_("help menu"));
   gtk_container_add(GTK_CONTAINER(self),item);
 
   menu=gtk_menu_new();
-  gtk_widget_set_name(menu,_("help menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
   gtk_menu_set_accel_group(GTK_MENU(menu), accel_group);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,accel_group);
-  gtk_widget_set_name(subitem,_("Content"));
   gtk_widget_remove_accelerator(subitem,accel_group,'h',GDK_CONTROL_MASK);
   gtk_widget_add_accelerator(subitem,"activate",accel_group,GDK_F1,0,GTK_ACCEL_VISIBLE);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -798,7 +758,6 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   /* @todo 'submit bug' */
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT,accel_group);
-  gtk_widget_set_name(subitem,_("About"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_about_activate),(gpointer)self);
 

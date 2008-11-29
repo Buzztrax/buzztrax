@@ -392,7 +392,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   GtkWidget *ruler;
   gboolean res=TRUE;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("wire analysis"));
+  gtk_widget_set_name(GTK_WIDGET(self),"wire analysis");
 
   g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));

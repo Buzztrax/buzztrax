@@ -159,7 +159,7 @@ static void bt_main_pages_init_tab(const BtMainPages *self,guint index,gchar *st
 }
 
 static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
-  gtk_widget_set_name(GTK_WIDGET(self),_("song views"));
+  gtk_widget_set_name(GTK_WIDGET(self),"song views");
 
   GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
 

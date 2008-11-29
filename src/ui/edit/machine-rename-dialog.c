@@ -96,7 +96,7 @@ static gboolean bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *se
   GList *buttons;
   BtSong *song;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("rename machine"));
+  gtk_widget_set_name(GTK_WIDGET(self),"rename machine");
 
   // create and set window icon
   /* e.v. tab_machine.png

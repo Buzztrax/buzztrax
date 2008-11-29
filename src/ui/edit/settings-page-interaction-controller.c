@@ -106,7 +106,7 @@ static gboolean bt_settings_page_interaction_controller_init_ui(const BtSettings
   BtIcRegistry *ic_registry;
   gchar *str;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("interaction controller settings"));
+  gtk_widget_set_name(GTK_WIDGET(self),"interaction controller settings");
 
   // add setting widgets
   spacer=gtk_label_new("    ");

@@ -33,6 +33,14 @@
  *   - delete
  *   - mute/solo/bypass ?
  * - move machines when moving the selection
+ * @todo: move functions in context menu
+ * - machines
+ *   - clone machine (no patterns)
+ *   - remove & relink (remove machine and relink wires)
+ *     does not work in all scenarios (we might need to create more wires)
+ * - wires
+ *   - insert machine (like menu on canvas)
+ *     - what to do witj wire-patterns?
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
@@ -970,7 +978,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
 
   GST_DEBUG("!!!! self=%p",self);
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("machine view"));
+  gtk_widget_set_name(GTK_WIDGET(self),"machine view");
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
 
@@ -988,23 +996,23 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
 
   // add toolbar
   self->priv->toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(self->priv->toolbar,_("machine view toolbar"));
+  gtk_widget_set_name(self->priv->toolbar,"machine view toolbar");
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_FIT));
-  gtk_widget_set_name(tool_item,_("Zoom Fit"));
+  gtk_widget_set_name(tool_item,"Zoom Fit");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Zoom in/out so that everything is visible"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_zoom_fit_clicked),(gpointer)self);
 
   self->priv->zoom_in=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_IN));
-  gtk_widget_set_name(self->priv->zoom_in,_("Zoom In"));
+  gtk_widget_set_name(self->priv->zoom_in,"Zoom In");
   gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Zoom in for more details"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_in),-1);
   g_signal_connect(G_OBJECT(self->priv->zoom_in),"clicked",G_CALLBACK(on_toolbar_zoom_in_clicked),(gpointer)self);
 
   self->priv->zoom_out=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_OUT));
-  gtk_widget_set_name(self->priv->zoom_out,_("Zoom Out"));
+  gtk_widget_set_name(self->priv->zoom_out,"Zoom Out");
   gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Zoom out for better overview"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_out),-1);
@@ -1040,7 +1048,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
     -MACHINE_VIEW_ZOOM_X,-MACHINE_VIEW_ZOOM_Y,
      MACHINE_VIEW_ZOOM_X, MACHINE_VIEW_ZOOM_Y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
-  gtk_widget_set_name(GTK_WIDGET(self->priv->canvas),_("machine and wire editor"));
+  gtk_widget_set_name(GTK_WIDGET(self->priv->canvas),"machine and wire editor");
   g_signal_connect(G_OBJECT(self->priv->canvas),"size-allocate",G_CALLBACK(on_canvas_size_allocate),(gpointer)self);
 
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));

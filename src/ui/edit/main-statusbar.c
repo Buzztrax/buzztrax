@@ -252,7 +252,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("status bar"));
+  gtk_widget_set_name(GTK_WIDGET(self),"status bar");
   //gtk_box_set_spacing(GTK_BOX(self),1);
 
   // context sensitip help statusbar

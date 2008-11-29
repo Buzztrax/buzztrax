@@ -22,7 +22,7 @@
  * SECTION:btsettingspageaudiodevices
  * @short_description: audio device configuration settings page
  *
- * List available GStreamer audio devices and allows to selection to use.
+ * List available GStreamer audio devices. User can pick and configure one.
  */
 
 #define BT_EDIT
@@ -43,6 +43,9 @@ struct _BtSettingsPageAudiodevicesPrivate {
 
   GtkComboBox *audiosink_menu;
   GList *audiosink_names;
+  
+  GtkComboBox *samplerate_menu;
+  GtkComboBox *channels_menu;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -57,7 +60,7 @@ static void on_audiosink_menu_changed(GtkComboBox *combo_box, gpointer user_data
   g_assert(user_data);
 
   index=gtk_combo_box_get_active(self->priv->audiosink_menu);
-  GST_INFO("audiosink change : index=%d",index);
+  GST_INFO("audiosink changed : index=%lu",index);
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   if(index) {
@@ -69,12 +72,47 @@ static void on_audiosink_menu_changed(GtkComboBox *combo_box, gpointer user_data
   g_object_unref(settings);
 }
 
+static void on_samplerate_menu_changed(GtkComboBox *combo_box, gpointer user_data) {
+  BtSettingsPageAudiodevices *self=BT_SETTINGS_PAGE_AUDIODEVICES(user_data);
+  BtSettings *settings;
+  gulong index,rate;
+
+  g_assert(user_data);
+
+  index=gtk_combo_box_get_active(self->priv->samplerate_menu);
+  rate=atoi(gtk_combo_box_get_active_text(self->priv->samplerate_menu));
+  GST_INFO("sample-rate changed : index=%lu, rate=%lu",index,rate);
+
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+#if 0
+  g_object_set(settings,"sample-rate",rate,NULL);
+#endif
+  g_object_unref(settings);
+}
+
+static void on_channels_menu_changed(GtkComboBox *combo_box, gpointer user_data) {
+  BtSettingsPageAudiodevices *self=BT_SETTINGS_PAGE_AUDIODEVICES(user_data);
+  BtSettings *settings;
+  gulong index;
+
+  g_assert(user_data);
+
+  index=gtk_combo_box_get_active(self->priv->channels_menu);
+  GST_INFO("channels changed : index=%lu",index);
+
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+#if 0
+  g_object_set(settings,"channels",index+1,NULL);
+#endif
+  g_object_unref(settings);
+}
+
 //-- helper methods
 
 static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevices *self) {
   BtSettings *settings;
   GtkWidget *label,*spacer;
-  gchar *audiosink_name,*system_audiosink_name,*str;
+  gchar *audiosink_name,*system_audiosink_name,*name,*str;
   GList *node,*audiosink_names;
   gulong audiosink_index=0,ct;
   gboolean use_system_audiosink=TRUE;
@@ -82,7 +120,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   //GstCaps *int_caps=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
   //GstCaps *float_caps=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("audio device settings"));
+  gtk_widget_set_name(GTK_WIDGET(self),"audio device settings");
 
   // get settings
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
@@ -97,62 +135,101 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   g_free(str);
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 0, 3, 0, 1,  GTK_FILL|GTK_EXPAND, GTK_SHRINK, 2,1);
-  gtk_table_attach(GTK_TABLE(self),spacer, 0, 1, 1, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(self),spacer, 0, 1, 1, 6, GTK_SHRINK,GTK_SHRINK, 2,1);
 
   label=gtk_label_new(_("Sink"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
   self->priv->audiosink_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
 
-  str=g_strdup_printf(_("system default (%s)"),(system_audiosink_name?system_audiosink_name:"-"));
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
-  g_free(str);
+  if(system_audiosink_name) {
+    GstElementFactory * const factory=gst_element_factory_find(system_audiosink_name);
+    str=g_strdup_printf(_("system default: %s (%s)"),
+      system_audiosink_name,
+      (factory?gst_element_factory_get_description(factory):"-"));
+    gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
+    g_free(str);
+  }
+  else {
+    gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),_("system default: -"));
+  }
 
   audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
-  // this will also contain stuff like: "Sink/Analyzer/Audio" and "../LADSPA" stuff
-  // solution 1: would be to give all real AudioSinks a "Device" category
-  // solution 2: give negative categories as well
-
   // @todo: sort list alphabetically ?
   
   /* @todo: use GST_IS_BIN(gst_element_factory_get_element_type(factory)) to skip bins
    * add autoaudiosink as the first and make it default
-   * but then again bins seem to be filtered out already, by below
-   */
-   
-  /* we need to get rid of a few more entries still:
-   * ladspa (some are analyzers) and sfsink (is a formatter)
+   *   but then again bins seem to be filtered out already, by below
+   * should we filter by baseclass, GST_IS_BASE_AUDIO_SINK(...) - need instances
    */
 
   // add audio sinks gstreamer provides
   for(node=audiosink_names,ct=1;node;node=g_list_next(node)) {
-    GstElementFactory * const factory=gst_element_factory_find(node->data);
-
-    // can the sink accept raw audio?
-    can_int_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-int");
-    can_float_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-float");
-    //can_int_caps=gst_element_factory_can_sink_caps(factory,int_caps);
-    //can_float_caps=gst_element_factory_can_sink_caps(factory,float_caps);
-    if(can_int_caps || can_float_caps) {
-      // @ todo: try to open the element and skip those that we can't open
-
-      // compare with audiosink_name and set audiosink_index if equal
-      if(!use_system_audiosink) {
-        if(!strcmp(audiosink_name,node->data)) audiosink_index=ct;
+    name=node->data;
+    
+    if(strncasecmp("ladspa-",name,7)) {
+      GstElementFactory * const factory=gst_element_factory_find(name);
+  
+      // can the sink accept raw audio?
+      can_int_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-int");
+      can_float_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-float");
+      //can_int_caps=gst_element_factory_can_sink_caps(factory,int_caps);
+      //can_float_caps=gst_element_factory_can_sink_caps(factory,float_caps);
+      if(can_int_caps || can_float_caps) {
+        // @ todo: try to open the element and skip those that we can't open
+  
+        // compare with audiosink_name and set audiosink_index if equal
+        if(!use_system_audiosink) {
+          if(!strcmp(audiosink_name,name)) audiosink_index=ct;
+        }
+        str=g_strdup_printf("%s (%s)",name,gst_element_factory_get_description(factory));
+        gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
+        g_free(str);
+        // add this to instance list
+        self->priv->audiosink_names=g_list_append(self->priv->audiosink_names,name);
+        GST_INFO("  adding audio sink: \"%s\"",name);
+        ct++;
       }
-      gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),node->data);
-      self->priv->audiosink_names=g_list_append(self->priv->audiosink_names,node->data);
-      GST_INFO("  adding audio sink: \"%s\"",node->data);
-      ct++;
+      else {
+        GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps (%d,%d)",name,can_int_caps,can_float_caps);
+      }
     }
     else {
-      GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps (%d,%d)",node->data,can_int_caps,can_float_caps);
+      GST_INFO("  skipping audio sink: \"%s\" - its a ladspa element but not asm audio output",name);
     }
   }
   GST_INFO("current sink (is_system? %d): %d",use_system_audiosink,audiosink_index);
   gtk_combo_box_set_active(self->priv->audiosink_menu,audiosink_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->audiosink_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", G_CALLBACK(on_audiosink_menu_changed), (gpointer)self);
+
+  label=gtk_label_new(_("Sampling rate"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
+  
+  self->priv->samplerate_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"8000");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"11025");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"16000");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"22050");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"32000");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"44100");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"48000");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"96000");
+  gtk_combo_box_set_active(self->priv->samplerate_menu,5);
+  gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->samplerate_menu), 2, 3, 2, 3, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+  g_signal_connect(G_OBJECT(self->priv->samplerate_menu), "changed", G_CALLBACK(on_samplerate_menu_changed), (gpointer)self);
+
+  label=gtk_label_new(_("Channels"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 3, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
+  
+  self->priv->channels_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->channels_menu),_("mono"));
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->channels_menu),_("stereo"));
+  gtk_combo_box_set_active(self->priv->channels_menu,1);
+  gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->channels_menu), 2, 3, 3, 4, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+  g_signal_connect(G_OBJECT(self->priv->channels_menu), "changed", G_CALLBACK(on_channels_menu_changed), (gpointer)self);
 
   /* @todo: add audiosink parameters
    * e.g. device-name
@@ -194,7 +271,7 @@ BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new(const BtEditApplic
 
   if(!(self=BT_SETTINGS_PAGE_AUDIODEVICES(g_object_new(BT_TYPE_SETTINGS_PAGE_AUDIODEVICES,
     "app",app,
-    "n-rows",3,
+    "n-rows",5,
     "n-columns",3,
     "homogeneous",FALSE,
     NULL)))) {

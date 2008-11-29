@@ -101,7 +101,7 @@ static gboolean bt_missing_song_elements_dialog_init_ui(const BtMissingSongEleme
   gboolean res=TRUE;
   //GdkPixbuf *window_icon=NULL;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("Missing elements in song"));
+  gtk_widget_set_name(GTK_WIDGET(self),"Missing elements in song");
 
   // create and set window icon
   /*

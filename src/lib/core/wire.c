@@ -30,9 +30,10 @@
 
 /*
  * @todo try to derive this from GstBin!
- *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
- *  when adding internal machines we need to fix the ghost pads (this may require relinking)
- *    gst_element_add_ghost_pad and gst_element_remove_ghost_pad
+ *  - then put the machines into itself (and not into the songs bin, 
+ *    but insert the wire directly into the song->bin
+ *  - when adding internal machines we need to fix the ghost pads
+ *    gst_ghost_pad_set_target()
  */
 
 #define BT_CORE

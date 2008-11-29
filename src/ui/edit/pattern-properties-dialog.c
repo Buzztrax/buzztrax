@@ -120,7 +120,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   //GdkPixbuf *window_icon=NULL;
   GList *buttons;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("pattern properties"));
+  gtk_widget_set_name(GTK_WIDGET(self),"pattern properties");
 
   // create and set window icon
   /* e.v. tab_pattern.png

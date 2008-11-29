@@ -114,7 +114,7 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
   gboolean res=TRUE;
   //GdkPixbuf *window_icon=NULL;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("Missing GStreamer elements"));
+  gtk_widget_set_name(GTK_WIDGET(self),"Missing GStreamer elements");
 
   // create and set window icon
   /*

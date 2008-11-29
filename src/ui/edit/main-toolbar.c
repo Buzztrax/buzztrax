@@ -659,25 +659,25 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 
-gtk_widget_set_name(GTK_WIDGET(self),_("main toolbar"));
+gtk_widget_set_name(GTK_WIDGET(self),"main toolbar");
 
   //-- file controls
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_NEW));
-  gtk_widget_set_name(tool_item,_("New"));
+  gtk_widget_set_name(tool_item,"New");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Prepare a new empty song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_new_clicked),(gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_OPEN));
-  gtk_widget_set_name(tool_item,_("Open"));
+  gtk_widget_set_name(tool_item,"Open");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Load a new song"));
 
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_SAVE));
-  gtk_widget_set_name(tool_item,_("Save"));
+  gtk_widget_set_name(tool_item,"Save");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Save this song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_save_clicked),(gpointer)self);
@@ -688,7 +688,7 @@ gtk_widget_set_name(GTK_WIDGET(self),_("main toolbar"));
   //-- media controls
 
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
-  gtk_widget_set_name(tool_item,_("Play"));
+  gtk_widget_set_name(tool_item,"Play");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play this song"));
  
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
@@ -696,7 +696,7 @@ gtk_widget_set_name(GTK_WIDGET(self),_("main toolbar"));
   self->priv->play_button=tool_item;
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
-  gtk_widget_set_name(tool_item,_("Stop"));
+  gtk_widget_set_name(tool_item,"Stop");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Stop playback of this song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
@@ -706,7 +706,7 @@ gtk_widget_set_name(GTK_WIDGET(self),_("main toolbar"));
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new());
   gtk_tool_button_set_icon_widget(GTK_TOOL_BUTTON(tool_item),gtk_image_new_from_filename("stock_repeat.png"));
   gtk_tool_button_set_label(GTK_TOOL_BUTTON(tool_item),_("Loop"));
-  gtk_widget_set_name(tool_item,_("Loop"));
+  gtk_widget_set_name(tool_item,"Loop");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Toggle looping of playback"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"toggled",G_CALLBACK(on_toolbar_loop_toggled),(gpointer)self);
@@ -748,7 +748,7 @@ gtk_widget_set_name(GTK_WIDGET(self),_("main toolbar"));
   gtk_widget_show_all(GTK_WIDGET(box));
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
-  gtk_widget_set_name(tool_item,_("Volume"));
+  gtk_widget_set_name(tool_item,"Volume");
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
 

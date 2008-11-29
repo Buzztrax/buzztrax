@@ -128,15 +128,7 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
   gtk_text_view_set_editable(GTK_TEXT_VIEW(news), FALSE);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(news)),
-    _("As planned, main focus for this release was the wavetable support. "
-      "Its done - buzztard can load what gstreamer can decode."
-      "The wavetable view has a nice waveform widget. "
-      "Related to that buzztard has a new song-format that bundles the XML "
-      "together with external files in a zip archive. "
-      "Also the UI has seen a lot of improvements. "
-      "The machine view looks nicer - Marc drew spiffy machine icons. "
-      "In addition they now show real volume meters when playing. "
-      "All meters are now properly synced."
+    _("Development version (do not translate this)"
     ),-1);
 
   news_view = gtk_scrolled_window_new(NULL, NULL);

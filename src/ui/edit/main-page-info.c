@@ -311,7 +311,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
 
   GST_DEBUG("!!!! self=%p",self);
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("song information"));
+  gtk_widget_set_name(GTK_WIDGET(self),"song information");
 
   // first row of vbox
   frame=gtk_frame_new(NULL);
@@ -322,7 +322,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   gtk_frame_set_label_widget(GTK_FRAME(frame),label);
   gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
   gtk_container_set_border_width(GTK_CONTAINER(frame),6);
-  gtk_widget_set_name(frame,_("song meta data"));
+  gtk_widget_set_name(frame,"song meta data");
   gtk_box_pack_start(GTK_BOX(self),frame,FALSE,TRUE,0);
 
   box=gtk_hbox_new(FALSE,6);
@@ -398,7 +398,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   gtk_frame_set_label_widget(GTK_FRAME(frame),label);
   gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
   gtk_container_set_border_width(GTK_CONTAINER(frame),6);
-  gtk_widget_set_name(frame,_("free text info"));
+  gtk_widget_set_name(frame,"free text info");
   gtk_box_pack_start(GTK_BOX(self),frame,TRUE,TRUE,0);
 
   box=gtk_hbox_new(FALSE,6);
@@ -414,7 +414,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   GST_DEBUG("  scrolled window: %p",scrolledwindow);
 
   self->priv->info=GTK_TEXT_VIEW(gtk_text_view_new());
-  gtk_widget_set_name(GTK_WIDGET(self->priv->info),_("free text info"));
+  gtk_widget_set_name(GTK_WIDGET(self->priv->info),"free text info");
   //gtk_container_set_border_width(GTK_CONTAINER(self->priv->info),1);
   GST_DEBUG("  text view: %p",self->priv->info);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->priv->info),GTK_WRAP_WORD);

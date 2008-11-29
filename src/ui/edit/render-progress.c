@@ -119,7 +119,7 @@ static gboolean bt_render_progress_record(const BtRenderProgress *self, BtSong *
 static gboolean bt_render_progress_init_ui(const BtRenderProgress *self) {
   GtkWidget *box;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("song render progress"));
+  gtk_widget_set_name(GTK_WIDGET(self),"song render progress");
 
   gtk_window_set_title(GTK_WINDOW(self), _("song render progress"));
 
