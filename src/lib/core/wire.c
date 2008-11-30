@@ -25,7 +25,7 @@
  * Abstracts connection between two #BtMachines. After creation, the elements
  * are connected. In contrast to directly wiring #GstElements this insert needed
  * conversion elements automatically.
- * Furthermore each wire has a volume element.
+ * Furthermore each wire has a volume and if possible panorama/balance element.
  */
 
 /*

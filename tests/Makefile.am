@@ -26,6 +26,9 @@ TESTS = \
 # http://www.cynapses.org/tmp/gcc/malloc_perturb
 #    MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
 #
+# set theme (check which theme is used)
+#    GTK2_RC_FILES=$HOME/.themes/Darkilouche/gtk-2.0/gtkrc
+#
 TESTS_ENVIRONMENT = \
 	CK_DEFAULT_TIMEOUT=20 \
 	LANG=en_GB \

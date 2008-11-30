@@ -84,9 +84,7 @@ static void on_samplerate_menu_changed(GtkComboBox *combo_box, gpointer user_dat
   GST_INFO("sample-rate changed : index=%lu, rate=%lu",index,rate);
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-#if 0
   g_object_set(settings,"sample-rate",rate,NULL);
-#endif
   g_object_unref(settings);
 }
 
@@ -101,9 +99,7 @@ static void on_channels_menu_changed(GtkComboBox *combo_box, gpointer user_data)
   GST_INFO("channels changed : index=%lu",index);
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-#if 0
   g_object_set(settings,"channels",index+1,NULL);
-#endif
   g_object_unref(settings);
 }
 
@@ -114,17 +110,23 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   GtkWidget *label,*spacer;
   gchar *audiosink_name,*system_audiosink_name,*name,*str;
   GList *node,*audiosink_names;
-  gulong audiosink_index=0,ct;
   gboolean use_system_audiosink=TRUE;
   gboolean can_int_caps,can_float_caps;
   //GstCaps *int_caps=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
   //GstCaps *float_caps=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
+  guint sample_rate,channels;
+  gulong audiosink_index=0,sampling_rate_index,ct;
 
   gtk_widget_set_name(GTK_WIDGET(self),"audio device settings");
 
   // get settings
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_get(settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
+  g_object_get(settings,
+    "audiosink",&audiosink_name,
+    "system-audiosink",&system_audiosink_name,
+    "sample-rate",&sample_rate,
+    "channels",&channels,
+    NULL);
   if(BT_IS_STRING(audiosink_name)) use_system_audiosink=FALSE;
 
   // add setting widgets
@@ -176,7 +178,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
       //can_int_caps=gst_element_factory_can_sink_caps(factory,int_caps);
       //can_float_caps=gst_element_factory_can_sink_caps(factory,float_caps);
       if(can_int_caps || can_float_caps) {
-        // @ todo: try to open the element and skip those that we can't open
+        // @todo: try to open the element and skip those that we can't open
   
         // compare with audiosink_name and set audiosink_index if equal
         if(!use_system_audiosink) {
@@ -216,7 +218,18 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"44100");
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"48000");
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"96000");
-  gtk_combo_box_set_active(self->priv->samplerate_menu,5);
+  switch(sample_rate) {
+    case 8000:  sampling_rate_index=0;break;
+    case 11025: sampling_rate_index=1;break;
+    case 16000: sampling_rate_index=2;break;
+    case 22050: sampling_rate_index=3;break;
+    case 32000: sampling_rate_index=4;break;
+    case 44100: sampling_rate_index=5;break;
+    case 48000: sampling_rate_index=6;break;
+    case 96000: sampling_rate_index=7;break;
+    default: sampling_rate_index=5; // 44100
+  }
+  gtk_combo_box_set_active(self->priv->samplerate_menu,sampling_rate_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->samplerate_menu), 2, 3, 2, 3, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(G_OBJECT(self->priv->samplerate_menu), "changed", G_CALLBACK(on_samplerate_menu_changed), (gpointer)self);
 
@@ -227,7 +240,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   self->priv->channels_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->channels_menu),_("mono"));
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->channels_menu),_("stereo"));
-  gtk_combo_box_set_active(self->priv->channels_menu,1);
+  gtk_combo_box_set_active(self->priv->channels_menu,(channels-1));
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->channels_menu), 2, 3, 3, 4, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(G_OBJECT(self->priv->channels_menu), "changed", G_CALLBACK(on_channels_menu_changed), (gpointer)self);
 

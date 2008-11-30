@@ -1,3 +1,23 @@
+2008-11-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* buzztard.schemas.in:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbuzztard-core/settings-private.h:
+	* src/lib/core/settings.c:
+	* src/lib/core/sink-bin.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Make sampling rate and channels configurable.
+
+	* tests/Makefile.am:
+	  Example for forcing a theme.
+
+	* design/gst/linking.dot:
+	* design/gst/linking.dot (added):
+	* src/lib/core/machine.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/wire.c:
+	  Planning.
+
 2008-11-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

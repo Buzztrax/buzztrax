@@ -28,6 +28,20 @@
  * deserialize a whole object hierarchy.
  *
  */
+/* @idea: what if we pass an object instance (ctx) to bt_persistence_{load,save}
+ * instead of the xmlNodePtr.
+ * - loading
+ *   const gchar *          bt_persistence_context_get_attribute (BtPersistenceContext *ctx, const gchar *name);
+ *   GList *                bt_persistence_context_get_children (BtPersistenceContext *ctx);
+ * - saving
+ *                          bt_persistence_context_set_attribute (BtPersistenceContext *ctx, const gchar *name, const gchar *attribute);
+ *   BtPersistenceContext * bt_persistence_context_add_child (BtPersistenceContext *ctx, const gchar *name);
+ *
+ * - need some parameters for constructor (e.g. uri)
+ * - BtPersistenceContext would be an abstract baseclass, we would then implement
+ *   BtPersistenceContextLibXML2
+ *   - this way we have the libxml2 hidden, we then can support different backends (e.g. for clipboard) 
+ */
 
 #define BT_CORE
 #define BT_PERSISTENCE_C

@@ -13,6 +13,28 @@
       </locale>
     </schema>
     <schema>
+      <key>/schemas/apps/buzztard/sample-rate</key>
+      <applyto>/apps/buzztard/sample-rate</applyto>
+      <owner>buzztard</owner>
+      <type>int</type>
+      <locale name="C">
+        <default>44100</default>
+        <short>Which sample-rate to use</short>
+        <long>Which sample rate should be used for the generated audio.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/channels</key>
+      <applyto>/apps/buzztard/channels</applyto>
+      <owner>buzztard</owner>
+      <type>int</type>
+      <locale name="C">
+        <default>2</default>
+        <short>How many audio channels to use</short>
+        <long>How many audio channels should be used for the generated audio.</long>
+      </locale>
+    </schema>
+    <schema>
       <key>/schemas/apps/buzztard/toolbar-hide</key>
       <applyto>/apps/buzztard/toolbar-hide</applyto>
       <owner>buzztard</owner>

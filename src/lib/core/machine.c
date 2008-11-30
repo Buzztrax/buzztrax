@@ -72,8 +72,11 @@
  *    but insert the machine directly into the song->bin
  *  - when adding internal machines we need to fix the ghost pads
  *    gst_ghost_pad_set_target()
- *  - can we have sometimes-ghost-pads (look at decodebin)?
- *    we need this for tee/adder
+ *  - can we have request-ghost-pads (adder,tee) - yes
+ *    gstelement_class->request_new_pad
+ *    - we can handle tee and adder elements fully transparent
+ *    - linking a machine-bin and a wire-bin would use gst_element_get_request_pad()
+ *      on the machine-bin and gst_element_get_static_pad() on the wire-bin 
  *
  * @todo: if a song has unlinked machines, it does not play:
  * 1) it would be good to have the src-pad of the initialy blocked, then
@@ -97,11 +100,18 @@
  *
  * 4) we could add the machine only to the pipeline once its fully connected
  * - when ever we link/unlink two machine we need to update the pipeline
- *   - remove everything from pipeline
- *   - check all sources
- *     - walk all paths to the master
- *     - for each complete path add all elements not yet added (parent==NULL)
- *   - can we do this more efficient?
+ *   4a) full rebuild
+ *     - remove everything from pipeline
+ *     - check all sources
+ *       - walk all paths to the master
+ *       - for each complete path add all elements not yet added (parent==NULL)
+ *   4b) rebuild as needed
+ *     - a subgraph is a list of machines and wires
+ *     - when adding a wire, check if the dest is connected to something that is
+ *       added (parent!=NULL) and that source is conected to a generator
+ *     - when removing a wire, check if it was added (parent!=NULL), if so scan
+ *       all path to sources and remove all path where this is the only
+ *       connection
  *
  * @todo: we need BtParameterGroup object with an implementation for the
  * global and one for the voice parameters. Then the machine would have a

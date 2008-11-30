@@ -182,6 +182,24 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      "autoaudiosink", /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property(gobject_class,BT_SETTINGS_SAMPLE_RATE,
+                                  g_param_spec_uint("sample-rate",
+                                     "sample-rate prop",
+                                     "audio output sample-rate",
+                                     1,
+                                     96000,
+                                     44100, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_CHANNELS,
+                                  g_param_spec_uint("channels",
+                                     "channels prop",
+                                     "number of audio output channels",
+                                     1,
+                                     2,
+                                     2, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
   g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TOOLBAR_HIDE,
                                   g_param_spec_boolean("toolbar-hide",
                                      "toolbar-hide",

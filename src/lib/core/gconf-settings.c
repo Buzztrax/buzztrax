@@ -119,6 +119,16 @@ static void bt_gconf_settings_get_property(GObject      * const object,
         g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
       }
     } break;
+    case BT_SETTINGS_SAMPLE_RATE: {
+      guint prop=gconf_client_get_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/sample-rate",NULL);
+      GST_DEBUG("application reads sample-rate gconf_settings : '%u'",prop);
+      g_value_set_uint(value, prop);
+    } break;
+    case BT_SETTINGS_CHANNELS: {
+      guint prop=gconf_client_get_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/channels",NULL);
+      GST_DEBUG("application reads channels gconf_settings : '%u'",prop);
+      g_value_set_uint(value, prop);
+    } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
       gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",NULL);
       GST_DEBUG("application reads system toolbar-hide gconf_settings : %d",prop);
@@ -234,6 +244,20 @@ static void bt_gconf_settings_set_property(GObject      * const object,
       GST_DEBUG("application writes audiosink gconf_settings(%p) : %s",self,prop);
       gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",prop,NULL);
       g_free(prop);
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    case BT_SETTINGS_SAMPLE_RATE: {
+      gboolean gconf_ret=FALSE;
+      guint prop=g_value_get_uint(value);
+      GST_DEBUG("application writes sample-rate gconf_settings : %u",prop);
+      gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/sample-rate",prop,NULL);
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    case BT_SETTINGS_CHANNELS: {
+      gboolean gconf_ret=FALSE;
+      guint prop=g_value_get_uint(value);
+      GST_DEBUG("application writes channels gconf_settings : %u",prop);
+      gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/channels",prop,NULL);
       g_return_if_fail(gconf_ret == TRUE);
     } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
