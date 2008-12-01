@@ -263,6 +263,7 @@ PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.5.0, [
     AC_DEFINE(USE_BML, [1], [Define to 1 if we can use bml])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $BML_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $BML_DEPS_LIBS"
+    use_bml=yes
   ],[
     use_bml=no
   ]
@@ -272,6 +273,7 @@ PKG_CHECK_MODULES(GNOME_DEPS, libgnome-2.0 >= 2.6.0, [
     AC_DEFINE(USE_GNOME, [1], [Define to 1 if we can use gnome libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GNOME_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GNOME_DEPS_LIBS"
+    use_gnome=yes
   ],[
     use_gnome=no
   ]
@@ -281,6 +283,7 @@ PKG_CHECK_MODULES(HILDON_DEPS, hildon-libs libosso, [
   AC_DEFINE(USE_HILDON, [1], [Define to 1 if we can use hildon libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HILDON_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HILDON_DEPS_LIBS"
+    use_hildon=yes
   ],[
     use_hildon=no
   ]
@@ -290,6 +293,7 @@ PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
   AC_DEFINE(USE_HAL, [1], [Define to 1 if we can use hal libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HAL_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HAL_DEPS_LIBS"
+    use_hal=yes
   ],[
     use_hal=no
   ]
@@ -474,7 +478,12 @@ Configuration
 
 	Documentation (API)        : ${enable_gtk_doc}
 	Bindings Metadata (GIR)    : ${enable_gir}
+	HAL for interaction ctrl.  : ${use_hal}
+	Buzzmachine Host support   : ${use_bml}
 
+	Gnome Desktop Integration  : ${use_gnome}
+	Hildon Desktop Integration : ${use_hildon}
+        
 	Debug                      : ${enable_debug}
 	Coverage profiling         : ${enable_coverage}
 	Use of deprecated API      : ${set_enable_deprecated}

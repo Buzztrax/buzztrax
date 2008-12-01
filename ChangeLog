@@ -1,3 +1,8 @@
+2008-12-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Show more detail in he final configuration summary.
+
 2008-11-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* buzztard.schemas.in:
