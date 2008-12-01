@@ -35,6 +35,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
 
 enum {
   SETTINGS_DIALOG_APP=1,
@@ -467,7 +468,7 @@ static void master_connection_open(BtPlaybackControllerSocket *self) {
   BtSettings *settings;
   gboolean active;
   guint port;
-  static struct sockaddr_in serv_addr={0,};
+  static struct sockaddr_in serv_addr;
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active,"coherence-upnp-port",&port,NULL);
@@ -479,6 +480,7 @@ static void master_connection_open(BtPlaybackControllerSocket *self) {
   if((self->priv->master_socket=socket(AF_INET,SOCK_STREAM,0))<0) {
     goto socket_error;
   }
+  memset(&serv_addr, 0, sizeof(serv_addr));
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);// my address
   serv_addr.sin_port = htons(port);

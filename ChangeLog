@@ -2,6 +2,14 @@
 
 	patch by: Thomas Klausner <thomasklausner at users.sourceforge.net>
 
+	* src/ui/edit/playback-controller-socket.c:
+	  INADDR_ANY and struct sockaddr_in on NetBSD are defined in netinet/in.h.
+	  Also the initialization was not portable. Fixes #2367668.
+
+2008-12-02  Stefan Kost  <ensonic@users.sf.net>
+
+	patch by: Thomas Klausner <thomasklausner at users.sourceforge.net>
+
 	* src/ui/cmd/bt-cmd.h:
 	* src/ui/edit/bt-edit.h:
 	  We need an include for setlocale(). Fixes #2367650
