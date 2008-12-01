@@ -1,3 +1,11 @@
+2008-12-02  Stefan Kost  <ensonic@users.sf.net>
+
+	patch by: Thomas Klausner <thomasklausner at users.sourceforge.net>
+
+	* src/ui/cmd/bt-cmd.h:
+	* src/ui/edit/bt-edit.h:
+	  We need an include for setlocale(). Fixes #2367650
+
 2008-12-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
