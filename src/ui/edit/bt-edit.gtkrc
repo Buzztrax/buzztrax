@@ -1,6 +1,6 @@
-# custom style to lessen treeview spacing
-# use gtk_rc_parse(filename) or gtk_rc_parse_string()
+# custom styles for buzztard-edit
 
+# less spacious treeview
 style "slim-treeview" = "default"
 {
   GtkTreeView::horizontal-separator = 0
@@ -9,6 +9,13 @@ style "slim-treeview" = "default"
   GtkWidget::focus-line-width = 0
 }
 
-# treeview stuff
 class "BtSequenceView" style "slim-treeview"
 widget "*.sequence-pattern-list" style "slim-treeview"
+
+# row shading for pattern editor
+style "patternview" = "default"
+{
+  # this gives an error: Invalid symbolic color 'fg_color'
+  #color["alternative-row"] = shade (0.9, @fg_color)
+}
+class "BtPatternEditor" style "slim-treeview"

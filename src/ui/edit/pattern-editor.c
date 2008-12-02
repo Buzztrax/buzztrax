@@ -28,8 +28,8 @@
  *       o clear
  *       o expand
  *       o shrink 
- * - mouse handling
- * - if we want separator bars for headers, lok at gtkhseparator.c
+ * - mouse handling (selections)
+ * - if we want separator bars for headers, look at gtkhseparator.c
  */
 
 #include <ctype.h>
@@ -159,7 +159,7 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
   col_w-=self->cw;
   while (y < widget->allocation.height && row < self->num_rows) {
     gdk_draw_rectangle (widget->window,
-      (row&0x1) ? widget->style->base_gc[GTK_STATE_PRELIGHT] : widget->style->light_gc[GTK_STATE_PRELIGHT],
+      (row&0x1) ?self->shade_gc : widget->style->light_gc[GTK_STATE_PRELIGHT],
       TRUE, x, y, col_w, self->ch);
     
     
@@ -248,7 +248,7 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
   int col_w = cw * (pt->chars + 1);
 
   while (y < max_y && row < self->num_rows) {
-    GdkGC *gc = (row&0x1) ? widget->style->base_gc[GTK_STATE_PRELIGHT] : widget->style->light_gc[GTK_STATE_PRELIGHT];
+    GdkGC *gc = (row&0x1) ?self->shade_gc : widget->style->light_gc[GTK_STATE_PRELIGHT];
     int col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
 
     if (self->selection_enabled && in_selection(self, group, param, row)) {
@@ -452,6 +452,7 @@ bt_pattern_editor_realize (GtkWidget *widget)
   PangoContext *pc;
   PangoFontDescription *pfd;
   PangoFontMetrics *pfm;
+  GdkColor alt_row_color={0,};
 
   g_return_if_fail (BT_IS_PATTERN_EDITOR (widget));
   
@@ -480,7 +481,18 @@ bt_pattern_editor_realize (GtkWidget *widget)
   self->play_pos_gc=gdk_gc_new(widget->window);
   gdk_gc_set_rgb_fg_color(self->play_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
   gdk_gc_set_line_attributes(self->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-  
+  self->shade_gc=gdk_gc_new(widget->window);
+
+// does not work yet, see bt-edit.gtkrc
+//#if GTK_CHECK_VERSION(2, 10, 0)
+//  gtk_style_lookup_color(widget->style,"alternative-row",&alt_row_color);
+//#else
+   alt_row_color.red=(guint16)(widget->style->light[GTK_STATE_PRELIGHT].red*0.9);
+   alt_row_color.green=(guint16)(widget->style->light[GTK_STATE_PRELIGHT].green*0.9);
+   alt_row_color.blue=(guint16)(widget->style->light[GTK_STATE_PRELIGHT].blue*0.9);
+//#endif
+  gdk_gc_set_rgb_fg_color(self->shade_gc,&alt_row_color);
+
   /* calculate font-metrics */
   pc = gtk_widget_get_pango_context (widget);
   pfd = pango_font_description_new();
@@ -520,6 +532,8 @@ static void bt_pattern_editor_unrealize(GtkWidget *widget)
 
   g_object_unref (self->play_pos_gc);
   self->play_pos_gc=NULL;
+  g_object_unref (self->shade_gc);
+  self->shade_gc=NULL;
 
   if(self->hadj) {
     g_object_unref (self->hadj);

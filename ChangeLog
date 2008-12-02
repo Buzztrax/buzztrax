@@ -1,5 +1,12 @@
 2008-12-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/bt-edit.gtkrc:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Use extra gc for row-shading. Experiment with theming it.
+
+2008-12-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.c:
 	* src/ui/edit/bt-edit.gtkrc:

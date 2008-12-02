@@ -118,7 +118,8 @@ typedef struct _BtPatternEditor
 
   /* position of playing pointer from 0.0 ... 1.0 */
   gdouble play_pos;
-  GdkGC *play_pos_gc;
+  /* own colors */
+  GdkGC *play_pos_gc, *shade_gc;
   
   /* scroll adjustments */
   GtkAdjustment *hadj,*vadj;
