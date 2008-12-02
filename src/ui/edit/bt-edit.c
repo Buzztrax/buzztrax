@@ -87,13 +87,13 @@ int main(int argc, char **argv) {
   textdomain (GETTEXT_PACKAGE);
 #endif /* ENABLE_NLS */
   
-  // in case we ever want to use a custom theme for buzztard:
-  // gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S"themes"G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"gtk-2.0"G_DIR_SEPARATOR_S"gtkrc");
-  
   // initialize as soon as possible
   if(!g_thread_supported()) {
     g_thread_init(NULL);
   }
+
+  // load our custom gtk-theming
+  gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"bt-edit.gtkrc");
 
   // init libraries
   ctx = g_option_context_new(NULL);

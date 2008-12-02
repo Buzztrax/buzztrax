@@ -1,5 +1,13 @@
 2008-12-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/bt-edit.gtkrc:
+	* src/ui/edit/main-page-sequence.c:
+	  Add own extra gtk theming.
+
+2008-12-02  Stefan Kost  <ensonic@users.sf.net>
+
 	patch by: Thomas Klausner <thomasklausner at users.sourceforge.net>
 
 	* src/ui/edit/playback-controller-socket.c:

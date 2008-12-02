@@ -1,0 +1,14 @@
+# custom style to lessen treeview spacing
+# use gtk_rc_parse(filename) or gtk_rc_parse_string()
+
+style "slim-treeview" = "default"
+{
+  GtkTreeView::horizontal-separator = 0
+  GtkTreeView::vertical-separator = 0
+  #GtkTreeView::grid-line-width = 1
+  GtkWidget::focus-line-width = 0
+}
+
+# treeview stuff
+class "BtSequenceView" style "slim-treeview"
+widget "*.sequence-pattern-list" style "slim-treeview"

@@ -82,6 +82,9 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 buzztard-edit.desktop: buzztard-edit.desktop.in
 
+gtkrcdir = $(datadir)/$(PACKAGE)
+gtkrc_DATA = bt-edit.gtkrc
+
 marshal.h: marshal.list
 	glib-genmarshal --header --prefix=bt_marshal $(srcdir)/marshal.list > marshal.h
 
