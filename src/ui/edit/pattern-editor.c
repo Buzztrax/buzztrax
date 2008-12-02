@@ -30,6 +30,9 @@
  *       o shrink 
  * - mouse handling (selections)
  * - if we want separator bars for headers, look at gtkhseparator.c
+ * - drawing
+ *   - having some 1 pixel padding left/right of groups would look better
+ *     the group gap is one whole character anyway
  */
 
 #include <ctype.h>
@@ -53,7 +56,6 @@ enum {
 };
 
 static GtkWidgetClass *parent_class=NULL;
-
 
 struct ParamType
 {
@@ -159,14 +161,14 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
   col_w-=self->cw;
   while (y < widget->allocation.height && row < self->num_rows) {
     gdk_draw_rectangle (widget->window,
-      (row&0x1) ?self->shade_gc : widget->style->light_gc[GTK_STATE_PRELIGHT],
+      (row&0x1) ?self->shade_gc : widget->style->light_gc[GTK_STATE_NORMAL],
       TRUE, x, y, col_w, self->ch);
     
     
     sprintf(buf, "%04X", row);
     pango_layout_set_text (self->pl, buf, 4);
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
-      &widget->style->fg[GTK_STATE_ACTIVE], NULL);
+      &widget->style->text[GTK_STATE_NORMAL], NULL);
     y += self->ch;
     row++;
   }
@@ -189,7 +191,7 @@ bt_pattern_editor_draw_colnames(BtPatternEditor *self,
  
     pango_layout_set_text (self->pl, cgrp->name, ((cgrp->width/self->cw)-1));
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
-      &widget->style->fg[GTK_STATE_ACTIVE], NULL);
+      &widget->style->text[GTK_STATE_NORMAL], NULL);
     
     x+=cgrp->width;
   }
@@ -210,7 +212,7 @@ bt_pattern_editor_draw_rowname(BtPatternEditor *self,
   if (self->num_groups) {
     pango_layout_set_text (self->pl, "Tick", 4);
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
-      &widget->style->fg[GTK_STATE_ACTIVE], NULL);
+      &widget->style->text[GTK_STATE_NORMAL], NULL);
   }
 }
 
@@ -248,7 +250,7 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
   int col_w = cw * (pt->chars + 1);
 
   while (y < max_y && row < self->num_rows) {
-    GdkGC *gc = (row&0x1) ?self->shade_gc : widget->style->light_gc[GTK_STATE_PRELIGHT];
+    GdkGC *gc = (row&0x1) ?self->shade_gc : widget->style->light_gc[GTK_STATE_NORMAL];
     int col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
 
     if (self->selection_enabled && in_selection(self, group, param, row)) {
@@ -275,12 +277,13 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
     pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
     pango_layout_set_text (self->pl, buf, pt->chars);
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
-      &widget->style->fg[GTK_STATE_ACTIVE], NULL);
+      &widget->style->text[GTK_STATE_NORMAL], NULL);
     if (row == self->row && param == self->parameter && group == self->group) {
       int cp = pt->column_pos[self->digit];
       pango_layout_set_text (self->pl, buf + cp, 1);
+      // we could also use text_aa[GTK_STATE_SELECTED] for the cursor
       gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x + cw * cp, y, self->pl,
-        &widget->style->bg[GTK_STATE_ACTIVE], &widget->style->fg[GTK_STATE_NORMAL]);
+        &widget->style->text[GTK_STATE_NORMAL], &widget->style->text_aa[GTK_STATE_ACTIVE]);
     }
     y += ch;
     row++;
@@ -487,9 +490,9 @@ bt_pattern_editor_realize (GtkWidget *widget)
 //#if GTK_CHECK_VERSION(2, 10, 0)
 //  gtk_style_lookup_color(widget->style,"alternative-row",&alt_row_color);
 //#else
-   alt_row_color.red=(guint16)(widget->style->light[GTK_STATE_PRELIGHT].red*0.9);
-   alt_row_color.green=(guint16)(widget->style->light[GTK_STATE_PRELIGHT].green*0.9);
-   alt_row_color.blue=(guint16)(widget->style->light[GTK_STATE_PRELIGHT].blue*0.9);
+   alt_row_color.red=(guint16)(widget->style->light[GTK_STATE_NORMAL].red*0.9);
+   alt_row_color.green=(guint16)(widget->style->light[GTK_STATE_NORMAL].green*0.9);
+   alt_row_color.blue=(guint16)(widget->style->light[GTK_STATE_NORMAL].blue*0.9);
 //#endif
   gdk_gc_set_rgb_fg_color(self->shade_gc,&alt_row_color);
 

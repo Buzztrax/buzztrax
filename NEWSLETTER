@@ -1,6 +1,10 @@
 2008/12 ========================================================================
 
 * fixed i18n (domain)
+* release
+* bug-fixes, bsd porting
+* theming improvement
+* samplerate and channels in audio-settings
 
 2008/11 ========================================================================
 

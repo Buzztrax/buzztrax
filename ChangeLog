@@ -1,3 +1,14 @@
+2008-12-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collecting news.
+
+	* design/gui/stylecolors.c:
+	  Add sample invocation.
+	  
+	* src/ui/edit/pattern-editor.c:
+	  More color tuning.
+
 2008-12-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
