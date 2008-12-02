@@ -83,6 +83,10 @@
 #include <libbuzztard-core/tools.h>
 
 #include <libbuzztard-ic/ic.h>
+#ifdef HAVE_LINUX_INPUT_H
+#include "libbuzztard-ic/input-device-methods.h"
+#endif
+#include "libbuzztard-ic/midi-device-methods.h"
 
 #define GST_CAT_DEFAULT bt_ic_debug
 #ifndef BTIC_CORE_C

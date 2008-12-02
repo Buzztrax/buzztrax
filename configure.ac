@@ -246,10 +246,13 @@ PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GCONF_DEPS_LIBS"
     AC_PATH_PROG(GCONFTOOL, gconftool-2, [#])
     AM_GCONF_SOURCE_2
+    GCONF_DOC_TYPES=
   ],[
     AM_CONDITIONAL(USE_GCONF, false)
+    GCONF_DOC_TYPES="%"
   ]
 )
+AC_SUBST(GCONF_DOC_TYPES)
 
 PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.5.0, [
     AC_DEFINE(USE_GSTBT, [1], [Define to 1 if we can use gst-buzztard])
@@ -309,7 +312,7 @@ PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
   ]
 )
 
-# GObject Introspection, required
+# GObject Introspection
 PKG_CHECK_MODULES(GOBJECT_INTROSPECTION, [gobject-introspection-1.0],[
     AM_CONDITIONAL(USE_GIR, true)
     G_IR_SCANNER=`$PKG_CONFIG --variable=g_ir_scanner gobject-introspection-1.0`
@@ -391,7 +394,19 @@ AM_CONDITIONAL(WITH_ASPELL,[test "x$ASPELL" != "x"])
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(X11/Xlocale.h)
+AC_CHECK_HEADERS([X11/Xlocale.h])
+AC_CHECK_HEADERS([linux/input.h],
+  [
+    have_linux_input_h=yes
+    LINUX_INPUT_DOC_TYPES=
+  ],
+  [
+    have_linux_input_h=no
+    LINUX_INPUT_DOC_TYPES=%
+  ]
+)
+AC_SUBST(LINUX_INPUT_DOC_TYPES)
+AM_CONDITIONAL(USE_LINUX_INPUT, test x$have_linux_input_h = xyes)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AM_C_PROTOTYPES
@@ -437,8 +452,10 @@ AC_CONFIG_FILES(Makefile \
     docs/reference/Makefile \
       docs/reference/bt-cmd/Makefile \
       docs/reference/bt-core/Makefile \
+      docs/reference/bt-core/buzztard-core.types \
       docs/reference/bt-edit/Makefile \
       docs/reference/bt-ic/Makefile \
+      docs/reference/bt-ic/buzztard-ic.types \
   pixmaps/Makefile \
     pixmaps/hicolor/Makefile \
     pixmaps/gnome/Makefile \
@@ -471,20 +488,21 @@ AC_OUTPUT
 echo "
 
 Configuration
-	Version                    : ${VERSION}
-	Source code location       : ${srcdir}
-	Prefix                     : ${prefix}
-	Compiler                   : ${CC}
+	Version                         : ${VERSION}
+	Source code location            : ${srcdir}
+	Prefix                          : ${prefix}
+	Compiler                        : ${CC}
 
-	Documentation (API)        : ${enable_gtk_doc}
-	Bindings Metadata (GIR)    : ${enable_gir}
-	HAL for interaction ctrl.  : ${use_hal}
-	Buzzmachine Host support   : ${use_bml}
+	Documentation (API)             : ${enable_gtk_doc}
+	Bindings Metadata (GIR)         : ${enable_gir}
+	HAL for interaction ctrl.       : ${use_hal}
+	Linux HID for interaction ctrl. : ${have_linux_input_h}
+	Buzzmachine Host support        : ${use_bml}
 
-	Gnome Desktop Integration  : ${use_gnome}
-	Hildon Desktop Integration : ${use_hildon}
+	Gnome Desktop Integration       : ${use_gnome}
+	Hildon Desktop Integration      : ${use_hildon}
         
-	Debug                      : ${enable_debug}
-	Coverage profiling         : ${enable_coverage}
-	Use of deprecated API      : ${set_enable_deprecated}
+	Debug                           : ${enable_debug}
+	Coverage profiling              : ${enable_coverage}
+	Use of deprecated API           : ${set_enable_deprecated}
 "

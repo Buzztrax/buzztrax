@@ -1,5 +1,25 @@
 2008-12-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* docs/reference/bt-core/buzztard-core.types:
+	* docs/reference/bt-core/buzztard-core.types.in:
+	* docs/reference/bt-ic/buzztard-ic.types:
+	* docs/reference/bt-ic/buzztard-ic.types.in:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/ic_private.h:
+	* src/lib/ic/libbuzztard-ic/Makefile.am:
+	* src/lib/ic/libbuzztard-ic/ic.h:
+	* src/lib/ic/registry.c:
+	* docs/reference/bt-core/buzztard-core.types.in (added):
+	* docs/reference/bt-ic/buzztard-ic.types.in (added):
+	* docs/reference/bt-core/buzztard-core.types (deleted):
+	* docs/reference/bt-ic/buzztard-ic.types (deleted):
+	  Make LINUX_INPUT code conditional. Fixes #2367654
+	  Also make those gobject conditional in the docs (same for gconf while we are
+	  at it).
+
+2008-12-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/bt-edit.gtkrc:
 	* src/ui/edit/pattern-editor.c:
 	* src/ui/edit/pattern-editor.h:

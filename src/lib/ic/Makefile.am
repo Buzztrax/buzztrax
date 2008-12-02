@@ -2,6 +2,12 @@
 
 SUBDIRS = . libbuzztard-ic
 
+if USE_LINUX_INPUT
+LINUX_INPUT_SOURCES=input-device.c libbuzztard-ic/input-device.h libbuzztard-ic/input-device-methods.h
+else
+LINUX_INPUT_SOURCES=
+endif
+
 lib_LTLIBRARIES = libbuzztard-ic.la
 libbuzztard_ic_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS)
 libbuzztard_ic_la_LDFLAGS = -version-info @BT_VERSION_INFO@
@@ -12,7 +18,7 @@ libbuzztard_ic_la_SOURCES = \
 	\
 	device.c libbuzztard-ic/device.h libbuzztard-ic/device-methods.h \
 	learn.c libbuzztard-ic/learn.h libbuzztard-ic/learn-methods.h \
-	input-device.c libbuzztard-ic/input-device.h libbuzztard-ic/input-device-methods.h \
+	$(LINUX_INPUT_SOURCES) \
 	midi-device.c libbuzztard-ic/midi-device.h libbuzztard-ic/midi-device-methods.h \
 	\
 	control.c libbuzztard-ic/control.h libbuzztard-ic/control-methods.h \

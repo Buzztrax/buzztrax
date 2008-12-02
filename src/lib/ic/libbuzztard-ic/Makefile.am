@@ -1,5 +1,11 @@
 ## $Id$
 
+if USE_LINUX_INPUT
+LINUX_INPUT_SOURCES=input-device.h input-device-methods.h
+else
+LINUX_INPUT_SOURCES=
+endif
+
 libbtcoredir = $(includedir)/libbuzztard-ic
 libbtcore_HEADERS = \
 	ic.h \
@@ -8,7 +14,7 @@ libbtcore_HEADERS = \
         learn.h learn-methods.h \
 	\
 	device.h device-methods.h \
-	input-device.h input-device-methods.h \
+	$(LINUX_INPUT_SOURCES) \
 	midi-device.h midi-device-methods.h \
 	\
 	control.h control-methods.h \

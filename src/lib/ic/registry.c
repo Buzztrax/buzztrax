@@ -119,6 +119,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       libhal_free_string(devnode);
     }
 #endif
+#ifdef HAVE_LINUX_INPUT_H
     else if(!strcmp(cap[n],"input")) {
       devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
 
@@ -128,6 +129,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       libhal_free_string(devnode);
     }
   }
+#endif
   libhal_free_string_array(cap);
 
   // finished checking devices regarding capabilities, now checking category
