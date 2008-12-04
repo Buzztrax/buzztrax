@@ -82,7 +82,7 @@ static gboolean bt_ui_resources_init_colors(BtUIResources *self) {
   GdkColormap *colormap;
   GtkSettings *settings;
   gboolean color_res[BT_UI_RES_COLOR_COUNT];
-  gulong res;
+  gint res;
   gchar *icon_theme_name;
   gboolean use_tango_colors=FALSE;
   
@@ -193,11 +193,11 @@ static gboolean bt_ui_resources_init_colors(BtUIResources *self) {
   // now allocate colors
   colormap=gdk_colormap_get_system();
   if((res=gdk_colormap_alloc_colors(colormap,self->priv->colors,BT_UI_RES_COLOR_COUNT,FALSE,TRUE,color_res))) {
-    gulong i;
-    GST_WARNING("failed to allocate %d colors %d",res);
+    guint i;
+    GST_WARNING("failed to allocate %d colors, %d allocated",BT_UI_RES_COLOR_COUNT,res);
     for(i=0;i<BT_UI_RES_COLOR_COUNT;i++) {
       if(!color_res[i]) {
-        GST_WARNING("failed to allocate color %2d : %04x,%04x,%04x",i,self->priv->colors[i].red,self->priv->colors[i].green,self->priv->colors[i].blue);
+        GST_WARNING("failed to allocate color %2u : %04x,%04x,%04x",i,self->priv->colors[i].red,self->priv->colors[i].green,self->priv->colors[i].blue);
       }
     }
   }

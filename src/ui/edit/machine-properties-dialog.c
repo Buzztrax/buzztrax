@@ -1300,7 +1300,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
   params=voice_params;
   for(i=0;i<voice_params;i++) {
     if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) {
-      GST_INFO("skipping voice param %d",i);
+      GST_INFO("skipping voice param %lu",i);
       params--;
     }
   }
@@ -1312,7 +1312,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
 
     machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
     if(!machine_voice) {
-      GST_WARNING("Cannot get voice child for voice %d",voice);
+      GST_WARNING("Cannot get voice child for voice %lu",voice);
     }
 
     // add voice machine controls into the table
@@ -1320,7 +1320,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
 
     for(i=0,k=0;i<voice_params;i++) {
       if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) {
-        GST_INFO("skipping voice param %d",i);
+        GST_INFO("skipping voice param %lu",i);
         continue;
       }
 
@@ -1420,7 +1420,7 @@ static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gp
 
   g_object_get(G_OBJECT(machine),"voices",&new_voices,NULL);
 
-  GST_INFO("voices changed: %d -> %d",self->priv->voices,new_voices);
+  GST_INFO("voices changed: %lu -> %lu",self->priv->voices,new_voices);
 
   if(new_voices>self->priv->voices) {
     GstElement *machine_object;
@@ -1581,7 +1581,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   gtk_window_set_title(GTK_WINDOW(self),title);
   g_free(id);g_free(title);
 
-  GST_INFO("machine has %d global properties, %d voice properties and %d voices",global_params,voice_params,self->priv->voices);
+  GST_INFO("machine has %lu global properties, %lu voice properties and %lu voices",global_params,voice_params,self->priv->voices);
 
   // dynamically adjust voices
   g_signal_connect(G_OBJECT(self->priv->machine),"notify::voices",G_CALLBACK(on_machine_voices_notify),(gpointer)self);

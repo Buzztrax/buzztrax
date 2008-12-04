@@ -1036,7 +1036,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         self->priv->switching=FALSE;
         // still over mode switch
         if(bt_machine_canvas_item_is_over_state_switch(self,event)) {
-          gulong modifier=(gulong)event->button.state&gtk_accelerator_get_default_mod_mask();
+          guint modifier=(gulong)event->button.state&gtk_accelerator_get_default_mod_mask();
           //gulong modifier=(gulong)event->button.state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
           GST_DEBUG("  mode quad state switch, key_modifier is: 0x%x + mask: 0x%x -> 0x%x",event->button.state,(GDK_CONTROL_MASK|GDK_MOD4_MASK),modifier);
           switch(modifier) {

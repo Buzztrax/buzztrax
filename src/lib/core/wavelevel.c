@@ -228,7 +228,7 @@ static void bt_wavelevel_set_property(GObject      * const object,
     } break;
     case WAVELEVEL_LENGTH: {
       self->priv->length = g_value_get_ulong(value);
-      GST_DEBUG("set the length for wavelevel: %d",self->priv->length);
+      GST_DEBUG("set the length for wavelevel: %lu",self->priv->length);
     } break;
     case WAVELEVEL_LOOP_START: {
       self->priv->loop_start = g_value_get_long(value);
@@ -245,7 +245,7 @@ static void bt_wavelevel_set_property(GObject      * const object,
         else
           self->priv->loop_start=-1;
       }
-      GST_DEBUG("set the loop-start for wavelevel: %d",self->priv->loop_start);
+      GST_DEBUG("set the loop-start for wavelevel: %ld",self->priv->loop_start);
     } break;
     case WAVELEVEL_LOOP_END: {
       self->priv->loop_end = g_value_get_long(value);
@@ -263,11 +263,11 @@ static void bt_wavelevel_set_property(GObject      * const object,
         else
           self->priv->loop_end=-1;
       }
-      GST_DEBUG("set the loop-start for wavelevel: %d",self->priv->loop_start);
+      GST_DEBUG("set the loop-start for wavelevel: %ld",self->priv->loop_start);
     } break;
     case WAVELEVEL_RATE: {
       self->priv->rate = g_value_get_ulong(value);
-      GST_DEBUG("set the rate for wavelevel: %d",self->priv->rate);
+      GST_DEBUG("set the rate for wavelevel: %lu",self->priv->rate);
     } break;
     case WAVELEVEL_DATA: {
       g_free(self->priv->sample);

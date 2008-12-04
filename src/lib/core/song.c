@@ -120,7 +120,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
   g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
   const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
 
-  GST_INFO("loop %d? %ld, length %ld, bar_time %lf",loop,loop_end,length,bar_time);
+  GST_INFO("loop %d? %ld, length %ld, bar_time %"GST_TIME_FORMAT,loop,loop_end,length,GST_TIME_ARGS(bar_time));
 
   // we need to flush, otheriwse mixing goes out of sync */
   if (loop) {
@@ -155,7 +155,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
   g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
   const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
 
-  GST_DEBUG("loop %d? %ld ... %ld, length %ld bar_time %lf",loop,loop_start,loop_end,length,bar_time);
+  GST_DEBUG("loop %d? %ld ... %ld, length %ld bar_time %"GST_TIME_FORMAT,loop,loop_start,loop_end,length,GST_TIME_ARGS(bar_time));
 
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
   if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
@@ -821,7 +821,7 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
     const gulong play_pos=(gulong)(pos_cur/bar_time);
     if(play_pos!=self->priv->play_pos) {
       self->priv->play_pos=play_pos;
-      GST_DEBUG("query playback-pos: cur=%"G_GINT64_FORMAT", tick=%ul",pos_cur,self->priv->play_pos);
+      GST_DEBUG("query playback-pos: cur=%"G_GINT64_FORMAT", tick=%lu",pos_cur,self->priv->play_pos);
       g_object_notify(G_OBJECT(self),"play-pos");
     }
   }
@@ -969,7 +969,7 @@ void bt_song_write_to_highlevel_dot_file(const BtSong * const self) {
       // query internal element of each wire
       sublist=bt_wire_get_element_list(wire);
       count=g_list_length(sublist);
-      GST_INFO("wire %s->%s has %d elements",src_name,dst_name,count);
+      GST_INFO("wire %s->%s has %lu elements",src_name,dst_name,count);
       index=0;
       last_name=NULL;
       for(subnode=sublist;subnode;subnode=g_list_next(subnode)) {

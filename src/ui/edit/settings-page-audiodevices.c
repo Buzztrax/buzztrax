@@ -200,7 +200,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
       GST_INFO("  skipping audio sink: \"%s\" - its a ladspa element but not asm audio output",name);
     }
   }
-  GST_INFO("current sink (is_system? %d): %d",use_system_audiosink,audiosink_index);
+  GST_INFO("current sink (is_system? %d): %lu",use_system_audiosink,audiosink_index);
   gtk_combo_box_set_active(self->priv->audiosink_menu,audiosink_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->audiosink_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", G_CALLBACK(on_audiosink_menu_changed), (gpointer)self);

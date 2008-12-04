@@ -499,7 +499,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     else if(modifier&GDK_SHIFT_MASK) {
       // insert group
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, NULL);
-      GST_INFO("shift-insert pressed, row %lu, group %lu",self->priv->cursor_row,self->priv->cursor_group);
+      GST_INFO("shift-insert pressed, row %ld, group %u",self->priv->cursor_row,self->priv->cursor_group);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case 0: {
           BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
@@ -535,7 +535,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     else {
       // insert column
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
-      GST_INFO("insert pressed, row %lu, group %lu, param %lu",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
+      GST_INFO("insert pressed, row %ld, group %u, param %u",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case 0: {
           BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
@@ -584,7 +584,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     else if(modifier&GDK_SHIFT_MASK) {
       // delete group
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, NULL);
-      GST_INFO("delete pressed, row %lu, group %lu",self->priv->cursor_row,self->priv->cursor_group);
+      GST_INFO("delete pressed, row %ld, group %u",self->priv->cursor_row,self->priv->cursor_group);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case 0: {
           BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
@@ -620,7 +620,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     else {
       // delete group
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
-      GST_INFO("delete pressed, row %lu, group %lu, param %lu",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
+      GST_INFO("delete pressed, row %ld, group %u, param %u",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case 0: {
           BtWirePattern *wire_pattern = bt_wire_get_pattern(self->priv->param_groups[self->priv->cursor_group].user_data,self->priv->pattern);
@@ -1284,7 +1284,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 
     g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
     g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-    GST_DEBUG("  size is %2d,%2d",number_of_ticks,global_params);
+    GST_DEBUG("  size is %2lu,%2lu",number_of_ticks,global_params);
 
     pattern_table_clear(self);
     
@@ -2071,7 +2071,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   gtk_widget_set_name(GTK_WIDGET(self->priv->pattern_table),"pattern editor");
 
-  GST_DEBUG("  before context menu",self);
   // generate the context menu
   self->priv->accel_group=gtk_accel_group_new();
   self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));

@@ -1,3 +1,42 @@
+2008-12-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Sent NEWS.
+
+	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	  Remove double entry.
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/ic/registry.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/playback-controller-socket.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	* src/ui/edit/ui-resources.c:
+	* tests/bt-check.c:
+	* tests/bt-test-plugin.c:
+	  Fix format string warnings.
+
 2008-12-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

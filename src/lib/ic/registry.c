@@ -128,8 +128,8 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
       libhal_free_string(devnode);
     }
-  }
 #endif
+  }
   libhal_free_string_array(cap);
 
   // finished checking devices regarding capabilities, now checking category

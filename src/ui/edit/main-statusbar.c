@@ -151,7 +151,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,"play-pos",&play_start,NULL);
   self->priv->total_time=G_GINT64_CONSTANT(0);
   if(!is_playing) {
-    GST_INFO("play_start=%d",play_start);
+    GST_INFO("play_start=%lu",play_start);
     // update statusbar fields
     self->priv->last_pos=play_start;
     self->priv->play_start=play_start;

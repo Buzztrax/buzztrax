@@ -73,7 +73,7 @@ GST_STATIC_PAD_TEMPLATE (
 //-- tempo interface implementation
 
 static void bt_test_tempo_change_tempo(GstBtTempo *tempo, glong beats_per_minute, glong ticks_per_beat, glong subticks_per_tick) {  
-  GST_INFO("changing tempo to %d BPM  %d TPB  %d STPT",beats_per_minute,ticks_per_beat,subticks_per_tick);
+  GST_INFO("changing tempo to %lu BPM  %lu TPB  %lu STPT",beats_per_minute,ticks_per_beat,subticks_per_tick);
 }
 
 static void bt_test_tempo_interface_init(gpointer g_iface, gpointer iface_data) {
@@ -85,7 +85,7 @@ static void bt_test_tempo_interface_init(gpointer g_iface, gpointer iface_data) 
 //-- child proxy interface implementation
 
 static GstObject *bt_test_child_proxy_get_child_by_index (GstChildProxy *child_proxy, guint index) {
-  GST_INFO("machine %p, getting child %d of %d",child_proxy,index,BT_TEST_POLY_SOURCE(child_proxy)->num_voices);
+  GST_INFO("machine %p, getting child %u of %lu",child_proxy,index,BT_TEST_POLY_SOURCE(child_proxy)->num_voices);
   g_return_val_if_fail(index<BT_TEST_POLY_SOURCE(child_proxy)->num_voices,NULL);
   
   return(g_object_ref(g_list_nth_data(BT_TEST_POLY_SOURCE(child_proxy)->voices,index)));
@@ -245,7 +245,7 @@ static void bt_test_poly_source_set_property(GObject *object,
     case ARG_VOICES:
       num_voices=self->num_voices;
       self->num_voices = g_value_get_ulong(value);
-      GST_INFO("machine %p, changing voices from %d to %d",object,num_voices,self->num_voices);
+      GST_INFO("machine %p, changing voices from %lu to %lu",object,num_voices,self->num_voices);
       if(self->num_voices>num_voices) {
         for(i=num_voices;i<self->num_voices;i++) {
           voice=g_object_new(BT_TYPE_TEST_MONO_SOURCE,NULL);

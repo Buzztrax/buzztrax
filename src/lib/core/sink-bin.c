@@ -149,7 +149,7 @@ static void bt_sink_bin_tempo_change_tempo(GstBtTempo *tempo, glong beats_per_mi
   if(changed) {
     GstElement *element = gst_bin_get_by_name(GST_BIN(self),"player");
 
-    GST_DEBUG("changing tempo to %d BPM  %d TPB  %d STPT",self->priv->beats_per_minute,self->priv->ticks_per_beat,self->priv->subticks_per_tick);
+    GST_DEBUG("changing tempo to %lu BPM  %lu TPB  %lu STPT",self->priv->beats_per_minute,self->priv->ticks_per_beat,self->priv->subticks_per_tick);
     
     if(element) {
       bt_sink_bin_configure_latency(self,element);
@@ -328,14 +328,14 @@ static gchar *bt_sink_bin_determine_plugin_name(const BtSinkBin * const self) {
       if(gst_element_factory_can_sink_caps(factory,caps1) || gst_element_factory_can_sink_caps(factory,caps2)) {
         // get element max(rank)
         cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
-        GST_INFO("  trying audio sink: \"%s\" with rank: %d",node->data,cur_rank);
+        GST_INFO("  trying audio sink: \"%s\" with rank: %d",(gchar *)node->data,cur_rank);
         if((cur_rank>=max_rank) || (!plugin_name)) {
           plugin_name=g_strdup(node->data);
           max_rank=cur_rank;
         }
       }
       else {
-        GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",node->data);
+        GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",(gchar *)node->data);
       }
     }
     g_list_free(audiosink_names);

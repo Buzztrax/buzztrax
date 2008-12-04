@@ -142,12 +142,12 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
   // sort list by name
   element_names=g_list_sort(element_names,(GCompareFunc)bt_machine_menu_compare);
   for(node=element_names;node;node=g_list_next(node)) {
-    GST_LOG("found element : '%s'",node->data);
+    GST_LOG("found element : '%s'",(gchar*)node->data);
     factory=gst_element_factory_find(node->data);
     
     // skip elements with too many pads
     if(!(bt_machine_menu_check_pads(gst_element_factory_get_static_pad_templates(factory)))) {
-      GST_LOG("skipping element : '%s'",node->data);
+      GST_LOG("skipping element : '%s'",(gchar *)node->data);
       continue;
     }
 

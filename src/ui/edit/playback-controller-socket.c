@@ -393,7 +393,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   if(self->priv->is_playing && self->priv->seek) {
     // do this only if play was invoked via playbackcontroller
     self->priv->seek=FALSE;
-    GST_INFO("seeking to pos=%d",self->priv->cur_pos);
+    GST_INFO("seeking to pos=%lu",self->priv->cur_pos);
     g_object_set(G_OBJECT(song),"play-pos",self->priv->cur_pos,NULL);
   }
 }

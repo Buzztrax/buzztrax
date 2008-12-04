@@ -940,7 +940,7 @@ static void on_wavetable_toolbar_clear_clicked(GtkToolButton *button, gpointer u
     gulong id;
 
     gtk_tree_model_get(model,&iter,WAVE_TABLE_ID,&id,-1);
-    GST_INFO("selected entry id %d",id);
+    GST_INFO("selected entry id %lu",id);
 
     wave=bt_wavetable_get_wave_by_index(self->priv->wavetable,id);
     bt_wavetable_remove_wave(self->priv->wavetable,wave);
@@ -965,7 +965,7 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     gulong id;
 
     gtk_tree_model_get(model,&iter,WAVE_TABLE_ID,&id,-1);
-    GST_INFO("selected entry id %d",id);
+    GST_INFO("selected entry id %lu",id);
     
     if((wave=waves_list_get_current(self))) {
       if(wave==self->priv->play_wave) {

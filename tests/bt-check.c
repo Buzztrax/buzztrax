@@ -468,7 +468,7 @@ static gboolean check_write_property(GParamSpec *paramspec, GObject *toCheck) {
 }
 
 static gboolean check_readwrite_int_param(GParamSpec *paramspec, GObject *toCheck) {
-  gulong ival,oval;
+  gint ival,oval;
   gboolean ret=TRUE;
 
   ival=G_PARAM_SPEC_INT(paramspec)->minimum;
@@ -497,7 +497,7 @@ static gboolean check_readwrite_int_param(GParamSpec *paramspec, GObject *toChec
 }
 
 static gboolean check_readwrite_uint_param(GParamSpec *paramspec, GObject *toCheck) {
-  gulong ival,oval;
+  guint ival,oval;
   gboolean ret=TRUE;
 
   ival=G_PARAM_SPEC_UINT(paramspec)->minimum;
@@ -526,7 +526,7 @@ static gboolean check_readwrite_uint_param(GParamSpec *paramspec, GObject *toChe
 }
 
 static gboolean check_readwrite_int64_param(GParamSpec *paramspec, GObject *toCheck) {
-  gulong ival,oval;
+  gint64 ival,oval;
   gboolean ret=TRUE;
 
   ival=G_PARAM_SPEC_INT64(paramspec)->minimum;
@@ -549,7 +549,7 @@ static gboolean check_readwrite_int64_param(GParamSpec *paramspec, GObject *toCh
 }
 
 static gboolean check_readwrite_long_param(GParamSpec *paramspec, GObject *toCheck) {
-  gulong ival,oval;
+  glong ival,oval;
   gboolean ret=TRUE;
 
   ival=G_PARAM_SPEC_LONG(paramspec)->default_value;

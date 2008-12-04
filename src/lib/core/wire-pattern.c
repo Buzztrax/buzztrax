@@ -114,7 +114,7 @@ static gboolean bt_wire_pattern_init_data(const BtWirePattern * const self) {
     return(TRUE);
   }
 
-  GST_DEBUG("sizes : %d*%d=%d",self->priv->length,self->priv->num_params);
+  GST_DEBUG("sizes : %lu*%lu=%lu",self->priv->length,self->priv->num_params,data_count);
   if((self->priv->data=g_try_new0(GValue,data_count))) {
     ret=TRUE;
   }
@@ -137,18 +137,18 @@ static void bt_wire_pattern_resize_data_length(const BtWirePattern * const self,
   if((self->priv->data=g_try_new0(GValue,new_data_count))) {
     if(data) {
       gulong count=MIN(old_data_count,new_data_count);
-      GST_DEBUG("keeping data count=%d, old=%d, new=%d",count,old_data_count,new_data_count);
+      GST_DEBUG("keeping data count=%lu, old=%lu, new=%lu",count,old_data_count,new_data_count);
       // copy old values over
       memcpy(self->priv->data,data,count*sizeof(GValue));
       // free old data
       g_free(data);
     }
-    GST_DEBUG("extended pattern length from %d to %d : data_count=%d = length=%d * np=%d)",
+    GST_DEBUG("extended pattern length from %lu to %lu : data_count=%lu = length=%lu * np=%lu)",
       length,self->priv->length,
       new_data_count,self->priv->length,self->priv->num_params);
   }
   else {
-    GST_INFO("extending pattern length from %d to %d failed : data_count=%d = length=%d * np=%d)",
+    GST_INFO("extending pattern length from %lu to %lu failed : data_count=%lu = length=%lu * np=%lu)",
       length,self->priv->length,
       new_data_count,self->priv->length,self->priv->num_params);
     //self->priv->data=data;
@@ -181,7 +181,7 @@ static void on_pattern_length_changed(BtPattern *pattern,GParamSpec *arg,gpointe
   GST_INFO("pattern length changed : %p",self->priv->pattern);
   g_object_get(G_OBJECT(self->priv->pattern),"length",&self->priv->length,NULL);
   if(length!=self->priv->length) {
-    GST_DEBUG("set the length for wire-pattern: %d",self->priv->length);
+    GST_DEBUG("set the length for wire-pattern: %lu",self->priv->length);
     bt_wire_pattern_resize_data_length(self,length);
   }
 }
@@ -238,8 +238,8 @@ GValue *bt_wire_pattern_get_event_data(const BtWirePattern * const self, const g
   g_return_val_if_fail(tick<self->priv->length,NULL);
   g_return_val_if_fail(self->priv->data,NULL);
 
-  if(!(tick<self->priv->length)) { GST_ERROR("tick=%d beyond length=%d in wire-pattern",tick,self->priv->length);return(NULL); }
-  if(!(param<self->priv->num_params)) { GST_ERROR("param=%d beyond num_params=%d in wire-pattern",param,self->priv->num_params);return(NULL); }
+  if(!(tick<self->priv->length)) { GST_ERROR("tick=%lu beyond length=%lu in wire-pattern",tick,self->priv->length);return(NULL); }
+  if(!(param<self->priv->num_params)) { GST_ERROR("param=%lu beyond num_params=%lu in wire-pattern",param,self->priv->num_params);return(NULL); }
 
   const gulong index=(tick*self->priv->num_params)+param;
 
@@ -424,7 +424,7 @@ void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gul
 
   gulong j;
 
-  GST_DEBUG("insert full-row at %lu", time);
+  GST_DEBUG("insert full-row at %lu", tick);
 
   for(j=0;j<self->priv->num_params;j++) {
     _insert_row(self,tick,j);
@@ -489,7 +489,7 @@ void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gul
 
   gulong j;
 
-  GST_DEBUG("insert full-row at %lu", time);
+  GST_DEBUG("insert full-row at %lu", tick);
 
   for(j=0;j<self->priv->num_params;j++) {
     _delete_row(self,tick,j);
@@ -817,7 +817,7 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
               bt_wire_pattern_set_event(self,tick,param,(gchar *)value);
             }
             else {
-              GST_WARNING("error while loading wire pattern data at tick %d, param %d: %s",tick,param,error->message);
+              GST_WARNING("error while loading wire pattern data at tick %lu, param %lu: %s",tick,param,error->message);
               g_error_free(error);error=NULL;
               BT_PERSISTENCE_ERROR(Error);
             }  

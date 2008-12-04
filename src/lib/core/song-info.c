@@ -349,7 +349,7 @@ static void bt_song_info_set_property(GObject      * const object,
 #endif
         bt_song_info_tempo_changed(self);
         bt_song_set_unsaved(self->priv->song,TRUE);
-        GST_DEBUG("set the bpm for song_info: %d",self->priv->beats_per_minute);
+        GST_DEBUG("set the bpm for song_info: %lu",self->priv->beats_per_minute);
       }
     } break;
     case SONG_INFO_TPB: {
@@ -358,7 +358,7 @@ static void bt_song_info_set_property(GObject      * const object,
         self->priv->ticks_per_beat = g_value_get_ulong(value);
         bt_song_info_tempo_changed(self);
         bt_song_set_unsaved(self->priv->song,TRUE);
-        GST_DEBUG("set the tpb for song_info: %d",self->priv->ticks_per_beat);
+        GST_DEBUG("set the tpb for song_info: %lu",self->priv->ticks_per_beat);
       }
     } break;
     case SONG_INFO_BARS: {
@@ -367,7 +367,7 @@ static void bt_song_info_set_property(GObject      * const object,
         self->priv->bars = g_value_get_ulong(value);
         bt_song_info_tempo_changed(self);
         bt_song_set_unsaved(self->priv->song,TRUE);
-        GST_DEBUG("set the bars for song_info: %d",self->priv->bars);
+        GST_DEBUG("set the bars for song_info: %lu",self->priv->bars);
       }
     } break;
     case SONG_INFO_CREATE_DTS: {

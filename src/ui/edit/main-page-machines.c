@@ -272,7 +272,7 @@ static void bt_main_page_machines_draw_grid(const BtMainPageMachines *self) {
   gdouble s,step;
   gulong color;
 
-  GST_INFO("redrawing grid : density=%d  canvas=%p",self->priv->grid_density,self->priv->canvas);
+  GST_INFO("redrawing grid : density=%lu  canvas=%p",self->priv->grid_density,self->priv->canvas);
 
   // delete old grid-item and generate a new one (pushing it to bottom)
   if(self->priv->grid) gtk_object_destroy(GTK_OBJECT(self->priv->grid));

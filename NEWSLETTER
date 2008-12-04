@@ -1,10 +1,23 @@
+2009/01 ========================================================================
+
 2008/12 ========================================================================
 
-* fixed i18n (domain)
-* release
-* bug-fixes, bsd porting
-* theming improvement
-* samplerate and channels in audio-settings
+Finally I have cut a 0.4 release for all buzztard packages [1]. I spend most
+time before with maintenance tasks, such as i18n updates (we now have dutch and
+dansk translations!).
+
+I started with some features after the release. There are now some nice
+gtk-theming improvements for the pattern and the sequence view (we have a custom
+gtkrc now that extends the theme). Then the audio settings got ui for choosing
+sampling rate and channels. This will be nice for arm based devices if the cpu
+power is not enough for high quality as well for doing high sampling rates on
+fast machines for max quality.
+
+Naturally people try your software once you released it and not before. Thus we
+got quite some amount bug reports. A lot of them were related to portability,
+looks like we get it working on BSD. I'll probably do another release soonish.
+
+[1] http://sourceforge.net/mailarchive/message.php?msg_name=492DB0BA.1070204%40users.sf.net
 
 2008/11 ========================================================================
 

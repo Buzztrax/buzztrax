@@ -189,7 +189,7 @@ static gboolean bt_sink_machine_check_type(const BtMachine * const self, const g
     gchar * const plugin_name;
     
     g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
-    GST_ERROR("  plugin \"%s\" is has %d src pads instead of 0 and %d sink pads instead of >0",
+    GST_ERROR("  plugin \"%s\" is has %lu src pads instead of 0 and %lu sink pads instead of >0",
       plugin_name,pad_src_ct,pad_sink_ct);
     g_free(plugin_name);
     return(FALSE);

@@ -375,12 +375,12 @@ static gboolean sequence_view_set_cursor_pos(const BtMainPageSequence *self) {
       g_list_free(columns);
     }
     else {
-      GST_WARNING("Can't get columns for pos %d:%d",self->priv->cursor_row,self->priv->cursor_column);
+      GST_WARNING("Can't get columns for pos %ld:%ld",self->priv->cursor_row,self->priv->cursor_column);
     }
     gtk_tree_path_free(path);
   }
   else {
-    GST_WARNING("Can't create treepath for pos %d:%d",self->priv->cursor_row,self->priv->cursor_column);
+    GST_WARNING("Can't create treepath for pos %ld:%ld",self->priv->cursor_row,self->priv->cursor_column);
   }
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
   return res;
@@ -493,7 +493,7 @@ static void sequence_calculate_visible_lines(const BtMainPageSequence *self) {
   g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
 
   visible_rows=sequence_length/self->priv->bars;
-  GST_INFO("visible_rows=%d = %d / %d",visible_rows,sequence_length,self->priv->bars);
+  GST_INFO("visible_rows=%lu = %lu / %lu",visible_rows,sequence_length,self->priv->bars);
   g_object_set(self->priv->sequence_table,"visible-rows",visible_rows,NULL);
   g_object_set(self->priv->sequence_pos_table,"visible-rows",visible_rows,NULL);
 }
@@ -1078,7 +1078,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   g_object_get(G_OBJECT(self->priv->sequence),"length",&timeline_ct,"tracks",&track_ct,NULL);
-  GST_DEBUG("  size is %2d,%2d",timeline_ct,track_ct);
+  GST_DEBUG("  size is %2lu,%2lu",timeline_ct,track_ct);
 
   // reset columns
   sequence_table_clear(self);
@@ -1258,7 +1258,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     }
     else {
       header=gtk_label_new("???");
-      GST_WARNING("can't get machine for column %d",j);
+      GST_WARNING("can't get machine for column %lu",j);
     }
     gtk_widget_set_size_request(header,SEQUENCE_CELL_WIDTH,-1);
     gtk_widget_show_all(header);
@@ -1388,7 +1388,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     g_object_unref(main_window);     
   }
   else {
-    GST_INFO("no machine for cursor_column: %d",self->priv->cursor_column);
+    GST_INFO("no machine for cursor_column: %ld",self->priv->cursor_column);
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
   
@@ -1573,7 +1573,7 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   // (-2 because last column is empty and first is label)
   columns=gtk_tree_view_get_columns(self->priv->sequence_table);
   self->priv->cursor_column=g_list_length(columns)-2;
-  GST_INFO("new cursor column: %d",self->priv->cursor_column);
+  GST_INFO("new cursor column: %ld",self->priv->cursor_column);
   g_list_free(columns);
 
   sequence_view_set_cursor_pos(self);
@@ -1642,7 +1642,7 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
   // (-2 because last column is empty and first is label)
     columns=gtk_tree_view_get_columns(self->priv->sequence_table);
     self->priv->cursor_column=g_list_length(columns)-2;
-    GST_DEBUG("new cursor column: %d",self->priv->cursor_column);
+    GST_DEBUG("new cursor column: %ld",self->priv->cursor_column);
     g_list_free(columns);
 
     update_after_track_changed(self);
@@ -1656,7 +1656,7 @@ static void on_track_move_left_activated(GtkMenuItem *menuitem, gpointer user_da
   BtSong *song;
   gulong track=self->priv->cursor_column-1;
   
-  GST_INFO("move track %d to left",self->priv->cursor_column);
+  GST_INFO("move track %ld to left",self->priv->cursor_column);
 
   if(track>0) {
     // get song from app and then setup from song
@@ -1678,7 +1678,7 @@ static void on_track_move_right_activated(GtkMenuItem *menuitem, gpointer user_d
   BtSong *song;
   gulong track=self->priv->cursor_column-1,number_of_tracks;
 
-  GST_INFO("move track %d to right",self->priv->cursor_column);
+  GST_INFO("move track %ld to right",self->priv->cursor_column);
 
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -1791,7 +1791,7 @@ static void on_label_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
     gulong pos;
 
     gtk_tree_model_get(store,&iter,POSITION_MENU_POS,&pos,-1);
-    GST_INFO("  move to = %d",pos);
+    GST_INFO("  move to = %lu",pos);
     if((path=gtk_tree_path_new_from_indices((pos/self->priv->bars),-1))) {
       // that would try to keep the cursor in the middle (means it will scroll more)
       if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
@@ -1817,14 +1817,14 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
     if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&cursor_column,&cursor_row)) {
       gulong lastbar;
 
-      GST_INFO("new row = %3d <-> old row = %3d",cursor_row,self->priv->cursor_row);
+      GST_INFO("new row = %3lu <-> old row = %3ld",cursor_row,self->priv->cursor_row);
       self->priv->cursor_row=cursor_row;
-      GST_INFO("new col = %3d <-> old col = %3d",cursor_column,self->priv->cursor_column);
+      GST_INFO("new col = %3lu <-> old col = %3ld",cursor_column,self->priv->cursor_column);
       if(cursor_column!=self->priv->cursor_column) {       
         self->priv->cursor_column=cursor_column;
         update_after_track_changed(self);        
       }
-      GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
+      GST_INFO("cursor has changed: %3ld,%3ld",self->priv->cursor_column,self->priv->cursor_row);
 
       // calculate the last visible row from step-filter and scroll-filter
       lastbar=self->priv->row_filter_pos-1-((self->priv->row_filter_pos-1)%self->priv->bars);
@@ -1984,7 +1984,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
               && changed
 #endif
               ) {
-              GST_INFO("up   : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+              GST_INFO("up   : %3ld,%3ld -> %3ld,%3ld @ %3ld,%3ld",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
               if(self->priv->selection_start_row==-1) {
                 GST_INFO("up   : new selection");
                 self->priv->selection_start_column=self->priv->cursor_column;
@@ -2002,13 +2002,13 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
                   self->priv->selection_end_row-=self->priv->bars;
                 }
               }
-              GST_INFO("up   : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+              GST_INFO("up   : %3ld,%3ld -> %3ld,%3ld",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
               select=TRUE;
             }
             break;
           case GDK_Down:
             /* we expand length */
-            GST_INFO("down : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+            GST_INFO("down : %3ld,%3ld -> %3ld,%3ld @ %3ld,%3ld",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
             if(self->priv->selection_end_row==-1) {
               GST_INFO("down : new selection");
               self->priv->selection_start_column=self->priv->cursor_column;
@@ -2026,7 +2026,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
                 self->priv->selection_start_row+=self->priv->bars;
               }
             }
-            GST_INFO("down : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+            GST_INFO("down : %3ld,%3ld -> %3ld,%3ld",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
             select=TRUE;
             break;
           case GDK_Left:
@@ -2034,7 +2034,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
               // move cursor
               self->priv->cursor_column--;
               sequence_view_set_cursor_pos(self);
-              GST_INFO("left : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+              GST_INFO("left : %3ld,%3ld -> %3ld,%3ld @ %3ld,%3ld",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
               if(self->priv->selection_start_column==-1) {
                 GST_INFO("left : new selection");
                 self->priv->selection_start_column=self->priv->cursor_column;
@@ -2052,7 +2052,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
                   self->priv->selection_end_column--;
                 }
               }
-              GST_INFO("left : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+              GST_INFO("left : %3ld,%3ld -> %3ld,%3ld",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
               select=TRUE;
             }
             break;
@@ -2061,7 +2061,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
               // move cursor
               self->priv->cursor_column++;
               sequence_view_set_cursor_pos(self);
-              GST_INFO("right: %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+              GST_INFO("right: %3ld,%3ld -> %3ld,%3ld @ %3ld,%3ld",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
               if(self->priv->selection_end_column==-1) {
                 GST_INFO("right: new selection");
                 self->priv->selection_start_column=self->priv->cursor_column-1;
@@ -2079,7 +2079,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
                   self->priv->selection_start_column++;
                 }
               }
-              GST_INFO("right: %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+              GST_INFO("right: %3ld,%3ld -> %3ld,%3ld",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
               select=TRUE;
             }
             break;
@@ -2173,7 +2173,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
             BtPattern *pattern;
             gulong index=(gulong)pos-(gulong)self->priv->pattern_keys;
 
-            GST_INFO("pattern key pressed: '%c' > index: %d",*pos,index);
+            GST_INFO("pattern key pressed: '%c' > index: %lu",*pos,index);
 
             if((pattern=bt_machine_get_pattern_by_index(machine,index))) {
               pattern_usage_changed=!bt_sequence_is_pattern_used(self->priv->sequence,pattern);
@@ -2287,7 +2287,7 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
         gulong track,row;
 
         if(sequence_view_get_cursor_pos(GTK_TREE_VIEW(widget),path,column,&track,&row)) {
-          GST_INFO("  left click to column %d, row %d",track,row);
+          GST_INFO("  left click to column %lu, row %lu",track,row);
           if(widget==GTK_WIDGET(self->priv->sequence_pos_table)) {
             switch(modifier) {
             case 0:
@@ -2361,7 +2361,7 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
         gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
         // cursor updates are not yet processed
         on_sequence_table_cursor_changed_idle(self);
-        GST_INFO("cursor new/old: %3d,%3d -> %3d,%3d",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
+        GST_INFO("cursor new/old: %3ld,%3ld -> %3ld,%3ld",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
         if((cursor_column!=self->priv->cursor_column) || (cursor_row!=self->priv->cursor_row)) {
           if(self->priv->selection_start_column==-1) {
             self->priv->selection_start_column=MIN(cursor_column,self->priv->selection_column);
@@ -2667,7 +2667,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   self->priv->sink_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1);
   self->priv->sink_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2);
 
-  GST_DEBUG("  before context menu",self);
   // generate the context menu
   self->priv->accel_group=gtk_accel_group_new();
   self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
@@ -2945,7 +2944,7 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
     selection_end_row=self->priv->selection_end_row;
   }
 
-  GST_INFO("delete sequence region: %3d,%3d -> %3d,%3d",selection_start_column,selection_start_row,selection_end_column,selection_end_row);
+  GST_INFO("delete sequence region: %3ld,%3ld -> %3ld,%3ld",selection_start_column,selection_start_row,selection_end_column,selection_end_row);
 
   if((store=sequence_model_get_store(self))) {
     GtkTreePath *path;
@@ -2958,7 +2957,7 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
 
         for(i=selection_start_row;i<=selection_end_row;i++) {
           for(j=selection_start_column-1;j<selection_end_column;j++) {
-            GST_DEBUG("  delete sequence cell: %3d,%3d",j,i);
+            GST_DEBUG("  delete sequence cell: %3ld,%3ld",j,i);
             bt_sequence_set_pattern(self->priv->sequence,i,j,NULL);
             gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+j," ",-1);
           }
@@ -2971,7 +2970,7 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
         }
       }
       else {
-        GST_WARNING("  can't get tree-iter for row %d",selection_start_row);
+        GST_WARNING("  can't get tree-iter for row %ld",selection_start_row);
       }
       gtk_tree_path_free(path);
     }

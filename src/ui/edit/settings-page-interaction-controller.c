@@ -62,7 +62,7 @@ static void on_device_menu_changed(GtkComboBox *combo_box, gpointer user_data) {
   g_assert(user_data);
 
   index=gtk_combo_box_get_active(self->priv->device_menu);
-  GST_INFO("interaction controller change : index=%d",index);
+  GST_INFO("interaction controller change : index=%lu",index);
 }
 
 static void on_ic_registry_devices_changed(BtIcRegistry *ic_registry,GParamSpec *arg,gpointer user_data) {

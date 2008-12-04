@@ -103,7 +103,7 @@ void on_settings_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
     gulong id;
 
     gtk_tree_model_get(model,&iter,COL_ID,&id,-1);
-    GST_INFO("selected entry id %d",id);
+    GST_INFO("selected entry id %lu",id);
     gtk_notebook_set_current_page(self->priv->settings_pages,id);
     self->priv->page=id;
     g_object_notify(G_OBJECT(self),"page");

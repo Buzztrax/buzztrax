@@ -191,7 +191,7 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
           rate, (gconstpointer)data);
         g_object_unref(wavelevel);
         /* emit signal so that UI can redraw */
-        GST_INFO("sample loaded (%ld/%ld bytes)",bytes,buf.st_size);
+        GST_INFO("sample loaded (%"G_GSSIZE_FORMAT"/%ld bytes)",bytes,buf.st_size);
         g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, TRUE);
       }
       else {
@@ -200,7 +200,7 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
       }
     }
     else {
-      GST_WARNING("sample is too long (%d bytes), not trying to load",buf.st_size);
+      GST_WARNING("sample is too long (%ld bytes), not trying to load",buf.st_size);
       g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
     }
   }
@@ -502,7 +502,7 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
         uri=g_strdup_printf("fd://%d",self->priv->ext_fd);
       }
       else {
-        GST_ERROR("error loading [%d] %s",index,fp);
+        GST_ERROR("error loading [%lu] %s",index,fp);
         close(self->priv->ext_fd);
         self->priv->ext_fd=-1;
       }
@@ -605,7 +605,7 @@ static void bt_wave_set_property(GObject      * const object,
     } break;
     case WAVE_INDEX: {
       self->priv->index = g_value_get_ulong(value);
-      GST_DEBUG("set the index for wave: %d",self->priv->index);
+      GST_DEBUG("set the index for wave: %lu",self->priv->index);
     } break;
     case WAVE_NAME: {
       g_free(self->priv->name);

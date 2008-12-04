@@ -154,7 +154,6 @@ btic_trigger_control_get_type
 <SECTION>
 <FILE>libbtic</FILE>
 <TITLE>libbtic</TITLE>
-GST_CAT_DEFAULT
 btic_init_get_option_group
 btic_init_check
 btic_init

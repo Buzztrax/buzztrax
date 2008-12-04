@@ -120,7 +120,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
       g_usleep(100);
     }
-    GST_INFO("finished playing: is_playing=%d, pos=%ld < length=%d",is_playing,pos,length);
+    GST_INFO("finished playing: is_playing=%d, pos=%lu < length=%lu",is_playing,pos,length);
     if(!self->priv->quiet) puts("");
     res=TRUE;
   }
