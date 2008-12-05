@@ -1142,7 +1142,7 @@ static const gchar * float_float_to_str(gfloat in, gpointer user_data) {
 static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val) { 
   GType type=bt_g_type_get_base_type(property->value_type);
 
-  GST_DEBUG("trying param type: lud,'%s'/'%s' for parameter '%s'",
+  GST_DEBUG("trying param type: %lu,'%s'/'%s' for parameter '%s'",
     (gulong)type, g_type_name(type),g_type_name(property->value_type),property->name);
 
   switch(type) {

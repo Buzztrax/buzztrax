@@ -38,9 +38,13 @@
  *   - clone machine (no patterns)
  *   - remove & relink (remove machine and relink wires)
  *     does not work in all scenarios (we might need to create more wires)
+ *     A --\         /-- D
+ *          +-- C --+
+ *     B --/         \-- E
+ *
  * - wires
  *   - insert machine (like menu on canvas)
- *     - what to do witj wire-patterns?
+ *     - what to do with wire-patterns?
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C

@@ -1892,8 +1892,12 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     gboolean pattern_usage_changed=FALSE;
     gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
 
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     g_object_get(G_OBJECT(self->priv->sequence),"length",&length,"tracks",&tracks,NULL);
+    
+    GST_DEBUG("cursor pos : %lu/%lu, %lu/%lu",row,length,track,tracks);
+    if(track>tracks) return(FALSE);
+
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 
     // look up pattern for key
     if(event->keyval==GDK_space || event->keyval == GDK_period) {

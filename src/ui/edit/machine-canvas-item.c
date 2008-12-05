@@ -481,6 +481,10 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   g_free(id);
 
   // @todo: don't ask if machine has no patterns and is not connected
+  // gboolean has_patterns=bt_machine_has_patterns(self->priv->machine);
+  // wire1=bt_setup_get_wire_by_dst_machine(setup,self->priv->machine);
+  // wire2=bt_setup_get_wire_by_src_machine(setup,self->priv->machine);
+  // gboolean is_connected=wire1||wire2;
   if(bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no undo for this."))) {
     BtSong *song;
     BtSetup *setup;

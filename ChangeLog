@@ -1,7 +1,15 @@
 2008-12-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Fix compilation.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Don't throw criticals when cursor lands out of range in sequence.
+
+2008-12-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
-	  Alwas count internal patterns. Fixes not grayed menu entries in pattern-view
+	  Always count internal patterns. Fixes not grayed menu entries in pattern-view
 	  context menu for master.
 
 	* src/lib/core/persistence.c:
