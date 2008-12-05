@@ -1128,12 +1128,11 @@ static gboolean bt_machine_setup(BtMachine * const self) {
   }
 
   // prepare additional internal patterns for the machine and setup elements
-  if(klass->setup) {
-    (klass->setup)(self);
-    // store number of patterns
-    self->priv->private_patterns=g_list_length(self->priv->patterns);
-  }
+  if(klass->setup) (klass->setup)(self);
 
+  // store number of patterns
+  self->priv->private_patterns=g_list_length(self->priv->patterns);
+  GST_DEBUG("machine has %u private patterns",self->priv->private_patterns);
 
   GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
 
@@ -2059,7 +2058,7 @@ static void bt_machine_get_param_details(const BtMachine * const self, GParamSpe
           if(max_val) g_value_set_enum(*max_val,enum_class->maximum);
         } break;
         default:
-          GST_ERROR("unsupported GType=%d:'%s' ('%s')",property->value_type,g_type_name(property->value_type),g_type_name(base_type));
+          GST_ERROR("unsupported GType=%lu:'%s' ('%s')",(gulong)property->value_type,g_type_name(property->value_type),g_type_name(base_type));
       }
     }
   }

@@ -1,5 +1,16 @@
 2008-12-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Alwas count internal patterns. Fixes not grayed menu entries in pattern-view
+	  context menu for master.
+
+	* src/lib/core/persistence.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-patterns.c:
+	  More format string fixes.
+
+2008-12-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Sent NEWS.
 

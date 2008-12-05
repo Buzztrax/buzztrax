@@ -312,7 +312,7 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
       g_value_set_ulong(gvalue,val);
     } break;
     default:
-      GST_ERROR("unsupported GType=%d:'%s' for value=\"%s\"",G_VALUE_TYPE(gvalue),G_VALUE_TYPE_NAME(gvalue),svalue);
+      GST_ERROR("unsupported GType=%lu:'%s' for value=\"%s\"",(gulong)G_VALUE_TYPE(gvalue),G_VALUE_TYPE_NAME(gvalue),svalue);
       return(FALSE);
   }
   return(TRUE);
@@ -372,7 +372,7 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
       res=g_strdup_printf("%lu",g_value_get_ulong(gvalue));
       break;
     default:
-      GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(gvalue),G_VALUE_TYPE_NAME(gvalue));
+      GST_ERROR("unsupported GType=%lu:'%s'",(gulong)G_VALUE_TYPE(gvalue),G_VALUE_TYPE_NAME(gvalue));
       return(NULL);
   }
   return(res);

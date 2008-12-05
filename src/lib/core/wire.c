@@ -985,7 +985,7 @@ void bt_wire_get_param_details(const BtWire * const self, const gulong index, GP
         if(max_val) g_value_set_enum(*max_val,enum_class->maximum);
       } break;
       default:
-        GST_ERROR("unsupported GType=%d:'%s' ('%s')",property->value_type,g_type_name(property->value_type),g_type_name(base_type));
+        GST_ERROR("unsupported GType=%lu:'%s' ('%s')",(gulong)property->value_type,g_type_name(property->value_type),g_type_name(base_type));
     }
   }
 }
