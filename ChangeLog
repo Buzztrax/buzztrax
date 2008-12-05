@@ -1,5 +1,11 @@
 2008-12-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-canvas-item.c:
+	  Allow deleting machines without asking if they have not been used. Needs
+	  work for generators.
+
+2008-12-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/main-page-waves.c:
 	  The wavetable list in pattern-view had an off by one.

@@ -469,38 +469,52 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
 static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   BtMainWindow *main_window;
-  gchar *msg,*id;
+  BtSong *song;
+  BtSetup *setup;
+  gboolean has_patterns,is_connected;
+  BtWire *wire1,*wire2;
 
   g_assert(user_data);
   GST_INFO("context_menu delete event occurred for machine : %p",self->priv->machine);
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  g_object_get(self->priv->machine,"id",&id,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
-  msg=g_strdup_printf(_("Delete machine '%s'"),id);
-  g_free(id);
-
-  // @todo: don't ask if machine has no patterns and is not connected
-  // gboolean has_patterns=bt_machine_has_patterns(self->priv->machine);
-  // wire1=bt_setup_get_wire_by_dst_machine(setup,self->priv->machine);
-  // wire2=bt_setup_get_wire_by_src_machine(setup,self->priv->machine);
-  // gboolean is_connected=wire1||wire2;
-  if(bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no undo for this."))) {
-    BtSong *song;
-    BtSetup *setup;
-
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-
+  // don't ask if machine has no patterns and is not connected
+  has_patterns=bt_machine_has_patterns(self->priv->machine);
+  wire1=bt_setup_get_wire_by_dst_machine(setup,self->priv->machine);
+  wire2=bt_setup_get_wire_by_src_machine(setup,self->priv->machine);
+  is_connected=wire1||wire2;
+  g_object_try_unref(wire1);
+  g_object_try_unref(wire2);
+  // @todo: bah, freshly created generators always have one empty pattern called "00"
+  // enough if the pattern is not used?
+  //GST_DEBUG("is-connected %d, has-patterns %d",is_connected,has_patterns);
+  
+  if(!(has_patterns || is_connected)) {    
     GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
     bt_setup_remove_machine(setup,self->priv->machine);
-    GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
-
-    g_object_unref(setup);
-    g_object_unref(song);
+    // this segfaults if the machine is finalized
+    //GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
   }
+  else {
+    gchar *msg,*id;
+
+    g_object_get(self->priv->machine,"id",&id,NULL);
+    msg=g_strdup_printf(_("Delete machine '%s'"),id);
+    g_free(id);
+  
+    if(bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no undo for this."))) {
+      GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
+      bt_setup_remove_machine(setup,self->priv->machine);
+      // this segfaults if the machine is finalized
+      //GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
+    }
+    g_free(msg);
+  }
+  g_object_unref(setup);
+  g_object_unref(song);
   g_object_unref(main_window);
-  g_free(msg);
 }
 
 static void on_context_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
