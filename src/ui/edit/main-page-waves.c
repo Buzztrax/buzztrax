@@ -180,7 +180,7 @@ static void waves_list_refresh(const BtMainPageWaves *self) {
       g_object_unref(wave);
     }
     else {
-      GST_INFO("no wave for index: %d",i);
+      GST_DEBUG("no wave for index: %d",i);
     }
   }
 

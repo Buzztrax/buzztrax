@@ -1001,7 +1001,7 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
 
   //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
-  for(i=0;i<200;i++) {
+  for(i=1;i<=200;i++) {
     if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
       gtk_list_store_append(store, &menu_iter);
       g_object_get(G_OBJECT(wave),"name",&str,NULL);
@@ -1011,9 +1011,10 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
       gtk_list_store_set(store,&menu_iter,0,hstr,1,str,-1);
       g_free(str);
       g_object_unref(wave);
-      if(index==-1) index=i;
+      if(index==-1) index=i-1;
     }
   }
+  GST_INFO("  index=%d",index);
 
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->wavetable_menu),(index!=-1));
   gtk_combo_box_set_model(self->priv->wavetable_menu,GTK_TREE_MODEL(store));

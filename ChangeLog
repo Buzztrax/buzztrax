@@ -1,6 +1,12 @@
 2008-12-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-waves.c:
+	  The wavetable list in pattern-view had an off by one.
+
+2008-12-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
 	  Fix compilation.
 
 	* src/ui/edit/main-page-sequence.c:
