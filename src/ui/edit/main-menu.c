@@ -455,18 +455,22 @@ static void on_menu_stop_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
 static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
   //BtMainMenu *self=BT_MAIN_MENU(user_data);
-#ifdef USE_GNOME
+#if GTK_CHECK_VERSION(2,14,0)
   GError *error=NULL;
 #endif
 
-  g_assert(user_data);
+  //g_assert(user_data);
 
   GST_INFO("menu help event occurred");
-#ifdef USE_GNOME
-  if(!gnome_help_display("buzztard-edit.xml", NULL, &error)) {
+  
+  // use "ghelp:buzztard-edit?topic" for context specific help
+#if GTK_CHECK_VERSION(2,14,0)
+  if(!gtk_show_uri(gtk_widget_get_screen (GTK_WIDGET(menuitem)),"ghelp:buzztard-edit",gtk_get_current_event_time(),&error)) {
     GST_WARNING("Failed to display help: %s\n",error->message);
     g_error_free(error);
   }
+#else
+  gnome_vfs_url_show("ghelp:buzztard-edit");
 #endif
 }
 

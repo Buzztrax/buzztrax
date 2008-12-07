@@ -66,9 +66,6 @@ int main(int argc, char **argv) {
   //gboolean arg_version=FALSE;
   gchar *command=NULL,*input_file_name=NULL;
   BtEditApplication *app;
-#ifdef USE_GNOME
-  GnomeProgram *gnome_app;
-#endif
   GOptionContext *ctx;
   GOptionGroup *group;
   GError *err=NULL;
@@ -134,13 +131,6 @@ int main(int argc, char **argv) {
     bt_memory_audio_src_plugin_init,
     VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
 #endif
-  
-
-#ifdef USE_GNOME
-  GST_DEBUG("before gnome_program_init()");
-  gnome_app=gnome_program_init("buzztard-edit", VERSION, LIBGNOME_MODULE, argc, argv, 
-    GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
-#endif
 
   GST_INFO("starting: thread=%p",g_thread_self());
 
@@ -175,9 +165,5 @@ int main(int argc, char **argv) {
     GST_WARNING("creating the application failed");
   }
   g_option_context_free(ctx);
-  
-#ifdef USE_GNOME
-  g_object_unref(gnome_app);
-#endif
   return(!res);
 }

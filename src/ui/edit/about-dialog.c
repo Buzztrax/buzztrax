@@ -47,7 +47,16 @@ static GtkDialogClass *parent_class=NULL;
 //-- event handler
 
 static void on_about_dialog_url_clicked(GtkAboutDialog *about, const gchar *link, gpointer user_data) {
+#if GTK_CHECK_VERSION(2,14,0)
+  GError *error=NULL;
+
+  if(!gtk_show_uri(gtk_widget_get_screen (GTK_WIDGET(about)),link,gtk_get_current_event_time(),&error)) {
+    GST_WARNING("Failed to display url: %s\n",error->message);
+    g_error_free(error);
+  }
+#else
   gnome_vfs_url_show(link);
+#endif
 }
 
 //-- helper methods

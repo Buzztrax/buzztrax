@@ -525,7 +525,7 @@ static void on_context_menu_help_activate(GtkMenuItem *menuitem,gpointer user_da
 
   // show help for machine
   g_object_get(self->priv->machine,"machine",&machine,NULL);
-  bt_machine_action_help(machine);
+  bt_machine_action_help(GTK_WIDGET(self->priv->main_page_machines),machine);
   gst_object_unref(machine);
 }
 

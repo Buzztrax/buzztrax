@@ -272,16 +272,6 @@ PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.5.0, [
   ]
 )
 
-PKG_CHECK_MODULES(GNOME_DEPS, libgnome-2.0 >= 2.6.0, [
-    AC_DEFINE(USE_GNOME, [1], [Define to 1 if we can use gnome libraries])
-    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GNOME_DEPS_CFLAGS"
-    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GNOME_DEPS_LIBS"
-    use_gnome=yes
-  ],[
-    use_gnome=no
-  ]
-)
-
 PKG_CHECK_MODULES(HILDON_DEPS, hildon-libs libosso, [
   AC_DEFINE(USE_HILDON, [1], [Define to 1 if we can use hildon libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HILDON_DEPS_CFLAGS"
@@ -499,7 +489,6 @@ Configuration
 	Linux HID for interaction ctrl. : ${have_linux_input_h}
 	Buzzmachine Host support        : ${use_bml}
 
-	Gnome Desktop Integration       : ${use_gnome}
 	Hildon Desktop Integration      : ${use_hildon}
         
 	Debug                           : ${enable_debug}

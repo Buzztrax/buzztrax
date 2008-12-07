@@ -682,7 +682,7 @@ static void on_toolbar_help_clicked(GtkButton *button,gpointer user_data) {
 
   // show help for machine
   g_object_get(self->priv->machine,"machine",&machine,NULL);
-  bt_machine_action_help(machine);
+  bt_machine_action_help(GTK_WIDGET(self),machine);
   gst_object_unref(machine);
 }
 

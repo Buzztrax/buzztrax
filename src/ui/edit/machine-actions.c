@@ -32,28 +32,33 @@
 
 /**
  * bt_machine_action_help:
+ * @widget: widget that triggered the action
  * @machine: the machine
  * 
- * Show help for the given @machine.
+ * Show help for the given @machine. Uses same screen as @widget (default if
+ * @widget is NULL).
  */
-void bt_machine_action_help(GstElement *machine) {
-#ifdef USE_GNOME
-  GError *error=NULL;
+void bt_machine_action_help(GtkWidget *widget, GstElement *machine) {
   gchar *uri;
+#if GTK_CHECK_VERSION(2,14,0)
+  GError *error=NULL;
+  GdkScreen *screen=NULL;
 #endif
 
   // show help for machine
-#ifdef USE_GNOME
   g_object_get(machine,"documentation-uri",&uri,NULL);
-  
   GST_INFO("context_menu help event occurred : %s",uri);
 
-  if(!gnome_url_show(uri, &error)) {
+#if GTK_CHECK_VERSION(2,14,0)
+  if(widget)
+    screen=gtk_widget_get_screen(widget);
+
+  if(!gtk_show_uri(screen,link,gtk_get_current_event_time(),&error)) {
     GST_WARNING("Failed to display help: %s\n",error->message);
     g_error_free(error);
   }
 #else
-    GST_INFO("context_menu help event occurred");
+  gnome_vfs_url_show(uri);
 #endif
 }
 

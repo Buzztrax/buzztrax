@@ -96,12 +96,6 @@
 
 //-- librsvg
 #include <librsvg/rsvg.h>
-//-- libgnome
-#ifdef USE_GNOME
-#include <libgnome/gnome-init.h>
-#include <libgnome/gnome-help.h>
-#include <libgnome/gnome-url.h>
-#endif
 //-- gnome-vfs
 #include <libgnomevfs/gnome-vfs.h>
 //-- hildon
