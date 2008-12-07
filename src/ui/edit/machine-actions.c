@@ -53,7 +53,7 @@ void bt_machine_action_help(GtkWidget *widget, GstElement *machine) {
   if(widget)
     screen=gtk_widget_get_screen(widget);
 
-  if(!gtk_show_uri(screen,link,gtk_get_current_event_time(),&error)) {
+  if(!gtk_show_uri(screen,uri,gtk_get_current_event_time(),&error)) {
     GST_WARNING("Failed to display help: %s\n",error->message);
     g_error_free(error);
   }

@@ -1,5 +1,10 @@
 2008-12-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-actions.c:
+	  Fix copy'n' paste error.
+
+2008-12-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/ui/edit/about-dialog.c:
 	* src/ui/edit/bt-edit.c:
