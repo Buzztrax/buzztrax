@@ -585,7 +585,7 @@ static gboolean on_combobox_property_notify_idle(gpointer _data) {
   const GstElement *machine=data->machine;
   GParamSpec *property=data->property;
   GtkWidget *widget=GTK_WIDGET(data->user_data);
-  gint value=0,ivalue,nvalue;
+  gint ivalue,nvalue;
   GtkTreeModel *store;
   GtkTreeIter iter;
 
@@ -597,11 +597,10 @@ static gboolean on_combobox_property_notify_idle(gpointer _data) {
   do {
     gtk_tree_model_get(store,&iter,0,&ivalue,-1);
     if(ivalue==nvalue) break;
-    value++;
   } while(gtk_tree_model_iter_next(store,&iter));
 
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
-  gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
+  gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
   return(FALSE);
 }
@@ -1128,7 +1127,7 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
   GtkCellRenderer *renderer;
   GtkListStore *store;
   GtkTreeIter iter;
-  gint value;
+  gint value, ivalue;
 
   widget=gtk_combo_box_new();
   // need a real model because of sparse enums
@@ -1149,7 +1148,13 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
   gtk_combo_box_set_model(GTK_COMBO_BOX(widget),GTK_TREE_MODEL(store));
 
   g_object_get(machine,property->name,&value,NULL);
-  gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
+  gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store),&iter);
+  do {
+    gtk_tree_model_get((GTK_TREE_MODEL(store)),&iter,0,&ivalue,-1);
+    if(ivalue==value) break;
+  } while(gtk_tree_model_iter_next(GTK_TREE_MODEL(store),&iter));
+  
+  gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
   g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
 
