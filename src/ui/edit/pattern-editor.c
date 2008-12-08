@@ -254,25 +254,21 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
     int col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
 
     if (self->selection_enabled && in_selection(self, group, param, row)) {
-      /* the last space should be white if it's a within-group "glue" 
+      /* the last space should be selected if it's a within-group "glue" 
          in multiple column selection, row colour otherwise */
       if (self->selection_mode == PESM_COLUMN)
       {
-        /* draw row-coloured "continuation" after column, unless last
-           column in a group */
+        /* draw row-coloured "continuation" after column, unless last column in
+           a group */
+        col_w2 = col_w - cw;
         if (param != self->groups[group].num_columns - 1)
-          gdk_draw_rectangle (widget->window, gc, TRUE, x + col_w - cw, y, cw, ch);
-        gc = widget->style->base_gc[GTK_STATE_SELECTED];
-        gdk_draw_rectangle (widget->window, gc, TRUE, x, y, col_w - cw, ch);
+          gdk_draw_rectangle (widget->window, gc, TRUE, x + col_w2, y, cw, ch);
       }
-      else {
-        /* draw white column+continuation (unless last column, then
-           don't draw continuation) */
-        gc = widget->style->base_gc[GTK_STATE_SELECTED];
-        gdk_draw_rectangle (widget->window, gc, TRUE, x, y, col_w2, ch);
-      }
-    } else
-      gdk_draw_rectangle (widget->window, gc, TRUE, x, y, col_w2, ch);
+      /* draw selected column+continuation (unless last column, then don't draw
+         continuation) */
+      gc = widget->style->base_gc[GTK_STATE_SELECTED];
+    }
+    gdk_draw_rectangle (widget->window, gc, TRUE, x, y, col_w2, ch);
     
     pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
     pango_layout_set_text (self->pl, buf, pt->chars);

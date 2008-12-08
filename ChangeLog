@@ -1,5 +1,11 @@
 2008-12-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-editor.c:
+	  Slightly reflow drawing code. Would be nice to collect strings for the
+	  groups and draw less often.
+
+2008-12-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/gconf-settings.c:
 	  Handle undefined settings (stange that GError did not worked).
 
