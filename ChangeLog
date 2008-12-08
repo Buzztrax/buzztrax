@@ -1,6 +1,18 @@
 2008-12-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
+	  Don't warn for unhandled format for string types. Add more logging.
+
+	* src/lib/core/sink-bin.c:
+	  Add missing negation for error logging.
+
+	* src/lib/core/song.c:
+	  Remove timeout earlier. Hopefully fixes gobject warning when playing one
+	  song after the other.
+
+2008-12-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
 	  Fix comments. Don't leak param_parent for voices.
 
 2008-12-08  Stefan Kost  <ensonic@users.sf.net>

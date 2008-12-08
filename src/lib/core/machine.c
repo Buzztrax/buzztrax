@@ -2070,6 +2070,9 @@ static void bt_machine_get_param_details(const BtMachine * const self, GParamSpe
           if(min_val) g_value_set_enum(*min_val,enum_class->minimum);
           if(max_val) g_value_set_enum(*max_val,enum_class->maximum);
         } break;
+        case G_TYPE_STRING:
+          // nothing to do for this
+          break;
         default:
           GST_ERROR("unsupported GType=%lu:'%s' ('%s')",(gulong)property->value_type,g_type_name(property->value_type),g_type_name(base_type));
       }
@@ -2249,6 +2252,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       value=&def_value;
       // need to remember that we set a default default, so that we can update it (bt_machine_has_global_param_default_set)
       g_object_set_qdata(param_parent,self->priv->global_quarks[param],GINT_TO_POINTER(TRUE));
+      //GST_WARNING("set global default for %s param %lu:%s",self->priv->id,param,GLOBAL_PARAM_NAME(param));
     }
     else {
       g_object_set_qdata(param_parent,self->priv->global_quarks[param],GINT_TO_POINTER(FALSE));
@@ -2366,6 +2370,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
       value=&def_value;
       // need to remember that we set a default, so that we can update it (bt_machine_has_voice_param_default_set)
       g_object_set_qdata(param_parent,self->priv->voice_quarks[param],GINT_TO_POINTER(TRUE));
+      //GST_WARNING("set voice default for %s:%lu param %lu:%s",self->priv->id,voice,param,VOICE_PARAM_NAME(param));
     }
     else {
       g_object_set_qdata(param_parent,self->priv->voice_quarks[param],GINT_TO_POINTER(FALSE));

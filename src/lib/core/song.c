@@ -478,6 +478,10 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         else {
           GST_INFO("looping");
         }
+        if(self->priv->paused_timeout_id) {
+          g_source_remove(self->priv->paused_timeout_id);
+          self->priv->paused_timeout_id=0;
+        }
         break;
       default:
         break;

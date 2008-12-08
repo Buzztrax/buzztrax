@@ -504,7 +504,7 @@ static gboolean bt_sink_bin_format_update(const BtSinkBin * const self) {
     NULL);
   sink_format_caps=gst_caps_new_full(sink_format_structures[0],sink_format_structures[1],NULL);
   
-  GST_DEBUG("sink is using: sample-rate=%u, channels=%u",self->priv->sample_rate,self->priv->channels);
+  GST_INFO("sink is using: sample-rate=%u, channels=%u",self->priv->sample_rate,self->priv->channels);
 
   g_object_set(self->priv->caps_filter,"caps",sink_format_caps,NULL);
   gst_caps_unref(sink_format_caps);
@@ -655,7 +655,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     GST_INFO ("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
       self->priv->caps_filter,(G_OBJECT(self->priv->caps_filter)->ref_count),GST_OBJECT_NAME(self->priv->caps_filter),
       sink_pad,(G_OBJECT(sink_pad)->ref_count));
-    if((gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad))) {
+    if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad)) {
       GST_WARNING("failed to link internal pads");
     }
     GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
