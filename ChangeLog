@@ -1,5 +1,10 @@
 2008-12-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Fix comments. Don't leak param_parent for voices.
+
+2008-12-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-editor.c:
 	  Slightly reflow drawing code. Would be nice to collect strings for the
 	  groups and draw less often.

@@ -1803,12 +1803,15 @@ gboolean bt_machine_has_global_param_default_set(const BtMachine * const self, c
  */
 gboolean bt_machine_has_voice_param_default_set(const BtMachine * const self, const gulong voice, const gulong index) {
   GObject *param_parent;
+  gboolean result;
 
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(index<self->priv->voice_params,FALSE);
 
   param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice));
-  return GPOINTER_TO_INT(g_object_get_qdata(param_parent,self->priv->voice_quarks[index]));
+  result=GPOINTER_TO_INT(g_object_get_qdata(param_parent,self->priv->voice_quarks[index]));
+  g_object_unref(param_parent);
+  return(result);
 }
 
 
@@ -2244,7 +2247,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       g_value_init(&def_value,GLOBAL_PARAM_TYPE(param));
       g_object_get_property(param_parent,GLOBAL_PARAM_NAME(param),&def_value);
       value=&def_value;
-      // need to remember that we set a sdefault default, so that we can update it
+      // need to remember that we set a default default, so that we can update it (bt_machine_has_global_param_default_set)
       g_object_set_qdata(param_parent,self->priv->global_quarks[param],GINT_TO_POINTER(TRUE));
     }
     else {
@@ -2361,7 +2364,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
       g_value_init(&def_value,VOICE_PARAM_TYPE(param));
       g_object_get_property(param_parent,VOICE_PARAM_NAME(param),&def_value);
       value=&def_value;
-      // need to remember that we set a set default, so that we can update it
+      // need to remember that we set a default, so that we can update it (bt_machine_has_voice_param_default_set)
       g_object_set_qdata(param_parent,self->priv->voice_quarks[param],GINT_TO_POINTER(TRUE));
     }
     else {
