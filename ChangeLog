@@ -1,3 +1,14 @@
+2008-12-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/gconf-settings.c:
+	  Handle undefined settings (stange that GError did not worked).
+
+	* src/lib/core/settings.c:
+	  Use symbolic default.
+
+	* src/lib/core/sink-bin.c:
+	  Add more logging for error cases.
+
 2008-12-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

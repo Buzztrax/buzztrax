@@ -188,7 +188,7 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      "audio output sample-rate",
                                      1,
                                      96000,
-                                     44100, /* default value */
+                                     GST_AUDIO_DEF_RATE, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_CHANNELS,
