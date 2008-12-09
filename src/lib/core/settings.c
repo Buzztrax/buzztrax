@@ -207,6 +207,13 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      FALSE, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_STATUSBAR_HIDE,
+                                  g_param_spec_boolean("statusbar-hide",
+                                     "statusbar-hide",
+                                     "hide bottom statusbar",
+                                     FALSE, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
   g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TABS_HIDE,
                                   g_param_spec_boolean("tabs-hide",
                                      "tabs-hide",

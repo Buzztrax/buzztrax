@@ -2616,6 +2616,20 @@ bt_g_object_randomize_parameter(GObject *self, GParamSpec *property) {
           (guint) (uint_property->minimum + ((uint_property->maximum -
                    uint_property->minimum) * rnd)), NULL);
     } break;
+    case G_TYPE_LONG:{
+      const GParamSpecLong *long_property = G_PARAM_SPEC_LONG (property);
+
+      g_object_set (self, property->name,
+          (glong) (long_property->minimum + ((long_property->maximum -
+                  long_property->minimum) * rnd)), NULL);
+    } break;
+    case G_TYPE_ULONG:{
+      const GParamSpecULong *ulong_property = G_PARAM_SPEC_ULONG (property);
+
+      g_object_set (self, property->name,
+          (gulong) (ulong_property->minimum + ((ulong_property->maximum -
+                   ulong_property->minimum) * rnd)), NULL);
+    } break;
     case G_TYPE_FLOAT:{
       const GParamSpecFloat *float_property =
           G_PARAM_SPEC_FLOAT (property);
@@ -2654,7 +2668,6 @@ bt_g_object_randomize_parameter(GObject *self, GParamSpec *property) {
  * Randomizes machine parameters.
  */
 void bt_machine_randomize_parameters(const BtMachine * const self) {
-#if 1
   GObject *machine=G_OBJECT(self->priv->machines[PART_MACHINE]),*voice;
   gulong i,j;
 
@@ -2667,11 +2680,6 @@ void bt_machine_randomize_parameters(const BtMachine * const self) {
       bt_g_object_randomize_parameter(voice,self->priv->voice_props[i]);
     }
   }
-#else
-  if(!GST_IS_PRESET(self->priv->machines[PART_MACHINE])) {
-    gst_preset_randomize(GST_PRESET(self->priv->machines[PART_MACHINE]));
-  }
-#endif
 }
 
 /**
@@ -2682,9 +2690,8 @@ void bt_machine_randomize_parameters(const BtMachine * const self) {
  */
 void bt_machine_reset_parameters(const BtMachine * const self) {
   /* @todo: should we have bt_machine_reset_{global,voice}_parameter() and use
-   * below? can also be used from context menu in machine window.
+   * below? could also be used from context menu in machine window.
    */
-#if 1
   GObject *machine=G_OBJECT(self->priv->machines[PART_MACHINE]),*voice;
   GValue gvalue={0,};
   gulong i,j;
@@ -2704,11 +2711,6 @@ void bt_machine_reset_parameters(const BtMachine * const self) {
       g_value_unset(&gvalue);
     }
   }
-#else
-  if(!GST_IS_PRESET(self->priv->machines[PART_MACHINE])) {
-    gst_preset_reset(GST_PRESET(self->priv->machines[PART_MACHINE]));
-  }
-#endif
 }
 
 //-- debug helper
@@ -2776,7 +2778,7 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
     return;
   
   for(i=0;i<self->priv->global_params;i++) {
-    name=g_strdup_printf("/tmp/buzztard-%s_g%02lu.dat",self->priv->id,i);
+    name=g_strdup_printf("%s"G_DIR_SEPARATOR_S"buzztard-%s_g%02lu.dat",g_get_tmp_dir(),self->priv->id,i);
     if((file=fopen(name,"wb"))) {
       fprintf(file,"# global param \"%s\" for machine \"%s\"\n",GLOBAL_PARAM_NAME(i),self->priv->id);
 #if GST_CHECK_VERSION(0,10,14)
@@ -2789,6 +2791,46 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
       }
 #else
       list=(GList *)gst_controller_get_all(self->priv->global_controller,GLOBAL_PARAM_NAME(i));
+#endif
+      if(list) {
+        for(node=list;node;node=g_list_next(node)) {
+          tv=(GstTimedValue *)node->data;
+          str=g_strdup_value_contents(&tv->value);
+          fprintf(file,"%"GST_TIME_FORMAT" %"G_GUINT64_FORMAT" %s\n",GST_TIME_ARGS(tv->timestamp),tv->timestamp,str);
+          g_free(str);
+        }
+        g_list_free(list);
+      }
+      fclose(file);
+    }
+    g_free(name);
+  }
+}
+
+void bt_machine_dbg_dump_voice_controller_queue(const BtMachine * const self) {
+  gulong i;
+  FILE *file;
+  gchar *name,*str;
+  GList *list,*node;
+  GstTimedValue *tv;
+
+  if(!self->priv->voice_controllers || !self->priv->voice_controllers[0])
+    return;
+  
+  for(i=0;i<self->priv->voice_params;i++) {
+    name=g_strdup_printf("%s"G_DIR_SEPARATOR_S"buzztard-%s_v%02lu.dat",g_get_tmp_dir(),self->priv->id,i);
+    if((file=fopen(name,"wb"))) {
+      fprintf(file,"# voice 0 param \"%s\" for machine \"%s\"\n",VOICE_PARAM_NAME(i),self->priv->id);
+#if GST_CHECK_VERSION(0,10,14)
+      GstControlSource *cs;
+
+      list=NULL;
+      if((cs=gst_controller_get_control_source(self->priv->voice_controllers[0],VOICE_PARAM_NAME(i)))) {
+        list=gst_interpolation_control_source_get_all(GST_INTERPOLATION_CONTROL_SOURCE(cs));
+        g_object_unref(cs);
+      }
+#else
+      list=(GList *)gst_controller_get_all(self->priv->voice_controllers[0],VOICE_PARAM_NAME(i));
 #endif
       if(list) {
         for(node=list;node;node=g_list_next(node)) {

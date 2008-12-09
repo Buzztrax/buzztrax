@@ -105,6 +105,7 @@ bt_machine_get_type
 bt_machine_state_get_type
 BtMachinePrivate
 bt_machine_dbg_dump_global_controller_queue
+bt_machine_dbg_dump_voice_controller_queue
 bt_machine_dbg_print_parts
 bt_machine_get_element_list
 </SECTION>

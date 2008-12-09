@@ -147,6 +147,11 @@ static void bt_gconf_settings_get_property(GObject      * const object,
       GST_DEBUG("application reads system toolbar-hide gconf_settings : %d",prop);
       g_value_set_boolean(value, prop);
     } break;
+    case BT_SETTINGS_MENU_STATUSBAR_HIDE: {
+      gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/statusbar-hide",NULL);
+      GST_DEBUG("application reads system statusbar-hide gconf_settings : %d",prop);
+      g_value_set_boolean(value, prop);
+    } break;
     case BT_SETTINGS_MENU_TABS_HIDE: {
       gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/tabs-hide",NULL);
       GST_DEBUG("application reads tabs-hide gconf_settings : %d",prop);
@@ -278,6 +283,13 @@ static void bt_gconf_settings_set_property(GObject      * const object,
       gboolean prop=g_value_get_boolean(value);
       GST_DEBUG("application writes toolbar-hide gconf_settings : %d",prop);
       gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",prop,NULL);
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    case BT_SETTINGS_MENU_STATUSBAR_HIDE: {
+      gboolean gconf_ret=FALSE;
+      gboolean prop=g_value_get_boolean(value);
+      GST_DEBUG("application writes statusbar-hide gconf_settings : %d",prop);
+      gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/statusbar-hide",prop,NULL);
       g_return_if_fail(gconf_ret == TRUE);
     } break;
     case BT_SETTINGS_MENU_TABS_HIDE: {

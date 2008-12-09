@@ -46,6 +46,17 @@
       </locale>
     </schema>
     <schema>
+      <key>/schemas/apps/buzztard/statusbar-hide</key>
+      <applyto>/apps/buzztard/statusbar-hide</applyto>
+      <owner>buzztard</owner>
+      <type>bool</type>
+      <locale name="C">
+        <default>false</default>
+        <short>Hide bottom statusbar</short>
+        <long>Should the main application statusbar be hidden.</long>
+      </locale>
+    </schema>
+    <schema>
       <key>/schemas/apps/buzztard/tabs-hide</key>
       <applyto>/apps/buzztard/tabs-hide</applyto>
       <owner>buzztard</owner>

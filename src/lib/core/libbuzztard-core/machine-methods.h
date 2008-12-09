@@ -105,5 +105,6 @@ extern void bt_machine_reset_parameters(const BtMachine * const self) ;
 extern GList *bt_machine_get_element_list(const BtMachine * const self);
 extern void bt_machine_dbg_print_parts(const BtMachine * const self);
 extern void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self);
+extern void bt_machine_dbg_dump_voice_controller_queue(const BtMachine * const self);
 
 #endif // BT_MACHINE_METHDOS_H

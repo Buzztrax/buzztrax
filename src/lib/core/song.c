@@ -236,6 +236,12 @@ static gboolean bt_song_is_playable(const BtSong * const self) {
     g_list_free(wires);
   }
 
+  /* go over all elements (skip master)
+   * @todo: unconnected effects, if unconnected on both sides, ignore
+   * ... (more checks needed)
+   * @todo: all [sources...effect] subgraphs need to be set  to locked state
+   */
+  
   /* what about iterating all elements in the bin and iterating their always pads
    * and complaining about unlinked pads
    */
@@ -308,6 +314,23 @@ static gboolean bt_song_is_playable(const BtSong * const self) {
 
   // unconnected sources will throw an bus-error-message
   // unconnected effects don't harm
+  
+  /*
+  {
+    GList * const list;
+    const GList *node;
+
+    g_object_get(G_OBJECT(self->priv->setup),"machines",&list,NULL);
+    for(node=list;node;node=g_list_next(node)) {
+      const BtMachine * const machine=BT_MACHINE(node->data);
+      //if(BT_IS_SOURCE_MACHINE(machine)) {
+        bt_machine_dbg_dump_global_controller_queue(machine);
+        bt_machine_dbg_dump_voice_controller_queue(machine);
+      //}
+    }
+    g_list_free(list);
+  }
+  */
 
   return(TRUE);
 }

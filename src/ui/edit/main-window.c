@@ -318,14 +318,16 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
 BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   BtMainWindow *self;
   BtSettings *settings;
-  gboolean toolbar_hide,tabs_hide;
+  gboolean toolbar_hide,statusbar_hide,tabs_hide;
   // int x, y, w, h;
 
   GST_INFO("creating a new window, app->ref_ct=%d",G_OBJECT(app)->ref_count);
   // eventualy hide the toolbar
   g_object_get(G_OBJECT(app),"settings",&settings,NULL);
   g_object_get(G_OBJECT(settings),
-    "toolbar-hide",&toolbar_hide,"tabs-hide",&tabs_hide,
+    "toolbar-hide",&toolbar_hide,
+    "statusbar-hide",&statusbar_hide,
+    "tabs-hide",&tabs_hide,
     //"window-xpos",&x,"window-ypos",&y,"window-width",&w,"window-height",&h,
     NULL);
   g_object_unref(settings);
@@ -359,6 +361,9 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   gtk_widget_show_all(GTK_WIDGET(self));
   if(toolbar_hide) {
     gtk_widget_hide(GTK_WIDGET(self->priv->toolbar));
+  }
+  if(statusbar_hide) {
+    gtk_widget_hide(GTK_WIDGET(self->priv->statusbar));
   }
   if(tabs_hide) {
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(self->priv->pages),FALSE);

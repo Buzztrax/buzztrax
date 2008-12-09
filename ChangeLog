@@ -1,3 +1,22 @@
+2008-12-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/machine.c:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	  Add one more debugging method.
+
+	* src/lib/core/song.c:
+	  Ideas and logging.
+
+	* buzztard.schemas.in:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbuzztard-core/settings-private.h:
+	* src/lib/core/settings.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-window.c:
+	  Add setting & UI for hiding status-bar. Add UI for fullscreen-
+	  switching.
+
 2008-12-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

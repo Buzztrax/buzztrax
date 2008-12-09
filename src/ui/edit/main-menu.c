@@ -48,6 +48,9 @@ struct _BtMainMenuPrivate {
 
   /* MenuItems */
   GtkWidget *save_item;
+  
+  /* state */
+  gboolean fullscreen;
 };
 
 static GtkMenuBarClass *parent_class=NULL;
@@ -300,6 +303,7 @@ static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_dat
   BtMainWindow *main_window;
   BtMainToolbar *toolbar;
   BtSettings *settings;
+  gboolean shown;
 
   g_assert(user_data);
 
@@ -307,16 +311,33 @@ static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_dat
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
   g_object_get(G_OBJECT(main_window),"toolbar",&toolbar,NULL);
 
-  if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
-    gtk_widget_show(GTK_WIDGET(toolbar));
-    g_object_set(G_OBJECT(settings),"toolbar-hide",FALSE,NULL);
-  }
-  else {
-    gtk_widget_hide(GTK_WIDGET(toolbar));
-    g_object_set(G_OBJECT(settings),"toolbar-hide",TRUE,NULL);
-  }
+  shown=gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem));
+  g_object_set(G_OBJECT(toolbar),"visible",shown,NULL);
+  g_object_set(G_OBJECT(settings),"toolbar-hide",!shown,NULL);
 
   g_object_unref(toolbar);
+  g_object_unref(settings);
+  g_object_unref(main_window);
+}
+
+static void on_menu_view_statusbar_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtMainStatusbar *statusbar;
+  BtSettings *settings;
+  gboolean shown;
+
+  g_assert(user_data);
+
+  GST_INFO("menu 'view toolbar' event occurred");
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
+  g_object_get(G_OBJECT(main_window),"statusbar",&statusbar,NULL);
+
+  shown=gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem));
+  g_object_set(G_OBJECT(statusbar),"visible",shown,NULL);
+  g_object_set(G_OBJECT(settings),"statusbar-hide",!shown,NULL);
+
+  g_object_unref(statusbar);
   g_object_unref(settings);
   g_object_unref(main_window);
 }
@@ -326,6 +347,7 @@ static void on_menu_view_tabs_toggled(GtkMenuItem *menuitem,gpointer user_data) 
   BtMainWindow *main_window;
   BtMainPages *pages;
   BtSettings *settings;
+  gboolean shown;
 
   g_assert(user_data);
 
@@ -333,19 +355,176 @@ static void on_menu_view_tabs_toggled(GtkMenuItem *menuitem,gpointer user_data) 
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 
-  if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
-    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(pages),TRUE);
-    g_object_set(G_OBJECT(settings),"tabs-hide",FALSE,NULL);
-  }
-  else {
-    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(pages),FALSE);
-    g_object_set(G_OBJECT(settings),"tabs-hide",TRUE,NULL);
-  }
+  shown=gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem));
+  g_object_set(G_OBJECT(pages),"show-tabs",shown,NULL);
+  g_object_set(G_OBJECT(settings),"tabs-hide",!shown,NULL);
 
   g_object_unref(pages);
   g_object_unref(settings);
   g_object_unref(main_window);
 }
+
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  /* @idea: reflow things a bit for full-screen:
+   * - hide menu bar and have a menu-button on toolbar
+   * - have a right justified label on toolbar to show window title
+   */
+  if(!self->priv->fullscreen) {
+    gtk_window_fullscreen(GTK_WINDOW(main_window));
+    self->priv->fullscreen=TRUE;
+  }
+  else {
+    gtk_window_unfullscreen(GTK_WINDOW(main_window));
+    self->priv->fullscreen=FALSE;
+  }
+  g_object_unref(main_window);
+}
+#endif
+
+static void on_menu_goto_machine_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+
+  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_MACHINES_PAGE);
+
+  g_object_unref(pages);
+  g_object_unref(main_window);
+}
+
+static void on_menu_goto_pattern_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+
+  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+
+  g_object_unref(pages);
+  g_object_unref(main_window);
+}
+
+static void on_menu_goto_sequence_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+
+  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
+
+  g_object_unref(pages);
+  g_object_unref(main_window);
+}
+
+static void on_menu_goto_waves_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+
+  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
+
+  g_object_unref(pages);
+  g_object_unref(main_window);
+}
+
+static void on_menu_goto_info_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+
+  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
+
+  g_object_unref(pages);
+  g_object_unref(main_window);
+}
+
+static void on_menu_play_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtSong *song;
+
+  // get song from app and start playback
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(!bt_song_play(song)) {
+    GST_WARNING("failed to play");
+  }
+  // release the reference
+  g_object_unref(song);
+}
+
+static void on_menu_stop_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtSong *song;
+
+  // get song from app and stop playback
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(!bt_song_stop(song)) {
+    GST_WARNING("failed to stop");
+  }
+  // release the reference
+  g_object_unref(song);
+}
+
+static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  //BtMainMenu *self=BT_MAIN_MENU(user_data);
+#if GTK_CHECK_VERSION(2,14,0)
+  GError *error=NULL;
+#endif
+
+  //g_assert(user_data);
+
+  GST_INFO("menu help event occurred");
+  
+  // use "ghelp:buzztard-edit?topic" for context specific help
+#if GTK_CHECK_VERSION(2,14,0)
+  if(!gtk_show_uri(gtk_widget_get_screen (GTK_WIDGET(menuitem)),"ghelp:buzztard-edit",gtk_get_current_event_time(),&error)) {
+    GST_WARNING("Failed to display help: %s\n",error->message);
+    g_error_free(error);
+  }
+#else#if GTK_CHECK_VERSION(2,8,0)
+static void on_menu_fullscreen_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  /* @idea: reflow things a bit for full-screen:
+   * - hide menu bar and have a menu-button on toolbar
+   * - have a right justified label on toolbar to show window title
+   */
+  if(!self->priv->fullscreen) {
+    gtk_window_fullscreen(GTK_WINDOW(main_window));
+    self->priv->fullscreen=TRUE;
+  }
+  else {
+    gtk_window_unfullscreen(GTK_WINDOW(main_window));
+    self->priv->fullscreen=FALSE;
+  }
+  g_object_unref(main_window);
+}
+#endif
 
 static void on_menu_goto_machine_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
@@ -515,12 +694,16 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   GtkWidget *item,*menu,*subitem;
   BtSettings *settings;
-  gboolean toolbar_hide,tabs_hide;
+  gboolean toolbar_hide,statusbar_hide,tabs_hide;
   GtkAccelGroup *accel_group=bt_ui_resources_get_accel_group();
 
   gtk_widget_set_name(GTK_WIDGET(self),"main menu");
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,"tabs-hide",&tabs_hide,NULL);
+  g_object_get(G_OBJECT(settings),
+    "toolbar-hide",&toolbar_hide,
+    "statusbar-hide",&statusbar_hide,
+    "tabs-hide",&tabs_hide,
+    NULL);
   g_object_unref(settings);
   //gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
 
@@ -647,7 +830,11 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_toolbar_toggled),(gpointer)self);
 
-  /* @todo 'Statusbar' show/hide toggle */
+  subitem=gtk_check_menu_item_new_with_mnemonic(_("Statusbar"));
+  // from here we can't hide the statusbar as it is not yet created and shown
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),!statusbar_hide);
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_statusbar_toggled),(gpointer)self);
 
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Tabs"));
   // from here we can't hide the tabs as they are not yet created and shown
@@ -658,7 +845,13 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   /* @todo 'Machine properties' show/hide toggle */
   /* @todo 'Analyzer windows' show/hide toggle */
   
-  /* @todo 'Fullscreen' toggle */
+#if GTK_CHECK_VERSION(2,8,0)
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_FULLSCREEN,accel_group);
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/FullScreen");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/FullScreen", GDK_F11, 0);
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_fullscreen_activate),(gpointer)self);
+#endif
   
   subitem=gtk_separator_menu_item_new();
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -759,7 +952,12 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_help_activate),(gpointer)self);
 
   /* @todo 'tip of the day' */
-  /* @todo 'submit bug' */
+  /* @todo 'translate application' -> link to translator project
+   * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-translate.png
+   */
+  /* @todo 'report a problem' -> link to sf.net bug tracker
+   * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-bug.png
+   */
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT,accel_group);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
