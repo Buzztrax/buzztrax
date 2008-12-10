@@ -271,6 +271,61 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
   return(str);
 }
 
+static void update_params_after_interaction(GtkWidget *widget,gpointer user_data) {
+#if GST_CHECK_VERSION(0,10,14)
+  GstObject *param_parent=GST_OBJECT(user_data);
+  GstController *ctrl;
+  if((ctrl=gst_object_get_controller(G_OBJECT(param_parent)))) {
+    // if no pattern event at ts=0
+    const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
+    BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
+    GstElement *machine;
+    gulong param;
+    glong voice=-1;
+   
+    g_object_get(self->priv->machine,"machine",&machine,NULL);
+    
+    if((param_parent!=GST_OBJECT(machine)) && GST_IS_CHILD_PROXY(machine)) { 
+      gulong i,voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(machine));
+      
+      for(i=0;i<voices;i++) {
+        if(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),i)==param_parent) {
+          voice=i;
+          break;
+        }
+      }
+    }
+    
+    // update the default value at ts=0
+    if(voice==-1) {
+      GST_WARNING("updating global param at ts=0");
+      param=bt_machine_get_global_param_index(self->priv->machine,property_name,NULL);
+      if(bt_machine_has_global_param_default_set(self->priv->machine,param))
+        bt_machine_global_controller_change_value(self->priv->machine,param,G_GUINT64_CONSTANT(0),NULL);
+    }
+    else {
+      GST_WARNING("updating voice %ld param at ts=0",voice);
+      param=bt_machine_get_voice_param_index(self->priv->machine,property_name,NULL);
+      if(bt_machine_has_voice_param_default_set(self->priv->machine,voice,param))
+        bt_machine_voice_controller_change_value(self->priv->machine,voice,param,G_GUINT64_CONSTANT(0),NULL);
+    }
+    g_object_unref(machine);
+    /*
+     * @todo: it should actualy postpone the disable to the next timestamp
+     * (not possible right now).
+     *
+     * @idea: can we have a livecontrolsource that subclasses interpolationcs
+     * - when enabling, if would need to delay the enabled to the next control-point
+     * - it would need to peek at the control-point list :/
+     */
+    gst_controller_set_property_disabled(ctrl,(gchar *)property_name,FALSE);
+  }
+  else {
+    GST_WARNING("param not controlled");
+  }
+#endif
+}
+
 static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data,BtInteractionControllerMenuType type) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
@@ -308,58 +363,8 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
 
 static gboolean on_button_release_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
 #if GST_CHECK_VERSION(0,10,14)
-  GstObject *param_parent=GST_OBJECT(user_data);
-  const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
-
   if(event->button == 1 && event->type == GDK_BUTTON_RELEASE) {
-    GstController *ctrl;
-    if((ctrl=gst_object_get_controller(G_OBJECT(param_parent)))) {
-      // if no pattern event at ts=0
-      GstElement *machine;
-      gulong param;
-      glong voice=-1;
-     
-      g_object_get(self->priv->machine,"machine",&machine,NULL);
-      
-      if((param_parent!=GST_OBJECT(machine)) && GST_IS_CHILD_PROXY(machine)) { 
-        gulong i,voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(machine));
-        
-        for(i=0;i<voices;i++) {
-          if(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),i)==param_parent) {
-            voice=i;
-            break;
-          }
-        }
-      }
-      
-      // update the default value at ts=0
-      if(voice==-1) {
-        //GST_WARNING("updating global param at ts=0");
-        param=bt_machine_get_global_param_index(self->priv->machine,property_name,NULL);
-        if(bt_machine_has_global_param_default_set(self->priv->machine,param))
-          bt_machine_global_controller_change_value(self->priv->machine,param,G_GUINT64_CONSTANT(0),NULL);
-      }
-      else {
-        //GST_WARNING("updating voice %d param at ts=0",voice);
-        param=bt_machine_get_voice_param_index(self->priv->machine,property_name,NULL);
-        if(bt_machine_has_voice_param_default_set(self->priv->machine,voice,param))
-          bt_machine_voice_controller_change_value(self->priv->machine,voice,param,G_GUINT64_CONSTANT(0),NULL);
-      }
-      g_object_unref(machine);
-      /*
-       * @todo: it should actualy postpone the disable to the next timestamp
-       * (not possible right now).
-       *
-       * @idea: can we have a livecontrolsource that subclasses interpolationcs
-       * - when enabling, if would need to delay the enabled to the next control-point
-       * - it would need to peek at the control-point list :/
-       */
-      gst_controller_set_property_disabled(ctrl,(gchar *)property_name,FALSE);
-    }
-    else {
-      GST_WARNING("param not controlled");
-    }
+    update_params_after_interaction(widget,user_data);
   }
 #endif
   return(FALSE);
@@ -589,7 +594,7 @@ static gboolean on_combobox_property_notify_idle(gpointer _data) {
   GtkTreeModel *store;
   GtkTreeIter iter;
 
-  //GST_INFO("property value notify received : %s ",property->name);
+  GST_WARNING("property value notify received : %s ",property->name);
 
   g_object_get(G_OBJECT(machine),property->name,&nvalue,NULL);
   store=gtk_combo_box_get_model(GTK_COMBO_BOX(widget));
@@ -623,13 +628,15 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
   g_assert(user_data);
   //GST_INFO("property value change received");
 
-  value=gtk_combo_box_get_active(combobox);
+  //value=gtk_combo_box_get_active(combobox);
   store=gtk_combo_box_get_model(combobox);
   if(gtk_combo_box_get_active_iter(combobox,&iter)) {
     gtk_tree_model_get(store,&iter,0,&value,-1);
     g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_notify,(gpointer)combobox);
     g_object_set(param_parent,name,value,NULL);
     g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_notify,(gpointer)combobox);
+    GST_WARNING("property value change received: %d",value);
+    update_params_after_interaction(GTK_WIDGET(combobox),user_data);
   }
 }
 
@@ -670,6 +677,7 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
   g_object_set(param_parent,name,value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
+  update_params_after_interaction(GTK_WIDGET(togglebutton),user_data);
 }
 
 
@@ -1014,6 +1022,7 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, G
   g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
+  // @todo: why this?
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
 
   return(widget);
@@ -1131,15 +1140,17 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
 
   widget=gtk_combo_box_new();
   // need a real model because of sparse enums
-  store=gtk_list_store_new(2,G_TYPE_ULONG,G_TYPE_STRING);
+  store=gtk_list_store_new(2,G_TYPE_INT,G_TYPE_STRING);
   for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
     if((enum_value=g_enum_get_value(enum_class, value))) {
       //gtk_combo_box_append_text(GTK_COMBO_BOX(widget),enum_value->value_nick);
-      gtk_list_store_append(store,&iter);
-      gtk_list_store_set(store,&iter,
-        0,enum_value->value,
-        1,enum_value->value_nick,
-        -1);
+      if(BT_IS_STRING(enum_value->value_nick)) {
+        gtk_list_store_append(store,&iter);
+        gtk_list_store_set(store,&iter,
+          0,enum_value->value,
+          1,enum_value->value_nick,
+          -1);
+      }
     }
   }
   renderer=gtk_cell_renderer_text_new();
@@ -1162,6 +1173,9 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
   g_sprintf(signal_name,"notify::%s",property->name);
   g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_combobox_property_notify), (gpointer)widget);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_combobox_property_changed), (gpointer)machine);
+
+  //g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  //g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
