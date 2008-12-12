@@ -1,3 +1,8 @@
+2008-12-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/buzzcallbacks.c:
+	  Use full include path.
+
 2008-12-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

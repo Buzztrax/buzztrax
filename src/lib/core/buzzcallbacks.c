@@ -24,7 +24,7 @@
 
 #include "core_private.h"
 #ifdef USE_BML
-#include <bml.h>
+#include <libbml/bml.h>
 
 /*
  * we could use some static hashtables to cache the returned structs
