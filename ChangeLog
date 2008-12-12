@@ -1,3 +1,16 @@
+2008-12-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/song.c:
+	  Ideas.
+
+	* src/ui/edit/bt-edit.gtkrc:
+	  Readd small vertical spacing.
+
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-toolbar.c:
+	  Updating 10 times a second is enough.
+
 2008-12-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:

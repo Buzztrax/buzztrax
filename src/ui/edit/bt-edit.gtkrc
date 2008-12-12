@@ -3,7 +3,7 @@
 # less spacious treeview
 style "slim-treeview" = "default"
 {
-  GtkTreeView::horizontal-separator = 0
+  GtkTreeView::horizontal-separator = 1
   GtkTreeView::vertical-separator = 0
   #GtkTreeView::grid-line-width = 1
   GtkWidget::focus-line-width = 0

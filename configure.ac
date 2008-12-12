@@ -488,7 +488,6 @@ Configuration
 	HAL for interaction ctrl.       : ${use_hal}
 	Linux HID for interaction ctrl. : ${have_linux_input_h}
 	Buzzmachine Host support        : ${use_bml}
-
 	Hildon Desktop Integration      : ${use_hildon}
         
 	Debug                           : ${enable_debug}

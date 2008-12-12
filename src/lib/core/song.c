@@ -240,6 +240,15 @@ static gboolean bt_song_is_playable(const BtSong * const self) {
    * @todo: unconnected effects, if unconnected on both sides, ignore
    * ... (more checks needed)
    * @todo: all [sources...effect] subgraphs need to be set  to locked state
+   *
+   * traversing a directed graph
+   * - add all source to a todo-list
+   *   - walk down to master
+   *   - mark each visited node
+   *   - stop loop when we hit a visited node before we reach master
+   *   - if a node as multiple outgoing wires, get each destination and
+   *     if not yet visited add to todo list
+   * we need nodes that do not reach master
    */
   
   /* what about iterating all elements in the bin and iterating their always pads
