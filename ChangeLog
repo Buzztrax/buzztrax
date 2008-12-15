@@ -1,3 +1,13 @@
+2008-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core.pc.in:
+	* src/lib/ic/libbuzztard-ic.pc.in:
+	  Require full include paths.
+
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/gtkvumeter.h:
+	  Update license.
+
 2008-12-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/buzzcallbacks.c:

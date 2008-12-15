@@ -8,4 +8,4 @@ Version: @PACKAGE_VERSION@
 Description: libbtcore, core support classes for buzztard based applications
 Requires: glib-2.0,gthread-2.0,gmodule-2.0,libxml-2.0,gstreamer-0.10,gstreamer-controller-0.10
 Libs: @BT_LIBDIR@ -lbuzztard-core
-Cflags: @BT_INCLUDEDIR@/libbuzztard-core @BT_INCLUDEDIR@
+Cflags: @BT_INCLUDEDIR@
