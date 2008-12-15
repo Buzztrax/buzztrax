@@ -89,7 +89,7 @@ static void on_double_entry_property_notify(const GstElement *machine,GParamSpec
 
 static void on_combobox_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   GtkWidget *widget=GTK_WIDGET(user_data);
-  gint value=0,ivalue,nvalue;
+  gint ivalue,nvalue;
   GtkTreeModel *store;
   GtkTreeIter iter;
 
@@ -101,12 +101,9 @@ static void on_combobox_property_notify(const GstElement *machine,GParamSpec *pr
   do {
     gtk_tree_model_get(store,&iter,0,&ivalue,-1);
     if(ivalue==nvalue) break;
-    value++;
   } while(gtk_tree_model_iter_next(store,&iter));
 
-  //gdk_threads_enter();
-  gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
-  //gdk_threads_leave();
+  gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
 }
 
 static void on_range_property_changed(GtkRange *range,gpointer user_data) {
@@ -188,12 +185,22 @@ static void on_table_size_request(GtkWidget *widget,GtkRequisition *requisition,
 //-- helper methods
 
 static gboolean skip_property(GstElement *element,GParamSpec *pspec) {
+  // skip controlable properties
   if(pspec->flags&GST_PARAM_CONTROLLABLE) return(TRUE);
+  // skip uneditable gobject propertes properties
   else if(G_TYPE_IS_CLASSED(pspec->value_type)) return(TRUE);
   else if(pspec->value_type==G_TYPE_POINTER) return(TRUE);
+  // skip baseclass properties
   else if(!strncmp(pspec->name,"name\0",5)) return(TRUE);
-  // @todo: skip more baseclass properties
-  // @todo: skip know interface properties (tempo, childbin)
+  else if(pspec->owner_type==GST_TYPE_BASE_SRC) return(TRUE);
+  else if(pspec->owner_type==GST_TYPE_BASE_TRANSFORM) return(TRUE);
+  else if(pspec->owner_type==GST_TYPE_BASE_SINK) return(TRUE);
+  // skip know interface properties (tempo, childbin)
+  else if(pspec->owner_type==GSTBT_TYPE_HELP) return(TRUE);
+  else if(pspec->owner_type==GSTBT_TYPE_TEMPO) return(TRUE);
+  
+  GST_INFO("property: %s, owner-type: %s",pspec->name,g_type_name(pspec->owner_type));
+  
   return(FALSE);
 }
 
@@ -416,7 +423,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             GtkCellRenderer *renderer;
             GtkListStore *store;
             GtkTreeIter iter;
-            gint value;
+            gint value, ivalue;
 
             widget1=gtk_combo_box_new();
             GST_INFO("enum range: %d, %d",enum_class->minimum,enum_class->maximum);
@@ -439,7 +446,13 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             gtk_combo_box_set_model(GTK_COMBO_BOX(widget1),GTK_TREE_MODEL(store));
 
             g_object_get(machine,property->name,&value,NULL);
-            gtk_combo_box_set_active(GTK_COMBO_BOX(widget1),value);
+            gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store),&iter);
+            do {
+              gtk_tree_model_get((GTK_TREE_MODEL(store)),&iter,0,&ivalue,-1);
+              if(ivalue==value) break;
+            } while(gtk_tree_model_iter_next(GTK_TREE_MODEL(store),&iter));
+            
+            gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget1),&iter);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
             
             signal_name=g_strdup_printf("notify::%s",property->name);
@@ -473,6 +486,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
     else {
       label=gtk_label_new(_("no settings"));
       gtk_container_add(GTK_CONTAINER(self),label);
+      gtk_widget_set_size_request(GTK_WIDGET(self),250,-1);
     }
     g_free(properties);
   }

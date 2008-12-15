@@ -1,5 +1,10 @@
 2008-12-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-preferences-dialog.c:
+	  Filter baseclass and iface properties.
+
+2008-12-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/LINGUAS:
 	* po/id.po:
 	* po/id.po (added):

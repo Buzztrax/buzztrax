@@ -91,7 +91,12 @@ typedef struct {
   data=g_new(BtNotifyIdleData,1); \
   data->machine=machine; \
   data->property=property; \
-  data->user_data=user_data;
+  data->user_data=user_data; \
+  g_object_add_weak_pointer(data->user_data,&data->user_data)
+  
+#define FREE_NOTIFY_IDLE_DATA(data) \
+  g_object_remove_weak_pointer(data->user_data,&data->user_data); \
+  g_free(data)
 
 //-- event handler helper
 
@@ -321,7 +326,9 @@ static void update_params_after_interaction(GtkWidget *widget,gpointer user_data
     gst_controller_set_property_disabled(ctrl,(gchar *)property_name,FALSE);
   }
   else {
-    GST_WARNING("param not controlled");
+    GST_DEBUG("object not controlled, type=%s, instance=%s",
+      G_OBJECT_TYPE_NAME(param_parent),
+      GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"");
   }
 #endif
 }
@@ -381,23 +388,27 @@ static gboolean on_range_button_press_event(GtkWidget *widget, GdkEventButton *e
 
 static gboolean on_double_range_property_notify_idle(gpointer _data) {
   BtNotifyIdleData *data=(BtNotifyIdleData *)_data;
-  const GstElement *machine=data->machine;
-  GParamSpec *property=data->property;
-  GtkWidget *widget=GTK_WIDGET(data->user_data);
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
-  //BtMachinePropertiesDialog *self=g_object_get_qdata(G_OBJECT(widget),widget_parent_quark);
-  gdouble value;
-  gchar str[100];
 
-  GST_INFO("property value notify received : %s ",property->name);
-
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
-  gtk_range_set_value(GTK_RANGE(widget),value);
-  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
-  g_sprintf(str,"%lf",value);
-  gtk_label_set_text(label,str);
-  //self->priv->double_notify_source_id=0;
+  if(data->user_data) {
+    const GstElement *machine=data->machine;
+    GParamSpec *property=data->property;
+    GtkWidget *widget=GTK_WIDGET(data->user_data);
+    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+    //BtMachinePropertiesDialog *self=g_object_get_qdata(G_OBJECT(widget),widget_parent_quark);
+    gdouble value;
+    gchar str[100];
+  
+    GST_INFO("property value notify received : %s ",property->name);
+  
+    g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+    g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
+    gtk_range_set_value(GTK_RANGE(widget),value);
+    g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
+    g_sprintf(str,"%lf",value);
+    gtk_label_set_text(label,str);
+    //self->priv->double_notify_source_id=0;
+  }
+  FREE_NOTIFY_IDLE_DATA(data);
   return(FALSE);
 }
 
@@ -432,21 +443,25 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
 
 static gboolean on_float_range_property_notify_idle(gpointer _data) {
   BtNotifyIdleData *data=(BtNotifyIdleData *)_data;
-  const GstElement *machine=data->machine;
-  GParamSpec *property=data->property;
-  GtkWidget *widget=GTK_WIDGET(data->user_data);
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
-  gfloat value;
-  gchar str[100];
 
-  //GST_INFO("property value notify received : %s ",property->name);
-
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_changed,(gpointer)machine);
-  gtk_range_set_value(GTK_RANGE(widget),value);
-  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_changed,(gpointer)machine);
-  g_sprintf(str,"%f",value);
-  gtk_label_set_text(label,str);
+  if(data->user_data) {
+    const GstElement *machine=data->machine;
+    GParamSpec *property=data->property;
+    GtkWidget *widget=GTK_WIDGET(data->user_data);
+    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+    gfloat value;
+    gchar str[100];
+  
+    //GST_INFO("property value notify received : %s ",property->name);
+  
+    g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+    g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_changed,(gpointer)machine);
+    gtk_range_set_value(GTK_RANGE(widget),value);
+    g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_changed,(gpointer)machine);
+    g_sprintf(str,"%f",value);
+    gtk_label_set_text(label,str);
+  }
+  FREE_NOTIFY_IDLE_DATA(data);
   return(FALSE);
 }
 
@@ -478,26 +493,29 @@ static void on_float_range_property_changed(GtkRange *range,gpointer user_data) 
 
 static gboolean on_int_range_property_notify_idle(gpointer _data) {
   BtNotifyIdleData *data=(BtNotifyIdleData *)_data;
-  const GstElement *machine=data->machine;
-  GParamSpec *property=data->property;
-  GtkWidget *widget=GTK_WIDGET(data->user_data);
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
-  gint value;
 
-  g_free(data);
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-  //GST_INFO("property value notify received : %s => : %d",property->name,value);
-
-  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
-  gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
-  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
-  if(GST_IS_ELEMENT(machine)) {
-    gtk_label_set_text(label,on_int_range_global_property_format_value(GTK_SCALE(widget),(gdouble)value,(gpointer)self->priv->machine));
+  if(data->user_data) {
+    const GstElement *machine=data->machine;
+    GParamSpec *property=data->property;
+    GtkWidget *widget=GTK_WIDGET(data->user_data);
+    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+    BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
+    gint value;
+  
+    g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+    //GST_INFO("property value notify received : %s => : %d",property->name,value);
+  
+    g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
+    gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
+    g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
+    if(GST_IS_ELEMENT(machine)) {
+      gtk_label_set_text(label,on_int_range_global_property_format_value(GTK_SCALE(widget),(gdouble)value,(gpointer)self->priv->machine));
+    }
+    else {
+      gtk_label_set_text(label,on_int_range_voice_property_format_value(GTK_SCALE(widget),(gdouble)value,(gpointer)self->priv->machine));
+    }
   }
-  else {
-    gtk_label_set_text(label,on_int_range_voice_property_format_value(GTK_SCALE(widget),(gdouble)value,(gpointer)self->priv->machine));
-  }
+  FREE_NOTIFY_IDLE_DATA(data);
   return(FALSE);
 }
 
@@ -533,25 +551,29 @@ static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
 
 static gboolean on_uint_range_property_notify_idle(gpointer _data) {
   BtNotifyIdleData *data=(BtNotifyIdleData *)_data;
-  const GstElement *machine=data->machine;
-  GParamSpec *property=data->property;
-  GtkWidget *widget=GTK_WIDGET(data->user_data);
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
-  guint value;
 
-  //GST_INFO("property value notify received : %s ",property->name);
-
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_changed,(gpointer)machine);
-  gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
-  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_changed,(gpointer)machine);
-  if(GST_IS_ELEMENT(machine)) {
-    gtk_label_set_text(label,on_uint_range_global_property_format_value(GTK_SCALE(widget),value,(gpointer)self->priv->machine));
+  if(data->user_data) {
+    const GstElement *machine=data->machine;
+    GParamSpec *property=data->property;
+    GtkWidget *widget=GTK_WIDGET(data->user_data);
+    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+    BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
+    guint value;
+  
+    //GST_INFO("property value notify received : %s ",property->name);
+  
+    g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+    g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_changed,(gpointer)machine);
+    gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
+    g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_changed,(gpointer)machine);
+    if(GST_IS_ELEMENT(machine)) {
+      gtk_label_set_text(label,on_uint_range_global_property_format_value(GTK_SCALE(widget),value,(gpointer)self->priv->machine));
+    }
+    else {
+      gtk_label_set_text(label,on_uint_range_voice_property_format_value(GTK_SCALE(widget),value,(gpointer)self->priv->machine));
+    }
   }
-  else {
-    gtk_label_set_text(label,on_uint_range_voice_property_format_value(GTK_SCALE(widget),value,(gpointer)self->priv->machine));
-  }
+  FREE_NOTIFY_IDLE_DATA(data);
   return(FALSE);
 }
 
@@ -587,26 +609,30 @@ static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
 
 static gboolean on_combobox_property_notify_idle(gpointer _data) {
   BtNotifyIdleData *data=(BtNotifyIdleData *)_data;
-  const GstElement *machine=data->machine;
-  GParamSpec *property=data->property;
-  GtkWidget *widget=GTK_WIDGET(data->user_data);
-  gint ivalue,nvalue;
-  GtkTreeModel *store;
-  GtkTreeIter iter;
 
-  GST_WARNING("property value notify received : %s ",property->name);
-
-  g_object_get(G_OBJECT(machine),property->name,&nvalue,NULL);
-  store=gtk_combo_box_get_model(GTK_COMBO_BOX(widget));
-  gtk_tree_model_get_iter_first(store,&iter);
-  do {
-    gtk_tree_model_get(store,&iter,0,&ivalue,-1);
-    if(ivalue==nvalue) break;
-  } while(gtk_tree_model_iter_next(store,&iter));
-
-  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
-  gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
-  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
+  if(data->user_data) {
+    const GstElement *machine=data->machine;
+    GParamSpec *property=data->property;
+    GtkWidget *widget=GTK_WIDGET(data->user_data);
+    gint ivalue,nvalue;
+    GtkTreeModel *store;
+    GtkTreeIter iter;
+  
+    GST_WARNING("property value notify received : %s ",property->name);
+  
+    g_object_get(G_OBJECT(machine),property->name,&nvalue,NULL);
+    store=gtk_combo_box_get_model(GTK_COMBO_BOX(widget));
+    gtk_tree_model_get_iter_first(store,&iter);
+    do {
+      gtk_tree_model_get(store,&iter,0,&ivalue,-1);
+      if(ivalue==nvalue) break;
+    } while(gtk_tree_model_iter_next(store,&iter));
+  
+    g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
+    gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
+    g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
+  }
+  FREE_NOTIFY_IDLE_DATA(data);
   return(FALSE);
 }
 
@@ -643,17 +669,21 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
 
 static gboolean on_checkbox_property_notify_idle(gpointer _data) {
   BtNotifyIdleData *data=(BtNotifyIdleData *)_data;
-  const GstElement *machine=data->machine;
-  GParamSpec *property=data->property;
-  GtkWidget *widget=GTK_WIDGET(data->user_data);
-  gboolean value;
 
-  //GST_INFO("property value notify received : %s ",property->name);
-
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_toggled,(gpointer)machine);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),value);
-  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_toggled,(gpointer)machine);
+  if(data->user_data) {
+    const GstElement *machine=data->machine;
+    GParamSpec *property=data->property;
+    GtkWidget *widget=GTK_WIDGET(data->user_data);
+    gboolean value;
+  
+    //GST_INFO("property value notify received : %s ",property->name);
+  
+    g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+    g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_toggled,(gpointer)machine);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),value);
+    g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_toggled,(gpointer)machine);
+  }
+  FREE_NOTIFY_IDLE_DATA(data);
   return(FALSE);
 }
 
