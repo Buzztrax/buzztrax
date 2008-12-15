@@ -1,5 +1,12 @@
 2008-12-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* po/LINGUAS:
+	* po/id.po:
+	* po/id.po (added):
+	  Add new translation.
+
+2008-12-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core.pc.in:
 	* src/lib/ic/libbuzztard-ic.pc.in:
 	  Require full include paths.
