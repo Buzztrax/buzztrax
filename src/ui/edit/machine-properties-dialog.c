@@ -276,6 +276,7 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
   return(str);
 }
 
+
 static void update_params_after_interaction(GtkWidget *widget,gpointer user_data) {
 #if GST_CHECK_VERSION(0,10,14)
   GstObject *param_parent=GST_OBJECT(user_data);
@@ -991,8 +992,8 @@ static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gp
   }
   // constrain the height by screen height
   if(height>max_height) {
-    // lets hope that 32 gives enough space for window-decoration + panels
-    height=max_height-32;
+    // lets hope that 48 gives enough space for window-decoration + panels
+    height=max_height-48;
   }
   // @todo: is the '2' some border or padding
   gtk_widget_set_size_request(parent,width,height + 2);
@@ -1052,9 +1053,8 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, G
   g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
-  // @todo: why this?
+  // update formatted text on label
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
-
   return(widget);
 }
 
@@ -1087,6 +1087,7 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, 
   g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
+  // update formatted text on label
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
   return(widget);
 }
@@ -1120,8 +1121,8 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
   g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
+  // update formatted text on label
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
-
   return(widget);
 }
 
@@ -1153,6 +1154,7 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
+  // update formatted text on label
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
   return(widget);
 }

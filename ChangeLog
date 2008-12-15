@@ -1,6 +1,13 @@
 2008-12-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  More vertical reserve. Fix crashers when closing properties window while
+	  playing. Fix leaks of NotifyData.
+
+2008-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
 	  Filter baseclass and iface properties.
 
 2008-12-15  Stefan Kost  <ensonic@users.sf.net>
