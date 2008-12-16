@@ -1,3 +1,13 @@
+2008-12-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* README:
+	  Move hacking stuf to wiki.
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Turn 48 into define and make it 64 for now.
+
 2008-12-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c:

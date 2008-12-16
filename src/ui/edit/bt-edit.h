@@ -161,4 +161,11 @@
  */
 #define GNOME_CANVAS_BROKEN_PROPERTIES 1
 
+/*
+ * lets hope that 64 gives enough space for window-decoration + panels
+ * @todo: look at http://standards.freedesktop.org/wm-spec/1.3/ar01s05.html#id2523368
+ * search for _NET_WM_STRUT_PARTIAL
+ */
+#define SCREEN_BORDER_HEIGHT 64
+
 #endif // BT_EDIT_H

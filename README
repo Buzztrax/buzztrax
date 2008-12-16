@@ -18,6 +18,7 @@ gst-plugins-base
 gst-plugins-good
 gst-plugins-bad
 gnome-canvas
+gnomevfs
 librsvg
 gst-buzztard (from buzztard svn, use same version as this module)
 
@@ -27,7 +28,6 @@ Regarding gstreamer - the newer the better.
 check (http://check.sf.net - for unit tests)
 gconf (for persistent settings)
 hal (for interaction controller)
-libgnomeui (for help)
 
 = building from svn =
 To build use autogen.sh instead of configure. This accept the same options like
@@ -54,7 +54,7 @@ Use following options for ./autogen.sh or ./configure
   --with-gconf-source=xml::/home/ensonic/.gconf/
   --with-desktop-dir=/home/ensonic/.gnome2/vfolders/
 when installing the package to e.g. $HOME/buzztard remember to set these
-environment options:
+environment variables:
 online help: (as root)
   export OMF_DIR="$OMF_DIR:$HOME/buzztard/share/omf"
   scrollkeeper-update
@@ -72,10 +72,11 @@ update-mime-database $HOME/buzztard/share/mime/
 
 = running the apps =
 
-./bt-cmd --command=info --input-file=../share/buzztard/songs/melo1.xml
-./bt-cmd --command=play --input-file=../share/buzztard/songs/melo1.xml
-./bt-cmd --command=encode --input-file=../share/buzztard/songs/melo1.xml --output-file=./melo1.ogg
-./bt-edit --command=load --input-file=../share/buzztard/songs/melo1.xml
+cd $HOME/buzztard/bin
+./buzztard-cmd --command=info --input-file=../share/buzztard/songs/melo1.xml
+./buzztard-cmd --command=play --input-file=../share/buzztard/songs/melo1.xml
+./buzztard-cmd --command=encode --input-file=../share/buzztard/songs/melo1.xml --output-file=./melo1.ogg
+./buzztard-edit --command=load --input-file=../share/buzztard/songs/melo1.xml
 
 = running unit tests =
 in one console enter
@@ -84,5 +85,3 @@ where XXX is one of 'core', 'cmd' and 'edit'
 and in another
   make check
 
-= make dist =
-remove ChangeLog from po/Makefile.in.in, DISTFILES

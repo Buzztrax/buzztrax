@@ -990,10 +990,9 @@ static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gp
   if(requisition->width<300) {
     width=300;
   }
-  // constrain the height by screen height
-  if(height>max_height) {
-    // lets hope that 48 gives enough space for window-decoration + panels
-    height=max_height-48;
+  // constrain the height by screen height minus some space for panels and deco
+  if(height>max_height-SCREEN_BORDER_HEIGHT) {
+    height=max_height-SCREEN_BORDER_HEIGHT;
   }
   // @todo: is the '2' some border or padding
   gtk_widget_set_size_request(parent,width,height + 2);
