@@ -473,6 +473,7 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
       }
       else {
         // @todo set this machine to paused + connect its source and sink
+        GST_INFO("element does not support passthrough");
       }
     } break;
     case BT_MACHINE_STATE_NORMAL:

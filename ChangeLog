@@ -1,3 +1,15 @@
+2008-12-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Add logging.
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	  Set unsaved when editing machine properties. Filter more interfaces.
+
+	*	src/ui/edit/machine-properties-dialog.c:
+	  Set unsaved when editing machine properties. Better code reuse. Remove some
+	  leftover code.
+
 2008-12-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* README:

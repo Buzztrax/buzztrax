@@ -54,6 +54,18 @@ struct _BtMachinePreferencesDialogPrivate {
 
 static GtkDialogClass *parent_class=NULL;
 
+static GQuark widget_parent_quark=0;
+
+//-- event handler helper
+
+static void mark_song_as_changed(const BtMachinePreferencesDialog *self) {
+  BtSong *song;
+  
+  g_object_get(self->priv->app,"song",&song,NULL);
+  bt_song_set_unsaved(song,TRUE);
+  g_object_unref(song);
+}
+
 //-- event handler
 
 static void on_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
@@ -109,41 +121,48 @@ static void on_combobox_property_notify(const GstElement *machine,GParamSpec *pr
 static void on_range_property_changed(GtkRange *range,gpointer user_data) {
   GstElement *machine=GST_ELEMENT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
+  BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
 
   g_assert(user_data);
 
   //GST_INFO("preferences value change received for: '%s'",name);
   g_object_set(machine,name,gtk_range_get_value(range),NULL);
+  mark_song_as_changed(self);
 }
 
 static void on_double_entry_property_changed(GtkEditable *editable,gpointer user_data) {
   GstElement *machine=GST_ELEMENT(user_data);
   gdouble value;
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(editable));
+  BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(g_object_get_qdata(G_OBJECT(editable),widget_parent_quark));
 
   g_assert(user_data);
 
   //GST_INFO("preferences value change received for: '%s'",name);
   value=g_ascii_strtod(gtk_entry_get_text(GTK_ENTRY(editable)),NULL);
   g_object_set(machine,name,value,NULL);
+  mark_song_as_changed(self);
 }
 
 static void on_spinbutton_property_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   GstElement *machine=GST_ELEMENT(user_data);
   gint value;
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(spinbutton));
+  BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(g_object_get_qdata(G_OBJECT(spinbutton),widget_parent_quark));
 
   g_assert(user_data);
 
   GST_INFO("preferences value change received for: '%s'",name);
   value=gtk_spin_button_get_value_as_int(spinbutton);
   g_object_set(machine,name,value,NULL);
+  mark_song_as_changed(self);
 }
 
 static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_data) {
   GstElement *machine=GST_ELEMENT(user_data);
   gint value;
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(combobox));
+  BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(g_object_get_qdata(G_OBJECT(combobox),widget_parent_quark));
   GtkTreeModel *store;
   GtkTreeIter iter;
 
@@ -156,6 +175,7 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
     gtk_tree_model_get(store,&iter,0,&value,-1);
     g_object_set(machine,name,value,NULL);
   }
+  mark_song_as_changed(self);
 }
 
 /*
@@ -195,6 +215,7 @@ static gboolean skip_property(GstElement *element,GParamSpec *pspec) {
   else if(pspec->owner_type==GST_TYPE_BASE_TRANSFORM) return(TRUE);
   else if(pspec->owner_type==GST_TYPE_BASE_SINK) return(TRUE);
   // skip know interface properties (tempo, childbin)
+  else if(pspec->owner_type==GSTBT_TYPE_CHILD_BIN) return(TRUE);
   else if(pspec->owner_type==GSTBT_TYPE_HELP) return(TRUE);
   else if(pspec->owner_type==GSTBT_TYPE_TEMPO) return(TRUE);
   
@@ -278,7 +299,6 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 
         switch(param_type) {
           case G_TYPE_STRING: {
-            //GParamSpecString *string_property=G_PARAM_SPEC_STRING(property);
             gchar *value;
 
             g_object_get(machine,property->name,&value,NULL);
@@ -305,6 +325,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int_property->minimum, (gdouble)int_property->maximum,1.0,step,0.0));
             widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
@@ -321,6 +342,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)uint_property->minimum, (gdouble)uint_property->maximum,1.0,step,0.0));
             widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
@@ -337,6 +359,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)long_property->minimum, (gdouble)long_property->maximum,1.0,step,0.0));
             widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
@@ -353,6 +376,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)ulong_property->minimum, (gdouble)ulong_property->maximum,1.0,step,0.0));
             widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
@@ -369,6 +393,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int64_property->minimum, (gdouble)int64_property->maximum,1.0,step,0.0));
             widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
@@ -385,6 +410,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)uint64_property->minimum, (gdouble)uint64_property->maximum,1.0,step,0.0));
             widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
@@ -401,10 +427,12 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             step=(double_property->maximum-double_property->minimum)/1024.0;
             widget1=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_scale_set_draw_value(GTK_SCALE(widget1),FALSE);
             gtk_range_set_value(GTK_RANGE(widget1),value);
             widget2=gtk_entry_new();
             gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_entry_set_text(GTK_ENTRY(widget2),str_value);
             g_object_set(widget2,"max-length",9,"width-chars",9,NULL);
             g_free(str_value);
@@ -453,6 +481,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             
             gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget1),&iter);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             
             signal_name=g_strdup_printf("notify::%s",property->name);
             g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_combobox_property_notify), (gpointer)widget1);
@@ -618,6 +647,8 @@ static void bt_machine_preferences_dialog_init(GTypeInstance *instance, gpointer
 
 static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  
+  widget_parent_quark=g_quark_from_static_string("BtMachinePreferencesDialog::widget-parent");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePreferencesDialogPrivate));
