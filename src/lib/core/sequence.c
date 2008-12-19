@@ -303,6 +303,7 @@ void bt_sequence_limit_play_pos_internal(const BtSequence * const self) {
   g_object_get(self->priv->song,"play-pos",&old_play_pos,NULL);
   new_play_pos=bt_sequence_limit_play_pos(self,old_play_pos);
   if(new_play_pos!=old_play_pos) {
+    GST_WARNING("limit play pos: %lu -> %lu",old_play_pos,new_play_pos);
     g_object_set(self->priv->song,"play-pos",new_play_pos,NULL);
   }
 }

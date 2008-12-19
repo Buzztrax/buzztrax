@@ -1542,12 +1542,6 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
       pos=(loop_start>-1)?(gdouble)loop_start/(gdouble)sequence_length:0.0;
       g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
       g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
-
-      pos=(gdouble)play_pos/(gdouble)sequence_length;
-      if(pos<=1.0) {
-        g_object_set(self->priv->sequence_table,"play-position",pos,NULL);
-        g_object_set(self->priv->sequence_pos_table,"play-position",pos,NULL);
-      }
       break;
   }
   g_object_unref(song);

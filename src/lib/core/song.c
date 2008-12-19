@@ -73,7 +73,7 @@ struct _BtSongPrivate {
   gboolean unsaved;
 
   /* the playback position of the song */
-  gulong play_pos;
+  gulong play_pos,play_end;
   /* flag to signal playing and idle states */
   gboolean is_playing,is_idle,is_preparing;
 
@@ -151,11 +151,22 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
 static void bt_song_update_play_seek_event(const BtSong * const self) {
   gboolean loop;
   glong loop_start,loop_end,length;
+  gulong play_pos=self->priv->play_pos;
 
   g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
   const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
 
-  GST_DEBUG("loop %d? %ld ... %ld, length %ld bar_time %"GST_TIME_FORMAT,loop,loop_start,loop_end,length,GST_TIME_ARGS(bar_time));
+  //GST_INFO("loop %d? %ld ... %ld, length %ld, pos %lu", loop,loop_start,loop_end,length,play_pos);
+
+  if(loop_start==-1) loop_start=0;
+  if(loop_end==-1) loop_end=length-1;
+  if(play_pos==loop_end) play_pos=loop_start;
+  
+  // remember end for eos
+  self->priv->play_end=loop_end;
+  
+  GST_INFO("loop %d? %ld ... %ld, length %ld, pos %lu, bar_time %"GST_TIME_FORMAT,
+    loop,loop_start,loop_end,length,play_pos,GST_TIME_ARGS(bar_time));
 
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
   if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
@@ -167,34 +178,22 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
   if (loop) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, loop_start*bar_time,
-        GST_SEEK_TYPE_SET, (loop_end+0)*bar_time);
+        GST_SEEK_TYPE_SET, play_pos*bar_time,
+        GST_SEEK_TYPE_SET, loop_end*bar_time);
     self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, loop_start*bar_time,
-        GST_SEEK_TYPE_SET, (loop_end+0)*bar_time);
+        GST_SEEK_TYPE_SET, loop_end*bar_time);
   }
   else {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH,
-        GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
-        GST_SEEK_TYPE_SET, (length+1)*bar_time);
-    self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_NONE,
-        GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
-        GST_SEEK_TYPE_SET, (length+1)*bar_time);
+        GST_SEEK_TYPE_SET, play_pos*bar_time,
+        GST_SEEK_TYPE_SET, loop_end*bar_time);
+    self->priv->loop_seek_event = NULL;
   }
   /* the update needs to take the current play-position into account */
   bt_song_seek_to_play_pos(self);
-  // DEBUG
-#if 0
-  {
-    GstClockTime extra_time=8*bar_time;
-    GST_WARNING("extra time %"GST_TIME_FORMAT,GST_TIME_ARGS(extra_time));
-    // bar_time is what the pipeline calculates as LATENCY
-  }
-#endif
-  // DEBUG
 }
 
 /*
@@ -452,6 +451,7 @@ static void on_song_eos(const GstBus * const bus, const GstMessage * const messa
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GST_INFO("received EOS bus message from: %s", 
       GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
+    self->priv->play_pos=self->priv->play_end;
     bt_song_stop(self);
   }
 }
@@ -731,6 +731,8 @@ gboolean bt_song_play(const BtSong * const self) {
   bt_song_idle_stop(self);
 
   GST_INFO("prepare playback");
+  // update play-pos
+  bt_song_update_play_seek_event(self);
 
   // send tags
   bt_song_send_tags(self);
