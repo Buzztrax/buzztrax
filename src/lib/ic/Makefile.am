@@ -1,6 +1,6 @@
 ## $Id$
 
-SUBDIRS = . libbuzztard-ic
+SUBDIRS = libbuzztard-ic
 
 if USE_LINUX_INPUT
 LINUX_INPUT_SOURCES=input-device.c libbuzztard-ic/input-device.h libbuzztard-ic/input-device-methods.h

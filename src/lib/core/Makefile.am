@@ -1,6 +1,6 @@
 ## $Id$
 
-SUBDIRS = . libbuzztard-core
+SUBDIRS = libbuzztard-core
 
 if USE_GCONF
 GCONF_SETTINGS_SRC = gconf-settings.c libbuzztard-core/gconf-settings.h libbuzztard-core/gconf-settings-methods.h

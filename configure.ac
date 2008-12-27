@@ -13,6 +13,10 @@ dnl
 dnl Initialise the autoconf/automake tool
 AC_PREREQ(2.61)
 AC_INIT([buzztard],[0.5.0],[buzztard-devel@lists.sourceforge.net])
+# we can't do -Werror, because
+# - we use gnu make extensions
+# - we override uninstallcheck var
+AM_INIT_AUTOMAKE([-Wall check-news std-options])
 AC_CONFIG_SRCDIR([ChangeLog])
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR(m4)
@@ -46,9 +50,6 @@ AC_SUBST(BT_RELEASE_DATE)
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION_NUMBER, ${BT_VERSION_NUMBER}, [version as a number])
 
 VERSION=${BT_VERSION}
-
-dnl Initialise the automake tool
-AM_INIT_AUTOMAKE([check-news std-options ])
 
 dnl m4 - everyone who develops should have aclocal installed
 AC_PATH_PROG(PROG_ACLOCAL, aclocal, no)

@@ -1,3 +1,15 @@
+2008-12-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Use more automake features.
+
+	* docs/reference/Makefile.am:
+	  Tell why we override build order.
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  No need to override build order.
+
 2008-12-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
