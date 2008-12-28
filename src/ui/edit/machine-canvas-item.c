@@ -27,7 +27,6 @@
  */
 
 /* @todo more graphics:
- * - add level meter widgets left and right (depending on type)
  * - move state (mute, solo, bypass) elsehwere to have more space for the tile
  * - use svg gfx (design/gui/svgcanvas.c )
  *   - need to have prerenderend images for current zoom level
