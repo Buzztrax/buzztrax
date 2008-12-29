@@ -504,7 +504,7 @@ static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
   
   // use "ghelp:buzztard-edit?topic" for context specific help
 #if GTK_CHECK_VERSION(2,14,0)
-  if(!gtk_show_uri(gtk_widget_get_screen (GTK_WIDGET(menuitem)),"ghelp:buzztard-edit",gtk_get_current_event_time(),&error)) {
+  if(!gtk_show_uri(gtk_widget_get_screen(GTK_WIDGET(menuitem)),"ghelp:buzztard-edit",gtk_get_current_event_time(),&error)) {
     GST_WARNING("Failed to display help: %s\n",error->message);
     g_error_free(error);
   }
@@ -520,6 +520,56 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
   bt_edit_application_show_about(self->priv->app);
 }
+
+#ifdef USE_DEBUG
+static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  const gchar *path;
+
+  if((path=g_getenv("GST_DEBUG_DUMP_DOT_DIR"))) {
+    BtSong *song;
+    GstBin *bin;
+    gchar *cmd;
+    GError *error=NULL;
+
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(G_OBJECT(song),"bin",&bin,NULL);
+    
+    GST_DEBUG_BIN_TO_DOT_FILE(bin,
+      /*GST_DEBUG_GRAPH_SHOW_ALL,*/
+      GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS|GST_DEBUG_GRAPH_SHOW_STATES,
+      PACKAGE_NAME);
+  
+    // release the reference
+    gst_object_unref(bin);
+    g_object_unref(song);
+  
+    // convert file
+    cmd=g_strdup_printf("dot -Tpng -o%s"G_DIR_SEPARATOR_S""PACKAGE_NAME".png %s"G_DIR_SEPARATOR_S""PACKAGE_NAME".dot",path,path); 
+    if(!g_spawn_command_line_sync(cmd,NULL,NULL,NULL,&error)) {
+        GST_WARNING("Failed to convert dot-graph: %s\n",error->message);
+        g_error_free(error);
+    }
+    else {
+      gchar *png_uri;
+      
+      png_uri=g_strdup_printf("file://%s"G_DIR_SEPARATOR_S""PACKAGE_NAME".png",path);
+      // show image
+#if GTK_CHECK_VERSION(2,14,0)
+      if(!gtk_show_uri(gtk_widget_get_screen(GTK_WIDGET(menuitem)),png_uri,gtk_get_current_event_time(),&error)) {
+        GST_WARNING("Failed to display dot-graph: %s\n",error->message);
+        g_error_free(error);
+      }
+#else
+      gnome_vfs_url_show(png_uri);
+#endif
+      g_free(png_uri);
+    }    
+    g_free(cmd);
+  }
+}
+#endif
+
 
 static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
@@ -823,6 +873,20 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_about_activate),(gpointer)self);
 
+#ifdef USE_DEBUG
+  // debug menu
+  item=gtk_menu_item_new_with_mnemonic(("_Debug"));
+  gtk_menu_item_set_right_justified(GTK_MENU_ITEM(item),TRUE);
+  gtk_container_add(GTK_CONTAINER(self),item);
+
+  menu=gtk_menu_new();
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
+  
+  subitem=gtk_image_menu_item_new_with_mnemonic(_("Dump pipeline graph and show"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_debug_dump_pipeline_graph_and_show),(gpointer)self);
+#endif
+  
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 
