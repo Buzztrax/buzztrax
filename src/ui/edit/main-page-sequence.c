@@ -29,6 +29,8 @@
 /* @todo main-page-sequence tasks
  * - cut/copy/paste
  * - add third view for eating remaining space
+ *   - or block cursor moving there
+ * - also do cursor coloring for label column
  * - shortcuts
  *   - Ctrl-<num> :  Stepping
  *     - set increment for cursor-down on edit
@@ -43,7 +45,7 @@
  *   - go to next occurence when double clicking a pattern
  *   - show tick-length in pattern list
  * @todo:
- * - we shoudl have a track-changed signal or so to allow pattern to sync with
+ * - we should have a track-changed signal or so to allow pattern to sync with
  *   seelcted machine and not passively syncing (bt_main_page_patterns_show_machine())
  *
  * @bugs
@@ -855,6 +857,7 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
 
   // create header widget
   self->priv->pos_header=gtk_vbox_new(FALSE,HEADER_SPACING);
+  // time line position
   label=gtk_label_new(_("Pos."));
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
   gtk_box_pack_start(GTK_BOX(self->priv->pos_header),label,TRUE,FALSE,0);
@@ -1329,6 +1332,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     self->priv->pattern_keys=sink_pattern_keys;
     index=2;
     gtk_list_store_append(store, &tree_iter);
+    // use spaces to avoid clashes with normal patterns?
     gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,".",PATTERN_TABLE_NAME,_("  clear"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
     gtk_list_store_append(store, &tree_iter);
     gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"-",PATTERN_TABLE_NAME,_("  mute"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
@@ -1357,6 +1361,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
         key[0]=(index<64)?self->priv->pattern_keys[index]:' ';
         //if(index<64) key[0]=self->priv->pattern_keys[index];
         //else key[0]=' ';
+
         //GST_DEBUG("  with shortcut \"%s\"",key);
         // use gray color for unused patterns in pattern list
         is_used=bt_sequence_is_pattern_used(self->priv->sequence,pattern);
@@ -1611,9 +1616,6 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
   // change number of tracks
   g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
   if(number_of_tracks>0) {
-    //GtkTreePath *path;
-    //GtkTreeViewColumn *column;
-    GList *columns;
     BtMachine *machine;
 
     machine=bt_sequence_get_machine(self->priv->sequence,number_of_tracks-1);
@@ -1623,7 +1625,9 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
     g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
     g_object_unref(machine);
 
-    bt_sequence_remove_track_by_ix(self->priv->sequence,number_of_tracks-1);
+    GST_DEBUG("old cursor column: %ld, tracks: %lu",self->priv->cursor_column,number_of_tracks);
+    // remove the track where the cursor is 
+    bt_sequence_remove_track_by_ix(self->priv->sequence,self->priv->cursor_column-1);
 
     // reset selection
     self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
@@ -1632,12 +1636,12 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
     sequence_table_refresh(self,song);
     sequence_model_recolorize(self);
 
-  // update cursor_column and focus cell
-  // (-2 because last column is empty and first is label)
-    columns=gtk_tree_view_get_columns(self->priv->sequence_table);
-    self->priv->cursor_column=g_list_length(columns)-2;
-    GST_DEBUG("new cursor column: %ld",self->priv->cursor_column);
-    g_list_free(columns);
+    if(self->priv->cursor_column>=number_of_tracks) {
+      // update cursor_column and focus cell
+      self->priv->cursor_column--;
+      sequence_view_set_cursor_pos(self);
+      GST_DEBUG("new cursor column: %ld",self->priv->cursor_column);
+    }
 
     update_after_track_changed(self);
   }
@@ -1661,6 +1665,7 @@ static void on_track_move_left_activated(GtkMenuItem *menuitem, gpointer user_da
       // reinit the view
       sequence_table_refresh(self,song);
       sequence_model_recolorize(self);
+      sequence_view_set_cursor_pos(self);
     }
 
     g_object_unref(song);
@@ -1684,6 +1689,7 @@ static void on_track_move_right_activated(GtkMenuItem *menuitem, gpointer user_d
       // reinit the view
       sequence_table_refresh(self,song);
       sequence_model_recolorize(self);
+      sequence_view_set_cursor_pos(self);
     }
   }
   g_object_unref(song);
@@ -2110,8 +2116,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       }
     }
     else if(event->keyval == GDK_Insert) {
-      if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
-        GST_INFO("ctrl-shift-insert pressed, row %lu, track %lu",row,track-1);
+      if(modifier==0) {
+        GST_INFO("insert pressed, row %lu, track %lu",row,track-1);
         bt_sequence_insert_rows(self->priv->sequence,row,track-1,self->priv->bars);
         //self->priv->list_length+=self->priv->bars;
         // reinit the view
@@ -2120,8 +2126,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         sequence_view_set_cursor_pos(self);
         res=TRUE;
       }
-      else {
-        GST_INFO("insert pressed, row %lu",row);
+      else if(modifier==GDK_SHIFT_MASK) {
+        GST_INFO("shift-insert pressed, row %lu",row);
         bt_sequence_insert_full_rows(self->priv->sequence,row,self->priv->bars);
         self->priv->list_length+=self->priv->bars;
         // reinit the view
@@ -2132,8 +2138,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       }
     }
     else if(event->keyval == GDK_Delete) {
-      if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
-        GST_INFO("ctrl-shift-delete pressed, row %lu, track %lu",row,track-1);
+      if(modifier==0) {
+        GST_INFO("delete pressed, row %lu, track %lu",row,track-1);
         bt_sequence_delete_rows(self->priv->sequence,row,track-1,self->priv->bars);
         //self->priv->list_length-=self->priv->bars;
         // reinit the view
@@ -2142,8 +2148,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         sequence_view_set_cursor_pos(self);
         res=TRUE;
       }
-      else {
-        GST_INFO("delete pressed, row %lu",row);
+      else if(modifier==GDK_SHIFT_MASK) {
+        GST_INFO("shift-delete pressed, row %lu",row);
         bt_sequence_delete_full_rows(self->priv->sequence,row,self->priv->bars);
         self->priv->list_length-=self->priv->bars;
         // reinit the view

@@ -1,3 +1,25 @@
+2008-12-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	  Link to libintl if needed.
+
+	* src/lib/core/pattern.c:
+	* src/lib/core/song-info.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/settings-page-playback-controller.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Comments for translators.
+
+	* src/ui/edit/main-menu.c:
+	  Warn if env-var is not set.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Make Ctrl-R removing current track. Fix cursor pos after moving tracks.
+	  Fix insert/delete full row shortcuts.
+
 2008-12-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:

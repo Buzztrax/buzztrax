@@ -97,6 +97,9 @@ static GObjectClass *parent_class=NULL;
 // date time stamp format YYYY-MM-DDThh:mm:ssZ
 #define DTS_LEN 20
 
+/* default name for new songs */
+#define DEFAULT_SONG_NAME _("untitled song")
+
 //-- helper methods
 
 static void bt_song_info_tempo_changed(const BtSongInfo * const self) {
@@ -137,7 +140,7 @@ static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const pers
   GST_DEBUG("PERSISTENCE::song-info");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("meta"),NULL))) {
-    if(!strcmp(self->priv->name,_("untitled song"))) {
+    if(!strcmp(self->priv->name,DEFAULT_SONG_NAME)) {
       BtSongIONative *song_io;
       gchar *file_path,*file_name,*ext;
       
@@ -455,7 +458,7 @@ static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_cl
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
   self->priv->taglist=gst_tag_list_new();
 
-  self->priv->name=g_strdup(_("untitled song"));
+  self->priv->name=g_strdup(DEFAULT_SONG_NAME);
   self->priv->author=g_strdup(g_get_real_name());
   // @idea alternate bpm's a little at new_song (user defined range?)
   self->priv->beats_per_minute=125;  // 1..1000
@@ -523,7 +526,7 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
                                   g_param_spec_string("name",
                                      "name prop",
                                      "songs name",
-                                     _("untitled song"), /* default value */
+                                     DEFAULT_SONG_NAME, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_GENRE,

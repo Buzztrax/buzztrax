@@ -364,12 +364,14 @@ BtPattern *bt_pattern_new_with_event(const BtSong * const song, const BtMachine 
   gchar *mid,*id,*name;
   GValue *event;
   gulong voices;
+  // track commands in sequencer
   const gchar * const cmd_names[]={ N_("normal"),N_("break"),N_("mute"),N_("solo"),N_("bypass") };
 
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(machine),NULL);
 
   g_object_get(G_OBJECT(machine),"id",&mid,NULL);
+  // use spaces/_ to avoid clashes with normal patterns?
   id=g_strdup_printf("%s___%s",mid,cmd_names[cmd]);
   name=g_strdup_printf("   %s",_(cmd_names[cmd]));
   g_object_get(G_OBJECT(machine),"voices",&voices,NULL);

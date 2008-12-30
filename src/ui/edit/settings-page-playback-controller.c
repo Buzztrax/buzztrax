@@ -109,13 +109,15 @@ static gboolean bt_settings_page_playback_controller_init_ui(const BtSettingsPag
   gtk_table_attach(GTK_TABLE(self),label, 0, 3, 0, 1,  GTK_FILL|GTK_EXPAND, GTK_SHRINK, 2,1);
   gtk_table_attach(GTK_TABLE(self),spacer, 0, 1, 1, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
 
-  label=gtk_label_new(_("Coherence UPnP"));
+  // don't translate, this is a product
+  label=gtk_label_new("Coherence UPnP");
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
 
   widget=gtk_check_button_new();
   gtk_table_attach(GTK_TABLE(self),widget, 2, 3, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
 
+  // local network port number for socket communication
   label=gtk_label_new(_("Port number"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);

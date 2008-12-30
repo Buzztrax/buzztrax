@@ -567,6 +567,10 @@ static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpo
     }    
     g_free(cmd);
   }
+  else {
+    // the envvar is only checked at gst_init()
+    GST_WARNING("You need to start the app with GST_DEBUG_DUMP_DOT_DIR env-var set.");
+  }
 }
 #endif
 
@@ -882,6 +886,14 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   menu=gtk_menu_new();
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
   
+  /* change to "pipeline graph" and have a submenu with
+   * - toggles for the details
+   *   GST_DEBUG_GRAPH_SHOW_MEDIA_TYPE - show caps-name on edges
+   *   GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS	- show caps-details on edges
+   *   GST_DEBUG_GRAPH_SHOW_NON_DEFAULT_PARAMS - show modified parameters on elements
+   *   GST_DEBUG_GRAPH_SHOW_STATES - show element states 
+   * - "show graph" action item
+   */
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Dump pipeline graph and show"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_debug_dump_pipeline_graph_and_show),(gpointer)self);
