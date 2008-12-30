@@ -3,6 +3,7 @@
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) pixmaps po docs
 
+ACLOCAL_AMFLAGS = -I m4
 DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc --enable-debug
 
 schemasdir = $(GCONF_SCHEMA_FILE_DIR)

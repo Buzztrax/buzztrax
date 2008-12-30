@@ -360,7 +360,7 @@ tool_run "$autopoint --force"
 
 # aclocal
 if test -f acinclude.m4; then rm acinclude.m4; fi
-tool_run "$aclocal" "$ACLOCAL_FLAGS"
+tool_run "$aclocal" "-I m4 $ACLOCAL_FLAGS"
 
 tool_run "$intltoolize" "--copy --force --automake"
 tool_run "$libtoolize" "--copy --force"
