@@ -30,7 +30,6 @@
  * - cut/copy/paste
  * - add third view for eating remaining space
  *   - or block cursor moving there
- * - also do cursor coloring for label column
  * - shortcuts
  *   - Ctrl-<num> :  Stepping
  *     - set increment for cursor-down on edit
@@ -233,6 +232,38 @@ static gboolean step_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpoint
 }
 
 //-- tree cell data functions
+
+static void label_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  gulong row;
+  GdkColor *bg_col=NULL;
+
+  gtk_tree_model_get(model,iter,
+    SEQUENCE_TABLE_POS,&row,
+    -1);
+
+  if((0==self->priv->cursor_column) && (row==self->priv->cursor_row)) {
+    bg_col=self->priv->cursor_bg;
+  }
+  else if((0>=self->priv->selection_start_column) && (0<=self->priv->selection_end_column) &&
+    (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
+  ) {
+    //we have no colors for this (yet)
+    //bg_col=(bg_col->pixel==self->priv->sink_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
+  }
+  if(bg_col) {
+    g_object_set(G_OBJECT(renderer),
+      "background-gdk",bg_col,
+      "background-set",TRUE,
+      NULL);
+  }
+  else {
+    g_object_set(G_OBJECT(renderer),
+      "background-set",FALSE,
+      NULL);
+  }
+}
+
 
 static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -1012,6 +1043,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
       "fixed-width",SEQUENCE_CELL_WIDTH,
       NULL);
     col_index=gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
+    gtk_tree_view_column_set_cell_data_func(tree_col, renderer, label_cell_data_function, (gpointer)self, NULL);
   }
   else GST_WARNING("can't create treeview column");
 
