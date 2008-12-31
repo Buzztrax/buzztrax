@@ -1,5 +1,13 @@
 2008-12-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Write NEWS.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Also show selection in cursor column. Clamp cursor pos to editable area.
+
+2008-12-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Draw the cursor in label column as well.
 
@@ -84,7 +92,7 @@
 2008-12-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* README:
-	  Move hacking stuf to wiki.
+	  Move hacking stuff to wiki.
 
 	* src/ui/edit/bt-edit.h:
 	* src/ui/edit/machine-preferences-dialog.c:
@@ -188,7 +196,7 @@
 2008-12-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/gconf-settings.c:
-	  Handle undefined settings (stange that GError did not worked).
+	  Handle undefined settings (strange that GError did not worked).
 
 	* src/lib/core/settings.c:
 	  Use symbolic default.

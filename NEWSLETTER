@@ -1,5 +1,32 @@
 2009/01 ========================================================================
 
+This month I worked on a couple of small, mostly UI related things, while
+drafting bigger plans. There where many TODOs in the code for small improvements
+and now there are less. E.g. I now filter more internal GStreamer properties
+from ui dialogs. I added some more things to the menus (hide/show statusbar,
+toggle fullscreen). The sequence view got some fixes - some shortcuts where
+overlapping, the label column now shows cursor and selection and finally the 
+cursor is clamped to now leave the editable area. I also started adding a debug
+menu in --enable-debug configuration. The only command right now make a 
+GStreamer pipeline dump as a dot file, converts and shows it.
+
+I received two more translations this month too. I realized that its not always
+easy to translate the texts and added comments above in the code to give some
+context.
+
+We're also getting more buzz-a-like. I made the playback start/stop and loop
+behaving the same way. Now one can start playback from arbitrary positions.
+Finally I also found and fixed one bug that caused noise in the output of
+mono-to-stereo buzz machines. Together with some fixes in plugin parameter
+handling, this makes more songs playing fine now.
+
+As one item from the roadmap for 0.5 [2], I got rid of libgnome usage. Less
+dependencies, yay! I read this nice autotools tutorial [1] over xmas and fixed a
+couple of things in my setup. Definitely recommended reading.
+
+[1] http://www.lrde.epita.fr/~adl/autotools.html
+[2] http://www.buzztard.org/index.php/Roadmap#Version_0.5_.28crown_of_thorns.29_2009
+
 2008/12 ========================================================================
 
 Finally I have cut a 0.4 release for all buzztard packages [1]. I spend most

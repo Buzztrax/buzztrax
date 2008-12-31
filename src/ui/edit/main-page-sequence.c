@@ -248,8 +248,7 @@ static void label_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *re
   else if((0>=self->priv->selection_start_column) && (0<=self->priv->selection_end_column) &&
     (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
   ) {
-    //we have no colors for this (yet)
-    //bg_col=(bg_col->pixel==self->priv->sink_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
+    bg_col=((row/self->priv->bars)&1)?self->priv->selection_bg2:self->priv->selection_bg1;
   }
   if(bg_col) {
     g_object_set(G_OBJECT(renderer),
@@ -1839,6 +1838,7 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   GtkTreePath *path;
   GtkTreeViewColumn *column;
   gulong cursor_column,cursor_row;
+  GList *columns;
 
   g_return_val_if_fail(user_data,FALSE);
 
@@ -1847,10 +1847,20 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
   if(column && path) {
     if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&cursor_column,&cursor_row)) {
-      gulong lastbar;
+      gulong lastbar,lastcolumn;
+
+      columns=gtk_tree_view_get_columns(self->priv->sequence_table);
+      lastcolumn=g_list_length(columns)-2;
+      g_list_free(columns);
 
       GST_INFO("new row = %3lu <-> old row = %3ld",cursor_row,self->priv->cursor_row);
       self->priv->cursor_row=cursor_row;
+      
+      if(cursor_column>lastcolumn) {
+        cursor_column=lastcolumn;
+        sequence_view_set_cursor_pos(self);
+      }
+        
       GST_INFO("new col = %3lu <-> old col = %3ld",cursor_column,self->priv->cursor_column);
       if(cursor_column!=self->priv->cursor_column) {       
         self->priv->cursor_column=cursor_column;
