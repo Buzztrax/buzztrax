@@ -65,7 +65,7 @@ TXML = $(dist_gir_DATA:.gir=.gir.txml)
 clean-gir:
 	@rm -fr $(BUILT_GIRSOURCES)
 
-%.typelib: %.gir 
+.gir.typelib:
 	$(G_IR_COMPILER) --includedir=. $(G_IR_COMPILER_OPTS) $< -o $@
 else
 BUILT_GIRSOURCES=
