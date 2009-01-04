@@ -295,7 +295,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
 
   GST_INFO("song name = %s",file_name);
 
-  if((loader=bt_song_io_new(file_name))) {
+  if((loader=bt_song_io_make(file_name))) {
     GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
     GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
 
@@ -388,7 +388,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
 
   GST_INFO("song name = %s",file_name);
 
-  if((saver=bt_song_io_new(file_name))) {
+  if((saver=bt_song_io_make(file_name))) {
     GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
     GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
 

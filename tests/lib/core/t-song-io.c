@@ -41,7 +41,7 @@ static void test_teardown(void) {
 BT_START_TEST(test_btsong_io_obj1) {
   BtSongIO *song_io;
   
-  song_io=bt_song_io_new(NULL);
+  song_io=bt_song_io_make(NULL);
   fail_unless(song_io == NULL, NULL);
 }
 BT_END_TEST
@@ -50,7 +50,7 @@ BT_END_TEST
 BT_START_TEST(test_btsong_io_obj2) {
   BtSongIO *song_io;
 
-  song_io=bt_song_io_new("");
+  song_io=bt_song_io_make("");
   fail_unless(song_io==NULL, NULL);
 }
 BT_END_TEST
@@ -59,7 +59,7 @@ BT_END_TEST
 BT_START_TEST(test_btsong_io_obj3) {
   BtSongIO *song_io;
 
-  song_io=bt_song_io_new("test");
+  song_io=bt_song_io_make("test");
   fail_unless(song_io==NULL, NULL);
 }
 BT_END_TEST
@@ -69,7 +69,7 @@ BT_START_TEST(test_btsong_io_obj4) {
   BtSongIO *song_io;
 
   /* for some reasons gnomevfs creates the uri "http://test.unk" */
-  song_io=bt_song_io_new("test.unk");
+  song_io=bt_song_io_make("test.unk");
   fail_unless(song_io==NULL, NULL);
 }
 BT_END_TEST

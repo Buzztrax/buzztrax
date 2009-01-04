@@ -83,7 +83,7 @@ BT_START_TEST(test_btsong_load1) {
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
-  loader=bt_song_io_new(check_get_test_song_path("test-simple1.xml"));
+  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
   mark_point();
   fail_unless(loader != NULL, NULL);
   //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_WARNING);
@@ -114,7 +114,7 @@ BT_START_TEST(test_btsong_load2) {
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
-  loader=bt_song_io_new(check_get_test_song_path("test-simple1.xml"));
+  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
   fail_unless(loader != NULL, NULL);
   load_ret = bt_song_io_load(loader,song);
   fail_unless(load_ret, NULL);
@@ -123,7 +123,7 @@ BT_START_TEST(test_btsong_load2) {
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
-  loader=bt_song_io_new(check_get_test_song_path("test-simple2.xml"));
+  loader=bt_song_io_make(check_get_test_song_path("test-simple2.xml"));
   fail_unless(loader != NULL, NULL);
   load_ret = bt_song_io_load(loader,song);
   fail_unless(load_ret, NULL);
@@ -147,7 +147,7 @@ BT_START_TEST(test_btsong_load3) {
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
-  loader=bt_song_io_new(check_get_test_song_path("test-simple1.xml"));
+  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
   mark_point();
   fail_unless(loader != NULL, NULL);
   //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_WARNING);
@@ -180,7 +180,7 @@ BT_START_TEST(test_btsong_play1) {
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
-  loader=bt_song_io_new(check_get_test_song_path("test-simple1.xml"));
+  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
   fail_unless(loader != NULL, NULL);
   load_ret = bt_song_io_load(loader,song);
   fail_unless(load_ret, NULL);

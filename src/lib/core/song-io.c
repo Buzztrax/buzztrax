@@ -200,14 +200,15 @@ static void bt_song_io_update_filename(const BtSongIO * const self, const BtSong
 //-- constructor methods
 
 /**
- * bt_song_io_new:
+ * bt_song_io_make:
  * @file_name: the file name of the new song
  *
- * Create a new instance
+ * Create a new instance from the given @file_name. Each installed plugin will
+ * test if it can handle the file type.
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtSongIO *bt_song_io_new(const gchar * const file_name) {
+BtSongIO *bt_song_io_make(const gchar * const file_name) {
   BtSongIO *self=NULL;
   GType type = 0;
 

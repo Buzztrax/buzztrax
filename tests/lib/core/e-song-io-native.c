@@ -95,7 +95,7 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   song=bt_song_new(app);
   
   /* load the song */
-  song_io=bt_song_io_new(check_get_test_song_path("example.xml"));
+  song_io=bt_song_io_make(check_get_test_song_path("example.xml"));
   fail_unless(song_io != NULL, NULL);
   
   res=bt_song_io_load(song_io,song);
@@ -176,7 +176,7 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
   song_name=song_names;
   while(*song_name) {
     /* load the song */
-    song_io=bt_song_io_new(check_get_test_song_path(*song_name));
+    song_io=bt_song_io_make(check_get_test_song_path(*song_name));
     fail_unless(song_io != NULL, NULL);
     song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);

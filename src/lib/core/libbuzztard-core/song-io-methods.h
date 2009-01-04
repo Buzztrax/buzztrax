@@ -25,7 +25,7 @@
 #include "song.h"
 #include "song-io.h"
 
-extern BtSongIO *bt_song_io_new(const gchar * const file_name);
+extern BtSongIO *bt_song_io_make(const gchar * const file_name);
 
 extern const GList *bt_song_io_get_module_info_list(void);
 

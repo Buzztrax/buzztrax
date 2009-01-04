@@ -1,5 +1,22 @@
 2009-01-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/song-io-methods.h:
+	* src/lib/core/song-io.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/edit-application.c:
+	* tests/lib/core/e-song-info.c:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/lib/core/e-song-io.c:
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/t-sink-machine.c:
+	* tests/lib/core/t-song-io-native.c:
+	* tests/lib/core/t-song-io.c:
+	  bt_song_io_new -> bt_song_io_make, its not a constructor. Better docs for
+	  it.
+
+2009-01-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/Makefile.am:
 	* src/lib/ic/Makefile.am:
 	  Don't use a pattern rule. It is not portable and not needed here.
