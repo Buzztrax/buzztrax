@@ -1396,7 +1396,7 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),TRUE);
     if(has_patterns) {
       if(bt_machine_is_polyphonic(machine)) {
-        gint voices;
+        gulong voices;
 
         g_object_get(machine,"voices",&voices,NULL);
         gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),TRUE);
