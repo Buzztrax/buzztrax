@@ -1,3 +1,19 @@
+2009-01-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	  Be more efficient.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Allow to remove disconnected machine with unused patterns without
+	  asking.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Allow to remove unused patterns withou asking.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Document the ui shortcuts.
+
 2009-01-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

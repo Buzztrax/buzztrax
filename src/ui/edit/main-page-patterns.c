@@ -1846,7 +1846,8 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
   BtPattern *pattern;
   BtSong *song;
   BtSequence *sequence;
-  gchar *msg,*id;
+  gchar *msg=NULL,*id;
+  gboolean is_used,remove=FALSE;
 
   g_assert(user_data);
 
@@ -1855,18 +1856,20 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"song",&song,NULL);
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-  g_object_get(pattern,"name",&id,NULL);
 
-  if(bt_sequence_is_pattern_used(sequence,pattern)) {
-    msg=g_strdup_printf(_("Delete used pattern '%s'"),id);
+  is_used=bt_sequence_is_pattern_used(sequence,pattern);
+  
+  if(is_used) {
+    g_object_get(pattern,"name",&id,NULL);
+    msg=g_strdup_printf(_("Delete pattern '%s'"),id);
+    g_free(id);
   }
   else {
-    msg=g_strdup_printf(_("Delete unused pattern '%s'"),id);
+    // do not ask
+    remove=TRUE;
   }
-  g_free(id);
 
-  // @todo: don't ask if pattern is empty
-  if(bt_dialog_question(main_window,_("Delete pattern..."),msg,_("There is no undo for this."))) {
+  if(remove || bt_dialog_question(main_window,_("Delete pattern..."),msg,_("There is no undo for this."))) {
     BtMachine *machine;
 
     machine=bt_main_page_patterns_get_current_machine(self);
@@ -1877,8 +1880,8 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
     g_object_unref(machine);
   }
   g_object_unref(sequence);
-  g_object_unref(main_window);
   g_object_unref(song);
+  g_object_unref(main_window);
   g_object_unref(pattern);  // should finalize the pattern
   g_free(msg);
 }

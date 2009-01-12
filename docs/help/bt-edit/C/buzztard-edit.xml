@@ -290,7 +290,8 @@
       </para>
       <para>
         Machines and wires have context menus. The menu for the wire can be
-        accessed by right clicking over the pointer shape in the middle.
+        accessed by right clicking over the pointer shape in the middle. Not yet
+        connected elements can be removed immediately (without any dialogs).
       </para>
       <para>
         A double click on a machine brings up the <link linkend="bt-edit-dialog-machine-properties" endterm="bt-edit-dialog-machine-properties.title"/>.
@@ -298,7 +299,8 @@
       <note><title>Limitations</title>
         <para>
           Adding/removing machines and adding new wires while a song is playing,
-          will most likely break playback.
+          will most likely break playback. Also having unconnected elements is
+          not yet handled.
         </para>
       </note>
     </sect3>
@@ -329,7 +331,8 @@
       </para>
       <para>
         A context menu in the pattern area allows to create new patterns and
-        modify existing ones.
+        modify existing ones. Unused patterns can be removed immediately
+        (without any dialogs).
       </para>
       <para>
         To switch to the sequence editor press <keycap>Enter</keycap> while the

@@ -1609,18 +1609,18 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar
  * @self: the machine to search for the pattern
  * @index: the index of the pattern in the machines pattern list
  *
- * Fetches the machine from the given position of the machines pattern list.
+ * Fetches the pattern from the given position of the machines pattern list.
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  * Unref the pattern, when done with it.
  *
  * Returns: #BtPattern instance or %NULL if not found
  */
 BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index) {
-  BtPattern *pattern=NULL;
+  BtPattern *pattern;
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
 
-  if(index<g_list_length(self->priv->patterns)) {
-    pattern=g_object_ref(BT_PATTERN(g_list_nth_data(self->priv->patterns,(guint)index)));
+  if((pattern=g_list_nth_data(self->priv->patterns,(guint)index))) {
+    pattern=g_object_ref(pattern);
   }
   return(pattern);
 }

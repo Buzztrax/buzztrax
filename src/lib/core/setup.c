@@ -358,10 +358,14 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
  * Returns: #BtMachine instance or %NULL if not found
  */
 BtMachine *bt_setup_get_machine_by_index(const BtSetup * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-  g_return_val_if_fail(index<g_list_length(self->priv->machines),NULL);
+  BtMachine *machine;
 
-  return(g_object_ref(BT_MACHINE(g_list_nth_data(self->priv->machines,(guint)index))));
+  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+
+  if((machine=g_list_nth_data(self->priv->machines,(guint)index))) {
+    return(g_object_ref(machine));
+  }
+  return(NULL);
 }
 
 /**
