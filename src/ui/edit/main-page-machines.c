@@ -326,6 +326,7 @@ static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
   BtSong *song;
   BtSetup *setup;
   BtWire *wire;
+  GError *err=NULL;
   BtMachine *src_machine,*dst_machine;
   GHashTable *properties;
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
@@ -339,7 +340,8 @@ static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
   g_object_get(self->priv->new_wire_dst,"machine",&dst_machine,NULL);
 
   // try to establish a new connection
-  if((wire=bt_wire_new(song,src_machine,dst_machine))) {
+  wire=bt_wire_new(song,src_machine,dst_machine,&err);
+  if(err==NULL) {
     g_object_get(src_machine,"properties",&properties,NULL);
     machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
     g_object_get(dst_machine,"properties",&properties,NULL);
@@ -348,6 +350,10 @@ static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
     wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,self->priv->new_wire_src,self->priv->new_wire_dst);
     gnome_canvas_item_lower_to_bottom(self->priv->grid);
     g_object_unref(wire);
+  }
+  else {
+    GST_WARNING("failed to make wire: %s",err->message);
+    g_error_free(err);
   }
   g_object_unref(dst_machine);
   g_object_unref(src_machine);

@@ -232,6 +232,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
     BtSequence *sequence;
     BtMachine *machine;
     gchar *id;
+    GError *err=NULL;
 
     // free previous song
     //g_object_set(G_OBJECT(self),"song",NULL,NULL);
@@ -241,7 +242,8 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
     g_object_set(sequence,"length",SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
     // add audiosink
     id=bt_setup_get_unique_machine_id(setup,"master");
-    if((machine=BT_MACHINE(bt_sink_machine_new(song,id)))) {
+    machine=BT_MACHINE(bt_sink_machine_new(song,id,&err));
+    if(err==NULL) {
       GHashTable *properties;
 
       GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
@@ -262,11 +264,12 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
         GST_WARNING("Can't add input level/gain element in sink machine");
       }
       GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
-      g_object_unref(machine);
     }
     else {
-      GST_WARNING("Can't create sink machine");
+      GST_WARNING("Can't create sink machine: %s",err->message);
+      g_error_free(err);
     }
+    g_object_unref(machine);
     g_free(id);
 
     // release references
