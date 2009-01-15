@@ -11,6 +11,6 @@ import BuzztardCore
 app=BuzztardCore.Application()
 # bin=app.get("bin")
 song=BuzztardCore.Song(app)
-songio=BuzztardCore.SongIO("/home/ensonic/buzztard/share/buzztard/songs/melo3.xml")
+songio=BuzztardCore.SongIO.make("/home/ensonic/buzztard/share/buzztard/songs/melo3.xml")
 songio.load(song)
 

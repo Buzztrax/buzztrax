@@ -1,3 +1,14 @@
+2009-01-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bindings/play.js:
+	* design/bindings/play.py:
+	  API updates.
+
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	  Revert the changes, that moap sneaked in with last commit.
+
 2009-01-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/btmemoryaudiosrc.c:

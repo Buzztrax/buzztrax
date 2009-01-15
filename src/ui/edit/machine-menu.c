@@ -56,7 +56,6 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
   BtSetup *setup;
   BtMachine *machine;
   gchar *name,*id;
-  GError *err=NULL;
 
   g_assert(user_data);
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
@@ -69,15 +68,10 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
   id=bt_setup_get_unique_machine_id(setup,id);
   // try with 1 voice, if monophonic, voices will be reset to 0 in
   // bt_machine_init_voice_params()
-  machine=BT_MACHINE(bt_source_machine_new(song,id,name,/*voices=*/1,&err));
-  if(err==NULL) {
+  if((machine=BT_MACHINE(bt_source_machine_new(song,id,name,/*voices=*/1)))) {
     GST_INFO("created source machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+    g_object_unref(machine);
   }
-  else {
-    GST_WARNING("Can't create source machine: %s",err->message);
-    g_error_free(err);
-  }
-  g_object_unref(machine);
   g_free(id);
   
   g_object_unref(setup);
@@ -90,7 +84,6 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
   BtSetup *setup;
   BtMachine *machine;
   gchar *name,*id;
-  GError *err=NULL;
 
   g_assert(user_data);
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
@@ -103,15 +96,10 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
   id=bt_setup_get_unique_machine_id(setup,id);
   // try with 1 voice, if monophonic, voices will be reset to 0 in
   // bt_machine_init_voice_params()
-  machine=BT_MACHINE(bt_processor_machine_new(song,id,name,/*voices=*/1,&err));
-  if(err==NULL) {
+  if((machine=BT_MACHINE(bt_processor_machine_new(song,id,name,/*voices=*/1)))) {
     GST_INFO("created processor machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+    g_object_unref(machine);
   }
-  else {
-    GST_WARNING("Can't create processor machine: %s",err->message);
-    g_error_free(err);
-  }
-  g_object_unref(machine);
   g_free(id);
 
   g_object_unref(setup);

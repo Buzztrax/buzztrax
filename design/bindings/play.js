@@ -9,5 +9,5 @@ BuzztardCore.init(0,null);
 
 let app = new BuzztardCore.Application();
 let song = new BuzztardCore.Song(app);
-let songio = new BuzztardCore.SongIO({file_name:"/home/ensonic/buzztard/share/buzztard/songs/melo3.xml"});
+let songio = new BuzztardCore.SongIO.make({file_name:"/home/ensonic/buzztard/share/buzztard/songs/melo3.xml"});
 songio.load(song);
