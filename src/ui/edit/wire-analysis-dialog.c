@@ -27,8 +27,12 @@
  *
  * The dialog is not modal.
  */
-/* nice monitoring ideas:
+/* @idea: nice monitoring ideas:
  * http://www.music-software-reviews.com/adobe_audition_2.html
+ *
+ * @todo: shall we add a volume and panorama control to the dialog as well?
+ * - volume to the right of the spectrum
+ * - panorama below the spectrum
  */
 #define BT_EDIT
 #define BT_WIRE_ANALYSIS_DIALOG_C
@@ -65,10 +69,13 @@ typedef enum {
 #define LEVEL_HEIGHT 16
 #define LOW_VUMETER_VAL -90.0
 
+#if 0
+// not used right now
 static const GtkRulerMetric ruler_metrics[] =
 {
   {"Frequency", "Hz", 1.0, { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 }, { 1, 2, 4, 8, 16 }},
 };
+#endif
 
 struct _BtWireAnalysisDialogPrivate {
   /* used to validate if dispose has run */
@@ -83,6 +90,7 @@ struct _BtWireAnalysisDialogPrivate {
   /* the analyzer-graphs */
   GtkWidget *spectrum_drawingarea, *level_drawingarea;
   GdkGC *peak_gc;
+  GdkGC *grid_gc;
 
   /* the gstreamer elements that is used */
   GstElement *analyzers[ANALYZER_COUNT];
@@ -104,6 +112,8 @@ struct _BtWireAnalysisDialogPrivate {
 };
 
 static GtkDialogClass *parent_class=NULL;
+
+static gint8 grid_dash_list[]= {1};
 
 //-- event handler
 
@@ -166,12 +176,22 @@ static gboolean redraw_spectrum(gpointer user_data) {
 
   // draw spectrum
   if (self->priv->spectrum_drawingarea) {
-    gint i;
+    guint i,x,y;
     GdkRectangle rect = { 0, 0, self->priv->spect_bands, self->priv->spect_height };
     GtkWidget *da=self->priv->spectrum_drawingarea;
 
     gdk_window_begin_paint_rect (da->window, &rect);
     gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, self->priv->spect_bands, self->priv->spect_height);
+    // draw grid lines
+    y=self->priv->spect_height/2;
+    gdk_draw_line(da->window,self->priv->grid_gc,0,y,self->priv->spect_bands,y);
+    x=self->priv->spect_bands/4;
+    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,self->priv->spect_height);
+    x=self->priv->spect_bands/2;
+    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,self->priv->spect_height);
+    x=self->priv->spect_bands/4+self->priv->spect_bands/2;
+    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,self->priv->spect_height);
+    // draw frequencies
     if(self->priv->spect) {
       /* @todo: draw grid under spectrum
        * 0... <srat>
@@ -193,6 +213,10 @@ static void bt_wire_analysis_dialog_realize(GtkWidget *widget,gpointer user_data
   GST_DEBUG("dialog realize");
   self->priv->peak_gc=gdk_gc_new(GTK_WIDGET(self)->window);
   gdk_gc_set_rgb_fg_color(self->priv->peak_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_ANALYZER_PEAK));
+  self->priv->grid_gc=gdk_gc_new(GTK_WIDGET(self)->window);
+  gdk_gc_set_rgb_fg_color(self->priv->grid_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_GRID_LINES));
+  gdk_gc_set_line_attributes(self->priv->grid_gc,1,GDK_LINE_ON_OFF_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
+  gdk_gc_set_dashes(self->priv->grid_gc,0,grid_dash_list,1);
 }
 
 static gboolean bt_wire_analysis_dialog_level_expose(GtkWidget *widget,GdkEventExpose *event,gpointer user_data) {
@@ -482,7 +506,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   }
   g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]),
       "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-      "bands", self->priv->spect_bands, "threshold", -70,
+      "bands", self->priv->spect_bands, "threshold", -80,
       NULL);
   // create level meter
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_LEVEL,"level")) {
@@ -620,6 +644,7 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   if(self->priv->clock) gst_object_unref(self->priv->clock);
 
   g_object_try_unref(self->priv->peak_gc);
+  g_object_try_unref(self->priv->grid_gc);
 
   GST_DEBUG("!!!! removing signal handler");
 

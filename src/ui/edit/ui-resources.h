@@ -82,6 +82,7 @@ typedef enum {
   BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        /* --- */
   BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        /* --- */
   BT_UI_RES_COLOR_ANALYZER_PEAK,             /* analyzer widnow peak marks */
+  BT_UI_RES_COLOR_GRID_LINES,                /* grid lines */
   BT_UI_RES_COLOR_COUNT
 } BtUIResourcesColors;
 

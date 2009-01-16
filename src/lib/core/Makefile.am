@@ -77,7 +77,7 @@ marshal.c: marshal.list
 
 if USE_GIR
 BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
-	libtool --mode=execute $(G_IR_SCANNER) -v \
+	-libtool --mode=execute $(G_IR_SCANNER) -v \
 	     --namespace BuzztardCore --nsversion 0.0 \
 	     --strip-prefix=bt \
 	     --add-include-path=$(top_builddir)/src/lib/ic/ \

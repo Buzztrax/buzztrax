@@ -1,3 +1,11 @@
+2009-01-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/ui/edit/ui-resources.c:
+	* src/ui/edit/ui-resources.h:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Add one more color and draw a grid in the background. Add more ideas.
+
 2009-01-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/bindings/play.js:

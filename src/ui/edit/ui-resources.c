@@ -187,6 +187,7 @@ static gboolean bt_ui_resources_init_colors(BtUIResources *self) {
   
   // analyzer window
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_ANALYZER_PEAK,             1.00,0.75,0.00);
+  MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_GRID_LINES,                0.5,0.5,0.5);
   
   g_free(icon_theme_name);
    
