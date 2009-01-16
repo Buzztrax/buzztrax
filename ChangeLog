@@ -1,3 +1,84 @@
+2009-01-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* README:
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/application.c:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/persistence-methods.h:
+	* src/lib/core/libbuzztard-core/persistence.h:
+	* src/lib/core/libbuzztard-core/processor-machine-methods.h:
+	* src/lib/core/libbuzztard-core/settings-methods.h:
+	* src/lib/core/libbuzztard-core/sink-machine-methods.h:
+	* src/lib/core/libbuzztard-core/source-machine-methods.h:
+	* src/lib/core/libbuzztard-core/wire-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/plainfile-settings.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/settings.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/lib/ic/abs-range-control.c:
+	* src/lib/ic/control.c:
+	* src/lib/ic/device.c:
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/midi-device.c:
+	* src/lib/ic/registry.c:
+	* src/lib/ic/trigger-control.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* tests/bt-check.c:
+	* tests/bt-check.h:
+	* tests/bt-test-settings.c:
+	* tests/lib/core/Makefile.am:
+	* tests/lib/core/e-machine.c:
+	* tests/lib/core/e-network.c:
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/e-processor-machine.c:
+	* tests/lib/core/e-sequence.c:
+	* tests/lib/core/e-setup.c:
+	* tests/lib/core/e-sink-machine.c:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/lib/core/e-source-machine.c:
+	* tests/lib/core/s-sink-machine.c:
+	* tests/lib/core/t-machine.c:
+	* tests/lib/core/t-sequence.c:
+	* tests/lib/core/t-setup.c:
+	* tests/lib/core/t-sink-machine.c:
+	* tests/lib/core/t-song.c:
+	* tests/lib/core/t-source-machine.c:
+	* tests/lib/core/t-wire.c:
+	* tests/ui/edit/e-bt-machine-rename-dialog.c:
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c:
+	* tests/lib/core/e-sink-machine.c (added):
+	  Refactor libbtcore gobject to use constructed() vmethod and get rid of own
+	  post g_object_new() construction. Now all _new() methods are pure
+	  convinience. Like in g_object_new() they will never return NULL now.
+	  Cleanup the persistence implementation to work with that. Now
+	  _load() acts as a factory and creates objects. Turn many properties into
+	  construct-only and therefore also drop code that did custom error-handling
+	  to avoid changing those. 
+	  Add more tests. For some of the aspects above more changes are comming.
+
 2009-01-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/Makefile.am:

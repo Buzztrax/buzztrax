@@ -401,11 +401,7 @@ static gboolean btic_input_device_stop(gconstpointer _self) {
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void btic_input_device_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void btic_input_device_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtIcInputDevice * const self = BTIC_INPUT_DEVICE(object);
   return_if_disposed();
   switch (property_id) {
@@ -419,16 +415,11 @@ static void btic_input_device_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void btic_input_device_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void btic_input_device_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtIcInputDevice * const self = BTIC_INPUT_DEVICE(object);
   return_if_disposed();
   switch (property_id) {
     case DEVICE_DEVNODE: {
-      g_free(self->priv->devnode);
       self->priv->devnode = g_value_dup_string(value);
       register_controls(self);
     } break;
@@ -493,7 +484,7 @@ static void btic_input_device_class_init(BtIcInputDeviceClass * const klass) {
                                      "devnode prop",
                                      "device node path",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType btic_input_device_get_type(void) {

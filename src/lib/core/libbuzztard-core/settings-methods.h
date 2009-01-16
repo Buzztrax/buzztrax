@@ -24,7 +24,7 @@
 
 #include "settings.h"
 
-extern BtSettings *bt_settings_new(void);
+extern BtSettings *bt_settings_make(void);
 
 extern void bt_settings_set_factory(BtSettingsFactory factory);
 

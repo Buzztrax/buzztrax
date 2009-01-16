@@ -32,7 +32,6 @@
 
 #include "core_private.h"
 #include <libbuzztard-core/sink-machine.h>
-#include <libbuzztard-core/machine-private.h>
 
 struct _BtSinkMachinePrivate {
   /* used to validate if dispose has run */
@@ -41,33 +40,13 @@ struct _BtSinkMachinePrivate {
 
 static BtMachineClass *parent_class=NULL;
 
-//-- helper methods
-
-static void bt_sink_machine_post_init(const BtSinkMachine * const self) {
-  BtSong * const song;
-  GstElement *sink_bin,*gain;
-  gchar * const id;
-  
-  g_object_get(G_OBJECT(self),"song",&song,"id",&id,NULL);
-  
-  GST_DEBUG("  %s this will be the master for the song",id);
-  g_object_set(G_OBJECT(song),"master",G_OBJECT(self),NULL);
-  bt_machine_enable_input_gain(BT_MACHINE(self));
-  g_object_get(G_OBJECT(self),"machine",&sink_bin,"input-gain",&gain,NULL);
-  g_object_set(sink_bin,"input-gain",gain,NULL);
-  
-  gst_object_unref(sink_bin);
-  gst_object_unref(gain);
-  g_object_unref(song);
-  g_free(id);
-}
-
 //-- constructor methods
 
 /**
  * bt_sink_machine_new:
  * @song: the song the new instance belongs to
  * @id: the id, we can use to lookup the machine
+ * @err: inform about failed instance creation
  *
  * Create a new instance.
  * The machine is automaticly added to the setup from the given song object. You
@@ -79,27 +58,12 @@ static void bt_sink_machine_post_init(const BtSinkMachine * const self) {
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtSinkMachine *bt_sink_machine_new(const BtSong * const song, const gchar * const id) {
+BtSinkMachine *bt_sink_machine_new(const BtSong * const song, const gchar * const id, GError **err) {
+  /* @todo: use GError */
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   g_return_val_if_fail(BT_IS_STRING(id),NULL);
 
-  BtSinkMachine * const self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name","bt-sink-bin",NULL));
-
-  if(!self) {
-    goto Error;
-  }
-  GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self))->ref_count);
-  if(!bt_machine_new(BT_MACHINE(self))) {
-    goto Error;
-  }
-  GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self))->ref_count);
-  bt_sink_machine_post_init(self);
-  GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self))->ref_count);
-  
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"construction-error",err,"song",song,"id",id,"plugin-name","bt-sink-bin",NULL)));
 }
 
 #if 0
@@ -156,21 +120,51 @@ static xmlNodePtr bt_sink_machine_persistence_save(const BtPersistence * const p
   return(node);
 }
 
-static gboolean bt_sink_machine_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
-  BtSinkMachine * const self = BT_SINK_MACHINE(persistence);
-  BtPersistenceInterface * const parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
-  gboolean res;
-  
+static BtPersistence *bt_sink_machine_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+  BtSinkMachine *self;
+  BtPersistence *result;
+  BtPersistenceInterface *parent_iface;
+
   GST_DEBUG("PERSISTENCE::sink_machine");
   g_assert(node);
+  
+  xmlChar * const id=xmlGetProp(node,XML_CHAR_PTR("id"));
 
-  g_object_set(G_OBJECT(self),"plugin-name","bt-sink-bin",NULL);
+  if(!persistence) {
+    BtSong *song=NULL;
+    gchar *param_name;
+
+    // we need to get parameters from var_args
+    // @todo: this is duplicated code among the subclasses
+    param_name=va_arg(var_args,gchar*);
+    while(param_name) {
+      if(!strcmp(param_name,"song")) {
+        song=va_arg(var_args,gpointer);
+      }
+      else {
+        GST_WARNING("unhandled argument: %s",param_name);
+        break;
+      }
+      param_name=va_arg(var_args,gchar*);
+    }
+ 
+    self=bt_sink_machine_new(song,(gchar*)id,err);
+    result=BT_PERSISTENCE(self);
+  }
+  else {
+    self=BT_SINK_MACHINE(persistence); 
+    result=BT_PERSISTENCE(persistence);
+
+    g_object_set(G_OBJECT(self),"plugin-name","bt-sink-bin",NULL);
+  }
+  xmlFree(id);
   
   // load parent class stuff
-  if((res=parent_iface->load(persistence,node,location))) {
-    bt_sink_machine_post_init(self);
-  }
-  return(res);
+  parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(result));
+  parent_iface->load(BT_TYPE_MACHINE,result,node,location,NULL,NULL);
+
+  return(result);
+  return(result);
 }
 
 static void bt_sink_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -199,12 +193,33 @@ static gboolean bt_sink_machine_check_type(const BtMachine * const self, const g
 
 //-- g_object overrides
 
+static void bt_sink_machine_constructed(GObject *object) {
+  BtSinkMachine * const self=BT_SINK_MACHINE(object);
+  GError **err;
+    
+  GST_INFO("sink-machine constructed");
+
+  G_OBJECT_CLASS(parent_class)->constructed(object);
+  
+  g_object_get(G_OBJECT(self),"construction-error",&err,NULL);
+  if(*err==NULL) {
+    BtSong * const song;
+    GstElement * const element;
+    GstElement * const gain;
+    
+    bt_machine_enable_input_gain(BT_MACHINE(self));
+    g_object_get(G_OBJECT(self),"machine",&element,"song",&song,"input-gain",&gain, NULL);
+    g_object_set(G_OBJECT(element),"input-gain",gain,NULL);
+    g_object_set(G_OBJECT(song),"master",G_OBJECT(self),NULL);
+    
+    gst_object_unref(element);
+    gst_object_unref(gain);
+    g_object_unref(song);
+  }
+}
+
 /* returns a property for the given property_id for this object */
-static void bt_sink_machine_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_sink_machine_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSinkMachine * const self = BT_SINK_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
@@ -215,11 +230,7 @@ static void bt_sink_machine_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_sink_machine_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_sink_machine_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSinkMachine * const self = BT_SINK_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
@@ -260,14 +271,14 @@ static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSinkMachinePrivate));
-  
+
+  gobject_class->constructed  = bt_sink_machine_constructed;
   gobject_class->set_property = bt_sink_machine_set_property;
   gobject_class->get_property = bt_sink_machine_get_property;
   gobject_class->dispose      = bt_sink_machine_dispose;
   gobject_class->finalize     = bt_sink_machine_finalize;
 
   machine_class->check_type   = bt_sink_machine_check_type;
-  //machine_class->setup        = bt_sink_machine_setup;
 }
 
 GType bt_sink_machine_get_type(void) {

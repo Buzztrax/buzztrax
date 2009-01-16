@@ -24,6 +24,6 @@
 
 #include "processor-machine.h"
 
-extern BtProcessorMachine *bt_processor_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices);
+extern BtProcessorMachine *bt_processor_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices, GError **err);
 
 #endif // BT_PROCESSOR_MACHINE_METHDOS_H

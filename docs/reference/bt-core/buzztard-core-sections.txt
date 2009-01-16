@@ -155,7 +155,6 @@ BtPatternPrivate
 <SECTION>
 <FILE>btpersistence</FILE>
 <TITLE>BtPersistence</TITLE>
-BT_PERSISTENCE_ERROR
 bt_persistence_strfmt_uchar
 bt_persistence_strfmt_long
 bt_persistence_strfmt_ulong
@@ -286,7 +285,7 @@ BtSequencePrivate
 <TITLE>BtSettings</TITLE>
 BtSettings
 BtSettingsFactory
-bt_settings_new
+bt_settings_make
 bt_settings_set_factory
 <SUBSECTION Standard>
 BtSettingsClass

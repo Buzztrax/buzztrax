@@ -210,11 +210,7 @@ BtIcRegistry *btic_registry_new(void) {
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void btic_registry_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void btic_registry_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtIcRegistry * const self = BTIC_REGISTRY(object);
   return_if_disposed();
   switch (property_id) {
@@ -228,11 +224,7 @@ static void btic_registry_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void btic_registry_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void btic_registry_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtIcRegistry * const self = BTIC_REGISTRY(object);
   return_if_disposed();
   switch (property_id) {

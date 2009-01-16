@@ -65,6 +65,7 @@ BT_START_TEST(test_btsong_properties) {
 }
 BT_END_TEST
 
+
 // test if the default constructor handles NULL
 BT_START_TEST(test_btsong_obj1) {
   BtSong *song;
@@ -72,7 +73,7 @@ BT_START_TEST(test_btsong_obj1) {
   /* create a new song */
   check_init_error_trapp("bt_song_new","BT_IS_APPLICATION(app)");
   song=bt_song_new(NULL);
-  fail_unless(song == NULL, NULL);
+  fail_unless(song != NULL, NULL); 
   fail_unless(check_has_error_trapped(), NULL);
 }
 BT_END_TEST

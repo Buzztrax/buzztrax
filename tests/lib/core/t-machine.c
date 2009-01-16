@@ -58,6 +58,7 @@ BT_START_TEST(test_btmachine_state1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
+  GError *err=NULL;
   // machines
   BtSourceMachine *source=NULL;
   BtProcessorMachine *volume=NULL;
@@ -76,24 +77,19 @@ BT_START_TEST(test_btmachine_state1) {
   g_object_get(song,"setup",&setup,NULL);
 
   /* create a new source machine */
-  source=bt_source_machine_new(song,"source","audiotestsrc",0);
-  bt_setup_add_machine(setup,BT_MACHINE(source));
+  source=bt_source_machine_new(song,"source","audiotestsrc",0,&err);
 
   /* create a new processor machine */
-  volume=bt_processor_machine_new(song,"volume","volume",0);
-  bt_setup_add_machine(setup,BT_MACHINE(volume));
+  volume=bt_processor_machine_new(song,"volume","volume",0,&err);
 
   /* create a new sink machine */
-  sink=bt_sink_machine_new(song, "alsasink");
-  bt_setup_add_machine(setup,BT_MACHINE(sink));
+  sink=bt_sink_machine_new(song, "alsasink",&err);
 
   /* create wire (src,proc) */
-  wire_src_proc=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(volume));
-  bt_setup_add_wire(setup,wire_src_proc);
+  wire_src_proc=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(volume),&err);
 
   /* create wire (proc,sink) */
-  wire_proc_sink=bt_wire_new(song,BT_MACHINE(volume),BT_MACHINE(sink));
-  bt_setup_add_wire(setup,wire_proc_sink);
+  wire_proc_sink=bt_wire_new(song,BT_MACHINE(volume),BT_MACHINE(sink),&err);
 
   /* start setting the states */
   g_object_set(source,"state",BT_MACHINE_STATE_MUTE,NULL);
@@ -130,6 +126,7 @@ BT_START_TEST(test_btmachine_state2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
+  GError *err=NULL;
   // machines
   BtSourceMachine *sine1=NULL;
   BtSourceMachine *sine2=NULL;
@@ -148,23 +145,23 @@ BT_START_TEST(test_btmachine_state2) {
   g_object_get(song,"setup",&setup,NULL);
 
   /* create a new sine source machine */
-  sine1=bt_source_machine_new(song,"sine1","audiotestsrc",0);
+  sine1=bt_source_machine_new(song,"sine1","audiotestsrc",0,&err);
   bt_setup_add_machine(setup,BT_MACHINE(sine1));
 
   /* create a new sine source machine */
-  sine2=bt_source_machine_new(song,"sine2","audiotestsrc",0);
+  sine2=bt_source_machine_new(song,"sine2","audiotestsrc",0,&err);
   bt_setup_add_machine(setup,BT_MACHINE(sine2));
 
   /* create a new sink machine */
-  sink=bt_sink_machine_new(song,"alsasink");
+  sink=bt_sink_machine_new(song,"alsasink",&err);
   bt_setup_add_machine(setup,BT_MACHINE(sink));
 
   /* create wire (sine1,src) */
-  wire_sine1_sink=bt_wire_new(song,BT_MACHINE(sine1),BT_MACHINE(sink));
+  wire_sine1_sink=bt_wire_new(song,BT_MACHINE(sine1),BT_MACHINE(sink),&err);
   bt_setup_add_wire(setup, wire_sine1_sink);
 
   /* create wire (sine2,src) */
-  wire_sine2_sink=bt_wire_new(song,BT_MACHINE(sine2),BT_MACHINE(sink));
+  wire_sine2_sink=bt_wire_new(song,BT_MACHINE(sine2),BT_MACHINE(sink),&err);
   bt_setup_add_wire(setup, wire_sine2_sink);
   mark_point();
 

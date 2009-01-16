@@ -256,11 +256,7 @@ static gboolean btic_midi_device_stop(gconstpointer _self) {
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void btic_midi_device_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void btic_midi_device_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
   return_if_disposed();
   switch (property_id) {
@@ -277,16 +273,11 @@ static void btic_midi_device_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void btic_midi_device_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void btic_midi_device_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
   return_if_disposed();
   switch (property_id) {
     case DEVICE_DEVNODE: {
-      g_free(self->priv->devnode);
       self->priv->devnode = g_value_dup_string(value);
     } break;
     case DEVICE_CONTROLCHANGE: {
@@ -353,16 +344,13 @@ static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {
                                      "devnode prop",
                                      "device node path",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   // override learn interface
-  g_object_class_override_property( gobject_class,
-				    DEVICE_CONTROLCHANGE,
-				    "device-controlchange" );
+  g_object_class_override_property(gobject_class,DEVICE_CONTROLCHANGE,"device-controlchange");
 }
 
-static void btic_midi_device_interface_init (gpointer   g_iface, gpointer   iface_data)
-{
+static void btic_midi_device_interface_init (gpointer g_iface, gpointer iface_data) {
   BtIcLearnInterface *klass = (BtIcLearnInterface *)g_iface;
   klass->learn_start = btic_midi_device_learn_start;
   klass->learn_stop  = btic_midi_device_learn_stop;

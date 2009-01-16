@@ -84,10 +84,10 @@ static guint signals[LAST_SIGNAL]={0,};
  * Returns: the new instance or %NULL in case of an error
  */
 BtSetup *bt_setup_new(const BtSong * const song) {
+  /* @todo: use GError */
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  BtSetup * const self=BT_SETUP(g_object_new(BT_TYPE_SETUP,"song",song,NULL));
-  return(self);
+  return(BT_SETUP(g_object_new(BT_TYPE_SETUP,"song",song,NULL)));
 }
 
 //-- private methods
@@ -611,7 +611,7 @@ Error:
   return(node);
 }
 
-static gboolean bt_setup_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+static BtPersistence *bt_setup_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
   BtSetup * const self = BT_SETUP(persistence);
   xmlNodePtr child_node;
   gboolean failed_parts=FALSE;
@@ -627,6 +627,9 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
         //bt_song_io_native_load_setup_machines(self,song,node->children);
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
+            /* @todo: it would be smarter to have nodes name like "sink-machine"
+             * and do type=g_type_from_name((gchar *)child_node->name);
+             */
             if(!strncmp((gchar *)child_node->name,"machine\0",8)) {
               xmlChar * const type_str=xmlGetProp(child_node,XML_CHAR_PTR("type"));
               if(!strncmp((gchar *)type_str,"processor\0",10)) {
@@ -642,18 +645,19 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
                 GST_WARNING("machine node has no type");
               }
               if(type) {
-                BtMachine * const machine=BT_MACHINE(g_object_new(type,"song",self->priv->song,NULL));
-                if(bt_persistence_load(BT_PERSISTENCE(machine),child_node,NULL)) {
-                  // @todo: move to bt_machine_persistence_load
-                  bt_setup_add_machine(self,machine);
-                }
-                else {
+                GError *err=NULL;
+                BtMachine *machine=BT_MACHINE(bt_persistence_load(type,NULL,child_node,NULL,&err,"song",self->priv->song,NULL));
+                if(err!=NULL) {
                   // collect failed machines
                   gchar * const plugin_name;
 
                   g_object_get(machine,"plugin-name",&plugin_name,NULL);
+                  // takes ownership of the name
                   bt_setup_remember_missing_machine(self,plugin_name);
                   failed_parts=TRUE;
+
+                  GST_WARNING("Can't create machine: %s",err->message);
+                  g_error_free(err);
                 }
                 g_object_unref(machine);
               }
@@ -665,9 +669,14 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
       else if(!strncmp((gchar *)node->name,"wires\0",6)) {
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
-            BtWire * const wire=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",self->priv->song,NULL));
-            if(!bt_persistence_load(BT_PERSISTENCE(wire),child_node,NULL)) {
+            GError *err=NULL;
+            // @todo: rework construction
+            BtWire * const wire=BT_WIRE(bt_persistence_load(BT_TYPE_WIRE,NULL,child_node,NULL,&err,"song",self->priv->song,NULL));
+            if(err!=NULL) {
               failed_parts=TRUE;
+              
+              GST_WARNING("Can't create wire: %s",err->message);
+              g_error_free(err);
             }
             g_object_unref(wire);
           }
@@ -681,7 +690,7 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
   if(failed_parts) {
     bt_song_write_to_lowlevel_dot_file(self->priv->song);
   }
-  return(TRUE);
+  return(BT_PERSISTENCE(persistence));
 }
 
 static void bt_setup_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -696,11 +705,7 @@ static void bt_setup_persistence_interface_init(gpointer const g_iface, gpointer
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_setup_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_setup_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSetup * const self = BT_SETUP(object);
   return_if_disposed();
   switch (property_id) {
@@ -732,16 +737,11 @@ static void bt_setup_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_setup_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_setup_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSetup * const self = BT_SETUP(object);
   return_if_disposed();
   switch (property_id) {
     case SETUP_SONG: {
-      g_object_try_weak_unref(self->priv->song);
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for setup: %p",self->priv->song);

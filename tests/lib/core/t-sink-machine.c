@@ -40,6 +40,7 @@ static void test_teardown(void) {
 // test attribute handling in sink names
 BT_START_TEST(test_btsinkmachine_settings1) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
   BtSettings *settings=NULL;
@@ -48,15 +49,16 @@ BT_START_TEST(test_btsinkmachine_settings1) {
   /* create a dummy app, song and get settings */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   song=bt_song_new(app);
-  settings=bt_settings_new();
+  settings=bt_settings_make();
   mark_point();
 
   //g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
   g_object_set(settings,"audiosink","osssink sync=false",NULL);
   mark_point();
 
-  machine=bt_sink_machine_new(song,"master");
+  machine=bt_sink_machine_new(song,"master",&err);
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   //g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
 
@@ -76,6 +78,7 @@ BT_END_TEST;
  */
 BT_START_TEST(test_btsinkmachine_settings2) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
   BtSettings *settings=NULL;
@@ -84,14 +87,15 @@ BT_START_TEST(test_btsinkmachine_settings2) {
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   /* create a new song */
   song=bt_song_new(app);
-  settings=bt_settings_new();
+  settings=bt_settings_make();
   mark_point();
 
   g_object_set(settings,"audiosink","audioconvert ! osssink sync=false",NULL);
   mark_point();
 
-  machine=bt_sink_machine_new(song,"master");
+  machine=bt_sink_machine_new(song,"master",&err);
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   g_object_unref(settings);
   g_object_unref(machine);
@@ -103,6 +107,7 @@ BT_END_TEST;
 // test attribute handling in sink names
 BT_START_TEST(test_btsinkmachine_settings3) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
   BtSettings *settings=NULL;
@@ -110,14 +115,15 @@ BT_START_TEST(test_btsinkmachine_settings3) {
   /* create a dummy app, song and get settings */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   song=bt_song_new(app);
-  settings=bt_settings_new();
+  settings=bt_settings_make();
   mark_point();
 
   g_object_set(settings,"audiosink","xvimagsink",NULL);
   mark_point();
 
-  machine=bt_sink_machine_new(song,"master");
+  machine=bt_sink_machine_new(song,"master",&err);
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   g_object_unref(settings);
   g_object_unref(machine);
@@ -129,6 +135,7 @@ BT_END_TEST;
 // test attribute handling in sink names
 BT_START_TEST(test_btsinkmachine_settings4) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
   BtSettings *settings=NULL;
@@ -136,14 +143,15 @@ BT_START_TEST(test_btsinkmachine_settings4) {
   /* create a dummy app, song and get settings */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   song=bt_song_new(app);
-  settings=bt_settings_new();
+  settings=bt_settings_make();
   mark_point();
 
   g_object_set(settings,"audiosink","alsasink device=invalid:666",NULL);
   mark_point();
 
-  machine=bt_sink_machine_new(song,"master");
+  machine=bt_sink_machine_new(song,"master",&err);
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   g_object_unref(settings);
   g_object_unref(machine);
@@ -163,7 +171,7 @@ BT_START_TEST(test_btsinkmachine_play1) {
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
 
-  settings=bt_settings_new();
+  settings=bt_settings_make();
   g_object_set(settings,"audiosink","fakesink",NULL);
 
   song=bt_song_new(app);
@@ -196,7 +204,7 @@ BT_START_TEST(test_btsinkmachine_play2) {
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
 
-  settings=bt_settings_new();
+  settings=bt_settings_make();
   g_object_set(settings,"audiosink","alsasink device=invalid:666",NULL);
 
   song=bt_song_new(app);

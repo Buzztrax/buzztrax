@@ -67,43 +67,17 @@ static void bt_gconf_settings_notify_toolbar_style(GConfClient * const client, g
  * Returns: the new instance or %NULL in case of an error
  */
 BtGConfSettings *bt_gconf_settings_new(void) {
-  BtGConfSettings * const self = BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL));
-  GError *error=NULL;
-
-  if(!self) {
-    goto Error;
-  }
-
-  GST_DEBUG("about to register gconf notify handler");
-  // register notify handlers for some properties
-  gconf_client_notify_add(self->priv->client,
-         BT_GCONF_PATH_GNOME"/toolbar_style",
-         bt_gconf_settings_notify_toolbar_style,
-         (gpointer)self, NULL, &error);
-  if(error) {
-    GST_WARNING("can't listen to notifies on %s: %s",BT_GCONF_PATH_GNOME"/toolbar_style",error->message);
-    g_error_free(error);
-  }
-  /* @todo: also listen to BT_GCONF_PATH_GSTREAMER"/audiosink" */
-
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL)));
 }
 
 //-- methods
 
 //-- wrapper
 
-//-- class internals
+//-- g_object overrides
 
 /* returns a property for the given property_id for this object */
-static void bt_gconf_settings_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_gconf_settings_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
 
   return_if_disposed();
@@ -248,11 +222,7 @@ static void bt_gconf_settings_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_gconf_settings_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_gconf_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
@@ -395,11 +365,13 @@ static void bt_gconf_settings_finalize(GObject * const object) {
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
+//-- class internals
+
 static void bt_gconf_settings_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtGConfSettings * const self = BT_GCONF_SETTINGS(instance);
+  GError *error=NULL;
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_GCONF_SETTINGS, BtGConfSettingsPrivate);
-
   GST_DEBUG("!!!! self=%p",self);
 
   self->priv->client=gconf_client_get_default();
@@ -409,6 +381,18 @@ static void bt_gconf_settings_init(GTypeInstance * const instance, gconstpointer
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);
+  
+  GST_DEBUG("about to register gconf notify handler");
+  // register notify handlers for some properties
+  gconf_client_notify_add(self->priv->client,
+         BT_GCONF_PATH_GNOME"/toolbar_style",
+         bt_gconf_settings_notify_toolbar_style,
+         (gpointer)self, NULL, &error);
+  if(error) {
+    GST_WARNING("can't listen to notifies on %s: %s",BT_GCONF_PATH_GNOME"/toolbar_style",error->message);
+    g_error_free(error);
+  }
+  /* @todo: also listen to BT_GCONF_PATH_GSTREAMER"/audiosink" */
 }
 
 static void bt_gconf_settings_class_init(BtGConfSettingsClass * const klass) {

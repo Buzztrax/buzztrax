@@ -81,17 +81,10 @@ static guint signals[LAST_SIGNAL]={0,};
  * Returns: the new instance or %NULL in case of an error
  */
 BtWavetable *bt_wavetable_new(const BtSong * const song) {
+  /* @todo: use GError */
   g_assert(BT_IS_SONG(song));
 
-  BtWavetable * const self=BT_WAVETABLE(g_object_new(BT_TYPE_WAVETABLE,"song",song,NULL));
-
-  if(!self) {
-    goto Error;
-  }
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BT_WAVETABLE(g_object_new(BT_TYPE_WAVETABLE,"song",song,NULL)));
 }
 
 //-- private methods
@@ -222,10 +215,9 @@ static xmlNodePtr bt_wavetable_persistence_save(const BtPersistence * const pers
   return(node);
 }
 
-static gboolean bt_wavetable_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+static BtPersistence *bt_wavetable_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
   const BtWavetable * const self = BT_WAVETABLE(persistence);
   xmlNodePtr child_node;
-  gboolean res=FALSE;
 
   GST_DEBUG("PERSISTENCE::wavetable");
   g_assert(node);
@@ -233,7 +225,7 @@ static gboolean bt_wavetable_persistence_load(const BtPersistence * const persis
   for(child_node=node->children;child_node;child_node=child_node->next) {
     if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wave\0",5))) {
       BtWave * const wave=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",self->priv->song,NULL));
-      if(bt_persistence_load(BT_PERSISTENCE(wave),child_node,NULL)) {
+      if(bt_persistence_load(BT_TYPE_WAVE,BT_PERSISTENCE(wave),child_node,NULL,NULL,NULL)) {
         bt_wavetable_add_wave(self,wave);
       }
       else {
@@ -249,8 +241,7 @@ static gboolean bt_wavetable_persistence_load(const BtPersistence * const persis
       g_object_unref(wave);
     }
   }
-  res=TRUE;
-  return(res);
+  return(BT_PERSISTENCE(persistence));
 }
 
 static void bt_wavetable_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -265,11 +256,7 @@ static void bt_wavetable_persistence_interface_init(gpointer const g_iface, gpoi
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_wavetable_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_wavetable_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtWavetable * const self = BT_WAVETABLE(object);
   return_if_disposed();
   switch (property_id) {
@@ -289,16 +276,11 @@ static void bt_wavetable_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_wavetable_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_wavetable_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtWavetable * const self = BT_WAVETABLE(object);
   return_if_disposed();
   switch (property_id) {
     case WAVETABLE_SONG: {
-      g_object_try_weak_unref(self->priv->song);
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for wavetable: %p",self->priv->song);

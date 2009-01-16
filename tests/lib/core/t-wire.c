@@ -42,6 +42,7 @@ static void test_teardown(void) {
 */
 BT_START_TEST(test_btwire_obj1){
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtWire *wire=NULL;
   // machine
@@ -55,14 +56,14 @@ BT_START_TEST(test_btwire_obj1){
   fail_unless(song!=NULL,NULL);
 
   /* try to create a source machine */
-  machine=bt_processor_machine_new(song,"id","volume",0);
+  machine=bt_processor_machine_new(song,"id","volume",0,&err);
   fail_unless(machine!=NULL,NULL);
+  fail_unless(err==NULL, NULL);
 
-  check_init_error_trapp("bt_wire_new","src_machine!=dst_machine");
   /* try to add the machine twice to the wire */
-  wire=bt_wire_new(song,BT_MACHINE(machine),BT_MACHINE(machine));
-  fail_unless(check_has_error_trapped(), NULL);
-  fail_unless(wire==NULL,NULL);
+  wire=bt_wire_new(song,BT_MACHINE(machine),BT_MACHINE(machine),&err);
+  fail_unless(wire!=NULL,NULL);
+  fail_unless(err!=NULL, NULL);
 
   g_object_unref(machine);
   g_object_checked_unref(song);
@@ -72,6 +73,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btwire_obj2){
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   BtWire *wire1=NULL;
@@ -90,26 +92,31 @@ BT_START_TEST(test_btwire_obj2){
   fail_unless(setup!=NULL, NULL);
 
   /* try to create a source machine */
-  source=bt_source_machine_new(song,"id","audiotestsrc",0);
+  source=bt_source_machine_new(song,"id","audiotestsrc",0,&err);
   fail_unless(source!=NULL,NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a volume machine */
-  sink1=bt_processor_machine_new(song,"volume1","volume",0);
+  sink1=bt_processor_machine_new(song,"volume1","volume",0,&err);
   fail_unless(sink1!=NULL,NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a volume machine */
-  sink2=bt_processor_machine_new(song,"volume2","volume",0);
+  sink2=bt_processor_machine_new(song,"volume2","volume",0,&err);
   fail_unless(sink2!=NULL,NULL);
+  fail_unless(err==NULL, NULL);
 
-  /* try to connect processor machine to volume1 */
-  wire1=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink1));
+  /* try to connect source machine to volume1 */
+  wire1=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink1),&err);
   mark_point();
   fail_unless(wire1!=NULL,NULL);
+  fail_unless(err==NULL, NULL);
 
-  /* try to connect processor machine to volume2 */
-  wire2=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink2));
+  /* try to connect source machine to volume2 */
+  wire2=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink2),&err);
   mark_point();
   fail_unless(wire2!=NULL,NULL);
+  fail_unless(err==NULL, NULL);
 
   g_object_checked_unref(song);
   g_object_checked_unref(app);

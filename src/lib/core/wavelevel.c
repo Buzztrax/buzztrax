@@ -34,6 +34,7 @@
 
 enum {
   WAVELEVEL_SONG=1,
+  WAVELEVEL_WAVE,
   WAVELEVEL_ROOT_NOTE,
   WAVELEVEL_LENGTH,
   WAVELEVEL_LOOP_START,
@@ -50,7 +51,7 @@ struct _BtWavelevelPrivate {
   G_POINTER_ALIAS(BtSong *,song);
 
   /* the wave the wavelevel belongs to */
-  const BtWave *wave;
+  G_POINTER_ALIAS(BtWave *,wave);
 
   /* the keyboard note associated to this sample */
   guchar root_note;
@@ -86,22 +87,13 @@ static GObjectClass *parent_class=NULL;
  * Returns: the new instance or NULL in case of an error
  */
 BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate, gconstpointer sample) {
+  /* @todo: use GError */
   g_assert(BT_IS_SONG(song));
   g_assert(BT_IS_WAVE(wave));
 
-  BtWavelevel * const self=BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,"song",song,
+  return(BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,"song",song,"wave",wave,
 						     "root-note",root_note,"length",length,"loop_start",loop_start,
-						     "loop_end",loop_end,"rate",rate,"data",sample,NULL));
-
-  if(!self) {
-    goto Error;
-  }
-  // add the wavelevel to the wave
-  bt_wave_add_wavelevel(wave,self);
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+						     "loop_end",loop_end,"rate",rate,"data",sample,NULL)));
 }
 
 //-- private methods
@@ -128,9 +120,8 @@ static xmlNodePtr bt_wavelevel_persistence_save(const BtPersistence * const pers
 }
 
 
-static gboolean bt_wavelevel_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+static BtPersistence *bt_wavelevel_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
   BtWavelevel * const self = BT_WAVELEVEL(persistence);
-  gboolean res=FALSE;
   xmlChar *root_note_str,*rate_str,*loop_start_str,*loop_end_str;
   glong loop_start,loop_end;
   gulong rate;
@@ -156,8 +147,7 @@ static gboolean bt_wavelevel_persistence_load(const BtPersistence * const persis
   xmlFree(root_note_str);xmlFree(rate_str);
   xmlFree(loop_start_str);xmlFree(loop_end_str);
 
-  res=TRUE;
-  return(res);
+  return(BT_PERSISTENCE(persistence));
 }
 
 static void bt_wavelevel_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -169,19 +159,28 @@ static void bt_wavelevel_persistence_interface_init(gpointer const g_iface, gpoi
 
 //-- wrapper
 
-//-- class internals
+//-- g_object overrides
+
+static void bt_wavelevel_constructed(GObject *object) {
+  BtWavelevel *self=BT_WAVELEVEL(object);
+
+  if(G_OBJECT_CLASS(parent_class)->constructed)
+    G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  // add the wavelevel to the wave
+  bt_wave_add_wavelevel(self->priv->wave,self);
+}
 
 /* returns a property for the given property_id for this object */
-static void bt_wavelevel_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_wavelevel_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtWavelevel * const self = BT_WAVELEVEL(object);
   return_if_disposed();
   switch (property_id) {
     case WAVELEVEL_SONG: {
       g_value_set_object(value, self->priv->song);
+    } break;
+    case WAVELEVEL_WAVE: {
+      g_value_set_object(value, self->priv->wave);
     } break;
     case WAVELEVEL_ROOT_NOTE: {
       g_value_set_uchar(value, self->priv->root_note);
@@ -208,19 +207,19 @@ static void bt_wavelevel_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_wavelevel_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_wavelevel_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtWavelevel * const self = BT_WAVELEVEL(object);
   return_if_disposed();
   switch (property_id) {
     case WAVELEVEL_SONG: {
-      g_object_try_weak_unref(self->priv->song);
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for wavelevel: %p",self->priv->song);
+    } break;
+    case WAVELEVEL_WAVE: {
+      self->priv->wave = BT_WAVE(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->wave);
+      GST_DEBUG("set the wave for wavelevel: %p",self->priv->wave);
     } break;
     case WAVELEVEL_ROOT_NOTE: {
       self->priv->root_note = g_value_get_uchar(value);
@@ -314,12 +313,15 @@ static void bt_wavelevel_init(GTypeInstance * const instance, gpointer const g_c
   self->priv->root_note = BT_WAVELEVEL_DEFAULT_ROOT_NOTE;
 }
 
+//-- class internals
+
 static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWavelevelPrivate));
 
+  gobject_class->constructed  = bt_wavelevel_constructed;
   gobject_class->set_property = bt_wavelevel_set_property;
   gobject_class->get_property = bt_wavelevel_get_property;
   gobject_class->dispose      = bt_wavelevel_dispose;
@@ -332,6 +334,13 @@ static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property(gobject_class,WAVELEVEL_WAVE,
+                                  g_param_spec_object("wave",
+                                     "wave contruct prop",
+                                     "Set wave object, the wavelevel belongs to",
+                                     BT_TYPE_WAVE, /* object type */
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
   // @idea make this an own type
   g_object_class_install_property(gobject_class,WAVELEVEL_ROOT_NOTE,
                                   g_param_spec_uchar("root-note",
@@ -340,7 +349,7 @@ static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
                                      0,
                                      G_MAXUINT8,
                                      0,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVELEVEL_LENGTH,
                                   g_param_spec_ulong("length",
@@ -349,7 +358,7 @@ static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
                                      0,
                                      G_MAXLONG,  // loop-pos are LONG as well
                                      0,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVELEVEL_LOOP_START,
                                   g_param_spec_long("loop-start",
@@ -358,7 +367,7 @@ static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
                                      -1,
                                      G_MAXLONG,
                                      -1,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVELEVEL_LOOP_END,
                                   g_param_spec_long("loop-end",
@@ -367,7 +376,7 @@ static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
                                      -1,
                                      G_MAXLONG,
                                      -1,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVELEVEL_RATE,
                                   g_param_spec_ulong("rate",
@@ -376,13 +385,13 @@ static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVELEVEL_DATA,
                                   g_param_spec_pointer("data",
                                      "data prop",
                                      "the sample data",
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_wavelevel_get_type(void) {

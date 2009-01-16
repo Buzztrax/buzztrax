@@ -78,7 +78,13 @@ static gboolean bt_song_io_native_xml_load(gconstpointer const _self, const BtSo
           GST_WARNING("wrong document type root node in xmlDoc src");
         }
         else {
-          result=bt_persistence_load(BT_PERSISTENCE(song),root_node,NULL);
+          GError *err=NULL;
+
+          bt_persistence_load(BT_TYPE_SONG,BT_PERSISTENCE(song),root_node,NULL,&err,NULL);
+          if(err!=NULL) {
+            g_error_free(err);
+          }
+          else result=TRUE;
         }
       }
       if(song_doc) xmlFreeDoc(song_doc);

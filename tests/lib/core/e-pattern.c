@@ -38,6 +38,7 @@ static void test_teardown(void) {
 
 BT_START_TEST(test_btpattern_obj1) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
@@ -49,8 +50,9 @@ BT_START_TEST(test_btpattern_obj1) {
   fail_unless(song!=NULL, NULL);
 
   /* create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
@@ -68,6 +70,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btpattern_obj2) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
@@ -82,8 +85,9 @@ BT_START_TEST(test_btpattern_obj2) {
   fail_unless(song!=NULL, NULL);
 
   /* create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   g_object_get(machine,"machine",&element,NULL);
   voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(element));
@@ -103,6 +107,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btpattern_copy) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern1=NULL,*pattern2=NULL;
@@ -115,8 +120,9 @@ BT_START_TEST(test_btpattern_copy) {
   fail_unless(song!=NULL, NULL);
 
   /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
   pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
@@ -143,6 +149,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btpattern_has_data) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
@@ -154,8 +161,9 @@ BT_START_TEST(test_btpattern_has_data) {
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -197,6 +205,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btpattern_enlarge_length) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
@@ -209,8 +218,9 @@ BT_START_TEST(test_btpattern_enlarge_length) {
   song=bt_song_new(app);
   /* try to create a source machine */
   // @todo try "bml-ErsKick" before and fall back to "buzztard-test-mono-source" as long as we don't have multi-voice machine in gst
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
@@ -252,6 +262,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btpattern_shrink_length) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
@@ -263,8 +274,9 @@ BT_START_TEST(test_btpattern_shrink_length) {
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",16L,BT_MACHINE(machine));
@@ -303,6 +315,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btpattern_enlarge_voices) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
@@ -314,8 +327,9 @@ BT_START_TEST(test_btpattern_enlarge_voices) {
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -357,6 +371,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btpattern_shrink_voices) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
@@ -368,8 +383,9 @@ BT_START_TEST(test_btpattern_shrink_voices) {
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -408,6 +424,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btpattern_insert_row) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
@@ -418,8 +435,9 @@ BT_START_TEST(test_btpattern_insert_row) {
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));

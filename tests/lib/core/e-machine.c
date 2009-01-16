@@ -40,6 +40,7 @@ BT_START_TEST(test_btmachine_obj1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine;
+  GError *err=NULL;
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -47,8 +48,9 @@ BT_START_TEST(test_btmachine_obj1) {
   song=bt_song_new(app);
 
   /* create a machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
   fail_unless(machine != NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* should have no patterns */
   fail_unless(!bt_machine_has_patterns(machine),NULL);
@@ -66,6 +68,7 @@ BT_START_TEST(test_btmachine_enable_input_level1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine;
+  GError *err=NULL;
   gboolean res;
 
   /* create a dummy app */
@@ -74,8 +77,9 @@ BT_START_TEST(test_btmachine_enable_input_level1) {
   song=bt_song_new(app);
 
   /* create a machine */
-  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0));
+  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,&err));
   fail_unless(machine != NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   res=bt_machine_enable_input_level(machine);
   fail_unless(res == TRUE, NULL);
@@ -94,6 +98,7 @@ BT_START_TEST(test_btmachine_enable_input_level2) {
   BtSong *song=NULL;
   BtMachine *machine1,*machine2;
   BtWire *wire;
+  GError *err=NULL;
   gboolean res;
 
   /* create a dummy app */
@@ -102,14 +107,17 @@ BT_START_TEST(test_btmachine_enable_input_level2) {
   song=bt_song_new(app);
 
   /* create two machines */
-  machine1=BT_MACHINE(bt_processor_machine_new(song,"vol1","volume",0));
+  machine1=BT_MACHINE(bt_processor_machine_new(song,"vol1","volume",0,&err));
   fail_unless(machine1 != NULL, NULL);
-  machine2=BT_MACHINE(bt_processor_machine_new(song,"vol2","volume",0));
+  fail_unless(err==NULL, NULL);
+  machine2=BT_MACHINE(bt_processor_machine_new(song,"vol2","volume",0,&err));
   fail_unless(machine2 != NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* connect them */
-  wire=bt_wire_new(song,machine1,machine2);
+  wire=bt_wire_new(song,machine1,machine2,&err);
   fail_unless(wire != NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   res=bt_machine_enable_input_level(machine2);
   fail_unless(res == TRUE, NULL);
@@ -129,6 +137,7 @@ BT_START_TEST(test_btmachine_enable_input_gain1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine;
+  GError *err=NULL;
   gboolean res;
 
   /* create a dummy app */
@@ -137,8 +146,9 @@ BT_START_TEST(test_btmachine_enable_input_gain1) {
   song=bt_song_new(app);
 
   /* create a machine */
-  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0));
+  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,&err));
   fail_unless(machine != NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   res=bt_machine_enable_input_gain(machine);
   fail_unless(res == TRUE, NULL);
@@ -156,6 +166,7 @@ BT_START_TEST(test_btmachine_enable_output_gain1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine;
+  GError *err=NULL;
   gboolean res;
 
   /* create a dummy app */
@@ -164,8 +175,9 @@ BT_START_TEST(test_btmachine_enable_output_gain1) {
   song=bt_song_new(app);
 
   /* create a machine */
-  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0));
+  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,&err));
   fail_unless(machine != NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   res=bt_machine_enable_output_gain(machine);
   fail_unless(res == TRUE, NULL);

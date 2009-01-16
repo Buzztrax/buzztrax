@@ -29,9 +29,12 @@
  * This can be retrieved via the bin property of an application instance.
  * When creating #BtSong instances, the #BtApplication instance needs to be passed
  * to the bt_song_new() constructor, so that it can retrieve the #GstBin element.
- * <informalexample>
- *  <programlisting language="c">song=bt_song_new(app)</programlisting>
- * </informalexample>
+ * |[
+ * BtApplication *app;
+ * BtSong *song;
+ * ...
+ * song=bt_song_new(app);
+ * ]|
  *
  * Another module the application base class maintains is a settings instance (see
  * #BtSettings), that manages application preferences.
@@ -69,14 +72,10 @@ static GObjectClass *parent_class=NULL;
 
 //-- wrapper
 
-//-- class internals
+//-- g_object overrides
 
 /* returns a property for the given property_id for this object */
-static void bt_application_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_application_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtApplication * const self = BT_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
@@ -93,11 +92,7 @@ static void bt_application_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_application_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_application_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtApplication * const self = BT_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
@@ -106,32 +101,6 @@ static void bt_application_set_property(GObject      * const object,
     } break;
   }
 }
-
-#if 0
-static GObject* bt_application_construct (GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
-  GObject *object;
-  
-  GST_DEBUG("<<<");
-  object = G_OBJECT_CLASS (parent_class)->constructor (type, n_construct_params, construct_params);
-  GST_INFO("new app instantiated");
-  /*
-  { // DEBUG
-    gchar *audiosink_name,*system_audiosink_name;
-    g_object_get(self->priv->settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
-    if(system_audiosink_name) {
-      GST_INFO("default audiosink is \"%s\"",system_audiosink_name);
-      g_free(system_audiosink_name);
-    }
-    if(audiosink_name) {
-      GST_INFO("buzztard audiosink is \"%s\"",audiosink_name);
-      g_free(audiosink_name);
-    }
-  } // DEBUG
-  */
-  GST_DEBUG(">>>");
-  return object;
-}
-#endif
 
 static void bt_application_dispose(GObject * const object) {
   const BtApplication * const self = BT_APPLICATION(object);
@@ -162,11 +131,7 @@ static void bt_application_finalize(GObject * const object) {
   GST_DEBUG("  done");
 }
 
-#if 0
-static void bt_application_base_init (gpointer g_class) {
-  GST_DEBUG("!!!! self=%p",g_class);
-}
-#endif
+//-- class internals
 
 static void bt_application_init(const GTypeInstance * const instance, gconstpointer const g_class) {
   BtApplication * const self = BT_APPLICATION(instance);
@@ -182,7 +147,7 @@ static void bt_application_init(const GTypeInstance * const instance, gconstpoin
   // if we enable this we get lots of diagnostics
   //g_signal_connect (self->priv->bin, "deep_notify", G_CALLBACK(gst_object_default_deep_notify), NULL);
 
-  self->priv->settings=bt_settings_new();
+  self->priv->settings=bt_settings_make();
   g_assert(BT_IS_SETTINGS(self->priv->settings));
 }
 
@@ -193,9 +158,6 @@ static void bt_application_class_init(BtApplicationClass * const klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtApplicationPrivate));
 
-#if 0
-  gobject_class->constructor  = bt_application_construct;
-#endif
   gobject_class->set_property = bt_application_set_property;
   gobject_class->get_property = bt_application_get_property;
   gobject_class->dispose      = bt_application_dispose;

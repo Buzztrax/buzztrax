@@ -229,9 +229,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   GST_INFO("application.play(%s) launched",input_file_name);
 
   // prepare song and song-io
-  if(!(song=bt_song_new(BT_APPLICATION(self)))) {
-    goto Error;
-  }
+  song=bt_song_new(BT_APPLICATION(self));
   if(!(loader=bt_song_io_make(input_file_name))) {
     goto Error;
   }
@@ -313,9 +311,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     output_file = fopen(output_file_name,"wb");
   }
   // prepare song and song-io
-  if(!(song=bt_song_new(BT_APPLICATION(self)))) {
-    goto Error;
-  }
+  song=bt_song_new(BT_APPLICATION(self));
   if(!(loader=bt_song_io_make(input_file_name))) {
     goto Error;
   }
@@ -452,9 +448,7 @@ gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *i
   g_return_val_if_fail(BT_IS_STRING(output_file_name),FALSE);
 
   // prepare song and song-io
-  if(!(song=bt_song_new(BT_APPLICATION(self)))) {
-    goto Error;
-  }
+  song=bt_song_new(BT_APPLICATION(self));
   if(!(loader=bt_song_io_make(input_file_name))) {
     goto Error;
   }
@@ -506,9 +500,7 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
   GST_INFO("application.play launched");
 
   // prepare song and song-io
-  if(!(song=bt_song_new(BT_APPLICATION(self)))) {
-    goto Error;
-  }
+  song=bt_song_new(BT_APPLICATION(self));
   if(!(loader=bt_song_io_make(input_file_name))) {
     goto Error;
   }

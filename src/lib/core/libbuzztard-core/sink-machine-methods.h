@@ -24,6 +24,6 @@
 
 #include "sink-machine.h"
 
-extern BtSinkMachine *bt_sink_machine_new(const BtSong * const song, const gchar * const id);
+extern BtSinkMachine *bt_sink_machine_new(const BtSong * const song, const gchar * const id, GError **err);
 
 #endif // BT_SINK_MACHINE_METHDOS_H

@@ -47,6 +47,7 @@ static void test_teardown(void) {
 */
 BT_START_TEST(test_btsourcemachine_obj1){
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
 
@@ -57,11 +58,12 @@ BT_START_TEST(test_btsourcemachine_obj1){
   song=bt_song_new(app);
 
   /* try to create a source machine */
-  machine=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0);
+  machine=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err);
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   g_object_unref(machine);
-  g_object_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 BT_END_TEST
@@ -76,6 +78,7 @@ BT_END_TEST
 */
 BT_START_TEST(test_btsourcemachine_obj2){
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
   BtPattern *pattern=NULL;
@@ -90,8 +93,9 @@ BT_START_TEST(test_btsourcemachine_obj2){
   song=bt_song_new(app);
 
   /* try to create a source machine */
-  machine=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0);
+  machine=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err);
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
@@ -109,6 +113,8 @@ BT_START_TEST(test_btsourcemachine_obj2){
   g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
   /* the list should not be null */
   fail_unless(list!=NULL, NULL);
+  /* source machine has 3 default pattern (break+mute+solo) */
+  fail_unless(g_list_length(list)==4, NULL);
   node=g_list_last(list);
 
   /* the returned pointer should point to the same pattern, that we added
@@ -121,7 +127,7 @@ BT_START_TEST(test_btsourcemachine_obj2){
 
   g_object_unref(pattern);
   g_object_unref(machine);
-  g_object_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 BT_END_TEST
@@ -133,6 +139,7 @@ BT_END_TEST
 */
 BT_START_TEST(test_btsourcemachine_obj3){
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
   BtPattern *pattern=NULL;
@@ -146,8 +153,9 @@ BT_START_TEST(test_btsourcemachine_obj3){
   song=bt_song_new(app);
 
   /* try to create a source machine */
-  machine=bt_source_machine_new(song,"gen","buzztard-test-poly-source",1);
+  machine=bt_source_machine_new(song,"gen","buzztard-test-poly-source",1,&err);
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* verify the number of voices */
   g_object_get(machine,"machine",&element,NULL);
@@ -171,7 +179,7 @@ BT_START_TEST(test_btsourcemachine_obj3){
   /* cleanup */
   g_object_unref(pattern);
   g_object_unref(machine);
-  g_object_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 BT_END_TEST

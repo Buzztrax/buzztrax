@@ -31,7 +31,6 @@
 
 #include "core_private.h"
 #include <libbuzztard-core/machine.h>
-#include <libbuzztard-core/machine-private.h>
 
 struct _BtProcessorMachinePrivate {
   /* used to validate if dispose has run */
@@ -39,18 +38,6 @@ struct _BtProcessorMachinePrivate {
 };
 
 static BtMachineClass *parent_class=NULL;
-
-//-- helper methods
-
-static void bt_processor_machine_post_init(BtProcessorMachine * const self) {
-  GstElement * const element;
-  
-  g_object_get(self,"machine",&element,NULL);
-  if(GST_IS_BASE_TRANSFORM(element)) {
-    gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(element),FALSE);
-  }
-  gst_object_unref(element);
-}
 
 //-- constructor methods
 
@@ -60,6 +47,7 @@ static void bt_processor_machine_post_init(BtProcessorMachine * const self) {
  * @id: the id, we can use to lookup the machine
  * @plugin_name: the name of the gst-plugin the machine is using
  * @voices: the number of voices the machine should initially have
+ * @err: inform about failed instance creation
  *
  * Create a new instance.
  * The machine is automaticly added to the setup of the given song. You don't 
@@ -67,23 +55,13 @@ static void bt_processor_machine_post_init(BtProcessorMachine * const self) {
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtProcessorMachine *bt_processor_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices) {
+BtProcessorMachine *bt_processor_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices, GError **err) {
+  /* @todo: use GError */
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   g_return_val_if_fail(BT_IS_STRING(id),NULL);
   g_return_val_if_fail(BT_IS_STRING(plugin_name),NULL);
   
-  BtProcessorMachine * const self=BT_PROCESSOR_MACHINE(g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL));
-  if(!self) {
-    goto Error;
-  }
-  if(!bt_machine_new(BT_MACHINE(self))) {
-    goto Error;
-  }
-  bt_processor_machine_post_init(self);
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BT_PROCESSOR_MACHINE(g_object_new(BT_TYPE_PROCESSOR_MACHINE,"construction-error",err,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL)));
 }
 
 //-- methods
@@ -111,28 +89,59 @@ static xmlNodePtr bt_processor_machine_persistence_save(const BtPersistence * co
   return(node);
 }
 
-static gboolean bt_processor_machine_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
-  BtProcessorMachine * const self = BT_PROCESSOR_MACHINE(persistence);
-  const BtPersistenceInterface * const parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+static BtPersistence *bt_processor_machine_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+  BtProcessorMachine *self;
+  BtPersistence *result;
+  BtPersistenceInterface *parent_iface;
   gulong voices;
-  gboolean res;
   
   GST_DEBUG("PERSISTENCE::processor_machine");
   g_assert(node);
-
+  
+  xmlChar * const id=xmlGetProp(node,XML_CHAR_PTR("id"));
   xmlChar * const plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
   xmlChar * const voices_str=xmlGetProp(node,XML_CHAR_PTR("voices"));
   voices=voices_str?atol((char *)voices_str):0;
-  g_object_set(G_OBJECT(self),"plugin-name",plugin_name,"voices",voices,NULL);
+  
+  if(!persistence) {
+    BtSong *song=NULL;
+    gchar *param_name;
+
+    // we need to get parameters from var_args (need to handle all baseclass params
+    param_name=va_arg(var_args,gchar*);
+    while(param_name) {
+      if(!strcmp(param_name,"song")) {
+        song=va_arg(var_args, gpointer);
+      }
+      else {
+        GST_WARNING("unhandled argument: %s",param_name);
+        break;
+      }
+      param_name=va_arg(var_args,gchar*);
+    }
+    // @todo: we also need the parameters the parent-class would parse
+    // as a a quick hack copied the code from the parent class into the subclasses
+    // see : http://www.buzztard.org/index.php/Gobject_serialisation#Dealing_with_inheritance
+    
+    self=bt_processor_machine_new(song,(gchar*)id,(gchar *)plugin_name,voices,err);
+    result=BT_PERSISTENCE(self);
+  }
+  else {
+    self=BT_PROCESSOR_MACHINE(persistence);
+    result=BT_PERSISTENCE(persistence);
+
+    // @todo: isn't plugin-name construct-only
+    g_object_set(G_OBJECT(self),"plugin-name",plugin_name,"voices",voices,NULL);
+  }
+  xmlFree(id);
   xmlFree(plugin_name);
   xmlFree(voices_str);
   
   // load parent class stuff
-  if((res=parent_iface->load(persistence,node,location))) {
-    bt_processor_machine_post_init(self);
-  }
-  
-  return(res);
+  parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(result));
+  parent_iface->load(BT_TYPE_MACHINE,result,node,location,NULL,NULL);
+
+  return(result);
 }
 
 static void bt_processor_machine_persistence_interface_init(gpointer const g_iface, gconstpointer const iface_data) {
@@ -141,7 +150,6 @@ static void bt_processor_machine_persistence_interface_init(gpointer const g_ifa
   iface->load = bt_processor_machine_persistence_load;
   iface->save = bt_processor_machine_persistence_save;
 }
-
 
 //-- wrapper
 
@@ -160,27 +168,37 @@ static gboolean bt_processor_machine_check_type(const BtMachine * const self, co
   return(TRUE);
 }
 
-static void bt_processor_machine_setup(const BtMachine * const self) {
-  BtSong * const song;
-  
-  g_object_get(G_OBJECT(self),"song",&song,NULL);
-  BtPattern * const pattern=bt_pattern_new_with_event(song,self,BT_PATTERN_CMD_BYPASS);
-  if(pattern) {
-    g_object_unref(pattern);
-  }
-  g_object_unref(song);
-  bt_machine_enable_output_gain(BT_MACHINE(self));
-}
-
-
 //-- g_object overrides
 
+static void bt_processor_machine_constructed(GObject *object) {
+  BtProcessorMachine * const self=BT_PROCESSOR_MACHINE(object);
+  GError **err;
+
+  GST_INFO("processor-machine constructed");
+
+  G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  g_object_get(G_OBJECT(self),"construction-error",&err,NULL);
+  if(*err==NULL) {
+    GstElement * const element;
+    BtSong * const song;
+    BtPattern *pattern;
+    
+    g_object_get(G_OBJECT(self),"machine",&element,"song",&song,NULL);
+    if(GST_IS_BASE_TRANSFORM(element)) {
+      gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(element),FALSE);
+    }
+    gst_object_unref(element);
+    if((pattern=bt_pattern_new_with_event(song,BT_MACHINE(self),BT_PATTERN_CMD_BYPASS))) {
+      g_object_unref(pattern);
+    }
+    g_object_unref(song);
+    bt_machine_enable_output_gain(BT_MACHINE(self));
+  }
+}
+
 /* returns a property for the given property_id for this object */
-static void bt_processor_machine_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_processor_machine_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtProcessorMachine * const self = BT_PROCESSOR_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
@@ -191,11 +209,7 @@ static void bt_processor_machine_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_processor_machine_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_processor_machine_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtProcessorMachine * const self = BT_PROCESSOR_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
@@ -223,13 +237,13 @@ static void bt_processor_machine_finalize(GObject * const object) {
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
+//-- class internals
+
 static void bt_processor_machine_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtProcessorMachine * const self = BT_PROCESSOR_MACHINE(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachinePrivate);
 }
-
-//-- class internals
 
 static void bt_processor_machine_class_init(BtProcessorMachineClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
@@ -238,13 +252,13 @@ static void bt_processor_machine_class_init(BtProcessorMachineClass * const klas
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtProcessorMachinePrivate));
   
+  gobject_class->constructed  = bt_processor_machine_constructed;
   gobject_class->set_property = bt_processor_machine_set_property;
   gobject_class->get_property = bt_processor_machine_get_property;
   gobject_class->dispose      = bt_processor_machine_dispose;
   gobject_class->finalize     = bt_processor_machine_finalize;
 
   machine_class->check_type   = bt_processor_machine_check_type;
-  machine_class->setup        = bt_processor_machine_setup;
 }
 
 GType bt_processor_machine_get_type(void) {

@@ -121,11 +121,10 @@ static void bt_song_info_tempo_changed(const BtSongInfo * const self) {
  * Returns: the new instance or %NULL in case of an error
  */
 BtSongInfo *bt_song_info_new(const BtSong * const song) {
+  /* @todo: use GError */
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  BtSongInfo * const self=BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL));
-
-  return(self);
+  return(BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL)));
 }
 
 //-- methods
@@ -182,9 +181,8 @@ static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const pers
   return(node);
 }
 
-static gboolean bt_song_info_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+static BtPersistence *bt_song_info_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
   const BtSongInfo * const self = BT_SONG_INFO(persistence);
-  gboolean res=FALSE;
 
   GST_DEBUG("PERSISTENCE::song-info");
   g_assert(node);
@@ -217,8 +215,7 @@ static gboolean bt_song_info_persistence_load(const BtPersistence * const persis
       }
     }
   }
-  res=TRUE;
-  return(res);
+  return(BT_PERSISTENCE(persistence));
 }
 
 static void bt_song_info_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -233,11 +230,7 @@ static void bt_song_info_persistence_interface_init(gpointer const g_iface, gpoi
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_song_info_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_song_info_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSongInfo * const self = BT_SONG_INFO(object);
   return_if_disposed();
   switch (property_id) {
@@ -284,16 +277,11 @@ static void bt_song_info_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_song_info_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_song_info_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSongInfo * const self = BT_SONG_INFO(object);
   return_if_disposed();
   switch (property_id) {
     case SONG_INFO_SONG: {
-      g_object_try_weak_unref(self->priv->song);
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for song-info: %p",self->priv->song);

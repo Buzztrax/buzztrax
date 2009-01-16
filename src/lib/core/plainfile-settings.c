@@ -35,7 +35,7 @@
   at init the whole document is loaded and
   get/set methods use xpath expr to get the nodes.
  
-  idea2: is to use ini-files via glib
+  idea2: is to use ini-files via glibs gkeyfile
 */
 
 #define BT_CORE
@@ -65,10 +65,7 @@ static BtSettingsClass *parent_class=NULL;
  * Returns: the new instance or %NULL in case of an error
  */
 const BtPlainfileSettings *bt_plainfile_settings_new(void) {
-  const BtPlainfileSettings *self;
-  self=BT_PLAINFILE_SETTINGS(g_object_new(BT_TYPE_PLAINFILE_SETTINGS,NULL));
-  
-  return(self);  
+  return(BT_PLAINFILE_SETTINGS(g_object_new(BT_TYPE_PLAINFILE_SETTINGS,NULL)));
 }
 
 //-- methods
@@ -78,11 +75,7 @@ const BtPlainfileSettings *bt_plainfile_settings_new(void) {
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_plainfile_settings_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_plainfile_settings_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtPlainfileSettings * const self = BT_PLAINFILE_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
@@ -100,11 +93,7 @@ static void bt_plainfile_settings_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_plainfile_settings_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_plainfile_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtPlainfileSettings * const self = BT_PLAINFILE_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {

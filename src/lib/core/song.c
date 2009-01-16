@@ -37,12 +37,6 @@
 // if a state change not happens within this time, cancel playback
 #define BT_SONG_STATE_CHANGE_TIMEOUT (30*1000)
 
-//-- signal ids
-
-enum {
-  LAST_SIGNAL
-};
-
 //-- property ids
 
 enum {
@@ -573,45 +567,7 @@ static void bt_song_on_tempo_changed(BtSongInfo * const song_info, GParamSpec * 
  * Returns: the new instance or %NULL in case of an error
  */
 BtSong *bt_song_new(const BtApplication * const app) {
-  BtSong *self=NULL;
-  GstBin * const bin;
-
-  g_return_val_if_fail(BT_IS_APPLICATION(app),NULL);
-
-  g_object_get(G_OBJECT(app),"bin",&bin,NULL);
-  g_assert(bin);
-
-  if(!(self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL)))) {
-    goto Error;
-  }
-
-  GstBus * const bus=gst_element_get_bus(GST_ELEMENT(bin));
-  GST_DEBUG("listen to bus messages (%p)",bus);
-  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect(bus, "message::segment-done", G_CALLBACK(on_song_segment_done), (gpointer)self);
-  g_signal_connect(bus, "message::eos", G_CALLBACK(on_song_eos), (gpointer)self);
-  g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
-  g_signal_connect(bus, "message::async-done", G_CALLBACK(on_song_async_done), (gpointer)self);
-  gst_object_unref(bus);
-  gst_object_unref(bin);
-
-  g_signal_connect(self->priv->sequence,"notify::loop",G_CALLBACK(bt_song_on_loop_changed),(gpointer)self);
-  g_signal_connect(self->priv->sequence,"notify::loop-start",G_CALLBACK(bt_song_on_loop_start_changed),(gpointer)self);
-  g_signal_connect(self->priv->sequence,"notify::loop-end",G_CALLBACK(bt_song_on_loop_end_changed),(gpointer)self);
-  g_signal_connect(self->priv->sequence,"notify::length",G_CALLBACK(bt_song_on_length_changed),(gpointer)self);
-  GST_DEBUG("  loop-signals connected");
-  g_signal_connect(self->priv->song_info,"notify::tpb",G_CALLBACK(bt_song_on_tempo_changed),(gpointer)self);
-  g_signal_connect(self->priv->song_info,"notify::bpm",G_CALLBACK(bt_song_on_tempo_changed),(gpointer)self);
-  GST_DEBUG("  tempo-signals connected");
-
-  bt_song_update_play_seek_event(BT_SONG(self));
-  bt_song_idle_start(self);
-  GST_INFO("  new song created: %p",self);
-  return(self);
-Error:
-  g_object_try_unref(self);
-  gst_object_unref(bin);
-  return(NULL);
+  return(BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,NULL)));
 }
 
 //-- methods
@@ -1262,7 +1218,7 @@ guint bt_song_child_proxy_get_children_count(GstChildProxy * child_proxy) {
 }
 
 static void
-bt_song_child_proxy_init (gpointer g_iface, gpointer iface_data)
+bt_song_child_proxy_init(gpointer g_iface, gpointer iface_data)
 {
   GstChildProxyInterface *iface = g_iface;
 
@@ -1292,34 +1248,48 @@ static xmlNodePtr bt_song_persistence_save(const BtPersistence * const persisten
   return(node);
 }
 
-static gboolean bt_song_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+static BtPersistence *bt_song_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
   const BtSong * const self = BT_SONG(persistence);
-  gboolean res=TRUE;
+  // @todo: this is a bit inconsistent
+  // gtk is getting labels with progressbar, we could use this then
+  //const gchar * const msg=_("Loading file: '%s'");
+  //gchar * const status=g_alloca(1+strlen(msg)+40);
 
   GST_DEBUG("PERSISTENCE::song");
   g_assert(node);
 
-  res=TRUE;
-  for(node=node->children;(node && res);node=node->next) {
+  for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node)) {
       if(!strncmp((gchar *)node->name,"meta\0",5)) {
-        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->song_info),node,NULL);
+        //g_sprintf(status,msg,"metadata");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
+        if(!bt_persistence_load(BT_TYPE_SONG_INFO,BT_PERSISTENCE(self->priv->song_info),node,NULL,NULL,NULL))
+          goto Error;
       }
       else if(!strncmp((gchar *)node->name,"setup\0",6)) {
-        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->setup),node,NULL);
+        //g_sprintf(status,msg,"setup");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
+        if(!bt_persistence_load(BT_TYPE_SETUP,BT_PERSISTENCE(self->priv->setup),node,NULL,NULL,NULL))
+          goto Error;
       }
       else if(!strncmp((gchar *)node->name,"sequence\0",9)) {
-        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->sequence),node,NULL);
+        //g_sprintf(status,msg,"sequence");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
+        if(!bt_persistence_load(BT_TYPE_SEQUENCE,BT_PERSISTENCE(self->priv->sequence),node,NULL,NULL,NULL))
+          goto Error;
       }
       else if(!strncmp((gchar *)node->name,"wavetable\0",10)) {
-        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->wavetable),node,NULL);
+        //g_sprintf(status,msg,"wavetable");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
+        if(!bt_persistence_load(BT_TYPE_WAVETABLE,BT_PERSISTENCE(self->priv->wavetable),node,NULL,NULL,NULL))
+          goto Error;
       }
     }
   }
-  if(!res && node) {
-    GST_INFO("failed to load %s",(gchar *)node->name);
+
+  return(BT_PERSISTENCE(persistence));
+Error:
+  if(node) {
+    /* @todo: set the GError? */
+    GST_WARNING("failed to load %s",(gchar *)node->name);
   }
-  return(res);
+  return(NULL);
 }
 
 static void bt_song_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -1331,14 +1301,41 @@ static void bt_song_persistence_interface_init(gpointer const g_iface, gpointer 
 
 //-- wrapper
 
-//-- class internals
+//-- g_object overrides
+
+static void bt_song_constructed(GObject *object) {
+  BtSong *self=BT_SONG(object);
+  
+  g_return_if_fail(BT_IS_APPLICATION(self->priv->app));
+  
+  g_object_get(G_OBJECT(self->priv->app),"bin",&self->priv->bin,NULL);
+  
+  GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
+  GST_DEBUG("listen to bus messages (%p)",bus);
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  g_signal_connect(bus, "message::segment-done", G_CALLBACK(on_song_segment_done), (gpointer)self);
+  g_signal_connect(bus, "message::eos", G_CALLBACK(on_song_eos), (gpointer)self);
+  g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
+  g_signal_connect(bus, "message::async-done", G_CALLBACK(on_song_async_done), (gpointer)self);
+  gst_object_unref(bus);
+
+  g_signal_connect(self->priv->sequence,"notify::loop",G_CALLBACK(bt_song_on_loop_changed),(gpointer)self);
+  g_signal_connect(self->priv->sequence,"notify::loop-start",G_CALLBACK(bt_song_on_loop_start_changed),(gpointer)self);
+  g_signal_connect(self->priv->sequence,"notify::loop-end",G_CALLBACK(bt_song_on_loop_end_changed),(gpointer)self);
+  g_signal_connect(self->priv->sequence,"notify::length",G_CALLBACK(bt_song_on_length_changed),(gpointer)self);
+  GST_DEBUG("  loop-signals connected");
+  g_signal_connect(self->priv->song_info,"notify::tpb",G_CALLBACK(bt_song_on_tempo_changed),(gpointer)self);
+  g_signal_connect(self->priv->song_info,"notify::bpm",G_CALLBACK(bt_song_on_tempo_changed),(gpointer)self);
+  GST_DEBUG("  tempo-signals connected");
+
+  bt_song_update_play_seek_event(BT_SONG(self));
+  bt_song_idle_start(self);
+  GST_INFO("  new song created: %p",self);
+  return;
+}
 
 /* returns a property for the given property_id for this object */
-static void bt_song_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_song_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSong * const self = BT_SONG(object);
   return_if_disposed();
   switch (property_id) {
@@ -1382,22 +1379,16 @@ static void bt_song_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_song_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_song_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSong * const self = BT_SONG(object);
   return_if_disposed();
   switch (property_id) {
     case SONG_APP: {
-      g_object_try_weak_unref(self->priv->app);
       self->priv->app = BT_APPLICATION(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->app);
       GST_DEBUG("set the app for the song: %p",self->priv->app);
     } break;
     case SONG_BIN: {
-      if(self->priv->bin) gst_object_unref(self->priv->bin);
       self->priv->bin=GST_BIN(g_value_dup_object(value));
       GST_DEBUG("set the bin for the song: %p",self->priv->bin);
     } break;
@@ -1450,10 +1441,20 @@ static void bt_song_dispose(GObject * const object) {
   if(self->priv->is_playing) bt_song_stop(self);
   else if(self->priv->is_idle) bt_song_idle_stop(self);
 
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to null state");
+  if(self->priv->bin) {
+    if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
+      GST_WARNING("can't go to null state");
+    }
+    GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
+
+    GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_state_changed,(gpointer)self);
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_segment_done,(gpointer)self);
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_eos,(gpointer)self);
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_async_done,(gpointer)self);
+    gst_bus_remove_signal_watch(bus);
+    gst_object_unref(bus);
   }
-  GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
 
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_changed,(gpointer)self);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_start_changed,(gpointer)self);
@@ -1461,16 +1462,8 @@ static void bt_song_dispose(GObject * const object) {
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_length_changed,(gpointer)self);
   g_signal_handlers_disconnect_matched(self->priv->song_info,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_tempo_changed,(gpointer)self);
 
-  GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
-  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_state_changed,(gpointer)self);
-  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_segment_done,(gpointer)self);
-  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_eos,(gpointer)self);
-  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_async_done,(gpointer)self);
-  gst_bus_remove_signal_watch(bus);
-  gst_object_unref(bus);
-
   if(self->priv->master) GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);
-  g_object_try_unref(self->priv->master_bin);
+  if(self->priv->master_bin) gst_object_unref(self->priv->master_bin);
   g_object_try_weak_unref(self->priv->master);
   GST_DEBUG("refs: song_info: %d, sequence: %d, setup: %d, wavetable: %d",
     (G_OBJECT(self->priv->song_info))->ref_count,
@@ -1486,7 +1479,7 @@ static void bt_song_dispose(GObject * const object) {
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
   if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
   if(self->priv->idle_seek_event) gst_event_unref(self->priv->idle_seek_event);
-  gst_object_unref(self->priv->bin);
+  if(self->priv->bin) gst_object_unref(self->priv->bin);
   g_object_try_weak_unref(self->priv->app);
 
   GST_DEBUG("  chaining up");
@@ -1504,6 +1497,8 @@ static void bt_song_finalize(GObject * const object) {
   GST_DEBUG("  done");
 }
 
+//-- class internals
+
 static void bt_song_init(const GTypeInstance * const instance, gconstpointer const g_class) {
   BtSong * const self = BT_SONG(instance);
 
@@ -1517,7 +1512,7 @@ static void bt_song_init(const GTypeInstance * const instance, gconstpointer con
 
   self->priv->position_query=gst_query_new_position(GST_FORMAT_TIME);
 
-  self->priv->idle_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+  self->priv->idle_seek_event=gst_event_new_seek(1.0, GST_FORMAT_TIME,
     GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
     GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-GST_SECOND),
     GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-1));
@@ -1530,6 +1525,7 @@ static void bt_song_class_init(BtSongClass * const klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongPrivate));
 
+  gobject_class->constructed  = bt_song_constructed;
   gobject_class->set_property = bt_song_set_property;
   gobject_class->get_property = bt_song_get_property;
   gobject_class->dispose      = bt_song_dispose;

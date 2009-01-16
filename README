@@ -55,6 +55,8 @@ Use following options for ./autogen.sh or ./configure
   --with-desktop-dir=/home/ensonic/.gnome2/vfolders/
 when installing the package to e.g. $HOME/buzztard remember to set these
 environment variables:
+libraries:
+  export LD_LIBRARY_PATH=$HOME/buzztard/lib:$LD_LIBRARY_PATH
 online help: (as root)
   export OMF_DIR="$OMF_DIR:$HOME/buzztard/share/omf"
   scrollkeeper-update

@@ -38,6 +38,7 @@ static void test_teardown(void) {
 // create app and then unconditionally destroy window
 BT_START_TEST(test_create_dialog) {
   BtEditApplication *app;
+  GError *err=NULL;
   BtMainWindow *main_window;
   BtSong *song;
   BtMachine *machine=NULL;
@@ -57,8 +58,9 @@ BT_START_TEST(test_create_dialog) {
   fail_unless(song != NULL, NULL);
 
   // create a source machine
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   // new_pattern
   pattern=bt_pattern_new(song, "test", "test", /*length=*/16, machine);

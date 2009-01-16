@@ -335,30 +335,10 @@ Error:
  * Returns: the new instance or %NULL in case of an error
  */
 BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const uri, const gulong index, const gdouble volume, const  BtWaveLoopMode loop_mode, const guint channels) {
-  BtWavetable *wavetable;
-
+  /* @todo: use GError */
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  BtWave * const self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"uri",uri,"index",index,"volume",volume,"loop-mode",loop_mode,"channels",channels,NULL));
-  if(!self) {
-    goto Error;
-  }
-  if(uri) {
-    // try to load wavedata
-    if(!bt_wave_load_from_uri(self,uri)) {
-      goto Error;
-    }
-  }
-  // add the wave to the wavetable of the song
-  g_object_get(G_OBJECT(song),"wavetable",&wavetable,NULL);
-  g_assert(wavetable!=NULL);
-  bt_wavetable_add_wave(wavetable,self);
-  g_object_unref(wavetable);
-
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"uri",uri,"index",index,"volume",volume,"loop-mode",loop_mode,"channels",channels,NULL)));
 }
 
 //-- private methods
@@ -458,10 +438,10 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
   return(node);
 }
 
-static gboolean bt_wave_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
   const BtWave * const self = BT_WAVE(persistence);
-  BtSongIONative *song_io;
   gboolean res=FALSE;
+  BtSongIONative *song_io;
   gchar *uri=NULL;
 
   GST_DEBUG("PERSISTENCE::wave");
@@ -528,14 +508,14 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
         if(lnode) {
           BtWavelevel * const wave_level=BT_WAVELEVEL(lnode->data);
 
-          bt_persistence_load(BT_PERSISTENCE(wave_level),child_node,NULL);
+          bt_persistence_load(BT_TYPE_WAVELEVEL,BT_PERSISTENCE(wave_level),child_node,NULL,NULL,NULL);
           lnode=g_list_next(lnode);
         }
       }
     }
   }
   g_free(uri);
-  return(res);
+  return(res?BT_PERSISTENCE(persistence):NULL);
 }
 
 static void bt_wave_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -547,14 +527,35 @@ static void bt_wave_persistence_interface_init(gpointer const g_iface, gpointer 
 
 //-- wrapper
 
-//-- class internals
+//-- g_object overrides
+
+static void bt_wave_constructed(GObject *object) {
+  BtWave *self=BT_WAVE(object);
+  gboolean okay=TRUE;
+
+  if(G_OBJECT_CLASS(parent_class)->constructed)
+    G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  // some SongIO loaders load the wave themself and set the data 
+  if(self->priv->uri) {
+    // @todo: move stuff from bt_wave_persistence_load() into bt_wave_load_from_uri()
+    // try to load wavedata
+    if(!bt_wave_load_from_uri(self,self->priv->uri)) {
+      GST_WARNING("Can't load wavedata from %s",self->priv->uri);
+      okay=FALSE;
+    }
+  }
+  if(okay) {
+    BtWavetable *wavetable;
+    // add the wave to the wavetable of the song
+    g_object_get(G_OBJECT(self->priv->song),"wavetable",&wavetable,NULL);
+    bt_wavetable_add_wave(wavetable,self);
+    g_object_unref(wavetable);
+  }
+}
 
 /* returns a property for the given property_id for this object */
-static void bt_wave_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_wave_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtWave * const self = BT_WAVE(object);
   return_if_disposed();
   switch (property_id) {
@@ -589,16 +590,11 @@ static void bt_wave_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_wave_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_wave_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtWave * const self = BT_WAVE(object);
   return_if_disposed();
   switch (property_id) {
     case WAVE_SONG: {
-      g_object_try_weak_unref(self->priv->song);
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for wave: %p",self->priv->song);
@@ -682,6 +678,8 @@ static void bt_wave_finalize(GObject * const object) {
   }
 }
 
+//-- class internals
+
 static void bt_wave_init(GTypeInstance * const instance, gconstpointer const g_class) {
   BtWave * const self = BT_WAVE(instance);
 
@@ -697,6 +695,7 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWavePrivate));
 
+  gobject_class->constructed  = bt_wave_constructed;
   gobject_class->set_property = bt_wave_set_property;
   gobject_class->get_property = bt_wave_get_property;
   gobject_class->dispose      = bt_wave_dispose;
@@ -744,21 +743,21 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
                                      0,
                                      G_MAXULONG,
                                      0, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVE_NAME,
                                   g_param_spec_string("name",
                                      "name prop",
                                      "The name of the wave",
                                      "unamed wave", /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVE_URI,
                                   g_param_spec_string("uri",
                                      "uri prop",
                                      "The uri of the wave",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVE_VOLUME,
                                   g_param_spec_double("volume",
@@ -767,7 +766,7 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
                                      0,
                                      1.0,
                                      1.0, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVE_LOOP_MODE,
                                   g_param_spec_enum("loop-mode",
@@ -775,7 +774,7 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
                                      "mode of loop playback",
                                      BT_TYPE_WAVE_LOOP_MODE,  /* enum type */
                                      BT_WAVE_LOOP_MODE_OFF, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVE_CHANNELS,
                                   g_param_spec_uint("channels",
@@ -784,7 +783,7 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
                                      0,
                                      2,
                                      0,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_wave_get_type(void) {

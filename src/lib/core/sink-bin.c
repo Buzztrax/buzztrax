@@ -794,11 +794,7 @@ static gboolean master_volume_sync_handler(GstPad *pad,GstBuffer *buffer, gpoint
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_sink_bin_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_sink_bin_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSinkBin * const self = BT_SINK_BIN(object);
   return_if_disposed();
   switch (property_id) {
@@ -840,11 +836,7 @@ static void bt_sink_bin_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_sink_bin_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_sink_bin_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSinkBin * const self = BT_SINK_BIN(object);
   return_if_disposed();
 
@@ -977,7 +969,7 @@ static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_cla
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_BIN, BtSinkBinPrivate);
 
   // watch settings changes
-  self->priv->settings=bt_settings_new();
+  self->priv->settings=bt_settings_make();
   //GST_DEBUG("listen to settings changes (%p)",self->priv->settings);
   g_signal_connect(G_OBJECT(self->priv->settings), "notify::audiosink", G_CALLBACK(on_audio_sink_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->settings), "notify::system-audiosink", G_CALLBACK(on_system_audio_sink_changed), (gpointer)self);

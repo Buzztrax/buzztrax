@@ -223,54 +223,56 @@ BtEditApplication *bt_edit_application_new(void) {
 gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   gboolean res=FALSE;
   BtSong *song;
+  BtSetup *setup;
+  BtSequence *sequence;
+  BtMachine *machine;
+  gchar *id;
+  GError *err=NULL;
 
   g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
 
   // create new song
-  if((song=bt_song_new(BT_APPLICATION(self)))) {
-    BtSetup *setup;
-    BtSequence *sequence;
-    BtMachine *machine;
-    gchar *id;
+  song=bt_song_new(BT_APPLICATION(self));
 
-    // free previous song
-    //g_object_set(G_OBJECT(self),"song",NULL,NULL);
+  g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
+  // add some initial timelines
+  g_object_set(sequence,"length",SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
+  // add audiosink
+  id=bt_setup_get_unique_machine_id(setup,"master");
+  machine=BT_MACHINE(bt_sink_machine_new(song,id,&err));
+  if(err==NULL) {
+    GHashTable *properties;
 
-    g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
-    // add some initial timelines
-    g_object_set(sequence,"length",SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
-    // add audiosink
-    id=bt_setup_get_unique_machine_id(setup,"master");
-    if((machine=BT_MACHINE(bt_sink_machine_new(song,id)))) {
-      GHashTable *properties;
-
-      GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
-      g_object_get(machine,"properties",&properties,NULL);
-      if(properties) {
-        gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-        g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
-        g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
-      }
-      if(bt_machine_enable_input_level(machine)) {
-        GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
-        // set new song in application
-        bt_song_set_unsaved(song,FALSE);
-        g_object_set(G_OBJECT(self),"song",song,NULL);
-        res=TRUE;
-      }
-      else {
-        GST_WARNING("Can't add input level/gain element in sink machine");
-      }
-      GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
-      g_object_unref(machine);
+    GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
+    g_object_get(machine,"properties",&properties,NULL);
+    if(properties) {
+      gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+      g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
+      g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
     }
-    g_free(id);
-
-    // release references
-    g_object_unref(setup);
-    g_object_unref(sequence);
-    g_object_unref(song);
+    if(bt_machine_enable_input_level(machine)) {
+      GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
+      // set new song in application
+      bt_song_set_unsaved(song,FALSE);
+      g_object_set(G_OBJECT(self),"song",song,NULL);
+      res=TRUE;
+    }
+    else {
+      GST_WARNING("Can't add input level/gain element in sink machine");
+    }
+    GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
   }
+  else {
+    GST_WARNING("Can't create sink machine: %s",err->message);
+    g_error_free(err);
+  }
+  g_object_unref(machine);
+  g_free(id);
+
+  // release references
+  g_object_unref(setup);
+  g_object_unref(sequence);
+  g_object_unref(song);
   return(res);
 }
 
@@ -304,62 +306,61 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     while(gtk_events_pending()) gtk_main_iteration();
 
     // create new song
-    if((song=bt_song_new(BT_APPLICATION(self)))) {
+    song=bt_song_new(BT_APPLICATION(self));
 
-      if(bt_song_io_load(loader,song)) {
-        BtSetup *setup;
-        BtWavetable *wavetable;
-        BtMachine *machine;
+    if(bt_song_io_load(loader,song)) {
+      BtSetup *setup;
+      BtWavetable *wavetable;
+      BtMachine *machine;
 
-        g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
-        // get sink-machine
-        if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-          if(bt_machine_enable_input_level(machine)) {
-            GList *missing_machines,*missing_waves;
+      g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
+      // get sink-machine
+      if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
+        if(bt_machine_enable_input_level(machine)) {
+          GList *missing_machines,*missing_waves;
 
-            // DEBUG
-            //bt_song_write_to_highlevel_dot_file(song);
-            // DEBUG
-            // set new song
-            g_object_set(G_OBJECT(self),"song",song,NULL);
-            res=TRUE;
-            GST_INFO("new song activated");
+          // DEBUG
+          //bt_song_write_to_highlevel_dot_file(song);
+          // DEBUG
+          // set new song
+          g_object_set(G_OBJECT(self),"song",song,NULL);
+          res=TRUE;
+          GST_INFO("new song activated");
 
-            // get missing element info
-            g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
-            g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
-            // tell about missing machines and/or missing waves
-            if(missing_machines || missing_waves) {
-              GtkWidget *dialog;
+          // get missing element info
+          g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
+          g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
+          // tell about missing machines and/or missing waves
+          if(missing_machines || missing_waves) {
+            GtkWidget *dialog;
 
-              if((dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(self,missing_machines,missing_waves)))) {
-                gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
-                gtk_widget_show_all(dialog);
+            if((dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(self,missing_machines,missing_waves)))) {
+              gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
+              gtk_widget_show_all(dialog);
 
-                gtk_dialog_run(GTK_DIALOG(dialog));
-                gtk_widget_destroy(dialog);
-              }
+              gtk_dialog_run(GTK_DIALOG(dialog));
+              gtk_widget_destroy(dialog);
             }
           }
-          else {
-            GST_WARNING("Can't add input level/gain element in sink machine");
-          }
-          GST_DEBUG("unreffing stuff after loading");
-          g_object_unref(machine);
         }
         else {
-          GST_WARNING("Can't look up sink machine");
+          GST_WARNING("Can't add input level/gain element in sink machine");
         }
-        g_object_unref(setup);
-        g_object_unref(wavetable);
+        GST_DEBUG("unreffing stuff after loading");
+        g_object_unref(machine);
       }
       else {
-        GST_ERROR("could not load song \"%s\"",file_name);
+        GST_WARNING("Can't look up sink machine");
       }
-      g_object_unref(song);
+      g_object_unref(setup);
+      g_object_unref(wavetable);
+    }
+    else {
+      GST_ERROR("could not load song \"%s\"",file_name);
     }
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
     gdk_window_set_cursor(window,NULL);
+    g_object_unref(song);
     g_object_unref(loader);
   }
   else {

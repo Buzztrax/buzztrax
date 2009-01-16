@@ -45,6 +45,7 @@ static void test_teardown(void) {
 */
 BT_START_TEST(test_btsetup_obj1){
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machine
@@ -60,8 +61,9 @@ BT_START_TEST(test_btsetup_obj1){
   g_object_get(song,"setup",&setup,NULL);
 
   /* try to create machine */
-  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0,&err);
   fail_unless(source!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   g_object_get(G_OBJECT(setup),"machines",&list,NULL);
   /* the list should not be null */
@@ -94,6 +96,7 @@ BT_END_TEST
 */
 BT_START_TEST(test_btsetup_obj2) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machines
@@ -113,16 +116,19 @@ BT_START_TEST(test_btsetup_obj2) {
   fail_unless(setup!=NULL, NULL);
 
   /* try to create generator1 */
-  source = bt_source_machine_new(song,"src","audiotestsrc",0);
+  source = bt_source_machine_new(song,"src","audiotestsrc",0,&err);
   fail_unless(source!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create sink machine (default audio sink) */
-  sink = bt_sink_machine_new(song,"sink");
+  sink = bt_sink_machine_new(song,"sink",&err);
   fail_unless(sink!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create the wire */
-  wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
+  wire = bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink),&err);
   fail_unless(wire!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to get the list of wires in the setup */
   g_object_get(G_OBJECT(setup),"wires",&list,NULL);
@@ -169,6 +175,7 @@ BT_END_TEST
 */
 BT_START_TEST(test_btsetup_obj3) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machines
@@ -184,8 +191,9 @@ BT_START_TEST(test_btsetup_obj3) {
   fail_unless(setup!=NULL, NULL);
 
   /* try to create generator1 */
-  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0,&err);
   fail_unless(source!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to get the machine back from the setup */
   ref_machine=bt_setup_get_machine_by_id(setup, "src");
@@ -213,6 +221,7 @@ BT_END_TEST
 */
 BT_START_TEST(test_btsetup_obj4) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machines
@@ -231,16 +240,19 @@ BT_START_TEST(test_btsetup_obj4) {
   fail_unless(setup!=NULL, NULL);
 
   /* try to create generator1 */
-  source = bt_source_machine_new(song,"src","audiotestsrc",0);
+  source = bt_source_machine_new(song,"src","audiotestsrc",0,&err);
   fail_unless(source!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create sink machine (default audio sink) */
-  sink = bt_sink_machine_new(song,"sink");
+  sink = bt_sink_machine_new(song,"sink",&err);
   fail_unless(sink!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create the wire */
-  wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
+  wire = bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink),&err);
   fail_unless(wire!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* check if we can get the wire from the setup */
   ref_wire=bt_setup_get_wire_by_src_machine(setup, BT_MACHINE(source));
@@ -269,6 +281,7 @@ BT_END_TEST
 */
 BT_START_TEST(test_btsetup_wire1) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machines
@@ -289,16 +302,19 @@ BT_START_TEST(test_btsetup_wire1) {
   fail_unless(setup!=NULL, NULL);
 
   /* try to create generator1 */
-  source = bt_source_machine_new(song,"src","audiotestsrc",0);
+  source = bt_source_machine_new(song,"src","audiotestsrc",0,&err);
   fail_unless(source!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create sink machine (default audio sink) */
-  sink = bt_sink_machine_new(song,"sink");
+  sink = bt_sink_machine_new(song,"sink",&err);
   fail_unless(sink!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create the wire */
-  wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
+  wire = bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink),&err);
   fail_unless(wire!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to get the list of wires */
   wire_list=bt_setup_get_wires_by_src_machine(setup,BT_MACHINE(source));
@@ -324,6 +340,7 @@ BT_END_TEST
 */
 BT_START_TEST(test_btsetup_wire2) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machines
@@ -344,16 +361,19 @@ BT_START_TEST(test_btsetup_wire2) {
   fail_unless(setup!=NULL, NULL);
 
   /* try to create generator1 */
-  source = bt_source_machine_new(song,"src","audiotestsrc",0);
+  source = bt_source_machine_new(song,"src","audiotestsrc",0,&err);
   fail_unless(source!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create sink machine (default audio sink) */
-  sink = bt_sink_machine_new(song,"sink");
+  sink = bt_sink_machine_new(song,"sink",&err);
   fail_unless(sink!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to create the wire */
-  wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
+  wire = bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink),&err);
   fail_unless(wire!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* try to get the list of wires */
   wire_list=bt_setup_get_wires_by_dst_machine(setup,BT_MACHINE(sink));
@@ -379,6 +399,7 @@ BT_END_TEST
 */
 BT_START_TEST(test_btsetup_machine1) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machines
@@ -396,8 +417,9 @@ BT_START_TEST(test_btsetup_machine1) {
   fail_unless(setup!=NULL, NULL);
 
   /* try to create generator1 */
-  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0,&err);
   fail_unless(source!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* now try to get the machine back via bt_setup_get_machine_by_type */
   machine_type=G_OBJECT_TYPE(source);
@@ -419,6 +441,7 @@ BT_END_TEST
 */
 BT_START_TEST(test_btsetup_unique_id1){
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machine
@@ -434,8 +457,9 @@ BT_START_TEST(test_btsetup_unique_id1){
   g_object_get(song,"setup",&setup,NULL);
 
   /* try to create generator1 */
-  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0,&err);
   fail_unless(source!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   /* get an id for a new machine, with the same name */
   id=bt_setup_get_unique_machine_id(setup,"src");

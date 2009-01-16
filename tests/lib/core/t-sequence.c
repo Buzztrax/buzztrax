@@ -98,6 +98,7 @@ BT_END_TEST
 /* try to add a new machine for the sequence with NULL for the sequence parameter */
 BT_START_TEST(test_btsequence_add_track2) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
 
@@ -108,8 +109,9 @@ BT_START_TEST(test_btsequence_add_track2) {
   song=bt_song_new(app);
 
   /* try to create a source machine */
-  machine=bt_source_machine_new(song,"id","audiotestsrc",0);
+  machine=bt_source_machine_new(song,"id","audiotestsrc",0,&err);
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   check_init_error_trapp("","BT_IS_SEQUENCE(self)");
   bt_sequence_add_track(NULL,BT_MACHINE(machine));
@@ -148,6 +150,7 @@ BT_END_TEST
 /* try to remove a machine from the sequence that has never added */
 BT_START_TEST(test_btsequence_rem_track2) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
   BtSourceMachine *machine=NULL;
@@ -159,8 +162,9 @@ BT_START_TEST(test_btsequence_rem_track2) {
   fail_unless(sequence!=NULL,NULL);
 
   /* try to create a source machine */
-  machine=bt_source_machine_new(song,"id","audiotestsrc",0);
+  machine=bt_source_machine_new(song,"id","audiotestsrc",0,&err);
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
 
   bt_sequence_remove_track_by_machine(sequence,BT_MACHINE(machine));
 
@@ -200,6 +204,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_pattern1) {
   BtApplication *app;
+  GError *err=NULL;
   BtSong *song;
   BtSequence *sequence;
   BtMachine *machine;
@@ -211,8 +216,9 @@ BT_START_TEST(test_btsequence_pattern1) {
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
   /* create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen-m","buzztard-test-mono-source",0));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen-m","buzztard-test-mono-source",0,&err));
   fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
   /* create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   fail_unless(pattern!=NULL, NULL);
@@ -236,6 +242,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_pattern2) {
   BtApplication *app;
+  GError *err=NULL;
   BtSong *song;
   BtSequence *sequence;
   BtMachine *machine1,*machine2;
@@ -247,10 +254,12 @@ BT_START_TEST(test_btsequence_pattern2) {
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
    /* create two source machines */
-  machine1=BT_MACHINE(bt_source_machine_new(song,"gen-m","buzztard-test-mono-source",0));
+  machine1=BT_MACHINE(bt_source_machine_new(song,"gen-m","buzztard-test-mono-source",0,&err));
   fail_unless(machine1!=NULL, NULL);
-  machine2=BT_MACHINE(bt_source_machine_new(song,"gen-p","buzztard-test-poly-source",1));
+  fail_unless(err==NULL, NULL);
+  machine2=BT_MACHINE(bt_source_machine_new(song,"gen-p","buzztard-test-poly-source",1,&err));
   fail_unless(machine2!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
   /* create a pattern */
   pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine1);
   fail_unless(pattern1!=NULL, NULL);

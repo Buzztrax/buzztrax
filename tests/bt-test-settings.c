@@ -96,6 +96,7 @@ static void bt_test_settings_get_property(GObject      * const object,
       }
     } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
+    case BT_SETTINGS_MENU_STATUSBAR_HIDE:
     case BT_SETTINGS_MENU_TABS_HIDE:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:
     {
@@ -106,6 +107,8 @@ static void bt_test_settings_get_property(GObject      * const object,
         g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
       }
     } break; 
+    case BT_SETTINGS_SAMPLE_RATE:
+    case BT_SETTINGS_CHANNELS:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
     {
       if(prop) {
@@ -148,6 +151,7 @@ static void bt_test_settings_set_property(GObject      * const object,
       g_value_set_string(prop, g_value_get_string(value));
     } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
+    case BT_SETTINGS_MENU_STATUSBAR_HIDE:
     case BT_SETTINGS_MENU_TABS_HIDE:
     {
       if(!prop) {
@@ -156,6 +160,16 @@ static void bt_test_settings_set_property(GObject      * const object,
       }
       g_value_set_boolean(prop, g_value_get_boolean(value));
     } break; 
+    case BT_SETTINGS_SAMPLE_RATE:
+    case BT_SETTINGS_CHANNELS:
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
+    {
+      if(!prop) {
+        self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
+        g_value_init(prop,G_TYPE_UINT);
+      }
+      g_value_set_boolean(prop, g_value_get_uint(value));
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;

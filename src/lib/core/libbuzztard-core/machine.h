@@ -68,7 +68,6 @@ struct _BtMachineClass {
   /*< public >*/
   /* virtual methods for subclasses */
   gboolean (*check_type)(const BtMachine * const machine, const gulong pad_src_ct, const gulong pad_sink_ct);
-  void (*setup)(const BtMachine * const machine);
 };
 
 #define BT_TYPE_MACHINE_STATE       (bt_machine_state_get_type())

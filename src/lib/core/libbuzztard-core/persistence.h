@@ -30,19 +30,6 @@
 #define BT_IS_PERSISTENCE(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PERSISTENCE))
 #define BT_PERSISTENCE_GET_INTERFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), BT_TYPE_PERSISTENCE, BtPersistenceInterface))
 
-/**
- * BT_PERSISTENCE_ERROR:
- * @label: label to jump to
- *
- * depending on the configuration aborts the loading by jumping to the given
- * @label.
- */
-/* uncomment this to make loading files fail on warnings
-#define BT_PERSISTENCE_ERROR(label) goto label
-*/
-/* this is a hack to avoid undefined label warnings */
-#define BT_PERSISTENCE_ERROR(label) if(0) goto label
-
 /* type macros */
 
 typedef struct _BtPersistence BtPersistence; /* dummy object */
@@ -52,7 +39,7 @@ struct _BtPersistenceInterface {
   const GTypeInterface parent;
 
   xmlNodePtr (*save)(const BtPersistence * const self, xmlNodePtr const node, const BtPersistenceSelection * const selection);
-  gboolean (*load)(const BtPersistence * const self, xmlNodePtr node, const BtPersistenceLocation * const location);
+  BtPersistence* (*load)(const GType type, const BtPersistence * const self, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args);
 };
 
 GType bt_persistence_get_type(void) G_GNUC_CONST;

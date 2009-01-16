@@ -100,45 +100,6 @@ static GObjectClass *parent_class=NULL;
 static gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern);
 
 /*
- * bt_sequence_init_data:
- * @self: the sequence to initialize the pattern data for
- *
- * Allocates and initializes the memory for the pattern data grid.
- *
- * Returns: %TRUE for success
- */
-static gboolean bt_sequence_init_data(const BtSequence * const self) {
-  const gulong data_count=self->priv->length*self->priv->tracks;
-
-  if(data_count==0) return(TRUE);
-
-  if(self->priv->patterns) {
-    GST_INFO("data has already been initialized");
-    return(TRUE);
-  }
-
-  GST_DEBUG("sizes : %lu*%lu=%lu",self->priv->length,self->priv->tracks,data_count);
-  if(!(self->priv->patterns=(BtPattern **)g_try_new0(gpointer,data_count))) {
-    GST_WARNING("failed to allocate memory for patterns grid");
-    goto Error;
-  }
-  if(!(self->priv->labels=(gchar **)g_try_new0(gpointer,self->priv->length))) {
-    GST_WARNING("failed to allocate memory for labels array");
-    goto Error;
-  }
-  if(!(self->priv->machines=(BtMachine **)g_try_new0(gpointer,self->priv->tracks))) {
-    GST_WARNING("failed to allocate memory for machines array");
-    goto Error;
-  }
-  return(TRUE);
-Error:
-  g_free(self->priv->patterns);self->priv->patterns=NULL;
-  g_free(self->priv->labels);self->priv->labels=NULL;
-  g_free(self->priv->machines);self->priv->machines=NULL;
-  return(FALSE);
-}
-
-/*
  * bt_sequence_resize_data_length:
  * @self: the sequence to resize the length
  * @length: the old length
@@ -1183,30 +1144,10 @@ static gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, con
  * Returns: the new instance or %NULL in case of an error
  */
 BtSequence *bt_sequence_new(const BtSong * const song) {
+  /* @todo: use GError */
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  BtSequence * const self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL));
-  BtSetup *setup;
-
-  if(!self) {
-    goto Error;
-  }
-  if(!bt_sequence_init_data(self)) {
-    goto Error;
-  }
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-  if(setup) {
-    g_signal_connect(G_OBJECT(setup),"wire-added",G_CALLBACK(on_wire_added),(gpointer)self);
-    g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
-    g_object_unref(setup);
-  }
-  else {
-    GST_WARNING("no setup yet");
-  }
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL)));
 }
 
 //-- methods
@@ -1859,9 +1800,8 @@ Error:
   return(node);
 }
 
-static gboolean bt_sequence_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+static BtPersistence *bt_sequence_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
   BtSequence * const self = BT_SEQUENCE(persistence);
-  gboolean res=FALSE;
   xmlNodePtr child_node,child_node2;
   gboolean sequence_changed=FALSE;
 
@@ -1934,9 +1874,6 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
                       }
                       else {
                         GST_WARNING("  unknown pattern \"%s\"",pattern_id);
-                        xmlFree(pattern_id);xmlFree(time_str);
-                        xmlFree(index_str);xmlFree(machine_id);
-                        BT_PERSISTENCE_ERROR(Error);
                       }
                       xmlFree(pattern_id);
                     }
@@ -1967,9 +1904,7 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
     bt_sequence_repair_damage(self);
   }
 
-  res=TRUE;
-Error:
-  return(res);
+  return(BT_PERSISTENCE(persistence));
 }
 
 static void bt_sequence_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -1983,14 +1918,28 @@ static void bt_sequence_persistence_interface_init(gpointer const g_iface, gpoin
 
 //-- default signal handler
 
-//-- class internals
+//-- g_object overrides
+
+static void bt_sequence_constructed(GObject *object) {
+  BtSequence *self=BT_SEQUENCE(object);
+  BtSetup *setup;
+  
+  if(G_OBJECT_CLASS(parent_class)->constructed)
+    G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+  if(setup) {
+    g_signal_connect(G_OBJECT(setup),"wire-added",G_CALLBACK(on_wire_added),(gpointer)self);
+    g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
+    g_object_unref(setup);
+  }
+  else {
+    GST_WARNING("no setup yet");
+  }
+}
 
 /* returns a property for the given property_id for this object */
-static void bt_sequence_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_sequence_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSequence * const self = BT_SEQUENCE(object);
   return_if_disposed();
   switch (property_id) {
@@ -2019,17 +1968,12 @@ static void bt_sequence_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_sequence_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_sequence_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSequence * const self = BT_SEQUENCE(object);
 
   return_if_disposed();
   switch (property_id) {
     case SEQUENCE_SONG: {
-      g_object_try_weak_unref(self->priv->song);
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for sequence: %p",self->priv->song);
@@ -2184,6 +2128,8 @@ static void bt_sequence_finalize(GObject * const object) {
   GST_DEBUG("  done");
 }
 
+//-- class internals
+
 static void bt_sequence_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtSequence * const self = BT_SEQUENCE(instance);
 
@@ -2200,6 +2146,7 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSequencePrivate));
 
+  gobject_class->constructed  = bt_sequence_constructed;
   gobject_class->set_property = bt_sequence_set_property;
   gobject_class->get_property = bt_sequence_get_property;
   gobject_class->dispose      = bt_sequence_dispose;

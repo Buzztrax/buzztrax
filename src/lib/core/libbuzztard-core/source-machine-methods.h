@@ -24,6 +24,6 @@
 
 #include "source-machine.h"
 
-extern BtSourceMachine *bt_source_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices);
+extern BtSourceMachine *bt_source_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices, GError **err);
 
 #endif // BT_SOURCE_MACHINE_METHDOS_H

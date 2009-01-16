@@ -164,7 +164,7 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
   };
  
   /* tweak the config */
-  settings=bt_settings_new();
+  settings=bt_settings_make();
   g_object_set(settings,"audiosink","fakesink",NULL);
 
  /* create a dummy app */

@@ -42,6 +42,7 @@ static void test_teardown(void) {
 */
 BT_START_TEST(test_btsourcemachine_obj1) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
 
@@ -52,8 +53,9 @@ BT_START_TEST(test_btsourcemachine_obj1) {
   song=bt_song_new(app);
 
   /* try to create a source machine with wrong pluginname (not existing)*/
-  machine=bt_source_machine_new(song,"id","nonsense",1);
-  fail_unless(machine==NULL, NULL);
+  machine=bt_source_machine_new(song,"id","nonsense",1,&err);
+  fail_unless(machine!=NULL, NULL);
+  fail_unless(err!=NULL, NULL);
 
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -65,6 +67,7 @@ BT_END_TEST
 */
 BT_START_TEST(test_btsourcemachine_obj2) {
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
 
@@ -75,8 +78,9 @@ BT_START_TEST(test_btsourcemachine_obj2) {
   song=bt_song_new(app);
 
   /* try to create a source machine with wrong plugin type (sink instead of source) */
-  machine=bt_source_machine_new(song,"id","esdsink",1);
-  fail_unless(machine==NULL, NULL);
+  machine=bt_source_machine_new(song,"id","esdsink",1,&err);
+  fail_unless(machine!=NULL, NULL);
+  fail_unless(err!=NULL, NULL);
 
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -85,6 +89,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsourcemachine_obj3){
   BtApplication *app=NULL;
+  GError *err=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
   gulong testIdx=0;
@@ -97,8 +102,9 @@ BT_START_TEST(test_btsourcemachine_obj3){
   song=bt_song_new(app);
 
   /* try to create a normal sink machine */
-  machine=bt_source_machine_new(song,"id","audiotestsrc",0);
+  machine=bt_source_machine_new(song,"id","audiotestsrc",0,&err);
   fail_unless(machine!=NULL,NULL);
+  fail_unless(err==NULL, NULL);
   /* try to get global param index from audiotestsrc */
   testIdx=bt_machine_get_global_param_index(BT_MACHINE(machine),"nonsense",&error);
   fail_unless(g_error_matches(error,

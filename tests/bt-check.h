@@ -78,6 +78,35 @@ static void __testname (int _i __attribute__((unused)))\
   GST_DEBUG ("test end ----------------------------------------------------------------------\n"); \
 }
 
+/* Hack to allow run-time selection of unit tests to run via the
+ * BT_CHECKS environment variable (test function names, comma-separated)
+ * (borrowed from gstreamer)
+ */
+gboolean _bt_check_run_test_func (const gchar * func_name);
+
+#if CHECK_MAJOR_VERSION > 0 || \
+    (CHECK_MAJOR_VERSION == 0 && CHECK_MINOR_VERSION > 9) || \
+    (CHECK_MAJOR_VERSION == 0 && CHECK_MINOR_VERSION == 9 && CHECK_MICRO_VERSION > 3)
+static inline void
+__bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal,
+    int start, int end)
+{
+  if (_bt_check_run_test_func (fname)) {
+    _tcase_add_test (tc, tf, fname, signal, start, end);
+  }
+}
+#else
+static inline void
+__bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal)
+{
+  if (_bt_check_run_test_func (fname)) {
+    _tcase_add_test (tc, tf, fname, signal);
+  }
+}
+#endif
+
+#define _tcase_add_test __bt_tcase_add_test
+
 
 //-- testing helper methods
 

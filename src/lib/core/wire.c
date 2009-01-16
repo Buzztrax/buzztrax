@@ -51,7 +51,8 @@ enum {
 //-- property ids
 
 enum {
-  WIRE_PROPERTIES=1,
+  WIRE_CONSTRUCTION_ERROR=1,
+  WIRE_PROPERTIES,
   WIRE_SONG,
   WIRE_SRC,
   WIRE_DST,
@@ -86,6 +87,8 @@ typedef enum {
 struct _BtWirePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
+  /* used to signal failed instance creation */
+  GError **constrution_error;
 
   /* (ui) properties accociated with this machine */
   GHashTable *properties;
@@ -774,17 +777,8 @@ Error:
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtWire *bt_wire_new(const BtSong * const song, const BtMachine * const src_machine, const BtMachine * const dst_machine) {
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  g_return_val_if_fail(BT_IS_MACHINE(src_machine),NULL);
-  g_return_val_if_fail(!BT_IS_SINK_MACHINE(src_machine),NULL);
-  g_return_val_if_fail(BT_IS_MACHINE(dst_machine),NULL);
-  g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(dst_machine),NULL);
-  g_return_val_if_fail(src_machine!=dst_machine,NULL);
-
-  GST_INFO("create wire between %p and %p",src_machine,dst_machine);
-
-  return(BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL)));
+BtWire *bt_wire_new(const BtSong * const song, const BtMachine * const src_machine, const BtMachine * const dst_machine, GError **err) {
+  return(BT_WIRE(g_object_new(BT_TYPE_WIRE,"construction-error",err,"song",song,"src",src_machine,"dst",dst_machine,NULL)));
 }
 
 //-- methods
@@ -815,7 +809,7 @@ gboolean bt_wire_reconnect(BtWire * const self) {
  * Add the supplied wire-pattern to the wire. This is automatically done by
  * #bt_wire_pattern_new().
  */
-void bt_wire_add_wire_pattern (const BtWire * const self, const BtPattern * const pattern, const BtWirePattern * const wire_pattern) {
+void bt_wire_add_wire_pattern(const BtWire * const self, const BtPattern * const pattern, const BtWirePattern * const wire_pattern) {
   g_hash_table_insert(self->priv->patterns,(gpointer)pattern,(gpointer)g_object_ref(G_OBJECT(wire_pattern)));
   // notify others that the pattern has been created
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CREATED_EVENT],0,wire_pattern);
@@ -1179,34 +1173,56 @@ Error:
   return(node);
 }
 
-static gboolean bt_wire_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
-  const BtWire * const self = BT_WIRE(persistence);
+static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+  BtWire *self;
+  BtPersistence *result;
   BtSetup * const setup;
-  xmlChar *id, *gain_str, *pan_str;
-  gboolean res=FALSE;
+  xmlChar *src_id, *dst_id, *gain_str, *pan_str;
   xmlNodePtr child_node;
 
   GST_DEBUG("PERSISTENCE::wire");
   g_assert(node);
 
-  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-
-  id=xmlGetProp(node,XML_CHAR_PTR("src"));
-  self->priv->src=bt_setup_get_machine_by_id(setup,(gchar *)id);
-  GST_DEBUG("src %s -> %p",id,self->priv->src);
-  xmlFree(id);
-
-  id=xmlGetProp(node,XML_CHAR_PTR("dst"));
-  self->priv->dst=bt_setup_get_machine_by_id(setup,(gchar *)id);
-  GST_DEBUG("dst %s -> %p",id,self->priv->dst);
-  xmlFree(id);
+  src_id=xmlGetProp(node,XML_CHAR_PTR("src"));
+  dst_id=xmlGetProp(node,XML_CHAR_PTR("dst"));
   
-  // this is simillar to the code in the constructor
-  if(!bt_wire_connect(self)) {
-    return FALSE;
+  if(!persistence) {
+    BtSong *song=NULL;
+    BtMachine *src_machine,*dst_machine;
+    gchar *param_name;
+
+    // we need to get parameters from var_args (need to handle all baseclass params
+    param_name=va_arg(var_args,gchar*);
+    while(param_name) {
+      if(!strcmp(param_name,"song")) {
+        song=va_arg(var_args, gpointer);
+      }
+      else {
+        GST_WARNING("unhandled argument: %s",param_name);
+        break;
+      }
+      param_name=va_arg(var_args,gchar*);
+    }
+
+    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+    src_machine=bt_setup_get_machine_by_id(setup,(gchar *)src_id);
+    dst_machine=bt_setup_get_machine_by_id(setup,(gchar *)dst_id);
+    
+    self=bt_wire_new(song,src_machine,dst_machine,err);
+    result=BT_PERSISTENCE(self);
+    g_object_try_unref(src_machine);
+    g_object_try_unref(dst_machine);
+    if(*err!=NULL) {
+      goto Error;
+    }
   }
-  bt_setup_add_wire(setup,self);
-  res=TRUE;
+  else {
+    self=BT_WIRE(persistence);
+    result=BT_PERSISTENCE(self);
+  }
+
+  xmlFree(src_id);
+  xmlFree(dst_id);
   
   if((gain_str=xmlGetProp(node,XML_CHAR_PTR("gain")))) {
     gdouble gain=g_ascii_strtod((gchar *)gain_str,NULL);
@@ -1229,13 +1245,12 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
   
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"pattern\0",8))) {
-            wire_pattern=BT_WIRE_PATTERN(g_object_new(BT_TYPE_WIRE_PATTERN,"song",self->priv->song,"wire",self,NULL));
-            if(bt_persistence_load(BT_PERSISTENCE(wire_pattern),child_node,NULL)) {
-              BtPattern *pattern;
-  
-              g_object_get(wire_pattern,"pattern",&pattern,NULL);
-              bt_wire_add_wire_pattern(self,pattern,wire_pattern);
-              g_object_unref(pattern);
+            GError *err=NULL;
+            
+            wire_pattern=BT_WIRE_PATTERN(bt_persistence_load(BT_TYPE_WIRE_PATTERN,NULL,child_node,NULL,&err,"song",self->priv->song,"wire",self,NULL));
+            if(err!=NULL) {
+              GST_WARNING("Can't create wire-pattern: %s",err->message);
+              g_error_free(err);
             }
             g_object_unref(wire_pattern);
           }
@@ -1244,8 +1259,11 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
     }
   }
 
+Done:
   g_object_unref(setup);
-  return(res);
+  return(result);
+Error:
+  goto Done;
 }
 
 static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -1259,39 +1277,80 @@ static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer 
 
 //-- class internals
 
-static GObject* bt_wire_constructor(GType type, guint n_construct_properties, GObjectConstructParam *construct_properties) {
-  BtWire * const self=BT_WIRE(G_OBJECT_CLASS(parent_class)->constructor(type,n_construct_properties,construct_properties));
+static void bt_wire_constructed(GObject *object) {
+  BtWire * const self=BT_WIRE(object);
+  BtSetup * const setup;
+
+  if(G_OBJECT_CLASS(parent_class)->constructed)
+    G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  if(BT_IS_SINK_MACHINE(self->priv->src))
+    goto SrcIsSinkMachineError;
+  if(BT_IS_SOURCE_MACHINE(self->priv->dst))
+    goto SinkIsSrcMachineError;
+  if(self->priv->src==self->priv->dst)
+    goto SrcIsSinkError;
   
   GST_INFO("wire constructor, self->priv=%p, between %p and %p",self->priv,self->priv->src,self->priv->dst);
   if(self->priv->src && self->priv->dst) {
     if(!bt_wire_connect(self)) {
-      goto Error;
+      goto ConnectError;
     }
-    {
-      BtSetup * const setup;
-  
-      // add the wire to the setup of the song
-      g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-      g_assert(setup!=NULL);
-      bt_setup_add_wire(setup,self);
-      g_object_unref(setup);
-    }
+
+    // add the wire to the setup of the song
+    g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+    bt_setup_add_wire(setup,self);
+    g_object_unref(setup);
   }
-  return(G_OBJECT(self));
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  else {
+    goto NoMachinesError;
+  }
+  return;
+ConnectError:
+  GST_WARNING("failed to connect wire");
+  if(self->priv->constrution_error) {
+    g_set_error(self->priv->constrution_error, error_domain, /* errorcode= */0,
+               "failed to connect wire.");
+  }
+  return;
+SrcIsSinkMachineError:
+  GST_WARNING("src is sink-machine");
+  if(self->priv->constrution_error) {
+    g_set_error(self->priv->constrution_error, error_domain, /* errorcode= */0,
+               "src is sink-machine.");
+  }
+  return;
+SinkIsSrcMachineError:
+  GST_WARNING("sink is src-machine");
+  if(self->priv->constrution_error) {
+    g_set_error(self->priv->constrution_error, error_domain, /* errorcode= */0,
+               "sink is src-machine.");
+  }
+  return;
+SrcIsSinkError:
+  GST_WARNING("src and sink are the same machine");
+  if(self->priv->constrution_error) {
+    g_set_error(self->priv->constrution_error, error_domain, /* errorcode= */0,
+               "src and sink are the same machine.");
+  }
+  return;
+NoMachinesError:
+  GST_WARNING("src and/or sink are NULL");
+  if(self->priv->constrution_error) {
+    g_set_error(self->priv->constrution_error, error_domain, /* errorcode= */0,
+               "src=%p and/or sink=%p are NULL.",self->priv->src,self->priv->dst);
+  }
+  return; 
 }
 
 /* returns a property for the given property_id for this object */
-static void bt_wire_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_wire_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtWire *const self = BT_WIRE(object);
   return_if_disposed();
   switch (property_id) {
+    case WIRE_CONSTRUCTION_ERROR: {
+      g_value_set_pointer(value, self->priv->constrution_error);
+    } break;
     case WIRE_PROPERTIES: {
       g_value_set_pointer(value, self->priv->properties);
     } break;
@@ -1323,27 +1382,23 @@ static void bt_wire_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_wire_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_wire_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtWire *const self = BT_WIRE(object);
   return_if_disposed();
   switch (property_id) {
+    case WIRE_CONSTRUCTION_ERROR: {
+      self->priv->constrution_error=(GError **)g_value_get_pointer(value);
+    } break;
     case WIRE_SONG: {
-      g_object_try_weak_unref(self->priv->song);
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for wire: %p",self->priv->song);
     } break;
     case WIRE_SRC: {
-      g_object_try_unref(self->priv->src);
       self->priv->src=BT_MACHINE(g_value_dup_object(value));
       GST_DEBUG("set the source element for the wire: %p",self->priv->src);
     } break;
     case WIRE_DST: {
-      g_object_try_unref(self->priv->dst);
       self->priv->dst=BT_MACHINE(g_value_dup_object(value));
       GST_DEBUG("set the target element for the wire: %p",self->priv->dst);
     } break;
@@ -1464,7 +1519,7 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWirePrivate));
 
-  gobject_class->constructor  = bt_wire_constructor;
+  gobject_class->constructed  = bt_wire_constructed;
   gobject_class->set_property = bt_wire_set_property;
   gobject_class->get_property = bt_wire_get_property;
   gobject_class->dispose      = bt_wire_dispose;
@@ -1490,6 +1545,11 @@ static void bt_wire_class_init(BtWireClass * const klass) {
                                    BT_TYPE_WIRE_PATTERN // param data
                                    );
 
+  g_object_class_install_property(gobject_class,WIRE_CONSTRUCTION_ERROR,
+                                  g_param_spec_pointer("construction-error",
+                                     "construction error prop",
+                                     "signal failed instance creation",
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_PROPERTIES,
                                   g_param_spec_pointer("properties",

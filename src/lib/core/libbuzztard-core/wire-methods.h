@@ -25,7 +25,7 @@
 #include "wire.h"
 #include "wire-pattern.h"
 
-extern BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine);
+extern BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine, GError **err);
 
 extern gboolean bt_wire_reconnect(BtWire *self);
 

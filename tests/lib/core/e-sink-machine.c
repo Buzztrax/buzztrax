@@ -1,7 +1,7 @@
 /* $Id$
  *
  * Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2009 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -36,33 +36,39 @@ static void test_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btprocessormachine_obj1) {
+BT_START_TEST(test_btsinkmachine_obj1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
-  BtProcessorMachine *machine;
+  BtSinkMachine *machine;
+  BtSettings *settings=NULL;
   GError *err=NULL;
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* configure a sink for testing */
+  settings=bt_settings_make();
+  g_object_set(settings,"audiosink","fakesink",NULL);
   /* create a new song */
   song=bt_song_new(app);
 
   /* create a machine */
-  machine=bt_processor_machine_new(song,"vol","volume",0,&err);
+  machine=bt_sink_machine_new(song,"master",&err);
   fail_unless(machine != NULL, NULL);
   fail_unless(err==NULL, NULL);
 
   g_object_try_unref(machine);
+  g_object_unref(settings);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 BT_END_TEST
 
-BT_START_TEST(test_btprocessormachine_obj2) {
+BT_START_TEST(test_btsinkmachine_obj2) {
   BtApplication *app=NULL;
   GError *err=NULL;
   BtSong *song=NULL;
-  BtProcessorMachine *machine;
+  BtSinkMachine *machine;
+  BtSettings *settings=NULL;
   BtPattern *pattern=NULL;
   BtPattern *ref_pattern=NULL;
   GList *list,*node;
@@ -70,11 +76,14 @@ BT_START_TEST(test_btprocessormachine_obj2) {
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* configure a sink for testing */
+  settings=bt_settings_make();
+  g_object_set(settings,"audiosink","fakesink",NULL);
   /* create a new song */
   song=bt_song_new(app);
 
   /* create a machine */
-  machine=bt_processor_machine_new(song,"vol","volume",0,&err);
+  machine=bt_sink_machine_new(song,"master",&err);
   fail_unless(machine != NULL, NULL);
   fail_unless(err==NULL, NULL);
   
@@ -94,8 +103,8 @@ BT_START_TEST(test_btprocessormachine_obj2) {
   g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
   /* the list should not be null */
   fail_unless(list!=NULL, NULL);
-  /* source machine has 3 default pattern (break+mute+bypass) */
-  fail_unless(g_list_length(list)==4, NULL);
+  /* source machine has 2 default pattern (break+mute) */
+  fail_unless(g_list_length(list)==3, NULL);
   node=g_list_last(list);
 
   /* the returned pointer should point to the same pattern, that we added
@@ -114,11 +123,11 @@ BT_START_TEST(test_btprocessormachine_obj2) {
 BT_END_TEST
 
 
-TCase *bt_processor_machine_example_case(void) {
-  TCase *tc = tcase_create("BtProcessorMachineExamples");
+TCase *bt_sink_machine_example_case(void) {
+  TCase *tc = tcase_create("BtSinkMachineExamples");
 
-  tcase_add_test(tc,test_btprocessormachine_obj1);
-  tcase_add_test(tc,test_btprocessormachine_obj2);
+  tcase_add_test(tc,test_btsinkmachine_obj1);
+  tcase_add_test(tc,test_btsinkmachine_obj2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

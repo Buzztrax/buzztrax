@@ -389,7 +389,7 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
  *
  * Serializes the given object into @node.
  *
- * Returns: the new node if the element has been serialized, ellse %NULL.
+ * Returns: the new node if the object has been serialized, else %NULL.
  */
 xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
@@ -399,18 +399,40 @@ xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr cons
 
 /**
  * bt_persistence_load:
+ * @type: a #GObject type
  * @self: a deserialiable object
  * @node: the xml node
  * @location: an optional location
+ * @...: extra parameters NULL terminated name/value pairs.
  *
- * Deserializes the given object from the @node.
+ * Deserializes the given object from the @node. If @self is NULL and a @type is
+ * given it constructs a new object.
  *
- * Returns: %TRUE if the element has been deserialized.
+ * Returns: the deserialized object or %NULL.
  */
-gboolean bt_persistence_load(const BtPersistence * const self, xmlNodePtr node, const BtPersistenceLocation * const location) {
-  g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
+BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const self, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, ...) {
+  BtPersistence *result;
+  va_list var_args;
+  
+  va_start (var_args, err);
+  if(!self) {
+    GObjectClass *klass;
+    BtPersistenceInterface *iface;
 
-  return (BT_PERSISTENCE_GET_INTERFACE (self)->load (self, node, location));
+    g_return_val_if_fail (G_TYPE_IS_OBJECT (type), NULL);
+
+    klass = g_type_class_ref (type);
+    iface = g_type_interface_peek (klass, BT_TYPE_PERSISTENCE);
+    result = iface->load (type, self, node, location, err, var_args);
+    g_type_class_unref(klass);
+  }
+  else {
+    g_return_val_if_fail (BT_IS_PERSISTENCE (self), NULL);
+
+    result = BT_PERSISTENCE_GET_INTERFACE (self)->load (type, self, node, location, err, var_args);
+  }
+  va_end (var_args);
+  return (result);
 }
 
 //-- interface internals

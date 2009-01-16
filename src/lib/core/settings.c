@@ -51,7 +51,7 @@ static gpointer singleton=NULL;
 //-- constructor methods
 
 /**
- * bt_settings_new:
+ * bt_settings_make:
  *
  * Create a new instance. The type of the settings depends on the subsystem
  * found during configuration run.
@@ -61,7 +61,7 @@ static gpointer singleton=NULL;
  *
  * Returns: the instance or %NULL in case of an error
  */
-BtSettings *bt_settings_new(void) {
+BtSettings *bt_settings_make(void) {
 
   if(G_UNLIKELY(!singleton)) {
     GST_INFO("create a new settings object for thread %p",g_thread_self());
@@ -101,20 +101,16 @@ void bt_settings_set_factory(BtSettingsFactory factory) {
     bt_settings_factory=factory;
   }
   else {
-    GST_WARNING("can't change factory while having %d living instances",G_OBJECT(singleton)->ref_count);
+    GST_WARNING("can't change factory while having %d usages",G_OBJECT(singleton)->ref_count);
   }
 }
 
 //-- wrapper
 
-//-- class internals
+//-- g_object overrides
 
 /* returns a property for the given property_id for this object */
-static void bt_settings_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_settings_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSettings * const self = BT_SETTINGS(object);
   const GObjectClass * const gobject_class = G_OBJECT_GET_CLASS(object);
   return_if_disposed();
@@ -124,11 +120,7 @@ static void bt_settings_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_settings_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSettings * const self = BT_SETTINGS(object);
   GObjectClass * const gobject_class = G_OBJECT_GET_CLASS(object);
   return_if_disposed();
@@ -155,6 +147,8 @@ static void bt_settings_finalize(GObject * const object) {
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
+
+//-- class internals
 
 static void bt_settings_init(GTypeInstance * const instance, gpointer g_class) {
   BtSettings * const self = BT_SETTINGS(instance);

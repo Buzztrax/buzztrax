@@ -140,11 +140,7 @@ gboolean btic_device_stop(const BtIcDevice *self) {
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void btic_device_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void btic_device_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtIcDevice * const self = BTIC_DEVICE(object);
   return_if_disposed();
   switch (property_id) {
@@ -164,20 +160,14 @@ static void btic_device_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void btic_device_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void btic_device_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtIcDevice * const self = BTIC_DEVICE(object);
   return_if_disposed();
   switch (property_id) {
     case DEVICE_UDI: {
-      g_free(self->priv->udi);
       self->priv->udi = g_value_dup_string(value);
     } break;
     case DEVICE_NAME: {
-      g_free(self->priv->name);
       self->priv->name = g_value_dup_string(value);
     } break;
     default: {
@@ -242,14 +232,14 @@ static void btic_device_class_init(BtIcDeviceClass * const klass) {
                                      "udi prop",
                                      "device udi",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,DEVICE_NAME,
                                   g_param_spec_string("name",
                                      "name prop",
                                      "device name",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,DEVICE_CONTROL_LIST,
                                   g_param_spec_pointer("controls",

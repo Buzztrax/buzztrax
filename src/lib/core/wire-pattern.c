@@ -86,6 +86,8 @@ struct _BtWirePatternPrivate {
   gint pattern_length_changed;
 };
 
+static GQuark error_domain=0;
+
 static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -93,33 +95,6 @@ static guint signals[LAST_SIGNAL]={0,};
 //-- enums
 
 //-- helper methods
-
-/*
- * bt_wire_pattern_init_data:
- * @self: the pattern to initialize the event data for
- *
- * Allocates and initializes the memory for the event data grid.
- *
- * Returns: %TRUE for success
- */
-static gboolean bt_wire_pattern_init_data(const BtWirePattern * const self) {
-  gboolean ret=FALSE;
-  const gulong data_count=self->priv->length*self->priv->num_params;
-
-  if(self->priv->wire==NULL) return(TRUE);
-  if(data_count==0) return(TRUE);
-
-  if(self->priv->data) {
-    GST_INFO("data has already been initialized");
-    return(TRUE);
-  }
-
-  GST_DEBUG("sizes : %lu*%lu=%lu",self->priv->length,self->priv->num_params,data_count);
-  if((self->priv->data=g_try_new0(GValue,data_count))) {
-    ret=TRUE;
-  }
-  return(ret);
-}
 
 /*
  * bt_wire_pattern_resize_data_length:
@@ -199,24 +174,12 @@ static void on_pattern_length_changed(BtPattern *pattern,GParamSpec *arg,gpointe
  * Returns: the new instance or %NULL in case of an error
  */
 BtWirePattern *bt_wire_pattern_new(const BtSong * const song, const BtWire * const wire, const BtPattern * const pattern) {
-  BtWirePattern *self;
-
+  /* @todo: use GError */
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   g_return_val_if_fail(BT_IS_WIRE(wire),NULL);
   g_return_val_if_fail(BT_IS_PATTERN(pattern),NULL);
 
-  if(!(self=BT_WIRE_PATTERN(g_object_new(BT_TYPE_WIRE_PATTERN,"song",song,"wire",wire,"pattern",pattern,NULL)))) {
-    goto Error;
-  }
-  if(!bt_wire_pattern_init_data(self)) {
-    goto Error;
-  }
-  // add the pattern to the wire
-  bt_wire_add_wire_pattern(wire,pattern,self);
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BT_WIRE_PATTERN(g_object_new(BT_TYPE_WIRE_PATTERN,"song",song,"wire",wire,"pattern",pattern,NULL)));
 }
 
 //-- methods
@@ -770,13 +733,13 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
   return(node);
 }
 
-static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
-  const BtWirePattern * const self = BT_WIRE_PATTERN(persistence);
-  gboolean res=FALSE;
-  xmlChar *name,*pattern_id,*tick_str,*value;
-  gulong tick,param;
+static BtPersistence *bt_wire_pattern_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+  BtWirePattern *self;
+  BtPersistence *result;
   BtMachine *dst_machine;
   BtPattern *pattern;
+  xmlChar *name,*pattern_id,*tick_str,*value;
+  gulong tick,param;
   xmlNodePtr child_node;
   GError *error=NULL;
 
@@ -784,20 +747,44 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
   g_assert(node);
   
   pattern_id=xmlGetProp(node,XML_CHAR_PTR("pattern"));
-  g_object_get(self->priv->wire,"dst",&dst_machine,NULL);
-  if((pattern=bt_machine_get_pattern_by_id(dst_machine,(gchar *)pattern_id))) {
-    g_object_set(G_OBJECT(self),"pattern",pattern,NULL);
-    g_object_unref(pattern);
+  
+  if(!persistence) {
+    BtSong *song=NULL;
+    BtWire *wire=NULL;
+    gchar *param_name;
+
+    // we need to get parameters from var_args (need to handle all baseclass params
+    param_name=va_arg(var_args,gchar*);
+    while(param_name) {
+      if(!strcmp(param_name,"song")) {
+        song=va_arg(var_args, gpointer);
+      }
+      else if(!strcmp(param_name,"wire")) {
+        wire=va_arg(var_args, gpointer);
+      }
+      else {
+        GST_WARNING("unhandled argument: %s",param_name);
+        break;
+      }
+      param_name=va_arg(var_args,gchar*);
+    }
+
+    g_object_get(wire,"dst",&dst_machine,NULL);
+    pattern=bt_machine_get_pattern_by_id(dst_machine,(gchar *)pattern_id);
+    
+    self=bt_wire_pattern_new(song,wire,pattern);
+    result=BT_PERSISTENCE(self);
+    
+    if(pattern) {
+      g_object_unref(pattern);
+    }
+    else {
+      goto NoPatternError;
+    }
   }
   else {
-    GST_WARNING("No pattern with id='%s'",pattern_id);
-  }
-  xmlFree(pattern_id);
-  g_object_unref(dst_machine);
-  
-  if(!bt_wire_pattern_init_data(self)) {
-    GST_WARNING("Can't init wire-pattern data");
-    goto Error;
+    self=BT_WIRE_PATTERN(persistence);
+    result=BT_PERSISTENCE(self);
   }
   
   // load pattern data
@@ -819,7 +806,6 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
             else {
               GST_WARNING("error while loading wire pattern data at tick %lu, param %lu: %s",tick,param,error->message);
               g_error_free(error);error=NULL;
-              BT_PERSISTENCE_ERROR(Error);
             }  
           }
           xmlFree(name);
@@ -829,9 +815,18 @@ static gboolean bt_wire_pattern_persistence_load(const BtPersistence * const per
       xmlFree(tick_str);
     }
   }
-  res=TRUE;
-Error:
-  return(res);
+  
+Done:
+  xmlFree(pattern_id);
+  g_object_unref(dst_machine);
+  return(result);
+NoPatternError:
+  GST_WARNING("No pattern with id='%s'",pattern_id);
+  if(err) {
+    g_set_error(err, error_domain, /* errorcode= */0,
+             "No pattern with id='%s'",pattern_id);
+  }
+  goto Done;
 }
 
 static void bt_wire_pattern_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
@@ -843,14 +838,20 @@ static void bt_wire_pattern_persistence_interface_init(gpointer g_iface, gpointe
 
 //-- wrapper
 
-//-- class internals
+//-- g_object overrides
+
+static void bt_wire_pattern_constructed(GObject *object) {
+  BtWirePattern *self=BT_WIRE_PATTERN(object);
+  
+  if(G_OBJECT_CLASS(parent_class)->constructed)
+    G_OBJECT_CLASS(parent_class)->constructed(object);
+ 
+  // add the pattern to the wire
+  bt_wire_add_wire_pattern(self->priv->wire,self->priv->pattern,self);
+}
 
 /* returns a property for the given property_id for this object */
-static void bt_wire_pattern_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_wire_pattern_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtWirePattern * const self = BT_WIRE_PATTERN(object);
 
   return_if_disposed();
@@ -871,26 +872,21 @@ static void bt_wire_pattern_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_wire_pattern_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_wire_pattern_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtWirePattern * const self = BT_WIRE_PATTERN(object);
 
   return_if_disposed();
   switch (property_id) {
     case WIRE_PATTERN_SONG: {
-      g_object_try_weak_unref(self->priv->song);
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for pattern: %p",self->priv->song);
     } break;
     case WIRE_PATTERN_WIRE: {
-      g_object_try_weak_unref(self->priv->wire);
       if((self->priv->wire = BT_WIRE(g_value_get_object(value)))) {
         g_object_try_weak_ref(self->priv->wire);
         g_object_get(G_OBJECT(self->priv->wire),"num-params",&self->priv->num_params,NULL);
+        GST_DEBUG("set the wire for the wire-pattern: %p",self->priv->wire);
       }
     } break;
     case WIRE_PATTERN_PATTERN: {
@@ -898,12 +894,10 @@ static void bt_wire_pattern_set_property(GObject      * const object,
       if((self->priv->pattern = BT_PATTERN(g_value_get_object(value)))) {
         g_object_try_weak_ref(self->priv->pattern);
         g_object_get(G_OBJECT(self->priv->pattern),"length",&self->priv->length,NULL);
+        bt_wire_pattern_resize_data_length(self,self->priv->length);
         // watch the pattern
         self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_length_changed),(gpointer)self);
         GST_DEBUG("set the pattern for the wire-pattern: %p",self->priv->pattern);
-      }
-      else {
-        GST_WARNING("set NULL as the pattern for the wire-pattern");
       }
     } break;
     default: {
@@ -941,6 +935,8 @@ static void bt_wire_pattern_finalize(GObject * const object) {
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
+//-- class internals
+
 static void bt_wire_pattern_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtWirePattern * const self = BT_WIRE_PATTERN(instance);
 
@@ -950,9 +946,13 @@ static void bt_wire_pattern_init(GTypeInstance * const instance, gconstpointer g
 static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
+  // @idea: g_type_qname(BT_TYPE_MACHINE);
+  error_domain=g_quark_from_static_string("BtWirePattern");
+  
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWirePatternPrivate));
 
+  gobject_class->constructed  = bt_wire_pattern_constructed;
   gobject_class->set_property = bt_wire_pattern_set_property;
   gobject_class->get_property = bt_wire_pattern_get_property;
   gobject_class->dispose      = bt_wire_pattern_dispose;
@@ -998,7 +998,6 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
                                         0 // n_params
                                         );
 
-
   g_object_class_install_property(gobject_class,WIRE_PATTERN_SONG,
                                   g_param_spec_object("song",
                                      "song contruct prop",
@@ -1018,7 +1017,7 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
                                      "pattern construct prop",
                                      "Pattern object, the wire-pattern belongs to",
                                      BT_TYPE_PATTERN, /* object type */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_wire_pattern_get_type(void) {

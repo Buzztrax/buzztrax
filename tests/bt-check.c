@@ -165,7 +165,7 @@ static void check_log_handler(const gchar * const log_domain, const GLogLevelFla
     check_print_handler(msg);
 }
 
-/**
+/*
  * setup_log:
  * @argc: command line argument count received in main()
  * @argv: command line arguments received in main()
@@ -201,7 +201,7 @@ void setup_log(int argc, char **argv) {
   g_unlink(__log_file_name);
 }
 
-/**
+/*
  * setup_log_capture:
  *
  * Installs own logging handlers to capture and channelize all diagnostic output
@@ -250,6 +250,33 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
   return ret;
 }
 
+
+// ttest selection
+gboolean
+_bt_check_run_test_func (const gchar * func_name)
+{
+  const gchar *checks;
+  gboolean res = FALSE;
+  gchar **funcs, **f;
+
+  checks = g_getenv ("BT_CHECKS");
+
+  /* no filter specified => run all checks */
+  if (checks == NULL || *checks == '\0')
+    return TRUE;
+
+  /* only run specified functions */
+  funcs = g_strsplit (checks, ",", -1);
+  for (f = funcs; f != NULL && *f != NULL; ++f) {
+    if (strcmp (*f, func_name) == 0) {
+      res = TRUE;
+      break;
+    }
+  }
+  g_strfreev (funcs);
+  return res;
+}
+
 // test file access
 
 const gchar *check_get_test_song_path(const gchar *name) {
@@ -257,7 +284,7 @@ const gchar *check_get_test_song_path(const gchar *name) {
 
   // TESTSONGDIR gets defined in Makefile.am
   g_snprintf(path,2047,TESTSONGDIR""G_DIR_SEPARATOR_S"%s",name);
-  //GST_INFO("build path: '%s'",path);
+  GST_INFO("build path: '%s'",path);
   return(path);
 }
 
