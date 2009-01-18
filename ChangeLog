@@ -1,3 +1,15 @@
+2009-01-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  New sent.
+
+	* src/lib/core/sink-machine.c:
+	  Remove double return;
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Fix drawing from different thread. Need to do that elsewhere too. Also add a
+	  todo about using g_slice.
+
 2009-01-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* README:

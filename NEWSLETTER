@@ -1,3 +1,9 @@
+2009/02 ========================================================================
+
+Some portability fixes thanks to more testing.
+Big refactoring for GObject usage.
+More tests.
+
 2009/01 ========================================================================
 
 This month I worked on a couple of small, mostly UI related things, while

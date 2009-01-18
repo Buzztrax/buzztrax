@@ -164,7 +164,6 @@ static BtPersistence *bt_sink_machine_persistence_load(const GType type, const B
   parent_iface->load(BT_TYPE_MACHINE,result,node,location,NULL,NULL);
 
   return(result);
-  return(result);
 }
 
 static void bt_sink_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
