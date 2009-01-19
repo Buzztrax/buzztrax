@@ -3061,7 +3061,6 @@ static void bt_machine_persistence_interface_init(gpointer const g_iface, gconst
 
 static void bt_machine_constructed(GObject *object) {
   BtMachine * const self=BT_MACHINE(object);
-  BtSetup *setup;
   BtPattern *pattern;
   
   GST_INFO("machine constructed ...");
@@ -3110,17 +3109,10 @@ static void bt_machine_constructed(GObject *object) {
   }
 
   // prepare common internal patterns for the machine
-  if((pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK))) {
-    g_object_unref(pattern);
-  }
-  if((pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE))) {
-    g_object_unref(pattern);
-  }
-
-  // add the machine to the setup of the song
-  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-  bt_setup_add_machine(setup,self);
-  g_object_unref(setup);
+  pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK);
+  g_object_unref(pattern);
+  pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE);
+  g_object_unref(pattern);
 
   GST_INFO("machine constructed");
   return;

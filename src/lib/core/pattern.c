@@ -310,27 +310,27 @@ BtPattern *bt_pattern_new(const BtSong * const song, const gchar * const id, con
  * It will be automatically added to the machines pattern list.
  * If @cmd is %BT_PATTERN_CMD_NORMAL use bt_pattern_new() instead.
  *
+ * Don't call this from applications.
+ *
  * Returns: the new instance or %NULL in case of an error
  */
 BtPattern *bt_pattern_new_with_event(const BtSong * const song, const BtMachine * const machine, const BtPatternCmd cmd) {
   BtPattern *self;
-  gchar *mid,*id,*name;
+  gchar *mid=NULL,*id=NULL,*name=NULL;
   GValue *event;
   // track commands in sequencer
   const gchar * const cmd_names[]={ N_("normal"),N_("break"),N_("mute"),N_("solo"),N_("bypass") };
 
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  g_return_val_if_fail(BT_IS_MACHINE(machine),NULL);
-
-  g_object_get(G_OBJECT(machine),"id",&mid,NULL);
-  // use spaces/_ to avoid clashes with normal patterns?
-  id=g_strdup_printf("%s___%s",mid,cmd_names[cmd]);
-  name=g_strdup_printf("   %s",_(cmd_names[cmd]));
+  if(BT_IS_MACHINE(machine)) {
+    g_object_get(G_OBJECT(machine),"id",&mid,NULL);
+    // use spaces/_ to avoid clashes with normal patterns?
+    id=g_strdup_printf("%s___%s",mid,cmd_names[cmd]);
+    name=g_strdup_printf("   %s",_(cmd_names[cmd]));
+  }
 
   // create the pattern
   self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"is-internal",TRUE,"id",id,"name",name,"machine",machine,"length",1L,NULL));
   event=bt_pattern_get_internal_event_data(self,0,0);
-  //bt_pattern_init_internal_event(self,event,0);
   g_value_init(event,BT_TYPE_PATTERN_CMD);
   g_value_set_enum(event,cmd);
 
@@ -351,6 +351,7 @@ BtPattern *bt_pattern_new_with_event(const BtSong * const song, const BtMachine 
 BtPattern *bt_pattern_copy(const BtPattern * const self) {
   BtPattern *pattern;
   gchar *id,*name,*mid;
+  gulong data_count;
 
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
 
@@ -361,15 +362,12 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
   name=bt_machine_get_unique_pattern_name(self->priv->machine);
   id=g_strdup_printf("%s %s",mid,name);
 
-  if((pattern=bt_pattern_new(self->priv->song,id,name,self->priv->length,self->priv->machine))) {
-    const gulong data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
-
-    // copy data
-    memcpy(pattern->priv->data,self->priv->data,data_count*sizeof(GValue));
-    GST_INFO("  data copied");
-    // add the pattern to the machine
-    bt_machine_add_pattern(self->priv->machine,self);
-  }
+  pattern=bt_pattern_new(self->priv->song,id,name,self->priv->length,self->priv->machine);
+ 
+  data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  // copy data
+  memcpy(pattern->priv->data,self->priv->data,data_count*sizeof(GValue));
+  GST_INFO("  data copied");
 
   g_free(mid);
   g_free(id);
@@ -382,53 +380,52 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
 // @todo: groups are not easy to handle here
 BtPattern *bt_pattern_copy_range(const BtPattern * const self, gint start, gint end, gint group, gint param) {
   BtPattern *pattern;
+  gulong offset=0,count=0;
+  GValue *src, *dst;
   
   // the id/name does not matter so much
-  if((pattern=bt_pattern_new(self->priv->song,"copy","copy",self->priv->length,self->priv->machine))) {
-    gulong offset=0,count=0;
-    GValue *src, *dst;
-    
-    if(group==-1 && param==-1) {
-      // copy full pattern
-      count=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  pattern=bt_pattern_new(self->priv->song,"copy","copy",self->priv->length,self->priv->machine);
+  
+  if(group==-1 && param==-1) {
+    // copy full pattern
+    count=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  }
+  if(group!=-1) {
+    if(self->priv->global_param && group==0) {
+      offset=internal_params;
     }
-    if(group!=-1) {
+    else {
+      offset=internal_params; // add prev voices
+      if(self->priv->global_params) {
+        offset+=self->priv->global_params+(group-1)*self->priv->voice_params;
+      }
+      else {
+        offset+=group*self->priv->voice_params;
+      }
+    }
+    if(param==-1) {
+      // copy whole group
       if(self->priv->global_param && group==0) {
-        offset=internal_params;
+        count=self->priv->global_param;
       }
       else {
-        offset=internal_params; // add prev voices
-        if(self->priv->global_params) {
-          offset+=self->priv->global_params+(group-1)*self->priv->voice_params;
-        }
-        else {
-          offset+=group*self->priv->voice_params;
-        }
-      }
-      if(param==-1) {
-        // copy whole group
-        if(self->priv->global_param && group==0) {
-          count=self->priv->global_param;
-        }
-        else {
-          count=self->priv->voice_param;
-        }
-      }
-      else {
-        // copy one param in one group
-        offset+=param;
-        count=1;
+        count=self->priv->voice_param;
       }
     }
-
-    src=&self->priv->data[start*count];
-    dst=&pattern->priv->data[start*count];
-
-    for(i=start;i<end;i++) {
-      memcpy(dst,src,sizeof(GValue)*count);
-      src=&src[count];
-      dst=&dst[count];
+    else {
+      // copy one param in one group
+      offset+=param;
+      count=1;
     }
+  }
+
+  src=&self->priv->data[start*count];
+  dst=&pattern->priv->data[start*count];
+
+  for(i=start;i<end;i++) {
+    memcpy(dst,src,sizeof(GValue)*count);
+    src=&src[count];
+    dst=&dst[count];
   }
   return(pattern);
 }

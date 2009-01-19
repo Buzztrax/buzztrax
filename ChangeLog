@@ -3,6 +3,19 @@
 	* src/lib/core/machine.c:
 	* src/lib/core/pattern.c:
 	* src/lib/core/processor-machine.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/source-machine.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Only add machines once the are fully constructed, so that e.g. noone can add
+	  new patterns before sub-classes have added theirs.
+	  Also rework bt_pattern_new_with_event() to never return NULL. This is a
+	  protected method and their would have been failure before it its called.
+
+2009-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/processor-machine.c:
 	* src/lib/core/sequence.c:
 	* src/lib/core/setup.c:
 	* src/lib/core/sink-machine.c:

@@ -191,11 +191,10 @@ enum {
 // the other (smaller) columns
 
 // keyboard shortcuts for sequence-table
-// CLEAR  '.'
-// MUTE   '-'
-// BREAK  ','
-// SOLO   '_'
-// BYPASS '_'
+// CLEAR       '.'
+// MUTE        '-'
+// BREAK       ','
+// SOLO/BYPASS '_'
 static const gchar sink_pattern_keys[]     = "-,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const gchar source_pattern_keys[]   ="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const gchar processor_pattern_keys[]="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

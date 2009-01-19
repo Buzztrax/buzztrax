@@ -201,14 +201,20 @@ static void bt_sink_machine_constructed(GObject *object) {
     BtSong * const song;
     GstElement * const element;
     GstElement * const gain;
+    BtSetup *setup;
     
     bt_machine_enable_input_gain(BT_MACHINE(self));
     g_object_get(G_OBJECT(self),"machine",&element,"song",&song,"input-gain",&gain, NULL);
     g_object_set(G_OBJECT(element),"input-gain",gain,NULL);
     g_object_set(G_OBJECT(song),"master",G_OBJECT(self),NULL);
-    
     gst_object_unref(element);
     gst_object_unref(gain);
+    
+    // add the machine to the setup of the song
+    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+    bt_setup_add_machine(setup,BT_MACHINE(self));
+    g_object_unref(setup);
+    
     g_object_unref(song);
   }
 }
