@@ -307,7 +307,7 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
   g_object_unref(main_window);
 }
 
-static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
+static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
   gconstpointer * const params=(gconstpointer *)user_data;
   BtMainToolbar *self=BT_MAIN_TOOLBAR(params[0]);
   GstMessage *message=(GstMessage *)params[1];
@@ -322,7 +322,7 @@ static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,G
     g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
     g_mutex_unlock(self->priv->lock);
 
-    if(!GST_CLOCK_TIME_IS_VALID(time) || !self->priv->is_playing)
+    if(!self->priv->is_playing)
       goto done;
 
     //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
@@ -343,8 +343,18 @@ static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,G
 done:
   gst_message_unref(message);
   g_free(params);
+  return(FALSE);
+}
+
+static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
+  // the callback is called froma clock thread
+  if(GST_CLOCK_TIME_IS_VALID(time))
+    g_idle_add(on_delayed_idle_song_level_change,user_data);
+  else
+    g_free(user_data);
   return(TRUE);
 }
+
 
 static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);

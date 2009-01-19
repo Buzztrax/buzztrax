@@ -232,7 +232,9 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
         waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(level)->segment, GST_FORMAT_TIME, timestamp);
       }
       if(GST_CLOCK_TIME_IS_VALID(waittime)) {
-        // @todo: should we use g_slide_new? 
+        // @todo: should we use param=g_slice_allow(2*sizeof(gconstpointer));
+        // followed by g_slice_free(2*sizeof(gconstpointer),params)
+        // we already require glib-2.10
         gconstpointer *params=g_new(gconstpointer,2);
         GstClockID clock_id;
         GstClockTime basetime=gst_element_get_base_time(level);

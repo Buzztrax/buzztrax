@@ -233,14 +233,14 @@ static gboolean bt_wire_analysis_dialog_spectrum_expose(GtkWidget *widget,GdkEve
   return(TRUE);
 }
 
-static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
+static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
   gconstpointer * const params=(gconstpointer *)user_data;
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(params[0]);
   GstMessage *message=(GstMessage *)params[1];
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
   
-  if(!GST_CLOCK_TIME_IS_VALID(time) || !self)
+  if(!self)
     goto done;
 
   g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
@@ -308,6 +308,15 @@ static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime tim
 done:
   gst_message_unref(message);
   g_free(params);
+  return(FALSE);
+}
+
+static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
+  // the callback is called froma clock thread
+  if(GST_CLOCK_TIME_IS_VALID(time))
+    g_idle_add(on_delayed_idle_wire_analyzer_change,user_data);
+  else
+    g_free(user_data);
   return(TRUE);
 }
 

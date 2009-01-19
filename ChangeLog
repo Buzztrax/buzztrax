@@ -1,7 +1,16 @@
+2009-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Fix drawing from different thread in other places. More notes about
+	  using gslice.
+
 2009-01-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
-	  New sent.
+	  News sent.
 
 	* src/lib/core/sink-machine.c:
 	  Remove double return;
