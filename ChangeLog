@@ -1,5 +1,32 @@
 2009-01-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* tests/lib/core/e-network.c:
+	* tests/lib/core/e-setup.c:
+	* tests/lib/core/e-song-info.c:
+	* tests/lib/core/e-source-machine.c:
+	* tests/lib/core/t-pattern.c:
+	* tests/lib/core/t-sequence.c:
+	* tests/lib/core/t-setup.c:
+	* tests/lib/core/t-song-info.c:
+	* tests/lib/core/t-song.c:
+	  Port more classes to never return NULL, but check & warn in _constructed().
+	  Adjust the unit test for it.
+
+2009-01-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/main-toolbar.c:

@@ -50,20 +50,23 @@ BT_START_TEST(test_btpattern_obj1) {
   /* create a new song */
   song=bt_song_new(app);
 
-  check_init_error_trapp("bt_pattern_new","BT_IS_MACHINE(machine)");
+  check_init_error_trapp("bt_pattern_","BT_IS_MACHINE(self->priv->machine)");
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,NULL);
   fail_unless(check_has_error_trapped(), NULL);
-  fail_unless(pattern == NULL, NULL);
+  fail_unless(pattern != NULL, NULL);
+  g_object_unref(pattern);
 
-  check_init_error_trapp("bt_pattern_new","BT_IS_STRING(id)");
+  check_init_error_trapp("bt_pattern_","BT_IS_STRING(self->priv->id)");
   pattern=bt_pattern_new(song,NULL,"pattern-name",1L,NULL);
   fail_unless(check_has_error_trapped(), NULL);
-  fail_unless(pattern == NULL, NULL);
+  fail_unless(pattern != NULL, NULL);
+  g_object_unref(pattern);
 
-  check_init_error_trapp("bt_pattern_new","BT_IS_STRING(name)");
+  check_init_error_trapp("bt_pattern_","BT_IS_STRING(self->priv->name)");
   pattern=bt_pattern_new(song,"pattern-id",NULL,1L,NULL);
   fail_unless(check_has_error_trapped(), NULL);
-  fail_unless(pattern == NULL, NULL);
+  fail_unless(pattern != NULL, NULL);
+  g_object_unref(pattern);
 
   g_object_checked_unref(song);
   g_object_checked_unref(app);

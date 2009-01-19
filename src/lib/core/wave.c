@@ -335,9 +335,6 @@ Error:
  * Returns: the new instance or %NULL in case of an error
  */
 BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const uri, const gulong index, const gdouble volume, const  BtWaveLoopMode loop_mode, const guint channels) {
-  /* @todo: use GError */
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-
   return(BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"uri",uri,"index",index,"volume",volume,"loop-mode",loop_mode,"channels",channels,NULL)));
 }
 
@@ -535,6 +532,8 @@ static void bt_wave_constructed(GObject *object) {
 
   if(G_OBJECT_CLASS(parent_class)->constructed)
     G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  g_return_if_fail(BT_IS_SONG(self->priv->song));
 
   // some SongIO loaders load the wave themself and set the data 
   if(self->priv->uri) {

@@ -1306,6 +1306,9 @@ static void bt_song_persistence_interface_init(gpointer const g_iface, gpointer 
 static void bt_song_constructed(GObject *object) {
   BtSong *self=BT_SONG(object);
   
+  if(G_OBJECT_CLASS(parent_class)->constructed)
+    G_OBJECT_CLASS(parent_class)->constructed(object);
+
   g_return_if_fail(BT_IS_APPLICATION(self->priv->app));
   
   g_object_get(G_OBJECT(self->priv->app),"bin",&self->priv->bin,NULL);
@@ -1331,7 +1334,6 @@ static void bt_song_constructed(GObject *object) {
   bt_song_update_play_seek_event(BT_SONG(self));
   bt_song_idle_start(self);
   GST_INFO("  new song created: %p",self);
-  return;
 }
 
 /* returns a property for the given property_id for this object */

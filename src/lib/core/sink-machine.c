@@ -59,10 +59,6 @@ static BtMachineClass *parent_class=NULL;
  * Returns: the new instance or %NULL in case of an error
  */
 BtSinkMachine *bt_sink_machine_new(const BtSong * const song, const gchar * const id, GError **err) {
-  /* @todo: use GError */
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  g_return_val_if_fail(BT_IS_STRING(id),NULL);
-
   return(BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"construction-error",err,"song",song,"id",id,"plugin-name","bt-sink-bin",NULL)));
 }
 
@@ -199,7 +195,7 @@ static void bt_sink_machine_constructed(GObject *object) {
   GST_INFO("sink-machine constructed");
 
   G_OBJECT_CLASS(parent_class)->constructed(object);
-  
+
   g_object_get(G_OBJECT(self),"construction-error",&err,NULL);
   if(*err==NULL) {
     BtSong * const song;

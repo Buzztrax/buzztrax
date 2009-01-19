@@ -34,7 +34,7 @@ static void test_teardown(void) {
   bt_core_teardown();
 }
 
-/**
+/*
 * In this test we show, how to get the creation date of an song from the
 * song info class. We load a example song and try to retrive the creation date
 * from it.

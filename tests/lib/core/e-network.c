@@ -35,7 +35,7 @@ static void test_teardown(void) {
   //puts(__FILE__":teardown");
 }
 
-/**
+/*
 * try to check if we can simple connect a sine machine to an sink. We also try
 * to start play after connecting the machines.
 */
@@ -121,7 +121,7 @@ BT_START_TEST(test_btcore_net_example1) {
 }
 BT_END_TEST
 
-/**
+/*
  * try to check if we can connect two sine machines to one sink. We also try
  * to start play after connecting the machines.
  */
@@ -201,7 +201,7 @@ BT_START_TEST(test_btcore_net_example2) {
 }
 BT_END_TEST
 
-/**
+/*
  * try to check if we can connect two sine machines to one effect and this to the
  * sink. We also try to start play after connecting the machines.
  */
@@ -298,7 +298,7 @@ BT_START_TEST(test_btcore_net_example3) {
 }
 BT_END_TEST
 
-/**
+/*
  * try to check if we can connect two sine machines to one sink, then play() and
  * stop(). After stopping remove one machine and play again.
  *

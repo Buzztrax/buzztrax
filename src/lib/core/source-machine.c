@@ -56,11 +56,6 @@ static BtMachineClass *parent_class=NULL;
  * Returns: the new instance or %NULL in case of an error
  */
 BtSourceMachine *bt_source_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices, GError **err) {
-  /* @todo: use GError */
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  g_return_val_if_fail(BT_IS_STRING(id),NULL);
-  g_return_val_if_fail(BT_IS_STRING(plugin_name),NULL);
-  
   return(BT_SOURCE_MACHINE(g_object_new(BT_TYPE_SOURCE_MACHINE,"construction-error",err,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL)));
 }
 

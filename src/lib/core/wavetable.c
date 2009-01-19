@@ -81,9 +81,6 @@ static guint signals[LAST_SIGNAL]={0,};
  * Returns: the new instance or %NULL in case of an error
  */
 BtWavetable *bt_wavetable_new(const BtSong * const song) {
-  /* @todo: use GError */
-  g_assert(BT_IS_SONG(song));
-
   return(BT_WAVETABLE(g_object_new(BT_TYPE_WAVETABLE,"song",song,NULL)));
 }
 
@@ -253,7 +250,18 @@ static void bt_wavetable_persistence_interface_init(gpointer const g_iface, gpoi
 
 //-- wrapper
 
-//-- class internals
+//-- g_object overrides
+
+#if 0
+static void bt_setup_constructed(GObject *object) {
+  BtSetup *self=BT_SETUP(object);
+  
+  if(G_OBJECT_CLASS(parent_class)->constructed)
+    G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  g_return_val_if_fail(BT_IS_SONG(self->priv->song),NULL);
+}
+#endif
 
 /* returns a property for the given property_id for this object */
 static void bt_wavetable_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
@@ -344,6 +352,8 @@ static void bt_wavetable_finalize(GObject * const object) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
 }
+
+//-- class internals
 
 static void bt_wavetable_init(GTypeInstance * const instance, gconstpointer const g_class) {
   BtWavetable * const self = BT_WAVETABLE(instance);

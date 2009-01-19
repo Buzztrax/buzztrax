@@ -3069,6 +3069,10 @@ static void bt_machine_constructed(GObject *object) {
   if(G_OBJECT_CLASS(parent_class)->constructed)
     G_OBJECT_CLASS(parent_class)->constructed(object);
 
+  g_return_if_fail(BT_IS_SONG(self->priv->song));
+  g_return_if_fail(BT_IS_STRING(self->priv->id));
+  g_return_if_fail(BT_IS_STRING(self->priv->plugin_name));
+
   GST_INFO("initializing machine");
 
   // get the bin from the song, we are in

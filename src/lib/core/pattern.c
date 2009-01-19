@@ -297,12 +297,6 @@ static void bt_pattern_init_voice_event(const BtPattern * const self, GValue * c
  * Returns: the new instance or %NULL in case of an error
  */
 BtPattern *bt_pattern_new(const BtSong * const song, const gchar * const id, const gchar * const name, const gulong length, const BtMachine * const machine) {
-  /* @todo: use GError */
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  g_return_val_if_fail(BT_IS_STRING(id),NULL);
-  g_return_val_if_fail(BT_IS_STRING(name),NULL);
-  g_return_val_if_fail(BT_IS_MACHINE(machine),NULL);
-
   return(BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"machine",machine,"length",length,NULL)));
 }
 
@@ -1349,6 +1343,12 @@ static void bt_pattern_constructed(GObject *object) {
   if(G_OBJECT_CLASS(parent_class)->constructed)
     G_OBJECT_CLASS(parent_class)->constructed(object);
 
+  g_return_if_fail(BT_IS_SONG(self->priv->song));
+  g_return_if_fail(BT_IS_STRING(self->priv->id));
+  g_return_if_fail(BT_IS_STRING(self->priv->name));
+  g_return_if_fail(BT_IS_MACHINE(self->priv->machine));
+
+  
   // add the pattern to the machine
   bt_machine_add_pattern(self->priv->machine,self);  
 }

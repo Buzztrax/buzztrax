@@ -37,7 +37,7 @@ static void test_teardown(void) {
 
 //-- tests
 
-/**
+/*
 * In this test case we demonstrate how to create a setup and adding a machine
 * to the setup.
 * Then we use the iterator to get the current added machine back and check
@@ -89,7 +89,7 @@ BT_START_TEST(test_btsetup_obj1){
 }
 BT_END_TEST
 
-/**
+/*
 * In this test case we demonstrate how to create a wire and adding the newly
 * created wire to the setup. After that, we try to get the same wire back, if
 * we give the source or dest machine.
@@ -169,7 +169,7 @@ BT_START_TEST(test_btsetup_obj2) {
 }
 BT_END_TEST
 
-/**
+/*
 * In this test we demonstrate how to remove a machine from the setup after the
 * same machine is added to the setup.
 */
@@ -215,7 +215,7 @@ BT_START_TEST(test_btsetup_obj3) {
 }
 BT_END_TEST
 
-/**
+/*
 * In this test we demonstrate how to remove a wire from the setup after the
 * same wire is added to the setup.
 */
@@ -276,7 +276,7 @@ BT_START_TEST(test_btsetup_obj4) {
 }
 BT_END_TEST
 
-/**
+/*
 * In this example we show you how to get wires by source machines.
 */
 BT_START_TEST(test_btsetup_wire1) {
@@ -335,7 +335,7 @@ BT_START_TEST(test_btsetup_wire1) {
 }
 BT_END_TEST
 
-/**
+/*
 * In this example we show you how to get wires by a destination machine.
 */
 BT_START_TEST(test_btsetup_wire2) {
@@ -394,7 +394,7 @@ BT_START_TEST(test_btsetup_wire2) {
 }
 BT_END_TEST
 
-/**
+/*
 * In this example you can see, how we get a source machine back by its type.
 */
 BT_START_TEST(test_btsetup_machine1) {
@@ -436,7 +436,7 @@ BT_START_TEST(test_btsetup_machine1) {
 }
 BT_END_TEST
 
-/**
+/*
 * In this test case we check the _unique_id function.
 */
 BT_START_TEST(test_btsetup_unique_id1){

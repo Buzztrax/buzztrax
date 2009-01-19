@@ -37,7 +37,7 @@ static void test_teardown(void) {
 
 //-- tests
 
-/**
+/*
 * In this example we show how to create a source machine and adding a
 * newly created pattern to it. Then we try to get the pattern back from
 * the machine by its id.
@@ -68,7 +68,7 @@ BT_START_TEST(test_btsourcemachine_obj1){
 }
 BT_END_TEST
 
-/**
+/*
 * In this example we show how to create a mono source machine and adding a
 * newly created pattern to it. Then we try to get the pattern back from
 * the machine by its id.
@@ -132,7 +132,7 @@ BT_START_TEST(test_btsourcemachine_obj2){
 }
 BT_END_TEST
 
-/**
+/*
 * In this example we show how to create a poly source machine and adding a
 * newly created pattern to it. The we change the number of voices in the machine
 * and check back the voices in the pattern.

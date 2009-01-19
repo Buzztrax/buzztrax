@@ -121,9 +121,6 @@ static void bt_song_info_tempo_changed(const BtSongInfo * const self) {
  * Returns: the new instance or %NULL in case of an error
  */
 BtSongInfo *bt_song_info_new(const BtSong * const song) {
-  /* @todo: use GError */
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-
   return(BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL)));
 }
 
@@ -227,7 +224,18 @@ static void bt_song_info_persistence_interface_init(gpointer const g_iface, gpoi
 
 //-- wrapper
 
-//-- class internals
+//-- g_object overrides
+
+#if 0
+static void bt_setup_constructed(GObject *object) {
+  BtSongInfo *self=BT_SONG_INFO(object);
+  
+  if(G_OBJECT_CLASS(parent_class)->constructed)
+    G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  g_return_val_if_fail(BT_IS_SONG(self->priv->song));
+}
+#endif
 
 /* returns a property for the given property_id for this object */
 static void bt_song_info_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
@@ -438,6 +446,8 @@ static void bt_song_info_finalize(GObject * const object) {
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
+
+//-- class internals
 
 static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtSongInfo * const self = BT_SONG_INFO(instance);

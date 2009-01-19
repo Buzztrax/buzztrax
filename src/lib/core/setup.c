@@ -84,9 +84,6 @@ static guint signals[LAST_SIGNAL]={0,};
  * Returns: the new instance or %NULL in case of an error
  */
 BtSetup *bt_setup_new(const BtSong * const song) {
-  /* @todo: use GError */
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-
   return(BT_SETUP(g_object_new(BT_TYPE_SETUP,"song",song,NULL)));
 }
 
@@ -702,7 +699,18 @@ static void bt_setup_persistence_interface_init(gpointer const g_iface, gpointer
 
 //-- wrapper
 
-//-- class internals
+//-- g_object overrides
+
+#if 0
+static void bt_setup_constructed(GObject *object) {
+  BtSetup *self=BT_SETUP(object);
+  
+  if(G_OBJECT_CLASS(parent_class)->constructed)
+    G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  g_return_if_fail(BT_IS_SONG(self->priv->song));
+}
+#endif
 
 /* returns a property for the given property_id for this object */
 static void bt_setup_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
@@ -819,6 +827,8 @@ static void bt_setup_finalize(GObject * const object) {
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
+
+//-- class internals
 
 static void bt_setup_init(const GTypeInstance * const instance, gconstpointer g_class) {
   BtSetup * const self = BT_SETUP(instance);

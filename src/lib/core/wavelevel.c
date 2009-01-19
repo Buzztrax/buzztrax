@@ -87,10 +87,6 @@ static GObjectClass *parent_class=NULL;
  * Returns: the new instance or NULL in case of an error
  */
 BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate, gconstpointer sample) {
-  /* @todo: use GError */
-  g_assert(BT_IS_SONG(song));
-  g_assert(BT_IS_WAVE(wave));
-
   return(BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,"song",song,"wave",wave,
 						     "root-note",root_note,"length",length,"loop_start",loop_start,
 						     "loop_end",loop_end,"rate",rate,"data",sample,NULL)));
@@ -166,6 +162,9 @@ static void bt_wavelevel_constructed(GObject *object) {
 
   if(G_OBJECT_CLASS(parent_class)->constructed)
     G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  g_return_if_fail(BT_IS_SONG(self->priv->song));
+  g_return_if_fail(BT_IS_WAVE(self->priv->wave));
 
   // add the wavelevel to the wave
   bt_wave_add_wavelevel(self->priv->wave,self);

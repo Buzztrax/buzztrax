@@ -71,10 +71,11 @@ BT_START_TEST(test_btsong_obj1) {
   BtSong *song;
 
   /* create a new song */
-  check_init_error_trapp("bt_song_new","BT_IS_APPLICATION(app)");
+  check_init_error_trapp("bt_song_","BT_IS_APPLICATION(self->priv->app)");
   song=bt_song_new(NULL);
-  fail_unless(song != NULL, NULL); 
   fail_unless(check_has_error_trapped(), NULL);
+  fail_unless(song != NULL, NULL);
+  g_object_unref(song);
 }
 BT_END_TEST
 
@@ -121,7 +122,7 @@ BT_START_TEST(test_btsong_setup1) {
 }
 BT_END_TEST
 
-/**
+/*
 * test if the play method from the song works as aspected if the self parameter
 * is NULL
 */

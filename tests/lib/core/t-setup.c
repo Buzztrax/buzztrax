@@ -59,7 +59,7 @@ BT_START_TEST(test_btsetup_properties) {
 }
 BT_END_TEST
 
-/**
+/*
 * Try to add the same machine twice to the setup
 */
 BT_START_TEST(test_btsetup_obj1) {
@@ -94,7 +94,7 @@ BT_START_TEST(test_btsetup_obj1) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to add the same wire twice
 */
 BT_START_TEST(test_btsetup_obj2){
@@ -147,19 +147,22 @@ BT_START_TEST(test_btsetup_obj2){
 }
 BT_END_TEST
 
-/**
-* try to create a new setup with a NULL song object
-*/
+/*
+ * try to create a new setup with a NULL song object
+ */
 BT_START_TEST(test_btsetup_obj3) {
   BtSetup *setup=NULL;
   
-  check_init_error_trapp("bt_setup_new","BT_IS_SONG(song)");
+  // we don't use a _constructed method there yet
+  //check_init_error_trapp("bt_setup_","BT_IS_SONG(self->priv->song)");
   setup=bt_setup_new(NULL);
-  fail_unless(check_has_error_trapped(), NULL);
+  //fail_unless(check_has_error_trapped(), NULL);
+  fail_unless(setup != NULL, NULL);
+  g_object_unref(setup);
 }
 BT_END_TEST
 
-/**
+/*
 * try to call bt_setup_add_machine with NULL object for self
 */
 BT_START_TEST(test_btsetup_obj4) {
@@ -187,7 +190,7 @@ BT_START_TEST(test_btsetup_obj4) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to call bt_setup_add_machine with NULL object for machine
 */
 BT_START_TEST(test_btsetup_obj5) {
@@ -216,7 +219,7 @@ BT_START_TEST(test_btsetup_obj5) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to call bt_setup_add_wire with NULL object for self
 */
 BT_START_TEST(test_btsetup_obj6) {
@@ -245,7 +248,7 @@ BT_START_TEST(test_btsetup_obj6) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to call bt_setup_add_wire with NULL object for wire
 */
 BT_START_TEST(test_btsetup_obj7) {
@@ -274,7 +277,7 @@ BT_START_TEST(test_btsetup_obj7) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to call bt_setup_get_machine_by_id with NULL object for self
 */
 BT_START_TEST(test_btsetup_obj8) {
@@ -303,7 +306,7 @@ BT_START_TEST(test_btsetup_obj8) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to call bt_setup_get_machine_by_id with NULL object for id
 */
 BT_START_TEST(test_btsetup_obj9) {
@@ -332,7 +335,7 @@ BT_START_TEST(test_btsetup_obj9) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to call get_machine_by_index with NULL for setup parameter
 */
 BT_START_TEST(test_btsetup_obj10) {
@@ -361,7 +364,7 @@ BT_START_TEST(test_btsetup_obj10) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to call bt_setup_get_wire_by_src_machine with NULL for setup parameter 
 */
 BT_START_TEST(test_btsetup_get_wire_by_src_machine1) {
@@ -390,7 +393,7 @@ BT_START_TEST(test_btsetup_get_wire_by_src_machine1) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to call bt_setup_get_wire_by_src_machine with NULL for machine parameter 
 */
 BT_START_TEST(test_btsetup_get_wire_by_src_machine2) {
@@ -419,7 +422,7 @@ BT_START_TEST(test_btsetup_get_wire_by_src_machine2) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to get wires by source machine with NULL for setup
 */
 BT_START_TEST(test_btsetup_get_wires_by_src_machine1) {
@@ -457,7 +460,7 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine1) {
 BT_END_TEST
 
 
-/**
+/*
 * try to get wires by source machine with NULL for machine
 */
 BT_START_TEST(test_btsetup_get_wires_by_src_machine2) {
@@ -488,7 +491,7 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine2) {
 BT_END_TEST
 
 
-/**
+/*
 * try to get wires by source machine with a not added machine
 */
 BT_START_TEST(test_btsetup_get_wires_by_src_machine3) {
@@ -528,7 +531,7 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine3) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to call bt_setup_get_wire_by_dst_machine with NULL for setup parameter 
 */
 BT_START_TEST(test_btsetup_get_wire_by_dst_machine1) {
@@ -557,7 +560,7 @@ BT_START_TEST(test_btsetup_get_wire_by_dst_machine1) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to call bt_setup_get_wire_by_dst_machine with NULL for machine parameter 
 */
 BT_START_TEST(test_btsetup_get_wire_by_dst_machine2) {
@@ -586,7 +589,7 @@ BT_START_TEST(test_btsetup_get_wire_by_dst_machine2) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to get wires by destination machine with NULL for setup
 */
 BT_START_TEST(test_btsetup_get_wires_by_dst_machine1) {
@@ -621,7 +624,7 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine1) {
 BT_END_TEST
 
 
-/**
+/*
 * try to get wires by sink machine with NULL for machine
 */
 BT_START_TEST(test_btsetup_get_wires_by_dst_machine2) {
@@ -649,7 +652,7 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine2) {
 BT_END_TEST
 
 
-/**
+/*
 * try to get wires by sink machine with a not added machine
 */
 BT_START_TEST(test_btsetup_get_wires_by_dst_machine3) {
@@ -687,7 +690,7 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine3) {
 BT_END_TEST
 
 
-/**
+/*
 * try to remove a machine from setup with NULL pointer for setup
 */
 BT_START_TEST(test_btsetup_obj13) {
@@ -711,7 +714,7 @@ BT_START_TEST(test_btsetup_obj13) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to remove a wire from setup with NULL pointer for setup
 */
 BT_START_TEST(test_btsetup_obj14) {
@@ -737,7 +740,7 @@ BT_START_TEST(test_btsetup_obj14) {
 BT_END_TEST
 
 
-/**
+/*
 * try to remove a machine from setup with NULL pointer for machine
 */
 BT_START_TEST(test_btsetup_obj15) {
@@ -766,7 +769,7 @@ BT_START_TEST(test_btsetup_obj15) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to remove a wire from setup with NULL pointer for wire
 */
 BT_START_TEST(test_btsetup_obj16) {
@@ -795,7 +798,7 @@ BT_START_TEST(test_btsetup_obj16) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to remove a machine from setup with a machine witch is never added
 */
 BT_START_TEST(test_btsetup_obj17) {
@@ -835,7 +838,7 @@ BT_START_TEST(test_btsetup_obj17) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to remove a wire from setup with a wire witch is not added
 */
 BT_START_TEST(test_btsetup_obj18) {
@@ -891,7 +894,7 @@ BT_START_TEST(test_btsetup_obj18) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to add wire(src,dst) and wire(dst,src) to setup. This should fail (cycle).
 */
 BT_START_TEST(test_btsetup_wire1) {
@@ -947,7 +950,7 @@ BT_START_TEST(test_btsetup_wire1) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to add wire(dst,src) and wire(src,dst) to setup. This should fail (cycle).
 */
 BT_START_TEST(test_btsetup_wire2) {
@@ -1003,7 +1006,7 @@ BT_START_TEST(test_btsetup_wire2) {
 }
 BT_END_TEST
 
-/**
+/*
  * try to add wire(src1,dst), wire(dst,src2) and wire(src2,scr1) to setup. This 
  * should fail (cycle).
  *

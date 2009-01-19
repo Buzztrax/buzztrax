@@ -1144,9 +1144,6 @@ static gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, con
  * Returns: the new instance or %NULL in case of an error
  */
 BtSequence *bt_sequence_new(const BtSong * const song) {
-  /* @todo: use GError */
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-
   return(BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL)));
 }
 
@@ -1926,6 +1923,8 @@ static void bt_sequence_constructed(GObject *object) {
   
   if(G_OBJECT_CLASS(parent_class)->constructed)
     G_OBJECT_CLASS(parent_class)->constructed(object);
+
+  g_return_if_fail(BT_IS_SONG(self->priv->song));
 
   g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
   if(setup) {

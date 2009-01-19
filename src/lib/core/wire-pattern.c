@@ -174,11 +174,6 @@ static void on_pattern_length_changed(BtPattern *pattern,GParamSpec *arg,gpointe
  * Returns: the new instance or %NULL in case of an error
  */
 BtWirePattern *bt_wire_pattern_new(const BtSong * const song, const BtWire * const wire, const BtPattern * const pattern) {
-  /* @todo: use GError */
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  g_return_val_if_fail(BT_IS_WIRE(wire),NULL);
-  g_return_val_if_fail(BT_IS_PATTERN(pattern),NULL);
-
   return(BT_WIRE_PATTERN(g_object_new(BT_TYPE_WIRE_PATTERN,"song",song,"wire",wire,"pattern",pattern,NULL)));
 }
 
@@ -845,7 +840,11 @@ static void bt_wire_pattern_constructed(GObject *object) {
   
   if(G_OBJECT_CLASS(parent_class)->constructed)
     G_OBJECT_CLASS(parent_class)->constructed(object);
- 
+
+  g_return_if_fail(BT_IS_SONG(self->priv->song));
+  g_return_if_fail(BT_IS_WIRE(self->priv->wire));
+  g_return_if_fail(BT_IS_PATTERN(self->priv->pattern));
+
   // add the pattern to the wire
   bt_wire_add_wire_pattern(self->priv->wire,self->priv->pattern,self);
 }
