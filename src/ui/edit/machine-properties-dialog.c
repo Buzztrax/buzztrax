@@ -635,7 +635,7 @@ static gboolean on_combobox_property_notify_idle(gpointer _data) {
     GtkTreeModel *store;
     GtkTreeIter iter;
   
-    GST_WARNING("property value notify received : %s ",property->name);
+    GST_DEBUG("property value notify received : %s ",property->name);
   
     g_object_get(G_OBJECT(machine),property->name,&nvalue,NULL);
     store=gtk_combo_box_get_model(GTK_COMBO_BOX(widget));
