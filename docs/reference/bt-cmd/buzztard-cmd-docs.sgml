@@ -26,7 +26,8 @@
   <bookinfo>
     <title>Buzztard Bt-Cmd Reference Manual</title>
     <releaseinfo>
-      for Buzztard &BT_VERSION;
+      for Buzztard &BT_VERSION;.
+      The latest version of this documentation can be found on-line at
       <ulink role="online-location" url="http://www.buzztard.org/files/apidocs/bt-cmd/">http://www.buzztard.org/files/apidocs/bt-cmd/</ulink>.
     </releaseinfo>
   </bookinfo>
@@ -43,8 +44,12 @@
       It is based on a wiki and used to draft further development.
     </para>
   </preface>
+  
+  <part label="I">
+    <title>Overview</title>
+  </part>
 
-  <reference id="uibtcmd">
+  <reference label="II" id="uibtcmd">
     <title>User Application Reference</title>
     <partintro>
       <abstract>
@@ -60,13 +65,17 @@
     <xi:include href="xml/btcmdapplication.xml"/>
   </reference>
 
-  <appendix id="objecttree">
-    <title>Object Hierarchy</title>
-    <xi:include href="xml/tree_index.sgml" />
-  </appendix>
+  <part label="III">
+    <title>Appendix</title>
 
-  <index id="api-index">
-    <title>API Index</title>
-  </index>
-
+    <chapter id="objecttree">
+      <title>Object Hierarchy</title>
+      <xi:include href="xml/tree_index.sgml" />
+    </chapter>
+  
+    <index id="api-index">
+      <title>API Index</title>
+      <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+    </index>
+  </part>
 </book>

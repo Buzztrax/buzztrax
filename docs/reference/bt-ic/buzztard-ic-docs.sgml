@@ -26,12 +26,30 @@
   <bookinfo>
     <title>Buzztard Bt-Ic Reference Manual</title>
     <releaseinfo>
-      for Buzztard &BT_VERSION;
+      for Buzztard &BT_VERSION;.
+      The latest version of this documentation can be found on-line at
       <ulink role="online-location" url="http://www.buzztard.org/files/apidocs/bt-ic/">http://www.buzztard.org/files/apidocs/bt-ic/</ulink>.
     </releaseinfo>
   </bookinfo>
 
-  <reference id="libbtic">
+  <preface>
+    <title>Introduction</title>
+    <para>
+      Buzztard aims to be a succesor of the freeware music tracker calld Buzz.
+      The development of Buzz has been discontinued as the author lost all his source-codes.
+    </para>
+    <para>
+      The homepage of the buzztard project can be found at
+      <ulink url="http://www.buzztard.org">www.buzztard.org</ulink>.
+      It is based on a wiki and used to draft further development.
+    </para>
+  </preface>
+
+  <part label="I">
+    <title>Overview</title>
+  </part>
+
+  <reference label="II" id="libbtic">
     <title>Interaction Controller Reference</title>
     <partintro>
       <abstract>
@@ -52,13 +70,17 @@
     <xi:include href="xml/bticlearn.xml" />
   </reference>
 
-  <appendix id="objecttree">
-    <title>Object Hierarchy</title>
-    <xi:include href="xml/tree_index.sgml" />
-  </appendix>
+  <part label="III">
+    <title>Appendix</title>
 
-  <index id="api-index">
-    <title>API Index</title>
-  </index>
+    <chapter id="objecttree">
+      <title>Object Hierarchy</title>
+      <xi:include href="xml/tree_index.sgml" />
+    </chapter>
 
+    <index id="api-index">
+      <title>API Index</title>
+      <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+    </index>
+  </part>
 </book>

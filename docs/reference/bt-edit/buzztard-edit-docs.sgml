@@ -26,7 +26,8 @@
   <bookinfo>
     <title>Buzztard Bt-Edit Reference Manual</title>
     <releaseinfo>
-      for Buzztard &BT_VERSION;
+      for Buzztard &BT_VERSION;.
+      The latest version of this documentation can be found on-line at
       <ulink role="online-location" url="http://www.buzztard.org/files/apidocs/bt-edit/">http://www.buzztard.org/files/apidocs/bt-edit/</ulink>.
     </releaseinfo>
   </bookinfo>
@@ -44,7 +45,11 @@
     </para>
   </preface>
 
-  <reference id="uibtedit">
+  <part label="I">
+    <title>Overview</title>
+  </part>
+
+  <reference label="II"  id="uibtedit">
     <title>User Application Reference</title>
     <partintro>
       <abstract>
@@ -56,58 +61,70 @@
         </para>
       </abstract>
     </partintro>
-    <xi:include href="xml/btedit.xml" />
-    <xi:include href="xml/btaboutdialog.xml" />
-    <xi:include href="xml/bteditapplication.xml" />
-    <xi:include href="xml/btinteractioncontrollermenu.xml" />
-    <xi:include href="xml/btinteractioncontrollerlearndialog.xml" />
-    <xi:include href="xml/btmachineactions.xml" />
-    <xi:include href="xml/btmachinecanvasitem.xml" />
-    <xi:include href="xml/btmachinemenu.xml" />
-    <xi:include href="xml/btmachinepreferencesdialog.xml" />
-    <xi:include href="xml/btmachinepresetpropertiesdialog.xml" />
-    <xi:include href="xml/btmachinepropertiesdialog.xml" />
-    <xi:include href="xml/btmachinerenamedialog.xml" />
-    <xi:include href="xml/btmainmenu.xml" />
-    <xi:include href="xml/btmainpageinfo.xml" />
-    <xi:include href="xml/btmainpagemachines.xml" />
-    <xi:include href="xml/btmainpagepatterns.xml" />
-    <xi:include href="xml/btmainpagesequence.xml" />
-    <xi:include href="xml/btmainpagewaves.xml" />
-    <xi:include href="xml/btmainpages.xml" />
-    <xi:include href="xml/btmainstatusbar.xml" />
-    <xi:include href="xml/btmaintoolbar.xml" />
-    <xi:include href="xml/btmainwindow.xml" />
-    <xi:include href="xml/btmissingframeworkelementsdialog.xml" />
-    <xi:include href="xml/btmissingsongelementsdialog.xml" />
-    <xi:include href="xml/btpanoramapopup.xml" />
-    <xi:include href="xml/btpatterneditor.xml" />
-    <xi:include href="xml/btpatternpropertiesdialog.xml" />
-    <xi:include href="xml/btplaybackcontrollersocket.xml" />
-    <xi:include href="xml/btrenderdialog.xml" />
-    <xi:include href="xml/btrenderprogress.xml" />
-    <xi:include href="xml/btsequenceview.xml" />
-    <xi:include href="xml/btsettingsdialog.xml" />
-    <xi:include href="xml/btsettingspageaudiodevices.xml" />
-    <xi:include href="xml/btsettingspageinteractioncontroller.xml" />
-    <xi:include href="xml/btsettingspageplaybackcontroller.xml" />
-    <xi:include href="xml/btsettingspagedirectories.xml" />
-    <xi:include href="xml/btuiresources.xml" />
-    <xi:include href="xml/btvolumepopup.xml" />
-    <xi:include href="xml/btwaveformviewer.xml" />
-    <xi:include href="xml/btwireanalysisdialog.xml" />
-    <xi:include href="xml/btwirecanvasitem.xml" />
-
-    <xi:include href="xml/gtkvumeter.xml" />
+    <chapter>
+      <title>Main Class Reference</title>
+      <xi:include href="xml/btedit.xml" />
+      <xi:include href="xml/btaboutdialog.xml" />
+      <xi:include href="xml/bteditapplication.xml" />
+      <xi:include href="xml/btinteractioncontrollermenu.xml" />
+      <xi:include href="xml/btinteractioncontrollerlearndialog.xml" />
+      <xi:include href="xml/btmachineactions.xml" />
+      <xi:include href="xml/btmachinecanvasitem.xml" />
+      <xi:include href="xml/btmachinemenu.xml" />
+      <xi:include href="xml/btmachinepreferencesdialog.xml" />
+      <xi:include href="xml/btmachinepresetpropertiesdialog.xml" />
+      <xi:include href="xml/btmachinepropertiesdialog.xml" />
+      <xi:include href="xml/btmachinerenamedialog.xml" />
+      <xi:include href="xml/btmainmenu.xml" />
+      <xi:include href="xml/btmainpageinfo.xml" />
+      <xi:include href="xml/btmainpagemachines.xml" />
+      <xi:include href="xml/btmainpagepatterns.xml" />
+      <xi:include href="xml/btmainpagesequence.xml" />
+      <xi:include href="xml/btmainpagewaves.xml" />
+      <xi:include href="xml/btmainpages.xml" />
+      <xi:include href="xml/btmainstatusbar.xml" />
+      <xi:include href="xml/btmaintoolbar.xml" />
+      <xi:include href="xml/btmainwindow.xml" />
+      <xi:include href="xml/btmissingframeworkelementsdialog.xml" />
+      <xi:include href="xml/btmissingsongelementsdialog.xml" />
+      <xi:include href="xml/btpanoramapopup.xml" />
+      <xi:include href="xml/btpatternpropertiesdialog.xml" />
+      <xi:include href="xml/btrenderdialog.xml" />
+      <xi:include href="xml/btrenderprogress.xml" />
+      <xi:include href="xml/btsequenceview.xml" />
+      <xi:include href="xml/btsettingsdialog.xml" />
+      <xi:include href="xml/btsettingspageaudiodevices.xml" />
+      <xi:include href="xml/btsettingspageinteractioncontroller.xml" />
+      <xi:include href="xml/btsettingspageplaybackcontroller.xml" />
+      <xi:include href="xml/btsettingspagedirectories.xml" />
+      <xi:include href="xml/btuiresources.xml" />
+      <xi:include href="xml/btvolumepopup.xml" />
+      <xi:include href="xml/btwireanalysisdialog.xml" />
+      <xi:include href="xml/btwirecanvasitem.xml" />
+    </chapter>
+    <chapter>
+      <title>Tool Class Reference</title>
+      <xi:include href="xml/btplaybackcontrollersocket.xml" />
+    </chapter>
+    <chapter>
+      <title>Widget Class Reference</title>
+      <xi:include href="xml/btpatterneditor.xml" />
+      <xi:include href="xml/btwaveformviewer.xml" />
+      <xi:include href="xml/gtkvumeter.xml" />
+    </chapter>
   </reference>
 
-  <appendix id="objecttree">
-    <title>Object Hierarchy</title>
-    <xi:include href="xml/tree_index.sgml" />
-  </appendix>
+  <part label="III">
+    <title>Appendix</title>
 
-  <index id="api-index">
-    <title>API Index</title>
-  </index>
+    <chapter id="objecttree">
+      <title>Object Hierarchy</title>
+      <xi:include href="xml/tree_index.sgml" />
+    </chapter>
 
+    <index id="api-index">
+      <title>API Index</title>
+      <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+    </index>
+  </part>
 </book>
