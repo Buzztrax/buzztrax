@@ -221,11 +221,10 @@ static BtPersistence *bt_wavetable_persistence_load(const GType type, const BtPe
 
   for(child_node=node->children;child_node;child_node=child_node->next) {
     if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wave\0",5))) {
-      BtWave * const wave=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",self->priv->song,NULL));
-      if(bt_persistence_load(BT_TYPE_WAVE,BT_PERSISTENCE(wave),child_node,NULL,NULL,NULL)) {
-        bt_wavetable_add_wave(self,wave);
-      }
-      else {
+      GError *err=NULL;
+      
+      BtWave * const wave=BT_WAVE(bt_persistence_load(BT_TYPE_WAVE,NULL,child_node,NULL,&err,"song",self->priv->song,NULL));
+      if(err!=NULL) {
         // collect failed waves
         gchar * const name, * const uri;
 
@@ -234,6 +233,8 @@ static BtPersistence *bt_wavetable_persistence_load(const GType type, const BtPe
         bt_wavetable_remember_missing_wave(self,str);
         g_free(name);
 	    g_free(uri);
+        GST_WARNING("Can't create wire-pattern: %s",err->message);
+        g_error_free(err);
       }
       g_object_unref(wave);
     }

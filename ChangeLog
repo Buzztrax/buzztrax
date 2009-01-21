@@ -1,3 +1,12 @@
+2009-01-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wave.c:
+	* src/lib/core/wavetable.c:
+	  Port one more class.
+
+	* src/lib/core/wire-pattern.c:
+	  Fix type in comment.
+
 2009-01-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:

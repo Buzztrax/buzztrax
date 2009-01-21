@@ -945,7 +945,7 @@ static void bt_wire_pattern_init(GTypeInstance * const instance, gconstpointer g
 static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  // @idea: g_type_qname(BT_TYPE_MACHINE);
+  // @idea: g_type_qname(BT_TYPE_WIRE_PATTERN);
   error_domain=g_quark_from_static_string("BtWirePattern");
   
   parent_class=g_type_class_peek_parent(klass);

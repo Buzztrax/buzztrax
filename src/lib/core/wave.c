@@ -94,6 +94,8 @@ struct _BtWavePrivate {
   gint fd,ext_fd;
 };
 
+static GQuark error_domain=0;
+
 static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -436,8 +438,8 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
 }
 
 static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
-  const BtWave * const self = BT_WAVE(persistence);
-  gboolean res=FALSE;
+  BtWave *self = BT_WAVE(persistence);
+  BtPersistence *result;
   BtSongIONative *song_io;
   gchar *uri=NULL;
 
@@ -453,7 +455,34 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
   xmlChar * const loop_mode_str=xmlGetProp(node,XML_CHAR_PTR("loop-mode"));
   gint loop_mode=bt_persistence_parse_enum(BT_TYPE_WAVE_LOOP_MODE,(char *)loop_mode_str);
   if(loop_mode==-1) loop_mode=BT_WAVE_LOOP_MODE_OFF;
-  g_object_set(G_OBJECT(self),"index",index,"name",name,"uri",uri_str,"volume",volume,"loop-mode",loop_mode,NULL);
+  
+  if(!persistence) {
+    BtSong *song=NULL;
+    gchar *param_name;
+
+    // we need to get parameters from var_args (need to handle all baseclass params
+    param_name=va_arg(var_args,gchar*);
+    while(param_name) {
+      if(!strcmp(param_name,"song")) {
+        song=va_arg(var_args, gpointer);
+      }
+      else {
+        GST_WARNING("unhandled argument: %s",param_name);
+        break;
+      }
+      param_name=va_arg(var_args,gchar*);
+    }
+    
+    self=bt_wave_new(song,(gchar*)name,(gchar*)uri_str,index,volume,loop_mode,0);
+    result=BT_PERSISTENCE(self);
+  }
+  else {
+    self=BT_WAVE(persistence);
+    result=BT_PERSISTENCE(self);
+
+    g_object_set(G_OBJECT(self),"index",index,"name",name,"uri",uri_str,"volume",volume,"loop-mode",loop_mode,NULL);
+  }   
+  
   xmlFree(index_str);
   xmlFree(name);
   xmlFree(volume_str);
@@ -479,40 +508,60 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
         uri=g_strdup_printf("fd://%d",self->priv->ext_fd);
       }
       else {
-        GST_ERROR("error loading [%lu] %s",index,fp);
         close(self->priv->ext_fd);
         self->priv->ext_fd=-1;
       }
       g_free(fp);
     }
     g_object_unref(song_io);
+    if(!uri) {
+      goto WaveUnpackError;
+    }
   }
-  if(!uri) {
+  else {
     uri=g_strdup((gchar *)uri_str);
   }
-  xmlFree(uri_str);
 
   // try to load wavedata
-  if((res=bt_wave_load_from_uri(self,uri))) {
-    xmlNodePtr child_node;
+  if(!bt_wave_load_from_uri(self,uri)) {
+    goto WaveLoadingError;
+  }
+  else {
     GList *lnode=self->priv->wavelevels;
   
-    for(child_node=node->children;child_node;child_node=child_node->next) {
-      if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wavelevel\0",10))) {
+    for(node=node->children;node;node=node->next) {
+      if((!xmlNodeIsText(node)) && (!strncmp((gchar *)node->name,"wavelevel\0",10))) {
         /* loading the wave already created wave-levels,
          * here we just want to override e.g. loop, sampling-rate
          */
         if(lnode) {
           BtWavelevel * const wave_level=BT_WAVELEVEL(lnode->data);
 
-          bt_persistence_load(BT_TYPE_WAVELEVEL,BT_PERSISTENCE(wave_level),child_node,NULL,NULL,NULL);
+          bt_persistence_load(BT_TYPE_WAVELEVEL,BT_PERSISTENCE(wave_level),node,NULL,NULL,NULL);
           lnode=g_list_next(lnode);
         }
       }
     }
   }
+
+Done:
   g_free(uri);
-  return(res?BT_PERSISTENCE(persistence):NULL);
+  xmlFree(uri_str);
+  return(result);
+WaveUnpackError:
+  GST_WARNING("Failed to unpack wave %lu, uri='%s'",index,uri_str);
+  if(err) {
+    g_set_error(err, error_domain, /* errorcode= */0,
+             "Failed to unpack wave %lu, uri='%s'",index,uri_str);
+  }
+  goto Done;
+WaveLoadingError:
+  GST_WARNING("Failed to load wave %lu, uri='%s'",index,uri);
+  if(err) {
+    g_set_error(err, error_domain, /* errorcode= */0,
+             "Failed to load wave %lu, uri='%s'",index,uri);
+  }
+  goto Done;
 }
 
 static void bt_wave_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -690,6 +739,9 @@ static void bt_wave_init(GTypeInstance * const instance, gconstpointer const g_c
 
 static void bt_wave_class_init(BtWaveClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+
+  // @idea: g_type_qname(BT_TYPE_WAVE);
+  error_domain=g_quark_from_static_string("BtWave");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWavePrivate));
