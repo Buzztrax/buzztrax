@@ -1,3 +1,11 @@
+2009-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/volume-popup.c:
+	  Fix delayed setting of master volume when loading songs. Also use same code
+	  to apply log-scaling for ui. Fixes to quiet volumes.
+
 2009-01-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wave.c:

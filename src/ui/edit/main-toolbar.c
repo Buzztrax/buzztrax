@@ -420,6 +420,7 @@ static void on_song_level_negotiated(GstBus * bus, GstMessage * message, gpointe
   }
 }
 
+
 static gdouble volume_slider2real(gdouble lin)
 {
   if (lin <= 0)
@@ -499,7 +500,6 @@ static gboolean on_song_volume_slider_release_event(GtkWidget *widget, GdkEventB
   return(FALSE);
 }
 
-
 static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gdouble value;
@@ -515,6 +515,7 @@ static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer u
   gtk_range_set_value(GTK_RANGE(self->priv->volume),value);
   g_signal_handlers_unblock_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
 }
+
 
 static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
   GstCaps *caps;
@@ -587,7 +588,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   if(self->priv->master) {
     GstPad *pad;
-    gdouble volume;
     GstBus *bus;
 
     GST_INFO("connect to input-level : song=%p,  master=%p (refs: %d)",song,self->priv->master,(G_OBJECT(self->priv->master))->ref_count);
@@ -620,8 +620,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
     g_assert(GST_IS_ELEMENT(self->priv->gain));
     // get the current input_gain and adjust volume widget
-    g_object_get(self->priv->gain,"volume",&volume,NULL);
-    gtk_range_set_value(GTK_RANGE(self->priv->volume),volume);
+     on_song_volume_changed(self->priv->gain,NULL,(gpointer)self);
+
     // connect slider changed and volume changed events
     g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_slider_change),(gpointer)self);
     g_signal_connect(G_OBJECT(self->priv->volume),"button-press-event",G_CALLBACK(on_song_volume_slider_press_event),(gpointer)self);

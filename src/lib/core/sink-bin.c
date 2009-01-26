@@ -104,6 +104,7 @@ struct _BtSinkBinPrivate {
   /* master volume */
   G_POINTER_ALIAS(GstElement *,gain);
   gulong mv_handler_id;
+  gdouble volume;
   
   /* sink format */
   G_POINTER_ALIAS(GstElement *,caps_filter);
@@ -359,7 +360,7 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   plugin_name=bt_sink_bin_determine_plugin_name(self);
   GstElement * const element=gst_element_factory_make(plugin_name,"player");
   if(!element) {
-    /* todo: if this fails
+    /* @todo: if this fails
      * check if it was audiosink in settings and if so, unset it and retry
      * else check if ir was system-audiosink and if so, what?
      */
@@ -812,12 +813,11 @@ static void bt_sink_bin_get_property(GObject * const object, const guint propert
     } break;
     case SINK_BIN_MASTER_VOLUME: {
       if(self->priv->gain) {
-        gdouble volume;
-
-        g_object_get(self->priv->gain,"volume",&volume,NULL);
-        g_value_set_double(value,volume);
+        // FIXME: do we need a notify?
+        g_object_get(self->priv->gain,"volume",&self->priv->volume,NULL);
+        GST_DEBUG("Get master volume: %lf",self->priv->volume);
       }
-      else g_value_set_double(value,1.0);
+      g_value_set_double(value,self->priv->volume);
     } break;
 	// tempo iface
     case SINK_BIN_TEMPO_BPM:
@@ -874,14 +874,18 @@ static void bt_sink_bin_set_property(GObject * const object, const guint propert
       
       g_object_try_weak_unref(self->priv->gain);
       self->priv->gain = GST_ELEMENT(g_value_get_object(value));
+      GST_DEBUG("Set initial master volume: %lf",self->priv->volume);
       g_object_try_weak_ref(self->priv->gain);
+      g_object_set(self->priv->gain,"volume",self->priv->volume,NULL);
       sink_pad=gst_element_get_static_pad(self->priv->gain,"sink");
       self->priv->mv_handler_id=gst_pad_add_buffer_probe(sink_pad,G_CALLBACK(master_volume_sync_handler),(gpointer)self);
       gst_object_unref(sink_pad);
     } break;
     case SINK_BIN_MASTER_VOLUME: {
       if(self->priv->gain) {
-        g_object_set(self->priv->gain,"volume",g_value_get_double(value),NULL);
+        self->priv->volume=g_value_get_double(value);
+        g_object_set(self->priv->gain,"volume",self->priv->volume,NULL);
+        GST_DEBUG("Set master volume: %lf",self->priv->volume);
       }
     } break;
     // tempo iface
@@ -952,7 +956,7 @@ static void bt_sink_bin_finalize(GObject * const object) {
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
-static void bt_sink_bin_base_init (gpointer klass) {
+static void bt_sink_bin_base_init(gpointer klass) {
   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
   const GstElementDetails element_details =
   GST_ELEMENT_DETAILS ("Master AudioSink",
@@ -980,6 +984,7 @@ static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_cla
     "sample-rate",&self->priv->sample_rate,
     "channels",&self->priv->channels,
     NULL);
+  self->priv->volume=1.0;
 
   self->priv->sink=gst_ghost_pad_new_no_target("sink",GST_PAD_SINK);
   gst_element_add_pad(GST_ELEMENT(self),self->priv->sink);
