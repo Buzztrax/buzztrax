@@ -1,5 +1,11 @@
 2009-01-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-toolbar.c:
+	  Mark song as unsaved when master volume was changed. Removed "delayed"
+	  update policy for master volume and add some epsilon filtering for changes.
+
+2009-01-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-bin.c:
 	* src/ui/edit/main-toolbar.c:
 	* src/ui/edit/volume-popup.c:

@@ -437,18 +437,30 @@ static gdouble volume_real2slider(gdouble logv)
 
 static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  gdouble value;
+  gdouble nvalue,ovalue;
 
   g_assert(user_data);
   g_assert(self->priv->gain);
   g_assert(self->priv->volume);
 
   // get value from HScale and change volume
-  value=gtk_range_get_value(GTK_RANGE(self->priv->volume));
-  GST_INFO("volume-slider has changed : %f",value);
-  g_signal_handlers_block_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
-  g_object_set(self->priv->gain,"volume",volume_slider2real(value),NULL);
-  g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
+  nvalue=volume_slider2real(gtk_range_get_value(GTK_RANGE(self->priv->volume)));
+  g_object_get(self->priv->gain,"volume",&ovalue,NULL);
+  if(fabs(nvalue-ovalue)>0.000001) {
+    BtSong *song;
+
+    GST_DEBUG("volume-slider has changed : %f->%f",ovalue,nvalue);
+    g_signal_handlers_block_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
+    g_object_set(self->priv->gain,"volume",nvalue,NULL);
+    g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
+  
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    bt_song_set_unsaved(song,TRUE);
+    g_object_unref(song);
+  }
+  /*else {
+    GST_WARNING("IGN volume-slider has changed : %f->%f",ovalue,nvalue);
+  }*/
 }
 
 static gboolean on_song_volume_slider_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
@@ -502,18 +514,26 @@ static gboolean on_song_volume_slider_release_event(GtkWidget *widget, GdkEventB
 
 static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  gdouble value;
+  gdouble nvalue,ovalue;
 
   g_assert(user_data);
   g_assert(self->priv->gain);
   g_assert(self->priv->volume);
 
   // get value from Element and change HScale
-  g_object_get(self->priv->gain,"volume",&value,NULL);
-  value = volume_real2slider(value);
-  g_signal_handlers_block_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
-  gtk_range_set_value(GTK_RANGE(self->priv->volume),value);
-  g_signal_handlers_unblock_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
+  g_object_get(self->priv->gain,"volume",&nvalue,NULL);
+  nvalue=volume_real2slider(nvalue);
+  ovalue=gtk_range_get_value(GTK_RANGE(self->priv->volume));
+  if(fabs(nvalue-ovalue)>0.000001) {
+    GST_DEBUG("volume-slider notify : %f",nvalue);
+
+    g_signal_handlers_block_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
+    gtk_range_set_value(GTK_RANGE(self->priv->volume),nvalue);
+    g_signal_handlers_unblock_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
+  }
+  /*else {
+    GST_WARNING("IGN volume-slider notify : %f",nvalue);
+  }*/
 }
 
 
@@ -669,7 +689,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 
-gtk_widget_set_name(GTK_WIDGET(self),"main toolbar");
+  gtk_widget_set_name(GTK_WIDGET(self),"main toolbar");
 
   //-- file controls
 
@@ -754,7 +774,7 @@ gtk_widget_set_name(GTK_WIDGET(self),"main toolbar");
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->volume),_("Change playback volume"));
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->volume),TRUE,TRUE,0);
   gtk_scale_set_draw_value(self->priv->volume,FALSE);
-  gtk_range_set_update_policy(GTK_RANGE(self->priv->volume),GTK_UPDATE_DELAYED);
+  //gtk_range_set_update_policy(GTK_RANGE(self->priv->volume),GTK_UPDATE_DELAYED);
   gtk_widget_show_all(GTK_WIDGET(box));
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
