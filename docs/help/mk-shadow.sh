@@ -10,6 +10,9 @@
 #   echo Adding drop shadow to $PNG
 #   pngtopnm $PNG | ./mk-shadow.sh | pnmtopng -compression=9 > ${PNG//.png}-with-shadow.png
 # done
+#
+# TODO:
+# try to use -phys option to set the dpi
 
 TEMPDIR=".pnmdropshadow"
 

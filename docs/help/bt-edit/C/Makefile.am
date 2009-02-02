@@ -14,6 +14,18 @@ clean-local:
 include $(top_srcdir)/xmldocs.make
 dist-hook: app-dist-hook
 
+buzztard-edit.pdf: buzztard-edit.xml
+#	db2pdf buzztard-edit.xml buzztard-edit.pdf
+	xsltproc \
+	  --stringparam paper.type A4 \
+	  --stringparam fop.extentions 1 \
+	  --stringparam fop1.extentions 1 \
+	  --stringparam admon.graphics 1 \
+		/usr/share/xml/docbook/stylesheet/nwalsh/1.73.2/fo/docbook.xsl \
+		buzztard-edit.xml >buzztard-edit.fo; \
+	fop -fo buzztard-edit.fo -pdf buzztard-edit.pdf
+
+
 # here we should
 # a) invoke xslproc, if available
 # stylesheet=/opt/gnome/share/sgml/docbook/yelp/docbook/html/docbook.xsl

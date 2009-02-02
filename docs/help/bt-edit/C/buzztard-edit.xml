@@ -106,10 +106,10 @@
     <para>
       &app; follows the concept of tracker applications. this is quite different
       when compared to other music composers.
-      The tracker concept is more focused on the data.
+      The tracker concept is more focused on the event data.
     </para>
     <para>
-      Important design criteria are: fast, keyboard accessible, system ui.
+      Important design criteria are: fast and system conformous ui, keyboard shortcuts for everything.
     </para>
     <para>
       (FIXME: write more)
@@ -148,10 +148,12 @@
   <sect2 id="bt-edit-intro-tracker">
     <title id='bt-edit-intro-tracker.title'>Comparison to Tracker applications</title>
     <para>
-      (FIXME:)
+      While &app; has much in common with tracker applications, there are some notable differences.
+    </para>
+    <para>
       <itemizedlist>
         <listitem><para>trackers are sample based, buzztard also uses software synthesizers</para></listitem>
-        <listitem><para>trackers have a fixed track concept, buzztard uses tracks per device (source/effect/sink)</para></listitem>
+        <listitem><para>trackers have a fixed track concept, buzztard uses tracks per machine (source/effect/sink)</para></listitem>
         <listitem><para>trackers do not have the virtual machine routing</para></listitem>
       </itemizedlist>
     </para>
@@ -172,7 +174,7 @@
     <screenshot>
       <mediaobject>
         <imageobject>
-          <imagedata fileref="figures/main-window.png" format="PNG"/>
+          <imagedata fileref="figures/main-window.png" format="PNG" contentwidth="65%"/>
         </imageobject>
         <textobject>
           <phrase>Shows &app; main window with menu bar, toolbars, editor views and status area.</phrase>
@@ -269,7 +271,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/page-machine-view.png" format="PNG"/>
+              <imagedata fileref="figures/page-machine-view.png" format="PNG" contentwidth="65%"/>
             </imageobject>
             <textobject>
               <phrase>The songs machine view.</phrase>
@@ -316,7 +318,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/page-pattern-view.png" format="PNG"/>
+              <imagedata fileref="figures/page-pattern-view.png" format="PNG" contentwidth="65%"/>
             </imageobject>
             <textobject>
               <phrase>The songs pattern view.</phrase>
@@ -351,7 +353,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/page-sequence-view.png" format="PNG"/>
+              <imagedata fileref="figures/page-sequence-view.png" format="PNG" contentwidth="65%"/>
             </imageobject>
             <textobject>
               <phrase>The songs sequence view.</phrase>
@@ -415,7 +417,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/page-wavetable-view.png" format="PNG"/>
+              <imagedata fileref="figures/page-wavetable-view.png" format="PNG" contentwidth="65%"/>
             </imageobject>
             <textobject>
               <phrase>The songs wave-table view.</phrase>
@@ -449,7 +451,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/page-info-view.png" format="PNG"/>
+              <imagedata fileref="figures/page-info-view.png" format="PNG" contentwidth="65%"/>
             </imageobject>
             <textobject>
               <phrase>The songs info view.</phrase>
@@ -496,7 +498,7 @@
       <screenshot>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="figures/settings-audio.png" format="PNG"/>
+            <imagedata fileref="figures/settings-audio.png" format="PNG" contentwidth="65%"/>
           </imageobject>
         </mediaobject>
       </screenshot>
@@ -515,7 +517,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/settings-audio.png" format="PNG"/>
+              <imagedata fileref="figures/settings-audio.png" format="PNG" contentwidth="65%"/>
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -534,7 +536,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/settings-pc.png" format="PNG"/>
+              <imagedata fileref="figures/settings-pc.png" format="PNG" contentwidth="65%"/>
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -553,7 +555,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/settings-ic.png" format="PNG"/>
+              <imagedata fileref="figures/settings-ic.png" format="PNG" contentwidth="65%"/>
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -571,7 +573,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/settings-colors.png" format="PNG"/>
+              <imagedata fileref="figures/settings-colors.png" format="PNG" contentwidth="65%"/>
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -589,7 +591,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/settings-shortcuts.png" format="PNG"/>
+              <imagedata fileref="figures/settings-shortcuts.png" format="PNG" contentwidth="65%"/>
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -607,7 +609,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/settings-directories.png" format="PNG"/>
+              <imagedata fileref="figures/settings-directories.png" format="PNG" contentwidth="65%"/>
             </imageobject>
           </mediaobject>
         </screenshot>
@@ -650,7 +652,7 @@
       <screenshot>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="figures/machine-properties.png" format="PNG"/>
+            <imagedata fileref="figures/machine-properties.png" format="PNG" contentwidth="65%"/>
           </imageobject>
           <textobject>
             <phrase>Machine properties dialog.</phrase>
@@ -676,7 +678,7 @@
       <screenshot>
         <mediaobject>
           <imageobject>
-            <imagedata fileref="figures/machine-preferences.png" format="PNG"/>
+            <imagedata fileref="figures/machine-preferences.png" format="PNG" contentwidth="65%"/>
           </imageobject>
           <textobject>
             <phrase>Machine preferences dialog.</phrase>

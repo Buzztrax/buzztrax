@@ -1,5 +1,16 @@
 2009-02-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/Makefile.am:
+	  Add pdf generation.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Write a few more sentences. Add image scaling for pdf output.
+
+	* docs/help/mk-shadow.sh:
+	  Add todo comment about setting image dpi.
+
+2009-02-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/buzztard-edit-C.omf.in:
 	  Fix type in replacement variable, so that we get the correct date in.
 
