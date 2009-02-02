@@ -1,3 +1,11 @@
+2009-02-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/buzztard-edit-C.omf.in:
+	  Fix type in replacement variable, so that we get the correct date in.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Bump docbook version.
+
 2009-01-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-toolbar.c:
