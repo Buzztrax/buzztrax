@@ -1,5 +1,11 @@
 2009-02-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
+	* src/lib/ic/ic.c:
+	  Fix the docs.
+
+2009-02-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/gst/ref.c:
 	  Add another test.
 

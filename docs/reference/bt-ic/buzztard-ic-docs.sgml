@@ -60,6 +60,7 @@
         </para>
       </abstract>
     </partintro>
+    <xi:include href="xml/libbtic.xml" />
     <xi:include href="xml/bticregistry.xml" />
     <xi:include href="xml/bticdevice.xml" />
     <xi:include href="xml/bticinputdevice.xml" />
