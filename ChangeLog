@@ -1,3 +1,8 @@
+2009-02-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/ref.c:
+	  Add another test.
+
 2009-02-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/Makefile.am:
@@ -39,6 +44,18 @@
 
 	* src/lib/core/wire-pattern.c:
 	  Fix type in comment.
+
+2009-01-20  Stefan Kost  <ensonic@users.sf.net>
+
+	reviewed by: <delete if not using a buddy>
+	patch by: <delete if not someone else's patch>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
+	* src/lib/ic/ic.c:
 
 2009-01-20  Stefan Kost  <ensonic@users.sf.net>
 
