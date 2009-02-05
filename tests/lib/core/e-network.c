@@ -147,6 +147,7 @@ BT_START_TEST(test_btcore_net_example2) {
   /* get the song setup and sequence */
   g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
   fail_unless(setup!=NULL, NULL);
+  fail_unless(sequence!=NULL, NULL);
 
   /* try to create the sink */
   sink=BT_MACHINE(bt_sink_machine_new(song,"master",&err));
@@ -230,6 +231,7 @@ BT_START_TEST(test_btcore_net_example3) {
   g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&song_info,NULL);
   fail_unless(setup!=NULL, NULL);
   fail_unless(sequence!=NULL, NULL);
+  fail_unless(song_info!=NULL, NULL);
   g_object_set(song_info,"name","btcore_net_example3",NULL);
 
   /* try to create the sink */

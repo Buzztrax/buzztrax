@@ -32,7 +32,7 @@
  * @todo try to derive this from GstBin!
  *  - then put the machines into itself (and not into the songs bin, 
  *    but insert the wire directly into the song->bin
- *  - when adding internal machines we need to fix the ghost pads
+ *  - when adding internal machines we need to fix the ghost pads using
  *    gst_ghost_pad_set_target()
  */
 
@@ -95,12 +95,15 @@ struct _BtWirePrivate {
 
   /* the song the wire belongs to */
   G_POINTER_ALIAS(BtSong *,song);
-
-  /* the main gstreamer container element */
-  GstBin *bin;
+  
+  /* status in songs pipeline */
+  gboolean is_added,is_connected;
 
   /* which machines are linked */
   BtMachine *src,*dst;
+  
+  /* src/sink ghost-pad of the wire */
+  GstPad *src_pad,*sink_pad;
 
   /* the number of dynamic params the wire provides */
   gulong num_params;
@@ -125,6 +128,19 @@ static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
 
+//-- pad templates
+static GstStaticPadTemplate wire_sink_template =
+GST_STATIC_PAD_TEMPLATE ("sink",
+    GST_PAD_SINK,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS_ANY);
+
+static GstStaticPadTemplate wire_src_template =
+GST_STATIC_PAD_TEMPLATE ("src",
+    GST_PAD_SRC,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS_ANY);
+
 // macros
 
 #define WIRE_PARAM_NAME(ix) self->priv->wire_props[ix]->name
@@ -134,7 +150,7 @@ static guint signals[LAST_SIGNAL]={0,};
 /* this actualy produces two more relocations
 static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
 
-G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, G_TYPE_OBJECT,
+G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, GST_TYPE_BIN,
   G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
     bt_wire_persistence_interface_init));
 */
@@ -158,76 +174,11 @@ static gboolean bt_wire_make_internal_element(const BtWire * const self, const B
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_ERROR("failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
-  gst_bin_add(self->priv->bin,self->priv->machines[part]);
+  gst_bin_add(GST_BIN(self),self->priv->machines[part]);
   res=TRUE;
 Error:
   return(res);
 }
-
-//-- signal handler
-
-#if 0
-static void on_format_negotiated(GstPad *pad, GParamSpec *arg, gpointer user_data) {
-  /* this does not work yet, gstreamer seems to not yet provide a way to double
-   * renegotiation
-  bt_machine_renegotiate_adder_format(BT_MACHINE(user_data),pad);
-  */
-}
-
-static void on_convert_format_negotiated(GstPad *pad, GParamSpec *arg, gpointer user_data) {
-  BtWire *self = BT_WIRE(user_data);
-  GstCaps *caps;
-
-  g_assert(user_data);
-
-  if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
-    GstStructure *structure;
-    gint channels=1;
-    
-    if(GST_CAPS_IS_SIMPLE(caps)) {
-      structure = gst_caps_get_structure(caps,0);
-      
-      if((gst_structure_get_int(structure,"channels",&channels))) {
-        GST_WARNING("channels on wire.dst=%d",channels);
-      }
-    }
-    else {
-      gint c,i,size=gst_caps_get_size(caps);
-      
-      for(i=0;i<size;i++) {
-        if((structure=gst_caps_get_structure(caps,i))) {
-          if(gst_structure_get_int(structure,"channels",&c)) {
-            if(c>channels) channels=c;
-          }            
-        }
-      }
-      GST_WARNING("channels on wire.dst=%d",channels);
-    }
-    if(channels==2) {
-      GstElement ** const machines=self->priv->machines;
-      /* insert panorama */
-
-      if(!machines[PART_PAN]) {
-        if(!bt_wire_make_internal_element(self,PART_PAN,"audiopanorama","pan")) return;
-        GST_DEBUG("created panorama/balance element for wire : %p '%s' -> %p '%s'",
-          self->priv->src->src_elem,GST_OBJECT_NAME(self->priv->src->src_elem),
-          self->priv->dst->dst_elem,GST_OBJECT_NAME(self->priv->dst->dst_elem));
-      }
-      // @todo: use gst_pad_link/unlink to avoid request-pad issues iwth dst_elem
-      gst_element_unlink(machines[PART_CONVERT], self->priv->dst->dst_elem);
-      if(!gst_element_link_many(machines[PART_CONVERT], machines[PART_PAN], self->priv->dst->dst_elem, NULL)) {
-        GST_DEBUG("failed to link panorama on wire");
-      }
-      self->priv->wire_props[1]=g_object_class_find_property(
-        G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machines[PART_PAN])),"panorama");
-      self->priv->num_params=2;
-      GST_WARNING("panorama activated");
-      g_object_notify(G_OBJECT(self),"pan");
-      g_object_notify(G_OBJECT(self),"num-params");
-    }
-  }
-}
-#endif
 
 //-- helper methods
 
@@ -279,6 +230,7 @@ static GstPad *bt_wire_get_peer_pad(GstIterator *it) {
   return(peer_pad);
 }
 
+#if 0
 /*
  * bt_wire_get_src_peer_pad:
  * @elem: a gstreamer element
@@ -290,6 +242,7 @@ static GstPad *bt_wire_get_peer_pad(GstIterator *it) {
 static GstPad *bt_wire_get_src_peer_pad(GstElement * const elem) {
   return(bt_wire_get_peer_pad(gst_element_iterate_src_pads(elem)));
 }
+#endif
 
 /*
  * bt_wire_get_sink_peer_pad:
@@ -325,7 +278,7 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
 
-    if(!(res=gst_bin_add(self->priv->bin,next))) {
+    if(!(res=gst_bin_add(GST_BIN(self),next))) {
       GST_INFO("cannot add element \"%s\" to bin",GST_OBJECT_NAME(next));
     }
     if(prev) {
@@ -395,7 +348,7 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
   }
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
-    if(!(res=gst_bin_remove(self->priv->bin,next))) {
+    if(!(res=gst_bin_remove(GST_BIN(self),next))) {
       GST_INFO("cannot remove element '%s' from bin",GST_OBJECT_NAME(next));
     }
   }
@@ -408,22 +361,6 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
     gst_object_unref(src_pad);
   }
 }
-
-#if 0
-/*
- * bt_wire_change_gain:
- * @self: the wire for which the gain to change
- *
- * Updates the wire gain control. Bypasses gain control, if gain is very close
- * to 100%.
- */
-static void bt_wire_change_gain(const BtWire * const self) {
-  const gboolean passthrough=(fabs(self->priv->gain-1.0)<0.001);
-
-  g_object_set(self->priv->machines[PART_GAIN],"volume",self->priv->gain,NULL);
-  gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(self->priv->machines[PART_GAIN]),passthrough);
-}
-#endif
 
 /*
  * bt_wire_link_machines:
@@ -445,9 +382,6 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
 
   g_assert(BT_IS_WIRE(self));
 
-  g_assert(GST_IS_OBJECT(src->src_elem));
-  g_assert(GST_IS_OBJECT(dst->dst_elem));
-
   if(!machines[PART_QUEUE]) {
     /* @todo: use the queue on demand.
      * if(bt_machine_activate_spreader(src)
@@ -461,15 +395,15 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     if(!bt_wire_make_internal_element(self,PART_QUEUE,"queue","queue")) return(FALSE);
     // configure the queue
     g_object_set(G_OBJECT (machines[PART_QUEUE]),"max-size-buffers",1,"max-size-bytes",0,"max-size-time",G_GUINT64_CONSTANT(0),NULL);
-    GST_DEBUG("created queue element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
+    GST_DEBUG("created queue element for wire : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
   }
   if(!machines[PART_TEE]) {
     if(!bt_wire_make_internal_element(self,PART_TEE,"tee","tee")) return(FALSE);
-    GST_DEBUG("created tee element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
+    GST_DEBUG("created tee element for wire : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
   }
   if(!machines[PART_GAIN]) {
     if(!bt_wire_make_internal_element(self,PART_GAIN,"volume","gain")) return(FALSE);
-    GST_DEBUG("created volume-gain element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
+    GST_DEBUG("created volume-gain element for wire : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
   }
   
   g_object_get(G_OBJECT(dst),"machine",&dst_machine,NULL);
@@ -506,8 +440,8 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
         if(!machines[PART_PAN]) {
           if(!bt_wire_make_internal_element(self,PART_PAN,"audiopanorama","pan")) return(FALSE);
           GST_DEBUG("created panorama/balance element for wire : %p '%s' -> %p '%s'",
-            self->priv->src->src_elem,GST_OBJECT_NAME(self->priv->src->src_elem),
-            self->priv->dst->dst_elem,GST_OBJECT_NAME(self->priv->dst->dst_elem));
+            self->priv->src,GST_OBJECT_NAME(self->priv->src),
+            self->priv->dst,GST_OBJECT_NAME(self->priv->dst));
           g_object_set(G_OBJECT (machines[PART_PAN]),"method",1,NULL);
         }
       }
@@ -523,7 +457,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   }
   gst_object_unref(dst_machine);
   
-  GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
+  GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
   /* if we try linking without audioconvert and this links to an adder,
    * then the first link enforces the format (if first is mono and later stereo
    * signal is linked, this is downgraded).
@@ -536,8 +470,8 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   }
   if(machines[PART_PAN]) {
     GST_DEBUG("trying to link machines with pan");
-    if(!(res=gst_element_link_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], dst->dst_elem, NULL))) {
-      gst_element_unlink_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], dst->dst_elem, NULL);
+    if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL))) {
+      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL);
       GST_WARNING("failed to link machines with pan");
     }
     else {
@@ -548,8 +482,8 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   }
   else {
     GST_DEBUG("trying to link machines without pan");
-    if(!(res=gst_element_link_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL))) {
-      gst_element_unlink_many(src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], dst->dst_elem, NULL);
+    if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL))) {
+      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL);
       GST_WARNING("failed to link machines without pan");
     }
     else {
@@ -558,7 +492,52 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
       GST_DEBUG("  wire okay without pan");
     }
   }
-  if(!res) {
+  if(res) {
+    // update ghostpads
+    GstPad *pad,*req_pad=NULL;
+
+    if(!(pad=gst_element_get_static_pad(machines[PART_SRC],"sink"))) {
+      GST_INFO("failed to get static 'sink' pad for element '%s'",GST_OBJECT_NAME(machines[PART_SRC]));
+      pad=req_pad=gst_element_get_request_pad(machines[PART_SRC],"sink_%d");
+      if(!pad) {
+        GST_INFO("failed to get request 'sink_%d' request-pad for element '%s'",GST_OBJECT_NAME(machines[PART_SRC]));
+      }
+    }
+    GST_INFO ("updating sink ghostpad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
+      machines[PART_SRC],(G_OBJECT(machines[PART_SRC])->ref_count),GST_OBJECT_NAME(machines[PART_SRC]),
+      pad,(G_OBJECT(pad)->ref_count));
+    if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink_pad),pad)) {
+      GST_WARNING("failed to link internal pads for sink ghostpad");
+    }
+    if(!req_pad) {
+      // its a static pad and and it needs to be unreffed
+      gst_object_unref(pad);
+    }
+    else {
+      req_pad=NULL;
+    }
+
+    if(!(pad=gst_element_get_static_pad(machines[PART_DST],"src"))) {
+      GST_INFO("failed to get static 'src' pad for element '%s'",GST_OBJECT_NAME(machines[PART_DST]));
+      pad=req_pad=gst_element_get_request_pad(machines[PART_DST],"src_%d");
+      if(!pad) {
+        GST_INFO("failed to get request 'src_%d' request-pad for element '%s'",GST_OBJECT_NAME(machines[PART_DST]));
+      }
+    }
+    GST_INFO ("updating src ghostpad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
+      machines[PART_DST],(G_OBJECT(machines[PART_DST])->ref_count),GST_OBJECT_NAME(machines[PART_DST]),
+      pad,(G_OBJECT(pad)->ref_count));
+    if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->src_pad),pad)) {
+      GST_WARNING("failed to link internal pads for src ghostpad");
+    }
+    if(!req_pad) {
+      // its a static pad and and it needs to be unreffed
+      gst_object_unref(pad);
+    }
+
+    /* we link the wire to the machine in setup as needed */    
+  }
+  else {
     GST_INFO("failed to link the machines");
     // print out the content of both machines (using GST_DEBUG)
     bt_machine_dbg_print_parts(src);
@@ -577,42 +556,17 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
  */
 static void bt_wire_unlink_machines(const BtWire * const self) {
   GstElement ** const machines=self->priv->machines;
-  //GstStateChangeReturn res;
 
   g_assert(BT_IS_WIRE(self));
 
   // check if wire has been properly initialized
-  if(self->priv->src->src_elem && self->priv->dst->dst_elem && machines[PART_TEE] && machines[PART_GAIN]) {
-    GstPad *dst_pad=NULL,*src_pad=NULL;
-
-    src_pad=bt_wire_get_sink_peer_pad(machines[PART_QUEUE]);
-
-    GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
+  if(self->priv->src && self->priv->dst && machines[PART_TEE] && machines[PART_GAIN]) {
+    GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src),GST_OBJECT_NAME(self->priv->dst));
     if(machines[PART_PAN]) {
-      dst_pad=bt_wire_get_src_peer_pad(machines[PART_PAN]);
-      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], self->priv->dst->dst_elem, NULL);
+      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL);
     }
     else {
-      dst_pad=bt_wire_get_src_peer_pad(machines[PART_CONVERT]);
-      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], self->priv->dst->dst_elem, NULL);
-    }
-    GST_DEBUG("request pads: adder %s,%s  tee %s,%s",
-      GST_DEBUG_PAD_NAME(dst_pad),GST_DEBUG_PAD_NAME(src_pad));
-    if(dst_pad) {
-      if (bt_machine_has_active_adder(self->priv->dst)) {
-        // remove request-pad
-        GST_INFO("releasing request pad for dst-adder");
-        gst_element_release_request_pad(self->priv->dst->dst_elem,dst_pad);
-      }
-      gst_object_unref(dst_pad);
-    }
-    if(src_pad) {
-      if(bt_machine_has_active_spreader(self->priv->src)) {
-        // remove request-pad
-        GST_INFO("releasing request pad for src-spreader");
-        gst_element_release_request_pad(self->priv->src->src_elem,src_pad);
-      }
-      gst_object_unref(src_pad);
+      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL);
     }
   }
   /*
@@ -622,7 +576,7 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
         GST_WARNING("can't go to null state");
       else
         GST_DEBUG("->NULL state change returned %d",res);
-      gst_bin_remove(self->priv->bin, machines[PART_CONVERT]);
+      gst_bin_remove(GST_BIN(self), machines[PART_CONVERT]);
       machines[PART_CONVERT]=NULL;
     }
     if(self->priv->machines[PART_SCALE]) {
@@ -631,7 +585,7 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
         GST_WARNING("can't go to null state");
       else
         GST_DEBUG("->NULL state change returned %d",res);
-      gst_bin_remove(self->priv->bin, machines[PART_SCALE]);
+      gst_bin_remove(GST_BIN(self), machines[PART_SCALE]);
       machines[PART_SCALE]=NULL;
     }
   */
@@ -658,17 +612,27 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   BtWire *other_wire;
   BtMachine * const src=self->priv->src;
   BtMachine * const dst=self->priv->dst;
-  const GstElement *old_peer;
+  gchar *name,*src_name,*dst_name;
 
   g_assert(BT_IS_WIRE(self));
 
   // move this to connect?
   if((!self->priv->src) || (!self->priv->dst)) {
-    GST_WARNING("trying to add create wire with NULL endpoint, src=%p and dst=%p",self->priv->src,self->priv->dst);
+    GST_WARNING("trying to add create wire with NULL endpoint(s), src=%p and dst=%p",self->priv->src,self->priv->dst);
     return(res);
   }
 
-  g_object_get(G_OBJECT(song),"bin",&self->priv->bin,"setup",&setup,NULL);
+  // name the wire
+  g_object_get(G_OBJECT(src),"id",&src_name,NULL);
+  g_object_get(G_OBJECT(dst),"id",&dst_name,NULL);
+  name=g_strdup_printf("%s_%s",src_name,dst_name);
+  gst_object_set_name(GST_OBJECT(self),name);
+  GST_INFO("naming wire : %s",name);
+  g_free(name);
+  g_free(src_name);
+  g_free(dst_name);
+
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
   if((other_wire=bt_setup_get_wire_by_machines(setup,self->priv->src,self->priv->dst)) && (other_wire!=self)) {
     GST_WARNING("trying to add create already existing wire: %p!=%p",other_wire,self);
@@ -683,8 +647,8 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   }
   g_object_try_unref(other_wire);
 
-  GST_DEBUG("self=%p, bin->refs=%d, src->refs=%d, dst->refs=%d",self,G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
-  GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
+  GST_DEBUG("self=%p, src->refs=%d, dst->refs=%d",self,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
+  GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
 
   // if there is already a connection from src && src has not yet an spreader (in use)
   if((other_wire=bt_setup_get_wire_by_src_machine(setup,src))) {
@@ -692,15 +656,9 @@ static gboolean bt_wire_connect(const BtWire * const self) {
       GST_DEBUG("  other wire from src found");
       bt_wire_unlink_machines(other_wire);
       // create spreader (if needed)
-      old_peer=src->src_elem;
       if(!bt_machine_activate_spreader(src)) {
         g_object_unref(other_wire);
         goto Error;
-      }
-      // if there is no conversion element on the wire ..
-      if(other_wire->priv->machines[PART_SRC]==old_peer) {
-        // we need to fix the src_elem of the other connect, as we have inserted the spreader
-        other_wire->priv->machines[PART_SRC]=src->src_elem;
       }
       // correct the link for the other wire
       if(!bt_wire_link_machines(other_wire)) {
@@ -716,15 +674,9 @@ static gboolean bt_wire_connect(const BtWire * const self) {
       GST_DEBUG("  other wire to dst found");
       bt_wire_unlink_machines(other_wire);
       // create adder (if needed)
-      old_peer=dst->dst_elem;
       if(!bt_machine_activate_adder(dst)) {
         g_object_unref(other_wire);
         goto Error;
-      }
-      // if there is no conversion element on the wire ..
-      if(other_wire->priv->machines[PART_DST]==old_peer) {
-        // we need to fix the dst_elem of the other connect, as we have inserted the adder
-        other_wire->priv->machines[PART_DST]=dst->dst_elem;
       }
       // correct the link for the other wire
       if(!bt_wire_link_machines(other_wire)) {
@@ -734,27 +686,17 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     g_object_unref(other_wire);
   }
 
-  GST_DEBUG("link prepared, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
+  GST_DEBUG("link prepared, src->refs=%d, dst->refs=%d",G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
 
   if(!bt_wire_link_machines(self)) {
-    GST_ERROR("linking machines failed : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
+    GST_ERROR("linking machines failed : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
     goto Error;
   }
   else {
     // register params
     bt_wire_init_params(self);
   }
-  GST_DEBUG("linking machines succeeded, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
-
-  // needed for the adder format negotiation
-#if 0
-  GstPad *sink_pad;
-  if((sink_pad=gst_element_get_static_pad(self->priv->machines[PART_SRC],"sink"))) {
-    g_signal_connect(sink_pad,"notify::caps",G_CALLBACK(on_format_negotiated),(gpointer)self->priv->dst);
-    gst_object_unref(sink_pad);
-  }
-#endif
-  //bt_machine_renegotiate_adder_format(self->priv->dst);
+  GST_DEBUG("linking machines succeeded, src->refs=%d, dst->refs=%d",G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
 
   res=TRUE;
 
@@ -795,7 +737,8 @@ BtWire *bt_wire_new(const BtSong * const song, const BtMachine * const src_machi
 gboolean bt_wire_reconnect(BtWire * const self) {
   g_return_val_if_fail(BT_IS_WIRE(self),FALSE);
 
-  GST_DEBUG("relinking machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
+  // @todo: should not be needed anymore as we have ghostpads!
+  GST_DEBUG("relinking machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src),GST_OBJECT_NAME(self->priv->dst));
   bt_wire_unlink_machines(self);
   return(bt_wire_link_machines(self));
 }
@@ -1111,7 +1054,7 @@ void bt_wire_dbg_print_parts(const BtWire * const self) {
   if(self->priv->dst) g_object_get(self->priv->dst,"id",&did,NULL);
 
   /* [Src T G C S Dst] */
-  GST_DEBUG("%s->%s [%s %s %s %s %s %s %s]", sid, did,
+  GST_INFO("%s->%s [%s %s %s %s %s %s %s]", sid, did,
     self->priv->machines[PART_SRC]?"SRC":"src",
     self->priv->machines[PART_TEE]?"Q":"q",
     self->priv->machines[PART_TEE]?"T":"t",
@@ -1293,6 +1236,8 @@ static void bt_wire_constructed(GObject *object) {
   
   GST_INFO("wire constructor, self->priv=%p, between %p and %p",self->priv,self->priv->src,self->priv->dst);
   if(self->priv->src && self->priv->dst) {
+    // @todo: we need to put the wire into the pipeline before
+
     if(!bt_wire_connect(self)) {
       goto ConnectError;
     }
@@ -1436,47 +1381,13 @@ static void bt_wire_dispose(GObject * const object) {
   }
 
   // remove the GstElements from the bin
-  if(self->priv->bin) {
-    GstStateChangeReturn res;
-    guint i;
+  // FIXME: is this actually needed?
+  bt_wire_unlink_machines(self); // removes helper elements if in use
+  bt_wire_deactivate_analyzers(self);
 
-    GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
-      (G_OBJECT(self->priv->bin))->ref_count,
-      GST_BIN_NUMCHILDREN(self->priv->bin)
-    );
-
-    bt_wire_unlink_machines(self); // removes helper elements if in use
-    //bt_machine_renegotiate_adder_format(self->priv->dst);
-    bt_wire_deactivate_analyzers(self);
-
-    for(i=PART_SRC+1;i<PART_DST;i++) {
-      if(self->priv->machines[i]) {
-        g_assert(GST_IS_BIN(self->priv->bin));
-        g_assert(GST_IS_ELEMENT(self->priv->machines[i]));
-        /* we already unlink above
-        for(j=i+1;j<PART_DST;j++) {
-          if(self->priv->machines[j]) {
-            GST_DEBUG("  unlinking machine \"%s\", \"%s\"",
-              GST_OBJECT_NAME(self->priv->machines[i]),
-              GST_OBJECT_NAME(self->priv->machines[j]));
-            gst_element_unlink(self->priv->machines[i],self->priv->machines[j]);
-            break;
-          }
-        }
-        */
-
-        GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",
-          GST_OBJECT_NAME(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
-        if((res=gst_element_set_state(self->priv->machines[i],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
-          GST_WARNING("can't go to null state");
-        else
-          GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
-        gst_bin_remove(self->priv->bin, self->priv->machines[i]);
-      }
-    }
-    GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
-    gst_object_unref(self->priv->bin);
-  }
+  // remove ghost pads
+  gst_element_remove_pad(GST_ELEMENT(self),self->priv->src_pad);
+  gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink_pad);
 
   g_object_try_weak_unref(self->priv->song);
   //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
@@ -1487,7 +1398,10 @@ static void bt_wire_dispose(GObject * const object) {
     self->priv->src,(self->priv->src?(G_OBJECT(self->priv->src))->ref_count:-1));
   g_object_try_unref(self->priv->src);
 
+  GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
+  GST_DEBUG("  done");
+  
 }
 
 static void bt_wire_finalize(GObject * const object) {
@@ -1508,11 +1422,17 @@ static void bt_wire_init(BtWire *self) {
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
   self->priv->patterns=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
 
+  self->priv->src_pad=gst_ghost_pad_new_no_target("src",GST_PAD_SRC);
+  gst_element_add_pad(GST_ELEMENT(self),self->priv->src_pad);
+  self->priv->sink_pad=gst_ghost_pad_new_no_target("sink",GST_PAD_SINK);
+  gst_element_add_pad(GST_ELEMENT(self),self->priv->sink_pad);
+
   GST_DEBUG("!!!! self=%p",self);
 }
 
 static void bt_wire_class_init(BtWireClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+  GstElementClass * const gstelement_klass = GST_ELEMENT_CLASS(klass);
 
   // @idea: g_type_qname(BT_TYPE_WIRE);
   error_domain=g_quark_from_static_string("BtWire");
@@ -1524,6 +1444,9 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   gobject_class->get_property = bt_wire_get_property;
   gobject_class->dispose      = bt_wire_dispose;
   gobject_class->finalize     = bt_wire_finalize;
+
+  gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&wire_src_template));
+  gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&wire_sink_template));
 
   /**
    * BtWire::pattern-created:
@@ -1628,7 +1551,7 @@ GType bt_wire_get_type(void) {
       NULL, // interface_finalize
       NULL  // interface_data
     };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtWire",&info,0);
+    type = g_type_register_static(GST_TYPE_BIN,"BtWire",&info,0);
     g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;

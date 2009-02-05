@@ -1,3 +1,22 @@
+2009-02-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/setup-methods.h:
+	* src/lib/core/libbuzztard-core/wire.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wire.c:
+	* tests/lib/core/e-network.c:
+	  Merge changes from REFACTOR_HIERARCHIC_PIPELINE branch.
+	  Turn machines and wires into bins themself. Add a new algorithms that add
+	  then bins to the pipeline only if they are connected to the master. This
+	  allows to play songs with some unconnected machines.
+	  Remove lots of not anymore needed code (more to be removed).
+
 2009-02-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-ic/buzztard-ic-docs.sgml:

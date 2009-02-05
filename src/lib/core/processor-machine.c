@@ -39,6 +39,19 @@ struct _BtProcessorMachinePrivate {
 
 static BtMachineClass *parent_class=NULL;
 
+//-- pad templates
+static GstStaticPadTemplate machine_src_template =
+GST_STATIC_PAD_TEMPLATE ("src%d",
+    GST_PAD_SRC,
+    GST_PAD_REQUEST,
+    GST_STATIC_CAPS_ANY);
+
+static GstStaticPadTemplate machine_sink_template =
+GST_STATIC_PAD_TEMPLATE ("sink%d",
+    GST_PAD_SINK,
+    GST_PAD_REQUEST,
+    GST_STATIC_CAPS_ANY);
+
 //-- constructor methods
 
 /**
@@ -187,6 +200,9 @@ static void bt_processor_machine_constructed(GObject *object) {
     gst_object_unref(element);
     pattern=bt_pattern_new_with_event(song,BT_MACHINE(self),BT_PATTERN_CMD_BYPASS);
     g_object_unref(pattern);
+    
+    bt_machine_activate_adder(BT_MACHINE(self));
+    bt_machine_activate_spreader(BT_MACHINE(self));
     bt_machine_enable_output_gain(BT_MACHINE(self));
 
     // add the machine to the setup of the song
@@ -248,6 +264,7 @@ static void bt_processor_machine_init(GTypeInstance * const instance, gconstpoin
 
 static void bt_processor_machine_class_init(BtProcessorMachineClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+  GstElementClass * const gstelement_klass = GST_ELEMENT_CLASS(klass);
   BtMachineClass * const machine_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
@@ -260,6 +277,9 @@ static void bt_processor_machine_class_init(BtProcessorMachineClass * const klas
   gobject_class->finalize     = bt_processor_machine_finalize;
 
   machine_class->check_type   = bt_processor_machine_check_type;
+
+  gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&machine_src_template));
+  gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&machine_sink_template));
 }
 
 GType bt_processor_machine_get_type(void) {

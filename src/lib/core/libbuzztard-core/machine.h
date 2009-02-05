@@ -45,10 +45,12 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
  * base object for a virtual piece of hardware
  */
 struct _BtMachine {
-  const GObject parent;
+  const GstBin parent;
 
   /* convinience pointers to first and last GstElement in local chain.
-   * (accessed a lot by the wire object) */
+   * (accessed a lot by the wire object)
+   * we could move that so self->priv-> now
+   */
   GstElement *dst_elem;
   GstElement *src_elem;
 
@@ -58,7 +60,7 @@ struct _BtMachine {
 
 /* structure of the machine class */
 struct _BtMachineClass {
-  const GObjectClass parent;
+  const GstBinClass parent;
 
   /*< private >*/
   /* signal callbacks */

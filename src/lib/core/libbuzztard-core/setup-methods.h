@@ -52,4 +52,6 @@ extern gchar *bt_setup_get_unique_machine_id(const BtSetup * const self, gchar *
 
 extern void bt_setup_remember_missing_machine(const BtSetup * const self, const gchar * const str);
 
+extern gboolean bt_setup_update_pipeline(const BtSetup * const self);
+
 #endif // BT_SETUP_METHDOS_H

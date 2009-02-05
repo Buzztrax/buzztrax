@@ -22,8 +22,7 @@
 #ifndef BT_WIRE_H
 #define BT_WIRE_H
 
-#include <glib.h>
-#include <glib-object.h>
+#include <gst/gst.h>
 #include "wire-pattern.h"
 
 #define BT_TYPE_WIRE            (bt_wire_get_type ())
@@ -45,7 +44,7 @@ typedef struct _BtWirePrivate BtWirePrivate;
  * connects two #BtMachine instances
  */
 struct _BtWire {
-  const GObject parent;
+  const GstBin parent;
   
   /*< private >*/
   BtWirePrivate *priv;
@@ -53,7 +52,7 @@ struct _BtWire {
 
 /* structure of the wire class */
 struct _BtWireClass {
-  const GObjectClass parent;
+  const GstBinClass parent;
 
   void (*pattern_created_event)(const BtWire * const wire, const BtWirePattern * const wire_pattern, gconstpointer const user_data);
 };

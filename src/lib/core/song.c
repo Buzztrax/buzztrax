@@ -194,129 +194,17 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
  * bt_song_is_playable:
  * @song: the song to check
  *
- * Do some sanify check if a song an be played. GStreamer is a bit picky about
- * partially connected pipelines (see design/gst/connection1.c)
+ * Update pipeline with machines and wires.
  *
  * Returns: %TRUE if the song seems to be playable
  */
 static gboolean bt_song_is_playable(const BtSong * const self) {
-  GList *wires;
-
   GST_INFO("check playability");
-
-  // do not play an empty song
-  if(!GST_BIN_NUMCHILDREN(self->priv->bin)) {
-    GST_INFO("bin has no children");
-    return(FALSE);
-  }
-
-  // do not play a song with no wires linked to sink
-  wires=bt_setup_get_wires_by_dst_machine(self->priv->setup,BT_MACHINE(self->priv->master));
-  if(!wires) {
-    GST_INFO("song has no wires");
-    return(FALSE);
-  }
-  else {
-    GList *node;
-
-    for(node=wires;node;node=g_list_next(node)) {
-      /* @todo: do not play a song with no wires linked to effects that are linked to the sink
-       * recursively do:
-       * subwires=bt_setup_get_wires_by_dst_machine(self->priv->setup,BT_MACHINE(BT_WIRE(node->data)->src));
-       */
-      g_object_try_unref(node->data);
-    }
-    g_list_free(wires);
-  }
-
-  /* go over all elements (skip master)
-   * @todo: unconnected effects, if unconnected on both sides, ignore
-   * ... (more checks needed)
-   * @todo: all [sources...effect] subgraphs need to be set  to locked state
-   *
-   * traversing a directed graph
-   * - add all source to a todo-list
-   *   - walk down to master
-   *   - mark each visited node
-   *   - stop loop when we hit a visited node before we reach master
-   *   - if a node as multiple outgoing wires, get each destination and
-   *     if not yet visited add to todo list
-   * we need nodes that do not reach master
-   */
   
-  /* what about iterating all elements in the bin and iterating their always pads
-   * and complaining about unlinked pads
-   */
-  {
-    GstIterator *element_iter,*pad_iter;
-    gboolean elements_done,pads_done,all_linked=TRUE;
-    guint element_ct=0,pad_ct=0;
-    GstElement *element;
-    GstPad *pad;
-
-    element_iter=gst_bin_iterate_elements(self->priv->bin);
-    elements_done = FALSE;
-    while (!elements_done) {
-      switch (gst_iterator_next (element_iter, (gpointer)&element)) {
-        case GST_ITERATOR_OK:
-          pad_iter=gst_element_iterate_pads(element);
-          pads_done=FALSE;
-          while (!pads_done) {
-            switch (gst_iterator_next (pad_iter, (gpointer)&pad)) {
-              case GST_ITERATOR_OK:
-                if(!gst_pad_is_linked(pad)) {
-                  all_linked=FALSE;
-                  GST_INFO("%s.%s is not linked",
-                    GST_OBJECT_NAME(element), GST_OBJECT_NAME(pad));
-                  /* @todo: now we'd like to which machine it belongs
-                   * 1:
-                   * iterate over machines from setup
-                   *   get elements with bt_machine_get_element_list(machine)
-                   *     check if its there
-                   * 2:
-                   * if machine would be a bin, we can just get the parent
-                   * 3:
-                   * we can set the machine as a qdata in debug versions
-                   */
-                }
-                gst_object_unref(pad);
-                pad_ct++;
-                break;
-              case GST_ITERATOR_RESYNC:
-                gst_iterator_resync (pad_iter);
-                break;
-              case GST_ITERATOR_ERROR:
-              case GST_ITERATOR_DONE:
-                pads_done = TRUE;
-                break;
-            }
-          }
-          gst_iterator_free(pad_iter);
-          gst_object_unref(element);
-          element_ct++;
-          break;
-        case GST_ITERATOR_RESYNC:
-          gst_iterator_resync (element_iter);
-          break;
-        case GST_ITERATOR_ERROR:
-        case GST_ITERATOR_DONE:
-          elements_done = TRUE;
-          break;
-      }
-    }
-    gst_iterator_free(element_iter);
-    if(all_linked) {
-      GST_INFO ("checked %u elementes and %u pads, all linked",element_ct, pad_ct);
-    }
-    else {
-      GST_WARNING ("checked %u elementes and %u pads, not all linked",element_ct, pad_ct);
-      bt_song_write_to_lowlevel_dot_file(self);
-    }
+  if(!bt_setup_update_pipeline(self->priv->setup)) {
+    GST_INFO("song has no items connected to master");
+    return(FALSE);    
   }
-
-  // unconnected sources will throw an bus-error-message
-  // unconnected effects don't harm
-  
   /*
   {
     GList * const list;
@@ -404,7 +292,6 @@ static void bt_song_send_tags(const BtSong * const self) {
   gst_iterator_free (it);
   gst_event_unref(tag_event);
 #endif
-
   gst_tag_list_free(taglist);
 }
 
@@ -1322,6 +1209,12 @@ static void bt_song_constructed(GObject *object) {
   g_signal_connect(bus, "message::async-done", G_CALLBACK(on_song_async_done), (gpointer)self);
   gst_object_unref(bus);
 
+  /* don't change the order */
+  self->priv->song_info=bt_song_info_new(self);
+  self->priv->setup    =bt_setup_new(self);
+  self->priv->sequence =bt_sequence_new(self);
+  self->priv->wavetable=bt_wavetable_new(self);
+  
   g_signal_connect(self->priv->sequence,"notify::loop",G_CALLBACK(bt_song_on_loop_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::loop-start",G_CALLBACK(bt_song_on_loop_start_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::loop-end",G_CALLBACK(bt_song_on_loop_end_changed),(gpointer)self);
@@ -1390,10 +1283,10 @@ static void bt_song_set_property(GObject * const object, const guint property_id
       g_object_try_weak_ref(self->priv->app);
       GST_DEBUG("set the app for the song: %p",self->priv->app);
     } break;
-    case SONG_BIN: {
+    /*case SONG_BIN: {
       self->priv->bin=GST_BIN(g_value_dup_object(value));
       GST_DEBUG("set the bin for the song: %p",self->priv->bin);
-    } break;
+    } break;*/
     case SONG_MASTER: {
       g_object_try_weak_unref(self->priv->master);
       self->priv->master = BT_SINK_MACHINE(g_value_get_object(value));
@@ -1440,10 +1333,10 @@ static void bt_song_dispose(GObject * const object) {
   if(self->priv->paused_timeout_id)
     g_source_remove(self->priv->paused_timeout_id);
 
-  if(self->priv->is_playing) bt_song_stop(self);
-  else if(self->priv->is_idle) bt_song_idle_stop(self);
-
   if(self->priv->bin) {
+    if(self->priv->is_playing) bt_song_stop(self);
+    else if(self->priv->is_idle) bt_song_idle_stop(self);
+  
     if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
       GST_WARNING("can't go to null state");
     }
@@ -1458,25 +1351,37 @@ static void bt_song_dispose(GObject * const object) {
     gst_object_unref(bus);
   }
 
-  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_changed,(gpointer)self);
-  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_start_changed,(gpointer)self);
-  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_end_changed,(gpointer)self);
-  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_length_changed,(gpointer)self);
-  g_signal_handlers_disconnect_matched(self->priv->song_info,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_tempo_changed,(gpointer)self);
+  if(self->priv->sequence) {
+    g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_changed,(gpointer)self);
+    g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_start_changed,(gpointer)self);
+    g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_end_changed,(gpointer)self);
+    g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_length_changed,(gpointer)self);
+  }
+  if(self->priv->song_info) {
+    g_signal_handlers_disconnect_matched(self->priv->song_info,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_tempo_changed,(gpointer)self);
+  }
 
   if(self->priv->master) GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);
   if(self->priv->master_bin) gst_object_unref(self->priv->master_bin);
   g_object_try_weak_unref(self->priv->master);
-  GST_DEBUG("refs: song_info: %d, sequence: %d, setup: %d, wavetable: %d",
-    (G_OBJECT(self->priv->song_info))->ref_count,
-    (G_OBJECT(self->priv->sequence))->ref_count,
-    (G_OBJECT(self->priv->setup))->ref_count,
-    (G_OBJECT(self->priv->wavetable))->ref_count
-  );
-  g_object_try_unref(self->priv->song_info);
-  g_object_try_unref(self->priv->sequence);
-  g_object_try_unref(self->priv->setup);
-  g_object_try_unref(self->priv->wavetable);
+  
+  if(self->priv->song_info) {
+    GST_DEBUG("song_info->refs: %d",(G_OBJECT(self->priv->song_info))->ref_count);
+    g_object_unref(self->priv->song_info);
+  }
+  if(self->priv->sequence) {
+    GST_DEBUG("sequence->refs: %d",(G_OBJECT(self->priv->sequence))->ref_count);
+    g_object_unref(self->priv->sequence);
+  }
+  if(self->priv->setup) {
+    GST_DEBUG("setup->refs: %d",(G_OBJECT(self->priv->setup))->ref_count);
+    g_object_unref(self->priv->setup);
+  }
+  if(self->priv->wavetable) {
+    GST_DEBUG("wavetable->refs: %d",(G_OBJECT(self->priv->wavetable))->ref_count);
+    g_object_unref(self->priv->wavetable);
+  }
+
   gst_query_unref(self->priv->position_query);
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
   if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
@@ -1505,12 +1410,6 @@ static void bt_song_init(const GTypeInstance * const instance, gconstpointer con
   BtSong * const self = BT_SONG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG, BtSongPrivate);
-
-  /* don't change the order */
-  self->priv->song_info=bt_song_info_new(self);
-  self->priv->setup    =bt_setup_new(self);
-  self->priv->sequence =bt_sequence_new(self);
-  self->priv->wavetable=bt_wavetable_new(self);
 
   self->priv->position_query=gst_query_new_position(GST_FORMAT_TIME);
 
@@ -1545,7 +1444,7 @@ static void bt_song_class_init(BtSongClass * const klass) {
                                      "bin construct prop",
                                      "songs top-level GstElement container",
                                      GST_TYPE_BIN, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_MASTER,
                                   g_param_spec_object("master",

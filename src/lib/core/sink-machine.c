@@ -40,6 +40,13 @@ struct _BtSinkMachinePrivate {
 
 static BtMachineClass *parent_class=NULL;
 
+//-- pad templates
+static GstStaticPadTemplate machine_sink_template =
+GST_STATIC_PAD_TEMPLATE ("sink%d",
+    GST_PAD_SINK,
+    GST_PAD_REQUEST,
+    GST_STATIC_CAPS_ANY);
+
 //-- constructor methods
 
 /**
@@ -203,6 +210,7 @@ static void bt_sink_machine_constructed(GObject *object) {
     GstElement * const gain;
     BtSetup *setup;
     
+    bt_machine_activate_adder(BT_MACHINE(self));
     bt_machine_enable_input_gain(BT_MACHINE(self));
     g_object_get(G_OBJECT(self),"machine",&element,"song",&song,"input-gain",&gain, NULL);
     g_object_set(G_OBJECT(element),"input-gain",gain,NULL);
@@ -268,6 +276,7 @@ static void bt_sink_machine_init(GTypeInstance * const instance, gconstpointer g
 
 static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+  GstElementClass * const gstelement_klass = GST_ELEMENT_CLASS(klass);
   BtMachineClass * const machine_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
@@ -280,6 +289,8 @@ static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
   gobject_class->finalize     = bt_sink_machine_finalize;
 
   machine_class->check_type   = bt_sink_machine_check_type;
+  
+  gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&machine_sink_template));
 }
 
 GType bt_sink_machine_get_type(void) {

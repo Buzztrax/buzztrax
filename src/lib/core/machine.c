@@ -195,8 +195,9 @@ struct _BtMachinePrivate {
 
   /* the song the machine belongs to */
   G_POINTER_ALIAS(BtSong *,song);
-  /* the main gstreamer container element */
-  GstBin *bin;
+
+  /* status in songs pipeline */
+  gboolean is_added,is_connected;
 
   /* the id, we can use to lookup the machine */
   gchar *id;
@@ -237,6 +238,9 @@ struct _BtMachinePrivate {
   /* realtime control (bt-ic) */
   GHashTable *control_data; // each entry points to BtMachineData
 
+  /* src/sink ghost-pad counters for the machine */
+  gint src_pad_counter, sink_pad_counter;
+  
   /* public fields are
   GstElement *dst_elem,*src_elem;
   */
@@ -731,7 +735,7 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_WARNING("failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
-  gst_bin_add(self->priv->bin,self->priv->machines[part]);
+  gst_bin_add(GST_BIN(self),self->priv->machines[part]);
   res=TRUE;
 Error:
   return(res);
@@ -3057,7 +3061,52 @@ static void bt_machine_persistence_interface_init(gpointer const g_iface, gconst
 
 //-- wrapper
 
-//-- class internals
+//-- gstelement overrides
+
+static GstPad* bt_machine_request_new_pad(GstElement *element, GstPadTemplate *templ, const gchar* _name) {
+  BtMachine * const self=BT_MACHINE(element);
+  gchar *name;
+  GstPad *pad, *target;
+  
+  // check direction
+  if(GST_PAD_TEMPLATE_DIRECTION(templ)==GST_PAD_SRC) {
+    target=gst_element_get_request_pad(self->priv->machines[PART_SPREADER],"src%d");
+    name=g_strdup_printf("src%d", self->priv->src_pad_counter++);
+    GST_INFO("request src pad: %s",name);
+  }
+  else {
+    target=gst_element_get_request_pad(self->priv->machines[PART_ADDER],"sink%d");
+    name=g_strdup_printf ("sink%d", self->priv->sink_pad_counter++);
+    GST_INFO("request sink pad: %s",name);
+  }
+  pad=gst_ghost_pad_new(name,target);
+  g_free(name);
+
+  gst_element_add_pad(element, pad);
+  return(pad);
+}
+
+static void	bt_machine_release_pad(GstElement *element, GstPad *pad) {
+  BtMachine * const self=BT_MACHINE(element);
+  GstPad *target;
+  
+  // @todo: implement me more
+  
+  target=gst_ghost_pad_get_target(GST_GHOST_PAD(pad));
+  if(gst_pad_get_direction(pad)==GST_PAD_SRC) {
+    GST_INFO("release src pad");
+    gst_element_release_request_pad(self->priv->machines[PART_SPREADER],target);
+  }
+  else {
+    GST_INFO("release sink pad");
+    gst_element_release_request_pad(self->priv->machines[PART_ADDER],target);
+  }
+  
+  gst_element_remove_pad(element, pad);
+}
+
+
+//-- gobject overrides
 
 static void bt_machine_constructed(GObject *object) {
   BtMachine * const self=BT_MACHINE(object);
@@ -3073,10 +3122,9 @@ static void bt_machine_constructed(GObject *object) {
   g_return_if_fail(BT_IS_STRING(self->priv->plugin_name));
 
   GST_INFO("initializing machine");
-
-  // get the bin from the song, we are in
-  g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
-  g_assert(self->priv->bin);
+  
+  gst_object_set_name(GST_OBJECT(self),self->priv->id);
+  GST_INFO("naming machine : %s",self->priv->id);
 
   // name the machine and try to instantiate it
   if(!bt_machine_init_core_machine(self)) {
@@ -3100,7 +3148,7 @@ static void bt_machine_constructed(GObject *object) {
   GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
 
   // post sanity checks
-  GST_INFO("  added machine %p to bin, machine->ref_count=%d  bin->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count,G_OBJECT(self->priv->bin)->ref_count);
+  GST_INFO("  added machine %p to bin, machine->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);
@@ -3297,6 +3345,7 @@ static void bt_machine_dispose(GObject * const object) {
 
   // remove the GstElements from the bin
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
+#if 0
   if(self->priv->bin) {
     GstStateChangeReturn res;
 
@@ -3337,6 +3386,7 @@ static void bt_machine_dispose(GObject * const object) {
     );
     gst_object_unref(self->priv->bin);
   }
+#endif
 
   GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
@@ -3396,6 +3446,8 @@ static void bt_machine_finalize(GObject * const object) {
   GST_DEBUG("  done");
 }
 
+//-- class internals
+
 static void bt_machine_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtMachine * const self = BT_MACHINE(instance);
 
@@ -3411,6 +3463,7 @@ static void bt_machine_init(GTypeInstance * const instance, gconstpointer g_clas
 
 static void bt_machine_class_init(BtMachineClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+  GstElementClass * const gstelement_class = GST_ELEMENT_CLASS(klass);
 
   // @idea: g_type_qname(BT_TYPE_MACHINE);
   error_domain=g_quark_from_static_string("BtMachine");
@@ -3423,6 +3476,9 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   gobject_class->get_property = bt_machine_get_property;
   gobject_class->dispose      = bt_machine_dispose;
   gobject_class->finalize     = bt_machine_finalize;
+  
+  gstelement_class->request_new_pad = bt_machine_request_new_pad;
+  gstelement_class->release_pad     = bt_machine_release_pad;
 
   klass->pattern_added_event = NULL;
   klass->pattern_removed_event = NULL;
@@ -3595,7 +3651,7 @@ GType bt_machine_get_type(void) {
       NULL, // interface_finalize
       NULL  // interface_data
     };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtMachine",&info,G_TYPE_FLAG_ABSTRACT);
+    type = g_type_register_static(GST_TYPE_BIN,"BtMachine",&info,G_TYPE_FLAG_ABSTRACT);
     g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;

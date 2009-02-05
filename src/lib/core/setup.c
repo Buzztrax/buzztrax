@@ -26,6 +26,22 @@
  * The setup manages virtual gear. That is used #BtMachines and the #BtWires
  * that connect them.
  */
+/* @todo: once all machines a wires are bins, we want to add and link them here,
+ * based on their connection status (see bt_setup_update_pipeline()). This
+ * starts with master right now, we need to make that dynamic.
+ *
+ * To determine the conection-status we need to do a deep-search of the graph
+ * starting from master (see check_connected(master)).
+ *
+ * When we add a machine, we do nothing else (connect=FALSE,added=FALSE)
+ * When we remove a machine, we remove all connected wires
+ *
+ * When we add a wire, we run bt_setup_update_pipeline().
+ * When we remove a wire, we run bt_setup_update_pipeline().
+ *
+ * We don't need to handle the not_visited_* lists. Disconnected things are
+ * never added.
+ */
 
 #define BT_CORE
 #define BT_SETUP_C
@@ -58,6 +74,9 @@ struct _BtSetupPrivate {
 
   /* the song the setup belongs to */
   G_POINTER_ALIAS(BtSong *,song);
+  
+  /* the top-level gstreamer container element */
+  GstBin *bin;
 
   GList *machines;         // each entry points to BtMachine
   GList *wires;            // each entry points to BtWire
@@ -144,6 +163,155 @@ static GList *bt_setup_get_wires_by_machine_type(const BtSetup * const self,cons
   return(wires);
 }
 
+static void link_wire(GstElement *wire,GstElement *src_machine,GstElement *dst_machine) {
+  GstPadLinkReturn link_res;
+  GstPad *src_pad,*dst_pad,*peer;
+
+  // link start of wire
+  GST_INFO("linking start of wire");      
+  dst_pad=gst_element_get_static_pad(GST_ELEMENT(wire),"sink");
+  if(!(peer=gst_pad_get_peer(dst_pad))) {
+    src_pad=gst_element_get_request_pad(GST_ELEMENT(src_machine),"src%d");
+    if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
+      GST_WARNING("Can't link start of wire : %d : %s:%s -> %s:%s",
+        link_res,GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(dst_pad));
+    }
+  }
+  else {
+    GST_INFO("start of wire is already linked");
+    gst_object_unref(peer);
+  }
+  gst_object_unref(dst_pad);
+  // link end of wire
+  GST_INFO("linking end of wire");      
+  src_pad=gst_element_get_static_pad(GST_ELEMENT(wire),"src");
+  if(!(peer=gst_pad_get_peer(src_pad))) {
+    dst_pad=gst_element_get_request_pad(GST_ELEMENT(dst_machine),"sink%d");
+    if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
+      GST_WARNING("Can't link end of wire : %d : %s:%s -> %s:%s",
+        link_res,GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(dst_pad));
+    }
+  }
+  else {
+    GST_INFO("end of wire is already linked");
+    gst_object_unref(peer);
+  }
+  gst_object_unref(src_pad);
+}
+
+static void unlink_wire(GstElement *wire,GstElement *src_machine,GstElement *dst_machine) {
+  GstPad *src_pad,*dst_pad;
+
+  // unlink start of wire
+  GST_INFO("unlinking start of wire");      
+  dst_pad=gst_element_get_static_pad(wire,"sink");
+  if((src_pad=gst_pad_get_peer(dst_pad))) {
+    gst_pad_unlink(src_pad,dst_pad);
+    gst_object_unref(src_pad);
+    gst_element_release_request_pad(src_machine,src_pad);
+  }
+  gst_object_unref(dst_pad);
+
+  GST_INFO("unlinking end of wire");    
+  src_pad=gst_element_get_static_pad(wire,"src");
+  if((dst_pad=gst_pad_get_peer(src_pad))) {
+    gst_pad_unlink(src_pad,dst_pad);
+    gst_object_unref(dst_pad);
+    gst_element_release_request_pad(dst_machine,dst_pad);
+  }
+  gst_object_unref(src_pad); 
+}
+
+
+/*
+ * update_bin_in_pipeline:
+ * @self: the setup object
+ *
+ * Add or remove machine or wires to/from the main pipeline.
+ */
+static gboolean update_bin_in_pipeline(const BtSetup * const self,GstBin *bin,gboolean is_connected,GList **not_visited) {
+  gboolean is_added=(GST_OBJECT_PARENT(bin)!=NULL);
+  
+  if(not_visited) {
+    *not_visited=g_list_remove(*not_visited,(gconstpointer)bin);
+  }
+  
+  GST_INFO_OBJECT(bin,"update object : connected=%d, added=%d",
+    is_connected,is_added);  
+
+  if(is_connected) {
+    if(!is_added) {
+      gst_bin_add(self->priv->bin,GST_ELEMENT(bin));
+    }
+  }
+  else {
+    if(is_added) {
+      gst_object_ref(GST_OBJECT(bin));
+      GST_OBJECT_FLAG_SET(bin,GST_OBJECT_FLOATING);
+      gst_bin_remove(self->priv->bin,GST_ELEMENT(bin));
+    }
+  }
+  
+  return(TRUE);
+}
+
+/*
+ * check_connected:
+ * @self: the setup object
+ * @dst_machine: the machine to start with, usually the master
+ *
+ * Check if a machine is connected. It recurses up on the machines input side.
+ * Its adds all machines and wires to the song and
+ *
+ * Returns: %TRUE if it is 
+ */
+static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machine,GList **not_visited_machines,GList **not_visited_wires) {
+  gboolean is_connected=FALSE,wire_is_connected;
+  BtWire *wire;
+  BtMachine *src_machine;
+  GList *node,*list;
+  
+  list = bt_setup_get_wires_by_dst_machine(self,dst_machine);
+  GST_INFO_OBJECT(dst_machine,"check %d incomming wires",g_list_length(list));
+  for(node=list;node;node=g_list_next(node)) {
+    wire_is_connected=FALSE;
+    wire=BT_WIRE(node->data);
+    g_object_get(wire,"src",&src_machine,NULL);
+    if(BT_IS_SOURCE_MACHINE(src_machine)) {
+      /* for source machine we can stop the recurssion */
+      wire_is_connected=TRUE;
+    }
+    else {
+      /* for processor machine we look further */
+      wire_is_connected|=check_connected(self,src_machine,not_visited_machines,not_visited_wires);
+    }
+    GST_INFO("wire target checked, connected=%d?",wire_is_connected);
+    if(!wire_is_connected) {
+      unlink_wire(GST_ELEMENT(wire),GST_ELEMENT(src_machine),GST_ELEMENT(dst_machine));
+      update_bin_in_pipeline(self,GST_BIN(src_machine),FALSE,not_visited_machines);
+    }
+    update_bin_in_pipeline(self,GST_BIN(wire),wire_is_connected,not_visited_wires);     
+    if(wire_is_connected) {
+      if(!is_connected) {
+        update_bin_in_pipeline(self,GST_BIN(dst_machine),TRUE,not_visited_machines);
+      }
+      update_bin_in_pipeline(self,GST_BIN(src_machine),TRUE,not_visited_machines);
+      link_wire(GST_ELEMENT(wire),GST_ELEMENT(src_machine),GST_ELEMENT(dst_machine));
+    }
+    is_connected|=wire_is_connected;
+
+    g_object_unref(src_machine);
+    g_object_unref(wire);
+  }
+  g_list_free(list);
+  if(!is_connected) {
+    update_bin_in_pipeline(self,GST_BIN(dst_machine),FALSE,not_visited_machines);
+  }
+  GST_INFO("all wire targets checked, connected=%d?",is_connected);
+  return(is_connected);
+}
+
+
 //-- public methods
 
 /**
@@ -207,6 +375,7 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
     other_wire2=bt_setup_get_wire_by_machines(self,dst,src);
     if((!other_wire1) && (!other_wire2)) {
       ret=TRUE;
+
       self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
       bt_machine_renegotiate_adder_format(dst);
 
@@ -240,9 +409,18 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
 
   if(g_list_find(self->priv->machines,machine)) {
     self->priv->machines=g_list_remove(self->priv->machines,machine);
+
     GST_DEBUG("removing machine: %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
     g_signal_emit(G_OBJECT(self),signals[MACHINE_REMOVED_EVENT], 0, machine);
-    g_object_unref(G_OBJECT(machine));
+
+    // this triggers finalize if we don't have a ref
+    if(GST_OBJECT_FLAG_IS_SET(machine,GST_OBJECT_FLOATING)) {
+      gst_element_set_state(GST_ELEMENT(machine),GST_STATE_NULL);
+      gst_object_unref(GST_OBJECT(machine));
+    }
+    else {
+      gst_bin_remove(self->priv->bin,GST_ELEMENT(machine));
+    }
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
@@ -264,19 +442,29 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
   GST_DEBUG("trying to remove wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
 
   if(g_list_find(self->priv->wires,wire)) {
-    BtMachine *dst;
+    BtMachine *dst,*src;
 
     self->priv->wires=g_list_remove(self->priv->wires,wire);
 
-    g_object_get(G_OBJECT(wire),"dst",&dst,NULL);
+    g_object_get(G_OBJECT(wire),"dst",&dst,"src",&src,NULL);
     if(dst) {
       bt_machine_renegotiate_adder_format(dst);
-      g_object_unref(dst);
+      unlink_wire(GST_ELEMENT(wire),GST_ELEMENT(src),GST_ELEMENT(dst));
+      gst_object_unref(src);
+      gst_object_unref(dst);
     }
-
+    
     GST_DEBUG("removing wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
     g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
-    g_object_unref(G_OBJECT(wire));
+
+    // this triggers finalize if we don't have a ref
+    if(GST_OBJECT_FLAG_IS_SET(wire,GST_OBJECT_FLOATING)) {
+      gst_element_set_state(GST_ELEMENT(wire),GST_STATE_NULL);
+      gst_object_unref(GST_OBJECT(wire));
+    }
+    else {
+      gst_bin_remove(self->priv->bin,GST_ELEMENT(wire));
+    }
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
@@ -415,7 +603,6 @@ GList *bt_setup_get_machines_by_type(const BtSetup * const self, const GType typ
   }
   return(machines);
 }
-
 
 /**
  * bt_setup_get_wire_by_src_machine:
@@ -579,6 +766,51 @@ void bt_setup_remember_missing_machine(const BtSetup * const self, const gchar *
   else {
     g_free((gchar *)str);
   }
+}
+
+/*
+ * bt_setup_update_pipeline:
+ *
+ * Rebuilds the whole pipeline, after changing the setup (adding/removing and
+ * linking/unlinking machines).
+ */
+gboolean bt_setup_update_pipeline(const BtSetup * const self) {
+  gboolean res=FALSE;
+  BtMachine *master;
+  
+  // get master
+  if((master=bt_setup_get_machine_by_type(self,BT_TYPE_SINK_MACHINE))) {
+    GList *not_visited_machines,*not_visited_wires,*node;
+    BtWire *wire;
+    BtMachine *machine;
+    
+    // make a copy of lists and remove all visited items
+    not_visited_machines=g_list_copy(self->priv->machines);
+    not_visited_wires=g_list_copy(self->priv->wires);
+    GST_INFO("checking connections for %d machines and %d wires",
+      g_list_length(not_visited_machines),
+      g_list_length(not_visited_wires));
+    // ... and start checking connections (recursively)
+    res=check_connected(self,master,&not_visited_machines,&not_visited_wires);
+    g_object_unref(master);
+
+    // @todo: might not be needed, see top of file
+    // remove all items that we have not visited and set them to disconnected
+    GST_INFO("remove %d unconnected wires", g_list_length(not_visited_wires));
+    for(node=not_visited_wires;node;node=g_list_next(node)) {
+      wire=BT_WIRE(node->data);
+      update_bin_in_pipeline(self,GST_BIN(wire),FALSE,NULL);
+    }
+    g_list_free(not_visited_wires);
+    GST_INFO("remove %d unconnected machines", g_list_length(not_visited_machines));
+    for(node=not_visited_machines;node;node=g_list_next(node)) {
+      machine=BT_MACHINE(node->data);
+      update_bin_in_pipeline(self,GST_BIN(machine),FALSE,NULL);
+    }
+    g_list_free(not_visited_machines);   
+  }
+  GST_INFO("result of graph update = %d",res);
+  return(res);
 }
 
 //-- io interface
@@ -752,7 +984,8 @@ static void bt_setup_set_property(GObject * const object, const guint property_i
     case SETUP_SONG: {
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
-      //GST_DEBUG("set the song for setup: %p",self->priv->song);
+      g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
+      GST_INFO("set the song for setup: %p and get the bin: %p",self->priv->song,self->priv->bin);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -768,30 +1001,49 @@ static void bt_setup_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-
-  g_object_try_weak_unref(self->priv->song);
+  
   // unref list of wires
   if(self->priv->wires) {
     for(node=self->priv->wires;node;node=g_list_next(node)) {
       if(node->data) {
-        const GObject * const obj=node->data;
+        GObject *obj=node->data;
         GST_DEBUG("  free wire : %p (%d)",obj,obj->ref_count);
+
+        if(GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING)) {
+          gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
+          gst_object_unref(obj);
+        }
+        else if(self->priv->bin) {
+          gst_bin_remove(self->priv->bin,GST_ELEMENT(obj));
+        }
+        node->data=NULL;
       }
-      g_object_try_unref(node->data);
-      node->data=NULL;
     }
   }
   // unref list of machines
   if(self->priv->machines) {
     for(node=self->priv->machines;node;node=g_list_next(node)) {
       if(node->data) {
-        const GObject * const obj=node->data;
+        GObject *obj=node->data;
         GST_DEBUG("  free machine : %p (%d)",obj,obj->ref_count);
+
+        if(GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING)) {
+          gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
+          gst_object_unref(obj);
+        }
+        else if(self->priv->bin) {
+          gst_bin_remove(self->priv->bin,GST_ELEMENT(obj));
+        }
+        node->data=NULL;
       }
-      g_object_try_unref(node->data);
-      node->data=NULL;
     }
   }
+
+  if(self->priv->bin) {
+    gst_object_unref(self->priv->bin);
+    self->priv->bin=NULL;
+  }
+  g_object_try_weak_unref(self->priv->song);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
