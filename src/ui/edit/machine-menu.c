@@ -188,8 +188,15 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
 
     menu_name=gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory));
     if(*klass_name) {
+      gchar *delim=strchr(klass_name,'/');
+      gint len=delim?(delim-klass_name):strlen(klass_name);
+      
       // remove prefix <klass-name>-
-      menu_name=&menu_name[strlen(klass_name)+1];
+      // - klassname can be BML/Delay/Mono (strchr(klass_name,'/');
+      // - its maybe not even in the feature name
+      if(strncmp(menu_name,klass_name,len)) {
+        menu_name=&menu_name[len+1];
+      }
     }
     menu_item=gtk_menu_item_new_with_label(menu_name);
     gtk_widget_set_name(menu_item,node->data);

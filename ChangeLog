@@ -1,5 +1,10 @@
 2009-02-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-menu.c:
+	  More robust machine klass parsing code.
+
+2009-02-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core/machine.h:
 	* src/lib/core/libbuzztard-core/setup-methods.h:
 	* src/lib/core/libbuzztard-core/wire.h:
