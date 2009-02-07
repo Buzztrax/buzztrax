@@ -1,8 +1,36 @@
+2009/03 ========================================================================
+
+
 2009/02 ========================================================================
 
-Some portability fixes thanks to more testing.
-Big refactoring for GObject usage.
-More tests.
+Many not so visible code changes this month. Since last Autumn I have GObject
+introspection enabled if available. So far it has not been that useful due to
+some wrong use of the GObject in my code. That mostly fix now. Major thing was
+to change all _new() function to just call g_object_new and utilize the
+_constructed() and _constructor() vmethods in GObject. That wasn't so easy.
+Buzztard uses a persistence mechanism to serialize and deserialize objects. It
+is implemented as an interface. So also this was needing a lot of changes to
+allow construction from a data storage. Fortunately interfaces are tied to the
+class, so one can have an interface method that acts as a factory. Main
+remaining ugliness in the new code is there are some parameters coming from the
+code and some from the file and its not straight forward to create an object
+than - I will need to use g_object_newv(), but generating the GParameter array
+is painful.
+
+The second big rewrite that is now also merge to the trunk is the new GStreamer
+pipeline graph handling. In the past the graph was more or less shallow. 
+Machines, the building blocks of a song in buzztard, are a chain of GStreamer
+elements. There are volume controls, mixing elements, level meters, converters.
+They are all plugged as needed. But they were all plugged in the main pipeline.
+Now machines and wires are bins (containers). That makes it much easier to
+relink internals and also makes it possible to treat them with normal gstreamer
+API. As a first feature buzztard now rebuilds the pipeline before playing and
+used a deep graph scan to only add fully connected parts. That means one can
+play songs that e.g. have a unconnected source. In the old code this was
+stalling the pipeline.
+
+There are also some smaller fixes and a few more tests. Its good to have the
+tests when doing such refactoring :)
 
 2009/01 ========================================================================
 

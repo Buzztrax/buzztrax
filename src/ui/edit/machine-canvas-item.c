@@ -47,7 +47,15 @@
  * @todo: add alpha channel to pixbuf, when moving
  * - gdk_pixbuf_add_alpha(), see put_pixel() example in GdkPixbuf docs
  *
- * @todo: add insert before/after to context menu (see wire-canvas icon)
+ * @todo: add insert before/after to context menu (see wire-canvas item)
+ *
+ * @todo: "remove and relink" is difficult if there are non empty wire patterns
+ * - those would need to be copies to new target machine(s) and we would need to
+ *   add more tracks for playing them.
+ * - we could ask the user if that is what he wants:
+ *   - "don't remove"
+ *   - "drop wire patterns"
+ *   - "copy wire patterns"
  */
 
 #define BT_EDIT

@@ -25,22 +25,34 @@
  *
  * The setup manages virtual gear. That is used #BtMachines and the #BtWires
  * that connect them.
+ *
+ * It also manages the GStreamer #GstPipleine content.
  */
-/* @todo: once all machines a wires are bins, we want to add and link them here,
- * based on their connection status (see bt_setup_update_pipeline()). This
- * starts with master right now, we need to make that dynamic.
+/* @todo: support dynamic (un)linking (while playing)
  *
- * To determine the conection-status we need to do a deep-search of the graph
- * starting from master (see check_connected(master)).
+ * right now we update the pipeline before going to playing (see
+ * bt_setup_update_pipeline()). This always starts with master right now,
+ * we need to make that dynamic.
  *
- * When we add a machine, we do nothing else (connect=FALSE,added=FALSE)
+ * When we add a machine, we do nothing else
  * When we remove a machine, we remove all connected wires
  *
- * When we add a wire, we run bt_setup_update_pipeline().
- * When we remove a wire, we run bt_setup_update_pipeline().
+ * When we add a wire, we run check_connected(self,dst_of_wire,NULL,NULL).
+ * When we remove a wire, we run check_connected(self,dst_of_wire,NULL,NULL).
+ * (NULL is not yet valid for the lists)
  *
  * We don't need to handle the not_visited_* lists. Disconnected things are
- * never added.
+ * never added. FIXME: add an assert there to verify
+ *
+ * In bt_setup_update_pipeline() we also need a list of blocked_pads. When
+ * adding a bin while playing block the all src-pads that are connected to
+ * existing elements when linking.
+ * Once the deep scan of the graph is finished, we can unblock all remeberred
+ * pads. We should probably also send a seek and a tag een to newly added
+ * sources.
+ *
+ * When adding bins in a playing pipeline we need to sync the bin state with the
+ * pipeline
  */
 
 #define BT_CORE
@@ -261,9 +273,10 @@ static gboolean update_bin_in_pipeline(const BtSetup * const self,GstBin *bin,gb
  * @dst_machine: the machine to start with, usually the master
  *
  * Check if a machine is connected. It recurses up on the machines input side.
- * Its adds all machines and wires to the song and
+ * Its adds connected machines and wires to the song and removed unconnected
+ * ones. It links connected bins and unlinks unconnected ones.
  *
- * Returns: %TRUE if it is 
+ * Returns: %TRUE if there is a conenction to a src.
  */
 static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machine,GList **not_visited_machines,GList **not_visited_wires) {
   gboolean is_connected=FALSE,wire_is_connected;
@@ -283,7 +296,15 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
     }
     else {
       /* for processor machine we look further */
+      /* @todo: if machine is not in not_visited_wires anymore,
+       * check if it is added or not and return
+       * if((!g_list_find(not_visited_machines,src_machine)) && (GST_OBJECT_PARENT(src_machine)!=NULL)) {
+       *   wire_is_connected=TRUE;
+       * }
+       * else {
+       */
       wire_is_connected|=check_connected(self,src_machine,not_visited_machines,not_visited_wires);
+      /* } */
     }
     GST_INFO("wire target checked, connected=%d?",wire_is_connected);
     if(!wire_is_connected) {

@@ -1,3 +1,12 @@
+2009-02-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Writing news.
+
+	* src/lib/core/setup.c:
+	* src/ui/edit/machine-canvas-item.c:
+	  Planning.	  
+
 2009-02-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-menu.c:
