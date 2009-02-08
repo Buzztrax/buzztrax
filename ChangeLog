@@ -1,6 +1,11 @@
 2009-02-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
+	  Small update and sent news.
+
+2009-02-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
 	  Writing news.
 
 	* src/lib/core/setup.c:

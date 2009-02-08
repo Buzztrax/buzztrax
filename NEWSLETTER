@@ -8,8 +8,8 @@ introspection enabled if available. So far it has not been that useful due to
 some wrong use of the GObject in my code. That mostly fix now. Major thing was
 to change all _new() function to just call g_object_new and utilize the
 _constructed() and _constructor() vmethods in GObject. That wasn't so easy.
-Buzztard uses a persistence mechanism to serialize and deserialize objects. It
-is implemented as an interface. So also this was needing a lot of changes to
+Buzztard uses a persistence mechanism [1] to serialize and deserialize objects.
+It is implemented as an interface. So also this was needing a lot of changes to
 allow construction from a data storage. Fortunately interfaces are tied to the
 class, so one can have an interface method that acts as a factory. Main
 remaining ugliness in the new code is there are some parameters coming from the
@@ -27,10 +27,14 @@ relink internals and also makes it possible to treat them with normal gstreamer
 API. As a first feature buzztard now rebuilds the pipeline before playing and
 used a deep graph scan to only add fully connected parts. That means one can
 play songs that e.g. have a unconnected source. In the old code this was
-stalling the pipeline.
+stalling the pipeline. The UI has now a debug menu in the debugs build. The one
+and only entry allows to dump a pipeline graph, converts it to png and opens it.
+Nice to check the constructed pipeline.
 
 There are also some smaller fixes and a few more tests. Its good to have the
 tests when doing such refactoring :)
+
+[1] http://www.buzztard.org/index.php/Gobject_serialisation
 
 2009/01 ========================================================================
 
