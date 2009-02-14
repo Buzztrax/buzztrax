@@ -37,19 +37,211 @@
  * When we add a machine, we do nothing else
  * When we remove a machine, we remove all connected wires
  *
- * When we add a wire, we run check_connected(self,dst_of_wire,NULL,NULL).
- * When we remove a wire, we run check_connected(self,dst_of_wire,NULL,NULL).
- * (NULL is not yet valid for the lists)
+ * When we add a wire, we run check_connected(self,master,NULL,NULL).
+ * When we remove a wire, we run check_connected(self,master,NULL,NULL).
  *
  * We don't need to handle the not_visited_* lists. Disconnected things are
- * never added. FIXME: add an assert there to verify
+ * never added (see update_bin_in_pipeline()). Instead we need a list of
+ * blocked_pads.
  *
- * In bt_setup_update_pipeline() we also need a list of blocked_pads. When
- * adding a bin while playing block the all src-pads that are connected to
- * existing elements when linking.
+ * When adding/removing a bin while playing, block all src-pads that are
+ * connected to existing elements when linking.
  * Once the deep scan of the graph is finished, we can unblock all remeberred
  * pads. We should probably also send a seek and a tag een to newly added
  * sources.
+ *
+ * When dynamically adding/removing we ideally do not make any change to the
+ * existing pipeline, but collect a list of machines and wires we want to
+ * add/remove (subgraph). We also need to know if the new subgraph makes any
+ * practical change (does the new wire connect to the master in the end or is
+ * the wire we remove connected). 
+ *
+ * Adding wires ----------------------------------------------------------------
+ * - if the target of new wire is not connecting to the master or the src of the
+ *     wire is not reaching a source or conneted machine, just add to setup
+ *   else -> build subgraph (we want all wires+machines that become fully
+ *     connected as the result of adding this wire)
+ * - for the subgraph we would study all wires that are not connected
+ *   not_connected = get_list_of_unconencted_wires();
+ *   sub_graph = g_list_append(NULL,this_wire);
+ *   do {
+ *     found_more=FALSE;
+ *     foreach(not_connected) {
+ *       if(linked_to_wire_sub_graph(wire,sub_graph) {
+ *         sub_graph = g_list_append(sub_graph,wire);
+ *         not_connected = g_list_remove(not_connected,wire);
+ *         found_more=TRUE;
+ *       }
+ *     }
+ *   } while(found_more);
+ *   // now we would need to eliminate disconnected paths again
+ *   do {
+ *     found_more=FALSE;
+ *     foreach(sub_graph) {
+ *       // check if wire is connected in real song or subgraph
+ *       if(wire_is_not_connected(wire) {
+ *         sub_graph = g_list_remove(sub_graph,wire);
+ *         found_more=TRUE;
+ *       }
+ *     }
+ *   } while(found_more);
+ *   if(!is_empty(sub_graph)) {
+ *     src_wires=NULL;
+ *     // get all wires in subgraph that are connected to real song in src side
+ *     foreach(sub_graph) {
+ *       is_src=TRUE;
+ *       foreach(sub_graph) {
+ *         if(this_wire.src==that_wire.dst) {
+ *           is_src=FALSE;
+ *           break;
+ *         }
+ *       }
+ *       if(is_src) {
+ *         src_wires = g_list_append(src_wires,this_wire);
+ *       }
+ *     }
+ *     foreach(sub_graph) {
+ *       // do we need gst_element_set_locked_state(...,TRUE);
+ *       update_bin_in_pipeline(...);
+ *     }
+ *     foreach(src_wires) {
+ *       link_wire_and_block(wire,src,dst);
+ *     }
+ *     foreach(sub_graph) {
+ *       if(wire not in src_wires) {
+ *         link_wire(wire,src,dst);
+ *         gst_element_set_state(PLAYING);
+ *       }
+ *     }
+ *     foreach(src_wires) {
+ *       un_block(wire,src);
+ *     }
+ *   }
+ *
+ * Graph before:
+ *   A    B
+ * Graph matrix before:
+ *   + A B
+ *   A
+ *   B
+ * Add: A => B
+ * Block: A
+ * Link: A => B
+ * Parent: A, B, A => B
+ * Unblock: A?
+ * Graph after:
+ *   A => B
+ * Graph matrix after:
+ *   + A B
+ *   A   =
+ *   B
+ *
+ * Graph brefore:
+ *   A    B -> C
+ *     => D =>
+ * Graph matrix before:
+ *   + A B C D
+ *   A       =
+ *   B     -
+ *   C
+ *   D     =
+ * Add: A => B
+ * Block: A
+ * Link: A => B, B => C
+ * Parent: B, A => B, B => C
+ * Unblock: A
+ * Graph after:
+ *   A => B => C
+ *     => D =>
+ * Graph matrix after:
+ *   + A B C D
+ *   A   =   =
+ *   B     =
+ *   C
+ *   D     =
+ *
+ * Graph brefore:
+ *   A -> B    C
+ *     => D =>
+ * Graph matrix before:
+ *   + A B C D
+ *   A   -   =
+ *   B      
+ *   C
+ *   D     =
+ * Add: B => C
+ * Block: A
+ * Link: A => B, B => C
+ * Parent: B, A => B, B => C
+ * Unblock: A
+ * Graph after:
+ *   A => B => C
+ *     => D =>
+ * Graph matrix after:
+ *   + A B C D
+ *   A   =   =
+ *   B     = 
+ *   C
+ *   D     =
+ *
+ * Removing wires --------------------------------------------------------------
+ * - if the wire is not in the pipeline (not connecting things to the master)
+ *     just remove from setup
+ *   else -> build subgraph (we want all wires+machines that become disconned
+ *     as the result of removing this wire)
+ * - for the subgraph we would study all wires that are connected
+ *   - we can do this simillar as for adding
+ *
+ * Graph before:
+ *   A => B
+ * Remove: A => B
+ * Block: A
+ * Unlink: A => B
+ * Unparent: A, B, A => B
+ * Unblock: A?
+ * Graph after:
+ *   A    B
+ *
+ * Graph brefore:
+ *   A => B => C
+ *     => D =>
+ * Remove: A => B
+ * Block: A
+ * Unlink: A => B, B => C
+ * Unparent: B, A => B, B => C
+ * Unblock: A
+ * Graph after:
+ *   A    B -> C
+ *     => D =>
+ *
+ * --
+ *
+ * We could have an alternative data-structure in setup:
+ * struct Connection[num_src][num_dst]
+ * but its not giving much benefit actually
+ * We could print the song-graph as a matrix for debuging purposes
+ *
+ * --
+ *
+ * We could have a GHashMap for wires and machines in setup to track if they are
+ * added or not. Then check_connected() can be made two pass.
+ * - GEnum BtSetupConnectionState={Disconnected,Disconnecting,Connecting,Connected}
+ * - when we add an element its state is Disconnected
+ * - when we remove an element we set the state to Disconnecting if it was Connected ?
+ * 1. check_connected
+ *   - when this is called all elements are either disconnected or conncected
+ *     - exception is when we remove things
+ *   - disconnected elements that should be connected will be set to connecting
+ *   - connected elements that should be disconnected will be set to disconncting
+ *   - we run this regardless if the song is playing or not
+ * 2. update_pipeline
+ *   - add all machines that are in connecting and set to connected
+ *   - add & link all wires that are in connecting and set to connected
+ *   - unlink and remove all wires that are in disconnecting and set to disconnected
+ *   - remove all machines that are in disconnecting and set to disconnected
+ *   - after this has run all elements are either disconnected or conncected
+ *
+ * --
  *
  * When adding bins in a playing pipeline we need to sync the bin state with the
  * pipeline
@@ -296,7 +488,7 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
     }
     else {
       /* for processor machine we look further */
-      /* @todo: if machine is not in not_visited_wires anymore,
+      /* @todo: if machine is not in not_visited_machines anymore,
        * check if it is added or not and return
        * if((!g_list_find(not_visited_machines,src_machine)) && (GST_OBJECT_PARENT(src_machine)!=NULL)) {
        *   wire_is_connected=TRUE;
@@ -815,15 +1007,15 @@ gboolean bt_setup_update_pipeline(const BtSetup * const self) {
     res=check_connected(self,master,&not_visited_machines,&not_visited_wires);
     g_object_unref(master);
 
-    // @todo: might not be needed, see top of file
+    // @todo: might not be needed, see top of file (add an g_assert here)
     // remove all items that we have not visited and set them to disconnected
-    GST_INFO("remove %d unconnected wires", g_list_length(not_visited_wires));
+    GST_WARNING("remove %d unconnected wires", g_list_length(not_visited_wires));
     for(node=not_visited_wires;node;node=g_list_next(node)) {
       wire=BT_WIRE(node->data);
       update_bin_in_pipeline(self,GST_BIN(wire),FALSE,NULL);
     }
     g_list_free(not_visited_wires);
-    GST_INFO("remove %d unconnected machines", g_list_length(not_visited_machines));
+    GST_WARNING("remove %d unconnected machines", g_list_length(not_visited_machines));
     for(node=not_visited_machines;node;node=g_list_next(node)) {
       machine=BT_MACHINE(node->data);
       update_bin_in_pipeline(self,GST_BIN(machine),FALSE,NULL);
