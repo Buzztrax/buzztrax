@@ -1,5 +1,10 @@
 2009-02-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-menu.c:
+	  Implement proper hierarchies.
+
+2009-02-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Mark pattern column labels as translatable.
 

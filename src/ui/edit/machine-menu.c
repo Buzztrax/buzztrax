@@ -148,11 +148,11 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
   GList *node,*element_names;
   GstElementFactory *factory;
   GHashTable *parent_menu_hash;
-  const gchar *klass_name,*menu_name;
+  const gchar *klass_name,*menu_name,*plugin_name;
 
   // scan registered sources
   element_names=bt_gst_registry_get_element_names_matching_all_categories(root);
-  parent_menu_hash=g_hash_table_new(g_str_hash,g_str_equal);
+  parent_menu_hash=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,NULL);
   // sort list by name
   element_names=g_list_sort(element_names,(GCompareFunc)bt_machine_menu_compare);
   for(node=element_names;node;node=g_list_next(node)) {
@@ -170,33 +170,46 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     // remove prefix, e.g. 'Source/Audio'
     klass_name=&klass_name[strlen(root)];
     if(*klass_name) {
-      // skip '/'
-      klass_name=&klass_name[1];
+      GtkWidget *cached_menu;
+      gchar **names;
+      gint i;
+      
       GST_LOG("  subclass : '%s'",klass_name);
-      //check in parent_menu_hash if we have a parent for this klass
-      if(!(parentmenu=g_hash_table_lookup(parent_menu_hash,(gpointer)klass_name))) {
-        GST_DEBUG("    create new: '%s'",klass_name);
-        menu_item=gtk_image_menu_item_new_with_label(klass_name);
-        gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
-        gtk_widget_show(menu_item);
-        parentmenu=gtk_menu_new();
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
-        g_hash_table_insert(parent_menu_hash, (gpointer)klass_name, (gpointer)parentmenu);
+     
+      // created nested menues
+      parentmenu=submenu;
+      names=g_strsplit(&klass_name[1],"/",0);
+      for(i=0;i<g_strv_length(names);i++) {
+        //check in parent_menu_hash if we have a parent for this klass
+        if(!(cached_menu=g_hash_table_lookup(parent_menu_hash,(gpointer)names[i]))) {
+          GST_DEBUG("    create new: '%s'",names[i]);
+          menu_item=gtk_image_menu_item_new_with_label(names[i]);
+          gtk_menu_shell_append(GTK_MENU_SHELL(parentmenu),menu_item);
+          gtk_widget_show(menu_item);
+          parentmenu=gtk_menu_new();
+          gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
+          g_hash_table_insert(parent_menu_hash, (gpointer)g_strdup(names[i]), (gpointer)parentmenu);
+        }
+        else {
+          parentmenu=cached_menu;
+        }
       }
+      g_strfreev(names);
     }
     else parentmenu=submenu;
 
     menu_name=gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory));
-    if(*klass_name) {
-      gchar *delim=strchr(klass_name,'/');
-      gint len=delim?(delim-klass_name):strlen(klass_name);
+    // @bug: see http://bugzilla.gnome.org/show_bug.cgi?id=571832
+    plugin_name=GST_PLUGIN_FEATURE(factory)->plugin_name;
+    if(plugin_name) {
+      gint len=strlen(plugin_name);
       
-      // remove prefix <klass-name>-
-      // - klassname can be BML/Delay/Mono (strchr(klass_name,'/');
-      // - its maybe not even in the feature name
-      if(strncmp(menu_name,klass_name,len)) {
+      GST_LOG("%s:%s, %c",plugin_name,menu_name,menu_name[len]);
+
+      // remove prefix "<plugin-name>-"
+      if(!strncasecmp(menu_name,plugin_name,len) && menu_name[len]=='-') {
         menu_name=&menu_name[len+1];
-      }
+      }      
     }
     menu_item=gtk_menu_item_new_with_label(menu_name);
     gtk_widget_set_name(menu_item,node->data);
