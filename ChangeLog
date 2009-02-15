@@ -1,3 +1,8 @@
+2009-02-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Mark pattern column labels as translatable.
+
 2009-02-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:

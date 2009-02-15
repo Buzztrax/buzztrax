@@ -1337,7 +1337,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     if(global_params) {
       // create mapping for global params
       group->type=1;
-      group->name=g_strdup("Globals");
+      /* label for first global parameter column in a pattern */
+      group->name=g_strdup(_("Globals"));
       group->user_data=NULL;
       group->num_columns=global_params;
       group->columns=g_new(PatternColumn,global_params);
@@ -1352,7 +1353,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       PatternColumnGroup *stamp=group;
       // create mapping for voice params
       group->type=2;
-      group->name=g_strdup("Voice 1");
+      /* label for parameters of first voice column in a pattern */
+      group->name=g_strdup(_("Voice 1"));
       group->user_data=GUINT_TO_POINTER(0);
       group->num_columns=voice_params;
       group->columns=g_new(PatternColumn,voice_params);
@@ -1364,7 +1366,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       group++;
       for(i=1;i<voices;i++) {
         group->type=2;
-        group->name=g_strdup_printf("Voice %u",(guint)(i+1));
+        /* label for parameters of voice columns in a pattern */
+        group->name=g_strdup_printf(_("Voice %u"),(guint)(i+1));
         group->user_data=GUINT_TO_POINTER(i);
         group->num_columns=voice_params;
         group->columns=g_memdup(stamp->columns,sizeof(PatternColumn)*voice_params);
