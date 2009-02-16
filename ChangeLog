@@ -1,3 +1,12 @@
+2009-02-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-menu.c:
+	  Fix F10 shortcut and remove (duplicated) mnemonics from debug menu. Also
+	  don't mark debug menu items as translatable.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add idea.
+
 2009-02-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-menu.c:

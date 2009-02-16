@@ -610,6 +610,11 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   BtSettings *settings;
   gboolean toolbar_hide,statusbar_hide,tabs_hide;
   GtkAccelGroup *accel_group=bt_ui_resources_get_accel_group();
+  GtkSettings *gtk_settings;
+
+  // disable F10 keybinding to activate the menu
+  gtk_settings = gtk_settings_get_for_screen(gdk_screen_get_default());
+  g_object_set(gtk_settings, "gtk-menu-bar-accel", NULL, NULL);
 
   gtk_widget_set_name(GTK_WIDGET(self),"main menu");
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
@@ -879,7 +884,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
 
 #ifdef USE_DEBUG
   // debug menu
-  item=gtk_menu_item_new_with_mnemonic(("_Debug"));
+  item=gtk_menu_item_new_with_label("Debug");
   gtk_menu_item_set_right_justified(GTK_MENU_ITEM(item),TRUE);
   gtk_container_add(GTK_CONTAINER(self),item);
 
@@ -894,7 +899,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
    *   GST_DEBUG_GRAPH_SHOW_STATES - show element states 
    * - "show graph" action item
    */
-  subitem=gtk_image_menu_item_new_with_mnemonic(_("Dump pipeline graph and show"));
+  subitem=gtk_image_menu_item_new_with_mnemonic("Dump pipeline graph and show");
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_debug_dump_pipeline_graph_and_show),(gpointer)self);
 #endif

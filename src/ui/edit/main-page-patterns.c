@@ -52,6 +52,16 @@
  *   - limmit acceptable keys for value entries: http://www.gtk.org/faq/#AEN843
  *
  * - also do controller-assignments like in machine-property window
+ *
+ * - use gray text color for disconnected machines in the machine combobox
+ *   (like for unused patterns)
+ *
+ * - support midi keyboard for entering notes
+ * - have poly-input mode
+ *   - if there is a keydown, enter the note
+ *   - if there is another keydown before a keyup, go to next track and enter
+ *     the note there.
+ *   - on keyup, return curso to that column
  */
 
 #define BT_EDIT
