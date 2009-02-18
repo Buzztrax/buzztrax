@@ -74,6 +74,6 @@ include $(top_srcdir)/gtk-doc.make
 EXTRA_DIST += $(DOC_MODULE).types
 
 # Comment this out if you want your docs-status tested during 'make check'
-# this expects files in builddir :(
-#TESTS = $(GTKDOC_CHECK)
+TESTS_ENVIRONMENT = cd $(srcdir) &&
+TESTS = $(GTKDOC_CHECK)
 

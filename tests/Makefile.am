@@ -13,7 +13,6 @@ TESTS = \
   bt-cmd-info.sh \
   bt-cmd-cli.sh \
   bt-edit-cli.sh \
-  gtkdoccomplete.sh \
   povalid.sh \
   xmlvalid.sh
 

@@ -1,5 +1,14 @@
 2009-02-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* tests/Makefile.am:
+	  Use check from gtk-doc instead of own one.
+
+2009-02-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Collect news.
 
