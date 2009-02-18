@@ -68,9 +68,11 @@ gstreamer
   export GST_PLUGIN_PATH="$HOME/buzztard/lib/gstreamer-0.10"
 mime-database & icon-themes:
   export XDG_DATA_DIRS="$XDG_DATA_DIRS:$HOME/buzztard/share"
+  update-mime-database $HOME/buzztard/share/mime/
 
-run:
-update-mime-database $HOME/buzztard/share/mime/
+= installing in /usr/local =
+The default value for the --prefix configure option is /usr/local. Also in that
+case the variables mentioned in the last example need to be exported.
 
 = running the apps =
 

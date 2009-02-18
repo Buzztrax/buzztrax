@@ -1,3 +1,12 @@
+2009-02-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect news.
+
+	* README:
+	* configure.ac:
+	  Give a hint if user installs into a non know location.
+
 2009-02-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:

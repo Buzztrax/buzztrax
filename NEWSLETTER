@@ -1,5 +1,10 @@
 2009/03 ========================================================================
 
+The GStreamer buzzmachine plugin now supports an index.txt file in the search
+path. This is used in buzz to categorize machines. The wrapper plugin adds the
+categories to the GStreamer classification filed and buzztard-edit uses it to
+build a structured menu. This helps makes the menu a bit more useful again. Same
+stuff needed for ladspa (via rdf).
 
 2009/02 ========================================================================
 
