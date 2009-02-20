@@ -1,3 +1,14 @@
+2009-02-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* m4/shave.m4:
+	* shave-libtool.in:
+	* shave.in:
+	* m4/shave.m4 (added):
+	* shave.in (added):
+	* shave-libtool.in (added):
+	  Have a less verbose build.
+
 2009-02-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-cmd/Makefile.am:

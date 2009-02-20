@@ -433,7 +433,8 @@ AC_SUBST(BASE_DEPS_CFLAGS)
 AC_SUBST(GUI_DEPS_LIBS)
 AC_SUBST(GUI_DEPS_CFLAGS)
 
-AC_CONFIG_FILES(Makefile \
+SHAVE_INIT([.])
+AC_CONFIG_FILES(Makefile shave shave-libtool \
   docs/Makefile \
   docs/version.entities \
     docs/help/Makefile \
