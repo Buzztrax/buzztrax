@@ -43,6 +43,7 @@
  *       one filled o on top of 4 hollow o's
  *   - use transparency for mute/bypass, solo would switch all other sources to
  *     muted, can't differenciate mute from bypass on an fx
+ * - have less saturated images for not yet connected machines
  *
  * @todo: add alpha channel to pixbuf, when moving
  * - gdk_pixbuf_add_alpha(), see put_pixel() example in GdkPixbuf docs
@@ -263,18 +264,29 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
   }
 }
 
-static void on_machine_id_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
-  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-
-  g_assert(user_data);
-
+static void update_machine_label(BtMachineCanvasItem *self) {
   if(self->priv->label) {
     gchar *id;
+    gboolean is_added=(GST_OBJECT_PARENT(self->priv->machine)!=NULL);
 
     g_object_get(self->priv->machine,"id",&id,NULL);
+    //GST_INFO("%s is %sadded",id,(is_added?"":"not "));
+    if(!is_added) {
+      gchar *label=g_strdup_printf("[%s]",id);
+      g_free(id);id=label;
+    }
     gnome_canvas_item_set(self->priv->label,"text",id,NULL);
     g_free(id);
   }
+}
+
+static void on_machine_id_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
+  update_machine_label(BT_MACHINE_CANVAS_ITEM(user_data));
+}
+
+static void on_machine_parent_changed(GstObject *object, GstObject *parent, gpointer user_data) {
+  GST_WARNING("parent changed");
+  update_machine_label(BT_MACHINE_CANVAS_ITEM(user_data)); 
 }
 
 static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
@@ -801,6 +813,10 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
         bt_machine_canvas_item_init_context_menu(self);
         g_signal_connect(G_OBJECT(self->priv->machine), "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);
         g_signal_connect(G_OBJECT(self->priv->machine), "notify::state", G_CALLBACK(on_machine_state_changed), (gpointer)self);
+        // DEBUG
+        g_signal_connect(G_OBJECT(self->priv->machine), "parent-set", G_CALLBACK(on_machine_parent_changed), (gpointer)self);
+        g_signal_connect(G_OBJECT(self->priv->machine), "parent-unset", G_CALLBACK(on_machine_parent_changed), (gpointer)self);
+        // DEBUG
 
         g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
         g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);

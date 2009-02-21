@@ -1,3 +1,10 @@
+2009-02-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Set app name also in buzztard-cmd and set pulse hints for new pulseaudio
+	  versions (0.9.15).
+
 2009-02-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

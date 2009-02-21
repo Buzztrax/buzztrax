@@ -118,8 +118,11 @@ int main(int argc, char **argv) {
   
   add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
 
+  // give some global context info
   g_set_application_name("Buzztard");
   gtk_window_set_default_icon_name("buzztard");
+  g_setenv("PULSE_PROP_media.role", "production", TRUE);
+
   
 #if GST_CHECK_VERSION(0,10,16)
   /* @todo: requires gst-0.10.16 */

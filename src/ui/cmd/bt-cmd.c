@@ -110,7 +110,13 @@ int main(int argc, char **argv) {
   GST_INFO("starting: thread=%p, command=\"%s\" input=\"%s\" output=\"%s\"",
     g_thread_self(),command, input_file_name, output_file_name);
 
+  // give some global context info
+  g_set_application_name("Buzztard");
+  g_setenv("PULSE_PROP_application.icon_name", "buzztard", TRUE);
+  g_setenv("PULSE_PROP_media.role", "production", TRUE);
+
   app=bt_cmd_application_new(arg_quiet);
+
   // depending on the popt options call the correct method
   if(!strncmp(command,"play",4)) {
     if(!input_file_name) usage(argc, argv, ctx);
