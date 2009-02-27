@@ -300,17 +300,8 @@ typedef enum {
   CONNECTED
 } BtSetupConnectionState;
 
-#define GET_CONNECTION_STATE(bin) \
+#define GET_CONNECTION_STATE(self,bin) \
   GPOINTER_TO_INT(g_hash_table_lookup(self->priv->connection_state,(gpointer)bin))
-
-#define SET_DISCONNECTED(bin) \
-  g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(DISCONNECTED));
-#define SET_DISCONNECTING(bin) \
-  g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(DISCONNECTING));
-#define SET_CONNECTING(bin) \
-  g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(CONNECTING));
-#define SET_CONNECTED(bin) \
-  g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(CONNECTED));
 
 struct _BtSetupPrivate {
   /* used to validate if dispose has run */
@@ -358,7 +349,57 @@ BtSetup *bt_setup_new(const BtSong * const song) {
 
 //-- private methods
 
-/**
+static void set_disconnected(const BtSetup * const self, GstBin *bin) {
+  BtSetupConnectionState state=GET_CONNECTION_STATE(self,bin);
+  
+  if(state==DISCONNECTING) {
+    g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(DISCONNECTED));
+  }
+  else if(state==CONNECTING) {
+    GST_WARNING_OBJECT(bin,"disallowed state-change from connecting to disconnected");
+  }
+  else if(state==CONNECTED) {
+    GST_WARNING_OBJECT(bin,"disallowed state-change from connected to disconnected");
+  }
+}
+
+static void set_disconnecting(const BtSetup * const self, GstBin *bin) {
+  BtSetupConnectionState state=GET_CONNECTION_STATE(self,bin);
+  
+  if(state==CONNECTED) {
+    g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(DISCONNECTING));
+  }
+  else if(state==CONNECTING) {
+    GST_WARNING_OBJECT(bin,"disallowed state-change from connecting to disconnecteding");
+  }
+}
+
+static void set_connecting(const BtSetup * const self, GstBin *bin) {
+  BtSetupConnectionState state=GET_CONNECTION_STATE(self,bin);
+  
+  if(state==DISCONNECTED) {
+    g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(CONNECTING));
+  }
+  else if(state==DISCONNECTING) {
+    GST_WARNING_OBJECT(bin,"disallowed state-change from disconnecting to connecting");
+  }
+}
+
+static void set_connected(const BtSetup * const self, GstBin *bin) {
+  BtSetupConnectionState state=GET_CONNECTION_STATE(self,bin);
+  
+  if(state==CONNECTING) {
+    g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(CONNECTED));
+  }
+  else if(state==DISCONNECTING) {
+    GST_WARNING_OBJECT(bin,"disallowed state-change from disconnecting to connected");
+  }
+  else if(state==DISCONNECTED) {
+    GST_WARNING_OBJECT(bin,"disallowed state-change from disconnected to connected");
+  }
+}
+
+/*
  * bt_setup_get_wire_by_machine_type:
  * @self: the setup to search for the wire
  * @machine: the machine that is at the src or dst of the wire
@@ -387,7 +428,7 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup * const self, con
   return(NULL);
 }
 
-/**
+/*
  * bt_setup_get_wires_by_machine_type:
  * @self: the setup to search for the wires
  * @machine: the machine that is at the src or dst of the wire
@@ -507,7 +548,6 @@ static gboolean update_bin_in_pipeline(const BtSetup * const self,GstBin *bin,gb
     if(!is_added) {
       gst_bin_add(self->priv->bin,GST_ELEMENT(bin));
     }
-    //SET_CONNECTED(bin);
   }
   else {
     if(is_added) {
@@ -515,7 +555,6 @@ static gboolean update_bin_in_pipeline(const BtSetup * const self,GstBin *bin,gb
       GST_OBJECT_FLAG_SET(bin,GST_OBJECT_FLOATING);
       gst_bin_remove(self->priv->bin,GST_ELEMENT(bin));
     }
-    //SET_DISCONNECTED(bin);
   }
   
   return(TRUE);
@@ -545,7 +584,7 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
     
     // check if wire is marked for removal
 #if NEW_CODE
-    if(GET_CONNECTION_STATE(wire)!=DISCONNECTING) {
+    if(GET_CONNECTION_STATE(self,wire)!=DISCONNECTING) {
 #endif
       wire_is_connected=FALSE;
       g_object_get(wire,"src",&src_machine,NULL);
@@ -560,7 +599,7 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
         /* for processor machine we might need to look further,
          * but if machine is not in not_visited_machines anymore,
          * check if it is added or not and return */
-        BtSetupConnectionState state=GET_CONNECTION_STATE(src_machine);
+        BtSetupConnectionState state=GET_CONNECTION_STATE(self,src_machine);
   
         if((!g_list_find(*not_visited_machines,src_machine)) && (state==CONNECTING || state==CONNECTED)) {
           wire_is_connected=TRUE;
@@ -572,9 +611,8 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
       GST_INFO("wire target checked, connected=%d?",wire_is_connected);
       if(!wire_is_connected) {
 #if NEW_CODE
-        SET_DISCONNECTING(wire);
-        if(GET_CONNECTION_STATE(src_machine)==CONNECTED)
-          SET_DISCONNECTING(src_machine);
+        set_disconnecting(self,GST_BIN(wire));
+        set_disconnecting(self,GST_BIN(src_machine));
 #else
         unlink_wire(self,GST_ELEMENT(wire),GST_ELEMENT(src_machine),GST_ELEMENT(dst_machine));
         update_bin_in_pipeline(self,GST_BIN(src_machine),FALSE,not_visited_machines);
@@ -586,13 +624,10 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
       if(wire_is_connected) {
 #if NEW_CODE
         if(!is_connected) {
-          if(GET_CONNECTION_STATE(dst_machine)==DISCONNECTED)
-            SET_CONNECTING(dst_machine);
+          set_connecting(self,GST_BIN(dst_machine));
         }
-        if(GET_CONNECTION_STATE(src_machine)==DISCONNECTED)
-          SET_CONNECTING(src_machine);
-        if(GET_CONNECTION_STATE(wire)==DISCONNECTED)
-          SET_CONNECTING(wire);
+        set_connecting(self,GST_BIN(src_machine));
+        set_connecting(self,GST_BIN(wire));
 #else
         if(!is_connected) {
           update_bin_in_pipeline(self,GST_BIN(dst_machine),TRUE,not_visited_machines);
@@ -620,7 +655,7 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
   if(!is_connected) {
     update_bin_in_pipeline(self,GST_BIN(dst_machine),FALSE,not_visited_machines);
     
-    SET_DISCONNECTING(dst_machine);
+    set_disconnecting(self,GST_BIN(dst_machine));
   }
 #if NEW_CODE
   *not_visited_machines=g_list_remove(*not_visited_machines,(gconstpointer)dst_machine);
@@ -705,11 +740,11 @@ static void update_states(gpointer key,gpointer value,gpointer user_data) {
   // debug
 
   if(GPOINTER_TO_INT(value)==CONNECTING) {
-    SET_CONNECTED(key);
+    set_connected(self,GST_BIN(key));
   }
   if(GPOINTER_TO_INT(value)==DISCONNECTING) {
     gst_element_set_locked_state(GST_ELEMENT(key), FALSE);
-    SET_DISCONNECTED(key);
+    set_disconnected(self,GST_BIN(key));
   }
 }
 
@@ -747,6 +782,10 @@ static void update_pipeline(const BtSetup * const self) {
   GST_WARNING("add and link wires");
   g_hash_table_foreach(self->priv->connection_state,add_wire_in_pipeline,(gpointer)self);
   GST_WARNING("sync states");
+  /* FIXME: we need to do this in the right order
+   * adding/->PLAYING: from sinks to sources
+   * removing/->NULL: from sources to sinks
+   */
   g_hash_table_foreach(self->priv->connection_state,sync_states_in_pipeline,(gpointer)self);
   GST_WARNING("unlink and remove wires");
   g_hash_table_foreach(self->priv->connection_state,del_wire_in_pipeline,(gpointer)self);
@@ -790,7 +829,7 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
   if(!g_list_find(self->priv->machines,machine)) {
     ret=TRUE;
     self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
-    SET_DISCONNECTED(machine);
+    set_disconnected(self,GST_BIN(machine));
 
     g_signal_emit(G_OBJECT(self),signals[MACHINE_ADDED_EVENT], 0, machine);
     bt_song_set_unsaved(self->priv->song,TRUE);
@@ -834,7 +873,7 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
       ret=TRUE;
 
       self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
-      SET_DISCONNECTED(wire);
+      set_disconnected(self,GST_BIN(wire));
 #if LIVE_CONNECT
       bt_setup_update_pipeline(self);
 #endif
@@ -911,7 +950,7 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
     g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
 
 #if LIVE_CONNECT
-    SET_DISCONNECTING(wire);
+    set_disconnecting(self,GST_BIN(wire));
     bt_setup_update_pipeline(self);
 #else
     BtMachine *dst,*src;
@@ -1267,7 +1306,7 @@ gboolean bt_setup_update_pipeline(const BtSetup * const self) {
     for(node=not_visited_wires;node;node=g_list_next(node)) {
       wire=BT_WIRE(node->data);
 #if NEW_CODE
-      SET_DISCONNECTING(wire);
+      set_disconnecting(self,GST_BIN(wire));
 #else
       update_bin_in_pipeline(self,GST_BIN(wire),FALSE,NULL);
 #endif
@@ -1277,7 +1316,7 @@ gboolean bt_setup_update_pipeline(const BtSetup * const self) {
     for(node=not_visited_machines;node;node=g_list_next(node)) {
       machine=BT_MACHINE(node->data);
 #if NEW_CODE
-      SET_DISCONNECTING(machine);
+      set_disconnecting(self,GST_BIN(machine));
 #else
       update_bin_in_pipeline(self,GST_BIN(machine),FALSE,NULL);
 #endif

@@ -1,6 +1,16 @@
 2009-02-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:
+	  Wrap macros to function and add warnings.
+
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/gtkvumeter.h:
+	  Add cairo version from http://bugzilla.gnome.org/show_bug.cgi?id=547490
+	  Do some fixes (diagonal fills) and add shading.
+
+2009-02-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
 	  As moap has silently committed setup.c and songs.c anyway, atleast disable
 	  the new code for now.
 

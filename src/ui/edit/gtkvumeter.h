@@ -45,14 +45,6 @@ typedef struct _GtkVUMeterClass GtkVUMeterClass;
 struct _GtkVUMeter {
     GtkWidget   widget;
 
-    GdkColormap *colormap;
-    gint        colors;
-
-    GdkGC       **f_gc;
-    GdkGC       **b_gc;
-    GdkColor    *f_colors;
-    GdkColor    *b_colors;
-
     gboolean    vertical;
     gint        rms_level;
     gint        min;
