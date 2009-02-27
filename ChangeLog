@@ -1,6 +1,12 @@
 2009-02-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:
+	  Implement state-change order, plus various cleanups. Removing elements while
+	  playing seems to work, adding links results in errors still.
+
+2009-02-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
 	  Wrap macros to function and add warnings.
 
 	* src/ui/edit/gtkvumeter.c:
