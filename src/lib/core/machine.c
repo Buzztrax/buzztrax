@@ -1230,6 +1230,9 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
 
     // create the adder
     if(!(bt_machine_make_internal_element(self,PART_ADDER,"adder","adder"))) goto Error;
+    //if(!(bt_machine_make_internal_element(self,PART_ADDER,"liveadder","adder"))) goto Error;
+    // "gstsystemclock: write control failed, trying again"
+    // :(
     // adder does not link directly to some elements
     if(!(bt_machine_make_internal_element(self,PART_CAPS_FILTER,"capsfilter","capsfilter"))) goto Error;
     if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
@@ -1344,6 +1347,8 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   BtMachine *src;
   GList *wires,*node;
 
+  GST_WARNING_OBJECT(self,"reconfigure adder format, machine in state %s",gst_element_state_get_name(GST_STATE(self)));
+  
   /* do nothing if we don't have and adder & capsfilter or not caps */
   if(!self->priv->machines[PART_CAPS_FILTER]) return;
 
@@ -1421,6 +1426,9 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
         }
         gst_object_unref(pad);
       }
+      else {
+        GST_WARNING("No 'src' pad on machine?");
+      }
       g_object_unref(src);
       g_object_unref(wire);
     }
@@ -1430,19 +1438,27 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     ns=gst_structure_new(fmt_names[n_format],
       "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
       "channels",GST_TYPE_INT_RANGE,n_channels,8,
-      "width",GST_TYPE_INT_RANGE,n_width,32,
       "endianness",G_TYPE_INT,G_BYTE_ORDER,
       NULL);
     if(n_format==0) {
       gst_structure_set(ns,
+        "width",GST_TYPE_INT_RANGE,n_width,32,
         "depth",GST_TYPE_INT_RANGE,n_depth,32,
         "signedness",G_TYPE_INT,(singnednes_signed_ct>=signedness_unsigned_ct),
+        NULL);
+    }
+    else {
+      gst_structure_set(ns,
+        "width",GST_TYPE_INT_RANGE,n_width,64,
         NULL);
     }
     new_caps=gst_caps_new_full(ns,NULL);
 
     GST_INFO("set new caps %" GST_PTR_FORMAT, new_caps);
 
+    /* @todo: do we need a lock here?
+     * if we do this while playing it hangs :/
+     */
     g_object_set(self->priv->machines[PART_CAPS_FILTER],"caps",new_caps,NULL);
     gst_caps_unref(new_caps);
   }
@@ -3080,6 +3096,20 @@ static GstPad* bt_machine_request_new_pad(GstElement *element, GstPadTemplate *t
     GST_INFO("request sink pad: %s",name);
   }
   pad=gst_ghost_pad_new(name,target);
+  
+  // @todo: "adding flushing pad 'sink1' to running element 'master'"
+  
+  GST_INFO("%s:%s: %s%s%s",GST_DEBUG_PAD_NAME(target),
+    GST_OBJECT(target)->flags&GST_PAD_BLOCKED?"blocked, ":"",
+    GST_OBJECT(target)->flags&GST_PAD_FLUSHING?"flushing, ":"",
+    GST_OBJECT(target)->flags&GST_PAD_BLOCKING?"blocking, ":"");
+  GST_INFO("%s:%s: %s%s%s",GST_DEBUG_PAD_NAME(pad),
+    GST_OBJECT(pad)->flags&GST_PAD_BLOCKED?"blocked, ":"",
+    GST_OBJECT(pad)->flags&GST_PAD_FLUSHING?"flushing, ":"",
+    GST_OBJECT(pad)->flags&GST_PAD_BLOCKING?"blocking, ":"");
+  
+  GST_PAD_UNSET_FLUSHING (target);
+  GST_PAD_UNSET_FLUSHING (pad);
   g_free(name);
 
   gst_element_add_pad(element, pad);

@@ -201,6 +201,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
 static gboolean bt_song_is_playable(const BtSong * const self) {
   GST_INFO("check playability");
   
+  /* @todo: do we really need this if we do live connecting anyway */
   if(!bt_setup_update_pipeline(self->priv->setup)) {
     GST_INFO("song has no items connected to master");
     return(FALSE);    
