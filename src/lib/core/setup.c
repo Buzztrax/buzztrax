@@ -267,9 +267,9 @@
 #include "core_private.h"
 
 // new pipeline updating, that uses two phases
-#define NEW_CODE 1
+//#define NEW_CODE 1
 // allow live updates
-#define LIVE_CONNECT 1
+//#define LIVE_CONNECT 1
 
 //-- signal ids
 

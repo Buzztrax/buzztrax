@@ -1,5 +1,11 @@
 2009-02-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/setup.c:
+	  As moap has silently committed setup.c and songs.c anyway, atleast disable
+	  the new code for now.
+
+2009-02-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Fix format negotiation. Unset flushing of new pads.
 
