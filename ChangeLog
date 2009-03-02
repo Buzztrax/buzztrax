@@ -1,5 +1,18 @@
 2009-03-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gui/effect-mute.svg:
+	* design/gui/generator-solo.svg:
+	* design/gui/svgcanvas2.c:
+	* design/gui/svgcanvas2.c (added):
+	* design/gui/effect-mute.svg (added):
+	  Add another example for scaling svgs.
+
+	* src/ui/edit/main-page-machines.c:
+	  Disable debugging code.
+	
+
+2009-03-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	  Disable scrollkeeper for distcheck (because it ignores the --prefix).
 

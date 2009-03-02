@@ -894,6 +894,7 @@ static void on_panorama_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   g_object_set(G_OBJECT(self->priv->wire_pan),"panorama",pan,NULL);
 }
 
+#if 0
 static void on_canvas_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gdouble xs,xe,xp;
@@ -904,15 +905,14 @@ static void on_canvas_size_allocate(GtkWidget *widget,GtkAllocation *allocation,
   gtk_adjustment_set_value(self->priv->hadjustment,xs+((xe-xs-xp)*self->priv->scroll_x));
   g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
   gtk_adjustment_set_value(self->priv->vadjustment,ys+((ye-ys-yp)*self->priv->scroll_y));
-/* DEBUG
    GST_WARNING("canvas: abs. scroll pos %lf x %lf, abs. scroll pos %lf x %lf",
     xs+((xe-xs-xp)*self->priv->scroll_x),
     ys+((ye-ys-yp)*self->priv->scroll_y),
     self->priv->scroll_x,self->priv->scroll_y);
 
   GST_WARNING("canvas size %d x %d",allocation->width,allocation->height);
-// DEBUG */
 }
+#endif
 
 //-- helper methods
 
@@ -1059,7 +1059,9 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
      MACHINE_VIEW_ZOOM_X, MACHINE_VIEW_ZOOM_Y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   gtk_widget_set_name(GTK_WIDGET(self->priv->canvas),"machine and wire editor");
+  /* DEBUG
   g_signal_connect(G_OBJECT(self->priv->canvas),"size-allocate",G_CALLBACK(on_canvas_size_allocate),(gpointer)self);
+  DEBUG */
 
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
