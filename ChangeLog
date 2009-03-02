@@ -1,3 +1,13 @@
+2009-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	  Disable scrollkeeper for distcheck (because it ignores the --prefix).
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	  Remove name spaces (gtk-doc can figure out automatically).
+
 2009-02-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:

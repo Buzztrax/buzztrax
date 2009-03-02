@@ -24,7 +24,7 @@ SCANGOBJ_OPTIONS=--type-init-func="g_thread_init(NULL);g_type_init()"
 SCAN_OPTIONS=--deprecated-guards="BT_DISABLE_DEPRECATED"
 
 # Extra options to supply to gtkdoc-mkdb.
-MKDB_OPTIONS=--sgml-mode --name-space=bt
+MKDB_OPTIONS=--sgml-mode
 
 # Extra options to supply to gtkdoc-mktmpl
 # e.g. MKTMPL_OPTIONS=--only-section-tmpl
