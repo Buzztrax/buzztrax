@@ -1,5 +1,10 @@
 2009-03-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gui/svgcanvas2.c:
+	  Desaturate the pixbuf as an example.
+
+2009-03-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/gui/effect-mute.svg:
 	* design/gui/generator-solo.svg:
 	* design/gui/svgcanvas2.c:

@@ -19,7 +19,7 @@
 #include <librsvg/rsvg.h>
 
 // grid
-#define RANGE 300.0
+#define RANGE 250.0
 #define RANGE2 (RANGE+RANGE)
 
 static gdouble zoom=1.0;
@@ -96,6 +96,37 @@ gnome_canvas_svg_render (GnomeCanvasItem *item, GnomeCanvasBuf *buf)
       g_error_free(error);
       exit(1);
     }
+    
+    /* desaturate */
+    {
+      guint x, y, rowstride, gray;
+      guchar *pixels, *p;
+  
+      g_assert (gdk_pixbuf_get_colorspace (self->priv->pixbuf) == GDK_COLORSPACE_RGB);
+      g_assert (gdk_pixbuf_get_bits_per_sample (self->priv->pixbuf) == 8);
+      g_assert (gdk_pixbuf_get_has_alpha (self->priv->pixbuf));
+      g_assert (gdk_pixbuf_get_n_channels (self->priv->pixbuf) == 4);
+  
+      rowstride = gdk_pixbuf_get_rowstride (self->priv->pixbuf) - (rw*4);
+      p = pixels = gdk_pixbuf_get_pixels (self->priv->pixbuf);
+      
+      printf(" p_w,p_h: %d, %d\n",
+        gdk_pixbuf_get_width (self->priv->pixbuf),
+        gdk_pixbuf_get_height (self->priv->pixbuf));
+  
+      for(y=0;y<rh;y++) {
+        for(x=0;x<rw;x++) {
+          gray = ((guint)p[0]+(guint)p[1]+(guint)p[2]);
+          p[0] = (guchar)(((guint)p[0]+gray)>>2);
+          p[1] = (guchar)(((guint)p[1]+gray)>>2);
+          p[2] = (guchar)(((guint)p[2]+gray)>>2);
+          /*p[3] = 255 - p[3];*/
+          p += 4;
+        }
+        p += rowstride;
+      }
+    }
+    
     g_object_set(self,"pixbuf",self->priv->pixbuf,NULL);
     self->priv->rw = rw;
     self->priv->rh = rh;
@@ -311,7 +342,7 @@ int main(int argc, char **argv) {
 
   // create window and layout container
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_widget_set_size_request(GTK_WIDGET(window), 300, 300);
+  gtk_widget_set_size_request(GTK_WIDGET(window), 400, 400);
   gtk_window_set_title (GTK_WINDOW(window), "SVG canvas demo");
   g_signal_connect(G_OBJECT(window), "destroy",	G_CALLBACK (destroy), NULL);
   
@@ -422,7 +453,7 @@ int main(int argc, char **argv) {
   ci=gnome_canvas_item_new (gnome_canvas_root (canvas),
      GNOME_TYPE_CANVAS_PIXBUF,
      "pixbuf", pixbuf,
-     "x", -20.0,
+     "x", -30.0,
      "y", -10.0,
      NULL);
   g_signal_connect(G_OBJECT(ci),"event",G_CALLBACK(on_canvas_item_event),NULL);
@@ -432,7 +463,8 @@ int main(int argc, char **argv) {
   ci=gnome_canvas_item_new (gnome_canvas_root (canvas),
      GNOME_TYPE_CANVAS_SVG,
      "file-name", "effect-mute.svg",
-     "x", 20.0,
+     "pixbuf", gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,96,96),
+     "x", 30.0,
      "y", 10.0,
      "width", 96.0,
      "height", 96.0,
