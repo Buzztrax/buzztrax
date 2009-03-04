@@ -1,3 +1,11 @@
+2009-03-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Try to activate the pad.
+
+	* src/lib/core/song-io.c:
+	  Use local symbol scope.
+
 2009-03-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gui/svgcanvas2.c:

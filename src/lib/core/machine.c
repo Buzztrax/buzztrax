@@ -1456,9 +1456,6 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
 
     GST_INFO("set new caps %" GST_PTR_FORMAT, new_caps);
 
-    /* @todo: do we need a lock here?
-     * if we do this while playing it hangs :/
-     */
     g_object_set(self->priv->machines[PART_CAPS_FILTER],"caps",new_caps,NULL);
     gst_caps_unref(new_caps);
   }
@@ -3098,7 +3095,6 @@ static GstPad* bt_machine_request_new_pad(GstElement *element, GstPadTemplate *t
   pad=gst_ghost_pad_new(name,target);
   
   // @todo: "adding flushing pad 'sink1' to running element 'master'"
-  
   GST_INFO("%s:%s: %s%s%s",GST_DEBUG_PAD_NAME(target),
     GST_OBJECT(target)->flags&GST_PAD_BLOCKED?"blocked, ":"",
     GST_OBJECT(target)->flags&GST_PAD_FLUSHING?"flushing, ":"",
@@ -3108,8 +3104,11 @@ static GstPad* bt_machine_request_new_pad(GstElement *element, GstPadTemplate *t
     GST_OBJECT(pad)->flags&GST_PAD_FLUSHING?"flushing, ":"",
     GST_OBJECT(pad)->flags&GST_PAD_BLOCKING?"blocking, ":"");
   
-  GST_PAD_UNSET_FLUSHING (target);
-  GST_PAD_UNSET_FLUSHING (pad);
+  if(GST_STATE(element)==GST_STATE_PLAYING) {
+    //GST_PAD_UNSET_FLUSHING (target);
+    //GST_PAD_UNSET_FLUSHING (pad);
+    gst_pad_set_active(pad, TRUE);
+  }
   g_free(name);
 
   gst_element_add_pad(element, pad);

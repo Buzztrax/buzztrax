@@ -108,7 +108,7 @@ static void bt_song_io_register_plugins(void) {
 
       // 2.) try to open each as g_module
       //if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
-      GModule * const plugin=g_module_open(plugin_name,G_MODULE_BIND_LOCAL);
+      GModule * const plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY|G_MODULE_BIND_LOCAL);
       if(plugin!=NULL) {
         // 3.) gets the address of GType bt_song_io_detect(const gchar *);
         if(g_module_symbol(plugin,"bt_song_io_module_info",&bt_song_io_module_info)) {
