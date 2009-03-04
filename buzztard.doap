@@ -22,11 +22,10 @@
   <download-page rdf:resource="http://sourceforge.net/project/showfiles.php?group_id=55124" />
 
   <repository>
-    <CVSRepository>
-      <anon-root>:pserver:anonymous@buzztard.cvs.sourceforge.net:/cvsroot/buzztard</anon-root>
-      <module>buzztard</module>
-      <browse rdf:resource="http://buzztard.cvs.sourceforge.net/buzztard/buzztard/" />
-    </CVSRepository>
+    <SVNRepository>
+      <anon-root>https://buzztard.svn.sourceforge.net/svnroot/buzztard/trunk/buzztard</anon-root>
+      <browse rdf:resource="http://buzztard.svn.sourceforge.net/svnroot/buzztard/buzztard/" />
+    </SVNRepository>
   </repository>
 
   <maintainer>

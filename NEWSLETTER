@@ -1,10 +1,33 @@
 2009/03 ========================================================================
 
+Yay. LJ has a nice online article about buzztard [1]. While helding the author
+to get the code up & running, I mad several improvments to the configure stuff
+to make things more obvious, especially when installing not to /usr. I also
+updated the instructions on the wiki [2] and waffel updated our jhbuild module-
+set. 
+
 The GStreamer buzzmachine plugin now supports an index.txt file in the search
 path. This is used in buzz to categorize machines. The wrapper plugin adds the
 categories to the GStreamer classification filed and buzztard-edit uses it to
 build a structured menu. This helps makes the menu a bit more useful again. Same
 stuff needed for ladspa (via rdf).
+
+The whole machine graph handling is now getting into 2nd phase. I can already
+disconnect stuff while playing without breaking things. Adding sources still has
+issues :/
+
+I also made a series of UI experiemnts. I now have some code for doing properly
+scaled svgs on gnome-canvas. Sofar the machine icons became blurry when zooming.
+This was quite noticable in the screenshots of the article. Speaking of those I
+am suprised that even today, browsers only do nearest neighbour scaling. As
+graphics is fun, I also hacked some pixbuf filter effect, so that I can get icon
+variants for selecting and disabling. This will hopefully be integrated in next
+month. Finally I replaced the VU meter code with the cairo variant from gbo
+#547490 [3] and made some fixes/improvements.
+
+[1] http://www.linuxjournal.com/content/buzztard-project-part-1
+[2] http://www.buzztard.org/index.php/Building
+[3] http://bugzilla.gnome.org/show_bug.cgi?id=547490
 
 2009/02 ========================================================================
 

@@ -3085,33 +3085,44 @@ static GstPad* bt_machine_request_new_pad(GstElement *element, GstPadTemplate *t
   if(GST_PAD_TEMPLATE_DIRECTION(templ)==GST_PAD_SRC) {
     target=gst_element_get_request_pad(self->priv->machines[PART_SPREADER],"src%d");
     name=g_strdup_printf("src%d", self->priv->src_pad_counter++);
-    GST_INFO("request src pad: %s",name);
+    GST_INFO_OBJECT(element,"request src pad: %s",name);
   }
   else {
     target=gst_element_get_request_pad(self->priv->machines[PART_ADDER],"sink%d");
     name=g_strdup_printf ("sink%d", self->priv->sink_pad_counter++);
-    GST_INFO("request sink pad: %s",name);
+    GST_INFO_OBJECT(element,"request sink pad: %s",name);
   }
-  pad=gst_ghost_pad_new(name,target);
+  if((pad=gst_ghost_pad_new(name,target))) {
+/*
+ bt-core machine.c:3088:bt_machine_request_new_pad:<audiotestsrc> request src pad: src4
+GST_PADS gstpad.c:1857:gst_pad_link_prepare: trying to link tee_0x854a248:src4 and src4:proxypad35
+GST_PADS gstpad.c:1912:gst_pad_link_prepare: caps are incompatible
+GST_PADS gstghostpad.c:1182:gst_ghost_pad_set_target:<'':src4> could not link internal and target, reason:-4
+GST_PADS gstghostpad.c:1004:gst_ghost_pad_new:<'':src4> failed to set target tee_0x854a248:src4
+ bt-core machine.c:3113:bt_machine_request_new_pad:<audiotestsrc> failed to create ghostpad src4  
+*/
+    
   
-  // @todo: "adding flushing pad 'sink1' to running element 'master'"
-  GST_INFO("%s:%s: %s%s%s",GST_DEBUG_PAD_NAME(target),
-    GST_OBJECT(target)->flags&GST_PAD_BLOCKED?"blocked, ":"",
-    GST_OBJECT(target)->flags&GST_PAD_FLUSHING?"flushing, ":"",
-    GST_OBJECT(target)->flags&GST_PAD_BLOCKING?"blocking, ":"");
-  GST_INFO("%s:%s: %s%s%s",GST_DEBUG_PAD_NAME(pad),
-    GST_OBJECT(pad)->flags&GST_PAD_BLOCKED?"blocked, ":"",
-    GST_OBJECT(pad)->flags&GST_PAD_FLUSHING?"flushing, ":"",
-    GST_OBJECT(pad)->flags&GST_PAD_BLOCKING?"blocking, ":"");
-  
-  if(GST_STATE(element)==GST_STATE_PLAYING) {
-    //GST_PAD_UNSET_FLUSHING (target);
-    //GST_PAD_UNSET_FLUSHING (pad);
-    gst_pad_set_active(pad, TRUE);
+    GST_INFO("%s:%s: %s%s%s",GST_DEBUG_PAD_NAME(target),
+      GST_OBJECT(target)->flags&GST_PAD_BLOCKED?"blocked, ":"",
+      GST_OBJECT(target)->flags&GST_PAD_FLUSHING?"flushing, ":"",
+      GST_OBJECT(target)->flags&GST_PAD_BLOCKING?"blocking, ":"");
+    GST_INFO("%s:%s: %s%s%s",GST_DEBUG_PAD_NAME(pad),
+      GST_OBJECT(pad)->flags&GST_PAD_BLOCKED?"blocked, ":"",
+      GST_OBJECT(pad)->flags&GST_PAD_FLUSHING?"flushing, ":"",
+      GST_OBJECT(pad)->flags&GST_PAD_BLOCKING?"blocking, ":"");
+    
+    if(GST_STATE(element)==GST_STATE_PLAYING) {
+      GST_DEBUG_OBJECT(element,"activating pad");
+      gst_pad_set_active(pad, TRUE);
+    }
+    gst_element_add_pad(element, pad);
+  }
+  else {
+    GST_WARNING_OBJECT(element,"failed to create ghostpad %s",name);
   }
   g_free(name);
 
-  gst_element_add_pad(element, pad);
   return(pad);
 }
 
@@ -3119,15 +3130,18 @@ static void	bt_machine_release_pad(GstElement *element, GstPad *pad) {
   BtMachine * const self=BT_MACHINE(element);
   GstPad *target;
   
-  // @todo: implement me more
+  if(GST_STATE(element)==GST_STATE_PLAYING) {
+    GST_DEBUG_OBJECT(element,"deactivating pad");
+    gst_pad_set_active(pad, FALSE);
+  }
   
   target=gst_ghost_pad_get_target(GST_GHOST_PAD(pad));
   if(gst_pad_get_direction(pad)==GST_PAD_SRC) {
-    GST_INFO("release src pad");
+    GST_INFO_OBJECT(element,"release src pad");
     gst_element_release_request_pad(self->priv->machines[PART_SPREADER],target);
   }
   else {
-    GST_INFO("release sink pad");
+    GST_INFO_OBJECT(element,"release sink pad");
     gst_element_release_request_pad(self->priv->machines[PART_ADDER],target);
   }
   

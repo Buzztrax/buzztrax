@@ -1,5 +1,22 @@
 2009-03-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Write news.
+
+	* buzztard.doap:
+	  CVS->SVN.
+
+	* configure.ac:
+	  Don't mention cvs anymore.
+
+	* src/lib/core/machine.c:
+	  Add more logging and return value checks.
+
+	* src/ui/edit/gtkvumeter.c:
+	  Add one more author.
+
+2009-03-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Try to activate the pad.
 

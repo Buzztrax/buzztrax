@@ -133,7 +133,7 @@ AC_ARG_ENABLE(deprecated,
 	AS_HELP_STRING([--disable-deprecated],[disable deprecated glib/gtk+/gst/etc. features]),
 	set_enable_deprecated="$enableval",[
 		if test -f $srcdir/autogen.sh; then
-			is_cvs_version=true
+			is_vcs_version=true
 			set_enable_deprecated=no
 		else
 			set_enable_deprecated=yes
@@ -337,7 +337,7 @@ dnl   AC_DEFINE(HAVE_GTK_TREE_VIEW_COLUMN_PATCH, [1], [Define to 1 if we have th
 dnl )
 dnl LIBS="$ac_libs_save"
 
-#dnl check for cvs gstreamer additions
+#dnl check for gstreamer devel additions
 #ac_cflags_save="$CFLAGS"
 #ac_cppflags_save="$CPPFLAGS"
 #ac_ldflags_save="$LDFLAGS"
