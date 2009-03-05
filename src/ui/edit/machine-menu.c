@@ -139,7 +139,8 @@ static gboolean bt_machine_menu_check_pads(const GList *pads) {
     pad_dir_ct[((GstStaticPadTemplate *)(node->data))->direction]++;
   }
   // skip everything with more that one src or sink pad
-  if((pad_dir_ct[GST_PAD_SRC]>1) || (pad_dir_ct[GST_PAD_SINK]>1)) return FALSE;
+  if((pad_dir_ct[GST_PAD_SRC]>1) || (pad_dir_ct[GST_PAD_SINK]>1))
+    return FALSE;
   return TRUE;
 }
 
@@ -161,7 +162,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     
     // skip elements with too many pads
     if(!(bt_machine_menu_check_pads(gst_element_factory_get_static_pad_templates(factory)))) {
-      GST_LOG("skipping element : '%s'",(gchar *)node->data);
+      GST_INFO("skipping element : '%s'",(gchar *)node->data);
       continue;
     }
 
@@ -172,7 +173,8 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     if(*klass_name) {
       GtkWidget *cached_menu;
       gchar **names;
-      gint i;
+      gchar *menu_path;
+      gint i,len=1;
       
       GST_LOG("  subclass : '%s'",klass_name);
      
@@ -180,18 +182,21 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       parentmenu=submenu;
       names=g_strsplit(&klass_name[1],"/",0);
       for(i=0;i<g_strv_length(names);i++) {
+        len+=strlen(names[i]);
+        menu_path=g_strndup(klass_name,len);
         //check in parent_menu_hash if we have a parent for this klass
-        if(!(cached_menu=g_hash_table_lookup(parent_menu_hash,(gpointer)names[i]))) {
+        if(!(cached_menu=g_hash_table_lookup(parent_menu_hash,(gpointer)menu_path))) {
           GST_DEBUG("    create new: '%s'",names[i]);
           menu_item=gtk_image_menu_item_new_with_label(names[i]);
           gtk_menu_shell_append(GTK_MENU_SHELL(parentmenu),menu_item);
           gtk_widget_show(menu_item);
           parentmenu=gtk_menu_new();
           gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
-          g_hash_table_insert(parent_menu_hash, (gpointer)g_strdup(names[i]), (gpointer)parentmenu);
+          g_hash_table_insert(parent_menu_hash, (gpointer)menu_path, (gpointer)parentmenu);
         }
         else {
           parentmenu=cached_menu;
+          g_free(menu_path);
         }
       }
       g_strfreev(names);

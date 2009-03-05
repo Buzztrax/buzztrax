@@ -1,5 +1,11 @@
 2009-03-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-menu.c:
+	  Fix reursive menus. We now can have submenues of the same name several
+	  times.
+
+2009-03-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/setup.c:
 	  Check more return values.
 
