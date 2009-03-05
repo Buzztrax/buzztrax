@@ -1,3 +1,8 @@
+2009-03-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Check more return values.
+
 2009-03-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

@@ -468,23 +468,30 @@ static GList *bt_setup_get_wires_by_machine_type(const BtSetup * const self,cons
   return(wires);
 }
 
-static void link_wire(const BtSetup * const self,GstElement *wire,GstElement *src_machine,GstElement *dst_machine) {
+static gboolean link_wire(const BtSetup * const self,GstElement *wire,GstElement *src_machine,GstElement *dst_machine) {
   GstPadLinkReturn link_res;
   GstPad *src_pad,*dst_pad,*peer;
+  gboolean res=TRUE;
 
   // link start of wire
   GST_INFO("linking start of wire");      
   dst_pad=gst_element_get_static_pad(GST_ELEMENT(wire),"sink");
   if(!(peer=gst_pad_get_peer(dst_pad))) {
-    src_pad=gst_element_get_request_pad(GST_ELEMENT(src_machine),"src%d");
-    if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/ 
-      (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
-      gst_pad_set_blocked(src_pad,TRUE);
-      self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+    if((src_pad=gst_element_get_request_pad(GST_ELEMENT(src_machine),"src%d"))) {
+      if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/ 
+        (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
+        gst_pad_set_blocked(src_pad,TRUE);
+        self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+      }
+      if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
+        GST_WARNING("Can't link start of wire : %d : %s:%s -> %s:%s",
+          link_res,GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(dst_pad));
+        res = FALSE;
+      }
     }
-    if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
-      GST_WARNING("Can't link start of wire : %d : %s:%s -> %s:%s",
-        link_res,GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(dst_pad));
+    else {
+      GST_WARNING_OBJECT(src_machine,"Can't get request pad for src-peer of start of wire");
+      res = FALSE;
     }
   }
   else {
@@ -492,14 +499,23 @@ static void link_wire(const BtSetup * const self,GstElement *wire,GstElement *sr
     gst_object_unref(peer);
   }
   gst_object_unref(dst_pad);
+  if (!res)
+    goto Error;
+
   // link end of wire
   GST_INFO("linking end of wire");      
   src_pad=gst_element_get_static_pad(GST_ELEMENT(wire),"src");
   if(!(peer=gst_pad_get_peer(src_pad))) {
-    dst_pad=gst_element_get_request_pad(GST_ELEMENT(dst_machine),"sink%d");
-    if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
-      GST_WARNING("Can't link end of wire : %d : %s:%s -> %s:%s",
-        link_res,GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(dst_pad));
+    if((dst_pad=gst_element_get_request_pad(GST_ELEMENT(dst_machine),"sink%d"))) {
+      if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
+        GST_WARNING("Can't link end of wire : %d : %s:%s -> %s:%s",
+          link_res,GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(dst_pad));
+      res=FALSE;
+      }
+    }
+    else {
+      GST_WARNING_OBJECT(dst_machine,"Can't get request pad for sink-peer of end of wire");
+      res=FALSE;
     }
   }
   else {
@@ -507,6 +523,8 @@ static void link_wire(const BtSetup * const self,GstElement *wire,GstElement *sr
     gst_object_unref(peer);
   }
   gst_object_unref(src_pad);
+Error:
+  return res;
 }
 
 static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *src_machine,GstElement *dst_machine) {
@@ -533,6 +551,7 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
   src_pad=gst_element_get_static_pad(wire,"src");
   if((dst_pad=gst_pad_get_peer(src_pad))) {
     gst_pad_unlink(src_pad,dst_pad);
+    gst_pad_send_event(dst_pad, gst_event_new_eos ());
     gst_element_release_request_pad(dst_machine,dst_pad);
     // unref twice: one for gst_pad_get_peer() and once for the request_pad
     gst_object_unref(dst_pad);gst_object_unref(dst_pad);
@@ -696,8 +715,13 @@ static void add_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data)
     update_bin_in_pipeline(self,GST_BIN(key),TRUE,NULL);
 
     g_object_get(G_OBJECT(key),"src",&src,"dst",&dst,NULL);
-    link_wire(self,GST_ELEMENT(key),src,dst);
-    bt_machine_renegotiate_adder_format(BT_MACHINE(dst));
+    if(link_wire(self,GST_ELEMENT(key),src,dst)) {
+      bt_machine_renegotiate_adder_format(BT_MACHINE(dst));
+    }
+    else {
+      // @todo: what todo here? We should always be able to link in theory
+      // maybe dump extensive diagnostics to add debugging
+    }
     g_object_unref(src);
     g_object_unref(dst);
   }
