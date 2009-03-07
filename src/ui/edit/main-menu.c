@@ -479,6 +479,31 @@ static void on_menu_play_activate(GtkMenuItem *menuitem,gpointer user_data) {
   g_object_unref(song);
 }
 
+static void  on_menu_play_from_cursor_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtSong *song;
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+  BtMainPageSequence *sequence_page;
+  glong pos=0;
+
+  // get song from app and seek to cursor
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
+  g_object_get(G_OBJECT(sequence_page),"cursor-row",&pos,NULL);
+  g_object_set(G_OBJECT(song),"play-pos",pos,NULL);
+  g_object_unref(sequence_page);
+  g_object_unref(pages);
+  g_object_unref(main_window);
+  // play
+  if(!bt_song_play(song)) {
+    GST_WARNING("failed to play");
+  }
+  // release the reference
+  g_object_unref(song);
+}
+
 static void on_menu_stop_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtSong *song;
@@ -776,35 +801,35 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   gtk_widget_set_sensitive(subitem,FALSE);
 
-  subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to machine view"));
+  subitem=gtk_image_menu_item_new_with_label(_("Go to machine view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_machines",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/MachineView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/MachineView", GDK_F3, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_machine_view_activate),(gpointer)self);
 
-  subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to pattern view"));
+  subitem=gtk_image_menu_item_new_with_label(_("Go to pattern view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_patterns",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/PatternView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/PatternView", GDK_F2, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_pattern_view_activate),(gpointer)self);
 
-  subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to sequence view"));
+  subitem=gtk_image_menu_item_new_with_label(_("Go to sequence view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_sequence",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/SequenceView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/SequenceView", GDK_F4, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_sequence_view_activate),(gpointer)self);
 
-  subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to wave table view"));
+  subitem=gtk_image_menu_item_new_with_label(_("Go to wave table view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_waves",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/WaveteableView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/WaveteableView", GDK_F9, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_waves_view_activate),(gpointer)self);
 
-  subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to song information"));
+  subitem=gtk_image_menu_item_new_with_label(_("Go to song information"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("tab_info",GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/InfoView");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/InfoView", GDK_F10, 0);
@@ -848,6 +873,12 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_play_activate),(gpointer)self);
 
+  subitem=gtk_image_menu_item_new_with_label(_("Play from cursor"));
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/Playback/PlayFromCursor");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Playback/PlayFromCursor", GDK_F6, 0);
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_play_from_cursor_activate),(gpointer)self);
+  
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_MEDIA_STOP,accel_group);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/Playback/Stop");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Playback/Stop", GDK_F8, 0);

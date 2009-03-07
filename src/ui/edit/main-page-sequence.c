@@ -59,6 +59,7 @@
 
 enum {
   MAIN_PAGE_SEQUENCE_APP=1,
+  MAIN_PAGE_SEQUENCE_CURSOR_ROW
 };
 
 struct _BtMainPageSequencePrivate {
@@ -158,6 +159,7 @@ enum {
   SEQUENCE_TABLE_LABEL,
   SEQUENCE_TABLE_PRE_CT
 };
+
 enum {
   POSITION_MENU_POS=0,
   POSITION_MENU_POSSTR,
@@ -173,6 +175,12 @@ enum {
 enum {
   PATTERN_POS_FORMAT_TICKS=0,
   PATTERN_POS_FORMAT_TIME
+};
+
+enum {
+  SEQUENCE_VIEW_POS_PLAY=0,
+  SEQUENCE_VIEW_POS_LOOP_START,
+  SEQUENCE_VIEW_POS_LOOP_END
 };
 
 // this only works for 4/4 meassure
@@ -1538,10 +1546,10 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
   // use a keyboard qualifier to set loop_start and end
   /* @todo should the sequence-view listen to notify::xxx ? */
   switch(type) {
-    case 0:
+    case SEQUENCE_VIEW_POS_PLAY:
       g_object_set(song,"play-pos",row,NULL);
       break;
-    case 1: // loop start
+    case SEQUENCE_VIEW_POS_LOOP_START:
       g_object_set(self->priv->sequence,"loop-start",row,NULL);
       pos=(gdouble)row/(gdouble)sequence_length;
       g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
@@ -1558,7 +1566,7 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
         g_object_set(self->priv->sequence_pos_table,"loop-end",pos,NULL);
       }
       break;
-    case 2: // loop end
+    case SEQUENCE_VIEW_POS_LOOP_END:
       // pos is beyond length or is on loop-end already -> adjust length
       if((row>sequence_length) || (row==loop_end)) {
         GST_INFO("adjusted length = %ld -> %ld",sequence_length,row);
@@ -2154,14 +2162,14 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     else if(event->keyval == GDK_b) {
       if(modifier==GDK_CONTROL_MASK) {
         GST_INFO("ctrl-b pressed, row %lu",row);
-        sequence_view_set_pos(self,1,(glong)row);
+        sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_START,(glong)row);
         res=TRUE;
       }
     }
     else if(event->keyval == GDK_e) {
       if(modifier==GDK_CONTROL_MASK) {
         GST_INFO("ctrl-e pressed, row %lu",row);
-        sequence_view_set_pos(self,2,(glong)row);
+        sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_END,(glong)row);
         res=TRUE;
       }
     }
@@ -2345,13 +2353,13 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
           if(widget==GTK_WIDGET(self->priv->sequence_pos_table)) {
             switch(modifier) {
             case 0:
-              sequence_view_set_pos(self,0,(glong)row);
+              sequence_view_set_pos(self,SEQUENCE_VIEW_POS_PLAY,(glong)row);
               break;
             case GDK_CONTROL_MASK:
-              sequence_view_set_pos(self,1,(glong)row);
+              sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_START,(glong)row);
               break;
             case GDK_MOD4_MASK:
-              sequence_view_set_pos(self,2,(glong)row);
+              sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_END,(glong)row);
               break;
             }
           }
@@ -2369,13 +2377,13 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
         GST_INFO("clicked outside data area - #1");
         switch(modifier) {
         case 0:
-          sequence_view_set_pos(self,0,-1);
+          sequence_view_set_pos(self,SEQUENCE_VIEW_POS_PLAY,-1);
           break;
         case GDK_CONTROL_MASK:
-          sequence_view_set_pos(self,1,-1);
+          sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_START,-1);
           break;
         case GDK_MOD4_MASK:
-          sequence_view_set_pos(self,2,-1);
+          sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_END,-1);
           break;
         }
         res=TRUE;
@@ -3101,6 +3109,9 @@ static void bt_main_page_sequence_get_property(GObject      *object,
     case MAIN_PAGE_SEQUENCE_APP: {
       g_value_set_object(value, self->priv->app);
     } break;
+    case MAIN_PAGE_SEQUENCE_CURSOR_ROW: {
+      g_value_set_long(value, self->priv->cursor_row);
+    } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -3232,6 +3243,15 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,MAIN_PAGE_SEQUENCE_CURSOR_ROW,
+                                  g_param_spec_long("cursor-row",
+                                     "cursor-row prop",
+                                     "position of the cursor in the sequence view in bars",
+                                     0,
+                                     G_MAXLONG,  // loop-positions are LONG as well
+                                     0,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_page_sequence_get_type(void) {
