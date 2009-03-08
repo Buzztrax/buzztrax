@@ -1,6 +1,10 @@
+2009/04 ========================================================================
+
+* play from cursor pos
+
 2009/03 ========================================================================
 
-Yay. LJ has a nice online article about buzztard [1]. While helding the author
+Yay. LJ has a nice online article about buzztard [1]. While helping the author
 to get the code up & running, I mad several improvments to the configure stuff
 to make things more obvious, especially when installing not to /usr. I also
 updated the instructions on the wiki [2] and waffel updated our jhbuild module-

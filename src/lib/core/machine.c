@@ -3101,8 +3101,6 @@ GST_PADS gstghostpad.c:1182:gst_ghost_pad_set_target:<'':src4> could not link in
 GST_PADS gstghostpad.c:1004:gst_ghost_pad_new:<'':src4> failed to set target tee_0x854a248:src4
  bt-core machine.c:3113:bt_machine_request_new_pad:<audiotestsrc> failed to create ghostpad src4  
 */
-    
-  
     GST_INFO("%s:%s: %s%s%s",GST_DEBUG_PAD_NAME(target),
       GST_OBJECT(target)->flags&GST_PAD_BLOCKED?"blocked, ":"",
       GST_OBJECT(target)->flags&GST_PAD_FLUSHING?"flushing, ":"",
@@ -3119,7 +3117,7 @@ GST_PADS gstghostpad.c:1004:gst_ghost_pad_new:<'':src4> failed to set target tee
     gst_element_add_pad(element, pad);
   }
   else {
-    GST_WARNING_OBJECT(element,"failed to create ghostpad %s",name);
+    GST_WARNING_OBJECT(element,"failed to create ghostpad %s to target %s:%s",name,GST_DEBUG_PAD_NAME(target));
   }
   g_free(name);
 
