@@ -1,3 +1,9 @@
+2009-03-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Fix soem copy'n'paste bugs. Use template to do fresh renegotiation, 
+	  otheriwse we can never go back from some selected format.
+
 2009-03-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

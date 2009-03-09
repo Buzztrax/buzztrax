@@ -1367,7 +1367,6 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     gint p_depth,n_depth=8;
     gint p_channels,n_channels=1;
     gint singnednes_signed_ct=0,signedness_unsigned_ct=0,p_signedness;
-    gboolean adjust_channels=FALSE;
     const gchar *p_name;
     const gchar *fmt_names[]={
       "audio/x-raw-int",
@@ -1379,12 +1378,13 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
       g_object_get(wire,"src",&src,NULL);
 
       if((pad=gst_element_get_static_pad(src->priv->machines[PART_MACHINE],"src"))) {
-        // @todo: only check template caps?
-        if((pad_caps=gst_pad_get_negotiated_caps(pad)) ||
+        /* @todo: only check template caps? Yes, otheriwse we can never go back
+         * from some selected format. */         
+        if(/*(pad_caps=gst_pad_get_negotiated_caps(pad))*/ (pad_caps=0) ||
           (pad_tmpl_caps=gst_pad_get_pad_template_caps(pad))) {
 
           caps=pad_caps?pad_caps:pad_tmpl_caps;
-          GST_INFO("checking caps %" GST_PTR_FORMAT, caps);
+          GST_INFO_OBJECT(src,"checking caps %p,%p: %" GST_PTR_FORMAT, pad_caps, pad_tmpl_caps, caps);
 
           size=gst_caps_get_size(caps);
           for(i=0;i<size;i++) {
@@ -1397,27 +1397,29 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
               continue;
             }
 
+            // if we have int caps later on, ignore them 
             if(p_format>=n_format) {
               n_format=p_format;
-              // check width/depth
+              // check width
               p_width=get_int_value(ps,"width");
               if(p_width>n_width) n_width=p_width;
               if(n_format==0) {
+                // check depth
                 p_depth=get_int_value(ps,"depth");
-                if(p_depth>n_depth) n_width=p_depth;
+                if(p_depth>n_depth) n_depth=p_depth;
+                // check signedness
+                if(gst_structure_get_int(ps,"signedness",&p_signedness)) {
+                  if(p_signedness) singnednes_signed_ct++;
+                  else signedness_unsigned_ct++;
+                }
               }
             }
             // check channels
             p_channels=get_int_value(ps,"channels");
             if(p_channels>n_channels) n_channels=p_channels;
-            else adjust_channels=TRUE;
-            if(p_format==0) {
-              // check signedness
-              if(gst_structure_get_int(ps,"signedness",&p_signedness)) {
-                if(p_signedness) singnednes_signed_ct++;
-                else signedness_unsigned_ct++;
-              }
-            }
+            
+            GST_INFO("  after [%2d] fmt=%d, width=%d, depth=%d, channels=%d",
+              i, n_format,n_width,n_depth,n_channels);
           }
           if(pad_caps) gst_caps_unref(pad_caps);
         }
@@ -1434,7 +1436,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     }
     g_list_free(wires);
 
-    // what about rate, endianness and signed
+    // we ignore rate for now
     ns=gst_structure_new(fmt_names[n_format],
       "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
       "channels",GST_TYPE_INT_RANGE,n_channels,8,
