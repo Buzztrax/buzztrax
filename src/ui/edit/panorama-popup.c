@@ -21,10 +21,10 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:btvolumepopup
- * @short_description: volume popup widget
+ * SECTION:btpanoramapopup
+ * @short_description: panorama popup widget
  *
- * Shows a popup widnow containing a vertical slider
+ * Shows a popup window containing a horizontal slider
  */
 /*
  * level of range widgets are draw always from left-to-right for some themes.

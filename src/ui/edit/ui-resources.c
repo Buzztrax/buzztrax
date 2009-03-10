@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:btuiressources
- * @short_description: common shared ui ressources like icons and colors
+ * SECTION:btuiresources
+ * @short_description: common shared ui resources like icons and colors
  *
  * This class serves as a central storage for colors and icons.
  * It is implemented as a singleton.

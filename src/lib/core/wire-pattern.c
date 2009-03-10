@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:btpattern
+ * SECTION:btwirepattern
  * @short_description: class for an event pattern of a #BtMachine instance
  *
  * A pattern contains a grid of events. Events are parameter changes in

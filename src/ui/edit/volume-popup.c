@@ -24,7 +24,7 @@
  * SECTION:btvolumepopup
  * @short_description: volume popup widget
  *
- * Shows a popup widnow containing a vertical slider
+ * Shows a popup window containing a vertical slider
  */
 /* @todo: use gtk_scale_add_mark() in gtk-2.16 instead of the ruler.
  */

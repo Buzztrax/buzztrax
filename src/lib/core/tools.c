@@ -343,6 +343,12 @@ GType bt_g_type_get_base_type(GType type) {
 
 static GstClockTime treal_last=G_GINT64_CONSTANT(0),tuser_last=G_GINT64_CONSTANT(0),tsys_last=G_GINT64_CONSTANT(0);
 //long clk=1;
+//long num_cpus;
+
+#if WIN32
+#include <windows.h> //For GetSystemInfo
+#endif
+
 
 /*
  * bt_cpu_load_init:
@@ -350,11 +356,30 @@ static GstClockTime treal_last=G_GINT64_CONSTANT(0),tuser_last=G_GINT64_CONSTANT
  * Initializes cpu usage monitoring.
  */
 static void GST_GNUC_CONSTRUCTOR bt_cpu_load_init(void) {
+#ifdef HAVE_CLOCK_GETTIME
+  struct timespec now;
+#else
   struct timeval now;
+#endif
 
+#ifdef HAVE_CLOCK_GETTIME
+  clock_gettime (CLOCK_MONOTONIC, &now);
+  treal_last=GST_TIMESPEC_TO_TIME(now);
+#else
   gettimeofday(&now,NULL);
   treal_last=GST_TIMEVAL_TO_TIME(now);
+#endif
   //clk=sysconf(_SC_CLK_TCK);
+  
+  /* @todo: get number of CPUS's
+#ifndef WIN32
+   num_cpus = sysconf (_SC_NPROCESSORS_ONLN);
+#else
+  SYSTEM_INFO si;
+  GetSystemInfo(&si);
+  num_cpus = si.dwNumberOfProcessors;
+#endif
+   */
 }
 
 /**
@@ -365,17 +390,26 @@ static void GST_GNUC_CONSTRUCTOR bt_cpu_load_init(void) {
  * Returns: CPU usage as integer ranging from 0% to 100%
  */
 guint bt_cpu_load_get_current(void) {
-  struct rusage rus,ruc;
-  //struct tms tms;
-  GstClockTime tnow,treal,tuser,tsys;
+#ifdef HAVE_CLOCK_GETTIME
+  struct timespec now;
+#else
   struct timeval now;
+#endif
+  struct rusage rus,ruc;
+  GstClockTime tnow,treal,tuser,tsys;
   guint cpuload;
 
+  // check real time elapsed
+#ifdef HAVE_CLOCK_GETTIME
+  clock_gettime (CLOCK_MONOTONIC, &now);
+  tnow=GST_TIMESPEC_TO_TIME(now);
+#else
   gettimeofday(&now,NULL);
   tnow=GST_TIMEVAL_TO_TIME(now);
+#endif
   treal=tnow-treal_last;
   treal_last=tnow;
-  // version 1
+  // check time spent load
   getrusage(RUSAGE_SELF,&rus);
   getrusage(RUSAGE_CHILDREN,&ruc);
   tnow=GST_TIMEVAL_TO_TIME(rus.ru_utime)+GST_TIMEVAL_TO_TIME(ruc.ru_utime);
@@ -384,8 +418,6 @@ guint bt_cpu_load_get_current(void) {
   tnow=GST_TIMEVAL_TO_TIME(rus.ru_stime)+GST_TIMEVAL_TO_TIME(ruc.ru_stime);
   tsys=tnow-tsys_last;
   tsys_last=tnow;
-  // version 2
-  //times(&tms);
   // percentage
   cpuload=(guint)gst_util_uint64_scale(tuser+tsys,G_GINT64_CONSTANT(100),treal);
   GST_LOG("real %"GST_TIME_FORMAT", user %"GST_TIME_FORMAT", sys %"GST_TIME_FORMAT" => cpuload %d",GST_TIME_ARGS(treal),GST_TIME_ARGS(tuser),GST_TIME_ARGS(tsys),cpuload);

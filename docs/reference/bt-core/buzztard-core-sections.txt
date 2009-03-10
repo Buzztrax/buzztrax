@@ -48,7 +48,6 @@ BtGConfSettingsPrivate
 <TITLE>BtMachine</TITLE>
 BtMachine
 BtMachineState
-bt_machine_new
 bt_machine_enable_input_level
 bt_machine_enable_output_level
 bt_machine_enable_input_gain
