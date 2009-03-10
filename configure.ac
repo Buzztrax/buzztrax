@@ -411,12 +411,20 @@ AC_CHECK_FUNCS( mlockall)
 AC_CHECK_FUNCS( getrusage)
 AC_CHECK_FUNCS( setrlimit)
 
+dnl POSIX timers
+AC_CHECK_FUNCS(clock_gettime, [], [
+  AC_CHECK_LIB(rt, clock_gettime, [
+    AC_DEFINE(HAVE_CLOCK_GETTIME, 1)
+    FEATURE_LIBS="$FEATURE_LIBS -lrt"
+  ])
+])
+
 dnl Extra vars
 BT_INCLUDEDIR='-I${includedir}'
 dnl -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
 BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
-BT_LIBS="$DEBUG_LDFLAGS $COVERAGE_LIBS"
+BT_LIBS="$DEBUG_LDFLAGS $FEATURE_LIBS $COVERAGE_LIBS"
 
 dnl check for desktop and mimetype utilities
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)

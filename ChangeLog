@@ -1,5 +1,12 @@
 2009-03-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/lib/core/tools.c:
+	  Prefer to use monotonic clock for cpu load display. Add info about to get
+	  the number of cpus, if we need to scale the load value.
+
+2009-03-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/wire-pattern.c:
 	* src/ui/edit/panorama-popup.c:
