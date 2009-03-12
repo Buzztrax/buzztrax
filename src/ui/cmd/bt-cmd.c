@@ -73,10 +73,10 @@ int main(int argc, char **argv) {
   };
 
 #ifdef ENABLE_NLS
-  setlocale (LC_ALL, "");
-  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
-  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-  textdomain (GETTEXT_PACKAGE);
+  setlocale(LC_ALL, "");
+  bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+  textdomain(GETTEXT_PACKAGE);
 #endif /* ENABLE_NLS */
 
   // initialize as soon as possible
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
   group=g_option_group_new("main", _("buzztard-cmd options"),_("Show buzztard-cmd options"), argv[0], NULL);
   g_option_group_add_entries(group, options);
   g_option_group_set_translation_domain(group, PACKAGE_NAME);
-  g_option_context_set_main_group (ctx, group);
+  g_option_context_set_main_group(ctx, group);
 
   bt_init_add_option_groups(ctx);
   if(!g_option_context_parse(ctx, &argc, &argv, &err)) {

@@ -55,6 +55,7 @@ struct _GtkVUMeter {
     gint        peak_level;
 
     gint        scale;
+    cairo_pattern_t *gradient_rms, *gradient_peak, *gradient_bg;
 };
 
 struct _GtkVUMeterClass {

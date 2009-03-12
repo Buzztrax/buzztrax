@@ -861,40 +861,51 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       return TRUE;
     case GDK_Home:
       bt_pattern_editor_refresh_cursor(self);
-      if (control)
-      {
+      if (control) {
+        /* shouldn't this go to top left */
         self->digit = 0;
         self->parameter = 0;
         g_object_notify(G_OBJECT(self),"cursor-param");
-      } else 
-      if (self->digit > 0)
-        self->digit = 0;
-      else
-      if (self->parameter > 0) {
-        self->parameter = 0;
-        g_object_notify(G_OBJECT(self),"cursor-param");
-      } else
-      if (self->group > 0) {
-        self->group = 0;
-        g_object_notify(G_OBJECT(self),"cursor-group");
       } else {
-        self->row = 0;
-        g_object_notify(G_OBJECT(self),"cursor-row");
+        /* go to begin of cell, group, pattern, top of pattern */
+        if (self->digit > 0) {
+          self->digit = 0;
+        } else if (self->parameter > 0) {
+          self->parameter = 0;
+          g_object_notify(G_OBJECT(self),"cursor-param");
+        } else if (self->group > 0) {
+          self->group = 0;
+          g_object_notify(G_OBJECT(self),"cursor-group");
+        } else {
+          self->row = 0;
+          g_object_notify(G_OBJECT(self),"cursor-row");
+        }
       }
       bt_pattern_editor_refresh_cursor_or_scroll(self);
       return TRUE;
     case GDK_End:
       bt_pattern_editor_refresh_cursor(self);
-      if (control)
-      {
+      if (control) {
+        /* shouldn't this go to bottom right */
         if (self->groups[self->group].num_columns > 0)
           self->parameter = self->groups[self->group].num_columns - 1;
         g_object_notify(G_OBJECT(self),"cursor-param");
       }
-      else
-      {
-        self->row = self->num_rows - 1;
-        g_object_notify(G_OBJECT(self),"cursor-row");
+      else {
+        /* go to end of cell, group, pattern, bottom of pattern */
+        PatternColumn *pc = cur_column (self);
+        if (self->digit < param_types[pc->type].columns - 1) {
+          self->digit = param_types[pc->type].columns - 1;
+        } else if (self->parameter < self->groups[self->group].num_columns - 1) {
+          self->parameter = self->groups[self->group].num_columns - 1;
+          g_object_notify(G_OBJECT(self),"cursor-param");
+        } else if (self->group < self->num_groups - 1) {
+          self->group = self->num_groups - 1;
+          g_object_notify(G_OBJECT(self),"cursor-group");
+        } else {
+          self->row = self->num_rows - 1;
+          g_object_notify(G_OBJECT(self),"cursor-row");
+        }
       }
       bt_pattern_editor_refresh_cursor_or_scroll(self);
       return TRUE;

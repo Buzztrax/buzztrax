@@ -1,3 +1,16 @@
+2009-03-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Intenting, and free option context in -exit.
+
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/gtkvumeter.h:
+	  Save the gradients.
+
+	* src/ui/edit/pattern-editor.c:
+	  Fully implement End key logic (to be opposite of Home).
+
 2009-03-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

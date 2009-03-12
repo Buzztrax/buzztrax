@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
   //gboolean arg_version=FALSE;
   gchar *command=NULL,*input_file_name=NULL;
   BtEditApplication *app;
-  GOptionContext *ctx;
+  GOptionContext *ctx=NULL;
   GOptionGroup *group;
   GError *err=NULL;
   
@@ -78,10 +78,10 @@ int main(int argc, char **argv) {
   };
 
 #ifdef ENABLE_NLS
-  setlocale (LC_ALL, "");
-  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
-  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-  textdomain (GETTEXT_PACKAGE);
+  setlocale(LC_ALL, "");
+  bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+  textdomain(GETTEXT_PACKAGE);
 #endif /* ENABLE_NLS */
   
   // initialize as soon as possible
@@ -93,12 +93,12 @@ int main(int argc, char **argv) {
   gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"bt-edit.gtkrc");
 
   // init libraries
-  ctx = g_option_context_new(NULL);
+  ctx=g_option_context_new(NULL);
   //g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
   group=g_option_group_new("main", _("buzztard-edit options"),_("Show buzztard-edit options"), argv[0], NULL);
   g_option_group_add_entries(group, options);
   g_option_group_set_translation_domain(group, PACKAGE_NAME);
-  g_option_context_set_main_group (ctx, group);
+  g_option_context_set_main_group(ctx, group);
   
   bt_init_add_option_groups(ctx);
   g_option_context_add_group(ctx, btic_init_get_option_group());
@@ -106,6 +106,7 @@ int main(int argc, char **argv) {
 
   if(!g_option_context_parse(ctx, &argc, &argv, &err)) {
     g_print("Error initializing: %s\n", safe_string(err->message));
+    g_option_context_free(ctx);
     exit(1);
   }
   // if we use this, all other libs are initialized and their options are processed
