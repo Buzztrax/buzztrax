@@ -170,7 +170,6 @@ bt_volume_popup_new(GtkAdjustment *adj) {
  */
 void bt_volume_popup_show(BtVolumePopup *self) {
   gtk_widget_show_all(GTK_WIDGET(self));
-  //gtk_window_set_focus(GTK_WINDOW(popup),GTK_WIDGET(self->priv->vol_popup->scale));
 
   /* grab focus */
   gtk_widget_grab_focus_savely(GTK_WIDGET(self));
@@ -191,9 +190,9 @@ void bt_volume_popup_show(BtVolumePopup *self) {
  */
 void bt_volume_popup_hide(BtVolumePopup *self) {
   /* ungrab focus */
-  gdk_keyboard_ungrab (GDK_CURRENT_TIME);
-  gdk_pointer_ungrab (GDK_CURRENT_TIME);
-  gtk_grab_remove (GTK_WIDGET(self));
+  gdk_keyboard_ungrab(GDK_CURRENT_TIME);
+  gdk_pointer_ungrab(GDK_CURRENT_TIME);
+  gtk_grab_remove(GTK_WIDGET(self));
 
   gtk_widget_hide_all(GTK_WIDGET(self));
 }

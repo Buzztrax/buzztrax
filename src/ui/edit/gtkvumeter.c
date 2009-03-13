@@ -265,9 +265,6 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
     gint width, height;
     cairo_t *cr;
     guint i;
-    /* detail for part of progressbar
-    const gchar detail[]="trough";
-    */
 
     g_return_val_if_fail (widget != NULL, FALSE);
     g_return_val_if_fail (GTK_IS_VUMETER (widget), FALSE);
@@ -287,6 +284,7 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
                    vumeter->peak_level);
 
     /* draw border */
+    /* detail for part of progressbar would be called "trough" */
     gtk_paint_box (widget->style, widget->window, GTK_STATE_NORMAL, GTK_SHADOW_IN,
             NULL, widget, NULL/*detail*/, 0, 0, widget->allocation.width, widget->allocation.height);
 

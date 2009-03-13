@@ -1,3 +1,15 @@
+2009-03-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/gtkvumeter.c:
+	  Comment merging.
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix access of uninitialized memory.
+
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/volume-popup.c:
+	  Indenting and dead code removal.
+
 2009-03-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/cmd/bt-cmd.c:

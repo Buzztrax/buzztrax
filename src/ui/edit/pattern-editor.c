@@ -637,19 +637,26 @@ bt_pattern_editor_expose (GtkWidget *widget,
 static void
 bt_pattern_editor_update_adjustments (BtPatternEditor *self)
 {
-  self->hadj->upper = bt_pattern_editor_get_row_width(self);
-  self->hadj->page_increment = GTK_WIDGET (self)->allocation.width;
-  self->hadj->page_size = GTK_WIDGET (self)->allocation.width;
-  self->hadj->step_increment = GTK_WIDGET (self)->allocation.width / 20.0;
-  gtk_adjustment_changed (self->hadj);
-  gtk_adjustment_set_value(self->hadj, MIN(self->hadj->value, self->hadj->upper - self->hadj->page_size));
+  if(!GTK_WIDGET_REALIZED(self)) return;
 
-  self->vadj->upper = bt_pattern_editor_get_col_height(self);
-  self->vadj->page_increment = GTK_WIDGET (self)->allocation.height;
-  self->vadj->page_size = GTK_WIDGET (self)->allocation.height;
-  self->vadj->step_increment = GTK_WIDGET (self)->allocation.height / 20.0;
-  gtk_adjustment_changed (self->vadj);
-  gtk_adjustment_set_value(self->vadj, MIN(self->vadj->value, self->vadj->upper - self->vadj->page_size));
+  if (self->hadj) {
+    self->hadj->upper = bt_pattern_editor_get_row_width(self);
+    self->hadj->page_increment = GTK_WIDGET (self)->allocation.width;
+    self->hadj->page_size = GTK_WIDGET (self)->allocation.width;
+    self->hadj->step_increment = GTK_WIDGET (self)->allocation.width / 20.0;
+    gtk_adjustment_changed(self->hadj);
+    gtk_adjustment_set_value(self->hadj,
+      MIN(self->hadj->value, self->hadj->upper - self->hadj->page_size));
+  }
+  if (self->vadj) {
+    self->vadj->upper = bt_pattern_editor_get_col_height(self);
+    self->vadj->page_increment = GTK_WIDGET (self)->allocation.height;
+    self->vadj->page_size = GTK_WIDGET (self)->allocation.height;
+    self->vadj->step_increment = GTK_WIDGET (self)->allocation.height / 20.0;
+    gtk_adjustment_changed(self->vadj);
+    gtk_adjustment_set_value(self->vadj,
+      MIN(self->vadj->value, self->vadj->upper - self->vadj->page_size));
+  }
 }
 
 static void
