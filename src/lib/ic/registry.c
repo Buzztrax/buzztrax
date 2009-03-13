@@ -71,7 +71,8 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
     return;
   }
   if(!(hal_category=libhal_device_get_property_string(ctx,udi,"info.category",NULL))) {
-      return;
+    libhal_free_string_array(cap);
+    return;
   }
   name=libhal_device_get_property_string(ctx,udi,"info.product",NULL);
 
@@ -135,7 +136,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
   // finished checking devices regarding capabilities, now checking category
   if(!strcmp(hal_category,"alsa"))
   {
-      gchar* alsatype = libhal_device_get_property_string(ctx,udi,"alsa.type",NULL);
+      gchar *alsatype = libhal_device_get_property_string(ctx,udi,"alsa.type",NULL);
       if(!strcmp(alsatype,"midi")) {
 	  devnode=libhal_device_get_property_string(ctx,udi,"linux.device_file",NULL);
 
@@ -144,6 +145,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
 	  device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
 	  libhal_free_string(devnode);
       }
+      libhal_free_string(alsatype);
   }
 
   if(device) {
