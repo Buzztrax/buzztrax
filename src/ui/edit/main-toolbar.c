@@ -147,7 +147,8 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   }
   else {
     // update playback position 10 times a second
-    self->priv->playback_update_id=g_timeout_add(100,on_song_playback_update,(gpointer)song);
+    //self->priv->playback_update_id=g_timeout_add(100,on_song_playback_update,(gpointer)song);
+    self->priv->playback_update_id=g_timeout_add_full(G_PRIORITY_HIGH,100,on_song_playback_update,(gpointer)song,NULL);
     // if we started playback remotely activate playbutton
     if(!gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->play_button))) {
       g_signal_handlers_block_matched(self->priv->play_button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_toolbar_play_clicked,(gpointer)self);

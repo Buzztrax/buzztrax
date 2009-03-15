@@ -266,11 +266,6 @@
 
 #include "core_private.h"
 
-// new pipeline updating, that uses two phases
-#define NEW_CODE 1
-// allow live updates
-#define LIVE_CONNECT 1
-
 //-- signal ids
 
 enum {
@@ -615,18 +610,14 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
     SET_GRAPH_DEPTH(self,dst_machine,depth+1);
     
     // check if wire is marked for removal
-#if NEW_CODE
     if(GET_CONNECTION_STATE(self,wire)!=CS_DISCONNECTING) {
-#endif
       wire_is_connected=FALSE;
       g_object_get(wire,"src",&src_machine,NULL);
       if(BT_IS_SOURCE_MACHINE(src_machine)) {
         SET_GRAPH_DEPTH(self,src_machine,depth+2);
         /* for source machine we can stop the recurssion */
         wire_is_connected=TRUE;
-#if NEW_CODE
         *not_visited_machines=g_list_remove(*not_visited_machines,(gconstpointer)src_machine);
-#endif
       }
       else {
         /* for processor machine we might need to look further,
@@ -643,45 +634,23 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
       }
       GST_INFO("wire target checked, connected=%d?",wire_is_connected);
       if(!wire_is_connected) {
-#if NEW_CODE
         set_disconnecting(self,GST_BIN(wire));
         set_disconnecting(self,GST_BIN(src_machine));
-#else
-        unlink_wire(self,GST_ELEMENT(wire),GST_ELEMENT(src_machine),GST_ELEMENT(dst_machine));
-        update_bin_in_pipeline(self,GST_BIN(src_machine),FALSE,not_visited_machines);
-#endif      
       }
-#if ! NEW_CODE
-      update_bin_in_pipeline(self,GST_BIN(wire),wire_is_connected,not_visited_wires);
-#endif
       if(wire_is_connected) {
-#if NEW_CODE
         if(!is_connected) {
           set_connecting(self,GST_BIN(dst_machine));
         }
         set_connecting(self,GST_BIN(src_machine));
         set_connecting(self,GST_BIN(wire));
-#else
-        if(!is_connected) {
-          update_bin_in_pipeline(self,GST_BIN(dst_machine),TRUE,not_visited_machines);
-        }
-        update_bin_in_pipeline(self,GST_BIN(src_machine),TRUE,not_visited_machines);
-        link_wire(self,GST_ELEMENT(wire),GST_ELEMENT(src_machine),GST_ELEMENT(dst_machine));
-#endif
       }
       else {
         GST_INFO("skip disconnecting wire");
       }
       is_connected|=wire_is_connected;
       g_object_unref(src_machine);
-#if NEW_CODE
     }
-#endif
-
-#if NEW_CODE
-  *not_visited_wires=g_list_remove(*not_visited_wires,(gconstpointer)wire);
-#endif
-
+    *not_visited_wires=g_list_remove(*not_visited_wires,(gconstpointer)wire);
     g_object_unref(wire);
   }
   g_list_free(list);
@@ -690,14 +659,10 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
     
     set_disconnecting(self,GST_BIN(dst_machine));
   }
-#if NEW_CODE
   *not_visited_machines=g_list_remove(*not_visited_machines,(gconstpointer)dst_machine);
-#endif
   GST_INFO("all wire targets checked, connected=%d?",is_connected);
   return(is_connected);
 }
-
-#if NEW_CODE
 
 static void add_machine_in_pipeline(gpointer key,gpointer value,gpointer user_data) {
   if((GPOINTER_TO_INT(value)==CS_CONNECTING) && BT_IS_MACHINE(key)) {
@@ -887,7 +852,6 @@ static void update_pipeline(const BtSetup * const self) {
   gst_event_unref(self->priv->play_seek_event);
   self->priv->play_seek_event=NULL;
 }
-#endif
 
 //-- public methods
 
@@ -957,10 +921,8 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
 
       self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
       set_disconnected(self,GST_BIN(wire));
-#if LIVE_CONNECT
       bt_setup_update_pipeline(self);
-#endif
-      bt_machine_renegotiate_adder_format(dst);
+
       g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
       bt_song_set_unsaved(self->priv->song,TRUE);
       GST_DEBUG("added wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
@@ -1031,34 +993,12 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
     GST_DEBUG("removing wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
     g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
 
-#if LIVE_CONNECT
     set_disconnecting(self,GST_BIN(wire));
     bt_setup_update_pipeline(self);
 
     g_hash_table_remove(self->priv->connection_state,(gpointer)wire);
     g_hash_table_remove(self->priv->graph_depth,(gpointer)wire);
-#else
-    BtMachine *dst,*src;
 
-    g_hash_table_remove(self->priv->connection_state,(gpointer)wire);
-    g_hash_table_remove(self->priv->graph_depth,(gpointer)wire);
-    g_object_get(G_OBJECT(wire),"dst",&dst,"src",&src,NULL);
-    if(dst) {
-      bt_machine_renegotiate_adder_format(dst);
-      unlink_wire(self,GST_ELEMENT(wire),GST_ELEMENT(src),GST_ELEMENT(dst));
-      gst_object_unref(src);
-      gst_object_unref(dst);
-    }
-
-    // this triggers finalize if we don't have a ref
-    if(GST_OBJECT_FLAG_IS_SET(wire,GST_OBJECT_FLOATING)) {
-      gst_element_set_state(GST_ELEMENT(wire),GST_STATE_NULL);
-      gst_object_unref(GST_OBJECT(wire));
-    }
-    else {
-      gst_bin_remove(self->priv->bin,GST_ELEMENT(wire));
-    }
-#endif
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
@@ -1392,27 +1332,17 @@ gboolean bt_setup_update_pipeline(const BtSetup * const self) {
     GST_INFO("remove %d unconnected wires", g_list_length(not_visited_wires));
     for(node=not_visited_wires;node;node=g_list_next(node)) {
       wire=BT_WIRE(node->data);
-#if NEW_CODE
       set_disconnecting(self,GST_BIN(wire));
-#else
-      update_bin_in_pipeline(self,GST_BIN(wire),FALSE,NULL);
-#endif
     }
     g_list_free(not_visited_wires);
     GST_INFO("remove %d unconnected machines", g_list_length(not_visited_machines));
     for(node=not_visited_machines;node;node=g_list_next(node)) {
       machine=BT_MACHINE(node->data);
-#if NEW_CODE
       set_disconnecting(self,GST_BIN(machine));
-#else
-      update_bin_in_pipeline(self,GST_BIN(machine),FALSE,NULL);
-#endif
     }
     g_list_free(not_visited_machines);   
 
-#if NEW_CODE
     update_pipeline(self);
-#endif
   }
   GST_INFO("result of graph update = %d",res);
   return(res);

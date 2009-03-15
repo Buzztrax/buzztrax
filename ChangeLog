@@ -1,3 +1,16 @@
+2009-03-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Fully switch to new code.
+
+	* src/lib/core/song.c:
+	  Log more details and check more return codes. Somehow the mainloop gets
+	  stuck for a moment when looping. We also get multiple segment-done messages.
+	
+	* src/ui/edit/main-toolbar.c:
+	  Try high priority for position query updates, to ensure we update if
+	  mainloop is running.
+
 2009-03-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/registry.c:

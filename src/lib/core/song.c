@@ -167,7 +167,8 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
   /* we need to use FLUSH for play (due to prerolling), otherwise:
      0:00:00.866899000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1644:gst_base_sink_do_sync:<player> prerolling object 0x818ce90
      0:00:00.866948000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1493:gst_base_sink_wait_preroll:<player> waiting in preroll for flush or PLAYING
-     but not for loop
+     but not for loop, altough adder seem to have issues with non flushing seeks
+     if we make the loop_seek_event, we loose data at the end of the loop
    */
   if (loop) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
@@ -302,15 +303,29 @@ static void bt_song_send_tags(const BtSong * const self) {
 static void on_song_segment_done(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
   //GstStateChangeReturn res;
+#ifndef GST_DISABLE_GST_DEBUG
+  GstFormat format;
+  gint64 position;
+  
+  gst_message_parse_segment_done ((GstMessage *)message, &format, &position);
+#endif
 
-  GST_INFO("received SEGMENT_DONE bus message: %s", GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
+#if GST_CHECK_VERSION(0,10,22)
+  GST_WARNING("received SEGMENT_DONE (%u) bus message: %p, from %s, with fmt=%s, ts=%"GST_TIME_FORMAT,
+    gst_message_get_seqnum((GstMessage *)message),message,GST_OBJECT_NAME(GST_MESSAGE_SRC(message)),
+    gst_format_get_name(format),GST_TIME_ARGS(position));
+#else
+  GST_WARNING("received SEGMENT_DONE bus message: %p, from %s with fmt=%s, ts=%"GST_TIME_FORMAT,
+    message,GST_OBJECT_NAME(GST_MESSAGE_SRC(message)),
+    gst_format_get_name(format),GST_TIME_ARGS(position));
+#endif
 
   if(self->priv->is_playing) {
     if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->loop_seek_event)))) {
       GST_WARNING("element failed to handle continuing play seek event");
     }
     else {
-      GST_INFO("-> loop");
+      GST_WARNING("-> loop");
       /*
       gst_pipeline_set_new_stream_time (GST_PIPELINE (self->priv->bin), 0);
       gst_element_get_state (GST_ELEMENT (self->priv->bin), NULL, NULL, 40 * GST_MSECOND);
@@ -685,27 +700,33 @@ gboolean bt_song_continue(const BtSong * const self) {
  * Returns: %FALSE if the song is not playing
  */
 gboolean bt_song_update_playback_position(const BtSong * const self) {
-  gint64 pos_cur;
-
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
   g_assert(GST_IS_BIN(self->priv->bin));
   g_assert(GST_IS_QUERY(self->priv->position_query));
   //GST_INFO("query playback-pos");
 
-  if(!self->priv->is_playing) return(FALSE);
+  if(G_UNLIKELY(!self->priv->is_playing)) return(FALSE);
 
   // query playback position and update self->priv->play-pos;
-  gst_element_query(GST_ELEMENT(self->priv->master_bin),self->priv->position_query);
-  gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
-  if(pos_cur!=-1) {
-    // calculate new play-pos (in ticks)
-    const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
-    const gulong play_pos=(gulong)(pos_cur/bar_time);
-    if(play_pos!=self->priv->play_pos) {
-      self->priv->play_pos=play_pos;
-      GST_DEBUG("query playback-pos: cur=%"G_GINT64_FORMAT", tick=%lu",pos_cur,self->priv->play_pos);
-      g_object_notify(G_OBJECT(self),"play-pos");
+  if(gst_element_query(GST_ELEMENT(self->priv->master_bin),self->priv->position_query)) {
+    gint64 pos_cur;
+    gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
+    if(GST_CLOCK_TIME_IS_VALID(pos_cur)) {
+      // calculate new play-pos (in ticks)
+      const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+      const gulong play_pos=(gulong)(pos_cur/bar_time);
+      if(play_pos!=self->priv->play_pos) {
+        self->priv->play_pos=play_pos;
+        GST_WARNING("query playback-pos: cur=%"G_GINT64_FORMAT", tick=%lu",pos_cur,self->priv->play_pos);
+        g_object_notify(G_OBJECT(self),"play-pos");
+      }
     }
+    else {
+      GST_WARNING("query playback-pos: invalid pos");
+    }
+  }
+  else {
+    GST_WARNING("query playback-pos: failed");
   }
   return(TRUE);
 }
