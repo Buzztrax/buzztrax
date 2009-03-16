@@ -84,6 +84,9 @@ struct _BtSongPrivate {
   GstEvent *play_seek_event;
   GstEvent *loop_seek_event;
   GstEvent *idle_seek_event;
+#if GST_CHECK_VERSION(0,10,22)
+  guint32 seek_seqnum;
+#endif
   /* timeout handlers */
   guint paused_timeout_id,playback_timeout_id;
   
@@ -303,25 +306,38 @@ static void bt_song_send_tags(const BtSong * const self) {
 static void on_song_segment_done(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
   //GstStateChangeReturn res;
+#if GST_CHECK_VERSION(0,10,22)
+  guint32 seek_seqnum=gst_message_get_seqnum((GstMessage *)message);
+#endif
 #ifndef GST_DISABLE_GST_DEBUG
   GstFormat format;
   gint64 position;
   
-  gst_message_parse_segment_done ((GstMessage *)message, &format, &position);
+  gst_message_parse_segment_done((GstMessage *)message,&format,&position);
 #endif
 
 #if GST_CHECK_VERSION(0,10,22)
   GST_WARNING("received SEGMENT_DONE (%u) bus message: %p, from %s, with fmt=%s, ts=%"GST_TIME_FORMAT,
-    gst_message_get_seqnum((GstMessage *)message),message,GST_OBJECT_NAME(GST_MESSAGE_SRC(message)),
+    seek_seqnum,message,GST_OBJECT_NAME(GST_MESSAGE_SRC(message)),
     gst_format_get_name(format),GST_TIME_ARGS(position));
+  if(seek_seqnum==self->priv->seek_seqnum) {
+    GST_WARNING("-> skip");
+    return;
+  }
 #else
   GST_WARNING("received SEGMENT_DONE bus message: %p, from %s with fmt=%s, ts=%"GST_TIME_FORMAT,
     message,GST_OBJECT_NAME(GST_MESSAGE_SRC(message)),
     gst_format_get_name(format),GST_TIME_ARGS(position));
+  /* @todo: need a workaround for older versions, to eliminate duplicated segment-dones */  
 #endif
 
   if(self->priv->is_playing) {
-    if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->loop_seek_event)))) {
+    GstEvent *event=gst_event_ref(self->priv->loop_seek_event);
+#if GST_CHECK_VERSION(0,10,22)
+    gst_event_set_seqnum(event,gst_util_seqnum_next());
+    self->priv->seek_seqnum=seek_seqnum;
+#endif
+    if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
       GST_WARNING("element failed to handle continuing play seek event");
     }
     else {
@@ -717,7 +733,7 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
       const gulong play_pos=(gulong)(pos_cur/bar_time);
       if(play_pos!=self->priv->play_pos) {
         self->priv->play_pos=play_pos;
-        GST_WARNING("query playback-pos: cur=%"G_GINT64_FORMAT", tick=%lu",pos_cur,self->priv->play_pos);
+        GST_DEBUG("query playback-pos: cur=%"G_GINT64_FORMAT", tick=%lu",pos_cur,self->priv->play_pos);
         g_object_notify(G_OBJECT(self),"play-pos");
       }
     }

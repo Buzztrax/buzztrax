@@ -1,3 +1,11 @@
+2009-03-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Update position to improv sync of new sources.
+
+	* src/lib/core/song.c:
+	  Workaround for segment-done problem.
+
 2009-03-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:

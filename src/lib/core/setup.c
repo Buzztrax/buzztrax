@@ -809,6 +809,7 @@ static void update_pipeline(const BtSetup * const self) {
   GST_WARNING("updating pipeline ----------------------------------------");
 
   // query seqment and position
+  bt_song_update_playback_position(self->priv->song);
   g_object_get(self->priv->song,"sequence",&sequence,"play-pos",&play_pos,NULL);
   g_object_get(sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
   bar_time=bt_sequence_get_bar_time(sequence);
