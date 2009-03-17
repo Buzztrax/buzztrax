@@ -1,5 +1,10 @@
 2009-03-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gui/svgcanvas2.c:
+	  Try using svg via pixbuf directly.
+
+2009-03-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/setup.c:
 	* src/lib/core/wire.c:

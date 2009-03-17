@@ -453,25 +453,34 @@ int main(int argc, char **argv) {
   ci=gnome_canvas_item_new (gnome_canvas_root (canvas),
      GNOME_TYPE_CANVAS_PIXBUF,
      "pixbuf", pixbuf,
-     "x", -30.0,
-     "y", -10.0,
+     "x", -50.0,
+     "y", -20.0,
      NULL);
   g_signal_connect(G_OBJECT(ci),"event",G_CALLBACK(on_canvas_item_event),NULL);
   
   // add another svg as a svg item
-  
   ci=gnome_canvas_item_new (gnome_canvas_root (canvas),
      GNOME_TYPE_CANVAS_SVG,
      "file-name", "effect-mute.svg",
      "pixbuf", gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,96,96),
-     "x", 30.0,
-     "y", 10.0,
+     "x", 0.0,
+     "y", 0.0,
      "width", 96.0,
      "height", 96.0,
      "width-in-pixels", TRUE,
      "height-in-pixels", TRUE,
      NULL);
   g_signal_connect(G_OBJECT(ci),"event",G_CALLBACK(on_canvas_item_event),NULL);
+
+  // add another svg again as a pixbuf, but using pixbu api
+  ci=gnome_canvas_item_new (gnome_canvas_root (canvas),
+     GNOME_TYPE_CANVAS_PIXBUF,
+     "pixbuf", gdk_pixbuf_new_from_file ("master.svg", NULL),
+     "x", 50.0,
+     "y", 20.0,
+     NULL);
+  g_signal_connect(G_OBJECT(ci),"event",G_CALLBACK(on_canvas_item_event),NULL);
+
   
   // show and run
   gtk_widget_show_all (window);
