@@ -1367,7 +1367,7 @@ static void bt_wire_dispose(GObject * const object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG_OBJECT(self,"!!!! self=%p",self);
 
   // unref controllers
   GST_DEBUG("  releasing controllers");
@@ -1407,7 +1407,7 @@ static void bt_wire_dispose(GObject * const object) {
 static void bt_wire_finalize(GObject * const object) {
   BtWire * const self = BT_WIRE(object);
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG_OBJECT(self,"!!!! self=%p",self);
 
   g_hash_table_destroy(self->priv->properties);
   g_hash_table_destroy(self->priv->patterns);

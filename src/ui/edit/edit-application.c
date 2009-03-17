@@ -307,6 +307,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
 
     // create new song
     song=bt_song_new(BT_APPLICATION(self));
+    g_object_set(G_OBJECT(self),"song",NULL,NULL);
 
     if(bt_song_io_load(loader,song)) {
       BtSetup *setup;

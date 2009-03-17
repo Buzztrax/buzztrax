@@ -1347,7 +1347,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   BtMachine *src;
   GList *wires,*node;
 
-  GST_WARNING_OBJECT(self,"reconfigure adder format, machine in state %s",gst_element_state_get_name(GST_STATE(self)));
+  GST_INFO_OBJECT(self,"reconfigure adder format, machine in state %s",gst_element_state_get_name(GST_STATE(self)));
   
   /* do nothing if we don't have and adder & capsfilter or not caps */
   if(!self->priv->machines[PART_CAPS_FILTER]) return;
@@ -3347,7 +3347,7 @@ static void bt_machine_dispose(GObject * const object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p,%s, song=%p",self,self->priv->id,self->priv->song);
+  GST_DEBUG_OBJECT(self,"!!!! self=%p,%s, song=%p",self,self->priv->id,self->priv->song);
 
   // shut down interaction control setup
   g_hash_table_destroy(self->priv->control_data);
@@ -3386,51 +3386,7 @@ static void bt_machine_dispose(GObject * const object) {
     }
   }
 
-  // remove the GstElements from the bin
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
-#if 0
-  if(self->priv->bin) {
-    GstStateChangeReturn res;
-
-    GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
-      (G_OBJECT(self->priv->bin))->ref_count,
-      GST_BIN_NUMCHILDREN(self->priv->bin)
-    );
-    for(i=0;i<PART_COUNT;i++) {
-      if(self->priv->machines[i]) {
-        g_assert(GST_IS_BIN(self->priv->bin));
-        g_assert(GST_IS_ELEMENT(self->priv->machines[i]));
-        for(j=i+1;j<PART_COUNT;j++) {
-          if(self->priv->machines[j]) {
-            GST_DEBUG("  unlinking machine \"%s\", \"%s\"",
-              GST_OBJECT_NAME(self->priv->machines[i]),
-              GST_OBJECT_NAME(self->priv->machines[j]));
-            gst_element_unlink(self->priv->machines[i],self->priv->machines[j]);
-            break;
-          }
-        }
-        GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",
-          GST_OBJECT_NAME(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
-        if((res=gst_element_set_state(self->priv->machines[i],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
-          GST_WARNING("can't go to null state");
-        else
-          GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
-        gst_bin_remove(self->priv->bin,self->priv->machines[i]);
-        GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
-          (self->priv->bin?(G_OBJECT(self->priv->bin))->ref_count:-1),
-          (self->priv->bin?GST_BIN_NUMCHILDREN(self->priv->bin):-1)
-        );
-      }
-    }
-    // release the bin (that is ref'ed in bt_machine_setup() )
-    GST_INFO("  releasing the bin, bin->ref_count=%d, bin->num_children=%d",
-      (self->priv->bin?(G_OBJECT(self->priv->bin))->ref_count:-1),
-      (self->priv->bin?GST_BIN_NUMCHILDREN(self->priv->bin):-1)
-    );
-    gst_object_unref(self->priv->bin);
-  }
-#endif
-
   GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
 
@@ -3453,7 +3409,7 @@ static void bt_machine_finalize(GObject * const object) {
   const BtMachine * const self = BT_MACHINE(object);
   guint i;
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG_OBJECT(self,"!!!! self=%p",self);
 
   g_hash_table_destroy(self->priv->properties);
   g_free(self->priv->id);

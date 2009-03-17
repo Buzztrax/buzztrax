@@ -522,7 +522,6 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
 static void bt_wire_canvas_item_dispose(GObject *object) {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
   BtSong *song;
-  BtSetup *setup;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -535,10 +534,14 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
     g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->dst),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_position_changed,(gpointer)self);
   }
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-  g_signal_handlers_disconnect_matched(G_OBJECT(setup),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
-  g_object_unref(setup);
-  g_object_unref(song);
+  if(song) {
+    BtSetup *setup;
+
+    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+    g_signal_handlers_disconnect_matched(G_OBJECT(setup),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
+    g_object_unref(setup);
+    g_object_unref(song);
+  }
   if(self->priv->wire_gain) {
     g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->wire_gain),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_gain_changed,(gpointer)self);
     g_object_unref(self->priv->wire_gain);

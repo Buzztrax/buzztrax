@@ -1,5 +1,20 @@
 2009-03-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	  Improve logging and do more cleanup.
+
+	* src/ui/edit/edit-application.c:
+	  When loading a new song, set old to NULL, so that stuff gets disposed. This
+	  fixes duplicated name issues.
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Fix cleanup, if song is reset from app before.
+
+2009-03-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
 	  Better workaround for older version without the fix.
 

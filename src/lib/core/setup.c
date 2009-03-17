@@ -694,7 +694,7 @@ static void add_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data)
   }
 }
 
-gint sort_by_graph_depth (gconstpointer e1, gconstpointer e2,gpointer user_data) {
+static gint sort_by_graph_depth(gconstpointer e1, gconstpointer e2,gpointer user_data) {
   const BtSetup * const self=BT_SETUP(user_data);
   gint d1=GET_GRAPH_DEPTH(self,e1);
   gint d2=GET_GRAPH_DEPTH(self,e2);
@@ -806,7 +806,7 @@ static void update_pipeline(const BtSetup * const self) {
   gulong play_pos;
   GstClockTime bar_time;
  
-  GST_WARNING("updating pipeline ----------------------------------------");
+  GST_INFO("updating pipeline ----------------------------------------");
 
   // query seqment and position
   bt_song_update_playback_position(self->priv->song);
@@ -828,28 +828,28 @@ static void update_pipeline(const BtSetup * const self) {
   }
   g_object_unref(sequence);
   
-  GST_WARNING("add machines");
+  GST_INFO("add machines");
   g_hash_table_foreach(self->priv->connection_state,add_machine_in_pipeline,(gpointer)self);
-  GST_WARNING("add and link wires");
+  GST_INFO("add and link wires");
   g_hash_table_foreach(self->priv->connection_state,add_wire_in_pipeline,(gpointer)self);
-  GST_WARNING("determine state change lists");
+  GST_INFO("determine state change lists");
   g_hash_table_foreach(self->priv->connection_state,determine_state_change_lists,(gpointer)self);
-  GST_WARNING("sync states");
+  GST_INFO("sync states");
   sync_states(self);
-  GST_WARNING("unlink and remove wires");
+  GST_INFO("unlink and remove wires");
   g_hash_table_foreach(self->priv->connection_state,del_wire_in_pipeline,(gpointer)self);
-  GST_WARNING("remove machines");
+  GST_INFO("remove machines");
   g_hash_table_foreach(self->priv->connection_state,del_machine_in_pipeline,(gpointer)self);
   // unblock src pads
-  GST_WARNING("unblocking %d pads",g_slist_length(node=self->priv->blocked_pads));
+  GST_INFO("unblocking %d pads",g_slist_length(node=self->priv->blocked_pads));
   for(node=self->priv->blocked_pads;node;node=g_slist_next(node)) {
     gst_pad_set_blocked(GST_PAD(node->data),FALSE);
   }
   g_slist_free(self->priv->blocked_pads);
   self->priv->blocked_pads=NULL;
-  GST_WARNING("update connection states");
+  GST_INFO("update connection states");
   g_hash_table_foreach(self->priv->connection_state,update_connection_states,(gpointer)self);
-  GST_WARNING("pipeline updated ----------------------------------------");
+  GST_INFO("pipeline updated ----------------------------------------");
   gst_event_unref(self->priv->play_seek_event);
   self->priv->play_seek_event=NULL;
 }
@@ -999,6 +999,15 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
 
     g_hash_table_remove(self->priv->connection_state,(gpointer)wire);
     g_hash_table_remove(self->priv->graph_depth,(gpointer)wire);
+
+    // this triggers finalize if we don't have a ref
+    if(GST_OBJECT_FLAG_IS_SET(wire,GST_OBJECT_FLOATING)) {
+      gst_element_set_state(GST_ELEMENT(wire),GST_STATE_NULL);
+      gst_object_unref(GST_OBJECT(wire));
+    }
+    else {
+      gst_bin_remove(self->priv->bin,GST_ELEMENT(wire));
+    }
 
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
@@ -1327,7 +1336,6 @@ gboolean bt_setup_update_pipeline(const BtSetup * const self) {
       g_list_length(not_visited_wires));
     // ... and start checking connections (recursively)
     res=check_connected(self,master,&not_visited_machines,&not_visited_wires,0);
-    g_object_unref(master);
     
     // remove all items that we have not visited and set them to disconnected
     GST_INFO("remove %d unconnected wires", g_list_length(not_visited_wires));
@@ -1344,6 +1352,8 @@ gboolean bt_setup_update_pipeline(const BtSetup * const self) {
     g_list_free(not_visited_machines);   
 
     update_pipeline(self);
+
+    g_object_unref(master);
   }
   GST_INFO("result of graph update = %d",res);
   return(res);
@@ -1543,7 +1553,7 @@ static void bt_setup_dispose(GObject * const object) {
     for(node=self->priv->wires;node;node=g_list_next(node)) {
       if(node->data) {
         GObject *obj=node->data;
-        GST_DEBUG("  free wire : %p (%d)",obj,obj->ref_count);
+        GST_DEBUG_OBJECT(obj,"  free wire: %p, ref=%d, floating? %d",obj,obj->ref_count,GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING));
 
         if(GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING)) {
           gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
@@ -1561,7 +1571,7 @@ static void bt_setup_dispose(GObject * const object) {
     for(node=self->priv->machines;node;node=g_list_next(node)) {
       if(node->data) {
         GObject *obj=node->data;
-        GST_DEBUG("  free machine : %p (%d)",obj,obj->ref_count);
+        GST_DEBUG_OBJECT(obj,"  free machine: %p, ref=%d, floating? %d",obj,obj->ref_count,GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING));
 
         if(GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING)) {
           gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
@@ -1576,6 +1586,7 @@ static void bt_setup_dispose(GObject * const object) {
   }
 
   if(self->priv->bin) {
+    GST_DEBUG_OBJECT(self->priv->bin,"release bin: %p, ref=%d, num_children=%d",self->priv->bin,G_OBJECT(self->priv->bin)->ref_count,GST_BIN_NUMCHILDREN(self->priv->bin));
     gst_object_unref(self->priv->bin);
     self->priv->bin=NULL;
   }
