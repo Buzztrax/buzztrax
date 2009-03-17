@@ -84,8 +84,8 @@ struct _BtSongPrivate {
   GstEvent *play_seek_event;
   GstEvent *loop_seek_event;
   GstEvent *idle_seek_event;
-#if GST_CHECK_VERSION(0,10,22)
-  guint32 seek_seqnum;
+#if ! GST_CHECK_VERSION(0,10,23)
+  guint expected_segment_done;
 #endif
   /* timeout handlers */
   guint paused_timeout_id,playback_timeout_id;
@@ -306,12 +306,12 @@ static void bt_song_send_tags(const BtSong * const self) {
 static void on_song_segment_done(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
   //GstStateChangeReturn res;
-#if GST_CHECK_VERSION(0,10,22)
-  guint32 seek_seqnum=gst_message_get_seqnum((GstMessage *)message);
-#endif
 #ifndef GST_DISABLE_GST_DEBUG
   GstFormat format;
   gint64 position;
+#if GST_CHECK_VERSION(0,10,22)
+  guint32 seek_seqnum=gst_message_get_seqnum((GstMessage *)message);
+#endif
   
   gst_message_parse_segment_done((GstMessage *)message,&format,&position);
 #endif
@@ -320,22 +320,37 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
   GST_WARNING("received SEGMENT_DONE (%u) bus message: %p, from %s, with fmt=%s, ts=%"GST_TIME_FORMAT,
     seek_seqnum,message,GST_OBJECT_NAME(GST_MESSAGE_SRC(message)),
     gst_format_get_name(format),GST_TIME_ARGS(position));
-  if(seek_seqnum==self->priv->seek_seqnum) {
-    GST_WARNING("-> skip");
-    return;
-  }
 #else
   GST_WARNING("received SEGMENT_DONE bus message: %p, from %s with fmt=%s, ts=%"GST_TIME_FORMAT,
     message,GST_OBJECT_NAME(GST_MESSAGE_SRC(message)),
     gst_format_get_name(format),GST_TIME_ARGS(position));
-  /* @todo: need a workaround for older versions, to eliminate duplicated segment-dones */  
+#endif
+#if ! GST_CHECK_VERSION(0,10,23)
+  /* @bug: workaround for #575598 */
+  if(!self->priv->expected_segment_done) {
+#if GST_CHECK_VERSION(0,10,22) && GST_VERSION_NANO==1
+    self->priv->expected_segment_done=1;
+#else
+    GList *sources,*node;
+    sources=bt_setup_get_machines_by_type(self->priv->setup,BT_TYPE_SOURCE_MACHINE);
+    self->priv->expected_segment_done=g_list_length(sources);
+    for(node=sources;node;node=g_list_next(node)) {
+      g_object_unref((GObject *)node->data);
+    }
+    g_list_free(sources);
+#endif
+  }
+  self->priv->expected_segment_done--;
+  if(self->priv->expected_segment_done) {
+    GST_WARNING("-> skip");
+    return;
+  }
 #endif
 
   if(self->priv->is_playing) {
     GstEvent *event=gst_event_ref(self->priv->loop_seek_event);
 #if GST_CHECK_VERSION(0,10,22)
     gst_event_set_seqnum(event,gst_util_seqnum_next());
-    self->priv->seek_seqnum=seek_seqnum;
 #endif
     if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
       GST_WARNING("element failed to handle continuing play seek event");
