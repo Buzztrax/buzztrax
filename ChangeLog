@@ -1,5 +1,10 @@
 2009-03-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Todos and planning.
+
+2009-03-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Implements basic play notes (currently only works when song is playing).
 

@@ -66,58 +66,7 @@
  * Furthermore the machine handles a list of #BtPattern instances. These contain
  * event patterns that form a #BtSequence.
  */
-/*
- * @todo: try to derive this from GstBin!
- *  - then put the machines into itself (and not into the songs bin,
- *    but insert the machine directly into the song->bin
- *  - when adding internal machines we need to fix the ghost pads using
- *    gst_ghost_pad_set_target()
- *  - can we have request-ghost-pads (adder,tee) - yes
- *    gstelement_class->request_new_pad
- *    - we can handle tee and adder elements fully transparent
- *    - linking a machine-bin and a wire-bin would use gst_element_get_request_pad()
- *      on the machine-bin and gst_element_get_static_pad() on the wire-bin
- *  - need to fix-up ref-counting as bins are gstelements and they use floating refs
- *    - need to add/remove them in setup
- *  - don't get the idea to use gstobject::name instead of id property as it
- *    becomes immutable once the element has been parented
- *
- * @todo: if a song has unlinked machines, it does not play:
- * 1) it would be good to have the src-pad of the initialy blocked, then
- * unblocked when there is a wire connected and again blocked, if the wire is
- * removed. If we use a tee, we would need to pre-create the request-pad and add
- * API, so that wire can get the src/dst pad from a machine for linking.
- *
- * 2) we could put a fakesrc in machines[PART_ADDER] and a fakesink into
- * machines[PART_SPREADER] (depending on machine type).
- * _activate_{adder,spreader} would remove them. bt_wire_unlink_machines would
- * need to call new _deactivate_{adder,spreader}, which in the case of last pad
- * would remove the elements and put fakesrc/sink there. we could even call the
- * _deactivate in _setup() (no adder/spreader mean put fakesrc/ink there).
- *
- * 3) we could use gst_element_set_locked_state() if a machine is unconnected.
- * bt_machine_{lock,unlock} / or locked property. when adding/removing wires to
- * the setup, it needs to check the states of the machines and update the
- * locking-state. All machines that are not connected to the master should be
- * locked.
- * - what about effect connected to the master, but without source?
- *
- * 4) we could add the machine only to the pipeline once its fully connected
- * - when ever we link/unlink two machine we need to update the pipeline
- *   4a) full rebuild
- *     - remove everything from pipeline
- *     - check all sources
- *       - walk all paths to the master
- *       - for each complete path add all elements not yet added (parent==NULL)
- *   4b) rebuild as needed
- *     - a subgraph is a list of machines and wires
- *     - when adding a wire, check if the dest is connected to something that is
- *       added (parent!=NULL) and that source is conected to a generator
- *     - when removing a wire, check if it was added (parent!=NULL), if so scan
- *       all path to sources and remove all path where this is the only
- *       connection
- *
- * @todo: we need BtParameterGroup object with an implementation for the
+/* @todo: we need BtParameterGroup object with an implementation for the
  * global and one for the voice parameters. Then the machine would have a
  * self->priv->global_params and self->priv->voice_params
  * bt_machine_init_global_params()
@@ -127,6 +76,10 @@
  *
  * Do we want one ParameterGroup per voice or just one for all voices?
  * bt_machine_set_voice_param_value() and bt_machine_voice_controller_change_value() are voice specific
+ *
+ * @todo: API cleanup
+ * - need coherent api to create machine parts
+ *   - export the enum ?
  */
 
 #define BT_CORE
@@ -1100,6 +1053,43 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
 
 //-- methods
 
+#if 0
+/* bt_machine_enable_part:
+ * @part: is same as property name
+ *
+ * can replace _enable_{in,out}put_{level,gain}
+ * this is not good enough for adder, ev. okay for spreader
+ */
+gboolean bt_machine_enable_part(BtMachine * const self,gchar *part) {
+  gboolean res=FALSE;
+  BtMachinePart pard_ix;
+  // map part -> BtMachinePart
+  
+  if(self->priv->machines[pard_ix])
+    return(TRUE);
+  if(!bt_machine_make_internal_element(self,pard_ix,"level","input_level")) goto Error;
+  // configure part
+  switch(pard_ix) {
+    case PART_INPUT_LEVEL:
+    case PART_OUTPUT_LEVEL:
+      g_object_set(G_OBJECT(self->priv->machines[pard_ix]),
+        "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
+        "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 50.0,
+        NULL);
+      break;
+  }
+  if(partix<PART_MACHINE) {
+    if(!bt_machine_add_input_element(self,partix)) goto Error;
+  }
+  else {
+    if(!bt_machine_add_output_element(self,partix)) goto Error;
+  }
+  res=TRUE;
+Error:
+  return(res);
+}
+#endif
+
 /**
  * bt_machine_enable_input_level:
  * @self: the machine to enable the input-level analyser in
@@ -1121,7 +1111,7 @@ gboolean bt_machine_enable_input_level(BtMachine * const self) {
     if(!bt_machine_make_internal_element(self,PART_INPUT_LEVEL,"level","input_level")) goto Error;
     g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),
       "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-      "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 80.0,
+      "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 50.0,
       NULL);
     if(!bt_machine_add_input_element(self,PART_INPUT_LEVEL)) goto Error;
   }
@@ -1151,7 +1141,7 @@ gboolean bt_machine_enable_output_level(BtMachine * const self) {
     if(!bt_machine_make_internal_element(self,PART_OUTPUT_LEVEL,"level","output_level")) goto Error;
     g_object_set(G_OBJECT(self->priv->machines[PART_OUTPUT_LEVEL]),
       "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-      "peak-ttl",(GstClockTime)(0.5*GST_SECOND),"peak-falloff", 50.0,
+      "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 50.0,
       NULL);
     if(!bt_machine_add_output_element(self,PART_OUTPUT_LEVEL)) goto Error;
   }
@@ -1233,8 +1223,7 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     // create the adder
     if(!(bt_machine_make_internal_element(self,PART_ADDER,"adder","adder"))) goto Error;
     //if(!(bt_machine_make_internal_element(self,PART_ADDER,"liveadder","adder"))) goto Error;
-    // "gstsystemclock: write control failed, trying again"
-    // :(
+
     // adder does not link directly to some elements
     if(!(bt_machine_make_internal_element(self,PART_CAPS_FILTER,"capsfilter","capsfilter"))) goto Error;
     if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
