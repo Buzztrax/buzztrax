@@ -9,7 +9,8 @@ pixmapdata_DATA = \
 	prefs-input-gaming.png \
 	prefs-input-keyboard.png \
 	\
-	stock_repeat.png
+	stock_repeat.png \
+	stock_volume.png
 
 # these are in gtk since 2.6
 #	stock_media-fwd.png \

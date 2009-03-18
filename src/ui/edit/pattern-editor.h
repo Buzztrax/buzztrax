@@ -52,7 +52,7 @@ typedef struct _PatternColumn
 
 typedef struct _PatternColumnGroup
 {
-  // just an id to tell groups apart (wire, global, voice)
+  // just an id to tell groups apart (wire=0, global=1, voice=2)
   int type;
   // can be used for the headline above the group
   char *name;

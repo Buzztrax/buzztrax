@@ -171,11 +171,13 @@ typedef enum {
   /* helper to make adder link to next element */
   PART_ADDER_CONVERT,
   /* the elements to control and analyse the current input signal */
+  /* @todo: add PART_INPUT_PRE_GAIN and rename the other to PART_INPUT_POST_GAIN */
   PART_INPUT_LEVEL,
   PART_INPUT_GAIN,
   /* the gstreamer element that produces/processes the signal */
   PART_MACHINE,
   /* the elements to control and analyse the current output signal */
+  /* @todo: add PART_OUTPUT_PRE_GAIN and rename the other to PART_OUTPUT_POST_GAIN */
   PART_OUTPUT_LEVEL,
   PART_OUTPUT_GAIN,
   /* utillity elements to allow multiple outputs */

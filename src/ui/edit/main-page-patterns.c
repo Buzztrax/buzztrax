@@ -56,12 +56,24 @@
  * - use gray text color for disconnected machines in the machine combobox
  *   (like for unused patterns)
  *
- * - support midi keyboard for entering notes
- * - have poly-input mode
- *   - if there is a keydown, enter the note
- *   - if there is another keydown before a keyup, go to next track and enter
- *     the note there.
- *   - on keyup, return curso to that column
+ * - play notes
+ *   - enable
+ *     if no playback is going
+ *       bt_song_idle_start
+ *     else if playback stops
+ *       bt_song_idle_start
+ *   - disable
+ *     if no playback
+ *       bt_song_idle_stop
+ *   - note entry
+ *     - support midi keyboard for entering notes
+ *     - have poly-input mode
+ *       - if there is a keydown, enter the note
+ *       - if there is another keydown before a keyup, go to next track and
+ *         enter the note there.
+ *       - on keyup, return 'cursor' to that column
+ *     - what keys to use for trigger columns?
+ *     - should we use shift+note for secondary note in same track (e.g. slide)
  */
 
 #define BT_EDIT
@@ -118,6 +130,9 @@ struct _BtMainPagePatternsPrivate {
 
   /* octave menu */
   guint base_octave;
+  
+  /* play notes flag */
+  gboolean play_notes;
 
   /* the pattern that is currently shown */
   BtPattern *pattern;
@@ -464,24 +479,22 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   GST_INFO("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
     event->state,event->keyval,event->hardware_keycode,gdk_keyval_name(event->keyval));
   if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
-    //if(modifier==GDK_SHIFT_MASK) {
-      BtMainWindow *main_window;
-      BtMainPages *pages;
-      //BtMainPageSequence *sequence_page;
+    BtMainWindow *main_window;
+    BtMainPages *pages;
+    //BtMainPageSequence *sequence_page;
 
-      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-      g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-      //g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+    //g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
 
-      gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
-      //bt_main_page_sequence_goto_???(sequence_page,pattern);
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
+    //bt_main_page_sequence_goto_???(sequence_page,pattern);
 
-      //g_object_unref(sequence_page);
-      g_object_unref(pages);
-      g_object_unref(main_window);
+    //g_object_unref(sequence_page);
+    g_object_unref(pages);
+    g_object_unref(main_window);
 
-      res=TRUE;
-    //}
+    res=TRUE;
   }
   else if(event->keyval==GDK_Menu) {
     gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
@@ -1095,6 +1108,28 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
     if(value!=group->columns[param].def)
       str=bt_persistence_strfmt_double(value);
 
+  /* play notes */
+  if(self->priv->play_notes && (group->type==1 || group->type==2) && group->columns[param].type==PCT_NOTE) {
+    BtMachine *machine;
+    GstObject *element,*voice;
+
+    g_object_get(self->priv->pattern,"machine",&machine,NULL);
+    g_object_get(machine,"machine",&element,NULL);
+    
+    if(group->type==1) {
+      GST_INFO("play global note: %f,'%s'",value,str);
+      g_object_set(element,bt_machine_get_global_param_name(machine,param),str,NULL);
+    }
+    else {
+      GST_INFO("play voice %u note: %f,'%s'",GPOINTER_TO_UINT(group->user_data),value,str);
+      voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(element),GPOINTER_TO_UINT(group->user_data));
+      g_object_set(voice,bt_machine_get_voice_param_name(machine,param),str,NULL);
+      gst_object_unref(voice);
+    }
+    gst_object_unref(element);
+    g_object_unref(machine);
+  }
+
   switch (group->type) {
     case 0: {
       BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
@@ -1109,7 +1144,6 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       g_object_unref(wire_pattern);
     } break;
     case 1:
-      //if(param==0 && row<2) GST_WARNING("set global event: %s",str);
       bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       break;
     case 2:
@@ -1574,6 +1608,14 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
 }
 
+static void on_play_notes_toggled(GtkButton *button, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+  g_assert(user_data);
+
+  self->priv->play_notes=gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button));
+}
+
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeModel *store;
@@ -1945,6 +1987,18 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
   g_object_unref(machine);
 }
 
+static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
+  GtkToolbar *toolbar=GTK_TOOLBAR(user_data);
+  gchar *toolbar_style;
+
+  g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
+  if(!BT_IS_STRING(toolbar_style)) return;
+
+  GST_INFO("!!!  toolbar style has changed '%s'", toolbar_style);
+  gtk_toolbar_set_style(toolbar,gtk_toolbar_get_style_from_string(toolbar_style));
+  g_free(toolbar_style);
+}
+
 //-- helper methods
 
 static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const BtMainPages *pages) {
@@ -1952,6 +2006,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   GtkWidget *scrolled_window;
   GtkWidget *menu_item,*image;
   GtkCellRenderer *renderer;
+  BtSettings *settings;
   gint i;
   gchar oct_str[2];
 
@@ -2059,8 +2114,15 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
 
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 
-  // @todo add play notes checkbox or toggle tool button
-  /*gtk_check_button_new();*/
+  // add play notes checkbox or toggle tool button
+  tool_item=GTK_WIDGET(gtk_toggle_tool_button_new());
+  gtk_tool_button_set_icon_widget(GTK_TOOL_BUTTON(tool_item),gtk_image_new_from_filename("stock_volume.png"));
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(tool_item),_("Play notes"));
+  gtk_widget_set_name(tool_item,"Play notes");
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play notes while editing the pattern"));
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"toggled",G_CALLBACK(on_play_notes_toggled),(gpointer)self);
+  
 
   // get colors
   self->priv->cursor_bg=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
@@ -2163,6 +2225,12 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   // listen to page changes
   g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+
+  // let settings control toolbar style
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  on_toolbar_style_changed(settings,NULL,(gpointer)toolbar);
+  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)toolbar);
+  g_object_unref(settings);
 
   GST_DEBUG("  done");
   return(TRUE);

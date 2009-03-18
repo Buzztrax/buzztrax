@@ -1,3 +1,22 @@
+2009-03-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Implements basic play notes (currently only works when song is playing).
+
+	* pixmaps/Makefile.am:
+	* pixmaps/stock_volume.png:
+	* pixmaps/stock_volume.png (added):
+	  Add temporary image for play-notes function.
+
+	* src/ui/edit/pattern-editor.h:
+	  Comments.
+
+	* design/gui/master.svg:
+	* design/gui/master.svg (added):
+	  Add image that we for last commit.
+	* src/lib/core/libbuzztard-core/machine-private.h (deleted):
+    This is not needed anymore.
+
 2009-03-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gui/svgcanvas2.c:
