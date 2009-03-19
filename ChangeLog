@@ -1,3 +1,8 @@
+2009-03-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Implement wire parameter groups. Needs more work for dynamic changes.
+
 2009-03-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

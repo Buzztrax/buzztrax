@@ -1510,6 +1510,8 @@ static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gp
       // add ui for voice
       if((expander=make_voice_param_box(self,voice_params,i,machine_object))) {
         gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
+        // @todo: need to use gtk_box_reorder_child(GTK_BOX(self->priv->param_group_box),expander,???);
+        // as we might have wire parameters
         gtk_widget_show_all(expander);
       }
     }
@@ -1520,10 +1522,12 @@ static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gp
 
     children=gtk_container_get_children(GTK_CONTAINER(self->priv->param_group_box));
     node=g_list_last(children);
+    // @todo: skip wire param boxes
+    // for(i=0;i<num_wires;i++) node=g_list_previous(node);
     for(i=self->priv->voices;i>new_voices;i--) {
       // remove ui for voice
       gtk_container_remove(GTK_CONTAINER(self->priv->param_group_box),GTK_WIDGET(node->data));
-      // no need todiconnect signals as the voice_child is already gone
+      // no need to disconnect signals as the voice_child is already gone
       node=g_list_previous(node);
     }
     g_list_free(children);
@@ -1532,6 +1536,141 @@ static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gp
   self->priv->voices=new_voices;
 }
 
+static GtkWidget *make_wire_param_box(const BtMachinePropertiesDialog *self,BtWire *wire) {
+  GtkWidget *expander=NULL;
+  GtkWidget *label,*table;
+  GtkWidget *widget1,*widget2;
+  GstObject *param_parent;
+  GParamSpec *property;
+  GValue *range_min,*range_max;
+  GType base_type;
+  gchar *src_id,*name;
+  gulong i,params;
+#if !GTK_CHECK_VERSION(2,12,0)
+  GtkTooltips *tips=gtk_tooltips_new();
+#endif
+  BtMachine *src;
+
+  g_object_get(G_OBJECT(wire),"num-params",&params,"src",&src,NULL);
+  if(params) {
+    g_object_get(G_OBJECT(src),"id",&src_id,NULL);
+    name=g_strdup_printf(_("%s wire properties"),src_id);
+    expander=gtk_expander_new(name);
+    gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
+    g_free(name);
+    g_free(src_id);
+
+    // add wire controls into the table
+    table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
+
+    for(i=0;i<params;i++) {
+      bt_wire_get_param_details(wire,i,&property,&range_min,&range_max);
+      GST_INFO("wire property %p has name '%s','%s'",property,property->name,bt_wire_get_param_name(wire,i));
+      
+      // get name
+      label=gtk_label_new((gchar *)bt_wire_get_param_name(wire,i));
+      gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+      gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
+
+      base_type=bt_g_type_get_base_type(property->value_type);
+      GST_INFO("... base typoe is : %s",g_type_name(base_type));
+
+      // DEBUG
+      if(range_min && range_max) {
+        gchar *str_min=g_strdup_value_contents(range_min);
+        gchar *str_max=g_strdup_value_contents(range_max);
+        GST_INFO("... has range : %s ... %s",str_min,str_max);
+        g_free(str_min);g_free(str_max);
+      }
+      // DEBUG
+      
+      // bah, hardcoded hack
+      switch(i) {
+        case 0:
+          g_object_get(G_OBJECT(wire),"gain",&param_parent,NULL);
+          break;
+        case 1:
+          g_object_get(G_OBJECT(wire),"pan",&param_parent,NULL);
+          break;
+        default:
+          GST_WARNING("unimplemented wire param");
+          break;
+      }
+
+      // implement widget types
+      switch(base_type) {
+        case G_TYPE_FLOAT:
+          widget2=gtk_label_new(NULL);
+          widget1=make_float_range_widget(self,param_parent,property,range_min,range_max,widget2);
+          break;
+        case G_TYPE_DOUBLE:
+          widget2=gtk_label_new(NULL);
+          widget1=make_double_range_widget(self,param_parent,property,range_min,range_max,widget2);
+          break;
+        default: {
+          gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+          widget1=gtk_label_new(str);g_free(str);
+          widget2=NULL;
+        }
+      }
+      if(range_min) { g_free(range_min);range_min=NULL; }
+      if(range_max) { g_free(range_max);range_max=NULL; }
+
+      gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
+      if(!widget2) {
+        gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+      }
+      else {
+        gtk_widget_set_tooltip_text(widget2,g_param_spec_get_blurb(property));
+        gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+        /* @todo how can we avoid the wobble here?
+         * hack would be to set some 'good' default size
+         * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
+         */
+        gtk_widget_set_size_request(widget2,DEFAULT_LABEL_WIDTH,-1);
+        if(GTK_IS_LABEL(widget2)) {
+          gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
+          gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+        }
+        gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
+      }
+      
+      gst_object_unref(param_parent);
+      param_parent=NULL;
+    }
+    // eat remaning space
+    //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+    gtk_container_add(GTK_CONTAINER(expander),table);
+  }
+  g_object_unref(src);
+  return(expander);
+}
+
+static void on_wire_added(const BtSetup *setup,BtWire *wire,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GtkWidget *expander;
+  
+  if((expander=make_wire_param_box(self,wire))) {
+    gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
+  }
+}
+
+static void on_wire_removed(const BtSetup *setup,BtWire *wire,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GList *children,*node;
+
+  children=gtk_container_get_children(GTK_CONTAINER(self->priv->param_group_box));
+  
+  // determine the right expander
+  // @todo: shall we use wire-object name to find it
+
+  // remove ui for voice
+  node=children;
+  //gtk_container_remove(GTK_CONTAINER(self->priv->param_group_box),GTK_WIDGET(node->data));
+
+  g_list_free(children);
+
+}
 
 static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachinePropertiesDialog *self) {
   GtkWidget *scrolled_window;
@@ -1616,6 +1755,8 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
 
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
   BtMainWindow *main_window;
+  BtSong *song;
+  BtSetup *setup;
   GtkWidget *param_box,*hbox;
   GtkWidget *expander,*scrolled_window;
   GtkWidget *tool_item;
@@ -1627,10 +1768,12 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 #if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
+  GList *wires;
   
   gtk_widget_set_name(GTK_WIDGET(self),_("machine properties"));
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
   // create and set window icon
@@ -1644,7 +1787,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   ////gtk_widget_set_size_request(GTK_WIDGET(self),300,200);
   //gtk_window_set_default_size(GTK_WINDOW(self),300,-1);
 
-  // set a title
+  // get machine data
   g_object_get(self->priv->machine,
     "id",&id,
     "global-params",&global_params,
@@ -1652,14 +1795,12 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     "voices",&self->priv->voices,
     "machine",&machine,
     NULL);
+  // set a title
   title=g_strdup_printf(_("%s properties"),id);
   gtk_window_set_title(GTK_WINDOW(self),title);
   g_free(id);g_free(title);
 
   GST_INFO("machine has %lu global properties, %lu voice properties and %lu voices",global_params,voice_params,self->priv->voices);
-
-  // dynamically adjust voices
-  g_signal_connect(G_OBJECT(self->priv->machine),"notify::voices",G_CALLBACK(on_machine_voices_notify),(gpointer)self);
 
   // add widgets to the dialog content area
   // should we use a hpaned or hbox for the presets?
@@ -1734,11 +1875,13 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   gtk_box_pack_start(GTK_BOX(param_box),scrolled_window,TRUE,TRUE,0);
   g_signal_connect(G_OBJECT(self->priv->param_group_box),"size-request",G_CALLBACK(on_box_size_request),(gpointer)scrolled_window);
 
+  /* show widgets for global parameters */
   if(global_params) {
     if((expander=make_global_param_box(self,global_params,voice_params,machine))) {
       gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
     }
   }
+  /* show widgets for voice parameters */
   if(self->priv->voices*voice_params) {
     gulong j;
 
@@ -1748,9 +1891,31 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
       }
     }
   }
+  /* show volume/panorama widgets for incomming wires */
+  if((wires=bt_setup_get_wires_by_dst_machine(setup,self->priv->machine))) {
+    BtWire *wire;
+    GList *node;
+    
+    for(node=wires;node;node=g_list_next(node)) {
+      wire=BT_WIRE(node->data);
+      if((expander=make_wire_param_box(self,wire))) {
+        gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
+      }
+      g_object_unref(wire);
+    }
+    g_list_free(wires);
+  }
   gtk_container_add(GTK_CONTAINER(self),hbox);
 
+  // dynamically adjust voices
+  g_signal_connect(G_OBJECT(self->priv->machine),"notify::voices",G_CALLBACK(on_machine_voices_notify),(gpointer)self);
+  // dynamically adjust wire params
+  g_signal_connect(G_OBJECT(setup),"wire-added",G_CALLBACK(on_wire_added),(gpointer)self);
+  g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
+
   g_object_unref(machine);
+  g_object_unref(setup);
+  g_object_unref(song);
   g_object_unref(main_window);
   g_object_unref(settings);
   return(TRUE);
@@ -1840,18 +2005,26 @@ static void bt_machine_properties_dialog_set_property(GObject      *object,
 
 static void bt_machine_properties_dialog_dispose(GObject *object) {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(object);
-
+  BtSong *song;
+  BtSetup *setup;
   gulong j;
   GstElement *machine;
   GstObject *machine_voice;
+  GList *wires;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
 
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  // disconnect handler for dynamic groups
+  g_signal_handlers_disconnect_matched(self->priv->machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_voices_notify,self);
+  /* @todo: disconnect wire handlers */
   // disconnect all handlers that are connected to params
   g_object_get(self->priv->machine,"machine",&machine,NULL);
+  g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_uint_range_property_notify,NULL);
@@ -1859,13 +2032,39 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_combobox_property_notify,NULL);
   for(j=0;j<self->priv->voices;j++) {
     machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
+    g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_uint_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_checkbox_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_combobox_property_notify,NULL);
   }
+  /* disconnect wire parameters */
+  if((wires=bt_setup_get_wires_by_dst_machine(setup,self->priv->machine))) {
+    BtWire *wire;
+    GstObject *gain,*pan;
+    GList *node;
+    
+    for(node=wires;node;node=g_list_next(node)) {
+      wire=BT_WIRE(node->data);
+      g_object_get(G_OBJECT(wire),"gain",&gain,"pan",&pan,NULL);
+      if(gain) {
+        g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
+        g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
+        gst_object_unref(gain);
+      }
+      if(pan) {
+        g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
+        g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
+        gst_object_unref(pan);
+      }
+      g_object_unref(wire);
+    }
+    g_list_free(wires);
+  }
   g_object_unref(machine);
+  g_object_unref(setup);
+  g_object_unref(song);
 
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
