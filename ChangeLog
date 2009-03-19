@@ -1,3 +1,17 @@
+2009-03-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect news.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Implement dynamic changes.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add keybindings for navigating the comboboxes from the pattern-editor.
+
+	* src/ui/edit/pattern-editor.c:
+	  Filter by keys by modifier.
+
 2009-03-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-properties-dialog.c:

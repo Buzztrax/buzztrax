@@ -1,6 +1,12 @@
 2009/04 ========================================================================
 
 * play from cursor pos
+* live editing works
+* play notes in pattern editor
+* combo navigation shortcuts in pattern-view
+* add wire-parameters (volume/pan) to machine dialogs
+
+http://www.linuxjournal.com/content/buzztard-project-part-2-interview-stefan-kost
 
 2009/03 ========================================================================
 

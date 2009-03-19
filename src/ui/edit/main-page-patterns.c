@@ -33,16 +33,8 @@
  *   - 2 pixel wide column?
  *   - extra views (needs dynamic number of view
  * - shortcuts
- *   - Ctrl-I/D : Insert/Delete rows
- *   - Ctrl-B : Blend
- *     - from min/max of parameter or content of start/end cell (also multi-column)
- *     - what if only start or end is given?
- *   - Ctrl-R : Randomize
- *     - from min/max of parameter or content of start/end cell (also multi-column)
  *   - Ctrl-S : Smooth
  *     - low pass median filter over changes
- *   - Ctrl-<num> :  Stepping
- *     - set increment for cursor-down on edit
  *   - prev/next for combobox entries
  *     - trigger "move-active" action signal with GTK_SCROLL_STEP_UP/GTK_SCROLL_STEP_DOWN
  *     - what mechanism to use:
@@ -884,6 +876,40 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       }
     }
   }
+#if GTK_CHECK_VERSION(2,12,0)
+  else if((event->keyval == GDK_Up) && (modifier==GDK_CONTROL_MASK)) {
+    g_signal_emit_by_name(self->priv->machine_menu,"move-active",GTK_SCROLL_STEP_BACKWARD,NULL);
+    res=TRUE;
+  }
+  else if((event->keyval == GDK_Down) && (modifier==GDK_CONTROL_MASK)) {
+    g_signal_emit_by_name(self->priv->machine_menu,"move-active",GTK_SCROLL_STEP_FORWARD,NULL);
+    res=TRUE;
+  }
+  else if(event->keyval == GDK_KP_Subtract) {
+    g_signal_emit_by_name(self->priv->pattern_menu,"move-active",GTK_SCROLL_STEP_BACKWARD,NULL);
+    res=TRUE;
+  }
+  else if(event->keyval == GDK_KP_Add) {
+    g_signal_emit_by_name(self->priv->pattern_menu,"move-active",GTK_SCROLL_STEP_FORWARD,NULL);
+    res=TRUE;
+  }
+  else if(event->keyval == GDK_KP_Divide) {
+    g_signal_emit_by_name(self->priv->base_octave_menu,"move-active",GTK_SCROLL_STEP_BACKWARD,NULL);
+    res=TRUE;
+  }
+  else if(event->keyval == GDK_KP_Multiply) {
+    g_signal_emit_by_name(self->priv->base_octave_menu,"move-active",GTK_SCROLL_STEP_FORWARD,NULL);
+    res=TRUE;
+  }
+  else if(event->keyval == GDK_less) {
+    g_signal_emit_by_name(self->priv->wavetable_menu,"move-active",GTK_SCROLL_STEP_BACKWARD,NULL);
+    res=TRUE;
+  }
+  else if(event->keyval == GDK_greater) {
+    g_signal_emit_by_name(self->priv->wavetable_menu,"move-active",GTK_SCROLL_STEP_FORWARD,NULL);
+    res=TRUE;
+  }
+#endif
   return(res);
 }
 
@@ -1605,7 +1631,7 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
 
   self->priv->base_octave=gtk_combo_box_get_active(self->priv->base_octave_menu);
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,NULL);
-  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
+  //gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
 }
 
 static void on_play_notes_toggled(GtkButton *button, gpointer user_data) {
@@ -2025,6 +2051,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   self->priv->machine_menu=GTK_COMBO_BOX(gtk_combo_box_new());
+  gtk_combo_box_set_focus_on_click(self->priv->machine_menu,FALSE);
   renderer=gtk_cell_renderer_pixbuf_new ();
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,FALSE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"pixbuf",MACHINE_MENU_ICON,NULL);
@@ -2032,8 +2059,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"text",MACHINE_MENU_LABEL,NULL);
   g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", G_CALLBACK(on_machine_menu_changed), (gpointer)self);
-  /*
-   * this won't work, as we can't pass anything to the event handler
+  /* this won't work, as we can't pass anything to the event handler
    * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
    * so, we need to subclass the combobox and add two signals: select-next, select-prev
    */
@@ -2052,6 +2078,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   self->priv->pattern_menu=GTK_COMBO_BOX(gtk_combo_box_new());
+  gtk_combo_box_set_focus_on_click(self->priv->pattern_menu,FALSE);
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),
     "foreground","gray",
@@ -2076,6 +2103,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   self->priv->wavetable_menu=GTK_COMBO_BOX(gtk_combo_box_new());
+  gtk_combo_box_set_focus_on_click(self->priv->wavetable_menu,FALSE);
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer), "width", 22, NULL);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,FALSE);
@@ -2098,6 +2126,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   self->priv->base_octave_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
+  gtk_combo_box_set_focus_on_click(self->priv->base_octave_menu,FALSE);
   for(i=0;i<8;i++) {
     sprintf(oct_str,"%1d",i);
     gtk_combo_box_append_text(self->priv->base_octave_menu,oct_str);

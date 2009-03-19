@@ -65,6 +65,9 @@ struct _BtMachinePropertiesDialogPrivate {
 #endif
 
   GtkWidget *param_group_box;
+  /* need this to remove right expander when wire is removed */
+  GHashTable *group_to_object;
+  guint num_global, num_wires;
 
   //guint double_notify_source_id;
 };
@@ -1262,6 +1265,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
 
     // add global machine controls into the table
     table=gtk_table_new(/*rows=*/params+1,/*columns=*/3,/*homogenous=*/FALSE);
+    self->priv->num_global=1;
 
     for(i=0,k=0;i<global_params;i++) {
       if(bt_machine_is_global_param_trigger(self->priv->machine,i)) continue;
@@ -1483,6 +1487,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
     // eat remaning space
     //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
     gtk_container_add(GTK_CONTAINER(expander),table);
+    g_object_unref(machine_voice);
   }
   return(expander);
 }
@@ -1490,28 +1495,24 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
 
 static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-  gulong i,new_voices;
+  gulong i,new_voices,voice_params;
   GtkWidget *expander;
+  GstElement *machine_object;
 
-  g_object_get(G_OBJECT(machine),"voices",&new_voices,NULL);
+  g_object_get(G_OBJECT(machine),
+    "voices",&new_voices,
+    "voice-params",&voice_params,
+    "machine",&machine_object,
+    NULL);
 
   GST_INFO("voices changed: %lu -> %lu",self->priv->voices,new_voices);
 
   if(new_voices>self->priv->voices) {
-    GstElement *machine_object;
-    gulong voice_params;
-
-    g_object_get(self->priv->machine,
-      "voice-params",&voice_params,
-      "machine",&machine_object,
-      NULL);
-
     for(i=self->priv->voices;i<new_voices;i++) {
       // add ui for voice
       if((expander=make_voice_param_box(self,voice_params,i,machine_object))) {
         gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
-        // @todo: need to use gtk_box_reorder_child(GTK_BOX(self->priv->param_group_box),expander,???);
-        // as we might have wire parameters
+        gtk_box_reorder_child(GTK_BOX(self->priv->param_group_box),expander,self->priv->num_global+i);
         gtk_widget_show_all(expander);
       }
     }
@@ -1522,8 +1523,8 @@ static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gp
 
     children=gtk_container_get_children(GTK_CONTAINER(self->priv->param_group_box));
     node=g_list_last(children);
-    // @todo: skip wire param boxes
-    // for(i=0;i<num_wires;i++) node=g_list_previous(node);
+    // skip wire param boxes
+    for(i=0;i<self->priv->num_wires;i++) node=g_list_previous(node);
     for(i=self->priv->voices;i>new_voices;i--) {
       // remove ui for voice
       gtk_container_remove(GTK_CONTAINER(self->priv->param_group_box),GTK_WIDGET(node->data));
@@ -1562,6 +1563,8 @@ static GtkWidget *make_wire_param_box(const BtMachinePropertiesDialog *self,BtWi
 
     // add wire controls into the table
     table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
+    g_hash_table_insert(self->priv->group_to_object,wire,expander);
+    self->priv->num_wires++;
 
     for(i=0;i<params;i++) {
       bt_wire_get_param_details(wire,i,&property,&range_min,&range_max);
@@ -1649,27 +1652,28 @@ static GtkWidget *make_wire_param_box(const BtMachinePropertiesDialog *self,BtWi
 static void on_wire_added(const BtSetup *setup,BtWire *wire,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   GtkWidget *expander;
+  BtMachine *dst;
   
-  if((expander=make_wire_param_box(self,wire))) {
-    gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
+  g_object_get(G_OBJECT(wire),"dst",&dst,NULL);
+  if(dst==self->priv->machine) {
+    if((expander=make_wire_param_box(self,wire))) {
+      gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
+      gtk_widget_show_all(expander);
+    }
   }
+  g_object_unref(dst);
 }
 
 static void on_wire_removed(const BtSetup *setup,BtWire *wire,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-  GList *children,*node;
+  GtkWidget *expander;
 
-  children=gtk_container_get_children(GTK_CONTAINER(self->priv->param_group_box));
-  
   // determine the right expander
-  // @todo: shall we use wire-object name to find it
-
-  // remove ui for voice
-  node=children;
-  //gtk_container_remove(GTK_CONTAINER(self->priv->param_group_box),GTK_WIDGET(node->data));
-
-  g_list_free(children);
-
+  if((expander=g_hash_table_lookup(self->priv->group_to_object,wire))) {
+    gtk_container_remove(GTK_CONTAINER(self->priv->param_group_box),GTK_WIDGET(expander));
+    g_hash_table_remove(self->priv->group_to_object,wire);
+    self->priv->num_wires--;
+  }
 }
 
 static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachinePropertiesDialog *self) {
@@ -1801,6 +1805,8 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   g_free(id);g_free(title);
 
   GST_INFO("machine has %lu global properties, %lu voice properties and %lu voices",global_params,voice_params,self->priv->voices);
+  
+  self->priv->group_to_object=g_hash_table_new(NULL,NULL);
 
   // add widgets to the dialog content area
   // should we use a hpaned or hbox for the presets?
@@ -2078,6 +2084,8 @@ static void bt_machine_properties_dialog_finalize(GObject *object) {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(object);
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  g_hash_table_destroy(self->priv->group_to_object);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
