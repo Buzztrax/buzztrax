@@ -5,6 +5,7 @@
 * play notes in pattern editor
 * combo navigation shortcuts in pattern-view
 * add wire-parameters (volume/pan) to machine dialogs
+* main level meter is now post-gain
 
 http://www.linuxjournal.com/content/buzztard-project-part-2-interview-stefan-kost
 

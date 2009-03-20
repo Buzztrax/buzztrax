@@ -3,6 +3,26 @@
 	* NEWSLETTER:
 	  Collect news.
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	* tests/lib/core/e-machine.c:
+	  Add the ability to have pre- and post-gain level meters.	  
+	  Main level meter is now post-gain.
+
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/render-progress.c:
+	  Ideas.
+
+2009-03-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect news.
+
 	* src/ui/edit/machine-properties-dialog.c:
 	  Implement dynamic changes.
 

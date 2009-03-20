@@ -250,7 +250,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
       g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
       g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
     }
-    if(bt_machine_enable_input_level(machine)) {
+    if(bt_machine_enable_input_post_level(machine)) {
       GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
       // set new song in application
       bt_song_set_unsaved(song,FALSE);
@@ -317,7 +317,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
       // get sink-machine
       if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-        if(bt_machine_enable_input_level(machine)) {
+        if(bt_machine_enable_input_post_level(machine)) {
           GList *missing_machines,*missing_waves;
 
           // DEBUG

@@ -27,8 +27,10 @@
 
 #include <libbuzztard-ic/ic.h>
 
-extern gboolean bt_machine_enable_input_level(BtMachine * const self);
-extern gboolean bt_machine_enable_output_level(BtMachine * const self);
+extern gboolean bt_machine_enable_input_pre_level(BtMachine * const self);
+extern gboolean bt_machine_enable_input_post_level(BtMachine * const self);
+extern gboolean bt_machine_enable_output_pre_level(BtMachine * const self);
+extern gboolean bt_machine_enable_output_post_level(BtMachine * const self);
 extern gboolean bt_machine_enable_input_gain(BtMachine * const self);
 extern gboolean bt_machine_enable_output_gain(BtMachine * const self);
 

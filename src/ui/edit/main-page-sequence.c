@@ -1229,17 +1229,17 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       GtkWidget *label,*button,*vbox,*box;
       GtkVUMeter *vumeter;
       GstElement *level;
-      gchar *level_name="output-level";
+      gchar *level_name="output-post-level";
 
       // enable level meters
       if(!BT_IS_SINK_MACHINE(machine)) {
-        if(!bt_machine_enable_output_level(machine)) {
+        if(!bt_machine_enable_output_post_level(machine)) {
           GST_INFO("enabling output level for machine failed");
         }
       }
       else {
         // its the sink, which already has it enabled
-        level_name="input-level";
+        level_name="input-post-level";
       }
       g_object_get(G_OBJECT(machine),"id",&str,level_name,&level,NULL);
 

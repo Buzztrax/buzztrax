@@ -48,8 +48,10 @@ BtGConfSettingsPrivate
 <TITLE>BtMachine</TITLE>
 BtMachine
 BtMachineState
-bt_machine_enable_input_level
-bt_machine_enable_output_level
+bt_machine_enable_input_pre_level
+bt_machine_enable_input_post_level
+bt_machine_enable_output_pre_level
+bt_machine_enable_output_post_level
 bt_machine_enable_input_gain
 bt_machine_enable_output_gain
 bt_machine_activate_adder

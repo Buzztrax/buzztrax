@@ -885,7 +885,18 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_stop_activate),(gpointer)self);
 
-  /* @todo toggle loop item */
+  /* @todo toggle loop item
+   * - we only have:
+   *   gtk_image_menu_item_new_from_stock - not a toggle
+   *   gtk_check_menu_item_new_with_mnemonic - no image
+   */
+  
+  /* @todo: tools menu
+   * 'normalize song'
+   * - dummy render with master->input-pre-gain, adjust master volume
+   * 'cleanup'
+   * - remove unsused patterns, unconnected machines with no empty/tracks
+   */
   
   // help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));

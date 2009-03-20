@@ -81,7 +81,7 @@ BT_START_TEST(test_btmachine_enable_input_level1) {
   fail_unless(machine != NULL, NULL);
   fail_unless(err==NULL, NULL);
 
-  res=bt_machine_enable_input_level(machine);
+  res=bt_machine_enable_input_pre_level(machine);
   fail_unless(res == TRUE, NULL);
 
   g_object_checked_unref(song);
@@ -119,7 +119,7 @@ BT_START_TEST(test_btmachine_enable_input_level2) {
   fail_unless(wire != NULL, NULL);
   fail_unless(err==NULL, NULL);
 
-  res=bt_machine_enable_input_level(machine2);
+  res=bt_machine_enable_input_pre_level(machine2);
   fail_unless(res == TRUE, NULL);
 
   g_object_checked_unref(song);

@@ -617,7 +617,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // get the input_level and input_gain properties from audio_sink
     g_object_try_weak_unref(self->priv->gain);
     g_object_try_weak_unref(self->priv->level);
-    g_object_get(G_OBJECT(self->priv->master),"input-level",&self->priv->level,"input-gain",&self->priv->gain,NULL);
+    g_object_get(G_OBJECT(self->priv->master),"input-post-level",&self->priv->level,"input-gain",&self->priv->gain,NULL);
     g_object_try_weak_ref(self->priv->gain);
     g_object_try_weak_ref(self->priv->level);
 

@@ -24,7 +24,9 @@
  *
  * Song recording status dialog.
  */
-
+/* @todo: 
+ * turn off-level meters (and ev. open wire-analysis windows) to speed up recording
+ */
 #define BT_EDIT
 #define BT_RENDER_PROGRESS_C
 

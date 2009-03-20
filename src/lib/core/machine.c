@@ -108,10 +108,12 @@ enum {
   MACHINE_GLOBAL_PARAMS,
   MACHINE_VOICE_PARAMS,
   MACHINE_MACHINE,
-  MACHINE_INPUT_LEVEL,
+  MACHINE_INPUT_PRE_LEVEL,
   MACHINE_INPUT_GAIN,
-  MACHINE_OUTPUT_LEVEL,
+  MACHINE_INPUT_POST_LEVEL,
+  MACHINE_OUTPUT_PRE_LEVEL,
   MACHINE_OUTPUT_GAIN,
+  MACHINE_OUTPUT_POST_LEVEL,
   MACHINE_PATTERNS,
   MACHINE_STATE
 };
@@ -124,15 +126,15 @@ typedef enum {
   /* helper to make adder link to next element */
   PART_ADDER_CONVERT,
   /* the elements to control and analyse the current input signal */
-  /* @todo: add PART_INPUT_PRE_GAIN and rename the other to PART_INPUT_POST_GAIN */
-  PART_INPUT_LEVEL,
+  PART_INPUT_PRE_LEVEL,
   PART_INPUT_GAIN,
+  PART_INPUT_POST_LEVEL,
   /* the gstreamer element that produces/processes the signal */
   PART_MACHINE,
   /* the elements to control and analyse the current output signal */
-  /* @todo: add PART_OUTPUT_PRE_GAIN and rename the other to PART_OUTPUT_POST_GAIN */
-  PART_OUTPUT_LEVEL,
+  PART_OUTPUT_PRE_LEVEL,
   PART_OUTPUT_GAIN,
+  PART_OUTPUT_POST_LEVEL,
   /* utillity elements to allow multiple outputs */
   PART_SPREADER,
   /* how many elements are used */
@@ -794,6 +796,47 @@ Error:
   return(res);
 }
 
+/* bt_machine_enable_part:
+ * @part: which internal element to create
+ * @factory_name: the element-factories name
+ * @element_name: the name of the new #GstElement instance
+ *
+ * can replace _enable_{in,out}put_{level,gain}
+ * this is not good enough for adder, ev. okay for spreader
+ */
+static gboolean bt_machine_enable_part(BtMachine * const self,const BtMachinePart part,const gchar * const factory_name,const gchar * const element_name) {
+  gboolean res=FALSE;
+  
+  if(self->priv->machines[part])
+    return(TRUE);
+
+  if(!bt_machine_make_internal_element(self,part,factory_name,element_name)) goto Error;
+  // configure part
+  switch(part) {
+    case PART_INPUT_PRE_LEVEL:
+    case PART_INPUT_POST_LEVEL:
+    case PART_OUTPUT_PRE_LEVEL:
+    case PART_OUTPUT_POST_LEVEL:
+      g_object_set(G_OBJECT(self->priv->machines[part]),
+        "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
+        "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 50.0,
+        NULL);
+      break;
+    default:
+      break;
+  }
+  if(part<PART_MACHINE) {
+    if(!bt_machine_add_input_element(self,part)) goto Error;
+  }
+  else {
+    if(!bt_machine_add_output_element(self,part)) goto Error;
+  }
+  res=TRUE;
+Error:
+  return(res);
+}
+
+
 //-- init helpers
 
 static gboolean bt_machine_init_core_machine(BtMachine * const self) {
@@ -1053,101 +1096,64 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
 
 //-- methods
 
-#if 0
-/* bt_machine_enable_part:
- * @part: is same as property name
- *
- * can replace _enable_{in,out}put_{level,gain}
- * this is not good enough for adder, ev. okay for spreader
- */
-gboolean bt_machine_enable_part(BtMachine * const self,gchar *part) {
-  gboolean res=FALSE;
-  BtMachinePart pard_ix;
-  // map part -> BtMachinePart
-  
-  if(self->priv->machines[pard_ix])
-    return(TRUE);
-  if(!bt_machine_make_internal_element(self,pard_ix,"level","input_level")) goto Error;
-  // configure part
-  switch(pard_ix) {
-    case PART_INPUT_LEVEL:
-    case PART_OUTPUT_LEVEL:
-      g_object_set(G_OBJECT(self->priv->machines[pard_ix]),
-        "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-        "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 50.0,
-        NULL);
-      break;
-  }
-  if(partix<PART_MACHINE) {
-    if(!bt_machine_add_input_element(self,partix)) goto Error;
-  }
-  else {
-    if(!bt_machine_add_output_element(self,partix)) goto Error;
-  }
-  res=TRUE;
-Error:
-  return(res);
-}
-#endif
-
 /**
- * bt_machine_enable_input_level:
- * @self: the machine to enable the input-level analyser in
+ * bt_machine_enable_input_pre_level:
+ * @self: the machine to enable the pre-gain input-level analyser in
  *
- * Creates the input-level analyser of the machine and activates it.
+ * Creates the pre-gain input-level analyser of the machine and activates it.
  *
  * Returns: %TRUE for success, %FALSE otherwise
  */
-gboolean bt_machine_enable_input_level(BtMachine * const self) {
-  gboolean res=FALSE;
-
+gboolean bt_machine_enable_input_pre_level(BtMachine * const self) {
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
 
-  if(!self->priv->machines[PART_INPUT_LEVEL]) {
-    GST_INFO(" for machine '%s'",self->priv->id);
-
-    // add input-level analyser
-    if(!bt_machine_make_internal_element(self,PART_INPUT_LEVEL,"level","input_level")) goto Error;
-    g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),
-      "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-      "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 50.0,
-      NULL);
-    if(!bt_machine_add_input_element(self,PART_INPUT_LEVEL)) goto Error;
-  }
-  res=TRUE;
-Error:
-  return(res);
+  return(bt_machine_enable_part(self,PART_INPUT_PRE_LEVEL,"level","input_pre_level"));
 }
 
 /**
- * bt_machine_enable_output_level:
- * @self: the machine to enable the output-level analyser in
+ * bt_machine_enable_input_post_level:
+ * @self: the machine to enable the post-gain input-level analyser in
  *
- * Creates the output-level analyser of the machine and activates it.
+ * Creates the post-gain input-level analyser of the machine and activates it.
  *
  * Returns: %TRUE for success, %FALSE otherwise
  */
-gboolean bt_machine_enable_output_level(BtMachine * const self) {
-  gboolean res=FALSE;
+gboolean bt_machine_enable_input_post_level(BtMachine * const self) {
+  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
 
+  return(bt_machine_enable_part(self,PART_INPUT_POST_LEVEL,"level","input_post_level"));
+}
+
+/**
+ * bt_machine_enable_output_pre_level:
+ * @self: the machine to enable the pre-gain output-level analyser in
+ *
+ * Creates the pre-gain output-level analyser of the machine and activates it.
+ *
+ * Returns: %TRUE for success, %FALSE otherwise
+ */
+gboolean bt_machine_enable_output_pre_level(BtMachine * const self) {
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
+  
+  return(bt_machine_enable_part(self,PART_OUTPUT_PRE_LEVEL,"level","output_pre_level"));
+}
 
-  if(!self->priv->machines[PART_OUTPUT_LEVEL]) {
-    GST_INFO(" for machine '%s'",self->priv->id);
-
-    // add output-level analyser
-    if(!bt_machine_make_internal_element(self,PART_OUTPUT_LEVEL,"level","output_level")) goto Error;
-    g_object_set(G_OBJECT(self->priv->machines[PART_OUTPUT_LEVEL]),
-      "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-      "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 50.0,
-      NULL);
-    if(!bt_machine_add_output_element(self,PART_OUTPUT_LEVEL)) goto Error;
-  }
-  res=TRUE;
-Error:
-  return(res);
+/**
+ * bt_machine_enable_output_post_level:
+ * @self: the machine to enable the post-gain output-level analyser in
+ *
+ * Creates the post-gain output-level analyser of the machine and activates it.
+ *
+ * Returns: %TRUE for success, %FALSE otherwise
+ */
+gboolean bt_machine_enable_output_post_level(BtMachine * const self) {
+  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
+  
+  return(bt_machine_enable_part(self,PART_OUTPUT_POST_LEVEL,"level","output_post_level"));
 }
 
 /**
@@ -1159,21 +1165,9 @@ Error:
  * Returns: %TRUE for success, %FALSE otherwise
  */
 gboolean bt_machine_enable_input_gain(BtMachine * const self) {
-  gboolean res=FALSE;
-
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
-
-  if(!self->priv->machines[PART_INPUT_GAIN]) {
-    GST_INFO(" for machine '%s'",self->priv->id);
-
-    // add input-gain element
-    if(!bt_machine_make_internal_element(self,PART_INPUT_GAIN,"volume","input_gain")) goto Error;
-    if(!bt_machine_add_input_element(self,PART_INPUT_GAIN)) goto Error;
-  }
-  res=TRUE;
-Error:
-  return(res);
+  return(bt_machine_enable_part(self,PART_INPUT_GAIN,"volume","input_gain"));
 }
 
 /**
@@ -1185,21 +1179,9 @@ Error:
  * Returns: %TRUE for success, %FALSE otherwise
  */
 gboolean bt_machine_enable_output_gain(BtMachine * const self) {
-  gboolean res=FALSE;
-
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
-
-  if(!self->priv->machines[PART_OUTPUT_GAIN]) {
-    GST_INFO(" for machine '%s'",self->priv->id);
-
-    // add input-gain element
-    if(!bt_machine_make_internal_element(self,PART_OUTPUT_GAIN,"volume","output_gain")) goto Error;
-    if(!bt_machine_add_output_element(self,PART_OUTPUT_GAIN)) goto Error;
-  }
-  res=TRUE;
-Error:
-  return(res);
+  return(bt_machine_enable_part(self,PART_OUTPUT_GAIN,"volume","output_gain"));
 }
 
 /**
@@ -2675,8 +2657,8 @@ GList *bt_machine_get_element_list(const BtMachine * const self) {
 }
 
 void bt_machine_dbg_print_parts(const BtMachine * const self) {
-  /* [A AC IL IG M OL OG S] */
-  GST_INFO("%s [%c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c]",
+  /* [A AC I<L IG I>L M O<L OG O>L S] */
+  GST_INFO("%s [%c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c]",
     self->priv->id,
 
     self->priv->machines[PART_ADDER]==self->dst_elem?'<':' ',
@@ -2687,25 +2669,33 @@ void bt_machine_dbg_print_parts(const BtMachine * const self) {
     self->priv->machines[PART_ADDER_CONVERT]?"AC":"ac",
     self->priv->machines[PART_ADDER_CONVERT]==self->src_elem?'>':' ',
 
-    self->priv->machines[PART_INPUT_LEVEL]==self->dst_elem?'<':' ',
-    self->priv->machines[PART_INPUT_LEVEL]?"IL":"il",
-    self->priv->machines[PART_INPUT_LEVEL]==self->src_elem?'>':' ',
+    self->priv->machines[PART_INPUT_PRE_LEVEL]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_INPUT_PRE_LEVEL]?"I<L":"i<l",
+    self->priv->machines[PART_INPUT_PRE_LEVEL]==self->src_elem?'>':' ',
 
     self->priv->machines[PART_INPUT_GAIN]==self->dst_elem?'<':' ',
     self->priv->machines[PART_INPUT_GAIN]?"IG":"ig",
     self->priv->machines[PART_INPUT_GAIN]==self->src_elem?'>':' ',
 
+    self->priv->machines[PART_INPUT_POST_LEVEL]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_INPUT_POST_LEVEL]?"I>L":"i>l",
+    self->priv->machines[PART_INPUT_POST_LEVEL]==self->src_elem?'>':' ',
+
     self->priv->machines[PART_MACHINE]==self->dst_elem?'<':' ',
     self->priv->machines[PART_MACHINE]?"M":"m",
     self->priv->machines[PART_MACHINE]==self->src_elem?'>':' ',
 
-    self->priv->machines[PART_OUTPUT_LEVEL]==self->dst_elem?'<':' ',
-    self->priv->machines[PART_OUTPUT_LEVEL]?"OL":"ol",
-    self->priv->machines[PART_OUTPUT_LEVEL]==self->src_elem?'>':' ',
+    self->priv->machines[PART_OUTPUT_PRE_LEVEL]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_OUTPUT_PRE_LEVEL]?"O<L":"o<l",
+    self->priv->machines[PART_OUTPUT_PRE_LEVEL]==self->src_elem?'>':' ',
 
     self->priv->machines[PART_OUTPUT_GAIN]==self->dst_elem?'<':' ',
     self->priv->machines[PART_OUTPUT_GAIN]?"OG":"og",
     self->priv->machines[PART_OUTPUT_GAIN]==self->src_elem?'>':' ',
+
+    self->priv->machines[PART_OUTPUT_POST_LEVEL]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_OUTPUT_POST_LEVEL]?"O>L":"o>l",
+    self->priv->machines[PART_OUTPUT_POST_LEVEL]==self->src_elem?'>':' ',
 
     self->priv->machines[PART_SPREADER]==self->dst_elem?'<':' ',
     self->priv->machines[PART_SPREADER]?"S":"s",
@@ -3239,17 +3229,23 @@ static void bt_machine_get_property(GObject * const object, const guint property
     case MACHINE_MACHINE: {
       g_value_set_object(value, self->priv->machines[PART_MACHINE]);
     } break;
-    case MACHINE_INPUT_LEVEL: {
-      g_value_set_object(value, self->priv->machines[PART_INPUT_LEVEL]);
+    case MACHINE_INPUT_PRE_LEVEL: {
+      g_value_set_object(value, self->priv->machines[PART_INPUT_PRE_LEVEL]);
     } break;
     case MACHINE_INPUT_GAIN: {
       g_value_set_object(value, self->priv->machines[PART_INPUT_GAIN]);
     } break;
-    case MACHINE_OUTPUT_LEVEL: {
-      g_value_set_object(value, self->priv->machines[PART_OUTPUT_LEVEL]);
+    case MACHINE_INPUT_POST_LEVEL: {
+      g_value_set_object(value, self->priv->machines[PART_INPUT_POST_LEVEL]);
+    } break;
+    case MACHINE_OUTPUT_PRE_LEVEL: {
+      g_value_set_object(value, self->priv->machines[PART_OUTPUT_PRE_LEVEL]);
     } break;
     case MACHINE_OUTPUT_GAIN: {
       g_value_set_object(value, self->priv->machines[PART_OUTPUT_GAIN]);
+    } break;
+    case MACHINE_OUTPUT_POST_LEVEL: {
+      g_value_set_object(value, self->priv->machines[PART_OUTPUT_POST_LEVEL]);
     } break;
     case MACHINE_PATTERNS: {
       g_value_set_pointer(value,g_list_copy(self->priv->patterns));
@@ -3578,10 +3574,10 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                      GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_INPUT_LEVEL,
-                                  g_param_spec_object("input-level",
-                                     "input-level prop",
-                                     "the input-level element, if any",
+  g_object_class_install_property(gobject_class,MACHINE_INPUT_PRE_LEVEL,
+                                  g_param_spec_object("input-pre-level",
+                                     "input-pre-level prop",
+                                     "the pre-gain input-level element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
@@ -3592,10 +3588,17 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                      GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_OUTPUT_LEVEL,
-                                  g_param_spec_object("output-level",
-                                     "output-level prop",
-                                     "the output-level element, if any",
+  g_object_class_install_property(gobject_class,MACHINE_INPUT_POST_LEVEL,
+                                  g_param_spec_object("input-post-level",
+                                     "input-post-level prop",
+                                     "the post-gain input-level element, if any",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,MACHINE_OUTPUT_PRE_LEVEL,
+                                  g_param_spec_object("output-pre-level",
+                                     "output-pre-level prop",
+                                     "the pre-gain output-level element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
@@ -3603,6 +3606,13 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                   g_param_spec_object("output-gain",
                                      "output-gain prop",
                                      "the output-gain element, if any",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,MACHINE_OUTPUT_POST_LEVEL,
+                                  g_param_spec_object("output-post-level",
+                                     "output-post-level prop",
+                                     "the post-gain output-level element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 

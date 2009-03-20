@@ -829,8 +829,8 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
         g_object_unref(song);
 
         if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
-          if(bt_machine_enable_output_level(self->priv->machine)) {
-            g_object_get(G_OBJECT(self->priv->machine),"output-level",&self->priv->output_level,NULL);
+          if(bt_machine_enable_output_post_level(self->priv->machine)) {
+            g_object_get(G_OBJECT(self->priv->machine),"output-post-level",&self->priv->output_level,NULL);
             g_object_try_weak_ref(self->priv->output_level);
             gst_object_unref(self->priv->output_level);
           }
@@ -839,8 +839,8 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
           }
         }
         if(!BT_IS_SOURCE_MACHINE(self->priv->machine)) {
-          if(bt_machine_enable_input_level(self->priv->machine)) {
-            g_object_get(G_OBJECT(self->priv->machine),"input-level",&self->priv->input_level,NULL);
+          if(bt_machine_enable_input_pre_level(self->priv->machine)) {
+            g_object_get(G_OBJECT(self->priv->machine),"input-pre-level",&self->priv->input_level,NULL);
             g_object_try_weak_ref(self->priv->input_level);
             gst_object_unref(self->priv->input_level);
           }
