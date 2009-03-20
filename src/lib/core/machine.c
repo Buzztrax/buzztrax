@@ -37,7 +37,7 @@
  *    <listitem><simpara>gain for incomming signals</simpara></listitem>
  *  </varlistentry>
  *  <varlistentry>
- *    <term>input level:</term>
+ *    <term>input pre/post-gain level:</term>
  *    <listitem><simpara>level meter for incomming signal</simpara></listitem>
  *  </varlistentry>
  *  <varlistentry>
@@ -49,7 +49,7 @@
  *    <listitem><simpara>gain for outgoing signal</simpara></listitem>
  *  </varlistentry>
  *  <varlistentry>
- *    <term>output level:</term>
+ *    <term>output pre/post-gain level:</term>
  *    <listitem><simpara>level meter for outgoing signal</simpara></listitem>
  *  </varlistentry>
  *  <varlistentry>
@@ -57,7 +57,7 @@
  *    <listitem><simpara>distibutes signal to outgoing connections</simpara></listitem>
  *  </varlistentry>
  * </variablelist>
- * The adder and spreader elements are activated on demand.
+ * The adder and spreader elements are activated depending on element type..
  * The volume controls and level meters are activated as requested via the API.
  * It is recommended to only activate them, when needed. The instances are cached
  * after deactivation (so that they can be easily reactivated) and destroyed with

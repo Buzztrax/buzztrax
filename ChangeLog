@@ -1,5 +1,10 @@
 2009-03-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  More api-doc update for last change.
+
+2009-03-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Collect news.
 
