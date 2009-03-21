@@ -760,6 +760,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
   if (self->num_groups) {
     int kup = toupper(event->keyval);
     int control = (event->state & GDK_CONTROL_MASK) != 0;
+    int shift = (event->state & GDK_SHIFT_MASK) != 0;
     int modifier = event->state & gtk_accelerator_get_default_mod_mask();
 
     if (control && event->keyval >= '1' && event->keyval <= '9') {
@@ -986,7 +987,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         }
         break;
       case GDK_ISO_Left_Tab:
-        if (!modifier) {
+        if (shift) {
           if (self->group > 0) {
             self->group--;
             if (self->groups[self->group].type != self->groups[self->group + 1].type) {
