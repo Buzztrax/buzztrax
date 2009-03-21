@@ -1,5 +1,13 @@
 2009-03-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gui/svgcanvas2.c:
+	* src/ui/edit/machine-canvas-item.c
+	  Add our svg canvas item hack (disabled by default). This still causes some
+	  odd redraw issues and needs to be better integrated with the themeing
+	  support.
+
+2009-03-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-editor.c:
 	  Fix shift-tab.
 

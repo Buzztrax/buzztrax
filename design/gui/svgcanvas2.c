@@ -159,6 +159,7 @@ gnome_canvas_svg_set_property (GObject * const object, const guint property_id, 
     case PROP_FILE_NAME: {
       g_free(self->priv->file_name);
       self->priv->file_name = g_value_dup_string(value);
+      gnome_canvas_item_request_update(GNOME_CANVAS_ITEM(self));
     } break;
      default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
