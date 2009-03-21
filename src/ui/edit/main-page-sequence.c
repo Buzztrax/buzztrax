@@ -1572,9 +1572,13 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
         GST_INFO("adjusted length = %ld -> %ld",sequence_length,row);
         sequence_length=row;
         g_object_set(self->priv->sequence,"length",sequence_length,NULL);
-        // this triggers redraw
-        sequence_calculate_visible_lines(self);
         g_object_get(self->priv->sequence,"loop-start",&loop_start,NULL);
+        // this triggers redraw
+        sequence_table_refresh(self,song);
+        sequence_table_refresh_labels(self);
+        sequence_calculate_visible_lines(self);
+        sequence_model_recolorize(self);
+        sequence_view_set_cursor_pos(self);
       }
       else {
         g_object_set(self->priv->sequence,"loop-end",row,NULL);
@@ -1975,7 +1979,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     }
     else if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
       // first column is label
-      if((track>0) /*&& (modifier==GDK_SHIFT_MASK)*/) {
+      if(track>0) {
         BtMainWindow *main_window;
         BtMainPages *pages;
         BtMainPagePatterns *patterns_page;
@@ -1987,7 +1991,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         g_object_get(G_OBJECT(pages),"patterns-page",&patterns_page,NULL);
 
         gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
-        if((pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1))) {
+        if((row<length) && (pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1))) {
           GST_INFO("show pattern");
           bt_main_page_patterns_show_pattern(patterns_page,pattern);
           g_object_unref(pattern);
