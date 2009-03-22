@@ -312,7 +312,8 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   
   // play and wait for EOS 
   if((state_res=gst_element_set_state(self->priv->pipeline,GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING ("Can't set wave loader pipeline to playing");
+    GST_WARNING ("Can't set wave loader pipeline for %s / %s to playing",self->priv->uri,uri);
+    gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
     res=FALSE;
   }
 
@@ -473,8 +474,11 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
       param_name=va_arg(var_args,gchar*);
     }
     
-    self=bt_wave_new(song,(gchar*)name,(gchar*)uri_str,index,volume,loop_mode,0);
+    /* @todo: ugly hack, don't pass uri_str yet, this would trigger loading
+     * which we do below (see also: bt_wave_constructed) */
+    self=bt_wave_new(song,(gchar*)name,NULL,index,volume,loop_mode,0);
     result=BT_PERSISTENCE(self);
+    g_object_set(G_OBJECT(self),"uri",uri_str,NULL);
   }
   else {
     self=BT_WAVE(persistence);

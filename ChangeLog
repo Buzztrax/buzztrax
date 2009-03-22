@@ -1,3 +1,8 @@
+2009-03-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wave.c:
+	  Fix waveloader. This needs unit-tests and some code cleanups.
+
 2009-03-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gui/svgcanvas2.c:
