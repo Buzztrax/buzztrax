@@ -187,7 +187,7 @@ static void bt_processor_machine_constructed(GObject *object) {
   G_OBJECT_CLASS(parent_class)->constructed(object);
 
   g_object_get(G_OBJECT(self),"construction-error",&err,NULL);
-  if(*err==NULL) {
+  if(err==NULL || *err==NULL) {
     GstElement * const element;
     BtSong * const song;
     BtSetup *setup;

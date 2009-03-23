@@ -1,3 +1,13 @@
+2009-03-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/source-machine.c:
+	  Don't segfault when error==NULL
+
+	* tests/lib/core/e-song-io-native.c:
+	  Add tests for saving.
+
 2009-03-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wave.c:

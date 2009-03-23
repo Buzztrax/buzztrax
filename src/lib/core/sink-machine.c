@@ -204,7 +204,7 @@ static void bt_sink_machine_constructed(GObject *object) {
   G_OBJECT_CLASS(parent_class)->constructed(object);
 
   g_object_get(G_OBJECT(self),"construction-error",&err,NULL);
-  if(*err==NULL) {
+  if(err==NULL || *err==NULL) {
     BtSong * const song;
     GstElement * const element;
     GstElement * const gain;
