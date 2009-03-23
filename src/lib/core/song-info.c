@@ -379,6 +379,10 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
       }
       else {
         time_t now=time(NULL);
+        /* this is ISO 8601 Date and Time Format
+         * %F     Equivalent to %Y-%m-%d (the ISO 8601 date format). (C99)
+         * %T     The time in 24-hour notation (%H:%M:%S). (SU)
+         */
         strftime(self->priv->create_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
       }
     } break;
@@ -571,14 +575,14 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
   g_object_class_install_property(gobject_class,SONG_INFO_CREATE_DTS,
                                   g_param_spec_string("create-dts",
                                      "creation dts prop",
-                                     "song creation date time stamp",
+                                     "song creation date time stamp (iso 8601 format)",
                                      NULL, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_CHANGE_DTS,
                                   g_param_spec_string("change-dts",
                                      "changed dts prop",
-                                     "song changed date time stamp",
+                                     "song changed date time stamp (iso 8601 format)",
                                      NULL, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }

@@ -1,5 +1,11 @@
 2009-03-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-info.c:
+	* src/ui/edit/main-page-info.c:
+	  Add UI to short date-time-stamps in info-page. Fixes #2705959.
+
+2009-03-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Add more disable deprecated targets.
 

@@ -52,10 +52,13 @@ struct _BtMainPageInfoPrivate {
 
   /* name, genre, author of the song */
   GtkEntry *name,*genre,*author;
+  
+  /* ro date stamps of the song */
+  GtkEntry *date_created,*date_changed;
 
   /* bpm,tpb,beats of the song */
   GtkSpinButton *bpm,*tpb,*beats;
-
+  
   /* freeform info about the song */
   GtkTextView *info;
 };
@@ -245,7 +248,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSong *song;
   BtSongInfo *song_info;
   GtkTextBuffer *buffer;
-  gchar *name,*genre,*author;
+  gchar *name,*genre,*author,*create_dts,*change_dts;
   gulong bpm,tpb,bars;
   gchar *info;
 
@@ -262,6 +265,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song_info),
     "name",&name,"genre",&genre,"author",&author,"info",&info,
     "bpm",&bpm,"tpb",&tpb,"bars",&bars,
+    "create-dts",&create_dts,"change-dts",&change_dts,
     NULL);
   g_signal_handlers_block_matched(self->priv->name,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);
   gtk_entry_set_text(self->priv->name,safe_string(name));g_free(name);
@@ -287,6 +291,20 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   gtk_spin_button_set_value(self->priv->beats,(gdouble)(bars/tpb));
   g_signal_handlers_unblock_matched(self->priv->beats,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_beats_changed,(gpointer)self);
 
+  /* the iso date is not nice for the user
+   * struct tm tm;
+   * char dts[255];
+   *
+   * strptime(create_dts, "%FT%TZ", &tm);
+   * strftime(dts, sizeof(buf), "%F %T", &tm);
+   *
+   * but the code below is simpler and works too :)
+   */
+  create_dts[10]=' ';create_dts[19]='\0';
+  gtk_entry_set_text(self->priv->date_created,create_dts);g_free(create_dts);
+  change_dts[10]=' ';change_dts[19]='\0';
+  gtk_entry_set_text(self->priv->date_changed,change_dts);g_free(change_dts);
+  
   buffer=gtk_text_view_get_buffer(self->priv->info);
   g_signal_handlers_block_matched(G_OBJECT(buffer),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_info_changed,(gpointer)self);
   gtk_text_buffer_set_text(buffer,safe_string(info),-1);g_free(info);
@@ -332,7 +350,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   gtk_box_pack_start(GTK_BOX(box),spacer,FALSE,TRUE,0);
 
   // first column
-  table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
+  table=gtk_table_new(/*rows=*/4,/*columns=*/2,/*homogenous=*/FALSE);
   gtk_box_pack_start(GTK_BOX(box),table,TRUE,TRUE,0);
 
   label=gtk_label_new(_("name"));
@@ -355,9 +373,17 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   self->priv->author=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->author), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(self->priv->author), "changed", G_CALLBACK(on_author_changed), (gpointer)self);
+  
+  label=gtk_label_new(_("created"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 3, 4, GTK_FILL,GTK_SHRINK, 2,1);
+  self->priv->date_created=GTK_ENTRY(gtk_entry_new());
+  gtk_editable_set_editable(GTK_EDITABLE(self->priv->date_created),FALSE);
+  GTK_WIDGET_UNSET_FLAGS(self->priv->date_created,GTK_CAN_FOCUS);
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->date_created), 1, 2, 3, 4, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   // second column
-  table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
+  table=gtk_table_new(/*rows=*/4,/*columns=*/2,/*homogenous=*/FALSE);
   gtk_box_pack_start(GTK_BOX(box),table,TRUE,TRUE,0);
 
   label=gtk_label_new(_("beats per minute"));
@@ -384,10 +410,19 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->tpb), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(self->priv->tpb), "value-changed", G_CALLBACK(on_tpb_changed), (gpointer)self);
 
+  label=gtk_label_new(_("last saved"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 3, 4, GTK_FILL,GTK_SHRINK, 2,1);
+  self->priv->date_changed=GTK_ENTRY(gtk_entry_new());
+  gtk_editable_set_editable(GTK_EDITABLE(self->priv->date_changed),FALSE);
+  GTK_WIDGET_UNSET_FLAGS(self->priv->date_changed,GTK_CAN_FOCUS);
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->date_changed), 1, 2, 3, 4, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+
   // @idea have another field with subticks (GstController parameter smoothing)
   // @idea show tick and subtick interval as time (s:ms)
 
-  gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  // spacer ?
+  //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, 4, 5, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   // second row of hbox
   frame=gtk_frame_new(NULL);
