@@ -9,11 +9,11 @@
     <info>a sine followed by an amp, both playing patterns</info>
     <name>simple 2</name>
     <genre>dark-wave</genre>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
-    <create-dts>2005-09-20T22:10:56Z</create-dts>
-    <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
   <setup>
@@ -31,7 +31,7 @@
           <property key="ypos" value="0.2"/>
         </properties>
         <patterns>
-          <pattern id="amp1_fade" machine="amp1" name="fade" length="16">
+          <pattern id="amp1_fade" name="fade" length="16">
             <tick time= "0"><globaldata name="volume" value="1.0"/></tick>
             <tick time= "1"><globaldata name="volume" value="0.75"/></tick>
             <tick time= "2"><globaldata name="volume" value="0.5"/></tick>
@@ -58,7 +58,7 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
-          <pattern id="sine1_beeps" machine="sine1" name="beeps" length="16">
+          <pattern id="sine1_beeps" name="beeps" length="16">
             <tick time="0">
               <globaldata name="freq" value="440.0"/>
               <globaldata name="volume" value="1.0"/>
@@ -78,7 +78,7 @@
     
     <wires>
       <wire src="sine1" dst="amp1" gain="1.5"/>
-      <wire src="amp1" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="amp1" dst="audio_sink" gain="1.0" panorama="-50"/>
     </wires>    
   </setup>
   

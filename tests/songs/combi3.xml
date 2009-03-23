@@ -9,11 +9,11 @@
     <info>a three voice melody</info>
     <name>combi 1</name>
     <genre>chip-music</genre>
+    <create-dts>2006-01-12T22:10:56Z</create-dts>
+    <change-dts>2006-01-12T22:10:56Z</change-dts>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
-    <create-dts>2006-01-12T22:10:56Z</create-dts>
-    <change-dts>2006-01-12T22:10:56Z</change-dts>
   </meta>
 
   <setup>
@@ -32,7 +32,7 @@
         </properties>
         <globaldata name="volume" value="0.7"/>
         <patterns>
-          <pattern id="beep1::C-3" machine="beep1" name="C-3" length="32">
+          <pattern id="beep1::C-3" name="C-3" length="32">
             <tick time="0">
               <globaldata name="note" value="c-3"/>
               <globaldata name="volume" value="1.0"/>
@@ -56,7 +56,7 @@
             <tick time="28"><globaldata name="note" value="c-3"/></tick>
             <tick time="30"><globaldata name="note" value="a#3"/></tick>
           </pattern>
-          <pattern id="beep1::D-3" machine="beep1" name="D-3" length="32">
+          <pattern id="beep1::D-3" name="D-3" length="32">
             <tick time="0">
               <globaldata name="note" value="d-3"/>
               <globaldata name="volume" value="1.0"/>
@@ -90,7 +90,7 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
-          <pattern id="beep2::C-1" machine="beep2" name="C-1" length="16">
+          <pattern id="beep2::C-1" name="C-1" length="16">
             <tick time="2">
               <globaldata name="note" value="c-1"/>
               <globaldata name="volume" value="0.15"/>
@@ -102,7 +102,7 @@
             <tick time="10"><globaldata name="note" value="c-1"/><globaldata name="cut-off" value="0.4"/></tick>
             <tick time="14"><globaldata name="note" value="c-1"/><globaldata name="cut-off" value="0.2"/></tick>
           </pattern>
-          <pattern id="beep2::D-1" machine="beep2" name="D-1" length="16">
+          <pattern id="beep2::D-1" name="D-1" length="16">
             <tick time="2">
               <globaldata name="note" value="d-1"/>
               <globaldata name="volume" value="0.15"/>
@@ -133,7 +133,7 @@
           <property key="ypos" value="0.0"/>
         </properties>
         <patterns>
-          <pattern id="beat_std" machine="beat" name="std" length="16">
+          <pattern id="beat_std" name="std" length="16">
             <tick time="0">
               <globaldata name="Trigger" value="100"/>
               <globaldata name="Tone" value="50"/>
@@ -142,7 +142,7 @@
             <tick time="8"><globaldata name="Trigger" value="80"/></tick>
             <tick time="12"><globaldata name="Trigger" value="80"/></tick>
           </pattern>
-          <pattern id="beat_off" machine="beat" name="off" length="16">
+          <pattern id="beat_off" name="off" length="16">
             <tick time="0">
               <globaldata name="Trigger" value="100"/>
               <globaldata name="Tone" value="50"/>
@@ -161,7 +161,7 @@
           <property key="ypos" value="0.4"/>
         </properties>
         <patterns>
-          <pattern id="snr_beats" machine="snr" name="beats" length="16">
+          <pattern id="snr_beats" name="beats" length="16">
             <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
             <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
           </pattern>
@@ -182,7 +182,7 @@
           <property key="ypos" value="0.8"/>
         </properties>
         <patterns>
-          <pattern id="hh_beats" machine="hh" name="beats" length="16">
+          <pattern id="hh_beats" name="beats" length="16">
             <tick time= "2"><voicedata name="OhTrig" voice="0" value="1"/></tick>
             <tick time= "6"><voicedata name="ChTrig" voice="0" value="1"/></tick>
             <tick time="10"><voicedata name="ChTrig" voice="0" value="1"/></tick>
@@ -203,8 +203,8 @@
     <wires>
       <wire src="beep1" dst="echo1" gain="1.0"/>
       <wire src="echo1" dst="audio_sink" gain="1.0"/>
-      <wire src="beep2" dst="audio_sink" gain="1.0" pan="-50"/>
-      <wire src="beat" dst="audio_sink" gain="1.0" pan="0"/>
+      <wire src="beep2" dst="audio_sink" gain="1.0" panorama="-50"/>
+      <wire src="beat" dst="audio_sink" gain="1.0" panorama="0"/>
       <wire src="snr" dst="pano1" gain="1.0"/>
       <wire src="pano1" dst="audio_sink" gain="1.0"/>
       <wire src="hh" dst="pano2" gain="1.0"/>

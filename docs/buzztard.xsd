@@ -7,9 +7,9 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   targetNamespace="http://www.buzztard.org/"
   xmlns="http://www.buzztard.org/"
-  elementFormDefault="qualified"
-  attributeFormDefault="qualified">
+  elementFormDefault="qualified">
 
+  <!--
   <xsd:attribute name="key" type="xsd:string"/>
   <xsd:attribute name="value" type="xsd:string"/>
   <xsd:attribute name="voice" type="xsd:integer"/>
@@ -20,8 +20,8 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
   <xsd:attribute name="plugin-name" type="xsd:string"/>
   <xsd:attribute name="src" type="xsd:string"/>
   <xsd:attribute name="dst" type="xsd:string"/>
-  <xsd:attribute name="gain" type="xsd:float"/><!-- unused -->
-  <xsd:attribute name="pan" type="xsd:integer"/><!-- unused -->
+  <xsd:attribute name="gain" type="xsd:float"/>
+  <xsd:attribute name="pan" type="xsd:float"/>
   <xsd:attribute name="machine" type="xsd:string"/>
   <xsd:attribute name="length" type="xsd:integer"/>
   <xsd:attribute name="time" type="xsd:integer"/>
@@ -32,6 +32,7 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
   <xsd:attribute name="loop" type="xsd:string"/>
   <xsd:attribute name="loop-start" type="xsd:integer"/>
   <xsd:attribute name="loop-end" type="xsd:integer"/>
+  -->
 
   <xsd:element name="info" type="xsd:string"/>
   <xsd:element name="name" type="xsd:string"/>
@@ -54,11 +55,12 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
         <xsd:element ref="info" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="name" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="genre" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="author" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="create-dts" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="change-dts" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="bpm" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="tpb" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="bars" minOccurs="1" maxOccurs="1"/>
-        <xsd:element ref="create-dts" minOccurs="1" maxOccurs="1"/>
-        <xsd:element ref="change-dts" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -70,8 +72,8 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
-      <xsd:attribute ref="name" use="required"/>
-      <xsd:attribute ref="value" use="required"/>
+      <xsd:attribute name="name" use="required" type="xsd:string"/>
+      <xsd:attribute name="value" use="required" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -82,8 +84,8 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
-      <xsd:attribute ref="key" use="required"/>
-      <xsd:attribute ref="value" use="required"/>
+      <xsd:attribute name="key" use="required" type="xsd:string"/>
+      <xsd:attribute name="value" use="required" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -107,9 +109,9 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
-      <xsd:attribute ref="voice" use="required"/>
-      <xsd:attribute ref="name" use="required"/>
-      <xsd:attribute ref="value" use="required"/>
+      <xsd:attribute name="voice" use="required" type="xsd:integer"/>
+      <xsd:attribute name="name" use="required" type="xsd:string"/>
+      <xsd:attribute name="value" use="required" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -123,9 +125,9 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       <xsd:sequence>
         <xsd:element ref="tick" minOccurs="1" maxOccurs="unbounded"/>
       </xsd:sequence>
-      <xsd:attribute ref="id" use="required"/>
-      <xsd:attribute ref="name" use="required"/>
-      <xsd:attribute ref="length" use="required"/>
+      <xsd:attribute name="id" use="required" type="xsd:string"/>
+      <xsd:attribute name="name" use="required" type="xsd:string"/>
+      <xsd:attribute name="length" use="required" type="xsd:integer"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -150,15 +152,15 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="properties" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="patterns" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
-      <xsd:attribute ref="type" use="required"/>
-      <xsd:attribute ref="id" use="required"/>
-      <xsd:attribute ref="plugin-name"/>
-      <xsd:attribute ref="voices"/>
+      <xsd:attribute name="type" use="required" type="xsd:string"/>
+      <xsd:attribute name="id" use="required" type="xsd:string"/>
+      <xsd:attribute name="plugin-name" type="xsd:string"/>
+      <xsd:attribute name="voices"  type="xsd:integer"/>
     </xsd:complexType>
   </xsd:element>
     
@@ -182,10 +184,16 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
-      <xsd:attribute ref="src" use="required"/>
-      <xsd:attribute ref="dst" use="required"/>
-      <xsd:attribute ref="gain" use="required"/>
-      <xsd:attribute ref="pan"/>
+      <xsd:sequence>
+        <xsd:element ref="properties" minOccurs="0" maxOccurs="1"/>
+        <!--xsd:element ref="wiredata" minOccurs="0" maxOccurs="unbounded"/-->
+        <!-- hmpf: wirepatterns are a bit different from patterns -->
+        <xsd:element ref="patterns" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="src" use="required" type="xsd:string"/>
+      <xsd:attribute name="dst" use="required" type="xsd:string"/>
+      <xsd:attribute name="gain" use="required"  type="xsd:float"/>
+      <xsd:attribute name="panorama"  type="xsd:float"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -228,7 +236,7 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
         <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
-      <xsd:attribute ref="time" use="required"/>
+      <xsd:attribute name="time" use="required" type="xsd:integer"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -239,8 +247,8 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
-      <xsd:attribute ref="time" use="required"/>
-      <xsd:attribute ref="name" use="required"/>
+      <xsd:attribute name="time" use="required" type="xsd:integer"/>
+      <xsd:attribute name="name" use="required" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -264,8 +272,8 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
-      <xsd:attribute ref="time" use="required"/>
-      <xsd:attribute ref="pattern" use="required"/>
+      <xsd:attribute name="time" use="required" type="xsd:integer"/>
+      <xsd:attribute name="pattern" use="required" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -277,10 +285,10 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="position" minOccurs="1" maxOccurs="unbounded"/>
+        <xsd:element ref="position" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
-    <xsd:attribute ref="index" use="required"/>
-    <xsd:attribute ref="machine" use="required"/>
+    <xsd:attribute name="index" use="required" type="xsd:integer"/>
+    <xsd:attribute name="machine" use="required" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -308,11 +316,11 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
         <xsd:element ref="labels" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="tracks" minOccurs="1" maxOccurs="1"/>
       </xsd:sequence>
-      <xsd:attribute ref="length" use="required"/>
-      <xsd:attribute ref="tracks" use="required"/>
-      <xsd:attribute ref="loop" use="optional"/>
-      <xsd:attribute ref="loop-start" use="optional"/>
-      <xsd:attribute ref="loop-end" use="optional"/>
+      <xsd:attribute name="length" use="required" type="xsd:integer"/>
+      <xsd:attribute name="tracks" use="required" type="xsd:integer"/>
+      <xsd:attribute name="loop" use="optional" type="xsd:string"/>
+      <xsd:attribute name="loop-start" use="optional" type="xsd:integer"/>
+      <xsd:attribute name="loop-end" use="optional" type="xsd:integer"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -323,9 +331,9 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
-      <xsd:attribute ref="index" use="required"/>
-      <xsd:attribute ref="name" use="required"/>
-      <xsd:attribute ref="url" use="required"/>
+      <xsd:attribute name="index" use="required" type="xsd:integer"/>
+      <xsd:attribute name="name" use="required" type="xsd:string"/>
+      <xsd:attribute name="uri" use="required" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
   

@@ -9,11 +9,11 @@
     <info>one buzz generator</info>
       <name>buzz 4</name>
     <genre>dark-wave</genre>
-      <bpm>120</bpm>
-      <tpb>4</tpb>
-      <bars>16</bars>
-      <create-dts>2005-09-20T22:10:56Z</create-dts>
-      <change-dts>2005-09-20T22:10:56Z</change-dts>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
+    <bpm>120</bpm>
+    <tpb>4</tpb>
+    <bars>16</bars>
   </meta>
   
   <setup>
@@ -31,7 +31,7 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="gen_beats" machine="gen" name="beats" length="16">
+          <pattern id="gen_beats" name="beats" length="16">
             <tick time="0">
               <globaldata name="Trigger" value="10"/>
               <globaldata name="Tone" value="40"/>
@@ -44,7 +44,7 @@
     </machines>
     
     <wires>
-      <wire src="gen" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="gen" dst="audio_sink" gain="1.0" panorama="-50"/>
     </wires>    
   </setup>
     

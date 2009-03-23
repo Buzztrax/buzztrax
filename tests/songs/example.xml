@@ -10,11 +10,11 @@
     <info>what a lovely tune</info>
     <name>example</name>
     <genre>dark-wave</genre>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
-    <create-dts>2005-09-20T22:10:56Z</create-dts>
-    <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
   <setup>    
@@ -45,7 +45,7 @@
         <voicedata name="volume" value="1.0" voice="0"/>
         <voicedata name="volume" value="0.5" voice="1"/>
         <patterns>
-          <pattern id="sine1_beep" machine="sine1" name="beep" length="16">
+          <pattern id="sine1_beep" name="beep" length="16">
             <tick time="0">
               <voicedata voice="0" name="note" value="C-3"/>
               <voicedata voice="0" name="volume" value="1.0"/>
@@ -65,7 +65,7 @@
     
     <wires>
       <wire src="sine1" dst="amp1" gain="1.5"/>
-      <wire src="amp1" dst="audio_sink" gain="1.0" pan="-0.5"/>
+      <wire src="amp1" dst="audio_sink" gain="1.0" panorama="-0.5"/>
     </wires>
   </setup>
   

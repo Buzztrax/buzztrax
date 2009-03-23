@@ -9,11 +9,11 @@
     <info>one sine amp combi is playing a pattern, the other is free for realtime control</info>
     <name>simple 4</name>
     <genre>dark-wave</genre>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
-    <create-dts>2005-09-20T22:10:56Z</create-dts>
-    <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
   <setup>
@@ -31,7 +31,7 @@
           <property key="ypos" value="-0.3"/>
         </properties>
         <patterns>
-          <pattern id="amp1_fade" machine="amp1" name="fade" length="16">
+          <pattern id="amp1_fade" name="fade" length="16">
             <tick time= "0"><globaldata name="volume" value="1.0"/></tick>
             <tick time= "1"><globaldata name="volume" value="0.75"/></tick>
             <tick time= "2"><globaldata name="volume" value="0.5"/></tick>
@@ -65,7 +65,7 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
-          <pattern id="sine1_beeps_up" machine="sine1" name="beeps_up" length="16">
+          <pattern id="sine1_beeps_up" name="beeps_up" length="16">
             <tick time="0">
               <globaldata name="freq" value="440,0"/>
               <globaldata name="volume" value="1,0"/>
@@ -79,7 +79,7 @@
               <globaldata name="volume" value="1,0"/>
             </tick>
           </pattern>
-          <pattern id="sine1_beeps_down" machine="sine1" name="beeps_down" length="16">
+          <pattern id="sine1_beeps_down" name="beeps_down" length="16">
             <tick time="0">
               <globaldata name="freq" value="1760.0"/>
               <globaldata name="volume" value="1.0"/>
@@ -108,8 +108,8 @@
     <wires>
       <wire src="sine1" dst="amp1" gain="1.5"/>
       <wire src="sine2" dst="amp2" gain="1.0"/>
-      <wire src="amp1" dst="audio_sink" gain="1.0" pan="-50"/>
-      <wire src="amp2" dst="audio_sink" gain="1.0" pan="+50"/>
+      <wire src="amp1" dst="audio_sink" gain="1.0" panorama="-50"/>
+      <wire src="amp2" dst="audio_sink" gain="1.0" panorama="+50"/>
     </wires>    
   </setup>
     

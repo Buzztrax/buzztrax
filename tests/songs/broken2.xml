@@ -9,11 +9,11 @@
     <info>this song misses external files</info>
     <name>broken 2</name>
     <genre>trash</genre>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
     <bpm>100</bpm>
     <tpb>8</tpb>
     <bars>16</bars>
-    <create-dts>2005-09-20T22:10:56Z</create-dts>
-    <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
   <setup>
@@ -27,7 +27,7 @@
       
       <machine type="source" id="missing1" plugin-name="missingsrc" voices="0">
         <patterns>
-          <pattern id="missing1_melo" machine="missing1" name="melo" length="3">
+          <pattern id="missing1_melo" name="melo" length="3">
             <tick time="0">
               <voicedata name="freq" voice="0" value="440,0"/>
               <voicedata name="volume" voice="0" value="1,0"/>

@@ -9,11 +9,11 @@
     <info>what a lovely tune</info>
     <name>test simple 1</name>
     <genre>dark-wave</genre>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
     <bpm>100</bpm>
     <tpb>8</tpb>
     <bars>16</bars>
-    <create-dts>2005-09-20T22:10:56Z</create-dts>
-    <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
 
   <setup>
@@ -32,7 +32,7 @@
         </properties>
         <globaldata name="volume" value="0.1"/>
         <patterns>
-          <pattern id="sine1_beep" machine="sine1" name="beeps" length="3">
+          <pattern id="sine1_beep" name="beeps" length="3">
             <tick time="0">
               <globaldata name="freq" value="440.0"/>
             </tick>

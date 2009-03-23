@@ -9,11 +9,11 @@
     <info>a sine followed by an amp, both playing patterns</info>
     <name>simple 2</name>
     <genre>dark-wave</genre>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
-    <create-dts>2005-09-20T22:10:56Z</create-dts>
-    <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
   <setup>
@@ -31,7 +31,7 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="bass2_beeps" machine="bass2" name="beeps" length="16">
+          <pattern id="bass2_beeps" name="beeps" length="16">
             <tick time="0"><voicedata name="Note" voice="0" value="c-2"/></tick>
             <tick time="4"><voicedata name="Note" voice="0" value="e-2"/></tick>
             <tick time="8"><voicedata name="Note" voice="0" value="g-2"/></tick>
@@ -41,7 +41,7 @@
     </machines>
     
     <wires>
-      <wire src="bass2" dst="audio_sink" gain="1.0" pan="0"/>
+      <wire src="bass2" dst="audio_sink" gain="1.0" panorama="0"/>
     </wires>    
   </setup>
   

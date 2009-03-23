@@ -7,13 +7,13 @@
 
   <meta>
     <info>one buzz generator and one buzz effect</info>
-      <name>buzz 8</name>
-      <genre>dark-wave</genre>
-      <bpm>120</bpm>
-      <tpb>4</tpb>
-      <bars>16</bars>
-      <create-dts>2005-09-20T22:10:56Z</create-dts>
-      <change-dts>2005-09-20T22:10:56Z</change-dts>
+    <name>buzz 8</name>
+    <genre>dark-wave</genre>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
+    <bpm>120</bpm>
+    <tpb>4</tpb>
+    <bars>16</bars>
   </meta>
   
   <setup>
@@ -38,7 +38,7 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="kick_beats" machine="kick" name="beats" length="16">
+          <pattern id="kick_beats" name="beats" length="16">
             <tick time="0">
               <globaldata name="Trigger" value="110"/>
               <globaldata name="Tone" value="40"/>
@@ -55,7 +55,7 @@
           <property key="ypos" value="0.0"/>
         </properties>
         <patterns>
-          <pattern id="guru2_beeps" machine="guru2" name="beeps" length="16">
+          <pattern id="guru2_beeps" name="beeps" length="16">
             <tick time="0">
               <globaldata name="Note" value="c-3"/>
               <globaldata name="Length" value="40"/>
@@ -89,9 +89,9 @@
     </machines>
     
     <wires>
-      <wire src="kick" dst="chorus" gain="1.5" pan="0"/>
-      <wire src="guru2" dst="chorus" gain="0.5" pan="0"/>
-      <wire src="chorus" dst="audio_sink" gain="1.0" pan="0"/>
+      <wire src="kick" dst="chorus" gain="1.5" panorama="0"/>
+      <wire src="guru2" dst="chorus" gain="0.5" panorama="0"/>
+      <wire src="chorus" dst="audio_sink" gain="1.0" panorama="0"/>
     </wires>    
   </setup>
   

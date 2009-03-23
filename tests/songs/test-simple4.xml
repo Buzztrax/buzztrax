@@ -19,11 +19,11 @@
 
     <machines>
       <machine id="audio_sink" type="sink">
-        <globaldata name="master-volume" value="1"/>
         <properties>
           <property key="ypos" value="0.5"/>
           <property key="xpos" value="0.7"/>
         </properties>
+        <globaldata name="master-volume" value="1"/>
         <patterns>
           <pattern id="audio_sink 00" name="00" length="16">
             <tick time="0">
@@ -36,22 +36,21 @@
         </patterns>
       </machine>
       <machine id="amp1" type="processor" plugin-name="volume" voices="0">
-        <globaldata name="mute" value="0"/>
-        <globaldata name="volume" value="1"/>
         <properties>
           <property key="ypos" value="0.0"/>
           <property key="xpos" value="0.3"/>
         </properties>
-        <patterns/>
+        <globaldata name="mute" value="0"/>
+        <globaldata name="volume" value="1"/>
       </machine>
       <machine id="sine1" type="source" plugin-name="audiotestsrc" voices="0">
-        <globaldata name="wave" value="0"/>
-        <globaldata name="freq" value="440"/>
-        <globaldata name="volume" value="0.10000000000000001"/>
         <properties>
           <property key="ypos" value="0.5"/>
           <property key="xpos" value="0.0"/>
         </properties>
+        <globaldata name="wave" value="0"/>
+        <globaldata name="freq" value="440"/>
+        <globaldata name="volume" value="0.10000000000000001"/>
         <patterns>
           <pattern id="sine1_beep" name="beeps" length="3">
             <tick time="0">
@@ -67,13 +66,13 @@
         </patterns>
       </machine>
       <machine id="sine2" type="source" plugin-name="audiotestsrc" voices="0">
-        <globaldata name="wave" value="0"/>
-        <globaldata name="freq" value="440"/>
-        <globaldata name="volume" value="0.10000000000000001"/>
         <properties>
           <property key="ypos" value="0.0"/>
           <property key="xpos" value="0.0"/>
         </properties>
+        <globaldata name="wave" value="0"/>
+        <globaldata name="freq" value="440"/>
+        <globaldata name="volume" value="0.10000000000000001"/>
         <patterns>
           <pattern id="sine2_beep" name="beeps" length="8">
             <tick time="0">
@@ -91,18 +90,11 @@
     </machines>
  
     <wires>
-      <wire src="sine1" dst="amp1" gain="1.5">
-        <properties/>
-        <patterns/>
-      </wire>
-      <wire src="sine2" dst="amp1" gain="0.5">
-        <properties/>
-        <patterns/>
-      </wire>
+      <wire src="sine1" dst="amp1" gain="1.5"/>
+      <wire src="sine2" dst="amp1" gain="0.5"/>
       <wire src="amp1" dst="audio_sink" gain="1" panorama="0">
-        <properties/>
         <patterns>
-          <pattern pattern="audio_sink 00">
+          <pattern id="audio_sink 00">
             <tick time="0">
               <wiredata name="panorama" value="-1"/>
             </tick>
@@ -131,7 +123,5 @@
       </track>
     </tracks>
   </sequence>
-
-  <wavetable/>
 
 </buzztard>

@@ -9,11 +9,11 @@
     <info>a two voice melody</info>
     <name>melo 5</name>
     <genre>chip-music</genre>
+    <create-dts>2006-01-12T22:10:56Z</create-dts>
+    <change-dts>2006-01-12T22:10:56Z</change-dts>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
-    <create-dts>2006-01-12T22:10:56Z</create-dts>
-    <change-dts>2006-01-12T22:10:56Z</change-dts>
   </meta>
   
   <setup>
@@ -32,7 +32,7 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
-          <pattern id="beep1::C-4_E-4_G-4" machine="beep1" name="C-4_E-4_G-4" length="16">
+          <pattern id="beep1::C-4_E-4_G-4" name="C-4_E-4_G-4" length="16">
             <tick time="0">
               <globaldata name="note" value="c-4"/>
               <globaldata name="volume" value="0.85"/>
@@ -56,7 +56,7 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
-          <pattern id="beep2::C-1" machine="beep2" name="C-1" length="16">
+          <pattern id="beep2::C-1" name="C-1" length="16">
             <tick time="0">
               <globaldata name="note" value="c-1"/>
               <globaldata name="volume" value="0.4"/>
@@ -74,7 +74,7 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
-          <pattern id="beep3::C-2_C-3" machine="beep3" name="C-2_C-3" length="16">
+          <pattern id="beep3::C-2_C-3" name="C-2_C-3" length="16">
             <tick time="0">
               <globaldata name="note" value="c-2"/>
               <globaldata name="volume" value="1.0"/>
@@ -141,8 +141,8 @@
     <wires>
       <wire src="beep1" dst="echo1" gain="1.0"/>
       <wire src="echo1" dst="audio_sink" gain="1.0"/>
-      <wire src="beep2" dst="audio_sink" gain="1.0" pan="-50"/>
-      <wire src="beep3" dst="audio_sink" gain="1.0" pan="+50"/>
+      <wire src="beep2" dst="audio_sink" gain="1.0" panorama="-50"/>
+      <wire src="beep3" dst="audio_sink" gain="1.0" panorama="+50"/>
     </wires>    
   </setup>
   
