@@ -660,6 +660,12 @@ static gboolean check_readwrite_property(GParamSpec *paramspec, GObject *toCheck
  * The function runs tests against all registered properties of the given
  * object. Depending on the flags and the type of the properties, tests include
  * read/write and boundary checks.
+ *
+ * TODO:
+ * - tests limmits for integer/float props
+ * - write twice to gobject props (to check if they unref the old one)
+ * - test more type
+ * - use test more often :)
  */
 
 gboolean check_gobject_properties(GObject *toCheck) {

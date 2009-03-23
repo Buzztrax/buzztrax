@@ -1,5 +1,17 @@
 2009-03-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  Add more disable deprecated targets.
+
+	* docs/buzztard.xsd:
+	* tests/songs/simple1.xml:
+	  Tweaking the xsd. Still not validating.
+	
+	* tests/bt-check.c:
+	  Add @todo:
+
+2009-03-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/processor-machine.c:
 	* src/lib/core/sink-machine.c:
 	* src/lib/core/source-machine.c:
