@@ -1,5 +1,10 @@
 2009-03-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-properties-dialog.c:
+	  Fix crasher, we forgot to disconnect signal handlers.
+
+2009-03-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/buzztard.xsd:
 	* tests/songs/broken2.xml:
 	* tests/songs/buzz1.xml:

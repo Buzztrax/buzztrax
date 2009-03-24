@@ -45,6 +45,7 @@
  * - wires
  *   - insert machine (like menu on canvas)
  *     - what to do with wire-patterns?
+ *
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C

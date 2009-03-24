@@ -2027,7 +2027,9 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // disconnect handler for dynamic groups
   g_signal_handlers_disconnect_matched(self->priv->machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_voices_notify,self);
-  /* @todo: disconnect wire handlers */
+  // disconnect wire handlers
+  g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_added,self);
+  g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_removed,self);
   // disconnect all handlers that are connected to params
   g_object_get(self->priv->machine,"machine",&machine,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
@@ -2045,7 +2047,7 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_checkbox_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_combobox_property_notify,NULL);
   }
-  /* disconnect wire parameters */
+  // disconnect wire parameters
   if((wires=bt_setup_get_wires_by_dst_machine(setup,self->priv->machine))) {
     BtWire *wire;
     GstObject *gain,*pan;
