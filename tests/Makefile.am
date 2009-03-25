@@ -203,3 +203,5 @@ help::
 	@echo "make (test).valgrind         -- valgrind the given test"
 	@echo
 	@echo "make todo                    -- check for todos in tests"
+	@echo
+	@echo "BT_CHECKS=\"(testname)\" make (test).check -- run the given testcase only"
