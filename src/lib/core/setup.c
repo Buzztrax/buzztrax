@@ -468,11 +468,14 @@ static gboolean link_wire(const BtSetup * const self,GstElement *wire,GstElement
   dst_pad=gst_element_get_static_pad(GST_ELEMENT(wire),"sink");
   if(!(peer=gst_pad_get_peer(dst_pad))) {
     if((src_pad=gst_element_get_request_pad(GST_ELEMENT(src_machine),"src%d"))) {
+#ifdef ALLOW_BLOCKING
       if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/ 
         (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
-        gst_pad_set_blocked(src_pad,TRUE);
-        self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+        if(gst_pad_set_blocked(src_pad,TRUE)) {
+          self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+        }
       }
+#endif
       if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
         GST_WARNING("Can't link start of wire : %d : %s:%s -> %s:%s",
           link_res,GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(dst_pad));
@@ -524,12 +527,15 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
   GST_INFO("unlinking start of wire");      
   dst_pad=gst_element_get_static_pad(wire,"sink");
   if((src_pad=gst_pad_get_peer(dst_pad))) {
+#ifdef ALLOW_BLOCKING
     if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/ 
       (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
-      //gst_pad_set_blocked_async(src_pad,TRUE,NULL,NULL);
-      gst_pad_set_blocked(src_pad,TRUE);
-      self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+      //if(gst_pad_set_blocked_async(src_pad,TRUE,NULL,NULL)) {
+      if(gst_pad_set_blocked(src_pad,TRUE)) {
+        self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+      }
     }
+#endif
     gst_pad_unlink(src_pad,dst_pad);
     gst_element_release_request_pad(src_machine,src_pad);
     // unref twice: one for gst_pad_get_peer() and once for the request_pad

@@ -1,5 +1,15 @@
 2009-03-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/setup.c:
+	  Add ifdefs around the pad_blocking, but this seems not to cause the lock-ups
+	  during dynamic editing.
+
+	* src/ui/edit/edit-application.c:
+	  Add sanity check and flush the bin, in case its not empty after unloding a
+	  song.
+
+2009-03-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/Makefile.am:
 	  Add help about how to run single tests.
 

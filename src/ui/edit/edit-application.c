@@ -308,6 +308,24 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     // create new song
     song=bt_song_new(BT_APPLICATION(self));
     g_object_set(G_OBJECT(self),"song",NULL,NULL);
+    
+    // do sanity check that bin is empty
+    {
+      GstBin *bin;
+      g_object_get(G_OBJECT(self),"bin",&bin,NULL);
+
+      if(GST_BIN_NUMCHILDREN(bin)) {  
+        GST_WARNING("bin.num_children=%d has left-overs",GST_BIN_NUMCHILDREN(bin));
+        GList *node=GST_BIN_CHILDREN(bin);
+
+        while(node) {
+          GST_INFO_OBJECT(node->data,"removing object (ref-ct=%d)",G_OBJECT(node->data)->ref_count);
+          gst_bin_remove(bin,GST_ELEMENT(node->data));
+          node=GST_BIN_CHILDREN(bin);
+        }
+      }
+      gst_object_unref(bin);
+    }
 
     if(bt_song_io_load(loader,song)) {
       BtSetup *setup;
