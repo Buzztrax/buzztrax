@@ -277,7 +277,7 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
     "channels",GST_TYPE_INT_RANGE,1,2,
     "width",G_TYPE_INT,16,
     "endianness",G_TYPE_INT,G_BYTE_ORDER,
-    "signedness",G_TYPE_INT,TRUE,
+    "signed",G_TYPE_BOOLEAN,TRUE,
     NULL);
   g_object_set(self->priv->fmt,"caps",caps,NULL);
   gst_caps_unref(caps);

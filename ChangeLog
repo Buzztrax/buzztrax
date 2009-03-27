@@ -1,3 +1,13 @@
+2009-03-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wave.c:
+	  Fix wrong caps detail. Its called "signed" and not "signdness", also fix the
+	  type of it. This cures the constant renegotiation, that was causing lockups.
+
+	* src/lib/core/setup.c:
+	  Remove the ifdefs again. That wasn't the issue.
+
 2009-03-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:

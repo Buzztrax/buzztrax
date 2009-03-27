@@ -1381,7 +1381,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
                 p_depth=get_int_value(ps,"depth");
                 if(p_depth>n_depth) n_depth=p_depth;
                 // check signedness
-                if(gst_structure_get_int(ps,"signedness",&p_signedness)) {
+                if(gst_structure_get_boolean(ps,"signed",&p_signedness)) {
                   if(p_signedness) singnednes_signed_ct++;
                   else signedness_unsigned_ct++;
                 }
@@ -1419,8 +1419,14 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
       gst_structure_set(ns,
         "width",GST_TYPE_INT_RANGE,n_width,32,
         "depth",GST_TYPE_INT_RANGE,n_depth,32,
-        "signedness",G_TYPE_INT,(singnednes_signed_ct>=signedness_unsigned_ct),
+        "signed",G_TYPE_BOOLEAN,(singnednes_signed_ct>=signedness_unsigned_ct),
         NULL);
+      if(singnednes_signed_ct!=signedness_unsigned_ct) {
+        gst_structure_set(ns,
+          "signed",G_TYPE_BOOLEAN,(singnednes_signed_ct>signedness_unsigned_ct),
+          NULL);
+      }
+      /* no need to set range for boolean signed, if we don't need to filter */
     }
     else {
       gst_structure_set(ns,
