@@ -1,13 +1,29 @@
 2009/04 ========================================================================
 
-* play from cursor pos
-* live editing works
-* play notes in pattern editor
-* combo navigation shortcuts in pattern-view
-* add wire-parameters (volume/pan) to machine dialogs
-* main level meter is now post-gain
+We're heading for a 0.5 release! Most planned features are done and thus its
+time for testing. I've added some more unit test. Especialy for the dynamic
+editing, which now finally seems to work quite fine. I still get the song to 
+lock from time to time - seems it happens when it loops back to start.
 
-http://www.linuxjournal.com/content/buzztard-project-part-2-interview-stefan-kost
+I added more keyboard shortcuts to support the workflow people might know from
+buzz. There is one to start playback from curso-position and several for cycling
+thru the comboboxes in pattern editor. I started to work on the play-notes
+functionality in pattern editor too. One can play notes while editing if song is
+playing already. Need to play the song in a idle-loop otherwise. Also need to
+figure the horrible latency I get.
+
+One feature that was missing compared to buzz, is that buzz also shows
+parameters (volume, panorama) of incomming connections in the parameter view.
+We have this now too.
+
+I also refactored some code in the machines and made monitoring more flexible.
+As a result the level-meters in the toolbar are now post-gain. Mean if you
+change the volume you see the level-changing accordingly.
+
+LJ has part two of the buzztard article online [1]. Its an interview and tells
+you all you never wanted to know a bout me and the project.
+
+[1] http://www.linuxjournal.com/content/buzztard-project-part-2-interview-stefan-kost
 
 2009/03 ========================================================================
 

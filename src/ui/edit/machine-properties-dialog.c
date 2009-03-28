@@ -27,10 +27,14 @@
  * allows to editing and manage presets for machines that support them.
  */
 
-/* TODO: its not good that we call the interaction controller menu such
- * - we would like to have als like to have 'reset' and 'reset all' there
+/* @todo: its not good that we call the interaction controller menu such
+ * - we would like to have also 'reset' and 'reset all' there
  *   to reset parameters to their defaults (which is unrelated to interaction
  *   controller)
+ * @todo: play machines
+ * - we want to assign a note-controller to a machines note-trigger property
+ *   and boolean-trigger controller to machines trigger properties
+ *   - right now we don't show widgets for these
  */
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C

@@ -189,6 +189,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(1.0, 1.0, 16.0, 1.0, 4.0, 0.0));
   widget=gtk_spin_button_new(spin_adjustment,(gdouble)(self->priv->voices),0);
   if(bt_machine_is_polyphonic(self->priv->machine)) {
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),(gdouble)self->priv->voices);
     g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_voices_changed), (gpointer)self);
   }
   else {

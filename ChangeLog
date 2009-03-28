@@ -1,3 +1,18 @@
+2009-03-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect news.
+
+	* src/lib/core/song.c:
+	  Comment change.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Planning.
+
+	* src/ui/edit/pattern-properties-dialog.c:
+	  Set voice-spin-button to initial value.
+
 2009-03-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

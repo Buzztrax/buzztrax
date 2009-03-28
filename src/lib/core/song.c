@@ -170,8 +170,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
   /* we need to use FLUSH for play (due to prerolling), otherwise:
      0:00:00.866899000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1644:gst_base_sink_do_sync:<player> prerolling object 0x818ce90
      0:00:00.866948000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1493:gst_base_sink_wait_preroll:<player> waiting in preroll for flush or PLAYING
-     but not for loop, altough adder seem to have issues with non flushing seeks
-     if we make the loop_seek_event, we loose data at the end of the loop
+     but not for loop
    */
   if (loop) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
