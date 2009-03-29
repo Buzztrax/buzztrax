@@ -20,6 +20,10 @@ I also refactored some code in the machines and made monitoring more flexible.
 As a result the level-meters in the toolbar are now post-gain. Mean if you
 change the volume you see the level-changing accordingly.
 
+Last change of the month is some eys candy. The icons in the machine view don't
+become blurry when zooming anymore. I also added some simple effects to show the
+state (desaturizing them or making them half transparent).
+
 LJ has part two of the buzztard article online [1]. Its an interview and tells
 you all you never wanted to know a bout me and the project.
 

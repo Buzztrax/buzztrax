@@ -1,5 +1,16 @@
 2009-03-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Updating news.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Updating user docs a bit.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Defering the shading to when the icon is actualy beeing moved.
+
+2009-03-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c:
 	  Kick out svg canvas item hack, that did not work well anyway. Update pixbufs
 	  when zooming instead. Also apply effect, like desatoration and opacity.

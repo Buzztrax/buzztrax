@@ -1115,7 +1115,6 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
           // set some flags
           self->priv->dragging=TRUE;
           self->priv->moved=FALSE;
-          update_machine_graphics(self);
         }
         else {
           self->priv->switching=TRUE;
@@ -1132,6 +1131,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
       if(self->priv->dragging) {
         if(!self->priv->moved) {
+          update_machine_graphics(self);
           gnome_canvas_item_raise_to_top(citem);
           gnome_canvas_item_grab(citem, GDK_POINTER_MOTION_MASK |
                                 /* GDK_ENTER_NOTIFY_MASK | */
@@ -1160,9 +1160,9 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       GST_DEBUG("GDK_BUTTON_RELEASE: %d",event->button.button);
       if(self->priv->dragging) {
         self->priv->dragging=FALSE;
-        update_machine_graphics(self);
         if(self->priv->moved) {
           gnome_canvas_item_ungrab(citem,event->button.time);
+          update_machine_graphics(self);
         }
         res=TRUE;
       }

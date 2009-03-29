@@ -264,7 +264,8 @@
         them around.
         To connect machines, move pointer over the source, press shift+left mouse-button
         and drag the wire to the target machine. The wire turns green, if the
-        connect can be made.
+        connect can be made. Connected machines are shown in bright color and
+        disconnected one in a desaturized style.
       </para>
       <figure id="bt-edit-page-machine-view-fig">
         <title>Machine view</title>
@@ -298,13 +299,6 @@
       <para>
         A double click on a machine brings up the <link linkend="bt-edit-dialog-machine-properties" endterm="bt-edit-dialog-machine-properties.title"/>.
       </para>
-      <note><title>Limitations</title>
-        <para>
-          Adding/removing machines and adding new wires while a song is playing,
-          will most likely break playback. Also having unconnected elements is
-          not yet handled.
-        </para>
-      </note>
     </sect3>
 
     <sect3 id="bt-edit-main-view-patterns">
@@ -634,6 +628,13 @@
       These parameter control the generated audio or the effects. If parameters
       are controlled by <link linkend="bt-edit-main-view-patterns">patterns</link>,
       the ui will reflect the changes as the music plays.
+    </para>
+    <para>
+      Parameters are grouped. There is a group from global parameters and one
+      for each voice (for polyphonic machines). Effects and the master also have
+      a group for each input allowing to change volume and panormama. These are
+      the same parameters that can be changed in the wire in the
+      <link linkend="bt-edit-main-view-machines">machine view</link>.
     </para>
     <para>
       Each parameter has a context menu. The menu allows to bind the parameter
