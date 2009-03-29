@@ -66,282 +66,54 @@
 
 #define LOW_VUMETER_VAL -60.0
 
-//#define USE_SVG_CANVAS_ITEM 1
+static void desaturate_pixbuf(GdkPixbuf *pixbuf) {
+  guint x,y,w,h,rowstride,gray;
+  guchar *pixels,*p;
 
-#ifdef USE_SVG_CANVAS_ITEM
-// begin of local GnomeCanvasSVG definition
+  g_assert(gdk_pixbuf_get_colorspace(pixbuf)==GDK_COLORSPACE_RGB);
+  g_assert(gdk_pixbuf_get_bits_per_sample(pixbuf)==8);
+  g_assert(gdk_pixbuf_get_has_alpha(pixbuf));
+  g_assert(gdk_pixbuf_get_n_channels(pixbuf)==4);
 
-enum {
-  PROP_0,
-  PROP_FILE_NAME,
-  PROP_EFFECT
-};
+  w=gdk_pixbuf_get_width(pixbuf);
+  h=gdk_pixbuf_get_height(pixbuf);
+  rowstride=gdk_pixbuf_get_rowstride(pixbuf)-(w*4);
+  p=pixels=gdk_pixbuf_get_pixels(pixbuf);
 
-typedef enum {
-  GNOME_CANVAS_SVG_EFFECT_NONE,
-  GNOME_CANVAS_SVG_EFFECT_DESATURATED
-} GnomeCanvasSvgEffect;
-
-GType gnome_canvas_svg_get_type (void);
-
-#define GNOME_TYPE_CANVAS_SVG_EFFECT    (gnome_canvas_svg_effect_get_type ())
-
-GType gnome_canvas_svg_effect_get_type(void) {
-  static GType type = 0;
-  if(G_UNLIKELY(type == 0)) {
-    static const GEnumValue values[] = {
-      { GNOME_CANVAS_SVG_EFFECT_NONE,"GNOME_CANVAS_SVG_EFFECT_NONE","none" },
-      { GNOME_CANVAS_SVG_EFFECT_DESATURATED,"GNOME_CANVAS_SVG_EFFECT_DESATURATED","desaturated" },
-      { 0, NULL, NULL},
-    };
-    type = g_enum_register_static("GnomeCanvasSvgEffect", values);
-  }
-  return type;
-}
-
-
-#define GNOME_TYPE_CANVAS_SVG            (gnome_canvas_svg_get_type ())
-#define GNOME_CANVAS_SVG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GNOME_TYPE_CANVAS_SVG, GnomeCanvasSVG))
-#define GNOME_CANVAS_SVG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GNOME_TYPE_CANVAS_SVG, GnomeCanvasSVGClass))
-#define GNOME_IS_CANVAS_SVG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GNOME_TYPE_CANVAS_SVG))
-#define GNOME_IS_CANVAS_SVG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), GNOME_TYPE_CANVAS_SVG))
-#define GNOME_CANVAS_SVG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GNOME_TYPE_CANVAS_SVG, GnomeCanvasSVGClass))
-
-typedef struct _GnomeCanvasSVG GnomeCanvasSVG;
-typedef struct _GnomeCanvasSVGClass GnomeCanvasSVGClass;
-typedef struct _GnomeCanvasSVGPrivate GnomeCanvasSVGPrivate;
-
-struct _GnomeCanvasSVG {
-  GnomeCanvasPixbuf item;
-
-  /* Private data */
-  GnomeCanvasSVGPrivate *priv;
-};
-
-struct _GnomeCanvasSVGClass {
-  GnomeCanvasPixbufClass parent_class;
-};
-
-struct _GnomeCanvasSVGPrivate {
-  gboolean dispose_has_run;
-
-  gchar *file_name;
-  gdouble width,height;
-  gint rw,rh;
-  GdkPixbuf *pixbuf;
-  GnomeCanvasSvgEffect effect;
-};
-
-static GObjectClass *ci_parent_class=NULL;
-
-static void
-gnome_canvas_svg_render (GnomeCanvasItem *item, GnomeCanvasBuf *buf)
-{
-  GnomeCanvasSVG *self = GNOME_CANVAS_SVG (item);
-  gdouble render_affine[6];
-  GError *error = NULL;
-  gint rw, rh;
-  
-  g_object_get(self,"width",&self->priv->width,"height",&self->priv->height,NULL);
-
-  gnome_canvas_item_i2c_affine (item, render_affine);
-  rw = floor (self->priv->width * render_affine[0] + 0.5);
-  rh = floor (self->priv->height * render_affine[3] + 0.5);
- 
-  if(!self->priv->pixbuf || rw!=self->priv->rw || rh!=self->priv->rh) {
-    GST_INFO("loading svg %s", self->priv->file_name);
-    if(self->priv->pixbuf)
-      g_object_unref(self->priv->pixbuf);
-    // this is deprecated :/
-    self->priv->pixbuf = rsvg_pixbuf_from_file_at_size (self->priv->file_name,
-      rw, rh, &error);
-    if(error) {
-      GST_ERROR("loading svg failed : %s", error->message);
-      g_error_free(error);
-      exit(1);
+  for(y=0;y<h;y++) {
+    for(x=0;x<w;x++) {
+      gray=((guint)p[0]+(guint)p[1]+(guint)p[2]);
+      p[0]=(guchar)(((guint)p[0]+gray)>>2);
+      p[1]=(guchar)(((guint)p[1]+gray)>>2);
+      p[2]=(guchar)(((guint)p[2]+gray)>>2);
+      p+=4;
     }
-    
-    switch(self->priv->effect) {
-      case GNOME_CANVAS_SVG_EFFECT_DESATURATED: {
-        guint x, y, rowstride, gray;
-        guchar *pixels, *p;
-    
-        g_assert (gdk_pixbuf_get_colorspace (self->priv->pixbuf) == GDK_COLORSPACE_RGB);
-        g_assert (gdk_pixbuf_get_bits_per_sample (self->priv->pixbuf) == 8);
-        g_assert (gdk_pixbuf_get_has_alpha (self->priv->pixbuf));
-        g_assert (gdk_pixbuf_get_n_channels (self->priv->pixbuf) == 4);
-    
-        rowstride = gdk_pixbuf_get_rowstride (self->priv->pixbuf) - (rw*4);
-        p = pixels = gdk_pixbuf_get_pixels (self->priv->pixbuf);
-    
-        for(y=0;y<rh;y++) {
-          for(x=0;x<rw;x++) {
-            gray = ((guint)p[0]+(guint)p[1]+(guint)p[2]);
-            p[0] = (guchar)(((guint)p[0]+gray)>>2);
-            p[1] = (guchar)(((guint)p[1]+gray)>>2);
-            p[2] = (guchar)(((guint)p[2]+gray)>>2);
-            /*p[3] = 255 - p[3];*/
-            p += 4;
-          }
-          p += rowstride;
-        }
-      } break;
-      default:
-        break;
+    p+=rowstride;
+  }
+}
+
+static void alpha_pixbuf(GdkPixbuf *pixbuf) {
+  guint x,y,w,h,rowstride;
+  guchar *pixels,*p;
+
+  g_assert(gdk_pixbuf_get_colorspace(pixbuf)==GDK_COLORSPACE_RGB);
+  g_assert(gdk_pixbuf_get_bits_per_sample(pixbuf)==8);
+  g_assert(gdk_pixbuf_get_has_alpha(pixbuf));
+  g_assert(gdk_pixbuf_get_n_channels(pixbuf)==4);
+
+  w=gdk_pixbuf_get_width(pixbuf);
+  h=gdk_pixbuf_get_height(pixbuf);
+  rowstride=gdk_pixbuf_get_rowstride(pixbuf)-(w*4);
+  p=pixels=gdk_pixbuf_get_pixels(pixbuf);
+
+  for(y=0;y<h;y++) {
+    for(x=0;x<w;x++) {
+      p[3]>>=1;
+      p+=4;
     }
-    
-    g_object_set(self,"pixbuf",self->priv->pixbuf,NULL);
-    self->priv->rw = rw;
-    self->priv->rh = rh;
-  }
-
-  GNOME_CANVAS_ITEM_CLASS(ci_parent_class)->render(item,buf);
-}
-
-static void
-gnome_canvas_svg_update(GnomeCanvasSVG *self)
-{
-  if(self->priv->pixbuf) {
-    g_object_unref(self->priv->pixbuf);
-    self->priv->pixbuf=NULL;
-  }
-  gnome_canvas_item_request_update(GNOME_CANVAS_ITEM(self));
-}
-
-static void
-gnome_canvas_svg_get_property (GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec)
-{
-  GnomeCanvasSVG *self = GNOME_CANVAS_SVG (object);
-
-  switch (property_id) {
-    case PROP_FILE_NAME: {
-      g_value_set_string(value, self->priv->file_name);
-    } break;
-    case PROP_EFFECT: {
-      g_value_set_enum(value, self->priv->effect);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    p+=rowstride;
   }
 }
-
-static void
-gnome_canvas_svg_set_property (GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) 
-{
-  GnomeCanvasSVG *self = GNOME_CANVAS_SVG (object);
-
-  switch (property_id) {
-    case PROP_FILE_NAME: {
-      g_free(self->priv->file_name);
-      self->priv->file_name = g_value_dup_string(value);
-      gnome_canvas_svg_update(self);
-    } break;
-    case PROP_EFFECT: {
-      self->priv->effect = g_value_get_enum(value);
-      gnome_canvas_svg_update(self);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-static void
-gnome_canvas_svg_dispose (GObject * const object) {
-  GnomeCanvasSVG *self = GNOME_CANVAS_SVG (object);
-  
-  if(self->priv->dispose_has_run) return;
-
-  self->priv->dispose_has_run = TRUE;
-  if(self->priv->pixbuf)
-    g_object_unref(self->priv->pixbuf);
-
-  G_OBJECT_CLASS(ci_parent_class)->dispose(object);
-}
- 
-static void
-gnome_canvas_svg_finalize (GObject *object)
-{
-  GnomeCanvasSVG *self = GNOME_CANVAS_SVG (object);
-  
-  g_free (self->priv->file_name);
-  
-  G_OBJECT_CLASS(ci_parent_class)->finalize(object);
-}
-
-static void
-gnome_canvas_svg_init (GnomeCanvasSVG *self)
-{
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, GNOME_TYPE_CANVAS_SVG, GnomeCanvasSVGPrivate);
-}
-
-static void
-gnome_canvas_svg_class_init (GnomeCanvasPixbufClass *klass)
-{
-  GObjectClass *gobject_class = (GObjectClass *) klass;;
-  GnomeCanvasItemClass *item_class = (GnomeCanvasItemClass *) klass;
-  
-  g_type_class_add_private (klass, sizeof(GnomeCanvasSVGPrivate));
-  ci_parent_class = g_type_class_peek_parent (klass);
-
-  gobject_class->set_property = gnome_canvas_svg_set_property;
-  gobject_class->get_property = gnome_canvas_svg_get_property;
-  gobject_class->dispose      = gnome_canvas_svg_dispose;
-  gobject_class->finalize     = gnome_canvas_svg_finalize;
-
-  /*
-  item_class->update = gnome_canvas_svg_update;
-  item_class->draw = gnome_canvas_svg_draw;
-  */
-  item_class->render = gnome_canvas_svg_render;
-  /*
-  item_class->point = gnome_canvas_sgv_point;
-  item_class->bounds = gnome_canvas_svg_bounds;
-  */
-
-  g_object_class_install_property (gobject_class, PROP_FILE_NAME,
-    g_param_spec_string ("file-name", "svg image file name",
-      "full path to the svg image file",
-      NULL, 
-      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_EFFECT,
-    g_param_spec_enum ("effect", "svg image effect",
-      "apply an image effect",
-      GNOME_TYPE_CANVAS_SVG_EFFECT,
-      GNOME_CANVAS_SVG_EFFECT_NONE, 
-      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-}
-
-GType
-gnome_canvas_svg_get_type (void)
-{
-  static GType type;
-
-  if (!type) {
-    static const GTypeInfo object_info = {
-      sizeof (GnomeCanvasSVGClass),
-      (GBaseInitFunc) NULL,
-      (GBaseFinalizeFunc) NULL,
-      (GClassInitFunc) gnome_canvas_svg_class_init,
-      (GClassFinalizeFunc) NULL,
-      NULL,			/* class_data */
-      sizeof (GnomeCanvasSVG),
-      0,			/* n_preallocs */
-      (GInstanceInitFunc) gnome_canvas_svg_init,
-      NULL			/* value_table */
-    };
-
-    type = g_type_register_static (GNOME_TYPE_CANVAS_PIXBUF, "GnomeCanvasSVG",
-        &object_info, 0);
-  }
-
-  return type;
-}
-// end of local GnomeCanvasSVG definition
-#endif
-
 
 //-- signal ids
 
@@ -415,44 +187,30 @@ static GnomeCanvasGroupClass *parent_class=NULL;
 
 //-- helper methods
 
-#ifdef USE_SVG_CANVAS_ITEM
-/* @todo:
- * - move to bt_ui_resources?
- * - use gtk_icon_theme_get_search_path() ?
- */
-static const gchar *get_icon_name(BtMachine *machine) {
-  BtMachineState state;
-  
-  g_object_get(machine,"state",&state,NULL);
-  if(BT_IS_SOURCE_MACHINE(machine)) {
-    switch(state) {
-      case BT_MACHINE_STATE_NORMAL: return(DATADIR"/icons/gnome/scalable/apps/generator.svg");
-      case BT_MACHINE_STATE_MUTE: return(DATADIR"/icons/gnome/scalable/apps/generator-mute.svg");
-      case BT_MACHINE_STATE_SOLO: return(DATADIR"/icons/gnome/scalable/apps/generator-solo.svg");
-      default:
-        break;
-    }
+static void update_machine_graphics(BtMachineCanvasItem *self) {
+  GdkPixbuf *pixbuf;
+  gboolean has_parent;
+
+  pixbuf=bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine,self->priv->zoom);
+  has_parent=(GST_OBJECT_PARENT(self->priv->machine)!=NULL);
+  if(!has_parent || self->priv->dragging) {
+    GdkPixbuf *tmp=gdk_pixbuf_copy(pixbuf);
+    g_object_unref(pixbuf);
+    pixbuf=tmp;
   }
-  else if(BT_IS_PROCESSOR_MACHINE(machine)) {
-    switch(state) {
-      case BT_MACHINE_STATE_NORMAL: return(DATADIR"/icons/gnome/scalable/apps/effect.svg");
-      case BT_MACHINE_STATE_MUTE: return(DATADIR"/icons/gnome/scalable/apps/effect-mute.svg");
-      case BT_MACHINE_STATE_BYPASS: return(DATADIR"/icons/gnome/scalable/apps/effect-bypass.svg");
-      default:
-        break;
-    }
+  if(!has_parent) {
+    desaturate_pixbuf(pixbuf);
   }
-  else if(BT_IS_SINK_MACHINE(machine)) {
-    switch(state) {
-      case BT_MACHINE_STATE_NORMAL: return(DATADIR"/icons/gnome/scalable/apps/master.svg");
-      case BT_MACHINE_STATE_MUTE: return(DATADIR"/icons/gnome/scalable/apps/master-mute.svg");
-      default:
-        break;
-    }
+  if(self->priv->dragging) {
+    alpha_pixbuf(pixbuf);
   }
-  return(NULL);
+  gnome_canvas_item_set(self->priv->box,
+    "width",self->priv->zoom*84.0,
+    "height",self->priv->zoom*84.0,
+    "pixbuf",pixbuf,
+    NULL);
+  g_object_unref(pixbuf);
 }
-#endif
 
 //-- event handler
 
@@ -582,65 +340,31 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
   }
 }
 
-static void update_machine_label(BtMachineCanvasItem *self) {
+static void on_machine_id_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
   if(self->priv->label) {
     gchar *id;
-#ifndef USE_SVG_CANVAS_ITEM
-    gboolean is_added=(GST_OBJECT_PARENT(self->priv->machine)!=NULL);
-#endif
 
     g_object_get(self->priv->machine,"id",&id,NULL);
-#ifndef USE_SVG_CANVAS_ITEM
-    //GST_INFO("%s is %sadded",id,(is_added?"":"not "));
-    if(!is_added) {
-      gchar *label=g_strdup_printf("[%s]",id);
-      g_free(id);id=label;
-    }
-#endif
     gnome_canvas_item_set(self->priv->label,"text",id,NULL);
     g_free(id);
   }
 }
 
-static void on_machine_id_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
-  update_machine_label(BT_MACHINE_CANVAS_ITEM(user_data));
-}
-
 static void on_machine_parent_changed(GstObject *object, GstObject *parent, gpointer user_data) {
-  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-#ifdef USE_SVG_CANVAS_ITEM
-  gnome_canvas_item_set(self->priv->box,
-    "effect",(GST_OBJECT_PARENT(self->priv->machine)!=NULL)?GNOME_CANVAS_SVG_EFFECT_NONE:GNOME_CANVAS_SVG_EFFECT_DESATURATED,
-    NULL);
-#else
-  update_machine_label(self);
-#endif
+  update_machine_graphics(BT_MACHINE_CANVAS_ITEM(user_data));
 }
 
 static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-#ifdef USE_SVG_CANVAS_ITEM
-  const gchar *icon_name=get_icon_name(machine);
-#else
-  GdkPixbuf *pixbuf;
-#endif
   BtMachineState state;
   
   g_assert(user_data);
   g_object_get(machine,"state",&state,NULL);
   GST_INFO(" new state is %d",state);
   
-#ifdef USE_SVG_CANVAS_ITEM
-  gnome_canvas_item_set(self->priv->box,
-    "file-name",icon_name,
-    NULL);
-#else
-  pixbuf=bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine);
-  gnome_canvas_item_set(self->priv->box,
-    "pixbuf",pixbuf,
-    NULL);
-  g_object_unref(pixbuf);
-#endif
+  update_machine_graphics(self);
   
   switch(state) {
     case BT_MACHINE_STATE_NORMAL:
@@ -1190,9 +914,13 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
     } break;
     case MACHINE_CANVAS_ITEM_ZOOM: {
       self->priv->zoom=g_value_get_double(value);
-      //GST_DEBUG("set the zoom for machine_canvas_item: %f",self->priv->zoom);
+      GST_DEBUG("set the zoom for machine_canvas_item: %f",self->priv->zoom);
       if(self->priv->label) {
         gnome_canvas_item_set(self->priv->label,"size-points",MACHINE_VIEW_FONT_SIZE*self->priv->zoom,NULL);
+      }
+      /* reload the svg icons, we do this to keep them sharp */
+      if(self->priv->box) {
+        update_machine_graphics(self);
       }
     } break;
     default: {
@@ -1273,11 +1001,6 @@ static void bt_machine_canvas_item_finalize(GObject *object) {
  */
 static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
-#ifdef USE_SVG_CANVAS_ITEM
-  const gchar *icon_name=get_icon_name(self->priv->machine);
-#else
-  GdkPixbuf *pixbuf;
-#endif
   gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
   gdouble fh=MACHINE_VIEW_FONT_SIZE;
   gchar *id,*prop;
@@ -1291,32 +1014,15 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
 
   // add machine components
   // the body
-#ifdef USE_SVG_CANVAS_ITEM
-  self->priv->box=gnome_canvas_item_new (GNOME_CANVAS_GROUP(citem),
-                           GNOME_TYPE_CANVAS_SVG,
-                           "file-name",icon_name,
-                           "effect",(GST_OBJECT_PARENT(self->priv->machine)!=NULL)?GNOME_CANVAS_SVG_EFFECT_NONE:GNOME_CANVAS_SVG_EFFECT_DESATURATED,
-                           "pixbuf",gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,84,84),
-                           "anchor",GTK_ANCHOR_CENTER,
-                           "x",0.0,
-                           "y",-(w-h),
-                           "width",84.0,
-                           "height",84.0,
-                           "width-in-pixels",TRUE,
-                           "height-in-pixels",TRUE,
-                           NULL);
-
-#else
-  pixbuf=bt_ui_resources_get_machine_graphics_pixbuf_by_machine(self->priv->machine);
   self->priv->box=gnome_canvas_item_new (GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_PIXBUF,
-                           "pixbuf", pixbuf,
                            "anchor", GTK_ANCHOR_CENTER,
                            "x",0.0,
                            "y",-(w-h),
+                           "width-in-pixels",TRUE,
+                           "height-in-pixels",TRUE,
                            NULL);
-  g_object_unref(pixbuf);
-#endif
+  update_machine_graphics(self);
 
   // the name label
   self->priv->label=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
@@ -1409,6 +1115,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
           // set some flags
           self->priv->dragging=TRUE;
           self->priv->moved=FALSE;
+          update_machine_graphics(self);
         }
         else {
           self->priv->switching=TRUE;
@@ -1453,6 +1160,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       GST_DEBUG("GDK_BUTTON_RELEASE: %d",event->button.button);
       if(self->priv->dragging) {
         self->priv->dragging=FALSE;
+        update_machine_graphics(self);
         if(self->priv->moved) {
           gnome_canvas_item_ungrab(citem,event->button.time);
         }
@@ -1519,6 +1227,8 @@ static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_clas
 
   // the cursor for dragging
   self->priv->drag_cursor=gdk_cursor_new(GDK_FLEUR);
+  
+  self->priv->zoom=1.0;
   
   self->priv->lock=g_mutex_new ();
 }

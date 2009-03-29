@@ -50,6 +50,7 @@ struct _BtUIResourcesPrivate {
   GtkAccelGroup *accel_group;
 
   /* machine graphics */
+  gdouble zoom;
   GdkPixbuf *source_machine_pixbufs[BT_MACHINE_STATE_COUNT];
   GdkPixbuf *processor_machine_pixbufs[BT_MACHINE_STATE_COUNT];
   GdkPixbuf *sink_machine_pixbufs[BT_MACHINE_STATE_COUNT];
@@ -234,9 +235,19 @@ static GdkPixbuf *bt_ui_resources_load_svg(const gchar *file_name) {
 }
 */
 
+static void bt_ui_resources_free_graphics(BtUIResources *self) {
+  guint state;
+
+  for(state=0;state<BT_MACHINE_STATE_COUNT;state++) {
+    g_object_try_unref(self->priv->source_machine_pixbufs[state]);
+    g_object_try_unref(self->priv->processor_machine_pixbufs[state]);
+    g_object_try_unref(self->priv->sink_machine_pixbufs[state]);
+  }
+}
+  
 static gboolean bt_ui_resources_init_graphics(BtUIResources *self) {
   // 12*6=72, 14*6=84
-  const gint size=GTK_ICON_SIZE_DIALOG*14;
+  const gint size=(gint)(self->priv->zoom*(gdouble)(GTK_ICON_SIZE_DIALOG*14));
   
   //self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL] = bt_ui_resources_load_svg ("generator.svg");
   
@@ -250,7 +261,6 @@ static gboolean bt_ui_resources_init_graphics(BtUIResources *self) {
 
   self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("master",size);
   self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("master-mute",size);
-  
    
   /* DEBUG
   gint w,h;
@@ -283,9 +293,6 @@ BtUIResources *bt_ui_resources_new(void) {
         goto Error;
       }
       if(!bt_ui_resources_init_icons(ui_resources)) {
-        goto Error;
-      }
-      if(!bt_ui_resources_init_graphics(ui_resources)) {
         goto Error;
       }
       ui_resources->priv->accel_group=gtk_accel_group_new();
@@ -330,15 +337,23 @@ GdkPixbuf *bt_ui_resources_get_icon_pixbuf_by_machine(const BtMachine *machine) 
 /**
  * bt_ui_resources_get_machine_graphics_pixbuf_by_machine:
  * @machine: the machine to get the image for
+ * @zoom: scaling factor for the icons
  *
  * Gets a #GdkPixbuf image that matches the given machine type for use on the
  * canvas.
  *
  * Returns: a #GdkPixbuf image
  */
-GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine) {
+GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine, gdouble zoom) {
   BtUIResources *ui_resources=BT_UI_RESOURCES(singleton);
   BtMachineState state;
+  
+  if(zoom!=ui_resources->priv->zoom) {
+    GST_DEBUG("change zoom %f -> %f",ui_resources->priv->zoom,zoom);
+    bt_ui_resources_free_graphics(ui_resources);
+    ui_resources->priv->zoom=zoom;
+    bt_ui_resources_init_graphics(ui_resources);
+  }
   
   g_object_get(G_OBJECT(machine),"state",&state,NULL);
 
@@ -494,7 +509,6 @@ static void bt_ui_resources_set_property(GObject      *object,
 
 static void bt_ui_resources_dispose(GObject *object) {
   BtUIResources *self = BT_UI_RESOURCES(object);
-  guint state;
   
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -509,11 +523,7 @@ static void bt_ui_resources_dispose(GObject *object) {
   g_object_try_unref(self->priv->processor_machine_pixbuf);
   g_object_try_unref(self->priv->sink_machine_pixbuf);
   
-  for(state=0;state<BT_MACHINE_STATE_COUNT;state++) {
-    g_object_try_unref(self->priv->source_machine_pixbufs[state]);
-    g_object_try_unref(self->priv->processor_machine_pixbufs[state]);
-    g_object_try_unref(self->priv->sink_machine_pixbufs[state]);
-  }
+  bt_ui_resources_free_graphics(self);
   
   g_object_try_unref(self->priv->accel_group);
 

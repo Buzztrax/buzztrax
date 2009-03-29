@@ -28,7 +28,7 @@
 extern BtUIResources *bt_ui_resources_new(void);
 
 extern GdkPixbuf *bt_ui_resources_get_icon_pixbuf_by_machine(const BtMachine *machine);
-extern GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine);
+extern GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine, gdouble zoom);
 extern GtkWidget *bt_ui_resources_get_icon_image_by_machine(const BtMachine *machine);
 extern GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type);
 

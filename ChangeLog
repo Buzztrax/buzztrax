@@ -1,3 +1,14 @@
+2009-03-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Kick out svg canvas item hack, that did not work well anyway. Update pixbufs
+	  when zooming instead. Also apply effect, like desatoration and opacity.
+
+	* src/ui/edit/ui-resources-methods.h:
+	* src/ui/edit/ui-resources.c:
+	  Allow to requested certain sizes for the svg graphics. Lazily recreate when
+	  size changes.
+
 2009-03-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
