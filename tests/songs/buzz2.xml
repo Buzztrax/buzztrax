@@ -61,8 +61,8 @@
     </machines>
     
     <wires>
-      <wire src="guru2" dst="filter" gain="1.0" panorama="-50"/>
-      <wire src="filter" dst="audio_sink" gain="1.0" panorama="-50"/>
+      <wire src="guru2" dst="filter" gain="1.0" panorama="-0.5"/>
+      <wire src="filter" dst="audio_sink" gain="1.0" panorama="-0.5"/>
     </wires>    
   </setup>
   

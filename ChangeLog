@@ -1,3 +1,33 @@
+2009-03-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/Makefile.am:
+	  use LANG=C as the nameing of the eniglish locales differ between the
+	  distros.
+
+	* tests/songs/buzz1.xml:
+	* tests/songs/buzz2.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz4.xml:
+	* tests/songs/buzz5.xml:
+	* tests/songs/buzz6.xml:
+	* tests/songs/buzz7.xml:
+	* tests/songs/buzz8.xml:
+	* tests/songs/buzz9.xml:
+	* tests/songs/combi1.xml:
+	* tests/songs/combi2.xml:
+	* tests/songs/combi3.xml:
+	* tests/songs/melo1.xml:
+	* tests/songs/melo3.xml:
+	* tests/songs/melo4.xml:
+	* tests/songs/melo5.xml:
+	* tests/songs/simple2.xml:
+	* tests/songs/simple3.xml:
+	* tests/songs/simple4.xml:
+	* tests/songs/simple5.xml:
+	* tests/songs/test-simple4.xml:
+	* tests/songs/test-simple5.xml:
+	  Fix panorama property value type.
+
 2009-03-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

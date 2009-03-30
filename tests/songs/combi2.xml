@@ -188,8 +188,8 @@
     <wires>
       <wire src="beep1" dst="echo1" gain="1.0"/>
       <wire src="echo1" dst="audio_sink" gain="1.0"/>
-      <wire src="beep2" dst="audio_sink" gain="1.0" panorama="-50"/>
-      <wire src="beat" dst="audio_sink" gain="1.0" panorama="0"/>
+      <wire src="beep2" dst="audio_sink" gain="1.0" panorama="-0.5"/>
+      <wire src="beat" dst="audio_sink" gain="1.0" panorama="0.0"/>
       <wire src="snr" dst="audio_sink" gain="1.0"/>
       <wire src="hh" dst="audio_sink" gain="1.0"/>
     </wires>

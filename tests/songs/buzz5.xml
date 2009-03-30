@@ -41,7 +41,7 @@
     </machines>
     
     <wires>
-      <wire src="bass2" dst="audio_sink" gain="1.0" panorama="0"/>
+      <wire src="bass2" dst="audio_sink" gain="1.0" panorama="0.0"/>
     </wires>    
   </setup>
   

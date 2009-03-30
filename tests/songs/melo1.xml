@@ -70,7 +70,7 @@
     
     <wires>
       <wire src="beep1" dst="audio_sink" gain="1.0"/>
-      <wire src="beep2" dst="audio_sink" gain="1.0" panorama="-50"/>
+      <wire src="beep2" dst="audio_sink" gain="1.0" panorama="-0.5"/>
     </wires>    
   </setup>
   

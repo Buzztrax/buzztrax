@@ -89,9 +89,9 @@
     </machines>
     
     <wires>
-      <wire src="kick" dst="chorus" gain="1.5" panorama="0"/>
-      <wire src="guru2" dst="chorus" gain="0.5" panorama="0"/>
-      <wire src="chorus" dst="audio_sink" gain="1.0" panorama="0"/>
+      <wire src="kick" dst="chorus" gain="1.5" panorama="0.0"/>
+      <wire src="guru2" dst="chorus" gain="0.5" panorama="0.2"/>
+      <wire src="chorus" dst="audio_sink" gain="1.0" panorama="-0.5"/>
     </wires>    
   </setup>
   

@@ -119,7 +119,7 @@
       <wire src="sine2" dst="amp1" gain="1.0"/>
       <wire src="sine3" dst="amp1" gain="1.0"/>
       <wire src="sine4" dst="amp1" gain="1.0"/>
-      <wire src="amp1" dst="audio_sink" gain="1.0" panorama="-50"/>
+      <wire src="amp1" dst="audio_sink" gain="1.0" panorama="-0.5"/>
     </wires>    
   </setup>
   

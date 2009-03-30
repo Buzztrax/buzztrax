@@ -108,8 +108,8 @@
     <wires>
       <wire src="sine1" dst="amp1" gain="1.5"/>
       <wire src="sine2" dst="amp2" gain="1.0"/>
-      <wire src="amp1" dst="audio_sink" gain="1.0" panorama="-50"/>
-      <wire src="amp2" dst="audio_sink" gain="1.0" panorama="+50"/>
+      <wire src="amp1" dst="audio_sink" gain="1.0" panorama="-0.5"/>
+      <wire src="amp2" dst="audio_sink" gain="1.0" panorama="+0.5"/>
     </wires>    
   </setup>
     

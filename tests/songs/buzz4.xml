@@ -44,7 +44,7 @@
     </machines>
     
     <wires>
-      <wire src="gen" dst="audio_sink" gain="1.0" panorama="-50"/>
+      <wire src="gen" dst="audio_sink" gain="1.0" panorama="-0.5"/>
     </wires>    
   </setup>
     

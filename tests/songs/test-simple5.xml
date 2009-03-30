@@ -98,7 +98,7 @@
     <wires>
       <wire src="sine1" dst="amp1" gain="1.5"/>
       <wire src="sine2" dst="amp1" gain="0.5"/>
-      <wire src="amp1" dst="audio_sink" gain="1" panorama="0">
+      <wire src="amp1" dst="audio_sink" gain="1" panorama="0.0">
         <patterns>
           <pattern id="audio_sink 00">
             <tick time="0">
@@ -114,7 +114,7 @@
         </patterns>
       </wire>
       <wire src="sine1" dst="volume" gain="1"/>
-      <wire src="volume" dst="audio_sink" gain="1" panorama="0"/>
+      <wire src="volume" dst="audio_sink" gain="1" panorama="0.0"/>
     </wires>
   </setup>
   <sequence length="16" tracks="2">

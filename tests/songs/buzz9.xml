@@ -68,8 +68,8 @@
     </machines>
     
     <wires>
-      <wire src="beeps" dst="audio_sink" gain="1.0" panorama="-50"/>
-      <wire src="beats" dst="audio_sink" gain="1.0" panorama="50"/>
+      <wire src="beeps" dst="audio_sink" gain="1.0" panorama="-0.5"/>
+      <wire src="beats" dst="audio_sink" gain="1.0" panorama="0.5"/>
     </wires>    
   </setup>
     

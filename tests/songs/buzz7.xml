@@ -69,10 +69,10 @@
     </machines>
     
     <wires>
-      <wire src="chorus" dst="audio_sink" gain="1.0" panorama="0"/>
-      <wire src="bd" dst="chorus" gain="1.0" panorama="-50"/>
-      <wire src="snr" dst="chorus" gain="1.0" panorama="-50"/>
-      <wire src="hh" dst="chorus" gain="1.0" panorama="-50"/>
+      <wire src="chorus" dst="audio_sink" gain="1.0" panorama="0.0"/>
+      <wire src="bd" dst="chorus" gain="1.0" panorama="0.0"/>
+      <wire src="snr" dst="chorus" gain="1.0" panorama="0.5"/>
+      <wire src="hh" dst="chorus" gain="1.0" panorama="-0.5"/>
     </wires>    
   </setup>
   
