@@ -50,16 +50,7 @@
  *
  * - play notes
  *   - set pipeline to playing
- *     - maybe have idle-playing in song, so that this can be used from
- *       elsewhere too
- *     - enable
- *       if no playback is going
- *         bt_song_idle_start
- *       else if playback stops
- *         bt_song_idle_start
- *     - disable
- *       if no playback
- *         bt_song_idle_stop
+ *     - check "is-idle" property in song
  *   - note entry
  *     - support midi keyboard for entering notes
  *     - have poly-input mode

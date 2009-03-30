@@ -139,8 +139,7 @@
         <listitem><para>supports HID input devices for effect control (e.g. joysticks)</para></listitem>
       </itemizedlist>
       <itemizedlist>
-        <listitem><para>can't yet use samples</para></listitem>
-        <listitem><para>can't yet reconnect machines reliably while playing</para></listitem>
+        <listitem><para>has only marginal MIDI support</para></listitem>
       </itemizedlist>
     </para>
   </sect2>
@@ -305,7 +304,10 @@
       <title id='bt-edit-main-view-patterns.title'>The pattern view of a song</title>
       <para>
         Patterns are the building blocks of a song. They are short snippets of
-        events for one machine, that can be reused in the sequence.
+        events for one machine, that can be reused in the sequence. The vertical
+        axis shows ticks (time) and the horizontal axis has the parameters.
+        Parameters are organized in groups. There is a group for global settings
+        and groups for each voice if the machine is polyphonic.
       </para>
       <figure id="bt-edit-page-pattern-view-fig">
         <title>Pattern view</title>
@@ -323,16 +325,22 @@
       <para>
         In the page toolbar one can select the machine and the pattern for the machine.
         Pattern names in gray color indicated that the pattern is not used in the
-        sequence (thus save to be removed or changed).
+        sequence (thus save to be removed or changed). One can also select the
+        base ocatave for entering notes via keyboard and the sample that should
+        be used for wave-table based machines.
       </para>
       <para>
         A context menu in the pattern area allows to create new patterns and
         modify existing ones. Unused patterns can be removed immediately
-        (without any dialogs).
+        (without any dialogs). If the machine is polyphonic, one can add or
+        remove voices by using the context menu.
       </para>
       <para>
         To switch to the sequence editor press <keycap>Enter</keycap> while the
         pattern editor has focus.
+      </para>
+      <para>
+        (FIXME: write about keyboard short cuts)
       </para>
     </sect3>
 
@@ -504,7 +512,6 @@
       <para>
         Select the audiosink to use. It will be changed immediately, except when a
         song is playing (will be switched after stopping).
-        (FIXME: write more)
       </para>
       <figure id="bt-edit-settings-audio-fig">
         <title>Audio device settings</title>
@@ -516,6 +523,18 @@
           </mediaobject>
         </screenshot>
       </figure>
+      <para>
+        All offered audio sinks should be fine for song-playback. One area where
+        they differ is latency. Low latency is important when playing machines
+        live - that is playing notes in the <link linkend="bt-edit-main-view-patterns">pattern editor</link>
+        or changing parameters in the <link linkend="bt-edit-dialog-machine-properties">machine window</link>.
+        The lower the latency, the more immediate the changes are. Jack is known
+        for being able to achive a low latency, but also a well configured alsa
+        or pulseaudio can achieve a reasonable latency.
+      </para>
+      <para>
+        (FIXME: write more)
+      </para>
     </sect3>
   
     <sect3 id="bt-edit-prefs-playback-controller">

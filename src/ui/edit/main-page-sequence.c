@@ -47,6 +47,8 @@
  * - we should have a track-changed signal or so to allow pattern to sync with
  *   seelcted machine and not passively syncing (bt_main_page_patterns_show_machine())
  *
+ * @idea: instead of using gray color, try g_object_set(renderer,"sensitive",FALSE,NULL);
+ *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
  */

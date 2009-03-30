@@ -28,7 +28,41 @@
  * To load or save a song, use a #BtSongIO object. These implement loading and
  * saving for different file-formats.
  */
-
+/* @todo: idel looping (needed for playing machines live)
+ * - add an "is-idle" property
+ * - make bt_song_idle_{start,stop} static
+ * - states:
+ *   is_playing is_idle
+ *   FALSE      FALSE    no playback
+ *   FALSE      TRUE     play machines
+ *   TRUE       FALSE    play song and machines
+ *   true       true     not supported
+ *
+ * is_playing_changed:
+ *   if(is_playing) {
+ *     if(is_idle) {
+ *       bt_song_idle_stop();
+ *     }
+ *     bt_song_play();
+ *   }
+ *   else {
+ *     bt_song_stop();
+ *     if(is_idle) {
+ *       bt_song_idle_start();
+ *     }
+ *   }
+ * is_idle_change:
+ *   if(is_idle) {
+ *     if(!is_playing) {
+ *       bt_song_idle_start();
+ *     }
+ *   }
+ *   else {
+ *     if(!is_playing) {
+ *       bt_song_idle_stop();
+ *     }
+ *   }
+ */
 #define BT_CORE
 #define BT_SONG_C
 

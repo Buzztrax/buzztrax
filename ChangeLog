@@ -1,5 +1,14 @@
 2009-03-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* src/lib/core/song.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Docs, ideas and planning.
+
+2009-03-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/Makefile.am:
 	  use LANG=C as the nameing of the eniglish locales differ between the
 	  distros.
