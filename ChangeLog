@@ -1,3 +1,9 @@
+2009-03-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Use sensite property on renderer instead of custom color. Need to do
+	  the same elsewhere.
+
 2009-03-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

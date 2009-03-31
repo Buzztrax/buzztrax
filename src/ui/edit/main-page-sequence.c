@@ -47,8 +47,6 @@
  * - we should have a track-changed signal or so to allow pattern to sync with
  *   seelcted machine and not passively syncing (bt_main_page_patterns_show_machine())
  *
- * @idea: instead of using gray color, try g_object_set(renderer,"sensitive",FALSE,NULL);
- *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
  */
@@ -171,7 +169,7 @@ enum {
 enum {
   PATTERN_TABLE_KEY=0,
   PATTERN_TABLE_NAME,
-  PATTERN_TABLE_COLOR_SET
+  PATTERN_TABLE_USED
 };
 
 enum {
@@ -1382,20 +1380,20 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     index=2;
     gtk_list_store_append(store, &tree_iter);
     // use spaces to avoid clashes with normal patterns?
-    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,".",PATTERN_TABLE_NAME,_("  clear"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
+    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,".",PATTERN_TABLE_NAME,_("  clear"),PATTERN_TABLE_USED,TRUE,-1);
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"-",PATTERN_TABLE_NAME,_("  mute"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
+    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"-",PATTERN_TABLE_NAME,_("  mute"),PATTERN_TABLE_USED,TRUE,-1);
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,",",PATTERN_TABLE_NAME,_("  break"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
+    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,",",PATTERN_TABLE_NAME,_("  break"),PATTERN_TABLE_USED,TRUE,-1);
     if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
       gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  bypass"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
+      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  bypass"),PATTERN_TABLE_USED,TRUE,-1);
       self->priv->pattern_keys=processor_pattern_keys;
       index++;
     }
     if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
       gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  solo"),PATTERN_TABLE_COLOR_SET,FALSE,-1);
+      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  solo"),PATTERN_TABLE_USED,TRUE,-1);
       self->priv->pattern_keys=source_pattern_keys;
       index++;
     }
@@ -1418,7 +1416,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
         gtk_list_store_set(store,&tree_iter,
           PATTERN_TABLE_KEY,key,
           PATTERN_TABLE_NAME,str,
-          PATTERN_TABLE_COLOR_SET,!is_used,
+          PATTERN_TABLE_USED,is_used,
           -1);
         index++;
       }
@@ -2903,11 +2901,10 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),
     "xalign",1.0,
-    "foreground","gray30",
     NULL);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Key"),renderer,
     "text",PATTERN_TABLE_KEY,
-    "foreground-set",PATTERN_TABLE_COLOR_SET,
+    "sensitive",PATTERN_TABLE_USED,
     NULL))
   ) {
     g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",30,NULL);
@@ -2916,12 +2913,9 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   else GST_WARNING("can't create treeview column");
 
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),
-    "foreground","gray30",
-    NULL);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Patterns"),renderer,
     "text",PATTERN_TABLE_NAME,
-    "foreground-set",PATTERN_TABLE_COLOR_SET,
+    "sensitive",PATTERN_TABLE_USED,
     NULL))
   ) {
     g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",70,NULL);
