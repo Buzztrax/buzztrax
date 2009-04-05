@@ -731,7 +731,7 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
 static BtPersistence *bt_wire_pattern_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
   BtWirePattern *self;
   BtPersistence *result;
-  BtMachine *dst_machine;
+  BtMachine *dst_machine=NULL;
   BtPattern *pattern;
   xmlChar *name,*pattern_id,*tick_str,*value;
   gulong tick,param;

@@ -128,22 +128,21 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
   mid_y=h/2.0;
   // normalized ascent (gradient, slope) of the wire
   if((fabs(w)>G_MINDOUBLE) && (fabs(h)>G_MINDOUBLE)) {
-    dx=w/h;
-    dy=h/w;
     df=sqrt(w*w+h*h);dx=w/df;dy=h/df;
   }
   else if(fabs(w)>G_MINDOUBLE) {
     dx=1.0;
     dy=0.0;
-    df=w;
+    //df=w;
   }
   else if(fabs(h)>G_MINDOUBLE) {
     dx=0.0;
     dy=1.0;
-    df=h;
+    //df=h;
   }
   else {
-    dx=dy=df=0.0;
+    dx=dy=0.0;
+    //df=0.0;
   }
   
   // first triangle
@@ -180,7 +179,7 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
   base22_y=base_y-(sb*dx);
   
   /* // debug
-  GST_DEBUG(" delta=%f,%f, df=%f, s=%f, sa=%f sb=%f",dx,dy,df,s,sa,sb);
+  GST_DEBUG(" delta=%f,%f, s=%f, sa=%f sb=%f",dx,dy,s,sa,sb);
   GST_DEBUG(" w/h=%f,%f",w,h);
   GST_DEBUG(" mid=%f,%f",mid_x,mid_y);
   GST_DEBUG(" tip1=%f,%f",tip1_x,tip_y);

@@ -255,7 +255,6 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   GstElement *src,*dec,*conv,*sink;
   GstBus *bus;
   GstCaps *caps;
-  GstStateChangeReturn state_res;
   
   GST_INFO("about to load sample %s / %s",self->priv->uri,uri);
 
@@ -288,9 +287,13 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   // add and link
   gst_bin_add_many(GST_BIN(self->priv->pipeline),src,dec,conv,self->priv->fmt,sink,NULL);
   res=gst_element_link(src,dec);
+  if(!res) {
+    GST_WARNING ("Can't link wave loader pipeline (src ! dec).");
+    goto Error;
+  }
   res=gst_element_link_many(conv,self->priv->fmt,sink,NULL);
   if(!res) {
-    GST_WARNING ("Can't link wave loader pipeline.");
+    GST_WARNING ("Can't link wave loader pipeline (conf ! fmt ! sink).");
     goto Error;
   }
   g_signal_connect(G_OBJECT(dec),"new-decoded-pad",G_CALLBACK(on_wave_loader_new_pad),(gpointer)conv);
@@ -311,7 +314,7 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   gst_object_unref(bus);
   
   // play and wait for EOS 
-  if((state_res=gst_element_set_state(self->priv->pipeline,GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
+  if(gst_element_set_state(self->priv->pipeline,GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING ("Can't set wave loader pipeline for %s / %s to playing",self->priv->uri,uri);
     gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
     res=FALSE;
@@ -432,14 +435,14 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
 
     // save wavelevels
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wavelevels"),NULL))) {
-      bt_persistence_save_list(self->priv->wavelevels,node);
+      bt_persistence_save_list(self->priv->wavelevels,child_node);
     }
   }
   return(node);
 }
 
 static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
-  BtWave *self = BT_WAVE(persistence);
+  BtWave *self;
   BtPersistence *result;
   BtSongIONative *song_io;
   gchar *uri=NULL;

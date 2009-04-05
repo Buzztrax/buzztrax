@@ -675,7 +675,11 @@ static void
 bt_pattern_editor_size_allocate (GtkWidget *widget,
                             GtkAllocation *allocation)
 {
-  (GTK_WIDGET_CLASS(parent_class)->size_allocate)(widget,allocation);
+  g_return_if_fail (allocation != NULL);
+  
+  GTK_WIDGET_CLASS(parent_class)->size_allocate(widget,allocation);
+  
+  widget->allocation = *allocation;
 
   bt_pattern_editor_update_adjustments (BT_PATTERN_EDITOR (widget));
 }
@@ -1152,7 +1156,7 @@ bt_pattern_editor_dispose(GObject *object) {
     self->vadj = NULL;
   }
 
-  (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void

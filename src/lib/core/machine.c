@@ -1216,7 +1216,8 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     GST_DEBUG("  about to link adder -> convert -> dst_elem");
     if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
       gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);
-      GST_ERROR("failed to link the internal adder of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
+      GST_ERROR("failed to link the internal adder of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+      goto Error;
     }
     else {
       GST_DEBUG("  adder activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
@@ -1266,7 +1267,8 @@ gboolean bt_machine_activate_spreader(BtMachine * const self) {
     // create the spreader (tee)
     if(!(bt_machine_make_internal_element(self,PART_SPREADER,"tee","tee"))) goto Error;
     if(!gst_element_link(self->src_elem, self->priv->machines[PART_SPREADER])) {
-      GST_ERROR("failed to link the internal spreader of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));res=FALSE;
+      GST_ERROR("failed to link the internal spreader of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+      goto Error;
     }
     else {
       GST_DEBUG("  spreader activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
@@ -2201,11 +2203,9 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
     if(self->priv->global_controller) {
 #if GST_CHECK_VERSION(0,10,14)
       if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
-        gint ct;
-        if((ct=gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs)))) {
+        if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
           add=FALSE;
         }
-        //GST_WARNING("add : ct = %d",ct);
         g_object_unref(cs);
       }
 #else
@@ -2239,14 +2239,12 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
 #if GST_CHECK_VERSION(0,10,14)
       if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
-        gint ct;
         gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
         // check if the property is not having control points anymore
-        if((ct=gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs)))) {
+        if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
           // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=538201
           remove=FALSE;
         }
-        //GST_WARNING("rem : ct = %d",ct);
         g_object_unref(cs);
       }
       else remove=FALSE;

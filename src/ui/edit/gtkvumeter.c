@@ -127,6 +127,8 @@ static void gtk_vumeter_finalize (GObject * object)
         cairo_pattern_destroy (vumeter->gradient_peak);
     if (vumeter->gradient_bg)
         cairo_pattern_destroy (vumeter->gradient_bg);
+
+    G_OBJECT_CLASS(parent_class)->finalize (object);
 }
 
 static void gtk_vumeter_allocate_colors (GtkVUMeter *vumeter)

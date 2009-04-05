@@ -68,7 +68,7 @@
 
 static void desaturate_pixbuf(GdkPixbuf *pixbuf) {
   guint x,y,w,h,rowstride,gray;
-  guchar *pixels,*p;
+  guchar *p;
 
   g_assert(gdk_pixbuf_get_colorspace(pixbuf)==GDK_COLORSPACE_RGB);
   g_assert(gdk_pixbuf_get_bits_per_sample(pixbuf)==8);
@@ -78,7 +78,7 @@ static void desaturate_pixbuf(GdkPixbuf *pixbuf) {
   w=gdk_pixbuf_get_width(pixbuf);
   h=gdk_pixbuf_get_height(pixbuf);
   rowstride=gdk_pixbuf_get_rowstride(pixbuf)-(w*4);
-  p=pixels=gdk_pixbuf_get_pixels(pixbuf);
+  p=gdk_pixbuf_get_pixels(pixbuf);
 
   for(y=0;y<h;y++) {
     for(x=0;x<w;x++) {
@@ -94,7 +94,7 @@ static void desaturate_pixbuf(GdkPixbuf *pixbuf) {
 
 static void alpha_pixbuf(GdkPixbuf *pixbuf) {
   guint x,y,w,h,rowstride;
-  guchar *pixels,*p;
+  guchar *p;
 
   g_assert(gdk_pixbuf_get_colorspace(pixbuf)==GDK_COLORSPACE_RGB);
   g_assert(gdk_pixbuf_get_bits_per_sample(pixbuf)==8);
@@ -104,7 +104,7 @@ static void alpha_pixbuf(GdkPixbuf *pixbuf) {
   w=gdk_pixbuf_get_width(pixbuf);
   h=gdk_pixbuf_get_height(pixbuf);
   rowstride=gdk_pixbuf_get_rowstride(pixbuf)-(w*4);
-  p=pixels=gdk_pixbuf_get_pixels(pixbuf);
+  p=gdk_pixbuf_get_pixels(pixbuf);
 
   for(y=0;y<h;y++) {
     for(x=0;x<w;x++) {
@@ -238,9 +238,9 @@ static gboolean on_delayed_idle_machine_level_change(gpointer user_data) {
 
   if(self) {
     const GstStructure *structure=gst_message_get_structure(message);
-    const GValue *l_cur,*l_peak;
+    const GValue *l_cur;
     const gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
-    gdouble cur=0.0, peak=0.0, val;
+    gdouble cur=0.0, val;
     guint i,size;
 
     g_mutex_lock(self->priv->lock);
@@ -252,17 +252,12 @@ static gboolean on_delayed_idle_machine_level_change(gpointer user_data) {
 
     //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
     l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-    //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-    l_peak=(GValue *)gst_structure_get_value(structure, "decay");
     size=gst_value_list_get_size(l_cur);
     for(i=0;i<size;i++) {
       cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
-      peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
     }
     if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
     else cur/=size;
-    if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-    else peak/=size;
     val=cur;
     if(val>0.0) val=0.0;
     val=val/LOW_VUMETER_VAL;

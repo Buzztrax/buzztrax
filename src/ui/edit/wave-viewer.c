@@ -30,6 +30,9 @@ enum {
   WAVE_VIEWER_PLAYBACK_CURSOR
 };
 
+static GtkWidgetClass *parent_class=NULL;
+
+
 static gboolean
 bt_waveform_viewer_expose (GtkWidget *widget, GdkEventExpose *event)
 {
@@ -144,6 +147,9 @@ bt_waveform_viewer_size_allocate (GtkWidget *widget,
                            GtkAllocation *allocation)
 {
     g_assert(BT_IS_WAVEFORM_VIEWER(widget));
+    g_return_if_fail (allocation != NULL);
+    
+    GTK_WIDGET_CLASS (parent_class)->size_allocate (widget, allocation);
     
     widget->allocation = *allocation;
     // printf("allocation %d x %d\n", allocation->width, allocation->height);
@@ -155,6 +161,8 @@ bt_waveform_viewer_finalize (GObject * object)
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER(object);
   
   g_free (self->peaks);
+  
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 /* returns a property for the given property_id for this object */
@@ -225,6 +233,8 @@ bt_waveform_viewer_class_init (BtWaveformViewer *klass)
 {
   GObjectClass * gobject_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+
+  parent_class=g_type_class_peek_parent(klass);
 
   widget_class->expose_event = bt_waveform_viewer_expose;
   //widget_class->size_request = bt_waveform_viewer_size_request;

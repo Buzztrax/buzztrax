@@ -1048,7 +1048,7 @@ GList *bt_wire_get_element_list(const BtWire * const self) {
 }
 
 void bt_wire_dbg_print_parts(const BtWire * const self) {
-  gchar * const sid, * const did;
+  gchar * const sid=NULL, * const did=NULL;
 
   if(self->priv->src) g_object_get(self->priv->src,"id",&sid,NULL);
   if(self->priv->dst) g_object_get(self->priv->dst,"id",&did,NULL);
@@ -1119,7 +1119,7 @@ Error:
 static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
   BtWire *self;
   BtPersistence *result;
-  BtSetup * const setup;
+  BtSetup * const setup = NULL;
   xmlChar *src_id, *dst_id, *gain_str, *pan_str;
   xmlNodePtr child_node;
 
