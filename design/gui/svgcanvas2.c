@@ -100,7 +100,7 @@ gnome_canvas_svg_render (GnomeCanvasItem *item, GnomeCanvasBuf *buf)
     /* desaturate */
     {
       guint x, y, rowstride, gray;
-      guchar *pixels, *p;
+      guchar *p;
   
       g_assert (gdk_pixbuf_get_colorspace (self->priv->pixbuf) == GDK_COLORSPACE_RGB);
       g_assert (gdk_pixbuf_get_bits_per_sample (self->priv->pixbuf) == 8);
@@ -108,7 +108,7 @@ gnome_canvas_svg_render (GnomeCanvasItem *item, GnomeCanvasBuf *buf)
       g_assert (gdk_pixbuf_get_n_channels (self->priv->pixbuf) == 4);
   
       rowstride = gdk_pixbuf_get_rowstride (self->priv->pixbuf) - (rw*4);
-      p = pixels = gdk_pixbuf_get_pixels (self->priv->pixbuf);
+      p = gdk_pixbuf_get_pixels (self->priv->pixbuf);
       
       printf(" p_w,p_h: %d, %d\n",
         gdk_pixbuf_get_width (self->priv->pixbuf),

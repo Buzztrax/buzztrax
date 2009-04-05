@@ -1,5 +1,13 @@
 2009-04-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gui/svgcanvas2.c:
+	  Remove unused var.
+
+	* src/lib/core/song-info.c
+	  Fix logic. (found by LLVM clang checker).
+	
+2009-04-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Don't leak GdkColors.
 
