@@ -1948,9 +1948,10 @@ static void bt_machine_get_param_details(const BtMachine * const self, GParamSpe
     if(min_val) *min_val=g_new0(GValue,1);
     if(max_val) *max_val=g_new0(GValue,1);
     if(GSTBT_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-      if(min_val) done =bt_machine_get_property_meta_value(*min_val,property,gstbt_property_meta_quark_min_val);
+      if(min_val) done=bt_machine_get_property_meta_value(*min_val,property,gstbt_property_meta_quark_min_val);
       if(max_val) {
         if(!bt_machine_get_property_meta_value(*max_val,property,gstbt_property_meta_quark_max_val)) {
+          // if this failed max val has not been set
           if(done) g_value_unset(*min_val);
           done=FALSE;
         }

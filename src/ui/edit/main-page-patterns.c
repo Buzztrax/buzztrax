@@ -1113,6 +1113,7 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
     }
     else
       return g_ascii_strtod(str,NULL);
+    g_free(str);
   }
   return group->columns[param].def;
 }
@@ -1311,6 +1312,8 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->user_data=NULL;
   }
   GST_INFO("%s parameter '%s' min/max/def : %6.4lf/%6.4lf/%6.4lf",g_type_name(type), property->name, col->min,col->max,col->def);
+  g_value_unset(min_val);
+  g_value_unset(max_val);
   g_free(min_val);
   g_free(max_val);
 }
