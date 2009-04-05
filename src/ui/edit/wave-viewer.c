@@ -130,14 +130,14 @@ bt_waveform_viewer_expose (GtkWidget *widget, GdkEventExpose *event)
   return TRUE;
 }
 
+/*
 static void
 bt_waveform_viewer_size_request (GtkWidget *widget,
                            GtkRequisition *requisition)
 {
     g_assert(BT_IS_WAVEFORM_VIEWER(widget));
-    
-    // CalfLineGraph *lg = bt_waveform_viewer(widget);
 }
+*/
 
 static void
 bt_waveform_viewer_size_allocate (GtkWidget *widget,
@@ -227,7 +227,7 @@ bt_waveform_viewer_class_init (BtWaveformViewer *klass)
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
   widget_class->expose_event = bt_waveform_viewer_expose;
-  widget_class->size_request = bt_waveform_viewer_size_request;
+  //widget_class->size_request = bt_waveform_viewer_size_request;
   widget_class->size_allocate = bt_waveform_viewer_size_allocate;
   
   gobject_class->set_property = bt_waveform_viewer_set_property;
@@ -275,13 +275,15 @@ static void
 bt_waveform_viewer_init (BtWaveformViewer *self)
 {
   GtkWidget *widget = GTK_WIDGET(self);
+
   GTK_WIDGET_SET_FLAGS (widget, GTK_NO_WINDOW);
   widget->requisition.width = 40;
   widget->requisition.height = 40;
+
   self->active = 0;
   self->channels = 2;
   self->peaks_size = 1000;
-  self->peaks = malloc(sizeof(float) * self->channels * self->peaks_size);
+  self->peaks = g_malloc(sizeof(float) * self->channels * self->peaks_size);
   self->wave_length = 0;
   self->loop_begin = -1;
   self->loop_end = -1;
@@ -299,14 +301,15 @@ bt_waveform_viewer_init (BtWaveformViewer *self)
 void 
 bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels, int length)
 {
-  // untested, probably doesn't work
   int i, c, p, cc = channels;
   int64_t len = length;
+
   self->channels = channels;
   self->wave_length = length;
   self->loop_begin = -1;
   self->loop_end = -1;
   self->playback_cursor = -1;
+
   if (!data || !length)
   {
     self->active = 0;
@@ -314,6 +317,7 @@ bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels,
     gtk_widget_queue_draw(GTK_WIDGET(self));
     return;
   }
+
   for (i = 0; i < self->peaks_size; i++)
   {
     int p1 = len * i / self->peaks_size;

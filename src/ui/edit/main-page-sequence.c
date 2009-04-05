@@ -274,14 +274,14 @@ static void label_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *re
 static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   gulong row,column;
-  GdkColor *bg_col;
+  GdkColor *bg_col,*def_bg_col;
   gchar *str=NULL;
 
   column=1+GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
 
   gtk_tree_model_get(model,iter,
     SEQUENCE_TABLE_POS,&row,
-    SEQUENCE_TABLE_SOURCE_BG,&bg_col,
+    SEQUENCE_TABLE_SOURCE_BG,&def_bg_col,
     SEQUENCE_TABLE_LABEL+column,&str,
     -1);
 
@@ -294,26 +294,30 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
   else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
     (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
   ) {
-    bg_col=(bg_col->pixel==self->priv->source_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
+    bg_col=(def_bg_col->pixel==self->priv->source_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
+  }
+  else {
+    bg_col=def_bg_col;
   }
   g_object_set(G_OBJECT(renderer),
     "background-gdk",bg_col,
     "text",str,
      NULL);
+  gdk_color_free(def_bg_col);
   g_free(str);
 }
 
 static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   gulong row,column;
-  GdkColor *bg_col;
+  GdkColor *bg_col,*def_bg_col;
   gchar *str=NULL;
 
   column=1+GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
 
   gtk_tree_model_get(model,iter,
     SEQUENCE_TABLE_POS,&row,
-    SEQUENCE_TABLE_PROCESSOR_BG,&bg_col,
+    SEQUENCE_TABLE_PROCESSOR_BG,&def_bg_col,
     SEQUENCE_TABLE_LABEL+column,&str,
     -1);
 
@@ -323,26 +327,30 @@ static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCell
   else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
     (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
   ) {
-    bg_col=(bg_col->pixel==self->priv->processor_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
+    bg_col=(def_bg_col->pixel==self->priv->processor_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
+  }
+  else {
+    bg_col=def_bg_col;
   }
   g_object_set(G_OBJECT(renderer),
     "background-gdk",bg_col,
     "text",str,
      NULL);
+  gdk_color_free(def_bg_col);
   g_free(str);
 }
 
 static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   gulong row,column;
-  GdkColor *bg_col;
+  GdkColor *bg_col,*def_bg_col;
   gchar *str=NULL;
 
   column=1+GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
 
   gtk_tree_model_get(model,iter,
     SEQUENCE_TABLE_POS,&row,
-    SEQUENCE_TABLE_SINK_BG,&bg_col,
+    SEQUENCE_TABLE_SINK_BG,&def_bg_col,
     SEQUENCE_TABLE_LABEL+column,&str,
     -1);
 
@@ -352,12 +360,16 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
   else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
     (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
   ) {
-    bg_col=(bg_col->pixel==self->priv->sink_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
+    bg_col=(def_bg_col->pixel==self->priv->sink_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
+  }
+  else {
+    bg_col=def_bg_col;
   }
   g_object_set(G_OBJECT(renderer),
     "background-gdk",bg_col,
     "text",str,
      NULL);
+  gdk_color_free(def_bg_col);
   g_free(str);
 }
 

@@ -102,6 +102,15 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper methods
 
+/*
+static gint safe_strcmp(const gchar *s1, const gchar *s2) {
+  if(!s1 && !s2) return 0;
+  else if(!s1) return -1;
+  else if(!s2) return 1;
+  else return strcmp(s1,s2);
+}
+*/
+
 static void bt_song_info_tempo_changed(const BtSongInfo * const self) {
   BtSequence *sequence;
   
@@ -301,7 +310,7 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
     } break;
     case SONG_INFO_INFO: {
       const gchar *str=g_value_get_string(value);
-      if((self->priv->info!=str) && (self->priv->info || str || strcmp(self->priv->info,str))) {
+      if((self->priv->info!=str) && (!self->priv->info || !str || strcmp(self->priv->info,str))) {
         g_free(self->priv->info);
         self->priv->info = str ? g_value_dup_string(value) : NULL;
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DESCRIPTION, self->priv->info,NULL);
@@ -311,7 +320,7 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
     } break;
     case SONG_INFO_NAME: {
       const gchar *str=g_value_get_string(value);
-      if((self->priv->name!=str) && (self->priv->name || str || strcmp(self->priv->name,str))) {
+      if((self->priv->name!=str) && (!self->priv->name || !str || strcmp(self->priv->name,str))) {
         g_free(self->priv->name);
         self->priv->name = str ? g_value_dup_string(value) : NULL;
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_TITLE, self->priv->name,NULL);
@@ -321,7 +330,7 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
     } break;
     case SONG_INFO_GENRE: {
       const gchar *str=g_value_get_string(value);
-      if((self->priv->genre!=str) && (self->priv->genre || str || strcmp(self->priv->genre,str))) {
+      if((self->priv->genre!=str) && (!self->priv->genre || !str || strcmp(self->priv->genre,str))) {
         g_free(self->priv->genre);
         self->priv->genre = str ? g_value_dup_string(value) : NULL;
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_GENRE, self->priv->genre,NULL);
@@ -331,7 +340,7 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
     } break;
     case SONG_INFO_AUTHOR: {
       const gchar *str=g_value_get_string(value);
-      if((self->priv->author!=str) && (self->priv->author || str || strcmp(self->priv->author,str))) {
+      if((self->priv->author!=str) && (!self->priv->author || !str || strcmp(self->priv->author,str))) {
         g_free(self->priv->author);
         self->priv->author = str ? g_value_dup_string(value) : NULL;
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_ARTIST, self->priv->author,NULL);
