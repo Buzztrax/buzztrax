@@ -1119,7 +1119,7 @@ Error:
 static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
   BtWire *self;
   BtPersistence *result;
-  BtSetup * const setup = NULL;
+  BtSetup *setup = NULL;
   xmlChar *src_id, *dst_id, *gain_str, *pan_str;
   xmlNodePtr child_node;
 
@@ -1203,7 +1203,7 @@ static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersist
   }
 
 Done:
-  g_object_unref(setup);
+  g_object_try_unref(setup);
   return(result);
 Error:
   goto Done;

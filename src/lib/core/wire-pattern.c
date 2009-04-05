@@ -813,7 +813,7 @@ static BtPersistence *bt_wire_pattern_persistence_load(const GType type, const B
   
 Done:
   xmlFree(pattern_id);
-  g_object_unref(dst_machine);
+  g_object_try_unref(dst_machine);
   return(result);
 NoPatternError:
   GST_WARNING("No pattern with id='%s'",pattern_id);
