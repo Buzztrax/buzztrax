@@ -1,3 +1,8 @@
+2009-04-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Set base octave to 4 and revert what moap wrongly committed.
+
 2009-04-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

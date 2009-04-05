@@ -45,8 +45,12 @@
  *
  * - also do controller-assignments like in machine-property window
  *
- * - use "insensitive" text renderer for disconnected machines in the machine
+ * - use gray text color for disconnected machines in the machine
  *   combobox and unused waves (like for unused patterns)
+ *   - sensitve property of renderer does not work in comboboxes 
+ *     (unlike in treeviews)
+ *     -> we could use italic text in all of them
+ *       ("style", PANGO_STYLE_ITALIC and "style-set")
  *
  * - play notes
  *   - set pipeline to playing
@@ -142,7 +146,7 @@ enum {
 enum {
   PATTERN_MENU_LABEL=0,
   PATTERN_MENU_PATTERN,
-  PATTERN_MENU_USED
+  PATTERN_MENU_COLOR_SET
 };
 
 enum {
@@ -1015,7 +1019,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
         gtk_list_store_set(store,&menu_iter,
           PATTERN_MENU_LABEL,str,
           PATTERN_MENU_PATTERN,pattern,
-          PATTERN_MENU_USED,is_used,
+          PATTERN_MENU_COLOR_SET,!is_used,
           -1);
         g_signal_connect(G_OBJECT(pattern),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
         index++;  // count so that we can activate the last one
@@ -2077,10 +2081,13 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   self->priv->pattern_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   gtk_combo_box_set_focus_on_click(self->priv->pattern_menu,FALSE);
   renderer=gtk_cell_renderer_text_new();
+  g_object_set(G_OBJECT(renderer), 	 
+    "foreground","gray", 	 
+    NULL);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,
     "text",PATTERN_MENU_LABEL,
-    "sensitive",PATTERN_MENU_USED,
+    "foreground-set",PATTERN_MENU_COLOR_SET,
     NULL);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Pattern")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pattern_menu),TRUE,TRUE,2);
