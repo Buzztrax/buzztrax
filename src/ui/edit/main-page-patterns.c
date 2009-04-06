@@ -241,8 +241,8 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     g_object_set(statusbar,"status",NULL,NULL);
 
   if(mode&UPDATE_COLUMN_PUSH) {
-    gchar *str=NULL,*desc="\0";
-    const gchar *blurb="\0";
+    gchar *str=NULL,*desc=NULL;
+    const gchar *blurb="";
 
     if(self->priv->pattern && self->priv->number_of_groups) {
       GParamSpec *property=NULL;
@@ -265,8 +265,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
           g_object_get(self->priv->pattern,"machine",&machine,NULL);
           property=bt_machine_get_global_param_spec(machine,self->priv->cursor_param);
           if((gval=bt_pattern_get_global_event_data(self->priv->pattern,self->priv->cursor_row,self->priv->cursor_param)) && G_IS_VALUE(gval)) {
-            if(!(desc=bt_machine_describe_global_param_value(machine,self->priv->cursor_param,gval)))
-              desc="\0";
+            desc=bt_machine_describe_global_param_value(machine,self->priv->cursor_param,gval);
           }
           g_object_unref(machine);
         } break;
@@ -277,8 +276,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
           g_object_get(self->priv->pattern,"machine",&machine,NULL);
           property=bt_machine_get_voice_param_spec(machine,self->priv->cursor_param);
           if((gval=bt_pattern_get_voice_event_data(self->priv->pattern,self->priv->cursor_row,GPOINTER_TO_UINT(group->user_data),self->priv->cursor_param)) && G_IS_VALUE(gval)) {
-            if(!(desc=bt_machine_describe_voice_param_value(machine,self->priv->cursor_param,gval)))
-              desc="\0";
+            desc=bt_machine_describe_voice_param_value(machine,self->priv->cursor_param,gval);
           }
           g_object_unref(machine);
         } break;
@@ -286,9 +284,16 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
           GST_WARNING("invalid column group type");
       }
       // get parameter description
-      if(property)
+      if(property) {
         blurb=g_param_spec_get_blurb(property);
-      str=g_strdup_printf("%s%s%s",blurb,(*desc?": ":""),desc);
+        if(desc) {
+          str=g_strdup_printf("%s%s%s",blurb,(*desc?": ":""),desc);
+          g_free(desc);
+        }
+        else {
+          str=g_strdup(blurb);
+        }
+      }
     }
     else {
       GST_DEBUG("no or empty pattern");
@@ -1112,12 +1117,13 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
   }
 
   if(str) {
-    if(column_data) {
-      return ((PatternColumnConvertersCallbacks *)column_data)->str_to_float(str,column_data);
-    }
+    float res;
+    if(column_data)
+      res=((PatternColumnConvertersCallbacks *)column_data)->str_to_float(str,column_data);
     else
-      return g_ascii_strtod(str,NULL);
+      res=g_ascii_strtod(str,NULL);
     g_free(str);
+    return(res);
   }
   return group->columns[param].def;
 }

@@ -1,5 +1,14 @@
 2009-04-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	  Add todo: for more leaks to fix.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Don't leak described params. Fixes #2735298.
+
+2009-04-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wire-pattern.c:
 	* src/lib/core/wire.c:
 	  Fix crasher, caused by initializing a const var. Make the related unrefs

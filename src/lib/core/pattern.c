@@ -156,6 +156,7 @@ static void bt_pattern_resize_data_length(const BtPattern * const self, const gu
       // copy old values over
       memcpy(self->priv->data,data,count*sizeof(GValue));
       // free old data
+      // @todo: free gvalues
       g_free(data);
     }
     GST_DEBUG("extended pattern length from %lu to %lu : data_count=%lu = length=%lu * ( ip=%lu + gp=%lu + voices=%lu * vp=%lu )",
@@ -204,6 +205,7 @@ static void bt_pattern_resize_data_voices(const BtPattern * const self, const gu
         dst=&dst[dst_count];
       }
       // free old data
+      // @todo: free gvalues
       g_free(data);
     }
     GST_DEBUG("extended pattern voices from %lu to %lu : data_count=%lu = length=%lu * ( ip=%lu + gp=%lu + voices=%lu * vp=%lu )",
@@ -1454,6 +1456,8 @@ static void bt_pattern_dispose(GObject * const object) {
 
   g_object_try_weak_unref(self->priv->song);
   g_object_try_weak_unref(self->priv->machine);
+  
+  
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
@@ -1462,11 +1466,13 @@ static void bt_pattern_finalize(GObject * const object) {
   const BtPattern * const self = BT_PATTERN(object);
 
   GST_DEBUG("!!!! self=%p",self);
-
+  
   g_free(self->priv->id);
   g_free(self->priv->name);
-  g_free(self->priv->data);
 
+  // @todo: free gvalues in self->priv->data
+  g_free(self->priv->data);
+  
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 

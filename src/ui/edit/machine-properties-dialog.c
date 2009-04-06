@@ -221,14 +221,18 @@ static gchar* on_int_range_global_property_format_value(GtkScale *scale, gdouble
   glong index=bt_machine_get_global_param_index(machine,name,NULL);
   GValue int_value={0,};
   gchar *str=NULL;
+  static gchar _str[20];
 
   g_value_init(&int_value,G_TYPE_INT);
   g_value_set_int(&int_value,(gint)value);
   if(!(str=bt_machine_describe_global_param_value(machine,index,&int_value))) {
-    static gchar _str[10];
-
     g_sprintf(_str,"%d",(gint)value);
     str=_str;
+  }
+  else {
+    strncpy(_str,str,20);
+    _str[19]='\0';
+    g_free(str);
   }
   return(str);
 }
@@ -239,14 +243,18 @@ static gchar* on_int_range_voice_property_format_value(GtkScale *scale, gdouble 
   glong index=bt_machine_get_voice_param_index(machine,name,NULL);
   GValue int_value={0,};
   gchar *str=NULL;
+  static gchar _str[20];
 
   g_value_init(&int_value,G_TYPE_INT);
   g_value_set_int(&int_value,(gint)value);
   if(!(str=bt_machine_describe_voice_param_value(machine,index,&int_value))) {
-    static gchar _str[10];
-
     g_sprintf(_str,"%d",(gint)value);
     str=_str;
+  }
+  else {
+    strncpy(_str,str,20);
+    _str[19]='\0';
+    g_free(str);
   }
   return(str);
 }
@@ -257,17 +265,19 @@ static gchar* on_uint_range_global_property_format_value(GtkScale *scale, gdoubl
   glong index=bt_machine_get_global_param_index(machine,name,NULL);
   GValue uint_value={0,};
   gchar *str=NULL;
+  static gchar _str[20];
 
   g_value_init(&uint_value,G_TYPE_UINT);
   g_value_set_uint(&uint_value,(guint)value);
   if(!(str=bt_machine_describe_global_param_value(machine,index,&uint_value))) {
-    static gchar _str[10];
-
-    //GST_INFO("direct global value %d '%s'",index,str);
     g_sprintf(_str,"%u",(guint)value);
     str=_str;
   }
-  //GST_INFO("global value %d '%s'",index,str);
+  else {
+    strncpy(_str,str,20);
+    _str[19]='\0';
+    g_free(str);
+  }
   return(str);
 }
 
@@ -277,17 +287,19 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
   glong index=bt_machine_get_voice_param_index(machine,name,NULL);
   GValue uint_value={0,};
   gchar *str=NULL;
+  static gchar _str[20];
 
   g_value_init(&uint_value,G_TYPE_UINT);
   g_value_set_uint(&uint_value,(guint)value);
   if(!(str=bt_machine_describe_voice_param_value(machine,index,&uint_value))) {
-    static gchar _str[10];
-
-    //GST_INFO("direct voice value %d '%s'",index,str);
     g_sprintf(_str,"%u",(guint)value);
     str=_str;
   }
-  //GST_INFO("voice value %d '%s'",index,str);
+  else {
+    strncpy(_str,str,20);
+    _str[19]='\0';
+    g_free(str);
+  }
   return(str);
 }
 
