@@ -1,3 +1,15 @@
+2009-04-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/pattern.c:
+    Don't leak g_values.
+
+	* src/lib/core/machine.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Prepare code for entering wave-ix in tracker patterns.
+
+	* src/ui/edit/pattern-editor.c:
+	  Init base octave (needs proper fix).
+
 2009-04-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/pattern.c:

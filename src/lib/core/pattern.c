@@ -155,8 +155,16 @@ static void bt_pattern_resize_data_length(const BtPattern * const self, const gu
       GST_DEBUG("keeping data count=%lu, old=%lu, new=%lu",count,old_data_count,new_data_count);
       // copy old values over
       memcpy(self->priv->data,data,count*sizeof(GValue));
+      // free gvalues
+      if(old_data_count>new_data_count) {
+        gulong i;
+
+        for(i=old_data_count;i<new_data_count;i++) {
+          if(G_IS_VALUE(&data[i]))
+            g_value_unset(&data[i]);
+        }
+      }
       // free old data
-      // @todo: free gvalues
       g_free(data);
     }
     GST_DEBUG("extended pattern length from %lu to %lu : data_count=%lu = length=%lu * ( ip=%lu + gp=%lu + voices=%lu * vp=%lu )",
@@ -189,11 +197,14 @@ static void bt_pattern_resize_data_voices(const BtPattern * const self, const gu
   // allocate new space
   if((self->priv->data=g_try_new0(GValue,new_data_count))) {
     if(data) {
-      gulong i;
+      gulong i,j;
+      // one row
       const gulong count    =sizeof(GValue)*(internal_params+self->priv->global_params+self->priv->voice_params*MIN(voices,self->priv->voices));
+      // one row in the old pattern
       const gulong src_count=internal_params+self->priv->global_params+            voices*self->priv->voice_params;
+      // one row in the new pattern
       const gulong dst_count=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
-      const GValue *src=data;
+      GValue *src=data;
       GValue *dst=self->priv->data;
 
       GST_DEBUG("keeping data count=%lu, src_ct=%lu, dst_ct=%lu",count,src_count,dst_count);
@@ -201,11 +212,17 @@ static void bt_pattern_resize_data_voices(const BtPattern * const self, const gu
       // copy old values over
       for(i=0;i<self->priv->length;i++) {
         memcpy(dst,src,count);
+        if(src_count>dst_count) {
+          // free gvalues
+          for(j=dst_count;j<src_count;j++) {
+            if(G_IS_VALUE(&src[j]))
+              g_value_unset(&src[j]);
+          }
+        }
         src=&src[src_count];
         dst=&dst[dst_count];
       }
       // free old data
-      // @todo: free gvalues
       g_free(data);
     }
     GST_DEBUG("extended pattern voices from %lu to %lu : data_count=%lu = length=%lu * ( ip=%lu + gp=%lu + voices=%lu * vp=%lu )",
@@ -1464,13 +1481,19 @@ static void bt_pattern_dispose(GObject * const object) {
 
 static void bt_pattern_finalize(GObject * const object) {
   const BtPattern * const self = BT_PATTERN(object);
+  const gulong data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  gulong i;
 
   GST_DEBUG("!!!! self=%p",self);
   
   g_free(self->priv->id);
   g_free(self->priv->name);
 
-  // @todo: free gvalues in self->priv->data
+  // free gvalues in self->priv->data
+  for(i=0;i<data_count;i++) {
+    if(G_IS_VALUE(&self->priv->data[i]))
+      g_value_unset(&self->priv->data[i]);
+  }
   g_free(self->priv->data);
   
   G_OBJECT_CLASS(parent_class)->finalize(object);

@@ -1248,7 +1248,7 @@ bt_pattern_editor_init (BtPatternEditor *self)
   self->groups = NULL;
   self->num_groups = 0;
   self->num_rows = 64;
-  self->octave = 2;
+  self->octave = 4;
   self->step = 1;
   self->size_changed = TRUE;
   self->selection_mode = PESM_COLUMN;

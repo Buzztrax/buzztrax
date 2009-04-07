@@ -1139,25 +1139,58 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
     if(value!=group->columns[param].def)
       str=bt_persistence_strfmt_double(value);
 
-  /* play notes */
-  if(self->priv->play_notes && (group->type==1 || group->type==2) && group->columns[param].type==PCT_NOTE) {
+  if((group->type==1 || group->type==2) && group->columns[param].type==PCT_NOTE) {
     BtMachine *machine;
-    GstObject *element,*voice;
 
     g_object_get(self->priv->pattern,"machine",&machine,NULL);
-    g_object_get(machine,"machine",&element,NULL);
+
+    /* play notes */
+    if(self->priv->play_notes) {
+      GstObject *element,*voice;
+  
+      g_object_get(machine,"machine",&element,NULL);
+      
+      if(group->type==1) {
+        GST_INFO("play global note: %f,'%s'",value,str);
+        g_object_set(element,bt_machine_get_global_param_name(machine,param),str,NULL);
+      }
+      else {
+        GST_INFO("play voice %u note: %f,'%s'",GPOINTER_TO_UINT(group->user_data),value,str);
+        voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(element),GPOINTER_TO_UINT(group->user_data));
+        g_object_set(voice,bt_machine_get_voice_param_name(machine,param),str,NULL);
+        gst_object_unref(voice);
+      }
+      gst_object_unref(element);
+    }
+#if 0
+    // if machine can play wave, lookup wave column and enter wave index
+    gint wave_ix=gtk_combo_box_get_active(self->priv->wavetable_menu);
+    const gchar *wave_str;
+    glong wave_param=-1;
     
-    if(group->type==1) {
-      GST_INFO("play global note: %f,'%s'",value,str);
-      g_object_set(element,bt_machine_get_global_param_name(machine,param),str,NULL);
+    if(wave_ix<1) wave_ix=1; 
+    wave_str=bt_persistence_strfmt_ulong(wave_ix);
+    
+    switch (group->type) {
+      case 1:
+        // @todo: search for param that has flags&GSTBT_PROPERTY_META_WAVE in global machine params
+        // wave_param=bt_machine_get_global_param_wave(machine);
+        if(wave_param>-1) {
+          bt_pattern_set_global_event(self->priv->pattern,row,wave_param,wave_str);
+        }
+        break;
+      case 2:
+        // @todo: search for param that has flags&GSTBT_PROPERTY_META_WAVE in voice machine params
+        // wave_param=bt_machine_get_voice_param_wave(machine);
+        if(wave_param>-1) {
+          bt_pattern_set_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),wave_param,wave_str);
+        }
+        break;
     }
-    else {
-      GST_INFO("play voice %u note: %f,'%s'",GPOINTER_TO_UINT(group->user_data),value,str);
-      voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(element),GPOINTER_TO_UINT(group->user_data));
-      g_object_set(voice,bt_machine_get_voice_param_name(machine,param),str,NULL);
-      gst_object_unref(voice);
+    if(wave_param>-1) {
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
     }
-    gst_object_unref(element);
+#endif
     g_object_unref(machine);
   }
 
@@ -1631,6 +1664,17 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   }
 }
 
+/*
+static void on_wavetable_menu_changed(GtkComboBox *menu, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  guint wave_ix;
+
+  g_assert(user_data);
+
+  wave_ix=gtk_combo_box_get_active(self->priv->wavetable_menu);
+}
+*/
+
 static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
@@ -1638,7 +1682,6 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
 
   self->priv->base_octave=gtk_combo_box_get_active(self->priv->base_octave_menu);
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,NULL);
-  //gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
 }
 
 static void on_play_notes_toggled(GtkButton *button, gpointer user_data) {
@@ -2120,7 +2163,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 1,NULL);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Wave")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->wavetable_menu),TRUE,TRUE,2);
-  //self->priv->wavetable_menu_changed=g_signal_connect(G_OBJECT(self->priv->wavetable_menu), "changed", G_CALLBACK(on_wavetable_menu_changed), (gpointer)self);
+  //g_signal_connect(G_OBJECT(self->priv->wavetable_menu), "changed", G_CALLBACK(on_wavetable_menu_changed), (gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
   gtk_widget_set_name(tool_item,"Wave");
