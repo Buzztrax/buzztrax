@@ -1699,9 +1699,8 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine * const self, const 
   return(FALSE);
 }
 
-#if 0
 /**
- * bt_machine_get_global_param_wave:
+ * bt_machine_get_global_wave_param_index:
  * @self: the machine to lookup the param from
  *
  * Searches for the wave-table index parameter (if any). This parameter should
@@ -1709,18 +1708,18 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine * const self, const 
  *
  * Returns: the index of the wave-table parameter or -1 if none.
  */
-glong bt_machine_get_global_param_wave(const BtMachine * const self) {
+glong bt_machine_get_global_wave_param_index(const BtMachine * const self) {
   glong i;
   g_return_val_if_fail(BT_IS_MACHINE(self),-1);
   
   for(i=0;i<self->priv->global_params;i++) {
-    if(!(self->priv->global_flags[i]&GSTBT_PROPERTY_META_WAVE)) return(i);
+    if(self->priv->global_flags[i]&GSTBT_PROPERTY_META_WAVE) return(i);
   }
   return(-1);
 }
 
 /**
- * bt_machine_get_voice_param_wave:
+ * bt_machine_get_voice_wave_param_index:
  * @self: the machine to lookup the param from
  *
  * Searches for the wave-table index parameter (if any). This parameter should
@@ -1728,17 +1727,16 @@ glong bt_machine_get_global_param_wave(const BtMachine * const self) {
  *
  * Returns: the index of the wave-table parameter or -1 if none.
  */
-glong bt_machine_get_voice_param_wave(const BtMachine * const self) {
+glong bt_machine_get_voice_wave_param_index(const BtMachine * const self) {
   glong i;
   g_return_val_if_fail(BT_IS_MACHINE(self),-1);
   
   for(i=0;i<self->priv->voice_params;i++) {
-    if(!(self->priv->voice_flags[i]&GSTBT_PROPERTY_META_WAVE)) return(i);
+    if(self->priv->voice_flags[i]&GSTBT_PROPERTY_META_WAVE) return(i);
   }
   
   return(-1);
 }
-#endif
 
 /**
  * bt_machine_has_global_param_default_set:
