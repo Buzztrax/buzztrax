@@ -478,6 +478,8 @@ static gboolean link_wire(const BtSetup * const self,GstElement *wire,GstElement
         GST_WARNING("Can't link start of wire : %d : %s:%s -> %s:%s",
           link_res,GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(dst_pad));
         res = FALSE;
+        gst_element_release_request_pad(src_machine,src_pad);
+        // @todo: unblock the pad
       }
     }
     else {
@@ -494,14 +496,15 @@ static gboolean link_wire(const BtSetup * const self,GstElement *wire,GstElement
     goto Error;
 
   // link end of wire
-  GST_INFO("linking end of wire");      
+  GST_INFO("linking end of wire");
   src_pad=gst_element_get_static_pad(GST_ELEMENT(wire),"src");
   if(!(peer=gst_pad_get_peer(src_pad))) {
     if((dst_pad=gst_element_get_request_pad(GST_ELEMENT(dst_machine),"sink%d"))) {
       if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
         GST_WARNING("Can't link end of wire : %d : %s:%s -> %s:%s",
           link_res,GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(dst_pad));
-      res=FALSE;
+        res=FALSE;
+        gst_element_release_request_pad(dst_machine,dst_pad);
       }
     }
     else {
@@ -1555,7 +1558,14 @@ static void bt_setup_dispose(GObject * const object) {
     for(node=self->priv->wires;node;node=g_list_next(node)) {
       if(node->data) {
         GObject *obj=node->data;
+        GstElement *src,*dst;
+
         GST_DEBUG_OBJECT(obj,"  free wire: %p, ref=%d, floating? %d",obj,obj->ref_count,GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING));
+
+        g_object_get(G_OBJECT(obj),"src",&src,"dst",&dst,NULL);
+        unlink_wire(self,GST_ELEMENT(obj),src,dst);
+        g_object_unref(src);
+        g_object_unref(dst);
 
         if(GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING)) {
           gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
@@ -1573,8 +1583,9 @@ static void bt_setup_dispose(GObject * const object) {
     for(node=self->priv->machines;node;node=g_list_next(node)) {
       if(node->data) {
         GObject *obj=node->data;
-        GST_DEBUG_OBJECT(obj,"  free machine: %p, ref=%d, floating? %d",obj,obj->ref_count,GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING));
 
+        GST_DEBUG_OBJECT(obj,"  free machine: %p, ref=%d, floating? %d",obj,obj->ref_count,GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING));
+        
         if(GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING)) {
           gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
           gst_object_unref(obj);
