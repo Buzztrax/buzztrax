@@ -1,3 +1,10 @@
+2009-04-08  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c: 
+	  Implement the 'note off' key (1), use correct 'note off' value
+	  (255), do not produce invalid notes on octave change of the "empty"
+	  note
+
 2009-04-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

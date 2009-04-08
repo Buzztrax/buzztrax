@@ -76,8 +76,8 @@ to_string_note (char *buf, float value, int def)
     strcpy(buf, "...");
     return;
   }
-  if (note == 254) {
-    strcpy(buf, "-r-");
+  if (note == 255) {
+    strcpy(buf, "off");
     return;
   }
   note--;
@@ -732,6 +732,12 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         }
         break;
       case PCT_NOTE:
+        if (event->keyval == '1') {
+          // note off
+          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, 255);
+          advance(self);
+          break;
+        }
         if (self->digit == 0 && event->hardware_keycode <= 255) {
           // FIXME: use event->hardware_keycode because of y<>z
           p = strchr(notenames, (char)event->hardware_keycode);
@@ -740,21 +746,23 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             if (value < col->min) value = col->min;
             if (value > col->max) value = col->max;
             
-            self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, value);
-            advance(self);
+            if (value >= col->min && value <= col->max && (value & 15) < 12) {
+              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, value);
+              advance(self);
+            }
           }
         }
         if (self->digit == 1) {
           if (isdigit(event->keyval)) {
             int value = (int)oldvalue;
             if (oldvalue == col->def)
-              value = 0;
+              value = 1;
             value = (value & 15) | ((event->keyval - '0') << 4);
-            if (value < col->min) value = col->min;
-            if (value > col->max) value = col->max;
             
-            self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, value);
-            advance(self);
+            if (value >= col->min && value <= col->max && (value & 15) < 12) {
+              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, value);
+              advance(self);
+            }
           }
         }
         break;
