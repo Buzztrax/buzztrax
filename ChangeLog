@@ -1,5 +1,10 @@
 2009-04-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Don't enter wave-ix when pressing ".", instead clear the wave-ix column too.
+
+2009-04-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/setup.c:
 	  Don't leak da pad!

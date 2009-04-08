@@ -1144,7 +1144,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
 
     g_object_get(self->priv->pattern,"machine",&machine,NULL);
 
-    /* play notes */
+    // play notes
     if(self->priv->play_notes) {
       GstObject *element,*voice;
   
@@ -1165,13 +1165,18 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
 
     // if machine can play wave, lookup wave column and enter wave index
     {
-      guint wave_ix=1+gtk_combo_box_get_active(self->priv->wavetable_menu);
       const gchar *wave_str;
       glong wave_param=-1;
 
-      if(!wave_ix) wave_ix=1;
-      wave_str=bt_persistence_strfmt_ulong(wave_ix);
-      GST_DEBUG("wav index: %d, %s",wave_ix,wave_str);
+      if(BT_IS_STRING(str)) {
+        guint wave_ix=1+gtk_combo_box_get_active(self->priv->wavetable_menu);
+        if(!wave_ix) wave_ix=1;
+        wave_str=bt_persistence_strfmt_ulong(wave_ix);
+        GST_DEBUG("wav index: %d, %s",wave_ix,wave_str);
+      }
+      else {
+        wave_str="";
+      }
 
       switch (group->type) {
         case 1:
