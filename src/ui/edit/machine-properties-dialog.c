@@ -233,6 +233,7 @@ static gchar* on_int_range_global_property_format_value(GtkScale *scale, gdouble
     strncpy(_str,str,20);
     _str[19]='\0';
     g_free(str);
+    str=_str;
   }
   return(str);
 }
@@ -255,6 +256,7 @@ static gchar* on_int_range_voice_property_format_value(GtkScale *scale, gdouble 
     strncpy(_str,str,20);
     _str[19]='\0';
     g_free(str);
+    str=_str;
   }
   return(str);
 }
@@ -277,6 +279,7 @@ static gchar* on_uint_range_global_property_format_value(GtkScale *scale, gdoubl
     strncpy(_str,str,20);
     _str[19]='\0';
     g_free(str);
+    str=_str;
   }
   return(str);
 }
@@ -299,6 +302,7 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
     strncpy(_str,str,20);
     _str[19]='\0';
     g_free(str);
+    str=_str;
   }
   return(str);
 }

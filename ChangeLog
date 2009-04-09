@@ -1,3 +1,11 @@
+2009-04-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Fix previous change to not crash :)
+
+	* src/ui/edit/main-page-sequence.c:
+	  Only free colors if we got them.
+
 2009-04-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/buzztard-edit.xml:

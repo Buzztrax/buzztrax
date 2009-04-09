@@ -303,7 +303,7 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
     "background-gdk",bg_col,
     "text",str,
      NULL);
-  gdk_color_free(def_bg_col);
+  if(def_bg_col) gdk_color_free(def_bg_col);
   g_free(str);
 }
 
@@ -336,7 +336,7 @@ static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCell
     "background-gdk",bg_col,
     "text",str,
      NULL);
-  gdk_color_free(def_bg_col);
+  if(def_bg_col) gdk_color_free(def_bg_col);
   g_free(str);
 }
 
@@ -369,7 +369,7 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
     "background-gdk",bg_col,
     "text",str,
      NULL);
-  gdk_color_free(def_bg_col);
+  if(def_bg_col) gdk_color_free(def_bg_col);
   g_free(str);
 }
 

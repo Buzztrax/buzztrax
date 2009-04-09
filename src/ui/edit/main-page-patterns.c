@@ -53,8 +53,6 @@
  *       ("style", PANGO_STYLE_ITALIC and "style-set")
  *
  * - play notes
- *   - set pipeline to playing
- *     - check "is-idle" property in song
  *   - note entry
  *     - support midi keyboard for entering notes
  *     - have poly-input mode
@@ -1149,7 +1147,8 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       GstObject *element,*voice;
   
       g_object_get(machine,"machine",&element,NULL);
-      
+
+      /* @todo: buzz machines need set, tick, unset */ 
       if(group->type==1) {
         GST_INFO("play global note: %f,'%s'",value,str);
         g_object_set(element,bt_machine_get_global_param_name(machine,param),str,NULL);
@@ -1601,6 +1600,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
     // only do this if the page really has changed
     if(prev_page_num != BT_MAIN_PAGES_PATTERNS_PAGE) {
       BtMachine *machine;
+      BtSong *song;
   
       GST_DEBUG("enter pattern page");
       if((machine=bt_main_page_patterns_get_current_machine(self))) {
@@ -1609,7 +1609,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
         g_object_unref(machine);
       }
       // add local commands
-      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"song",&song,NULL);
       if(main_window) {
         gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
 #if !GTK_CHECK_VERSION(2,12,0)
@@ -1618,6 +1618,10 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
 #endif
         g_object_unref(main_window);
       }
+      if(song) {
+        g_object_set(G_OBJECT(song),"is-idle",self->priv->play_notes,NULL);
+        g_object_unref(song);
+      }
       // delay the pattern_table grab
       g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
     }
@@ -1625,14 +1629,20 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
   else {
     // only do this if the page was BT_MAIN_PAGES_PATTERNS_PAGE
     if(prev_page_num == BT_MAIN_PAGES_PATTERNS_PAGE) {
+      BtSong *song;
+
       // only reset old
       GST_DEBUG("leave pattern page");
       pattern_view_update_column_description(self,UPDATE_COLUMN_POP);
       // remove local commands
-      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"song",&song,NULL);
       if(main_window) {
         gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
         g_object_unref(main_window);
+      }
+      if(song) {
+        g_object_set(G_OBJECT(song),"is-idle",FALSE,NULL);
+        g_object_unref(song);
       }
     }
   }
@@ -1697,10 +1707,15 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
 
 static void on_play_notes_toggled(GtkButton *button, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtSong *song;
 
   g_assert(user_data);
 
   self->priv->play_notes=gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button));
+
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_set(G_OBJECT(song),"is-idle",self->priv->play_notes,NULL);
+  g_object_unref(song);
 }
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
