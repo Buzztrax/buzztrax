@@ -49,8 +49,6 @@ static void usage(int argc, char **argv, GOptionContext *ctx) {
   puts(help);
   g_free(help);
 #endif
-  g_option_context_free(ctx);
-  exit(0);
 }
 
 int main(int argc, char **argv) {
@@ -95,14 +93,18 @@ int main(int argc, char **argv) {
   bt_init_add_option_groups(ctx);
   if(!g_option_context_parse(ctx, &argc, &argv, &err)) {
     g_print("Error initializing: %s\n", safe_string(err->message));
+    g_option_context_free(ctx);
     exit(1);
   }
   if(arg_version) {
     g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
-    g_option_context_free(ctx);
-    exit(0);
+    res=TRUE;
+    goto Done;
   }
-  if(!command) usage(argc, argv, ctx);
+  if(!command) {
+    usage(argc, argv, ctx);
+    goto Done;
+  }
   
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-cmd", 0, "music production environment / command ui");
@@ -137,8 +139,13 @@ int main(int argc, char **argv) {
   else usage(argc, argv, ctx);
   
   // free application
-  g_option_context_free(ctx);
   g_object_unref(app);
+
+Done:
+  g_free(command);
+  g_free(input_file_name);
+  g_free(output_file_name);
+  g_option_context_free(ctx);
   
   return(!res);
 }

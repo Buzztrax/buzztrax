@@ -1,3 +1,12 @@
+2009-04-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  More docs.
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Fix one time leaks of the string option args.
+
 2009-04-08  Krzysztof Foltman  <kfoltman@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c: 

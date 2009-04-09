@@ -52,6 +52,7 @@ static void usage(int argc, char **argv, GOptionContext *ctx) {
 #endif
 }
 
+// see if(arg_version) comment in main() below
 static gboolean parse_goption_arg (const gchar * opt, const gchar * arg, gpointer data, GError ** err)
 {
   if (!strcmp (opt, "--version")) {
@@ -113,7 +114,8 @@ int main(int argc, char **argv) {
   // this causes #1777461 (fail if we don't have X)
   //if(arg_version) {
   //  g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
-  //  exit(0);
+  //  res=TRUE;
+  //  goto DONE;
   //}
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
   
@@ -126,7 +128,6 @@ int main(int argc, char **argv) {
 
   
 #if GST_CHECK_VERSION(0,10,16)
-  /* @todo: requires gst-0.10.16 */
   extern gboolean bt_memory_audio_src_plugin_init (GstPlugin * const plugin);
   gst_plugin_register_static(GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
@@ -165,6 +166,10 @@ int main(int argc, char **argv) {
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_object_unref(app);
+
+//Done:
+  g_free(command);
+  g_free(input_file_name);
   g_option_context_free(ctx);
   return(!res);
 }
