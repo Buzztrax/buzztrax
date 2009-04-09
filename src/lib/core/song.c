@@ -28,7 +28,7 @@
  * To load or save a song, use a #BtSongIO object. These implement loading and
  * saving for different file-formats.
  */
-/* @todo: idel looping (needed for playing machines live)
+/* @todo: idle looping (needed for playing machines live)
  * - add an "is-idle" property
  * - make bt_song_idle_{start,stop} static
  * - states:
@@ -38,29 +38,25 @@
  *   TRUE       FALSE    play song and machines
  *   true       true     not supported
  *
- * is_playing_changed:
+ * is_playing_changed: // in some of these case we could just seek
  *   if(is_playing) {
- *     if(is_idle) {
+ *     if(is_idle)
  *       bt_song_idle_stop();
- *     }
  *     bt_song_play();
  *   }
  *   else {
  *     bt_song_stop();
- *     if(is_idle) {
+ *     if(is_idle)
  *       bt_song_idle_start();
- *     }
  *   }
  * is_idle_change:
  *   if(is_idle) {
- *     if(!is_playing) {
+ *     if(!is_playing)
  *       bt_song_idle_start();
- *     }
  *   }
  *   else {
- *     if(!is_playing) {
+ *     if(!is_playing)
  *       bt_song_idle_stop();
- *     }
  *   }
  */
 #define BT_CORE
@@ -70,6 +66,8 @@
 
 // if a state change not happens within this time, cancel playback
 #define BT_SONG_STATE_CHANGE_TIMEOUT (30*1000)
+
+#define __ENABLE_IDLE_LOOP_ 1
 
 //-- property ids
 
@@ -84,6 +82,7 @@ enum {
   SONG_UNSAVED,
   SONG_PLAY_POS,
   SONG_IS_PLAYING,
+  SONG_IS_IDLE,
   SONG_IO
 };
 
@@ -103,7 +102,8 @@ struct _BtSongPrivate {
   /* the playback position of the song */
   gulong play_pos,play_end;
   /* flag to signal playing and idle states */
-  gboolean is_playing,is_idle,is_preparing;
+  gboolean is_playing,is_preparing;
+  gboolean is_idle,is_idle_active;
 
   /* the application that currently uses the song */
   G_POINTER_ALIAS(BtApplication *,app);
@@ -118,6 +118,7 @@ struct _BtSongPrivate {
   GstEvent *play_seek_event;
   GstEvent *loop_seek_event;
   GstEvent *idle_seek_event;
+  GstEvent *idle_loop_seek_event;
 #if ! GST_CHECK_VERSION(0,10,23)
   guint expected_segment_done;
 #endif
@@ -225,42 +226,6 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
   }
   /* the update needs to take the current play-position into account */
   bt_song_seek_to_play_pos(self);
-}
-
-/*
- * bt_song_is_playable:
- * @song: the song to check
- *
- * Update pipeline with machines and wires.
- *
- * Returns: %TRUE if the song seems to be playable
- */
-static gboolean bt_song_is_playable(const BtSong * const self) {
-  GST_INFO("check playability");
-  
-  /* @todo: do we really need this if we do live connecting anyway */
-  if(!bt_setup_update_pipeline(self->priv->setup)) {
-    GST_INFO("song has no items connected to master");
-    return(FALSE);    
-  }
-  /*
-  {
-    GList * const list;
-    const GList *node;
-
-    g_object_get(G_OBJECT(self->priv->setup),"machines",&list,NULL);
-    for(node=list;node;node=g_list_next(node)) {
-      const BtMachine * const machine=BT_MACHINE(node->data);
-      //if(BT_IS_SOURCE_MACHINE(machine)) {
-        bt_machine_dbg_dump_global_controller_queue(machine);
-        bt_machine_dbg_dump_voice_controller_queue(machine);
-      //}
-    }
-    g_list_free(list);
-  }
-  */
-
-  return(TRUE);
 }
 
 static void bt_song_send_tags(const BtSong * const self) {
@@ -380,8 +345,15 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
   }
 #endif
 
-  if(self->priv->is_playing) {
-    GstEvent *event=gst_event_ref(self->priv->loop_seek_event);
+  if(self->priv->is_playing || self->priv->is_idle_active) {
+    GstEvent *event;
+    
+    if(self->priv->is_playing) {
+      event=gst_event_ref(self->priv->loop_seek_event);
+    }
+    else {
+      event=gst_event_ref(self->priv->idle_loop_seek_event);
+    }
 #if GST_CHECK_VERSION(0,10,22)
     gst_event_set_seqnum(event,gst_util_seqnum_next());
 #endif
@@ -397,12 +369,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
     }
   }
   else {
-    GST_WARNING("song isn't playing ?!?");
-    /*
-    if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->idle_seek_event)))) {
-      GST_WARNING("element failed to handle continuing idle seek event");
-    }
-    */
+    GST_WARNING("song isn't playing/idling ?!?");
   }
 }
 
@@ -436,7 +403,9 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
   //GST_INFO("user_data=%p,<%s>, bin=%p, msg->src=%p,<%s>",
   //  user_data, G_OBJECT_TYPE_NAME(G_OBJECT(user_data)),
   //  self->priv->bin,GST_MESSAGE_SRC(message),G_OBJECT_TYPE_NAME(GST_MESSAGE_SRC(message)));
-
+  
+  if(self->priv->is_idle_active) return;
+  
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GstState oldstate,newstate,pending;
 
@@ -451,7 +420,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
       case GST_STATE_CHANGE_NULL_TO_READY:
         // here the formats are negotiated
         //bt_song_write_to_lowlevel_dot_file(self);
-
+        
         // we're prepared to play
         self->priv->is_preparing=FALSE;
         // this should be sequence->play_start
@@ -513,6 +482,79 @@ static void bt_song_on_tempo_changed(BtSongInfo * const song_info, GParamSpec * 
 }
 
 
+/* @todo required for live mode */
+
+/*
+ * bt_song_idle_start:
+ * @self: a #BtSong
+ *
+ * Works like bt_song_play(), but sends a segmented-seek that loops from
+ * G_MAXUINT64-GST_SECOND to G_MAXUINT64-1.
+ * This is needed to do state changes (mute, solo, bypass) and to play notes
+ * live.
+ *
+ * The application should not be concered about this internal detail. Stopping
+ * and restarting the idle loop should only be done, when massive changes are
+ * about (e.g. loading a song).
+ *
+ * Returns: %TRUE for success
+ */
+static gboolean bt_song_idle_start(const BtSong * const self) {
+#ifdef __ENABLE_IDLE_LOOP_
+  GstStateChangeReturn res;
+
+  GST_INFO("prepare idle loop");
+  self->priv->is_idle_active=TRUE;
+  // prepare idle loop
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to paused state");
+    self->priv->is_idle_active=FALSE;
+    return(FALSE);
+  }
+  GST_DEBUG("state change returned %d",res);
+
+  // seek to start time
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->idle_seek_event)))) {
+    GST_WARNING("element failed to handle idle seek event");
+  }
+
+  // start idling
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to playing state");
+    self->priv->is_idle_active=FALSE;
+    return(FALSE);
+  }
+  GST_DEBUG("state change returned %d",res);
+  GST_INFO("idle loop running");
+#endif
+  return(TRUE);
+}
+
+/*
+ * bt_song_idle_stop:
+ * @self: a #BtSong
+ *
+ * Stops the idle loop.
+ *
+ * Returns: %TRUE for success
+ */
+static gboolean bt_song_idle_stop(const BtSong * const self) {
+#ifdef __ENABLE_IDLE_LOOP_
+  GstStateChangeReturn res;
+
+  GST_INFO("stopping idle loop");
+
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to null state");
+    return(FALSE);
+  }
+  GST_DEBUG("state change returned %d",res);
+  self->priv->is_idle_active=FALSE;
+#endif
+  return(TRUE);
+}
+
+
 //-- constructor methods
 
 /**
@@ -557,82 +599,6 @@ void bt_song_set_unsaved(const BtSong * const self, const gboolean unsaved) {
   }
 }
 
-/* @todo required for live mode */
-
-/**
- * bt_song_idle_start:
- * @self: a #BtSong
- *
- * Works like bt_song_play(), but sends a segmented-seek that loops from
- * G_MAXUINT64-GST_SECONF to G_MAXUINT64-1.
- * This is needed to do state changes (mute, solo, bypass) and to play notes
- * live.
- *
- * The application should not be concered about this internal detail. Stopping
- * and restarting the idle loop should only be done, when massive changes are
- * about (e.g. loading a song).
- *
- * Returns: %TRUE for success
- */
-gboolean bt_song_idle_start(const BtSong * const self) {
-#ifdef __ENABLE_IDLE_LOOP_
-  GstStateChangeReturn res;
-
-  // do not idle again
-  if(self->priv->is_idle) return(TRUE);
-
-  GST_INFO("prepare idle loop");
-  // prepare idle loop
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to paused state");
-    return(FALSE);
-  }
-  GST_DEBUG("state change returned %d",res);
-
-  // seek to start time
-  if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->idle_seek_event)))) {
-    GST_WARNING("element failed to handle seek event");
-  }
-
-  // start idling
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to playing state");
-    return(FALSE);
-  }
-  GST_DEBUG("state change returned %d",res);
-  self->priv->is_idle=TRUE;
-  //g_object_notify(G_OBJECT(self),"is-idle");
-#endif
-  return(TRUE);
-}
-
-/**
- * bt_song_idle_stop:
- * @self: a #BtSong
- *
- * Stops the idle loop.
- *
- * Returns: %TRUE for success
- */
-gboolean bt_song_idle_stop(const BtSong * const self) {
-#ifdef __ENABLE_IDLE_LOOP_
-  GstStateChangeReturn res;
-
-  GST_INFO("stopping idle loop");
-  // do not stop if not idle
-  if(!self->priv->is_idle) return(TRUE);
-
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to null state");
-    return(FALSE);
-  }
-  GST_DEBUG("state change returned %d",res);
-  self->priv->is_idle=FALSE;
-  //g_object_notify(G_OBJECT(self),"is-idle");
-#endif
-  return(TRUE);
-}
-
 /**
  * bt_song_play:
  * @self: the song that should be played
@@ -647,11 +613,10 @@ gboolean bt_song_play(const BtSong * const self) {
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
-  if(!bt_song_is_playable(self)) return(FALSE);
-
   // do not play again
   if(self->priv->is_playing) return(TRUE);
-  bt_song_idle_stop(self);
+  if(self->priv->is_idle)
+    bt_song_idle_stop(self);
 
   GST_INFO("prepare playback");
   // update play-pos
@@ -723,7 +688,8 @@ gboolean bt_song_stop(const BtSong * const self) {
 
 done:
   g_object_notify(G_OBJECT(self),"is-playing");
-  bt_song_idle_start(self);
+  if(self->priv->is_idle)
+    bt_song_idle_start(self);
 
   return(TRUE);
 }
@@ -1311,7 +1277,6 @@ static void bt_song_constructed(GObject *object) {
   GST_DEBUG("  tempo-signals connected");
 
   bt_song_update_play_seek_event(BT_SONG(self));
-  bt_song_idle_start(self);
   GST_INFO("  new song created: %p",self);
 }
 
@@ -1349,6 +1314,9 @@ static void bt_song_get_property(GObject * const object, const guint property_id
     } break;
     case SONG_IS_PLAYING: {
       g_value_set_boolean(value, self->priv->is_playing);
+    } break;
+    case SONG_IS_IDLE: {
+      g_value_set_boolean(value, self->priv->is_idle);
     } break;
     case SONG_IO: {
       g_value_set_object(value, self->priv->song_io);
@@ -1389,6 +1357,16 @@ static void bt_song_set_property(GObject * const object, const guint property_id
       GST_DEBUG("set the play-pos for sequence: %lu",self->priv->play_pos);
       // seek on playpos changes (if playing)
       bt_song_seek_to_play_pos(self);
+    } break;
+    case SONG_IS_IDLE: {
+      self->priv->is_idle=g_value_get_boolean(value);
+      if(!self->priv->is_playing) {
+        if(self->priv->is_idle)
+          bt_song_idle_start(self);
+        else
+          bt_song_idle_stop(self);
+      }
+      GST_DEBUG("idle flag song: %d",self->priv->is_idle);
     } break;
     case SONG_IO: {
       if(self->priv->song_io) g_object_unref(self->priv->song_io);
@@ -1472,6 +1450,7 @@ static void bt_song_dispose(GObject * const object) {
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
   if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
   if(self->priv->idle_seek_event) gst_event_unref(self->priv->idle_seek_event);
+  if(self->priv->idle_loop_seek_event) gst_event_unref(self->priv->idle_loop_seek_event);
   if(self->priv->bin) gst_object_unref(self->priv->bin);
   g_object_try_weak_unref(self->priv->app);
 
@@ -1501,8 +1480,22 @@ static void bt_song_init(const GTypeInstance * const instance, gconstpointer con
 
   self->priv->idle_seek_event=gst_event_new_seek(1.0, GST_FORMAT_TIME,
     GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-    GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-GST_SECOND),
-    GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-1));
+    /* this is ~ 3 hours
+    GST_SEEK_TYPE_SET, (GstClockTime)(10000*GST_SECOND),
+    GST_SEEK_TYPE_SET, (GstClockTime)(10005*GST_SECOND)
+    */
+    GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXINT64-(2*GST_SECOND)),
+    GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXINT64-1)
+    );
+  self->priv->idle_loop_seek_event=gst_event_new_seek(1.0, GST_FORMAT_TIME,
+    GST_SEEK_FLAG_SEGMENT,
+    /*
+    GST_SEEK_TYPE_SET, (GstClockTime)(10000*GST_SECOND),
+    GST_SEEK_TYPE_SET, (GstClockTime)(10005*GST_SECOND)
+    */
+    GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXINT64-(2*GST_SECOND)),
+    GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXINT64-1)
+    );
   GST_DEBUG("  done");
 }
 
@@ -1589,6 +1582,13 @@ static void bt_song_class_init(BtSongClass * const klass) {
                                      "tell wheter the song is playing right now or not",
                                      FALSE,
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+    g_object_class_install_property(gobject_class,SONG_IS_IDLE,
+                                  g_param_spec_boolean("is-idle",
+                                     "is-idle prop",
+                                     "request that the song should idle-loop if not playing",
+                                     FALSE,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_IO,
                                   g_param_spec_object("song-io",

@@ -1137,68 +1137,105 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
     if(value!=group->columns[param].def)
       str=bt_persistence_strfmt_double(value);
 
-  if((group->type==1 || group->type==2) && group->columns[param].type==PCT_NOTE) {
+  if(group->type==1 || group->type==2) {
     BtMachine *machine;
+    gboolean is_trigger;
 
     g_object_get(self->priv->pattern,"machine",&machine,NULL);
-
-    // play notes
-    if(self->priv->play_notes) {
-      GstObject *element,*voice;
+    
+    if(group->type==1)
+      is_trigger=bt_machine_is_global_param_trigger(machine,param);
+    else
+      is_trigger=bt_machine_is_voice_param_trigger(machine,param);
+    
+    if(is_trigger) {
+      // play notes, triggers
+      if(BT_IS_STRING(str) && self->priv->play_notes) {
+        GstObject *element,*voice;
+    
+        g_object_get(machine,"machine",&element,NULL);
   
-      g_object_get(machine,"machine",&element,NULL);
-
-      /* @todo: buzz machines need set, tick, unset */ 
-      if(group->type==1) {
-        GST_INFO("play global note: %f,'%s'",value,str);
-        g_object_set(element,bt_machine_get_global_param_name(machine,param),str,NULL);
-      }
-      else {
-        GST_INFO("play voice %u note: %f,'%s'",GPOINTER_TO_UINT(group->user_data),value,str);
-        voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(element),GPOINTER_TO_UINT(group->user_data));
-        g_object_set(voice,bt_machine_get_voice_param_name(machine,param),str,NULL);
-        gst_object_unref(voice);
-      }
-      gst_object_unref(element);
-    }
-
-    // if machine can play wave, lookup wave column and enter wave index
-    {
-      const gchar *wave_str;
-      glong wave_param=-1;
-
-      if(BT_IS_STRING(str)) {
-        guint wave_ix=1+gtk_combo_box_get_active(self->priv->wavetable_menu);
-        if(!wave_ix) wave_ix=1;
-        wave_str=bt_persistence_strfmt_ulong(wave_ix);
-        GST_DEBUG("wav index: %d, %s",wave_ix,wave_str);
-      }
-      else {
-        wave_str="";
-      }
-
-      switch (group->type) {
-        case 1:
-          // search for param that has flags&GSTBT_PROPERTY_META_WAVE in global machine params
-          wave_param=bt_machine_get_global_wave_param_index(machine);
-          GST_DEBUG("global wav param: %d",wave_param);
-          if(wave_param>-1) {
-            bt_pattern_set_global_event(self->priv->pattern,row,wave_param,wave_str);
+        /* @todo: buzz machines need set, tick, unset */ 
+        if(group->type==1) {
+          GST_INFO("play global trigger: %f,'%s'",value,str);
+          switch(group->columns[param].type) {
+            case PCT_NOTE:
+              g_object_set(element,bt_machine_get_global_param_name(machine,param),str,NULL);
+              break;
+            case PCT_SWITCH:
+            case PCT_BYTE:
+            case PCT_WORD: {
+              gint val=atoi(str);
+              g_object_set(element,bt_machine_get_global_param_name(machine,param),val,NULL);
+            } break;
+            case PCT_FLOAT: {
+              gfloat val=atof(str);
+              g_object_set(element,bt_machine_get_global_param_name(machine,param),val,NULL);
+            } break;
           }
-          break;
-        case 2:
-          // search for param that has flags&GSTBT_PROPERTY_META_WAVE in voice machine params
-          wave_param=bt_machine_get_voice_wave_param_index(machine);
-          GST_DEBUG("voice wav param: %d",wave_param);
-          if(wave_param>-1) {
-            bt_pattern_set_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),wave_param,wave_str);
+        }
+        else {
+          GST_INFO("play voice %u trigger: %f,'%s'",GPOINTER_TO_UINT(group->user_data),value,str);
+          voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(element),GPOINTER_TO_UINT(group->user_data));
+          switch(group->columns[param].type) {
+            case PCT_NOTE:
+              g_object_set(voice,bt_machine_get_voice_param_name(machine,param),str,NULL);
+              break;
+            case PCT_SWITCH:
+            case PCT_BYTE:
+            case PCT_WORD: {
+              gint val=atoi(str);
+              g_object_set(voice,bt_machine_get_voice_param_name(machine,param),val,NULL);
+            } break;
+            case PCT_FLOAT: {
+              gfloat val=atof(str);
+              g_object_set(voice,bt_machine_get_voice_param_name(machine,param),val,NULL);
+            } break;
           }
-          break;
-        default:
-          break;
+            
+          gst_object_unref(voice);
+        }
+        gst_object_unref(element);
       }
-      if(wave_param>-1) {
-        gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+  
+      // if machine can play wave, lookup wave column and enter wave index
+      {
+        const gchar *wave_str;
+        glong wave_param=-1;
+  
+        if(BT_IS_STRING(str)) {
+          guint wave_ix=1+gtk_combo_box_get_active(self->priv->wavetable_menu);
+          if(!wave_ix) wave_ix=1;
+          wave_str=bt_persistence_strfmt_ulong(wave_ix);
+          GST_DEBUG("wav index: %d, %s",wave_ix,wave_str);
+        }
+        else {
+          wave_str="";
+        }
+  
+        switch (group->type) {
+          case 1:
+            // search for param that has flags&GSTBT_PROPERTY_META_WAVE in global machine params
+            wave_param=bt_machine_get_global_wave_param_index(machine);
+            GST_DEBUG("global wav param: %d",wave_param);
+            if(wave_param>-1) {
+              bt_pattern_set_global_event(self->priv->pattern,row,wave_param,wave_str);
+            }
+            break;
+          case 2:
+            // search for param that has flags&GSTBT_PROPERTY_META_WAVE in voice machine params
+            wave_param=bt_machine_get_voice_wave_param_index(machine);
+            GST_DEBUG("voice wav param: %d",wave_param);
+            if(wave_param>-1) {
+              bt_pattern_set_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),wave_param,wave_str);
+            }
+            break;
+          default:
+            break;
+        }
+        if(wave_param>-1) {
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+        }
       }
     }
     g_object_unref(machine);

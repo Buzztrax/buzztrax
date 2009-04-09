@@ -248,17 +248,6 @@
  *     - we actually don't need to run this if we are not playing
  *      (but in the future we will always play)
  *     - we can run it before playing
- *
- * --
- *
- * When adding bins in a playing pipeline we need to sync the bin state with the
- * pipeline
- *
- * --
- *
- * If we play always
- * - we need a silente source connected to master (inside master?)
- * - we could remove bt_song_is_playable() and make bt_setup_update_pipeline() static
  */
 
 #define BT_CORE
@@ -859,6 +848,53 @@ static void update_pipeline(const BtSetup * const self) {
   self->priv->play_seek_event=NULL;
 }
 
+/*
+ * bt_setup_update_pipeline:
+ *
+ * Rebuilds the whole pipeline, after changing the setup (adding/removing and
+ * linking/unlinking machines).
+ */
+static gboolean bt_setup_update_pipeline(const BtSetup * const self) {
+  gboolean res=FALSE;
+  BtMachine *master;
+  
+  // get master
+  if((master=bt_setup_get_machine_by_type(self,BT_TYPE_SINK_MACHINE))) {
+    GList *not_visited_machines,*not_visited_wires,*node;
+    BtWire *wire;
+    BtMachine *machine;
+    
+    // make a copy of lists and remove all visited items
+    not_visited_machines=g_list_copy(self->priv->machines);
+    not_visited_wires=g_list_copy(self->priv->wires);
+    GST_INFO("checking connections for %d machines and %d wires",
+      g_list_length(not_visited_machines),
+      g_list_length(not_visited_wires));
+    // ... and start checking connections (recursively)
+    res=check_connected(self,master,&not_visited_machines,&not_visited_wires,0);
+    
+    // remove all items that we have not visited and set them to disconnected
+    GST_INFO("remove %d unconnected wires", g_list_length(not_visited_wires));
+    for(node=not_visited_wires;node;node=g_list_next(node)) {
+      wire=BT_WIRE(node->data);
+      set_disconnecting(self,GST_BIN(wire));
+    }
+    g_list_free(not_visited_wires);
+    GST_INFO("remove %d unconnected machines", g_list_length(not_visited_machines));
+    for(node=not_visited_machines;node;node=g_list_next(node)) {
+      machine=BT_MACHINE(node->data);
+      set_disconnecting(self,GST_BIN(machine));
+    }
+    g_list_free(not_visited_machines);   
+
+    update_pipeline(self);
+
+    g_object_unref(master);
+  }
+  GST_INFO("result of graph update = %d",res);
+  return(res);
+}
+
 //-- public methods
 
 /**
@@ -1315,53 +1351,6 @@ void bt_setup_remember_missing_machine(const BtSetup * const self, const gchar *
   else {
     g_free((gchar *)str);
   }
-}
-
-/*
- * bt_setup_update_pipeline:
- *
- * Rebuilds the whole pipeline, after changing the setup (adding/removing and
- * linking/unlinking machines).
- */
-gboolean bt_setup_update_pipeline(const BtSetup * const self) {
-  gboolean res=FALSE;
-  BtMachine *master;
-  
-  // get master
-  if((master=bt_setup_get_machine_by_type(self,BT_TYPE_SINK_MACHINE))) {
-    GList *not_visited_machines,*not_visited_wires,*node;
-    BtWire *wire;
-    BtMachine *machine;
-    
-    // make a copy of lists and remove all visited items
-    not_visited_machines=g_list_copy(self->priv->machines);
-    not_visited_wires=g_list_copy(self->priv->wires);
-    GST_INFO("checking connections for %d machines and %d wires",
-      g_list_length(not_visited_machines),
-      g_list_length(not_visited_wires));
-    // ... and start checking connections (recursively)
-    res=check_connected(self,master,&not_visited_machines,&not_visited_wires,0);
-    
-    // remove all items that we have not visited and set them to disconnected
-    GST_INFO("remove %d unconnected wires", g_list_length(not_visited_wires));
-    for(node=not_visited_wires;node;node=g_list_next(node)) {
-      wire=BT_WIRE(node->data);
-      set_disconnecting(self,GST_BIN(wire));
-    }
-    g_list_free(not_visited_wires);
-    GST_INFO("remove %d unconnected machines", g_list_length(not_visited_machines));
-    for(node=not_visited_machines;node;node=g_list_next(node)) {
-      machine=BT_MACHINE(node->data);
-      set_disconnecting(self,GST_BIN(machine));
-    }
-    g_list_free(not_visited_machines);   
-
-    update_pipeline(self);
-
-    g_object_unref(master);
-  }
-  GST_INFO("result of graph update = %d",res);
-  return(res);
 }
 
 //-- io interface

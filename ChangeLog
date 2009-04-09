@@ -1,5 +1,23 @@
 2009-04-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  updates.
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/setup-methods.h:
+	* src/lib/core/libbuzztard-core/song-methods.h:
+	* src/lib/core/setup.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	  Make more api internal. Remove some dead code. implement idle-looping (e.g.
+	  for play-notes if song is not playing).
+	
+	* src/ui/edit/main-page-patterns.c:
+	  Use new idle-loop feature. Also allow to play any trigger parameters. Need
+	  a fix for buzz sources (nned to unset the parameter after a tick).
+
+2009-04-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	  Fix previous change to not crash :)
 

@@ -274,7 +274,6 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
 
   g_assert(BT_IS_SONG_IO(self));
 
-  bt_song_idle_stop(song);
   g_object_set(G_OBJECT(song),"song-io",self,NULL);
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
@@ -304,7 +303,6 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
     //DEBUG
   }
   g_object_set(G_OBJECT(song),"song-io",NULL,NULL);
-  bt_song_idle_start(song);
   return(result);
 }
 
@@ -328,14 +326,12 @@ gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
   g_object_set(G_OBJECT(song_info),"change-dts",NULL,NULL);
   g_object_unref(song_info);
 
-  bt_song_idle_stop(song);
   g_object_set(G_OBJECT(song),"song-io",self,NULL);
   if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
     bt_song_set_unsaved(song,FALSE);
   }
   g_object_set(G_OBJECT(song),"song-io",NULL,NULL);
-  bt_song_idle_start(song);
   return(result);
 }
 

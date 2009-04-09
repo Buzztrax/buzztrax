@@ -40,7 +40,6 @@ extern BtMachine *bt_setup_get_machine_by_type(const BtSetup * const self, const
 
 extern GList *bt_setup_get_machines_by_type(const BtSetup * const self, const GType type);
 
-
 extern BtWire *bt_setup_get_wire_by_src_machine(const BtSetup * const self, const BtMachine * const src);
 extern BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup * const self, const BtMachine * const dst);
 extern BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachine * const src, const BtMachine * const dst);
@@ -51,7 +50,5 @@ extern GList *bt_setup_get_wires_by_dst_machine(const BtSetup * const self, cons
 extern gchar *bt_setup_get_unique_machine_id(const BtSetup * const self, gchar * const base_name);
 
 extern void bt_setup_remember_missing_machine(const BtSetup * const self, const gchar * const str);
-
-extern gboolean bt_setup_update_pipeline(const BtSetup * const self);
 
 #endif // BT_SETUP_METHDOS_H
