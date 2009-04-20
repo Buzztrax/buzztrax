@@ -732,7 +732,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         }
         break;
       case PCT_NOTE:
-        if (event->keyval == '1') {
+        if (self->digit == 0 && event->keyval == '1') {
           // note off
           self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, 255);
           advance(self);

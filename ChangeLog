@@ -1,3 +1,8 @@
+2009-04-20  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix handling of '1' key in second column of the note parameter.
+
 2009-04-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/buzztard-edit.xml:
