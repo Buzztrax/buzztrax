@@ -4,6 +4,7 @@
 <!ENTITY % version-entities SYSTEM "./version.entities">
 %version-entities;
 <!ENTITY app "Buzztard">
+<!ENTITY rrar "&#8594;">
 ]>
 <!--
   (Do not remove this comment block.)
@@ -148,6 +149,7 @@
       </itemizedlist>
       <itemizedlist>
         <listitem><para>has only marginal MIDI support</para></listitem>
+        <listitem><para>has no pattern recording yet</para></listitem>
       </itemizedlist>
     </para>
   </sect2>
@@ -170,23 +172,52 @@
 <sect1 id="bt-edit-tutorial">
   <title id="bt-edit-tutorial.title">Getting started</title>
   <para>
-    The below tutorials with introduce <application>&app;</application> by going though a few
+    The below tutorials will introduce <application>&app;</application> by going though a few
 	examples. Each example will introduce new features.
   </para>
   
   <sect2 id="bt-edit-tutorial-lifefx">
+    <title id="bt-edit-tutorial-lifefx.title">Live Effects</title>
     <para>
-      (FIXME: machine-view, loop, audio-in + echo)
+      Start the graphical editor 'buzztard-edit'. The first tab shows the machine view.
+      Here you can create elements (sound generators and effects) and link them together.
+      To create an element, right click on the background and select an element from the context menu.
+      For the example choose alsasrc. Please note, that not all the elements in the
+      list will work perfectly in a live situation right now.
+      In your soundcard mixer you should enable recording from the microphone or
+      provide some music on line-in. Next add audiodelay and equalizer-10band elements.
+      Now wire them together by pointing on the source element (alsasrc) and
+      dragging a wire to the target (audiodelay), while holding the shift-key pressed.
+      The wire will become green when the mouse is over a valid target.
+      Releasing the mouse creates the link. Repeat the procedure for audiodelay &rrar; equalizer
+      and equalizer &rrar; master. The wires have a pointer shape in the middle,
+      showing the direction. A left click onto it allows to change the volume of the link,
+      a shift left-click the stereo panorama or balance and a right click shows a
+      context menu for disconnecting the elements and for showing an "analyzer dialog".
+      Open that one for the link between equalizer and master.
+      Finally double click the equalizer and the audiodelay to open their realtime settings windows.
+      Now you should see something like this:
+    </para>
+    <para>
+      (FIXME: need screenshot)
+    </para>
+    <para>
+      Now lets give it a try. Activate the loop in the toolbar and press play.
+      Now you can tweak the settings of the effects while making some noise.
+      The parameter-changes will be effective right away. In the "analyzer window"
+      you can see the frequency spectrum of the sound and the volume level.
     </para>
   </sect2>
 
   <sect2 id="bt-edit-tutorial-synth">
+    <title id="bt-edit-tutorial-synth.title">Sythesized Melody Sequence</title>
     <para>
       (FIXME: patterns + sequence view)
     </para>
   </sect2>
   
   <sect2 id="bt-edit-tutorial-tracker">
+    <title id="bt-edit-tutorial-tracker.title">Sampled Sounds</title>
     <para>
       (FIXME: wave-table view)
     </para>
@@ -219,7 +250,7 @@
   <para>
     On the very top of the window is <link linkend="bt-edit-main-menu">the menu bar</link>.
     Below one finds <link linkend="bt-edit-main-toolbar">the toolbar</link>.
-    And below again are tabs to switch between various <link linkend="bt-edit-main-views">views<link>.
+    And below again are tabs to switch between various <link linkend="bt-edit-main-views">views</link>.
 	Each view is for editing certain aspects of the song.
     On the bottom is a <link linkend="bt-edit-main-statusbar">status bar</link>.
   </para>
@@ -505,7 +536,7 @@
       The status bar that is located at the bottom of the window.
       On the left side it shows the status of longer operations like saving and
       loading with a text message. It also shows some extra detail in some song
-	  <link linkend="bt-edit-main-views">views<link>.
+      <link linkend="bt-edit-main-views">views</link>.
       On the right side, it displays the length of the song, the loop range, the
       playback position and the current CPU usage.
     </para>

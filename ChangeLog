@@ -1,5 +1,10 @@
 2009-04-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Doc fixes and copy one section from my GJ article.
+
+2009-04-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
 	  Fix the build.
 
