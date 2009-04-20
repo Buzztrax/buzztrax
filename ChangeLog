@@ -1,3 +1,8 @@
+2009-04-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Fix the build.
+
 2009-04-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

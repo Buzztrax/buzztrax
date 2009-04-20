@@ -67,8 +67,6 @@
 // if a state change not happens within this time, cancel playback
 #define BT_SONG_STATE_CHANGE_TIMEOUT (30*1000)
 
-#define __ENABLE_IDLE_LOOP_ 1
-
 //-- property ids
 
 enum {
@@ -461,6 +459,19 @@ static void on_song_async_done(const GstBus * const bus, GstMessage *message, gc
   }
 }
 
+static void on_song_clock_lost (const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  const BtSong * const self = BT_SONG(user_data);
+
+  g_assert(user_data);
+  
+  if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
+    GST_INFO("clock·lost!·PAUSE·and·PLAY·to·select·a·new·clock");
+
+    gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
+    gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
+  }
+}
+
 static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event(BT_SONG(user_data));
 }
@@ -482,7 +493,7 @@ static void bt_song_on_tempo_changed(BtSongInfo * const song_info, GParamSpec * 
 }
 
 
-/* @todo required for live mode */
+/* required for live mode */
 
 /*
  * bt_song_idle_start:
@@ -500,7 +511,6 @@ static void bt_song_on_tempo_changed(BtSongInfo * const song_info, GParamSpec * 
  * Returns: %TRUE for success
  */
 static gboolean bt_song_idle_start(const BtSong * const self) {
-#ifdef __ENABLE_IDLE_LOOP_
   GstStateChangeReturn res;
 
   GST_INFO("prepare idle loop");
@@ -526,7 +536,6 @@ static gboolean bt_song_idle_start(const BtSong * const self) {
   }
   GST_DEBUG("state change returned %d",res);
   GST_INFO("idle loop running");
-#endif
   return(TRUE);
 }
 
@@ -539,7 +548,6 @@ static gboolean bt_song_idle_start(const BtSong * const self) {
  * Returns: %TRUE for success
  */
 static gboolean bt_song_idle_stop(const BtSong * const self) {
-#ifdef __ENABLE_IDLE_LOOP_
   GstStateChangeReturn res;
 
   GST_INFO("stopping idle loop");
@@ -550,7 +558,6 @@ static gboolean bt_song_idle_stop(const BtSong * const self) {
   }
   GST_DEBUG("state change returned %d",res);
   self->priv->is_idle_active=FALSE;
-#endif
   return(TRUE);
 }
 
@@ -1259,6 +1266,7 @@ static void bt_song_constructed(GObject *object) {
   g_signal_connect(bus, "message::eos", G_CALLBACK(on_song_eos), (gpointer)self);
   g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
   g_signal_connect(bus, "message::async-done", G_CALLBACK(on_song_async_done), (gpointer)self);
+  g_signal_connect(bus, "message::clock-lost", G_CALLBACK(on_song_clock_lost), (gpointer)self);
   gst_object_unref(bus);
 
   /* don't change the order */
@@ -1411,6 +1419,7 @@ static void bt_song_dispose(GObject * const object) {
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_segment_done,(gpointer)self);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_eos,(gpointer)self);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_async_done,(gpointer)self);
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_clock_lost,(gpointer)self);
     gst_bus_remove_signal_watch(bus);
     gst_object_unref(bus);
   }
