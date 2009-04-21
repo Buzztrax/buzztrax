@@ -1,3 +1,12 @@
+2009-04-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/buzzcallbacks.c:
+	  Have one struct per wave-ix, is less racy. There still seems to be some
+	  mismatch in the mapping here or in bsl.
+	
+	* src/ui/edit/main-page-patterns.c:
+	  play-notes -> play-live
+
 2009-04-20  Krzysztof Foltman  <kfoltman@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:

@@ -52,9 +52,9 @@
  *     -> we could use italic text in all of them
  *       ("style", PANGO_STYLE_ITALIC and "style-set")
  *
- * - play notes
+ * - play live
  *   - note entry
- *     - support midi keyboard for entering notes
+ *     - support midi keyboard for entering notes and triggers
  *     - have poly-input mode
  *       - if there is a keydown, enter the note
  *       - if there is another keydown before a keyup, go to next track and
@@ -119,8 +119,8 @@ struct _BtMainPagePatternsPrivate {
   /* octave menu */
   guint base_octave;
   
-  /* play notes flag */
-  gboolean play_notes;
+  /* play live flag */
+  gboolean play_live;
 
   /* the pattern that is currently shown */
   BtPattern *pattern;
@@ -1149,8 +1149,8 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       is_trigger=bt_machine_is_voice_param_trigger(machine,param);
     
     if(is_trigger) {
-      // play notes, triggers
-      if(BT_IS_STRING(str) && self->priv->play_notes) {
+      // play live (notes, triggers)
+      if(BT_IS_STRING(str) && self->priv->play_live) {
         GstObject *element,*voice;
     
         g_object_get(machine,"machine",&element,NULL);
@@ -1656,7 +1656,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
         g_object_unref(main_window);
       }
       if(song) {
-        g_object_set(G_OBJECT(song),"is-idle",self->priv->play_notes,NULL);
+        g_object_set(G_OBJECT(song),"is-idle",self->priv->play_live,NULL);
         g_object_unref(song);
       }
       // delay the pattern_table grab
@@ -1742,16 +1742,16 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,NULL);
 }
 
-static void on_play_notes_toggled(GtkButton *button, gpointer user_data) {
+static void on_play_live_toggled(GtkButton *button, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtSong *song;
 
   g_assert(user_data);
 
-  self->priv->play_notes=gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button));
+  self->priv->play_live=gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button));
 
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_set(G_OBJECT(song),"is-idle",self->priv->play_notes,NULL);
+  g_object_set(G_OBJECT(song),"is-idle",self->priv->play_live,NULL);
   g_object_unref(song);
 }
 
@@ -2256,14 +2256,14 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
 
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 
-  // add play notes checkbox or toggle tool button
+  // add play live toggle tool button
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new());
   gtk_tool_button_set_icon_widget(GTK_TOOL_BUTTON(tool_item),gtk_image_new_from_filename("stock_volume.png"));
-  gtk_tool_button_set_label(GTK_TOOL_BUTTON(tool_item),_("Play notes"));
-  gtk_widget_set_name(tool_item,"Play notes");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play notes while editing the pattern"));
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(tool_item),_("Play live"));
+  gtk_widget_set_name(tool_item,"Play live");
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play notes and triggers while editing the pattern"));
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"toggled",G_CALLBACK(on_play_notes_toggled),(gpointer)self);
+  g_signal_connect(G_OBJECT(tool_item),"toggled",G_CALLBACK(on_play_live_toggled),(gpointer)self);
   
 
   // get colors

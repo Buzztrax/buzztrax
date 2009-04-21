@@ -51,7 +51,8 @@ typedef struct {
 // callbacks
 
 static void const *GetWave(CHostCallbacks *self, int const i) {
-  static BuzzWaveInfo res;
+  // 200 is WAVE_MAX
+  static BuzzWaveInfo res[200]={{0,},};
   BtSong *song=BT_SONG(self->user_data);
   BtWavetable *wavetable;
   BtWave *wave;
@@ -61,31 +62,36 @@ static void const *GetWave(CHostCallbacks *self, int const i) {
   GST_DEBUG("(%p,%d)",self,i);
   if(!song) return(NULL);
   
+  
   g_object_get(song,"wavetable",&wavetable,NULL);
   if(!wavetable) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
     g_object_get(wave,"volume",&volume,"loop-mode",&loop_mode,NULL);
-    res.Volume=volume;
+    res[i].Volume=volume;
     switch(loop_mode) {
       case BT_WAVE_LOOP_MODE_OFF:
-        res.Flags=0;
+        res[i].Flags=0;
         break;
       case BT_WAVE_LOOP_MODE_FORWARD:
-        res.Flags=1;
+        res[i].Flags=1;
         break;
       case BT_WAVE_LOOP_MODE_PINGPONG:
-        res.Flags=1+16;
+        res[i].Flags=1+16;
         break;
     }
     g_object_unref(wave);
+    GST_DEBUG("= %d, %f",res[i].Flags,res[i].Volume);
   }
   g_object_unref(wavetable);
 
-  return(&res);
+  return(&res[i]);
 }
 
+// @todo: this is still racy if multiple levels are used
+
 static void const *GetWaveLevel(CHostCallbacks *self, int const i, int const level) {
-  static BuzzWaveLevel res={0,};
+  // 200 is WAVE_MAX
+  static BuzzWaveLevel res[200]={{0,},};
   BtSong *song=BT_SONG(self->user_data);
   BtWavetable *wavetable;
   BtWave *wave;
@@ -100,33 +106,33 @@ static void const *GetWaveLevel(CHostCallbacks *self, int const i, int const lev
     if((wavelevel=bt_wave_get_level_by_index(wave,level))) {
       gulong length,rate;
       glong ls, le;
+      guchar root_note;
       
       // fill BuzzWaveLevel
       g_object_get(wavelevel,"length",&length, "rate",&rate,
         "loop-start",&ls, "loop-end",&le,
-        "root-note",&res.RootNote, "data",&res.pSamples,        
+        "root-note",&root_note, "data",&res[i].pSamples,        
         NULL);
-      res.numSamples=length;
-      res.SamplesPerSec=rate;
-      res.LoopStart=ls;
-      res.LoopEnd=le;
+      res[i].numSamples=length;
+      res[i].SamplesPerSec=rate;
+      res[i].RootNote=root_note;
+      res[i].LoopStart=ls;
+      res[i].LoopEnd=le;
       g_object_unref(wavelevel);
     }
     g_object_unref(wave);
   }
   g_object_unref(wavetable);
 
-  return(&res);
+  return(&res[i]);
 }
 
 static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int const note) {
-  static BuzzWaveLevel res={0,};
+  // 200 is WAVE_MAX
+  static BuzzWaveLevel res[200]={{0,},};
   BtSong *song=BT_SONG(self->user_data);
   BtWavetable *wavetable;
   BtWave *wave;
-  BtWavelevel *wavelevel,*best=NULL;
-  gint max_diff=/*NOTE_MAX*/200+1;
-  guchar root_note;
   
   GST_DEBUG("(%p,%d,%d)",self,i,note);
   if(!song) return(NULL);
@@ -135,6 +141,9 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
   if(!wavetable) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
     GList *list,*node;
+    BtWavelevel *wavelevel,*best=NULL;
+    gint max_diff=/*NOTE_MAX*/200+1;
+    guchar root_note;
 
     g_object_get(wave,"wavelevels",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
@@ -157,20 +166,20 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
       // fill BuzzWaveLevel
       g_object_get(best,"length",&length, "rate",&rate,
         "loop-start",&ls, "loop-end",&le,
-        "root-note",&root_note, "data",&res.pSamples,        
+        "root-note",&root_note, "data",&res[i].pSamples,        
         NULL);
-      res.numSamples=length;
-      res.SamplesPerSec=rate;
-      res.RootNote=root_note;
-      res.LoopStart=ls;
-      res.LoopEnd=le;
+      res[i].numSamples=length;
+      res[i].SamplesPerSec=rate;
+      res[i].RootNote=root_note;
+      res[i].LoopStart=ls;
+      res[i].LoopEnd=le;
     }
     g_list_free(list);
     g_object_unref(wave);
   }
   g_object_unref(wavetable);
 
-  return(&res);
+  return(&res[i]);
 }
 
 // callback bundle
