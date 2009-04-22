@@ -29,7 +29,7 @@ libbuzztard_core_la_SOURCES = \
 	\
 	application.c libbuzztard-core/application.h libbuzztard-core/application-methods.h \
 	$(GCONF_SETTINGS_SRC) \
-	machine.c libbuzztard-core/machine.h libbuzztard-core/machine-methods.h libbuzztard-core/machine-private.h \
+	machine.c libbuzztard-core/machine.h libbuzztard-core/machine-methods.h \
 	pattern.c libbuzztard-core/pattern.h libbuzztard-core/pattern-methods.h \
 	persistence.c libbuzztard-core/persistence.h libbuzztard-core/persistence-methods.h \
 	persistence-location.c libbuzztard-core/persistence-location.h \

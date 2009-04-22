@@ -58,6 +58,7 @@ static void const *GetWave(CHostCallbacks *self, int const i) {
   BtWave *wave;
   BtWaveLoopMode loop_mode;
   gdouble volume;
+  guint channels;
   
   GST_DEBUG("(%p,%d)",self,i);
   if(G_UNLIKELY(!song)) return(NULL);
@@ -66,18 +67,21 @@ static void const *GetWave(CHostCallbacks *self, int const i) {
   g_object_get(song,"wavetable",&wavetable,NULL);
   if(G_UNLIKELY(!wavetable)) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
-    g_object_get(wave,"volume",&volume,"loop-mode",&loop_mode,NULL);
+    g_object_get(wave,"volume",&volume,"loop-mode",&loop_mode,"channels",&channels,NULL);
     res[i].Volume=volume;
+    res[i].Flags=0;
     switch(loop_mode) {
       case BT_WAVE_LOOP_MODE_OFF:
-        res[i].Flags=0;
         break;
       case BT_WAVE_LOOP_MODE_FORWARD:
-        res[i].Flags=1;
+        res[i].Flags|=1;
         break;
       case BT_WAVE_LOOP_MODE_PINGPONG:
-        res[i].Flags=1+16;
+        res[i].Flags|=1+16;
         break;
+    }
+    if(channels==2) {
+      res[i].Flags|=8;
     }
     g_object_unref(wave);
     GST_DEBUG("= %d, %f",res[i].Flags,res[i].Volume);
@@ -159,7 +163,7 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
       wavelevel=BT_WAVELEVEL(node->data);
       g_object_get(wavelevel,"root-note",&root_note,NULL);
       GST_DEBUG("  note=%d, diff=%d, max_diff=%d",
-        (gint)root_note,abs((gint)note-root_note),max_diff);
+        (gint)root_note,abs(note-(gint)root_note),max_diff);
 
       if(abs(note-(gint)root_note)<max_diff) {
         best=wavelevel;

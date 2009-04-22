@@ -1,5 +1,13 @@
 2009-04-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/Makefile.am:
+	  Remove non exiting file.
+
+	* src/lib/core/buzzcallbacks.c:
+	  Flag stereo samples.
+
+2009-04-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/buzzcallbacks.c:
 	  Add some warning logs for failure cases and do some micro optimization.
 
