@@ -118,7 +118,7 @@
     <para>
       Important design criteria for <application>&app;</application> are:
       <itemizedlist>
-        <listitem><para>fast and system conformous ui</para></listitem>
+        <listitem><para>fast and system compliant ui</para></listitem>
         <listitem><para>keyboard shortcuts for everything</para></listitem>
         <listitem><para>total recall</para></listitem>
       </itemizedlist>
@@ -150,6 +150,7 @@
       <itemizedlist>
         <listitem><para>has only marginal MIDI support</para></listitem>
         <listitem><para>has no pattern recording yet</para></listitem>
+        <listitem><para>does not support machine templates</para></listitem>
       </itemizedlist>
     </para>
   </sect2>
@@ -179,12 +180,16 @@
   <sect2 id="bt-edit-tutorial-lifefx">
     <title id="bt-edit-tutorial-lifefx.title">Live Effects</title>
     <para>
+      This tutorial demonstrates how to use <application>&app;</application> as
+      a toy for live audio effects.
+    </para>
+    <para>
       Start the graphical editor 'buzztard-edit'. The first tab shows the machine view.
       Here you can create elements (sound generators and effects) and link them together.
       To create an element, right click on the background and select an element from the context menu.
       For the example choose alsasrc. Please note, that not all the elements in the
       list will work perfectly in a live situation right now.
-      In your soundcard mixer you should enable recording from the microphone or
+      In your sound card mixer you should enable recording from the microphone or
       provide some music on line-in. Next add audiodelay and equalizer-10band elements.
       Now wire them together by pointing on the source element (alsasrc) and
       dragging a wire to the target (audiodelay), while holding the shift-key pressed.
@@ -195,7 +200,7 @@
       a shift left-click the stereo panorama or balance and a right click shows a
       context menu for disconnecting the elements and for showing an "analyzer dialog".
       Open that one for the link between equalizer and master.
-      Finally double click the equalizer and the audiodelay to open their realtime settings windows.
+      Finally double click the equalizer and the audiodelay to open their real-time settings windows.
       Now you should see something like this:
     </para>
     <para>
@@ -210,14 +215,47 @@
   </sect2>
 
   <sect2 id="bt-edit-tutorial-synth">
-    <title id="bt-edit-tutorial-synth.title">Sythesized Melody Sequence</title>
+    <title id="bt-edit-tutorial-synth.title">Synthesized Melody Sequence</title>
     <para>
+      This tutorial will introduce the sequencer functionality and explain
+      patterns.
+    </para>
+    <para>
+      Start the graphical editor 'buzztard-edit'. On the first tab - the machine
+      view - add one simsyn. This is a very basic synthesizer. Also add an audiodelay
+      and link simsyn &rrar; audiodelay &rrar; master.
+      Now switch to the sequence view. Buzztard has automatically added a track for the
+      simsyn. Also the song has a default length of 64 ticks (the time axis goes from top to bottom).
+      The track will take patterns. Patterns are the actual building blocks
+      of the score. Patterns are a block of control events, like triggering a note
+      or changing a machine parameter. The right side shows existing pattern for
+      the machine the cursor is in. Simsyn has one called '00'.
+      Press '0' four times to fill the sequence track with this pattern. Buzztard
+      will repeat the events there 4 times and stop. If you press play now, you won't hear
+      anything yet, as we have not recorded any events into the pattern. Lets switch to the pattern editor.
+      This can be done, by just pressing "Enter" in addition to using the tabs.
+    </para>
+    <para>
+      The pattern editor shows a grid. Again the time goes from top to bottom.
+      From left to right the editor shows parameter groups. This simple synthesizer
+      has just one. More complex ones have a block with global parameters and one for each voice.
+      Each column shows some info in the status bar when the cursor is in there.
+      The first column is for entering notes.
+      It works like it always worked in trackers - by using the computer keyboard.
+      The two rows above the space key form one octave and the two rows above one octave above.
+      The lower row is for while keys and the upper row for black keys, y/z &rrar; c, s &rrar; c#,
+      x %rrar; d, d &rrar; d#, c &rrar; e, f unused, v &rrar; f and so on.
+      Press Ctrl-2 to set cursor stepping to go down 2 rows on each edit and enter "yqy3ywyr".
+      If you press play now, you should hear a simple melody.
       (FIXME: patterns + sequence view)
     </para>
   </sect2>
   
   <sect2 id="bt-edit-tutorial-tracker">
     <title id="bt-edit-tutorial-tracker.title">Sampled Sounds</title>
+    <para>
+      This tutorial explains how to work with sampled sound.
+    </para>
     <para>
       (FIXME: wave-table view)
     </para>
@@ -262,7 +300,7 @@
 
   <para>
     The UI uses context menus in several places. Press right mouse button to get
-    the menu. The menu offer crucial functionaly not available elsewhere right
+    the menu. The menu offer crucial functionally not available elsewhere right
     now.
   </para>
 
@@ -284,7 +322,7 @@
     </para>
     <para>
       The <menuchoice><guimenu>Edit</guimenu></menuchoice> menu contains
-      clipboard functions and invokating of 
+      clipboard functions and invocation of 
       <link linkend="bt-edit-prefs" endterm="bt-edit-prefs.title"/>.
       <note><title>Limitations</title>
         <para>
@@ -294,7 +332,7 @@
     </para>
     <para>
       The <menuchoice><guimenu>View</guimenu></menuchoice> menu offers
-      customization for the shown UI elemnts. It also contaiins shortcuts to
+      customization for the shown UI elements. It also contains shortcuts to
       the different song-views.
     </para>
   </sect2>
@@ -329,7 +367,7 @@
         To connect machines, move pointer over the source, press shift+left mouse-button
         and drag the wire to the target machine. The wire turns green, if the
         connect can be made. Connected machines are shown in bright color and
-        disconnected one in a desaturized style.
+        disconnected one in a desaturated style.
       </para>
       <figure id="bt-edit-page-machine-view-fig">
         <title>Machine view</title>
@@ -391,7 +429,7 @@
         In the page toolbar one can select the machine and the pattern for the machine.
         Pattern names in gray color indicated that the pattern is not used in the
         sequence (thus save to be removed or changed). One can also select the
-        base ocatave for entering notes via keyboard and the sample that should
+        base octave for entering notes via keyboard and the sample that should
         be used for wave-table based machines.
       </para>
       <para>
@@ -495,13 +533,13 @@
       <para>
         The left column is the wavetable. Samples are loaded by double clicking them 
         in the right side file-browser. The toolbar above the browser allows to
-        prehear before loading. Waves in the table can also be played, renamed
+        pre-listen before loading. Waves in the table can also be played, renamed
         and removed. 
       </para>
       <para>
-        Each wavetable entry can have multiple wavelevels, which are shown below
+        Each wavetable entry can have multiple wave levels, which are shown below
         the wavetable for the selected wave. Some of the details are editable.
-        Right to the wavelevel list is a waveform preview widget. It shows loop
+        Right to the wave level list is a waveform preview widget. It shows loop
         markers and a playback position indicator.
       </para>
     </sect3>
@@ -595,7 +633,7 @@
         live - that is playing notes in the <link linkend="bt-edit-main-view-patterns">pattern editor</link>
         or changing parameters in the <link linkend="bt-edit-dialog-machine-properties">machine window</link>.
         The lower the latency, the more immediate the changes are. Jack is known
-        for being able to achive a low latency, but also a well configured alsa
+        for being able to achieve a low latency, but also a well configured alsa
         or pulseaudio can achieve a reasonable latency.
       </para>
       <para>
@@ -717,7 +755,7 @@
     <para>
       Parameters are grouped. There is a group from global parameters and one
       for each voice (for polyphonic machines). Effects and the master also have
-      a group for each input allowing to change volume and panormama. These are
+      a group for each input allowing to change volume and panorama. These are
       the same parameters that can be changed in the wire in the
       <link linkend="bt-edit-main-view-machines">machine view</link>.
     </para>
