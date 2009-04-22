@@ -1,3 +1,15 @@
+2009-04-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/buzzcallbacks.c:
+	  Add some warning logs for failure cases and do some micro optimization.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Reflow pattern updates to have less redraws and avoid switching the
+	  pattern if we switch tabs.
+
+	* src/ui/edit/pattern-editor.c:
+	  Default is empty pattern.
+
 2009-04-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/buzzcallbacks.c:

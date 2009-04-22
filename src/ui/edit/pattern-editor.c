@@ -1255,7 +1255,7 @@ bt_pattern_editor_init (BtPatternEditor *self)
   self->ofs_y = 0;
   self->groups = NULL;
   self->num_groups = 0;
-  self->num_rows = 64;
+  self->num_rows = 0;
   self->octave = 4;
   self->step = 1;
   self->size_changed = TRUE;

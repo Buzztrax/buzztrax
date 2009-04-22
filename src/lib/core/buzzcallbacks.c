@@ -60,11 +60,11 @@ static void const *GetWave(CHostCallbacks *self, int const i) {
   gdouble volume;
   
   GST_DEBUG("(%p,%d)",self,i);
-  if(!song) return(NULL);
+  if(G_UNLIKELY(!song)) return(NULL);
   
   
   g_object_get(song,"wavetable",&wavetable,NULL);
-  if(!wavetable) return(NULL);
+  if(G_UNLIKELY(!wavetable)) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
     g_object_get(wave,"volume",&volume,"loop-mode",&loop_mode,NULL);
     res[i].Volume=volume;
@@ -82,6 +82,9 @@ static void const *GetWave(CHostCallbacks *self, int const i) {
     g_object_unref(wave);
     GST_DEBUG("= %d, %f",res[i].Flags,res[i].Volume);
   }
+  else {
+    GST_WARNING("no wave for index %d",i);
+  }
   g_object_unref(wavetable);
 
   return(&res[i]);
@@ -98,10 +101,10 @@ static void const *GetWaveLevel(CHostCallbacks *self, int const i, int const lev
   BtWavelevel *wavelevel;
   
   GST_DEBUG("(%p,%d,%d)",self,i,level);
-  if(!song) return(NULL);
+  if(G_UNLIKELY(!song)) return(NULL);
   
   g_object_get(song,"wavetable",&wavetable,NULL);
-  if(!wavetable) return(NULL);
+  if(G_UNLIKELY(!wavetable)) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
     if((wavelevel=bt_wave_get_level_by_index(wave,level))) {
       gulong length,rate;
@@ -120,7 +123,13 @@ static void const *GetWaveLevel(CHostCallbacks *self, int const i, int const lev
       res[i].LoopEnd=le;
       g_object_unref(wavelevel);
     }
+    else {
+      GST_WARNING("no wavelevel for index %d",level);
+    }
     g_object_unref(wave);
+  }
+  else {
+    GST_WARNING("no wave for index %d",i);
   }
   g_object_unref(wavetable);
 
@@ -135,10 +144,10 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
   BtWave *wave;
   
   GST_DEBUG("(%p,%d,%d)",self,i,note);
-  if(!song) return(NULL);
+  if(G_UNLIKELY(!song)) return(NULL);
 
   g_object_get(song,"wavetable",&wavetable,NULL);
-  if(!wavetable) return(NULL);
+  if(G_UNLIKELY(!wavetable)) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
     GList *list,*node;
     BtWavelevel *wavelevel,*best=NULL;
@@ -174,8 +183,14 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
       res[i].LoopStart=ls;
       res[i].LoopEnd=le;
     }
+    else {
+      GST_WARNING("no nearest wavelevel");
+    }
     g_list_free(list);
     g_object_unref(wave);
+  }
+  else {
+    GST_WARNING("no wave for index %d",i);
   }
   g_object_unref(wavetable);
 

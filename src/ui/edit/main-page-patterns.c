@@ -173,6 +173,8 @@ static GQuark voice_index_quark=0;
 static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data);
 static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpointer user_data);
 
+static void on_pattern_size_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data);
+
 //-- tree model helper
 
 static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *iter,BtMachine *that_machine) {
@@ -1001,6 +1003,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   GtkListStore *store;
   GtkTreeIter menu_iter;
   gint index=-1;
+  gint active=-1;
   gboolean is_internal,is_used;
 
   // update pattern menu
@@ -1025,18 +1028,25 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
           PATTERN_MENU_COLOR_SET,!is_used,
           -1);
         g_signal_connect(G_OBJECT(pattern),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
-        index++;  // count so that we can activate the last one
+        index++;  // count pattern index, so that we can activate one in the combobox
+        if(pattern==self->priv->pattern) {
+          active=index;
+        }
       }
       g_free(str);
+    }
+    if(active==-1) {
+      // use the last one, if there is no active one
+      active=index;
     }
     g_list_free(list);
     g_object_unref(sequence);
     g_object_unref(song);
-    GST_INFO("pattern menu refreshed");
+    GST_INFO("pattern menu refreshed, active entry=%d",active);
   }
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(pattern!=NULL));
   gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->pattern_menu,((pattern!=NULL)?index:-1));
+  gtk_combo_box_set_active(self->priv->pattern_menu,active);
   g_object_unref(store); // drop with comboxbox
 }
 
@@ -1425,14 +1435,14 @@ static void pattern_table_clear(const BtMainPagePatterns *self) {
   //self->priv->number_of_groups=0;
 }
 
-static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
+static void pattern_table_refresh(const BtMainPagePatterns *self) {
   static BtPatternEditorCallbacks callbacks = {
     pattern_edit_get_data_at,
     pattern_edit_set_data_at,
     NULL
   };
   
-  if(pattern) {
+  if(self->priv->pattern) {
     gulong i;
     gulong number_of_ticks,voices,global_params,voice_params;
     BtMachine *machine;
@@ -1440,7 +1450,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     GValue *min_val,*max_val;
     GParamSpec *property;
 
-    g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
+    g_object_get(G_OBJECT(self->priv->pattern),"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
     g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
     GST_DEBUG("  size is %2lu,%2lu",number_of_ticks,global_params);
 
@@ -1617,6 +1627,30 @@ static BtPattern * add_new_pattern(const BtMainPagePatterns *self,BtMachine *mac
   return(pattern);
 }
 
+static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *new_pattern) {
+  if(new_pattern==self->priv->pattern) return;
+
+  if(self->priv->pattern) {
+    g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_length_changed);
+    g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_voices_changed);
+    GST_INFO("unref old pattern: %p,refs=%d", self->priv->pattern,(G_OBJECT(self->priv->pattern))->ref_count);
+    g_object_unref(self->priv->pattern);
+    self->priv->pattern_length_changed=self->priv->pattern_voices_changed=0;
+  }
+
+  // refresh pattern view
+  self->priv->pattern=new_pattern;
+  GST_INFO("new pattern selected : %p",self->priv->pattern);
+  pattern_table_refresh(self);
+  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
+  if(self->priv->pattern) {
+    // watch the pattern
+    self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
+    self->priv->pattern_voices_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::voices",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
+  }
+}
+
 //-- event handler
 
 static gboolean on_page_switched_idle(gpointer user_data) {
@@ -1690,36 +1724,17 @@ static void on_pattern_size_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
   GST_INFO("pattern size changed : %p",self->priv->pattern);
-  pattern_table_refresh(self,pattern);
+  pattern_table_refresh(self);
 }
 
 static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
   g_assert(user_data);
-
-  if(self->priv->pattern) {
-    g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_length_changed);
-    g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_voices_changed);
-    GST_INFO("unref old pattern: %p,refs=%d", self->priv->pattern,(G_OBJECT(self->priv->pattern))->ref_count);
-    g_object_unref(self->priv->pattern);
-    self->priv->pattern_length_changed=self->priv->pattern_voices_changed=0;
-  }
-
   // refresh pattern view
-  self->priv->pattern=bt_main_page_patterns_get_current_pattern(self);
+  change_current_pattern(self,bt_main_page_patterns_get_current_pattern(self));
   GST_INFO("ref'ed new pattern: %p,refs=%d",
     self->priv->pattern,(self->priv->pattern?(G_OBJECT(self->priv->pattern))->ref_count:-1));
-
-  GST_INFO("new pattern selected : %p",self->priv->pattern);
-  pattern_table_refresh(self,self->priv->pattern);
-  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
-  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
-  if(self->priv->pattern) {
-    // watch the pattern
-    self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
-    self->priv->pattern_voices_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::voices",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
-  }
 }
 
 /*
@@ -1810,7 +1825,7 @@ static void on_wire_added_or_removed(BtSetup *setup,BtWire *wire,gpointer user_d
   g_object_get(self->priv->pattern,"machine",&this_machine,NULL);
   g_object_get(wire,"dst",&that_machine,NULL);
   if(this_machine==that_machine) {
-    pattern_table_refresh(self,self->priv->pattern);
+    pattern_table_refresh(self);
   }
   g_object_unref(this_machine);
   g_object_unref(that_machine);
@@ -1939,7 +1954,9 @@ static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer us
   voices++;
   g_object_set(machine,"voices",voices,NULL);
 
-  pattern_menu_refresh(self,machine);
+  pattern_table_refresh(self);
+  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
   context_menu_refresh(self,machine);
 
   g_object_unref(machine);
@@ -1959,7 +1976,9 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
   voices--;
   g_object_set(machine,"voices",voices,NULL);
 
-  pattern_menu_refresh(self,machine);
+  pattern_table_refresh(self);
+  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
   context_menu_refresh(self,machine);
 
   g_object_unref(machine);
@@ -1991,6 +2010,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
       bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
 
       GST_INFO("new pattern added : %p",pattern);
+      change_current_pattern(self,pattern);
       pattern_menu_refresh(self,machine);
       context_menu_refresh(self,machine);
     }
@@ -2068,6 +2088,7 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 
     machine=bt_main_page_patterns_get_current_machine(self);
     bt_machine_remove_pattern(machine,pattern);
+    change_current_pattern(self,NULL);
     pattern_menu_refresh(self,machine);
     context_menu_refresh(self,machine);
 
@@ -2113,6 +2134,7 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
       bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
 
       GST_INFO("new pattern added : %p",pattern);
+      change_current_pattern(self,pattern);
       pattern_menu_refresh(self,machine);
       context_menu_refresh(self,machine);
     }
