@@ -1,6 +1,11 @@
 2009-04-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/bindings/play.js:
+	  Proper signal handler.
+
+2009-04-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bindings/play.js:
 	* design/bindings/play.py:
 	  Improve the bindings examples. js works!
 

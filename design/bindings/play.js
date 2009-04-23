@@ -15,10 +15,20 @@ let songio = BuzztardCore.SongIO.make("/home/ensonic/buzztard/share/buzztard/son
 songio.load(song);
 song.play();
 
+song.connect("notify::is-playing", function(song) {
+                              if (!song.is_playing) {
+                                  log("stop playing");
+                                  Mainloop.quit('playing');
+                              }
+                              else {
+                                  log("start playing");
+                              }
+                          });
+
 // this is a hack, we need to properly wait for eos
-Mainloop.timeout_add(10000,
-                       function() {
-                           Mainloop.quit('playing');
-                           return false;
-                       });
+//Mainloop.timeout_add(10000,
+//                       function() {
+//                           Mainloop.quit('playing');
+//                           return false;
+//                       });
 Mainloop.run('playing');
