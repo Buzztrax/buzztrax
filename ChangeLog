@@ -1,5 +1,14 @@
 2009-04-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/bindings/play.js:
+	* design/bindings/play.py:
+	  Improve the bindings examples. js works!
+
+	* src/lib/core/song-io.c:
+	  Copy the string we get passed as a parameter.
+
+2009-04-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/buzztard-edit.xml:
 	  More docs and spelling fixes.
 

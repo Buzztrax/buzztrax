@@ -220,7 +220,7 @@ BtSongIO *bt_song_io_make(const gchar * const file_name) {
   if(type) {
     self=BT_SONG_IO(g_object_new(type,NULL));
     if(self) {
-      self->priv->file_name=(gchar *)file_name;
+      self->priv->file_name=g_strdup(file_name);
     }
   }
   else {
@@ -273,6 +273,8 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
   gboolean result;
 
   g_assert(BT_IS_SONG_IO(self));
+  
+  GST_INFO("loading song [%s]",self->priv->file_name);
 
   g_object_set(G_OBJECT(song),"song-io",self,NULL);
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
@@ -320,6 +322,8 @@ gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
   BtSongInfo * const song_info;
 
   g_assert(BT_IS_SONG_IO(self));
+  
+    GST_INFO("saving song [%s]",self->priv->file_name);
 
   // this updates the time-stamp
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
@@ -385,6 +389,8 @@ static void bt_song_io_finalize(GObject * const object) {
   const BtSongIO * const self = BT_SONG_IO(object);
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  g_free(self->priv->file_name);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
