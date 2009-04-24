@@ -411,8 +411,9 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     GST_INFO("state change on the bin: %s -> %s", 
       gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
-      /* if we do this in READY_TO_PAUSED, we get two PAUSED -> PAUSED transitions
-       * seems to be not the case with gstreamer core.
+      /* - if we do this in READY_TO_PAUSED, we get two PAUSED -> PAUSED transitions
+       * - seeking in READY won't work for video
+       * - seeking in PAUSED would discard prerolled data
        */
       //case GST_STATE_CHANGE_READY_TO_PAUSED:
       case GST_STATE_CHANGE_NULL_TO_READY:

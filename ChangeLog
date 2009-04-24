@@ -1,3 +1,12 @@
+2009-04-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Comments.
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-menu.c:
+	  Stick live-sources into a submenu.
+
 2009-04-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/bindings/play.js:
