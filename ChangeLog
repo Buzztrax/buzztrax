@@ -1,5 +1,10 @@
 2009-04-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-menu.c:
+	  Reshuffle to only load plugins if we need the type.
+
+2009-04-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
 	  Comments.
 

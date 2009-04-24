@@ -152,6 +152,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
   GHashTable *parent_menu_hash;
   const gchar *klass_name,*menu_name,*plugin_name;
   GType type;
+  gboolean have_submenu;
 
   // scan registered sources
   element_names=bt_gst_registry_get_element_names_matching_all_categories(root);
@@ -167,47 +168,12 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       goto next;
     }
 
-    // get element type for filtering, this slows things down :/
-    if(!(loaded_feature=gst_plugin_feature_load (GST_PLUGIN_FEATURE(factory)))) {
-      GST_INFO("skipping unloadable element : '%s'",(gchar *)node->data);
-      goto next;
-    }
-    // presumably, we're no longer interested in the potentially-unloaded feature
-    gst_object_unref(factory);
-    factory=(GstElementFactory *)loaded_feature;
-    type=gst_element_factory_get_element_type(factory);
     klass_name=gst_element_factory_get_klass(factory);
-
-    GST_LOG("adding element : '%s' with classification: '%s'",(gchar*)node->data, klass_name);
+    GST_LOG("adding element : '%s' with classification: '%s'",(gchar*)node->data,klass_name);
 
     // by default we would add the new element here
     parentmenu=submenu;
-
-    // can we do something about bins (autoaudiosrc,gconfaudiosrc,halaudiosrc)
-    // - having autoaudiosrc might be nice to have
-    // - extra category?
-    
-    // add sub-menu for all audio inputs
-    if (g_type_is_a (type, GST_TYPE_PUSH_SRC)) {
-      GtkWidget *cached_menu;
-      gchar *menu_path="/Live Input";
-      
-      GST_WARNING("  subclass : '%s'",&menu_path[1]);
-      
-      //check in parent_menu_hash if we have a parent for this klass
-      if(!(cached_menu=g_hash_table_lookup(parent_menu_hash,(gpointer)menu_path))) {
-        GST_DEBUG("    create new: '%s'",&menu_path[1]);
-        menu_item=gtk_image_menu_item_new_with_label(&menu_path[1]);
-        gtk_menu_shell_append(GTK_MENU_SHELL(parentmenu),menu_item);
-        gtk_widget_show(menu_item);
-        parentmenu=gtk_menu_new();
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
-        g_hash_table_insert(parent_menu_hash, (gpointer)g_strdup(menu_path), (gpointer)parentmenu);
-      }
-      else {
-        parentmenu=cached_menu;
-      }
-    }
+    have_submenu=FALSE;
 
     // add sub-menus for BML, LADSPA & Co.
     // remove prefix, e.g. 'Source/Audio'
@@ -241,6 +207,46 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
         }
       }
       g_strfreev(names);
+      have_submenu=TRUE;
+    }
+
+    if(!have_submenu) {
+      // can we do something about bins (autoaudiosrc,gconfaudiosrc,halaudiosrc)
+      // - having autoaudiosrc might be nice to have
+      // - extra category?
+      
+      // add sub-menu for all audio inputs
+      // get element type for filtering, this slows things down :/
+      if(!(loaded_feature=gst_plugin_feature_load (GST_PLUGIN_FEATURE(factory)))) {
+        GST_INFO("skipping unloadable element : '%s'",(gchar *)node->data);
+        goto next;
+      }
+      // presumably, we're no longer interested in the potentially-unloaded feature
+      gst_object_unref(factory);
+      factory=(GstElementFactory *)loaded_feature;
+      type=gst_element_factory_get_element_type(factory);
+      // check class hierarchy
+      if (g_type_is_a (type, GST_TYPE_PUSH_SRC)) {
+        GtkWidget *cached_menu;
+        gchar *menu_path="/Live Input";
+        
+        GST_WARNING("  subclass : '%s'",&menu_path[1]);
+        
+        //check in parent_menu_hash if we have a parent for this klass
+        if(!(cached_menu=g_hash_table_lookup(parent_menu_hash,(gpointer)menu_path))) {
+          GST_DEBUG("    create new: '%s'",&menu_path[1]);
+          menu_item=gtk_image_menu_item_new_with_label(&menu_path[1]);
+          gtk_menu_shell_append(GTK_MENU_SHELL(parentmenu),menu_item);
+          gtk_widget_show(menu_item);
+          parentmenu=gtk_menu_new();
+          gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
+          g_hash_table_insert(parent_menu_hash, (gpointer)g_strdup(menu_path), (gpointer)parentmenu);
+        }
+        else {
+          parentmenu=cached_menu;
+        }
+        have_submenu=TRUE;
+      }
     }
 
     menu_name=gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory));
