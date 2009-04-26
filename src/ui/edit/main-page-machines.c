@@ -503,6 +503,7 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   // page area
   gdouble /*pg_xs,pg_x,pg_xe,pg_xd,*/pg_xl;
   gdouble /*pg_ys,pg_y,pg_ye,pg_yd,*/pg_yl;
+  gdouble old_zoom=self->priv->zoom;
 
   g_assert(user_data);
 
@@ -547,9 +548,9 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   fc_y=pg_yl/ma_yd;
   GST_INFO("zoom old=%6.4lf, x:%+6.4lf / %+6.4lf = %+6.4lf and y:%+6.4lf / %+6.4lf = %+6.4lf",self->priv->zoom, pg_xl,ma_xd,fc_x, pg_yl,ma_yd,fc_y);
   self->priv->zoom=MIN(fc_x,fc_y);
-  gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 
-  // center
+  //gdk_window_freeze_updates(GTK_WIDGET(self->priv->canvas)->window);
+  // center region
   /* pos can be between: lower ... upper-page_size) */
   GST_INFO("x: (%+6.4lf-%+6.4lf)/2=%+6.4lf",pg_xl,(ma_xd*self->priv->zoom),((pg_xl-(ma_xd*self->priv->zoom))/2.0));
   GST_INFO("y: (%+6.4lf-%+6.4lf)/2=%+6.4lf",pg_yl,(ma_yd*self->priv->zoom),((pg_yl-(ma_yd*self->priv->zoom))/2.0));
@@ -557,10 +558,20 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   c_y=(MACHINE_VIEW_ZOOM_Y+ma_ys)*self->priv->zoom-((pg_yl-(ma_yd*self->priv->zoom))/2.0);
   gtk_adjustment_set_value(self->priv->hadjustment,c_x);
   gtk_adjustment_set_value(self->priv->vadjustment,c_y);
-
   GST_INFO("toolbar zoom_fit event occurred: zoom = %lf, center x/y = %+6.4lf,%+6.4lf",self->priv->zoom,c_x,c_y);
-  update_machines_zoom(self);
+
+  if(self->priv->zoom>old_zoom) {
+    gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+    update_machines_zoom(self);
+  }
+  else {
+    update_machines_zoom(self);
+    gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+  }
+  //gdk_window_thaw_updates(GTK_WIDGET(self->priv->canvas)->window);
+  
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
+
 }
 
 static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
@@ -570,8 +581,12 @@ static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
 
   self->priv->zoom*=1.5;
   GST_INFO("toolbar zoom_in event occurred : %lf",self->priv->zoom);
+  
+  //gdk_window_freeze_updates(GTK_WIDGET(self->priv->canvas)->window);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   update_machines_zoom(self);
+  //gdk_window_thaw_updates(GTK_WIDGET(self->priv->canvas)->window);
+  
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
 }
 
@@ -582,8 +597,12 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
 
   self->priv->zoom/=1.5;
   GST_INFO("toolbar zoom_out event occurred : %lf",self->priv->zoom);
-  gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+  
+  //gdk_window_freeze_updates(GTK_WIDGET(self->priv->canvas)->window);
   update_machines_zoom(self);
+  gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+  //gdk_window_thaw_updates(GTK_WIDGET(self->priv->canvas)->window);
+  
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
 }
 
@@ -906,7 +925,7 @@ static void on_canvas_size_allocate(GtkWidget *widget,GtkAllocation *allocation,
   gtk_adjustment_set_value(self->priv->hadjustment,xs+((xe-xs-xp)*self->priv->scroll_x));
   g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
   gtk_adjustment_set_value(self->priv->vadjustment,ys+((ye-ys-yp)*self->priv->scroll_y));
-   GST_WARNING("canvas: abs. scroll pos %lf x %lf, abs. scroll pos %lf x %lf",
+  GST_WARNING("canvas: abs. scroll pos %lf x %lf, abs. scroll pos %lf x %lf",
     xs+((xe-xs-xp)*self->priv->scroll_x),
     ys+((ye-ys-yp)*self->priv->scroll_y),
     self->priv->scroll_x,self->priv->scroll_y);
@@ -1018,14 +1037,14 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   self->priv->zoom_in=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_IN));
   gtk_widget_set_name(self->priv->zoom_in,"Zoom In");
   gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Zoom in for more details"));
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(self->priv->zoom_in),_("Zoom in for more details"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_in),-1);
   g_signal_connect(G_OBJECT(self->priv->zoom_in),"clicked",G_CALLBACK(on_toolbar_zoom_in_clicked),(gpointer)self);
 
   self->priv->zoom_out=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_OUT));
   gtk_widget_set_name(self->priv->zoom_out,"Zoom Out");
   gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Zoom out for better overview"));
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(self->priv->zoom_out),_("Zoom out for better overview"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_out),-1);
   g_signal_connect(G_OBJECT(self->priv->zoom_out),"clicked",G_CALLBACK(on_toolbar_zoom_out_clicked),(gpointer)self);
 

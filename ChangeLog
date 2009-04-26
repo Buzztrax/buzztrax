@@ -1,3 +1,8 @@
+2009-04-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-machines.c:
+	  Optimize update order to fix garbage when zooming.
+
 2009-04-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-menu.c:
