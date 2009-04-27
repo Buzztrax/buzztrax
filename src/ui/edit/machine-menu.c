@@ -211,6 +211,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     }
 
     if(!have_submenu) {
+      gchar *menu_path=NULL;
       // can we do something about bins (autoaudiosrc,gconfaudiosrc,halaudiosrc)
       // - having autoaudiosrc might be nice to have
       // - extra category?
@@ -227,8 +228,13 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       type=gst_element_factory_get_element_type(factory);
       // check class hierarchy
       if (g_type_is_a (type, GST_TYPE_PUSH_SRC)) {
+        menu_path="/Direct Input";
+      }
+      else if (g_type_is_a (type, GST_TYPE_BIN)) {
+        menu_path="/Abstract Input";
+      }
+      if(menu_path) {
         GtkWidget *cached_menu;
-        gchar *menu_path="/Live Input";
         
         GST_WARNING("  subclass : '%s'",&menu_path[1]);
         
