@@ -1,3 +1,8 @@
+2009-04-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/gconf-settings.c:
+	  Don't sync if there were no writes.
+
 2009-04-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-menu.c:

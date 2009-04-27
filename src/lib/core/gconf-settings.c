@@ -39,6 +39,9 @@ struct _BtGConfSettingsPrivate {
 
   /* that is the handle we get config data from */
   GConfClient *client;
+  
+  /* flags if there was a write */
+  gboolean dirty;
 };
 
 static BtSettingsClass *parent_class=NULL;
@@ -225,6 +228,9 @@ static void bt_gconf_settings_get_property(GObject * const object, const guint p
 static void bt_gconf_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
   return_if_disposed();
+
+  self->priv->dirty=TRUE;
+
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK: {
       gboolean gconf_ret=FALSE;
@@ -350,7 +356,10 @@ static void bt_gconf_settings_dispose(GObject * const object) {
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,NULL);
   // shutdown gconf client
-  gconf_client_suggest_sync(self->priv->client,NULL);
+  if(self->priv->dirty) {
+    // only do this if we have written something
+    gconf_client_suggest_sync(self->priv->client,NULL);
+  }
   g_object_unref(self->priv->client);
 
   GST_DEBUG("!!!! self=%p",self);
