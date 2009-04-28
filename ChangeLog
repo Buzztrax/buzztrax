@@ -1,5 +1,36 @@
 2009-04-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* README:
+	* configure.ac:
+	* pixmaps/gnome/32x32/effect-bypass.png:
+	* pixmaps/gnome/32x32/effect-mute.png:
+	* pixmaps/gnome/32x32/effect.png:
+	* pixmaps/gnome/32x32/generator-mute.png:
+	* pixmaps/gnome/32x32/generator-solo.png:
+	* pixmaps/gnome/32x32/generator.png:
+	* pixmaps/gnome/32x32/master-mute.png:
+	* pixmaps/gnome/48x48/effect-bypass.png:
+	* pixmaps/gnome/48x48/effect-mute.png:
+	* pixmaps/gnome/48x48/effect.png:
+	* pixmaps/gnome/48x48/generator-mute.png:
+	* pixmaps/gnome/48x48/generator-solo.png:
+	* pixmaps/gnome/48x48/generator.png:
+	* pixmaps/gnome/48x48/master-mute.png:
+	* pixmaps/gnome/64x64/buzztard.png:
+	* pixmaps/gnome/64x64/effect-bypass.png:
+	* pixmaps/gnome/64x64/effect-mute.png:
+	* pixmaps/gnome/64x64/effect.png:
+	* pixmaps/gnome/64x64/generator-mute.png:
+	* pixmaps/gnome/64x64/generator-solo.png:
+	* pixmaps/gnome/64x64/generator.png:
+	* pixmaps/gnome/64x64/master-mute.png:
+	* pixmaps/gnome/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	  We don't directly depend on librsvg anymore. Add prescaled pngs, for
+	  systems without svg pixbuf loaders.
+
+2009-04-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/gconf-settings.c:
 	  Don't sync if there were no writes.
 

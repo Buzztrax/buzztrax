@@ -237,8 +237,9 @@ PKG_CHECK_MODULES(BASE_DEPS, \
 PKG_CHECK_MODULES(GUI_DEPS, \
   gtk+-2.0 >= 2.6.0 \
   libgnomecanvas-2.0 \
-  librsvg-2.0 \
 )
+# still the pixbuf loader should have svg support
+# librsvg-2.0 \
 
 PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
     AM_CONDITIONAL(USE_GCONF, true)

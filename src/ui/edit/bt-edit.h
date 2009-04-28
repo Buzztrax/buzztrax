@@ -96,7 +96,7 @@
 #include <libgnomecanvas/libgnomecanvas.h>
 
 //-- librsvg
-#include <librsvg/rsvg.h>
+//#include <librsvg/rsvg.h>
 //-- gnome-vfs
 #include <libgnomevfs/gnome-vfs.h>
 //-- hildon

@@ -19,7 +19,6 @@ gst-plugins-good
 gst-plugins-bad
 gnome-canvas
 gnomevfs
-librsvg
 gst-buzztard (from buzztard svn, use same version as this module)
 
 Regarding gstreamer - the newer the better.

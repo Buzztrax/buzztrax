@@ -25,26 +25,49 @@ icon24_DATA = 24x24/buzztard.png \
 	24x24/menu_source_machine.png
 
 icon32dir = $(iconthemedir)/32x32/apps
-icon32_DATA = 32x32/buzztard.png
+icon32_DATA = 32x32/buzztard.png \
+  32x32/effect-bypass.png \
+  32x32/effect-mute.png \
+  32x32/effect.png \
+  32x32/generator-mute.png \
+  32x32/generator-solo.png \
+  32x32/generator.png \
+  32x32/master-mute.png
 
 icon48dir = $(iconthemedir)/48x48/apps
-icon48_DATA = 48x48/buzztard.png
+icon48_DATA = 48x48/buzztard.png \
+  48x48/effect-bypass.png \
+  48x48/effect-mute.png \
+  48x48/effect.png \
+  48x48/generator-mute.png \
+  48x48/generator-solo.png \
+  48x48/generator.png \
+  48x48/master-mute.png
+
+icon64dir = $(iconthemedir)/64x64/apps
+icon64_DATA = 64x64/buzztard.png \
+  64x64/effect-bypass.png \
+  64x64/effect-mute.png \
+  64x64/effect.png \
+  64x64/generator-mute.png \
+  64x64/generator-solo.png \
+  64x64/generator.png \
+  64x64/master-mute.png
+
+MACHINE_ICONS = scalable/effect-bypass.svg \
+  scalable/effect-mute.svg \
+  scalable/effect.svg \
+  scalable/generator-mute.svg \
+  scalable/generator-solo.svg \
+  scalable/generator.svg \
+  scalable/master-mute.svg
 
 svgicondir = $(iconthemedir)/scalable/apps
-svgicon_DATA = scalable/buzztard.svg \
-	scalable/effect-bypass.svg \
-	scalable/effect-mute.svg \
-	scalable/effect.svg \
-	scalable/generator-mute.svg \
-	scalable/generator-solo.svg \
-	scalable/generator.svg \
-	scalable/master-mute.svg \
-	scalable/master.svg
-
+svgicon_DATA = scalable/buzztard.svg $(MACHINE_ICONS)
 
 EXTRA_DIST = \
 	$(icon16_DATA) $(icon22_DATA) $(icon24_DATA) \
-	$(icon32_DATA) $(icon48_DATA) $(svgicon_DATA)
+	$(icon32_DATA) $(icon48_DATA) $(icon64_DATA) $(svgicon_DATA)
 
 install-data-hook: update-icon-cache
 uninstall-hook: update-icon-cache
@@ -57,3 +80,9 @@ update-icon-cache:
 		echo "***   $(gtk_update_icon_cache)"; \
 	fi
 
+prescale-svg:
+	for size in 32 48 64; do \
+		for icon in $(MACHINE_ICONS); do \
+			rsvg-convert "$$icon" -w $$size -h $$size -f png -o "$${size}x$${size}/`basename $$icon .svg`.png"; \
+		done; \
+	done
