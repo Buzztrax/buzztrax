@@ -371,10 +371,13 @@ dnl AM_CONDITIONAL(ENABLE_XSLTPROC, test ! x$xsltproc = xno)
 dnl Check for scrollkeeper
 AC_PATH_PROG(scrollkeeper_config, scrollkeeper-config, no)
 if test x$scrollkeeper_config = xno; then
+  have_scrollkeeper=no
   AC_MSG_WARN([Couldn't find scrollkeeper-config, please install the scrollkeeper package])
 dnl  if test x$xsltproc = xno; then
 dnl    AC_MSG_WARN([Couldn't find xsltproc, please install the libxml/libxslt package])
 dnl  fi
+else
+  have_scrollkeeper=yes
 fi
 AM_CONDITIONAL(ENABLE_SCROLLKEEPER, test ! x$scrollkeeper_config = xno)
 SCROLLKEEPER_BUILD_REQUIRED=0.3.5
@@ -494,6 +497,7 @@ Configuration
 	Compiler                        : ${CC}
 
 	Documentation (API)             : ${enable_gtk_doc}
+	Documentation (User)            : ${have_scrollkeeper}
 	Bindings Metadata (GIR)         : ${enable_gir}
 	HAL for interaction ctrl.       : ${use_hal}
 	Linux HID for interaction ctrl. : ${have_linux_input_h}

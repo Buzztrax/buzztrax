@@ -11,6 +11,7 @@ all-local:
 clean-local:
 	rm -f version.entities
 
+# FIXME: only do this if ENABLE_SCROLLKEEPER ?
 include $(top_srcdir)/xmldocs.make
 dist-hook: app-dist-hook
 

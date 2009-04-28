@@ -1,5 +1,14 @@
 2009-04-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  Show if we will build user docs.
+
+	* docs/Makefile.am:
+	* docs/help/bt-edit/C/Makefile.am:
+	  We seem to fail, if there is no scrollkeeper installed. Need to recheck.
+
+2009-04-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* README:
 	* configure.ac:
 	* pixmaps/gnome/32x32/effect-bypass.png:

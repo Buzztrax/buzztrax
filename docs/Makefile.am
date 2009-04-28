@@ -1,3 +1,5 @@
+## $Id$
+
 SUBDIRS = help reference
 
 BUILT_SOURCES = version.entities
