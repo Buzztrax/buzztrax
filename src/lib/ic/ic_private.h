@@ -46,7 +46,7 @@
 //-- hal/dbus
 #ifdef USE_HAL
 #include <glib.h>
-#include <hal/libhal.h>
+#include <libhal.h>
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>

@@ -1,3 +1,8 @@
+2009-04-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/ic_private.h:
+	  Include from right path.
+
 2009-04-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
