@@ -1,5 +1,11 @@
 2009-04-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-patterns.c:
+	  More format string warning fixes.
+
+2009-04-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/ic_private.h:
 	  Include from right path.
 

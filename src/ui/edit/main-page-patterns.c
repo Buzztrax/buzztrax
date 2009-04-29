@@ -1227,7 +1227,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
           case 1:
             // search for param that has flags&GSTBT_PROPERTY_META_WAVE in global machine params
             wave_param=bt_machine_get_global_wave_param_index(machine);
-            GST_DEBUG("global wav param: %d",wave_param);
+            GST_DEBUG("global wav param: %ld",wave_param);
             if(wave_param>-1) {
               bt_pattern_set_global_event(self->priv->pattern,row,wave_param,wave_str);
             }
@@ -1235,7 +1235,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
           case 2:
             // search for param that has flags&GSTBT_PROPERTY_META_WAVE in voice machine params
             wave_param=bt_machine_get_voice_wave_param_index(machine);
-            GST_DEBUG("voice wav param: %d",wave_param);
+            GST_DEBUG("voice wav param: %ld",wave_param);
             if(wave_param>-1) {
               bt_pattern_set_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),wave_param,wave_str);
             }

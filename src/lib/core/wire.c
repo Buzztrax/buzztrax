@@ -500,7 +500,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
       GST_INFO("failed to get static 'sink' pad for element '%s'",GST_OBJECT_NAME(machines[PART_SRC]));
       pad=req_pad=gst_element_get_request_pad(machines[PART_SRC],"sink_%d");
       if(!pad) {
-        GST_INFO("failed to get request 'sink_%d' request-pad for element '%s'",GST_OBJECT_NAME(machines[PART_SRC]));
+        GST_INFO("failed to get request 'sink' request-pad for element '%s'",GST_OBJECT_NAME(machines[PART_SRC]));
       }
     }
     GST_INFO ("updating sink ghostpad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
@@ -521,7 +521,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
       GST_INFO("failed to get static 'src' pad for element '%s'",GST_OBJECT_NAME(machines[PART_DST]));
       pad=req_pad=gst_element_get_request_pad(machines[PART_DST],"src_%d");
       if(!pad) {
-        GST_INFO("failed to get request 'src_%d' request-pad for element '%s'",GST_OBJECT_NAME(machines[PART_DST]));
+        GST_INFO("failed to get request 'src' request-pad for element '%s'",GST_OBJECT_NAME(machines[PART_DST]));
       }
     }
     GST_INFO ("updating src ghostpad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
@@ -1048,13 +1048,14 @@ GList *bt_wire_get_element_list(const BtWire * const self) {
 }
 
 void bt_wire_dbg_print_parts(const BtWire * const self) {
-  gchar * const sid=NULL, * const did=NULL;
+  gchar *sid=NULL, *did=NULL;
 
   if(self->priv->src) g_object_get(self->priv->src,"id",&sid,NULL);
   if(self->priv->dst) g_object_get(self->priv->dst,"id",&did,NULL);
 
   /* [Src T G C S Dst] */
-  GST_INFO("%s->%s [%s %s %s %s %s %s %s]", sid, did,
+  GST_INFO("%s->%s [%s %s %s %s %s %s %s]", 
+    safe_string(sid), safe_string(did),
     self->priv->machines[PART_SRC]?"SRC":"src",
     self->priv->machines[PART_TEE]?"Q":"q",
     self->priv->machines[PART_TEE]?"T":"t",
