@@ -294,7 +294,7 @@ static gchar *bt_sink_bin_determine_plugin_name(const BtSinkBin * const self) {
     gchar *sink_name,*eon;
     // this can be a whole pipeline like "audioconvert ! osssink sync=false"
     // seek for the last '!'
-    if(!(sink_name=g_strrstr(plugin_name,"!"))) {
+    if(!(sink_name=strrchr(plugin_name,'!'))) {
       sink_name=plugin_name;
     }
     else {

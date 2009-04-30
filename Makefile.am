@@ -20,7 +20,6 @@ EXTRA_DIST = \
 	omf.make \
 	xmldocs.make \
 	TODO \
-	m4/README \
 	po/$(GETTEXT_PACKAGE).pot
 
 @INTLTOOL_SCHEMAS_RULE@

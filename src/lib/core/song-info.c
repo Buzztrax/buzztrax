@@ -152,7 +152,7 @@ static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const pers
       g_object_get(self->priv->song,"song-io",&song_io,NULL);
       g_object_get(G_OBJECT(song_io),"file-name",&file_path,NULL);
       file_name=g_path_get_basename(file_path);
-      if((ext=g_strrstr(file_name,"."))) {
+      if((ext=strrchr(file_name,'.'))) {
         *ext='\0';
       }
       GST_INFO("using '%s' instead of default title",file_name);  

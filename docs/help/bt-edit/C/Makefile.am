@@ -15,8 +15,8 @@ clean-local:
 include $(top_srcdir)/xmldocs.make
 dist-hook: app-dist-hook
 
-buzztard-edit.pdf: buzztard-edit.xml
 #	db2pdf buzztard-edit.xml buzztard-edit.pdf
+buzztard-edit.pdf: buzztard-edit.xml
 	xsltproc \
 	  --stringparam paper.type A4 \
 	  --stringparam fop.extentions 1 \

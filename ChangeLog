@@ -1,3 +1,18 @@
+2009-04-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	  Remove non existing file.
+
+	* NEWS:
+	  Prepare for pre-releasing.
+	
+	* docs/help/bt-edit/C/Makefile.am:
+	  move comment around.
+
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song-info.c:
+	  Microoptimization.
+
 2009-04-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wire.c:
