@@ -274,7 +274,7 @@ PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.5.0, [
   ]
 )
 
-PKG_CHECK_MODULES(HILDON_DEPS, hildon-libs libosso, [
+PKG_CHECK_MODULES(HILDON_DEPS, hildon-1 libosso, [
   AC_DEFINE(USE_HILDON, [1], [Define to 1 if we can use hildon libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HILDON_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HILDON_DEPS_LIBS"

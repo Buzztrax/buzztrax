@@ -101,7 +101,7 @@
 #include <libgnomevfs/gnome-vfs.h>
 //-- hildon
 #ifdef USE_HILDON
-#include <hildon-widgets/hildon-program.h>
+#include <hildon/hildon.h>
 #endif
 
 #include "about-dialog-methods.h"

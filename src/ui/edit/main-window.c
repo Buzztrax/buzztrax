@@ -275,7 +275,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
 #ifndef USE_HILDON
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->toolbar),FALSE,FALSE,0);
 #else
-  hildon_window_add_toolbar(HILDON_WINDOW(self), GTK_TOOL_BAR(self->priv->toolbar));
+  hildon_window_add_toolbar(HILDON_WINDOW(self), GTK_TOOLBAR(self->priv->toolbar));
 #endif
   // add the window content pages
   self->priv->pages=bt_main_pages_new(self->priv->app);

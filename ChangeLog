@@ -1,5 +1,13 @@
 2009-05-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-window.c:
+	  Hildon Fixes.
+
+2009-05-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/tools.c:
 	* src/ui/edit/ui-resources.c:
 	  Icons size is in pixels.
