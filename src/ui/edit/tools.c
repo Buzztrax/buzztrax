@@ -43,7 +43,7 @@ void add_pixmap_directory(const gchar *directory) {
  * This is an internally used function to find pixmap files.
  * Use add_pixmap_directory() to extend the serarch path.
  *
- * Returns: the path that has this file
+ * Returns: the path that has this file. Free returned path after use.
  */
 static gchar *find_pixmap_file(const gchar *filename) {
   GList *elem;
@@ -51,7 +51,7 @@ static gchar *find_pixmap_file(const gchar *filename) {
   /* We step through each of the pixmaps directory to find it. */
   elem = pixmaps_directories;
   while(elem) {
-    gchar *pathname = g_strdup_printf("%s%s%s", (gchar*)elem->data, G_DIR_SEPARATOR_S, filename);
+    gchar *pathname = g_strconcat((gchar*)elem->data, filename, NULL);
     if (g_file_test(pathname, G_FILE_TEST_EXISTS)) return pathname;
     g_free(pathname);
     elem = elem->next;

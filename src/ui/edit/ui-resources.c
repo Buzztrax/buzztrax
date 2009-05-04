@@ -209,14 +209,18 @@ static gboolean bt_ui_resources_init_colors(BtUIResources *self) {
 
 
 static gboolean bt_ui_resources_init_icons(BtUIResources *self) {
+  gint w,h;
+
+  gtk_icon_size_lookup(GTK_ICON_SIZE_MENU,&w,&h);
+
   /*
   self->priv->source_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_source_machine.png");
   self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_processor_machine.png");
   self->priv->sink_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_sink_machine.png");
   */
-  self->priv->source_machine_pixbuf   =gdk_pixbuf_new_from_theme("menu_source_machine",GTK_ICON_SIZE_MENU);
-  self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_theme("menu_processor_machine",GTK_ICON_SIZE_MENU);
-  self->priv->sink_machine_pixbuf     =gdk_pixbuf_new_from_theme("menu_sink_machine",GTK_ICON_SIZE_MENU);
+  self->priv->source_machine_pixbuf   =gdk_pixbuf_new_from_theme("menu_source_machine",w);
+  self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_theme("menu_processor_machine",w);
+  self->priv->sink_machine_pixbuf     =gdk_pixbuf_new_from_theme("menu_sink_machine",w);
 
   return(TRUE);
 }
