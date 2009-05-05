@@ -32,7 +32,8 @@ icon32_DATA = 32x32/buzztard.png \
   32x32/generator-mute.png \
   32x32/generator-solo.png \
   32x32/generator.png \
-  32x32/master-mute.png
+  32x32/master-mute.png \
+  32x32/master.png
 
 icon48dir = $(iconthemedir)/48x48/apps
 icon48_DATA = 48x48/buzztard.png \
@@ -42,7 +43,8 @@ icon48_DATA = 48x48/buzztard.png \
   48x48/generator-mute.png \
   48x48/generator-solo.png \
   48x48/generator.png \
-  48x48/master-mute.png
+  48x48/master-mute.png \
+  48x48/master.png
 
 icon64dir = $(iconthemedir)/64x64/apps
 icon64_DATA = 64x64/buzztard.png \
@@ -52,7 +54,8 @@ icon64_DATA = 64x64/buzztard.png \
   64x64/generator-mute.png \
   64x64/generator-solo.png \
   64x64/generator.png \
-  64x64/master-mute.png
+  64x64/master-mute.png \
+  64x64/master.png
 
 MACHINE_ICONS = scalable/effect-bypass.svg \
   scalable/effect-mute.svg \
@@ -60,7 +63,8 @@ MACHINE_ICONS = scalable/effect-bypass.svg \
   scalable/generator-mute.svg \
   scalable/generator-solo.svg \
   scalable/generator.svg \
-  scalable/master-mute.svg
+  scalable/master-mute.svg \
+  scalable/master.svg
 
 svgicondir = $(iconthemedir)/scalable/apps
 svgicon_DATA = scalable/buzztard.svg $(MACHINE_ICONS)

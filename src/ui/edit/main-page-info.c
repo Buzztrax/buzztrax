@@ -322,7 +322,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPages *pages) {
   GtkWidget *label,*frame,*box;
-  GtkWidget *table,*spacer;
+  GtkWidget *table;
   GtkWidget *scrolledwindow;
   GtkAdjustment *spin_adjustment;
   gchar *str;
@@ -346,8 +346,8 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   box=gtk_hbox_new(FALSE,6);
   gtk_container_add(GTK_CONTAINER(frame),box);
 
-  spacer=gtk_label_new("    ");
-  gtk_box_pack_start(GTK_BOX(box),spacer,FALSE,TRUE,0);
+  /* left side padding */
+  gtk_box_pack_start(GTK_BOX(box),gtk_label_new("    "),FALSE,TRUE,0);
 
   // first column
   table=gtk_table_new(/*rows=*/4,/*columns=*/2,/*homogenous=*/FALSE);
@@ -439,8 +439,8 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   box=gtk_hbox_new(FALSE,6);
   gtk_container_add(GTK_CONTAINER(frame),box);
 
-  spacer=gtk_label_new("    ");
-  gtk_box_pack_start(GTK_BOX(box),spacer,FALSE,TRUE,0);
+  /* left side padding */
+  gtk_box_pack_start(GTK_BOX(box),gtk_label_new("    "),FALSE,TRUE,0);
 
   scrolledwindow=gtk_scrolled_window_new(NULL, NULL);
   gtk_widget_set_name(scrolledwindow,"scrolledwindow");

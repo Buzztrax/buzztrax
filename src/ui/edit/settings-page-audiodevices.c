@@ -144,6 +144,8 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
   self->priv->audiosink_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
 
+  /* @idea: we could use a real combo and use markup in the cells, to have the
+   * description in small font below the sink name */
   if(system_audiosink_name) {
     GstElementFactory * const factory=gst_element_factory_find(system_audiosink_name);
     str=g_strdup_printf(_("system default: %s (%s)"),
@@ -168,10 +170,11 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   // add audio sinks gstreamer provides
   for(node=audiosink_names,ct=1;node;node=g_list_next(node)) {
     name=node->data;
-    
+
+    // filter some known analyzer sinks
     if(strncasecmp("ladspa-",name,7)) {
       GstElementFactory * const factory=gst_element_factory_find(name);
-  
+
       // can the sink accept raw audio?
       can_int_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-int");
       can_float_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-float");

@@ -1,3 +1,17 @@
+2009-05-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/gnome/32x32/master.png:
+	* pixmaps/gnome/48x48/master.png:
+	* pixmaps/gnome/64x64/master.png:
+	* pixmaps/gnome/Makefile.am:
+	  Missing icons.
+
+	* src/ui/edit/main-page-info.c:
+	  Small inlining of values.
+
+	* src/ui/edit/settings-page-audiodevices.c:
+	  TODO.
+
 2009-05-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
