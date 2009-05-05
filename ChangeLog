@@ -1,5 +1,13 @@
 2009-05-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/bt-edit.hildon.gtkrc:
+	* src/ui/edit/main-page-machines.c:
+	  Some more hildon ui tweaks.
+
+2009-05-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* pixmaps/gnome/32x32/master.png:
 	* pixmaps/gnome/48x48/master.png:
 	* pixmaps/gnome/64x64/master.png:

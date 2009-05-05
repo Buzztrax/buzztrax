@@ -91,7 +91,11 @@ int main(int argc, char **argv) {
   }
 
   // load our custom gtk-theming
+#ifndef USE_HILDON
   gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"bt-edit.gtkrc");
+#else
+  gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"bt-edit.hildon.gtkrc");
+#endif
 
   // init libraries
   ctx=g_option_context_new(NULL);

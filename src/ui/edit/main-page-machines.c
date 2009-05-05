@@ -1078,7 +1078,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
     -MACHINE_VIEW_ZOOM_X,-MACHINE_VIEW_ZOOM_Y,
      MACHINE_VIEW_ZOOM_X, MACHINE_VIEW_ZOOM_Y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
-  gtk_widget_set_name(GTK_WIDGET(self->priv->canvas),"machine and wire editor");
+  gtk_widget_set_name(GTK_WIDGET(self->priv->canvas),"machine-and-wire-editor");
   /* DEBUG
   g_signal_connect(G_OBJECT(self->priv->canvas),"size-allocate",G_CALLBACK(on_canvas_size_allocate),(gpointer)self);
   DEBUG */
