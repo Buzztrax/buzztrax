@@ -334,16 +334,20 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   // first row of vbox
   frame=gtk_frame_new(NULL);
   label=gtk_label_new(NULL);
+#ifndef USE_HILDON
   str=g_strdup_printf("<big><b>%s</b></big>",_("song meta data"));
+#else
+  str=g_strdup_printf("<b>%s</b>",_("song meta data"));
+#endif
   gtk_label_set_markup(GTK_LABEL(label),str);
   g_free(str);
   gtk_frame_set_label_widget(GTK_FRAME(frame),label);
   gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
-  gtk_container_set_border_width(GTK_CONTAINER(frame),6);
+  gtk_container_set_border_width(GTK_CONTAINER(frame),BOX_BORDER);
   gtk_widget_set_name(frame,"song meta data");
   gtk_box_pack_start(GTK_BOX(self),frame,FALSE,TRUE,0);
 
-  box=gtk_hbox_new(FALSE,6);
+  box=gtk_hbox_new(FALSE,BOX_BORDER);
   gtk_container_add(GTK_CONTAINER(frame),box);
 
   /* left side padding */
@@ -427,16 +431,21 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   // second row of hbox
   frame=gtk_frame_new(NULL);
   label=gtk_label_new(NULL);
+#ifndef USE_HILDON
   str=g_strdup_printf("<big><b>%s</b></big>",_("free text info"));
+#else
+  str=g_strdup_printf("<b>%s</b>",_("free text info"));
+#endif
   gtk_label_set_markup(GTK_LABEL(label),str);
   g_free(str);
+
   gtk_frame_set_label_widget(GTK_FRAME(frame),label);
   gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
-  gtk_container_set_border_width(GTK_CONTAINER(frame),6);
+  gtk_container_set_border_width(GTK_CONTAINER(frame),BOX_BORDER);
   gtk_widget_set_name(frame,"free text info");
   gtk_box_pack_start(GTK_BOX(self),frame,TRUE,TRUE,0);
 
-  box=gtk_hbox_new(FALSE,6);
+  box=gtk_hbox_new(FALSE,BOX_BORDER);
   gtk_container_add(GTK_CONTAINER(frame),box);
 
   /* left side padding */
@@ -450,7 +459,13 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
 
   self->priv->info=GTK_TEXT_VIEW(gtk_text_view_new());
   gtk_widget_set_name(GTK_WIDGET(self->priv->info),"free text info");
-  //gtk_container_set_border_width(GTK_CONTAINER(self->priv->info),1);
+  /* none of these reduce the border we get on hildon
+  gtk_container_set_border_width(GTK_CONTAINER(self->priv->info),0);
+  gtk_text_view_set_border_window_size(self->priv->info,GTK_TEXT_WINDOW_LEFT,1);
+  gtk_text_view_set_border_window_size(self->priv->info,GTK_TEXT_WINDOW_RIGHT,1);
+  gtk_text_view_set_border_window_size(self->priv->info,GTK_TEXT_WINDOW_TOP,1);
+  gtk_text_view_set_border_window_size(self->priv->info,GTK_TEXT_WINDOW_BOTTOM,1);
+  */
   GST_DEBUG("  text view: %p",self->priv->info);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->priv->info),GTK_WRAP_WORD);
   gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->priv->info));

@@ -143,7 +143,7 @@ static void bt_main_pages_init_tab(const BtMainPages *self,guint index,gchar *st
   image=gtk_image_new_from_icon_name(icon,GTK_ICON_SIZE_MENU);
   gtk_widget_show(image);
 
-  box=gtk_hbox_new(FALSE,6);
+  box=gtk_hbox_new(FALSE,BOX_BORDER);
   gtk_widget_show(box);
   //gtk_box_pack_start(GTK_BOX(box),image,FALSE,FALSE,0);
   //gtk_box_pack_start(GTK_BOX(box),label,TRUE,FALSE,0);

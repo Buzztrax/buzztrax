@@ -6,9 +6,9 @@
 
 # Icon sizes                 
 gtk-toolbar-icon-size = GTK_ICON_SIZE_SMALL_TOOLBAR
-gtk-icon-sizes = "gtk-menu=24,24:gtk-button=24,24:gtk-small-toolbar=24,24:gtk-large-toolbar=32,32:gtk-dnd=24,24:gtk-dialog=32,32:"
+gtk-icon-sizes = "gtk-menu=16,16:gtk-button=24,24:gtk-small-toolbar=24,24:gtk-large-toolbar=32,32:gtk-dnd=24,24:gtk-dialog=32,32:"
 
-style "default-style" = "osso-default"
+style "default-style"
 {
   # modify the x/ythickness, used for spacing all over the place
   xthickness = 1
@@ -34,6 +34,13 @@ style "default-style" = "osso-default"
 }
 class "GtkWidget" style "default-style"
 
+style "small-font-style"
+{
+  # modify base font
+  font_name = "Nokia Sans 10"
+}
+widget "*.status-bar.*" style "small-font-style"
+
 #style "hildon-tap-hold"
 #{
 #  GtkWidget::tap-hold = 1
@@ -42,7 +49,7 @@ class "GtkWidget" style "default-style"
 #class "GnomeCanvas" style "hildon-tap-hold"
 
 style "osso-ButtonFont" {
-	font_name = "Nokia Sans 12"
+  font_name = "Nokia Sans 12"
 }
 
 include "bt-edit.gtkrc"

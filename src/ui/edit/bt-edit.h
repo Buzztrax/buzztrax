@@ -169,4 +169,11 @@
  */
 #define SCREEN_BORDER_HEIGHT 64
 
+/* borders used in hbox/vbox or other containers */
+#ifndef USE_HILDON
+#define BOX_BORDER 6
+#else
+#define BOX_BORDER 3
+#endif
+
 #endif // BT_EDIT_H

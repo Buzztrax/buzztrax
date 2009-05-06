@@ -1,3 +1,14 @@
+2009-05-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/bt-edit.hildon.gtkrc:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	  Even more hildon ui tweaks.
+
 2009-05-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/Makefile.am:

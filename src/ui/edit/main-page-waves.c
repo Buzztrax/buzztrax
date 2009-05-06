@@ -1152,7 +1152,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   self->priv->file_chooser=gtk_file_chooser_widget_new(GTK_FILE_CHOOSER_ACTION_OPEN);
   g_signal_connect(G_OBJECT(self->priv->file_chooser),"file-activated",G_CALLBACK(on_file_chooser_load_sample),(gpointer)self);
   //g_signal_connect(G_OBJECT(self->priv->file_chooser),"update-preview",G_CALLBACK(on_file_chooser_info_sample),(gpointer)self);
-  gtk_box_pack_start(GTK_BOX(box),self->priv->file_chooser,TRUE,TRUE,6);
+  gtk_box_pack_start(GTK_BOX(box),self->priv->file_chooser,TRUE,TRUE,BOX_BORDER);
 
   //   vbox (sample view)
   box=gtk_vbox_new(FALSE,0);

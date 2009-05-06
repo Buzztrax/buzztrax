@@ -252,10 +252,13 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   GtkTooltips *tips=gtk_tooltips_new();
 #endif
 
-  gtk_widget_set_name(GTK_WIDGET(self),"status bar");
-  //gtk_box_set_spacing(GTK_BOX(self),1);
+  gtk_widget_set_name(GTK_WIDGET(self),"status-bar");
+  //#ifdef USE_HILDON /* has no effect */
+  //gtk_box_set_spacing(GTK_BOX(self),0);
+  //gtk_container_set_border_width(GTK_CONTAINER(self),0);
+  //#endif
 
-  // context sensitip help statusbar
+  // context sensitive help statusbar
   self->priv->status=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->status_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->status),_("default"));
   gtk_statusbar_set_has_resize_grip(self->priv->status,FALSE);
