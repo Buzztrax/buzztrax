@@ -1,7 +1,20 @@
 2009/05 ========================================================================
 
+Lots of testing and small improvements again. Will do the strings freeze and
+pre-release tarballs this month.
 * valgrind and llvm clang checker spring cleanup
-* pattern editor improvements (entering wave-table numbers)
+* portability fixes
+* dependency cleanups
+* pattern editor improvements (entering wave-table numbers, note-off support)
+* play notes fully done, latency is a bit better also. with latest pulsesink in
+  gst-plugins-good git its actally quite okay.
+* stereo wavetable support war incomplete, now fixed
+* we have gir bindings, js works, python not really :/
+* more user docs.
+* buzzmachines module has more machines ported, I have started to add demosongs
+  and preset files. This needed some update in the gstreamer plugin too. Under
+  windows the plugins, presets and help is all crammed into one dir. I have
+  split it to have docs and presets under share and not in lib.
 
 2009/04 ========================================================================
 

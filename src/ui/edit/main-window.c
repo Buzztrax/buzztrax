@@ -66,6 +66,7 @@ static gint n_drop_types = sizeof(drop_types) / sizeof(GtkTargetEntry);
 
 //-- helper methods
 
+/* update the filename to have an extension, mathching the selected filter */ 
 static gchar* update_filename_ext(const BtMainWindow *self,GtkFileChooser *dialog,gchar *file_name,GList *filters) {
   GtkFileFilter *this_filter,*that_filter;
   gchar *new_file_name=NULL;
@@ -608,9 +609,13 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     while(info->formats[ix].name) {
       filter=gtk_file_filter_new();
       gtk_file_filter_set_name(filter,info->formats[ix].name);
-      gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
-      //gtk_file_filter_add_pattern(filter,"*.xml");
+      //gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
+      gtk_file_filter_add_pattern(filter,info->formats[ix].extension);
       gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+      GST_DEBUG("add filter for %s/%s/%s",
+        info->formats[ix].name,
+        info->formats[ix].mime_type,
+        info->formats[ix].extension);
       ix++;
       filters=g_list_append(filters,filter);
     }
@@ -628,22 +633,52 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER(dialog), name);
   }
   else {
+    gboolean found=FALSE;
     GtkFileFilterInfo ffi = { 
       GTK_FILE_FILTER_FILENAME|GTK_FILE_FILTER_DISPLAY_NAME, 
       file_name, 
-      NULL,
+      NULL, // uri
       file_name,
-      NULL
+      NULL // mime-type
     };
     /* the user edited an existing document */
     gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),file_name);
+    GST_DEBUG("use existing %s",file_name);
     /* select a filter that would show this file */
     for(node=filters;node;node=g_list_next(node)) {
       filter=node->data;
       if(gtk_file_filter_filter(filter,&ffi)) {
-        GST_DEBUG("use last path %s, format is %s",file_name,gtk_file_filter_get_name(filter));
+        GST_DEBUG("use last path %s, format is '%'s",file_name,gtk_file_filter_get_name(filter));
         gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter);
+        found=TRUE;
         break;
+      }
+    }
+    if(!found) {
+      gchar *ext=strrchr(file_name,'.');
+      if(ext && ext[1]) {
+        const GList *pnode,*fnode=filters;
+        /* gtk_file_filter_filter() seems to be buggy :/
+         * try matching the extension */
+        ext++;
+        GST_DEBUG("file_filter matching failed, match extension '%s'",ext);
+        for(pnode=plugins;(pnode && !found);pnode=g_list_next(pnode)) {
+          info=(BtSongIOModuleInfo *)pnode->data;
+          ix=0;
+          while(info->formats[ix].name && !found) {
+            if(!strcmp(ext,info->formats[ix].extension)) {
+              filter=fnode->data;
+              /* @todo: it matches, but this does not update the dialog */
+              gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter);
+              GST_DEBUG("format is '%s'",gtk_file_filter_get_name(filter));
+              found=TRUE;
+            }
+            else {
+              ix++;
+              fnode=g_list_next(fnode);
+            }
+          }
+        }
       }
     }
   }

@@ -1,3 +1,11 @@
+2009-05-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect NEWS.
+
+	* src/ui/edit/main-window.c:
+	  Do some file-filter fallback - no luck still :/
+
 2009-05-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:
