@@ -212,7 +212,6 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
       gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
       GST_INFO("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
         chunk, (chunk/G_GINT64_CONSTANT(1000)));
-      // @todo: bah, pulseaudio does no like those at all
       g_object_set(sink,"latency-time",chunk,"buffer-time",chunk<<1,NULL);
     }
   }
@@ -233,7 +232,7 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
 
     while(bin->children) {
       elem=GST_ELEMENT_CAST (bin->children->data);
-      GST_DEBUG("  removing elem=%p (ref_ct=%d),'%s'",
+      GST_DEBUG_OBJECT(elem,"  removing elem=%p (ref_ct=%d),'%s'",
         elem,(G_OBJECT(elem)->ref_count),GST_OBJECT_NAME(elem));
       if((res=gst_element_set_state(elem,GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
         GST_WARNING("can't go to null state");
@@ -388,6 +387,7 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
   GST_DEBUG("get record elements");
 
   // @todo: check extension ?
+  // @todo: need to lookup encoders by caps
   // generate recorder elements
   switch(self->priv->record_format) {
     case BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS:
@@ -434,6 +434,11 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
       }
       list=g_list_append(list,element);
       break;
+    /*
+    BT_SINK_BIN_RECORD_FORMAT_MP4_AAC:
+      // faac ! mp4mux ! filesink location="song.m4a"
+      break;
+    */
     case BT_SINK_BIN_RECORD_FORMAT_RAW:
       // no element needed
       break;
