@@ -1,5 +1,13 @@
 2009-05-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	  Commenting.
+
+	* src/ui/edit/main-window.c:
+	  Small filter fix and more comments about the issues.
+
+2009-05-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Collect NEWS.
 

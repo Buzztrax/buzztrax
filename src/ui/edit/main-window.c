@@ -481,11 +481,15 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       gtk_file_filter_set_name(filter,info->formats[ix].name);
       gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
       gtk_file_filter_add_mime_type(filter_all,info->formats[ix].mime_type);
-      /* workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236 */
+//#if !GLIB_CHECK_VERSION(2,18,0)
+      /* workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236
+       * should be fixed, but is not :/
+       */
       if(!strcmp(info->formats[ix].mime_type,"audio/x-bzt-xml")) {
         gtk_file_filter_add_pattern(filter,"*.xml");
         gtk_file_filter_add_pattern(filter_all,"*.xml");
       }
+//#endif
       gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
       ix++;
     }
@@ -610,7 +614,8 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       filter=gtk_file_filter_new();
       gtk_file_filter_set_name(filter,info->formats[ix].name);
       //gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
-      gtk_file_filter_add_pattern(filter,info->formats[ix].extension);
+      //gtk_file_filter_add_pattern(filter,info->formats[ix].extension);
+      gtk_file_filter_add_pattern(filter,g_strconcat("*.",info->formats[ix].extension,NULL));
       gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
       GST_DEBUG("add filter for %s/%s/%s",
         info->formats[ix].name,

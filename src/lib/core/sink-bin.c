@@ -360,8 +360,8 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   GstElement * const element=gst_element_factory_make(plugin_name,"player");
   if(!element) {
     /* @todo: if this fails
-     * check if it was audiosink in settings and if so, unset it and retry
-     * else check if ir was system-audiosink and if so, what?
+     * - check if it was audiosink in settings and if so, unset it and retry
+     * - else check if it was system-audiosink and if so, what?
      */
     GST_WARNING("Can't instantiate '%s' element",plugin_name);goto Error;
   }
@@ -370,6 +370,7 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
     g_object_set(element,
       "sync",TRUE,
       /*"slave-method",2,*/
+      /*"provide-clock",FALSE, */
       NULL);
     bt_sink_bin_configure_latency(self,element);
   }
