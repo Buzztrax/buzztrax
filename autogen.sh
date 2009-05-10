@@ -358,12 +358,14 @@ toplevel_check $srcfile
 if test -x mkinstalldirs; then rm mkinstalldirs; fi
 tool_run "$autopoint --force"
 
+# must be run before aclocal, as this installs some m4 files
+tool_run "$libtoolize" "--copy --force"
+
 # aclocal
 if test -f acinclude.m4; then rm acinclude.m4; fi
 tool_run "$aclocal" "-I m4 $ACLOCAL_FLAGS"
 
 tool_run "$intltoolize" "--copy --force --automake"
-tool_run "$libtoolize" "--copy --force"
 if test -n "$gtkdocize"; then
   if test "x$have_gtkdoc_1_9" = "x0"; then
     tool_run "$gtkdocize" "--copy"

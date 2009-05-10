@@ -1,3 +1,24 @@
+2009-05-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* autogen.sh:
+	  aclocal gather all the necessary macros. And libtoolize installs m4 files.
+	  They must be present before running aclocal. Without this patch, autoconf
+	  complains about unknown libtool macros (using 2.2.6a-4 on Debian).
+
+2009-05-10  Stefan Kost  <ensonic@users.sf.net>
+
+	reviewed by: <delete if not using a buddy>
+	patch by: <delete if not someone else's patch>
+
+	* NEWSLETTER:
+	* autogen.sh:
+	* design/bindings/play.py:
+	* po/da.po:
+	* po/de.po:
+	* po/id.po:
+	* po/nl.po:
+	* src/ui/edit/main-window.c:
+
 2009-05-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:
