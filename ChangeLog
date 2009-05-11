@@ -1,3 +1,12 @@
+2009-05-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Optionally use READY for stopping. This helps to keep the jack
+	  connection persistent.
+	  
+	* src/ui/edit/machine-menu.c:
+	  Downgrade WARNING as its not one.
+
 2009-05-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* autogen.sh:

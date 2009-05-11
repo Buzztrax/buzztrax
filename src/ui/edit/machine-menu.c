@@ -236,7 +236,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       if(menu_path) {
         GtkWidget *cached_menu;
         
-        GST_WARNING("  subclass : '%s'",&menu_path[1]);
+        GST_DEBUG("  subclass : '%s'",&menu_path[1]);
         
         //check in parent_menu_hash if we have a parent for this klass
         if(!(cached_menu=g_hash_table_lookup(parent_menu_hash,(gpointer)menu_path))) {
