@@ -70,7 +70,7 @@
 /* @todo: if we could only go to ready when doing STOP, we could keep the
  * jack linkage alive (see #ifdef USE_READY_FOR_STOPPED)
  * todo:
- * - changing sinks (need to set song to NULL)
+ * - need to set elements to NULL before removing
  * problems:
  * - jack loops last segment it received
  *   http://bugzilla.gnome.org/show_bug.cgi?id=582167

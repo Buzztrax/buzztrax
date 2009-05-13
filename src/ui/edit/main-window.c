@@ -481,7 +481,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       gtk_file_filter_set_name(filter,info->formats[ix].name);
       gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
       gtk_file_filter_add_mime_type(filter_all,info->formats[ix].mime_type);
-//#if !GLIB_CHECK_VERSION(2,18,0)
+#if !GLIB_CHECK_VERSION(2,18,0)
       /* workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236
        * should be fixed, but is not :/
        */
@@ -489,7 +489,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
         gtk_file_filter_add_pattern(filter,"*.xml");
         gtk_file_filter_add_pattern(filter_all,"*.xml");
       }
-//#endif
+#endif
       gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
       ix++;
     }

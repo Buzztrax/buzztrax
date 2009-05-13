@@ -1,5 +1,20 @@
 2009-05-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Collect news.
+
+	* design/bindings/play.py:
+	  Experiments.
+
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song.c:
+	  Comment.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Don't reset wave number when editing octave.
+
+2009-05-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/Makevars:
 	  Neat way to minimize the conflics of po files.
 

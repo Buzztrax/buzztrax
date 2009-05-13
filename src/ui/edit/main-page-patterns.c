@@ -1159,6 +1159,9 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       is_trigger=bt_machine_is_voice_param_trigger(machine,param);
     
     if(is_trigger) {
+      gboolean update_wave=TRUE;
+      gchar *old_str=NULL;
+
       // play live (notes, triggers)
       if(BT_IS_STRING(str) && self->priv->play_live) {
         GstObject *element,*voice;
@@ -1207,9 +1210,33 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
         }
         gst_object_unref(element);
       }
-  
+
+      switch (group->type) {
+        case 1:
+          old_str=bt_pattern_get_global_event(self->priv->pattern,row,param);
+          break;
+        case 2:
+          old_str=bt_pattern_get_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),param);
+          break;
+      }
+      switch(group->columns[param].type) {
+        case PCT_NOTE:
+          // do not update the wave, if only the ocave was edited
+          if(BT_IS_STRING(old_str) && BT_IS_STRING(str)) {
+            if((old_str[0]==str[0]) && (old_str[1]==str[1])) {
+              update_wave=FALSE;
+            }
+          }
+          break;
+        case PCT_SWITCH:
+        case PCT_BYTE:
+        case PCT_WORD:
+        case PCT_FLOAT:
+          break;
+      }
+      g_free(old_str);
       // if machine can play wave, lookup wave column and enter wave index
-      {
+      if(update_wave) {
         const gchar *wave_str;
         glong wave_param=-1;
   

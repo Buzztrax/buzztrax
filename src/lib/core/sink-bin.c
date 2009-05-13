@@ -369,6 +369,8 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
     // enable syncing to timestamps
     g_object_set(element,
       "sync",TRUE,
+      /* if we do this, live pipelines go playing, but still sources don't start */
+      /*"async", FALSE,*/
       /*"slave-method",2,*/
       /*"provide-clock",FALSE, */
       NULL);

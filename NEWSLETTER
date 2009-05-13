@@ -1,20 +1,37 @@
+2009/06 ========================================================================
+
+* buzzmachines:
+  * more ports, 1st rewrite, more presets and sample songs
+
 2009/05 ========================================================================
 
-Lots of testing and small improvements again. Will do the strings freeze and
-pre-release tarballs this month.
-* valgrind and llvm clang checker spring cleanup
-* portability fixes
-* dependency cleanups
-* pattern editor improvements (entering wave-table numbers, note-off support)
-* play notes fully done, latency is a bit better also. with latest pulsesink in
-  gst-plugins-good git its actally quite okay.
-* stereo wavetable support war incomplete, now fixed
-* we have gir bindings, js works, python not really :/
-* more user docs.
-* buzzmachines module has more machines ported, I have started to add demosongs
-  and preset files. This needed some update in the gstreamer plugin too. Under
-  windows the plugins, presets and help is all crammed into one dir. I have
-  split it to have docs and presets under share and not in lib.
+Lots of testing and small improvements again. Besides the usual valgind sessions
+I tried the LLVM/Clang Static Analyzer [1]. There are some annoying warnings, but
+lots of correct one too. Most of them were nothing major, but this is a good
+tool to follow. I also got more feedback from the NetBSD packages and worked on
+my Maemo port. This resulted in a couple of portability fixes and dependency
+cleanups.
+
+With the testing came also many small but nice fixes and improvements. E.g.
+stereo wavetable support was incomplete and is now working fine. The pattern
+editor got many improvements like entering wave-table numbers, note-off support.
+Finally "play notes" is fully done. Latency is a bit better also. With latest
+pulsesink in gst-plugins-good git its actually quite okay (thanks wtay!).
+
+The buzzmachines module has more machines ported, I have started to add demo
+songs and preset files. This needed some update in the gstreamer plugin too.
+Under windows the plugins, presets and help is all crammed into one dir. I have
+split it to have docs and presets under share and not in lib.
+
+Thanks for help on gobject-introspection irc channel, bindings start to work.
+I have a javascript example that plays songs. Major obstacle was to get the js
+syntax right. The python sample does still not work. I hope it will after this
+summer of code.
+
+I also reviewed and extended the user-docs. This version finally becomes
+usable :) Will do the strings freeze and pre-release tarballs this month.
+
+[1] http://clang.llvm.org/StaticAnalysis.html
 
 2009/04 ========================================================================
 
