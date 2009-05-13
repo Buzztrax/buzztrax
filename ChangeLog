@@ -1,5 +1,15 @@
 2009-05-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* po/Makevars:
+	  Neat way to minimize the conflics of po files.
+
+	* src/lib/core/source-machine.c:
+	  Don't disable live for live sources. The song simply won't play then.
+	  Instead increase buffering. We probabably need to configure queueing
+	  as well too.
+
+2009-05-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	  Fix format string.
 
