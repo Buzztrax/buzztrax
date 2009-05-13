@@ -1,3 +1,8 @@
+2009-05-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-window.c:
+	  Fix format string.
+
 2009-05-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:

@@ -653,7 +653,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     for(node=filters;node;node=g_list_next(node)) {
       filter=node->data;
       if(gtk_file_filter_filter(filter,&ffi)) {
-        GST_DEBUG("use last path %s, format is '%'s",file_name,gtk_file_filter_get_name(filter));
+        GST_DEBUG("use last path %s, format is '%s'",file_name,gtk_file_filter_get_name(filter));
         gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter);
         found=TRUE;
         break;
