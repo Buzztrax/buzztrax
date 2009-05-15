@@ -150,7 +150,7 @@ static void
 bt_memory_audio_src_init (BtMemoryAudioSrc * src, BtMemoryAudioSrcClass * g_class)
 {
   /* some defaults */
-  src->samplerate = 44100;
+  src->samplerate = GST_AUDIO_DEF_RATE;
   src->channels = 1;
   src->width = 16;
 
@@ -411,12 +411,12 @@ bt_memory_audio_src_set_property (GObject * object, guint prop_id,
         gst_structure_get_int (structure, "channels", &src->channels);
         gst_structure_get_int (structure, "width", &src->width);
         /*
-        const gchar *name;
-        name = gst_structure_get_name (structure);
-        if (strcmp (name, "audio/x-raw-int") == 0) {
-        }
-        else {
-        }
+          const gchar *name;
+          name = gst_structure_get_name (structure);
+          if (strcmp (name, "audio/x-raw-int") == 0) {
+          }
+          else {
+          }
         */
       }
 

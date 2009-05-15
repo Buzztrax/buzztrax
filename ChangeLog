@@ -1,3 +1,23 @@
+2009-05-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bindings/play.py:
+	  More experiments.
+
+	* src/lib/core/wave.c:
+	  Add a huge todo and atleast don't crash for now. When saving we expect the
+	  original sound files to be present. If they are not we need to save what
+	  we have in memory. Also use a constant instead of hardcoded 44100.
+
+	* src/ui/edit/btmemoryaudiosrc.c:
+	* src/ui/edit/btmemoryaudiosrc.h:
+	  Use constant instead of hardcoded 44100.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Disconnect notify handler when rebuilding seqeunce or the context menu to
+	  fix assertion in the signal-handler. Remove widget-name hack to get
+	  machine name when adding a track, as that was broken when then machine got
+	  renamed.
+
 2009-05-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

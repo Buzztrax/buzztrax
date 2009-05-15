@@ -25,6 +25,7 @@
 
 #include <gst/gst.h>
 #include <gst/base/gstbasesrc.h>
+#include <gst/audio/audio.h>
 
 G_BEGIN_DECLS
 

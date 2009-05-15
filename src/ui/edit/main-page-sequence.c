@@ -896,6 +896,10 @@ static void on_pos_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   g_object_unref(song);
 }
 
+static void on_sequence_header_label_destroy(gpointer user_data, GObject *label) {
+  g_signal_handlers_disconnect_matched(BT_MACHINE(user_data),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed,label);    
+}
+
 //-- event handler helper
 
 /*
@@ -987,6 +991,8 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
         g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
         g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
         g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
+        // need to disconnect the label updates for the seq headers, unfortunately we don#t know the label
+        // so we use a waek_ref and on_sequence_header_label_destroy()
         g_object_unref(machine);
       }
     }
@@ -1311,6 +1317,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       }
 
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
+      // we need to remove the signal handler when updating the labels
+      g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
       /* we have the label column already
       if(j==0) {
         // connect to the size-allocate signal to adjust the height of the other treeview header
@@ -1512,7 +1520,7 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
 
   GST_INFO("refreshing track menu");
 
-  // create a new menu
+  // (re)create a new menu
   submenu=gtk_menu_new();
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(self->priv->context_menu_add),submenu);
 
@@ -1523,7 +1531,6 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
     g_object_get(G_OBJECT(machine),"id",&str,NULL);
 
     menu_item=gtk_image_menu_item_new_with_label(str);
-    gtk_widget_set_name(GTK_WIDGET(menu_item),str);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),bt_ui_resources_get_icon_image_by_machine(machine));
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
     gtk_widget_show(menu_item);
@@ -1532,6 +1539,8 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
     if(GTK_IS_LABEL(label)) {
       GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
+      // we need to remove the signal handler when updating the labels
+      g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
     }
     g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);
     g_list_free(widgets);
@@ -1646,26 +1655,35 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
 
 //-- event handler
 
-static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
+static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtSong *song;
-  BtSetup *setup;
-  BtMachine *machine;
-  gchar *id;
-
-  // get song from app and then setup from song
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
+  GList *widgets;
+  GtkWidget *label;
 
   // get the machine by the menuitems name
-  id=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
-  GST_INFO("adding track for machine \"%s\"",id);
-  if((machine=bt_setup_get_machine_by_id(setup,id))) {
-    sequence_add_track(self,machine);
-    g_object_unref(machine);
+  //id=(gchar *)gtk_widget_get_name(GTK_WIDGET(menu_item));
+  widgets=gtk_container_get_children(GTK_CONTAINER(menu_item));
+  label=g_list_nth_data(widgets,0);
+  if(GTK_IS_LABEL(label)) {
+    BtSong *song;
+    BtSetup *setup;
+    BtMachine *machine;
+    const gchar *id;
+
+    // get song from app and then setup from song
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(song,"setup",&setup,NULL);
+  
+    id=gtk_label_get_text(GTK_LABEL(label));
+    GST_INFO("adding track for machine \"%s\"",id);
+    if((machine=bt_setup_get_machine_by_id(setup,id))) {
+      sequence_add_track(self,machine);
+      g_object_unref(machine);
+    }
+    g_object_unref(setup);
+    g_object_unref(song);
   }
-  g_object_unref(setup);
-  g_object_unref(song);
+  g_list_free(widgets);
 }
 
 static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data) {

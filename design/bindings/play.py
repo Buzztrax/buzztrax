@@ -4,9 +4,11 @@
 #
 
 import bank
+import GLib
 import BuzztardCore
 
-#BuzztardCore.init(0,None)
+GLib.thread_init(None);
+BuzztardCore.init(0,None)
 
 app=BuzztardCore.Application()
 # bin=app.get("bin")

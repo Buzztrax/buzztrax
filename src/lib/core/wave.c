@@ -147,7 +147,7 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
   GstCaps *caps;
   gint64 duration;
   guint64 length=0;
-  gint channels=1,rate=44100;
+  gint channels=1,rate=GST_AUDIO_DEF_RATE;
   GstFormat format=GST_FORMAT_TIME;
   gpointer data=NULL;
   struct stat buf={0,};
@@ -417,18 +417,61 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
     g_object_get(self->priv->song,"song-io",&song_io,NULL);
     if (song_io) {
       if(BT_IS_SONG_IO_NATIVE_BZT(song_io)) {
-        gchar *fn,*fp;
+        /* @todo: need to check if the file exist
+         * if we save a file that was saved as bzt before we coudl just copy the
+         * file over ... (but here we don't know that)
+         */
+        if(self->priv->uri) {
+          gchar *fn,*fp;
 
-        // need to rewrite path
-        if(!(fn=strrchr(self->priv->uri,'/')))
-          fn=self->priv->uri;
-        else fn++;
-        fp=g_strdup_printf("wavetable/%s",fn);
-  
-        GST_INFO("saving external uri=%s -> zip=%s",self->priv->uri,fp); 
-        
-        bt_song_io_native_bzt_copy_from_uri(BT_SONG_IO_NATIVE_BZT(song_io),fp,self->priv->uri);
-        g_free(fp);
+          // need to rewrite path
+          if(!(fn=strrchr(self->priv->uri,'/')))
+            fn=self->priv->uri;
+          else
+            fn++;
+
+          fp=g_strdup_printf("wavetable/%s",fn);
+    
+          GST_INFO("saving external uri=%s -> zip=%s",self->priv->uri,fp); 
+          
+          bt_song_io_native_bzt_copy_from_uri(BT_SONG_IO_NATIVE_BZT(song_io),fp,self->priv->uri);
+          g_free(fp);
+        }
+        else {
+#if 0
+          /* @todo: need to write the sample data as a wav to a tempfile */
+          gchar *fn_wav;
+          
+          fn_wav=g_strdup_printf("%s" G_DIR_SEPARATOR_S "XXXXXX",g_get_tmp_dir());
+          self->priv->ext_fd=fileno(tmpfile());
+          self->priv->fd=mkstemp(fn_wav);
+          
+          // the data is in the wave-level :/
+          write(self->priv->ext_fd,data,size);
+          // create saver pipeline
+          self->priv->pipeline=gst_pipeline_new("wave-saver");
+          src=gst_element_factory_make("fdsrc",NULL);
+          fmt=gst_element_factory_make("capsfilter",NULL);
+          enc=gst_element_factory_make("waveenc",NULL);
+          sink=gst_element_factory_make("fdsink",NULL);
+          
+          // configure elements
+          g_object_set(src,"fd",self->priv->ext_fd,NULL);
+          g_object_set(sink,"fd",self->priv->fd,"sync",FALSE,NULL);
+          
+          // need temp location
+          // - just creating a temp filename is not safe
+          // - creating a tmpfile() is safe, but we need the name, fstat() does not have it
+          self->priv->uri=g_strdup_printf("file://%s",fn_wav);
+          fp=g_strdup_printf("wavetable/%s",self->priv->name);
+          
+          GST_INFO("saving internal uri=%s -> zip=%s",self->priv->uri,fp); 
+          
+          bt_song_io_native_bzt_copy_from_uri(BT_SONG_IO_NATIVE_BZT(song_io),fp,self->priv->uri);
+          g_free(fp);
+          g_free(fn_wav);
+#endif
+        }
       }
       g_object_unref(song_io);
     }
