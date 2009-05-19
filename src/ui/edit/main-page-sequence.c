@@ -652,6 +652,14 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
   g_free(str);
 }
 
+static void on_machine_id_changed_seq(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
+  on_machine_id_changed(machine,arg,user_data);
+}
+
+static void on_machine_id_changed_menu(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
+  on_machine_id_changed(machine,arg,user_data);
+}
+
 /*
  * on_header_size_allocate:
  *
@@ -894,10 +902,6 @@ static void on_pos_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   sequence_table_refresh_labels(self);
   sequence_model_recolorize(self);
   g_object_unref(song);
-}
-
-static void on_sequence_header_label_destroy(gpointer user_data, GObject *label) {
-  g_signal_handlers_disconnect_matched(BT_MACHINE(user_data),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed,label);    
 }
 
 //-- event handler helper
@@ -1316,9 +1320,11 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         g_hash_table_insert(self->priv->level_to_vumeter,level,vumeter);
       }
 
-      g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
+      // disconnedting old handler here would be better, but then we need to differentiate
+      g_signal_handlers_disconnect_matched(BT_MACHINE(machine),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_seq,NULL);
+      g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed_seq),(gpointer)label);
       // we need to remove the signal handler when updating the labels
-      g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
+      //g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
       /* we have the label column already
       if(j==0) {
         // connect to the size-allocate signal to adjust the height of the other treeview header
@@ -1538,9 +1544,10 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
     label=g_list_nth_data(widgets,0);
     if(GTK_IS_LABEL(label)) {
       GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
-      g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
+      g_signal_handlers_disconnect_matched(BT_MACHINE(machine),G_SIGNAL_MATCH_FUNC|,0,0,NULL,on_machine_id_changed_menu,NULL);
+      g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed_menu),(gpointer)label);
       // we need to remove the signal handler when updating the labels
-      g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
+      //g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
     }
     g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);
     g_list_free(widgets);
