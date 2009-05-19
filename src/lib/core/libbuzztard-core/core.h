@@ -30,6 +30,7 @@
 #include <gst/gst.h>
 #include <gst/audio/audio.h>
 #include <gst/audio/gstbaseaudiosink.h>
+#include <gst/audio/gstbaseaudiosrc.h>
 #include <gst/base/gstbasesrc.h>
 #include <gst/base/gstbasesink.h>
 #include <gst/base/gstbasetransform.h>

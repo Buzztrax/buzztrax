@@ -1171,8 +1171,8 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
   g_free(song_name);
 #else
   GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(self->priv->bin,
-    /*GST_DEBUG_GRAPH_SHOW_ALL,*/
-    GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS|GST_DEBUG_GRAPH_SHOW_STATES,
+    GST_DEBUG_GRAPH_SHOW_ALL,
+    /*GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS|GST_DEBUG_GRAPH_SHOW_STATES,*/
     PACKAGE_NAME);
 #endif
 }

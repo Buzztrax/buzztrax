@@ -183,11 +183,12 @@ static void bt_source_machine_constructed(GObject *object) {
     if(GST_IS_BASE_SRC(element)) {
       // don't ever again get the idea to turn of is_live for basesrc elements
       // if they are live, they are, no matter what we want
-      /*  we get "can't record audio fast enough" */
+      //  we get "can't record audio fast enough"
       if(gst_base_src_is_live(GST_BASE_SRC(element))) {
-        g_object_set(element,"buffer-time",500*GST_MSECOND,NULL);
+        if(GST_IS_BASE_AUDIO_SRC(element)) {
+          g_object_set(element,"buffer-time",500*GST_MSECOND,NULL);
+        }
       }
-      /**/
     }
     gst_object_unref(element);
     pattern=bt_pattern_new_with_event(song,BT_MACHINE(self),BT_PATTERN_CMD_SOLO);

@@ -394,6 +394,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
      */
     if(!bt_wire_make_internal_element(self,PART_QUEUE,"queue","queue")) return(FALSE);
     // configure the queue
+    // @idea: if machine on source side is a live-source, should be keep the queue larger? 
     g_object_set(G_OBJECT (machines[PART_QUEUE]),"max-size-buffers",1,"max-size-bytes",0,"max-size-time",G_GUINT64_CONSTANT(0),NULL);
     GST_DEBUG("created queue element for wire : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
   }
