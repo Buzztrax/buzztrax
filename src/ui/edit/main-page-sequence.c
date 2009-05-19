@@ -1321,7 +1321,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       }
 
       // disconnedting old handler here would be better, but then we need to differentiate
-      g_signal_handlers_disconnect_matched(BT_MACHINE(machine),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_seq,NULL);
+      g_signal_handlers_disconnect_matched(G_OBJECT(machine),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_seq,NULL);
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed_seq),(gpointer)label);
       // we need to remove the signal handler when updating the labels
       //g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
@@ -1544,7 +1544,7 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
     label=g_list_nth_data(widgets,0);
     if(GTK_IS_LABEL(label)) {
       GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
-      g_signal_handlers_disconnect_matched(BT_MACHINE(machine),G_SIGNAL_MATCH_FUNC|,0,0,NULL,on_machine_id_changed_menu,NULL);
+      g_signal_handlers_disconnect_matched(G_OBJECT(machine),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_menu,NULL);
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed_menu),(gpointer)label);
       // we need to remove the signal handler when updating the labels
       //g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);

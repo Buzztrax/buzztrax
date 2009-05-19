@@ -1,6 +1,11 @@
 2009-05-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
+	  It actually works, if I save in the editor.
+
+2009-05-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
 	  Doing a song-new trigegrs lots of assertion bacause of last change
 	  here. This should have fixed it, but apparently has not.
 
