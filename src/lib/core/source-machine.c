@@ -186,7 +186,7 @@ static void bt_source_machine_constructed(GObject *object) {
       //  we get "can't record audio fast enough"
       if(gst_base_src_is_live(GST_BASE_SRC(element))) {
         if(GST_IS_BASE_AUDIO_SRC(element)) {
-          g_object_set(element,"buffer-time",500*GST_MSECOND,NULL);
+          g_object_set(element,"buffer-time",150*GST_MSECOND,NULL);
         }
       }
     }

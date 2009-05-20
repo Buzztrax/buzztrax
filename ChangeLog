@@ -1,3 +1,8 @@
+2009-05-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/source-machine.c:
+	  We don't need that big buffer-time. Not sure how we can detect it.
+
 2009-05-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
