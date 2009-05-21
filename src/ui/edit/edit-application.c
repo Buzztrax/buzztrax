@@ -411,10 +411,40 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
 
     gdk_window_set_cursor(window,cursor);
     gdk_cursor_unref(cursor);
+    
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
 
     g_signal_connect(G_OBJECT(saver),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
     while(gtk_events_pending()) gtk_main_iteration();
+
+    /* @todo: need save file saving
+     * save
+     *   new file
+     *     choosen file-name already exist
+     *       - move to <existing>.bak
+     *       - save newfile
+     *       - if saving failed, move <existing>.bak back
+     *       - if saving worked, delete <existing>.bak
+     *     choosen file-name does not exist
+     *       - save newfile
+     *   existing file
+     *     - move to <existing>.bak
+     *       - save newfile
+     *       - if saving failed, move <existing>.bak back
+     * save-as 
+     *   new file
+     *     like save of a new-file
+     *   existing file
+     *     choosen file-name already exist
+     *       - like save of an existing file
+     *     choosen file-name does not exist
+     *       - save newfile
+     *
+     * - check how other apps do it (check if inodes change if various scenarious)
+     * - when loading a file, should we keep the file-handle open, so then when
+     *   saving, we can just update it?
+     *   - this can help with the wavetable
+     */
     if(bt_song_io_save(saver,self->priv->song)) {
       res=TRUE;
     }

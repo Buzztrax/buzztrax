@@ -1,3 +1,8 @@
+2009-05-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/edit-application.c:
+	  Planning comment for safe song saving.
+
 2009-05-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/source-machine.c:
