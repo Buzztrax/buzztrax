@@ -443,7 +443,13 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
      * - check how other apps do it (check if inodes change if various scenarious)
      * - when loading a file, should we keep the file-handle open, so then when
      *   saving, we can just update it?
-     *   - this can help with the wavetable
+     *   - this can help with the wavetable (only updated changed wavetable slots)
+     *   - if we can't update it, we can use gsf_input_copy() for external files
+     *     (if unchanged)
+     * - if the user deletes the file that is currently open -> user error
+     *
+     * g_object_get(G_OBJECT(song_info),"file-name",&previous_file_name,NULL);
+     * previous_file_name==NULL -> new file
      */
     if(bt_song_io_save(saver,self->priv->song)) {
       res=TRUE;

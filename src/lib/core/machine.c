@@ -2261,7 +2261,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       g_object_try_unref(self->priv->global_controller);
       self->priv->global_controller=ctrl;
     }
-    GST_INFO("%s:%s set global controller: %"GST_TIME_FORMAT" param %lu:%s",g_type_name(GLOBAL_PARAM_TYPE(param)),self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
+    GST_LOG("%s:%s set global controller: %"GST_TIME_FORMAT" param %lu:%s",g_type_name(GLOBAL_PARAM_TYPE(param)),self->priv->id,GST_TIME_ARGS(timestamp),param,GLOBAL_PARAM_NAME(param));
 #if GST_CHECK_VERSION(0,10,14)
     if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(param)))) {
       gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
@@ -2375,7 +2375,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
       g_object_try_unref(self->priv->voice_controllers[voice]);
       self->priv->voice_controllers[voice]=ctrl;
     }
-    //GST_INFO("%s set voice controller: %"GST_TIME_FORMAT" voice %lu, param %lu:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,VOICE_PARAM_NAME(param));
+    GST_LOG("%s set voice controller: %"GST_TIME_FORMAT" voice %lu, param %lu:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,VOICE_PARAM_NAME(param));
 #if GST_CHECK_VERSION(0,10,14)
     if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],VOICE_PARAM_NAME(param)))) {
       gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);

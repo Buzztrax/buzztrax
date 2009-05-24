@@ -1,3 +1,11 @@
+2009-05-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Downgrade logs.
+
+	* src/ui/edit/edit-application.c:
+	  More planning.
+
 2009-05-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/edit-application.c:
