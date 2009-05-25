@@ -1,3 +1,10 @@
+2009-05-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c:
+	  Implement bak file creation and save saving (don't overwrite files before
+	  saving worked).
+
 2009-05-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

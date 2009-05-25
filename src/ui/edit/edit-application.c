@@ -408,6 +408,8 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
   if((saver=bt_song_io_make(file_name))) {
     GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
     GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
+    BtSongInfo *song_info;
+    gchar *old_file_name=NULL,*bak_file_name=NULL;
 
     gdk_window_set_cursor(window,cursor);
     gdk_cursor_unref(cursor);
@@ -416,10 +418,14 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
 
     g_signal_connect(G_OBJECT(saver),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
     while(gtk_events_pending()) gtk_main_iteration();
+    
+    g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
+    g_object_get(G_OBJECT(song_info),"file-name",&old_file_name,NULL);
+    g_object_unref(song_info);
 
-    /* @todo: need save file saving
+    /* save file saving (bak files)
      * save
-     *   new file
+     *   new file (!old_file_name)
      *     choosen file-name already exist
      *       - move to <existing>.bak
      *       - save newfile
@@ -432,7 +438,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
      *       - save newfile
      *       - if saving failed, move <existing>.bak back
      * save-as 
-     *   new file
+     *   new file (!old_file_name)
      *     like save of a new-file
      *   existing file
      *     choosen file-name already exist
@@ -447,20 +453,34 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
      *   - if we can't update it, we can use gsf_input_copy() for external files
      *     (if unchanged)
      * - if the user deletes the file that is currently open -> user error
-     *
-     * g_object_get(G_OBJECT(song_info),"file-name",&previous_file_name,NULL);
-     * previous_file_name==NULL -> new file
      */
+    if(g_file_test(file_name,G_FILE_TEST_EXISTS)) {
+      bak_file_name=g_strconcat(file_name,".bak",NULL);
+      g_rename(file_name,bak_file_name);
+    }  
     if(bt_song_io_save(saver,self->priv->song)) {
       res=TRUE;
+      if(!old_file_name || strcmp(old_file_name,file_name)) {
+        // saving worked, we remove the bak file as
+        // - there was no old_file_name and/or
+        // - user has choosen to overwrite this file
+        g_unlink(bak_file_name);
+      }
     }
     else {
       GST_ERROR("could not save song \"%s\"",file_name);
+      if(bak_file_name) {
+        // saving failed, so move a file we renamed to .bak back
+        g_rename(bak_file_name,file_name);
+      }
     }
     GST_INFO("saving done");
 
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
     gdk_window_set_cursor(window,NULL);
+
+    g_free(old_file_name);
+    g_free(bak_file_name);
     g_object_unref(saver);
   }
   else {

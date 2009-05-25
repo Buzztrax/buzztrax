@@ -79,6 +79,8 @@
 #if !GST_CHECK_VERSION(0,10,20)
 #include <libgstbuzztard/preset.h>
 #endif
+//-- glib
+#include <glib/gstdio.h>
 //-- gtk+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
