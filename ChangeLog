@@ -1,3 +1,11 @@
+2009-06-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect NEWS.
+
+	* src/lib/core/song-info.c:
+	  Don't write NULL values to taglist.
+
 2009-05-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/bt-edit.h:

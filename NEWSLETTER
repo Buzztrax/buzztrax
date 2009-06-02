@@ -1,7 +1,18 @@
 2009/06 ========================================================================
 
+* bt-edit:
+  * create bak files when saving and do save overwriting
+  * bugfixes (renaming machines, did not propagate name changes well)
+  
+* gst-buzztard/bml
+  * refactoring for caching buzzmachine info in gstreamer registry. with this we
+    can avoid loading all machines when first plugin is created.
+
 * buzzmachines:
   * more ports, 1st rewrite, more presets and sample songs
+
+* bsl:
+  * better compatibillity, skelleton for missing sections
 
 2009/05 ========================================================================
 
