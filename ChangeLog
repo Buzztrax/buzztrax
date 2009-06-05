@@ -1,3 +1,11 @@
+2009-06-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Special case handling for volume range.
+
+	* src/ui/edit/pattern-editor.c:
+	  Rounding fix.
+
 2009-06-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

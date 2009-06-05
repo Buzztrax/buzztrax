@@ -101,7 +101,7 @@ to_string_trigger (char *buf, float value, int def)
 static void
 to_string_byte (char *buf, float value, int def)
 {
-  int v = (int)value;
+  int v = (int)(value+0.5);
   if (v == def)
     strcpy(buf, "..");
   else
@@ -111,7 +111,7 @@ to_string_byte (char *buf, float value, int def)
 static void
 to_string_word (char *buf, float value, int def)
 {
-  int v = (int)value;
+  int v = (int)(value+0.5);
   if (v == def)
     strcpy(buf, "....");
   else

@@ -1335,8 +1335,9 @@ static const gchar * float_float_to_str(gfloat in, gpointer user_data) {
 static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val) { 
   GType type=bt_g_type_get_base_type(property->value_type);
 
-  GST_DEBUG("trying param type: %lu,'%s'/'%s' for parameter '%s'",
-    (gulong)type, g_type_name(type),g_type_name(property->value_type),property->name);
+  GST_LOG("filling param type: '%s'::'%s'/'%s' for parameter '%s'",
+    g_type_name(property->owner_type),g_type_name(type),
+    g_type_name(property->value_type),property->name);
 
   switch(type) {
     case G_TYPE_STRING: {
@@ -1406,13 +1407,14 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       pcc->min=g_value_get_float(min_val);
       pcc->max=g_value_get_float(max_val);
       /* @todo: need scaling
-       * in case of
+       * - in case of
        *   wire.volume: 0.0->0x0000, 1.0->0x4000, 2.0->0x8000, 4.0->0xFFFF+1
-       *     col->user_data=&pcc[1]; // const scale
-       *     col->scaling factor =  4096.0
+       *    (see case G_TYPE_DOUBLE:)
+       *   wire.panorama: -1.0->0x0000, 0.0->0x4000, 1.0->0x4000
        *   song.master_volume: 0db->0.0->0x0000, -80db->1/100.000.000->0x4000
        *     scaling_factor is not enough
        *     col->user_data=&pcc[2]; // log-map
+       * - also showing gstreamer long desc for these elements is not so useful
        *
        * - we might need to put the scaling factor into the user_data
        * - how can we detect master-volume (log mapping)
@@ -1429,8 +1431,17 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       pcc=(PatternColumnConvertersFloatCallbacks *)col->user_data;
       ((PatternColumnConvertersCallbacks*)pcc)->str_to_float=float_str_to_float;
       ((PatternColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
-      pcc->min=g_value_get_double(min_val);
-      pcc->max=g_value_get_double(max_val);
+      // identify wire-elements
+      // this is not the best way to identify a volume element
+      // gst_registry_find_feature() is better but too slow here
+      if(!strcmp(g_type_name(property->owner_type),"GstVolume")) {
+        pcc->min=0.0;
+        pcc->max=4.0;
+      }
+      else {
+        pcc->min=g_value_get_double(min_val);
+        pcc->max=g_value_get_double(max_val);
+      }
     } break;
     default:
       GST_WARNING("unhandled param type: '%s' for parameter '%s'",g_type_name(type),property->name);
