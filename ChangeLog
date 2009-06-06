@@ -1,3 +1,8 @@
+2009-06-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  More links.
+
 2009-06-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

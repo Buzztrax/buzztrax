@@ -184,11 +184,21 @@
       a toy for live audio effects.
     </para>
     <para>
-      Start the graphical editor 'buzztard-edit'. The first tab shows the machine view.
+      Start the graphical editor 'buzztard-edit'. The first tab shows the
+      <link linkend="bt-edit-main-view-machines">machine view</link>.
       Here you can create elements (sound generators and effects) and link them together.
-      To create an element, right click on the background and select an element from the context menu.
-      For the example choose alsasrc. Please note, that not all the elements in the
-      list will work perfectly in a live situation right now.
+      To create an element, right click on the background and select an element
+      from the context menu. For the example choose alsasrc.
+    </para>
+    <note>
+      <para>
+        Please note, that not all the elements in the list will work perfectly in
+        a live situation right now. Also useing livesrc and normal source does
+        not work reliable right now. This will be address in a future versions
+        of buzztard and gstreamer.
+      </para>
+    </note>
+    <para>
       In your sound card mixer you should enable recording from the microphone or
       provide some music on line-in. Next add audiodelay and equalizer-10band elements.
       Now wire them together by pointing on the source element (alsasrc) and
@@ -200,14 +210,16 @@
       a shift left-click the stereo panorama or balance and a right click shows a
       context menu for disconnecting the elements and for showing an "analyzer dialog".
       Open that one for the link between equalizer and master.
-      Finally double click the equalizer and the audiodelay to open their real-time settings windows.
+      Finally double click the equalizer and the audiodelay to open their
+      <link linkend="bt-edit-dialog-machine-properties">real-time settings windows</link>.
       Now you should see something like this:
     </para>
     <para>
       (FIXME: need screenshot)
     </para>
     <para>
-      Now lets give it a try. Activate the loop in the toolbar and press play.
+      Now lets give it a try. Activate the loop in the <link linkend="bt-edit-main-toolbar">toolbar</link>
+      and press play.
       Now you can tweak the settings of the effects while making some noise.
       The parameter-changes will be effective right away. In the "analyzer window"
       you can see the frequency spectrum of the sound and the volume level.
@@ -221,10 +233,12 @@
       patterns.
     </para>
     <para>
-      Start the graphical editor 'buzztard-edit'. On the first tab - the machine
-      view - add one simsyn. This is a very basic synthesizer. Also add an audiodelay
+      Start the graphical editor 'buzztard-edit'. On the first tab - the
+      <link linkend="bt-edit-main-view-machines">machine view</link> - add one
+      simsyn. This is a very basic synthesizer. Also add an audiodelay
       and link simsyn &rrar; audiodelay &rrar; master.
-      Now switch to the sequence view. Buzztard has automatically added a track for the
+      Now switch to the <link linkend="bt-edit-main-view-sequence">sequence view</link>.
+      Buzztard has automatically added a track for the
       simsyn. Also the song has a default length of 64 ticks (the time axis goes from top to bottom).
       The track will take patterns. Patterns are the actual building blocks
       of the score. Patterns are a block of control events, like triggering a note
@@ -232,11 +246,13 @@
       the machine the cursor is in. Simsyn has one called '00'.
       Press '0' four times to fill the sequence track with this pattern. Buzztard
       will repeat the events there 4 times and stop. If you press play now, you won't hear
-      anything yet, as we have not recorded any events into the pattern. Lets switch to the pattern editor.
+      anything yet, as we have not recorded any events into the pattern.
+      Lets switch to the <link linkend="bt-edit-main-view-patterns">pattern editor</link>.
       This can be done, by just pressing "Enter" in addition to using the tabs.
     </para>
     <para>
-      The pattern editor shows a grid. Again the time goes from top to bottom.
+      The <link linkend="bt-edit-main-view-patterns">pattern editor</link> shows
+      a grid. Again the time goes from top to bottom.
       From left to right the editor shows parameter groups. This simple synthesizer
       has just one. More complex ones have a block with global parameters and one for each voice.
       Each column shows some info in the status bar when the cursor is in there.
