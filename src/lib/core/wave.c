@@ -27,7 +27,7 @@
 /* @todo: save sample file length and/or md5sum in file:
  * - if we miss files, we can do a xsesame search and use the details to verify
  * - when loading, we might also use the details as a sanity check
- * @idea: record waveentries
+ * @idea: record wave-entries
  * - record wave from alsasrc
  *   - like we load & decode to tempfile, use this to record a sound
  *   - needs some dedicated ui for choosing the input, and format (m/s)
@@ -43,6 +43,8 @@
  *   context menu
  * - if we have bpm and its different from song-bpm offer adjust in the contect
  *   menu to change base_notes to match it
+ * @todo: when loading a wave from filesystem we need to somehow also make a
+ * copy of the original file to ensure that we can save it
  */
 #define BT_CORE
 #define BT_WAVE_C

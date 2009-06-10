@@ -22,8 +22,8 @@
  * SECTION:btsongionativebzt
  * @short_description: class for song input and output in builtin native format
  *
- * This internal #BtSOngIONative module implements loading and saving of an
- * direct xml format with externals.
+ * This internal #BtSOngIONative module implements loading and saving of an own
+ * xml format with externals.
  * The format is an archive, that contains an XML file and optionally binary
  * data, such as audio samples.
  */ 

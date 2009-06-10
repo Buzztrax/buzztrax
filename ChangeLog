@@ -1,5 +1,16 @@
 2009-06-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/wave.c:
+	  Comments and docs.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Don't disconnect handlers twice. Show empty pattern if a machine has no
+	  patterns.
+
+2009-06-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Sent news.
 

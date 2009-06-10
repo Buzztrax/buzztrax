@@ -175,6 +175,8 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 
 static void on_pattern_size_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data);
 
+static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *new_pattern);
+
 //-- tree model helper
 
 static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *iter,BtMachine *that_machine) {
@@ -1048,6 +1050,9 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
   gtk_combo_box_set_active(self->priv->pattern_menu,active);
   g_object_unref(store); // drop with comboxbox
+  if(active==-1) {
+    change_current_pattern(self,NULL);
+  }
 }
 
 static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *wavetable) {
@@ -1669,8 +1674,14 @@ static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *ne
   if(new_pattern==self->priv->pattern) return;
 
   if(self->priv->pattern) {
-    g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_length_changed);
-    g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_voices_changed);
+    if(self->priv->pattern_length_changed) {
+      g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_length_changed);
+      self->priv->pattern_length_changed=0;
+    }
+    if(self->priv->pattern_voices_changed) {
+      g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_voices_changed);
+      self->priv->pattern_voices_changed=0;
+    }
     GST_INFO("unref old pattern: %p,refs=%d", self->priv->pattern,(G_OBJECT(self->priv->pattern))->ref_count);
     g_object_unref(self->priv->pattern);
     self->priv->pattern_length_changed=self->priv->pattern_voices_changed=0;
