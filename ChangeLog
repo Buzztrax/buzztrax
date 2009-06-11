@@ -1,3 +1,8 @@
+2009-06-11  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix B note entry.
+
 2009-06-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-io-native-bzt.c:
