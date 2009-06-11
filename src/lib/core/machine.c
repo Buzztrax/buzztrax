@@ -2621,11 +2621,14 @@ bt_g_object_randomize_parameter(GObject *self, GParamSpec *property) {
     case G_TYPE_ENUM:{
       const GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
       const GEnumClass *enum_class = enum_property->enum_class;
+      gint value = (enum_class->minimum + ((enum_class->maximum -
+                    enum_class->minimum) * rnd));
 
-      // @todo: handle sparse enums
-      g_object_set (self, property->name,
-          (gulong) (enum_class->minimum + ((enum_class->maximum -
-                    enum_class->minimum) * rnd)), NULL);
+      // handle sparse enums (lets go the next smaller valid value for now)
+      while(!g_enum_get_value((GEnumClass *)enum_class, value) && (value>=enum_class->minimum)) {
+        value--;
+      }      
+      g_object_set (self, property->name, value, NULL);
     } break;
     default:
       GST_WARNING ("incomplete implementation for GParamSpec type '%s'",

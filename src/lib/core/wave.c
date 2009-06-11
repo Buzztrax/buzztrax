@@ -262,6 +262,10 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
 
   // check if the url is valid
   // if(!uri) goto invalid_uri;
+  
+  /* @todo: we should also load the original file into a memory blob
+   * this is needed for saving the song in all cases.
+   */
     
   // create loader pipeline
   self->priv->pipeline=gst_pipeline_new("wave-loader");

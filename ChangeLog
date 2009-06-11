@@ -1,3 +1,8 @@
+2009-06-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Ensure valid enums when randomizing settings.
+
 2009-06-11  Krzysztof Foltman  <kfoltman@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:
