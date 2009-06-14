@@ -200,7 +200,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
 
   if(loop_start==-1) loop_start=0;
   if(loop_end==-1) loop_end=length-1;
-  if(play_pos==loop_end) play_pos=loop_start;
+  if(play_pos>=loop_end) play_pos=loop_start;
   
   // remember end for eos
   self->priv->play_end=loop_end;
@@ -384,9 +384,10 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
 static void on_song_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
+  GST_INFO("received EOS bus message from: %s", 
+    GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
+
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
-    GST_INFO("received EOS bus message from: %s", 
-      GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
     self->priv->play_pos=self->priv->play_end;
     bt_song_stop(self);
   }

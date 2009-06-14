@@ -1,3 +1,8 @@
+2009-06-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Also clamp playpos if >end. Log all eos messages.
+
 2009-06-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
