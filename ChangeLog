@@ -1,5 +1,10 @@
 2009-06-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Allow using 'b' and 'e' for entering patterns too.
+
+2009-06-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-machines.c:
 	  Reset pointer for empty songs. Otherwise we access released memory from
 	  previous song.
