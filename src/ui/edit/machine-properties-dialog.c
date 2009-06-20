@@ -919,7 +919,13 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
     g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
 
     GST_INFO("about to load preset : '%s'",name);
-    gst_preset_load_preset(GST_PRESET(machine),name);
+    if(gst_preset_load_preset(GST_PRESET(machine),name)) {
+      mark_song_as_changed(self);
+      /* @todo: we need to run  update_params_after_interaction(widget,parent)
+       * for each parameter (or refactor that code somewhat)
+       * essentialy we need machine:property-name
+       */
+    }
     gst_object_unref(machine);
   }
 }

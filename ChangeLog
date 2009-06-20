@@ -1,3 +1,8 @@
+2009-06-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Mark song as unsaved, when changing presets. Add todo for preset loading.
+
 2009-06-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:
