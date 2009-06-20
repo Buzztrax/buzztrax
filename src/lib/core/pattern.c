@@ -371,6 +371,7 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
   BtPattern *pattern;
   gchar *id,*name,*mid;
   gulong data_count;
+  gulong i;
 
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
 
@@ -384,8 +385,14 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
   pattern=bt_pattern_new(self->priv->song,id,name,self->priv->length,self->priv->machine);
  
   data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
-  // copy data
-  memcpy(pattern->priv->data,self->priv->data,data_count*sizeof(GValue));
+  // deep copy data
+  //memcpy(pattern->priv->data,self->priv->data,data_count*sizeof(GValue));
+  for(i=0;i<data_count;i++) {
+    if(G_IS_VALUE(&self->priv->data[i])) {
+      g_value_init(&pattern->priv->data[i],G_VALUE_TYPE(&self->priv->data[i]));
+      g_value_copy(&self->priv->data[i],&pattern->priv->data[i]);
+    }
+  }  
   GST_INFO("  data copied");
 
   g_free(mid);
@@ -443,6 +450,7 @@ BtPattern *bt_pattern_copy_range(const BtPattern * const self, gint start, gint 
 
   for(i=start;i<end;i++) {
     memcpy(dst,src,sizeof(GValue)*count);
+    // @todo: need to do a deep copy of the GValues
     src=&src[count];
     dst=&dst[count];
   }
@@ -1474,8 +1482,6 @@ static void bt_pattern_dispose(GObject * const object) {
   g_object_try_weak_unref(self->priv->song);
   g_object_try_weak_unref(self->priv->machine);
   
-  
-
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
@@ -1489,12 +1495,14 @@ static void bt_pattern_finalize(GObject * const object) {
   g_free(self->priv->id);
   g_free(self->priv->name);
 
-  // free gvalues in self->priv->data
-  for(i=0;i<data_count;i++) {
-    if(G_IS_VALUE(&self->priv->data[i]))
-      g_value_unset(&self->priv->data[i]);
+  if(self->priv->data) {
+    // free gvalues in self->priv->data
+    for(i=0;i<data_count;i++) {
+      if(G_IS_VALUE(&self->priv->data[i]))
+        g_value_unset(&self->priv->data[i]);
+    }
+    g_free(self->priv->data);
   }
-  g_free(self->priv->data);
   
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }

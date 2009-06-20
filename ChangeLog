@@ -1,5 +1,11 @@
 2009-06-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	  Do deep copies for GValues in a pattern. Otherwise we get crashes when
+	  editing notes.
+
+2009-06-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* TODO:
 	  Add nice tip for testing translations.
 	* src/ui/edit/main-page-sequence.c:
