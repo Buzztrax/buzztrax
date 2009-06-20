@@ -1,5 +1,10 @@
 2009-06-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-editor.c:
+	  Fix editing the octave of 'b'.
+
+2009-06-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Allow using 'b' and 'e' for entering patterns too.
 

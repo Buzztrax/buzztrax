@@ -759,7 +759,8 @@ bt_pattern_editor_key_press (GtkWidget *widget,
               value = 1;
             value = (value & 15) | ((event->keyval - '0') << 4);
             
-            if (value >= col->min && value <= col->max && (value & 15) < 12) {
+            // note range = 1..12 and not 0..11
+            if (value >= col->min && value <= col->max && (value & 15) <= 12) {
               self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, value);
               advance(self);
             }
