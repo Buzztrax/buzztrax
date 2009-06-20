@@ -27,6 +27,12 @@ $Id$
 
 * quality checks
   for file in src/lib/core/*.c; do gtkdoc-depscan -v --book gstreamer-0.10:0.10.8 $file; done
+  
+* check translation markup
+  podebug --rewrite=xxx buzztard.pot aa.po
+  LC_ALL=aa ./buzztard-edit
+  - his creates a translation with all strings wrapped by 'xxx' (Help -> xxxHelpxxx)
+  - its easy to see what is not marked for translation  
 
 * sparse
   make CC=cgcc

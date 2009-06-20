@@ -46,6 +46,11 @@
  * @todo:
  * - we should have a track-changed signal or so to allow pattern to sync with
  *   seelcted machine and not passively syncing (bt_main_page_patterns_show_machine())
+ * @idea:
+ * - add a follow playback checkbox to toolbar to en/disable sequence scrolling
+ *   - the scrolling causes quite some repaints and thus slowness
+ *   - it would be good if we could deoouple the scolling and the events, so
+ *     that we e.g. scroll 10 times a second to the latest position (same for level meters)
  *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
@@ -1578,7 +1583,11 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
       g_object_set(song,"play-pos",row,NULL);
       break;
     case SEQUENCE_VIEW_POS_LOOP_START:
+      // set and read back, as sequence might clamp the value
       g_object_set(self->priv->sequence,"loop-start",row,NULL);
+      g_object_get(self->priv->sequence,"loop-start",&row,NULL);
+      loop_start=row;
+      
       pos=(gdouble)row/(gdouble)sequence_length;
       g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
       g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
@@ -1587,8 +1596,11 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
 
       g_object_get(self->priv->sequence,"loop-end",&loop_end,NULL);
       if((loop_end!=-1) && (loop_end<=row)) {
-        loop_end=row+self->priv->bars;
+        loop_end=loop_start+self->priv->bars;
         g_object_set(self->priv->sequence,"loop-end",loop_end,NULL);
+        
+        GST_INFO("and adjusted loop-end = %ld",loop_end);
+
         pos=(gdouble)loop_end/(gdouble)sequence_length;
         g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);
         g_object_set(self->priv->sequence_pos_table,"loop-end",pos,NULL);
@@ -1609,15 +1621,21 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
         sequence_view_set_cursor_pos(self);
       }
       else {
+        // set and read back, as sequence might clamp the value
         g_object_set(self->priv->sequence,"loop-end",row,NULL);
+        g_object_get(self->priv->sequence,"loop-end",&row,NULL);
         loop_end=row;
+
+        GST_INFO("adjusted loop-end = %ld",row);
 
         g_object_get(self->priv->sequence,"loop-start",&loop_start,NULL);
         if((loop_start!=-1) && (loop_start>=row)) {
-          loop_start=row-self->priv->bars;
+          loop_start=loop_end-self->priv->bars;
+          if(loop_start<0) loop_start=0;
           g_object_set(self->priv->sequence,"loop-start",loop_start,NULL);
+          
+          GST_INFO("and adjusted loop-start = %ld",loop_start);
         }
-        GST_INFO("adjusted loop-end = %ld",row);
       }
       pos=(loop_end>-1)?(gdouble)loop_end/(gdouble)sequence_length:1.0;
       g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);

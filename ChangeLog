@@ -1,3 +1,10 @@
+2009-06-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* TODO:
+	  Add nice tip for testing translations.
+	* src/ui/edit/main-page-sequence.c:
+	  Add an idea. Fix loop start end changes triggering assertions.
+
 2009-06-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:
