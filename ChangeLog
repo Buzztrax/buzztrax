@@ -1,5 +1,11 @@
 2009-06-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Reset pointer for empty songs. Otherwise we access released memory from
+	  previous song.
+
+2009-06-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/pattern.c:
 	  Do deep copies for GValues in a pattern. Otherwise we get crashes when
 	  editing notes.

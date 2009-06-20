@@ -471,6 +471,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(!song) {
+    self->priv->properties=NULL;
     machine_view_clear(self);
     GST_INFO("song (null) has changed done");
     return;

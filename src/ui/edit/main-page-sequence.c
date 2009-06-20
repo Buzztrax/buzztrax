@@ -2276,7 +2276,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         res=TRUE;
       }
     }
-    else if(event->keyval<0x100) {
+
+    if(event->keyval<='z' && (modifier==0)) {
       // first column is label
       if((track>0) && (row<length)) {
         BtMachine *machine;
@@ -2304,6 +2305,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
               free_str=TRUE;
               change=TRUE;
               res=TRUE;
+            } else {
+              GST_WARNING("no pattern for index %d",index);
             }
           }
           else {
