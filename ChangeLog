@@ -1,6 +1,14 @@
 2009-06-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-properties-dialog.c:
+	  Refactored a default param handling a bit. Need to come up with bigger
+	  plan.
+	* src/ui/edit/main-page-sequence.c:
+	  Ideas.
+
+2009-06-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
 	  Mark song as unsaved, when changing presets. Add todo for preset loading.
 
 2009-06-20  Stefan Kost  <ensonic@users.sf.net>

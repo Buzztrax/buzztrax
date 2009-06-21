@@ -307,26 +307,24 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
   return(str);
 }
 
-
-static void update_params_after_interaction(GtkWidget *widget,gpointer user_data) {
 #if GST_CHECK_VERSION(0,10,14)
-  GstObject *param_parent=GST_OBJECT(user_data);
+// @todo: should we have this in btmachine.c?
+static void bt_machine_update_default_param_value(BtMachine *self,GstObject *param_parent, const gchar *property_name) {
   GstController *ctrl;
+
   if((ctrl=gst_object_get_controller(G_OBJECT(param_parent)))) {
-    // if no pattern event at ts=0
-    const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
-    BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
-    GstElement *machine;
+    GstElement *element;
     gulong param;
     glong voice=-1;
    
-    g_object_get(self->priv->machine,"machine",&machine,NULL);
+    g_object_get(self,"machine",&element,NULL);
     
-    if((param_parent!=GST_OBJECT(machine)) && GST_IS_CHILD_PROXY(machine)) { 
-      gulong i,voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(machine));
+    // check if we update a voice parameter
+    if((param_parent!=GST_OBJECT(element)) && GST_IS_CHILD_PROXY(element)) { 
+      gulong i,voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(element));
       
       for(i=0;i<voices;i++) {
-        if(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),i)==param_parent) {
+        if(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(element),i)==param_parent) {
           voice=i;
           break;
         }
@@ -336,19 +334,19 @@ static void update_params_after_interaction(GtkWidget *widget,gpointer user_data
     // update the default value at ts=0
     if(voice==-1) {
       //GST_WARNING("updating global param at ts=0");
-      param=bt_machine_get_global_param_index(self->priv->machine,property_name,NULL);
-      if(bt_machine_has_global_param_default_set(self->priv->machine,param))
-        bt_machine_global_controller_change_value(self->priv->machine,param,G_GUINT64_CONSTANT(0),NULL);
+      param=bt_machine_get_global_param_index(self,property_name,NULL);
+      if(bt_machine_has_global_param_default_set(self,param))
+        bt_machine_global_controller_change_value(self,param,G_GUINT64_CONSTANT(0),NULL);
     }
     else {
       //GST_WARNING("updating voice %ld param at ts=0",voice);
-      param=bt_machine_get_voice_param_index(self->priv->machine,property_name,NULL);
-      if(bt_machine_has_voice_param_default_set(self->priv->machine,voice,param))
-        bt_machine_voice_controller_change_value(self->priv->machine,voice,param,G_GUINT64_CONSTANT(0),NULL);
+      param=bt_machine_get_voice_param_index(self,property_name,NULL);
+      if(bt_machine_has_voice_param_default_set(self,voice,param))
+        bt_machine_voice_controller_change_value(self,voice,param,G_GUINT64_CONSTANT(0),NULL);
     }
-    g_object_unref(machine);
-    /*
-     * @todo: it should actualy postpone the disable to the next timestamp
+    g_object_unref(element);
+
+    /* @todo: it should actualy postpone the disable to the next timestamp
      * (not possible right now).
      *
      * @idea: can we have a livecontrolsource that subclasses interpolationcs
@@ -362,6 +360,14 @@ static void update_params_after_interaction(GtkWidget *widget,gpointer user_data
       G_OBJECT_TYPE_NAME(param_parent),
       GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"");
   }
+}
+#endif
+
+static void update_param_after_interaction(GtkWidget *widget,gpointer user_data) {
+#if GST_CHECK_VERSION(0,10,14)
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
+
+  bt_machine_update_default_param_value(self->priv->machine, GST_OBJECT(user_data), gtk_widget_get_name(GTK_WIDGET(widget)));
 #endif
 }
 
@@ -403,7 +409,7 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
 static gboolean on_button_release_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
 #if GST_CHECK_VERSION(0,10,14)
   if(event->button == 1 && event->type == GDK_BUTTON_RELEASE) {
-    update_params_after_interaction(widget,user_data);
+    update_param_after_interaction(widget,user_data);
   }
 #endif
   return(FALSE);
@@ -703,7 +709,7 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
     g_object_set(param_parent,name,value,NULL);
     g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_notify,(gpointer)combobox);
     //GST_WARNING("property value change received: %d",value);
-    update_params_after_interaction(GTK_WIDGET(combobox),user_data);
+    update_param_after_interaction(GTK_WIDGET(combobox),user_data);
     mark_song_as_changed(self);
   }
 }
@@ -750,7 +756,7 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
   g_object_set(param_parent,name,value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
-  //update_params_after_interaction(GTK_WIDGET(togglebutton),user_data);
+  //update_param_after_interaction(GTK_WIDGET(togglebutton),user_data);
   mark_song_as_changed(self);
 }
 
@@ -921,9 +927,9 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
     GST_INFO("about to load preset : '%s'",name);
     if(gst_preset_load_preset(GST_PRESET(machine),name)) {
       mark_song_as_changed(self);
-      /* @todo: we need to run  update_params_after_interaction(widget,parent)
-       * for each parameter (or refactor that code somewhat)
-       * essentialy we need machine:property-name
+      /* @todo: we need to run  update_param_after_interaction
+       * same is needed for randomize and actually also for controller
+       * interaction
        */
     }
     gst_object_unref(machine);

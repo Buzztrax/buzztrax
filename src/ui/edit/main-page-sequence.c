@@ -26,7 +26,7 @@
  * Provides an editor for #BtSequence instances.
  */
 
-/* @todo main-page-sequence tasks
+/* @todo: main-page-sequence tasks
  * - cut/copy/paste
  * - add third view for eating remaining space
  *   - or block cursor moving there
@@ -43,14 +43,16 @@
  * - pattern list
  *   - go to next occurence when double clicking a pattern
  *   - show tick-length in pattern list
- * @todo:
- * - we should have a track-changed signal or so to allow pattern to sync with
- *   seelcted machine and not passively syncing (bt_main_page_patterns_show_machine())
- * @idea:
- * - add a follow playback checkbox to toolbar to en/disable sequence scrolling
+ * @todo: we should have a track-changed signal
+ *  - allowd patternd to sync with selected machine and not passively syncing
+ *    (bt_main_page_patterns_show_machine())
+ * @idea: add a follow playback checkbox to toolbar to en/disable sequence scrolling
  *   - the scrolling causes quite some repaints and thus slowness
  *   - it would be good if we could deoouple the scolling and the events, so
  *     that we e.g. scroll 10 times a second to the latest position (same for level meters)
+ * @idea: bold row,label for cursor row
+ *   - makes it easier to follow position in wide sequences
+ *     (same needed for pattern view)
  *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
