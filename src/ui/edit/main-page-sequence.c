@@ -1324,6 +1324,9 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
       // add level meters to hashtable
       if(level) {
+        /* @todo: if we have multiple tracks for the same machine, we replace
+         * the entries with eachother
+         */
         g_hash_table_insert(self->priv->level_to_vumeter,level,vumeter);
       }
 
@@ -1849,6 +1852,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   g_assert(user_data);
 
   g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
+  // stop all level meters
   if(!self->priv->is_playing) {
     g_hash_table_foreach(self->priv->level_to_vumeter,reset_level_meter,NULL);
   }

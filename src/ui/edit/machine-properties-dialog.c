@@ -314,7 +314,6 @@ static void bt_machine_update_default_param_value(BtMachine *self,GstObject *par
 
   if((ctrl=gst_object_get_controller(G_OBJECT(param_parent)))) {
     GstElement *element;
-    gulong param;
     glong voice=-1;
    
     g_object_get(self,"machine",&element,NULL);
@@ -333,16 +332,12 @@ static void bt_machine_update_default_param_value(BtMachine *self,GstObject *par
     
     // update the default value at ts=0
     if(voice==-1) {
-      //GST_WARNING("updating global param at ts=0");
-      param=bt_machine_get_global_param_index(self,property_name,NULL);
-      if(bt_machine_has_global_param_default_set(self,param))
-        bt_machine_global_controller_change_value(self,param,G_GUINT64_CONSTANT(0),NULL);
+      bt_machine_set_global_param_default(self,
+        bt_machine_get_global_param_index(self,property_name,NULL));
     }
     else {
-      //GST_WARNING("updating voice %ld param at ts=0",voice);
-      param=bt_machine_get_voice_param_index(self,property_name,NULL);
-      if(bt_machine_has_voice_param_default_set(self,voice,param))
-        bt_machine_voice_controller_change_value(self,voice,param,G_GUINT64_CONSTANT(0),NULL);
+      bt_machine_set_voice_param_default(self,voice,
+        bt_machine_get_voice_param_index(self,property_name,NULL));
     }
     g_object_unref(element);
 

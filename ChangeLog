@@ -1,3 +1,19 @@
+2009-06-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Buzz version requeiremnts.
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-toolbar.c:
+	  Refactor api for default property values. Need to do same changes for
+	  voice params.
+	
+	* src/ui/edit/main-page-sequence.c:
+	  Add a todo: comment.
+
 2009-06-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-properties-dialog.c:

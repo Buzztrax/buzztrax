@@ -489,14 +489,9 @@ static gboolean on_song_volume_slider_release_event(GtkWidget *widget, GdkEventB
 
     g_object_get(G_OBJECT(self->priv->master),"machine",&machine,NULL);
     if((ctrl=gst_object_get_controller(G_OBJECT(self->priv->master)))) {
-      // if no pattern event at ts=0
-      gulong param;
-      
       // update the default value at ts=0
-      //GST_WARNING("updating global param at ts=0");
-      param=bt_machine_get_global_param_index(self->priv->master,"master-volume",NULL);
-      if(bt_machine_has_global_param_default_set(self->priv->master,param))
-        bt_machine_global_controller_change_value(self->priv->master,param,G_GUINT64_CONSTANT(0),NULL);
+      bt_machine_set_global_param_default(self->priv->master,
+        bt_machine_get_global_param_index(self->priv->master,"master-volume",NULL));
 
       /*
        * @todo: it should actualy postpone the disable to the next timestamp
