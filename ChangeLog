@@ -1,3 +1,13 @@
+2009-06-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Do same refactoring for voice params too. Reuse more code. Add api to
+	  update default for all params of a machine. Fix a crasher when loading a
+	  new song while having settings windows open.
+
 2009-06-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

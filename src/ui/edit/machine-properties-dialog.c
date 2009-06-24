@@ -321,12 +321,16 @@ static void bt_machine_update_default_param_value(BtMachine *self,GstObject *par
     // check if we update a voice parameter
     if((param_parent!=GST_OBJECT(element)) && GST_IS_CHILD_PROXY(element)) { 
       gulong i,voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(element));
+      GstObject *voice_elem;
       
       for(i=0;i<voices;i++) {
-        if(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(element),i)==param_parent) {
+        voice_elem=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(element),i);
+        if(voice_elem==param_parent) {
+          gst_object_unref(voice_elem);
           voice=i;
           break;
         }
+        gst_object_unref(voice_elem);
       }
     }
     
@@ -922,10 +926,7 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
     GST_INFO("about to load preset : '%s'",name);
     if(gst_preset_load_preset(GST_PRESET(machine),name)) {
       mark_song_as_changed(self);
-      /* @todo: we need to run  update_param_after_interaction
-       * same is needed for randomize and actually also for controller
-       * interaction
-       */
+      bt_machine_set_param_defaults(self->priv->machine);
     }
     gst_object_unref(machine);
   }
@@ -2051,12 +2052,19 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  if(song) {
+    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  }
+  else {
+    setup=NULL;
+  }
   // disconnect handler for dynamic groups
   g_signal_handlers_disconnect_matched(self->priv->machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_voices_notify,self);
   // disconnect wire handlers
-  g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_added,self);
-  g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_removed,self);
+  if(setup) {
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_added,self);
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_removed,self);
+  }
   // disconnect all handlers that are connected to params
   g_object_get(self->priv->machine,"machine",&machine,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
@@ -2075,31 +2083,33 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_combobox_property_notify,NULL);
   }
   // disconnect wire parameters
-  if((wires=bt_setup_get_wires_by_dst_machine(setup,self->priv->machine))) {
-    BtWire *wire;
-    GstObject *gain,*pan;
-    GList *node;
-    
-    for(node=wires;node;node=g_list_next(node)) {
-      wire=BT_WIRE(node->data);
-      g_object_get(G_OBJECT(wire),"gain",&gain,"pan",&pan,NULL);
-      if(gain) {
-        g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
-        g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
-        gst_object_unref(gain);
+  if(setup) {
+    if((wires=bt_setup_get_wires_by_dst_machine(setup,self->priv->machine))) {
+      BtWire *wire;
+      GstObject *gain,*pan;
+      GList *node;
+      
+      for(node=wires;node;node=g_list_next(node)) {
+        wire=BT_WIRE(node->data);
+        g_object_get(G_OBJECT(wire),"gain",&gain,"pan",&pan,NULL);
+        if(gain) {
+          g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
+          g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
+          gst_object_unref(gain);
+        }
+        if(pan) {
+          g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
+          g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
+          gst_object_unref(pan);
+        }
+        g_object_unref(wire);
       }
-      if(pan) {
-        g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
-        g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
-        gst_object_unref(pan);
-      }
-      g_object_unref(wire);
+      g_list_free(wires);
     }
-    g_list_free(wires);
   }
   g_object_unref(machine);
-  g_object_unref(setup);
-  g_object_unref(song);
+  g_object_try_unref(setup);
+  g_object_try_unref(song);
 
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
