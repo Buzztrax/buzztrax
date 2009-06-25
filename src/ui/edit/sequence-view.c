@@ -66,22 +66,24 @@ static GtkTreeViewClass *parent_class=NULL;
 
 static gint8 loop_pos_dash_list[]= {4};
 
+#define AREA_REDRAW 1
+
 //-- event handler
 
 //-- helper methods
 
-#if 0
-// this doesn't make the drawing better :(
 static void bt_sequence_view_invalidate(const BtSequenceView *self, gdouble old_pos, gdouble new_pos) {
   gdouble h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
+  GdkRectangle vr;
   gint y;
+  
+  gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(self),&vr);
 
-  y=(gint)(old_pos*h);
-  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,y+1);
-  y=(gint)(new_pos*h);
-  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,y+1);
+  y=(gint)(old_pos*h)-vr.y;;
+  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,2);
+  y=(gint)(new_pos*h)-vr.y;;
+  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,2);
 }
-#endif
 
 //-- constructor methods
 
@@ -245,7 +247,6 @@ static void bt_sequence_view_set_property(GObject      *object,
                               GParamSpec   *pspec)
 {
   BtSequenceView *self = BT_SEQUENCE_VIEW(object);
-  //gdouble old_pos;
 
   return_if_disposed();
   switch (property_id) {
@@ -256,11 +257,11 @@ static void bt_sequence_view_set_property(GObject      *object,
       //GST_DEBUG("set the app for sequence_view: %p",self->priv->app);
     } break;
     case SEQUENCE_VIEW_PLAY_POSITION: {
-      //old_pos = self->priv->play_pos;
+      gdouble old_pos = self->priv->play_pos;
+
       self->priv->play_pos = g_value_get_double(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-	      gtk_widget_queue_draw(GTK_WIDGET(self));
-        //bt_sequence_view_invalidate(self,old_pos,self->priv->play_pos);
+        bt_sequence_view_invalidate(self,old_pos,self->priv->play_pos);
       }
     } break;
     case SEQUENCE_VIEW_LOOP_START: {

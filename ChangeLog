@@ -1,5 +1,11 @@
 2009-06-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/sequence-view.c:
+	  Save 10% cpu on my machine, by only redrawing areas for the playline
+	  instead of repainting the whole treeview.
+
+2009-06-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/machine-methods.h:
 	* src/lib/core/machine.c:
