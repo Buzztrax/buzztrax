@@ -1,3 +1,14 @@
+2009-06-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/gtkvumeter.c:
+	  Only redraw if the new levels are different.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Use strconcat instread of stdup_printf
+
+	* src/ui/edit/main-page-sequence.c:
+	  Attempt to make MSB button a bit smaller even. Does not work.
+
 2009-06-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/sequence-view.c:

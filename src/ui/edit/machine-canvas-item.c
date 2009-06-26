@@ -707,7 +707,7 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   // make this menu item bold (default)
   label=gtk_bin_get_child(GTK_BIN(menu_item));
   if(GTK_IS_LABEL(label)) {
-    gchar *str=g_strdup_printf("<b>%s</b>",gtk_label_get_label(GTK_LABEL(label)));
+    gchar *str=g_strconcat("<b>",gtk_label_get_label(GTK_LABEL(label)),"</b>",NULL);
     if(gtk_label_get_use_underline(GTK_LABEL(label))) {
       gtk_label_set_markup_with_mnemonic(GTK_LABEL(label),str);
     }
@@ -715,6 +715,9 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
       gtk_label_set_markup(GTK_LABEL(label),str);
     }
     g_free(str);
+  }
+  else {
+    GST_WARNING("expecting a GtkLabel as a first child");
   }
   gtk_widget_show(menu_item);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_properties_activate),(gpointer)self);

@@ -581,7 +581,7 @@ static gchar *sequence_format_positions(const BtMainPageSequence *self,gulong po
   return(pos_str);
 }
 
-//-- color shading helper
+//-- gtk helpers
 
 static void widget_shade_bg_color(GtkWidget *widget,GtkStateType state,gfloat rf,gfloat gf,gfloat bf)
 {
@@ -597,6 +597,33 @@ static void widget_shade_bg_color(GtkWidget *widget,GtkStateType state,gfloat rf
   color.blue=(guint16)MIN(c,65535.0);
   gtk_widget_modify_bg(widget,state,&color);
 
+}
+
+static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat bf) {
+  GtkWidget *button;
+
+// the font get smaller, but the buttons don't :/
+#define USE_MARKUP 0
+#if USE_MARKUP
+  GtkWidget *label;
+  button=gtk_toggle_button_new_with_label("");
+  label=gtk_bin_get_child(GTK_BIN(button));
+  if(GTK_IS_LABEL(label)) {
+    gchar *str=g_strconcat("<small>",txt,"</small>",NULL);
+    gtk_label_set_markup (GTK_LABEL (label),str);
+    g_free(str);
+  }
+  else {
+    GST_WARNING("expecting a GtkLabel as a first child");
+  }
+#else
+  button=gtk_toggle_button_new_with_label(txt);
+#endif
+  widget_shade_bg_color(button,GTK_STATE_ACTIVE  ,rf,gf,bf);
+  widget_shade_bg_color(button,GTK_STATE_PRELIGHT,rf,gf,bf);
+  gtk_container_set_border_width(GTK_CONTAINER(button),0);
+
+  return(button);
 }
 
 //-- event handlers
@@ -1285,52 +1312,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       g_free(str);
       gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
 
-      box=gtk_hbox_new(FALSE,0);
-      gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(box),TRUE,TRUE,0);
-      // add M/S/B butons and connect signal handlers
-      // @todo: use colors from ui-resources
-      button=gtk_toggle_button_new_with_label("M"); // red
-      widget_shade_bg_color(button,GTK_STATE_ACTIVE  , 1.2, 1.0/1.25, 1.0/1.25);
-      widget_shade_bg_color(button,GTK_STATE_PRELIGHT, 1.2, 1.0/1.25, 1.0/1.25);
-      gtk_container_set_border_width(GTK_CONTAINER(button),0);
-      gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
-      g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
-      g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_mute), (gpointer)button);
-      if(BT_IS_SOURCE_MACHINE(machine)) {
-        button=gtk_toggle_button_new_with_label("S"); // blue
-        widget_shade_bg_color(button,GTK_STATE_ACTIVE  , 1.0/1.2, 1.0/1.2, 1.1);
-        widget_shade_bg_color(button,GTK_STATE_PRELIGHT, 1.0/1.2, 1.0/1.2, 1.1);
-        gtk_container_set_border_width(GTK_CONTAINER(button),0);
-        gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
-        g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_solo_toggled),(gpointer)machine);
-        g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_solo), (gpointer)button);
-      }
-      if(BT_IS_PROCESSOR_MACHINE(machine)) {
-        button=gtk_toggle_button_new_with_label("B"); // orange
-        widget_shade_bg_color(button,GTK_STATE_ACTIVE,  1.2, 1.0/1.1, 1.0/1.4);
-        widget_shade_bg_color(button,GTK_STATE_PRELIGHT,1.2, 1.0/1.1, 1.0/1.4);
-        gtk_container_set_border_width(GTK_CONTAINER(button),0);
-        gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
-        g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_bypass_toggled),(gpointer)machine);
-        g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_bypass), (gpointer)button);
-      }
-      vumeter=GTK_VUMETER(gtk_vumeter_new(FALSE));
-      gtk_vumeter_set_min_max(vumeter, LOW_VUMETER_VAL, 0);
-      gtk_vumeter_set_levels(vumeter, LOW_VUMETER_VAL, LOW_VUMETER_VAL);
-      // no falloff in widget, we have falloff in GstLevel
-      //gtk_vumeter_set_peaks_falloff(vumeter, GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
-      gtk_vumeter_set_scale(vumeter, GTK_VUMETER_SCALE_LINEAR);
-      gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(vumeter),TRUE,TRUE,0);
-
-      // add level meters to hashtable
-      if(level) {
-        /* @todo: if we have multiple tracks for the same machine, we replace
-         * the entries with eachother
-         */
-        g_hash_table_insert(self->priv->level_to_vumeter,level,vumeter);
-      }
-
-      // disconnedting old handler here would be better, but then we need to differentiate
+      // disconnecting old handler here would be better, but then we need to differentiate
       g_signal_handlers_disconnect_matched(G_OBJECT(machine),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_seq,NULL);
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed_seq),(gpointer)label);
       // we need to remove the signal handler when updating the labels
@@ -1341,6 +1323,48 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
       }
       */
+
+      box=gtk_hbox_new(FALSE,0);
+      gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(box),TRUE,TRUE,0);
+      
+      /* @todo: only do this for first track of a machine
+       * - multiple level-meter views for same machien don't work
+       * - MSB buttons would need to be synced
+       */
+      if (TRUE) {
+        // add M/S/B butons and connect signal handlers
+        // @todo: use colors from ui-resources
+        button=make_mini_button("<small>M</small>",1.2, 1.0/1.25, 1.0/1.25); // red
+        gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
+        g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
+        g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_mute), (gpointer)button);
+
+        if(BT_IS_SOURCE_MACHINE(machine)) {
+          button=make_mini_button("<small>S</small>",1.0/1.2,1.0/1.2,1.1); // blue
+          gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
+          g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_solo_toggled),(gpointer)machine);
+          g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_solo), (gpointer)button);
+        }
+
+        if(BT_IS_PROCESSOR_MACHINE(machine)) {
+          button=make_mini_button("<small>B</small>",1.2,1.0/1.1,1.0/1.4); // orange
+          gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
+          g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_bypass_toggled),(gpointer)machine);
+          g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_bypass), (gpointer)button);
+        }
+        vumeter=GTK_VUMETER(gtk_vumeter_new(FALSE));
+        gtk_vumeter_set_min_max(vumeter, LOW_VUMETER_VAL, 0);
+        gtk_vumeter_set_levels(vumeter, LOW_VUMETER_VAL, LOW_VUMETER_VAL);
+        // no falloff in widget, we have falloff in GstLevel
+        //gtk_vumeter_set_peaks_falloff(vumeter, GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
+        gtk_vumeter_set_scale(vumeter, GTK_VUMETER_SCALE_LINEAR);
+        gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(vumeter),TRUE,TRUE,0);
+  
+        // add level meters to hashtable
+        if(level) {
+          g_hash_table_insert(self->priv->level_to_vumeter,level,vumeter);
+        }
+      }
     }
     else {
       header=gtk_label_new("???");

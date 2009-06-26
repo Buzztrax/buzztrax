@@ -427,12 +427,17 @@ void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint min, gint max)
  */
 void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak)
 {
+    gint old_rms_level = vumeter->rms_level;
+    gint old_peak_level = vumeter->peak_level;
+    
     g_return_if_fail (GTK_IS_VUMETER (vumeter));
 
     vumeter->rms_level = CLAMP (rms, vumeter->min, vumeter->max);
     vumeter->peak_level = CLAMP (peak, vumeter->min, vumeter->max);
-
-    gtk_widget_queue_draw (GTK_WIDGET(vumeter));
+    
+    if ((old_rms_level != vumeter->rms_level) && (old_peak_level != vumeter->peak_level)) {
+      gtk_widget_queue_draw (GTK_WIDGET(vumeter));
+    }
 }
 
 /**
