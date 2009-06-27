@@ -1330,8 +1330,9 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(box),TRUE,TRUE,0);
       
       /* @todo: only do this for first track of a machine
-       * - multiple level-meter views for same machien don't work
+       * - multiple level-meter views for same machine don't work
        * - MSB buttons would need to be synced
+       * we could put all machines we use in a temp hashtable
        */
       if (TRUE) {
         // add M/S/B butons and connect signal handlers
@@ -2271,6 +2272,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         //self->priv->sequence_length+=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
+        //sequence_calculate_visible_lines(self);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
         res=TRUE;
@@ -2281,6 +2283,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         self->priv->sequence_length+=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
+        sequence_calculate_visible_lines(self);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
         res=TRUE;
@@ -2293,6 +2296,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         //self->priv->sequence_length-=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
+        //sequence_calculate_visible_lines(self);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
         res=TRUE;
@@ -2303,6 +2307,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         self->priv->sequence_length-=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
+        sequence_calculate_visible_lines(self);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
         res=TRUE;

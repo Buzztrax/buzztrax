@@ -1,5 +1,10 @@
 2009-06-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Apdate loop/length bars when ins/del full lines.
+
+2009-06-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/wire.c:
 	  Add some comments about GAP-awareness.
