@@ -56,6 +56,9 @@
  *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
+ * - hovering the mouse over the treeview causes rebraws for the whole lines
+ *   - cells are asked to do prelight, even if they wouldn't draw anything else
+ *   http://www.gtk.org/plan/meetings/20041025.txt
  */
 
 #define BT_EDIT
@@ -138,7 +141,7 @@ struct _BtMainPageSequencePrivate {
   GstClock *clock;
 
   /* step filtering */
-  gulong list_length;     /* number of [dummy] rows contained in the model */
+  gulong sequence_length;     /* number of [dummy] rows contained in the model */
   glong row_filter_pos;   /* the number of visible (not-filtered) rows */
 
   /* signal handler id's */
@@ -517,7 +520,7 @@ static void sequence_model_recolorize(const BtMainPageSequence *self) {
   if((store=sequence_model_get_store(self))) {
     if(gtk_tree_model_get_iter_first(store,&iter)) {
       filter_pos=self->priv->row_filter_pos;
-      self->priv->row_filter_pos=self->priv->list_length;
+      self->priv->row_filter_pos=self->priv->sequence_length;
       do {
         if(step_visible_filter(store,&iter,(gpointer)self)) {
           if(odd_row) {
@@ -583,8 +586,7 @@ static gchar *sequence_format_positions(const BtMainPageSequence *self,gulong po
 
 //-- gtk helpers
 
-static void widget_shade_bg_color(GtkWidget *widget,GtkStateType state,gfloat rf,gfloat gf,gfloat bf)
-{
+static void widget_shade_bg_color(GtkWidget *widget,GtkStateType state,gfloat rf,gfloat gf,gfloat bf) {
   GtkStyle *style=gtk_widget_get_style(widget);
   GdkColor color=style->bg[state];
   gfloat c;
@@ -1135,7 +1137,7 @@ static void sequence_table_refresh_labels(const BtMainPageSequence *self) {
 
   g_object_get(G_OBJECT(self->priv->sequence),"length",&timeline_ct,NULL);
 
-  for(i=0;i<self->priv->list_length;i++) {
+  for(i=0;i<self->priv->sequence_length;i++) {
     pos_str=sequence_format_positions(self,i);
     if( i < timeline_ct ) {
       // set label
@@ -1211,7 +1213,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   g_free(store_types);
 
   // add patterns
-  for(i=0;i<self->priv->list_length;i++) {
+  for(i=0;i<self->priv->sequence_length;i++) {
     gtk_list_store_append(store, &tree_iter);
 
     pos_str=sequence_format_positions(self,i);
@@ -1334,20 +1336,20 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       if (TRUE) {
         // add M/S/B butons and connect signal handlers
         // @todo: use colors from ui-resources
-        button=make_mini_button("<small>M</small>",1.2, 1.0/1.25, 1.0/1.25); // red
+        button=make_mini_button("M",1.2, 1.0/1.25, 1.0/1.25); // red
         gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
         g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
         g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_mute), (gpointer)button);
 
         if(BT_IS_SOURCE_MACHINE(machine)) {
-          button=make_mini_button("<small>S</small>",1.0/1.2,1.0/1.2,1.1); // blue
+          button=make_mini_button("S",1.0/1.2,1.0/1.2,1.1); // blue
           gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
           g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_solo_toggled),(gpointer)machine);
           g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_solo), (gpointer)button);
         }
 
         if(BT_IS_PROCESSOR_MACHINE(machine)) {
-          button=make_mini_button("<small>B</small>",1.2,1.0/1.1,1.0/1.4); // orange
+          button=make_mini_button("B",1.2,1.0/1.1,1.0/1.4); // orange
           gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
           g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_bypass_toggled),(gpointer)machine);
           g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_bypass), (gpointer)button);
@@ -1981,12 +1983,12 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
         GtkTreeModelFilter *filtered_store;
 
         self->priv->row_filter_pos += self->priv->bars;
-        if( self->priv->row_filter_pos > self->priv->list_length ) {
+        if( self->priv->row_filter_pos > self->priv->sequence_length ) {
           BtSong *song;
 
           g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 
-          self->priv->list_length+=SEQUENCE_ROW_ADDITION_INTERVAL;
+          self->priv->sequence_length+=SEQUENCE_ROW_ADDITION_INTERVAL;
           sequence_table_refresh(self,song);
           sequence_model_recolorize(self);
           // this got invalidated by _refresh()
@@ -2111,7 +2113,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
           break;
         case GDK_Down:
           // we expand length
-          //if(self->priv->cursor_row<self->priv->list_length) {
+          //if(self->priv->cursor_row<self->priv->sequence_length) {
             self->priv->cursor_row+=self->priv->bars;
             changed=TRUE;
           //}
@@ -2266,7 +2268,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       if(modifier==0) {
         GST_INFO("insert pressed, row %lu, track %lu",row,track-1);
         bt_sequence_insert_rows(self->priv->sequence,row,track-1,self->priv->bars);
-        //self->priv->list_length+=self->priv->bars;
+        //self->priv->sequence_length+=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
@@ -2276,7 +2278,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       else if(modifier==GDK_SHIFT_MASK) {
         GST_INFO("shift-insert pressed, row %lu",row);
         bt_sequence_insert_full_rows(self->priv->sequence,row,self->priv->bars);
-        self->priv->list_length+=self->priv->bars;
+        self->priv->sequence_length+=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
@@ -2288,7 +2290,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       if(modifier==0) {
         GST_INFO("delete pressed, row %lu, track %lu",row,track-1);
         bt_sequence_delete_rows(self->priv->sequence,row,track-1,self->priv->bars);
-        //self->priv->list_length-=self->priv->bars;
+        //self->priv->sequence_length-=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
@@ -2298,7 +2300,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       else if(modifier==GDK_SHIFT_MASK) {
         GST_INFO("shift-delete pressed, row %lu",row);
         bt_sequence_delete_full_rows(self->priv->sequence,row,self->priv->bars);
-        self->priv->list_length-=self->priv->bars;
+        self->priv->sequence_length-=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
@@ -2718,8 +2720,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_try_unref(self->priv->sequence);
   g_object_get(G_OBJECT(song),"song-info",&song_info,"setup",&setup,"sequence",&self->priv->sequence,"bin", &bin,NULL);
   g_object_get(G_OBJECT(self->priv->sequence),"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
-  // make list_length and step_filter_pos accord to song length
-  self->priv->list_length=self->priv->row_filter_pos=sequence_length;
+  // make sequence_length and step_filter_pos accord to song length
+  self->priv->sequence_length=self->priv->row_filter_pos=sequence_length;
 
   // reset vu-meter hash (rebuilt below)
   if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
@@ -3307,7 +3309,7 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
   self->priv->selection_end_column=-1;
   self->priv->selection_end_row=-1;
   self->priv->row_filter_pos=SEQUENCE_ROW_ADDITION_INTERVAL;
-  self->priv->list_length=SEQUENCE_ROW_ADDITION_INTERVAL;
+  self->priv->sequence_length=SEQUENCE_ROW_ADDITION_INTERVAL;
   
   self->priv->lock=g_mutex_new ();
 }

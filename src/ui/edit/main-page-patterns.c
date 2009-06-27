@@ -62,6 +62,9 @@
  *       - on keyup, return 'cursor' to that column
  *     - what keys to use for trigger columns?
  *     - should we use shift+note for secondary note in same track (e.g. slide)
+ *
+ * - when entering a wave number, its useful to switch the combo to that wave
+ *   too, so that subsequent note entries will use that wave
  */
 
 #define BT_EDIT

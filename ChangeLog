@@ -1,3 +1,12 @@
+2009-06-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	  Add some comments about GAP-awareness.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Remove some leftover text (<small>) from testing. Some whitespace cleanup.
+
 2009-06-27  Krzysztof Foltman  <kfoltman@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

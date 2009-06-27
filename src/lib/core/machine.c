@@ -118,6 +118,7 @@ enum {
   MACHINE_STATE
 };
 
+// adder, capsfiter, level, volume are gap-aware
 typedef enum {
   /* utillity elements to allow multiple inputs */
   PART_ADDER=0,

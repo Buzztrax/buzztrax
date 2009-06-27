@@ -62,6 +62,7 @@ enum {
   WIRE_ANALYZERS
 };
 
+// capsfiter, convert, pan, volume are gap-aware
 typedef enum {
   /* source element in the wire for convinience */
   PART_SRC=0,
