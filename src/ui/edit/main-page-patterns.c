@@ -71,6 +71,7 @@
 
 enum {
   MAIN_PAGE_PATTERNS_APP=1,
+  MAX_WAVETABLE_ITEMS=200,
 };
 
 struct _BtMainPagePatternsPrivate {
@@ -131,6 +132,8 @@ struct _BtMainPagePatternsPrivate {
   /* signal handler ids */
   gint pattern_length_changed,pattern_voices_changed;
   gint pattern_menu_changed;
+  
+  gint wave_to_combopos[MAX_WAVETABLE_ITEMS + 2], combopos_to_wave[MAX_WAVETABLE_ITEMS + 2];
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -1060,14 +1063,18 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
   gchar *str,hstr[3];
   GtkListStore *store;
   GtkTreeIter menu_iter;
-  gint i,index=-1;
+  gint i,index=-1, count = 0;
 
   // update pattern menu
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
 
   //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
+  for(i=1;i<=200;i++)
+    self->priv->wave_to_combopos[i] = self->priv->combopos_to_wave[i] = -1;
   for(i=1;i<=200;i++) {
     if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
+      self->priv->wave_to_combopos[i] = count;
+      self->priv->combopos_to_wave[count] = i;
       gtk_list_store_append(store, &menu_iter);
       g_object_get(G_OBJECT(wave),"name",&str,NULL);
       GST_INFO("  adding [%3d] \"%s\"",i,str);
@@ -1077,6 +1084,7 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
       g_free(str);
       g_object_unref(wave);
       if(index==-1) index=i-1;
+      count++;
     }
   }
   GST_INFO("  index=%d",index);
@@ -1223,17 +1231,17 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       }
       // if machine can play wave, lookup wave column and enter wave index
       if(update_wave) {
-        const gchar *wave_str;
+        const gchar *wave_str = "";
         glong wave_param=-1;
   
         if(BT_IS_STRING(str)) {
-          guint wave_ix=1+gtk_combo_box_get_active(self->priv->wavetable_menu);
-          if(!wave_ix) wave_ix=1;
-          wave_str=bt_persistence_strfmt_ulong(wave_ix);
+          gint wave_ix=gtk_combo_box_get_active(self->priv->wavetable_menu);
+          if (wave_ix >= 0)
+          {
+            wave_ix = self->priv->combopos_to_wave[wave_ix];
+            wave_str=bt_persistence_strfmt_ulong(wave_ix);
+          }
           GST_DEBUG("wav index: %d, %s",wave_ix,wave_str);
-        }
-        else {
-          wave_str="";
         }
   
         switch (group->type) {
@@ -1274,7 +1282,9 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
           break;
       }
       if (wave_param == param) {
-        gtk_combo_box_set_active(self->priv->wavetable_menu, value - 1);
+        int v = (int)value;
+        if (value >= 0 && v < MAX_WAVETABLE_ITEMS + 2 && self->priv->wave_to_combopos[v] != -1)
+          gtk_combo_box_set_active(self->priv->wavetable_menu, self->priv->wave_to_combopos[v]);
       }
     }
     g_object_unref(machine);
@@ -2794,6 +2804,7 @@ static void bt_main_page_patterns_finalize(GObject *object) {
 
 static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(instance);
+  int i;
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_PATTERNS, BtMainPagePatternsPrivate);
 
@@ -2805,6 +2816,8 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
   self->priv->selection_end_row=-1;
 
   self->priv->base_octave=4;
+  for (i = 0; i < MAX_WAVETABLE_ITEMS + 2; i++)
+    self->priv->wave_to_combopos[i] = self->priv->combopos_to_wave[i] = -1;
 }
 
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
