@@ -696,7 +696,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
   {
     PatternColumn *col = &self->groups[self->group].columns[self->parameter];
     if (event->keyval == '.') {
-      self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, col->def);
+      self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, col->def);
       advance(self);
     }
     else {
@@ -711,7 +711,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         break;
       case PCT_SWITCH:
         if (event->keyval == '0' || event->keyval == '1') {
-          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, event->keyval - '0');
+          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, event->keyval - '0');
           advance(self);
         }
         break;
@@ -727,14 +727,14 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           if (value < col->min) value = col->min;
           if (value > col->max) value = col->max;
           
-          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, value);
+          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
           advance(self);
         }
         break;
       case PCT_NOTE:
         if (self->digit == 0 && event->keyval == '1') {
           // note off
-          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, 255);
+          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, 255);
           advance(self);
           break;
         }
@@ -747,7 +747,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             if (value > col->max) value = col->max;
             
             if (value >= col->min && value <= col->max && (value & 15) <= 12) {
-              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, value);
+              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
               advance(self);
             }
           }
@@ -761,7 +761,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             
             // note range = 1..12 and not 0..11
             if (value >= col->min && value <= col->max && (value & 15) <= 12) {
-              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, value);
+              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
               advance(self);
             }
           }

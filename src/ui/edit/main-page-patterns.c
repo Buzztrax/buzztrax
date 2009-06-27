@@ -1141,7 +1141,7 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
   return group->columns[param].def;
 }
 
-static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param, float value) {
+static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param, int digit, float value) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   const gchar *str = NULL;
   PatternColumnGroup *group = &self->priv->param_groups[track];
@@ -1226,11 +1226,9 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       }
       switch(group->columns[param].type) {
         case PCT_NOTE:
-          // do not update the wave, if only the ocave was edited
-          if(BT_IS_STRING(old_str) && BT_IS_STRING(str)) {
-            if((old_str[0]==str[0]) && (old_str[1]==str[1])) {
-              update_wave=FALSE;
-            }
+          // do not update the wave if it's an octave column or if the new value is 'off'
+          if(digit != 0 || value == 255) {
+            update_wave=FALSE;
           }
           break;
         case PCT_SWITCH:

@@ -69,7 +69,7 @@ typedef struct _BtPatternEditorCallbacks
    * - PatternColumnGroup instead of track;
    */
   float (*get_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param);
-  void (*set_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param, float value);
+  void (*set_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param, int digit, float value);
   void (*notify_cursor_func)(gpointer pattern_data, int row, int group, int param, int digit);
 } BtPatternEditorCallbacks;
 
