@@ -1181,6 +1181,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   GtkTreeIter tree_iter;
   GtkTreeViewColumn *tree_col;
   gboolean free_str;
+  GHashTable *machine_usage;
 
   GST_INFO("refresh sequence table");
 
@@ -1265,6 +1266,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   sequence_table_init(self);
 
   // add column for each machine
+  machine_usage=g_hash_table_new(NULL,NULL);
   for(j=0;j<track_ct;j++) {
     machine=bt_sequence_get_machine(self->priv->sequence,j);
     renderer=gtk_cell_renderer_text_new();
@@ -1329,12 +1331,12 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       box=gtk_hbox_new(FALSE,0);
       gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(box),TRUE,TRUE,0);
       
-      /* @todo: only do this for first track of a machine
+      /* only do this for first track of a machine
        * - multiple level-meter views for same machine don't work
        * - MSB buttons would need to be synced
-       * we could put all machines we use in a temp hashtable
        */
-      if (TRUE) {
+      if (!g_hash_table_lookup(machine_usage,machine)) {
+        g_hash_table_insert(machine_usage,machine,machine);
         // add M/S/B butons and connect signal handlers
         // @todo: use colors from ui-resources
         button=make_mini_button("M",1.2, 1.0/1.25, 1.0/1.25); // red
@@ -1399,6 +1401,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     else GST_WARNING("can't create treeview column");
     g_object_try_unref(machine);
   }
+  g_hash_table_destroy(machine_usage);
 
   // add a final column that eats remaining space
   renderer=gtk_cell_renderer_text_new();

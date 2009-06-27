@@ -1,7 +1,13 @@
+2009-06-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Have MSB-buttons & meter only in the header for the first instance of the
+	  machine.
+
 2009-06-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
-	  Apdate loop/length bars when ins/del full lines.
+	  Update loop/length bars when ins/del full lines.
 
 2009-06-27  Stefan Kost  <ensonic@users.sf.net>
 
