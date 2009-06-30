@@ -1099,7 +1099,6 @@ static gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, con
 
     // attatch a signal handler if this is the first usage
     if(bt_sequence_get_number_of_pattern_uses(self,pattern)==1) {
-      
       //GST_INFO("subscribing to changes for pattern %p",pattern);
       g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
       g_signal_connect(G_OBJECT(pattern),"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
@@ -1223,8 +1222,8 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
     // unref patterns
     if(*dst) {
       GST_INFO("unref pattern: %p,refs=%d at timeline %lu", *dst,(G_OBJECT(*dst))->ref_count,i);
+      g_object_unref(*dst);
     }
-    g_object_try_unref(*dst);
     if(count) {
       memmove(dst,src,count*sizeof(gpointer));
     }
@@ -1264,7 +1263,7 @@ gboolean bt_sequence_move_track_left(const BtSequence * const self, const gulong
   g_return_val_if_fail(track>0,FALSE);
   
   for(i=0;i<self->priv->length;i++) {
-    pattern=self->priv->patterns[track];
+    pattern=self->priv->patterns[ix];
     self->priv->patterns[ix]=self->priv->patterns[ix-1];
     self->priv->patterns[ix-1]=pattern;
     ix+=self->priv->tracks;
@@ -1293,7 +1292,7 @@ gboolean bt_sequence_move_track_right(const BtSequence * const self, const gulon
   g_return_val_if_fail(track<(self->priv->tracks-1),FALSE);
   
   for(i=0;i<self->priv->length;i++) {
-    pattern=self->priv->patterns[track];
+    pattern=self->priv->patterns[ix];
     self->priv->patterns[ix]=self->priv->patterns[ix+1];
     self->priv->patterns[ix+1]=pattern;
     ix+=self->priv->tracks;

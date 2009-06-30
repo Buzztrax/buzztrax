@@ -2382,6 +2382,11 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       }
     }
     else {
+#ifndef GST_DISABLE_GST_DEBUG
+      if(G_VALUE_TYPE(value)!=GLOBAL_PARAM_TYPE(param)) {
+        GST_INFO(" wrong type for global property %s, type=%s, but expecting %s",self->priv->id,g_type_name(G_VALUE_TYPE(value)),g_type_name(GLOBAL_PARAM_TYPE(param)));
+      }
+#endif
       if(add) {
         GstController *ctrl=bt_gst_object_activate_controller(param_parent, param_name, bt_machine_is_global_param_trigger(self,param));
     
@@ -2462,6 +2467,11 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
       }
     }
     else {
+#ifndef GST_DISABLE_GST_DEBUG
+      if(G_VALUE_TYPE(value)!=VOICE_PARAM_TYPE(param)) {
+        GST_INFO(" wrong type for voice property %s, type=%s, but expecting %s",self->priv->id,g_type_name(G_VALUE_TYPE(value)),g_type_name(GLOBAL_PARAM_TYPE(param)));
+      }
+#endif
       if(add) {
         GstController *ctrl=bt_gst_object_activate_controller(param_parent, param_name, bt_machine_is_voice_param_trigger(self,param));
 
