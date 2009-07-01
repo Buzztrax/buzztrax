@@ -65,7 +65,14 @@
 #include "core_private.h"
 
 // if a state change not happens within this time, cancel playback
+// this includes prerolling
+#ifndef USE_HILDON
+// 30 seconds for now
 #define BT_SONG_STATE_CHANGE_TIMEOUT (30*1000)
+#else
+// 60 seconds for now
+#define BT_SONG_STATE_CHANGE_TIMEOUT (60*1000)
+#endif
 
 /* @todo: if we could only go to ready when doing STOP, we could keep the
  * jack linkage alive (see #ifdef USE_READY_FOR_STOPPED)

@@ -299,8 +299,10 @@ PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
   AC_DEFINE(USE_GSF, [1], [Define to 1 if we can use gsf libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSF_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSF_DEPS_LIBS"
+    use_gsf=yes
   ],[
     AM_CONDITIONAL(USE_GSF, false)
+    use_gsf=no
   ]
 )
 
@@ -502,6 +504,7 @@ Configuration
 	HAL for interaction ctrl.       : ${use_hal}
 	Linux HID for interaction ctrl. : ${have_linux_input_h}
 	Buzzmachine Host support        : ${use_bml}
+	Zipped Song file support (bzt)  : ${use_gsf}
 	Hildon Desktop Integration      : ${use_hildon}
         
 	Debug                           : ${enable_debug}

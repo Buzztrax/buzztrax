@@ -212,7 +212,13 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
       gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
       GST_INFO("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
         chunk, (chunk/G_GINT64_CONSTANT(1000)));
-      g_object_set(sink,"latency-time",chunk,"buffer-time",chunk<<1,NULL);
+      g_object_set(sink,
+        "latency-time",chunk,
+        "buffer-time",chunk<<1,
+#if GST_CHECK_VERSION(0,10,24)
+        /*TEST "can-activate-pull",TRUE, TEST*/
+#endif
+        NULL);
     }
   }
 }
