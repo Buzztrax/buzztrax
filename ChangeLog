@@ -1,5 +1,16 @@
 2009-07-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* po/LINGUAS:
+	* po/nn.po:
+	* po/nn.po (added):
+	  Add new translation.
+	  
+	* configure.ac:
+	* src/lib/core/libbuzztard-core/core.h:
+	  Add a few comments for using appsrc/appsink (too new yet).
+
+2009-07-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song-io-native-bzt.c:
 	* src/lib/core/wave.c:
 	  Fix wave saving in the case of imported bmx files and in the case we

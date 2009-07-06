@@ -233,6 +233,7 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   gstreamer-base-0.10 >= 0.10.10 \
   gstreamer-plugins-base-0.10 >= 0.10.10 \
 )
+# gstreamer-app-0.10 >= 0.10.22
 
 PKG_CHECK_MODULES(GUI_DEPS, \
   gtk+-2.0 >= 2.6.0 \
