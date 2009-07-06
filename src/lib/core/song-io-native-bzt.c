@@ -165,11 +165,48 @@ gboolean bt_song_io_native_bzt_copy_from_uri(const BtSongIONativeBZT * const sel
     gchar *src_file_name;
     gchar *bytes;
     gsize size;
+    gboolean have_data=FALSE;
+    
+    GST_INFO("src uri : %s",uri);
     
     // @idea: what about using gio here 
     src_file_name=g_filename_from_uri(uri,NULL,NULL);
+    if(src_file_name) {
+      if(g_file_get_contents(src_file_name,&bytes,&size,&err)) {
+        have_data=TRUE;
+      }
+      else {
+        GST_ERROR("error reading data \"%s\" : %s",file_name,err->message);
+        g_error_free(err);
+      }
+    }
+    else {
+      if(g_str_has_prefix(uri,"fd://")) {
+        struct stat buf={0,};
+        gint fd;
+
+        sscanf (uri, "fd://%d", &fd);
+        GST_INFO("read data from file-deskriptor: fd=%d",fd);
+        
+        if(!(fstat(fd, &buf))) {
+          if((bytes=g_try_malloc(buf.st_size))) {
+            if(lseek(fd,0,SEEK_SET) == 0) {
+              size=read(fd,bytes,buf.st_size);
+              if(size!=buf.st_size) {
+                GST_WARNING("did not write all data");
+              }
+              have_data=TRUE;
+            }
+            else {
+              GST_WARNING("can't seek in filedeskriptor");
+            }
+          }
+        }
+      }
+    }
     
-    if(g_file_get_contents(src_file_name,&bytes,&size,&err)) {
+    if(have_data) {
+      GST_INFO("write %d bytes to sample file", size);
       if(gsf_output_write(data, (size_t)size, (guint8 const *)bytes)) {
         res=TRUE;
       }
@@ -177,10 +214,6 @@ gboolean bt_song_io_native_bzt_copy_from_uri(const BtSongIONativeBZT * const sel
         GST_ERROR("error writing data \"%s\"",file_name);
       }
       g_free(bytes);
-    }
-    else {
-      GST_ERROR("error reading data \"%s\" : %s",file_name,err->message);
-      g_error_free(err);
     }
     g_free(src_file_name);
     gsf_output_close(data);

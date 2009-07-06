@@ -458,10 +458,11 @@ void bt_main_window_new_song(const BtMainWindow *self) {
  */
 void bt_main_window_open_song(const BtMainWindow *self) {
   BtSettings *settings;
-  GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Open a song"),GTK_WINDOW(self),GTK_FILE_CHOOSER_ACTION_OPEN,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-				      NULL);
+  GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Open a song"),GTK_WINDOW(self),
+    GTK_FILE_CHOOSER_ACTION_OPEN,
+    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+    NULL);
   gint result;
   gchar *folder_name,*file_name=NULL;
   GtkFileFilter *filter,*filter_all;
@@ -595,10 +596,11 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   gchar *name,*folder_name,*file_name=NULL;
   gchar *old_file_name=NULL;
   gint result;
-  GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Save a song"),GTK_WINDOW(self),GTK_FILE_CHOOSER_ACTION_SAVE,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-				      NULL);
+  GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Save a song"),GTK_WINDOW(self),
+    GTK_FILE_CHOOSER_ACTION_SAVE,
+    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+    GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+    NULL);
   GtkFileFilter *filter;
   GList *filters=NULL;
   const GList *plugins, *node;
@@ -617,7 +619,8 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       //gtk_file_filter_add_pattern(filter,info->formats[ix].extension);
       gtk_file_filter_add_pattern(filter,g_strconcat("*.",info->formats[ix].extension,NULL));
       gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
-      GST_DEBUG("add filter for %s/%s/%s",
+      GST_DEBUG("add filter %p for %s/%s/%s",
+        filter,
         info->formats[ix].name,
         info->formats[ix].mime_type,
         info->formats[ix].extension);
@@ -653,7 +656,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     for(node=filters;node;node=g_list_next(node)) {
       filter=node->data;
       if(gtk_file_filter_filter(filter,&ffi)) {
-        GST_DEBUG("use last path %s, format is '%s'",file_name,gtk_file_filter_get_name(filter));
+        GST_DEBUG("use last path %s, format is '%s', filter %p",file_name,gtk_file_filter_get_name(filter),filter);
         gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter);
         found=TRUE;
         break;
@@ -674,8 +677,8 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
             if(!strcmp(ext,info->formats[ix].extension)) {
               filter=fnode->data;
               /* @todo: it matches, but this does not update the dialog */
+              GST_DEBUG("format is '%s', filter %p",gtk_file_filter_get_name(filter),filter);
               gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter);
-              GST_DEBUG("format is '%s'",gtk_file_filter_get_name(filter));
               found=TRUE;
             }
             else {

@@ -120,19 +120,45 @@ GType bt_wave_loop_mode_get_type(void) {
 
 //-- helper
 
+static void on_wave_io_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  GError *err = NULL;
+  gchar *dbg = NULL;
+  
+  gst_message_parse_error(message, &err, &dbg);
+  GST_WARNING ("ERROR: %s (%s)", err->message, (dbg) ? dbg : "no details");
+  g_error_free (err);
+  g_free (dbg);
+  
+  //g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
+  //wave_loader_free(self);
+}
+
+static void on_wave_io_warning(const GstBus * const bus, GstMessage * message, gconstpointer user_data) {
+  GError *err = NULL;
+  gchar *dbg = NULL;
+  
+  gst_message_parse_warning(message, &err, &dbg);
+  GST_WARNING ("WARNING: %s (%s)", err->message, (dbg) ? dbg : "no details");
+  g_error_free (err);
+  g_free (dbg);
+  
+  //g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
+  //wave_loader_free(self);
+}
+
 static void wave_loader_free(const BtWave *self) {
   if(self->priv->pipeline) {
     gst_object_unref(self->priv->pipeline);
     self->priv->pipeline=NULL;
     self->priv->fmt=NULL;
   }
-  if(self->priv->fd!=-1) {
-    close(self->priv->fd);
-    self->priv->fd=-1;
-  }
   if(self->priv->ext_fd!=-1) {
     close(self->priv->ext_fd);
     self->priv->ext_fd=-1;
+  }
+  if(self->priv->fd!=-1) {
+    close(self->priv->fd);
+    self->priv->fd=-1;
   }
 }
 
@@ -160,7 +186,7 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
   // get caps for sample rate and channels 
   if((pad=gst_element_get_static_pad(self->priv->fmt,"src"))) {
     caps=GST_PAD_CAPS(pad);
-    if(GST_CAPS_IS_SIMPLE(caps)) {
+    if(caps && GST_CAPS_IS_SIMPLE(caps)) {
       GstStructure *structure = gst_caps_get_structure(caps,0);
       
       gst_structure_get_int(structure,"channels",&channels);
@@ -168,7 +194,7 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
       length=gst_util_uint64_scale(duration,(guint64)rate,GST_SECOND);
     }
     else {
-      GST_WARNING("Format has not been fixed.");
+      GST_WARNING("No caps or format has not been fixed.");
     }
     gst_object_unref(pad);
   }
@@ -214,33 +240,6 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
   }
   
   gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
-  wave_loader_free(self);
-}
-
-static void on_wave_loader_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
-  GError *err = NULL;
-  gchar *dbg = NULL;
-  
-  gst_message_parse_error(message, &err, &dbg);
-  GST_WARNING ("ERROR: %s (%s)", err->message, (dbg) ? dbg : "no details");
-  g_error_free (err);
-  g_free (dbg);
-  
-  //g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
-  //wave_loader_free(self);
-}
-
-static void on_wave_loader_warning(const GstBus * const bus, GstMessage * message, gconstpointer user_data) {
-  GError *err = NULL;
-  gchar *dbg = NULL;
-  
-  gst_message_parse_warning(message, &err, &dbg);
-  GST_WARNING ("WARNING: %s (%s)", err->message, (dbg) ? dbg : "no details");
-  g_error_free (err);
-  g_free (dbg);
-  
-  //g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
-  //wave_loader_free(self);
 }
 
 /*
@@ -257,7 +256,7 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   GstElement *src,*dec,*conv,*sink;
   GstBus *bus;
   GstCaps *caps;
-  
+
   GST_INFO("about to load sample %s / %s",self->priv->uri,uri);
 
   // check if the url is valid
@@ -313,22 +312,151 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
    */
   
   bus=gst_element_get_bus(self->priv->pipeline);
-  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect(bus, "message::error", G_CALLBACK(on_wave_loader_error), (gpointer)self);
-  g_signal_connect(bus, "message::warning", G_CALLBACK(on_wave_loader_warning), (gpointer)self);
+  gst_bus_add_signal_watch_full(bus, G_PRIORITY_HIGH);
+  g_signal_connect(bus, "message::error", G_CALLBACK(on_wave_io_error), (gpointer)self);
+  g_signal_connect(bus, "message::warning", G_CALLBACK(on_wave_io_warning), (gpointer)self);
   g_signal_connect(bus, "message::eos", G_CALLBACK(on_wave_loader_eos), (gpointer)self);
   gst_object_unref(bus);
   
-  // play and wait for EOS 
+  // play and wait for EOS
   if(gst_element_set_state(self->priv->pipeline,GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING ("Can't set wave loader pipeline for %s / %s to playing",self->priv->uri,uri);
     gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
     res=FALSE;
   }
+  
+  /* no need to *wait* for eos, we fire loading done signal */
 
 Error:
   return(res);
 }
+
+
+/* bt_wave_save_to_fd:
+ *
+ * Write the sample data as a wav to a filedescriptor and keep it open
+ */
+static gboolean bt_wave_save_to_fd(const BtWave * const self) {
+  gboolean res=TRUE;
+  GstElement *pipeline;
+  GstElement *src,*fmt,*enc,*sink;
+  BtWavelevel *wavelevel;
+  GstBus *bus;
+  GstCaps *caps;
+  //gchar *fn_wav;
+  gulong srate,length,size,written;
+  gint16 *data;
+  gint fd;
+
+  //fn_wav=g_strdup_printf("%s" G_DIR_SEPARATOR_S "XXXXXX",g_get_tmp_dir());
+  fd=fileno(tmpfile());
+  self->priv->ext_fd=fileno(tmpfile());
+  //self->priv->ext_fd=mkstemp(fn_wav);
+  //g_free(fn_wav);
+
+  // the data is in the wave-level :/
+  wavelevel=BT_WAVELEVEL(self->priv->wavelevels->data);
+  g_object_get(wavelevel,
+    "data",&data,
+    "length",&length,
+    "rate",&srate,
+    NULL);
+  size=length*self->priv->channels*sizeof(gint16);
+  GST_INFO("about to format data as wav to fd=%d, %d bytes to write",self->priv->ext_fd, size);
+
+  // create saver pipeline
+  pipeline=gst_pipeline_new("wave-saver");
+  src=gst_element_factory_make("fdsrc",NULL);
+  fmt=gst_element_factory_make("capsfilter",NULL);
+  enc=gst_element_factory_make("wavenc",NULL);
+  sink=gst_element_factory_make("fdsink",NULL);
+  GST_DEBUG("%p ! %p ! %p ! %p",src,fmt,enc,sink);
+
+  // configure elements
+  caps=gst_caps_new_simple("audio/x-raw-int",
+    "rate", G_TYPE_INT,srate,
+    "channels",G_TYPE_INT,self->priv->channels,
+    "width",G_TYPE_INT,16,
+    "endianness",G_TYPE_INT,G_BYTE_ORDER,
+    "signed",G_TYPE_BOOLEAN,TRUE,
+    NULL);
+  g_object_set(fmt,"caps",caps,NULL);
+  gst_caps_unref(caps);
+
+  g_object_set(src,"fd",fd,"num-buffers",1,"blocksize",size,NULL);
+  g_object_set(sink,"fd",self->priv->ext_fd,"sync",FALSE,NULL);
+
+  // add and link
+  gst_bin_add_many(GST_BIN(pipeline),src,fmt,enc,sink,NULL);
+  res=gst_element_link_many(src,fmt,enc,sink,NULL);
+  if(!res) {
+    GST_WARNING ("Can't link wave loader pipeline (src ! dec).");
+    goto Error;
+  }
+
+  bus=gst_element_get_bus(pipeline);
+  //gst_bus_add_signal_watch_full(bus, G_PRIORITY_HIGH);
+  //g_signal_connect(bus, "message::error", G_CALLBACK(on_wave_io_error), (gpointer)self);
+  //g_signal_connect(bus, "message::warning", G_CALLBACK(on_wave_io_warning), (gpointer)self);
+
+  GST_INFO("run pipeline");
+
+  written=write(fd,data,size);
+  size-=written;
+  GST_INFO("wrote %d, todo %d",written, size);
+  lseek(fd,0,SEEK_SET);
+
+  // play and wait for EOS 
+  if(gst_element_set_state(pipeline,GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING ("Can't set wave saver pipeline for to playing");
+    gst_element_set_state(pipeline,GST_STATE_NULL);
+    res=FALSE;
+  }
+  else {
+    GstMessage *msg;
+
+    // we have num-buffers
+    //gst_element_send_event(src,gst_event_new_eos());
+
+    // we need to run this sync'ed with eos
+    GST_INFO("waiting for EOS");
+
+    msg=gst_bus_poll(bus,GST_MESSAGE_EOS,GST_CLOCK_TIME_NONE);
+    if(msg) {
+      gst_message_unref(msg);
+    }
+  }
+
+  gst_object_unref(bus);
+  gst_element_set_state(pipeline,GST_STATE_NULL);
+  close(fd);
+
+  GST_INFO("sample saved");
+
+Error:
+  return(res);
+}
+
+
+static gboolean bt_wave_save_from_fd(const BtWave * const self, BtSongIONative *song_io, const gchar * const uri) {
+  gchar *fn,*fp;
+
+  // need to rewrite path for target filename
+  if(!(fn=strrchr(self->priv->uri,'/')))
+    fn=self->priv->uri;
+  else
+    fn++;
+
+  fp=g_strdup_printf("wavetable/%s",fn);
+
+  GST_INFO("saving external uri=%s,%s -> zip=%s",uri,self->priv->uri,fp);
+  
+  bt_song_io_native_bzt_copy_from_uri(BT_SONG_IO_NATIVE_BZT(song_io),fp,uri);
+  g_free(fp);
+  
+  return(TRUE);
+}
+
 
 //-- constructor methods
 
@@ -406,13 +534,18 @@ BtWavelevel *bt_wave_get_level_by_index(const BtWave * const self,const gulong i
 
 static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persistence, const xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
   const BtWave * const self = BT_WAVE(persistence);
-  BtSongIONative *song_io;
   xmlNodePtr node=NULL;
   xmlNodePtr child_node;
 
   GST_DEBUG("PERSISTENCE::wave");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wave"),NULL))) {
+    BtSongIONative *song_io;
+
+    // we need to have a uri
+    if(!self->priv->uri)
+      self->priv->uri=g_strdup(self->priv->name);
+
     xmlNewProp(node,XML_CHAR_PTR("index"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->index)));
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
     xmlNewProp(node,XML_CHAR_PTR("uri"),XML_CHAR_PTR(self->priv->uri));
@@ -423,61 +556,15 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
     g_object_get(self->priv->song,"song-io",&song_io,NULL);
     if (song_io) {
       if(BT_IS_SONG_IO_NATIVE_BZT(song_io)) {
-        /* @todo: need to check if the file exist
-         * if we save a file that was saved as bzt before we coudl just copy the
-         * file over ... (but here we don't know that)
-         */
-        if(self->priv->uri) {
-          gchar *fn,*fp;
+        gchar *uri=NULL;
 
-          // need to rewrite path
-          if(!(fn=strrchr(self->priv->uri,'/')))
-            fn=self->priv->uri;
-          else
-            fn++;
-
-          fp=g_strdup_printf("wavetable/%s",fn);
-    
-          GST_INFO("saving external uri=%s -> zip=%s",self->priv->uri,fp); 
-          
-          bt_song_io_native_bzt_copy_from_uri(BT_SONG_IO_NATIVE_BZT(song_io),fp,self->priv->uri);
-          g_free(fp);
+        if(self->priv->ext_fd==-1) {
+          // need to write in memory data to a wav
+          bt_wave_save_to_fd(self);
         }
-        else {
-#if 0
-          /* @todo: need to write the sample data as a wav to a tempfile */
-          gchar *fn_wav;
-          
-          fn_wav=g_strdup_printf("%s" G_DIR_SEPARATOR_S "XXXXXX",g_get_tmp_dir());
-          self->priv->ext_fd=fileno(tmpfile());
-          self->priv->fd=mkstemp(fn_wav);
-          
-          // the data is in the wave-level :/
-          write(self->priv->ext_fd,data,size);
-          // create saver pipeline
-          self->priv->pipeline=gst_pipeline_new("wave-saver");
-          src=gst_element_factory_make("fdsrc",NULL);
-          fmt=gst_element_factory_make("capsfilter",NULL);
-          enc=gst_element_factory_make("waveenc",NULL);
-          sink=gst_element_factory_make("fdsink",NULL);
-          
-          // configure elements
-          g_object_set(src,"fd",self->priv->ext_fd,NULL);
-          g_object_set(sink,"fd",self->priv->fd,"sync",FALSE,NULL);
-          
-          // need temp location
-          // - just creating a temp filename is not safe
-          // - creating a tmpfile() is safe, but we need the name, fstat() does not have it
-          self->priv->uri=g_strdup_printf("file://%s",fn_wav);
-          fp=g_strdup_printf("wavetable/%s",self->priv->name);
-          
-          GST_INFO("saving internal uri=%s -> zip=%s",self->priv->uri,fp); 
-          
-          bt_song_io_native_bzt_copy_from_uri(BT_SONG_IO_NATIVE_BZT(song_io),fp,self->priv->uri);
-          g_free(fp);
-          g_free(fn_wav);
-#endif
-        }
+        uri=g_strdup_printf("fd://%d",self->priv->ext_fd);
+        bt_wave_save_from_fd(self,song_io,uri);
+        g_free(uri);
       }
       g_object_unref(song_io);
     }
