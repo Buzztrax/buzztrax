@@ -1,5 +1,11 @@
 2009-07-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-window.c:
+	  Add better format selection to save-as file-chooser. Add folder 
+	  shortcuts for default folder to the left chooser pane.
+
+2009-07-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/LINGUAS:
 	* po/nn.po:
 	* po/nn.po (added):
