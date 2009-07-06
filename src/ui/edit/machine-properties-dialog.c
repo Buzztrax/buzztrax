@@ -1032,18 +1032,24 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
  * we adjust the scrollable-window size to contain the whole area
  */
 static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
-  GtkWidget *parent=GTK_WIDGET(user_data);
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GtkWidget *parent=widget->parent->parent;
   gint height=requisition->height,width=-1;
   gint max_height=gdk_screen_get_height(gdk_screen_get_default());
+  gint available_heigth;
 
-  GST_LOG("#### box size req %d x %d (max-height=%d)", requisition->width,requisition->height,max_height);
+  GST_DEBUG("#### box size req %d x %d (max-height=%d, toolbar-height=%d)",
+    requisition->width,requisition->height,
+    max_height,self->priv->main_toolbar->allocation.height);
   // have a minimum width
   if(requisition->width<300) {
     width=300;
   }
-  // constrain the height by screen height minus some space for panels and deco
-  if(height>max_height-SCREEN_BORDER_HEIGHT) {
-    height=max_height-SCREEN_BORDER_HEIGHT;
+  // constrain the height by screen height minus some space for panels, deco and
+  // our toolbar
+  available_heigth=max_height-SCREEN_BORDER_HEIGHT-self->priv->main_toolbar->allocation.height;
+  if(height>available_heigth) {
+    height=available_heigth;
   }
   // @todo: is the '2' some border or padding
   gtk_widget_set_size_request(parent,width,height + 2);
@@ -1907,7 +1913,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   self->priv->param_group_box=gtk_vbox_new(FALSE,0);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),self->priv->param_group_box);
   gtk_box_pack_start(GTK_BOX(param_box),scrolled_window,TRUE,TRUE,0);
-  g_signal_connect(G_OBJECT(self->priv->param_group_box),"size-request",G_CALLBACK(on_box_size_request),(gpointer)scrolled_window);
+  g_signal_connect(G_OBJECT(self->priv->param_group_box),"size-request",G_CALLBACK(on_box_size_request),(gpointer)self);
 
   /* show widgets for global parameters */
   if(global_params) {

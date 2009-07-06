@@ -169,7 +169,7 @@
  * @todo: look at http://standards.freedesktop.org/wm-spec/1.3/ar01s05.html#id2523368
  * search for _NET_WM_STRUT_PARTIAL
  */
-#define SCREEN_BORDER_HEIGHT 64
+#define SCREEN_BORDER_HEIGHT 80
 
 /* borders used in hbox/vbox or other containers */
 #ifndef USE_HILDON

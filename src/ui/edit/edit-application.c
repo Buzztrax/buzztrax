@@ -297,6 +297,9 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
   if((loader=bt_song_io_make(file_name))) {
     GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
     GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
+    BtSetup *setup;
+    BtWavetable *wavetable;
+    GList *missing_machines,*missing_waves;
 
     gdk_window_set_cursor(window,cursor);
     gdk_cursor_unref(cursor);
@@ -328,16 +331,12 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     }
 
     if(bt_song_io_load(loader,song)) {
-      BtSetup *setup;
-      BtWavetable *wavetable;
       BtMachine *machine;
 
-      g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
       // get sink-machine
+      g_object_get(song,"setup",&setup,NULL);
       if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
         if(bt_machine_enable_input_post_level(machine)) {
-          GList *missing_machines,*missing_waves;
-
           // DEBUG
           //bt_song_write_to_highlevel_dot_file(song);
           // DEBUG
@@ -345,22 +344,6 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
           g_object_set(G_OBJECT(self),"song",song,NULL);
           res=TRUE;
           GST_INFO("new song activated");
-
-          // get missing element info
-          g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
-          g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
-          // tell about missing machines and/or missing waves
-          if(missing_machines || missing_waves) {
-            GtkWidget *dialog;
-
-            if((dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(self,missing_machines,missing_waves)))) {
-              gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
-              gtk_widget_show_all(dialog);
-
-              gtk_dialog_run(GTK_DIALOG(dialog));
-              gtk_widget_destroy(dialog);
-            }
-          }
         }
         else {
           GST_WARNING("Can't add input level/gain element in sink machine");
@@ -372,13 +355,31 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
         GST_WARNING("Can't look up sink machine");
       }
       g_object_unref(setup);
-      g_object_unref(wavetable);
     }
     else {
       GST_ERROR("could not load song \"%s\"",file_name);
     }
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
     gdk_window_set_cursor(window,NULL);
+
+    // get missing element info
+    g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
+    g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
+    g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
+    // tell about missing machines and/or missing waves
+    if(missing_machines || missing_waves) {
+      GtkWidget *dialog;
+
+      if((dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(self,missing_machines,missing_waves)))) {
+        gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
+        gtk_widget_show_all(dialog);
+
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+      }
+    }
+    g_object_unref(setup);
+    g_object_unref(wavetable);
     g_object_unref(song);
     g_object_unref(loader);
   }

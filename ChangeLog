@@ -1,3 +1,14 @@
+2009-07-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/edit-application.c:
+	  Report missing elements in any case.
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Take scrollbar height into account for max height. Make default border
+	  a bit bigger.
+
 2009-07-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-window.c:
