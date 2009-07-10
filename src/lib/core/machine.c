@@ -1205,24 +1205,41 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
 
     // create the adder
     if(!(bt_machine_make_internal_element(self,PART_ADDER,"adder","adder"))) goto Error;
+    /* live adder mixes by timestamps and does a timeout if an input is late */
     //if(!(bt_machine_make_internal_element(self,PART_ADDER,"liveadder","adder"))) goto Error;
 
+    // try without capsfilter (0.10.24)
+    if(!g_object_class_find_property(G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_ADDER])),"caps")) {
+      if(!(bt_machine_make_internal_element(self,PART_CAPS_FILTER,"capsfilter","capsfilter"))) goto Error;
+    }
     // adder does not link directly to some elements
-    if(!(bt_machine_make_internal_element(self,PART_CAPS_FILTER,"capsfilter","capsfilter"))) goto Error;
     if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
     if(!BT_IS_SINK_MACHINE(self)) {
       // only do this for the final mix
       g_object_set(self->priv->machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
     }
     GST_DEBUG("  about to link adder -> convert -> dst_elem");
-    if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
-      gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);
-      GST_ERROR("failed to link the internal adder of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-      goto Error;
+    if(!self->priv->machines[PART_CAPS_FILTER]) {
+      if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
+        gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);
+        GST_ERROR("failed to link the internal adder of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+        goto Error;
+      }
+      else {
+        GST_DEBUG("  adder activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+        self->dst_elem=self->priv->machines[PART_ADDER];
+      }
     }
     else {
-      GST_DEBUG("  adder activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-      self->dst_elem=self->priv->machines[PART_ADDER];
+      if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
+        gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);
+        GST_ERROR("failed to link the internal adder of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+        goto Error;
+      }
+      else {
+        GST_DEBUG("  adder activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+        self->dst_elem=self->priv->machines[PART_ADDER];
+      }
     }
   }
   res=TRUE;
@@ -1325,8 +1342,8 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
 
   GST_INFO_OBJECT(self,"reconfigure adder format, machine in state %s",gst_element_state_get_name(GST_STATE(self)));
   
-  /* do nothing if we don't have and adder & capsfilter or not caps */
-  if(!self->priv->machines[PART_CAPS_FILTER]) return;
+  /* do nothing if we don't have and adder */
+  if(!self->priv->machines[PART_ADDER]) return;
 
   g_object_get(self->priv->song,"setup",&setup,NULL);
   if(!setup) return;
@@ -1440,7 +1457,12 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
 
     GST_INFO("set new caps %" GST_PTR_FORMAT, new_caps);
 
-    g_object_set(self->priv->machines[PART_CAPS_FILTER],"caps",new_caps,NULL);
+    if(!self->priv->machines[PART_CAPS_FILTER]) {
+      g_object_set(self->priv->machines[PART_ADDER],"caps",new_caps,NULL);
+    }
+    else {
+      g_object_set(self->priv->machines[PART_CAPS_FILTER],"caps",new_caps,NULL);
+    }
     gst_caps_unref(new_caps);
   }
   g_object_unref(setup);

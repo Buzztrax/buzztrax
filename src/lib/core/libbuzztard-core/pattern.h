@@ -41,7 +41,7 @@ typedef struct _BtPatternPrivate BtPatternPrivate;
 /**
  * BtPattern:
  *
- * Class that holds a sequence of events for a #BtMachine.
+ * Holds a sequence of events for a #BtMachine.
  */
 struct _BtPattern {
   const GObject parent;

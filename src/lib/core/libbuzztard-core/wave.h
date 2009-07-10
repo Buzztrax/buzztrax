@@ -41,8 +41,7 @@ typedef struct _BtWavePrivate BtWavePrivate;
 /**
  * BtWave:
  *
- * virtual hardware setup
- * (contains #BtMachine and #BtWire objects)
+ * A single waveform.
  */
 struct _BtWave {
   const GObject parent;

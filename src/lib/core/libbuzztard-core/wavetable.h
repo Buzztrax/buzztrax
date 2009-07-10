@@ -41,8 +41,7 @@ typedef struct _BtWavetablePrivate BtWavetablePrivate;
 /**
  * BtWavetable:
  *
- * virtual hardware setup
- * (contains #BtMachine and #BtWire objects)
+ * A table of #BtWave objects.
  */
 struct _BtWavetable {
   const GObject parent;

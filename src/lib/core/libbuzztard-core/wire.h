@@ -41,7 +41,7 @@ typedef struct _BtWirePrivate BtWirePrivate;
 /**
  * BtWire:
  *
- * connects two #BtMachine instances
+ * A link between two #BtMachine instances.
  */
 struct _BtWire {
   const GstBin parent;

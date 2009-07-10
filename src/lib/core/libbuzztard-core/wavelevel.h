@@ -41,8 +41,8 @@ typedef struct _BtWavelevelPrivate BtWavelevelPrivate;
 /**
  * BtWavelevel:
  *
- * virtual hardware setup
- * (contains #BtMachine and #BtWire objects)
+ * A tone level for a #BtWave. In most cases a #BtWave has only one
+ * #BtWavelevel.
  */
 struct _BtWavelevel {
   const GObject parent;

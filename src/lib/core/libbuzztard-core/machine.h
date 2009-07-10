@@ -42,7 +42,7 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
 /**
  * BtMachine:
  *
- * base object for a virtual piece of hardware
+ * Base object for a virtual piece of hardware (generator, effect, ...).
  */
 struct _BtMachine {
   const GstBin parent;
