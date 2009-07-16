@@ -1224,6 +1224,7 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
     }
   }
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widget),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widget),renderer,"text",1,NULL);
@@ -1767,6 +1768,7 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
 
   // add cell renderers
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(G_OBJECT(renderer),"xalign",0.0,NULL);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Preset"),renderer,"text",0,NULL))) {

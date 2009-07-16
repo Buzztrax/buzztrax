@@ -471,6 +471,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
               }
             }
             renderer=gtk_cell_renderer_text_new();
+            gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
             gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
             gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widget1),renderer,TRUE);
             gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widget1),renderer,"text",1,NULL);

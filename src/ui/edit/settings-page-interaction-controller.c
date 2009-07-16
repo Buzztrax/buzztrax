@@ -124,6 +124,7 @@ static gboolean bt_settings_page_interaction_controller_init_ui(const BtSettings
   self->priv->device_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   /* @todo: add icon: midi, joystick (from hal?) */
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->device_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->device_menu),renderer,"text",DEVICE_MENU_LABEL,NULL);
@@ -148,6 +149,7 @@ static gboolean bt_settings_page_interaction_controller_init_ui(const BtSettings
   renderer = gtk_cell_renderer_pixbuf_new();
   gtk_tree_view_insert_column_with_attributes(self->priv->controller_list,-1,NULL,renderer,"pixbuf",COL_ICON_PIXBUF,"stock-id",COL_ICON_STOCK_ID,NULL);
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_tree_view_insert_column_with_attributes(self->priv->controller_list,-1,NULL,renderer,"text",COL_LABEL,NULL);
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->controller_list),GTK_SELECTION_BROWSE);

@@ -2250,6 +2250,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,FALSE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"pixbuf",MACHINE_MENU_ICON,NULL);
   renderer=gtk_cell_renderer_text_new();
+  //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"text",MACHINE_MENU_LABEL,NULL);
@@ -2277,6 +2278,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   self->priv->pattern_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   gtk_combo_box_set_focus_on_click(self->priv->pattern_menu,FALSE);
   renderer=gtk_cell_renderer_text_new();
+  //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(G_OBJECT(renderer), 	 
     "foreground","gray", 	 
@@ -2305,11 +2307,13 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   self->priv->wavetable_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   gtk_combo_box_set_focus_on_click(self->priv->wavetable_menu,FALSE);
   renderer=gtk_cell_renderer_text_new();
+  //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(G_OBJECT(renderer), "width", 22, NULL);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,FALSE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 0,NULL);
   renderer=gtk_cell_renderer_text_new();
+  //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 1,NULL);

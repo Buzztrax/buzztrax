@@ -984,6 +984,7 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
     "yalign",0.5,
     "foreground","blue",
     NULL);
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
   if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
     "text",SEQUENCE_TABLE_POSSTR,
@@ -1104,6 +1105,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
     "ypad",SEQUENCE_CELL_YPAD,
     */
     NULL);
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
   g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_sequence_label_edited),(gpointer)self);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Labels"),renderer,
@@ -1282,6 +1284,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       "ypad",SEQUENCE_CELL_YPAD,
       */
       NULL);
+    gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
     gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
 
     // setup column header
@@ -1408,6 +1411,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   g_object_set(G_OBJECT(renderer),
     "mode",GTK_CELL_RENDERER_MODE_INERT,
     NULL);
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
 
   header=gtk_label_new("");
@@ -2810,6 +2814,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   self->priv->bars_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->bars_menu),_("Show every n-th line"));
   renderer=gtk_cell_renderer_text_new();
+  //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,"text", 0,NULL);
@@ -2921,10 +2926,12 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   self->priv->label_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->label_menu),_("Browse to labels in the sequence"));
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,FALSE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_POSSTR,NULL);
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_LABEL,NULL);
@@ -3004,6 +3011,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   g_object_set(G_OBJECT(renderer),
     "xalign",1.0,
     NULL);
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Key"),renderer,
     "text",PATTERN_TABLE_KEY,
@@ -3016,6 +3024,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   else GST_WARNING("can't create treeview column");
 
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Patterns"),renderer,
     "text",PATTERN_TABLE_NAME,
