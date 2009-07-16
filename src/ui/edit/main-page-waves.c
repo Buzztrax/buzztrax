@@ -1083,10 +1083,12 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   g_signal_connect(G_OBJECT(self->priv->waves_list),"row-activated",G_CALLBACK(on_waves_list_row_activated),(gpointer)self);
 
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
   /* Ix: index in wavetable */
   gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Ix"),renderer,"text",WAVE_TABLE_HEX_ID,NULL);
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wave_name_edited),(gpointer)self);
   gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Wave"),renderer,"text",WAVE_TABLE_NAME,NULL);
@@ -1178,20 +1180,25 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   g_signal_connect(G_OBJECT(self->priv->wavelevels_list),"row-activated",G_CALLBACK(on_wavelevels_list_row_activated),(gpointer)self);
 
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Root"),renderer,"text",WAVELEVEL_TABLE_ROOT_NOTE,NULL);
   g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_root_note_edited),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Length"),renderer,"text",WAVELEVEL_TABLE_LENGTH,NULL);
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Rate"),renderer,"text",WAVELEVEL_TABLE_RATE,NULL);
   g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_rate_edited),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Loop start"),renderer,"text",WAVELEVEL_TABLE_LOOP_START,NULL);
   g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_loop_start_edited),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Loop end"),renderer,"text",WAVELEVEL_TABLE_LOOP_END,NULL);
   g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_loop_end_edited),(gpointer)self);

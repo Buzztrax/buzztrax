@@ -570,8 +570,8 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       GtkRecentManager *manager=gtk_recent_manager_get_default();
       gchar *uri=g_filename_to_uri(file_name,NULL,NULL);
       
-      if(!gtk_recent_manager_add_item (manager, uri)) {
-	    GST_WARNING("Can't store recent file");
+      if(!gtk_recent_manager_add_item(manager, uri)) {
+        GST_WARNING("Can't store recent file");
       }
       g_free(uri);
     }

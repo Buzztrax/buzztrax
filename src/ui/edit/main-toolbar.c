@@ -74,6 +74,7 @@ struct _BtMainToolbarPrivate {
 
   /* playback state */
   gboolean is_playing;
+  gboolean has_error;
   
   /* lock for multithreaded access */
   GMutex        *lock;
@@ -142,6 +143,8 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     for(i=0;i<MAX_VUMETER;i++) {
       gtk_vumeter_set_levels(self->priv->vumeter[i], LOW_VUMETER_VAL, LOW_VUMETER_VAL);
     }
+    
+    self->priv->has_error = FALSE;
 
     GST_INFO("song stop event handled");
   }
@@ -256,56 +259,66 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
 
 static void on_song_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtMainToolbar * const self=BT_MAIN_TOOLBAR(user_data);
-  BtSong *song;
-  BtMainWindow *main_window;
   GError *err = NULL;
   gchar *dbg = NULL;
 
   GST_INFO("received %s bus message from %s",
     GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
-  // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
-  // debug the state
-  bt_song_write_to_lowlevel_dot_file(song);
-  bt_song_stop(song);
-
-  gst_message_parse_error(message, &err, &dbg);
   // @todo: check domain and code
+  gst_message_parse_error(message, &err, &dbg);
   GST_WARNING ("ERROR: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
-  bt_dialog_message(main_window,_("Error"),_("An error occurred"),err->message);
+
+  if(!self->priv->has_error) {
+    BtSong *song;
+    BtMainWindow *main_window;
+  
+    // get song from app
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
+    // debug the state
+    bt_song_write_to_lowlevel_dot_file(song);
+    bt_song_stop(song);
+
+    bt_dialog_message(main_window,_("Error"),_("An error occurred"),err->message);
+
+    // release the reference
+    g_object_unref(song);
+    g_object_unref(main_window);
+  }
   g_error_free (err);
   g_free (dbg);
 
-  // release the reference
-  g_object_unref(song);
-  g_object_unref(main_window);
+  self->priv->has_error = TRUE;
 }
 
 static void on_song_warning(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtMainToolbar * const self=BT_MAIN_TOOLBAR(user_data);
-  BtSong *song;
-  BtMainWindow *main_window;
   GError *err = NULL;
   gchar *dbg = NULL;
 
   GST_INFO("received %s bus message from %s",
     GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
-  // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
-  //bt_song_stop(song);
-
-  gst_message_parse_warning(message, &err, &dbg);
   // @todo: check domain and code
+  gst_message_parse_warning(message, &err, &dbg);
   GST_WARNING ("WARNING: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
-  bt_dialog_message(main_window,_("Warning"),_("A problem occurred"),err->message);
+
+  if(!self->priv->has_error) {
+    BtSong *song;
+    BtMainWindow *main_window;
+
+    // get song from app
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
+    //bt_song_stop(song);
+
+    bt_dialog_message(main_window,_("Warning"),_("A problem occurred"),err->message);
+
+    // release the reference
+    g_object_unref(song);
+    g_object_unref(main_window);
+  }
   g_error_free (err);
   g_free (dbg);
-
-  // release the reference
-  g_object_unref(song);
-  g_object_unref(main_window);
 }
 
 static gboolean on_delayed_idle_song_level_change(gpointer user_data) {

@@ -1408,6 +1408,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   g_object_set(G_OBJECT(renderer),
     "mode",GTK_CELL_RENDERER_MODE_INERT,
     NULL);
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
 
   header=gtk_label_new("");
   gtk_widget_show_all(header);
@@ -2809,6 +2810,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   self->priv->bars_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->bars_menu),_("Show every n-th line"));
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,"text", 0,NULL);
   g_signal_connect(G_OBJECT(self->priv->bars_menu),"changed",G_CALLBACK(on_bars_menu_changed), (gpointer)self);
@@ -2919,9 +2921,11 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   self->priv->label_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->label_menu),_("Browse to labels in the sequence"));
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,FALSE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_POSSTR,NULL);
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_LABEL,NULL);
   g_signal_connect(G_OBJECT(self->priv->label_menu),"changed",G_CALLBACK(on_label_menu_changed), (gpointer)self);
@@ -3000,6 +3004,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   g_object_set(G_OBJECT(renderer),
     "xalign",1.0,
     NULL);
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Key"),renderer,
     "text",PATTERN_TABLE_KEY,
     "sensitive",PATTERN_TABLE_USED,
@@ -3011,6 +3016,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   else GST_WARNING("can't create treeview column");
 
   renderer=gtk_cell_renderer_text_new();
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Patterns"),renderer,
     "text",PATTERN_TABLE_NAME,
     "sensitive",PATTERN_TABLE_USED,
