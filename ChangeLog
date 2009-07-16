@@ -1,5 +1,19 @@
 2009-07-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Write NEWS.
+
+	* src/lib/core/wire.c:
+	  Make code a bit more readable (and prepare def param handling),
+
+	* src/ui/edit/main-page-sequence.c:
+	  Correctly set state of MSB button when updating sequence view.
+
+	* src/ui/edit/pattern-editor.c:
+	  Add some TODO for partial redraw optimizations.
+
+2009-07-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-preferences-dialog.c:
 	* src/ui/edit/machine-properties-dialog.c:
 	* src/ui/edit/main-page-patterns.c:
@@ -163,7 +177,7 @@
 2009-06-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
-	  Buzz version requeiremnts.
+	  Buzz version requiremnts.
 
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/machine-methods.h:

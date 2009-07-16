@@ -547,6 +547,12 @@ static void bt_pattern_editor_unrealize(GtkWidget *widget)
   self->pl = NULL;
 }
 
+/* @todo:
+ * - refactor layout and redrawing
+ *   - calculate layout in bt_pattern_editor_size_allocate() and cache
+ *   - only redraw in expose
+ *     - as we have the layout, we can do partial redraws
+ */
 static gboolean
 bt_pattern_editor_expose (GtkWidget *widget,
                      GdkEventExpose *event)
@@ -613,7 +619,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
     cgrp->width = x - start;
   }
   
-  /* draw the headers */
+  /* draw top and left headers */
   bt_pattern_editor_draw_rownum(self, rowhdr_x, y-self->ofs_y, row);
   if(rect.y<self->ch) {
     bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-self->ofs_x, colhdr_y);
@@ -627,7 +633,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   }
 
   if (G_UNLIKELY(self->size_changed)) {  
-    // do this for the after the first redraw
+    // do this for resize the after the first redraw (see @todo above)
     self->size_changed=FALSE;
     gtk_widget_queue_resize_no_redraw (widget);
   }  

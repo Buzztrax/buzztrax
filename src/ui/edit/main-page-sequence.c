@@ -601,7 +601,7 @@ static void widget_shade_bg_color(GtkWidget *widget,GtkStateType state,gfloat rf
 
 }
 
-static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat bf) {
+static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat bf, gboolean toggled) {
   GtkWidget *button;
 
 // the font get smaller, but the buttons don't :/
@@ -624,6 +624,8 @@ static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat b
   widget_shade_bg_color(button,GTK_STATE_ACTIVE  ,rf,gf,bf);
   widget_shade_bg_color(button,GTK_STATE_PRELIGHT,rf,gf,bf);
   gtk_container_set_border_width(GTK_CONTAINER(button),0);
+  if(toggled)
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),toggled);
 
   return(button);
 }
@@ -1339,23 +1341,27 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
        * - MSB buttons would need to be synced
        */
       if (!g_hash_table_lookup(machine_usage,machine)) {
+        BtMachineState state;
+
+        g_object_get(machine,"state",&state,NULL);
+        
         g_hash_table_insert(machine_usage,machine,machine);
         // add M/S/B butons and connect signal handlers
         // @todo: use colors from ui-resources
-        button=make_mini_button("M",1.2, 1.0/1.25, 1.0/1.25); // red
+        button=make_mini_button("M",1.2, 1.0/1.25, 1.0/1.25,(state==BT_MACHINE_STATE_MUTE)); // red
         gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
         g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
         g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_mute), (gpointer)button);
 
         if(BT_IS_SOURCE_MACHINE(machine)) {
-          button=make_mini_button("S",1.0/1.2,1.0/1.2,1.1); // blue
+          button=make_mini_button("S",1.0/1.2,1.0/1.2,1.1,(state==BT_MACHINE_STATE_SOLO)); // blue
           gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
           g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_solo_toggled),(gpointer)machine);
           g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_solo), (gpointer)button);
         }
 
         if(BT_IS_PROCESSOR_MACHINE(machine)) {
-          button=make_mini_button("B",1.2,1.0/1.1,1.0/1.4); // orange
+          button=make_mini_button("B",1.2,1.0/1.1,1.0/1.4,(state==BT_MACHINE_STATE_BYPASS)); // orange
           gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
           g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_bypass_toggled),(gpointer)machine);
           g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_bypass), (gpointer)button);
