@@ -666,26 +666,26 @@ bt_pattern_editor_update_adjustments (BtPatternEditor *self)
 }
 
 static void
-bt_pattern_editor_size_request (GtkWidget *widget,
-                           GtkRequisition *requisition)
+bt_pattern_editor_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
 
   /* calculate from pattern size */
   requisition->width = bt_pattern_editor_get_row_width(self);
   requisition->height = bt_pattern_editor_get_col_height(self);
-  //printf("Size: %d,%d\n",requisition->width, requisition->height);
+  GST_DEBUG("size_request: %d,%d",requisition->width, requisition->height);
 }
 
 static void
-bt_pattern_editor_size_allocate (GtkWidget *widget,
-                            GtkAllocation *allocation)
+bt_pattern_editor_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
   g_return_if_fail (allocation != NULL);
   
   GTK_WIDGET_CLASS(parent_class)->size_allocate(widget,allocation);
   
   widget->allocation = *allocation;
+  GST_DEBUG("size_allocate: %d,%d %d,%d",allocation->x, allocation->y,
+    allocation->width, allocation->height);
 
   bt_pattern_editor_update_adjustments (BT_PATTERN_EDITOR (widget));
 }

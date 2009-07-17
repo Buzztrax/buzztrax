@@ -45,6 +45,7 @@
  * - wires
  *   - insert machine (like menu on canvas)
  *     - what to do with wire-patterns?
+ * @todo: click in the background to pan canvas around
  *
  */
 #define BT_EDIT

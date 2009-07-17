@@ -1,9 +1,11 @@
+2009/08 ========================================================================
+
 2009/07 ========================================================================
 
 After all the thinking last month regarding the saves and handling external
-files, I finally found time at guadec to finish the implementation. I can do a
+files, I finally found time at GUADEC to finish the implementation. I can do a
 quick copy from the old file to the new one on save and create wav files on the
-fly when eg. saving a buzz song in buzztards own format.
+fly when e.g.. saving a buzz song in buzztards own format.
 
 During the month I did a lot of real world testing. I recorded children songs as
 I had scores from my sons kindergarden :), but also just played around. I had
@@ -11,12 +13,13 @@ the app running under gdb with G_DEBUG="fatal_warnings". Obviously I did not got
 far with making music on the first evenings. A couple of days later we have a
 lot bugs less.
 
-My talk at GCDS about "multimedia in your pocket" went fine. I showed short
+My talk at GCDS about "multimedia in your pocket" went fine [1]. I showed short
 demos of running pitivi, jokosher and buzztard on a omap3 device using maemo 5.
+I hope the slides will be available soon.
 For the demo I did some more performance tuning. Using GTK_DEBUG=updates was
 very helpful to improve the UI to do less redraws.
 
-I also spend some more time on the user manaual again. Much less FIXME
+I also spend some more time on the user manual again. Much less FIXME
 paragraphs left :)
 
 [1] http://www.grancanariadesktopsummit.org/node/215
