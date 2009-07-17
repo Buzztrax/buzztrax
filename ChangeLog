@@ -1,3 +1,8 @@
+2009-07-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Don't renegotiate formats which playing for now until it works.
+
 2009-07-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

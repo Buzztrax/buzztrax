@@ -1335,6 +1335,10 @@ static guint get_int_value(GstStructure *str,gchar *name) {
  * Analyze the format on all machines linking to this one and determine a common
  * format for mixing.
  */
+/* @todo: it seems that this does not work while playing
+ * - we could scratch the idea and use a fixed common format
+ * - we could only renegotiate formats when going to playing
+ */
 void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   BtSetup *setup;
   BtMachine *src;
@@ -1344,6 +1348,12 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   
   /* do nothing if we don't have and adder */
   if(!self->priv->machines[PART_ADDER]) return;
+  
+  /* don't renegotiate in playing yet,
+   * @todo: we need a way to defer that for next time we go to playing
+   * - add a boolean return and track them in a list in setup?
+   */
+  if(GST_STATE(self->priv->machines[PART_ADDER])==GST_STATE_PLAYING) return;
 
   g_object_get(self->priv->song,"setup",&setup,NULL);
   if(!setup) return;
@@ -1371,8 +1381,8 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
       g_object_get(wire,"src",&src,NULL);
 
       if((pad=gst_element_get_static_pad(src->priv->machines[PART_MACHINE],"src"))) {
-        /* @todo: only check template caps? Yes, otheriwse we can never go back
-         * from some selected format. */         
+        /* @todo: only check template caps? Yes, otherwise we can never go back
+         * from some selected format. */
         if(/*(pad_caps=gst_pad_get_negotiated_caps(pad))*/ (pad_caps=0) ||
           (pad_tmpl_caps=gst_pad_get_pad_template_caps(pad))) {
 
