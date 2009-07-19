@@ -1,6 +1,11 @@
 2009-07-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:
+	  Fix cursor redraws a bit (still one problem with note-columns left).
+
+2009-07-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
 	  Many thanks to moap for also committing the not finished pattern-editor
 	  changes.
 

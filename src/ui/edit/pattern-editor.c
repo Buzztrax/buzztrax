@@ -233,7 +233,7 @@ in_selection (BtPatternEditor *self,
   return TRUE; /* PESM_ALL */
 }
 
-static int
+static void
 bt_pattern_editor_draw_column (BtPatternEditor *self,
                           int x,
                           int y,
@@ -274,6 +274,7 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
     pango_layout_set_text (self->pl, buf, pt->chars);
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
       &widget->style->text[GTK_STATE_NORMAL], NULL);
+    // draw cursor
     if (row == self->row && param == self->parameter && group == self->group) {
       int cp = pt->column_pos[self->digit];
       pango_layout_set_text (self->pl, buf + cp, 1);
@@ -284,8 +285,6 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
     y += ch;
     row++;
   }
-  
-  return col_w;
 }
 
 static int
@@ -307,12 +306,10 @@ static void
 bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 {
   int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
-  int x = self->rowhdr_width;
-  int w;
+  int x = self->rowhdr_width - self->ofs_x;
+  int g, i;
 
   // @todo: this redraws a whole line!, try limmiting to cursor pos
-#if 1
-  int g, i;
   PatternColumnGroup *cgrp;
     
   for (g = 0; g < self->group; g++) {
@@ -328,15 +325,9 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
     x += w;   
   }
   x += self->cw * self->digit;
-  w = self->cw;
-#else
-  w = GTK_WIDGET(self)->allocation.width - x;
-#endif
-  x -= self->ofs_x;
-  gtk_widget_queue_draw_area (GTK_WIDGET(self), x, y, w , self->ch);
 
-  if (self->callbacks->notify_cursor_func)
-    self->callbacks->notify_cursor_func(self->pattern_data, self->row, self->group, self->parameter, self->digit);
+  GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",x, y, self->cw, self->ch);
+  gtk_widget_queue_draw_area (GTK_WIDGET(self), x, y, self->cw , self->ch);
 }
 
 static void
@@ -396,6 +387,10 @@ bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
   if(draw) {
     // setting the adjustments already draws
     bt_pattern_editor_refresh_cursor(self);
+
+    // notify cursor movemnt
+    if (self->callbacks->notify_cursor_func)
+      self->callbacks->notify_cursor_func(self->pattern_data, self->row, self->group, self->parameter, self->digit);
   }
 }
 
@@ -408,8 +403,8 @@ advance (BtPatternEditor *self)
     self->row += self->step;
     if (self->row > self->num_rows - 1)
       self->row = self->num_rows - 1;
+    bt_pattern_editor_refresh_cursor_or_scroll(self);
   }
-  bt_pattern_editor_refresh_cursor_or_scroll(self);
 }
 
 static PatternColumn *
@@ -595,10 +590,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
     return FALSE;
   
   // this is the dirty region
-  GST_DEBUG("Area: %d,%d -> %d,%d",rect.x, rect.y, rect.width, rect.height);
-
-  //gdk_window_clear_area (widget->window, rect.x, rect.y, rect.width, rect.height);
-  //gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, widget->allocation.width, widget->allocation.height);
+  GST_INFO("Refresh Area: %d,%d -> %d,%d",rect.x, rect.y, rect.width, rect.height);
 
   if (self->hadj) {
     self->ofs_x = (gint)gtk_adjustment_get_value(self->hadj);
@@ -641,12 +633,16 @@ bt_pattern_editor_expose (GtkWidget *widget,
       PatternColumn *col=&cgrp->columns[i];
       struct ParamType *pt = &param_types[col->type];
       gint w = self->cw * (pt->chars + 1);
-      gint xs=x-self->ofs_x, xe=xs+w;
-      
+      gint xs=x-self->ofs_x, xe=xs+(w-1);
+            
       // check intersection
       //if((x>=rect.x && x<=rect.x+rect.width) || (x+w>=rect.x && x+w<=rect.x+rect.width)) {
-      if((xs>=rect.x && xs<=rect.x+rect.width) || (xe>=rect.x && xe<=rect.x+rect.width)) {
+      if((xs>=rect.x && xs<=rect.x+rect.width) || (xe>=rect.x && xe<=rect.x+rect.width) || (xs<=rect.x && xe>=rect.x+rect.width)) {
+        GST_INFO("Draw Group/Column: %d,%d : %3d-%3d",g,i,xs,xe);
         bt_pattern_editor_draw_column(self, x-self->ofs_x, y-self->ofs_y, col, g, i, row, max_y);
+      }
+      else {
+        GST_INFO("Skip Group/Column: %d,%d : %3d-%3d",g,i,xs,xe);
       }
       x += w;
     }
@@ -990,6 +986,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         return TRUE;
       case GDK_Left:
         if (!modifier) {
+          bt_pattern_editor_refresh_cursor(self);
           if (self->digit > 0)
             self->digit--;
           else {
@@ -1016,6 +1013,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       case GDK_Right:
         if (!modifier) {
           PatternColumn *pc = cur_column (self);
+          bt_pattern_editor_refresh_cursor(self);
           if (self->digit < param_types[pc->type].columns - 1) {
             self->digit++;
           }
@@ -1034,6 +1032,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         break;
       case GDK_Tab:
         if (!modifier) {
+          bt_pattern_editor_refresh_cursor(self);
           if (self->group < self->num_groups - 1) {
             /* jump to same column when jumping from track to track, otherwise jump to first column of the group */
             if (self->groups[self->group].type != self->groups[self->group + 1].type) {
@@ -1048,6 +1047,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         break;
       case GDK_ISO_Left_Tab:
         if (shift) {
+          bt_pattern_editor_refresh_cursor(self);
           if (self->group > 0) {
             self->group--;
             if (self->groups[self->group].type != self->groups[self->group + 1].type) {
