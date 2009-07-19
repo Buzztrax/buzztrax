@@ -1,3 +1,8 @@
+2009-07-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/sequence-view.c:
+	  Don't redraw fully for loop lines too.
+
 2009-07-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

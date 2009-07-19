@@ -307,9 +307,33 @@ static void
 bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 {
   int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
-  
-  gtk_widget_queue_draw_area (GTK_WIDGET(self), 0, y, GTK_WIDGET(self)->allocation.width, self->ch);
-  //gtk_widget_queue_draw (GTK_WIDGET(self));
+  int x = self->rowhdr_width;
+  int w;
+
+  // @todo: this redraws a whole line!, try limmiting to cursor pos
+#if 1
+  int g, i;
+  PatternColumnGroup *cgrp;
+    
+  for (g = 0; g < self->group; g++) {
+    cgrp = &self->groups[g];
+    x += cgrp->width;
+  }
+  cgrp = &self->groups[self->group];
+  for (i = 0; i < self->parameter; i++) {
+    PatternColumn *col=&cgrp->columns[i];
+    struct ParamType *pt = &param_types[col->type];
+    gint w = self->cw * (pt->chars + 1);
+
+    x += w;   
+  }
+  x += self->cw * self->digit;
+  w = self->cw;
+#else
+  w = GTK_WIDGET(self)->allocation.width - x;
+#endif
+  x -= self->ofs_x;
+  gtk_widget_queue_draw_area (GTK_WIDGET(self), x, y, w , self->ch);
 
   if (self->callbacks->notify_cursor_func)
     self->callbacks->notify_cursor_func(self->pattern_data, self->row, self->group, self->parameter, self->digit);
@@ -379,6 +403,7 @@ static void
 advance (BtPatternEditor *self)
 {
   if (self->row < self->num_rows - 1) {
+    // invalidate old pos
     bt_pattern_editor_refresh_cursor(self);
     self->row += self->step;
     if (self->row > self->num_rows - 1)
@@ -606,21 +631,33 @@ bt_pattern_editor_expose (GtkWidget *widget,
   colhdr_y = 0;
   row = (y - hh) / self->ch;
 
-  GST_DEBUG("Scroll: %d,%d, row=%d",self->ofs_x, self->ofs_y, row);
+  GST_LOG("Scroll: %d,%d, row=%d",self->ofs_x, self->ofs_y, row);
 
   /* draw group parameter columns */
   for (g = 0; g < self->num_groups; g++) {
     PatternColumnGroup *cgrp = &self->groups[g];
     start = x;
     for (i = 0; i < cgrp->num_columns; i++) {
-      x += bt_pattern_editor_draw_column(self, x-self->ofs_x, y-self->ofs_y, &cgrp->columns[i], g, i, row, max_y);
+      PatternColumn *col=&cgrp->columns[i];
+      struct ParamType *pt = &param_types[col->type];
+      gint w = self->cw * (pt->chars + 1);
+      gint xs=x-self->ofs_x, xe=xs+w;
+      
+      // check intersection
+      //if((x>=rect.x && x<=rect.x+rect.width) || (x+w>=rect.x && x+w<=rect.x+rect.width)) {
+      if((xs>=rect.x && xs<=rect.x+rect.width) || (xe>=rect.x && xe<=rect.x+rect.width)) {
+        bt_pattern_editor_draw_column(self, x-self->ofs_x, y-self->ofs_y, col, g, i, row, max_y);
+      }
+      x += w;
     }
     x += self->cw;
     cgrp->width = x - start;
   }
   
   /* draw top and left headers */
-  bt_pattern_editor_draw_rownum(self, rowhdr_x, y-self->ofs_y, row);
+  if(rect.x<self->rowhdr_width) {
+    bt_pattern_editor_draw_rownum(self, rowhdr_x, y-self->ofs_y, row);
+  }
   if(rect.y<self->ch) {
     bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-self->ofs_x, colhdr_y);
     bt_pattern_editor_draw_rowname(self, rowhdr_x, colhdr_y);
@@ -629,6 +666,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   /* draw play-pos */
   if(self->play_pos>=0.0) {
     y=(gint)(self->play_pos*(gdouble)bt_pattern_editor_get_col_height(self));
+    // @todo: check rect.y, rect.height
     gdk_draw_line(widget->window,self->play_pos_gc, 0,y,widget->allocation.width,y);
   }
 
@@ -840,6 +878,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           break;
       }
       if (handled) {
+        // selection changed
         gtk_widget_queue_draw (GTK_WIDGET(self));
         return TRUE;
       }
@@ -848,6 +887,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       case GDK_Up:
         if (!modifier) {
           if (self->row > 0) {
+            // invalidate old pos
             bt_pattern_editor_refresh_cursor(self);
             self->row -= 1;
             g_object_notify(G_OBJECT(self),"cursor-row");
@@ -859,6 +899,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       case GDK_Down:
         if (!modifier) {
           if (self->row < self->num_rows - 1) {
+            // invalidate old pos
             bt_pattern_editor_refresh_cursor(self);
             self->row += 1;
             g_object_notify(G_OBJECT(self),"cursor-row");
@@ -1144,9 +1185,19 @@ bt_pattern_editor_set_property(GObject      *object,
 
   switch (property_id) {
     case PATTERN_EDITOR_PLAY_POSITION: {
+      gdouble old_pos = self->play_pos;
       self->play_pos = g_value_get_double(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-        gtk_widget_queue_draw(GTK_WIDGET(self));
+        gint y;
+        gdouble h=(gdouble)bt_pattern_editor_get_col_height(self);
+        GtkAllocation allocation=GTK_WIDGET(self)->allocation;
+
+        // @todo: see sequence-view.c
+        //gtk_widget_queue_draw(GTK_WIDGET(self));
+        y=(gint)(old_pos*h)-allocation.y;
+        gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,allocation.width,2);
+        y=(gint)(self->play_pos*h)-allocation.y;
+        gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,allocation.width,2);
       }
     } break;
     case PATTERN_EDITOR_OCTAVE: {

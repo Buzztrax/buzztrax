@@ -79,9 +79,9 @@ static void bt_sequence_view_invalidate(const BtSequenceView *self, gdouble old_
   
   gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(self),&vr);
 
-  y=(gint)(old_pos*h)-vr.y;;
+  y=(gint)(old_pos*h)-vr.y;
   gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,2);
-  y=(gint)(new_pos*h)-vr.y;;
+  y=(gint)(new_pos*h)-vr.y;
   gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,2);
 }
 
@@ -265,19 +265,19 @@ static void bt_sequence_view_set_property(GObject      *object,
       }
     } break;
     case SEQUENCE_VIEW_LOOP_START: {
-      //old_pos = self->priv->loop_start;
+      gdouble old_pos = self->priv->loop_start;
+
       self->priv->loop_start = g_value_get_double(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-	      gtk_widget_queue_draw(GTK_WIDGET(self));
-        //bt_sequence_view_invalidate(self,old_pos,self->priv->loop_start);
+        bt_sequence_view_invalidate(self,old_pos,self->priv->loop_start);
       }
     } break;
     case SEQUENCE_VIEW_LOOP_END: {
-      //old_pos = self->priv->loop_end;
+      gdouble  old_pos = self->priv->loop_end;
+
       self->priv->loop_end = g_value_get_double(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-	      gtk_widget_queue_draw(GTK_WIDGET(self));
-        //bt_sequence_view_invalidate(self,old_pos,self->priv->loop_end);
+        bt_sequence_view_invalidate(self,old_pos,self->priv->loop_end);
       }
     } break;
     case SEQUENCE_VIEW_VISIBLE_ROWS: {
