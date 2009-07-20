@@ -311,6 +311,8 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 
   // @todo: this redraws a whole line!, try limmiting to cursor pos
   PatternColumnGroup *cgrp;
+  PatternColumn *col;
+  struct ParamType *pt;
     
   for (g = 0; g < self->group; g++) {
     cgrp = &self->groups[g];
@@ -318,13 +320,13 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
   }
   cgrp = &self->groups[self->group];
   for (i = 0; i < self->parameter; i++) {
-    PatternColumn *col=&cgrp->columns[i];
-    struct ParamType *pt = &param_types[col->type];
-    gint w = self->cw * (pt->chars + 1);
-
-    x += w;   
+    col=&cgrp->columns[i];
+    pt = &param_types[col->type];
+    x += self->cw * (pt->chars + 1);
   }
-  x += self->cw * self->digit;
+  col=&cgrp->columns[self->parameter];
+  pt = &param_types[col->type];
+  x += self->cw * pt->column_pos[self->digit];
 
   GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",x, y, self->cw, self->ch);
   gtk_widget_queue_draw_area (GTK_WIDGET(self), x, y, self->cw , self->ch);
