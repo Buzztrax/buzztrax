@@ -233,6 +233,13 @@ in_selection (BtPatternEditor *self,
   return TRUE; /* PESM_ALL */
 }
 
+/*
+ * bt_pattern_editor_draw_column:
+ * @x,@y: the top left corner for the column
+ * @col,@group,@param: column data, group and param to draw
+ * @row: the starting row
+ * @max_y: max-y for clipping
+ */
 static void
 bt_pattern_editor_draw_column (BtPatternEditor *self,
                           int x,
@@ -601,7 +608,6 @@ static void bt_pattern_editor_unrealize(GtkWidget *widget)
  * - refactor layout and redrawing
  *   - calculate layout in bt_pattern_editor_size_allocate() and cache
  *   - only redraw in expose
- *     - as we have the layout, we can do partial redraws
  */
 static gboolean
 bt_pattern_editor_expose (GtkWidget *widget,
@@ -610,8 +616,8 @@ bt_pattern_editor_expose (GtkWidget *widget,
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
   GdkRectangle rect = event->area;
   int y, x, i, row, g, max_y;
-  int start;
-  int rowhdr_x, colhdr_y, hh;
+  int grp_x;
+  int rowhdr_x, hh;
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
@@ -627,36 +633,36 @@ bt_pattern_editor_expose (GtkWidget *widget,
     self->ofs_y = (gint)gtk_adjustment_get_value(self->vadj);
   }
 
+  /* calculate the first a last row in the dirty region */
   self->colhdr_height = hh = self->ch;
   x = 0; 
-  // FIXME: this deserves a comment?
-  y = hh + (int)(self->ch * floor((0 - hh) / self->ch));
+  y = hh + (int)(self->ch * floor((rect.y - hh) / self->ch));
+  //y = hh + (int)(self->ch * floor((0 - hh) / self->ch));
   if (y < hh)
       y = hh;
-  max_y = widget->allocation.height;
+  max_y = rect.y + rect.height;
+  //max_y = widget->allocation.height;
   max_y = hh + (int)(self->ch * ceil((max_y - hh) / self->ch));
+  row = (y - hh) / self->ch;
     
   /* leave space for headers */
   rowhdr_x = x;
   self->rowhdr_width = bt_pattern_editor_rownum_width(self) + self->cw;
   x += self->rowhdr_width;
-  colhdr_y = 0;
-  row = (y - hh) / self->ch;
 
-  GST_LOG("Scroll: %d,%d, row=%d",self->ofs_x, self->ofs_y, row);
+  GST_INFO("Scroll: %d,%d, row=%d",self->ofs_x, self->ofs_y, row);
 
   /* draw group parameter columns */
   for (g = 0; g < self->num_groups; g++) {
     PatternColumnGroup *cgrp = &self->groups[g];
-    start = x;
+    grp_x = x;
     for (i = 0; i < cgrp->num_columns; i++) {
       PatternColumn *col=&cgrp->columns[i];
       struct ParamType *pt = &param_types[col->type];
       gint w = self->cw * (pt->chars + 1);
-      gint xs=x-self->ofs_x, xe=xs+(w-1);
+      gint xs = x-self->ofs_x, xe = xs+(w-1);
             
       // check intersection
-      //if((x>=rect.x && x<=rect.x+rect.width) || (x+w>=rect.x && x+w<=rect.x+rect.width)) {
       if((xs>=rect.x && xs<=rect.x+rect.width) || (xe>=rect.x && xe<=rect.x+rect.width) || (xs<=rect.x && xe>=rect.x+rect.width)) {
         GST_DEBUG("Draw Group/Column: %d,%d : %3d-%3d",g,i,xs,xe);
         bt_pattern_editor_draw_column(self, x-self->ofs_x, y-self->ofs_y, col, g, i, row, max_y);
@@ -667,7 +673,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
       x += w;
     }
     x += self->cw;
-    cgrp->width = x - start;
+    cgrp->width = x - grp_x;
   }
   
   /* draw top and left headers */
@@ -675,8 +681,8 @@ bt_pattern_editor_expose (GtkWidget *widget,
     bt_pattern_editor_draw_rownum(self, rowhdr_x, y-self->ofs_y, row);
   }
   if(rect.y<self->ch) {
-    bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-self->ofs_x, colhdr_y);
-    bt_pattern_editor_draw_rowname(self, rowhdr_x, colhdr_y);
+    bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-self->ofs_x, 0);
+    bt_pattern_editor_draw_rowname(self, rowhdr_x, 0);
   }
 
   /* draw play-pos */

@@ -1,6 +1,12 @@
 2009-07-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:
+	  Implement clipping to y-ranges. Lowers cpu load by 5% when watching the
+	  played pattern. Also rename some variables.
+
+2009-07-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
 	  Fix playpos redraws. Fix cell updates on editing.
 
 2009-07-20  Stefan Kost  <ensonic@users.sf.net>
