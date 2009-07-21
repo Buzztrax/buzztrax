@@ -148,18 +148,19 @@ static void
 bt_pattern_editor_draw_rownum (BtPatternEditor *self,
                           int x,
                           int y,
-                          int row)
+                          int row,
+                          int max_y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
   char buf[16];
   int col_w = bt_pattern_editor_rownum_width(self);
 
-  gdk_draw_rectangle (widget->window,
+  /*gdk_draw_rectangle (widget->window,
       widget->style->bg_gc[GTK_STATE_NORMAL],
-      TRUE, 0, 0, col_w, widget->allocation.height);
+      TRUE, 0, 0, col_w, widget->allocation.height);*/
 
   col_w-=self->cw;
-  while (y < widget->allocation.height && row < self->num_rows) {
+  while (y < max_y && row < self->num_rows) {
     gdk_draw_rectangle (widget->window,
       (row&0x1) ?self->shade_gc : widget->style->light_gc[GTK_STATE_NORMAL],
       TRUE, x, y, col_w, self->ch);
@@ -637,11 +638,9 @@ bt_pattern_editor_expose (GtkWidget *widget,
   self->colhdr_height = hh = self->ch;
   x = 0; 
   y = hh + (int)(self->ch * floor((rect.y - hh) / self->ch));
-  //y = hh + (int)(self->ch * floor((0 - hh) / self->ch));
   if (y < hh)
       y = hh;
-  max_y = rect.y + rect.height;
-  //max_y = widget->allocation.height;
+  max_y = rect.y + rect.height + hh; // one extra line
   max_y = hh + (int)(self->ch * ceil((max_y - hh) / self->ch));
   row = (y - hh) / self->ch;
     
@@ -678,7 +677,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   
   /* draw top and left headers */
   if(rect.x<self->rowhdr_width) {
-    bt_pattern_editor_draw_rownum(self, rowhdr_x, y-self->ofs_y, row);
+    bt_pattern_editor_draw_rownum(self, rowhdr_x, y-self->ofs_y, row, max_y);
   }
   if(rect.y<self->ch) {
     bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-self->ofs_x, 0);

@@ -1936,16 +1936,18 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
 
   if(pos<sequence_length) {
     // check all tracks
+    // @todo: what if the pattern is played on multiple tracks ?
     for(i=0;((i<tracks) && !found);i++) {
       machine=bt_sequence_get_machine(sequence,i);
       if(machine==cur_machine) {
-        // find pattern start
+        // find pattern start in sequence (search <length> ticks from current pos
         spos=(pos>length)?(pos-length):0;
         for(j=spos;((j<pos) && !found);j++) {
           // get pattern for current machine and current tick from sequence
           if((pattern=bt_sequence_get_pattern(sequence,j,i))) {
             // if it is the pattern we currently show, set play-line
             if(pattern==self->priv->pattern) {
+              // @todo: this is wrong if the pattern is != one bar
               play_pos=(gdouble)(pos-j)/(gdouble)length;
               g_object_set(self->priv->pattern_table,"play-position",play_pos,NULL);
               found=TRUE;
