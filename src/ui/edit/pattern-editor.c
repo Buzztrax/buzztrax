@@ -303,13 +303,39 @@ bt_pattern_editor_get_col_height (BtPatternEditor *self)
 }
 
 static void
+bt_pattern_editor_refresh_cell (BtPatternEditor *self)
+{
+  int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
+  int x = self->rowhdr_width - self->ofs_x;
+  int g, i, w;
+  PatternColumnGroup *cgrp;
+  PatternColumn *col;
+  struct ParamType *pt;
+    
+  for (g = 0; g < self->group; g++) {
+    cgrp = &self->groups[g];
+    x += cgrp->width;
+  }
+  cgrp = &self->groups[self->group];
+  for (i = 0; i < self->parameter; i++) {
+    col=&cgrp->columns[i];
+    pt = &param_types[col->type];
+    x += self->cw * (pt->chars + 1);
+  }
+  col=&cgrp->columns[self->parameter];
+  pt = &param_types[col->type];
+  w = self->cw * (pt->chars + 1);
+
+  //GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",x, y, w, self->ch);
+  gtk_widget_queue_draw_area (GTK_WIDGET(self), x, y, w , self->ch);
+}
+
+static void
 bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 {
   int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
   int x = self->rowhdr_width - self->ofs_x;
   int g, i;
-
-  // @todo: this redraws a whole line!, try limmiting to cursor pos
   PatternColumnGroup *cgrp;
   PatternColumn *col;
   struct ParamType *pt;
@@ -328,7 +354,7 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
   pt = &param_types[col->type];
   x += self->cw * pt->column_pos[self->digit];
 
-  GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",x, y, self->cw, self->ch);
+  //GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",x, y, self->cw, self->ch);
   gtk_widget_queue_draw_area (GTK_WIDGET(self), x, y, self->cw , self->ch);
 }
 
@@ -541,6 +567,8 @@ bt_pattern_editor_realize (GtkWidget *widget)
   self->cw = pango_font_metrics_get_approximate_digit_width (pfm) / PANGO_SCALE;
   self->ch = (pango_font_metrics_get_ascent (pfm) + pango_font_metrics_get_descent (pfm)) / PANGO_SCALE;
   pango_font_metrics_unref (pfm);
+  
+  GST_INFO ("char size: %d x %d", self->cw, self->ch);
 
   self->pl = pango_layout_new (pc);
   pango_layout_set_font_description (self->pl, pfd);
@@ -600,23 +628,13 @@ bt_pattern_editor_expose (GtkWidget *widget,
   }
 
   self->colhdr_height = hh = self->ch;
-#if QUICK_REPAINT
-  /* this is an attempt to repain only the damaged region */
-  x = rect.x;
-  y = rect.y;
-  y = hh + (int)(self->ch * floor((y - hh) / self->ch));
-  if (y < hh)
-      y = hh;
-  max_y = rect.y + rect.height; /* end of dirty region */
-  max_y = hh + (int)(self->ch * ceil((max_y - hh) / self->ch));
-#else
   x = 0; 
+  // FIXME: this deserves a comment?
   y = hh + (int)(self->ch * floor((0 - hh) / self->ch));
   if (y < hh)
       y = hh;
   max_y = widget->allocation.height;
   max_y = hh + (int)(self->ch * ceil((max_y - hh) / self->ch));
-#endif
     
   /* leave space for headers */
   rowhdr_x = x;
@@ -640,11 +658,11 @@ bt_pattern_editor_expose (GtkWidget *widget,
       // check intersection
       //if((x>=rect.x && x<=rect.x+rect.width) || (x+w>=rect.x && x+w<=rect.x+rect.width)) {
       if((xs>=rect.x && xs<=rect.x+rect.width) || (xe>=rect.x && xe<=rect.x+rect.width) || (xs<=rect.x && xe>=rect.x+rect.width)) {
-        GST_INFO("Draw Group/Column: %d,%d : %3d-%3d",g,i,xs,xe);
+        GST_DEBUG("Draw Group/Column: %d,%d : %3d-%3d",g,i,xs,xe);
         bt_pattern_editor_draw_column(self, x-self->ofs_x, y-self->ofs_y, col, g, i, row, max_y);
       }
       else {
-        GST_INFO("Skip Group/Column: %d,%d : %3d-%3d",g,i,xs,xe);
+        GST_DEBUG("Skip Group/Column: %d,%d : %3d-%3d",g,i,xs,xe);
       }
       x += w;
     }
@@ -663,9 +681,11 @@ bt_pattern_editor_expose (GtkWidget *widget,
 
   /* draw play-pos */
   if(self->play_pos>=0.0) {
-    y=(gint)(self->play_pos*(gdouble)bt_pattern_editor_get_col_height(self));
+    gdouble h=(gdouble)(bt_pattern_editor_get_col_height(self)-self->colhdr_height);
+    y=self->colhdr_height+(gint)(self->play_pos*h);
     // @todo: check rect.y, rect.height
     gdk_draw_line(widget->window,self->play_pos_gc, 0,y,widget->allocation.width,y);
+    //GST_INFO("Draw playline: %d,%d -> %d,%d",0, y);
   }
 
   if (G_UNLIKELY(self->size_changed)) {  
@@ -720,7 +740,7 @@ bt_pattern_editor_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
   GTK_WIDGET_CLASS(parent_class)->size_allocate(widget,allocation);
   
   widget->allocation = *allocation;
-  GST_DEBUG("size_allocate: %d,%d %d,%d",allocation->x, allocation->y,
+  GST_INFO("size_allocate: %d,%d %d,%d",allocation->x, allocation->y,
     allocation->width, allocation->height);
 
   bt_pattern_editor_update_adjustments (BT_PATTERN_EDITOR (widget));
@@ -739,6 +759,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     PatternColumn *col = &self->groups[self->group].columns[self->parameter];
     if (event->keyval == '.') {
       self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, col->def);
+      bt_pattern_editor_refresh_cell (self);
       advance(self);
     }
     else {
@@ -770,6 +791,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           if (value > col->max) value = col->max;
           
           self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
+          bt_pattern_editor_refresh_cell (self);
           advance(self);
         }
         break;
@@ -777,6 +799,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         if (self->digit == 0 && event->keyval == '1') {
           // note off
           self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, 255);
+          bt_pattern_editor_refresh_cell (self);
           advance(self);
           break;
         }
@@ -790,6 +813,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             
             if (value >= col->min && value <= col->max && (value & 15) <= 12) {
               self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
+              bt_pattern_editor_refresh_cell (self);
               advance(self);
             }
           }
@@ -804,6 +828,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             // note range = 1..12 and not 0..11
             if (value >= col->min && value <= col->max && (value & 15) <= 12) {
               self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
+              bt_pattern_editor_refresh_cell (self);
               advance(self);
             }
           }
@@ -1191,15 +1216,15 @@ bt_pattern_editor_set_property(GObject      *object,
       self->play_pos = g_value_get_double(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
         gint y;
-        gdouble h=(gdouble)bt_pattern_editor_get_col_height(self);
+        gdouble h=(gdouble)(bt_pattern_editor_get_col_height(self)-self->colhdr_height);
         GtkAllocation allocation=GTK_WIDGET(self)->allocation;
 
-        // @todo: see sequence-view.c
-        //gtk_widget_queue_draw(GTK_WIDGET(self));
-        y=(gint)(old_pos*h)-allocation.y;
+        y=self->colhdr_height+(gint)(old_pos*h);
         gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,allocation.width,2);
-        y=(gint)(self->play_pos*h)-allocation.y;
+        GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",0, y-1, allocation.width, 2);
+        y=self->colhdr_height+(gint)(self->play_pos*h);
         gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,allocation.width,2);
+        //GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",0, y-1, allocation.width, 2);
       }
     } break;
     case PATTERN_EDITOR_OCTAVE: {
