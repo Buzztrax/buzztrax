@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzztard-0.4.0\n"
 "Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2009-03-30 10:19+0300\n"
+"POT-Creation-Date: 2009-07-17 23:30+0300\n"
 "PO-Revision-Date: 2008-12-15 17:56+0700\n"
 "Last-Translator: Erwid M Jadied <jadied@gmail.com>\n"
 "Language-Team: Indonesian <translation-team-id@lists.sourceforge.net>\n"
@@ -30,33 +30,33 @@ msgid "Show buzztard core options"
 msgstr "Tunjukkan pilihan inti buzztard"
 
 #. track commands in sequencer
-#: ../src/lib/core/pattern.c:322
+#: ../src/lib/core/pattern.c:341
 msgid "normal"
 msgstr "biasa"
 
-#: ../src/lib/core/pattern.c:322
+#: ../src/lib/core/pattern.c:341
 msgid "break"
 msgstr "berhenti"
 
-#: ../src/lib/core/pattern.c:322
+#: ../src/lib/core/pattern.c:341
 msgid "mute"
 msgstr "matikan suara"
 
-#: ../src/lib/core/pattern.c:322
+#: ../src/lib/core/pattern.c:341
 msgid "solo"
 msgstr "sendiri"
 
-#: ../src/lib/core/pattern.c:322
+#: ../src/lib/core/pattern.c:341
 msgid "bypass"
 msgstr "melewati"
 
-#: ../src/lib/core/song-io-native-bzt.c:204
+#: ../src/lib/core/song-io-native-bzt.c:237
 #: ../src/lib/core/song-io-native-xml.c:53
 #, c-format
 msgid "Loading file '%s'"
 msgstr "Mengisi berkas '%s'"
 
-#: ../src/lib/core/song-io-native-bzt.c:311
+#: ../src/lib/core/song-io-native-bzt.c:344
 #: ../src/lib/core/song-io-native-xml.c:109
 #, c-format
 msgid "Saving file '%s'"
@@ -79,39 +79,39 @@ msgstr "Pilihan pengendali interaksi buzztard"
 msgid "Show buzztard interaction controller options"
 msgstr "Tunjukkan pilihan pengendali interaksi buzztard"
 
-#: ../src/ui/cmd/bt-cmd.c:67 ../src/ui/edit/bt-edit.c:74
+#: ../src/ui/cmd/bt-cmd.c:65 ../src/ui/edit/bt-edit.c:75
 #, fuzzy
 msgid "Print application version"
 msgstr "Cetak versi aplikasi"
 
-#: ../src/ui/cmd/bt-cmd.c:68
+#: ../src/ui/cmd/bt-cmd.c:66
 msgid "Be quiet"
 msgstr "Tenanglah!"
 
-#: ../src/ui/cmd/bt-cmd.c:69 ../src/ui/edit/bt-edit.c:75
+#: ../src/ui/cmd/bt-cmd.c:67 ../src/ui/edit/bt-edit.c:76
 msgid "Command name"
 msgstr "Nama perintah"
 
-#: ../src/ui/cmd/bt-cmd.c:70 ../src/ui/edit/bt-edit.c:76
+#: ../src/ui/cmd/bt-cmd.c:68 ../src/ui/edit/bt-edit.c:77
 msgid "Input file name"
 msgstr "Masukan berkas nama"
 
-#: ../src/ui/cmd/bt-cmd.c:70 ../src/ui/cmd/bt-cmd.c:71
-#: ../src/ui/edit/bt-edit.c:76
+#: ../src/ui/cmd/bt-cmd.c:68 ../src/ui/cmd/bt-cmd.c:69
+#: ../src/ui/edit/bt-edit.c:77
 msgid "<songfile>"
 msgstr "<berkas lagu>"
 
-#: ../src/ui/cmd/bt-cmd.c:71
+#: ../src/ui/cmd/bt-cmd.c:69
 msgid "Output file name"
 msgstr "Keluaran nama berkas"
 
 #. g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
-#: ../src/ui/cmd/bt-cmd.c:90
+#: ../src/ui/cmd/bt-cmd.c:88
 #, fuzzy
 msgid "buzztard-cmd options"
 msgstr "Pilihan inti buzztard"
 
-#: ../src/ui/cmd/bt-cmd.c:90
+#: ../src/ui/cmd/bt-cmd.c:88
 #, fuzzy
 msgid "Show buzztard-cmd options"
 msgstr "Tunjukkan pilihan inti buzztard"
@@ -157,17 +157,23 @@ msgstr ""
 "UNTUK TUJUAN TERTENTU.Lihat GNU Libarary General Public License untuk "
 "informasi lebih detail."
 
-#: ../src/ui/edit/about-dialog.c:140
-msgid "Development version (do not translate this)"
+#. _("Development version (do not translate this)"
+#: ../src/ui/edit/about-dialog.c:141
+msgid ""
+"Rewrote internal pipeline management. One can now play partially connected "
+"songs, and add/remove plugins while playing. Buzztard can play notes while "
+"editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. "
+"Better user-guide including three small tutorials. Initial support for "
+"python and javascript via gobject introspection."
 msgstr ""
 
 #. g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
-#: ../src/ui/edit/bt-edit.c:98
+#: ../src/ui/edit/bt-edit.c:103
 #, fuzzy
 msgid "buzztard-edit options"
 msgstr "pilihan bt-edit"
 
-#: ../src/ui/edit/bt-edit.c:98
+#: ../src/ui/edit/bt-edit.c:103
 #, fuzzy
 msgid "Show buzztard-edit options"
 msgstr "Tunjukkan pilihan bt-edit"
@@ -211,43 +217,43 @@ msgstr ""
 msgid "About..."
 msgstr "Tentang..."
 
-#: ../src/ui/edit/machine-canvas-item.c:608
+#: ../src/ui/edit/machine-canvas-item.c:603
 #, c-format
 msgid "Delete machine '%s'"
 msgstr "Menghapus mesin '%s'"
 
-#: ../src/ui/edit/machine-canvas-item.c:616
+#: ../src/ui/edit/machine-canvas-item.c:611
 msgid "Delete machine..."
 msgstr "Menghapus mesin..."
 
-#: ../src/ui/edit/machine-canvas-item.c:616
-#: ../src/ui/edit/main-page-patterns.c:1956
+#: ../src/ui/edit/machine-canvas-item.c:611
+#: ../src/ui/edit/main-page-patterns.c:2145
 msgid "There is no undo for this."
 msgstr "Tidak ada undo untuk ini"
 
-#: ../src/ui/edit/machine-canvas-item.c:688
+#: ../src/ui/edit/machine-canvas-item.c:683
 msgid "Mute"
 msgstr "Matikan suara"
 
-#: ../src/ui/edit/machine-canvas-item.c:693
+#: ../src/ui/edit/machine-canvas-item.c:688
 msgid "Solo"
 msgstr "Solo"
 
-#: ../src/ui/edit/machine-canvas-item.c:699
+#: ../src/ui/edit/machine-canvas-item.c:694
 msgid "Bypass"
 msgstr "Melewati"
 
-#: ../src/ui/edit/machine-canvas-item.c:736
+#: ../src/ui/edit/machine-canvas-item.c:734
 msgid "Rename..."
 msgstr "Menamai ulang..."
 
 #. generators
-#: ../src/ui/edit/machine-menu.c:235
+#: ../src/ui/edit/machine-menu.c:289
 msgid "Generators"
 msgstr "Pembangkit"
 
 #. effects
-#: ../src/ui/edit/machine-menu.c:248
+#: ../src/ui/edit/machine-menu.c:302
 msgid "Effects"
 msgstr "Efek-efek"
 
@@ -271,7 +277,7 @@ msgstr "preset nama dan komentar"
 #. GtkEntry : pattern name
 #: ../src/ui/edit/machine-preset-properties-dialog.c:149
 #: ../src/ui/edit/machine-rename-dialog.c:142
-#: ../src/ui/edit/main-page-info.c:356
+#: ../src/ui/edit/main-page-info.c:360
 #: ../src/ui/edit/pattern-properties-dialog.c:165
 msgid "name"
 msgstr "nama"
@@ -281,81 +287,81 @@ msgstr "nama"
 msgid "comment"
 msgstr "komentar"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:258
+#: ../src/ui/edit/machine-preferences-dialog.c:261
 #, c-format
 msgid "%s preferences"
 msgstr "%s preferensi-preferensi"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:515
+#: ../src/ui/edit/machine-preferences-dialog.c:520
 msgid "no settings"
 msgstr "tidak ada pengaturan"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:522
+#: ../src/ui/edit/machine-preferences-dialog.c:527
 msgid "machine has no preferences"
 msgstr "mesin tidak mempunyai preferensi"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1267
+#: ../src/ui/edit/machine-properties-dialog.c:1299
 msgid "global properties"
 msgstr "parameter global"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1391
+#: ../src/ui/edit/machine-properties-dialog.c:1423
 #, c-format
 msgid "voice %lu properties"
 msgstr "parameter suara %lu"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1562
+#: ../src/ui/edit/machine-properties-dialog.c:1594
 #, fuzzy, c-format
 msgid "%s wire properties"
 msgstr "%s sifat-sifat"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1699
+#: ../src/ui/edit/machine-properties-dialog.c:1731
 msgid "Add new preset"
 msgstr "Tambahkan aturan awal baru"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1704
+#: ../src/ui/edit/machine-properties-dialog.c:1736
 msgid "Remove preset"
 msgstr "Hapus aturan awal"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1709
+#: ../src/ui/edit/machine-properties-dialog.c:1741
 msgid "Edit preset name and comment"
 msgstr "Rdit nama aturan awal dan komentar"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1740
+#: ../src/ui/edit/machine-properties-dialog.c:1774
 msgid "Preset"
 msgstr "Aturan awal"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1781
+#: ../src/ui/edit/machine-properties-dialog.c:1815
 msgid "machine properties"
 msgstr "sifat-sifat mesin"
 
 #. set a title
-#: ../src/ui/edit/machine-properties-dialog.c:1807
+#: ../src/ui/edit/machine-properties-dialog.c:1841
 #: ../src/ui/edit/pattern-properties-dialog.c:138
 #, c-format
 msgid "%s properties"
 msgstr "%s sifat-sifat"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1833
+#: ../src/ui/edit/machine-properties-dialog.c:1867
 msgid "Info about this machine"
 msgstr "Informasi tentang mesin ini"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1838
+#: ../src/ui/edit/machine-properties-dialog.c:1872
 msgid "Help for this machine"
 msgstr "Bantuan untuk mesin ini"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1848
+#: ../src/ui/edit/machine-properties-dialog.c:1882
 msgid "Randomize parameters"
 msgstr "Acak parameter"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1853
+#: ../src/ui/edit/machine-properties-dialog.c:1887
 msgid "Reset parameters to defaults"
 msgstr "Reset parameter ke standar"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1860
+#: ../src/ui/edit/machine-properties-dialog.c:1894
 msgid "Show/Hide preset pane"
 msgstr "Tampilkan/Sembunyikan pane aturan awal"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1861
+#: ../src/ui/edit/machine-properties-dialog.c:1895
 #, fuzzy
 msgid "Presets"
 msgstr "Aturan awal"
@@ -366,13 +372,13 @@ msgstr "Aturan awal"
 msgid "%s name"
 msgstr "%s name"
 
-#: ../src/ui/edit/main-menu.c:102 ../src/ui/edit/main-window.c:525
+#: ../src/ui/edit/main-menu.c:102 ../src/ui/edit/main-window.c:563
 #, c-format
 msgid "An error occurred while loading the song from file '%s'"
 msgstr "Kesalahan terjadi ketika memuat lagu dari berkas '%s'"
 
-#: ../src/ui/edit/main-menu.c:105 ../src/ui/edit/main-window.c:223
-#: ../src/ui/edit/main-window.c:526
+#: ../src/ui/edit/main-menu.c:105 ../src/ui/edit/main-window.c:251
+#: ../src/ui/edit/main-window.c:564
 msgid "Can't load song"
 msgstr "Tidak dapat memutar lagu"
 
@@ -475,115 +481,115 @@ msgstr ""
 msgid "_Help"
 msgstr "_Bantuan"
 
-#: ../src/ui/edit/main-page-info.c:337
+#: ../src/ui/edit/main-page-info.c:338 ../src/ui/edit/main-page-info.c:340
 msgid "song meta data"
 msgstr "meta data lagu"
 
-#: ../src/ui/edit/main-page-info.c:363
+#: ../src/ui/edit/main-page-info.c:367
 msgid "genre"
 msgstr "genre"
 
-#: ../src/ui/edit/main-page-info.c:370
+#: ../src/ui/edit/main-page-info.c:374
 msgid "author"
 msgstr "pencipta"
 
-#: ../src/ui/edit/main-page-info.c:377
+#: ../src/ui/edit/main-page-info.c:381
 msgid "created"
 msgstr ""
 
-#: ../src/ui/edit/main-page-info.c:389
+#: ../src/ui/edit/main-page-info.c:393
 msgid "beats per minute"
 msgstr "ketukan per menit"
 
-#: ../src/ui/edit/main-page-info.c:397
+#: ../src/ui/edit/main-page-info.c:401
 msgid "beats"
 msgstr "ketukan"
 
-#: ../src/ui/edit/main-page-info.c:405
+#: ../src/ui/edit/main-page-info.c:409
 msgid "ticks per beat"
 msgstr "tik per ketukan"
 
-#: ../src/ui/edit/main-page-info.c:413
+#: ../src/ui/edit/main-page-info.c:417
 #, fuzzy
 msgid "last saved"
 msgstr "disimpan"
 
-#: ../src/ui/edit/main-page-info.c:430
+#: ../src/ui/edit/main-page-info.c:435 ../src/ui/edit/main-page-info.c:437
 msgid "free text info"
 msgstr "info teks bebas"
 
 #. menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
-#: ../src/ui/edit/main-page-machines.c:926
+#: ../src/ui/edit/main-page-machines.c:947
 msgid "Add machine"
 msgstr "Tambahkan mesin"
 
-#: ../src/ui/edit/main-page-machines.c:940
+#: ../src/ui/edit/main-page-machines.c:961
 msgid "Unmute all machines"
 msgstr "Kembalikan semua suara  mesin"
 
-#: ../src/ui/edit/main-page-machines.c:952
+#: ../src/ui/edit/main-page-machines.c:973
 msgid "Off"
 msgstr "Mati"
 
-#: ../src/ui/edit/main-page-machines.c:959
+#: ../src/ui/edit/main-page-machines.c:980
 msgid "Low"
 msgstr "Rendah"
 
-#: ../src/ui/edit/main-page-machines.c:966
+#: ../src/ui/edit/main-page-machines.c:987
 msgid "Medium"
 msgstr "Pertengahan"
 
-#: ../src/ui/edit/main-page-machines.c:973
+#: ../src/ui/edit/main-page-machines.c:994
 msgid "High"
 msgstr "Tinggi"
 
-#: ../src/ui/edit/main-page-machines.c:1014
+#: ../src/ui/edit/main-page-machines.c:1035
 msgid "Zoom in/out so that everything is visible"
 msgstr "Perbesar/perkecil sehingga semuanya terlihat"
 
-#: ../src/ui/edit/main-page-machines.c:1021
+#: ../src/ui/edit/main-page-machines.c:1042
 msgid "Zoom in for more details"
 msgstr "Perkecil untuk melihat lebih detail"
 
-#: ../src/ui/edit/main-page-machines.c:1028
+#: ../src/ui/edit/main-page-machines.c:1049
 msgid "Zoom out for better overview"
 msgstr "Perbesar untuk penglihatan lebih baik"
 
-#: ../src/ui/edit/main-page-machines.c:1036
+#: ../src/ui/edit/main-page-machines.c:1057
 msgid "Grid"
 msgstr "Grid"
 
-#: ../src/ui/edit/main-page-machines.c:1038
+#: ../src/ui/edit/main-page-machines.c:1059
 msgid "Show background grid"
 msgstr "Tampilkan latarbelakang grid"
 
-#: ../src/ui/edit/main-page-machines.c:1039 ../src/ui/edit/main-toolbar.c:731
+#: ../src/ui/edit/main-page-machines.c:1060 ../src/ui/edit/main-toolbar.c:739
 msgid "Stop playback of this song"
 msgstr "Hentikan memutar"
 
 #. label for first global parameter column in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1414
+#: ../src/ui/edit/main-page-patterns.c:1561
 msgid "Globals"
 msgstr ""
 
 #. label for parameters of first voice column in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1430
+#: ../src/ui/edit/main-page-patterns.c:1577
 #, fuzzy
 msgid "Voice 1"
 msgstr "suara-suara"
 
 #. label for parameters of voice columns in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1443
+#: ../src/ui/edit/main-page-patterns.c:1590
 #, c-format
 msgid "Voice %u"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:1948
+#: ../src/ui/edit/main-page-patterns.c:2137
 #, fuzzy, c-format
 msgid "Delete pattern '%s'"
 msgstr "Hapus pola yang digunakan: '%s'"
 
-#: ../src/ui/edit/main-page-patterns.c:1956
+#: ../src/ui/edit/main-page-patterns.c:2145
 msgid "Delete pattern..."
 msgstr "Hapus pola..."
 
@@ -591,129 +597,129 @@ msgstr "Hapus pola..."
 #. * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
 #. * so, we need to subclass the combobox and add two signals: select-next, select-prev
 #.
-#: ../src/ui/edit/main-page-patterns.c:2070
+#: ../src/ui/edit/main-page-patterns.c:2263
 msgid "Machine"
 msgstr "mesin"
 
-#: ../src/ui/edit/main-page-patterns.c:2094
+#: ../src/ui/edit/main-page-patterns.c:2291
 msgid "Pattern"
 msgstr "Pola"
 
-#: ../src/ui/edit/main-page-patterns.c:2117
-#: ../src/ui/edit/main-page-waves.c:1092
+#: ../src/ui/edit/main-page-patterns.c:2320
+#: ../src/ui/edit/main-page-waves.c:1096
 msgid "Wave"
 msgstr "Gelombang"
 
-#: ../src/ui/edit/main-page-patterns.c:2138
+#: ../src/ui/edit/main-page-patterns.c:2343
 msgid "Octave"
 msgstr "Oktaf"
 
-#: ../src/ui/edit/main-page-patterns.c:2152
+#: ../src/ui/edit/main-page-patterns.c:2359
 #, fuzzy
-msgid "Play notes"
+msgid "Play live"
 msgstr "Waktu memutar"
 
-#: ../src/ui/edit/main-page-patterns.c:2154
-msgid "Play notes while editing the pattern"
+#: ../src/ui/edit/main-page-patterns.c:2361
+msgid "Play notes and triggers while editing the pattern"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:2191
+#: ../src/ui/edit/main-page-patterns.c:2398
 msgid "New track"
 msgstr "Track baru"
 
-#: ../src/ui/edit/main-page-patterns.c:2200
+#: ../src/ui/edit/main-page-patterns.c:2407
 msgid "Remove last track"
 msgstr "Hapuskan track terakhir"
 
-#: ../src/ui/edit/main-page-patterns.c:2214
+#: ../src/ui/edit/main-page-patterns.c:2421
 msgid "New pattern ..."
 msgstr "Pola baru..."
 
-#: ../src/ui/edit/main-page-patterns.c:2223
+#: ../src/ui/edit/main-page-patterns.c:2430
 msgid "Pattern properties..."
 msgstr "Sifat-sifat pola..."
 
-#: ../src/ui/edit/main-page-patterns.c:2232
+#: ../src/ui/edit/main-page-patterns.c:2439
 msgid "Remove pattern..."
 msgstr "Hilangkan pola..."
 
-#: ../src/ui/edit/main-page-patterns.c:2241
+#: ../src/ui/edit/main-page-patterns.c:2448
 msgid "Copy pattern..."
 msgstr "Salin pola..."
 
 #. time line position
-#: ../src/ui/edit/main-page-sequence.c:907
+#: ../src/ui/edit/main-page-sequence.c:965
 msgid "Pos."
 msgstr "Pos."
 
-#: ../src/ui/edit/main-page-sequence.c:912
+#: ../src/ui/edit/main-page-sequence.c:970
 msgid "Ticks"
 msgstr "Tik"
 
-#: ../src/ui/edit/main-page-sequence.c:913
+#: ../src/ui/edit/main-page-sequence.c:971
 msgid "Time"
 msgstr "Waktu"
 
-#: ../src/ui/edit/main-page-sequence.c:1020
-#: ../src/ui/edit/main-page-sequence.c:1051
+#: ../src/ui/edit/main-page-sequence.c:1081
+#: ../src/ui/edit/main-page-sequence.c:1113
 msgid "Labels"
 msgstr "Label"
 
 #. use spaces to avoid clashes with normal patterns?
-#: ../src/ui/edit/main-page-sequence.c:1383
+#: ../src/ui/edit/main-page-sequence.c:1460
 msgid "  clear"
 msgstr " bersih"
 
-#: ../src/ui/edit/main-page-sequence.c:1385
+#: ../src/ui/edit/main-page-sequence.c:1462
 msgid "  mute"
 msgstr " matikan suara"
 
-#: ../src/ui/edit/main-page-sequence.c:1387
+#: ../src/ui/edit/main-page-sequence.c:1464
 msgid "  break"
 msgstr " berhenti"
 
-#: ../src/ui/edit/main-page-sequence.c:1390
+#: ../src/ui/edit/main-page-sequence.c:1467
 #, fuzzy
 msgid "  bypass"
 msgstr "melewati"
 
-#: ../src/ui/edit/main-page-sequence.c:1396
+#: ../src/ui/edit/main-page-sequence.c:1473
 msgid "  solo"
 msgstr " sendiri"
 
-#: ../src/ui/edit/main-page-sequence.c:2712
+#: ../src/ui/edit/main-page-sequence.c:2821
 msgid "Show every n-th line"
 msgstr "Tampilkan setiap garis ke-n"
 
-#: ../src/ui/edit/main-page-sequence.c:2717
+#: ../src/ui/edit/main-page-sequence.c:2828
 msgid "Steps"
 msgstr "Langkah-langkah"
 
-#: ../src/ui/edit/main-page-sequence.c:2742
+#: ../src/ui/edit/main-page-sequence.c:2853
 msgid "Add track"
 msgstr "Tambahkan track"
 
-#: ../src/ui/edit/main-page-sequence.c:2748
+#: ../src/ui/edit/main-page-sequence.c:2859
 msgid "Remove track"
 msgstr "Pindahkan track"
 
-#: ../src/ui/edit/main-page-sequence.c:2762
+#: ../src/ui/edit/main-page-sequence.c:2873
 msgid "Move track left"
 msgstr "Pindahkan ke track kiri"
 
-#: ../src/ui/edit/main-page-sequence.c:2771
+#: ../src/ui/edit/main-page-sequence.c:2882
 msgid "Move track right"
 msgstr "Pindahkan ke track kanan"
 
-#: ../src/ui/edit/main-page-sequence.c:2822
+#: ../src/ui/edit/main-page-sequence.c:2933
 msgid "Browse to labels in the sequence"
 msgstr "Jelajahi ke label pada urutan"
 
-#: ../src/ui/edit/main-page-sequence.c:2906
+#: ../src/ui/edit/main-page-sequence.c:3022
 msgid "Key"
 msgstr "Kunci"
 
-#: ../src/ui/edit/main-page-sequence.c:2920
+#: ../src/ui/edit/main-page-sequence.c:3035
 msgid "Patterns"
 msgstr "Pola-pola"
 
@@ -730,47 +736,47 @@ msgid "Clear current wave table entry"
 msgstr "Bersihkan wavetable saat ini"
 
 #. Ix: index in wavetable
-#: ../src/ui/edit/main-page-waves.c:1088
+#: ../src/ui/edit/main-page-waves.c:1090
 msgid "Ix"
 msgstr "Ix"
 
-#: ../src/ui/edit/main-page-waves.c:1098
+#: ../src/ui/edit/main-page-waves.c:1102
 msgid "Volume"
 msgstr "Volume"
 
-#: ../src/ui/edit/main-page-waves.c:1103 ../src/ui/edit/main-toolbar.c:739
+#: ../src/ui/edit/main-page-waves.c:1107 ../src/ui/edit/main-toolbar.c:747
 msgid "Loop"
 msgstr "Loop"
 
-#: ../src/ui/edit/main-page-waves.c:1128
+#: ../src/ui/edit/main-page-waves.c:1132
 msgid "Play current sample"
 msgstr "Putar sample saat ini"
 
-#: ../src/ui/edit/main-page-waves.c:1134
+#: ../src/ui/edit/main-page-waves.c:1138
 msgid "Stop playback of current sample"
 msgstr "Hentikan memutar sample saat ini"
 
-#: ../src/ui/edit/main-page-waves.c:1141
+#: ../src/ui/edit/main-page-waves.c:1145
 msgid "Load current sample into selected wave table entry"
 msgstr "Muat sampel saat ini ke dalam wave table entri"
 
-#: ../src/ui/edit/main-page-waves.c:1182
+#: ../src/ui/edit/main-page-waves.c:1188
 msgid "Root"
 msgstr "Akar"
 
-#: ../src/ui/edit/main-page-waves.c:1185
+#: ../src/ui/edit/main-page-waves.c:1193
 msgid "Length"
 msgstr "Panjang"
 
-#: ../src/ui/edit/main-page-waves.c:1188
+#: ../src/ui/edit/main-page-waves.c:1198
 msgid "Rate"
 msgstr "Rate"
 
-#: ../src/ui/edit/main-page-waves.c:1192
+#: ../src/ui/edit/main-page-waves.c:1204
 msgid "Loop start"
 msgstr "Awal loop"
 
-#: ../src/ui/edit/main-page-waves.c:1196
+#: ../src/ui/edit/main-page-waves.c:1210
 msgid "Loop end"
 msgstr "Akhir loop"
 
@@ -814,71 +820,72 @@ msgstr "informasi"
 msgid "song meta data editor"
 msgstr "editor meta data lagu"
 
-#: ../src/ui/edit/main-statusbar.c:260 ../src/ui/edit/main-statusbar.c:280
-#: ../src/ui/edit/main-statusbar.c:292 ../src/ui/edit/main-statusbar.c:304
+#: ../src/ui/edit/main-statusbar.c:263 ../src/ui/edit/main-statusbar.c:283
+#: ../src/ui/edit/main-statusbar.c:295 ../src/ui/edit/main-statusbar.c:307
 msgid "default"
 msgstr "standar"
 
-#: ../src/ui/edit/main-statusbar.c:262 ../src/ui/edit/main-statusbar.c:388
+#: ../src/ui/edit/main-statusbar.c:265 ../src/ui/edit/main-statusbar.c:391
 msgid "Ready to rock!"
 msgstr "Siap berpesta!"
 
 #. @idea: this could be used to avoid resizing when the label changes
 #. gtk_progress_bar_set_ellipsize(self->priv->cpu_load,PANGO_ELLIPSIZE_END);
-#: ../src/ui/edit/main-statusbar.c:270
+#: ../src/ui/edit/main-statusbar.c:273
 msgid "CPU load"
 msgstr "Beban CPU"
 
-#: ../src/ui/edit/main-statusbar.c:278
+#: ../src/ui/edit/main-statusbar.c:281
 msgid "Playback time"
 msgstr "Waktu memutar"
 
-#: ../src/ui/edit/main-statusbar.c:290
+#: ../src/ui/edit/main-statusbar.c:293
 msgid "Playback position"
 msgstr "Posisi pemutaran"
 
-#: ../src/ui/edit/main-statusbar.c:302
+#: ../src/ui/edit/main-statusbar.c:305
 msgid "Playback length"
 msgstr "Panjang pemutaran"
 
-#: ../src/ui/edit/main-toolbar.c:276
+#: ../src/ui/edit/main-toolbar.c:282
 msgid "Error"
 msgstr "Kesalahan"
 
-#: ../src/ui/edit/main-toolbar.c:276
+#: ../src/ui/edit/main-toolbar.c:282
 msgid "An error occurred"
 msgstr "Terjadi kesalahan"
 
-#: ../src/ui/edit/main-toolbar.c:302
+#. bt_song_stop(song);
+#: ../src/ui/edit/main-toolbar.c:314
 msgid "Warning"
 msgstr "Peringatan"
 
-#: ../src/ui/edit/main-toolbar.c:302
+#: ../src/ui/edit/main-toolbar.c:314
 msgid "A problem occurred"
 msgstr "Terjadi permasalahan"
 
-#: ../src/ui/edit/main-toolbar.c:699
+#: ../src/ui/edit/main-toolbar.c:707
 msgid "Prepare a new empty song"
 msgstr "Mempersiapkan lagu baru yang kosong"
 
-#: ../src/ui/edit/main-toolbar.c:705
+#: ../src/ui/edit/main-toolbar.c:713
 msgid "Load a new song"
 msgstr "Memuat lagu baru"
 
-#: ../src/ui/edit/main-toolbar.c:712
+#: ../src/ui/edit/main-toolbar.c:720
 msgid "Save this song"
 msgstr "Simpan lagu ini"
 
-#: ../src/ui/edit/main-toolbar.c:723
+#: ../src/ui/edit/main-toolbar.c:731
 msgid "Play this song"
 msgstr "Putar lagu ini"
 
-#: ../src/ui/edit/main-toolbar.c:741
+#: ../src/ui/edit/main-toolbar.c:749
 msgid "Toggle looping of playback"
 msgstr "Toogle loop pemutar"
 
 #. @idea have distinct tooltips with channel names
-#: ../src/ui/edit/main-toolbar.c:757
+#: ../src/ui/edit/main-toolbar.c:769
 msgid "playback volume"
 msgstr "volume pemutar"
 
@@ -886,71 +893,75 @@ msgstr "volume pemutar"
 #. min=
 #. max=
 #. step=
-#: ../src/ui/edit/main-toolbar.c:775
+#: ../src/ui/edit/main-toolbar.c:787
 msgid "Change playback volume"
 msgstr "Ubah volume suara"
 
 #. we don't use PACKAGE_NAME = 'buzztard' for the window title
-#: ../src/ui/edit/main-window.c:178
+#: ../src/ui/edit/main-window.c:206
 msgid "unsaved"
 msgstr "tidak disimpan"
 
-#: ../src/ui/edit/main-window.c:178
+#: ../src/ui/edit/main-window.c:206
 msgid "saved"
 msgstr "disimpan"
 
-#: ../src/ui/edit/main-window.c:222
+#: ../src/ui/edit/main-window.c:250
 #, c-format
 msgid "An error occurred while trying to load the song from file '%s'"
 msgstr "Kesalahan terjadi ketika berusaha memuat lagu dari berkas '%s'"
 
-#: ../src/ui/edit/main-window.c:417
+#: ../src/ui/edit/main-window.c:445
 msgid "Really quit?"
 msgstr "Keluar?"
 
-#: ../src/ui/edit/main-window.c:417 ../src/ui/edit/main-window.c:441
+#: ../src/ui/edit/main-window.c:445 ../src/ui/edit/main-window.c:469
 msgid "All unsaved changes will be lost then."
 msgstr "Semau perubahan yang tidak tersimpan akan hlang."
 
 #. @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
-#: ../src/ui/edit/main-window.c:441
+#: ../src/ui/edit/main-window.c:469
 msgid "New song?"
 msgstr "Lagu baru?"
 
-#: ../src/ui/edit/main-window.c:460
+#: ../src/ui/edit/main-window.c:488
 msgid "Open a song"
 msgstr "Buka lagu"
 
-#: ../src/ui/edit/main-window.c:565
+#: ../src/ui/edit/main-window.c:603
 #, c-format
 msgid "An error occurred while saving the song to file '%s'."
 msgstr "Kesalahan terjadi menyimpan lagu kedalam berkas '%s'."
 
-#: ../src/ui/edit/main-window.c:566 ../src/ui/edit/main-window.c:705
-#: ../src/ui/edit/main-window.c:717
+#: ../src/ui/edit/main-window.c:604 ../src/ui/edit/main-window.c:802
+#: ../src/ui/edit/main-window.c:814
 msgid "Can't save song"
 msgstr "Tidak dapat menyimpan lagu"
 
-#: ../src/ui/edit/main-window.c:593
+#: ../src/ui/edit/main-window.c:632
 msgid "Save a song"
 msgstr "Simpan lagu"
 
-#: ../src/ui/edit/main-window.c:691 ../src/ui/edit/main-window.c:692
+#: ../src/ui/edit/main-window.c:752 ../src/ui/edit/render-dialog.c:273
+msgid "Format"
+msgstr "Format"
+
+#: ../src/ui/edit/main-window.c:788 ../src/ui/edit/main-window.c:789
 msgid "File already exists"
 msgstr "Berkas sudah ada"
 
-#: ../src/ui/edit/main-window.c:693
+#: ../src/ui/edit/main-window.c:790
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
 msgstr ""
 "Pilih 'OK' untuk menulis ulang atau 'Batal' untuk membatalkan menyimpan lagu."
 
-#: ../src/ui/edit/main-window.c:704
+#: ../src/ui/edit/main-window.c:801
 #, c-format
 msgid "An error occurred while trying to open the file '%s' for writing: %s"
 msgstr ""
 "Kesalahan terjadi ketika berusaha membuka berkas '%s' untuk menulis: %s"
 
-#: ../src/ui/edit/main-window.c:716
+#: ../src/ui/edit/main-window.c:813
 #, c-format
 msgid "An error occurred while trying to save the song to file '%s'."
 msgstr "Kesalahan terjadi ketika berusaha menyimpan lagu ke berkas '%s'"
@@ -1039,10 +1050,6 @@ msgstr "Pilih folder"
 msgid "Filename"
 msgstr "Namaberkas"
 
-#: ../src/ui/edit/render-dialog.c:273
-msgid "Format"
-msgstr "Format"
-
 #: ../src/ui/edit/render-dialog.c:290
 msgid "Mode"
 msgstr "Mode"
@@ -1061,29 +1068,29 @@ msgstr "rendering lagu sedang dalam progress"
 msgid "buzztard settings"
 msgstr "pengaturan buzztard"
 
-#: ../src/ui/edit/settings-dialog.c:177 ../src/ui/edit/settings-dialog.c:232
+#: ../src/ui/edit/settings-dialog.c:178 ../src/ui/edit/settings-dialog.c:233
 msgid "Audio Devices"
 msgstr "Alat-alat audio"
 
-#: ../src/ui/edit/settings-dialog.c:184 ../src/ui/edit/settings-dialog.c:239
+#: ../src/ui/edit/settings-dialog.c:185 ../src/ui/edit/settings-dialog.c:240
 #: ../src/ui/edit/settings-page-interaction-controller.c:114
 msgid "Interaction Controller"
 msgstr "Pengendali Interaksi"
 
-#: ../src/ui/edit/settings-dialog.c:191 ../src/ui/edit/settings-dialog.c:246
+#: ../src/ui/edit/settings-dialog.c:192 ../src/ui/edit/settings-dialog.c:247
 #: ../src/ui/edit/settings-page-playback-controller.c:105
 msgid "Playback Controller"
 msgstr "Pengendali pemutar"
 
-#: ../src/ui/edit/settings-dialog.c:198 ../src/ui/edit/settings-dialog.c:255
+#: ../src/ui/edit/settings-dialog.c:199 ../src/ui/edit/settings-dialog.c:256
 msgid "Colors"
 msgstr "Warna-warna"
 
-#: ../src/ui/edit/settings-dialog.c:205 ../src/ui/edit/settings-dialog.c:264
+#: ../src/ui/edit/settings-dialog.c:206 ../src/ui/edit/settings-dialog.c:265
 msgid "Shortcuts"
 msgstr "Jalan pintas"
 
-#: ../src/ui/edit/settings-dialog.c:212 ../src/ui/edit/settings-dialog.c:271
+#: ../src/ui/edit/settings-dialog.c:213 ../src/ui/edit/settings-dialog.c:272
 #: ../src/ui/edit/settings-page-directories.c:92
 msgid "Directories"
 msgstr "Direktori"
@@ -1096,29 +1103,29 @@ msgstr "Alat audio"
 msgid "Sink"
 msgstr "Sink"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:149
+#: ../src/ui/edit/settings-page-audiodevices.c:151
 #, fuzzy, c-format
 msgid "system default: %s (%s)"
 msgstr "standar sistem (%s)"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:156
+#: ../src/ui/edit/settings-page-audiodevices.c:158
 #, fuzzy
 msgid "system default: -"
 msgstr "standar sistem (%s)"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:208
+#: ../src/ui/edit/settings-page-audiodevices.c:211
 msgid "Sampling rate"
 msgstr ""
 
-#: ../src/ui/edit/settings-page-audiodevices.c:236
+#: ../src/ui/edit/settings-page-audiodevices.c:239
 msgid "Channels"
 msgstr ""
 
-#: ../src/ui/edit/settings-page-audiodevices.c:241
+#: ../src/ui/edit/settings-page-audiodevices.c:244
 msgid "mono"
 msgstr ""
 
-#: ../src/ui/edit/settings-page-audiodevices.c:242
+#: ../src/ui/edit/settings-page-audiodevices.c:245
 msgid "stereo"
 msgstr ""
 
@@ -1154,11 +1161,11 @@ msgstr "Tidak dapat menemukan berkas pixmap: %s"
 msgid "%s -> %s analysis"
 msgstr "%s -> %s analisa"
 
-#: ../src/ui/edit/wire-canvas-item.c:798
+#: ../src/ui/edit/wire-canvas-item.c:797
 msgid "Disconnect"
 msgstr "Memutuskan"
 
-#: ../src/ui/edit/wire-canvas-item.c:808
+#: ../src/ui/edit/wire-canvas-item.c:807
 msgid "Signal Analysis..."
 msgstr "Menganalisa Sinyal..."
 

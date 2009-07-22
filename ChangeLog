@@ -1,5 +1,10 @@
 2009-07-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* po/da.po:
+	  Updating translations from TPO.
+
+2009-07-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Reset playline when resizing the pattern.
 
