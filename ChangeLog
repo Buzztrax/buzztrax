@@ -1,6 +1,14 @@
 2009-07-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
+	  Reset playline when resizing the pattern.
+
+	* src/ui/edit/pattern-editor.c:
+	  Draw playline with correct scroll offset.
+
+2009-07-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
 	  Search for currect pattern from active position backwards. Fixes
 	  finding an earlier occurance and drawing the line at the wrong
 	  position.

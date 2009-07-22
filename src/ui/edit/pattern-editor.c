@@ -687,7 +687,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   /* draw play-pos */
   if(self->play_pos>=0.0) {
     gdouble h=(gdouble)(bt_pattern_editor_get_col_height(self)-self->colhdr_height);
-    y=self->colhdr_height+(gint)(self->play_pos*h);
+    y=self->colhdr_height+(gint)(self->play_pos*h) - self->ofs_y;
     // @todo: check rect.y, rect.height
     gdk_draw_line(widget->window,self->play_pos_gc, 0,y,widget->allocation.width,y);
     //GST_INFO("Draw playline: %d,%d -> %d,%d",0, y);
@@ -1224,10 +1224,10 @@ bt_pattern_editor_set_property(GObject      *object,
         gdouble h=(gdouble)(bt_pattern_editor_get_col_height(self)-self->colhdr_height);
         GtkAllocation allocation=GTK_WIDGET(self)->allocation;
 
-        y=self->colhdr_height+(gint)(old_pos*h);
+        y=self->colhdr_height+(gint)(old_pos*h) - self->ofs_y;
         gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,allocation.width,2);
         GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",0, y-1, allocation.width, 2);
-        y=self->colhdr_height+(gint)(self->play_pos*h);
+        y=self->colhdr_height+(gint)(self->play_pos*h) - self->ofs_y;
         gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,allocation.width,2);
         //GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",0, y-1, allocation.width, 2);
       }

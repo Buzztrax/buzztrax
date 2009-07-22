@@ -1603,6 +1603,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
   else {
     bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self, 0, 0, NULL, &callbacks);
   }
+  g_object_set(self->priv->pattern_table,"play-position",-1.0,NULL);
 }
 
 /*
