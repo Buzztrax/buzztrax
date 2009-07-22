@@ -3,10 +3,10 @@
 # Erwin Poeze <erwin.poeze@gmail.com>, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztard-0.4.0\n"
+"Project-Id-Version: buzztard-0.5.0-pre1\n"
 "Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2009-07-17 23:30+0300\n"
-"PO-Revision-Date: 2008-11-18 13:08+0100\n"
+"PO-Revision-Date: 2009-07-22 18:33+0100\n"
 "Last-Translator: Erwin Poeze <erwin.poeze@gmail.com>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
 "MIME-Version: 1.0\n"
@@ -81,7 +81,6 @@ msgid "Show buzztard interaction controller options"
 msgstr "Opties interactieregelaar tonen"
 
 #: ../src/ui/cmd/bt-cmd.c:65 ../src/ui/edit/bt-edit.c:75
-#, fuzzy
 msgid "Print application version"
 msgstr "Programmaversie tonen"
 
@@ -108,20 +107,18 @@ msgstr "Naam uitvoerbestand"
 
 #. g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
 #: ../src/ui/cmd/bt-cmd.c:88
-#, fuzzy
 msgid "buzztard-cmd options"
-msgstr "Opties buzztardkern"
+msgstr "Opties buzztard-cmd"
 
 #: ../src/ui/cmd/bt-cmd.c:88
-#, fuzzy
 msgid "Show buzztard-cmd options"
-msgstr "Opties buzztardkern tonen"
+msgstr "Opties buzztard-cmd tonen"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Kost <ensonic@users.sf.net>
 #: ../src/ui/edit/about-dialog.c:84
 msgid "translator-credits"
-msgstr ""
+msgstr "Erwin Poeze <erwin.poeze@gmail.com>"
 
 #: ../src/ui/edit/about-dialog.c:86 ../src/ui/edit/about-dialog.c:87
 #, c-format
@@ -134,54 +131,31 @@ msgstr "Omgeving voor muziekproductie"
 
 #: ../src/ui/edit/about-dialog.c:108
 msgid ""
-"This package is free software; you can redistribute it and/or modify it "
-"under the terms of the GNU Library General Public License as published by "
-"the Free Software Foundation; either version 2 of the License, or (at your "
-"option) any later version.\n"
+"This package is free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n"
 "\n"
-"This package is distributed in the hope that it will be useful, but WITHOUT "
-"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
-"FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License "
-"for more details.\n"
+"This package is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.\n"
 "\n"
-"You should have received a copy of the GNU Library General Public License "
-"along with this package; if not, write to the Free Software Foundation, "
-"Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
+"You should have received a copy of the GNU Library General Public License along with this package; if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
 msgstr ""
-"Dit pakket is vrije software. U kunt het herdistribueren en/of aanpassen "
-"onder de voorwaarden van de GNU Library Public License zoals gepubliceerd "
-"door de Free Software Foundation; ofwel versie 2 van de licentie, ofwel "
-"iedere latere versie (naar uw keuze).\n"
+"Dit pakket is vrije software. U kunt het herdistribueren en/of aanpassen onder de voorwaarden van de GNU Library Public License zoals gepubliceerd door de Free Software Foundation; ofwel versie 2 van de licentie, ofwel iedere latere versie (naar uw keuze).\n"
 "\n"
-"Dit pakket is verspreid in de hoop dat het bruikbaar zal zijn, maar ZONDER "
-"ENIGE GARANTIE; zelfs zonder de gesuggereerde waarborg van VERHANDELBAARHEID "
-"of BRUIKBAARHEID VOOR EEN BEPAALD DOEL. Zie de GNU Library General Public "
-"Licence voor meer details.\n"
+"Dit pakket is verspreid in de hoop dat het bruikbaar zal zijn, maar ZONDER ENIGE GARANTIE; zelfs zonder de gesuggereerde waarborg van VERHANDELBAARHEID of BRUIKBAARHEID VOOR EEN BEPAALD DOEL. Zie de GNU Library General Public Licence voor meer details.\n"
 "\n"
-"Samen met dit pakket moet een u kopie van de GNU Library General Public "
-"License ontvangen hebben; zo niet, schrijft dan naar Free Software "
-"Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
+"Samen met dit pakket moet een u kopie van de GNU Library General Public License ontvangen hebben; zo niet, schrijft dan naar Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
 
 #. _("Development version (do not translate this)"
 #: ../src/ui/edit/about-dialog.c:141
-msgid ""
-"Rewrote internal pipeline management. One can now play partially connected "
-"songs, and add/remove plugins while playing. Buzztard can play notes while "
-"editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. "
-"Better user-guide including three small tutorials. Initial support for "
-"python and javascript via gobject introspection."
+msgid "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztard can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
 msgstr ""
 
 #. g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
 #: ../src/ui/edit/bt-edit.c:103
-#, fuzzy
 msgid "buzztard-edit options"
-msgstr "Buzztardbewerkopties"
+msgstr "Opties Buzztard-bewerken"
 
 #: ../src/ui/edit/bt-edit.c:103
-#, fuzzy
 msgid "Show buzztard-edit options"
-msgstr "Buzztardbewerkopties tonen"
+msgstr "Opties Buzztard-bewerken tonen"
 
 #: ../src/ui/edit/edit-application.c:110
 msgid "-> You will not see any level-meters."
@@ -315,9 +289,9 @@ msgid "voice %lu properties"
 msgstr "stem-%lu-eigenschappen"
 
 #: ../src/ui/edit/machine-properties-dialog.c:1594
-#, fuzzy, c-format
+#, c-format
 msgid "%s wire properties"
-msgstr "%s-eigenschappen"
+msgstr "%s signaaleigenschappen"
 
 #: ../src/ui/edit/machine-properties-dialog.c:1731
 msgid "Add new preset"
@@ -367,9 +341,8 @@ msgid "Show/Hide preset pane"
 msgstr "Paneel voorinstellingen tonen/verbergen"
 
 #: ../src/ui/edit/machine-properties-dialog.c:1895
-#, fuzzy
 msgid "Presets"
-msgstr "Voorinstelling"
+msgstr "Voorinstellingen"
 
 #. set a title
 #: ../src/ui/edit/machine-rename-dialog.c:115
@@ -412,7 +385,6 @@ msgid "Toolbar"
 msgstr "Werkbalk"
 
 #: ../src/ui/edit/main-menu.c:777
-#, fuzzy
 msgid "Statusbar"
 msgstr "statusbalk"
 
@@ -468,7 +440,7 @@ msgstr "_Afspelen"
 
 #: ../src/ui/edit/main-menu.c:876
 msgid "Play from cursor"
-msgstr ""
+msgstr "Vanaf cursor spelen"
 
 #. @todo toggle loop item
 #. * - we only have:
@@ -500,7 +472,7 @@ msgstr "auteur"
 
 #: ../src/ui/edit/main-page-info.c:381
 msgid "created"
-msgstr ""
+msgstr "gemaakt"
 
 #: ../src/ui/edit/main-page-info.c:393
 msgid "beats per minute"
@@ -515,9 +487,8 @@ msgid "ticks per beat"
 msgstr "tikken per slag"
 
 #: ../src/ui/edit/main-page-info.c:417
-#, fuzzy
 msgid "last saved"
-msgstr "Bewaard"
+msgstr "Recent bewaard"
 
 #: ../src/ui/edit/main-page-info.c:435 ../src/ui/edit/main-page-info.c:437
 msgid "free text info"
@@ -575,24 +546,23 @@ msgstr "Afspelen van dit nummer stoppen"
 #. label for first global parameter column in a pattern
 #: ../src/ui/edit/main-page-patterns.c:1561
 msgid "Globals"
-msgstr ""
+msgstr "Algemeen"
 
 #. label for parameters of first voice column in a pattern
 #: ../src/ui/edit/main-page-patterns.c:1577
-#, fuzzy
 msgid "Voice 1"
-msgstr "stemmen"
+msgstr "Stem 1"
 
 #. label for parameters of voice columns in a pattern
 #: ../src/ui/edit/main-page-patterns.c:1590
 #, c-format
 msgid "Voice %u"
-msgstr ""
+msgstr "Stem %u"
 
 #: ../src/ui/edit/main-page-patterns.c:2137
-#, fuzzy, c-format
+#, c-format
 msgid "Delete pattern '%s'"
-msgstr "Gebruikt patroon '%s' verwijderen"
+msgstr "Patroon '%s' verwijderen"
 
 #: ../src/ui/edit/main-page-patterns.c:2145
 msgid "Delete pattern..."
@@ -620,13 +590,12 @@ msgid "Octave"
 msgstr "Octaaf"
 
 #: ../src/ui/edit/main-page-patterns.c:2359
-#, fuzzy
 msgid "Play live"
-msgstr "Afspeeltijd"
+msgstr "'Live' afspelen"
 
 #: ../src/ui/edit/main-page-patterns.c:2361
 msgid "Play notes and triggers while editing the pattern"
-msgstr ""
+msgstr "Speel noten en triggers tijdens de patroonbewerking"
 
 #: ../src/ui/edit/main-page-patterns.c:2398
 msgid "New track"
@@ -684,9 +653,8 @@ msgid "  break"
 msgstr "  onderbreken"
 
 #: ../src/ui/edit/main-page-sequence.c:1467
-#, fuzzy
 msgid "  bypass"
-msgstr "omleiding"
+msgstr "  omleiding"
 
 #: ../src/ui/edit/main-page-sequence.c:1473
 msgid "  solo"
@@ -957,9 +925,7 @@ msgstr "Bestand bestaat al"
 
 #: ../src/ui/edit/main-window.c:790
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
-msgstr ""
-"Kies 'OK' om het nummer te overschrijven, 'Annuleren' om het bewaren af te "
-"breken."
+msgstr "Kies 'OK' om het nummer te overschrijven, 'Annuleren' om het bewaren af te breken."
 
 #: ../src/ui/edit/main-window.c:801
 #, c-format
@@ -985,19 +951,12 @@ msgid "Missing GStreamer elements"
 msgstr "Ontbrekende onderdelen van GStreamer"
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:152
-msgid ""
-"The elements listed below are missing from your installation, but are "
-"required."
-msgstr ""
-"De onderstaande elementen ontbreken in uw installatie, maar zijn wel vereist."
+msgid "The elements listed below are missing from your installation, but are required."
+msgstr "De onderstaande elementen ontbreken in uw installatie, maar zijn wel vereist."
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:192
-msgid ""
-"The elements listed below are missing from your installation, but are "
-"recommended for full functionality."
-msgstr ""
-"De onderstaande elementen ontbreken in uw installatie, maar zijn wel "
-"aanbevolen voor een volledige functionaliteit."
+msgid "The elements listed below are missing from your installation, but are recommended for full functionality."
+msgstr "De onderstaande elementen ontbreken in uw installatie, maar zijn wel aanbevolen voor een volledige functionaliteit."
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:194
 msgid "don't warn again"
@@ -1107,30 +1066,29 @@ msgid "Sink"
 msgstr "Put"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:151
-#, fuzzy, c-format
+#, c-format
 msgid "system default: %s (%s)"
-msgstr "systeemstandaard (%s)"
+msgstr "systeemstandaard: %s (%s)"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:158
-#, fuzzy
 msgid "system default: -"
-msgstr "systeemstandaard (%s)"
+msgstr "systeemstandaard: -"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:211
 msgid "Sampling rate"
-msgstr ""
+msgstr "Monsterfrequentie"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:239
 msgid "Channels"
-msgstr ""
+msgstr "Kanalen"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:244
 msgid "mono"
-msgstr ""
+msgstr "mono"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:245
 msgid "stereo"
-msgstr ""
+msgstr "stereo"
 
 #: ../src/ui/edit/settings-page-directories.c:99
 msgid "Songs"
@@ -1175,23 +1133,8 @@ msgstr "Signaalanalyse..."
 #~ msgid "Show version"
 #~ msgstr "Versie tonen"
 
-#~ msgid ""
-#~ "As planned, main focus for this release was the wavetable support. Its "
-#~ "done - buzztard can load what gstreamer can decode.The wavetable view has "
-#~ "a nice waveform widget. Related to that buzztard has a new song-format "
-#~ "that bundles the XML together with external files in a zip archive. Also "
-#~ "the UI has seen a lot of improvements. The machine view looks nicer - "
-#~ "Marc drew spiffy machine icons. In addition they now show real volume "
-#~ "meters when playing. All meters are now properly synced."
-#~ msgstr ""
-#~ "De nadruk in deze uitgave ligt op de ondersteuning van de golftabel. "
-#~ "Buzztard kan alles laden wat gstreamer kan decoderen. De golftabel heeft "
-#~ "een mooie golfvormassistent. Daaraan gerelateerd heeft Buzztard een "
-#~ "nieuwe nummerstructuur dat de XML samenbundelt met externe bestanden in "
-#~ "een zip-achief. Ook heeft de grafische interface vele verbeteringen "
-#~ "ondergaan. De machineweergave toont prettiger; Marc tekende strakke "
-#~ "machinepictogrammen. Daarnaast tonen ze nu echte geluidsterktemeters "
-#~ "tijdens het afspelen. Alle meters zijn nu correct gesynchroniseerd."
+#~ msgid "As planned, main focus for this release was the wavetable support. Its done - buzztard can load what gstreamer can decode.The wavetable view has a nice waveform widget. Related to that buzztard has a new song-format that bundles the XML together with external files in a zip archive. Also the UI has seen a lot of improvements. The machine view looks nicer - Marc drew spiffy machine icons. In addition they now show real volume meters when playing. All meters are now properly synced."
+#~ msgstr "De nadruk in deze uitgave ligt op de ondersteuning van de golftabel. Buzztard kan alles laden wat gstreamer kan decoderen. De golftabel heeft een mooie golfvormassistent. Daaraan gerelateerd heeft Buzztard een nieuwe nummerstructuur dat de XML samenbundelt met externe bestanden in een zip-achief. Ook heeft de grafische interface vele verbeteringen ondergaan. De machineweergave toont prettiger; Marc tekende strakke machinepictogrammen. Daarnaast tonen ze nu echte geluidsterktemeters tijdens het afspelen. Alle meters zijn nu correct gesynchroniseerd."
 
 #~ msgid "Buzztard Music Editor"
 #~ msgstr "Buzztardmuziekbewerker"
