@@ -3136,6 +3136,7 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
       if(gtk_tree_model_get_iter(store,&iter,path)) {
         glong i,j;
 
+        // @todo: needs to bundle updates and refresh after once afterwards
         for(i=selection_start_row;i<=selection_end_row;i++) {
           for(j=selection_start_column-1;j<selection_end_column;j++) {
             GST_DEBUG("  delete sequence cell: %3ld,%3ld",j,i);

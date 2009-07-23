@@ -1,3 +1,12 @@
+2009-07-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Make two methods public to allow mass sequence updates without
+	  intermediate refreshs.
+
 2009-07-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* po/de.po:

@@ -28,6 +28,8 @@
 
 extern BtSequence *bt_sequence_new(const BtSong * const song);
 
+extern void bt_sequence_repair_damage(const BtSequence * const self);
+
 extern BtMachine *bt_sequence_get_machine(const BtSequence * const self,const gulong track);
 
 extern gboolean bt_sequence_add_track(const BtSequence * const self,const BtMachine * const machine);
@@ -39,6 +41,7 @@ extern gboolean bt_sequence_move_track_right(const BtSequence * const self, cons
 extern gchar *bt_sequence_get_label(const BtSequence * const self, const gulong time);
 extern void bt_sequence_set_label(const BtSequence * const self, const gulong time, const gchar * const label);
 extern BtPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulong time, const gulong track);
+extern gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern);
 extern void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern);
 
 extern GstClockTime bt_sequence_get_bar_time(const BtSequence * const self);

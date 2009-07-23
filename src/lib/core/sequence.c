@@ -97,8 +97,6 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper methods
 
-static gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern);
-
 /*
  * bt_sequence_resize_data_length:
  * @self: the sequence to resize the length
@@ -646,85 +644,6 @@ static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _valu
   return(TRUE);
 }
 
-/*
- * bt_sequence_repair_damage:
- *
- * Works through the repair queue and rebuilds controller queues, where needed.
- */
-static void bt_sequence_repair_damage(const BtSequence * const self) {
-  gulong i,j,k,l;
-  BtSetup *setup=NULL;
-  BtMachine *machine;
-  BtWire *wire;
-  GList *wires,*node;
-  gulong global_params,voice_params,voices,wire_params;
-  GHashTable *hash,*param_hash;
-  gconstpointer hash_params[4];
-
-  GST_DEBUG("repair damage");
-  hash_params[0]=(gpointer)self;
-
-  // repair damage
-  for(i=0;i<self->priv->tracks;i++) {
-    if((machine=bt_sequence_get_machine(self,i))) {
-      GST_DEBUG("check damage for track %lu",i);
-      if((hash=g_hash_table_lookup(self->priv->damage,machine))) {
-        GST_DEBUG("repair damage for track %lu",i);
-        g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
-        hash_params[1]=machine;
-
-        // repair damage of wires
-        if(!setup)
-          g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-        wires=bt_setup_get_wires_by_dst_machine(setup,machine);
-        for(k=0,node=wires;node;node=g_list_next(node)) {
-          wire=BT_WIRE(node->data);
-          g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
-          hash_params[3]=GUINT_TO_POINTER(wire);
-          // repair damage of wire params
-          for(j=0;j<wire_params;j++) {
-            l=(global_params+voices*voice_params+BT_WIRE_MAX_NUM_PARAMS*k)+j;
-            if((param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(l)))) {
-              hash_params[2]=GUINT_TO_POINTER(j);
-              g_hash_table_foreach_remove(param_hash,bt_sequence_repair_wire_damage_entry,hash_params);
-              g_hash_table_remove(hash,GUINT_TO_POINTER(l));
-            }
-          }
-          g_object_unref(wire);
-        }
-        g_list_free(wires);
-
-        // repair damage of global params
-        for(j=0;j<global_params;j++) {
-          if((param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(j)))) {
-            hash_params[2]=GUINT_TO_POINTER(j);
-            g_hash_table_foreach_remove(param_hash,bt_sequence_repair_global_damage_entry,&hash_params);
-            g_hash_table_remove(hash,GUINT_TO_POINTER(j));
-          }
-        }
-
-        // repair damage of voices
-        for(k=0;k<voices;k++) {
-          hash_params[3]=GUINT_TO_POINTER(k);
-          // repair damage of voice params
-          for(j=0;j<voice_params;j++) {
-            l=(global_params+k*voice_params)+j;
-            if((param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(l)))) {
-              hash_params[2]=GUINT_TO_POINTER(j);
-              g_hash_table_foreach_remove(param_hash,bt_sequence_repair_voice_damage_entry,hash_params);
-              g_hash_table_remove(hash,GUINT_TO_POINTER(l));
-            }
-          }
-        }
-        
-        g_hash_table_remove(self->priv->damage,machine);
-      }
-      g_object_unref(machine);
-    }
-  }
-  g_object_try_unref(setup);
-}
-
 static void bt_sequence_calculate_wait_per_position(const BtSequence * const self) {
   BtSongInfo * const song_info;
   gulong beats_per_minute,ticks_per_beat;
@@ -1025,112 +944,6 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
 
 //-- helper methods
 
-/*
- * bt_sequence_set_pattern_quick:
- *
- * a quick version of bt_sequence_set_pattern()
- * that does not repair damage and call it the real one
- *
- * Returns: %TRUE if a change has been made. One should call
- * bt_sequence_repair_damage() in that case.
- */
-static gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern) {
-  BtSetup *setup;
-  BtMachine * const machine;
-  BtWire *wire;
-  BtWirePattern *wire_pattern;
-  GList *wires,*node;
-  gboolean changed=FALSE;
-
-  if(pattern) {
-    g_return_val_if_fail(BT_IS_PATTERN(pattern),FALSE);
-    g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
-    if(self->priv->machines[track]!=machine) {
-      GST_WARNING("adding a pattern to a track with different machine!");
-      g_object_unref(machine);
-      return(FALSE);
-    }
-    g_object_unref(machine);
-  }
-
-  const gulong index=time*self->priv->tracks+track;
-  BtPattern *old_pattern=self->priv->patterns[index];
-
-  GST_DEBUG("set pattern from %p to %p for time %lu, track %lu",
-    self->priv->patterns[index],pattern,time,track);
-  
-  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-
-  // take out the old pattern
-  if(old_pattern) {
-    GST_DEBUG("clean up for old pattern");
-   
-    // detatch a signal handler if this was the last usage
-    if(bt_sequence_get_number_of_pattern_uses(self,old_pattern)==1) {
-      g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_global_param_changed,NULL);
-      g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_voice_param_changed,NULL);
-      g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_changed,NULL);
-
-      g_object_get(G_OBJECT(old_pattern),"machine",&machine,NULL);
-      wires=bt_setup_get_wires_by_dst_machine(setup,machine);
-      for(node=wires;node;node=g_list_next(node)) {
-        wire=BT_WIRE(node->data);
-        if((wire_pattern=bt_wire_get_pattern(wire,old_pattern))) {
-          g_signal_handlers_disconnect_matched(G_OBJECT(wire_pattern),G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
-          g_signal_handlers_disconnect_matched(G_OBJECT(wire_pattern),G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_changed,NULL);
-          g_object_unref(wire_pattern);
-        }
-        g_object_unref(wire);
-      }
-      g_list_free(wires);
-      g_object_unref(machine);
-    }
-    // mark region covered by old pattern as damaged
-    bt_sequence_invalidate_pattern_region(self,time,track,self->priv->patterns[index]);
-    changed=TRUE;
-    g_object_unref(self->priv->patterns[index]);
-    self->priv->patterns[index]=NULL;
-  }
-  if(pattern) {
-    GST_DEBUG("set new pattern");
-    // enter the new pattern
-    self->priv->patterns[index]=g_object_ref(G_OBJECT(pattern));
-    //g_object_add_weak_pointer(G_OBJECT(pattern),(gpointer *)(&self->priv->patterns[index]));
-
-    // attatch a signal handler if this is the first usage
-    if(bt_sequence_get_number_of_pattern_uses(self,pattern)==1) {
-      //GST_INFO("subscribing to changes for pattern %p",pattern);
-      g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
-      g_signal_connect(G_OBJECT(pattern),"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
-      g_signal_connect(G_OBJECT(pattern),"pattern-changed",G_CALLBACK(bt_sequence_on_pattern_changed),(gpointer)self);
-
-      g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
-      wires=bt_setup_get_wires_by_dst_machine(setup,machine);
-      for(node=wires;node;node=g_list_next(node)) {
-        wire=BT_WIRE(node->data);
-        if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
-          g_signal_connect(G_OBJECT(wire_pattern),"param-changed",G_CALLBACK(bt_sequence_on_wire_pattern_wire_param_changed),(gpointer)self);
-          g_signal_connect(G_OBJECT(wire_pattern),"pattern-changed",G_CALLBACK(bt_sequence_on_wire_pattern_changed),(gpointer)self);
-          g_object_unref(wire_pattern);
-        }
-        else {
-          // we need to wait for the first wire-pattern
-          g_signal_connect(G_OBJECT(wire),"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
-        }
-        g_object_unref(wire);
-      }
-      g_list_free(wires);
-      g_object_unref(machine);
-    }
-    // mark region covered by new pattern as damaged
-    bt_sequence_invalidate_pattern_region(self,time,track,pattern);
-    changed=TRUE;
-  }
-  g_object_unref(setup);
-  GST_DEBUG("done");
-  return(changed);
-}
-
 //-- constructor methods
 
 /**
@@ -1147,6 +960,91 @@ BtSequence *bt_sequence_new(const BtSong * const song) {
 }
 
 //-- methods
+
+/**
+ * bt_sequence_repair_damage:
+ * @self: the #BtSequence
+ *
+ * Works through the repair queue and rebuilds controller queues, where needed.
+ *
+ * There is usualy no need to call that manualy. Only call after soing mass
+ * updates using bt_sequence_*_quick() functions.
+ *
+ * Since: 0.5
+ */
+void bt_sequence_repair_damage(const BtSequence * const self) {
+  gulong i,j,k,l;
+  BtSetup *setup=NULL;
+  BtMachine *machine;
+  BtWire *wire;
+  GList *wires,*node;
+  gulong global_params,voice_params,voices,wire_params;
+  GHashTable *hash,*param_hash;
+  gconstpointer hash_params[4];
+
+  GST_DEBUG("repair damage");
+  hash_params[0]=(gpointer)self;
+
+  // repair damage
+  for(i=0;i<self->priv->tracks;i++) {
+    if((machine=bt_sequence_get_machine(self,i))) {
+      GST_DEBUG("check damage for track %lu",i);
+      if((hash=g_hash_table_lookup(self->priv->damage,machine))) {
+        GST_DEBUG("repair damage for track %lu",i);
+        g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
+        hash_params[1]=machine;
+
+        // repair damage of wires
+        if(!setup)
+          g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+        wires=bt_setup_get_wires_by_dst_machine(setup,machine);
+        for(k=0,node=wires;node;node=g_list_next(node)) {
+          wire=BT_WIRE(node->data);
+          g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
+          hash_params[3]=GUINT_TO_POINTER(wire);
+          // repair damage of wire params
+          for(j=0;j<wire_params;j++) {
+            l=(global_params+voices*voice_params+BT_WIRE_MAX_NUM_PARAMS*k)+j;
+            if((param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(l)))) {
+              hash_params[2]=GUINT_TO_POINTER(j);
+              g_hash_table_foreach_remove(param_hash,bt_sequence_repair_wire_damage_entry,hash_params);
+              g_hash_table_remove(hash,GUINT_TO_POINTER(l));
+            }
+          }
+          g_object_unref(wire);
+        }
+        g_list_free(wires);
+
+        // repair damage of global params
+        for(j=0;j<global_params;j++) {
+          if((param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(j)))) {
+            hash_params[2]=GUINT_TO_POINTER(j);
+            g_hash_table_foreach_remove(param_hash,bt_sequence_repair_global_damage_entry,&hash_params);
+            g_hash_table_remove(hash,GUINT_TO_POINTER(j));
+          }
+        }
+
+        // repair damage of voices
+        for(k=0;k<voices;k++) {
+          hash_params[3]=GUINT_TO_POINTER(k);
+          // repair damage of voice params
+          for(j=0;j<voice_params;j++) {
+            l=(global_params+k*voice_params)+j;
+            if((param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(l)))) {
+              hash_params[2]=GUINT_TO_POINTER(j);
+              g_hash_table_foreach_remove(param_hash,bt_sequence_repair_voice_damage_entry,hash_params);
+              g_hash_table_remove(hash,GUINT_TO_POINTER(l));
+            }
+          }
+        }
+        
+        g_hash_table_remove(self->priv->damage,machine);
+      }
+      g_object_unref(machine);
+    }
+  }
+  g_object_try_unref(setup);
+}
 
 /**
  * bt_sequence_get_machine:
@@ -1383,6 +1281,114 @@ BtPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulong t
 
   //GST_DEBUG("get pattern at time %d, track %d",time, track);
   return(g_object_try_ref(self->priv->patterns[time*self->priv->tracks+track]));
+}
+
+/**
+ * bt_sequence_set_pattern_quick:
+ *
+ * A quick version of bt_sequence_set_pattern() that does not repair damaged
+ * area. Useful when doing mass updates.
+ *
+ * Returns: %TRUE if a change has been made. One should call
+ * bt_sequence_repair_damage() in that case.
+ *
+ * Since: 0.5
+ */
+gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern) {
+  BtSetup *setup;
+  BtMachine * const machine;
+  BtWire *wire;
+  BtWirePattern *wire_pattern;
+  GList *wires,*node;
+  gboolean changed=FALSE;
+
+  if(pattern) {
+    g_return_val_if_fail(BT_IS_PATTERN(pattern),FALSE);
+    g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
+    if(self->priv->machines[track]!=machine) {
+      GST_WARNING("adding a pattern to a track with different machine!");
+      g_object_unref(machine);
+      return(FALSE);
+    }
+    g_object_unref(machine);
+  }
+
+  const gulong index=time*self->priv->tracks+track;
+  BtPattern *old_pattern=self->priv->patterns[index];
+
+  GST_DEBUG("set pattern from %p to %p for time %lu, track %lu",
+    self->priv->patterns[index],pattern,time,track);
+  
+  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+
+  // take out the old pattern
+  if(old_pattern) {
+    GST_DEBUG("clean up for old pattern");
+   
+    // detatch a signal handler if this was the last usage
+    if(bt_sequence_get_number_of_pattern_uses(self,old_pattern)==1) {
+      g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_global_param_changed,NULL);
+      g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_voice_param_changed,NULL);
+      g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_changed,NULL);
+
+      g_object_get(G_OBJECT(old_pattern),"machine",&machine,NULL);
+      wires=bt_setup_get_wires_by_dst_machine(setup,machine);
+      for(node=wires;node;node=g_list_next(node)) {
+        wire=BT_WIRE(node->data);
+        if((wire_pattern=bt_wire_get_pattern(wire,old_pattern))) {
+          g_signal_handlers_disconnect_matched(G_OBJECT(wire_pattern),G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
+          g_signal_handlers_disconnect_matched(G_OBJECT(wire_pattern),G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_changed,NULL);
+          g_object_unref(wire_pattern);
+        }
+        g_object_unref(wire);
+      }
+      g_list_free(wires);
+      g_object_unref(machine);
+    }
+    // mark region covered by old pattern as damaged
+    bt_sequence_invalidate_pattern_region(self,time,track,self->priv->patterns[index]);
+    changed=TRUE;
+    g_object_unref(self->priv->patterns[index]);
+    self->priv->patterns[index]=NULL;
+  }
+  if(pattern) {
+    GST_DEBUG("set new pattern");
+    // enter the new pattern
+    self->priv->patterns[index]=g_object_ref(G_OBJECT(pattern));
+    //g_object_add_weak_pointer(G_OBJECT(pattern),(gpointer *)(&self->priv->patterns[index]));
+
+    // attatch a signal handler if this is the first usage
+    if(bt_sequence_get_number_of_pattern_uses(self,pattern)==1) {
+      //GST_INFO("subscribing to changes for pattern %p",pattern);
+      g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
+      g_signal_connect(G_OBJECT(pattern),"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
+      g_signal_connect(G_OBJECT(pattern),"pattern-changed",G_CALLBACK(bt_sequence_on_pattern_changed),(gpointer)self);
+
+      g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
+      wires=bt_setup_get_wires_by_dst_machine(setup,machine);
+      for(node=wires;node;node=g_list_next(node)) {
+        wire=BT_WIRE(node->data);
+        if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
+          g_signal_connect(G_OBJECT(wire_pattern),"param-changed",G_CALLBACK(bt_sequence_on_wire_pattern_wire_param_changed),(gpointer)self);
+          g_signal_connect(G_OBJECT(wire_pattern),"pattern-changed",G_CALLBACK(bt_sequence_on_wire_pattern_changed),(gpointer)self);
+          g_object_unref(wire_pattern);
+        }
+        else {
+          // we need to wait for the first wire-pattern
+          g_signal_connect(G_OBJECT(wire),"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
+        }
+        g_object_unref(wire);
+      }
+      g_list_free(wires);
+      g_object_unref(machine);
+    }
+    // mark region covered by new pattern as damaged
+    bt_sequence_invalidate_pattern_region(self,time,track,pattern);
+    changed=TRUE;
+  }
+  g_object_unref(setup);
+  GST_DEBUG("done");
+  return(changed);
 }
 
 /**
@@ -1734,7 +1740,7 @@ void bt_sequence_update_tempo(const BtSequence * const self) {
   }
   bt_sequence_repair_damage(self);
 }
-  
+
 //-- io interface
 
 static xmlNodePtr bt_sequence_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {

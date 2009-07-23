@@ -253,6 +253,7 @@ BtProcessorMachinePrivate
 <TITLE>BtSequence</TITLE>
 BtSequence
 bt_sequence_new
+bt_sequence_repair_damage
 bt_sequence_get_machine
 bt_sequence_add_track
 bt_sequence_remove_track_by_ix
@@ -262,6 +263,7 @@ bt_sequence_move_track_right
 bt_sequence_get_label
 bt_sequence_set_label
 bt_sequence_get_pattern
+bt_sequence_set_pattern_quick
 bt_sequence_set_pattern
 bt_sequence_get_bar_time
 bt_sequence_get_loop_time
