@@ -101,7 +101,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
     GST_INFO("playing is starting, is_playing=%d",is_playing);
     while(!is_playing) {
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
-      g_usleep(100);
+      g_usleep(G_USEC_PER_SEC/10);
     }
     GST_INFO("playing has started, is_playing=%d",is_playing);
     while(is_playing && (pos<length)) {
@@ -118,7 +118,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
         fflush(stdout);
       }
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
-      g_usleep(100);
+      g_usleep(G_USEC_PER_SEC/10);
     }
     GST_INFO("finished playing: is_playing=%d, pos=%lu < length=%lu",is_playing,pos,length);
     if(!self->priv->quiet) puts("");

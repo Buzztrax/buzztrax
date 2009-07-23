@@ -1,5 +1,10 @@
 2009-07-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/cmd/cmd-application.c:
+	  Sleep less often.
+
+2009-07-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
