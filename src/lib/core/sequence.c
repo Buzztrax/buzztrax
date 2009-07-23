@@ -97,6 +97,11 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper methods
 
+static BtPattern *bt_sequence_get_pattern_unchecked(const BtSequence * const self, const gulong time, const gulong track) {
+  //GST_DEBUG("get pattern at time %d, track %d",time, track);
+  return(self->priv->patterns[time*self->priv->tracks+track]);
+}
+
 /*
  * bt_sequence_resize_data_length:
  * @self: the sequence to resize the length
@@ -301,9 +306,8 @@ static gulong bt_sequence_get_number_of_pattern_uses(const BtSequence * const se
     if(self->priv->machines[i]==machine) {
       for(j=0;j<self->priv->length;j++) {
         // time has a pattern
-        if((that_pattern=bt_sequence_get_pattern(self,j,i))) {
+        if((that_pattern=bt_sequence_get_pattern_unchecked(self,j,i))) {
           if(that_pattern==this_pattern) res++;
-          g_object_unref(that_pattern);
         }
       }
     }
@@ -518,7 +522,7 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
       // go from tick position upwards to find pattern for track
       pattern=NULL;
       for(j=tick;j>=0;j--) {
-        if((pattern=bt_sequence_get_pattern(self,j,i))) break;
+        if((pattern=bt_sequence_get_pattern_unchecked(self,j,i))) break;
       }
       if(pattern) {
         gulong length,pos=tick-j;
@@ -530,7 +534,6 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
             value=cur_value;
           }
         }
-        g_object_unref(pattern);
       }
     }
   }
@@ -568,7 +571,7 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
       // go from tick position upwards to find pattern for track
       pattern=NULL;
       for(j=tick;j>=0;j--) {
-        if((pattern=bt_sequence_get_pattern(self,j,i))) break;
+        if((pattern=bt_sequence_get_pattern_unchecked(self,j,i))) break;
       }
       if(pattern) {
         gulong length,pos=tick-j;
@@ -580,7 +583,6 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
             value=cur_value;
           }
         }
-        g_object_unref(pattern);
       }
     }
   }
@@ -618,7 +620,7 @@ static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _valu
       // go from tick position upwards to find pattern for track
       pattern=NULL;
       for(j=tick;j>=0;j--) {
-        if((pattern=bt_sequence_get_pattern(self,j,i))) break;
+        if((pattern=bt_sequence_get_pattern_unchecked(self,j,i))) break;
       }
       if(pattern) {
         gulong length,pos=tick-j;
@@ -632,7 +634,6 @@ static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _valu
           }
           g_object_unref(wire_pattern);
         }
-        g_object_unref(pattern);
       }
     }
   }
@@ -693,7 +694,7 @@ static void bt_sequence_on_pattern_global_param_changed(const BtPattern * const 
     BtMachine * const that_machine=bt_sequence_get_machine(self,i);
     if(that_machine==this_machine) {
       for(j=0;j<self->priv->length;j++) {
-        BtPattern * const that_pattern=bt_sequence_get_pattern(self,j,i);
+        BtPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
         if(that_pattern==pattern) {
           // check if pattern plays long enough for the damage to happen
           for(k=1;((k<tick) && (j+k<self->priv->length));k++) {
@@ -704,7 +705,6 @@ static void bt_sequence_on_pattern_global_param_changed(const BtPattern * const 
             bt_sequence_invalidate_global_param(self,this_machine,j+tick,param);
           }
         }
-        g_object_try_unref(that_pattern);
       }
     }
     g_object_try_unref(that_machine);
@@ -730,7 +730,7 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const p
     BtMachine * const that_machine=bt_sequence_get_machine(self,i);
     if(that_machine==this_machine) {
       for(j=0;j<self->priv->length;j++) {
-        BtPattern * const that_pattern=bt_sequence_get_pattern(self,j,i);
+        BtPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
         if(that_pattern==pattern) {
           // check if pattern plays long enough for the damage to happen
           for(k=1;((k<tick) && (j+k<self->priv->length));k++) {
@@ -741,7 +741,6 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const p
             bt_sequence_invalidate_voice_param(self,this_machine,j+tick,voice,param);
           }
         }
-        g_object_try_unref(that_pattern);
       }
     }
     g_object_try_unref(that_machine);
@@ -769,7 +768,7 @@ static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern *
     BtMachine * const that_machine=bt_sequence_get_machine(self,i);
     if(that_machine==this_machine) {
       for(j=0;j<self->priv->length;j++) {
-        BtPattern * const that_pattern=bt_sequence_get_pattern(self,j,i);
+        BtPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
         if(that_pattern==pattern) {
           // check if pattern plays long enough for the damage to happen
           for(k=1;((k<tick) && (j+k<self->priv->length));k++) {
@@ -780,7 +779,6 @@ static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern *
             bt_sequence_invalidate_wire_param(self,this_machine,j+tick,wire,param);
           }
         }
-        g_object_try_unref(that_pattern);
       }
     }
     g_object_try_unref(that_machine);
@@ -806,12 +804,11 @@ static void bt_sequence_on_pattern_changed(const BtPattern * const pattern, gcon
     if(that_machine==machine) {
       // for all occurance of pattern
       for(j=0;j<self->priv->length;j++) {
-        BtPattern * const that_pattern=bt_sequence_get_pattern(self,j,i);
+        BtPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
         if(that_pattern==pattern) {
           // mark region covered by change as damaged
           bt_sequence_invalidate_pattern_region(self,j,i,pattern);
         }
-        g_object_try_unref(that_pattern);
       }
     }
     g_object_try_unref(that_machine);
@@ -839,12 +836,11 @@ static void bt_sequence_on_wire_pattern_changed(const BtWirePattern * const wire
     if(that_machine==machine) {
       // for all occurance of pattern
       for(j=0;j<self->priv->length;j++) {
-        BtPattern * const that_pattern=bt_sequence_get_pattern(self,j,i);
+        BtPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
         if(that_pattern==pattern) {
           // mark region covered by change as damaged
           bt_sequence_invalidate_pattern_region(self,j,i,pattern);
         }
-        g_object_try_unref(that_pattern);
       }
     }
     g_object_try_unref(that_machine);
@@ -875,11 +871,10 @@ static void bt_sequence_on_pattern_removed(const BtMachine * const machine, cons
     if(that_machine==machine) {
       // for all occurance of pattern
       for(j=0;j<self->priv->length;j++) {
-        BtPattern * const that_pattern=bt_sequence_get_pattern(self,j,i);
+        BtPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
         if(that_pattern==pattern) {
           sequence_changed|=bt_sequence_set_pattern_quick(self,j,i,NULL);
         }
-        g_object_try_unref(that_pattern);
       }
     }
     g_object_try_unref(that_machine);
@@ -1280,7 +1275,7 @@ BtPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulong t
   g_return_val_if_fail(track<self->priv->tracks,NULL);
 
   //GST_DEBUG("get pattern at time %d, track %d",time, track);
-  return(g_object_try_ref(self->priv->patterns[time*self->priv->tracks+track]));
+  return(g_object_try_ref(bt_sequence_get_pattern_unchecked(self,time,track)));
 }
 
 /**
@@ -1499,9 +1494,8 @@ gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPatte
     if(self->priv->machines[i]==machine) {
       for(j=0;(j<self->priv->length && !res);j++) {
         // time has a pattern
-        if((that_pattern=bt_sequence_get_pattern(self,j,i))) {
+        if((that_pattern=bt_sequence_get_pattern_unchecked(self,j,i))) {
           if(that_pattern==pattern) res=TRUE;
-          g_object_unref(that_pattern);
         }
       }
     }
