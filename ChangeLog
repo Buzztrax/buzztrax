@@ -1,5 +1,19 @@
 2009-07-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/setup-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	* tests/lib/core/t-setup.c:
+	  Remove one unused funtion from api. Add more internal _unchecked()
+	  variants. Add more comments about how we might be able to optimize
+	  things more.
+
+2009-07-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  Small optimization for sequence refreshs.
 

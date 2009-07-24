@@ -47,13 +47,6 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
 struct _BtMachine {
   const GstBin parent;
 
-  /* convinience pointers to first and last GstElement in local chain.
-   * (accessed a lot by the wire object)
-   * we could move that so self->priv-> now
-   */
-  GstElement *dst_elem;
-  GstElement *src_elem;
-
   /*< private >*/
   BtMachinePrivate *priv;
 };

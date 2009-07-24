@@ -35,7 +35,6 @@ extern void bt_setup_remove_machine(const BtSetup * const self, const BtMachine 
 extern void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire);
 
 extern BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * const id);
-extern BtMachine *bt_setup_get_machine_by_index(const BtSetup * const self, const gulong index);
 extern BtMachine *bt_setup_get_machine_by_type(const BtSetup * const self, const GType type);
 
 extern GList *bt_setup_get_machines_by_type(const BtSetup * const self, const GType type);

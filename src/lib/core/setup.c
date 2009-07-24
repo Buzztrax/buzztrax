@@ -28,11 +28,7 @@
  *
  * It also manages the GStreamer #GstPipleine content.
  */
-/* @todo: support dynamic (un)linking (while playing)
- *
- * right now we update the pipeline before going to playing (see
- * bt_setup_update_pipeline()). This always starts with master right now,
- * we need to make that dynamic.
+/* support dynamic (un)linking (while playing)
  *
  * When we add a machine, we do nothing else
  * When we remove a machine, we remove all connected wires
@@ -248,6 +244,23 @@
  *     - we actually don't need to run this if we are not playing
  *      (but in the future we will always play)
  *     - we can run it before playing
+ */
+/* @todo:
+ * - we often need wires per machine
+ * - idealy we have
+ *   - a way to enumerate machines (hastable or public field in machine)
+ *     - index = 0, index_list = NULL
+ *     - when removing a machine
+ *       - if it was the last, index--;
+ *       - else index_list += (machine.index);
+ *     - when adding a machine
+ *       - if index_list != NULL take from index_list
+ *       - else machine.index = index++;
+ *   - a 2d array BtWire *wires[src][dst]
+ *   - whenever we add/del a machine we need to resize this
+ *     - start with a e.g. 16x16 array and add 16x16 when enlarging
+ *   - whenever we add/del a wire, we need to update it
+ *     (which is easy, set/clear a cell)
  */
 
 #define BT_CORE
@@ -917,7 +930,7 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
 
   if(!g_list_find(self->priv->machines,machine)) {
     ret=TRUE;
-    self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
+    self->priv->machines=g_list_prepend(self->priv->machines,g_object_ref(G_OBJECT(machine)));
     set_disconnected(self,GST_BIN(machine));
 
     g_signal_emit(G_OBJECT(self),signals[MACHINE_ADDED_EVENT], 0, machine);
@@ -961,7 +974,7 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
     if((!other_wire1) && (!other_wire2)) {
       ret=TRUE;
 
-      self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
+      self->priv->wires=g_list_prepend(self->priv->wires,g_object_ref(G_OBJECT(wire)));
       set_disconnected(self,GST_BIN(wire));
       bt_setup_update_pipeline(self);
 
@@ -1116,7 +1129,9 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
   return(NULL);
 }
 
-/**
+#if 0
+// @todo: remove this - its not used (besides in a test), the position is kind of internal
+/*
  * bt_setup_get_machine_by_index:
  * @self: the setup to search for the machine
  * @index: the list-position of the machine
@@ -1137,6 +1152,7 @@ BtMachine *bt_setup_get_machine_by_index(const BtSetup * const self, const gulon
   }
   return(NULL);
 }
+#endif
 
 /**
  * bt_setup_get_machine_by_type:

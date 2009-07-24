@@ -315,7 +315,6 @@ bt_setup_add_wire
 bt_setup_remove_machine
 bt_setup_remove_wire
 bt_setup_get_machine_by_id
-bt_setup_get_machine_by_index
 bt_setup_get_machine_by_type
 bt_setup_get_machines_by_type
 bt_setup_get_wire_by_src_machine

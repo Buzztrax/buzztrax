@@ -336,35 +336,6 @@ BT_START_TEST(test_btsetup_obj9) {
 BT_END_TEST
 
 /*
-* try to call get_machine_by_index with NULL for setup parameter
-*/
-BT_START_TEST(test_btsetup_obj10) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  fail_unless(app!=NULL,NULL);
-  
-  /* create a new song */
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
-  check_init_error_trapp("bt_setup_get_machine_by_index","BT_IS_SETUP(self)");
-  bt_setup_get_machine_by_index(NULL,0);
-  fail_unless(check_has_error_trapped(), NULL);
-
-  /* clean up */
-  g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-/*
 * try to call bt_setup_get_wire_by_src_machine with NULL for setup parameter 
 */
 BT_START_TEST(test_btsetup_get_wire_by_src_machine1) {
@@ -1085,7 +1056,6 @@ TCase *bt_setup_test_case(void) {
   tcase_add_test(tc,test_btsetup_obj7);
   tcase_add_test(tc,test_btsetup_obj8);
   tcase_add_test(tc,test_btsetup_obj9);
-  tcase_add_test(tc,test_btsetup_obj10);
   tcase_add_test(tc,test_btsetup_get_wire_by_src_machine1);
   tcase_add_test(tc,test_btsetup_get_wire_by_src_machine2);
   tcase_add_test(tc,test_btsetup_get_wires_by_src_machine1);

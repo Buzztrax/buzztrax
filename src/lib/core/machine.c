@@ -186,6 +186,9 @@ struct _BtMachinePrivate {
 
   /* the gstreamer elements that are used */
   GstElement *machines[PART_COUNT];
+  /* convinience pointers to first and last GstElement in local chain */
+  GstElement *dst_elem;
+  GstElement *src_elem;
 
   /* caps filter format */
   gint format; /* 0=int/1=float */
@@ -502,7 +505,7 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
     }
   }
   else if(pre==-1) {
-    self->dst_elem=self->priv->machines[part_position];
+    self->priv->dst_elem=self->priv->machines[part_position];
     // unlink old connection
     gst_element_unlink(peer,self->priv->machines[post]);
     // link new connection
@@ -527,7 +530,7 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
     }
   }
   else if(post==-1) {
-    self->src_elem=self->priv->machines[part_position];
+    self->priv->src_elem=self->priv->machines[part_position];
     // unlink old connection
     gst_element_unlink(self->priv->machines[pre],peer);
     // link new connection
@@ -731,7 +734,7 @@ static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMach
       // DEBUG
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
-    self->dst_elem=self->priv->machines[part];
+    self->priv->dst_elem=self->priv->machines[part];
     GST_INFO("sucessfully prepended element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
   }
   else {
@@ -780,7 +783,7 @@ static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMac
       // DEBUG
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
-    self->src_elem=self->priv->machines[part];
+    self->priv->src_elem=self->priv->machines[part];
     GST_INFO("sucessfully appended element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
   }
   else {
@@ -846,7 +849,7 @@ static gboolean bt_machine_init_core_machine(BtMachine * const self) {
   if(!bt_machine_make_internal_element(self,PART_MACHINE,self->priv->plugin_name,self->priv->id)) goto Error;
 
   // there is no adder or spreader in use by default
-  self->dst_elem=self->src_elem=self->priv->machines[PART_MACHINE];
+  self->priv->dst_elem=self->priv->src_elem=self->priv->machines[PART_MACHINE];
   GST_INFO("  instantiated machine %p, \"%s\", machine->ref_count=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
 
   res=TRUE;
@@ -1220,25 +1223,25 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     }
     GST_DEBUG("  about to link adder -> convert -> dst_elem");
     if(!self->priv->machines[PART_CAPS_FILTER]) {
-      if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
-        gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);
+      if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL)) {
+        gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL);
         GST_ERROR("failed to link the internal adder of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
         goto Error;
       }
       else {
         GST_DEBUG("  adder activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-        self->dst_elem=self->priv->machines[PART_ADDER];
+        self->priv->dst_elem=self->priv->machines[PART_ADDER];
       }
     }
     else {
-      if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
-        gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);
+      if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL)) {
+        gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL);
         GST_ERROR("failed to link the internal adder of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
         goto Error;
       }
       else {
         GST_DEBUG("  adder activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-        self->dst_elem=self->priv->machines[PART_ADDER];
+        self->priv->dst_elem=self->priv->machines[PART_ADDER];
       }
     }
   }
@@ -1261,7 +1264,7 @@ Error:
 gboolean bt_machine_has_active_adder(const BtMachine * const self) {
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
 
-  return(self->dst_elem==self->priv->machines[PART_ADDER]);
+  return(self->priv->dst_elem==self->priv->machines[PART_ADDER]);
 }
 
 /**
@@ -1284,13 +1287,13 @@ gboolean bt_machine_activate_spreader(BtMachine * const self) {
 
     // create the spreader (tee)
     if(!(bt_machine_make_internal_element(self,PART_SPREADER,"tee","tee"))) goto Error;
-    if(!gst_element_link(self->src_elem, self->priv->machines[PART_SPREADER])) {
+    if(!gst_element_link(self->priv->src_elem, self->priv->machines[PART_SPREADER])) {
       GST_ERROR("failed to link the internal spreader of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
       goto Error;
     }
     else {
       GST_DEBUG("  spreader activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-      self->src_elem=self->priv->machines[PART_SPREADER];
+      self->priv->src_elem=self->priv->machines[PART_SPREADER];
     }
   }
   res=TRUE;
@@ -1312,7 +1315,7 @@ Error:
 gboolean bt_machine_has_active_spreader(const BtMachine * const self) {
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
 
-  return(self->src_elem==self->priv->machines[PART_SPREADER]);
+  return(self->priv->src_elem==self->priv->machines[PART_SPREADER]);
 }
 
 static guint get_int_value(GstStructure *str,gchar *name) {
@@ -2817,45 +2820,45 @@ void bt_machine_dbg_print_parts(const BtMachine * const self) {
   GST_INFO("%s [%c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c]",
     self->priv->id,
 
-    self->priv->machines[PART_ADDER]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_ADDER]==self->priv->dst_elem?'<':' ',
     self->priv->machines[PART_ADDER]?"A":"a",
-    self->priv->machines[PART_ADDER]==self->src_elem?'>':' ',
+    self->priv->machines[PART_ADDER]==self->priv->src_elem?'>':' ',
 
-    self->priv->machines[PART_ADDER_CONVERT]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_ADDER_CONVERT]==self->priv->dst_elem?'<':' ',
     self->priv->machines[PART_ADDER_CONVERT]?"AC":"ac",
-    self->priv->machines[PART_ADDER_CONVERT]==self->src_elem?'>':' ',
+    self->priv->machines[PART_ADDER_CONVERT]==self->priv->src_elem?'>':' ',
 
-    self->priv->machines[PART_INPUT_PRE_LEVEL]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_INPUT_PRE_LEVEL]==self->priv->dst_elem?'<':' ',
     self->priv->machines[PART_INPUT_PRE_LEVEL]?"I<L":"i<l",
-    self->priv->machines[PART_INPUT_PRE_LEVEL]==self->src_elem?'>':' ',
+    self->priv->machines[PART_INPUT_PRE_LEVEL]==self->priv->src_elem?'>':' ',
 
-    self->priv->machines[PART_INPUT_GAIN]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_INPUT_GAIN]==self->priv->dst_elem?'<':' ',
     self->priv->machines[PART_INPUT_GAIN]?"IG":"ig",
-    self->priv->machines[PART_INPUT_GAIN]==self->src_elem?'>':' ',
+    self->priv->machines[PART_INPUT_GAIN]==self->priv->src_elem?'>':' ',
 
-    self->priv->machines[PART_INPUT_POST_LEVEL]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_INPUT_POST_LEVEL]==self->priv->dst_elem?'<':' ',
     self->priv->machines[PART_INPUT_POST_LEVEL]?"I>L":"i>l",
-    self->priv->machines[PART_INPUT_POST_LEVEL]==self->src_elem?'>':' ',
+    self->priv->machines[PART_INPUT_POST_LEVEL]==self->priv->src_elem?'>':' ',
 
-    self->priv->machines[PART_MACHINE]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_MACHINE]==self->priv->dst_elem?'<':' ',
     self->priv->machines[PART_MACHINE]?"M":"m",
-    self->priv->machines[PART_MACHINE]==self->src_elem?'>':' ',
+    self->priv->machines[PART_MACHINE]==self->priv->src_elem?'>':' ',
 
-    self->priv->machines[PART_OUTPUT_PRE_LEVEL]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_OUTPUT_PRE_LEVEL]==self->priv->dst_elem?'<':' ',
     self->priv->machines[PART_OUTPUT_PRE_LEVEL]?"O<L":"o<l",
-    self->priv->machines[PART_OUTPUT_PRE_LEVEL]==self->src_elem?'>':' ',
+    self->priv->machines[PART_OUTPUT_PRE_LEVEL]==self->priv->src_elem?'>':' ',
 
-    self->priv->machines[PART_OUTPUT_GAIN]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_OUTPUT_GAIN]==self->priv->dst_elem?'<':' ',
     self->priv->machines[PART_OUTPUT_GAIN]?"OG":"og",
-    self->priv->machines[PART_OUTPUT_GAIN]==self->src_elem?'>':' ',
+    self->priv->machines[PART_OUTPUT_GAIN]==self->priv->src_elem?'>':' ',
 
-    self->priv->machines[PART_OUTPUT_POST_LEVEL]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_OUTPUT_POST_LEVEL]==self->priv->dst_elem?'<':' ',
     self->priv->machines[PART_OUTPUT_POST_LEVEL]?"O>L":"o>l",
-    self->priv->machines[PART_OUTPUT_POST_LEVEL]==self->src_elem?'>':' ',
+    self->priv->machines[PART_OUTPUT_POST_LEVEL]==self->priv->src_elem?'>':' ',
 
-    self->priv->machines[PART_SPREADER]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_SPREADER]==self->priv->dst_elem?'<':' ',
     self->priv->machines[PART_SPREADER]?"S":"s",
-    self->priv->machines[PART_SPREADER]==self->src_elem?'>':' '
+    self->priv->machines[PART_SPREADER]==self->priv->src_elem?'>':' '
   );
 }
 
@@ -3328,8 +3331,8 @@ static void bt_machine_constructed(GObject *object) {
   // post sanity checks
   GST_INFO("  added machine %p to bin, machine->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
-  g_assert(self->src_elem!=NULL);
-  g_assert(self->dst_elem!=NULL);
+  g_assert(self->priv->src_elem!=NULL);
+  g_assert(self->priv->dst_elem!=NULL);
   if(!(self->priv->global_params+self->priv->voice_params)) {
     GST_WARNING("  machine %s has no params",self->priv->id);
   }

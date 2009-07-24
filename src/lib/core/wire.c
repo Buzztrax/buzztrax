@@ -411,6 +411,11 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   g_object_get(G_OBJECT(dst),"machine",&dst_machine,NULL);
   if((pad=gst_element_get_static_pad(dst_machine,"sink"))) {
     // this does not work for unlinked pads
+    // @todo: if we link multiple machines to one, we could cache this
+    // it seems to be responsible for ~14% of the loading time
+    // - checking template caps it not enough - as the machine could have
+    //   negotiated to mono
+    // - would it make sense to quickly check template caps to exclude some cases?
     if((caps=gst_pad_get_allowed_caps(pad))) {
     //if((caps=gst_pad_get_caps(pad))) {
       GstStructure *structure;
