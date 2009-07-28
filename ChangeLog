@@ -1,3 +1,12 @@
+2009-07-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core_private.h:
+	  Move define 1 up to prevent clashes (tentative).
+
+	* src/ui/edit/main-page-patterns.c:
+	  Make loop var unsigned to no overrun and fix stupid bug in terminal
+	  loop condition.
+
 2009-07-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/buzztard-core-sections.txt:

@@ -27,9 +27,9 @@
 #endif
 
 //-- ansi c
+#define __USE_ISOC99 /* for isinf() and co. */
 #include <ctype.h>
 #include <dirent.h>
-#define __USE_ISOC99 /* for isinf() and co. */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
