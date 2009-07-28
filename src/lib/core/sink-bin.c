@@ -297,6 +297,9 @@ static gchar *bt_sink_bin_determine_plugin_name(const BtSinkBin * const self) {
   }
   if(plugin_name) {
     gchar *sink_name,*eon;
+
+    GST_DEBUG("plugin name is: '%s'", plugin_name);
+
     // this can be a whole pipeline like "audioconvert ! osssink sync=false"
     // seek for the last '!'
     if(!(sink_name=strrchr(plugin_name,'!'))) {
@@ -311,10 +314,12 @@ static gchar *bt_sink_bin_determine_plugin_name(const BtSinkBin * const self) {
     if((eon=strstr(sink_name," "))) {
       *eon='\0';
     }
-    // no g_free() to partial memory later
-    gchar * const temp=plugin_name;
-    plugin_name=g_strdup(sink_name);
-    g_free(temp);
+    if ((sink_name!=plugin_name) || eon) {
+      // no g_free() to partial memory later
+      gchar * const temp=plugin_name;
+      plugin_name=g_strdup(sink_name);
+      g_free(temp);
+    }
   }
   if (!BT_IS_STRING(plugin_name)) {
     // @todo: try autoaudiosink (if it exists)
@@ -362,7 +367,9 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
 
   GST_DEBUG("get playback elements");
 
-  plugin_name=bt_sink_bin_determine_plugin_name(self);
+  if(!(plugin_name=bt_sink_bin_determine_plugin_name(self))) {
+    return(NULL);
+  }
   GstElement * const element=gst_element_factory_make(plugin_name,"player");
   if(!element) {
     /* @todo: if this fails
