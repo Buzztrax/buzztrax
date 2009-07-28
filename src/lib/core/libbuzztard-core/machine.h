@@ -46,6 +46,9 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
  */
 struct _BtMachine {
   const GstBin parent;
+  
+  /*< read-only >*/
+  GList *src_wires,*dst_wires;
 
   /*< private >*/
   BtMachinePrivate *priv;

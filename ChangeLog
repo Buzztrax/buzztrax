@@ -1,5 +1,14 @@
 2009-07-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	  Maintain wire list on each machine for incomming and outgoing wires. This
+	  data is frequently used when updating the sequence, which is now faster.
+
+2009-07-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Fix underruns for real (I hope).
 

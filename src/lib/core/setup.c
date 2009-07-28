@@ -974,7 +974,10 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
     if((!other_wire1) && (!other_wire2)) {
       ret=TRUE;
 
+      // add to main list + to convinience lists per machine
       self->priv->wires=g_list_prepend(self->priv->wires,g_object_ref(G_OBJECT(wire)));
+      src->src_wires=g_list_prepend(src->src_wires,(gpointer)wire);
+      dst->dst_wires=g_list_prepend(dst->dst_wires,(gpointer)wire);
       set_disconnected(self,GST_BIN(wire));
       bt_setup_update_pipeline(self);
 
@@ -1043,7 +1046,16 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
   GST_DEBUG("trying to remove wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
 
   if(g_list_find(self->priv->wires,wire)) {
+    BtMachine *src,*dst;
+
     self->priv->wires=g_list_remove(self->priv->wires,wire);
+
+    // also remove from the convinience lists
+    g_object_get(G_OBJECT(wire),"src",&src,"dst",&dst,NULL);
+    src->src_wires=g_list_remove(src->src_wires,wire);
+    dst->dst_wires=g_list_remove(dst->dst_wires,wire);
+    g_object_unref(src);
+    g_object_unref(dst);
 
     GST_DEBUG("removing wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
     g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);

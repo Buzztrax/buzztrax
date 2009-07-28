@@ -1345,7 +1345,7 @@ static guint get_int_value(GstStructure *str,gchar *name) {
 void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   BtSetup *setup;
   BtMachine *src;
-  GList *wires,*node;
+  GList *node;
 
   GST_INFO_OBJECT(self,"reconfigure adder format, machine in state %s",gst_element_state_get_name(GST_STATE(self)));
   
@@ -1361,7 +1361,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   g_object_get(self->priv->song,"setup",&setup,NULL);
   if(!setup) return;
 
-  if((wires=bt_setup_get_wires_by_dst_machine(setup,self))) {
+  if(self->dst_wires) {
     BtWire *wire;
     GstPad *pad;
     GstCaps *pad_caps,*new_caps;
@@ -1379,7 +1379,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
       "audio/x-raw-float"
     };
 
-    for(node=wires;node;node=g_list_next(node)) {
+    for(node=self->dst_wires;node;node=g_list_next(node)) {
       wire=BT_WIRE(node->data);
       g_object_get(wire,"src",&src,NULL);
 
@@ -1438,9 +1438,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
         GST_WARNING("No 'src' pad on machine?");
       }
       g_object_unref(src);
-      g_object_unref(wire);
     }
-    g_list_free(wires);
 
     // we ignore rate for now
     ns=gst_structure_new(fmt_names[n_format],
@@ -1489,7 +1487,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
  * @pattern: the new pattern instance
  *
  * Add the supplied pattern to the machine. This is automatically done by
- * #bt_pattern_new().
+ * bt_pattern_new().
  */
 void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * const pattern) {
   g_return_if_fail(BT_IS_MACHINE(self));
@@ -3582,6 +3580,13 @@ static void bt_machine_finalize(GObject * const object) {
   if(self->priv->patterns) {
     g_list_free(self->priv->patterns);
     self->priv->patterns=NULL;
+  }
+  
+  if(self->src_wires) {
+    g_list_free(self->src_wires);
+  }
+  if(self->dst_wires) {
+    g_list_free(self->dst_wires);
   }
 
   GST_DEBUG("  chaining up");

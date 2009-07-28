@@ -389,23 +389,17 @@ static void bt_sequence_invalidate_voice_param(const BtSequence * const self, co
  */
 static void bt_sequence_invalidate_wire_param(const BtSequence * const self, const BtMachine * const machine, const gulong time, const BtWire *wire, const gulong param) {
   gulong global_params,voice_params,voices;
-  BtSetup *setup;
   BtWire *that_wire;
-  GList *wires,*node;
+  GList *node;
   gulong i,wire_num=0;
 
   g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
-  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
 
   // get the index for the given wires
-  wires=bt_setup_get_wires_by_dst_machine(setup,machine);
-  for(i=0,node=wires;node;node=g_list_next(node),i++) {
+  for(i=0,node=machine->dst_wires;node;node=g_list_next(node),i++) {
     that_wire=BT_WIRE(node->data);
     if(that_wire==wire) wire_num=i;
-    g_object_unref(that_wire);
   }
-  g_list_free(wires);
-  g_object_unref(setup);
       
   bt_sequence_invalidate_param(self,machine,time,(global_params+voices*voice_params)+(BT_WIRE_MAX_NUM_PARAMS*wire_num)+param);
 }
@@ -421,11 +415,10 @@ static void bt_sequence_invalidate_wire_param(const BtSequence * const self, con
  * Adds the region to the repair-queue.
  */
 static void bt_sequence_invalidate_pattern_region(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern) {
-  BtSetup *setup;
   BtMachine *machine;
   BtWire *wire;
   BtWirePattern *wire_pattern;
-  GList *wires,*node;
+  GList *node;
   gulong i,j,k;
   gulong length;
   gulong global_params,voice_params,voices,wire_params;
@@ -449,7 +442,6 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   }
   g_assert(machine);
   g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
-  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
   // check if from time+1 to time+length another pattern starts (in this track)
   for(i=1;((i<length) && (time+i<self->priv->length));i++) {
     if(bt_sequence_test_pattern(self,time+i,track)) break;
@@ -457,8 +449,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   length=i;
   // mark region covered by new pattern as damaged
   // check wires
-  wires=bt_setup_get_wires_by_dst_machine(setup,machine);
-  for(node=wires;node;node=g_list_next(node)) {
+  for(node=machine->dst_wires;node;node=g_list_next(node)) {
     wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
     if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
@@ -471,9 +462,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
       }
       g_object_unref(wire_pattern);
     }
-    g_object_unref(wire);
   }
-  g_list_free(wires);
   for(i=0;i<length;i++) {
     // check global params
     for(j=0;j<global_params;j++) {
@@ -489,7 +478,6 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
       }
     }
   }
-  g_object_unref(setup);
   g_object_unref(machine);
   GST_DEBUG("done");
 }
@@ -979,10 +967,9 @@ BtSequence *bt_sequence_new(const BtSong * const song) {
  */
 void bt_sequence_repair_damage(const BtSequence * const self) {
   gulong i,j,k,l;
-  BtSetup *setup=NULL;
   BtMachine *machine;
   BtWire *wire;
-  GList *wires,*node;
+  GList *node;
   gulong global_params,voice_params,voices,wire_params;
   GHashTable *hash,*param_hash;
   gconstpointer hash_params[4];
@@ -1000,10 +987,7 @@ void bt_sequence_repair_damage(const BtSequence * const self) {
         hash_params[1]=machine;
 
         // repair damage of wires
-        if(!setup)
-          g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-        wires=bt_setup_get_wires_by_dst_machine(setup,machine);
-        for(k=0,node=wires;node;node=g_list_next(node)) {
+        for(k=0,node=machine->dst_wires;node;node=g_list_next(node)) {
           wire=BT_WIRE(node->data);
           g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
           hash_params[3]=GUINT_TO_POINTER(wire);
@@ -1016,9 +1000,7 @@ void bt_sequence_repair_damage(const BtSequence * const self) {
               g_hash_table_remove(hash,GUINT_TO_POINTER(l));
             }
           }
-          g_object_unref(wire);
         }
-        g_list_free(wires);
 
         // repair damage of global params
         for(j=0;j<global_params;j++) {
@@ -1047,7 +1029,6 @@ void bt_sequence_repair_damage(const BtSequence * const self) {
       }
     }
   }
-  g_object_try_unref(setup);
 }
 
 /**
@@ -1299,11 +1280,10 @@ BtPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulong t
  * Since: 0.5
  */
 gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern) {
-  BtSetup *setup;
   BtMachine * const machine;
   BtWire *wire;
   BtWirePattern *wire_pattern;
-  GList *wires,*node;
+  GList *node;
   gboolean changed=FALSE;
 
   if(pattern) {
@@ -1323,8 +1303,6 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
   GST_DEBUG("set pattern from %p to %p for time %lu, track %lu",
     self->priv->patterns[index],pattern,time,track);
   
-  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-
   // take out the old pattern
   if(old_pattern) {
     GST_DEBUG("clean up for old pattern");
@@ -1336,17 +1314,14 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
       g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_changed,NULL);
 
       g_object_get(G_OBJECT(old_pattern),"machine",&machine,NULL);
-      wires=bt_setup_get_wires_by_dst_machine(setup,machine);
-      for(node=wires;node;node=g_list_next(node)) {
+      for(node=machine->dst_wires;node;node=g_list_next(node)) {
         wire=BT_WIRE(node->data);
         if((wire_pattern=bt_wire_get_pattern(wire,old_pattern))) {
           g_signal_handlers_disconnect_matched(G_OBJECT(wire_pattern),G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
           g_signal_handlers_disconnect_matched(G_OBJECT(wire_pattern),G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_changed,NULL);
           g_object_unref(wire_pattern);
         }
-        g_object_unref(wire);
       }
-      g_list_free(wires);
       g_object_unref(machine);
     }
     // mark region covered by old pattern as damaged
@@ -1369,8 +1344,7 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
       g_signal_connect(G_OBJECT(pattern),"pattern-changed",G_CALLBACK(bt_sequence_on_pattern_changed),(gpointer)self);
 
       g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
-      wires=bt_setup_get_wires_by_dst_machine(setup,machine);
-      for(node=wires;node;node=g_list_next(node)) {
+      for(node=machine->dst_wires;node;node=g_list_next(node)) {
         wire=BT_WIRE(node->data);
         if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
           g_signal_connect(G_OBJECT(wire_pattern),"param-changed",G_CALLBACK(bt_sequence_on_wire_pattern_wire_param_changed),(gpointer)self);
@@ -1381,16 +1355,13 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
           // we need to wait for the first wire-pattern
           g_signal_connect(G_OBJECT(wire),"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
         }
-        g_object_unref(wire);
       }
-      g_list_free(wires);
       g_object_unref(machine);
     }
     // mark region covered by new pattern as damaged
     bt_sequence_invalidate_pattern_region(self,time,track,pattern);
     changed=TRUE;
   }
-  g_object_unref(setup);
   GST_DEBUG("done");
   return(changed);
 }
