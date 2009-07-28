@@ -1,5 +1,14 @@
 2009-07-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Fix underruns for real (I hope).
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Use size-allocate instead of configure-event. Use local vars. to speedup a
+	   little. Make it less racy when resizing.
+
+2009-07-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-bin.c:
 	  Add another check and more logging.
 

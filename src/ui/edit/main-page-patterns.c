@@ -1924,9 +1924,9 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   BtSequence *sequence;
   BtMachine *machine,*cur_machine;
   BtPattern *pattern;
-  gulong i,pos;
+  gulong i,pos,spos;
   glong j;
-  gulong tracks,length,spos,sequence_length;
+  gulong tracks,length,sequence_length;
   gdouble play_pos;
   gboolean found=FALSE;
 
@@ -1944,7 +1944,7 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
       if(machine==cur_machine) {
         // find pattern start in sequence (search <length> ticks from current pos
         spos=(pos>length)?(pos-length):0;
-        for(j=pos;((j>=spos) && !found);j--) {
+        for(j=pos;((j>spos) && !found);j--) {
           // get pattern for current machine and current tick from sequence
           if((pattern=bt_sequence_get_pattern(sequence,j,i))) {
             // if it is the pattern we currently show, set play-line

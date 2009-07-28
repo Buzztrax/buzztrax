@@ -33,6 +33,8 @@
  * @todo: shall we add a volume and panorama control to the dialog as well?
  * - volume to the right of the spectrum
  * - panorama below the spectrum
+ *
+ * @todo: we might need a lock fro the resize and redraw
  */
 #define BT_EDIT
 #define BT_WIRE_ANALYSIS_DIALOG_C
@@ -177,29 +179,31 @@ static gboolean redraw_spectrum(gpointer user_data) {
   // draw spectrum
   if (self->priv->spectrum_drawingarea) {
     guint i,x,y;
-    GdkRectangle rect = { 0, 0, self->priv->spect_bands, self->priv->spect_height };
+    guint spect_bands=self->priv->spect_bands;
+    guint spect_height=self->priv->spect_height;
+    GdkRectangle rect = { 0, 0, spect_bands, self->priv->spect_height };
     GtkWidget *da=self->priv->spectrum_drawingarea;
 
     gdk_window_begin_paint_rect (da->window, &rect);
-    gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, self->priv->spect_bands, self->priv->spect_height);
+    gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, spect_bands, spect_height);
     // draw grid lines
-    y=self->priv->spect_height/2;
-    gdk_draw_line(da->window,self->priv->grid_gc,0,y,self->priv->spect_bands,y);
-    x=self->priv->spect_bands/4;
-    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,self->priv->spect_height);
-    x=self->priv->spect_bands/2;
-    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,self->priv->spect_height);
-    x=self->priv->spect_bands/4+self->priv->spect_bands/2;
-    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,self->priv->spect_height);
+    y=spect_height/2;
+    gdk_draw_line(da->window,self->priv->grid_gc,0,y,spect_bands,y);
+    x=spect_bands/4;
+    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,spect_height);
+    x=spect_bands/2;
+    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,spect_height);
+    x=spect_bands/4+spect_bands/2;
+    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,spect_height);
     // draw frequencies
     if(self->priv->spect) {
       /* @todo: draw grid under spectrum
        * 0... <srat>
        * the bin center frequencies are f(i)=i*srat/spect_bands
        */
-      for (i = 0; i < self->priv->spect_bands; i++) {
+      for (i = 0; i < spect_bands; i++) {
         //db_value=20.0*log10(self->priv->spect[i]);
-        gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, i, -self->priv->spect[i], 1, self->priv->spect_height + self->priv->spect[i]);
+        gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, i, -self->priv->spect[i], 1, spect_height + self->priv->spect[i]);
       }
     }
     gdk_window_end_paint (da->window);
@@ -283,25 +287,27 @@ static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
   else if(!strcmp(name,"spectrum")) {
     const GValue *list;
     const GValue *value;
-    guint i;
+    guint i, spect_bands=self->priv->spect_bands,size;
+    gfloat height_scale=self->priv->height_scale;
 
     //GST_INFO("get spectrum data");
     if((list = gst_structure_get_value (structure, "magnitude"))) {
-      for (i = 0; i < self->priv->spect_bands; ++i) {
+      size=gst_value_list_get_size(list);
+      spect_bands=MIN(spect_bands,size);
+      for (i = 0; i < spect_bands; ++i) {
         value = gst_value_list_get_value (list, i);
-        self->priv->spect[i] =  self->priv->height_scale * g_value_get_float (value);
+        self->priv->spect[i] = height_scale * g_value_get_float (value);
       }
       gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
     }
-    else {
-      if((list = gst_structure_get_value (structure, "spectrum"))) {
-        // SPECT_BANDS=gst_value_list_get_size(list)
-        for (i = 0; i < self->priv->spect_bands; ++i) {
-          value = gst_value_list_get_value (list, i);
-          self->priv->spect[i] =  self->priv->height_scale * (gfloat)g_value_get_uchar (value);
-        }
-        gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
+    else if((list = gst_structure_get_value (structure, "spectrum"))) {
+      size=gst_value_list_get_size(list);
+      spect_bands=MIN(spect_bands,size);
+      for (i = 0; i < spect_bands; ++i) {
+        value = gst_value_list_get_value (list, i);
+        self->priv->spect[i] =height_scale * (gfloat)g_value_get_uchar (value);
       }
+      gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
     }
   }
   
@@ -368,24 +374,20 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
   }
 }
 
-gboolean
-on_configure_event (GtkWidget * widget, GdkEventConfigure * event,
-    gpointer user_data)
-{
+static void on_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
   guint i;
 
-  /*GST_INFO ("%d x %d", event->width, event->height); */
-  self->priv->spect_height = event->height;
-  self->priv->height_scale = event->height / 64.0;
-  self->priv->spect_bands = event->width;
+  /*GST_INFO ("%d x %d", allocation->width, allocation->height); */
+  self->priv->spect_height = allocation->height;
+  self->priv->height_scale = allocation->height / 64.0;
+  self->priv->spect_bands = allocation->width;
   self->priv->spect = g_renew (gfloat, self->priv->spect, self->priv->spect_bands);
   for(i=0;i<self->priv->spect_bands;i++)
-    self->priv->spect[i]=(gfloat)(-event->height);
+    self->priv->spect[i]=(gfloat)(-allocation->height);
 
   g_object_set (G_OBJECT (self->priv->analyzers[ANALYZER_SPECTRUM]),
     "bands", self->priv->spect_bands, NULL);
-  return FALSE;
 }
 
 //-- helper methods
@@ -469,8 +471,8 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   /* add spectrum canvas */
   self->priv->spectrum_drawingarea=gtk_drawing_area_new ();
   gtk_widget_set_size_request(self->priv->spectrum_drawingarea, self->priv->spect_bands, self->priv->spect_height);
-  g_signal_connect (G_OBJECT (self->priv->spectrum_drawingarea), "configure-event",
-      G_CALLBACK (on_configure_event), (gpointer) self);
+  g_signal_connect (G_OBJECT (self->priv->spectrum_drawingarea), "size-allocate",
+      G_CALLBACK (on_size_allocate), (gpointer) self);
   gtk_box_pack_start(GTK_BOX(vbox), self->priv->spectrum_drawingarea, TRUE, TRUE, 0);
 
   /* spacer */
