@@ -1343,7 +1343,6 @@ static guint get_int_value(GstStructure *str,gchar *name) {
  * - we could only renegotiate formats when going to playing
  */
 void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
-  BtSetup *setup;
   BtMachine *src;
   GList *node;
 
@@ -1357,9 +1356,6 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
    * - add a boolean return and track them in a list in setup?
    */
   if(GST_STATE(self->priv->machines[PART_ADDER])==GST_STATE_PLAYING) return;
-
-  g_object_get(self->priv->song,"setup",&setup,NULL);
-  if(!setup) return;
 
   if(self->dst_wires) {
     BtWire *wire;
@@ -1399,7 +1395,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
             if(!strcmp(p_name,fmt_names[0])) p_format=0;
             else if(!strcmp(p_name,fmt_names[1])) p_format=1;
             else {
-              GST_WARNING("unsupported format: %s",p_name);
+              GST_WARNING_OBJECT(pad,"unsupported format: %s",p_name);
               continue;
             }
 
@@ -1424,18 +1420,18 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
             p_channels=get_int_value(ps,"channels");
             if(p_channels>n_channels) n_channels=p_channels;
             
-            GST_INFO("  after [%2d] fmt=%d, width=%d, depth=%d, channels=%d",
+            GST_INFO_OBJECT(pad,"  after [%2d] fmt=%d, width=%d, depth=%d, channels=%d",
               i, n_format,n_width,n_depth,n_channels);
           }
           if(pad_caps) gst_caps_unref(pad_caps);
         }
         else {
-          GST_WARNING("No caps on pad?");
+          GST_WARNING_OBJECT(pad,"No caps on pad?");
         }
         gst_object_unref(pad);
       }
       else {
-        GST_WARNING("No 'src' pad on machine?");
+        GST_WARNING_OBJECT(self,"No 'src' pad on machine?");
       }
       g_object_unref(src);
     }
@@ -1466,7 +1462,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     }
     new_caps=gst_caps_new_full(ns,NULL);
 
-    GST_INFO("set new caps %" GST_PTR_FORMAT, new_caps);
+    GST_WARNING_OBJECT(self,"set new caps %" GST_PTR_FORMAT, new_caps);
 
     if(!self->priv->machines[PART_CAPS_FILTER]) {
       g_object_set(self->priv->machines[PART_ADDER],"caps",new_caps,NULL);
@@ -1476,7 +1472,9 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     }
     gst_caps_unref(new_caps);
   }
-  g_object_unref(setup);
+  else {
+    GST_WARNING_OBJECT(self,"no incomming wires");
+  }
 }
 
 // pattern handling
