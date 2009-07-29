@@ -80,6 +80,10 @@
  * @todo: API cleanup
  * - need coherent api to create machine parts
  *   - export the enum ?
+ *
+ * @todo: cache the GstControlSource objects?
+ * - we look them up a lot, its a linear search in a list, locking and ref/unref
+ * - one for each param and again each voice
  */
 
 #define BT_CORE
@@ -175,6 +179,8 @@ struct _BtMachinePrivate {
   /* dynamic parameter control */
   GstController *global_controller;
   GstController **voice_controllers;
+  GstInterpolationControlSource **global_control_sources;
+  GstInterpolationControlSource **voice_control_sources;
   GParamSpec **global_props,**voice_props;
   guint *global_flags,*voice_flags;
   GValue *global_no_val,*voice_no_val;
@@ -601,14 +607,16 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
     }
   }
 
-  // @todo make it use g_renew0()
-  // this is not as easy as it sounds (realloc does not know how big the old mem was)
-  self->priv->voice_controllers=(GstController **)g_renew(gpointer, self->priv->voice_controllers ,self->priv->voices);
+  self->priv->voice_controllers=(GstController **)g_renew(gpointer,self->priv->voice_controllers,self->priv->voices);
+  self->priv->voice_control_sources=(GstInterpolationControlSource **)g_renew(gpointer,self->priv->voice_control_sources,self->priv->voices*self->priv->voice_params);
   if(voices<self->priv->voices) {
     guint j;
 
     for(j=voices;j<self->priv->voices;j++) {
       self->priv->voice_controllers[j]=NULL;
+    }
+    for(j=voices*self->priv->voice_params;j<self->priv->voices*self->priv->voice_params;j++) {
+      self->priv->voice_control_sources[j]=NULL;
     }
   }
 }
@@ -997,6 +1005,8 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
     self->priv->global_flags =(guint *       )g_new0(guint   ,self->priv->global_params);
     self->priv->global_no_val=(GValue *      )g_new0(GValue  ,self->priv->global_params);
     self->priv->global_quarks=(GQuark *      )g_new0(GQuark  ,self->priv->global_params);
+    
+    self->priv->global_control_sources=(GstInterpolationControlSource **)g_new0(gpointer,self->priv->global_params);
 
     for(i=j=0;i<number_of_properties;i++) {
       property=properties[i];
@@ -2280,84 +2290,25 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const
 
 //-- controller handling
 
-static gboolean controller_need_activate(GstController *ctrl, gchar *param_name) {
-  gboolean add=TRUE;
-
-  // check if the property is already controlled
-  if(ctrl) {
-#if GST_CHECK_VERSION(0,10,14)
-    GstControlSource *cs;
-    if((cs=gst_controller_get_control_source(ctrl,param_name))) {
-      if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
-        add=FALSE;
-      }
-      g_object_unref(cs);
-    }
-#else
-    GList *values;
-    if((values=(GList *)gst_controller_get_all(ctrl,param_name))) {
-      add=FALSE;
-      g_list_free(values);
-    }
-#endif
+static gboolean controller_need_activate(GstInterpolationControlSource *cs) {
+  if(cs && gst_interpolation_control_source_get_count(cs)) {
+    return(FALSE);
   }
-  return(add);
+  return(TRUE);
 }
 
-static void controller_add_value(GstController *ctrl, gchar *param_name, const GstClockTime timestamp, GValue *value) {
-#if GST_CHECK_VERSION(0,10,14)
-  GstControlSource *cs;
-#endif
+static gboolean controller_rem_value(GstInterpolationControlSource *cs, const GstClockTime timestamp, const gboolean has_default) {
+  if(cs) {
+    gint count;
+    
+    gst_interpolation_control_source_unset(cs,timestamp);
 
-GST_LOG("set global controller: %"GST_TIME_FORMAT" param %s:%s",GST_TIME_ARGS(timestamp),g_type_name(G_VALUE_TYPE(value)),param_name);
-#if GST_CHECK_VERSION(0,10,14)
-  if((cs=gst_controller_get_control_source(ctrl,param_name))) {
-    gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
-    g_object_unref(cs);
-  }
-#else
-  gst_controller_set(ctrl,param_name,timestamp,value);
-#endif
-}
-
-static gboolean controller_rem_value(GstController *ctrl, gchar *param_name, const GstClockTime timestamp, const gboolean has_default) {
-  if(ctrl) {
-#if GST_CHECK_VERSION(0,10,14)
-    GstControlSource *cs;
-#endif
-    gboolean remove=TRUE;
-
-    GST_LOG("unset global controller: %"GST_TIME_FORMAT" param %s",GST_TIME_ARGS(timestamp),param_name);
-#if GST_CHECK_VERSION(0,10,14)
-    if((cs=gst_controller_get_control_source(ctrl,param_name))) {
-      gint count;
-      
-      gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
-
-      // check if the property is not having control points anymore
-      count=gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs));
-      if(has_default) // remove also if there is a default only left
-        count--;
-      if(count) // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=538201 -> fixed in 0.10.21
-        remove=FALSE;
-      g_object_unref(cs);
-    }
-    else remove=FALSE;
-#else
-    gst_controller_unset(ctrl,param_name,timestamp);
     // check if the property is not having control points anymore
-    GList *values;
-    if((values=(GList *)gst_controller_get_all(ctrl,param_name))) {
-      gint count=g_list_length(values);
-
-      if(has_default) // remove also if there is a default only left
-        count--;
-      if(count)
-        remove=FALSE;
-      g_list_free(values);
-    }
-#endif
-    return(remove);
+    count=gst_interpolation_control_source_get_count(cs);
+    if(has_default) // remove also if there is a default only left
+      count--;
+    // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=538201 -> fixed in 0.10.21
+    return(count==0);
   }
   return(FALSE);
 }
@@ -2377,6 +2328,7 @@ static gboolean controller_rem_value(GstController *ctrl, gchar *param_name, con
 void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue *value) {
   GObject *param_parent;
   GValue def_value={0,};
+  GstInterpolationControlSource *cs;
   gchar *param_name;
 
   g_return_if_fail(BT_IS_MACHINE(self));
@@ -2384,8 +2336,9 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
 
   param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
   param_name=GLOBAL_PARAM_NAME(param);
+  cs=self->priv->global_control_sources[param];
   
-  if(!timestamp) {
+  if(G_UNLIKELY(!timestamp)) {
     if(!value) {
       // we set it later
       value=&def_value;
@@ -2401,14 +2354,15 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
   }
 
   if(value) {
-    gboolean add=controller_need_activate(self->priv->global_controller,param_name);
+    gboolean add=controller_need_activate(cs);
     
-    if(value==&def_value) {
+    if(G_UNLIKELY(value==&def_value)) {
       // only set default value if this is not the first controlpoint
       if(!add) {
         g_value_init(&def_value,GLOBAL_PARAM_TYPE(param));
         g_object_get_property(param_parent,param_name,&def_value);
-        controller_add_value(self->priv->global_controller,param_name,G_GUINT64_CONSTANT(0),&def_value);
+        GST_LOG("set global controller: %"GST_TIME_FORMAT" param %s:%s",GST_TIME_ARGS(G_GUINT64_CONSTANT(0)),g_type_name(GLOBAL_PARAM_TYPE(param)),param_name);
+        gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&def_value);
         g_value_unset(&def_value);
       }
     }
@@ -2418,9 +2372,19 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
         GST_INFO(" wrong type for global property %s, type=%s, but expecting %s",self->priv->id,g_type_name(G_VALUE_TYPE(value)),g_type_name(GLOBAL_PARAM_TYPE(param)));
       }
 #endif
-      if(add) {
-        GstController *ctrl=bt_gst_object_activate_controller(param_parent, param_name, bt_machine_is_global_param_trigger(self,param));
-    
+      if(G_UNLIKELY(add)) {
+        GstController *ctrl;
+        gboolean is_trigger=bt_machine_is_global_param_trigger(self,param);
+
+        if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
+          cs=gst_interpolation_control_source_new();
+          gst_controller_set_control_source(ctrl,param_name,GST_CONTROL_SOURCE(cs));
+          // set interpolation mode depending on param type
+          gst_interpolation_control_source_set_interpolation_mode(cs,is_trigger?GST_INTERPOLATE_TRIGGER:GST_INTERPOLATE_NONE);
+          self->priv->global_control_sources[param]=cs;
+        }
+
+        // @todo: is this needed, we're in add=TRUE after all
         g_object_try_unref(self->priv->global_controller);
         self->priv->global_controller=ctrl;
     
@@ -2428,18 +2392,24 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
           // also set default value, as first control point is not a time=0
           g_value_init(&def_value,GLOBAL_PARAM_TYPE(param));
           g_object_get_property(param_parent,param_name,&def_value);
-          controller_add_value(self->priv->global_controller,param_name,G_GUINT64_CONSTANT(0),&def_value);
+          GST_LOG("set global controller: %"GST_TIME_FORMAT" param %s:%s",GST_TIME_ARGS(G_GUINT64_CONSTANT(0)),g_type_name(GLOBAL_PARAM_TYPE(param)),param_name);
+          gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&def_value);
           g_value_unset(&def_value);
         }
       }
-      controller_add_value(self->priv->global_controller,param_name,timestamp,value);
+      GST_LOG("set global controller: %"GST_TIME_FORMAT" param %s:%s",GST_TIME_ARGS(timestamp),g_type_name(GLOBAL_PARAM_TYPE(param)),param_name);
+      gst_interpolation_control_source_set(cs,timestamp,value);
     }
   }
   else {
     gboolean has_default=bt_machine_has_global_param_default_set(self,param);
 
-    if(controller_rem_value(self->priv->global_controller,param_name,timestamp,has_default)) {
-      bt_gst_object_deactivate_controller(param_parent, param_name);
+    GST_LOG("unset global controller: %"GST_TIME_FORMAT" param %s:%s",GST_TIME_ARGS(timestamp),g_type_name(GLOBAL_PARAM_TYPE(param)),param_name);
+    if(controller_rem_value(cs,timestamp,has_default)) {
+      gst_controller_set_control_source(self->priv->global_controller,param_name,NULL);
+      g_object_unref(cs);
+      self->priv->global_control_sources[param]=NULL;
+      gst_object_uncontrol_properties(param_parent, param_name, NULL);
     }
   }
 }
@@ -2460,6 +2430,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
 void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong voice, const gulong param, const GstClockTime timestamp, GValue *value) {
   GObject *param_parent;
   GValue def_value={0,};
+  GstInterpolationControlSource *cs;
   gchar *param_name;
 
   g_return_if_fail(BT_IS_MACHINE(self));
@@ -2469,8 +2440,9 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
 
   param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice));
   param_name=VOICE_PARAM_NAME(param);
+  cs=self->priv->voice_control_sources[voice*self->priv->voice_params+param];
 
-  if(!timestamp) {
+  if(G_UNLIKELY(!timestamp)) {
     if(!value) {
       // we set it later
       value=&def_value;
@@ -2486,14 +2458,15 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
   }
 
   if(value) {
-    gboolean add=controller_need_activate(self->priv->voice_controllers[voice],param_name);
+    gboolean add=controller_need_activate(cs);
 
-    if(value==&def_value) {
+    if(G_UNLIKELY(value==&def_value)) {
       // only set default value if this is not the first controlpoint
       if(!add) {
         g_value_init(&def_value,VOICE_PARAM_TYPE(param));
         g_object_get_property(param_parent,param_name,&def_value);
-        controller_add_value(self->priv->voice_controllers[voice],param_name,G_GUINT64_CONSTANT(0),&def_value);
+        GST_LOG("set voice[%lu] controller: %"GST_TIME_FORMAT" param %s:%s",voice,GST_TIME_ARGS(G_GUINT64_CONSTANT(0)),g_type_name(VOICE_PARAM_TYPE(param)),param_name);
+        gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&def_value);
         g_value_unset(&def_value);
       }
     }
@@ -2503,9 +2476,19 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
         GST_INFO(" wrong type for voice property %s, type=%s, but expecting %s",self->priv->id,g_type_name(G_VALUE_TYPE(value)),g_type_name(GLOBAL_PARAM_TYPE(param)));
       }
 #endif
-      if(add) {
-        GstController *ctrl=bt_gst_object_activate_controller(param_parent, param_name, bt_machine_is_voice_param_trigger(self,param));
+      if(G_UNLIKELY(add)) {
+        GstController *ctrl;
+        gboolean is_trigger=bt_machine_is_voice_param_trigger(self,param);
+        
+        if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
+          cs=gst_interpolation_control_source_new();
+          gst_controller_set_control_source(ctrl,param_name,GST_CONTROL_SOURCE(cs));
+          // set interpolation mode depending on param type
+          gst_interpolation_control_source_set_interpolation_mode(cs,is_trigger?GST_INTERPOLATE_TRIGGER:GST_INTERPOLATE_NONE);
+          self->priv->voice_control_sources[voice*self->priv->voice_params+param]=cs;
+        }
 
+        // @todo: is this needed, we're in add=TRUE after all
         g_object_try_unref(self->priv->voice_controllers[voice]);
         self->priv->voice_controllers[voice]=ctrl;
 
@@ -2513,18 +2496,24 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
           // also set default value, as first control point is not a time=0
           g_value_init(&def_value,VOICE_PARAM_TYPE(param));
           g_object_get_property(param_parent,param_name,&def_value);
-          controller_add_value(self->priv->voice_controllers[voice],param_name,G_GUINT64_CONSTANT(0),&def_value);
+          GST_LOG("set voice[%lu] controller: %"GST_TIME_FORMAT" param %s:%s",voice,GST_TIME_ARGS(G_GUINT64_CONSTANT(0)),g_type_name(VOICE_PARAM_TYPE(param)),param_name);
+          gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&def_value);
           g_value_unset(&def_value);
         }
       }
-      controller_add_value(self->priv->voice_controllers[voice],param_name,timestamp,value);
+      GST_LOG("set voice[%lu] controller: %"GST_TIME_FORMAT" param %s:%s",voice,GST_TIME_ARGS(timestamp),g_type_name(VOICE_PARAM_TYPE(param)),param_name);
+      gst_interpolation_control_source_set(cs,timestamp,value);
     }
   }
   else {
     gboolean has_default=bt_machine_has_voice_param_default_set(self,voice,param);
 
-    if(controller_rem_value(self->priv->voice_controllers[voice],param_name,timestamp,has_default)) {
-      bt_gst_object_deactivate_controller(param_parent, param_name);
+    GST_LOG("unset voice[%lu] controller: %"GST_TIME_FORMAT" param %s:%s",voice,GST_TIME_ARGS(timestamp),g_type_name(VOICE_PARAM_TYPE(param)),param_name);
+    if(controller_rem_value(cs,timestamp,has_default)) {
+      gst_controller_set_control_source(self->priv->voice_controllers[voice],param_name,NULL);
+      g_object_unref(cs);
+      self->priv->voice_control_sources[voice*self->priv->voice_params+param]=NULL;
+      gst_object_uncontrol_properties(param_parent, param_name, NULL);
     }
   }
   g_object_unref(param_parent);
@@ -2872,7 +2861,6 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
     name=g_strdup_printf("%s"G_DIR_SEPARATOR_S"buzztard-%s_g%02lu.dat",g_get_tmp_dir(),self->priv->id,i);
     if((file=fopen(name,"wb"))) {
       fprintf(file,"# global param \"%s\" for machine \"%s\"\n",GLOBAL_PARAM_NAME(i),self->priv->id);
-#if GST_CHECK_VERSION(0,10,14)
       GstControlSource *cs;
 
       list=NULL;
@@ -2880,9 +2868,6 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
         list=gst_interpolation_control_source_get_all(GST_INTERPOLATION_CONTROL_SOURCE(cs));
         g_object_unref(cs);
       }
-#else
-      list=(GList *)gst_controller_get_all(self->priv->global_controller,GLOBAL_PARAM_NAME(i));
-#endif
       if(list) {
         for(node=list;node;node=g_list_next(node)) {
           tv=(GstTimedValue *)node->data;
@@ -2912,7 +2897,6 @@ void bt_machine_dbg_dump_voice_controller_queue(const BtMachine * const self) {
     name=g_strdup_printf("%s"G_DIR_SEPARATOR_S"buzztard-%s_v%02lu.dat",g_get_tmp_dir(),self->priv->id,i);
     if((file=fopen(name,"wb"))) {
       fprintf(file,"# voice 0 param \"%s\" for machine \"%s\"\n",VOICE_PARAM_NAME(i),self->priv->id);
-#if GST_CHECK_VERSION(0,10,14)
       GstControlSource *cs;
 
       list=NULL;
@@ -2920,9 +2904,6 @@ void bt_machine_dbg_dump_voice_controller_queue(const BtMachine * const self) {
         list=gst_interpolation_control_source_get_all(GST_INTERPOLATION_CONTROL_SOURCE(cs));
         g_object_unref(cs);
       }
-#else
-      list=(GList *)gst_controller_get_all(self->priv->voice_controllers[0],VOICE_PARAM_NAME(i));
-#endif
       if(list) {
         for(node=list;node;node=g_list_next(node)) {
           tv=(GstTimedValue *)node->data;
@@ -3510,7 +3491,8 @@ static void bt_machine_dispose(GObject * const object) {
     self->priv->voices);
   param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
   for(j=0;j<self->priv->global_params;j++) {
-    bt_gst_object_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(j));
+    g_object_try_unref(self->priv->global_control_sources[j]);
+    //bt_gst_object_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(j));
   }
   //self->priv->global_controller=NULL; // <- this is wrong, controllers have a refcount on the gstelement
   g_object_try_unref(self->priv->global_controller);
@@ -3518,7 +3500,8 @@ static void bt_machine_dispose(GObject * const object) {
     for(i=0;i<self->priv->voices;i++) {
       param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),i));
       for(j=0;j<self->priv->voice_params;j++) {
-        bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(j));
+        g_object_try_unref(self->priv->voice_control_sources[i*self->priv->voice_params+j]);
+        //bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(j));
       }
       g_object_unref(param_parent);
       //self->priv->voice_controllers[i]=NULL; // <- this is wrong, controllers have a refcount on the gstelement
@@ -3574,6 +3557,8 @@ static void bt_machine_finalize(GObject * const object) {
   g_free(self->priv->voice_props);
   g_free(self->priv->global_props);
   g_free(self->priv->voice_controllers);
+  g_free(self->priv->global_control_sources);
+  g_free(self->priv->voice_control_sources);
   // free list of patterns
   if(self->priv->patterns) {
     g_list_free(self->priv->patterns);

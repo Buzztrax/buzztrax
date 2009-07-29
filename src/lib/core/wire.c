@@ -111,6 +111,7 @@ struct _BtWirePrivate {
   
   /* dynamic parameter control */
   GstController *wire_controller[BT_WIRE_MAX_NUM_PARAMS];
+  GstInterpolationControlSource *wire_control_sources[BT_WIRE_MAX_NUM_PARAMS];
   GParamSpec *wire_props[BT_WIRE_MAX_NUM_PARAMS];
 
   /* event patterns in relation to patterns of the target machine */
@@ -945,15 +946,11 @@ void bt_wire_get_param_details(const BtWire * const self, const gulong index, GP
  * value for the specified param and at the given time.
  */
 /* @todo: we have no default value handling here (see machine)
- * we could move more code from machine to tools
- * controller_need_activate/controller_add_value/controller_rem_value
  */
 void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value) {
   GObject *param_parent=NULL;
   gchar *param_name;
-#if GST_CHECK_VERSION(0,10,14)
-  GstControlSource *cs;
-#endif
+  GstInterpolationControlSource *cs;
 
   g_return_if_fail(BT_IS_WIRE(self));
   g_return_if_fail(param<self->priv->num_params);
@@ -970,76 +967,49 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
       break;
   }
   param_name=WIRE_PARAM_NAME(param);
+  cs=self->priv->wire_control_sources[param];
 
   if(value) {
     gboolean add=TRUE;
 
     // check if the property is alredy controlled
-    if(self->priv->wire_controller[param]) {
-#if GST_CHECK_VERSION(0,10,14)
-      if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],param_name))) {
-        if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
-          add=FALSE;
-        }
-        g_object_unref(cs);
-      }
-#else
-      GList *values;
-      if((values=(GList *)gst_controller_get_all(self->priv->wire_controller[param],param_name))) {
-        add=FALSE;
-        g_list_free(values);
-      }
-#endif
+    if(cs && gst_interpolation_control_source_get_count(cs)) {
+      add=FALSE;
     }
-    if(add) {
-      GstController *ctrl=bt_gst_object_activate_controller(param_parent, param_name, FALSE);
+    if(G_UNLIKELY(add)) {
+      GstController *ctrl;
+      
+      if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
+        cs=gst_interpolation_control_source_new();
+        gst_controller_set_control_source(ctrl,param_name,GST_CONTROL_SOURCE(cs));
+        // set interpolation mode depending on param type
+        gst_interpolation_control_source_set_interpolation_mode(cs,GST_INTERPOLATE_NONE);
+        self->priv->wire_control_sources[param]=cs;
+      }
 
+      // @todo: is this needed, we're in add=TRUE after all
       g_object_try_unref(self->priv->wire_controller[param]);
       self->priv->wire_controller[param]=ctrl;
     }
     //GST_INFO("set wire controller: %"GST_TIME_FORMAT" param %d:%s",GST_TIME_ARGS(timestamp),param,name);
-#if GST_CHECK_VERSION(0,10,14)
-    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],param_name))) {
-      gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
-      g_object_unref(cs);
-    }
-#else
-    gst_controller_set(self->priv->wire_controller[param],param_name,timestamp,value);
-#endif
+    gst_interpolation_control_source_set(cs,timestamp,value);
   }
   else {
     if(self->priv->wire_controller[param]) {
       gboolean remove=TRUE;
 
       //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
-#if GST_CHECK_VERSION(0,10,14)
-      if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],param_name))) {
-        gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
-        g_object_unref(cs);
-      }
-#else
-      gst_controller_unset(self->priv->wire_controller[param],param_name,timestamp);
-#endif
-
-      // check if the property is not having control points anymore
-#if GST_CHECK_VERSION(0,10,14)
-      if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],param_name))) {
-        if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
+      if(cs) {
+        gst_interpolation_control_source_unset(cs,timestamp);
+        if(gst_interpolation_control_source_get_count(cs)) {
           remove=FALSE;
         }
-        g_object_unref(cs);
       }
-#else
-      GList *values;
-      if((values=(GList *)gst_controller_get_all(self->priv->wire_controller[param],param_name))) {
-        //if(g_list_length(values)>0) {
-          remove=FALSE;
-        //}
-        g_list_free(values);
-      }
-#endif
       if(remove) {
-        bt_gst_object_deactivate_controller(param_parent,param_name);
+        gst_controller_set_control_source(self->priv->wire_controller[param],param_name,NULL);
+        g_object_unref(cs);
+        self->priv->wire_control_sources[param]=NULL;
+        gst_object_uncontrol_properties(param_parent, param_name, NULL);
       }
     }
   }
@@ -1386,16 +1356,18 @@ static void bt_wire_dispose(GObject * const object) {
   // unref controllers
   GST_DEBUG("  releasing controllers");
   if(self->priv->machines[PART_GAIN] && self->priv->wire_props[0]) {
-    bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_GAIN]), WIRE_PARAM_NAME(0));
+    g_object_try_unref(self->priv->wire_control_sources[0]);
+    //bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_GAIN]), WIRE_PARAM_NAME(0));
     self->priv->wire_controller[0]=NULL;
   }
   if(self->priv->machines[PART_PAN] && self->priv->wire_props[1]) {
-    bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_PAN]), WIRE_PARAM_NAME(1));
+    g_object_try_unref(self->priv->wire_control_sources[1]);
+    //bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_PAN]), WIRE_PARAM_NAME(1));
     self->priv->wire_controller[1]=NULL;
   }
 
   // remove the GstElements from the bin
-  // FIXME: is this actually needed?
+  // @todo: is this actually needed?
   bt_wire_unlink_machines(self); // removes helper elements if in use
   bt_wire_deactivate_analyzers(self);
 

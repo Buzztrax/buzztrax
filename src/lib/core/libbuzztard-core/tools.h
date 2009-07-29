@@ -34,21 +34,11 @@ extern gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *fa
 extern GList *bt_gst_check_elements(GList *list);
 extern GList *bt_gst_check_core_elements(void);
 
-//-- controller
-#ifdef BT_CORE
-extern GstController *bt_gst_object_activate_controller(GObject *param_parent,gchar *param_name,gboolean is_trigger);
-extern void bt_gst_object_deactivate_controller(GObject *param_parent,gchar *param_name);
-#endif
-
 //-- debugging
 
 extern void bt_gst_element_dbg_pads(GstElement * const elem);
 
 //-- gst compat
-
-#if !GST_CHECK_VERSION(0,10,11)
-extern G_CONST_RETURN gchar *  gst_element_state_change_return_get_name(GstStateChangeReturn state_ret);
-#endif
 
 //-- glib compat & helper
 

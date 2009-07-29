@@ -229,9 +229,9 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.10.0 gobject-2.0  >= 2.10.0 gthread-2.0 >= 2.10.0 gmodule-2.0 >= 2.10.0 \
   gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
   libxml-2.0 >= 2.6.0 \
-  gstreamer-0.10 >= 0.10.10 gstreamer-controller-0.10 >= 0.10.10 \
-  gstreamer-base-0.10 >= 0.10.10 \
-  gstreamer-plugins-base-0.10 >= 0.10.10 \
+  gstreamer-0.10 >= 0.10.14 gstreamer-controller-0.10 >= 0.10.14 \
+  gstreamer-base-0.10 >= 0.10.14 \
+  gstreamer-plugins-base-0.10 >= 0.10.14 \
 )
 # gstreamer-app-0.10 >= 0.10.22
 

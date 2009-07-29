@@ -307,7 +307,6 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
   return(str);
 }
 
-#if GST_CHECK_VERSION(0,10,14)
 // @todo: should we have this in btmachine.c?
 static void bt_machine_update_default_param_value(BtMachine *self,GstObject *param_parent, const gchar *property_name) {
   GstController *ctrl;
@@ -360,14 +359,11 @@ static void bt_machine_update_default_param_value(BtMachine *self,GstObject *par
       GST_IS_OBJECT(param_parent)?GST_OBJECT_NAME(param_parent):"");
   }
 }
-#endif
 
 static void update_param_after_interaction(GtkWidget *widget,gpointer user_data) {
-#if GST_CHECK_VERSION(0,10,14)
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
 
   bt_machine_update_default_param_value(self->priv->machine, GST_OBJECT(user_data), gtk_widget_get_name(GTK_WIDGET(widget)));
-#endif
 }
 
 static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data,BtInteractionControllerMenuType type) {
@@ -393,24 +389,20 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
       res=TRUE;
     }
-#if GST_CHECK_VERSION(0,10,14)
     else if(event->button == 1) {
       GstController *ctrl;
       if((ctrl=gst_object_get_controller(G_OBJECT(param_parent)))) {
         gst_controller_set_property_disabled(ctrl,(gchar *)property_name,TRUE);
       }
     }
-#endif
   }
   return(res);
 }
 
 static gboolean on_button_release_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
-#if GST_CHECK_VERSION(0,10,14)
   if(event->button == 1 && event->type == GDK_BUTTON_RELEASE) {
     update_param_after_interaction(widget,user_data);
   }
-#endif
   return(FALSE);
 }
 
