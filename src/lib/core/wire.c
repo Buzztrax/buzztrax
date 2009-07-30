@@ -1220,8 +1220,6 @@ static void bt_wire_constructed(GObject *object) {
   
   GST_INFO("wire constructor, self->priv=%p, between %p and %p",self->priv,self->priv->src,self->priv->dst);
   if(self->priv->src && self->priv->dst) {
-    // @todo: we need to put the wire into the pipeline before
-
     if(!bt_wire_connect(self)) {
       goto ConnectError;
     }

@@ -246,21 +246,8 @@
  *     - we can run it before playing
  */
 /* @todo:
- * - we often need wires per machine
- * - idealy we have
- *   - a way to enumerate machines (hastable or public field in machine)
- *     - index = 0, index_list = NULL
- *     - when removing a machine
- *       - if it was the last, index--;
- *       - else index_list += (machine.index);
- *     - when adding a machine
- *       - if index_list != NULL take from index_list
- *       - else machine.index = index++;
- *   - a 2d array BtWire *wires[src][dst]
- *   - whenever we add/del a machine we need to resize this
- *     - start with a e.g. 16x16 array and add 16x16 when enlarging
- *   - whenever we add/del a wire, we need to update it
- *     (which is easy, set/clear a cell)
+ * - each time we/add remove a wire, we update the whole graph. Would be nice
+ *   to avoid this when loading songs.
  */
 
 #define BT_CORE
