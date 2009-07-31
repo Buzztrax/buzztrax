@@ -396,6 +396,7 @@ static void on_song_eos(const GstBus * const bus, const GstMessage * const messa
 
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     self->priv->play_pos=self->priv->play_end;
+    g_object_notify(G_OBJECT(self),"play-pos");
     bt_song_stop(self);
   }
 }
@@ -477,6 +478,7 @@ static void on_song_async_done(const GstBus * const bus, GstMessage *message, gc
   
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GST_INFO("async state-change done");
+    bt_song_update_playback_position(self);
   }
 }
 

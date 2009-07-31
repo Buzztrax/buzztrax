@@ -129,6 +129,8 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     gint i;
 
     GST_INFO("song stop event occurred: %p",g_thread_self());
+    // stop update timer
+    bt_song_update_playback_position(song);
     if(self->priv->playback_update_id) {
       g_source_remove(self->priv->playback_update_id);
       self->priv->playback_update_id=0;
@@ -152,6 +154,8 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     // update playback position 10 times a second
     //self->priv->playback_update_id=g_timeout_add(100,on_song_playback_update,(gpointer)song);
     self->priv->playback_update_id=g_timeout_add_full(G_PRIORITY_HIGH,100,on_song_playback_update,(gpointer)song,NULL);
+    bt_song_update_playback_position(song);
+
     // if we started playback remotely activate playbutton
     if(!gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->play_button))) {
       g_signal_handlers_block_matched(self->priv->play_button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_toolbar_play_clicked,(gpointer)self);

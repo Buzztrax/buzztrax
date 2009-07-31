@@ -1,3 +1,9 @@
+2009-07-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	* src/ui/edit/main-toolbar.c:
+	  Increase likelyhood, that we draw a playline on start and stop.
+
 2009-07-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:
