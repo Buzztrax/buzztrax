@@ -206,7 +206,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
   //GST_INFO("loop %d? %ld ... %ld, length %ld, pos %lu", loop,loop_start,loop_end,length,play_pos);
 
   if(loop_start==-1) loop_start=0;
-  if(loop_end==-1) loop_end=length-1;
+  if(loop_end==-1) loop_end=length;
   if(play_pos>=loop_end) play_pos=loop_start;
   
   // remember end for eos
