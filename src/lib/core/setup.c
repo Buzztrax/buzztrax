@@ -597,14 +597,13 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
   gboolean is_connected=FALSE,wire_is_connected;
   BtWire *wire;
   BtMachine *src_machine;
-  GList *node,*list;
+  GList *node;
   
   SET_GRAPH_DEPTH(self,dst_machine,depth);
   
-  list = bt_setup_get_wires_by_dst_machine(self,dst_machine);
-  GST_INFO_OBJECT(dst_machine,"check %d incomming wires",g_list_length(list));
+  GST_INFO_OBJECT(dst_machine,"check %d incomming wires",g_list_length(dst_machine->dst_wires));
 
-  for(node=list;node;node=g_list_next(node)) {
+  for(node=dst_machine->dst_wires;node;node=g_list_next(node)) {
     wire=BT_WIRE(node->data);
     
     SET_GRAPH_DEPTH(self,dst_machine,depth+1);
@@ -651,12 +650,8 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
       g_object_unref(src_machine);
     }
     *not_visited_wires=g_list_remove(*not_visited_wires,(gconstpointer)wire);
-    g_object_unref(wire);
   }
-  g_list_free(list);
   if(!is_connected) {
-    update_bin_in_pipeline(self,GST_BIN(dst_machine),FALSE,not_visited_machines);
-    
     set_disconnecting(self,GST_BIN(dst_machine));
   }
   *not_visited_machines=g_list_remove(*not_visited_machines,(gconstpointer)dst_machine);
@@ -878,7 +873,7 @@ static gboolean bt_setup_update_pipeline(const BtSetup * const self) {
       g_list_length(not_visited_wires));
     // ... and start checking connections (recursively)
     res=check_connected(self,master,&not_visited_machines,&not_visited_wires,0);
-    
+
     // remove all items that we have not visited and set them to disconnected
     GST_INFO("remove %d unconnected wires", g_list_length(not_visited_wires));
     for(node=not_visited_wires;node;node=g_list_next(node)) {

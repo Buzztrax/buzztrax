@@ -1392,7 +1392,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
       if((pad=gst_element_get_static_pad(src->priv->machines[PART_MACHINE],"src"))) {
         /* @todo: only check template caps? Yes, otherwise we can never go back
          * from some selected format. */
-        if(/*(pad_caps=gst_pad_get_negotiated_caps(pad))*/ (pad_caps=0) ||
+        if(/*(pad_caps=gst_pad_get_negotiated_caps(pad))*/ (pad_caps=NULL) ||
           (pad_tmpl_caps=gst_pad_get_pad_template_caps(pad))) {
 
           caps=pad_caps?pad_caps:pad_tmpl_caps;
