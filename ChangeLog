@@ -1,3 +1,130 @@
+2009-07-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/gnome/Makefile.am:
+	* pixmaps/hicolor/Makefile.am:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/ui-resources.c:
+	* pixmaps/hicolor/16x16/buzztard_menu_source_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_tab_sequence.png (svn:mergeinfo):
+	* pixmaps/hicolor/24x24/buzztard_menu_sink_machine.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_effect_bypass.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_effect_bypass.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_effect_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_menu_processor_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_effect.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_generator.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_effect.png (svn:mergeinfo):
+	* pixmaps/hicolor/24x24/buzztard_menu_source_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_tab_sequence.png (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_generator_mute.svg (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_master_mute.svg (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_generator_solo.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_tab_patterns.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_generator.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_master_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_master_mute.png (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_tab_machines.png (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_effect_bypass.svg (svn:mergeinfo):
+	* pixmaps/gnome/24x24/buzztard_menu_sink_machine.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_master.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_tab_machines.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_menu_source_machine.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_generator_solo.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_master_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_tab_waves.png (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_menu_sink_machine.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_effect_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_effect_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_generator.png (svn:mergeinfo):
+	* pixmaps/gnome/24x24/buzztard_menu_processor_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_master.svg (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_effect.svg (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_effect_bypass.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_generator_mute.png (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_tab_info.png (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_generator.svg (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_menu_processor_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_tab_waves.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_effect.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_master.png (svn:mergeinfo):
+	* pixmaps/gnome/24x24/buzztard_menu_grid.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_menu_sink_machine.png (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_effect_mute.svg (svn:mergeinfo):
+	* pixmaps/hicolor/24x24/buzztard_menu_grid.png (svn:mergeinfo):
+	* pixmaps/hicolor/24x24/buzztard_menu_processor_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_tab_patterns.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_generator_solo.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_master.png (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_generator_solo.svg (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_generator_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_generator_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/24x24/buzztard_menu_source_machine.png (svn:mergeinfo):
+	* pixmaps/hicolor/24x24/menu_sink_machine.png (deleted):
+	* pixmaps/hicolor/24x24/menu_processor_machine.png (deleted):
+	* pixmaps/hicolor/24x24/menu_source_machine.png (deleted):
+	* pixmaps/hicolor/24x24/menu_grid.png (deleted):
+	* pixmaps/hicolor/16x16/tab_sequence.png (deleted):
+	* pixmaps/hicolor/16x16/menu_source_machine.png (deleted):
+	* pixmaps/hicolor/16x16/tab_waves.png (deleted):
+	* pixmaps/hicolor/16x16/menu_sink_machine.png (deleted):
+	* pixmaps/hicolor/16x16/tab_machines.png (deleted):
+	* pixmaps/hicolor/16x16/tab_info.png (deleted):
+	* pixmaps/hicolor/16x16/tab_patterns.png (deleted):
+	* pixmaps/hicolor/16x16/menu_processor_machine.png (deleted):
+	* pixmaps/gnome/48x48/effect.png (deleted):
+	* pixmaps/gnome/48x48/generator-mute.png (deleted):
+	* pixmaps/gnome/48x48/generator-solo.png (deleted):
+	* pixmaps/gnome/48x48/master-mute.png (deleted):
+	* pixmaps/gnome/48x48/effect-mute.png (deleted):
+	* pixmaps/gnome/48x48/generator.png (deleted):
+	* pixmaps/gnome/48x48/effect-bypass.png (deleted):
+	* pixmaps/gnome/48x48/master.png (deleted):
+	* pixmaps/gnome/32x32/effect.png (deleted):
+	* pixmaps/gnome/32x32/generator-mute.png (deleted):
+	* pixmaps/gnome/32x32/generator-solo.png (deleted):
+	* pixmaps/gnome/32x32/master-mute.png (deleted):
+	* pixmaps/gnome/32x32/effect-mute.png (deleted):
+	* pixmaps/gnome/32x32/generator.png (deleted):
+	* pixmaps/gnome/32x32/effect-bypass.png (deleted):
+	* pixmaps/gnome/32x32/master.png (deleted):
+	* pixmaps/gnome/24x24/menu_sink_machine.png (deleted):
+	* pixmaps/gnome/24x24/menu_processor_machine.png (deleted):
+	* pixmaps/gnome/24x24/menu_source_machine.png (deleted):
+	* pixmaps/gnome/24x24/menu_grid.png (deleted):
+	* pixmaps/gnome/16x16/tab_sequence.png (deleted):
+	* pixmaps/gnome/16x16/menu_source_machine.png (deleted):
+	* pixmaps/gnome/16x16/tab_waves.png (deleted):
+	* pixmaps/gnome/16x16/menu_sink_machine.png (deleted):
+	* pixmaps/gnome/16x16/tab_machines.png (deleted):
+	* pixmaps/gnome/16x16/tab_patterns.png (deleted):
+	* pixmaps/gnome/16x16/menu_processor_machine.png (deleted):
+	* pixmaps/gnome/scalable/generator.svg (deleted):
+	* pixmaps/gnome/scalable/master.svg (deleted):
+	* pixmaps/gnome/scalable/effect-bypass.svg (deleted):
+	* pixmaps/gnome/scalable/effect.svg (deleted):
+	* pixmaps/gnome/scalable/generator-mute.svg (deleted):
+	* pixmaps/gnome/scalable/generator-solo.svg (deleted):
+	* pixmaps/gnome/scalable/master-mute.svg (deleted):
+	* pixmaps/gnome/scalable/effect-mute.svg (deleted):
+	* pixmaps/gnome/64x64/effect.png (deleted):
+	* pixmaps/gnome/64x64/generator-mute.png (deleted):
+	* pixmaps/gnome/64x64/generator-solo.png (deleted):
+	* pixmaps/gnome/64x64/master-mute.png (deleted):
+	* pixmaps/gnome/64x64/effect-mute.png (deleted):
+	* pixmaps/gnome/64x64/generator.png (deleted):
+	* pixmaps/gnome/64x64/effect-bypass.png (deleted):
+	* pixmaps/gnome/64x64/master.png (deleted):
+	  Add prefix to icons to not clash with others. Add more logging for icon
+	  theme handling. Try setting fallback theme to gnome.
+
 2009-07-31  Patric Schmitz  <berzerka@users.sf.net>
 
 	* src/lib/core/song.c: (bt_song_update_play_seek_event):

@@ -136,6 +136,11 @@ GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size) {
   if(!(pixbuf=gtk_icon_theme_load_icon(it,name,size,0,&error))) {
     GST_WARNING("Couldn't load %s %dx%d icon: %s",name,size,size,error->message);
     g_error_free(error);
+    /* @todo: machine icons are in 'gnome' theme, how can we use this as a
+     * fallback
+     * gtk_icon_theme_set_custom_theme(it,"gnome");
+     * is a bit brutal 
+     */
     return gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,size,size);
     //return NULL;
   }

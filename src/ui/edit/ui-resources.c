@@ -92,7 +92,7 @@ static gboolean bt_ui_resources_init_colors(BtUIResources *self) {
    * http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
    * http://tango.freedesktop.org/static/cvs/tango-art-tools/palettes/Tango-Palette.gpl
    */
-  g_object_get (settings, "gtk-icon-theme-name", &icon_theme_name, NULL);
+  g_object_get(settings, "gtk-icon-theme-name", &icon_theme_name, NULL);
   GST_INFO("Icon Theme: %s",icon_theme_name);
   
   /* @todo: can we get some colors from the theme ?
@@ -209,18 +209,36 @@ static gboolean bt_ui_resources_init_colors(BtUIResources *self) {
 
 
 static gboolean bt_ui_resources_init_icons(BtUIResources *self) {
+  GtkSettings *settings;
+  gchar *icon_theme_name,*fallback_icon_theme_name;
   gint w,h;
+  
+  settings=gtk_settings_get_default();
+  g_object_get(settings, 
+    "gtk-icon-theme-name", &icon_theme_name,
+    "gtk-fallback-icon-theme", &fallback_icon_theme_name,
+    NULL);
+  GST_INFO("Icon Theme: %s, Fallback Icon Theme: %s",icon_theme_name,fallback_icon_theme_name);
+  
+  if(strcasecmp(icon_theme_name,"gnome")) {
+    if(fallback_icon_theme_name && strcasecmp(fallback_icon_theme_name,"gnome")) {
+      g_object_set(settings,"gtk-fallback-icon-theme","gnome",NULL);
+    }
+  }
+  g_free(icon_theme_name);
+  g_free(fallback_icon_theme_name);
+
 
   gtk_icon_size_lookup(GTK_ICON_SIZE_MENU,&w,&h);
 
   /*
-  self->priv->source_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_source_machine.png");
-  self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_processor_machine.png");
-  self->priv->sink_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_sink_machine.png");
+  self->priv->source_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztard_menu_source_machine.png");
+  self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztard_menu_processor_machine.png");
+  self->priv->sink_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztard_menu_sink_machine.png");
   */
-  self->priv->source_machine_pixbuf   =gdk_pixbuf_new_from_theme("menu_source_machine",w);
-  self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_theme("menu_processor_machine",w);
-  self->priv->sink_machine_pixbuf     =gdk_pixbuf_new_from_theme("menu_sink_machine",w);
+  self->priv->source_machine_pixbuf   =gdk_pixbuf_new_from_theme("buzztard_menu_source_machine",w);
+  self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_theme("buzztard_menu_processor_machine",w);
+  self->priv->sink_machine_pixbuf     =gdk_pixbuf_new_from_theme("buzztard_menu_sink_machine",w);
 
   return(TRUE);
 }
@@ -255,16 +273,16 @@ static gboolean bt_ui_resources_init_graphics(BtUIResources *self) {
   
   //self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL] = bt_ui_resources_load_svg ("generator.svg");
   
-  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("generator",size);
-  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("generator-mute",size);
-  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_SOLO  ]=gdk_pixbuf_new_from_theme("generator-solo",size);
+  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("buzztard_generator",size);
+  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("buzztard_generator_mute",size);
+  self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_SOLO  ]=gdk_pixbuf_new_from_theme("buzztard_generator_solo",size);
 
-  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("effect",size);
-  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("effect-mute",size);
-  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_BYPASS]=gdk_pixbuf_new_from_theme("effect-bypass",size);
+  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("buzztard_effect",size);
+  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("buzztard_effect_mute",size);
+  self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_BYPASS]=gdk_pixbuf_new_from_theme("buzztard_effect_bypass",size);
 
-  self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("master",size);
-  self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("master-mute",size);
+  self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("buzztard_master",size);
+  self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("buzztard_master_mute",size);
    
   /* DEBUG
   gint w,h;

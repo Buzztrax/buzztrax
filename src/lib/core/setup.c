@@ -453,8 +453,8 @@ static gboolean link_wire(const BtSetup * const self,GstElement *wire,GstElement
   gboolean res=TRUE;
 
   // link start of wire
-  GST_INFO("linking start of wire");      
   dst_pad=gst_element_get_static_pad(GST_ELEMENT(wire),"sink");
+  GST_INFO_OBJECT(dst_pad,"linking start of wire");      
   if(!(peer=gst_pad_get_peer(dst_pad))) {
     if((src_pad=gst_element_get_request_pad(GST_ELEMENT(src_machine),"src%d"))) {
       if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/ 
@@ -485,8 +485,8 @@ static gboolean link_wire(const BtSetup * const self,GstElement *wire,GstElement
     goto Error;
 
   // link end of wire
-  GST_INFO("linking end of wire");
   src_pad=gst_element_get_static_pad(GST_ELEMENT(wire),"src");
+  GST_INFO_OBJECT(src_pad,"linking end of wire");
   if(!(peer=gst_pad_get_peer(src_pad))) {
     if((dst_pad=gst_element_get_request_pad(GST_ELEMENT(dst_machine),"sink%d"))) {
       if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
@@ -514,8 +514,8 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
   GstPad *src_pad,*dst_pad;
 
   // unlink start of wire
-  GST_INFO("unlinking start of wire");      
   dst_pad=gst_element_get_static_pad(wire,"sink");
+  GST_INFO_OBJECT(dst_pad,"unlinking start of wire");      
   if((src_pad=gst_pad_get_peer(dst_pad))) {
     if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/ 
       (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
@@ -529,16 +529,22 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
     // unref twice: one for gst_pad_get_peer() and once for the request_pad
     gst_object_unref(src_pad);gst_object_unref(src_pad);
   }
+  else {
+    GST_WARNING_OBJECT(dst_pad, "wire is not linked to src %s", GST_OBJECT_NAME(src_machine));
+  }
   gst_object_unref(dst_pad);
 
-  GST_INFO("unlinking end of wire");    
   src_pad=gst_element_get_static_pad(wire,"src");
+  GST_INFO_OBJECT(src_pad,"unlinking end of wire");    
   if((dst_pad=gst_pad_get_peer(src_pad))) {
     gst_pad_unlink(src_pad,dst_pad);
     gst_pad_send_event(dst_pad, gst_event_new_eos ());
     gst_element_release_request_pad(dst_machine,dst_pad);
     // unref twice: one for gst_pad_get_peer() and once for the request_pad
     gst_object_unref(dst_pad);gst_object_unref(dst_pad);
+  }
+  else {
+    GST_WARNING_OBJECT(src_pad, "wire is not linked to dst %s", GST_OBJECT_NAME(dst_machine));
   }
   gst_object_unref(src_pad); 
 }
