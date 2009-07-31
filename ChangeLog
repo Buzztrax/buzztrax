@@ -1,5 +1,10 @@
 2009-08-01  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Clean up some debug leftovers.
+
+2009-08-01  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/setup.c:
 	  Remove a leftover update action in graph connection check. This caused
 	  problem when later on unlinking wires. Also use new wire list directly.

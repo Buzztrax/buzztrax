@@ -1370,8 +1370,8 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   if(self->dst_wires) {
     BtWire *wire;
     GstPad *pad;
-    GstCaps *pad_caps,*new_caps;
-    const GstCaps *pad_tmpl_caps=NULL,*caps;
+    GstCaps *new_caps;
+    const GstCaps *pad_tmpl_caps;
     GstStructure *ps,*ns;
     guint size,i;
     gint p_format,n_format=0;
@@ -1390,17 +1390,14 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
       g_object_get(wire,"src",&src,NULL);
 
       if((pad=gst_element_get_static_pad(src->priv->machines[PART_MACHINE],"src"))) {
-        /* @todo: only check template caps? Yes, otherwise we can never go back
+        /* only check template caps, otherwise we can never go back
          * from some selected format. */
-        if(/*(pad_caps=gst_pad_get_negotiated_caps(pad))*/ (pad_caps=NULL) ||
-          (pad_tmpl_caps=gst_pad_get_pad_template_caps(pad))) {
+        if((pad_tmpl_caps=gst_pad_get_pad_template_caps(pad))) {
+          GST_INFO_OBJECT(src,"checking caps %" GST_PTR_FORMAT, pad_tmpl_caps);
 
-          caps=pad_caps?pad_caps:pad_tmpl_caps;
-          GST_INFO_OBJECT(src,"checking caps %p,%p: %" GST_PTR_FORMAT, pad_caps, pad_tmpl_caps, caps);
-
-          size=gst_caps_get_size(caps);
+          size=gst_caps_get_size(pad_tmpl_caps);
           for(i=0;i<size;i++) {
-            ps=gst_caps_get_structure(caps,i);
+            ps=gst_caps_get_structure(pad_tmpl_caps,i);
             p_name=gst_structure_get_name(ps);
             if(!strcmp(p_name,fmt_names[0])) p_format=0;
             else if(!strcmp(p_name,fmt_names[1])) p_format=1;
@@ -1433,7 +1430,6 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
             GST_INFO_OBJECT(pad,"  after [%2d] fmt=%d, width=%d, depth=%d, channels=%d",
               i, n_format,n_width,n_depth,n_channels);
           }
-          if(pad_caps) gst_caps_unref(pad_caps);
         }
         else {
           GST_WARNING_OBJECT(pad,"No caps on pad?");
@@ -1472,7 +1468,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     }
     new_caps=gst_caps_new_full(ns,NULL);
 
-    GST_WARNING_OBJECT(self,"set new caps %" GST_PTR_FORMAT, new_caps);
+    GST_DEBUG_OBJECT(self,"set new caps %" GST_PTR_FORMAT, new_caps);
 
     if(!self->priv->machines[PART_CAPS_FILTER]) {
       g_object_set(self->priv->machines[PART_ADDER],"caps",new_caps,NULL);
