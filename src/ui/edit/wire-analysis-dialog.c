@@ -293,21 +293,23 @@ static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
     //GST_INFO("get spectrum data");
     if((list = gst_structure_get_value (structure, "magnitude"))) {
       size=gst_value_list_get_size(list);
-      spect_bands=MIN(spect_bands,size);
-      for (i = 0; i < spect_bands; ++i) {
-        value = gst_value_list_get_value (list, i);
-        self->priv->spect[i] = height_scale * g_value_get_float (value);
+      if(size==spect_bands) {
+        for(i=0;i<spect_bands;i++) {
+          value=gst_value_list_get_value(list,i);
+          self->priv->spect[i]=height_scale*g_value_get_float(value);
+        }
+        gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
       }
-      gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
     }
     else if((list = gst_structure_get_value (structure, "spectrum"))) {
       size=gst_value_list_get_size(list);
-      spect_bands=MIN(spect_bands,size);
-      for (i = 0; i < spect_bands; ++i) {
-        value = gst_value_list_get_value (list, i);
-        self->priv->spect[i] =height_scale * (gfloat)g_value_get_uchar (value);
+      if(size==spect_bands) {
+        for(i=0;i<spect_bands;i++) {
+          value=gst_value_list_get_value(list,i);
+          self->priv->spect[i]=height_scale*(gfloat)g_value_get_uchar(value);
+        }
+        gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
       }
-      gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
     }
   }
   

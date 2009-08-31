@@ -1,3 +1,9 @@
+2009-08-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Just skip spectrum data while resizing to avoid drawing partial
+	  data-sets.
+
 2009-08-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
