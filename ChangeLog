@@ -1,3 +1,9 @@
+2009-09-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Set to NULL when disposing, we are not added to the pipeline by default. 
+	  Fixes when closing empty songs.
+
 2009-08-31  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/wire-analysis-dialog.c:

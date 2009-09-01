@@ -923,11 +923,17 @@ static void bt_sink_bin_set_property(GObject * const object, const guint propert
 
 static void bt_sink_bin_dispose(GObject * const object) {
   const BtSinkBin * const self = BT_SINK_BIN(object);
+  GstStateChangeReturn res;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  if((res=gst_element_set_state(GST_ELEMENT(self),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to null state");
+  }
+  GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
 
   // disconnect handlers
   if(self->priv->bus_handler_id) {
