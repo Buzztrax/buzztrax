@@ -364,6 +364,12 @@ BT_START_TEST(test_btsong_io_write_song3) {
     pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(gen));
     wave=bt_wave_new(song,"sample1",ext_data_uri,1,1.0,BT_WAVE_LOOP_MODE_OFF,0);
 
+    /* this is racy - loading waves is async and we need to wait a bit
+     * FIXME: this is not sufficient - do we need to wait for wave:loading-done
+     * this might also cause hassle in the ui
+     */
+    while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
+
     /* save the song*/
     song_io=bt_song_io_make(song_path);
     fail_unless(song_io != NULL, NULL);

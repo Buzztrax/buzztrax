@@ -79,7 +79,7 @@ BT_START_TEST(test_btsong_obj1) {
 }
 BT_END_TEST
 
-// play without loading a song (means don't play)
+// play without loading a song (means don't play anything audible)
 BT_START_TEST(test_btsong_play1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
@@ -93,9 +93,9 @@ BT_START_TEST(test_btsong_play1) {
   //play_signal_invoked=FALSE;
   //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
 
-  // returns FALSE as the song is empty!
+  // returns TRUE even that the song is empty!
   res=bt_song_play(song);
-  fail_unless(!res, NULL);
+  fail_unless(res==TRUE, NULL);
 
   g_object_checked_unref(song);
   g_object_checked_unref(app);

@@ -261,11 +261,7 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
 
   // check if the url is valid
   // if(!uri) goto invalid_uri;
-  
-  /* @todo: we should also load the original file into a memory blob
-   * this is needed for saving the song in all cases.
-   */
-    
+
   // create loader pipeline
   self->priv->pipeline=gst_pipeline_new("wave-loader");
   src=gst_element_make_from_uri(GST_URI_SRC,uri,NULL);
@@ -347,6 +343,9 @@ static gboolean bt_wave_save_to_fd(const BtWave * const self) {
   gulong srate,length,size,written;
   gint16 *data;
   gint fd;
+  
+  // we should have a wave loaded
+  g_assert(self->priv->wavelevels->data);
 
   //fn_wav=g_strdup_printf("%s" G_DIR_SEPARATOR_S "XXXXXX",g_get_tmp_dir());
   fd=fileno(tmpfile());
@@ -634,6 +633,7 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
   // check if we need to load external data
   g_object_get(self->priv->song,"song-io",&song_io,NULL);
   if (song_io) {
+    gboolean unpack_failed=FALSE;
     if(BT_IS_SONG_IO_NATIVE_BZT(song_io)) {
       gchar *fn,*fp;
 
@@ -653,11 +653,15 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
       else {
         close(self->priv->ext_fd);
         self->priv->ext_fd=-1;
+        unpack_failed=TRUE;
       }
       g_free(fp);
     }
+    else {
+      uri=g_strdup((gchar *)uri_str);
+    }
     g_object_unref(song_io);
-    if(!uri) {
+    if(unpack_failed) {
       goto WaveUnpackError;
     }
   }
