@@ -1,5 +1,14 @@
 2009-09-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wave.c:
+	  Disconnect the signal watch when releasing the loader pipeline. Fixes the
+	  broken test.
+
+	* tests/lib/core/e-song-io-native.c:
+	  Comments and unref objects.
+
+2009-09-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
 	  Whitespaces.
 

@@ -364,11 +364,13 @@ BT_START_TEST(test_btsong_io_write_song3) {
     pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(gen));
     wave=bt_wave_new(song,"sample1",ext_data_uri,1,1.0,BT_WAVE_LOOP_MODE_OFF,0);
 
-    /* this is racy - loading waves is async and we need to wait a bit
-     * FIXME: this is not sufficient - do we need to wait for wave:loading-done
-     * this might also cause hassle in the ui
+    /* loading waves is async and we need to wait a bit
+     * FIXME: we need to wait for wave:loading-done
+     * (this might also cause hassle in the ui, if loading big samples and saving before they are loaded)
      */
-    while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
+    while(!bt_wave_get_level_by_index(wave,0)) {
+      while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
+    }
 
     /* save the song*/
     song_io=bt_song_io_make(song_path);
@@ -376,6 +378,11 @@ BT_START_TEST(test_btsong_io_write_song3) {
     res=bt_song_io_save(song_io,song);
     fail_unless(res == TRUE, NULL);
 
+    g_object_unref(sink);
+    g_object_unref(gen);
+    g_object_unref(wire);
+    g_object_unref(pattern);
+    g_object_unref(wave);
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
 

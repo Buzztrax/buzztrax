@@ -186,8 +186,12 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
   gpointer data=NULL;
   struct stat buf={0,};
   
+  GST_INFO("sample loading done, eos from %s",GST_MESSAGE_SRC_NAME(message));
+  
   // query length and convert to samples
-  gst_element_query_duration(self->priv->pipeline, &format, &duration);
+  if(!gst_element_query_duration(self->priv->pipeline, &format, &duration)) {
+    GST_WARNING("getting sample duration failed");
+  }
   
   // get caps for sample rate and channels 
   if((pad=gst_element_get_static_pad(self->priv->fmt,"src"))) {
@@ -325,6 +329,9 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
     GST_WARNING ("Can't set wave loader pipeline for %s / %s to playing",self->priv->uri,uri);
     gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
     res=FALSE;
+  }
+  else {
+    GST_INFO("loading sample ...");
   }
   
   /* no need to *wait* for eos, we fire loading done signal */
