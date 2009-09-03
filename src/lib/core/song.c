@@ -1311,7 +1311,7 @@ static void bt_song_constructed(GObject *object) {
   
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
   GST_DEBUG("listen to bus messages (%p)",bus);
-  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  gst_bus_add_signal_watch_full(bus, G_PRIORITY_HIGH);
   g_signal_connect(bus, "message::segment-done", G_CALLBACK(on_song_segment_done), (gpointer)self);
   g_signal_connect(bus, "message::eos", G_CALLBACK(on_song_eos), (gpointer)self);
   g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
@@ -1458,7 +1458,7 @@ static void bt_song_dispose(GObject * const object) {
   if(self->priv->bin) {
     if(self->priv->is_playing) bt_song_stop(self);
     else if(self->priv->is_idle) bt_song_idle_stop(self);
-  
+
     if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
       GST_WARNING("can't go to null state");
     }

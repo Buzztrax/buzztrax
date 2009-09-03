@@ -1,3 +1,11 @@
+2009-09-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Whitespaces.
+
+	* src/lib/core/wave.c:
+	  Remove bus signal-watch when freeing wave-loader. Fixes tests.
+
 2009-09-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wave.c:

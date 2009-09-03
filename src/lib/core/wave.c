@@ -148,6 +148,12 @@ static void on_wave_io_warning(const GstBus * const bus, GstMessage * message, g
 
 static void wave_loader_free(const BtWave *self) {
   if(self->priv->pipeline) {
+    GstBus *bus;
+    
+    bus=gst_element_get_bus(self->priv->pipeline);
+    gst_bus_remove_signal_watch(bus);
+    gst_object_unref(bus);
+
     gst_object_unref(self->priv->pipeline);
     self->priv->pipeline=NULL;
     self->priv->fmt=NULL;
