@@ -1,8 +1,14 @@
+2009-09-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/LINGUAS:
+	* po/cs.po:
+	* po/cs.po (added):
+	  Add cs translation.
+
 2009-09-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wave.c:
-	  Disconnect the signal watch when releasing the loader pipeline. Fixes the
-	  broken test.
+	  Check return values and add more logging.
 
 	* tests/lib/core/e-song-io-native.c:
 	  Comments and unref objects.
