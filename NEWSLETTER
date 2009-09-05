@@ -1,4 +1,23 @@
+2009/09 ========================================================================
+
+
 2009/08 ========================================================================
+
+Hollidays ahead - one whole month for me and family. This month I continued
+profiling a few usecases (song loading and playback start). I did quite many
+optimizations both for buzztard itself, but also for gstreamer. Altogether they
+cut the times down by 20%. I still like to get it faster, but some things need
+more work.
+
+All the modules are now in string freeze. I will do releases in september unless
+critical bugs get filed. While the translators are doing their work, I looked
+into several smaller problems I had on my todo list and I am happy to see all
+fixed. One recent changes was cleaning up the icons-theme handling. All themable
+icons now use a namespace prefix to avoid clashes.
+
+Many thanks go to Andrew Walton who is working on ubuntu packges [1].
+
+[1] https://launchpad.net/~awalton/+archive/ppa/
 
 2009/07 ========================================================================
 

@@ -1,3 +1,10 @@
+2009-09-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	* NEWSLETTER:
+	* src/ui/edit/about-dialog.c:
+	  Update NEWS.
+
 2009-09-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* po/LINGUAS:
