@@ -1,6 +1,11 @@
 2009-09-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
+	  Bump *all* versions.
+
+2009-09-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
 	  Back to development.
 	  
 === release 0.5.0 ===
