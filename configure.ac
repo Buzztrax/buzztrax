@@ -12,7 +12,7 @@ dnl
 
 dnl Initialise the autoconf/automake tool
 AC_PREREQ(2.61)
-AC_INIT([buzztard],[0.5.0],[buzztard-devel@lists.sourceforge.net])
+AC_INIT([buzztard],[0.6.0],[buzztard-devel@lists.sourceforge.net])
 # we can't do -Werror, because
 # - we use gnu make extensions
 # - we override uninstallcheck var
@@ -31,7 +31,7 @@ BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + 
 dnl our libraries and install dirs use major.minor as a version
 BT_MAJORMINOR=$BT_MAJOR_VERSION.$BT_MINOR_VERSION
 dnl we override it here for release candidates - not needed as be bump after releases
-dnl BT_MAJORMINOR=0.5
+dnl BT_MAJORMINOR=0.6
 
 dnl release year and date
 BT_RELEASE_YEAR=`date +%Y`
@@ -257,7 +257,7 @@ PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
 )
 AC_SUBST(GCONF_DOC_TYPES)
 
-PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.5.0, [
+PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.6.0, [
     AC_DEFINE(USE_GSTBT, [1], [Define to 1 if we can use gst-buzztard])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTBT_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTBT_DEPS_LIBS"
@@ -265,7 +265,7 @@ PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.5.0, [
 )
 
 dnl optional deps
-PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.5.0, [
+PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.6.0, [
     AC_DEFINE(USE_BML, [1], [Define to 1 if we can use bml])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $BML_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $BML_DEPS_LIBS"
