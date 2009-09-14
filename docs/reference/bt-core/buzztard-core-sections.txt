@@ -138,6 +138,8 @@ bt_pattern_insert_row
 bt_pattern_insert_full_row
 bt_pattern_delete_row
 bt_pattern_delete_full_row
+bt_pattern_delete_column
+bt_pattern_delete_columns
 bt_pattern_blend_column
 bt_pattern_blend_columns
 bt_pattern_randomize_column
@@ -615,6 +617,8 @@ bt_wire_pattern_insert_row
 bt_wire_pattern_insert_full_row
 bt_wire_pattern_delete_row
 bt_wire_pattern_delete_full_row
+bt_wire_pattern_delete_column
+bt_wire_pattern_delete_columns
 bt_wire_pattern_blend_column
 bt_wire_pattern_blend_columns
 bt_wire_pattern_randomize_column

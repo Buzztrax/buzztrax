@@ -315,63 +315,87 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
 }
 
 //-- selection helpers
-#if 0
-static boolean pattern_selection_apply(const BtMainPagePatterns *self,pattern_fn,wire_pattern_fn) {
-  /* @todo: use pattern_fn / wire_pattern_fn */
+
+/* this is used for delete/blend/randomize,
+ * - would be good to generalize to use it also for insert/delete-row.
+ *   -> need to ignore row_end
+ * - would be good to use this for cut/copy/paste
+ *   -> copy/cut want to return the data from the selection
+ *   -> paste needs to receive the data from the selection
+ * ideally we'd like to avoid separate column/columns functions
+ * - _column(BtPattern * self, gulong start_tick, gulong end_tick, gulong param)
+ * - _columns(BtPattern * self, gulong start_tick, gulong end_tick)
+ * - the groups would trigger the update several times as we need to use the column one a few times
+ * better would be:
+ * - _columns(BtPattern * self, gulong start_tick, gulong end_tick, gulong start_param, gulong end_param)
+ */
+
+typedef void (*DoPatternColumn)(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+typedef void (*DoPatternColumns)(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+typedef void (*DoWirePatternColumn)(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+typedef void (*DoWirePatternColumns)(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick);
+
+static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoPatternColumn do_pattern_column,DoPatternColumns do_pattern_columns,DoWirePatternColumn do_wire_pattern_column,DoWirePatternColumns do_wire_pattern_columns) {
+  gboolean res=FALSE;
   gint beg,end,group,param;
+
   if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
-    PatternColumnGroup group;
+    PatternColumnGroup pc_group;
     GST_INFO("blending : %d %d , %d %d",beg,end,group,param);
     if(group==-1 && param==-1) {
       // blend full pattern
       BtWirePattern *wire_pattern;
       guint i=0;
 
-      group=self->priv->param_groups[0];
-      while(group.type==0) {
-        wire_pattern = bt_wire_get_pattern(group.user_data,self->priv->pattern);
+      pc_group=self->priv->param_groups[0];
+      while(pc_group.type==0) {
+        wire_pattern=bt_wire_get_pattern(pc_group.user_data,self->priv->pattern);
+        /* FIXME: why would we want to create it? 
         if(!wire_pattern) {
           BtSong *song;
   
           g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-          wire_pattern=bt_wire_pattern_new(song,group.user_data,self->priv->pattern);
+          wire_pattern=bt_wire_pattern_new(song,pc_group.user_data,self->priv->pattern);
           g_object_unref(song);
         }
+        */
         if(wire_pattern) {
-          bt_wire_pattern_blend_columns(wire_pattern,beg,end);
+          do_wire_pattern_columns(wire_pattern,beg,end);
           g_object_unref(wire_pattern);
         }
         i++;
-        group=self->priv->param_groups[i];
+        pc_group=self->priv->param_groups[i];
       }
-      bt_pattern_blend_columns(self->priv->pattern,beg,end);
+      do_pattern_columns(self->priv->pattern,beg,end);
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
     if(group!=-1 && param==-1) {
       // blend whole group
-      group=self->priv->param_groups[group];
-      switch(group.type) {
+      pc_group=self->priv->param_groups[group];
+      switch(pc_group.type) {
         case 0: {
-          BtWirePattern *wire_pattern = bt_wire_get_pattern(group.user_data,self->priv->pattern);
+          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group.user_data,self->priv->pattern);
+          /* FIXME: why would we want to create it?
           if(!wire_pattern) {
             BtSong *song;
     
             g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-            wire_pattern=bt_wire_pattern_new(song,group.user_data,self->priv->pattern);
+            wire_pattern=bt_wire_pattern_new(song,pc_group.user_data,self->priv->pattern);
             g_object_unref(song);
           }
+          */
           if(wire_pattern) {
             // 0,group.num_columns-1
-            bt_wire_pattern_blend_columns(wire_pattern,beg,end);
+            do_wire_pattern_columns(wire_pattern,beg,end);
             g_object_unref(wire_pattern);
           }
         } break;
         case 1: {
           guint i;
           
-          for(i=0;i<group.num_columns;i++) {
-            bt_pattern_blend_column(self->priv->pattern,beg,end,i);
+          for(i=0;i<pc_group.num_columns;i++) {
+            do_pattern_column(self->priv->pattern,beg,end,i);
           }
         } break;
         case 2: {
@@ -381,9 +405,9 @@ static boolean pattern_selection_apply(const BtMainPagePatterns *self,pattern_fn
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+(GPOINTER_TO_UINT(group.user_data)*voice_params);
-          for(i=0;i<group.num_columns;i++) {
-            bt_pattern_blend_column(self->priv->pattern,beg,end,params+i);
+          params=global_params+(GPOINTER_TO_UINT(pc_group.user_data)*voice_params);
+          for(i=0;i<pc_group.num_columns;i++) {
+            do_pattern_column(self->priv->pattern,beg,end,params+i);
           }
           g_object_unref(machine);
         } break;
@@ -393,24 +417,26 @@ static boolean pattern_selection_apply(const BtMainPagePatterns *self,pattern_fn
     }
     if(group!=-1 && param!=-1) {
       // blend one param in one group
-      group=self->priv->param_groups[group];
-      switch(group.type) {
+      pc_group=self->priv->param_groups[group];
+      switch(pc_group.type) {
         case 0: {
-          BtWirePattern *wire_pattern = bt_wire_get_pattern(group.user_data,self->priv->pattern);
+          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group.user_data,self->priv->pattern);
+          /* FIXME: why would we want to create it?
           if(!wire_pattern) {
             BtSong *song;
     
             g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-            wire_pattern=bt_wire_pattern_new(song,group.user_data,self->priv->pattern);
+            wire_pattern=bt_wire_pattern_new(song,pc_group.user_data,self->priv->pattern);
             g_object_unref(song);
           }
+          */
           if(wire_pattern) {
-            bt_wire_pattern_blend_column(wire_pattern,beg,end,param);
+            do_wire_pattern_column(wire_pattern,beg,end,param);
             g_object_unref(wire_pattern);
           }
         } break;
         case 1:
-          bt_pattern_blend_column(self->priv->pattern,beg,end,param);
+          do_pattern_column(self->priv->pattern,beg,end,param);
           break;
         case 2: {
           BtMachine *machine;
@@ -418,8 +444,8 @@ static boolean pattern_selection_apply(const BtMainPagePatterns *self,pattern_fn
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+(GPOINTER_TO_UINT(group.user_data)*voice_params);
-          bt_pattern_blend_column(self->priv->pattern,beg,end,params+param);
+          params=global_params+(GPOINTER_TO_UINT(pc_group.user_data)*voice_params);
+          do_pattern_column(self->priv->pattern,beg,end,params+param);
           g_object_unref(machine);
         } break;
       }
@@ -427,8 +453,8 @@ static boolean pattern_selection_apply(const BtMainPagePatterns *self,pattern_fn
       res=TRUE;
     }
   }
+  return res;
 }
-#endif
 
 //-- event handlers
 
@@ -675,6 +701,11 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   }
   else if(event->keyval == GDK_i) {
     if(modifier&GDK_CONTROL_MASK) {
+#if 1
+      res=pattern_selection_apply(self,
+        bt_pattern_blend_column,bt_pattern_blend_columns,
+        bt_wire_pattern_blend_column,bt_wire_pattern_blend_columns);
+#else
       gint beg,end,group,param;
       if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
         GST_INFO("blending : %d %d , %d %d",beg,end,group,param);
@@ -778,10 +809,16 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           res=TRUE;
         }
       }
+#endif
     }
   }
   else if(event->keyval == GDK_r) {
     if(modifier&GDK_CONTROL_MASK) {
+#if 1
+      res=pattern_selection_apply(self,
+        bt_pattern_randomize_column,bt_pattern_randomize_columns,
+        bt_wire_pattern_randomize_column,bt_wire_pattern_randomize_columns);
+#else
       gint beg,end,group,param;
       if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
         GST_INFO("randomizing : %d %d , %d %d",beg,end,group,param);
@@ -885,6 +922,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           res=TRUE;
         }
       }
+#endif
     }
   }
 #if GTK_CHECK_VERSION(2,12,0)
@@ -2632,67 +2670,35 @@ void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine
  *
  * Delete (clear) the selected area.
  */
-void bt_main_page_pattern_delete_selection(const BtMainPagePatterns *self) {
-  /* @todo implement me */
-#if 0
-  /* this can be used for blend/randomize,
-   * - would be good to generalize to use it also for insert/delete.
-   *   -> need to ignore row_end
-   * - would be good to use this for copy/cut/delete(clear)
-   *   -> copy/cut want to return a new pattern
-   * ideally we'd like to avoid separate column/columns functions
-   * - _column(BtPattern * self, gulong start_tick, gulong end_tick, gulong param)
-   * - _columns(BtPattern * self, gulong start_tick, gulong end_tick)
-   * - the groups would trigger the update several times as we need to use the column one a few times
-   * better would be:
-   * - _columns(BtPattern * self, gulong start_tick, gulong end_tick, gulong start_param, gulong end_param)
-   */
-  //pattern_selection_apply(self,
-  //  bt_pattern_delete_columns,bt_pattern_delete_column,
-  //  bt_wire_pattern_delete_columns,bt_wire_pattern_delete_column);
-
-  gint beg,end,group,param;
-  if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
-    GST_INFO("blending : %d %d , %d %d",beg,end,group,param);
-    if(group==-1 && param==-1) {
-      // full pattern
-      bt_pattern_delete_columns(self->priv->pattern,beg,end);
-      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
-    }
-    if(group!=-1 && param==-1) {
-      // whole group
-    }
-    if(group!=-1 && param!=-1) {
-      // one param in one group
-      bt_pattern_delete_column(self->priv->pattern,start_tick,end_tick,param);
-    }
-  }
-#endif
+void bt_main_page_patterns_delete_selection(const BtMainPagePatterns *self) {
+  pattern_selection_apply(self,
+    bt_pattern_delete_column,bt_pattern_delete_columns,
+    bt_wire_pattern_delete_column,bt_wire_pattern_delete_columns);
 }
 
 /**
- * bt_main_page_pattern_cut_selection:
+ * bt_main_page_patterns_cut_selection:
  * @self: the pattern subpage
  *
  * Cut selected area.
  * <note>not yet working</note>
  */
-void bt_main_page_pattern_cut_selection(const BtMainPagePatterns *self) {
+void bt_main_page_patterns_cut_selection(const BtMainPagePatterns *self) {
   /* @todo implement me */
 #if 0
 - like copy, but clear pattern cells afterwards
 #endif
-  bt_main_page_pattern_delete_selection(self);
+  bt_main_page_patterns_delete_selection(self);
 }
 
 /**
- * bt_main_page_pattern_copy_selection:
+ * bt_main_page_patterns_copy_selection:
  * @self: the sequence subpage
  *
  * Copy selected area.
  * <note>not yet working</note>
  */
-void bt_main_page_pattern_copy_selection(const BtMainPagePatterns *self) {
+void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
 #if 0
   /* @todo implement me
   - store pattern + related wire patterns
@@ -2721,22 +2727,53 @@ void bt_main_page_pattern_copy_selection(const BtMainPagePatterns *self) {
             - where to store those :(
   - remember selection (parameter start/end and time start/end)
   */
+  GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
 #endif
 }
 
 /**
- * bt_main_page_pattern_paste_selection:
+ * bt_main_page_patterns_paste_selection:
  * @self: the pattern subpage
  *
  * Paste at the top of the selected area.
  * <note>not yet working</note>
  */
-void bt_main_page_pattern_paste_selection(const BtMainPagePatterns *self) {
-  /* @todo implement me */
+void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
 #if 0
-- we can paste at any timeoffset
-  - maybe extend sequence if pos+selection.length> sequence.length)
-- we need to check if the tracks match
+  /* @todo implement me
+  - we can paste at any timeoffset
+    - maybe extend sequence if pos+selection.length> sequence.length)
+  - we need to check if the tracks match
+  */
+  GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+  if(cb) {
+    GdkAtom atom=GDK_NONE;
+    GtkSelectionData *data=gtk_clipboard_wait_for_contents(cb,gdk_atom_intern("Bt::Pattern",FALSE));
+    if(data) {
+      GdkAtom  *targets;
+      gint n_targets
+      gboolean success;
+
+      success = gtk_selection_data_get_targets (data, &targets, &n_targets);
+      if(success) {
+        gint i;
+
+        for(i=0;i<n_targets;i++) {
+          GST_INFO ("clipboard offered type: %s\n",gdk_atom_name(targets[i]));
+          // pick suitable format -> atom=targets[i];
+        }
+      }
+      g_free(targets);
+      gtk_selection_data_free (data);
+    }
+    if(atom!=GDK_NONE) {
+      data=gtk_clipboard_wait_for_contents (cb, atom);
+      if(data) {
+        // paste from (gtk_selection_data_get_data(data),gtk_selection_data_get_length(data));
+        gtk_selection_data_free(data);
+      }
+    }
+  }
 #endif
 }
 

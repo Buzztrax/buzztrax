@@ -1,3 +1,18 @@
+2009-09-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/lib/core/libbuzztard-core/pattern-methods.h:
+	* src/lib/core/libbuzztard-core/wire-pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire-pattern.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-patterns-methods.h:
+	* src/ui/edit/main-page-patterns.c:
+	  Implement pattern_selection_apply() helper to save some code. Implement
+	  deleting (clering) the selections in patterns. More thinking for cut, copy
+	  and paste.
+
 2009-09-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

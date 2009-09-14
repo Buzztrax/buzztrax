@@ -185,15 +185,6 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
 }
 
 static void on_menu_cut_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  //BtMainMenu *self=BT_MAIN_MENU(user_data);
-
-  g_assert(user_data);
-
-  GST_INFO("menu cut event occurred");
-  /* @todo implement me */
-}
-
-static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
   BtMainPages *pages;
@@ -205,13 +196,53 @@ static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
   switch(gtk_notebook_get_current_page(GTK_NOTEBOOK(pages))) {
     case BT_MAIN_PAGES_MACHINES_PAGE: {
+      GST_INFO("menu cut event occurred for machine page");
+    } break;
+    case BT_MAIN_PAGES_PATTERNS_PAGE: {
+      BtMainPagePatterns *page;
+      GST_INFO("menu cut event occurred for pattern page");
+      g_object_get(G_OBJECT(pages),"patterns-page",&page,NULL);
+      bt_main_page_patterns_cut_selection(page);
+      g_object_unref(page);
+    } break;
+    case BT_MAIN_PAGES_SEQUENCE_PAGE: {
+      BtMainPageSequence *page;
+      GST_INFO("menu cut event occurred for sequence page");
+      g_object_get(G_OBJECT(pages),"sequence-page",&page,NULL);
+      bt_main_page_sequence_cut_selection(page);
+      g_object_unref(page);
+    } break;
+    case BT_MAIN_PAGES_WAVES_PAGE: {
+      GST_INFO("menu cut event occurred for waves page");
+    } break;
+    case BT_MAIN_PAGES_INFO_PAGE: {
+      GST_INFO("menu cut event occurred for info page");
+    } break;
+  }
+
+  g_object_unref(pages);
+  g_object_unref(main_window);
+}
+
+static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+
+  g_assert(user_data);
+  
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+
+  switch(gtk_notebook_get_current_page(GTK_NOTEBOOK(pages))) {
+    case BT_MAIN_PAGES_MACHINES_PAGE: {
       GST_INFO("menu copy event occurred for machine page");
     } break;
     case BT_MAIN_PAGES_PATTERNS_PAGE: {
       BtMainPagePatterns *page;
       GST_INFO("menu copy event occurred for pattern page");
       g_object_get(G_OBJECT(pages),"patterns-page",&page,NULL);
-      bt_main_page_pattern_copy_selection(page);
+      bt_main_page_patterns_copy_selection(page);
       g_object_unref(page);
     } break;
     case BT_MAIN_PAGES_SEQUENCE_PAGE: {
@@ -234,12 +265,43 @@ static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
 }
 
 static void on_menu_paste_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  //BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtMainPages *pages;
 
   g_assert(user_data);
+  
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 
-  GST_INFO("menu paste event occurred");
-  /* @todo implement me */
+  switch(gtk_notebook_get_current_page(GTK_NOTEBOOK(pages))) {
+    case BT_MAIN_PAGES_MACHINES_PAGE: {
+      GST_INFO("menu paste event occurred for machine page");
+    } break;
+    case BT_MAIN_PAGES_PATTERNS_PAGE: {
+      BtMainPagePatterns *page;
+      GST_INFO("menu paste event occurred for pattern page");
+      g_object_get(G_OBJECT(pages),"patterns-page",&page,NULL);
+      bt_main_page_patterns_paste_selection(page);
+      g_object_unref(page);
+    } break;
+    case BT_MAIN_PAGES_SEQUENCE_PAGE: {
+      BtMainPageSequence *page;
+      GST_INFO("menu paste event occurred for sequence page");
+      g_object_get(G_OBJECT(pages),"sequence-page",&page,NULL);
+      bt_main_page_sequence_paste_selection(page);
+      g_object_unref(page);
+    } break;
+    case BT_MAIN_PAGES_WAVES_PAGE: {
+      GST_INFO("menu paste event occurred for waves page");
+    } break;
+    case BT_MAIN_PAGES_INFO_PAGE: {
+      GST_INFO("menu paste event occurred for info page");
+    } break;
+  }
+
+  g_object_unref(pages);
+  g_object_unref(main_window);
 }
 
 static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -248,7 +310,7 @@ static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPages *pages;
 
   g_assert(user_data);
-
+  
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 
@@ -257,7 +319,11 @@ static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
       GST_INFO("menu delete event occurred for machine page");
     } break;
     case BT_MAIN_PAGES_PATTERNS_PAGE: {
+      BtMainPagePatterns *patterns_page;
       GST_INFO("menu delete event occurred for pattern page");
+      g_object_get(G_OBJECT(pages),"patterns-page",&patterns_page,NULL);
+      bt_main_page_patterns_delete_selection(patterns_page);
+      g_object_unref(patterns_page);
     } break;
     case BT_MAIN_PAGES_SEQUENCE_PAGE: {
       BtMainPageSequence *sequence_page;

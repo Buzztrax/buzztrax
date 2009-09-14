@@ -325,6 +325,7 @@ gboolean bt_wire_pattern_tick_has_data(const BtWirePattern * const self, const g
   return(FALSE);
 }
 
+
 static void _insert_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
   GValue *src=&self->priv->data[param+self->priv->num_params*(self->priv->length-2)];
   GValue *dst=&self->priv->data[param+self->priv->num_params*(self->priv->length-1)];
@@ -390,6 +391,7 @@ void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gul
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
+
 static void _delete_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
   GValue *src=&self->priv->data[param+self->priv->num_params*(tick+1)];
   GValue *dst=&self->priv->data[param+self->priv->num_params*tick];
@@ -454,6 +456,65 @@ void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gul
   }
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
+
+
+
+static void _delete_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+  GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
+  gulong i,ticks=(end_tick+1)-start_tick;
+  
+  for(i=0;i<ticks;i++) {
+    if(G_IS_VALUE(beg))
+      g_value_unset(beg);
+    beg+=self->priv->num_params;
+  }
+}
+
+/**
+ * bt_wire_pattern_delete_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
+ *
+ * Randomize values from @start_tick to @end_tick for @param.
+ *
+ * Since: 0.6
+ */
+void bt_wire_pattern_delete_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  _delete_column(self,start_tick,end_tick,param);
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
+
+/**
+ * bt_wire_pattern_delete_columns:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ *
+ * Clear values from @start_tick to @end_tick for all params.
+ *
+ * Since: 0.6
+ */
+void bt_wire_pattern_delete_columns(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  gulong j;
+
+  for(j=0;j<self->priv->num_params;j++) {
+    _delete_column(self,start_tick,end_tick,j);
+  }
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
+
 
 static void _blend_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
@@ -560,6 +621,7 @@ void bt_wire_pattern_blend_columns(const BtWirePattern * const self, const gulon
   }
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
+
 
 static void _randomize_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];

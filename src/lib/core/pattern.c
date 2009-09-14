@@ -105,6 +105,58 @@ struct _BtPatternPrivate {
   GValue *data;
 };
 
+#if 0
+/* a copy would do:
+ *   create xml-doc with root-node
+ *   bt_pattern_persistence_save(self, parent_node, selection)
+ *   write xml document to clipboard
+ * a paste would do:
+ *   load xml document from clipboard
+ *   bt_pattern_persistence_load(type, self, parent_node, locatio, NULL, NULL)
+ *
+ * - do we really need gobjects for it?
+ * - atleast we need to supply the selection/location from the application side 
+ * 
+ * - what info do we need
+ *   - pattern:
+ *     width, height, type (param) for each column
+ *     each cell would be the value
+ *   - sequence:
+ *     width, height, type (machine) for each column
+ *     each cell would be the pattern id
+ * - if we don't like xml we could use something simple:
+ *   - 1st line: width, height
+ *   - 2nd line: types
+ *   - data values
+ * - pattern api
+ *   gchar *bt_pattern_copy_area(pattern,start_row,stop_row,start_col,stop_col);
+ *   gchar *bt_pattern_cut_area(pattern,start_row,stop_row,start_col,stop_col);
+ *   gboolean bt_pattern_delete_area(pattern,start_row,stop_row,start_col,stop_col);
+ *   gboolean bt_pattern_paste_position(pattern,data,start_row,start_col);
+ * - pattern-page api
+ *   - do clipboard io (check gtk_text_entry/view)
+ *     - gtk_clipboard_set_...
+ *     - gtk_selection_
+ */
+struct _BtPatternPersistenceSelection {
+  const BtPersistenceSelection parent;
+
+  gulong start_tick, end_tick;
+  gulong start_group, end_group;
+  gulong start_param, end_param;
+};
+
+struct _BtPatternPersistenceLocation {
+  const BtPersistenceLocation parent;
+
+  // @todo: can we paste into a selection (use selection as a mask)
+  // and if whats the difference between a curser and single char selection?
+  gulong start_tick;
+  gulong start_group;
+  gulong start_param;
+};
+#endif
+
 static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -833,6 +885,7 @@ gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tic
   return(FALSE);
 }
 
+
 static void _insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *src=&self->priv->data[internal_params+param+params*(self->priv->length-2)];
@@ -899,6 +952,7 @@ void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick)
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
+
 static void _delete_row(const BtPattern * const self, const gulong tick, const gulong param) {
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *src=&self->priv->data[internal_params+param+params*(tick+1)];
@@ -964,6 +1018,66 @@ void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick)
   }
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
+
+
+static void _delete_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
+  gulong i,ticks=(end_tick+1)-start_tick;
+  
+  for(i=0;i<ticks;i++) {
+    if(G_IS_VALUE(beg))
+      g_value_unset(beg);
+    beg+=params;
+  }
+}
+
+/**
+ * bt_pattern_delete_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
+ *
+ * Randomize values from @start_tick to @end_tick for @param.
+ *
+ * Since: 0.6
+ */
+void bt_pattern_delete_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  _delete_column(self,start_tick,end_tick,param);
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
+
+/**
+ * bt_pattern_delete_columns:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ *
+ * Clear values from @start_tick to @end_tick for all params.
+ *
+ * Since: 0.6
+ */
+void bt_pattern_delete_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  // don't add internal_params here, bt_pattern_delete_column does already
+  gulong j,params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
+
+  for(j=0;j<params;j++) {
+    _delete_column(self,start_tick,end_tick,j);
+  }
+  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+}
+
 
 static void _blend_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
@@ -1072,6 +1186,7 @@ void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_t
   }
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
+
 
 static void _randomize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
@@ -1196,7 +1311,7 @@ void bt_pattern_randomize_columns(const BtPattern * const self, const gulong sta
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
-  // don't add internal_params here, bt_pattern_insert_row does already
+  // don't add internal_params here, bt_pattern_randomize_column does already
   gulong j,params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
 
   for(j=0;j<params;j++) {
