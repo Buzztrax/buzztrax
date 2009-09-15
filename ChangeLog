@@ -1,11 +1,16 @@
 2009-09-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-properties-dialog.c:
+	  Use more lightweight API (machine-wire lists).
+
+2009-09-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core/machine.h:
 	  Add doc comments for public members.
   
 	* src/lib/core/pattern.c:
 	* src/ui/edit/main-page-patterns.c:
-	  Some more work on clipboard support.
+	  Some more work on clipboard support. Also use machine-wire lists.
 
 2009-09-14  Stefan Kost  <ensonic@users.sf.net>
 

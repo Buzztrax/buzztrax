@@ -1928,7 +1928,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     }
   }
   /* show volume/panorama widgets for incomming wires */
-  if((wires=bt_setup_get_wires_by_dst_machine(setup,self->priv->machine))) {
+  if((wires=self->priv->machine->dst_wires)) {
     BtWire *wire;
     GList *node;
     
@@ -1937,9 +1937,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
       if((expander=make_wire_param_box(self,wire))) {
         gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
       }
-      g_object_unref(wire);
     }
-    g_list_free(wires);
   }
   gtk_container_add(GTK_CONTAINER(self),hbox);
 
@@ -2085,28 +2083,24 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_combobox_property_notify,NULL);
   }
   // disconnect wire parameters
-  if(setup) {
-    if((wires=bt_setup_get_wires_by_dst_machine(setup,self->priv->machine))) {
-      BtWire *wire;
-      GstObject *gain,*pan;
-      GList *node;
-      
-      for(node=wires;node;node=g_list_next(node)) {
-        wire=BT_WIRE(node->data);
-        g_object_get(G_OBJECT(wire),"gain",&gain,"pan",&pan,NULL);
-        if(gain) {
-          g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
-          g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
-          gst_object_unref(gain);
-        }
-        if(pan) {
-          g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
-          g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
-          gst_object_unref(pan);
-        }
-        g_object_unref(wire);
+  if((wires=self->priv->machine->dst_wires)) {
+    BtWire *wire;
+    GstObject *gain,*pan;
+    GList *node;
+    
+    for(node=wires;node;node=g_list_next(node)) {
+      wire=BT_WIRE(node->data);
+      g_object_get(G_OBJECT(wire),"gain",&gain,"pan",&pan,NULL);
+      if(gain) {
+        g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
+        g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
+        gst_object_unref(gain);
       }
-      g_list_free(wires);
+      if(pan) {
+        g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
+        g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
+        gst_object_unref(pan);
+      }
     }
   }
   g_object_unref(machine);
