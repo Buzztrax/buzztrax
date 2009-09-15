@@ -446,6 +446,8 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
     }
   }  
   GST_INFO("  data copied");
+  
+  // FIXME: do we also need to copy the wire patterns? 
 
   g_free(mid);
   g_free(id);

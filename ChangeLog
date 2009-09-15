@@ -1,3 +1,12 @@
+2009-09-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/machine.h:
+	  Add doc comments for public members.
+  
+	* src/lib/core/pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Some more work on clipboard support.
+
 2009-09-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/buzztard-core-sections.txt:

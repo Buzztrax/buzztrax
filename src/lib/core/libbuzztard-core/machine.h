@@ -41,6 +41,8 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
 
 /**
  * BtMachine:
+ * @src_wires: read-only list of outgoing #BtWire objects
+ * @dst_wires: read-only list of incomming #BtWire objects
  *
  * Base object for a virtual piece of hardware (generator, effect, ...).
  */

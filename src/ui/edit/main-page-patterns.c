@@ -136,10 +136,12 @@ struct _BtMainPagePatternsPrivate {
   gint pattern_length_changed,pattern_voices_changed;
   gint pattern_menu_changed;
   
-  gint wave_to_combopos[MAX_WAVETABLE_ITEMS + 2], combopos_to_wave[MAX_WAVETABLE_ITEMS + 2];
+  gint wave_to_combopos[MAX_WAVETABLE_ITEMS + 2], combopos_to_wave[MAX_WAVETABLE_ITEMS + 2]; 
 };
 
 static GtkVBoxClass *parent_class=NULL;
+
+static GdkAtom pattern_atom;
 
 enum {
   MACHINE_MENU_ICON=0,
@@ -1551,22 +1553,17 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
     self->priv->number_of_groups=(global_params>0?1:0)+voices;
 
     if(!BT_IS_SOURCE_MACHINE(machine)) {
-      BtSong *song;
-      BtSetup *setup;
+      GList *node;
       BtWire *wire;
-      GList *wires,*node;
       gulong wire_params;
       
       // need to iterate over all inputs
-      g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-      g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-      wires=bt_setup_get_wires_by_dst_machine(setup,machine);
-      
-      self->priv->number_of_groups+=g_list_length(wires);
+      node=machine->dst_wires;
+      self->priv->number_of_groups+=g_list_length(node);
       group=self->priv->param_groups=g_new(PatternColumnGroup,self->priv->number_of_groups);
-      
+        
       GST_INFO("wire parameters");
-      for(node=wires;node;node=g_list_next(node)) {
+      for(;node;node=g_list_next(node)) {
         BtMachine *src=NULL;
 
         wire=BT_WIRE(node->data);
@@ -1582,12 +1579,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
           pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val);
         }
         g_object_unref(src);
-        g_object_unref(wire);
         group++;
       }
-      g_list_free(wires);
-      g_object_unref(setup);
-      g_object_unref(song);
     }
     else {
       group=self->priv->param_groups=g_new(PatternColumnGroup,self->priv->number_of_groups);  
@@ -2664,6 +2657,22 @@ void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine
 
 //-- cut/copy/paste
 
+#if 0
+static void 
+pattern_clipboard_get_func (GtkClipboard *clipboard, GtkSelectionData *selection_data, guint info, gpointer data)
+{
+  // FIXME
+  gtk_selection_data_set_text (selection_data, data, -1);
+}
+
+static void 
+pattern_clipboard_clear_func (GtkClipboard *clipboard, gpointer data) {
+  // FIXME
+  g_free (data);
+}
+
+#endif
+
 /**
  * bt_main_page_pattern_delete_selection:
  * @self: the pattern subpage
@@ -2727,7 +2736,51 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
             - where to store those :(
   - remember selection (parameter start/end and time start/end)
   */
-  GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+  gint beg,end,group,param;
+  if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
+    GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+    GtkTargetList *list;
+    GtkTargetEntry *targets;
+    gint n_targets;
+    BtMachine *machine;
+    guint i;
+    PatternColumnGroup pc_group;
+    
+    list = gtk_target_list_new (NULL, 0);
+    gtk_target_list_add (list, pattern_atom, 0, info);
+    targets = gtk_target_table_new_from_list (list, &n_targets);
+    
+    /* build needed data set to be stored in the clipboard
+     * - the below is not so good, we just need the data without creating a 
+     *   shadow pattern that is added to the machine
+     */
+    g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+    data=g_new0(BtPatternClip,1);
+    data->beg=beg;
+    data->end=end;
+    data->group=group;
+    data->param=param;
+    data->num_wire_patterns=g_list_length(machine->dst_wires);
+    data->pattern=bt_pattern_copy(self->priv->pattern);
+    data->wire_patterns=g_new(gpointer,data->num_wire_patterns);
+    i=0;
+    pc_group=self->priv->param_groups[i];
+    while(pc_group.type==0) {
+      data->wire_patterns[i]=bt_wire_get_pattern(pc_group.user_data,data->pattern);
+      i++;
+      pc_group=self->priv->param_groups[i];
+    }
+    g_object_unref(machine);
+    
+    gtk_clipboard_set_with_data (cb, targets, n_targets,
+                     pattern_clipboard_get_func, pattern_clipboard_clear_func,
+                     // FIXME
+                     g_strndup (text, len));
+    gtk_clipboard_set_can_store (clipboard, NULL, 0);
+  
+    gtk_target_table_free (targets, n_targets);
+    gtk_target_list_unref (list);
+  }
 #endif
 }
 
@@ -2910,6 +2963,9 @@ GType bt_main_page_patterns_get_type(void) {
       (GInstanceInitFunc)bt_main_page_patterns_init, // instance_init
       NULL // value_table
     };
+
+    pattern_atom=gdk_atom_intern_static_string ("application/buzztard::pattern");
+
     type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPagePatterns",&info,0);
   }
   return type;
