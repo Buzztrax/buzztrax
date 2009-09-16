@@ -951,32 +951,28 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
   g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
   g_return_val_if_fail(BT_IS_WIRE(wire),FALSE);
 
+  // avoid adding same wire twice, we're checking for unique wires when creating
+  // them already
   if(!g_list_find(self->priv->wires,wire)) {
     BtMachine *src,*dst;
-    BtWire *other_wire1,*other_wire2;
 
-    // check for wires with equal src and dst machines
+    // add to main list
+    self->priv->wires=g_list_prepend(self->priv->wires,g_object_ref(G_OBJECT(wire)));
+
+    // also add to convinience lists per machine
     g_object_get(G_OBJECT(wire),"src",&src,"dst",&dst,NULL);
-    other_wire1=bt_setup_get_wire_by_machines(self,src,dst);
-    other_wire2=bt_setup_get_wire_by_machines(self,dst,src);
-    if((!other_wire1) && (!other_wire2)) {
-      ret=TRUE;
+    src->src_wires=g_list_prepend(src->src_wires,(gpointer)wire);
+    dst->dst_wires=g_list_prepend(dst->dst_wires,(gpointer)wire);
+    set_disconnected(self,GST_BIN(wire));
+    bt_setup_update_pipeline(self);
 
-      // add to main list + to convinience lists per machine
-      self->priv->wires=g_list_prepend(self->priv->wires,g_object_ref(G_OBJECT(wire)));
-      src->src_wires=g_list_prepend(src->src_wires,(gpointer)wire);
-      dst->dst_wires=g_list_prepend(dst->dst_wires,(gpointer)wire);
-      set_disconnected(self,GST_BIN(wire));
-      bt_setup_update_pipeline(self);
+    g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
+    bt_song_set_unsaved(self->priv->song,TRUE);
+    GST_DEBUG("added wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
 
-      g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
-      bt_song_set_unsaved(self->priv->song,TRUE);
-      GST_DEBUG("added wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
-    }
-    g_object_try_unref(other_wire1);
-    g_object_try_unref(other_wire2);
     g_object_unref(src);
     g_object_unref(dst);
+    ret=TRUE;
   }
   else {
     GST_WARNING("trying to add wire %p again",wire);
@@ -1205,6 +1201,7 @@ GList *bt_setup_get_machines_by_type(const BtSetup * const self, const GType typ
   return(machines);
 }
 
+// @todo: remove this, use machine->dst_wires list instead
 /**
  * bt_setup_get_wire_by_src_machine:
  * @self: the setup to search for the wire
@@ -1222,6 +1219,7 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup * const self, const BtMac
   return(bt_setup_get_wire_by_machine_type(self,src,"src"));
 }
 
+// @todo: remove this, use machine->src_wires list instead
 /**
  * bt_setup_get_wire_by_dst_machine:
  * @self: the setup to search for the wire
@@ -1253,13 +1251,36 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *const self, const BtMach
  */
 BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachine * const src, const BtMachine * const dst) {
   gboolean found=FALSE;
-  BtMachine * const src_machine, * const dst_machine;
+  BtMachine * const machine;
   const GList *node;
 
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
-
+  
+  // either src or dst has no wires
+  if(!src->src_wires || !dst->dst_wires) return(NULL);
+  
+  // check if src links to dst
+  // ideally we would search the shorter of the lists
+  // FIXME: this also does not really need the setup object ...
+  // -> change to
+  // bt_machine_get_wire_by_{src,dst}(machine,peer_machine);
+  for(node=src->src_wires;node;node=g_list_next(node)) {
+    BtWire * const wire=BT_WIRE(node->data);
+    g_object_get(G_OBJECT(wire),"dst",&machine,NULL);
+    if(machine==dst) found=TRUE;
+    g_object_unref(machine);
+    if(found) return(g_object_ref(wire));
+  }
+#if 0
+  for(node=dst->dst_wires;node;node=g_list_next(node)) {
+    BtWire * const wire=BT_WIRE(node->data);
+    g_object_get(G_OBJECT(wire),"src",&machine,NULL);
+    if(machine==src) found=TRUE;
+    g_object_unref(machine);
+    if(found) return(g_object_ref(wire));
+  }
   for(node=self->priv->wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"src",&src_machine,"dst",&dst_machine,NULL);
@@ -1268,10 +1289,12 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
     g_object_unref(dst_machine);
     if(found) return(g_object_ref(wire));
   }
-  GST_DEBUG("no wire found for machines %p %p",src,dst);
+#endif
+  GST_DEBUG("no wire found for machines %p:%s %p:%s",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
   return(NULL);
 }
 
+// @todo: remove this, use machine->dst_wires list instead
 /**
  * bt_setup_get_wires_by_src_machine:
  * @self: the setup to search for the wire
@@ -1288,6 +1311,7 @@ GList *bt_setup_get_wires_by_src_machine(const BtSetup * const self, const BtMac
   return(bt_setup_get_wires_by_machine_type(self,src,"src"));
 }
 
+// @todo: remove this, use machine->src_wires list instead
 /**
  * bt_setup_get_wires_by_dst_machine:
  * @self: the setup to search for the wire

@@ -625,9 +625,34 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   g_assert(BT_IS_WIRE(self));
 
   // move this to connect?
-  if((!self->priv->src) || (!self->priv->dst)) {
-    GST_WARNING("trying to add create wire with NULL endpoint(s), src=%p and dst=%p",self->priv->src,self->priv->dst);
+  if((!src) || (!dst)) {
+    GST_WARNING("trying to add create wire with NULL endpoint(s), src=%p and dst=%p",src,dst);
     return(res);
+  }
+  
+  GST_DEBUG("self=%p, src->refs=%d, dst->refs=%d",self,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
+  GST_DEBUG("trying to link machines : %p '%s' [%p %p] -> %p '%s' [%p %p]",
+    src,GST_OBJECT_NAME(src),src->src_wires, src->dst_wires,
+    dst,GST_OBJECT_NAME(dst),dst->dst_wires, dst->src_wires);
+
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+
+  /* check that we don't have such a wire yet */
+  if(src->src_wires && dst->dst_wires) {
+    if((other_wire=bt_setup_get_wire_by_machines(setup,src,dst)) && (other_wire!=self)) {
+      GST_WARNING("trying to add create already existing wire: %p!=%p",other_wire,self);
+      g_object_unref(other_wire);
+      goto Error;
+    }
+    g_object_try_unref(other_wire);
+  }
+  if(src->dst_wires && dst->src_wires) {
+    if((other_wire=bt_setup_get_wire_by_machines(setup,dst,src)) && (other_wire!=self)) {
+      GST_WARNING("trying to add create already existing wire (reversed): %p!=%p",other_wire,self);
+      g_object_unref(other_wire);
+      goto Error;
+    }
+    g_object_try_unref(other_wire);
   }
 
   // name the wire
@@ -640,26 +665,8 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   g_free(src_name);
   g_free(dst_name);
 
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-
-  if((other_wire=bt_setup_get_wire_by_machines(setup,self->priv->src,self->priv->dst)) && (other_wire!=self)) {
-    GST_WARNING("trying to add create already existing wire: %p!=%p",other_wire,self);
-    g_object_unref(other_wire);
-    goto Error;
-  }
-  g_object_try_unref(other_wire);
-  if((other_wire=bt_setup_get_wire_by_machines(setup,self->priv->dst,self->priv->src)) && (other_wire!=self)) {
-    GST_WARNING("trying to add create already existing wire (reversed): %p!=%p",other_wire,self);
-    g_object_unref(other_wire);
-    goto Error;
-  }
-  g_object_try_unref(other_wire);
-
-  GST_DEBUG("self=%p, src->refs=%d, dst->refs=%d",self,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
-  GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
-
   // if there is already a connection from src && src has not yet an spreader (in use)
-  if((other_wire=bt_setup_get_wire_by_src_machine(setup,src))) {
+  if((other_wire=(src->src_wires?(BtWire*)(src->src_wires->data):NULL))) {
     if(!bt_machine_has_active_spreader(src)) {
       GST_DEBUG("  other wire from src found");
       bt_wire_unlink_machines(other_wire);
@@ -673,11 +680,10 @@ static gboolean bt_wire_connect(const BtWire * const self) {
         GST_ERROR("failed to re-link the machines after inserting internal spreader");goto Error;
       }
     }
-    g_object_unref(other_wire);
   }
 
   // if there is already a wire to dst and dst has not yet an adder (in use)
-  if((other_wire=bt_setup_get_wire_by_dst_machine(setup,dst))) {
+  if((other_wire=(dst->dst_wires?(BtWire*)(dst->dst_wires->data):NULL))) {
     if(!bt_machine_has_active_adder(dst)) {
       GST_DEBUG("  other wire to dst found");
       bt_wire_unlink_machines(other_wire);
@@ -691,7 +697,6 @@ static gboolean bt_wire_connect(const BtWire * const self) {
         GST_ERROR("failed to re-link the machines after inserting internal adder");goto Error;
       }
     }
-    g_object_unref(other_wire);
   }
 
   GST_DEBUG("link prepared, src->refs=%d, dst->refs=%d",G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);

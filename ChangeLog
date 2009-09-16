@@ -1,3 +1,12 @@
+2009-09-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/machine-canvas-item.c:
+	  Use more lightweight API (machine-wire lists). Add ideas to get rid of one
+	  more function.
+
 2009-09-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-properties-dialog.c:

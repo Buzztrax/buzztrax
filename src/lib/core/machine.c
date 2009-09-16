@@ -481,7 +481,6 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
 static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * const peer, const BtMachinePart part_position) {
   gboolean res=FALSE;
   gint i,pre,post;
-  BtSetup *setup;
   BtWire *wire;
 
   // look for elements before and after part_position
@@ -521,14 +520,11 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
       GST_WARNING("failed to link part '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
       // try to re-wire
       if((res=gst_element_link(self->priv->machines[part_position],self->priv->machines[post]))) {
-        g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-        if((wire=bt_setup_get_wire_by_dst_machine(setup,self))) {
+        if((wire=(self->dst_wires?(BtWire*)(self->dst_wires->data):NULL))) {
           if(!(res=bt_wire_reconnect(wire))) {
             GST_WARNING("failed to reconnect wire after linking '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
           }
-          g_object_unref(wire);
         }
-        g_object_unref(setup);
       }
       else {
         GST_WARNING("failed to link part '%s' before '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
@@ -546,14 +542,11 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
       GST_WARNING("failed to link part '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
       // try to re-wire
       if((res=gst_element_link(self->priv->machines[pre],self->priv->machines[part_position]))) {
-        g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-        if((wire=bt_setup_get_wire_by_src_machine(setup,self))) {
+        if((wire=(self->src_wires?(BtWire*)(self->src_wires->data):NULL))) {
           if(!(res=bt_wire_reconnect(wire))) {
             GST_WARNING("failed to reconnect wire after linking '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
           }
-          g_object_unref(wire);
         }
-        g_object_unref(setup);
       }
       else {
         GST_WARNING("failed to link part '%s' after '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));

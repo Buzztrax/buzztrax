@@ -562,7 +562,7 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   BtSequence *sequence;
   gchar *msg=NULL,*id;
   gboolean has_patterns,is_connected,remove=FALSE;
-  BtWire *wire1,*wire2;
+  //BtWire *wire1,*wire2;
 
   g_assert(user_data);
   GST_INFO("context_menu delete event occurred for machine : %p",self->priv->machine);
@@ -572,11 +572,7 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
 
   // don't ask if machine has no patterns and is not connected
   has_patterns=bt_machine_has_patterns(self->priv->machine);
-  wire1=bt_setup_get_wire_by_dst_machine(setup,self->priv->machine);
-  wire2=bt_setup_get_wire_by_src_machine(setup,self->priv->machine);
-  is_connected=wire1||wire2;
-  g_object_try_unref(wire1);
-  g_object_try_unref(wire2);
+  is_connected=self->priv->machine->src_wires || self->priv->machine->dst_wires; 
   if(has_patterns) {
     BtPattern *pattern;
     gulong ix=0;
