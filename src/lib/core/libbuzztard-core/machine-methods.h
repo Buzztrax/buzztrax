@@ -97,6 +97,7 @@ extern void bt_machine_global_controller_change_value(const BtMachine * const se
 extern void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong voice, const gulong param, const GstClockTime timestamp, GValue *value);
 
 //-- interaction control
+
 extern void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control);
 extern void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const char *property_name);
 extern void bt_machine_unbind_parameter_controls(const BtMachine * const self);
@@ -106,7 +107,11 @@ extern void bt_machine_unbind_parameter_controls(const BtMachine * const self);
 extern void bt_machine_randomize_parameters(const BtMachine * const self);
 extern void bt_machine_reset_parameters(const BtMachine * const self) ;
 
-// debug helper
+//-- linking
+
+extern BtWire *bt_machine_get_wire_by_dst_machine(const BtMachine * const self, const BtMachine * const dst);
+
+//-- debug helper
 
 extern GList *bt_machine_get_element_list(const BtMachine * const self);
 extern void bt_machine_dbg_print_parts(const BtMachine * const self);

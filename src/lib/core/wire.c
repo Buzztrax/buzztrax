@@ -615,8 +615,6 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
  */
 static gboolean bt_wire_connect(const BtWire * const self) {
   gboolean res=FALSE;
-  const BtSong * const song=self->priv->song;
-  BtSetup * const setup;
   BtWire *other_wire;
   BtMachine * const src=self->priv->src;
   BtMachine * const dst=self->priv->dst;
@@ -635,11 +633,10 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     src,GST_OBJECT_NAME(src),src->src_wires, src->dst_wires,
     dst,GST_OBJECT_NAME(dst),dst->dst_wires, dst->src_wires);
 
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
   /* check that we don't have such a wire yet */
   if(src->src_wires && dst->dst_wires) {
-    if((other_wire=bt_setup_get_wire_by_machines(setup,src,dst)) && (other_wire!=self)) {
+    if((other_wire=bt_machine_get_wire_by_dst_machine(src,dst)) && (other_wire!=self)) {
       GST_WARNING("trying to add create already existing wire: %p!=%p",other_wire,self);
       g_object_unref(other_wire);
       goto Error;
@@ -647,7 +644,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     g_object_try_unref(other_wire);
   }
   if(src->dst_wires && dst->src_wires) {
-    if((other_wire=bt_setup_get_wire_by_machines(setup,dst,src)) && (other_wire!=self)) {
+    if((other_wire=bt_machine_get_wire_by_dst_machine(dst,src)) && (other_wire!=self)) {
       GST_WARNING("trying to add create already existing wire (reversed): %p!=%p",other_wire,self);
       g_object_unref(other_wire);
       goto Error;
@@ -714,7 +711,6 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   res=TRUE;
 
 Error:
-  g_object_unref(setup);
   return(res);
 }
 

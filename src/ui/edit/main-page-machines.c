@@ -382,9 +382,6 @@ static BtMachineCanvasItem *bt_main_page_machines_get_machine_canvas_item_at(con
 
 static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self) {
   gboolean ret=FALSE;
-  BtSong *song;
-  BtSetup *setup;
-  BtWire *wire1=NULL,*wire2=NULL;
   BtMachine *src_machine,*dst_machine;
 
   GST_INFO("can we link to it?");
@@ -392,29 +389,31 @@ static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self)
   g_assert(self->priv->new_wire_src);
   g_assert(self->priv->new_wire_dst);
 
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
   g_object_get(self->priv->new_wire_src,"machine",&src_machine,NULL);
   g_object_get(self->priv->new_wire_dst,"machine",&dst_machine,NULL);
 
   // if the citem->machine is a sink/processor-machine
   if(BT_IS_SINK_MACHINE(dst_machine) || BT_IS_PROCESSOR_MACHINE(dst_machine)) {
+    BtWire *wire;
+
     // check if these machines are not yet connected
-    wire1=bt_setup_get_wire_by_machines(setup,src_machine,dst_machine);
-    wire2=bt_setup_get_wire_by_machines(setup,dst_machine,src_machine);
-    if((!wire1) && (!wire2)) {
-      ret=TRUE;
-      GST_INFO("  yes!");
+    wire=bt_machine_get_wire_by_dst_machine(src_machine,dst_machine);
+    if(!wire) {
+      wire=bt_machine_get_wire_by_dst_machine(dst_machine,src_machine);
+      if(!wire) {
+        ret=TRUE;
+        GST_INFO("  yes!");
+      }
+      else {
+        g_object_unref(wire);
+      }
     }
     else {
-      g_object_try_unref(wire1);
-      g_object_try_unref(wire2);
+      g_object_unref(wire);
     }
   }
   g_object_unref(dst_machine);
   g_object_unref(src_machine);
-  g_object_unref(setup);
-  g_object_unref(song);
   return(ret);
 }
 

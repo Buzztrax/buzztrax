@@ -96,6 +96,7 @@ bt_machine_unbind_parameter_control
 bt_machine_unbind_parameter_controls
 bt_machine_randomize_parameters
 bt_machine_reset_parameters
+bt_machine_get_wire_by_dst_machine
 <SUBSECTION Standard>
 BtMachineClass
 BT_MACHINE

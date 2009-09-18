@@ -2774,6 +2774,45 @@ void bt_machine_reset_parameters(const BtMachine * const self) {
   }
 }
 
+//-- linking
+
+/**
+ * bt_machine_get_wire_by_dst_machine:
+ * @self: the machine that is at src of a wire
+ * @dst: the machine that is at the dst end of the wire
+ *
+ * Searches for a wire in the wires originating from this machine that uses the
+ * given #BtMachine instances as a target. Unref the wire, when done with it.
+ *
+ * Returns: the #BtWire or NULL
+ *
+ * Since: 0.6
+ */
+BtWire *bt_machine_get_wire_by_dst_machine(const BtMachine * const self, const BtMachine * const dst) {
+  gboolean found=FALSE;
+  BtMachine * const machine;
+  const GList *node;
+
+  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
+  g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
+  
+  // either src or dst has no wires
+  if(!self->src_wires || !dst->dst_wires) return(NULL);
+  
+  // check if self links to dst
+  // ideally we would search the shorter of the lists
+  for(node=self->src_wires;node;node=g_list_next(node)) {
+    BtWire * const wire=BT_WIRE(node->data);
+    g_object_get(G_OBJECT(wire),"dst",&machine,NULL);
+    if(machine==dst) found=TRUE;
+    g_object_unref(machine);
+    if(found) return(g_object_ref(wire));
+  }
+  GST_DEBUG("no wire found for machines %p:%s %p:%s",self,GST_OBJECT_NAME(self),dst,GST_OBJECT_NAME(dst));
+  return(NULL);
+}
+
+
 //-- debug helper
 
 GList *bt_machine_get_element_list(const BtMachine * const self) {

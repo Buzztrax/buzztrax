@@ -1,5 +1,16 @@
 2009-09-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-machines.c:
+	  We don't need the setup to lookup wires. Add new function to lookup wire
+	  from machines wire-list.
+
+2009-09-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/about-dialog.c:
 	  Switch back to devel mode.
 

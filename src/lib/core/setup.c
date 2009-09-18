@@ -1237,6 +1237,7 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *const self, const BtMach
   return(bt_setup_get_wire_by_machine_type(self,dst,"dst"));
 }
 
+// @todo: remove this, use bt_machine_get_wire_by_dst_machine() instead
 /**
  * bt_setup_get_wire_by_machines:
  * @self: the setup to search for the wire
