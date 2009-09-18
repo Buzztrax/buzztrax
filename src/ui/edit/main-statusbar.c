@@ -270,6 +270,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   self->priv->cpu_load=GTK_PROGRESS_BAR(gtk_progress_bar_new());
   // @idea: this could be used to avoid resizing when the label changes
   //gtk_progress_bar_set_ellipsize(self->priv->cpu_load,PANGO_ELLIPSIZE_END);
+  //gtk_label_set_single_line_mode(self->priv->cpu_load,TRUE);
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->cpu_load),_("CPU load"));
 
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->cpu_load),FALSE,FALSE,1);

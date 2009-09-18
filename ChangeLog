@@ -1,3 +1,14 @@
+2009-09-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/about-dialog.c:
+	  Switch back to devel mode.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Set labels to signle_line mode to make window resizes faster.
+
+	* src/ui/edit/main-statusbar.c:
+	  Add ideas.
+
 2009-09-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

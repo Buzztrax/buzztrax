@@ -137,12 +137,8 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
   gtk_text_view_set_editable(GTK_TEXT_VIEW(news), FALSE);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(news)),
-    //_("Development version (do not translate this)"
-    _("Rewrite of internal pipeline management. One can now play partially connected "
-      "songs, and add/remove plugins while playing. Buzztard can play notes while "
-      "editing. More robust saving of songs. Lots of bugfixes and UI improvements. "
-      "Better user-guide including three small tutorials. Initial support for python "
-      "and javascript via gobject introspection."
+    _("Development version (do not translate this)"
+    //_(""
     ),-1);
 
   news_view = gtk_scrolled_window_new(NULL, NULL);

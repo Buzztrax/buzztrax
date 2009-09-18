@@ -1374,6 +1374,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
         gtk_widget_set_size_request(widget2,DEFAULT_LABEL_WIDTH,-1);
         if(GTK_IS_LABEL(widget2)) {
           gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
+          gtk_label_set_single_line_mode(GTK_LABEL(widget2),TRUE);
           gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
         }
         gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
@@ -1506,6 +1507,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
         gtk_widget_set_size_request(widget2,DEFAULT_LABEL_WIDTH,-1);
         if(GTK_IS_LABEL(widget2)) {
           gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
+          gtk_label_set_single_line_mode(GTK_LABEL(widget2),TRUE);
           gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
         }
         gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
@@ -1661,6 +1663,7 @@ static GtkWidget *make_wire_param_box(const BtMachinePropertiesDialog *self,BtWi
         gtk_widget_set_size_request(widget2,DEFAULT_LABEL_WIDTH,-1);
         if(GTK_IS_LABEL(widget2)) {
           gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
+          gtk_label_set_single_line_mode(GTK_LABEL(widget2),TRUE);
           gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
         }
         gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
