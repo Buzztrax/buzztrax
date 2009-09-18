@@ -1322,6 +1322,80 @@ void bt_pattern_randomize_columns(const BtPattern * const self, const gulong sta
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
+
+static void _serialize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data) {
+  gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+  GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
+  gulong i,ticks=(end_tick+1)-start_tick;
+  gchar *val;
+  
+  if(param<self->priv->global_params) {
+    g_string_append(data,g_type_name(bt_machine_get_global_param_type(self->priv->machine,param)));
+  }
+  else {
+    gulong p=param-self->priv->global_params;
+    while(p>self->priv->voice_params) p-=self->priv->voice_params;
+    g_string_append(data,g_type_name(bt_machine_get_voice_param_type(self->priv->machine,p)));
+  }
+  for(i=0;i<ticks;i++) {
+    if((val=bt_persistence_get_value(beg))) {
+      g_string_append_c(data,',');
+      g_string_append(data,val);
+      g_free(val);
+    }
+    beg+=params;
+  }
+  g_string_append_c(data,'\n');
+}
+
+/**
+ * bt_pattern_serialize_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
+ * @data: the target
+ *
+ * Serializes values from @start_tick to @end_tick for @param into @data.
+ *
+ * Since: 0.6
+ */
+void bt_pattern_serialize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+  g_return_if_fail(data);
+
+  _serialize_column(self,start_tick,end_tick,param,data);
+}
+
+/**
+ * bt_pattern_serialize_columns:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @data: the target
+ *
+ * Serializes values from @start_tick to @end_tick for all params into @data.
+ *
+ * Since: 0.6
+ */
+void bt_pattern_serialize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick, GString *data) {
+  g_return_if_fail(BT_IS_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+  g_return_if_fail(data);
+
+  // don't add internal_params here, _serialize_column does already
+  gulong j,params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
+
+  for(j=0;j<params;j++) {
+    _serialize_column(self,start_tick,end_tick,j,data);
+  }
+}
+
 //-- io interface
 
 static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {

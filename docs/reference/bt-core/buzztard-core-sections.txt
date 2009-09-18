@@ -145,6 +145,8 @@ bt_pattern_blend_column
 bt_pattern_blend_columns
 bt_pattern_randomize_column
 bt_pattern_randomize_columns
+bt_pattern_serialize_column
+bt_pattern_serialize_columns
 <SUBSECTION Standard>
 BtPatternClass
 BT_PATTERN
