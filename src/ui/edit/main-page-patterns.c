@@ -342,22 +342,22 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoPattern
   gint beg,end,group,param;
 
   if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
-    PatternColumnGroup pc_group;
+    PatternColumnGroup *pc_group;
     GST_INFO("applying : %d %d , %d %d",beg,end,group,param);
     if(group==-1 && param==-1) {
       // process full pattern
       BtWirePattern *wire_pattern;
       guint i=0;
 
-      pc_group=self->priv->param_groups[0];
-      while(pc_group.type==0) {
-        wire_pattern=bt_wire_get_pattern(pc_group.user_data,self->priv->pattern);
+      pc_group=&self->priv->param_groups[0];
+      while(pc_group->type==0) {
+        wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
         /* FIXME: why would we want to create it? 
         if(!wire_pattern) {
           BtSong *song;
   
           g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-          wire_pattern=bt_wire_pattern_new(song,pc_group.user_data,self->priv->pattern);
+          wire_pattern=bt_wire_pattern_new(song,pc_group->user_data,self->priv->pattern);
           g_object_unref(song);
         }
         */
@@ -366,7 +366,7 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoPattern
           g_object_unref(wire_pattern);
         }
         i++;
-        pc_group=self->priv->param_groups[i];
+        pc_group=&self->priv->param_groups[i];
       }
       do_pattern_columns(self->priv->pattern,beg,end);
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
@@ -374,16 +374,16 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoPattern
     }
     if(group!=-1 && param==-1) {
       // process whole group
-      pc_group=self->priv->param_groups[group];
-      switch(pc_group.type) {
+      pc_group=&self->priv->param_groups[group];
+      switch(pc_group->type) {
         case 0: {
-          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group.user_data,self->priv->pattern);
+          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
           /* FIXME: why would we want to create it?
           if(!wire_pattern) {
             BtSong *song;
     
             g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-            wire_pattern=bt_wire_pattern_new(song,pc_group.user_data,self->priv->pattern);
+            wire_pattern=bt_wire_pattern_new(song,pc_group->user_data,self->priv->pattern);
             g_object_unref(song);
           }
           */
@@ -396,7 +396,7 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoPattern
         case 1: {
           guint i;
           
-          for(i=0;i<pc_group.num_columns;i++) {
+          for(i=0;i<pc_group->num_columns;i++) {
             do_pattern_column(self->priv->pattern,beg,end,i);
           }
         } break;
@@ -407,8 +407,8 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoPattern
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+(GPOINTER_TO_UINT(pc_group.user_data)*voice_params);
-          for(i=0;i<pc_group.num_columns;i++) {
+          params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
+          for(i=0;i<pc_group->num_columns;i++) {
             do_pattern_column(self->priv->pattern,beg,end,params+i);
           }
           g_object_unref(machine);
@@ -419,16 +419,16 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoPattern
     }
     if(group!=-1 && param!=-1) {
       // process one param in one group
-      pc_group=self->priv->param_groups[group];
-      switch(pc_group.type) {
+      pc_group=&self->priv->param_groups[group];
+      switch(pc_group->type) {
         case 0: {
-          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group.user_data,self->priv->pattern);
+          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
           /* FIXME: why would we want to create it?
           if(!wire_pattern) {
             BtSong *song;
     
             g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-            wire_pattern=bt_wire_pattern_new(song,pc_group.user_data,self->priv->pattern);
+            wire_pattern=bt_wire_pattern_new(song,pc_group->user_data,self->priv->pattern);
             g_object_unref(song);
           }
           */
@@ -446,7 +446,7 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoPattern
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+(GPOINTER_TO_UINT(pc_group.user_data)*voice_params);
+          params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
           do_pattern_column(self->priv->pattern,beg,end,params+param);
           g_object_unref(machine);
         } break;
@@ -2657,18 +2657,21 @@ void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine
 
 //-- cut/copy/paste
 
-static void 
-pattern_clipboard_get_func (GtkClipboard *clipboard, GtkSelectionData *selection_data, guint info, gpointer data)
-{
-  GST_INFO("get clipboard data, info=%d",info);
+static void pattern_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,guint info,gpointer data) {
+  GST_INFO("get clipboard data, info=%d, data=%p",info,data);
+  GST_INFO("sending : [%s]",data);
   // FIXME: do we need to format differently depending on info?
-  gtk_selection_data_set_text (selection_data, data, -1);
+  if(selection_data->target==pattern_atom) {
+    gtk_selection_data_set(selection_data,pattern_atom,8,(guchar *)data,strlen(data));
+  }
+  else {
+    gtk_selection_data_set_text(selection_data,data,-1);
+  }
 }
 
-static void 
-pattern_clipboard_clear_func (GtkClipboard *clipboard, gpointer data) {
-  GST_INFO("freeing clipboard data");
-  g_free (data);
+static void pattern_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) {
+  GST_INFO("freeing clipboard data, data=%p",data);
+  g_free(data);
 }
 
 /**
@@ -2706,32 +2709,8 @@ void bt_main_page_patterns_cut_selection(const BtMainPagePatterns *self) {
  * <note>not yet working</note>
  */
 void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
-  /* @todo implement me
-  - store pattern + related wire patterns
-    - whats the data
-      - groups like in PatternColumnGroup
-        - type (wire_params, global_params, voice_params)
-        - start_param, end_param
-        - data (wire_params => wirepattern, voice_params => voice)
-      - gint ticks, types
-      - gtype-array[types]
-      - gvalue-array[types x ticks]
-    - problems
-      - can we still paste if a wires were added/removed?
-        - num_wire_params has changes
-        - wire-patterns can have different number of params
-      - can we still paste if voices are added/removed?
-        - num_pattern_params has changed
-        - skip the last ?
-    - ideas:
-      - just store the above
-      - serialize and deserialize on paste ?
-        - wire-patterns are serialized with the wires :/
-      - make a BtPatternFragment and BtWirePatternFragment
-        - pattern_copy = bt_pattern_copy_selection(self->priv->pattern))
-          for(,,) bt_wire_pattern_copy_selection(wire_pattern,pattern_copy)
-            - where to store those :(
-  - remember selection (parameter start/end and time start/end)
+  /* @todo implement me more
+  * - store related wire patterns
   */
   gint beg,end,group,param;
   if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
@@ -2739,7 +2718,7 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
     GtkTargetList *list;
     GtkTargetEntry *targets;
     gint n_targets;
-    PatternColumnGroup pc_group;
+    PatternColumnGroup *pc_group;
     GString *data=g_string_new(NULL);
     
     list = gtk_target_list_new (NULL, 0);
@@ -2757,24 +2736,24 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
       BtWirePattern *wire_pattern;
       guint i=0;
 
-      pc_group=self->priv->param_groups[0];
-      while(pc_group.type==0) {
-        wire_pattern=bt_wire_get_pattern(pc_group.user_data,self->priv->pattern);
+      pc_group=&self->priv->param_groups[0];
+      while(pc_group->type==0) {
+        wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
         if(wire_pattern) {
           //bt_wire_pattern_serialize_columns(wire_pattern,beg,end,data);
           g_object_unref(wire_pattern);
         }
         i++;
-        pc_group=self->priv->param_groups[i];
+        pc_group=&self->priv->param_groups[i];
       }
       bt_pattern_serialize_columns(self->priv->pattern,beg,end,data);
     }
     if(group!=-1 && param==-1) {
       // process whole group
-      pc_group=self->priv->param_groups[group];
-      switch(pc_group.type) {
+      pc_group=&self->priv->param_groups[group];
+      switch(pc_group->type) {
         case 0: {
-          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group.user_data,self->priv->pattern);
+          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
           if(wire_pattern) {
             // 0,group.num_columns-1
             //bt_wire_pattern_serialize_column(wire_pattern,beg,end,data);
@@ -2784,7 +2763,7 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
         case 1: {
           guint i;
           
-          for(i=0;i<pc_group.num_columns;i++) {
+          for(i=0;i<pc_group->num_columns;i++) {
             bt_pattern_serialize_column(self->priv->pattern,beg,end,i,data);
           }
         } break;
@@ -2795,8 +2774,8 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+(GPOINTER_TO_UINT(pc_group.user_data)*voice_params);
-          for(i=0;i<pc_group.num_columns;i++) {
+          params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
+          for(i=0;i<pc_group->num_columns;i++) {
             bt_pattern_serialize_column(self->priv->pattern,beg,end,params+i,data);
           }
           g_object_unref(machine);
@@ -2805,10 +2784,10 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
     }
     if(group!=-1 && param!=-1) {
       // process one param in one group
-      pc_group=self->priv->param_groups[group];
-      switch(pc_group.type) {
+      pc_group=&self->priv->param_groups[group];
+      switch(pc_group->type) {
         case 0: {
-          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group.user_data,self->priv->pattern);
+          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
           if(wire_pattern) {
             //bt_wire_pattern_serialize_column(wire_pattern,beg,end,param,data);
             g_object_unref(wire_pattern);
@@ -2823,7 +2802,7 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
           
           g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
           g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+(GPOINTER_TO_UINT(pc_group.user_data)*voice_params);
+          params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
           bt_pattern_serialize_column(self->priv->pattern,beg,end,params+param,data);
           g_object_unref(machine);
         } break;
@@ -2849,6 +2828,96 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
   }
 }
 
+static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,gpointer data) {
+  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(data);
+  gchar **lines;
+  guint ticks;
+  
+  GST_INFO("receiving clipboard data");
+  
+  //result=(gchar *)gtk_selection_data_get_text(selection_data);
+  GST_INFO("pasting : [%s]",selection_data->data);
+  lines=g_strsplit_set((gchar*)selection_data->data,"\n",0);
+  if(lines[0]) {
+    gint i=1,g,p;
+    gint beg,end;
+    gulong pattern_length;
+    gchar **fields;
+    PatternColumnGroup *pc_group;
+    BtMachine *machine;
+    GType stype,dtype;
+
+    g_object_get(G_OBJECT(self->priv->pattern),"length",&pattern_length,"machine",&machine,NULL);
+    
+    ticks=atol(lines[0]);
+    // paste from self->priv->cursor_row to MIN(self->priv->cursor_row+ticks,pattern_length)
+    beg=self->priv->cursor_row;
+    end=beg+ticks;
+    end=MIN(end,pattern_length);
+    GST_INFO("pasting from row %d to %d",beg,end);
+
+    g=self->priv->cursor_group;
+    p=self->priv->cursor_param;
+    pc_group=&self->priv->param_groups[g];
+    // process each line (= pattern column)
+    while(lines[i] && *lines[i]) {
+      fields=g_strsplit_set(lines[i],",",0);
+
+      switch (pc_group->type) {
+        case 0:
+          dtype=bt_wire_get_param_type(pc_group->user_data,p);
+          break;
+        case 1:
+          dtype=bt_machine_get_global_param_type(machine,p);
+          break;
+        case 2:
+          dtype=bt_machine_get_voice_param_type(machine,p);
+          break;
+        default:
+          dtype=G_TYPE_INVALID;
+          GST_WARNING("invalid column group type");
+      }
+      
+      stype=g_type_from_name(fields[0]);
+      if(dtype==stype) {
+        GST_INFO("types match in line %d, %s <-> %s",i-1,fields[0],g_type_name(dtype));
+        switch (pc_group->type) {
+          case 0:
+            break;
+          case 1:
+            //bt_pattern_deserialize_column(self->priv->pattern,beg,end,p,lines[i]);
+            break;
+          case 2: {
+            gulong global_params, voice_params, params;
+        
+            g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+            params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
+            //bt_pattern_deserialize_column(self->priv->pattern,beg,end,params+p,lines[i]);
+          } break;
+        }
+      }
+      else {
+        GST_INFO("types don't match in line %d, %s <-> %s",i-1,fields[0],g_type_name(dtype));
+      }
+      
+      g_strfreev(fields);
+      i++;p++;
+      if(p==pc_group->num_columns) {
+        // switch to next group or stop
+        if(g<self->priv->number_of_groups) {
+          g++;p=0;
+          pc_group=&self->priv->param_groups[g];
+        }
+        else {
+          break;
+        }
+      }
+    }
+    g_object_unref(machine);
+  }
+  g_strfreev(lines); 
+}
+
 /**
  * bt_main_page_patterns_paste_selection:
  * @self: the pattern subpage
@@ -2857,42 +2926,9 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
  * <note>not yet working</note>
  */
 void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
-#if 0
-  /* @todo implement me
-  - we can paste at any timeoffset
-    - maybe extend sequence if pos+selection.length> sequence.length)
-  - we need to check if the tracks match
-  */
   GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
-  if(cb) {
-    GdkAtom atom=GDK_NONE;
-    GtkSelectionData *data=gtk_clipboard_wait_for_contents(cb,gdk_atom_intern("Bt::Pattern",FALSE));
-    if(data) {
-      GdkAtom  *targets;
-      gint n_targets
-      gboolean success;
 
-      success = gtk_selection_data_get_targets (data, &targets, &n_targets);
-      if(success) {
-        gint i;
-
-        for(i=0;i<n_targets;i++) {
-          GST_INFO ("clipboard offered type: %s\n",gdk_atom_name(targets[i]));
-          // pick suitable format -> atom=targets[i];
-        }
-      }
-      g_free(targets);
-      gtk_selection_data_free (data);
-    }
-    if(atom!=GDK_NONE) {
-      data=gtk_clipboard_wait_for_contents (cb, atom);
-      if(data) {
-        // paste from (gtk_selection_data_get_data(data),gtk_selection_data_get_length(data));
-        gtk_selection_data_free(data);
-      }
-    }
-  }
-#endif
+  gtk_clipboard_request_contents(cb,pattern_atom,pattern_clipboard_received_func,(gpointer)self);
 }
 
 //-- wrapper

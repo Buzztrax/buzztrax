@@ -1,5 +1,11 @@
 2009-09-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Improve the pasting code to receive the data and parse it.
+
+2009-09-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/pattern-methods.h:
 	* src/lib/core/pattern.c:

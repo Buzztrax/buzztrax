@@ -1338,10 +1338,12 @@ static void _serialize_column(const BtPattern * const self, const gulong start_t
     g_string_append(data,g_type_name(bt_machine_get_voice_param_type(self->priv->machine,p)));
   }
   for(i=0;i<ticks;i++) {
-    if((val=bt_persistence_get_value(beg))) {
-      g_string_append_c(data,',');
-      g_string_append(data,val);
-      g_free(val);
+    if(G_IS_VALUE(beg)) {
+      if((val=bt_persistence_get_value(beg))) {
+        g_string_append_c(data,',');
+        g_string_append(data,val);
+        g_free(val);
+      }
     }
     beg+=params;
   }
