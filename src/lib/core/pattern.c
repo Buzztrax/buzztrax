@@ -455,71 +455,6 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
   return(pattern);
 }
 
-#if 0
-// @todo: need this also for wire-patterns
-// @todo: groups are not easy to handle here
-BtPattern *bt_pattern_copy_range(const BtPattern * const self, gint start, gint end, gint group, gint param) {
-  BtPattern *pattern;
-  gulong offset=0,count=0;
-  GValue *src, *dst;
-  
-  // the id/name does not matter so much
-  pattern=bt_pattern_new(self->priv->song,"copy","copy",self->priv->length,self->priv->machine);
-  
-  if(group==-1 && param==-1) {
-    // copy full pattern
-    count=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
-  }
-  if(group!=-1) {
-    if(self->priv->global_param && group==0) {
-      offset=internal_params;
-    }
-    else {
-      offset=internal_params; // add prev voices
-      if(self->priv->global_params) {
-        offset+=self->priv->global_params+(group-1)*self->priv->voice_params;
-      }
-      else {
-        offset+=group*self->priv->voice_params;
-      }
-    }
-    if(param==-1) {
-      // copy whole group
-      if(self->priv->global_param && group==0) {
-        count=self->priv->global_param;
-      }
-      else {
-        count=self->priv->voice_param;
-      }
-    }
-    else {
-      // copy one param in one group
-      offset+=param;
-      count=1;
-    }
-  }
-
-  src=&self->priv->data[start*count];
-  dst=&pattern->priv->data[start*count];
-
-  for(i=start;i<end;i++) {
-    memcpy(dst,src,sizeof(GValue)*count);
-    // @todo: need to do a deep copy of the GValues
-    src=&src[count];
-    dst=&dst[count];
-  }
-  return(pattern);
-}
-
-// @todo: groups are not easy to handle here
-void bt_pattern_paste(const BtPattern * const dst, const BtPattern * const src, gint row, gint group, gint param) {
-  // this needs to know what region the copied pattern covers
-  // when pasting and parameters (columns) are different -> return
-  //  later we could check if the types match
-}
- 
-#endif
-
 //-- methods
 
 /**
@@ -1345,6 +1280,10 @@ static void _serialize_column(const BtPattern * const self, const gulong start_t
         g_free(val);
       }
     }
+    else {
+      // empty cell
+      g_string_append(data,", ");
+    }
     beg+=params;
   }
   g_string_append_c(data,'\n');
@@ -1397,6 +1336,76 @@ void bt_pattern_serialize_columns(const BtPattern * const self, const gulong sta
     _serialize_column(self,start_tick,end_tick,j,data);
   }
 }
+
+/**
+ * bt_pattern_deserialize_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
+ * @data: the source data
+ *
+ * Deserializes values to @start_tick to @end_tick for @param from @data.
+ *
+ * Returns: %TRUE for success, %FALSE e.g. to indicate incompative GType values
+ * for the column specified by @param and the @data. 
+ *
+ * Since: 0.6
+ */
+gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, const gchar *data) {
+  g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
+  g_return_val_if_fail(start_tick<self->priv->length,FALSE);
+  g_return_val_if_fail(end_tick<self->priv->length,FALSE);
+  g_return_val_if_fail(self->priv->data,FALSE);
+  g_return_val_if_fail(data,FALSE);
+  
+  gboolean ret=TRUE;
+  GType stype,dtype;
+  gchar **fields;
+  
+  fields=g_strsplit_set(data,",",0);
+
+  // get types in pattern and clipboard data
+  if(param<self->priv->global_params) {
+    dtype=bt_machine_get_global_param_type(self->priv->machine,param);
+  }
+  else {
+    gulong p=param-self->priv->global_params;
+    while(p>self->priv->voice_params) p-=self->priv->voice_params;
+    dtype=bt_machine_get_voice_param_type(self->priv->machine,p);
+  }
+  
+  stype=g_type_from_name(fields[0]);
+  if(dtype==stype) {
+    gint i=1;
+    gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+    GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
+
+    GST_INFO("types match %s <-> %s",fields[0],g_type_name(dtype));
+    
+    while(fields[i] && *fields[i]) {
+      if(*fields[i]!=' ') {
+        if(!G_IS_VALUE(beg)) {
+          g_value_init(beg,dtype);
+        }
+        bt_persistence_set_value(beg, fields[i]);
+      } else {
+        if(G_IS_VALUE(beg)) {
+          g_value_unset(beg);
+        }
+      }
+      beg+=params;
+      i++;
+    }
+  }
+  else {
+    GST_INFO("types don't match in %s <-> %s",fields[0],g_type_name(dtype));
+    ret=FALSE;
+  }
+  g_strfreev(fields);
+  return(ret);
+}
+
 
 //-- io interface
 

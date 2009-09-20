@@ -1,3 +1,12 @@
+2009-09-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Cut, copy and paste works for patterns now. Still needs handling of
+	  wire-patterns.
+
 2009-09-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/pattern.c:

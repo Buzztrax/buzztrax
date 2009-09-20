@@ -2671,6 +2671,9 @@ static void pattern_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData 
 
 static void pattern_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) {
   GST_INFO("freeing clipboard data, data=%p",data);
+  // for some bizzard reasons when using GDK_SELECTION_CLIPBOARD,
+  // something triggers a GDK_SELECTION_CLEAR getting processed
+  // by gtk_widget_event_internal, and this in turn clears my clipboard copy right away
   g_free(data);
 }
 
@@ -2694,10 +2697,7 @@ void bt_main_page_patterns_delete_selection(const BtMainPagePatterns *self) {
  * <note>not yet working</note>
  */
 void bt_main_page_patterns_cut_selection(const BtMainPagePatterns *self) {
-  /* @todo implement me */
-#if 0
-- like copy, but clear pattern cells afterwards
-#endif
+  bt_main_page_patterns_copy_selection(self);
   bt_main_page_patterns_delete_selection(self);
 }
 
@@ -2714,7 +2714,8 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
   */
   gint beg,end,group,param;
   if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
-    GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+    //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+    GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_SECONDARY);
     GtkTargetList *list;
     GtkTargetEntry *targets;
     gint n_targets;
@@ -2828,24 +2829,28 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
   }
 }
 
-static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,gpointer data) {
-  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(data);
+static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,gpointer user_data) {
+  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(user_data);
   gchar **lines;
   guint ticks;
+  gchar *data;
   
   GST_INFO("receiving clipboard data");
   
-  //result=(gchar *)gtk_selection_data_get_text(selection_data);
-  GST_INFO("pasting : [%s]",selection_data->data);
-  lines=g_strsplit_set((gchar*)selection_data->data,"\n",0);
+  data=(gchar *)gtk_selection_data_get_data(selection_data);
+  GST_INFO("pasting : [%s]",data);
+  
+  if(!data)
+    return;
+  
+  lines=g_strsplit_set(data,"\n",0);
   if(lines[0]) {
     gint i=1,g,p;
     gint beg,end;
     gulong pattern_length;
-    gchar **fields;
     PatternColumnGroup *pc_group;
     BtMachine *machine;
-    GType stype,dtype;
+    gboolean res=TRUE;
 
     g_object_get(G_OBJECT(self->priv->pattern),"length",&pattern_length,"machine",&machine,NULL);
     
@@ -2860,47 +2865,22 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     p=self->priv->cursor_param;
     pc_group=&self->priv->param_groups[g];
     // process each line (= pattern column)
-    while(lines[i] && *lines[i]) {
-      fields=g_strsplit_set(lines[i],",",0);
-
+    while(lines[i] && *lines[i] && res) {
       switch (pc_group->type) {
         case 0:
-          dtype=bt_wire_get_param_type(pc_group->user_data,p);
+          // FIXME: implement wire patterns
           break;
         case 1:
-          dtype=bt_machine_get_global_param_type(machine,p);
+          res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,p,lines[i]);
           break;
-        case 2:
-          dtype=bt_machine_get_voice_param_type(machine,p);
-          break;
-        default:
-          dtype=G_TYPE_INVALID;
-          GST_WARNING("invalid column group type");
-      }
+        case 2: {
+          gulong global_params, voice_params, params;
       
-      stype=g_type_from_name(fields[0]);
-      if(dtype==stype) {
-        GST_INFO("types match in line %d, %s <-> %s",i-1,fields[0],g_type_name(dtype));
-        switch (pc_group->type) {
-          case 0:
-            break;
-          case 1:
-            //bt_pattern_deserialize_column(self->priv->pattern,beg,end,p,lines[i]);
-            break;
-          case 2: {
-            gulong global_params, voice_params, params;
-        
-            g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-            params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
-            //bt_pattern_deserialize_column(self->priv->pattern,beg,end,params+p,lines[i]);
-          } break;
-        }
+          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
+          res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,params+p,lines[i]);
+        } break;
       }
-      else {
-        GST_INFO("types don't match in line %d, %s <-> %s",i-1,fields[0],g_type_name(dtype));
-      }
-      
-      g_strfreev(fields);
       i++;p++;
       if(p==pc_group->num_columns) {
         // switch to next group or stop
@@ -2914,6 +2894,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
       }
     }
     g_object_unref(machine);
+    gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
   }
   g_strfreev(lines); 
 }
@@ -2926,7 +2907,8 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
  * <note>not yet working</note>
  */
 void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
-  GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+  //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+  GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_SECONDARY);
 
   gtk_clipboard_request_contents(cb,pattern_atom,pattern_clipboard_received_func,(gpointer)self);
 }
