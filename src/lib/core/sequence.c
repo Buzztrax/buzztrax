@@ -130,7 +130,7 @@ static void bt_sequence_resize_data_length(const BtSequence * const self, const 
       // free old data
       if(length>self->priv->length) {
         gulong i,j,k;
-        k=self->priv->length*self->priv->tracks;
+        k=new_data_count;
         for(i=self->priv->length;i<length;i++) {
           for(j=0;j<self->priv->tracks;j++,k++) {
             g_object_try_unref(patterns[k]);
@@ -376,10 +376,7 @@ static void bt_sequence_invalidate_global_param(const BtSequence * const self, c
  * Marks the given tick for the voice param of the given machine and voice as invalid.
  */
 static void bt_sequence_invalidate_voice_param(const BtSequence * const self, const BtMachine * const machine, const gulong time, const gulong voice, const gulong param) {
-  gulong global_params,voice_params;
-
-  g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-  bt_sequence_invalidate_param(self,machine,time,(global_params+voice*voice_params)+param);
+  bt_sequence_invalidate_param(self,machine,time,param);
 }
 
 /*
@@ -388,20 +385,7 @@ static void bt_sequence_invalidate_voice_param(const BtSequence * const self, co
  * Marks the given tick for the wire param of the given machine and voice as invalid.
  */
 static void bt_sequence_invalidate_wire_param(const BtSequence * const self, const BtMachine * const machine, const gulong time, const BtWire *wire, const gulong param) {
-  gulong global_params,voice_params,voices;
-  BtWire *that_wire;
-  GList *node;
-  gulong i,wire_num=0;
-
-  g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
-
-  // get the index for the given wires
-  for(i=0,node=machine->dst_wires;node;node=g_list_next(node),i++) {
-    that_wire=BT_WIRE(node->data);
-    if(that_wire==wire) wire_num=i;
-  }
-      
-  bt_sequence_invalidate_param(self,machine,time,(global_params+voices*voice_params)+(BT_WIRE_MAX_NUM_PARAMS*wire_num)+param);
+  bt_sequence_invalidate_param(self,machine,time,param);
 }
 
 /*
@@ -422,6 +406,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   gulong i,j,k;
   gulong length;
   gulong global_params,voice_params,voices,wire_params;
+  gulong param_offset;
 
   GST_DEBUG("invalidate pattern %p region for tick=%5lu, track=%3lu",pattern,time,track);
   /* @todo: if we load a song and thus set a lot of patterns, this is called a
@@ -435,7 +420,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
 
   // determine region of change
   g_object_get(G_OBJECT(pattern),"length",&length,"machine",&machine,NULL);
-  if(!length) {
+  if(G_UNLIKELY(!length)) {
     g_object_unref(machine);
     GST_WARNING("pattern has length 0");
     return;
@@ -449,7 +434,8 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   length=i;
   // mark region covered by new pattern as damaged
   // check wires
-  for(node=machine->dst_wires;node;node=g_list_next(node)) {
+  param_offset=global_params+voices*voice_params;
+  for(node=machine->dst_wires;node;node=g_list_next(node),param_offset++) {
     wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
     if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
@@ -457,7 +443,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
         // check wire params
         for(j=0;j<wire_params;j++,k++) {
           // mark region covered by change as damaged
-          bt_sequence_invalidate_wire_param(self,machine,time+i,wire,j);
+          bt_sequence_invalidate_wire_param(self,machine,time+i,wire,param_offset+j);
         }
       }
       g_object_unref(wire_pattern);
@@ -470,11 +456,12 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
       bt_sequence_invalidate_global_param(self,machine,time+i,j);
     }
     // check voices
-    for(k=0;k<voices;k++) {
+    param_offset=global_params;
+    for(k=0;k<voices;k++,param_offset+=voice_params) {
       // check voice params
       for(j=0;j<voice_params;j++) {
         // mark region covered by change as damaged
-        bt_sequence_invalidate_voice_param(self,machine,time+i,k,j);
+        bt_sequence_invalidate_voice_param(self,machine,time+i,k,param_offset+j);
       }
     }
   }
@@ -726,7 +713,7 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const p
   const BtSequence * const self=BT_SEQUENCE(user_data);
   BtMachine *this_machine;
   gulong i,j,k;
-
+  
   g_object_get(G_OBJECT(pattern),"machine",&this_machine,NULL);
   // for all occurences of pattern
   for(i=0;i<self->priv->tracks;i++) {
@@ -741,7 +728,10 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const p
           }
           // for tick==0 we always invalidate
           if(!tick || k==tick) {
-            bt_sequence_invalidate_voice_param(self,this_machine,j+tick,voice,param);
+            gulong global_params,voice_params,param_offset;
+            g_object_get(G_OBJECT(this_machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+            param_offset=global_params+voice*voice_params;
+            bt_sequence_invalidate_voice_param(self,this_machine,j+tick,voice,param_offset+param);
           }
         }
       }
@@ -778,7 +768,17 @@ static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern *
           }
           // for tick==0 we always invalidate
           if(!tick || k==tick) {
-            bt_sequence_invalidate_wire_param(self,this_machine,j+tick,wire,param);
+            gulong global_params,voice_params,voices,param_offset;
+            gulong l;
+            GList *node;
+
+            g_object_get(G_OBJECT(this_machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
+            // get the index for the given wires
+            for(l=0,node=this_machine->dst_wires;node;node=g_list_next(node),l++) {
+              if(BT_WIRE(node->data)==wire) break;
+            }
+            param_offset=(global_params+voices*voice_params)+(BT_WIRE_MAX_NUM_PARAMS*l);
+            bt_sequence_invalidate_wire_param(self,this_machine,j+tick,wire,param_offset+param);
           }
         }
       }
