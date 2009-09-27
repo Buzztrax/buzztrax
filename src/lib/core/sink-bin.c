@@ -233,6 +233,7 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
     
     self->priv->caps_filter=NULL;
 
+    // does not seem to be needed
     //gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),NULL);
     //GST_DEBUG("released ghost-pad");
 
@@ -664,6 +665,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   if(self->priv->sink) {
     GstPad *sink_pad=gst_element_get_static_pad(self->priv->caps_filter,"sink");
     GstPad *req_sink_pad=NULL;
+    GstPad *peer_pad;
 
     GST_INFO("updating ghostpad: %p", self->priv->sink);
 
@@ -677,9 +679,23 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     GST_INFO ("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
       self->priv->caps_filter,(G_OBJECT(self->priv->caps_filter)->ref_count),GST_OBJECT_NAME(self->priv->caps_filter),
       sink_pad,(G_OBJECT(sink_pad)->ref_count));
+    
+    /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=596366 
+     * at least version 0.10.24 suffers from it
+     */
+    if((peer_pad=gst_pad_get_peer(self->priv->sink))) {
+      gst_pad_unlink(peer_pad,self->priv->sink);
+    }
+    
     if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad)) {
       GST_WARNING("failed to link internal pads");
     }
+    
+    if(peer_pad) {
+      gst_pad_link(peer_pad,self->priv->sink);
+      gst_object_unref(peer_pad);
+    }
+    
     GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
     // request pads need to be released
     if(!req_sink_pad) {

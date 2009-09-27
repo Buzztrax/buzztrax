@@ -264,6 +264,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
     g_object_unref(setup);
     g_object_unref(wavetable);
 
+    GST_INFO("start playback");
     if(bt_cmd_application_play_song(self,song)) {
       res=TRUE;
     }
@@ -509,6 +510,7 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
 
   if(bt_song_io_load(loader,song)) {
     if(bt_cmd_application_prepare_encoding(self,song,output_file_name)) {
+      GST_INFO("start encoding");
       if(bt_cmd_application_play_song(self,song)) {
         res=TRUE;
       }

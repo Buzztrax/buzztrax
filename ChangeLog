@@ -1,3 +1,11 @@
+2009-09-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Workaround for https://bugzilla.gnome.org/show_bug.cgi?id=596366
+
+	* src/ui/cmd/cmd-application.c:
+	  Add more logging.
+
 2009-09-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c:
