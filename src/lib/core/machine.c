@@ -1214,7 +1214,7 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     /* live adder mixes by timestamps and does a timeout if an input is late */
     //if(!(bt_machine_make_internal_element(self,PART_ADDER,"liveadder","adder"))) goto Error;
 
-    // try without capsfilter (0.10.24)
+    // try without capsfilter (>= 0.10.24)
     if(!g_object_class_find_property(G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_ADDER])),"caps")) {
       if(!(bt_machine_make_internal_element(self,PART_CAPS_FILTER,"capsfilter","capsfilter"))) goto Error;
     }
@@ -1338,16 +1338,14 @@ static guint get_int_value(GstStructure *str,gchar *name) {
  * bt_machine_renegotiate_adder_format:
  * @self: the machine
  *
- * Analyze the format on all machines linking to this one and determine a common
- * format for mixing.
+ * Analyze the format on all machines linking inputs to this one and determine a
+ * common format for mixing.
  */
 /* @todo: it seems that this does not work while playing
  * - we could scratch the idea and use a fixed common format
  * - we could only renegotiate formats when going to playing
  */
 void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
-  BtMachine *src;
-  GList *node;
 
   GST_INFO_OBJECT(self,"reconfigure adder format, machine in state %s",gst_element_state_get_name(GST_STATE(self)));
   
@@ -1361,11 +1359,13 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   if(GST_STATE(self->priv->machines[PART_ADDER])==GST_STATE_PLAYING) return;
 
   if(self->dst_wires) {
+    BtMachine *src;
     BtWire *wire;
     GstPad *pad;
     GstCaps *new_caps;
     const GstCaps *pad_tmpl_caps;
     GstStructure *ps,*ns;
+    GList *node;
     guint size,i;
     gint p_format,n_format=0;
     gint p_width,n_width=8;

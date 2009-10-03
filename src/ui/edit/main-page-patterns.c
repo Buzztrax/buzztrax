@@ -141,7 +141,7 @@ struct _BtMainPagePatternsPrivate {
 
 static GtkVBoxClass *parent_class=NULL;
 
-static GdkAtom pattern_atom, text_atom;
+static GdkAtom pattern_atom;
 
 enum {
   MACHINE_MENU_ICON=0,
@@ -2665,6 +2665,8 @@ static void pattern_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData 
     gtk_selection_data_set(selection_data,pattern_atom,8,(guchar *)data,strlen(data));
   }
   else {
+    // allow pasting into a test editor for debugging
+    // its only active if we register the formats in _copy_selection() below
     gtk_selection_data_set_text(selection_data,data,-1);
   }
 }
@@ -2724,7 +2726,13 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
     
     list = gtk_target_list_new (NULL, 0);
     gtk_target_list_add (list, pattern_atom, 0, 0);
-    gtk_target_list_add (list, text_atom, 0, 1);
+#if USE_DEBUG
+    // this allows to paste into a text editor
+    gtk_target_list_add (list, gdk_atom_intern_static_string ("UTF8_STRING"), 0, 1);
+    gtk_target_list_add (list, gdk_atom_intern_static_string ("TEXT"), 0, 2);
+    gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain"), 0, 3);
+    gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain;charset=utf-8"), 0, 4);
+#endif
     targets = gtk_target_table_new_from_list (list, &n_targets);
     
     /* build needed data set to be stored in the clipboard */
@@ -3048,7 +3056,6 @@ GType bt_main_page_patterns_get_type(void) {
     };
 
     pattern_atom=gdk_atom_intern_static_string ("application/buzztard::pattern");
-    text_atom = gdk_atom_intern_static_string ("TEXT");
 
     type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPagePatterns",&info,0);
   }

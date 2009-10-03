@@ -1,5 +1,17 @@
 2009-10-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Move variabled to narrower scope.
+
+	* src/lib/core/sequence.c:
+	  Comments.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Only define text paste targets for debug purpose, but then define some
+	  more.
+
+2009-10-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/wire-pattern-methods.h:
 	* src/lib/core/pattern.c:
