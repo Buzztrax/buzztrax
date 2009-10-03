@@ -1,3 +1,11 @@
+2009-10-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/wire-pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire-pattern.c:
+	  Also copy wire patterns when copying patterns.
+
 2009-09-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-cmd/Makefile.am:

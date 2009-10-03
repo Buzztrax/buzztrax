@@ -26,6 +26,8 @@
 
 extern BtWirePattern *bt_wire_pattern_new(const BtSong * const song, const BtWire * const wire, const BtPattern * const pattern);
 
+extern BtWirePattern *bt_wire_pattern_copy(const BtWirePattern * const self, const BtPattern * const pattern);
+
 extern GValue *bt_wire_pattern_get_event_data(const BtWirePattern * const self, const gulong tick, const gulong param);
 
 extern gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulong tick, const gulong param, const gchar * const value);

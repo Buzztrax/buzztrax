@@ -177,6 +177,38 @@ BtWirePattern *bt_wire_pattern_new(const BtSong * const song, const BtWire * con
   return(BT_WIRE_PATTERN(g_object_new(BT_TYPE_WIRE_PATTERN,"song",song,"wire",wire,"pattern",pattern,NULL)));
 }
 
+/**
+ * bt_wire_pattern_copy:
+ * @self: the wire pattern to create a copy from
+ * @pattern: the new pattern for the copy
+ *
+ * Create a new instance as a copy of the given instance. This is usualy done in
+ * sync with bt_pattern_copy().
+ *
+ * Returns: the new instance or %NULL in case of an error
+ */
+BtWirePattern *bt_wire_pattern_copy(const BtWirePattern * const self, const BtPattern * const pattern) {
+  BtWirePattern *wire_pattern;
+  gulong data_count;
+  gulong i;
+
+  g_return_val_if_fail(BT_IS_WIRE_PATTERN(self),NULL);
+  
+  wire_pattern=bt_wire_pattern_new(self->priv->song,self->priv->wire,pattern);
+
+  data_count=self->priv->length*self->priv->num_params;
+  // deep copy data
+  for(i=0;i<data_count;i++) {
+    if(G_IS_VALUE(&self->priv->data[i])) {
+      g_value_init(&wire_pattern->priv->data[i],G_VALUE_TYPE(&self->priv->data[i]));
+      g_value_copy(&self->priv->data[i],&wire_pattern->priv->data[i]);
+    }
+  }  
+  GST_INFO("  data copied");
+  
+  return(wire_pattern);
+}
+ 
 //-- methods
 
 /**

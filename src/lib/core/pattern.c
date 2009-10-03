@@ -438,7 +438,6 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
  
   data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
   // deep copy data
-  //memcpy(pattern->priv->data,self->priv->data,data_count*sizeof(GValue));
   for(i=0;i<data_count;i++) {
     if(G_IS_VALUE(&self->priv->data[i])) {
       g_value_init(&pattern->priv->data[i],G_VALUE_TYPE(&self->priv->data[i]));
@@ -447,7 +446,23 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
   }  
   GST_INFO("  data copied");
   
-  // FIXME: do we also need to copy the wire patterns? 
+  // we also need to copy the wire patterns
+  if(self->priv->machine->dst_wires) {
+    GList *node;
+    BtWire *wire;
+    BtWirePattern *wp,*wp_new;
+    
+    GST_INFO("copying wire-patterns");
+
+    for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+      wire=BT_WIRE(node->data);
+      wp=bt_wire_get_pattern(wire,self);
+      wp_new=bt_wire_pattern_copy(wp,pattern);
+      g_object_unref(wp_new);
+      g_object_unref(wp);
+    }
+    GST_INFO("  wire-patterns copied");
+  }
 
   g_free(mid);
   g_free(id);

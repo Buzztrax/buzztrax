@@ -612,6 +612,7 @@ bt_wire_get_element_list
 <TITLE>BtWirePattern</TITLE>
 BtWirePattern
 bt_wire_pattern_new
+bt_wire_pattern_copy
 bt_wire_pattern_get_event_data
 bt_wire_pattern_set_event
 bt_wire_pattern_get_event
@@ -627,7 +628,6 @@ bt_wire_pattern_blend_column
 bt_wire_pattern_blend_columns
 bt_wire_pattern_randomize_column
 bt_wire_pattern_randomize_columns
-
 <SUBSECTION Standard>
 BtWirePatternClass
 BT_WIRE_PATTERN
