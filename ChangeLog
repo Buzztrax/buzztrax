@@ -1,5 +1,11 @@
 2009-10-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/core/e-sequence.c:
+	  Make test cover whole pattern changes. This already test the sequence
+	  optimization a bit.
+
+2009-10-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  When setting patterns, only mark non empty cells as invalid. This speeds
 	  up song loading, it needs more test to be sure its correct thing to do.

@@ -536,6 +536,16 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
   /* and verify */
   g_object_get(element,"g-ulong",&val,NULL);
   fail_unless(val==50, NULL);
+  
+  /* unset pattern */
+  bt_sequence_set_pattern(sequence,1,1,NULL);
+
+  /* pull in the change for timestamp of the 2nd tick */
+  gst_object_sync_values(G_OBJECT(element),1*tick_time);
+
+  /* and verify */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==100, NULL);
 
   /* clean up */
   gst_object_unref(element);
