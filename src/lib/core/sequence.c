@@ -88,6 +88,17 @@ struct _BtSequencePrivate {
    * each entry (per machine) has another GHashTable
    *   each entry (per parameter) has another GHashTable
    *     with time:changed
+   * @todo: there is quite some overhead becasue of the nested HashTables
+   * and because of repeted lookups in repair_{global,voice,wire}_damage_entry:
+   * - maybe we could have this instead:
+   *   each entry (per machine) has another GHashTable
+   *     each entry (per time) has list of changed parameters
+   * - the list of changed parameters could be a fixed bit-array, allocated on 
+   *   first use
+   * - benefits would be
+   *   - one less hashtable (but then the array)
+   *   - repair_damage could do the prev-pattern lookup once and reuse for each
+   *     changed parameter
    */
   GHashTable *damage;
 };
@@ -415,7 +426,12 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
    * 100 patterns for ne machine, we query, the machine, its parameters and its
    * list of incomming wires (and its pattern) again and again.
    *
-   * It also involves a lot of creating and destoying of hastables
+   * It also involves a lot of creating and destoying of hashtables
+   *
+   * @todo: couldn't we just invalidate the regio where we have a event
+   * bt_wire_pattern_test_event(wire_pattern,i,j);
+   * bt_pattern_test_global_event(pattern,i,j);
+   * bt_pattern_test_voice_event(pattern,i,k,j);
    */
 
   // determine region of change
@@ -443,7 +459,9 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
         // check wire params
         for(j=0;j<wire_params;j++,k++) {
           // mark region covered by change as damaged
-          bt_sequence_invalidate_wire_param(self,machine,time+i,wire,param_offset+j);
+          if(bt_wire_pattern_test_event(wire_pattern,i,j)) {
+            bt_sequence_invalidate_wire_param(self,machine,time+i,wire,param_offset+j);
+          }
         }
       }
       g_object_unref(wire_pattern);
@@ -453,7 +471,9 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
     // check global params
     for(j=0;j<global_params;j++) {
       // mark region covered by change as damaged
-      bt_sequence_invalidate_global_param(self,machine,time+i,j);
+      if(bt_pattern_test_global_event(pattern,i,j)) {
+        bt_sequence_invalidate_global_param(self,machine,time+i,j);
+      }
     }
     // check voices
     param_offset=global_params;
@@ -461,7 +481,9 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
       // check voice params
       for(j=0;j<voice_params;j++) {
         // mark region covered by change as damaged
-        bt_sequence_invalidate_voice_param(self,machine,time+i,k,param_offset+j);
+        if(bt_pattern_test_voice_event(pattern,i,k,j)) {
+          bt_sequence_invalidate_voice_param(self,machine,time+i,k,param_offset+j);
+        }
       }
     }
   }
@@ -1270,6 +1292,10 @@ BtPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulong t
 
 /**
  * bt_sequence_set_pattern_quick:
+ * @self: the #BtSequence that holds the patterns
+ * @time: the requested time position
+ * @track: the requested track index
+ * @pattern: the #BtPattern or %NULL to unset
  *
  * A quick version of bt_sequence_set_pattern() that does not repair damaged
  * area. Useful when doing mass updates.
@@ -1704,6 +1730,7 @@ void bt_sequence_update_tempo(const BtSequence * const self) {
   GST_INFO("updating gst-controller queues");
   bt_sequence_calculate_wait_per_position(self);
 
+  /* @todo: this is very slow */
   for(i=0;i<self->priv->length;i++) {
     for(j=0;j<self->priv->tracks;j++) {
       if(*pattern) {

@@ -1,5 +1,15 @@
 2009-10-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  When setting patterns, only mark non empty cells as invalid. This speeds
+	  up song loading, it needs more test to be sure its correct thing to do.
+
+	* tests/lib/core/e-sequence.c:
+	  Add a test for having two tracks for same machine and test parameter
+	  shadowing.
+
+2009-10-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core/wire-pattern-methods.h:
 	* src/lib/core/wire-pattern.c:
 	* src/ui/edit/main-page-patterns.c:

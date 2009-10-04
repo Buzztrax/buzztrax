@@ -466,9 +466,79 @@ BT_START_TEST(test_btsequence_change_pattern) {
   g_object_get(element,"g-ulong",&val,NULL);
   fail_unless(val==100, NULL);
 
+  /* clean up */
   gst_object_unref(element);
+  g_object_unref(pattern);
+  g_object_unref(machine);
+  g_object_unref(sequence);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+
+BT_START_TEST(test_btsequence_ctrl_two_tracks) {
+  BtApplication *app;
+  GError *err=NULL;
+  BtSong *song;
+  BtSequence *sequence;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GstObject *element;
+  gulong val;
+  GstClockTime tick_time;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create a new song */
+  song=bt_song_new(app);
+  g_object_get(song,"sequence",&sequence,NULL);
+   /* create a source machine and get the gstreamer element */
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
+  fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  /* create a pattern */
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+  fail_unless(pattern!=NULL, NULL);
+
+  /* enlarge length */
+  g_object_set(sequence,"length",4L,NULL);
+
+  /* add two tracks for the machine */
+  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine);
+
+  /* set pattern */
+  bt_sequence_set_pattern(sequence,0,0,pattern);
+  bt_sequence_set_pattern(sequence,1,1,pattern);
+
+  bt_pattern_set_global_event(pattern,0,0,"50");
+  bt_pattern_set_global_event(pattern,1,0,"100");
+
+  g_object_get(machine,"machine",&element,NULL);
+
+  /* we should still have the default value */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==0, NULL);
+  
+  tick_time=bt_sequence_get_bar_time(sequence);
+
+  /* pull in the change for timestamp of the 1st tick */
+  gst_object_sync_values(G_OBJECT(element),0*tick_time);
+
+  /* and verify */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==50, NULL);
+
+  /* pull in the change for timestamp of the 2nd tick */
+  gst_object_sync_values(G_OBJECT(element),1*tick_time);
+
+  /* and verify */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==50, NULL);
 
   /* clean up */
+  gst_object_unref(element);
   g_object_unref(pattern);
   g_object_unref(machine);
   g_object_unref(sequence);
@@ -521,6 +591,7 @@ TCase *bt_sequence_example_case(void) {
   tcase_add_test(tc,test_btsequence_enlarge_both_vals);
   tcase_add_test(tc,test_btsequence_update);
   tcase_add_test(tc,test_btsequence_change_pattern);
+  tcase_add_test(tc,test_btsequence_ctrl_two_tracks);
   tcase_add_test(tc,test_btsequence_validate_loop);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
