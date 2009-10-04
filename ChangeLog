@@ -1,3 +1,10 @@
+2009-10-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/wire-pattern-methods.h:
+	* src/lib/core/wire-pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Implement copy'n'paste stuff for wire patterns too.
+
 2009-10-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

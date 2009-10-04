@@ -780,6 +780,140 @@ void bt_wire_pattern_randomize_columns(const BtWirePattern * const self, const g
   g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
 }
 
+
+static void _serialize_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data) {
+  GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
+  gulong i,ticks=(end_tick+1)-start_tick;
+  gchar *val;
+  
+  g_string_append(data,g_type_name(bt_wire_get_param_type(self->priv->wire,param)));
+
+  for(i=0;i<ticks;i++) {
+    if(G_IS_VALUE(beg)) {
+      if((val=bt_persistence_get_value(beg))) {
+        g_string_append_c(data,',');
+        g_string_append(data,val);
+        g_free(val);
+      }
+    }
+    else {
+      // empty cell
+      g_string_append(data,", ");
+    }
+    beg+=self->priv->num_params;
+  }
+  g_string_append_c(data,'\n');
+}
+
+/**
+ * bt_wire_pattern_serialize_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
+ * @data: the target
+ *
+ * Serializes values from @start_tick to @end_tick for @param into @data.
+ *
+ * Since: 0.6
+ */
+void bt_wire_pattern_serialize_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+  g_return_if_fail(data);
+
+  _serialize_column(self,start_tick,end_tick,param,data);
+}
+
+/**
+ * bt_wire_pattern_serialize_columns:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @data: the target
+ *
+ * Serializes values from @start_tick to @end_tick for all params into @data.
+ *
+ * Since: 0.6
+ */
+void bt_wire_pattern_serialize_columns(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, GString *data) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+  g_return_if_fail(data);
+
+  gulong j;
+
+  for(j=0;j<self->priv->num_params;j++) {
+    _serialize_column(self,start_tick,end_tick,j,data);
+  }
+}
+
+/**
+ * bt_wire_pattern_deserialize_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
+ * @data: the source data
+ *
+ * Deserializes values to @start_tick to @end_tick for @param from @data.
+ *
+ * Returns: %TRUE for success, %FALSE e.g. to indicate incompative GType values
+ * for the column specified by @param and the @data. 
+ *
+ * Since: 0.6
+ */
+gboolean bt_wire_pattern_deserialize_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, const gchar *data) {
+  g_return_val_if_fail(BT_IS_WIRE_PATTERN(self),FALSE);
+  g_return_val_if_fail(start_tick<self->priv->length,FALSE);
+  g_return_val_if_fail(end_tick<self->priv->length,FALSE);
+  g_return_val_if_fail(self->priv->data,FALSE);
+  g_return_val_if_fail(data,FALSE);
+  
+  gboolean ret=TRUE;
+  GType stype,dtype;
+  gchar **fields;
+  
+  fields=g_strsplit_set(data,",",0);
+
+  // get types in pattern and clipboard data
+  dtype=bt_wire_get_param_type(self->priv->wire,param);
+  
+  stype=g_type_from_name(fields[0]);
+  if(dtype==stype) {
+    gint i=1;
+    GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
+
+    GST_INFO("types match %s <-> %s",fields[0],g_type_name(dtype));
+    
+    while(fields[i] && *fields[i]) {
+      if(*fields[i]!=' ') {
+        if(!G_IS_VALUE(beg)) {
+          g_value_init(beg,dtype);
+        }
+        bt_persistence_set_value(beg, fields[i]);
+      } else {
+        if(G_IS_VALUE(beg)) {
+          g_value_unset(beg);
+        }
+      }
+      beg+=self->priv->num_params;
+      i++;
+    }
+  }
+  else {
+    GST_INFO("types don't match in %s <-> %s",fields[0],g_type_name(dtype));
+    ret=FALSE;
+  }
+  g_strfreev(fields);
+  return(ret);
+}
+
+
 //-- io interface
 
 static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {

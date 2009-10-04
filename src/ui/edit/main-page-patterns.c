@@ -2749,7 +2749,7 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
       while(pc_group->type==0) {
         wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
         if(wire_pattern) {
-          //bt_wire_pattern_serialize_columns(wire_pattern,beg,end,data);
+          bt_wire_pattern_serialize_columns(wire_pattern,beg,end,data);
           g_object_unref(wire_pattern);
         }
         i++;
@@ -2764,8 +2764,11 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
         case 0: {
           BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
           if(wire_pattern) {
-            // 0,group.num_columns-1
-            //bt_wire_pattern_serialize_column(wire_pattern,beg,end,data);
+            guint i;
+
+            for(i=0;i<pc_group->num_columns;i++) {
+              bt_wire_pattern_serialize_column(wire_pattern,beg,end,i,data);
+            }
             g_object_unref(wire_pattern);
           }
         } break;
@@ -2798,7 +2801,7 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
         case 0: {
           BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
           if(wire_pattern) {
-            //bt_wire_pattern_serialize_column(wire_pattern,beg,end,param,data);
+            bt_wire_pattern_serialize_column(wire_pattern,beg,end,param,data);
             g_object_unref(wire_pattern);
           }
         } break;
@@ -2875,9 +2878,13 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     // process each line (= pattern column)
     while(lines[i] && *lines[i] && res) {
       switch (pc_group->type) {
-        case 0:
-          // FIXME: implement wire patterns
-          break;
+        case 0: {
+          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
+          if(wire_pattern) {
+            res=bt_wire_pattern_deserialize_column(wire_pattern,beg,end,p,lines[i]);
+            g_object_unref(wire_pattern);
+          }
+        } break;
         case 1:
           res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,p,lines[i]);
           break;
