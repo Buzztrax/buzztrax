@@ -156,6 +156,8 @@ struct _BtMainPageSequencePrivate {
 
 static GtkVBoxClass *parent_class=NULL;
 
+static GdkAtom sequence_atom;
+
 /* internal data model fields */
 enum {
   SEQUENCE_TABLE_SOURCE_BG=0,
@@ -3103,6 +3105,28 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
 
 //-- cut/copy/paste
 
+static void sequence_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,guint info,gpointer data) {
+  GST_INFO("get clipboard data, info=%d, data=%p",info,data);
+  GST_INFO("sending : [%s]",data);
+  // FIXME: do we need to format differently depending on info?
+  if(selection_data->target==sequence_atom) {
+    gtk_selection_data_set(selection_data,sequence_atom,8,(guchar *)data,strlen(data));
+  }
+  else {
+    // allow pasting into a test editor for debugging
+    // its only active if we register the formats in _copy_selection() below
+    gtk_selection_data_set_text(selection_data,data,-1);
+  }
+}
+
+static void sequence_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) {
+  GST_INFO("freeing clipboard data, data=%p",data);
+  // for some bizzard reasons when using GDK_SELECTION_CLIPBOARD,
+  // something triggers a GDK_SELECTION_CLEAR getting processed
+  // by gtk_widget_event_internal, and this in turn clears my clipboard copy right away
+  g_free(data);
+}
+
 /**
  * bt_main_page_sequence_delete_selection:
  * @self: the sequence subpage
@@ -3190,11 +3214,75 @@ void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self) {
  * <note>not yet working</note>
  */
 void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
-  /* @todo implement me */
-#if 0
-- store BtPattern **patterns;
-- remember selection (track start/end and time start/end)
+  if(self->priv->selection_start_row!=-1 && self->priv->selection_start_column!=-1) {
+    //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+    GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->sequence_table),GDK_SELECTION_SECONDARY);
+    GtkTargetList *list;
+    GtkTargetEntry *targets;
+    gint n_targets;
+    glong i,j;
+    gchar *id;
+    BtMachine *machine;
+    BtPattern *pattern;
+    GString *data=g_string_new(NULL);
+    
+    GST_INFO("copying : %ld,%ld - %d,%ld", self->priv->selection_start_column, self->priv->selection_start_row, self->priv->selection_end_column, self->priv->selection_end_row);
+    
+    list = gtk_target_list_new (NULL, 0);
+    gtk_target_list_add (list, sequence_atom, 0, 0);
+#if USE_DEBUG
+    // this allows to paste into a text editor
+    gtk_target_list_add (list, gdk_atom_intern_static_string ("UTF8_STRING"), 0, 1);
+    gtk_target_list_add (list, gdk_atom_intern_static_string ("TEXT"), 0, 2);
+    gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain"), 0, 3);
+    gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain;charset=utf-8"), 0, 4);
 #endif
+    targets = gtk_target_table_new_from_list (list, &n_targets);
+  
+    /* the number of ticks */
+    g_string_append_printf(data,"%ld\n",(self->priv->selection_end_row+1)-self->priv->selection_start_row);
+    
+    for(i=self->priv->selection_start_column;i<=self->priv->selection_end_column;i++) {
+      // store machine id
+      machine=bt_sequence_get_machine(self->priv->sequence,i-1);
+      g_object_get(machine,"id",&id,NULL);
+      g_string_append(data,id);
+      g_free(id);
+      for(j=self->priv->selection_start_row;j<=self->priv->selection_end_row;j++) {
+        // store pattern id
+        if((pattern=bt_sequence_get_pattern(self->priv->sequence,j,i-1))) {
+          g_object_get(pattern,"name",&id,NULL);
+          g_string_append_c(data,',');
+          g_string_append(data,id);         
+          g_free(id);
+          g_object_unref(pattern);
+        }
+        else {
+          // empty cell
+          g_string_append(data,", ");
+        }
+      }
+      g_string_append_c(data,'\n');
+      g_object_unref(machine);
+    }
+    
+    GST_INFO("copying : [%s]",data->str);
+
+    /* put to clipboard */    
+    if(gtk_clipboard_set_with_data (cb, targets, n_targets,
+                     sequence_clipboard_get_func, sequence_clipboard_clear_func,
+                     g_string_free (data, FALSE))
+    ) {
+      gtk_clipboard_set_can_store (cb, NULL, 0);
+    }
+    else {
+      GST_INFO("copy failed");
+    }
+
+    gtk_target_table_free (targets, n_targets);
+    gtk_target_list_unref (list);
+    GST_INFO("copy done");
+  }
 }
 
 /**
@@ -3389,6 +3477,9 @@ GType bt_main_page_sequence_get_type(void) {
       (GInstanceInitFunc)bt_main_page_sequence_init, // instance_init
       NULL // value_table
     };
+    
+    sequence_atom=gdk_atom_intern_static_string ("application/buzztard::sequence");
+    
     type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPageSequence",&info,0);
   }
   return type;

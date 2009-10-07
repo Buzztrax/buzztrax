@@ -2711,9 +2711,6 @@ void bt_main_page_patterns_cut_selection(const BtMainPagePatterns *self) {
  * <note>not yet working</note>
  */
 void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
-  /* @todo implement me more
-  * - store related wire patterns
-  */
   gint beg,end,group,param;
   if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
     //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
@@ -2734,8 +2731,6 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
     gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain;charset=utf-8"), 0, 4);
 #endif
     targets = gtk_target_table_new_from_list (list, &n_targets);
-    
-    /* build needed data set to be stored in the clipboard */
     
     /* the number of ticks */
     g_string_append_printf(data,"%d\n",end-beg);

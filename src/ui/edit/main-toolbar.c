@@ -733,7 +733,6 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name(tool_item,"Play");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play this song"));
- 
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
   self->priv->play_button=tool_item;
