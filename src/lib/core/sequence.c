@@ -304,19 +304,22 @@ static void bt_sequence_damage_hash_free(gpointer user_data) {
  * bt_sequence_get_number_of_pattern_uses:
  * @self: the sequence to count the patterns in
  * @this_pattern: the pattern to check for
+ * @max_num: don't count more that this
  *
- * Count the number of times a pattern is in use.
+ * Count the number of times a pattern is in use. If @max_num is not -1, return
+ * when the @max_num is reached.
  *
  * Returns: the pattern count
  */
-static gulong bt_sequence_get_number_of_pattern_uses(const BtSequence * const self,const BtPattern * const this_pattern) {
+static gulong bt_sequence_get_number_of_pattern_uses(const BtSequence * const self,const BtPattern * const this_pattern, const glong max_num) {
   gulong res=0;
   BtMachine *machine;
   BtPattern *that_pattern;
   gulong i,j=0;
 
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
-  g_return_val_if_fail(BT_IS_PATTERN(this_pattern),0);
+  // don't do such check in internal api
+  //g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
+  //g_return_val_if_fail(BT_IS_PATTERN(this_pattern),0);
 
   g_object_get(G_OBJECT(this_pattern),"machine",&machine,NULL);
   for(i=0;i<self->priv->tracks;i++) {
@@ -325,11 +328,15 @@ static gulong bt_sequence_get_number_of_pattern_uses(const BtSequence * const se
       for(j=0;j<self->priv->length;j++) {
         // time has a pattern
         if((that_pattern=bt_sequence_get_pattern_unchecked(self,j,i))) {
-          if(that_pattern==this_pattern) res++;
+          if(that_pattern==this_pattern) {
+            res++;
+            if(res==max_num) goto done;
+          }
         }
       }
     }
   }
+done:
   g_object_unref(machine);
   //GST_INFO("get pattern uses = %d",res);
   return(res);
@@ -925,7 +932,7 @@ static void on_wire_added(BtSetup *setup,BtWire *wire,gpointer user_data) {
   // go over all patterns of the wire.dst
   for(node=patterns;node;node=g_list_next(node)) {
     pattern=BT_PATTERN(node->data);
-    if(bt_sequence_get_number_of_pattern_uses(self,pattern)>0) {
+    if(bt_sequence_get_number_of_pattern_uses(self,pattern,1)>0) {
       // we need to wait for the first wire-pattern
       g_signal_connect(G_OBJECT(wire),"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
     }
@@ -946,7 +953,7 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
   // go over all patterns of the wire.dst
   for(node=patterns;node;node=g_list_next(node)) {
     pattern=BT_PATTERN(node->data);
-    if(bt_sequence_get_number_of_pattern_uses(self,pattern)>0) {
+    if(bt_sequence_get_number_of_pattern_uses(self,pattern,1)>0) {
       if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
         g_signal_handlers_disconnect_matched(G_OBJECT(wire_pattern),G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
         g_object_unref(wire_pattern);
@@ -1332,9 +1339,11 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
   // take out the old pattern
   if(old_pattern) {
     GST_DEBUG("clean up for old pattern");
-   
-    // detatch a signal handler if this was the last usage
-    if(bt_sequence_get_number_of_pattern_uses(self,old_pattern)==1) {
+
+    // detach a signal handler if this was the last usage
+    // @todo: cache the number of pattern uses within the pattern
+    //   or have a quick variant that returns one the 2nd pattern
+    if(bt_sequence_get_number_of_pattern_uses(self,old_pattern,2)==1) {
       g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_global_param_changed,NULL);
       g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_voice_param_changed,NULL);
       g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_changed,NULL);
@@ -1362,8 +1371,10 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
     self->priv->patterns[index]=g_object_ref(G_OBJECT(pattern));
     //g_object_add_weak_pointer(G_OBJECT(pattern),(gpointer *)(&self->priv->patterns[index]));
 
-    // attatch a signal handler if this is the first usage
-    if(bt_sequence_get_number_of_pattern_uses(self,pattern)==1) {
+    // attach a signal handler if this is the first usage
+    // @todo: cache the number of pattern uses within the pattern
+    //   or have a quick variant that returns one the 2nd pattern
+    if(bt_sequence_get_number_of_pattern_uses(self,pattern,2)==1) {
       //GST_INFO("subscribing to changes for pattern %p",pattern);
       g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
       g_signal_connect(G_OBJECT(pattern),"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
