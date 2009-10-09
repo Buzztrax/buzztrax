@@ -2840,12 +2840,12 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
   gchar **lines;
   guint ticks;
   gchar *data;
-  
+
   GST_INFO("receiving clipboard data");
-  
+
   data=(gchar *)gtk_selection_data_get_data(selection_data);
   GST_INFO("pasting : [%s]",data);
-  
+
   if(!data)
     return;
   
@@ -2861,6 +2861,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     g_object_get(G_OBJECT(self->priv->pattern),"length",&pattern_length,"machine",&machine,NULL);
     
     ticks=atol(lines[0]);
+    pattern_length--;
     // paste from self->priv->cursor_row to MIN(self->priv->cursor_row+ticks,pattern_length)
     beg=self->priv->cursor_row;
     end=beg+ticks;

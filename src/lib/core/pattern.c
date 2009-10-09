@@ -1395,10 +1395,11 @@ gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulon
     gint i=1;
     gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
     GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
+    GValue *end=&self->priv->data[internal_params+param+params*end_tick];
 
     GST_INFO("types match %s <-> %s",fields[0],g_type_name(dtype));
     
-    while(fields[i] && *fields[i]) {
+    while(fields[i] && *fields[i] && (beg<=end)) {
       if(*fields[i]!=' ') {
         if(!G_IS_VALUE(beg)) {
           g_value_init(beg,dtype);

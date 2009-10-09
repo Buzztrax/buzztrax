@@ -3158,13 +3158,13 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
       GtkTreeIter iter;
 
       if(gtk_tree_model_get_iter(store,&iter,path)) {
+        gboolean sequence_changed=FALSE;
         glong i,j;
 
-        // @todo: needs to bundle updates and refresh after once afterwards
         for(i=selection_start_row;i<=selection_end_row;i++) {
           for(j=selection_start_column-1;j<selection_end_column;j++) {
             GST_DEBUG("  delete sequence cell: %3ld,%3ld",j,i);
-            bt_sequence_set_pattern(self->priv->sequence,i,j,NULL);
+            sequence_changed|=bt_sequence_set_pattern_quick(self->priv->sequence,i,j,NULL);
             gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+j," ",-1);
           }
           if(!gtk_tree_model_iter_next(store,&iter)) {
@@ -3174,6 +3174,10 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
             break;
           }
         }
+        if(sequence_changed) {
+          // repair damage
+          bt_sequence_repair_damage(self->priv->sequence);
+        }
       }
       else {
         GST_WARNING("  can't get tree-iter for row %ld",selection_start_row);
@@ -3181,7 +3185,7 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
       gtk_tree_path_free(path);
     }
     else {
-      GST_WARNING("  can't get tree-path");
+      GST_WARNING("  can't get tree-path for row %ld",selection_start_row);
     }
   }
   else {
@@ -3199,10 +3203,7 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
  * <note>not yet working</note>
  */
 void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self) {
-  /* @todo implement me */
-#if 0
-- like copy, but clear pattern cells afterwards
-#endif
+  bt_main_page_sequence_copy_selection(self);
   bt_main_page_sequence_delete_selection(self);
 }
 
@@ -3285,6 +3286,120 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
   }
 }
 
+static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,gpointer user_data) {
+  BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(user_data);
+  gchar **lines;
+  guint ticks;
+  gchar *data;
+  
+  GST_INFO("receiving clipboard data");
+  
+  data=(gchar *)gtk_selection_data_get_data(selection_data);
+  GST_INFO("pasting : [%s]",data);
+  
+  if(!data)
+    return;
+
+  lines=g_strsplit_set(data,"\n",0);
+  if(lines[0]) {
+    GtkTreeModel *store;
+    BtMachine *machine;
+    BtPattern *pattern;
+    gint i=1,j;
+    gint beg,end;
+    gulong sequence_length,track;
+    gboolean sequence_changed=FALSE;
+    gchar **fields;
+    gchar *id, *str;
+    gboolean res=TRUE;
+
+    g_object_get(G_OBJECT(self->priv->sequence),"length",&sequence_length,NULL);
+    
+    ticks=atol(lines[0]);
+    sequence_length--;
+    // paste from self->priv->cursor_row to MIN(self->priv->cursor_row+ticks,sequence_length)
+    beg=self->priv->cursor_row;
+    end=beg+ticks;
+    end=MIN(end,sequence_length);
+    GST_INFO("pasting from row %d to %d",beg,end);
+    
+    if((store=sequence_model_get_store(self))) {
+      GtkTreePath *path;
+  
+      if((path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1))) {
+        GtkTreeIter iter;
+  
+        // process each line (= pattern column)
+        while(lines[i] && *lines[i] && (self->priv->cursor_row+(i-1)<=end) && res) {
+          fields=g_strsplit_set(lines[i],",",0);
+          track=self->priv->cursor_column+i-2;
+          
+          GST_INFO("get machine for col %d",track);
+          machine=bt_sequence_get_machine(self->priv->sequence,track);
+          if(machine) {
+            g_object_get(machine,"id",&id,NULL);
+      
+            if (!strcmp(id,fields[0])) {
+              if(gtk_tree_model_get_iter(store,&iter,path)) {
+                j=1;
+                while(fields[j] && *fields[j] && res) {
+                  if(*fields[j]!=' ') {
+                    pattern=bt_machine_get_pattern_by_id(machine,fields[j]);
+                    str=fields[j];
+                  }
+                  else {
+                    pattern=NULL;
+                    str=NULL;
+                  }
+                  //GST_INFO("insert %s @ %d,%d",str,self->priv->cursor_row+(j-1),track);
+                  sequence_changed|=bt_sequence_set_pattern_quick(self->priv->sequence,self->priv->cursor_row+(j-1),track,NULL);
+                  gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
+                  g_object_try_unref(pattern);
+                  if(!gtk_tree_model_iter_next(store,&iter)) {
+                    GST_WARNING("  can't get next tree-iter");
+                    res=FALSE;
+                  }
+                  j++;
+                }
+              }
+              else {
+                GST_WARNING("  can't get tree-iter for row %ld",self->priv->cursor_row);
+                res=FALSE;
+              }
+            }
+            else {
+              GST_INFO("machines don't match in %s <-> %s",fields[0],id);
+              res=FALSE;
+            }
+            
+            g_free(id);
+            g_object_unref(machine);
+          }
+          else {
+            GST_INFO("no machine for track");
+            res=FALSE;
+          }
+          g_strfreev(fields);
+          i++;
+        }
+        if(sequence_changed) {
+          // repair damage
+          bt_sequence_repair_damage(self->priv->sequence);
+        }
+        gtk_tree_path_free(path);
+      }
+      else {
+        GST_WARNING("  can't get tree-path");
+      }
+    }
+    else {
+      GST_WARNING("  can't get tree-model");
+    }
+  }
+  g_strfreev(lines); 
+}
+
+
 /**
  * bt_main_page_sequence_paste_selection:
  * @self: the sequence subpage
@@ -3293,12 +3408,10 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
  * <note>not yet working</note>
  */
 void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self) {
-  /* @todo implement me */
-#if 0
-- we can paste at any timeoffset
-  - maybe extend sequence if pos+selection.length> sequence.length)
-- we need to check if the tracks match
-#endif
+  //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+  GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->sequence_table),GDK_SELECTION_SECONDARY);
+
+  gtk_clipboard_request_contents(cb,sequence_atom,sequence_clipboard_received_func,(gpointer)self);
 }
 
 //-- wrapper

@@ -1,3 +1,12 @@
+2009-10-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Don't paste beyond the pattern length.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Implement paste for sequence.
+
 2009-10-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c:
