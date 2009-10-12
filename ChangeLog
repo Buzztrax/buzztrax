@@ -1,5 +1,18 @@
 2009-10-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Start level decay faster.
+
+	* src/ui/edit/gtkvumeter.c:
+	  Redraw level if either value changed. Fixes stuck level meters.
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	  Now hopefuly proper decay and peak values.
+
+2009-10-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Wrote and sent news.
 

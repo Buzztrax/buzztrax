@@ -250,7 +250,6 @@ static gboolean on_delayed_idle_machine_level_change(gpointer user_data) {
     if(!self->priv->is_playing)
       goto done;
 
-    //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
     l_cur=(GValue *)gst_structure_get_value(structure, "peak");
     size=gst_value_list_get_size(l_cur);
     for(i=0;i<size;i++) {

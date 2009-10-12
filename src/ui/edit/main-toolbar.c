@@ -343,10 +343,8 @@ static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
     if(!self->priv->is_playing)
       goto done;
 
-    //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
-    l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-    //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-    l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+    l_cur=(GValue *)gst_structure_get_value(structure, "decay");
+    l_peak=(GValue *)gst_structure_get_value(structure, "peak");
         
     for(i=0;i<gst_value_list_get_size(l_cur);i++) {
       cur=g_value_get_double(gst_value_list_get_value(l_cur,i));

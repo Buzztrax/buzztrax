@@ -824,7 +824,7 @@ static gboolean bt_machine_enable_part(BtMachine * const self,const BtMachinePar
     case PART_OUTPUT_POST_LEVEL:
       g_object_set(G_OBJECT(self->priv->machines[part]),
         "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-        "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 50.0,
+        "peak-ttl",(GstClockTime)(0.2*GST_SECOND),"peak-falloff", 50.0,
         NULL);
       break;
     default:

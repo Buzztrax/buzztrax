@@ -435,7 +435,7 @@ void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak)
     vumeter->rms_level = CLAMP (rms, vumeter->min, vumeter->max);
     vumeter->peak_level = CLAMP (peak, vumeter->min, vumeter->max);
     
-    if ((old_rms_level != vumeter->rms_level) && (old_peak_level != vumeter->peak_level)) {
+    if ((old_rms_level != vumeter->rms_level) || (old_peak_level != vumeter->peak_level)) {
       gtk_widget_queue_draw (GTK_WIDGET(vumeter));
     }
 }

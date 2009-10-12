@@ -805,10 +805,8 @@ static gboolean on_delayed_idle_track_level_change(gpointer user_data) {
       gdouble cur=0.0, peak=0.0;
       guint i,size;
   
-      //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
-      l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-      //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-      l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+      l_cur=(GValue *)gst_structure_get_value(structure, "decay");
+      l_peak=(GValue *)gst_structure_get_value(structure, "peak");
       size=gst_value_list_get_size(l_cur);
       for(i=0;i<size;i++) {
         cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
