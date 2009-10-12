@@ -1,3 +1,32 @@
+2009/11 ========================================================================
+
+- copy and paste in sequence
+
+2009/10 ========================================================================
+
+After a release it is always not so easy for me to pick what I will work on next.
+I decided to look into copy'n'paste as this is crippling usability right now.
+This sounds like a trivial thing to implement, but its not. Its partially
+difficult because the gtk documentation on that matter leaves a lot to answer.
+With the help of the sources I got it implemented for patterns. One thing that
+worries me right now is that I use GDK_SELECTION_SECONDARY instead of
+GDK_SELECTION_CLIPBOARD (which seems to be the recommended one). In my case I
+have a custom widget to edit structured data. I serialize the data in a textual
+form, but use an own mime-type for copying, as its kind of pointless to paste it
+into e.g. your editor. The mime type thing works. To debug it, I can also
+provide the data as text and then I can paste it in some text editors. What
+puzzles me is that if GDK_SELECTION_CLIPBOARD is used, gtk+ seemingly randomly
+post a GDK_SELECTION_CLEAR in gtk_widget_event_internal() and that clear my copy
+before I have a chance to paste the data. It has something to do with a 
+"selection-clear-event", but again that's only partially documented and the
+other related events are not documented at all.
+
+Besides a few bug fixes, I also did more optimisations on song-loading. There
+are still a few candidates for more optimizations, but some of them require
+quite substantial refactorings. Some of the improvements I already did were on
+the gstreamer side and they are now in the official tree (some already in
+0.10.25 release and some in the next one).
+
 2009/09 ========================================================================
 
 
