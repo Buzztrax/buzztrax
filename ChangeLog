@@ -1,5 +1,14 @@
 2009-10-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-canvas-item.c:
+	  Small refactoring.
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Planning.
+
+2009-10-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Start level decay faster.
 

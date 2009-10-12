@@ -27,11 +27,6 @@
  */
 
 /* @todo: main-page-patterns tasks
- * - cut/copy/paste
- * - add third view for eating remaining space
- * - need dividers for global and voice data (take care of cursor navi)
- *   - 2 pixel wide column?
- *   - extra views (needs dynamic number of view
  * - shortcuts
  *   - Ctrl-S : Smooth
  *     - low pass median filter over changes
@@ -40,8 +35,6 @@
  *     - what mechanism to use:
  *       - gtk_binding_entry_add_signal (do bindings work when not focused?)
  *       - gtk_widget_add_accelerator (can't specify signal params)
- * - copy gtk_cell_renderer_progress -> bt_cell_renderer_pattern_value
- *   - limmit acceptable keys for value entries: http://www.gtk.org/faq/#AEN843
  *
  * - also do controller-assignments like in machine-property window
  *
@@ -52,19 +45,23 @@
  *     -> we could use italic text in all of them
  *       ("style", PANGO_STYLE_ITALIC and "style-set")
  *
- * - play live
- *   - note entry
- *     - support midi keyboard for entering notes and triggers
- *     - have poly-input mode
- *       - if there is a keydown, enter the note
- *       - if there is another keydown before a keyup, go to next track and
- *         enter the note there.
- *       - on keyup, return 'cursor' to that column
- *     - what keys to use for trigger columns?
- *     - should we use shift+note for secondary note in same track (e.g. slide)
+ * - play live note entry
+ *   - support midi keyboard for entering notes and triggers
+ *   - have poly-input mode
+ *     - if there is a keydown, enter the note
+ *     - if there is another keydown before a keyup, go to next track and
+ *       enter the note there.
+ *     - on keyup, return 'cursor' to that column
+ *   - what keys to use for trigger columns?
+ *   - should we use shift+note for secondary note in same track (e.g. slide)
  *
- * - when entering a wave number, its useful to switch the combo to that wave
- *   too, so that subsequent note entries will use that wave
+ * - add the same context menu entries as the machines have in machine view for
+ *   current machine
+ *   - e.g. allow to open machine settings/preferences
+ *     see machine-canvas-item::show_machine_properties_dialog()
+ *     bt_main_page_machines_show_properties_dialog(page,machine);
+ *     bt_main_page_machines_show_preferences_dialog(page,machine);
+ *     .. rename/about/help
  */
 
 #define BT_EDIT

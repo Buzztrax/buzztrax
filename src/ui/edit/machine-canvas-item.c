@@ -66,55 +66,6 @@
 
 #define LOW_VUMETER_VAL -60.0
 
-static void desaturate_pixbuf(GdkPixbuf *pixbuf) {
-  guint x,y,w,h,rowstride,gray;
-  guchar *p;
-
-  g_assert(gdk_pixbuf_get_colorspace(pixbuf)==GDK_COLORSPACE_RGB);
-  g_assert(gdk_pixbuf_get_bits_per_sample(pixbuf)==8);
-  g_assert(gdk_pixbuf_get_has_alpha(pixbuf));
-  g_assert(gdk_pixbuf_get_n_channels(pixbuf)==4);
-
-  w=gdk_pixbuf_get_width(pixbuf);
-  h=gdk_pixbuf_get_height(pixbuf);
-  rowstride=gdk_pixbuf_get_rowstride(pixbuf)-(w*4);
-  p=gdk_pixbuf_get_pixels(pixbuf);
-
-  for(y=0;y<h;y++) {
-    for(x=0;x<w;x++) {
-      gray=((guint)p[0]+(guint)p[1]+(guint)p[2]);
-      p[0]=(guchar)(((guint)p[0]+gray)>>2);
-      p[1]=(guchar)(((guint)p[1]+gray)>>2);
-      p[2]=(guchar)(((guint)p[2]+gray)>>2);
-      p+=4;
-    }
-    p+=rowstride;
-  }
-}
-
-static void alpha_pixbuf(GdkPixbuf *pixbuf) {
-  guint x,y,w,h,rowstride;
-  guchar *p;
-
-  g_assert(gdk_pixbuf_get_colorspace(pixbuf)==GDK_COLORSPACE_RGB);
-  g_assert(gdk_pixbuf_get_bits_per_sample(pixbuf)==8);
-  g_assert(gdk_pixbuf_get_has_alpha(pixbuf));
-  g_assert(gdk_pixbuf_get_n_channels(pixbuf)==4);
-
-  w=gdk_pixbuf_get_width(pixbuf);
-  h=gdk_pixbuf_get_height(pixbuf);
-  rowstride=gdk_pixbuf_get_rowstride(pixbuf)-(w*4);
-  p=gdk_pixbuf_get_pixels(pixbuf);
-
-  for(y=0;y<h;y++) {
-    for(x=0;x<w;x++) {
-      p[3]>>=1;
-      p+=4;
-    }
-    p+=rowstride;
-  }
-}
-
 //-- signal ids
 
 enum {
@@ -185,7 +136,60 @@ static guint signals[LAST_SIGNAL]={0,};
 
 static GnomeCanvasGroupClass *parent_class=NULL;
 
+//-- prototypes
+
+static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer user_data);
+
 //-- helper methods
+
+static void desaturate_pixbuf(GdkPixbuf *pixbuf) {
+  guint x,y,w,h,rowstride,gray;
+  guchar *p;
+
+  g_assert(gdk_pixbuf_get_colorspace(pixbuf)==GDK_COLORSPACE_RGB);
+  g_assert(gdk_pixbuf_get_bits_per_sample(pixbuf)==8);
+  g_assert(gdk_pixbuf_get_has_alpha(pixbuf));
+  g_assert(gdk_pixbuf_get_n_channels(pixbuf)==4);
+
+  w=gdk_pixbuf_get_width(pixbuf);
+  h=gdk_pixbuf_get_height(pixbuf);
+  rowstride=gdk_pixbuf_get_rowstride(pixbuf)-(w*4);
+  p=gdk_pixbuf_get_pixels(pixbuf);
+
+  for(y=0;y<h;y++) {
+    for(x=0;x<w;x++) {
+      gray=((guint)p[0]+(guint)p[1]+(guint)p[2]);
+      p[0]=(guchar)(((guint)p[0]+gray)>>2);
+      p[1]=(guchar)(((guint)p[1]+gray)>>2);
+      p[2]=(guchar)(((guint)p[2]+gray)>>2);
+      p+=4;
+    }
+    p+=rowstride;
+  }
+}
+
+static void alpha_pixbuf(GdkPixbuf *pixbuf) {
+  guint x,y,w,h,rowstride;
+  guchar *p;
+
+  g_assert(gdk_pixbuf_get_colorspace(pixbuf)==GDK_COLORSPACE_RGB);
+  g_assert(gdk_pixbuf_get_bits_per_sample(pixbuf)==8);
+  g_assert(gdk_pixbuf_get_has_alpha(pixbuf));
+  g_assert(gdk_pixbuf_get_n_channels(pixbuf)==4);
+
+  w=gdk_pixbuf_get_width(pixbuf);
+  h=gdk_pixbuf_get_height(pixbuf);
+  rowstride=gdk_pixbuf_get_rowstride(pixbuf)-(w*4);
+  p=gdk_pixbuf_get_pixels(pixbuf);
+
+  for(y=0;y<h;y++) {
+    for(x=0;x<w;x++) {
+      p[3]>>=1;
+      p+=4;
+    }
+    p+=rowstride;
+  }
+}
 
 static void update_machine_graphics(BtMachineCanvasItem *self) {
   GdkPixbuf *pixbuf;
@@ -210,6 +214,19 @@ static void update_machine_graphics(BtMachineCanvasItem *self) {
     "pixbuf",pixbuf,
     NULL);
   g_object_unref(pixbuf);
+}
+
+static void show_machine_properties_dialog(BtMachineCanvasItem *self) {
+  if(!self->priv->properties_dialog) {
+    self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine));
+    GST_INFO("machine properties dialog opened");
+    // remember open/closed state
+    g_hash_table_insert(self->priv->properties,g_strdup("properties-shown"),g_strdup("1"));
+    g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
+  } 
+  else {
+    gtk_window_present(GTK_WINDOW(self->priv->properties_dialog));
+  }
 }
 
 //-- event handler
@@ -501,18 +518,8 @@ static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer u
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
   g_assert(user_data);
-
-  if(!self->priv->properties_dialog) {
-    if((self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine)))) {
-      GST_INFO("machine properties dialog opened");
-      // remember open/closed state
-      g_hash_table_insert(self->priv->properties,g_strdup("properties-shown"),g_strdup("1"));
-      g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
-    }
-  }
-  else {
-    gtk_window_present(GTK_WINDOW(self->priv->properties_dialog));
-  }
+  
+  show_machine_properties_dialog(self);
 }
 
 static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -1089,13 +1096,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   switch (event->type) {
     case GDK_2BUTTON_PRESS:
       GST_DEBUG("GDK_2BUTTON_RELEASE: %d, 0x%x",event->button.button,event->button.state);
-      if(!self->priv->properties_dialog) {
-        self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine));
-        GST_INFO("machine properties dialog opened");
-        // remember open/closed state
-        g_hash_table_insert(self->priv->properties,g_strdup("properties-shown"),g_strdup("1"));
-        g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
-      }
+      show_machine_properties_dialog(self);
       res=TRUE;
       break;
     case GDK_BUTTON_PRESS:

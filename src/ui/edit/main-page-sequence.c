@@ -27,7 +27,6 @@
  */
 
 /* @todo: main-page-sequence tasks
- * - cut/copy/paste
  * - add third view for eating remaining space
  *   - or block cursor moving there
  * - shortcuts
@@ -38,27 +37,30 @@
  * - sequence header
  *   - add the same context menu as the machines have in machine view when
  *     clicking on track headers
+ *     - e.g. allow to open machine settings/preferences
+ *       see also comments on pattern page 
  *   - allow to switch meters (off, level, scope, spectrum)
  * - when we move between tracks, switch the current-machine in pattern-view
  * - pattern list
  *   - go to next occurence when double clicking a pattern
  *   - show tick-length in pattern list
+ *
  * @todo: we should have a track-changed signal
  *  - allowd patternd to sync with selected machine and not passively syncing
  *    (bt_main_page_patterns_show_machine())
  * @idea: add a follow playback checkbox to toolbar to en/disable sequence scrolling
  *   - the scrolling causes quite some repaints and thus slowness
  *   - it would be good if we could deoouple the scolling and the events, so
- *     that we e.g. scroll 10 times a second to the latest position (same for level meters)
+ *     that we e.g. scroll 10 times a second to the latest position
  * @idea: bold row,label for cursor row
  *   - makes it easier to follow position in wide sequences
  *     (same needed for pattern view)
  *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
- * - hovering the mouse over the treeview causes rebraws for the whole lines
+ * - hovering the mouse over the treeview causes redraws for the whole lines
  *   - cells are asked to do prelight, even if they wouldn't draw anything else
- *   http://www.gtk.org/plan/meetings/20041025.txt
+ *     http://www.gtk.org/plan/meetings/20041025.txt
  */
 
 #define BT_EDIT
