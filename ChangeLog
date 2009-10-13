@@ -1,3 +1,12 @@
+2009-10-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* src/ui/edit/btmemoryaudiosrc.c:
+	  Add missing docs.
+
+	* tests/Makefile.am:
+	  Use $(LIBTOOL) instead of hardcoded one.
+
 2009-10-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-canvas-item.c:

@@ -145,7 +145,7 @@ clean-local:
 %.gdb: %
 	CK_FORK=no				\
 	CK_DEFAULT_TIMEOUT=20	\
-	libtool --mode=execute	\
+	$(LIBTOOL) --mode=execute	\
 	gdb ./$*
 
 ## todo: check if code has been compiled using --enable-debug
