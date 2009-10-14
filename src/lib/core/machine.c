@@ -2750,9 +2750,6 @@ void bt_machine_randomize_parameters(const BtMachine * const self) {
  * Resets machine parameters back to defaults.
  */
 void bt_machine_reset_parameters(const BtMachine * const self) {
-  /* @todo: should we have bt_machine_reset_{global,voice}_parameter() and use
-   * below? could also be used from context menu in machine window.
-   */
   GObject *machine=G_OBJECT(self->priv->machines[PART_MACHINE]),*voice;
   GValue gvalue={0,};
   gulong i,j;

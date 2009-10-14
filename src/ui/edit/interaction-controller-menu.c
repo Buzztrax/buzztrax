@@ -129,19 +129,21 @@ static void on_control_learn_activated(GtkMenuItem *menuitem, gpointer user_data
 
 //-- helper methods
 
-static void bt_interaction_controller_menu_init_control_menu(const BtInteractionControllerMenu *self,GtkWidget *submenu,BtIcDevice *device) {
+static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInteractionControllerMenu *self,BtIcDevice *device) {
   BtIcControl *control=NULL;
   GtkWidget *menu_item;
   GList *node,*list;
   gchar *str;
+  GtkWidget *submenu=NULL;
 
   // add learn function entry for device which implement the BtIcLearn interface
-  if( BTIC_IS_LEARN(device) )
-  {
+  if(BTIC_IS_LEARN(device)) {
+    submenu=gtk_menu_new();
     menu_item=gtk_image_menu_item_new_with_label(_("Learn..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
     g_object_set_qdata(G_OBJECT(menu_item),widget_parent_quark,(gpointer)self);
     gtk_widget_show(menu_item);
+    // connect handler
     g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_control_learn_activated),device);
   }
 
@@ -164,6 +166,9 @@ static void bt_interaction_controller_menu_init_control_menu(const BtInteraction
 
     g_object_get(G_OBJECT(control),"name",&str,NULL);
 
+    if(!submenu) {
+      submenu=gtk_menu_new();
+    }
     menu_item=gtk_image_menu_item_new_with_label(str);
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
     g_object_set_qdata(G_OBJECT(menu_item),widget_parent_quark,(gpointer)self);
@@ -174,6 +179,8 @@ static void bt_interaction_controller_menu_init_control_menu(const BtInteraction
     g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_control_bind_activated),(gpointer)control);
   }
   g_list_free(list);
+  
+  return(submenu);
 }
 
 static void bt_interaction_controller_menu_init_device_menu(const BtInteractionControllerMenu *self,GtkWidget *submenu) {
@@ -188,16 +195,18 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
   g_object_get(ic_registry,"devices",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     device=BTIC_DEVICE(node->data);
-    g_object_get(G_OBJECT(device),"name",&str,NULL);
 
-    menu_item=gtk_image_menu_item_new_with_label(str);
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
-    gtk_widget_show(menu_item);
-    g_free(str);
+    // only create items for non-empty submenus 
+    if((parentmenu=bt_interaction_controller_menu_init_control_menu(self,device))) {
+      g_object_get(G_OBJECT(device),"name",&str,NULL);
+  
+      menu_item=gtk_image_menu_item_new_with_label(str);
+      gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+      gtk_widget_show(menu_item);
+      g_free(str);
 
-    parentmenu=gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
-    bt_interaction_controller_menu_init_control_menu(self,parentmenu,device);
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
+    }    
   }
   g_list_free(list);
 }

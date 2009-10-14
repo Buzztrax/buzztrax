@@ -1,3 +1,17 @@
+2009-10-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Remove a now obsolete todo.
+
+	* src/ui/edit/interaction-controller-menu.c:
+	  Don't create empty submenus.
+
+	* src/ui/edit/machine-menu.c:
+	  Add comments.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Add "reset" and "reset all" items to context menu.
+
 2009-10-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-edit/buzztard-edit-docs.sgml:

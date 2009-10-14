@@ -27,11 +27,7 @@
  * allows to editing and manage presets for machines that support them.
  */
 
-/* @todo: its not good that we call the interaction controller menu such
- * - we would like to have also 'reset' and 'reset all' there
- *   to reset parameters to their defaults (which is unrelated to interaction
- *   controller)
- * @todo: play machines
+/* @todo: play machines
  * - we want to assign a note-controller to a machines note-trigger property
  *   and boolean-trigger controller to machines trigger properties
  *   - right now we don't show widgets for these
@@ -187,11 +183,11 @@ static void on_control_bind(const BtInteractionControllerMenu *menu,GParamSpec *
 
 static void on_control_unbind(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-  BtInteractionControllerMenu *menu;
+  GtkWidget *menu;
   GstObject *object;
   gchar *property_name;
 
-  menu=BT_INTERACTION_CONTROLLER_MENU(gtk_widget_get_parent(GTK_WIDGET(menuitem)));
+  menu=gtk_widget_get_parent(GTK_WIDGET(menuitem));
 
   object=g_object_get_qdata(G_OBJECT(menu),control_object_quark);
   property_name=g_object_get_qdata(G_OBJECT(menu),control_property_quark);
@@ -205,6 +201,35 @@ static void on_control_unbind_all(GtkMenuItem *menuitem,gpointer user_data) {
 
   bt_machine_unbind_parameter_controls(self->priv->machine);
 }
+
+static void on_parameter_reset(GtkMenuItem *menuitem,gpointer user_data) {
+  //BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GtkWidget *menu;
+  GObject *object;
+  gchar *property_name;
+  GParamSpec *pspec;
+
+  menu=gtk_widget_get_parent(GTK_WIDGET(menuitem));
+
+  object=g_object_get_qdata(G_OBJECT(menu),control_object_quark);
+  property_name=g_object_get_qdata(G_OBJECT(menu),control_property_quark);
+  
+  if((pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name))) {
+    GValue gvalue={0,};
+
+    g_value_init(&gvalue, pspec->value_type);
+    g_param_value_set_default (pspec, &gvalue);
+    g_object_set_property (object, property_name, &gvalue);
+    g_value_unset(&gvalue);
+  }
+}
+
+static void on_parameter_reset_all(GtkMenuItem *menuitem,gpointer user_data) {
+  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+
+  bt_machine_reset_parameters(self->priv->machine);
+}
+
 
 //-- event handler
 
@@ -376,9 +401,10 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
   if(event->type == GDK_BUTTON_PRESS) {
     if(event->button == 3) {
       GtkMenu *menu;
+      GtkWidget *menu_item;
       GtkWidget *item_unbind,*item_unbind_all;
 
-      // show context menu
+      // create context menu
       menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,type));
       g_object_get(G_OBJECT(menu),"item-unbind",&item_unbind,"item-unbind-all",&item_unbind_all,NULL);
       g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
@@ -386,6 +412,23 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_control_bind),(gpointer)self);
       g_signal_connect(G_OBJECT(item_unbind),"activate",G_CALLBACK(on_control_unbind),(gpointer)self);
       g_signal_connect(G_OBJECT(item_unbind_all),"activate",G_CALLBACK(on_control_unbind_all),(gpointer)self);
+
+      // add extra items
+      menu_item=gtk_separator_menu_item_new();
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+      gtk_widget_set_sensitive(menu_item,FALSE);
+      gtk_widget_show(menu_item);
+    
+      menu_item=gtk_image_menu_item_new_with_label(_("Reset parameter"));
+      g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_parameter_reset),(gpointer)self);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+      gtk_widget_show(menu_item);
+
+      menu_item=gtk_image_menu_item_new_with_label(_("Reset all parameters"));
+      g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_parameter_reset_all),(gpointer)self);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+      gtk_widget_show(menu_item);
+
       gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
       res=TRUE;
     }
