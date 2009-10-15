@@ -261,7 +261,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     // - but its good for ladspa-, bml-, lv2-
     // - so, how can we detect wrapper plugins?
     // @bug: see http://bugzilla.gnome.org/show_bug.cgi?id=571832
-    if((plugin_name=GST_PLUGIN_FEATURE(factory)->plugin_name))) {
+    if((plugin_name=GST_PLUGIN_FEATURE(factory)->plugin_name)) {
       gint len=strlen(plugin_name);
       
       GST_LOG("%s:%s, %c",plugin_name,menu_name,menu_name[len]);
