@@ -1,5 +1,13 @@
 2009-10-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/interaction-controller-menu.c:
+	  Add idea.
+
+	* src/ui/edit/settings-page-interaction-controller.c:
+	  Add controller list (more to come).
+
+2009-10-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Collect news.
 

@@ -169,6 +169,7 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
     if(!submenu) {
       submenu=gtk_menu_new();
     }
+    /* @todo: add icon: trigger=button, range=knob/slider (from glade?) */
     menu_item=gtk_image_menu_item_new_with_label(str);
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
     g_object_set_qdata(G_OBJECT(menu_item),widget_parent_quark,(gpointer)self);
