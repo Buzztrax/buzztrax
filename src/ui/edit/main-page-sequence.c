@@ -3121,9 +3121,6 @@ static void sequence_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData
 
 static void sequence_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) {
   GST_INFO("freeing clipboard data, data=%p",data);
-  // for some bizzard reasons when using GDK_SELECTION_CLIPBOARD,
-  // something triggers a GDK_SELECTION_CLEAR getting processed
-  // by gtk_widget_event_internal, and this in turn clears my clipboard copy right away
   g_free(data);
 }
 
@@ -3217,7 +3214,8 @@ void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self) {
 void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
   if(self->priv->selection_start_row!=-1 && self->priv->selection_start_column!=-1) {
     //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
-    GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->sequence_table),GDK_SELECTION_SECONDARY);
+    //GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->sequence_table),GDK_SELECTION_SECONDARY);
+    GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->sequence_table),GDK_SELECTION_CLIPBOARD);
     GtkTargetList *list;
     GtkTargetEntry *targets;
     gint n_targets;
@@ -3409,7 +3407,8 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
  */
 void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self) {
   //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
-  GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->sequence_table),GDK_SELECTION_SECONDARY);
+  //GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->sequence_table),GDK_SELECTION_SECONDARY);
+  GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->sequence_table),GDK_SELECTION_CLIPBOARD);
 
   gtk_clipboard_request_contents(cb,sequence_atom,sequence_clipboard_received_func,(gpointer)self);
 }

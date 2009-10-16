@@ -1,6 +1,10 @@
 2009/11 ========================================================================
 
 - copy and paste in sequence
+  //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+  GtkClipboard *cb=gtk_widget_get_clipboard(widget,GDK_SELECTION_CLIPBOARD);
+- file-chooser filter fix
+  http://bugzilla.gnome.org/show_bug.cgi?id=581873
 
 2009/10 ========================================================================
 

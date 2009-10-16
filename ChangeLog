@@ -1,3 +1,14 @@
+2009-10-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect news.
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Use GDK_SELECTION_CLIPBOARD for widget and not for screen. Seems to fix
+	  the issue with the lost content and allows to paste the data in a debug
+	  build to a text editor.
+
 2009-10-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-window.c:

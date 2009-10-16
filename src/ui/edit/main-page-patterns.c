@@ -2670,9 +2670,6 @@ static void pattern_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData 
 
 static void pattern_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) {
   GST_INFO("freeing clipboard data, data=%p",data);
-  // for some bizzard reasons when using GDK_SELECTION_CLIPBOARD,
-  // something triggers a GDK_SELECTION_CLEAR getting processed
-  // by gtk_widget_event_internal, and this in turn clears my clipboard copy right away
   g_free(data);
 }
 
@@ -2711,7 +2708,8 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
   gint beg,end,group,param;
   if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
     //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
-    GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_SECONDARY);
+    //GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_SECONDARY);
+    GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_CLIPBOARD);
     GtkTargetList *list;
     GtkTargetEntry *targets;
     gint n_targets;
@@ -2916,7 +2914,8 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
  */
 void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
   //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
-  GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_SECONDARY);
+  //GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_SECONDARY);
+  GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_CLIPBOARD);
 
   gtk_clipboard_request_contents(cb,pattern_atom,pattern_clipboard_received_func,(gpointer)self);
 }
