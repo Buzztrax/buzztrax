@@ -525,8 +525,8 @@ static GstClockTime bt_sequence_get_tick_time(const BtSequence * const self,cons
  */
 static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _value,gpointer user_data) {
   gconstpointer * const hash_params=(gconstpointer *)user_data;
-  const BtSequence * const self=BT_SEQUENCE(hash_params[0]);
-  const BtMachine * const machine=BT_MACHINE(hash_params[1]);
+  const BtSequence * const self=(BtSequence *)(hash_params[0]);
+  const BtMachine * const machine=(BtMachine *)(hash_params[1]);
   const gulong param=GPOINTER_TO_UINT(hash_params[2]);
   const gulong tick=GPOINTER_TO_UINT(key);
   glong i,j;
@@ -573,8 +573,8 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
  */
 static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _value,gpointer user_data) {
   gconstpointer *hash_params=(gconstpointer *)user_data;
-  const BtSequence * const self=BT_SEQUENCE(hash_params[0]);
-  const BtMachine * const machine=BT_MACHINE(hash_params[1]);
+  const BtSequence * const self=(BtSequence *)(hash_params[0]);
+  const BtMachine * const machine=(BtMachine *)(hash_params[1]);
   const gulong param=GPOINTER_TO_UINT(hash_params[2]);
   const gulong voice=GPOINTER_TO_UINT(hash_params[3]);
   const gulong tick=GPOINTER_TO_UINT(key);
@@ -622,8 +622,8 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
  */
 static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _value,gpointer user_data) {
   gconstpointer *hash_params=(gconstpointer *)user_data;
-  const BtSequence * const self=BT_SEQUENCE(hash_params[0]);
-  const BtMachine * const machine=BT_MACHINE(hash_params[1]);
+  const BtSequence * const self=(BtSequence *)(hash_params[0]);
+  const BtMachine * const machine=(BtMachine *)(hash_params[1]);
   const gulong param=GPOINTER_TO_UINT(hash_params[2]);
   const BtWire *wire=BT_WIRE(hash_params[3]);
   const gulong tick=GPOINTER_TO_UINT(key);

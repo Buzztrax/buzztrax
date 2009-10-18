@@ -543,8 +543,8 @@ GValue *bt_pattern_get_global_event_data(const BtPattern * const self, const gul
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
   g_return_val_if_fail(self->priv->data,NULL);
 
-  if(!(tick<self->priv->length)) { GST_WARNING("tick=%lu beyond length=%lu in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
-  if(!(param<self->priv->global_params)) { GST_WARNING("param=%lu beyond global_params=%lu in pattern '%s'",param,self->priv->global_params,self->priv->id);return(NULL); }
+  if(G_UNLIKELY(!(tick<self->priv->length))) { GST_WARNING("tick=%lu beyond length=%lu in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
+  if(G_UNLIKELY(!(param<self->priv->global_params))) { GST_WARNING("param=%lu beyond global_params=%lu in pattern '%s'",param,self->priv->global_params,self->priv->id);return(NULL); }
 
   //GST_DEBUG("getting gvalue pattern=%s at tick=%lu/%lu and global param %lu/%lu",self->priv->id,tick,self->priv->length,param,self->priv->global_params);
   
@@ -568,13 +568,12 @@ GValue *bt_pattern_get_global_event_data(const BtPattern * const self, const gul
  * Returns: the GValue or %NULL if out of the pattern range
  */
 GValue *bt_pattern_get_voice_event_data(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param) {
-
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
   g_return_val_if_fail(self->priv->data,NULL);
 
-  if(!(tick<self->priv->length)) { GST_ERROR("tick=%lu beyond length=%lu in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
-  if(!(voice<self->priv->voices)) { GST_ERROR("voice=%lu beyond voices=%lu in pattern '%s'",voice,self->priv->voices,self->priv->id);return(NULL); }
-  if(!(param<self->priv->voice_params)) { GST_ERROR("param=%lu beyond voice_params=%lu in pattern '%s'",param,self->priv->voice_params,self->priv->id);return(NULL); }
+  if(G_UNLIKELY(!(tick<self->priv->length))) { GST_ERROR("tick=%lu beyond length=%lu in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
+  if(G_UNLIKELY(!(voice<self->priv->voices))) { GST_ERROR("voice=%lu beyond voices=%lu in pattern '%s'",voice,self->priv->voices,self->priv->id);return(NULL); }
+  if(G_UNLIKELY(!(param<self->priv->voice_params))) { GST_ERROR("param=%lu beyond voice_params=%lu in pattern '%s'",param,self->priv->voice_params,self->priv->id);return(NULL); }
 
   const gulong index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
        +       internal_params+self->priv->global_params+(voice*self->priv->voice_params)
@@ -698,7 +697,6 @@ gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong t
  * Returns: a newly allocated string with the data or %NULL on error
  */
 gchar *bt_pattern_get_global_event(const BtPattern * const self, const gulong tick, const gulong param) {
-
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
   g_return_val_if_fail(tick<self->priv->length,NULL);
 
@@ -722,7 +720,6 @@ gchar *bt_pattern_get_global_event(const BtPattern * const self, const gulong ti
  * Returns: a newly allocated string with the data or %NULL on error
  */
 gchar *bt_pattern_get_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param) {
-
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
   g_return_val_if_fail(tick<self->priv->length,NULL);
 
@@ -745,7 +742,6 @@ gchar *bt_pattern_get_voice_event(const BtPattern * const self, const gulong tic
  * Returns: %TRUE if there is an event
  */
 gboolean bt_pattern_test_global_event(const BtPattern * const self, const gulong tick, const gulong param) {
-
   g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
   g_return_val_if_fail(tick<self->priv->length,FALSE);
 
@@ -769,7 +765,6 @@ gboolean bt_pattern_test_global_event(const BtPattern * const self, const gulong
  * Returns: %TRUE if there is an event
  */
 gboolean bt_pattern_test_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param) {
-
   g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
   g_return_val_if_fail(tick<self->priv->length,FALSE);
 
@@ -791,7 +786,6 @@ gboolean bt_pattern_test_voice_event(const BtPattern * const self, const gulong 
  * Returns: the command id
  */
 BtPatternCmd bt_pattern_get_cmd(const BtPattern * const self, const gulong tick) {
-
   g_return_val_if_fail(BT_IS_PATTERN(self),BT_PATTERN_CMD_NORMAL);
   g_return_val_if_fail(tick<self->priv->length,BT_PATTERN_CMD_NORMAL);
 

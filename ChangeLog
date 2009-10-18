@@ -1,5 +1,14 @@
 2009-10-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire-pattern.c:
+	  Add branch hinting to pre-condition checks.
+
+	* src/lib/core/sequence.c:
+	  Remove expensive type cehcks in sequence updates.
+
+2009-10-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-menu.c:
 	  Don't cut prefix for non wrapper plugins.
 

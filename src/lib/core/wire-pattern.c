@@ -223,13 +223,11 @@ BtWirePattern *bt_wire_pattern_copy(const BtWirePattern * const self, const BtPa
  * Returns: the GValue or %NULL if out of the pattern range
  */
 GValue *bt_wire_pattern_get_event_data(const BtWirePattern * const self, const gulong tick, const gulong param) {
-
   g_return_val_if_fail(BT_IS_WIRE_PATTERN(self),NULL);
-  g_return_val_if_fail(tick<self->priv->length,NULL);
   g_return_val_if_fail(self->priv->data,NULL);
 
-  if(!(tick<self->priv->length)) { GST_ERROR("tick=%lu beyond length=%lu in wire-pattern",tick,self->priv->length);return(NULL); }
-  if(!(param<self->priv->num_params)) { GST_ERROR("param=%lu beyond num_params=%lu in wire-pattern",param,self->priv->num_params);return(NULL); }
+  if(G_UNLIKELY(!(tick<self->priv->length))) { GST_ERROR("tick=%lu beyond length=%lu in wire-pattern",tick,self->priv->length);return(NULL); }
+  if(G_UNLIKELY(!(param<self->priv->num_params))) { GST_ERROR("param=%lu beyond num_params=%lu in wire-pattern",param,self->priv->num_params);return(NULL); }
 
   const gulong index=(tick*self->priv->num_params)+param;
 
@@ -296,7 +294,6 @@ gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulon
  * Returns: a newly allocated string with the data or %NULL on error
  */
 gchar *bt_wire_pattern_get_event(const BtWirePattern * const self, const gulong tick, const gulong param) {
-
   g_return_val_if_fail(BT_IS_WIRE_PATTERN(self),NULL);
   g_return_val_if_fail(tick<self->priv->length,NULL);
 
