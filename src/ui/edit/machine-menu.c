@@ -139,8 +139,10 @@ static gboolean bt_machine_menu_check_pads(const GList *pads) {
     pad_dir_ct[((GstStaticPadTemplate *)(node->data))->direction]++;
   }
   // skip everything with more that one src or sink pad
-  if((pad_dir_ct[GST_PAD_SRC]>1) || (pad_dir_ct[GST_PAD_SINK]>1))
+  if((pad_dir_ct[GST_PAD_SRC]>1) || (pad_dir_ct[GST_PAD_SINK]>1)) {
+    GST_INFO("%d src pads, %d sink pads", pad_dir_ct[GST_PAD_SRC], pad_dir_ct[GST_PAD_SINK]);
     return FALSE;
+  }
   return TRUE;
 }
 
@@ -164,7 +166,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
 
     // skip elements with too many pads
     if(!(bt_machine_menu_check_pads(gst_element_factory_get_static_pad_templates(factory)))) {
-      GST_INFO("skipping element : '%s'",(gchar *)node->data);
+      GST_INFO("skipping uncompatible element : '%s'",(gchar *)node->data);
       goto next;
     }
 

@@ -45,10 +45,14 @@
  *     muted, can't differenciate mute from bypass on an fx
  * - have less saturated images for not yet connected machines
  *
- * @todo: add alpha channel to pixbuf, when moving
- * - gdk_pixbuf_add_alpha(), see put_pixel() example in GdkPixbuf docs
  *
  * @todo: add insert before/after to context menu (see wire-canvas item)
+ *
+ * @todo: play machines live (midi keyboard for playing notes and triggers)
+ *   - for source-machine context menu add
+ *     - one item "play with > [list of keyboard]"
+ *     - one more item to disconnect
+ *   - playing multiple machines with a split keyboard would be nice too
  *
  * @todo: "remove and relink" is difficult if there are non empty wire patterns
  * - those would need to be copies to new target machine(s) and we would need to

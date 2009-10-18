@@ -168,7 +168,11 @@ static gboolean bt_settings_page_interaction_controller_init_ui(const BtSettings
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
   self->priv->device_menu=GTK_COMBO_BOX(gtk_combo_box_new());
-  /* @todo: add icon: midi, joystick (from hal?) */
+  /* @todo: add icon: midi, joystick (from hal?)
+   * /usr/share/icons/gnome/24x24/stock/media/stock_midi.png
+   * /usr/share/gtk-doc/html/libgimpwidgets/stock-controller-midi-16.png
+   * /usr/share/icons/Tango/22x22/devices/joystick.png
+   */
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
@@ -190,7 +194,10 @@ static gboolean bt_settings_page_interaction_controller_init_ui(const BtSettings
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->controller_list=GTK_TREE_VIEW(gtk_tree_view_new());
-  /* @todo: add icon: trigger=button, range=knob/slider (from glade?) */
+  /* @todo: add icon: trigger=button, range=knob/slider (from glade?)
+   * /usr/share/glade3/pixmaps/hicolor/22x22/actions/
+   * /usr/share/icons/gnome/22x22/apps/volume-knob.png
+   */
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
