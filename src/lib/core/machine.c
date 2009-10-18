@@ -1218,6 +1218,7 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
       if(!(bt_machine_make_internal_element(self,PART_CAPS_FILTER,"capsfilter","capsfilter"))) goto Error;
     }
     // adder does not link directly to some elements
+    // @todo: what fails? wires have a converter too
     if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
     if(!BT_IS_SINK_MACHINE(self)) {
       // only do this for the final mix

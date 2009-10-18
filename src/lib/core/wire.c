@@ -62,9 +62,22 @@ enum {
   WIRE_ANALYZERS
 };
 
+/* @todo: can we remove PART_CONVERT, GAIN does convert the most formats
+ * and PAN does the channels
+ * before:
+ * $ GST_DEBUG_NO_COLOR=1 GST_DEBUG="bt-core:3" ./buzztard-cmd 2>&1 --command=play --input-file=../share/buzztard/songs/buzz/Aehnatron-noPrimiFun.bmw | grep "async"
+ * 0:00:03.026636093   790  0x8053558 INFO                 bt-core song.c:692:bt_song_play: ->PAUSED needs async wait
+ * 0:00:06.765806842   790  0x8053558 INFO                 bt-core song.c:480:on_song_async_done: async state-change done
+ * after:
+ * $ GST_DEBUG_NO_COLOR=1 GST_DEBUG="bt-core:3" ./buzztard-cmd 2>&1 --command=play --input-file=../share/buzztard/songs/buzz/Aehnatron-noPrimiFun.bmw | grep "async"
+ * 0:00:01.989507128  2332  0x8053558 INFO                 bt-core song.c:692:bt_song_play: ->PAUSED needs async wait
+ * 0:00:03.615313164  2332  0x8053558 INFO                 bt-core song.c:480:on_song_async_done: async state-change done
+ */
+#define WITHOUT_CONVERT 1
+
 // capsfiter, convert, pan, volume are gap-aware
 typedef enum {
-  /* source element in the wire for convinience */
+  /* source element alias in the wire for convinience */
   PART_SRC=0,
   /* queue to avoid blocking when src has a spreader */
   PART_QUEUE,
@@ -75,11 +88,9 @@ typedef enum {
   /* wire format conversion elements */
   PART_CONVERT,
   /*PART_SCALE, unused right now */
-  /* @todo: can we remove PART_CONVERT, GAIN does convert the most formats
-     and pan does the channels
-  */
+  /* panorama / balance */
   PART_PAN,
-  /* target element in the wire for convinience */
+  /* target element alias in the wire for convinience */
   PART_DST,
   /* how many elements are used */
   PART_COUNT
@@ -174,7 +185,7 @@ static gboolean bt_wire_make_internal_element(const BtWire * const self, const B
   // add internal element
   gchar * const name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
-    GST_ERROR("failed to create %s from factory %s",element_name,factory_name);goto Error;
+    GST_WARNING_OBJECT(self,"failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
   gst_bin_add(GST_BIN(self),self->priv->machines[part]);
   res=TRUE;
@@ -466,22 +477,31 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   gst_object_unref(dst_machine);
   
   GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
+#ifndef WITHOUT_CONVERT
   /* if we try linking without audioconvert and this links to an adder,
    * then the first link enforces the format (if first is mono and later stereo
    * signal is linked, this is downgraded).
-   * Right now we need to do this, because of http://bugzilla.gnome.org/show_bug.cgi?id=418982
+   * Right now we need to do this, because of http://bugzilla.gnome.org/show_bug.cgi?id=418982 (this is closed, not a bug)
    */
   if(!machines[PART_CONVERT]) {
     bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
-    g_object_set(machines[PART_CONVERT],"dithering",0,"noise-shaping",0,NULL);
     g_assert(machines[PART_CONVERT]!=NULL);
+    g_object_set(machines[PART_CONVERT],"dithering",0,"noise-shaping",0,NULL);
   }
+#endif
   if(machines[PART_PAN]) {
     GST_DEBUG("trying to link machines with pan");
+#ifdef WITHOUT_CONVERT
+    if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_PAN], NULL))) {
+      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_PAN], NULL);
+      GST_WARNING("failed to link machines with pan");
+    }
+#else
     if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL))) {
       gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL);
       GST_WARNING("failed to link machines with pan");
     }
+#endif
     else {
       machines[PART_SRC]=machines[PART_QUEUE];
       machines[PART_DST]=machines[PART_PAN];
@@ -490,6 +510,17 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   }
   else {
     GST_DEBUG("trying to link machines without pan");
+#ifdef WITHOUT_CONVERT
+    if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], NULL))) {
+      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], NULL);
+      GST_WARNING("failed to link machines without pan");
+    }
+    else {
+      machines[PART_SRC]=machines[PART_QUEUE];
+      machines[PART_DST]=machines[PART_GAIN];
+      GST_DEBUG("  wire okay without pan");
+    }
+#else
     if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL))) {
       gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL);
       GST_WARNING("failed to link machines without pan");
@@ -499,6 +530,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
       machines[PART_DST]=machines[PART_CONVERT];
       GST_DEBUG("  wire okay without pan");
     }
+#endif
   }
   if(res) {
     // update ghostpads
@@ -570,12 +602,21 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
   // check if wire has been properly initialized
   if(self->priv->src && self->priv->dst && machines[PART_TEE] && machines[PART_GAIN]) {
     GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src),GST_OBJECT_NAME(self->priv->dst));
+#ifdef WITHOUT_CONVERT
+    if(machines[PART_PAN]) {
+      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_PAN], NULL);
+    }
+    else {
+      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], NULL);
+    }
+#else
     if(machines[PART_PAN]) {
       gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL);
     }
     else {
       gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL);
     }
+#endif
   }
   /*
     if(machines[PART_CONVERT]) {

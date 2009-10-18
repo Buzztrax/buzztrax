@@ -1,6 +1,13 @@
 2009-10-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	  Potential massive performance gain in loading and time to play. For now
+	  enabled by default. If it works, we can make it permanent.
+
+2009-10-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
 	  Get rid of some more double type-checks.
 
 2009-10-18  Stefan Kost  <ensonic@users.sf.net>
