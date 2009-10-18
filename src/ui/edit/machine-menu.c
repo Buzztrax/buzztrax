@@ -256,12 +256,11 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     }
 
     menu_name=gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory));
-    // cut plugin name from elemnt names
-    // @fixme: this is not so good for equalizer(-nbands,-10bands,-3bands)
-    // - but its good for ladspa-, bml-, lv2-
-    // - so, how can we detect wrapper plugins?
+    // cut plugin name from elemnt names for wrapper plugins
+    // so, how can we detect wrapper plugins? -> we only filter, if plugin_name
+    // is also in klass_name (for now we just check if klass_name is !empty)
     // @bug: see http://bugzilla.gnome.org/show_bug.cgi?id=571832
-    if((plugin_name=GST_PLUGIN_FEATURE(factory)->plugin_name)) {
+    if(BT_IS_STRING(klass_name) && (plugin_name=GST_PLUGIN_FEATURE(factory)->plugin_name)) {
       gint len=strlen(plugin_name);
       
       GST_LOG("%s:%s, %c",plugin_name,menu_name,menu_name[len]);
