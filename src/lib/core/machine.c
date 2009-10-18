@@ -274,20 +274,19 @@ static GstElement *bt_machine_get_peer(GstElement * const elem, GstIterator *it)
   GstElement *peer=NULL;
   gboolean done=FALSE;
   gpointer item;
-  GstPad *pad,*peer_pad;
+  GstPad *peer_pad;
 
   if(!it) return(NULL);
 
   while (!done) {
     switch (gst_iterator_next (it, &item)) {
       case GST_ITERATOR_OK:
-        pad=GST_PAD(item);
-        if((peer_pad=gst_pad_get_peer(pad))) {
-          peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad)));
+        if((peer_pad=gst_pad_get_peer(item))) {
+          peer=gst_pad_get_parent_element(peer_pad);
           gst_object_unref(peer_pad);
           done=TRUE;
         }
-        gst_object_unref(pad);
+        gst_object_unref(item);
         break;
       case GST_ITERATOR_RESYNC:
         gst_iterator_resync(it);
@@ -695,7 +694,7 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
   name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
   //name=g_alloca(strlen(element_name)+16+1+strlen(self->priv->id));g_sprintf(name,"%s_%p_%s",element_name,self,self->priv->id);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
-    GST_WARNING("failed to create %s from factory %s",element_name,factory_name);goto Error;
+    GST_WARNING_OBJECT(self,"failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
   gst_bin_add(GST_BIN(self),self->priv->machines[part]);
   res=TRUE;
@@ -1782,7 +1781,7 @@ glong bt_machine_get_voice_wave_param_index(const BtMachine * const self) {
  * Returns: %TRUE if it has a default there
  */
 static gboolean bt_machine_has_global_param_default_set(const BtMachine * const self, const gulong index) {
-  GObject *param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
+  GObject *param_parent=(GObject*)(self->priv->machines[PART_MACHINE]);
   return GPOINTER_TO_INT(g_object_get_qdata(param_parent,self->priv->global_quarks[index]));
 }
 
@@ -1800,7 +1799,7 @@ static gboolean bt_machine_has_global_param_default_set(const BtMachine * const 
  * Returns: %TRUE if it has a default there
  */
 static gboolean bt_machine_has_voice_param_default_set(const BtMachine * const self, const gulong voice, const gulong index) {
-  GObject *param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice));
+  GObject *param_parent=(GObject*)(gst_child_proxy_get_child_by_index((GstChildProxy*)(self->priv->machines[PART_MACHINE]),voice));
   gboolean result=GPOINTER_TO_INT(g_object_get_qdata(param_parent,self->priv->voice_quarks[index]));
   g_object_unref(param_parent);
   return(result);
@@ -2356,11 +2355,6 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       }
     }
     else {
-#ifndef GST_DISABLE_GST_DEBUG
-      if(G_VALUE_TYPE(value)!=GLOBAL_PARAM_TYPE(param)) {
-        GST_INFO(" wrong type for global property %s, type=%s, but expecting %s",self->priv->id,g_type_name(G_VALUE_TYPE(value)),g_type_name(GLOBAL_PARAM_TYPE(param)));
-      }
-#endif
       if(G_UNLIKELY(add)) {
         GstController *ctrl;
         gboolean is_trigger=bt_machine_is_global_param_trigger(self,param);
@@ -2427,7 +2421,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
   g_return_if_fail(voice<self->priv->voices);
   g_return_if_fail(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]));
 
-  param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice));
+  param_parent=(GObject*)(gst_child_proxy_get_child_by_index((GstChildProxy*)(self->priv->machines[PART_MACHINE]),voice));
   param_name=VOICE_PARAM_NAME(param);
   cs=self->priv->voice_control_sources[voice*self->priv->voice_params+param];
 
@@ -2460,11 +2454,6 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
       }
     }
     else {
-#ifndef GST_DISABLE_GST_DEBUG
-      if(G_VALUE_TYPE(value)!=VOICE_PARAM_TYPE(param)) {
-        GST_INFO(" wrong type for voice property %s, type=%s, but expecting %s",self->priv->id,g_type_name(G_VALUE_TYPE(value)),g_type_name(GLOBAL_PARAM_TYPE(param)));
-      }
-#endif
       if(G_UNLIKELY(add)) {
         GstController *ctrl;
         gboolean is_trigger=bt_machine_is_voice_param_trigger(self,param);

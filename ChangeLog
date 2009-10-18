@@ -1,5 +1,10 @@
 2009-10-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Get rid of some more double type-checks.
+
+2009-10-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-menu.c:
 	  More logging.
 
