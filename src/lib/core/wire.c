@@ -62,8 +62,14 @@ enum {
   WIRE_ANALYZERS
 };
 
-/* @todo: can we remove PART_CONVERT, GAIN does convert the most formats
- * and PAN does the channels
+/* @todo: can we remove PART_CONVERT?
+ * - PAN adjusts the channels
+ * - GAIN accepts most formats, but does not convert
+ * - currently it breaks when e.g. using one buzzmachine and fluidsynth
+ * - adding audioconvert on demand is not so easy, we would need to do it
+ *   from bt_machine_renegotiate_adder_format()
+ *
+ * it would significantly improve the performance
  * before:
  * $ GST_DEBUG_NO_COLOR=1 GST_DEBUG="bt-core:3" ./buzztard-cmd 2>&1 --command=play --input-file=../share/buzztard/songs/buzz/Aehnatron-noPrimiFun.bmw | grep "async"
  * 0:00:03.026636093   790  0x8053558 INFO                 bt-core song.c:692:bt_song_play: ->PAUSED needs async wait
@@ -73,7 +79,7 @@ enum {
  * 0:00:01.989507128  2332  0x8053558 INFO                 bt-core song.c:692:bt_song_play: ->PAUSED needs async wait
  * 0:00:03.615313164  2332  0x8053558 INFO                 bt-core song.c:480:on_song_async_done: async state-change done
  */
-#define WITHOUT_CONVERT 1
+//#define WITHOUT_CONVERT 1
 
 // capsfiter, convert, pan, volume are gap-aware
 typedef enum {

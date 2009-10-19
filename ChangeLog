@@ -1,3 +1,9 @@
+2009-10-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Turn the optimization off again and explain why, plus some ideas how
+	  we could get it still.
+
 2009-10-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
