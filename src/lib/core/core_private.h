@@ -54,8 +54,6 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
-//-- gnome-vfs
-#include <libgnomevfs/gnome-vfs.h>
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS

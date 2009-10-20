@@ -68,58 +68,19 @@ static GType bt_song_io_native_detect(const gchar * const file_name) {
 #endif
   g_free(lc_file_name);
 
+  /* @todo: check content type */
 #if 0
-  // lets replace this with GIO later
-  GnomeVFSResult result;
-
-  // creating a absolute uri string from the given input string.
-  // works also if the given string was a absolute uri.
-  char * const absolute_uri_string = gnome_vfs_make_uri_from_input_with_dirs (file_name, GNOME_VFS_MAKE_URI_DIR_CURRENT);
-  GST_INFO("creating absolute file uri string: %s",absolute_uri_string);
-  // creating the gnome-vfs uri from the absolute path string
-  GnomeVFSURI * const input_uri = gnome_vfs_uri_new(absolute_uri_string);
-  // check if the input uri is ok
-  if (input_uri == NULL) {
-    GST_WARNING("cannot create input uri for gnome vfs");
-    goto Error;
+  GFile *file;
+  GFileInfo *info;
+  
+  file=g_file_new_for_path(file_name);
+  
+  if((info=g_file_query_info(file,G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,G_FILE_QUERY_INFO_NONE,NULL,NULL))) {
+    const gchar *mime_type=g_file_info_get_content_type(info);
+  
+    g_object_unref (info);
   }
-  // check if the given uri exists
-  if (!gnome_vfs_uri_exists(input_uri)) {
-    GST_INFO("given uri does not exists (saving?)");
-
-    // check extension
-    gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
-    if(g_str_has_suffix(lc_file_name,".xml")) {
-      type=BT_TYPE_SONG_IO_NATIVE;
-    }
-    g_free(lc_file_name);
-  }
-  else {
-    // create new file info pointer.
-    GnomeVFSFileInfo *file_info = gnome_vfs_file_info_new();
-    
-    GST_INFO("given uri exists");
-    
-    // now we check the mime type
-    if((result=gnome_vfs_get_file_info_uri(input_uri,file_info,GNOME_VFS_FILE_INFO_GET_MIME_TYPE))!=GNOME_VFS_OK) {
-      GST_WARNING("Cannot determine mime type. Error: %s\n", gnome_vfs_result_to_string (result));
-      gnome_vfs_file_info_unref(file_info);
-      goto Error;
-    }
-    /* @todo: check mime-type and set type accordingly */
-    GST_INFO("Mime type: %s\n",gnome_vfs_file_info_get_mime_type (file_info));
-    gnome_vfs_file_info_unref(file_info);
-
-    // check extension
-    gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
-    if(g_str_has_suffix(lc_file_name,".xml")) {
-      type=BT_TYPE_SONG_IO_NATIVE;
-    }
-    g_free(lc_file_name);
-  }
-Error:
-  gnome_vfs_uri_unref(input_uri);
-  if(absolute_uri_string) g_free(absolute_uri_string);
+  g_object_unref (file);
   
 #endif
   return(type);

@@ -1,3 +1,13 @@
+2009-10-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/core.c:
+	* src/lib/core/core_private.h:
+	* src/lib/core/song-io-native.c:
+	* src/ui/edit/bt-edit.c:
+	  Move gnome-vfs to the ui-deps. We need some configure work to practically
+	  remove it.
+
 2009-10-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wire.c:

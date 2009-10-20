@@ -113,16 +113,10 @@ static gboolean bt_init_post (void) {
   xmlLoadExtDtdDefaultValue=TRUE;            // always load DTD default values (even when not validating)
   xmlDoValidityCheckingDefaultValue=FALSE;  // do not validate files (we load xsl files as well  
   
-  GST_DEBUG("init gnome-vfs");
-  //-- initialize gnome-vfs
-  if (!gnome_vfs_init ()) {
-    GST_WARNING("gnome vfs failed to initialize");
-    goto Error;
-  }
-
 #if 0
 // I just got
 // switching scheduler failed: Die Operation ist nicht erlaubt
+// see /etc/security/limits.conf
 #ifdef HAVE_SCHED_SETSCHEDULER
   // @idea; only do this in non-debug builds
   //http://www.gnu.org/software/libc/manual/html_node/Basic-Scheduling-Functions.html
@@ -155,8 +149,6 @@ _mm_setcsr(_mm_getcsr() | 0x8040);
 #endif
   
   res=TRUE;
-  
-Error:
   return(res);
 }
 
