@@ -1,5 +1,10 @@
 2009-10-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-window.c:
+	  Now we have extra info and patches for both issues. Update info.
+
+2009-10-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/core.c:
 	* src/lib/core/core_private.h:

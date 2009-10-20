@@ -509,7 +509,8 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       gtk_file_filter_set_name(filter,info->formats[ix].name);
       gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
       gtk_file_filter_add_mime_type(filter_all,info->formats[ix].mime_type);
-//#if !GLIB_CHECK_VERSION(2,18,0)
+#if 1
+//#if !GLIB_CHECK_VERSION(2,22,0)
       /* workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236
        * should be fixed, but is not :/
        */
@@ -517,7 +518,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
         gtk_file_filter_add_pattern(filter,"*.xml");
         gtk_file_filter_add_pattern(filter_all,"*.xml");
       }
-//#endif
+#endif
       gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
       ix++;
     }
@@ -660,7 +661,8 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       //gtk_file_filter_add_pattern(filter,g_strconcat(glob,NULL));
       //g_free(glob);
       gtk_file_filter_add_mime_type(filter_all,info->formats[ix].mime_type);
-//#if !GLIB_CHECK_VERSION(2,18,0)
+#if 1
+//#if !GLIB_CHECK_VERSION(2,22,0)
       /* workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236
        * should be fixed, but is not :/
        */
@@ -668,7 +670,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
         gtk_file_filter_add_pattern(filter,"*.xml");
         gtk_file_filter_add_pattern(filter_all,"*.xml");
       }
-//#endif
+#endif
       gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
       gtk_combo_box_append_text(GTK_COMBO_BOX(format_chooser),info->formats[ix].name);
       GST_DEBUG("add filter %p for %s/%s/%s",
@@ -723,6 +725,10 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     for(node=self->priv->filters,ix=0;node;node=g_list_next(node),ix++) {
       filter=node->data;
       if(gtk_file_filter_filter(filter,&ffi)) {
+        /* @bug: it matches, but this does not update the filter
+         * https://bugzilla.gnome.org/show_bug.cgi?id=590941
+         * fixed in gtk-2.17.X
+         */
         GST_DEBUG("use last path %s, format is '%s', filter %p",file_name,gtk_file_filter_get_name(filter),filter);
         gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter);
         gtk_combo_box_set_active(GTK_COMBO_BOX(format_chooser),ix);
@@ -744,7 +750,10 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
           while(info->formats[ix].name && !found) {
             if(!strcmp(ext,info->formats[ix].extension)) {
               filter=fnode->data;
-              /* @todo: it matches, but this does not update the dialog */
+              /* @bug: it matches, but this does not update the filter
+               * https://bugzilla.gnome.org/show_bug.cgi?id=590941
+               * fixed in gtk-2.17.X
+               */
               GST_DEBUG("format is '%s', filter %p",gtk_file_filter_get_name(filter),filter);
               gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter);
               gtk_combo_box_set_active(GTK_COMBO_BOX(format_chooser),ix);
@@ -775,9 +784,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),box,FALSE,FALSE,0);
   g_signal_connect(G_OBJECT(format_chooser), "changed", G_CALLBACK(on_format_chooser_changed), (gpointer)self);
 
-  GST_DEBUG("ui ready");
   gtk_widget_show_all(dialog);
-  GST_DEBUG("ui shown");
   result=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
