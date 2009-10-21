@@ -661,7 +661,7 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
                            NULL);
   on_gain_changed(self->priv->wire_gain,NULL,(gpointer)self);
 
-  // @todo: check if wire has PAN and set color accordingly
+  // check if wire has PAN and set color accordingly
   if(self->priv->wire_pan) {
     color1="gray16";color2="gray32";
   }

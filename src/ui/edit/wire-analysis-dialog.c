@@ -34,7 +34,7 @@
  * - volume to the right of the spectrum
  * - panorama below the spectrum
  *
- * @todo: we might need a lock fro the resize and redraw
+ * @todo: we might need a lock for the resize and redraw
  */
 #define BT_EDIT
 #define BT_WIRE_ANALYSIS_DIALOG_C

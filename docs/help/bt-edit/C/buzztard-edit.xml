@@ -116,6 +116,16 @@
       Instead song fragments (patterns) are shown in a tabular way.
     </para>
     <para>
+      The tabbed UI provides several linked views on a song:
+      <itemizedlist>
+        <listitem><para>A machine view: virtual devices and how they are connected</para></listitem>
+        <listitem><para>A pattern view: each virtual device has a list or event fragments</para></listitem>
+        <listitem><para>A sequence view: a timeline where each track containes patterns that should be played at a given time for the machine of the track</para></listitem>
+        <listitem><para>A wavetable view: collection of sample clips (optional)</para></listitem>
+        <listitem><para>A metadata view: extra information about the song</para></listitem>
+      </itemizedlist>
+    </para>
+    <para>
       Important design criteria for <application>&app;</application> are:
       <itemizedlist>
         <listitem><para>fast and system compliant ui</para></listitem>
@@ -144,7 +154,7 @@
         <listitem><para>does balance on stereo wires</para></listitem>
         <listitem><para>has analyzers and mixing controls in sequence view</para></listitem>
         <listitem><para>can have multiple wire-analyzers open</para></listitem>
-        <listitem><para>can be remote controlled with UPnP a/v software</para></listitem>
+        <listitem><para>can be remote controlled with UPnP A/V software</para></listitem>
         <listitem><para>supports HID input devices for effect control (e.g. joysticks)</para></listitem>
       </itemizedlist>
       <itemizedlist>
@@ -340,11 +350,6 @@
       The <menuchoice><guimenu>Edit</guimenu></menuchoice> menu contains
       clipboard functions and invocation of 
       <link linkend="bt-edit-prefs" endterm="bt-edit-prefs.title"/>.
-      <note><title>Limitations</title>
-        <para>
-          Cut/Copy/Paste functionality in the edit menu is still not implemented.
-        </para>
-      </note>
     </para>
     <para>
       The <menuchoice><guimenu>View</guimenu></menuchoice> menu offers
@@ -366,7 +371,7 @@
   <sect2 id="bt-edit-main-views">
     <title id="bt-edit-main-views.title">The song views</title>
     <para>
-      Each part of a song is represented by a specialized views which one can
+      Each part of a song is represented by a specialized view which one can
       switch to with the tabs.
       Next we briefly introduce each tab, where in the next sub section they will
       be described in detail.
