@@ -234,14 +234,24 @@ PKG_CHECK_MODULES(BASE_DEPS, \
 )
 # gstreamer-app-0.10 >= 0.10.22
 
-#todo: gnome-vfs only needed, if we have gtk+ < 2.14.0
 PKG_CHECK_MODULES(GUI_DEPS, \
   gtk+-2.0 >= 2.6.0 \
   libgnomecanvas-2.0 \
-  gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
 )
 # still the pixbuf loader should have svg support
-# librsvg-2.0 \
+# librsvg-2.0
+
+# gnome-vfs is only needed, if we have gtk+ < 2.14.0
+PKG_CHECK_MODULES(GTK_DEPS, gtk+-2.0 >= 2.14.0, [
+  ],[
+    PKG_CHECK_MODULES(GNOMEVFS_DEPS, \
+      gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
+    )
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GNOMEVFS_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GNOMEVFS_DEPS_LIBS"
+    AC_DEFINE(USE_GNOMEVFS, [1], [Define to 1 if we need to use gnomevfs libraries])    
+  ]
+)
 
 PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
     AM_CONDITIONAL(USE_GCONF, true)

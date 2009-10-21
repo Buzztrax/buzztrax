@@ -1,5 +1,21 @@
 2009-10-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Collect News.
+
+	* src/lib/ic/control.c:
+	  Planning.
+
+	* configure.ac:
+	* src/ui/edit/bt-edit.h:
+	  Make gnomevfs totally conditional.
+
+	* src/ui/edit/playback-controller-socket.c:
+	* src/ui/edit/wave-viewer.c:
+	  Fix some build bugs, when building without gnomevfs.
+
+2009-10-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	  Now we have extra info and patches for both issues. Update info.
 

@@ -24,7 +24,17 @@
  *
  * Abstract base class for controls.
  */
-/* @todo: need flags=BTIC_CONTROL_ABS,...
+/* @todo: need flags=BTIC_CONTROL_ABS,BTIC_CONTROL_TRIGGER,... to quickly filter
+ *
+ * @todo: new subclasses:
+ * - BTIC_CONTROL_KEY (midi keyboard, computer keyboard)
+ *   - value would be a guint with the key-number (see GSTBT_TONE_CONVERSION_NOTE_*)
+ *   - if a midi keyboard is polyphonic, should it register multiple controls?
+ *   - when we bind it, we need to smartly assign the controls to voices
+ *     - so instead of listing control, one would select a device
+ *   - we could have subclasses of those even to define key-zones 
+ *     (those could be assigned separately). so if the device is called "midi", 
+ *     the virtual one could be named "midi(C-0 B-1)" 
  */
 #define BTIC_CORE
 #define BTIC_CONTROL_C

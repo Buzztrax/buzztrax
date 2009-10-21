@@ -249,7 +249,7 @@ bt_waveform_viewer_class_init (BtWaveformViewer *klass)
                                      "waveform length property",
                                      "The current waveform length",
                                      0,
-                                     INT64_MAX,
+                                     G_MAXINT64,
                                      0,
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
@@ -258,7 +258,7 @@ bt_waveform_viewer_class_init (BtWaveformViewer *klass)
                                      "waveform loop start position",
                                      "First sample of the loop or -1 if there is no loop",
                                      -1,
-                                     INT64_MAX,
+                                     G_MAXINT64,
                                      -1,
                                      G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
@@ -267,7 +267,7 @@ bt_waveform_viewer_class_init (BtWaveformViewer *klass)
                                      "waveform loop end position",
                                      "First sample after the loop or -1 if there is no loop",
                                      -1,
-                                     INT64_MAX,
+                                     G_MAXINT64,
                                      -1,
                                      G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
@@ -276,7 +276,7 @@ bt_waveform_viewer_class_init (BtWaveformViewer *klass)
                                      "playback cursor position",
                                      "Current playback position within a waveform or -1 if sample is not played",
                                      -1,
-                                     INT64_MAX,
+                                     G_MAXINT64,
                                      -1,
                                      G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
