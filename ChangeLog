@@ -1,3 +1,9 @@
+2009-10-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	  Better naming on bin elements.
+
 2009-10-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/buzztard-edit.xml:

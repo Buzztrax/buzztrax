@@ -688,11 +688,12 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
  */
 static gboolean bt_machine_make_internal_element(const BtMachine * const self,const BtMachinePart part,const gchar * const factory_name,const gchar * const element_name) {
   gboolean res=FALSE;
-  gchar *name;
+  const gchar * const parent_name=GST_OBJECT_NAME(self);
+  gchar * const name=g_alloca(strlen(parent_name)+2+strlen(element_name));
 
   // add internal element
-  name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
-  //name=g_alloca(strlen(element_name)+16+1+strlen(self->priv->id));g_sprintf(name,"%s_%p_%s",element_name,self,self->priv->id);
+  //strcat(name,parent_name);strcat(name,":");strcat(name,element_name);
+  g_sprintf(name,"%s:%s",parent_name,element_name);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_WARNING_OBJECT(self,"failed to create %s from factory %s",element_name,factory_name);goto Error;
   }

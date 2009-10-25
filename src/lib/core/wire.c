@@ -187,9 +187,12 @@ G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, GST_TYPE_BIN,
  */
 static gboolean bt_wire_make_internal_element(const BtWire * const self, const BtWirePart part, const gchar * const factory_name, const gchar * const element_name) {
   gboolean res=FALSE;
+  const gchar * const parent_name=GST_OBJECT_NAME(self);
+  gchar * const name=g_alloca(strlen(parent_name)+2+strlen(element_name));
 
   // add internal element
-  gchar * const name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
+  //strcat(name,parent_name);strcat(name,":");strcat(name,element_name);
+  g_sprintf(name,"%s:%s",parent_name,element_name);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_WARNING_OBJECT(self,"failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
