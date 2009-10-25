@@ -51,6 +51,12 @@ struct _BtMainMenuPrivate {
   
   /* state */
   gboolean fullscreen;
+  
+#ifdef USE_DEBUG
+  /* debug menu */
+  GstDebugGraphDetails debug_graph_details;
+  gchar *debug_graph_format;
+#endif
 };
 
 static GtkMenuBarClass *parent_class=NULL;
@@ -613,6 +619,62 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
 }
 
 #ifdef USE_DEBUG
+static void on_menu_debug_show_media_types_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  g_assert(user_data);
+  if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
+    self->priv->debug_graph_details|=GST_DEBUG_GRAPH_SHOW_MEDIA_TYPE;
+  else
+    self->priv->debug_graph_details&=~GST_DEBUG_GRAPH_SHOW_MEDIA_TYPE;
+}
+
+static void on_menu_debug_show_caps_details_types_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  g_assert(user_data);
+  if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
+    self->priv->debug_graph_details|=GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS;
+  else
+    self->priv->debug_graph_details&=~GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS;
+}
+
+static void on_menu_debug_show_non_default_params_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  g_assert(user_data);
+  if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
+    self->priv->debug_graph_details|=GST_DEBUG_GRAPH_SHOW_NON_DEFAULT_PARAMS;
+  else
+    self->priv->debug_graph_details&=~GST_DEBUG_GRAPH_SHOW_NON_DEFAULT_PARAMS;
+}
+
+static void on_menu_debug_show_states_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  g_assert(user_data);
+  if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
+    self->priv->debug_graph_details|=GST_DEBUG_GRAPH_SHOW_STATES;
+  else
+    self->priv->debug_graph_details&=~GST_DEBUG_GRAPH_SHOW_STATES;
+}
+
+static void on_menu_debug_use_svg_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  g_assert(user_data);
+  if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
+    self->priv->debug_graph_format="svg";
+}
+
+static void on_menu_debug_use_png_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  g_assert(user_data);
+  if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
+    self->priv->debug_graph_format="png";
+}
+
 static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   const gchar *path;
@@ -625,18 +687,18 @@ static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpo
 
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     g_object_get(G_OBJECT(song),"bin",&bin,NULL);
-    
-    GST_DEBUG_BIN_TO_DOT_FILE(bin,
-      /*GST_DEBUG_GRAPH_SHOW_ALL,*/
-      GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS|GST_DEBUG_GRAPH_SHOW_STATES,
-      PACKAGE_NAME);
-  
+
+    GST_INFO_OBJECT(bin, "dump dot graph as %s with 0x%x details",self->priv->debug_graph_format,self->priv->debug_graph_details);
+
+    GST_DEBUG_BIN_TO_DOT_FILE(bin,self->priv->debug_graph_details,PACKAGE_NAME);
+
     // release the reference
     gst_object_unref(bin);
     g_object_unref(song);
-  
+
     // convert file
-    cmd=g_strdup_printf("dot -Tpng -o%s"G_DIR_SEPARATOR_S""PACKAGE_NAME".png %s"G_DIR_SEPARATOR_S""PACKAGE_NAME".dot",path,path); 
+    cmd=g_strdup_printf("dot -T%s -o%s"G_DIR_SEPARATOR_S""PACKAGE_NAME".%s %s"G_DIR_SEPARATOR_S""PACKAGE_NAME".dot",
+      self->priv->debug_graph_format,path,self->priv->debug_graph_format,path); 
     if(!g_spawn_command_line_sync(cmd,NULL,NULL,NULL,&error)) {
         GST_WARNING("Failed to convert dot-graph: %s\n",error->message);
         g_error_free(error);
@@ -644,7 +706,7 @@ static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpo
     else {
       gchar *png_uri;
       
-      png_uri=g_strdup_printf("file://%s"G_DIR_SEPARATOR_S""PACKAGE_NAME".png",path);
+      png_uri=g_strdup_printf("file://%s"G_DIR_SEPARATOR_S""PACKAGE_NAME".%s",path,self->priv->debug_graph_format);
       // show image
 #if GTK_CHECK_VERSION(2,14,0)
       if(!gtk_show_uri(gtk_widget_get_screen(GTK_WIDGET(menuitem)),png_uri,gtk_get_current_event_time(),&error)) {
@@ -697,7 +759,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 //-- helper methods
 
 static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
-  GtkWidget *item,*menu,*subitem;
+  GtkWidget *item,*menu,*submenu,*subitem;
   BtSettings *settings;
   gboolean toolbar_hide,statusbar_hide,tabs_hide;
   GtkAccelGroup *accel_group=bt_ui_resources_get_accel_group();
@@ -999,14 +1061,53 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   menu=gtk_menu_new();
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
   
-  /* change to "pipeline graph" and have a submenu with
-   * - toggles for the details
-   *   GST_DEBUG_GRAPH_SHOW_MEDIA_TYPE - show caps-name on edges
-   *   GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS	- show caps-details on edges
-   *   GST_DEBUG_GRAPH_SHOW_NON_DEFAULT_PARAMS - show modified parameters on elements
-   *   GST_DEBUG_GRAPH_SHOW_STATES - show element states 
-   * - "show graph" action item
-   */
+  /* @todo: add toggle for keep image (no by default) */
+  item=gtk_menu_item_new_with_mnemonic("Graph details");
+  gtk_container_add(GTK_CONTAINER(menu),item);
+  submenu=gtk_menu_new();
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),submenu);
+
+  subitem=gtk_check_menu_item_new_with_mnemonic("show media types");
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),FALSE);
+  gtk_container_add(GTK_CONTAINER(submenu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_debug_show_media_types_toggled),(gpointer)self);
+
+  subitem=gtk_check_menu_item_new_with_mnemonic("show caps details");
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),TRUE);
+  gtk_container_add(GTK_CONTAINER(submenu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_debug_show_caps_details_types_toggled),(gpointer)self);
+
+  subitem=gtk_check_menu_item_new_with_mnemonic("show non default params");
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),FALSE);
+  gtk_container_add(GTK_CONTAINER(submenu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_debug_show_non_default_params_toggled),(gpointer)self);
+
+  subitem=gtk_check_menu_item_new_with_mnemonic("show states");
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),TRUE);
+  gtk_container_add(GTK_CONTAINER(submenu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_debug_show_states_toggled),(gpointer)self);
+
+  item=gtk_menu_item_new_with_mnemonic("Graph format");
+  gtk_container_add(GTK_CONTAINER(menu),item);
+  submenu=gtk_menu_new();
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),submenu);
+
+  {
+    GSList *group = NULL;
+
+    subitem=gtk_radio_menu_item_new_with_mnemonic(group, "use svg");
+    group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (subitem));
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),TRUE);
+    gtk_container_add(GTK_CONTAINER(submenu),subitem);
+    g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_debug_use_svg_toggled),(gpointer)self);
+
+    subitem=gtk_radio_menu_item_new_with_mnemonic(group, "use png");
+    group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (subitem));
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),FALSE);
+    gtk_container_add(GTK_CONTAINER(submenu),subitem);
+    g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_debug_use_png_toggled),(gpointer)self);
+  }
+
   subitem=gtk_image_menu_item_new_with_mnemonic("Dump pipeline graph and show");
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_debug_dump_pipeline_graph_and_show),(gpointer)self);
@@ -1111,6 +1212,11 @@ static void bt_main_menu_init(GTypeInstance *instance, gpointer g_class) {
   BtMainMenu *self = BT_MAIN_MENU(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_MENU, BtMainMenuPrivate);
+  
+#ifdef USE_DEBUG
+  self->priv->debug_graph_details=GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS|GST_DEBUG_GRAPH_SHOW_STATES;
+  self->priv->debug_graph_format="svg";
+#endif
 }
 
 static void bt_main_menu_class_init(BtMainMenuClass *klass) {

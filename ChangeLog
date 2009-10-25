@@ -1,5 +1,10 @@
 2009-10-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-menu.c:
+	  Add options to debug menu to allow generating variants of dot-graphs.
+
+2009-10-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/wire.c:
 	  Better naming on bin elements.
