@@ -689,7 +689,7 @@ static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpo
     g_object_get(G_OBJECT(song),"bin",&bin,NULL);
 
     GST_INFO_OBJECT(bin, "dump dot graph as %s with 0x%x details",self->priv->debug_graph_format,self->priv->debug_graph_details);
-
+                             
     GST_DEBUG_BIN_TO_DOT_FILE(bin,self->priv->debug_graph_details,PACKAGE_NAME);
 
     // release the reference
@@ -717,13 +717,28 @@ static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpo
       gnome_vfs_url_show(png_uri);
 #endif
       g_free(png_uri);
-    }    
+    }
     g_free(cmd);
   }
   else {
     // the envvar is only checked at gst_init()
     GST_WARNING("You need to start the app with GST_DEBUG_DUMP_DOT_DIR env-var set.");
   }
+}
+
+static void on_menu_debug_update_registry(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  bt_edit_application_ui_lock(self->priv->app);
+
+  if(!gst_update_registry()) {
+    GST_WARNING("failed to update registry");
+  }
+  else {
+    // @todo: update machine menu
+  }
+
+  bt_edit_application_ui_unlock(self->priv->app);
 }
 #endif
 
@@ -1111,6 +1126,14 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   subitem=gtk_image_menu_item_new_with_mnemonic("Dump pipeline graph and show");
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_debug_dump_pipeline_graph_and_show),(gpointer)self);
+
+  subitem=gtk_separator_menu_item_new();
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  gtk_widget_set_sensitive(subitem,FALSE);
+
+  subitem=gtk_image_menu_item_new_with_mnemonic("Update plugin registry");
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_debug_update_registry),(gpointer)self);
 #endif
   
   // register event handlers

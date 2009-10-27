@@ -35,4 +35,7 @@ extern gboolean bt_edit_application_load_and_run(const BtEditApplication *self, 
 
 extern void bt_edit_application_show_about(const BtEditApplication *self) ;
 
+extern void bt_edit_application_ui_lock(const BtEditApplication *self);
+extern void bt_edit_application_ui_unlock(const BtEditApplication *self);
+
 #endif // BT_EDIT_APPLICATION_METHDOS_H

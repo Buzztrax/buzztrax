@@ -295,18 +295,12 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
   GST_INFO("song name = %s",file_name);
 
   if((loader=bt_song_io_make(file_name))) {
-    GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
-    GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
     BtSetup *setup;
     BtWavetable *wavetable;
     GList *missing_machines,*missing_waves;
 
-    gdk_window_set_cursor(window,cursor);
-    gdk_cursor_unref(cursor);
-    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
-
+    bt_edit_application_ui_lock(self);
     g_signal_connect(G_OBJECT(loader),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
-    while(gtk_events_pending()) gtk_main_iteration();
 
     // create new song
     song=bt_song_new(BT_APPLICATION(self));
@@ -359,8 +353,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     else {
       GST_ERROR("could not load song \"%s\"",file_name);
     }
-    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
-    gdk_window_set_cursor(window,NULL);
+    bt_edit_application_ui_unlock(self);
 
     // get missing element info
     g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
@@ -407,19 +400,12 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
   GST_INFO("song name = %s",file_name);
 
   if((saver=bt_song_io_make(file_name))) {
-    GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
-    GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
     BtSongInfo *song_info;
     gchar *old_file_name=NULL,*bak_file_name=NULL;
 
-    gdk_window_set_cursor(window,cursor);
-    gdk_cursor_unref(cursor);
-    
-    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
-
+    bt_edit_application_ui_lock(self);
     g_signal_connect(G_OBJECT(saver),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
-    while(gtk_events_pending()) gtk_main_iteration();
-    
+
     g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
     g_object_get(G_OBJECT(song_info),"file-name",&old_file_name,NULL);
     g_object_unref(song_info);
@@ -477,8 +463,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
     }
     GST_INFO("saving done");
 
-    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
-    gdk_window_set_cursor(window,NULL);
+    bt_edit_application_ui_unlock(self);
 
     g_free(old_file_name);
     g_free(bak_file_name);
@@ -562,6 +547,34 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
     gtk_widget_destroy(dialog);
   }
 }
+
+/**
+ * bt_edit_application_ui_lock:
+ * @self: the application instance
+ *
+ * Sets the main window insensitive and show a wait cursor.
+ */
+void bt_edit_application_ui_lock(const BtEditApplication *self) {
+  GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
+
+  gdk_window_set_cursor(GTK_WIDGET(self->priv->main_window)->window,cursor);
+  gdk_cursor_unref(cursor);
+  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
+
+  while(gtk_events_pending()) gtk_main_iteration();
+}
+
+/**
+ * bt_edit_application_ui_unlock:
+ * @self: the application instance
+ *
+ * Sets the main window sensitive again and unset the wait cursor.
+ */
+void bt_edit_application_ui_unlock(const BtEditApplication *self) {
+  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
+  gdk_window_set_cursor(GTK_WIDGET(self->priv->main_window)->window,NULL);
+}
+
 
 //-- wrapper
 
