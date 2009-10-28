@@ -1,5 +1,10 @@
 2009-10-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-statusbar.c:
+	  The context-descriptions are not showns in the UI. No need to translate.
+
+2009-10-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	* src/ui/edit/main-statusbar.c:
 	  Comments and cleanup.

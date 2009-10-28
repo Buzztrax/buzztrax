@@ -260,7 +260,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
 
   // context sensitive help statusbar
   self->priv->status=GTK_STATUSBAR(gtk_statusbar_new());
-  self->priv->status_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->status),_("default"));
+  self->priv->status_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->status),"default");
   gtk_statusbar_set_has_resize_grip(self->priv->status,FALSE);
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->status),self->priv->status_context_id,_("Ready to rock!"));
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->status),TRUE,TRUE,1);
@@ -281,7 +281,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   g_object_set(ev_box,"visible-window",FALSE,NULL);
   gtk_widget_set_tooltip_text(ev_box,_("Playback time"));
   self->priv->elapsed=GTK_STATUSBAR(gtk_statusbar_new());
-  self->priv->elapsed_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->elapsed),_("default"));
+  self->priv->elapsed_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->elapsed),"default");
   gtk_statusbar_set_has_resize_grip(self->priv->elapsed,FALSE);
   gtk_misc_set_alignment(GTK_MISC(GTK_STATUSBAR(self->priv->elapsed)->label),1.0,0.5);
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->elapsed),100,-1);
@@ -293,7 +293,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   g_object_set(ev_box,"visible-window",FALSE,NULL);
   gtk_widget_set_tooltip_text(ev_box,_("Playback position"));
   self->priv->current=GTK_STATUSBAR(gtk_statusbar_new());
-  self->priv->current_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->current),_("default"));
+  self->priv->current_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->current),"default");
   gtk_statusbar_set_has_resize_grip(self->priv->current,FALSE);
   gtk_misc_set_alignment(GTK_MISC(GTK_STATUSBAR(self->priv->current)->label),1.0,0.5);
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->current),100,-1);
@@ -305,7 +305,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   g_object_set(ev_box,"visible-window",FALSE,NULL);
   gtk_widget_set_tooltip_text(ev_box,_("Playback length"));
   self->priv->loop=GTK_STATUSBAR(gtk_statusbar_new());
-  self->priv->loop_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->loop),_("default"));
+  self->priv->loop_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->loop),"default");
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->loop),100,-1);
   gtk_misc_set_alignment(GTK_MISC(GTK_STATUSBAR(self->priv->loop)->label),1.0,0.5);
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->loop),self->priv->loop_context_id,str);
