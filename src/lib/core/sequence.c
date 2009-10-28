@@ -430,7 +430,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   GST_DEBUG("invalidate pattern %p region for tick=%5lu, track=%3lu",pattern,time,track);
   /* @todo: if we load a song and thus set a lot of patterns, this is called a
    * lot. While doing this, there are a few thing that don't change. If we set
-   * 100 patterns for ne machine, we query, the machine, its parameters and its
+   * 100 patterns for one machine, we query, the machine, its parameters and its
    * list of incomming wires (and its pattern) again and again.
    *
    * It also involves a lot of creating and destoying of hashtables

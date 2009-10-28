@@ -383,7 +383,7 @@ static void bt_main_statusbar_set_property(GObject      *object,
       //GST_DEBUG("set the app for main_statusbar: %p",self->priv->app);
     } break;
     case MAIN_STATUSBAR_STATUS: {
-      char *str=g_value_dup_string(value);
+      gchar *str=g_value_dup_string(value);
       gtk_statusbar_pop(GTK_STATUSBAR(self->priv->status),self->priv->status_context_id);
       if(str) {
         gtk_statusbar_push(GTK_STATUSBAR(self->priv->status),self->priv->status_context_id,str);

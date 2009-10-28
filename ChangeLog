@@ -1,3 +1,9 @@
+2009-10-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-statusbar.c:
+	  Comments and cleanup.
+
 2009-10-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
