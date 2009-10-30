@@ -1030,9 +1030,16 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
   
   /* @todo: create diff images
-   * load old image and subtract pixels
-   * - should we use the backup or a reference picture?
-   * - should we return a boolean for detected pixel changes?
+   * - check if we have a ref image, skip otherwise
+   * - should we have ref images in repo?
+   * - own diff
+   *   - load old image and subtract pixels
+   *   - should we return a boolean for detected pixel changes?
+   * - imagemagic
+   *   - http://www.imagemagick.org/script/compare.php
+   * - need to make a html with table containing
+   *   [ name, ref image, cur image, diff image ]
+   *
    */
 
   /* @todo: add shadow to screenshots

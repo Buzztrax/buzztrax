@@ -1,5 +1,11 @@
 2009-10-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-menu.c:
+	* tests/bt-check.c:
+	  Comments.
+
+2009-10-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/de.po:
 	* po/nn.po:
 	  Update tranlations.
