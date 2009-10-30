@@ -731,6 +731,12 @@ static void on_menu_debug_update_registry(GtkMenuItem *menuitem,gpointer user_da
 
   bt_edit_application_ui_lock(self->priv->app);
 
+  /* we cannot reload plugins
+   * I've tried to patch gst/gstregistry.c:gst_registry_scan_path_level
+   * if (plugin->registered && !_priv_plugin_deps_files_changed (plugin)) ...
+   * but reloading a plugin does not work, as we would end up re-registering
+   * existing GTypes types.
+   */
   if(!gst_update_registry()) {
     GST_WARNING("failed to update registry");
   }

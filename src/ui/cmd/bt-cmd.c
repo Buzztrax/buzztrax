@@ -60,7 +60,14 @@ int main(int argc, char **argv) {
   GOptionContext *ctx;
   GOptionGroup *group;
   GError *err=NULL;
-  
+
+#ifdef ENABLE_NLS
+  setlocale(LC_ALL, "");
+  bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+  textdomain(GETTEXT_PACKAGE);
+#endif /* ENABLE_NLS */
+
   GOptionEntry options[] = {
     {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_version,      N_("Print application version"),     NULL },
     {"quiet",       'q',  G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_quiet,        N_("Be quiet"),         NULL },
@@ -69,13 +76,6 @@ int main(int argc, char **argv) {
     {"output-file", '\0', 0,                    G_OPTION_ARG_FILENAME, &output_file_name, N_("Output file name"), N_("<songfile>") },
     {NULL}
   };
-
-#ifdef ENABLE_NLS
-  setlocale(LC_ALL, "");
-  bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
-  bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-  textdomain(GETTEXT_PACKAGE);
-#endif /* ENABLE_NLS */
 
   // initialize as soon as possible
   if(!g_thread_supported()) {

@@ -59,15 +59,13 @@ static gboolean btic_initialized = FALSE;
 
 /* we have no fail cases yet, but maybe in the future */
 static gboolean btic_init_pre (void) {
-  //-- initialize gobject
-  g_type_init ();
-
 #ifdef ENABLE_NLS
-  setlocale (LC_ALL, "");
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-  textdomain (GETTEXT_PACKAGE);
 #endif /* ENABLE_NLS */
+
+  //-- initialize gobject
+  g_type_init ();
 
   //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
   return TRUE;
