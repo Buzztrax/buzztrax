@@ -50,7 +50,6 @@ static void gtk_vumeter_realize (GtkWidget *widget);
 static void gtk_vumeter_size_request (GtkWidget *widget, GtkRequisition *requisition);
 static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocation);
 static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event);
-static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter, gint level);
 
 static GtkWidgetClass *parent_class = NULL;
 
@@ -260,6 +259,29 @@ static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocat
     gtk_vumeter_allocate_colors (vumeter);
 }
 
+static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter,
+               gint sound_level, gdouble length)
+{
+    gdouble draw_level;
+    gdouble level, min, max;
+
+    level = (gdouble)sound_level;
+    min = (gdouble)vumeter->min;
+    max = (gdouble)vumeter->max;
+
+    if (vumeter->scale == GTK_VUMETER_SCALE_LINEAR) {
+        draw_level = (level - min)/(max - min) * length;
+    } else {
+        gdouble log_level, log_max;
+
+        log_level = log10((level - min + 1)/(max - min + 1));
+        log_max = log10(1/(max - min + 1)); /* FIXME: could be cached */
+        draw_level = length - log_level/log_max * length;
+    }
+
+    return (gint)draw_level;
+}
+
 static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
 {
     GtkVUMeter *vumeter;
@@ -280,36 +302,36 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
     // @todo: this should not be needed
     //cairo_push_group (cr);
 
-    rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-                   vumeter->rms_level);
-    peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-                   vumeter->peak_level);
-
     /* draw border */
     /* detail for part of progressbar would be called "trough" */
     gtk_paint_box (widget->style, widget->window, GTK_STATE_NORMAL, GTK_SHADOW_IN,
             NULL, widget, NULL/*detail*/, 0, 0, widget->allocation.width, widget->allocation.height);
 
     if (vumeter->vertical) {
-        width = widget->allocation.width - 2;
-        height = widget->allocation.height;
+        width = widget->allocation.width - 3;
+        height = widget->allocation.height - 1;
+
+        rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
+                       vumeter->rms_level, height);
+        peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
+                       vumeter->peak_level, height);
 
         /* draw normal level */
         cairo_set_source (cr, vumeter->gradient_rms);
-        cairo_rectangle (cr, 1, 1, width, rms_level);
+        cairo_rectangle (cr, 1.5, 1.5, width, rms_level);
         cairo_fill (cr);
 
         /* draw peak */
         if (peak_level > rms_level) {
             cairo_set_source (cr, vumeter->gradient_peak);
-            cairo_rectangle (cr, 1, rms_level+1, width, peak_level-rms_level);
+            cairo_rectangle (cr, 1.5, rms_level+1.5, width, peak_level-rms_level);
             cairo_fill (cr);
         }
 
         /* draw background for the rest */
         if (peak_level+1 < height-2) {
             cairo_set_source (cr, vumeter->gradient_bg);
-            cairo_rectangle (cr, 1, peak_level+1, width, height-peak_level-2);
+            cairo_rectangle (cr, 1.5, peak_level+1.5, width, height-peak_level-2);
             cairo_fill (cr);
         }
 
@@ -317,31 +339,36 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
         cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
         cairo_set_line_width (cr, 1.0);
         for (i = 1; i < height - 1; i += 4) {
-          cairo_move_to (cr, 1, i);
-          cairo_line_to (cr, width + 1, i);
+          cairo_move_to (cr, 1.5, i+0.5);
+          cairo_line_to (cr, width+1.5, i+0.5);
         }
         cairo_stroke (cr);
 
     } else { /* Horizontal */
-        width = widget->allocation.width;
-        height = widget->allocation.height - 2;
+        width = widget->allocation.width - 1;
+        height = widget->allocation.height - 3;
+
+        rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
+                       vumeter->rms_level, width);
+        peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
+                       vumeter->peak_level, width);
 
         /* draw normal level */
         cairo_set_source (cr, vumeter->gradient_rms);
-        cairo_rectangle (cr, 1, 1, rms_level, height);
+        cairo_rectangle (cr, 1.5, 1.5, rms_level, height);
         cairo_fill (cr);
 
         /* draw peak */
         if (peak_level > rms_level) {
             cairo_set_source (cr, vumeter->gradient_peak);
-            cairo_rectangle (cr, rms_level+1, 1, peak_level-rms_level, height);
+            cairo_rectangle (cr, rms_level+1.5, 1.5, peak_level-rms_level, height);
             cairo_fill (cr);
         }
 
         /* draw background for the rest */
         if (peak_level+1 < width-2) {
             cairo_set_source (cr, vumeter->gradient_bg);
-            cairo_rectangle (cr, peak_level+1, 1, width-peak_level-2, height);
+            cairo_rectangle (cr, peak_level+1.5, 1.5, width-peak_level-2, height);
             cairo_fill (cr);
         }
 
@@ -349,8 +376,8 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
         cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
         cairo_set_line_width (cr, 1.0);
         for (i = 1; i < width - 1; i += 4) {
-          cairo_move_to (cr, i, 1);
-          cairo_line_to (cr, i, height + 1);
+          cairo_move_to (cr, i+0.5, 1.5);
+          cairo_line_to (cr, i+0.5, height+1.5);
         }
         cairo_stroke (cr);
     }
@@ -361,34 +388,6 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
     cairo_destroy (cr);
 
     return FALSE;
-}
-
-static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter,
-               gint sound_level)
-{
-    gdouble draw_level;
-    gdouble level, min, max, length;
-    gdouble log_level, log_max;
-
-    level = (gdouble)sound_level;
-    min = (gdouble)vumeter->min;
-    max = (gdouble)vumeter->max;
-
-    if (vumeter->vertical == TRUE) {
-        length = GTK_WIDGET(vumeter)->allocation.height - 2;
-    } else { /* Horizontal */
-        length = GTK_WIDGET(vumeter)->allocation.width - 2;
-    }
-
-    if (vumeter->scale == GTK_VUMETER_SCALE_LINEAR) {
-        draw_level = (level - min)/(max - min) * length;
-    } else {
-        log_level = log10((level - min + 1)/(max - min + 1));
-        log_max = log10(1/(max - min + 1));
-        draw_level = length - log_level/log_max * length;
-    }
-
-    return (gint)draw_level;
 }
 
 /**

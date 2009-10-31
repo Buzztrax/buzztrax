@@ -1,3 +1,9 @@
+2009-10-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/gtkvumeter.c:
+	  Fix blurry pixels. Fix drwing over the borders and make it a bit faster
+	  too.
+
 2009-10-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:
