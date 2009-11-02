@@ -1345,6 +1345,11 @@ static guint get_int_value(GstStructure *str,gchar *name) {
 /* @todo: it seems that this does not work while playing
  * - we could scratch the idea and use a fixed common format
  * - we could only renegotiate formats when going to playing
+ *
+ * - benefits of using a fixed format (float) would be:
+ *   - no need to dynamically determine the format here
+ *   - only activate audioconvert on wires that have different format
+ *     see comments in wire, this would be much faster 
  */
 void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
 

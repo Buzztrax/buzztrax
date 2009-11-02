@@ -819,6 +819,7 @@ static gboolean on_delayed_idle_track_level_change(gpointer user_data) {
       if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
       else peak/=size;  
   
+      //GST_INFO("level:  %.3f %.3f", peak, cur);
       //gtk_vumeter_set_levels(vumeter, (gint)cur, (gint)peak);
       gtk_vumeter_set_levels(vumeter, (gint)peak, (gint)cur);
     }

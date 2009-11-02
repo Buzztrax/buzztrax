@@ -351,7 +351,7 @@ static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
       peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
       if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
       if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-      //GST_INFO("level.%d  %.3f %.3f", i, cur, peak);
+      //GST_INFO("level.%d  %.3f %.3f", i, peak, cur);
       //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)cur, (gint)peak);
       gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)peak, (gint)cur);
     }

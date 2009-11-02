@@ -1,13 +1,29 @@
 2009/11 ========================================================================
 
-- copy and paste in sequence
-  //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
-  GtkClipboard *cb=gtk_widget_get_clipboard(widget,GDK_SELECTION_CLIPBOARD);
-- file-chooser filter fixed already, needs gtk+-2.18
-  http://bugzilla.gnome.org/show_bug.cgi?id=581873
-- mime matching fixed
-  https://bugzilla.gnome.org/show_bug.cgi?id=541236
-- no more gnomevfs if gtk+ >= 2.14
+I started the month with upstream bugs work. First I looked into #581873, made
+a fix and two days later realized that my git checkout was on a stale branch and
+its already fixed in gtk+-2.18. Next I looked at the mime matching issue thats
+already plaqueing me for a while (#541236). I also have a patch for that and
+hope that I get green light for it or a review how it should be fixed instead.
+
+In buzztard I implemented copy and paste in sequence. I also found our what I
+did wrong in my clipboard handling code (see my previous post). Dunno what wrong
+with the old code, but this change made it work:
+//GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
+GtkClipboard *cb=gtk_widget_get_clipboard(widget,GDK_SELECTION_CLIPBOARD);
+
+Next I finally got rid of the gnomevfs hard dependency. It is only needed if you
+have a quite old gtk to get help working. WHile testing I noticed that some
+translations disappear during run time. I made some i18n handling fixes
+regarding to initialisation and libaries.
+
+I am probably the last one to figure that one has to draw with the 0.5 px offset
+in cairo to get non blurry gfx. After Matthias post I looked at my vu-meters and
+voila, I was doing it wrong. Fixes are in svn together with some small 
+optimizations.
+  
+[1] http://bugzilla.gnome.org/show_bug.cgi?id=581873
+[2] http://bugzilla.gnome.org/show_bug.cgi?id=541236
   
 2009/10 ========================================================================
 

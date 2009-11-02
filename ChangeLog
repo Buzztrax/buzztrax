@@ -1,5 +1,15 @@
 2009-11-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Write News.
+
+	* src/lib/core/machine.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	  Comments.
+
+2009-11-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/cmd/bt-cmd.c:
 	* src/ui/edit/bt-edit.c:
 	  Fix i18n domain for options.
@@ -31,7 +41,7 @@
 2009-10-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-statusbar.c:
-	  The context-descriptions are not showns in the UI. No need to translate.
+	  The context-descriptions are not shown in the UI. No need to translate.
 
 2009-10-28  Stefan Kost  <ensonic@users.sf.net>
 
