@@ -99,10 +99,10 @@ int main(int argc, char **argv) {
 
   // init libraries
   ctx=g_option_context_new(NULL);
-  //g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
+  //g_option_context_add_main_entries (ctx, options, GETTEXT_PACKAGE);
   group=g_option_group_new("main", _("buzztard-edit options"),_("Show buzztard-edit options"), argv[0], NULL);
   g_option_group_add_entries(group, options);
-  g_option_group_set_translation_domain(group, PACKAGE_NAME);
+  g_option_group_set_translation_domain(group, GETTEXT_PACKAGE);
   g_option_context_set_main_group(ctx, group);
   
   bt_init_add_option_groups(ctx);
