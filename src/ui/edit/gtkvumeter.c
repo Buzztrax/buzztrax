@@ -309,12 +309,12 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
 
     if (vumeter->vertical) {
         width = widget->allocation.width - 3;
-        height = widget->allocation.height - 1;
+        height = widget->allocation.height - 2;
 
         rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-                       vumeter->rms_level, height);
+                       vumeter->rms_level, height-1);
         peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-                       vumeter->peak_level, height);
+                       vumeter->peak_level, height-1);
 
         /* draw normal level */
         cairo_set_source (cr, vumeter->gradient_rms);
@@ -324,34 +324,34 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
         /* draw peak */
         if (peak_level > rms_level) {
             cairo_set_source (cr, vumeter->gradient_peak);
-            cairo_rectangle (cr, 1.5, rms_level+1.5, width, peak_level-rms_level);
+            cairo_rectangle (cr, 1.5, rms_level+0.5, width, peak_level-rms_level);
             cairo_fill (cr);
         }
 
         /* draw background for the rest */
-        if (peak_level+1 < height-2) {
+        if (height > peak_level) {
             cairo_set_source (cr, vumeter->gradient_bg);
-            cairo_rectangle (cr, 1.5, peak_level+1.5, width, height-peak_level-2);
+            cairo_rectangle (cr, 1.5, peak_level+0.5, width, height-peak_level);
             cairo_fill (cr);
         }
 
         /* shade every 4th line */
         cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
         cairo_set_line_width (cr, 1.0);
-        for (i = 1; i < height - 1; i += 4) {
+        for (i = 1; i < height; i += 5) {
           cairo_move_to (cr, 1.5, i+0.5);
-          cairo_line_to (cr, width+1.5, i+0.5);
+          cairo_line_to (cr, width+0.5, i+1.5);
         }
         cairo_stroke (cr);
 
     } else { /* Horizontal */
-        width = widget->allocation.width - 1;
+        width = widget->allocation.width - 2;
         height = widget->allocation.height - 3;
 
         rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-                       vumeter->rms_level, width);
+                       vumeter->rms_level, width-1);
         peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-                       vumeter->peak_level, width);
+                       vumeter->peak_level, width-1);
 
         /* draw normal level */
         cairo_set_source (cr, vumeter->gradient_rms);
@@ -361,21 +361,21 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
         /* draw peak */
         if (peak_level > rms_level) {
             cairo_set_source (cr, vumeter->gradient_peak);
-            cairo_rectangle (cr, rms_level+1.5, 1.5, peak_level-rms_level, height);
+            cairo_rectangle (cr, rms_level+0.5, 1.5, peak_level-rms_level, height);
             cairo_fill (cr);
         }
 
         /* draw background for the rest */
-        if (peak_level+1 < width-2) {
+        if (width > peak_level) {
             cairo_set_source (cr, vumeter->gradient_bg);
-            cairo_rectangle (cr, peak_level+1.5, 1.5, width-peak_level-2, height);
+            cairo_rectangle (cr, peak_level+0.5, 1.5, width-peak_level, height);
             cairo_fill (cr);
         }
 
         /* shade every 4th line */
         cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
         cairo_set_line_width (cr, 1.0);
-        for (i = 1; i < width - 1; i += 4) {
+        for (i = 1; i < width; i += 5) {
           cairo_move_to (cr, i+0.5, 1.5);
           cairo_line_to (cr, i+0.5, height+1.5);
         }
