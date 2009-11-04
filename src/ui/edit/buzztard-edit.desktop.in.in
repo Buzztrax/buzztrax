@@ -1,13 +1,12 @@
 [Desktop Entry]
 Version=@VERSION@
-Encoding=UTF-8
 Type=Application
 _Name=Buzztard Music Editor
 _Comment=Edit buzztard song files
 TryExec=buzztard-edit
 Exec=buzztard-edit --command=load --input-file=%f
 Terminal=false
-Icon=@prefix@/share/buzztard/pixmaps/buzztard
+Icon=buzztard
 DocPath=buzztard/buzztard.xml
-Categories=GNOME;GTK;AudioVideo;Audio;Sequencer
-MimeType=audio/x-bzt;audio/x-bzt-xml
+Categories=GNOME;GTK;AudioVideo;Audio;Sequencer;
+MimeType=audio/x-bzt;audio/x-bzt-xml;
