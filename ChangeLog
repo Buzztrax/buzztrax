@@ -1,5 +1,10 @@
 2009-11-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Remove function, we don't need anymore also from the code.
+
+2009-11-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/core.c:
 	* src/lib/core/core_private.h:
