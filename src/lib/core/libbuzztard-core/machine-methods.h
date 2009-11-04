@@ -39,9 +39,6 @@ extern gboolean bt_machine_has_active_adder(const BtMachine * const self);
 extern gboolean bt_machine_activate_spreader(BtMachine * const self);
 extern gboolean bt_machine_has_active_spreader(const BtMachine * const self);
 
-//extern void bt_machine_renegotiate_adder_format(const BtMachine * const self, GstPad *pad);
-extern void bt_machine_renegotiate_adder_format(const BtMachine * const self);
-
 // pattern handling
 
 extern void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);

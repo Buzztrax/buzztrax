@@ -1207,7 +1207,8 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
 
   if(!self->priv->machines[PART_ADDER]) {
-    GST_INFO(" for machine '%s'",self->priv->id);
+    gboolean skip_convert=FALSE;
+    GstPad *pad;
 
     // create the adder
     if(!(bt_machine_make_internal_element(self,PART_ADDER,"adder","adder"))) goto Error;
@@ -1217,37 +1218,67 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     // try without capsfilter (>= 0.10.24)
     if(!g_object_class_find_property(G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_ADDER])),"caps")) {
       if(!(bt_machine_make_internal_element(self,PART_CAPS_FILTER,"capsfilter","capsfilter"))) goto Error;
+      g_object_set(self->priv->machines[PART_CAPS_FILTER],"caps",bt_default_caps,NULL);
     }
-    // adder does not link directly to some elements
-    // @todo: what fails? wires have a converter too
-    if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
-    if(!BT_IS_SINK_MACHINE(self)) {
-      // only do this for the final mix
-      g_object_set(self->priv->machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+    else {
+      g_object_set(self->priv->machines[PART_ADDER],"caps",bt_default_caps,NULL);
     }
-    GST_DEBUG("  about to link adder -> convert -> dst_elem");
-    if(!self->priv->machines[PART_CAPS_FILTER]) {
-      if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL)) {
-        gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL);
-        GST_ERROR("failed to link the internal adder of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-        goto Error;
+
+    /* we need the converter unless we always set a fixed format on adder and
+     * convert as need
+     */
+    if((pad=gst_element_get_static_pad(self->priv->machines[PART_MACHINE],"sink"))) {
+#if GST_CHECK_VERSION(0,10,25)
+      skip_convert=gst_caps_can_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
+#else
+      GstCaps *c=gst_caps_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
+      skip_convert=!(c && gst_caps_is_empty(c));
+      gst_caps_unref(c);
+#endif
+      gst_object_unref(pad);
+    }
+    if(skip_convert) {
+      GST_DEBUG_OBJECT(self,"  about to link adder -> dst_elem");
+      if(!self->priv->machines[PART_CAPS_FILTER]) {
+        if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->dst_elem, NULL)) {
+          gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->dst_elem, NULL);
+          GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
+          goto Error;
+        }
       }
       else {
-        GST_DEBUG("  adder activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-        self->priv->dst_elem=self->priv->machines[PART_ADDER];
+        if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->dst_elem, NULL)) {
+          gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->dst_elem, NULL);
+          GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
+          goto Error;
+        }
       }
     }
     else {
-      if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL)) {
-        gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL);
-        GST_ERROR("failed to link the internal adder of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-        goto Error;
+      GST_WARNING_OBJECT(self,"adding converter");
+      if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
+      if(!BT_IS_SINK_MACHINE(self)) {
+        // only do this for the final mix
+        g_object_set(self->priv->machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+      }
+      GST_DEBUG_OBJECT(self,"  about to link adder -> convert -> dst_elem");
+      if(!self->priv->machines[PART_CAPS_FILTER]) {
+        if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL)) {
+          gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL);
+          GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
+          goto Error;
+        }
       }
       else {
-        GST_DEBUG("  adder activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
-        self->priv->dst_elem=self->priv->machines[PART_ADDER];
+        if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL)) {
+          gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL);
+          GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
+          goto Error;
+        }
       }
     }
+    GST_DEBUG_OBJECT(self,"  adder activated");
+    self->priv->dst_elem=self->priv->machines[PART_ADDER];
   }
   res=TRUE;
 Error:
@@ -1287,16 +1318,14 @@ gboolean bt_machine_activate_spreader(BtMachine * const self) {
   g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
 
   if(!self->priv->machines[PART_SPREADER]) {
-    GST_INFO(" for machine '%s'",self->priv->id);
-
     // create the spreader (tee)
     if(!(bt_machine_make_internal_element(self,PART_SPREADER,"tee","tee"))) goto Error;
     if(!gst_element_link(self->priv->src_elem, self->priv->machines[PART_SPREADER])) {
-      GST_ERROR("failed to link the internal spreader of machine '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+      GST_ERROR_OBJECT(self,"failed to link the internal spreader of machine");
       goto Error;
     }
     else {
-      GST_DEBUG("  spreader activated for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+      GST_DEBUG_OBJECT(self,"  spreader activated");
       self->priv->src_elem=self->priv->machines[PART_SPREADER];
     }
   }
@@ -1349,10 +1378,11 @@ static guint get_int_value(GstStructure *str,gchar *name) {
  * - benefits of using a fixed format (float) would be:
  *   - no need to dynamically determine the format here
  *   - only activate audioconvert on wires that have different format
- *     see comments in wire, this would be much faster 
+ *     see comments in wire, this would be much faster
+ *     - for this we need to check the format of the src when linking the wire
+ *       machines, could have api to get machine_src/sink_caps
  */
 void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
-
   GST_INFO_OBJECT(self,"reconfigure adder format, machine in state %s",gst_element_state_get_name(GST_STATE(self)));
   
   /* do nothing if we don't have and adder */
@@ -1444,26 +1474,39 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     // we ignore rate for now
     ns=gst_structure_new(fmt_names[n_format],
       "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
-      "channels",GST_TYPE_INT_RANGE,n_channels,8,
       "endianness",G_TYPE_INT,G_BYTE_ORDER,
       NULL);
+    if(n_channels==2) {
+      gst_structure_set(ns,"channels",G_TYPE_INT,2,NULL);
+    }
+    else {
+      gst_structure_set(ns,"channels",GST_TYPE_INT_RANGE,1,2,NULL);
+    }
     if(n_format==0) {
       gst_structure_set(ns,
-        "width",GST_TYPE_INT_RANGE,n_width,32,
-        "depth",GST_TYPE_INT_RANGE,n_depth,32,
         "signed",G_TYPE_BOOLEAN,(singnednes_signed_ct>=signedness_unsigned_ct),
         NULL);
-      if(singnednes_signed_ct!=signedness_unsigned_ct) {
-        gst_structure_set(ns,
-          "signed",G_TYPE_BOOLEAN,(singnednes_signed_ct>signedness_unsigned_ct),
-          NULL);
+      if(n_width==32) {
+        gst_structure_set(ns,"width",G_TYPE_INT,32,NULL);
+      }
+      else {
+        gst_structure_set(ns,"width",GST_TYPE_INT_RANGE,n_width,32,NULL);
+      }
+      if(n_depth==32) {
+        gst_structure_set(ns,"depth",G_TYPE_INT,32,NULL);
+      }
+      else {
+        gst_structure_set(ns,"depth",GST_TYPE_INT_RANGE,n_depth,32,NULL);
       }
       /* no need to set range for boolean signed, if we don't need to filter */
     }
     else {
-      gst_structure_set(ns,
-        "width",GST_TYPE_INT_RANGE,n_width,64,
-        NULL);
+      if(n_width==64) {
+        gst_structure_set(ns,"width",G_TYPE_INT,64,NULL);
+      }
+      else {
+        gst_structure_set(ns,"width",GST_TYPE_INT_RANGE,n_width,64,NULL);
+      }
     }
     new_caps=gst_caps_new_full(ns,NULL);
 

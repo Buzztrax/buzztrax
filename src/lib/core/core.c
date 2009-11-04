@@ -61,6 +61,8 @@ GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
 static gboolean bt_initialized = FALSE;
 
+GstCaps *bt_default_caps=NULL;
+
 //-- helper methods
 
 /* we have no fail cases yet, but maybe in the future */
@@ -85,7 +87,9 @@ static gboolean bt_init_post (void) {
   //-- initialize dynamic parameter control module
   //gst_controller_init(argc,argv);
   gst_controller_init(NULL,NULL);
-  
+
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
+
 #if GST_CHECK_VERSION(0,10,16)
   /* @todo: requires gst-0.10.16 */
   extern gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin);
@@ -97,7 +101,12 @@ static gboolean bt_init_post (void) {
     VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
 #endif
 
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
+  bt_default_caps=gst_caps_new_simple("audio/x-raw-float",
+    "width",G_TYPE_INT,32,
+    "channels",GST_TYPE_INT_RANGE,1,2,
+    "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
+    "endianness",G_TYPE_INT,G_BYTE_ORDER,
+    NULL);
 
   GST_DEBUG("init xml");
   //-- initialize libxml

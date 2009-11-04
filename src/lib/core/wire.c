@@ -62,25 +62,6 @@ enum {
   WIRE_ANALYZERS
 };
 
-/* @todo: can we remove PART_CONVERT?
- * - PAN adjusts the channels
- * - GAIN accepts most formats, but does not convert
- * - currently it breaks when e.g. using one buzzmachine and fluidsynth
- * - adding audioconvert on demand is not so easy, we would need to do it
- *   from bt_machine_renegotiate_adder_format()
- *
- * it would significantly improve the performance
- * before:
- * $ GST_DEBUG_NO_COLOR=1 GST_DEBUG="bt-core:3" ./buzztard-cmd 2>&1 --command=play --input-file=../share/buzztard/songs/buzz/Aehnatron-noPrimiFun.bmw | grep "async"
- * 0:00:03.026636093   790  0x8053558 INFO                 bt-core song.c:692:bt_song_play: ->PAUSED needs async wait
- * 0:00:06.765806842   790  0x8053558 INFO                 bt-core song.c:480:on_song_async_done: async state-change done
- * after:
- * $ GST_DEBUG_NO_COLOR=1 GST_DEBUG="bt-core:3" ./buzztard-cmd 2>&1 --command=play --input-file=../share/buzztard/songs/buzz/Aehnatron-noPrimiFun.bmw | grep "async"
- * 0:00:01.989507128  2332  0x8053558 INFO                 bt-core song.c:692:bt_song_play: ->PAUSED needs async wait
- * 0:00:03.615313164  2332  0x8053558 INFO                 bt-core song.c:480:on_song_async_done: async state-change done
- */
-//#define WITHOUT_CONVERT 1
-
 // capsfiter, convert, pan, volume are gap-aware
 typedef enum {
   /* source element alias in the wire for convinience */
@@ -398,9 +379,10 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   const BtMachine * const src = self->priv->src;
   const BtMachine * const dst = self->priv->dst;
   GstElement ** const machines=self->priv->machines;
-  GstElement *dst_machine;
+  GstElement *dst_machine, *src_machine;
   GstCaps *caps;
   GstPad *pad;
+  gboolean skip_convert=FALSE;
 
   g_assert(BT_IS_WIRE(self));
 
@@ -484,62 +466,78 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     gst_object_unref(pad);
   }
   gst_object_unref(dst_machine);
+
+  g_object_get(G_OBJECT(src),"machine",&src_machine,NULL);
+  if((pad=gst_element_get_static_pad(src_machine,"src"))) {
+#if GST_CHECK_VERSION(0,10,25)
+    skip_convert=gst_caps_can_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
+#else
+    GstCaps *c=gst_caps_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
+    skip_convert=!(c && gst_caps_is_empty(c));
+    gst_caps_unref(c);
+#endif
+    gst_object_unref(pad);
+  }
+  gst_object_unref(src_machine);
   
   GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
-#ifndef WITHOUT_CONVERT
-  /* if we try linking without audioconvert and this links to an adder,
-   * then the first link enforces the format (if first is mono and later stereo
-   * signal is linked, this is downgraded).
-   * Right now we need to do this, because of http://bugzilla.gnome.org/show_bug.cgi?id=418982 (this is closed, not a bug)
-   */
-  if(!machines[PART_CONVERT]) {
-    bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
-    g_assert(machines[PART_CONVERT]!=NULL);
-    g_object_set(machines[PART_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+  if(!skip_convert) {
+    GST_WARNING_OBJECT(self,"adding converter");
+    if(!machines[PART_CONVERT]) {
+      bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
+      g_assert(machines[PART_CONVERT]!=NULL);
+      g_object_set(machines[PART_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+    }
   }
-#endif
   if(machines[PART_PAN]) {
     GST_DEBUG("trying to link machines with pan");
-#ifdef WITHOUT_CONVERT
-    if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_PAN], NULL))) {
-      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_PAN], NULL);
-      GST_WARNING("failed to link machines with pan");
+    if(skip_convert) {
+      if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_PAN], NULL))) {
+        gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_PAN], NULL);
+        GST_WARNING("failed to link machines with pan");
+      }
+      else {
+        machines[PART_SRC]=machines[PART_QUEUE];
+        machines[PART_DST]=machines[PART_PAN];
+        GST_DEBUG("  wire okay with pan and without convert");
+      }
     }
-#else
-    if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL))) {
-      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL);
-      GST_WARNING("failed to link machines with pan");
-    }
-#endif
     else {
-      machines[PART_SRC]=machines[PART_QUEUE];
-      machines[PART_DST]=machines[PART_PAN];
-      GST_DEBUG("  wire okay with pan");
+      if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL))) {
+        gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL);
+        GST_WARNING("failed to link machines with pan");
+      }
+      else {
+        machines[PART_SRC]=machines[PART_QUEUE];
+        machines[PART_DST]=machines[PART_PAN];
+        GST_DEBUG("  wire okay with pan and with convert");
+      }
     }
   }
   else {
     GST_DEBUG("trying to link machines without pan");
-#ifdef WITHOUT_CONVERT
-    if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], NULL))) {
-      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], NULL);
-      GST_WARNING("failed to link machines without pan");
+    if(skip_convert) {
+      if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], NULL))) {
+        gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], NULL);
+        GST_WARNING("failed to link machines without pan");
+      }
+      else {
+        machines[PART_SRC]=machines[PART_QUEUE];
+        machines[PART_DST]=machines[PART_GAIN];
+        GST_DEBUG("  wire okay without pan and with convert");
+      }
     }
     else {
-      machines[PART_SRC]=machines[PART_QUEUE];
-      machines[PART_DST]=machines[PART_GAIN];
-      GST_DEBUG("  wire okay without pan");
+      if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL))) {
+        gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL);
+        GST_WARNING("failed to link machines without pan");
+      }
+      else {
+        machines[PART_SRC]=machines[PART_QUEUE];
+        machines[PART_DST]=machines[PART_CONVERT];
+        GST_DEBUG("  wire okay without pan and without convert");
+      }
     }
-#else
-    if(!(res=gst_element_link_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL))) {
-      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL);
-      GST_WARNING("failed to link machines without pan");
-    }
-    else {
-      machines[PART_SRC]=machines[PART_QUEUE];
-      machines[PART_DST]=machines[PART_CONVERT];
-      GST_DEBUG("  wire okay without pan");
-    }
-#endif
   }
   if(res) {
     // update ghostpads
@@ -611,21 +609,22 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
   // check if wire has been properly initialized
   if(self->priv->src && self->priv->dst && machines[PART_TEE] && machines[PART_GAIN]) {
     GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src),GST_OBJECT_NAME(self->priv->dst));
-#ifdef WITHOUT_CONVERT
-    if(machines[PART_PAN]) {
-      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_PAN], NULL);
+    if(machines[PART_CONVERT]) {
+      if(machines[PART_PAN]) {
+        gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL);
+      }
+      else {
+        gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL);
+      }
     }
     else {
-      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], NULL);
+      if(machines[PART_PAN]) {
+        gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_PAN], NULL);
+      }
+      else {
+        gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], NULL);
+      }
     }
-#else
-    if(machines[PART_PAN]) {
-      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_PAN], NULL);
-    }
-    else {
-      gst_element_unlink_many(machines[PART_QUEUE], machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], NULL);
-    }
-#endif
   }
   /*
     if(machines[PART_CONVERT]) {

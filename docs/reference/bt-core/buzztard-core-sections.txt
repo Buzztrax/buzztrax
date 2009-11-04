@@ -58,7 +58,6 @@ bt_machine_activate_adder
 bt_machine_has_active_adder
 bt_machine_activate_spreader
 bt_machine_has_active_spreader
-bt_machine_renegotiate_adder_format
 bt_machine_add_pattern
 bt_machine_remove_pattern
 bt_machine_get_pattern_by_id

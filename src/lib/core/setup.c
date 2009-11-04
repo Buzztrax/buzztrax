@@ -677,13 +677,9 @@ static void add_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data)
     update_bin_in_pipeline(self,GST_BIN(key),TRUE,NULL);
 
     g_object_get(G_OBJECT(key),"src",&src,"dst",&dst,NULL);
-    if(link_wire(self,GST_ELEMENT(key),src,dst)) {
-      bt_machine_renegotiate_adder_format(BT_MACHINE(dst));
-    }
-    else {
-      // @todo: what todo here? We should always be able to link in theory
-      // maybe dump extensive diagnostics to add debugging
-    }
+    link_wire(self,GST_ELEMENT(key),src,dst);
+    // @todo: what todo if it fails? We should always be able to link in theory
+    // maybe dump extensive diagnostics to add debugging
     g_object_unref(src);
     g_object_unref(dst);
   }
@@ -759,7 +755,6 @@ static void del_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data)
     GST_INFO_OBJECT(key,"remove & unlink wire");
     g_object_get(G_OBJECT(key),"src",&src,"dst",&dst,NULL);
     unlink_wire(self,GST_ELEMENT(key),src,dst);
-    bt_machine_renegotiate_adder_format(BT_MACHINE(dst));
     g_object_unref(src);
     g_object_unref(dst);
     

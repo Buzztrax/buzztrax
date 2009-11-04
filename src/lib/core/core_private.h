@@ -89,6 +89,11 @@
 
 #include <libbuzztard-core/core.h>
 
+/*
+ * default caps to avoid plugging converters
+ */
+extern GstCaps *bt_default_caps;
+
 //-- defines for workarounds ---------------------------------------------------
 
 /**

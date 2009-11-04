@@ -1,5 +1,19 @@
 2009-11-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/core.c:
+	* src/lib/core/core_private.h:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	  Use a fixed internal format. This allows up to avoid plugging audioconvert
+	  elements in wires and machines. Now we plug them only if the machine
+	  cannot support the internal format. This gives 7 -> 1 sec speedup for
+	  load & play of Aenathron.
+
+2009-11-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/buzztard-edit.desktop.in.in:
 	  Check with desktop-file-validate from desktop-file-utils and fixup.
 
