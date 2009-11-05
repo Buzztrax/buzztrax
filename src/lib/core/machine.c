@@ -1351,19 +1351,6 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self) {
   return(self->priv->src_elem==self->priv->machines[PART_SPREADER]);
 }
 
-static guint get_int_value(GstStructure *str,gchar *name) {
-  const GValue *v;
-  guint res=0;
-
-  if((v=gst_structure_get_value(str,name))) {
-    if(G_VALUE_HOLDS_INT(v))
-      res = g_value_get_int(v);
-    else if(GST_VALUE_HOLDS_INT_RANGE(v))
-      res = gst_value_get_int_range_min(v);
-  }
-  return(res);
-}
-
 // pattern handling
 
 /**

@@ -1,6 +1,14 @@
 2009-11-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
+	  Remove unsued static method too.
+
+	* src/ui/edit/btmemoryaudiosrc.c:
+	  White space.
+
+2009-11-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
 	  Remove function, we don't need anymore also from the code.
 
 2009-11-05  Stefan Kost  <ensonic@users.sf.net>
@@ -62,7 +70,7 @@
 
 	* po/de.po:
 	* po/nn.po:
-	  Update tranlations.
+	  Update translations.
 
 	* src/lib/core/core.c:
 	* src/lib/ic/ic.c:

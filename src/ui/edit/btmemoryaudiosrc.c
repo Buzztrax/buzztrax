@@ -118,8 +118,8 @@ bt_memory_audio_src_class_init (BtMemoryAudioSrcClass * klass)
   gobject_class->get_property = bt_memory_audio_src_get_property;
   gobject_class->dispose = bt_memory_audio_src_dispose;
 
-  g_object_class_install_property (gobject_class, PROP_CAPS,
-      g_param_spec_boxed ("caps", "Output caps",
+  g_object_class_install_property(gobject_class, PROP_CAPS,
+      g_param_spec_boxed("caps", "Output caps",
           "Data format of sample.", 
           GST_TYPE_CAPS,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
@@ -127,13 +127,13 @@ bt_memory_audio_src_class_init (BtMemoryAudioSrcClass * klass)
       g_param_spec_pointer("data", "Sample data",
          "The sample data (interleaved for multi-channel)",
          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  g_object_class_install_property(gobject_class, PROP_LENGTH,
+  g_object_class_install_property (gobject_class, PROP_LENGTH,
       g_param_spec_ulong("length", "Length in samples",
          "Length of the sample in number of samples",
          0, G_MAXLONG, 0,
          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  g_object_class_install_property (gobject_class, PROP_SAMPLES_PER_BUFFER,
-      g_param_spec_int ("samplesperbuffer", "Samples per buffer",
+  g_object_class_install_property(gobject_class, PROP_SAMPLES_PER_BUFFER,
+      g_param_spec_int("samplesperbuffer", "Samples per buffer",
           "Number of samples in each outgoing buffer",
           1, G_MAXINT, 1024,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
@@ -431,7 +431,7 @@ bt_memory_audio_src_set_property (GObject * object, guint prop_id,
       src->length = g_value_get_ulong(value);
       break;
     case PROP_SAMPLES_PER_BUFFER:
-      src->samples_per_buffer = g_value_get_int (value);
+      src->samples_per_buffer = g_value_get_int(value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -447,7 +447,7 @@ bt_memory_audio_src_get_property (GObject * object, guint prop_id,
 
   switch (prop_id) {
     case PROP_CAPS:
-      gst_value_set_caps (value, src->caps);
+      gst_value_set_caps(value, src->caps);
       break;
     case PROP_DATA:
       g_value_set_pointer(value, src->data);
@@ -456,7 +456,7 @@ bt_memory_audio_src_get_property (GObject * object, guint prop_id,
       g_value_set_ulong(value, src->length);
       break;
     case PROP_SAMPLES_PER_BUFFER:
-      g_value_set_int (value, src->samples_per_buffer);
+      g_value_set_int(value, src->samples_per_buffer);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
