@@ -1,6 +1,15 @@
 2009-11-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
+	  Keep converters for sinkmachine (some sinks don't need it). Fixes
+	  regression of yesterday optimizations for e.g. alsa.
+
+	* src/lib/core/wire.c:
+	  Disable some unneeded code.
+
+2009-11-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
 	  Remove unsued static method too.
 
 	* src/ui/edit/btmemoryaudiosrc.c:

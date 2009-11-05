@@ -485,8 +485,9 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     GST_WARNING_OBJECT(self,"adding converter");
     if(!machines[PART_CONVERT]) {
       bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
-      g_assert(machines[PART_CONVERT]!=NULL);
-      g_object_set(machines[PART_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+      // this is off by default anyway
+      //g_assert(machines[PART_CONVERT]!=NULL);
+      //g_object_set(machines[PART_CONVERT],"dithering",0,"noise-shaping",0,NULL);
     }
   }
   if(machines[PART_PAN]) {

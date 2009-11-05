@@ -1224,18 +1224,18 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
       g_object_set(self->priv->machines[PART_ADDER],"caps",bt_default_caps,NULL);
     }
 
-    /* we need the converter unless we always set a fixed format on adder and
-     * convert as need
-     */
-    if((pad=gst_element_get_static_pad(self->priv->machines[PART_MACHINE],"sink"))) {
+    if(!BT_IS_SINK_MACHINE(self)) {
+      // try without converters in effects
+      if((pad=gst_element_get_static_pad(self->priv->machines[PART_MACHINE],"sink"))) {
 #if GST_CHECK_VERSION(0,10,25)
-      skip_convert=gst_caps_can_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
+        skip_convert=gst_caps_can_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
 #else
-      GstCaps *c=gst_caps_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
-      skip_convert=!(c && gst_caps_is_empty(c));
-      gst_caps_unref(c);
+        GstCaps *c=gst_caps_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
+        skip_convert=!(c && gst_caps_is_empty(c));
+        gst_caps_unref(c);
 #endif
-      gst_object_unref(pad);
+        gst_object_unref(pad);
+      }     
     }
     if(skip_convert) {
       GST_DEBUG_OBJECT(self,"  about to link adder -> dst_elem");
