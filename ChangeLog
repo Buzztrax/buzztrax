@@ -1,3 +1,14 @@
+2009-11-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/Makefile.am:
+	* pixmaps/popup-menu.png:
+	* pixmaps/popup-menu.png (svn:mime-type):
+	* pixmaps/popup-menu.png (added):
+	  Add a popup-menu icon. Please anyone submit a better one please.
+
+	* src/ui/edit/main-page-machines.c:
+	  Add context menu icon to toolbar.
+
 2009-11-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:

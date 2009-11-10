@@ -682,6 +682,12 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
   bt_main_page_machines_draw_grid(self);
 }
 
+static void on_toolbar_menu_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  
+  gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,1,gtk_get_current_event_time());
+} 
+
 static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gdouble vs,ve,vp,val,v;
@@ -1060,6 +1066,17 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
   //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
 
+  // space
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
+  
+  // popup menu button
+  image=gtk_image_new_from_filename("popup-menu.png");
+  tool_item=GTK_WIDGET(gtk_tool_button_new(image,_("Machine view menu")));
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Menu actions for machine view below"));
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
+ 
+  
   gtk_box_pack_start(GTK_BOX(self),self->priv->toolbar,FALSE,FALSE,0);
 
   // add canvas

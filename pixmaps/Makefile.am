@@ -5,6 +5,8 @@ SUBDIRS = hicolor gnome
 ## FIXME: move those to theme icons
 pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps
 pixmapdata_DATA = \
+	popup-menu.png \
+	\
 	prefs-audio-card.png \
 	prefs-input-gaming.png \
 	prefs-input-keyboard.png \
