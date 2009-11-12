@@ -607,16 +607,13 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
 }
 
-/*
+#ifndef GRID_USES_MENU_TOOL_ITEM
 static void on_toolbar_grid_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
 
-  g_assert(user_data);
-
-  GST_INFO("toolbar grid clicked event occurred");
   gtk_menu_popup(self->priv->grid_density_menu,NULL,NULL,NULL,NULL,1,gtk_get_current_event_time());
 }
-*/
+#endif
 
 static void on_toolbar_grid_density_off_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
@@ -1058,16 +1055,27 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
 
   // grid density toolbar icon
+#ifdef GRID_USES_MENU_TOOL_ITEM
+  // this is weird, we and up with a button and a menu, instead of a joint thing
+  // so this is probably mean for e.g. undo, where the button undos and the menu allows to undo to stop step
   image=gtk_image_new_from_icon_name("buzztard_menu_grid",GTK_ICON_SIZE_MENU);
   tool_item=GTK_WIDGET(gtk_menu_tool_button_new(image,_("Grid")));
   gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(tool_item),GTK_WIDGET(self->priv->grid_density_menu));
   gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(tool_item),_("Show background grid"));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Stop playback of this song"));
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Show background grid"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
+#else
+  image=gtk_image_new_from_icon_name("buzztard_menu_grid",GTK_ICON_SIZE_MENU);
+  tool_item=GTK_WIDGET(gtk_tool_button_new(image,_("Grid")));
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Show background grid"));
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
+#endif
 
-  // space
+#ifndef USE_HILDON
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
+#endif
   
   // popup menu button
   image=gtk_image_new_from_filename("popup-menu.png");
@@ -1075,8 +1083,8 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Menu actions for machine view below"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
- 
-  
+
+
   gtk_box_pack_start(GTK_BOX(self),self->priv->toolbar,FALSE,FALSE,0);
 
   // add canvas

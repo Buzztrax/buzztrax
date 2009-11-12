@@ -1,3 +1,15 @@
+2009-11-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/popup-menu.png:
+	  Somewhat better image.
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Add popup to those pages too.
+
+	* src/ui/edit/main-page-machines.c:
+	  Convert the menu-button back to a plain button and add comment.
+
 2009-11-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* pixmaps/Makefile.am:

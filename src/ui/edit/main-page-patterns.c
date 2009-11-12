@@ -1858,6 +1858,12 @@ static void on_play_live_toggled(GtkButton *button, gpointer user_data) {
   g_object_unref(song);
 }
 
+static void on_toolbar_menu_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  
+  gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,1,gtk_get_current_event_time());
+} 
+
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeModel *store;
@@ -2394,7 +2400,18 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play notes and triggers while editing the pattern"));
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"toggled",G_CALLBACK(on_play_live_toggled),(gpointer)self);
+
+#ifndef USE_HILDON
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
+#endif
   
+  // popup menu button
+  image=gtk_image_new_from_filename("popup-menu.png");
+  tool_item=GTK_WIDGET(gtk_tool_button_new(image,_("Pattern view menu")));
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Menu actions for pattern view below"));
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
+
 
   // get colors
   self->priv->cursor_bg=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);

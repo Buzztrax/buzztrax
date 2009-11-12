@@ -1727,6 +1727,40 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   g_object_unref(song);
 }
 
+static gboolean update_bars_menu(const BtMainPageSequence *self,gulong bars) {
+  GtkListStore *store;
+  GtkTreeIter iter;
+  gchar str[5];
+  gulong i,j;
+  /* the useful stepping depends on the rythm
+     beats=bars/tpb
+     bars=16, beats=4, tpb=4 : 4/4 -> 1,8, 16,32,64
+     bars=12, beats=3, tpb=4 : 3/4 -> 1,6, 12,24,48
+     bars=18, beats=3, tpb=6 : 3/6 -> 1,9, 18,36,72
+  */
+  store=gtk_list_store_new(1,G_TYPE_STRING);
+
+  // single steps
+  gtk_list_store_append(store,&iter);
+  gtk_list_store_set(store,&iter,0,"1",-1);
+  // half bars
+  sprintf(str,"%lu",bars/2);
+  gtk_list_store_append(store,&iter);
+  gtk_list_store_set(store,&iter,0,str,-1);
+  // add multiple of bars
+  for(j=0,i=bars;j<4;i*=2,j++) {
+    sprintf(str,"%lu",i);
+    gtk_list_store_append(store,&iter);
+    gtk_list_store_set(store,&iter,0,str,-1);
+  }
+  gtk_combo_box_set_model(self->priv->bars_menu,GTK_TREE_MODEL(store));
+  // @todo: we should remember the bars-filter with the song
+  gtk_combo_box_set_active(self->priv->bars_menu,2);
+  g_object_unref(store); // drop with combobox
+
+  return(TRUE);
+}
+
 //-- event handler
 
 static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
@@ -1930,6 +1964,12 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
     gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
   }
 }
+
+static void on_toolbar_menu_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  
+  gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,1,gtk_get_current_event_time());
+} 
 
 static void on_label_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -2672,42 +2712,6 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
   g_object_unref(song);
 }
 
-//-- helper methods
-
-static gboolean update_bars_menu(const BtMainPageSequence *self,gulong bars) {
-  GtkListStore *store;
-  GtkTreeIter iter;
-  gchar str[5];
-  gulong i,j;
-  /* the useful stepping depends on the rythm
-     beats=bars/tpb
-     bars=16, beats=4, tpb=4 : 4/4 -> 1,8, 16,32,64
-     bars=12, beats=3, tpb=4 : 3/4 -> 1,6, 12,24,48
-     bars=18, beats=3, tpb=6 : 3/6 -> 1,9, 18,36,72
-  */
-  store=gtk_list_store_new(1,G_TYPE_STRING);
-
-  // single steps
-  gtk_list_store_append(store,&iter);
-  gtk_list_store_set(store,&iter,0,"1",-1);
-  // half bars
-  sprintf(str,"%lu",bars/2);
-  gtk_list_store_append(store,&iter);
-  gtk_list_store_set(store,&iter,0,str,-1);
-  // add multiple of bars
-  for(j=0,i=bars;j<4;i*=2,j++) {
-    sprintf(str,"%lu",i);
-    gtk_list_store_append(store,&iter);
-    gtk_list_store_set(store,&iter,0,str,-1);
-  }
-  gtk_combo_box_set_model(self->priv->bars_menu,GTK_TREE_MODEL(store));
-  // @todo: we should remember the bars-filter with the song
-  gtk_combo_box_set_active(self->priv->bars_menu,2);
-  g_object_unref(store); // drop with combobox
-
-  return(TRUE);
-}
-
 static void on_song_info_bars_changed(const BtSongInfo *song_info,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   glong bars;
@@ -2792,6 +2796,20 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed done");
 }
 
+static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
+  GtkToolbar *toolbar=GTK_TOOLBAR(user_data);
+  gchar *toolbar_style;
+
+  g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
+  if(!BT_IS_STRING(toolbar_style)) return;
+
+  GST_INFO("!!!  toolbar style has changed '%s'", toolbar_style);
+  gtk_toolbar_set_style(toolbar,gtk_toolbar_get_style_from_string(toolbar_style));
+  g_free(toolbar_style);
+}
+
+//-- helper methods
+
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const BtMainPages *pages) {
   GtkWidget *toolbar;
   GtkWidget *split_box,*box,*vbox,*tool_item;
@@ -2802,9 +2820,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   GtkTreeViewColumn *tree_col;
   GtkTreeSelection *tree_sel;
   GtkAdjustment *vadjust, *hadjust;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
+  BtSettings *settings;
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -2835,6 +2851,18 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_widget_set_name(tool_item,"Steps");
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
+
+#ifndef USE_HILDON
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
+#endif
+  
+  // popup menu button
+  image=gtk_image_new_from_filename("popup-menu.png");
+  tool_item=GTK_WIDGET(gtk_tool_button_new(image,_("Sequence view menu")));
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Menu actions for sequence view below"));
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
+
 
   // get colors
   self->priv->cursor_bg=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
@@ -3056,6 +3084,12 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   // listen to page changes
   g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+
+  // let settings control toolbar style
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  on_toolbar_style_changed(settings,NULL,(gpointer)toolbar);
+  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)toolbar);
+  g_object_unref(settings);
 
   GST_DEBUG("  done");
   return(TRUE);
