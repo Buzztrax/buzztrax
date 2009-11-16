@@ -54,6 +54,7 @@
 
 #include "core_private.h"
 #include <libbuzztard-core/sink-bin.h>
+#include <gst/audio/multichannel.h>
 
 /* define this to get diagnostics of the sink data flow */
 //#define BT_MONITOR_SINK_DATA_FLOW
@@ -337,9 +338,13 @@ static gchar *bt_sink_bin_determine_plugin_name(const BtSinkBin * const self) {
     GstCaps *caps2=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
 
     GST_INFO("get audiosink from gst registry by rank");
+    /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=601775 */
+    GST_TYPE_AUDIO_CHANNEL_POSITION;
 
     for(node=audiosink_names;node;node=g_list_next(node)) {
       GstElementFactory * const factory=gst_element_factory_find(node->data);
+      
+      GST_INFO("  probing audio sink: \"%s\"",(gchar *)node->data);
 
       // can the sink accept raw audio?
       if(gst_element_factory_can_sink_caps(factory,caps1) || gst_element_factory_can_sink_caps(factory,caps2)) {
