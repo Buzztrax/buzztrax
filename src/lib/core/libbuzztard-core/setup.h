@@ -55,11 +55,6 @@ struct _BtSetup {
 /* structure of the setup class */
 struct _BtSetupClass {
   const GObjectClass parent;
-
-  void (*machine_added_event)(const BtSetup * const setup, const BtMachine * const machine, gconstpointer const user_data);
-  void (*wire_added_event)(const BtSetup * const setup, const BtWire * const wire, gconstpointer const user_data);
-  void (*machine_removed_event)(const BtSetup * const setup, const BtMachine * const machine, gconstpointer const user_data);
-  void (*wire_removed_event)(const BtSetup * const setup, const BtWire * const wire, gconstpointer const user_data);
 };
 
 /* used by SETUP_TYPE */

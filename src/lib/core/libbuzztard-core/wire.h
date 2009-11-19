@@ -53,8 +53,6 @@ struct _BtWire {
 /* structure of the wire class */
 struct _BtWireClass {
   const GstBinClass parent;
-
-  void (*pattern_created_event)(const BtWire * const wire, const BtWirePattern * const wire_pattern, gconstpointer const user_data);
 };
 
 /**

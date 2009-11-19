@@ -1494,7 +1494,7 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   signals[PATTERN_CREATED_EVENT] = g_signal_new("pattern-created",
                                    G_TYPE_FROM_CLASS(klass),
                                    G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                   (guint)G_STRUCT_OFFSET(BtWireClass,pattern_created_event),
+                                   0,
                                    NULL, // accumulator
                                    NULL, // acc data
                                    g_cclosure_marshal_VOID__OBJECT,

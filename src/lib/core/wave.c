@@ -910,8 +910,6 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
   gobject_class->dispose      = bt_wave_dispose;
   gobject_class->finalize     = bt_wave_finalize;
   
-  klass->loading_done_event = NULL;
-  
   /**
    * BtWave::loading-done:
    * @self: the setup object that emitted the signal
@@ -922,7 +920,7 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
   signals[LOADING_DONE_EVENT] = g_signal_new("loading-done",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        (guint)G_STRUCT_OFFSET(BtWaveClass,loading_done_event),
+                                        0,
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__BOOLEAN,

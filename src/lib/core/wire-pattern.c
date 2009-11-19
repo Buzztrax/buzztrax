@@ -1182,8 +1182,6 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
   gobject_class->dispose      = bt_wire_pattern_dispose;
   gobject_class->finalize     = bt_wire_pattern_finalize;
 
-  klass->param_changed_event = NULL;
-
   /**
    * BtWirePattern::param-changed:
    * @self: the wire-pattern object that emitted the signal
@@ -1196,7 +1194,7 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
   signals[PARAM_CHANGED_EVENT] = g_signal_new("param-changed",
                                  G_TYPE_FROM_CLASS(klass),
                                  G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                 (guint)G_STRUCT_OFFSET(BtWirePatternClass,param_changed_event),
+                                 0,
                                  NULL, // accumulator
                                  NULL, // acc data
                                  bt_marshal_VOID__ULONG_OBJECT_ULONG,
@@ -1212,15 +1210,15 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
    * signals that this wire-pattern has been changed (more than in one place)
    */
   signals[PATTERN_CHANGED_EVENT] = g_signal_new("pattern-changed",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        (guint)G_STRUCT_OFFSET(BtWirePatternClass,pattern_changed_event),
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        g_cclosure_marshal_VOID__VOID,
-                                        G_TYPE_NONE, // return type
-                                        0 // n_params
-                                        );
+                                    G_TYPE_FROM_CLASS(klass),
+                                    G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                    0,
+                                    NULL, // accumulator
+                                    NULL, // acc data
+                                    g_cclosure_marshal_VOID__VOID,
+                                    G_TYPE_NONE, // return type
+                                    0 // n_params
+                                    );
 
   g_object_class_install_property(gobject_class,WIRE_PATTERN_SONG,
                                   g_param_spec_object("song",

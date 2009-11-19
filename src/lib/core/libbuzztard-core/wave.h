@@ -52,8 +52,6 @@ struct _BtWave {
 
 struct _BtWaveClass {
   const GObjectClass parent;
-  
-  void (*loading_done_event)(const BtWave * const wave, gboolean success, gconstpointer const user_data);
 };
 
 #define BT_TYPE_WAVE_LOOP_MODE       (bt_wave_loop_mode_get_type())

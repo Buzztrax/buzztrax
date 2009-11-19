@@ -1739,9 +1739,6 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
   gobject_class->dispose      = bt_pattern_dispose;
   gobject_class->finalize     = bt_pattern_finalize;
 
-  klass->global_param_changed_event = NULL;
-  klass->voice_param_changed_event = NULL;
-
   /**
    * BtPattern::global-param-changed:
    * @self: the pattern object that emitted the signal
@@ -1753,7 +1750,7 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
   signals[GLOBAL_PARAM_CHANGED_EVENT] = g_signal_new("global-param-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        (guint)G_STRUCT_OFFSET(BtPatternClass,global_param_changed_event),
+                                        0,
                                         NULL, // accumulator
                                         NULL, // acc data
                                         bt_marshal_VOID__ULONG_ULONG,
@@ -1774,7 +1771,7 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
   signals[VOICE_PARAM_CHANGED_EVENT] = g_signal_new("voice-param-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        (guint)G_STRUCT_OFFSET(BtPatternClass,voice_param_changed_event),
+                                        0,
                                         NULL, // accumulator
                                         NULL, // acc data
                                         bt_marshal_VOID__ULONG_ULONG_ULONG,
@@ -1791,7 +1788,7 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
   signals[PATTERN_CHANGED_EVENT] = g_signal_new("pattern-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        (guint)G_STRUCT_OFFSET(BtPatternClass,pattern_changed_event),
+                                        0,
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,

@@ -1246,8 +1246,6 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
   citem_class->realize        = bt_machine_canvas_item_realize;
   citem_class->event          = bt_machine_canvas_item_event;
 
-  klass->position_changed = NULL;
-
   /**
    * BtMachineCanvasItem::position-changed
    * @self: the machine-canvas-item object that emitted the signal
@@ -1257,7 +1255,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
   signals[POSITION_CHANGED] = g_signal_new("position-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_STRUCT_OFFSET(BtMachineCanvasItemClass,position_changed),
+                                        0,
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,

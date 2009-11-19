@@ -52,8 +52,6 @@ struct _BtMachineCanvasItem {
 /* structure of the main-pages class */
 struct _BtMachineCanvasItemClass {
   GnomeCanvasGroupClass parent;
-
-  void (*position_changed)(const BtMachineCanvasItem *citem, gpointer user_data);
 };
 
 /* used by MAIN_PAGES_TYPE */

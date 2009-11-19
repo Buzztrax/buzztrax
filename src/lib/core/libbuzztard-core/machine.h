@@ -60,11 +60,6 @@ struct _BtMachine {
 struct _BtMachineClass {
   const GstBinClass parent;
 
-  /*< private >*/
-  /* signal callbacks */
-  void (*pattern_added_event)(const BtMachine * const machine, const BtPattern * const pattern, gconstpointer const user_data);
-  void (*pattern_removed_event)(const BtMachine * const machine, const BtPattern * const pattern, gconstpointer const user_data);
-
   /*< public >*/
   /* virtual methods for subclasses */
   gboolean (*check_type)(const BtMachine * const machine, const gulong pad_src_ct, const gulong pad_sink_ct);

@@ -160,6 +160,7 @@ union { \
 sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
 */
 
+// since glib 2.13.0
 #ifndef G_PARAM_STATIC_STRINGS
 #define	G_PARAM_STATIC_STRINGS (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
 #endif

@@ -3501,9 +3501,6 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   gstelement_class->request_new_pad = bt_machine_request_new_pad;
   gstelement_class->release_pad     = bt_machine_release_pad;
 
-  klass->pattern_added_event = NULL;
-  klass->pattern_removed_event = NULL;
-
   /**
    * BtMachine::pattern-added:
    * @self: the machine object that emitted the signal
@@ -3514,7 +3511,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   signals[PATTERN_ADDED_EVENT] = g_signal_new("pattern-added",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        (guint)G_STRUCT_OFFSET(BtMachineClass,pattern_added_event),
+                                        0,
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__OBJECT,
@@ -3533,7 +3530,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   signals[PATTERN_REMOVED_EVENT] = g_signal_new("pattern-removed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        (guint)G_STRUCT_OFFSET(BtMachineClass,pattern_removed_event),
+                                        0,
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__OBJECT,

@@ -1,3 +1,24 @@
+2009-11-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/pattern.h:
+	* src/lib/core/libbuzztard-core/setup.h:
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/libbuzztard-core/wave.h:
+	* src/lib/core/libbuzztard-core/wavetable.h:
+	* src/lib/core/libbuzztard-core/wire-pattern.h:
+	* src/lib/core/libbuzztard-core/wire.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-canvas-item.h:
+	  Remove unnneded slots in classes for signals.
+
 2009-11-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:

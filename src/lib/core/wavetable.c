@@ -383,7 +383,7 @@ static void bt_wavetable_class_init(BtWavetableClass * const klass) {
   signals[WAVE_ADDED_EVENT] = g_signal_new("wave-added",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        (guint)G_STRUCT_OFFSET(BtWavetableClass,wave_added_event),
+                                        0,
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__OBJECT,
@@ -402,7 +402,7 @@ static void bt_wavetable_class_init(BtWavetableClass * const klass) {
   signals[WAVE_REMOVED_EVENT] = g_signal_new("wave-removed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        (guint)G_STRUCT_OFFSET(BtWavetableClass,wave_removed_event),
+                                        0,
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__OBJECT,
