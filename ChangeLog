@@ -1,5 +1,11 @@
 2009-11-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/ic/device.c:
+	* src/lib/ic/learn.c:
+	  Doc xref fixes.
+
+2009-11-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/application.c:
 	* src/lib/core/libbuzztard-core/sequence.h:
 	* src/lib/core/libbuzztard-core/tools.h:

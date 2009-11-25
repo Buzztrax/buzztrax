@@ -52,7 +52,7 @@ static BtIcControl* btic_learn_default_register_learned_control(gconstpointer se
 
 /**
  * btic_learn_start:
- * @self: the device which implements the #Learn interface
+ * @self: the device which implements the #BtIcLearn interface
  *
  * Starts the device if needed and enables the learn function.
  * Starts emission of notify::devide-controlchange signals.
@@ -66,7 +66,7 @@ gboolean btic_learn_start(const BtIcLearn *self)
 
 /**
  * btic_learn_stop:
- * @self: the device which implements the #Learn interface
+ * @self: the device which implements the #BtIcLearn interface
  *
  * Eventually stops the device and disables the learn function.
  * Stops emission of notify::devide-controlchange signals.
@@ -80,7 +80,7 @@ gboolean btic_learn_stop(const BtIcLearn *self)
 
 /**
  * btic_learn_register_learned_control:
- * @self: the device which implements the #Learn interface
+ * @self: the device which implements the #BtIcLearn interface
  * @name: the name under which to register the control
  *
  * Registers the last detected control with name @name.

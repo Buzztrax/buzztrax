@@ -97,7 +97,7 @@ static gboolean btic_device_default_stop(gconstpointer self) {
 
 /**
  * btic_device_start:
- * @self: the #Device instance to use
+ * @self: the #BtIcDevice instance to use
  *
  * Starts the io-loop for the device. This can be called multiple times and must
  * be paired by an equal amount of btic_device_stop() calls.
@@ -117,7 +117,7 @@ gboolean btic_device_start(const BtIcDevice *self) {
 
 /**
  * btic_device_stop:
- * @self: the #Device instance to use
+ * @self: the #BtIcDevice instance to use
  *
  * Stops the io-loop for the device. This must be called as often as the device
  * has been started using  btic_device_start().
