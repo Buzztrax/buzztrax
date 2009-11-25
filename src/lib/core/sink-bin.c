@@ -696,7 +696,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     if((peer_pad=gst_pad_get_peer(self->priv->sink))) {
       gst_pad_unlink(peer_pad,self->priv->sink);
     }
-    */
+    /**/
     
     if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad)) {
       GST_WARNING("failed to link internal pads");
