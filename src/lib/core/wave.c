@@ -531,7 +531,7 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
  * The wavelevel must have been added previously to this wave with bt_wave_add_wavelevel().
  * Unref the wavelevel, when done with it.
  *
- * Returns: #BtWaveLevel instance or %NULL if not found
+ * Returns: #BtWavelevel instance or %NULL if not found
  */
 BtWavelevel *bt_wave_get_level_by_index(const BtWave * const self,const gulong index) {
   BtWavelevel *wavelevel;

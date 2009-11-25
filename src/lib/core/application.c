@@ -22,13 +22,13 @@
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
  *
- * Everyone who writes an application using the #btcore library should create a
- * child of the <classname>BtApplication</classname> class.
+ * Every application using the libbtcore library should inherit from this class.
  *
- * The base class automatically creates a #GstBin element as a thread.
- * This can be retrieved via the bin property of an application instance.
- * When creating #BtSong instances, the #BtApplication instance needs to be passed
- * to the bt_song_new() constructor, so that it can retrieve the #GstBin element.
+ * The base class automatically creates a #GstBin element as a container for the
+ * song. This can be retrieved via the #BtApplication:bin property.
+ * When creating #BtSong instances, the #BtApplication instance needs to be
+ * passed to the bt_song_new() constructor, so that it can retrieve the #GstBin
+ * element.
  * |[
  * BtApplication *app;
  * BtSong *song;

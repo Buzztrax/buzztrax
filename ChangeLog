@@ -1,3 +1,18 @@
+2009-11-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/application.c:
+	* src/lib/core/libbuzztard-core/sequence.h:
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/persistence.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavetable.c:
+	  Doc xref fixes.
+
 2009-11-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbuzztard-core/machine.h:

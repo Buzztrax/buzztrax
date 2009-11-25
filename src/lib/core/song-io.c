@@ -22,19 +22,20 @@
  * SECTION:btsongio
  * @short_description: base class for song input and output
  *
- * A base class for #BtSong loader and saver implementations. A #SongIO module
+ * A base class for #BtSong loader and saver implementations. A #BtSongIO module
  * needs to be installed as a shared library into LIBDIR/songio. It is
- * recognized, if it exports method named bt_song_io_detect(). At runtime the
+ * recognized, if it exports a #BtSongIOModuleInfo structure. At runtime the
  * detect method of each module is called with the choosen file-name. The module
  * should return its #GType if it can handle the format or %NULL else.
  *
- * Such a module should overwrite bt_song_io_load() and/or bt_song_io_save().
+ * Such a module should overwrite the bt_song_io_load() and/or bt_song_io_save()
+ * default implementations.
  *
  * There is an internal subclass of this called #BtSongIONative.
  *
  * <note><para>
- * This API is not yet fully stable. Please discuss with the deverloper team. if
- * you intend to write a io plugin
+ * This API is not yet fully stable. Please discuss with the deverloper team if
+ * you intend to write a io plugin.
  * </para></note>
  */
 
@@ -75,7 +76,7 @@ static GList *plugins=NULL;
 /*
  * bt_song_io_register_plugins:
  *
- * Registers all song-io plugins for later use by bt_song_io_detect().
+ * Registers all song-io plugins for later use by bt_song_io_make().
  */
 static void bt_song_io_register_plugins(void) {
   DIR * const dirp=opendir(LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
@@ -141,7 +142,7 @@ static void bt_song_io_register_plugins(void) {
  * Factory method that returns the GType of the class that is able to handle
  * the supplied file
  *
- * Returns: the type of the #SongIO sub-class that can handle the supplied file
+ * Returns: the type of the #BtSongIO sub-class that can handle the supplied file
  * and %NULL otherwise
  */
 static GType bt_song_io_detect(const gchar * const file_name) {
@@ -262,8 +263,8 @@ static gboolean bt_song_io_default_save(gconstpointer const self, const BtSong *
 
 /**
  * bt_song_io_load:
- * @self: the #SongIO instance to use
- * @song: the #Song instance that should initialized
+ * @self: the #BtSongIO instance to use
+ * @song: the #BtSong instance that should initialized
  *
  * load the song from a file.  The file is set in the constructor
  *
@@ -310,8 +311,8 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
 
 /**
  * bt_song_io_save:
- * @self: the #SongIO instance to use
- * @song: the #Song instance that should stored
+ * @self: the #BtSongIO instance to use
+ * @song: the #BtSong instance that should stored
  *
  * save the song to a file.  The file is set in the constructor
  *

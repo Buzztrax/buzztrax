@@ -42,8 +42,8 @@ typedef struct _BtSequencePrivate BtSequencePrivate;
  * BtSequence:
  *
  * Starting point for the #BtSong timeline data-structures.
- * Holds a series of #BtTimeLine objects, which define the events that are
- * sent to a #BtMachine at a time.
+ * Holds a series of array of #BtPatterns for time and tracks, which define the
+ * events that are sent to a #BtMachine at a time.
  */
 struct _BtSequence {
   const GObject parent;

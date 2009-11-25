@@ -990,7 +990,7 @@ BtSequence *bt_sequence_new(const BtSong * const song) {
  * Works through the repair queue and rebuilds controller queues, where needed.
  *
  * There is usualy no need to call that manualy. Only call after soing mass
- * updates using bt_sequence_*_quick() functions.
+ * updates using bt_sequence_set_pattern_quick() functions.
  *
  * Since: 0.5
  */
@@ -1492,9 +1492,9 @@ gulong bt_sequence_limit_play_pos(const BtSequence * const self, gulong play_pos
  * @self: the sequence to check for pattern use
  * @pattern: the pattern to check for
  *
- * Checks if the %pattern is used in the sequence.
+ * Checks if the @pattern is used in the sequence.
  *
- * Returns: %TRUE if %pattern is used.
+ * Returns: %TRUE if @pattern is used.
  */
 gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPattern * const pattern) {
   gboolean res=FALSE;

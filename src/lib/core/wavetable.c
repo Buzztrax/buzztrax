@@ -23,7 +23,7 @@
  * @short_description: the list of #BtWave items in a #BtSong
  *
  * Each wave table entry can constist of multiple #BtWaves, were each of the
- * waves has a #BtWaveLevel with the data for a note range.
+ * waves has a #BtWavelevel with the data for a note range.
  */
 /* @todo: defer freeing waves if playing
  * - buzzmachines don't ref waves

@@ -54,7 +54,7 @@ extern GType bt_g_type_get_base_type(const GType type);
  * checks <code>self->priv->dispose_has_run</code> and
  * if true returns with the supplied arg.
  * This macro is handy to use at the start of all class routines
- * such as _get_property(), _set_property(), _dispose().
+ * such as #GObject.get_property(), #GObject.set_property(), #GObject.dispose().
  */
 #define return_if_disposed() if(self->priv->dispose_has_run) return
 

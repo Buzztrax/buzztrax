@@ -26,7 +26,7 @@
  * The setup manages virtual gear. That is used #BtMachines and the #BtWires
  * that connect them.
  *
- * It also manages the GStreamer #GstPipleine content.
+ * It also manages the GStreamer #GstPipeline content.
  */
 /* support dynamic (un)linking (while playing)
  *

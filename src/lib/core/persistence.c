@@ -155,7 +155,7 @@ gint bt_persistence_parse_enum(GType enum_type,const gchar *str) {
  * @doc; the xml-document
  * @node: the list xml node
  *
- * Iterates over a list of objects, which must implement the #BtPersistece
+ * Iterates over a list of objects, which must implement the #BtPersistence
  * interface and calls bt_persistence_save() on each item.
  *
  * Returns: %TRUE if all elements have been serialized.
