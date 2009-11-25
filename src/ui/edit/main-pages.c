@@ -24,7 +24,7 @@
  *
  * The user interface of the buzztard editor is divided into several pages.
  * This class implements the notebook widgets to manage the sub-pages:
- * #tMainPageMachines, #BtMainPagePatterns, #BtMainPageSequence,
+ * #BtMainPageMachines, #BtMainPagePatterns, #BtMainPageSequence,
  * #BtMainPageWaves and #BtMainPageInfo.
  */
 

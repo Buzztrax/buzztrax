@@ -43,14 +43,24 @@ enum PatternColumnType
   PCT_FLOAT
 };
 
-typedef struct _PatternColumn
+/**
+ * PatternColumn:
+ *
+ * A parameter column.
+ */
+struct _PatternColumn
 {
   enum PatternColumnType type;
   float def, min, max;
   gpointer user_data;
-} PatternColumn;
+};
 
-typedef struct _PatternColumnGroup
+/**
+ * PatternColumnGroup:
+ *
+ * A group of #PatternColumns, such as a voice or all global parameters.
+ */
+struct _PatternColumnGroup
 {
   // just an id to tell groups apart (wire=0, global=1, voice=2)
   int type;
@@ -60,9 +70,14 @@ typedef struct _PatternColumnGroup
   PatternColumn *columns;
   gpointer user_data;  
   int width; /* in pixels for now, may change to chars some day when needed */
-} PatternColumnGroup;
+};
 
-typedef struct _BtPatternEditorCallbacks
+/**
+ * BtPatternEditorCallbacks:
+ *
+ * Data format conversion callbacks.
+ */
+struct _BtPatternEditorCallbacks
 {
   /* FIXME: what about supplying
    * - PatternColumn instead of PatternColumn->user_data
@@ -70,9 +85,11 @@ typedef struct _BtPatternEditorCallbacks
    */
   float (*get_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param);
   void (*set_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param, int digit, float value);
-  void (*notify_cursor_func)(gpointer pattern_data, int row, int group, int param, int digit);
-} BtPatternEditorCallbacks;
+};
 
+typedef struct _PatternColumn PatternColumn;
+typedef struct _PatternColumnGroup PatternColumnGroup;
+typedef struct _BtPatternEditorCallbacks BtPatternEditorCallbacks;
 typedef struct _BtPatternEditorPrivate BtPatternEditorPrivate;
 
 enum BtPatternEditorSelectionMode
@@ -82,6 +99,11 @@ enum BtPatternEditorSelectionMode
   PESM_ALL
 };
 
+/**
+ * BtPatternEditor:
+ *
+ * Opaque editor instance data.
+ */
 typedef struct _BtPatternEditor
 {
   GtkWidget parent;

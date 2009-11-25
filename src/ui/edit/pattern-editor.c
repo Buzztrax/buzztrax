@@ -18,6 +18,13 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+/**
+ * SECTION:btpatterneditor
+ * @short_description: the pattern editor widget
+ * @see_also: #BtPattern, #BtMainPagePatterns
+ *
+ * Provides an editor widget for #BtPattern instances.
+ */
 
 /*
  * @todo:
@@ -423,10 +430,6 @@ bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
   if(draw) {
     // setting the adjustments already draws
     bt_pattern_editor_refresh_cursor(self);
-
-    // notify cursor movemnt
-    if (self->callbacks->notify_cursor_func)
-      self->callbacks->notify_cursor_func(self->pattern_data, self->row, self->group, self->parameter, self->digit);
   }
 }
 

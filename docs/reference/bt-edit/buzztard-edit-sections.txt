@@ -425,6 +425,21 @@ BtMainWindowPrivate
 
 
 <SECTION>
+<FILE>btmemoryaudiosrc</FILE>
+<TITLE>BtAboutDialog</TITLE>
+BtMemoryAudioSrc
+<SUBSECTION Standard>
+BtMemoryAudioSrcClass
+BT_MEMORY_AUDIO_SRC
+BT_IS_MEMORY_AUDIO_SRC
+BT_TYPE_MEMORY_AUDIO_SRC
+BT_MEMORY_AUDIO_SRC_CLASS
+BT_IS_MEMORY_AUDIO_SRC_CLASS
+bt_memory_audio_src_get_type
+</SECTION>
+
+
+<SECTION>
 <FILE>btmissingframeworkelementsdialog</FILE>
 <TITLE>BtMissingFrameworkElementsDialog</TITLE>
 BtMissingFrameworkElementsDialog
@@ -483,12 +498,15 @@ bt_panorama_popup_get_type
 <SECTION>
 <FILE>btpatterneditor</FILE>
 <TITLE>BtPatternEditor</TITLE>
+BtPatternEditor
+BtPatternEditorCallbacks
+PatternColumn
+PatternColumnGroup
 bt_pattern_editor_new
 bt_pattern_editor_set_pattern
 bt_pattern_editor_get_selection
 <SUBSECTION Standard>
-BtPatternEditor
-BtPatternEditorrClass
+BtPatternEditorClass
 BT_PATTERN_EDITOR
 BT_IS_PATTERN_EDITOR
 BT_PATTERN_EDITOR_CLASS

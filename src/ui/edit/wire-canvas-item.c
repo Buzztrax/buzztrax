@@ -21,7 +21,7 @@
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
- * @see_also: #btwireanalysisdialog
+ * @see_also: #BtWireAnalysisDialog
  *
  * Provides volume control on the wires, as well as a menu to disconnect wires
  * and to launch the analyzer screen.

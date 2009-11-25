@@ -21,7 +21,7 @@
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
- * @see_also: #BtPattern, #BtPatternView
+ * @see_also: #BtPattern, #BtPatternEditor
  *
  * Provides an editor for #BtPattern instances.
  */
@@ -1528,8 +1528,7 @@ static void pattern_table_clear(const BtMainPagePatterns *self) {
 static void pattern_table_refresh(const BtMainPagePatterns *self) {
   static BtPatternEditorCallbacks callbacks = {
     pattern_edit_get_data_at,
-    pattern_edit_set_data_at,
-    NULL
+    pattern_edit_set_data_at
   };
   
   if(self->priv->pattern) {

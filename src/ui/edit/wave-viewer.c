@@ -18,6 +18,14 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+/**
+ * SECTION:btwaveformviewer
+ * @short_description: the waveform viewer widget
+ * @see_also: #BtWave, #BtMainPageWaves
+ *
+ * Provides an viewer for audio waveforms.
+ */
+
 #define BT_EDIT
 #define BT_MAIN_PAGE_WAVES_C
 
