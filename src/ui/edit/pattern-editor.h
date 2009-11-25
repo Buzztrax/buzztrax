@@ -54,6 +54,7 @@ struct _PatternColumn
   float def, min, max;
   gpointer user_data;
 };
+typedef struct _PatternColumn PatternColumn;
 
 /**
  * PatternColumnGroup:
@@ -71,6 +72,7 @@ struct _PatternColumnGroup
   gpointer user_data;  
   int width; /* in pixels for now, may change to chars some day when needed */
 };
+typedef struct _PatternColumnGroup PatternColumnGroup;
 
 /**
  * BtPatternEditorCallbacks:
@@ -86,10 +88,8 @@ struct _BtPatternEditorCallbacks
   float (*get_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param);
   void (*set_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param, int digit, float value);
 };
-
-typedef struct _PatternColumn PatternColumn;
-typedef struct _PatternColumnGroup PatternColumnGroup;
 typedef struct _BtPatternEditorCallbacks BtPatternEditorCallbacks;
+
 typedef struct _BtPatternEditorPrivate BtPatternEditorPrivate;
 
 enum BtPatternEditorSelectionMode

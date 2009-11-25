@@ -426,7 +426,7 @@ BtMainWindowPrivate
 
 <SECTION>
 <FILE>btmemoryaudiosrc</FILE>
-<TITLE>BtAboutDialog</TITLE>
+<TITLE>BtMemoryAudioSrc</TITLE>
 BtMemoryAudioSrc
 <SUBSECTION Standard>
 BtMemoryAudioSrcClass
