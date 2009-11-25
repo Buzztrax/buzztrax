@@ -1,5 +1,11 @@
 2009-11-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	  Reactivate the work-around, while the bug is open. Fix a typo in enum type
+	  name.
+
+2009-11-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/device.c:
 	* src/lib/ic/learn.c:
 	  Doc xref fixes.

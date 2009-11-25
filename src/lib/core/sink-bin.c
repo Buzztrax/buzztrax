@@ -199,7 +199,7 @@ GType bt_sink_bin_record_format_get_type(void) {
       */
       { 0, NULL, NULL},
     };
-    type = g_enum_register_static("BtSinkBinMRecordFormat", values);
+    type = g_enum_register_static("BtSinkBinRecordFormat", values);
   }
   return type;
 }
@@ -675,7 +675,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   if(self->priv->sink) {
     GstPad *sink_pad=gst_element_get_static_pad(self->priv->caps_filter,"sink");
     GstPad *req_sink_pad=NULL;
-    //GstPad *peer_pad;
+    GstPad *peer_pad;
 
     GST_INFO("updating ghostpad: %p", self->priv->sink);
 
@@ -691,8 +691,8 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       sink_pad,(G_OBJECT(sink_pad)->ref_count));
     
     /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=596366 
-     * at least version 0.10.24 suffers from it
-     *
+     * at least version 0.10.24-25 suffer from it
+     */
     if((peer_pad=gst_pad_get_peer(self->priv->sink))) {
       gst_pad_unlink(peer_pad,self->priv->sink);
     }
@@ -701,12 +701,11 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad)) {
       GST_WARNING("failed to link internal pads");
     }
-    /*
+
     if(peer_pad) {
       gst_pad_link(peer_pad,self->priv->sink);
       gst_object_unref(peer_pad);
     }
-    */
     
     GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
     // request pads need to be released
