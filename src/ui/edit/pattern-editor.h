@@ -34,7 +34,7 @@ G_BEGIN_DECLS
 #define BT_IS_PATTERN_EDITOR_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  BT_TYPE_PATTERN_EDITOR))
 
 
-enum PatternColumnType
+enum BtPatternEditorColumnType
 {
   PCT_NOTE,
   PCT_SWITCH,
@@ -44,35 +44,35 @@ enum PatternColumnType
 };
 
 /**
- * PatternColumn:
+ * BtPatternEditorColumn:
  *
  * A parameter column.
  */
-struct _PatternColumn
+struct _BtPatternEditorColumn
 {
-  enum PatternColumnType type;
+  enum BtPatternEditorColumnType type;
   float def, min, max;
   gpointer user_data;
 };
-typedef struct _PatternColumn PatternColumn;
+typedef struct _BtPatternEditorColumn BtPatternEditorColumn;
 
 /**
- * PatternColumnGroup:
+ * BtPatternEditorColumnGroup:
  *
- * A group of #PatternColumns, such as a voice or all global parameters.
+ * A group of #BtPatternEditorColumns, such as a voice or all global parameters.
  */
-struct _PatternColumnGroup
+struct _BtPatternEditorColumnGroup
 {
   // just an id to tell groups apart (wire=0, global=1, voice=2)
   int type;
   // can be used for the headline above the group
   char *name;
   int num_columns;
-  PatternColumn *columns;
+  BtPatternEditorColumn *columns;
   gpointer user_data;  
   int width; /* in pixels for now, may change to chars some day when needed */
 };
-typedef struct _PatternColumnGroup PatternColumnGroup;
+typedef struct _BtPatternEditorColumnGroup BtPatternEditorColumnGroup;
 
 /**
  * BtPatternEditorCallbacks:
@@ -82,8 +82,8 @@ typedef struct _PatternColumnGroup PatternColumnGroup;
 struct _BtPatternEditorCallbacks
 {
   /* FIXME: what about supplying
-   * - PatternColumn instead of PatternColumn->user_data
-   * - PatternColumnGroup instead of track;
+   * - BtPatternEditorColumn instead of BtPatternEditorColumn->user_data
+   * - BtPatternEditorColumnGroup instead of track;
    */
   float (*get_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param);
   void (*set_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param, int digit, float value);
@@ -120,7 +120,7 @@ typedef struct _BtPatternEditor
   int ofs_x, ofs_y;
   /* pattern data */
   int num_lines, num_groups, num_rows;
-  PatternColumnGroup *groups;
+  BtPatternEditorColumnGroup *groups;
   BtPatternEditorCallbacks *callbacks;
   gpointer pattern_data;
   /* selection */
@@ -158,13 +158,13 @@ typedef struct _BtPatternEditorClass
 				  GtkAdjustment  * vertical);
 } BtPatternEditorClass;
 
-/* note: does not copy the PatternColumn * data (in this version) */
+/* note: does not copy the BtPatternEditorColumn * data (in this version) */
 extern void
 bt_pattern_editor_set_pattern (BtPatternEditor *view,
                           gpointer pattern_data,
                           int num_rows,
                           int num_groups,
-                          PatternColumnGroup *groups,
+                          BtPatternEditorColumnGroup *groups,
                           BtPatternEditorCallbacks *cb);
 
 GtkWidget *bt_pattern_editor_new();

@@ -126,7 +126,7 @@ struct _BtMainPagePatternsPrivate {
   /* the pattern that is currently shown */
   BtPattern *pattern;
   gulong number_of_groups;
-  PatternColumnGroup *param_groups;
+  BtPatternEditorColumnGroup *param_groups;
   guint *column_keymode;
 
   /* signal handler ids */
@@ -253,7 +253,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
 
     if(self->priv->pattern && self->priv->number_of_groups) {
       GParamSpec *property=NULL;
-      PatternColumnGroup *group;
+      BtPatternEditorColumnGroup *group;
       
       g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
       
@@ -329,17 +329,17 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
  * - _columns(BtPattern * self, gulong start_tick, gulong end_tick, gulong start_param, gulong end_param)
  */
 
-typedef void (*DoPatternColumn)(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-typedef void (*DoPatternColumns)(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
-typedef void (*DoWirePatternColumn)(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-typedef void (*DoWirePatternColumns)(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick);
+typedef void (*DoBtPatternEditorColumn)(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+typedef void (*DoBtPatternEditorColumns)(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+typedef void (*DoWireBtPatternEditorColumn)(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+typedef void (*DoWireBtPatternEditorColumns)(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick);
 
-static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoPatternColumn do_pattern_column,DoPatternColumns do_pattern_columns,DoWirePatternColumn do_wire_pattern_column,DoWirePatternColumns do_wire_pattern_columns) {
+static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatternEditorColumn do_pattern_column,DoBtPatternEditorColumns do_pattern_columns,DoWireBtPatternEditorColumn do_wire_pattern_column,DoWireBtPatternEditorColumns do_wire_pattern_columns) {
   gboolean res=FALSE;
   gint beg,end,group,param;
 
   if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
-    PatternColumnGroup *pc_group;
+    BtPatternEditorColumnGroup *pc_group;
     GST_INFO("applying : %d %d , %d %d",beg,end,group,param);
     if(group==-1 && param==-1) {
       // process full pattern
@@ -1139,24 +1139,24 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
 typedef struct {
   gfloat (*str_to_float)(gchar *in, gpointer user_data);
   const gchar *(*float_to_str)(gfloat in, gpointer user_data);
-} PatternColumnConvertersCallbacks;
+} BtPatternEditorColumnConvertersCallbacks;
 
 typedef struct {
-  PatternColumnConvertersCallbacks callbacks;
+  BtPatternEditorColumnConvertersCallbacks callbacks;
   float min,max;
-} PatternColumnConvertersFloatCallbacks;
+} BtPatternEditorColumnConvertersFloatCallbacks;
 
 typedef struct {
   union {
-    PatternColumnConvertersCallbacks any_cb;
-    PatternColumnConvertersFloatCallbacks float_cb;
+    BtPatternEditorColumnConvertersCallbacks any_cb;
+    BtPatternEditorColumnConvertersFloatCallbacks float_cb;
   };
-} PatternColumnConverters;
+} BtPatternEditorColumnConverters;
 
 static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   gchar *str = NULL;
-  PatternColumnGroup *group = &self->priv->param_groups[track];
+  BtPatternEditorColumnGroup *group = &self->priv->param_groups[track];
 
   switch (group->type) {
     case 0: {
@@ -1180,7 +1180,7 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
   if(str) {
     float res;
     if(column_data)
-      res=((PatternColumnConvertersCallbacks *)column_data)->str_to_float(str,column_data);
+      res=((BtPatternEditorColumnConvertersCallbacks *)column_data)->str_to_float(str,column_data);
     else
       res=g_ascii_strtod(str,NULL);
     g_free(str);
@@ -1192,10 +1192,10 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
 static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param, int digit, float value) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   const gchar *str = NULL;
-  PatternColumnGroup *group = &self->priv->param_groups[track];
+  BtPatternEditorColumnGroup *group = &self->priv->param_groups[track];
   
   if(column_data)
-    str=((PatternColumnConvertersCallbacks *)column_data)->float_to_str(value,column_data);
+    str=((BtPatternEditorColumnConvertersCallbacks *)column_data)->float_to_str(value,column_data);
   else
     if(value!=group->columns[param].def)
       str=bt_persistence_strfmt_double(value);
@@ -1364,7 +1364,7 @@ static const gchar * note_float_to_str(gfloat in, gpointer user_data) {
 
 static float float_str_to_float(gchar *str, gpointer user_data) {
   // scale value into 0...65535 range
-  PatternColumnConvertersFloatCallbacks *pcc=(PatternColumnConvertersFloatCallbacks *)user_data;
+  BtPatternEditorColumnConvertersFloatCallbacks *pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)user_data;
   gdouble val=g_ascii_strtod(str,NULL);
   gdouble factor=65535.0/(pcc->max-pcc->min);
   
@@ -1375,7 +1375,7 @@ static float float_str_to_float(gchar *str, gpointer user_data) {
 
 static const gchar * float_float_to_str(gfloat in, gpointer user_data) {
   // scale value from 0...65535 range
-  PatternColumnConvertersFloatCallbacks *pcc=(PatternColumnConvertersFloatCallbacks *)user_data;
+  BtPatternEditorColumnConvertersFloatCallbacks *pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)user_data;
   gdouble factor=65535.0/(pcc->max-pcc->min);
   gdouble val=pcc->min+(in/factor);
 
@@ -1384,7 +1384,7 @@ static const gchar * float_float_to_str(gfloat in, gpointer user_data) {
   return bt_persistence_strfmt_double(val);
 }
 
-static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val) { 
+static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val) { 
   GType type=bt_g_type_get_base_type(property->value_type);
 
   GST_LOG("filling param type: '%s'::'%s'/'%s' for parameter '%s'",
@@ -1393,14 +1393,14 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
 
   switch(type) {
     case G_TYPE_STRING: {
-      PatternColumnConvertersCallbacks *pcc;
+      BtPatternEditorColumnConvertersCallbacks *pcc;
 
       col->type=PCT_NOTE;
       col->min=0;
       col->max=((16*9)+12);
       col->def=0;
-      col->user_data=g_new(PatternColumnConverters,1);
-      pcc=(PatternColumnConvertersCallbacks *)col->user_data;
+      col->user_data=g_new(BtPatternEditorColumnConverters,1);
+      pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->str_to_float=note_str_to_float;
       pcc->float_to_str=note_float_to_str;
     } break;
@@ -1446,16 +1446,16 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->user_data=NULL;
       break;
     case G_TYPE_FLOAT: {
-      PatternColumnConvertersFloatCallbacks *pcc;
+      BtPatternEditorColumnConvertersFloatCallbacks *pcc;
 
       col->type=PCT_WORD;
       col->min=0.0;
       col->max=65535.0;
       col->def=col->max+1;
-      col->user_data=g_new(PatternColumnConverters,1);
-      pcc=(PatternColumnConvertersFloatCallbacks *)col->user_data;
-      ((PatternColumnConvertersCallbacks*)pcc)->str_to_float=float_str_to_float;
-      ((PatternColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
+      col->user_data=g_new(BtPatternEditorColumnConverters,1);
+      pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)col->user_data;
+      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->str_to_float=float_str_to_float;
+      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
       pcc->min=g_value_get_float(min_val);
       pcc->max=g_value_get_float(max_val);
       /* @todo: need scaling
@@ -1473,16 +1473,16 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
        */
     } break;
     case G_TYPE_DOUBLE: {
-      PatternColumnConvertersFloatCallbacks *pcc;
+      BtPatternEditorColumnConvertersFloatCallbacks *pcc;
 
       col->type=PCT_WORD;
       col->min=0.0;
       col->max=65535.0;
       col->def=col->max+1;
-      col->user_data=g_new(PatternColumnConverters,1);
-      pcc=(PatternColumnConvertersFloatCallbacks *)col->user_data;
-      ((PatternColumnConvertersCallbacks*)pcc)->str_to_float=float_str_to_float;
-      ((PatternColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
+      col->user_data=g_new(BtPatternEditorColumnConverters,1);
+      pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)col->user_data;
+      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->str_to_float=float_str_to_float;
+      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
       // identify wire-elements
       // this is not the best way to identify a volume element
       // gst_registry_find_feature() is better but too slow here
@@ -1535,7 +1535,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
     gulong i;
     gulong number_of_ticks,voices,global_params,voice_params;
     BtMachine *machine;
-    PatternColumnGroup *group;
+    BtPatternEditorColumnGroup *group;
     GValue *min_val,*max_val;
     GParamSpec *property;
 
@@ -1556,7 +1556,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       // need to iterate over all inputs
       node=machine->dst_wires;
       self->priv->number_of_groups+=g_list_length(node);
-      group=self->priv->param_groups=g_new(PatternColumnGroup,self->priv->number_of_groups);
+      group=self->priv->param_groups=g_new(BtPatternEditorColumnGroup,self->priv->number_of_groups);
         
       GST_INFO("wire parameters");
       for(;node;node=g_list_next(node)) {
@@ -1569,7 +1569,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
         g_object_get(G_OBJECT(src),"id",&group->name,NULL), 
         group->user_data=wire;
         group->num_columns=wire_params;
-        group->columns=g_new(PatternColumn,wire_params);
+        group->columns=g_new(BtPatternEditorColumn,wire_params);
         for(i=0;i<wire_params;i++) {
           bt_wire_get_param_details(wire,i,&property,&min_val,&max_val);
           pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val);
@@ -1579,7 +1579,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       }
     }
     else {
-      group=self->priv->param_groups=g_new(PatternColumnGroup,self->priv->number_of_groups);  
+      group=self->priv->param_groups=g_new(BtPatternEditorColumnGroup,self->priv->number_of_groups);  
     }
     if(global_params) {
       // create mapping for global params
@@ -1588,7 +1588,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       group->name=g_strdup(_("Globals"));
       group->user_data=NULL;
       group->num_columns=global_params;
-      group->columns=g_new(PatternColumn,global_params);
+      group->columns=g_new(BtPatternEditorColumn,global_params);
       GST_INFO("global parameters");
       for(i=0;i<global_params;i++) {
         bt_machine_get_global_param_details(machine,i,&property,&min_val,&max_val);
@@ -1597,14 +1597,14 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       group++;
     }
     if(voices) {
-      PatternColumnGroup *stamp=group;
+      BtPatternEditorColumnGroup *stamp=group;
       // create mapping for voice params
       group->type=2;
       /* label for parameters of first voice column in a pattern */
       group->name=g_strdup(_("Voice 1"));
       group->user_data=GUINT_TO_POINTER(0);
       group->num_columns=voice_params;
-      group->columns=g_new(PatternColumn,voice_params);
+      group->columns=g_new(BtPatternEditorColumn,voice_params);
       GST_INFO("voice parameters");
       for(i=0;i<voice_params;i++) {
         bt_machine_get_voice_param_details(machine,i,&property,&min_val,&max_val);
@@ -1617,7 +1617,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
         group->name=g_strdup_printf(_("Voice %u"),(guint)(i+1));
         group->user_data=GUINT_TO_POINTER(i);
         group->num_columns=voice_params;
-        group->columns=g_memdup(stamp->columns,sizeof(PatternColumn)*voice_params);
+        group->columns=g_memdup(stamp->columns,sizeof(BtPatternEditorColumn)*voice_params);
         group++;
       }
     }
@@ -2729,7 +2729,7 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
     GtkTargetList *list;
     GtkTargetEntry *targets;
     gint n_targets;
-    PatternColumnGroup *pc_group;
+    BtPatternEditorColumnGroup *pc_group;
     GString *data=g_string_new(NULL);
     
     list = gtk_target_list_new (NULL, 0);
@@ -2865,7 +2865,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     gint i=1,g,p;
     gint beg,end;
     gulong pattern_length;
-    PatternColumnGroup *pc_group;
+    BtPatternEditorColumnGroup *pc_group;
     BtMachine *machine;
     gboolean res=TRUE;
 

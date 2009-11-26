@@ -195,7 +195,7 @@ bt_pattern_editor_draw_colnames(BtPatternEditor *self,
       TRUE, 0, 0, widget->allocation.width, self->ch);
 
   for (g = 0; g < self->num_groups; g++) {
-    PatternColumnGroup *cgrp = &self->groups[g];
+    BtPatternEditorColumnGroup *cgrp = &self->groups[g];
  
     pango_layout_set_text (self->pl, cgrp->name, ((cgrp->width/self->cw)-1));
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
@@ -252,7 +252,7 @@ static void
 bt_pattern_editor_draw_column (BtPatternEditor *self,
                           int x,
                           int y,
-                          PatternColumn *col,
+                          BtPatternEditorColumn *col,
                           int group,
                           int param,
                           int row,
@@ -323,8 +323,8 @@ bt_pattern_editor_refresh_cell (BtPatternEditor *self)
   int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
   int x = self->rowhdr_width - self->ofs_x;
   int g, i, w;
-  PatternColumnGroup *cgrp;
-  PatternColumn *col;
+  BtPatternEditorColumnGroup *cgrp;
+  BtPatternEditorColumn *col;
   struct ParamType *pt;
     
   for (g = 0; g < self->group; g++) {
@@ -351,8 +351,8 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
   int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
   int x = self->rowhdr_width - self->ofs_x;
   int g, i;
-  PatternColumnGroup *cgrp;
-  PatternColumn *col;
+  BtPatternEditorColumnGroup *cgrp;
+  BtPatternEditorColumn *col;
   struct ParamType *pt;
     
   for (g = 0; g < self->group; g++) {
@@ -381,7 +381,7 @@ bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
   if (self->group < self->num_groups) {
     int g, p;
     int xpos = 0;
-    PatternColumnGroup *grp = NULL;
+    BtPatternEditorColumnGroup *grp = NULL;
     
     for (g = 0; g < self->group; g++)
       xpos += self->groups[g].width;
@@ -446,7 +446,7 @@ advance (BtPatternEditor *self)
   }
 }
 
-static PatternColumn *
+static BtPatternEditorColumn *
 cur_column (BtPatternEditor *self)
 {
   return &self->groups[self->group].columns[self->parameter];
@@ -454,7 +454,7 @@ cur_column (BtPatternEditor *self)
 
 static gboolean
 char_to_coords(int charpos,
-               PatternColumn *columns, 
+               BtPatternEditorColumn *columns, 
                int num_cols,
                int *parameter,
                int *digit)
@@ -656,10 +656,10 @@ bt_pattern_editor_expose (GtkWidget *widget,
 
   /* draw group parameter columns */
   for (g = 0; g < self->num_groups; g++) {
-    PatternColumnGroup *cgrp = &self->groups[g];
+    BtPatternEditorColumnGroup *cgrp = &self->groups[g];
     grp_x = x;
     for (i = 0; i < cgrp->num_columns; i++) {
-      PatternColumn *col=&cgrp->columns[i];
+      BtPatternEditorColumn *col=&cgrp->columns[i];
       struct ParamType *pt = &param_types[col->type];
       gint w = self->cw * (pt->chars + 1);
       gint xs = x-self->ofs_x, xe = xs+(w-1);
@@ -764,7 +764,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     (event->keyval >= 32 && event->keyval < 127) &&
     self->callbacks->set_data_func)
   {
-    PatternColumn *col = &self->groups[self->group].columns[self->parameter];
+    BtPatternEditorColumn *col = &self->groups[self->group].columns[self->parameter];
     if (event->keyval == '.') {
       self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, col->def);
       bt_pattern_editor_refresh_cell (self);
@@ -1003,7 +1003,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         }
         else {
           /* go to end of cell, group, pattern, bottom of pattern */
-          PatternColumn *pc = cur_column (self);
+          BtPatternEditorColumn *pc = cur_column (self);
           if (self->digit < param_types[pc->type].columns - 1) {
             self->digit = param_types[pc->type].columns - 1;
           } else if (self->parameter < self->groups[self->group].num_columns - 1) {
@@ -1025,7 +1025,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           if (self->digit > 0)
             self->digit--;
           else {
-            PatternColumn *pc;
+            BtPatternEditorColumn *pc;
             if (self->parameter > 0) {
               self->parameter--;
               g_object_notify(G_OBJECT(self),"cursor-param");
@@ -1047,7 +1047,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         break;
       case GDK_Right:
         if (!modifier) {
-          PatternColumn *pc = cur_column (self);
+          BtPatternEditorColumn *pc = cur_column (self);
           bt_pattern_editor_refresh_cursor(self);
           if (self->digit < param_types[pc->type].columns - 1) {
             self->digit++;
@@ -1123,7 +1123,7 @@ bt_pattern_editor_button_press (GtkWidget *widget,
   y -= self->colhdr_height;
   for (g = 0; g < self->num_groups; g++)
   {
-    PatternColumnGroup *grp = &self->groups[g];
+    BtPatternEditorColumnGroup *grp = &self->groups[g];
     if (x < grp->width)
     {
       if (char_to_coords(x / self->cw, grp->columns, grp->num_columns, &parameter, &digit))
@@ -1375,7 +1375,7 @@ bt_pattern_editor_set_pattern (BtPatternEditor *self,
                           gpointer pattern_data,
                           int num_rows,
                           int num_groups,
-                          PatternColumnGroup *groups,
+                          BtPatternEditorColumnGroup *groups,
                           BtPatternEditorCallbacks *cb
                           )
 {
