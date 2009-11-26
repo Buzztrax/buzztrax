@@ -1,5 +1,13 @@
 2009-11-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/core/Makefile.am:
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/e-song-info.c:
+	* tests/m-bt-core.c:
+	  Add more tests.
+
+2009-11-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-core/Makefile.am:
 	* docs/reference/bt-core/buzztard-core.types.in:

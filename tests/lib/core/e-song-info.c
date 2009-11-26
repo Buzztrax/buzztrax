@@ -73,10 +73,59 @@ BT_START_TEST(test_btsonginfo_createdate) {
 }
 BT_END_TEST
 
+/*
+* Test changing the tempo
+*/
+BT_START_TEST(test_btsonginfo_tempo) {
+  BtApplication *app=NULL;
+  BtSong *song;
+  BtSongIO *loader;
+  BtSongInfo *song_info;
+  BtSequence *sequence;
+  GstClockTime t1, t2;
+
+  // creating new empty app
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  mark_point();
+  // creating new song
+  song=bt_song_new(app);
+  mark_point();
+  // loading a song xml file
+  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
+  mark_point();
+  bt_song_io_load(loader,song);
+  mark_point();
+  // get the song info class from the song property
+  g_object_get(song,"song-info",&song_info,"sequence",&sequence,NULL);
+  mark_point();
+  // set a new bpm
+  g_object_set(song_info,"bpm",120,NULL);
+  t1=bt_sequence_get_bar_time(sequence);
+
+  // set a new bpm
+  g_object_set(song_info,"bpm",60,NULL);
+  t2=bt_sequence_get_bar_time(sequence);
+  
+  fail_unless(t2>t1,NULL);
+  fail_unless((t2/2)==t1,NULL);
+  
+  // wait a bit for the change to happen
+  g_usleep(G_USEC_PER_SEC/10);
+
+  g_object_unref(song_info);
+  g_object_unref(sequence);
+  g_object_checked_unref(loader);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+
+}
+BT_END_TEST
+
 TCase *bt_song_info_example_case(void) {
   TCase *tc = tcase_create("BtSongInfoExamples");
 
   tcase_add_test(tc,test_btsonginfo_createdate);
+  tcase_add_test(tc,test_btsonginfo_tempo);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

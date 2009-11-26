@@ -36,7 +36,7 @@ static void test_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btpattern_obj1) {
+BT_START_TEST(test_btpattern_obj_mono1) {
   BtApplication *app=NULL;
   GError *err=NULL;
   BtSong *song=NULL;
@@ -55,7 +55,7 @@ BT_START_TEST(test_btpattern_obj1) {
   fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   fail_unless(pattern!=NULL, NULL);
 
   /* should have patterns now */
@@ -68,7 +68,7 @@ BT_START_TEST(test_btpattern_obj1) {
 }
 BT_END_TEST
 
-BT_START_TEST(test_btpattern_obj2) {
+BT_START_TEST(test_btpattern_obj_poly1) {
   BtApplication *app=NULL;
   GError *err=NULL;
   BtSong *song=NULL;
@@ -100,6 +100,61 @@ BT_START_TEST(test_btpattern_obj2) {
 
   g_object_unref(pattern);
   g_object_unref(machine);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+BT_START_TEST(test_btpattern_obj_poly2) {
+  BtApplication *app=NULL;
+  GError *err=NULL;
+  BtSong *song=NULL;
+  BtSequence *sequence;
+  BtMachine *machine=NULL;
+  BtPattern *pattern=NULL;
+
+  GstElement *element;
+  gulong voices;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create a new song */
+  song=bt_song_new(app);
+  fail_unless(song!=NULL, NULL);
+  g_object_get(song,"sequence",&sequence,NULL);
+
+  /* create a source machine */
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,&err));
+  fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  g_object_get(machine,"machine",&element,NULL);
+  voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(element));
+  gst_object_unref(element);
+  fail_unless(voices==2, NULL);
+
+  /* try to create a pattern */
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+  fail_unless(pattern!=NULL, NULL);
+  
+   /* enlarge length */
+  g_object_set(sequence,"length",4L,NULL);
+
+  /* set machine */
+  bt_sequence_add_track(sequence,machine);
+
+  /* set pattern */
+  bt_sequence_set_pattern(sequence,0,0,pattern);
+
+  /* set some test data */
+  bt_pattern_set_global_event(pattern,0,0,"5");
+  bt_pattern_set_global_event(pattern,4,0,"10");
+  bt_pattern_set_voice_event(pattern,0,0,0,"5");
+  bt_pattern_set_voice_event(pattern,4,0,0,"10");
+
+  g_object_unref(pattern);
+  g_object_unref(machine);
+  g_object_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -475,8 +530,9 @@ BT_END_TEST
 TCase *bt_pattern_example_case(void) {
   TCase *tc = tcase_create("BtPatternExamples");
 
-  tcase_add_test(tc,test_btpattern_obj1);
-  tcase_add_test(tc,test_btpattern_obj2);
+  tcase_add_test(tc,test_btpattern_obj_mono1);
+  tcase_add_test(tc,test_btpattern_obj_poly1);
+  tcase_add_test(tc,test_btpattern_obj_poly2);
   tcase_add_test(tc,test_btpattern_copy);
   tcase_add_test(tc,test_btpattern_has_data);
   tcase_add_test(tc,test_btpattern_enlarge_length);
