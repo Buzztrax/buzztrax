@@ -1,5 +1,15 @@
 2009-11-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/core/e-wire-pattern.c:
+	* tests/lib/core/s-wire-pattern.c:
+	* tests/lib/core/e-wire-pattern.c (svn:keywords, svn:eol-style):
+	* tests/lib/core/s-wire-pattern.c (svn:keywords, svn:eol-style):
+	* tests/lib/core/e-wire-pattern.c (added):
+	* tests/lib/core/s-wire-pattern.c (added):
+	  And add new files.
+
+2009-11-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/lib/core/Makefile.am:
 	* tests/lib/core/e-pattern.c:
 	* tests/lib/core/e-song-info.c:
