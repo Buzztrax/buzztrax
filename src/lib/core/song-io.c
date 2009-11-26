@@ -283,8 +283,6 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
     GST_INFO("loading done");
     bt_song_set_unsaved(song,FALSE);
     //DEBUG
-    //bt_song_write_to_highlevel_dot_file(song);
-    //bt_song_write_to_xml_file(song);
     /*
     {
       BtSetup * const setup;

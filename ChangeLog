@@ -1,5 +1,18 @@
 2009-11-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-core/buzztard-core.types.in:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-ic/Makefile.am:
+	  Doc fixes. Sinkbin did not appear as gobject.
+
+	* src/lib/core/song-io.c:
+	  Comment cleanup.
+
+2009-11-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/pattern-editor.c:
 	* src/ui/edit/pattern-editor.h:

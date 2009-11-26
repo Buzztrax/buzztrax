@@ -500,8 +500,8 @@ bt_panorama_popup_get_type
 <TITLE>BtPatternEditor</TITLE>
 BtPatternEditor
 BtPatternEditorCallbacks
-PatternColumn
-PatternColumnGroup
+BtPatternEditorColumn
+BtPatternEditorColumnGroup
 bt_pattern_editor_new
 bt_pattern_editor_set_pattern
 bt_pattern_editor_get_selection

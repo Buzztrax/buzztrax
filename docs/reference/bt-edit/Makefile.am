@@ -16,7 +16,7 @@ DOC_SOURCE_DIR=$(top_srcdir)/src/ui/edit
 
 # Extra options to pass to gtkdoc-scangobj. Not normally needed.
 #SCANGOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv);gtk_init(&argc,&argv)"
-SCANGOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv)"
+SCANGOBJ_OPTIONS=--type-init-func="g_thread_init(NULL);g_type_init();gst_init(&argc,&argv)"
 
 # Extra options to supply to gtkdoc-scan.
 SCAN_OPTIONS=--deprecated-guards="BT_DISABLE_DEPRECATED"
