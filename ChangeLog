@@ -1,5 +1,16 @@
 2009-11-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-io.c:
+	  Turn g_asserts into g_Return_val_if_fail. This is public api.
+
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/e-wire-pattern.c:
+	* tests/lib/core/t-song-io.c:
+	* tests/lib/core/t-song.c:
+	  More tests.
+
+2009-11-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/Makefile.am:
 	* src/lib/core/libbuzztard-core/core.h:
 	* tests/lib/core/t-settings.c:

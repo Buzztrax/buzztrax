@@ -273,7 +273,8 @@ static gboolean bt_song_io_default_save(gconstpointer const self, const BtSong *
 gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
   gboolean result;
 
-  g_assert(BT_IS_SONG_IO(self));
+  g_return_val_if_fail(BT_IS_SONG_IO(self),FALSE);
+  g_return_val_if_fail(BT_IS_SONG(song),FALSE);
   
   GST_INFO("loading song [%s]",self->priv->file_name);
 
@@ -320,9 +321,10 @@ gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
   gboolean result;
   BtSongInfo * const song_info;
 
-  g_assert(BT_IS_SONG_IO(self));
+  g_return_val_if_fail(BT_IS_SONG_IO(self),FALSE);
+  g_return_val_if_fail(BT_IS_SONG(song),FALSE);
   
-    GST_INFO("saving song [%s]",self->priv->file_name);
+  GST_INFO("saving song [%s]",self->priv->file_name);
 
   // this updates the time-stamp
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);

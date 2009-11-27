@@ -192,7 +192,7 @@ BT_START_TEST(test_btsong_play1) {
   fail_unless(res, NULL);
 
   // @todo: this needs a mainloop!
-  sleep(3);
+  sleep(2);
   //fail_unless(play_signal_invoked, NULL);
   bt_song_stop(song);
 
@@ -202,8 +202,83 @@ BT_START_TEST(test_btsong_play1) {
 }
 BT_END_TEST
 
-/* @todo: play, wait a little, stop, play again */
-/* @todo: load a new song which the first plays */
+// play, wait a little, stop, play again
+BT_START_TEST(test_btsong_play2) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSongIO *loader=NULL;
+  gboolean load_ret = FALSE;
+  gboolean res;
+  gint i;
+
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
+  fail_unless(loader != NULL, NULL);
+  load_ret = bt_song_io_load(loader,song);
+  fail_unless(load_ret, NULL);
+
+  //play_signal_invoked=FALSE;
+  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
+
+  for(i=0;i<2;i++) {
+    res=bt_song_play(song);
+    fail_unless(res, NULL);
+  
+    // @todo: this needs a mainloop!
+    sleep(1);
+    //fail_unless(play_signal_invoked, NULL);
+    bt_song_stop(song);
+    //play_signal_invoked=FALSE;
+  }
+
+  g_object_checked_unref(loader);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+// load a new song, play, change audiosink to fakesink
+BT_START_TEST(test_btsong_play3) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSongIO *loader=NULL;
+  gboolean load_ret = FALSE;
+  gboolean res;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
+  fail_unless(loader != NULL, NULL);
+  load_ret = bt_song_io_load(loader,song);
+  fail_unless(load_ret, NULL);
+
+  //play_signal_invoked=FALSE;
+  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
+
+  res=bt_song_play(song);
+  fail_unless(res, NULL);
+
+  // @todo: this needs a mainloop!
+  sleep(2);
+  
+  // change audiosink
+  g_object_set(settings,"audiosink","fakesink",NULL);
+  
+  //fail_unless(play_signal_invoked, NULL);
+  bt_song_stop(song);
+
+  g_object_checked_unref(loader);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
 
 // test, if a newly created song contains empty setup, sequence, song-info and
 // wavetable
@@ -257,6 +332,8 @@ TCase *bt_song_example_case(void) {
   tcase_add_test(tc,test_btsong_load2);
   tcase_add_test(tc,test_btsong_load3);
   tcase_add_test(tc,test_btsong_play1);
+  tcase_add_test(tc,test_btsong_play2);
+  tcase_add_test(tc,test_btsong_play3);
   tcase_add_test(tc,test_btsong_new1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);

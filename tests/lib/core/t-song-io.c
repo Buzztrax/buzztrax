@@ -68,9 +68,34 @@ BT_END_TEST
 BT_START_TEST(test_btsong_io_obj4) {
   BtSongIO *song_io;
 
-  /* for some reasons gnomevfs creates the uri "http://test.unk" */
   song_io=bt_song_io_make("test.unk");
   fail_unless(song_io==NULL, NULL);
+}
+BT_END_TEST
+
+// try to create a SongIO directly
+BT_START_TEST(test_btsong_io_dummy) {
+  BtApplication *app;
+  BtSongIO *song_io;
+  BtSong *song;
+  gboolean res;
+  
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+
+  song_io=g_object_new(BT_TYPE_SONG_IO,NULL);
+  
+  res=bt_song_io_load(song_io,song);
+  fail_unless(res==FALSE, NULL);
+  
+  res=bt_song_io_save(song_io,song);
+  fail_unless(res==FALSE, NULL);
+
+  g_object_checked_unref(song_io);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -82,6 +107,7 @@ TCase *bt_song_io_test_case(void) {
   tcase_add_test(tc,test_btsong_io_obj2);
   tcase_add_test(tc,test_btsong_io_obj3);
   tcase_add_test(tc,test_btsong_io_obj4);
+  tcase_add_test(tc,test_btsong_io_dummy);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
