@@ -182,6 +182,9 @@ BT_START_TEST(test_btpattern_copy) {
   /* try to create a pattern */
   pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   fail_unless(pattern1!=NULL, NULL);
+  
+  /* set some test data */
+  bt_pattern_set_global_event(pattern1,0,0,"5");
 
   /* create a copy */
   pattern2=bt_pattern_copy(pattern1);
@@ -216,7 +219,7 @@ BT_START_TEST(test_btpattern_has_data) {
   /* create a new song */
   song=bt_song_new(app);
   /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,&err));
   fail_unless(machine!=NULL, NULL);
   fail_unless(err==NULL, NULL);
 

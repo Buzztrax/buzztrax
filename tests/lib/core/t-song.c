@@ -124,7 +124,7 @@ BT_START_TEST(test_btsong_play2) {
 }
 BT_END_TEST
 
-// @todo: load a new song while the first plays
+// load a new song while the first plays
 BT_START_TEST(test_btsong_play3) {
   BtApplication *app=NULL;
   BtSong *song=NULL;

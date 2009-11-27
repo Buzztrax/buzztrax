@@ -1,3 +1,11 @@
+2009-11-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/e-wire-pattern.c:
+	* tests/lib/core/t-song.c:
+	  More tests.
+
 2009-11-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-io.c:

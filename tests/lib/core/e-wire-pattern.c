@@ -186,6 +186,10 @@ BT_START_TEST(test_btwirepattern_copy) {
   wire_pattern1=bt_wire_pattern_new(song,wire,pattern1);
   fail_unless(wire_pattern1!=NULL, NULL);
   
+  /* set some test data */
+  bt_pattern_set_global_event(pattern1,0,0,"50");
+  bt_wire_pattern_set_event(wire_pattern1,0,0,"100");
+  
   /* create a copy */
   pattern2=bt_pattern_copy(pattern1);
   fail_unless(pattern2!=NULL, NULL);
