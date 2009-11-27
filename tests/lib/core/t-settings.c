@@ -23,23 +23,6 @@
 
 //-- globals
 
-// this counts the number of runs, to provide different implementations for each
-static int variant=0;
-
-BtSettings *get_settings(void) {
-  BtSettings *settings=NULL;
-
-  switch(variant) {
-    case 0:
-      settings=BT_SETTINGS(bt_gconf_settings_new());
-      break;
-    case 1:
-      settings=BT_SETTINGS(bt_plainfile_settings_new());
-      break;
-  }
-  return(settings);
-}
-
 //-- fixtures
 
 static void test_setup(void) {
@@ -50,13 +33,12 @@ static void test_setup(void) {
 static void test_teardown(void) {
   bt_core_teardown();
   //puts(__FILE__":teardown");
-  variant++;
 }
 
 //-- tests
 
 BT_START_TEST(test_btsettings_get_audiosink1) {
-  BtSettings *settings=get_settings();
+  BtSettings *settings=BT_SETTINGS(bt_gconf_settings_new());
   gchar *saved_audiosink_name,*test_audiosink_name;
 
   g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);

@@ -65,7 +65,7 @@
 #include "song-io-native-bzt-methods.h"
 #include "song-io-native-xml-methods.h"
 #include "settings-methods.h"
-#include "plainfile-settings-methods.h"
+//#include "plainfile-settings-methods.h"
 #include "application-methods.h"
 #include "wave-methods.h"
 #include "wavelevel-methods.h"

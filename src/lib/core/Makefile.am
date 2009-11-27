@@ -34,7 +34,6 @@ libbuzztard_core_la_SOURCES = \
 	persistence.c libbuzztard-core/persistence.h libbuzztard-core/persistence-methods.h \
 	persistence-location.c libbuzztard-core/persistence-location.h \
 	persistence-selection.c libbuzztard-core/persistence-selection.h \
-	plainfile-settings.c libbuzztard-core/plainfile-settings.h libbuzztard-core/plainfile-settings-methods.h \
 	processor-machine.c libbuzztard-core/processor-machine.h libbuzztard-core/processor-machine-methods.h \
 	sequence.c libbuzztard-core/sequence.h libbuzztard-core/sequence-methods.h \
 	settings.c libbuzztard-core/settings.h libbuzztard-core/settings-methods.h libbuzztard-core/settings-private.h \
@@ -55,6 +54,12 @@ libbuzztard_core_la_SOURCES = \
 	wire-pattern.c libbuzztard-core/wire-pattern.h libbuzztard-core/wire-pattern-methods.h \
 	\
 	marshal.c
+
+# yet unused sources
+#	plainfile-settings.c libbuzztard-core/plainfile-settings.h libbuzztard-core/plainfile-settings-methods.h \
+#
+#
+
 libbuzztard_core_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
