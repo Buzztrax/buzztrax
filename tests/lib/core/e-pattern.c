@@ -543,6 +543,9 @@ TCase *bt_pattern_example_case(void) {
   tcase_add_test(tc,test_btpattern_enlarge_voices);
   tcase_add_test(tc,test_btpattern_shrink_voices);
   tcase_add_test(tc,test_btpattern_insert_row);
+  // delete_row
+  // blend/randomize
+  // set params multiple times and clear them again
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

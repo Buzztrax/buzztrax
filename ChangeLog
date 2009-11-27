@@ -1,5 +1,15 @@
 2009-11-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-docs.sgml:
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztard-core.types.in:
+	  Also hide disabled class here.
+
+	* tests/lib/core/e-pattern.c:
+	  More tests needed here.
+
+2009-11-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/lib/core/e-pattern.c:
 	* tests/lib/core/e-song.c:
 	* tests/lib/core/e-wire-pattern.c:

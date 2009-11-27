@@ -218,7 +218,7 @@ BT_PERSISTENCE_SELECTION_GET_CLASS
 bt_persistence_selection_get_type
 </SECTION>
 
-<SECTION>
+<!--SECTION>
 <FILE>btplainfilesettings</FILE>
 <TITLE>BtPlainfileSettings</TITLE>
 BtPlainfileSettings
@@ -233,7 +233,7 @@ BT_TYPE_PLAINFILE_SETTINGS
 BT_PLAINFILE_SETTINGS_GET_CLASS
 bt_plainfile_settings_get_type
 BtPlainfileSettingsPrivate
-</SECTION>
+</SECTION-->
 
 <SECTION>
 <FILE>btprocessormachine</FILE>
