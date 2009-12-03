@@ -530,6 +530,52 @@ BT_START_TEST(test_btpattern_insert_row) {
 }
 BT_END_TEST
 
+BT_START_TEST(test_btpattern_delete_row) {
+  BtApplication *app=NULL;
+  GError *err=NULL;
+  BtSong *song=NULL;
+  BtMachine *machine=NULL;
+  BtPattern *pattern=NULL;
+  gchar *data;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create a new song */
+  song=bt_song_new(app);
+  /* try to create a source machine */
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
+  fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  /* try to create a pattern */
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
+  fail_unless(pattern!=NULL, NULL);
+
+  /* set some test data */
+  bt_pattern_set_global_event(pattern,0,0,"5");
+  bt_pattern_set_global_event(pattern,4,0,"10");
+
+  /* insert row */
+  bt_pattern_delete_row(pattern,0,0);
+  
+  /* verify data */
+  data=bt_pattern_get_global_event(pattern,0,0);
+  fail_unless(data==NULL, "data is '%s' instead of ''",data);
+  data=bt_pattern_get_global_event(pattern,3,0);
+  fail_unless(data!=NULL, NULL);
+  fail_if(strncmp(data,"10",2),"data is '%s' instead of '10'",data);
+  g_free(data);
+  data=bt_pattern_get_global_event(pattern,4,0);
+  fail_unless(data==NULL, "data is '%s' instead of ''",data);
+
+  /* cleanup */
+  g_object_try_unref(pattern);
+  g_object_try_unref(machine);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
 TCase *bt_pattern_example_case(void) {
   TCase *tc = tcase_create("BtPatternExamples");
 
@@ -543,7 +589,7 @@ TCase *bt_pattern_example_case(void) {
   tcase_add_test(tc,test_btpattern_enlarge_voices);
   tcase_add_test(tc,test_btpattern_shrink_voices);
   tcase_add_test(tc,test_btpattern_insert_row);
-  // delete_row
+  tcase_add_test(tc,test_btpattern_delete_row);
   // blend/randomize
   // set params multiple times and clear them again
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);

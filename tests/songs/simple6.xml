@@ -6,11 +6,11 @@
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
   <meta>
-    <info>a sine linked to the audio-sink with a simple pattern</info>
-    <name>simple 1</name>
+    <info>a mising machine</info>
+    <name>simple 6</name>
     <genre>dark-wave</genre>
-    <create-dts>2005-09-20T22:10:56Z</create-dts>
-    <change-dts>2005-09-20T22:10:56Z</change-dts>
+    <create-dts>2009-12-03T22:10:56Z</create-dts>
+    <change-dts>2009-12-03T22:10:56Z</change-dts>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>8</bars>
@@ -25,7 +25,7 @@
         </properties>
       </machine>
 
-      <machine type="source" id="sine1" plugin-name="audiotestsrc" voices="0">
+      <machine type="source" id="sine1" plugin-name="missing" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
@@ -37,18 +37,6 @@
               <globaldata name="freq" value="440.0"/>
               <globaldata name="volume" value="1.0"/>
             </tick>
-            <tick time="2">
-              <globaldata name="freq" value="880.0"/>
-              <globaldata name="volume" value="1.0"/>
-            </tick>
-            <tick time="4">
-              <globaldata name="freq" value="1760.0"/>
-              <globaldata name="volume" value="1.0"/>
-            </tick>
-            <tick time="6">
-              <globaldata name="freq" value="220.0"/>
-              <globaldata name="volume" value="0.0"/>
-            </tick>
           </pattern>
         </patterns>
       </machine>
@@ -56,7 +44,7 @@
     
     <wires>
       <wire src="sine1" dst="audio_sink" gain="1.0"/>
-    </wires>    
+    </wires>
   </setup>
   
   <sequence length="64" tracks="1">
@@ -72,11 +60,6 @@
     </tracks>
   </sequence>
   
-  <wavetable>
-    <!-- loading file from harddisk -->
-    <wave index="0" name="909base" uri="file:///data/samples/basedrums/909base.wav"/>
-    <!-- loading file from song archive -->
-    <wave index="2" name="dreampad" uri="file://!/wavetable/dreampad.wav"/>
-  </wavetable>
+  <wavetable />
 
 </buzztard>

@@ -1,3 +1,14 @@
+2009-12-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/Makefile.am:
+	* tests/bt-check.c:
+	* tests/lib/core/e-pattern.c:
+	* tests/songs/simple1.xml:
+	* tests/songs/simple6.xml:
+	* tests/ui/edit/e-bt-edit-application.c:
+	* tests/songs/simple6.xml (added):
+	  Improve coverage further.
+
 2009-11-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/buzztard-core-docs.sgml:

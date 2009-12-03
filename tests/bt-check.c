@@ -282,7 +282,7 @@ _bt_check_run_test_func (const gchar * func_name)
 const gchar *check_get_test_song_path(const gchar *name) {
   static gchar path[2048];
 
-  // TESTSONGDIR gets defined in Makefile.am
+  // TESTSONGDIR gets defined in Makefile.am and is an absolute path
   g_snprintf(path,2047,TESTSONGDIR""G_DIR_SEPARATOR_S"%s",name);
   GST_INFO("build path: '%s'",path);
   return(path);

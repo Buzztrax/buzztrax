@@ -36,12 +36,16 @@ TESTS_ENVIRONMENT = \
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
 
+test.wav:
+	gst-launch-0.10 -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=test.wav
+
 noinst_LTLIBRARIES = libbt-check.la
 libbt_check_la_LIBADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
 libbt_check_la_SOURCES = \
 	bt-check.c bt-check.h \
 	bt-test-plugin.c bt-test-plugin.h \
 	bt-test-settings.c bt-test-settings.h
+libbt_check_la_DEPENDENCIES = test.wav
 
 bt_core_LDADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
@@ -75,7 +79,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DDATADIR=\"$(datadir)\" \
-	-DTESTSONGDIR=\"$(top_srcdir)/tests/songs\" \
+	-DTESTSONGDIR=\"$(abs_top_srcdir)/tests/songs\" \
 	-DG_LOG_DOMAIN=\"buzztard-check\" \
 	$(BASE_DEPS_CFLAGS) \
 	$(GUI_DEPS_CFLAGS) \
@@ -116,6 +120,7 @@ noinst_songdata = \
 	songs/simple3.xml \
 	songs/simple4.xml \
 	songs/simple5.xml \
+	songs/simple6.xml \
 	songs/simple1.bzt \
 	songs/simple2.bzt \
 	songs/simple3.bzt \
@@ -134,7 +139,10 @@ EXTRA_DIST = \
 	bt-cmd-cli.sh bt-edit-cli.sh
 
 clean-local:
-	rm -f $(top_builddir)/tests/songs/*.txt $(top_builddir)/tests/songs/*.ogg
+	rm -f \
+	  $(top_builddir)/tests/songs/*.txt \
+	  $(top_builddir)/tests/songs/*.ogg \
+	  $(top_builddir)/tests/test.wav
 
 # run any given test by running make <test>.check
 %.check: %

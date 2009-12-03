@@ -377,17 +377,25 @@ BT_START_TEST(test_tabs1) {
   BtMainWindow *main_window;
   BtMainPages *pages;
   BtSong *song;
+  BtWave *wave;
   GtkWidget *child;
   GList *children;
   guint i,num_pages;
+  gchar *wave_uri;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
-
+  
+  // load a song and a sample
   bt_edit_application_load_song(app,check_get_test_song_path("melo3.xml"));
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
+  wave_uri=g_strconcat("file://",check_get_test_song_path(".."G_DIR_SEPARATOR_S"test.wav"),NULL);
+  wave=bt_wave_new(song,"test",wave_uri,1,1.0,BT_WAVE_LOOP_MODE_OFF,0);
+  g_free(wave_uri);
+  fail_unless(wave != NULL, NULL);
+  g_object_unref(wave);
   g_object_unref(song);
   GST_INFO("song loaded");
 
