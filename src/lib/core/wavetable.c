@@ -233,7 +233,7 @@ static BtPersistence *bt_wavetable_persistence_load(const GType type, const BtPe
         bt_wavetable_remember_missing_wave(self,str);
         g_free(name);
 	    g_free(uri);
-        GST_WARNING("Can't create wire-pattern: %s",err->message);
+        GST_WARNING("Can't create wavetable: %s",err->message);
         g_error_free(err);
       }
       g_object_unref(wave);

@@ -268,6 +268,8 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   GstCaps *caps;
 
   GST_INFO("about to load sample %s / %s",self->priv->uri,uri);
+  // this leaks!
+  //GST_INFO("current dir is %s", g_get_current_dir());
 
   // check if the url is valid
   // if(!uri) goto invalid_uri;

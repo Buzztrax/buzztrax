@@ -153,8 +153,9 @@ GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size) {
 
 
 // @todo use GtkMessageDialog for the next two
-// @todo: make dialog methods virtual methods in edit-application, so that we
-//        can override them for testing
+// @todo: make dialog methods virtual methods in application (main-window?),
+//   so that we can override them for testing (as this is blocking, we cannot
+//   check for gtk_main_level() and just quit one level)
 
 /**
  * bt_dialog_message:

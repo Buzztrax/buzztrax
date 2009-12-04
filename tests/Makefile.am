@@ -36,8 +36,8 @@ TESTS_ENVIRONMENT = \
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
 
-test.wav:
-	gst-launch-0.10 -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=test.wav
+/tmp/test.wav:
+	gst-launch-0.10 -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=/tmp/test.wav
 
 noinst_LTLIBRARIES = libbt-check.la
 libbt_check_la_LIBADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
@@ -45,7 +45,7 @@ libbt_check_la_SOURCES = \
 	bt-check.c bt-check.h \
 	bt-test-plugin.c bt-test-plugin.h \
 	bt-test-settings.c bt-test-settings.h
-libbt_check_la_DEPENDENCIES = test.wav
+libbt_check_la_DEPENDENCIES = /tmp/test.wav
 
 bt_core_LDADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
@@ -142,7 +142,7 @@ clean-local:
 	rm -f \
 	  $(top_builddir)/tests/songs/*.txt \
 	  $(top_builddir)/tests/songs/*.ogg \
-	  $(top_builddir)/tests/test.wav
+	  /tmp/test.wav
 
 # run any given test by running make <test>.check
 %.check: %

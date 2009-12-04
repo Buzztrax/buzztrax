@@ -1,5 +1,28 @@
 2009-12-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavetable.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/tools.c:
+	* tests/Makefile.am:
+	* tests/bt-cmd-cli.sh:
+	* tests/m-bt-edit.c:
+	* tests/songs/melo3.xml:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-edit-application.c:
+	* tests/ui/edit/e-bt-pattern-page.c:
+	* tests/ui/edit/s-bt-pattern-page.c:
+	* tests/ui/edit/e-bt-pattern-page.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/s-bt-pattern-page.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/e-bt-pattern-page.c (added):
+	* tests/ui/edit/s-bt-pattern-page.c (added):
+	  Even better test coverage (test key-presses on pattern editor, ensure
+	  pattern page shows pattern, test more bt-cmd corner cases, change test
+	  wave to be in /tmp).
+
+2009-12-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/Makefile.am:
 	* tests/bt-check.c:
 	* tests/lib/core/e-pattern.c:
@@ -7,7 +30,8 @@
 	* tests/songs/simple6.xml:
 	* tests/ui/edit/e-bt-edit-application.c:
 	* tests/songs/simple6.xml (added):
-	  Improve coverage further.
+	  Improve coverage further (pattern-remove-row, song with missing machine,
+	  add test wave).
 
 2009-11-28  Stefan Kost  <ensonic@users.sf.net>
 

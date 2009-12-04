@@ -118,5 +118,9 @@
       <track index="3" machine="audio_sink"/>
     </tracks>
   </sequence>
+  
+  <wavetable>
+    <wave index="2" name="test" uri="file:///tmp/test.wav"/>
+  </wavetable>
 
 </buzztard>

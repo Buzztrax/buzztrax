@@ -105,7 +105,9 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
     }
     GST_INFO("playing has started, is_playing=%d",is_playing);
     while(is_playing && (pos<length)) {
-      bt_song_update_playback_position(song);
+      if (!bt_song_update_playback_position(song)) {
+        bt_song_stop(song);
+      }
       g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
 
       if(!self->priv->quiet) {

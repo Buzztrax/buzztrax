@@ -810,10 +810,12 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
     }
     else {
       GST_WARNING("query playback-pos: invalid pos");
+      return(FALSE);
     }
   }
   else {
     GST_WARNING("query playback-pos: failed");
+    return(FALSE);
   }
   return(TRUE);
 }

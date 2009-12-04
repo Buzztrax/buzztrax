@@ -376,12 +376,14 @@ BT_START_TEST(test_tabs1) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
+  BtMainPagePatterns *pattern_page;
   BtSong *song;
+  BtSetup *setup;
   BtWave *wave;
+  BtMachine *src_machine;
   GtkWidget *child;
   GList *children;
   guint i,num_pages;
-  gchar *wave_uri;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -391,10 +393,15 @@ BT_START_TEST(test_tabs1) {
   bt_edit_application_load_song(app,check_get_test_song_path("melo3.xml"));
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
-  wave_uri=g_strconcat("file://",check_get_test_song_path(".."G_DIR_SEPARATOR_S"test.wav"),NULL);
-  wave=bt_wave_new(song,"test",wave_uri,1,1.0,BT_WAVE_LOOP_MODE_OFF,0);
-  g_free(wave_uri);
+  g_object_get(song,"setup",&setup,NULL);
+  wave=bt_wave_new(song,"test","file:///tmp/test.wav",1,1.0,BT_WAVE_LOOP_MODE_OFF,0);
   fail_unless(wave != NULL, NULL);
+  // sample loading is async
+  while(gtk_events_pending()) gtk_main_iteration();
+  // stimulate ui update
+  g_object_notify(G_OBJECT(app),"song");
+  while(gtk_events_pending()) gtk_main_iteration();
+  // free resources
   g_object_unref(wave);
   g_object_unref(song);
   GST_INFO("song loaded");
@@ -405,11 +412,14 @@ BT_START_TEST(test_tabs1) {
 
   // view all tabs
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-  /* make sure the pattern view shows something
-  BtMainPagePatterns *pattern_page;
+  // make sure the pattern view shows something
+  src_machine=bt_setup_get_machine_by_id(setup,"beep1");
   g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
   bt_main_page_patterns_show_machine(pattern_page,src_machine);
-  */ 
+  g_object_unref(pattern_page);
+  g_object_unref(src_machine);
+  g_object_unref(setup);
+  
   children=gtk_container_get_children(GTK_CONTAINER(pages));
   //num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));
   num_pages=g_list_length(children);

@@ -36,6 +36,7 @@ GST_DEBUG_CATEGORY_EXTERN(bt_edit_debug);
 
 extern Suite *bt_about_dialog_suite(void);
 extern Suite *bt_edit_application_suite(void);
+extern Suite *bt_pattern_page_suite(void);
 extern Suite *bt_machine_preset_properties_dialog_suite(void);
 extern Suite *bt_machine_preferences_dialog_suite(void);
 extern Suite *bt_machine_properties_dialog_suite(void);
@@ -124,6 +125,7 @@ int main(int argc, char **argv) {
 
   sr=srunner_create(bt_about_dialog_suite());
   srunner_add_suite(sr, bt_edit_application_suite());
+  srunner_add_suite(sr, bt_pattern_page_suite());
   srunner_add_suite(sr, bt_machine_preset_properties_dialog_suite());
   srunner_add_suite(sr, bt_machine_preferences_dialog_suite());
   srunner_add_suite(sr, bt_machine_properties_dialog_suite());
