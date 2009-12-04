@@ -391,7 +391,7 @@ static void update_param_after_interaction(GtkWidget *widget,gpointer user_data)
   bt_machine_update_default_param_value(self->priv->machine, GST_OBJECT(user_data), gtk_widget_get_name(GTK_WIDGET(widget)));
 }
 
-static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data,BtInteractionControllerMenuType type) {
+static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data, BtInteractionControllerMenuType type) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
@@ -405,6 +405,7 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       GtkWidget *item_unbind,*item_unbind_all;
 
       // create context menu
+      // @todo: do we leak that menu here?
       menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,type));
       g_object_get(G_OBJECT(menu),"item-unbind",&item_unbind,"item-unbind-all",&item_unbind_all,NULL);
       g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);

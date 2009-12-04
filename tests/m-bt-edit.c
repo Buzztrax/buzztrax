@@ -36,13 +36,14 @@ GST_DEBUG_CATEGORY_EXTERN(bt_edit_debug);
 
 extern Suite *bt_about_dialog_suite(void);
 extern Suite *bt_edit_application_suite(void);
-extern Suite *bt_pattern_page_suite(void);
+extern Suite *bt_interaction_controller_menu_suite(void);
 extern Suite *bt_machine_preset_properties_dialog_suite(void);
 extern Suite *bt_machine_preferences_dialog_suite(void);
 extern Suite *bt_machine_properties_dialog_suite(void);
 extern Suite *bt_machine_rename_dialog_suite(void);
 extern Suite *bt_missing_framework_elements_dialog_suite(void);
 extern Suite *bt_missing_song_elements_dialog_suite(void);
+extern Suite *bt_pattern_page_suite(void);
 extern Suite *bt_pattern_properties_dialog_suite(void);
 extern Suite *bt_render_dialog_suite(void);
 extern Suite *bt_settings_dialog_suite(void);
@@ -125,13 +126,14 @@ int main(int argc, char **argv) {
 
   sr=srunner_create(bt_about_dialog_suite());
   srunner_add_suite(sr, bt_edit_application_suite());
-  srunner_add_suite(sr, bt_pattern_page_suite());
+  srunner_add_suite(sr, bt_interaction_controller_menu_suite());
   srunner_add_suite(sr, bt_machine_preset_properties_dialog_suite());
   srunner_add_suite(sr, bt_machine_preferences_dialog_suite());
   srunner_add_suite(sr, bt_machine_properties_dialog_suite());
   srunner_add_suite(sr, bt_machine_rename_dialog_suite());
   srunner_add_suite(sr, bt_missing_framework_elements_dialog_suite());
   srunner_add_suite(sr, bt_missing_song_elements_dialog_suite());
+  srunner_add_suite(sr, bt_pattern_page_suite());
   srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
   srunner_add_suite(sr, bt_render_dialog_suite());
   srunner_add_suite(sr, bt_settings_dialog_suite());

@@ -25,6 +25,9 @@
 
 //-- fixtures
 
+static gint run_ix=0;
+static gchar *machine_ids[]={"beep1","echo1"};
+
 static void test_setup(void) {
   bt_edit_setup();
 }
@@ -54,7 +57,7 @@ BT_START_TEST(test_machine_properties_dialog) {
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   g_object_get(song,"setup",&setup,NULL);
-  machine=bt_setup_get_machine_by_id(setup,"beep1");
+  machine=bt_setup_get_machine_by_id(setup,machine_ids[run_ix++]);
   fail_unless(machine != NULL, NULL);
 
   GST_INFO("song loaded");
@@ -69,6 +72,12 @@ BT_START_TEST(test_machine_properties_dialog) {
 
   // make screenshot
   check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
+  
+  // play for a while to trigger dialog updates
+  bt_song_play(song);
+  bt_song_update_playback_position(song);
+  while(gtk_events_pending()) gtk_main_iteration();
+  bt_song_stop(song);
 
   gtk_widget_destroy(dialog);
 
@@ -92,6 +101,7 @@ BT_END_TEST
 TCase *bt_machine_properties_dialog_example_case(void) {
   TCase *tc = tcase_create("BtMachinePropertiesDialogExamples");
 
+  tcase_add_test(tc,test_machine_properties_dialog);
   tcase_add_test(tc,test_machine_properties_dialog);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);

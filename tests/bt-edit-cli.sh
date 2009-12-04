@@ -12,4 +12,25 @@ if [ $? -ne 0 ]; then exit 1; fi
 libtool --mode=execute $BUZZTARD_EDIT --version | grep >/dev/null -- "buzztard-edit from buzztard"
 if [ $? -ne 0 ]; then exit 1; fi
 
-# other tests would launch the UI :/
+# here we test that these don't crash
+echo "testing options"
+libtool --mode=execute $BUZZTARD_EDIT  >/dev/null --nonsense-option
+if [ $? -ne 1 ]; then exit 1; fi
+
+# other tests would launch the UI - and this is how we could terminate them
+# http://www.rekk.de/bloggy/2007/finding-child-pids-in-bash-shell-scripts/
+if [ ! -z `which 2>/dev/null Xvfb` ]; then
+  Xvfb :9 -ac -nolisten tcp -noreset -screen 0 1024x786x24 -render &
+  xvfb_pid=$!
+
+  DISPLAY=:9 libtool --mode=execute $BUZZTARD_EDIT &
+  btedit_pid=$!
+  sleep 1s && kill $btedit_pid
+
+  DISPLAY=:9 libtool --mode=execute $BUZZTARD_EDIT  >/dev/null --command=test5 &
+  btedit_pid=$!
+  sleep 1s && kill $btedit_pid
+
+  kill $xvfb_pid
+fi
+

@@ -447,6 +447,85 @@ BT_START_TEST(test_tabs1) {
 }
 BT_END_TEST
 
+// view all tabs
+BT_START_TEST(test_tabs_playing) {
+  BtEditApplication *app;
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+  BtMainPagePatterns *pattern_page;
+  BtSong *song;
+  BtSetup *setup;
+  BtWave *wave;
+  BtMachine *src_machine;
+  GtkWidget *child;
+  GList *children;
+  guint i,num_pages;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+  
+  // load a song and a sample
+  bt_edit_application_load_song(app,check_get_test_song_path("melo3.xml"));
+  g_object_get(app,"song",&song,NULL);
+  fail_unless(song != NULL, NULL);
+  g_object_get(song,"setup",&setup,NULL);
+  wave=bt_wave_new(song,"test","file:///tmp/test.wav",1,1.0,BT_WAVE_LOOP_MODE_OFF,0);
+  fail_unless(wave != NULL, NULL);
+  // sample loading is async
+  while(gtk_events_pending()) gtk_main_iteration();
+  // stimulate ui update
+  g_object_notify(G_OBJECT(app),"song");
+  while(gtk_events_pending()) gtk_main_iteration();
+  // free resources
+  g_object_unref(wave);
+  g_object_unref(song);
+  GST_INFO("song loaded");
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
+  // view all tabs
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  // make sure the pattern view shows something
+  src_machine=bt_setup_get_machine_by_id(setup,"beep1");
+  g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
+  bt_main_page_patterns_show_machine(pattern_page,src_machine);
+  g_object_unref(pattern_page);
+  g_object_unref(src_machine);
+  g_object_unref(setup);
+  
+  children=gtk_container_get_children(GTK_CONTAINER(pages));
+  //num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));
+  num_pages=g_list_length(children);
+  // play for a while to trigger screen updates
+  bt_song_play(song);
+  for(i=0;i<num_pages;i++) {
+    bt_song_update_playback_position(song);
+
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),i);
+    child=GTK_WIDGET(g_list_nth_data(children,i));
+
+    while(gtk_events_pending()) gtk_main_iteration();
+  }
+  bt_song_stop(song);
+  g_list_free(children);
+  g_object_unref(pages);
+
+  // close window
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+  //GST_INFO("mainlevel is %d",gtk_main_level());
+  //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
+
+  // free application
+  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  g_object_checked_unref(app);
+
+}
+BT_END_TEST
+
 // load a song and remove a machine
 BT_START_TEST(test_machine_view_edit) {
   BtEditApplication *app;
@@ -509,6 +588,7 @@ TCase *bt_edit_application_example_case(void) {
   tcase_add_test(tc,test_load_and_play1);
   tcase_add_test(tc,test_load_and_play2);
   tcase_add_test(tc,test_tabs1);
+  tcase_add_test(tc,test_tabs_playing);
   tcase_add_test(tc,test_machine_view_edit);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);

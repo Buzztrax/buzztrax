@@ -1,5 +1,26 @@
 2009-12-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-properties-dialog.c:
+	* tests/bt-edit-cli.sh:
+	* tests/m-bt-edit.c:
+	* tests/songs/melo3.xml:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-edit-application.c:
+	* tests/ui/edit/e-bt-interaction-controller-menu.c:
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	* tests/ui/edit/e-bt-machine-properties-dialog.c:
+	* tests/ui/edit/s-bt-interaction-controller-menu.c:
+	* tests/ui/edit/e-bt-interaction-controller-menu.c (svn:keywords, svn
+	  :eol-style):
+	* tests/ui/edit/s-bt-interaction-controller-menu.c (svn:keywords, svn
+	  :eol-style):
+	* tests/ui/edit/s-bt-interaction-controller-menu.c (added):
+	* tests/ui/edit/e-bt-interaction-controller-menu.c (added):
+	  More ui test coverage (dialog variants for effects, interaction controller
+	  menu test, run UI under Xvfb, trigger more screen updates).
+
+2009-12-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
 	* src/lib/core/wave.c:
 	* src/lib/core/wavetable.c:
