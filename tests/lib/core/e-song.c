@@ -175,6 +175,7 @@ BT_START_TEST(test_btsong_play1) {
   BtSongIO *loader=NULL;
   gboolean load_ret = FALSE;
   gboolean res;
+  gboolean is_playing;
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
 
@@ -191,10 +192,16 @@ BT_START_TEST(test_btsong_play1) {
   res=bt_song_play(song);
   fail_unless(res, NULL);
 
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
+  fail_unless(is_playing, NULL);
+
   // @todo: this needs a mainloop!
   sleep(2);
   //fail_unless(play_signal_invoked, NULL);
   bt_song_stop(song);
+
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
+  fail_unless(!is_playing, NULL);
 
   g_object_checked_unref(loader);
   g_object_checked_unref(song);
@@ -317,7 +324,6 @@ BT_START_TEST(test_btsong_play4) {
 }
 BT_END_TEST
 
-
 // test, if a newly created song contains empty setup, sequence, song-info and
 // wavetable
 BT_START_TEST(test_btsong_new1){
@@ -362,6 +368,86 @@ BT_START_TEST(test_btsong_new1){
 }
 BT_END_TEST
 
+// test the idle looper
+BT_START_TEST(test_btsong_idle1) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSongIO *loader=NULL;
+  gboolean load_ret = FALSE;
+
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
+  fail_unless(loader != NULL, NULL);
+  load_ret = bt_song_io_load(loader,song);
+  fail_unless(load_ret, NULL);
+
+  //play_signal_invoked=FALSE;
+  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
+
+  g_object_set(G_OBJECT(song),"is-idle",TRUE,NULL);
+  
+  // @todo: this needs a mainloop!
+  sleep(2);
+  g_object_set(G_OBJECT(song),"is-idle",FALSE,NULL);
+
+  g_object_checked_unref(loader);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+// test the idle looper and playing transition
+BT_START_TEST(test_btsong_idle2) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSongIO *loader=NULL;
+  gboolean load_ret = FALSE;
+  gboolean res;
+  gboolean is_idle,is_playing;
+
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
+  fail_unless(loader != NULL, NULL);
+  load_ret = bt_song_io_load(loader,song);
+  fail_unless(load_ret, NULL);
+
+  g_object_set(G_OBJECT(song),"is-idle",TRUE,NULL);
+
+  // @todo: this needs a mainloop!
+  sleep(1);
+  
+  // start regular playback, this should stop the idle loop
+  res=bt_song_play(song);
+  fail_unless(res, NULL);
+
+  // @todo: this needs a mainloop!
+  sleep(1);
+
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,"is-idle",&is_idle,NULL);
+  fail_unless(is_playing, NULL);
+  fail_unless(!is_idle, NULL);
+
+  bt_song_stop(song);
+  
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,"is-idle",&is_idle,NULL);
+  fail_unless(!is_playing, NULL);
+  fail_unless(is_idle, NULL);
+  
+  g_object_set(G_OBJECT(song),"is-idle",FALSE,NULL);
+
+  g_object_checked_unref(loader);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+
 TCase *bt_song_example_case(void) {
   TCase *tc = tcase_create("BtSongExamples");
 
@@ -374,6 +460,8 @@ TCase *bt_song_example_case(void) {
   tcase_add_test(tc,test_btsong_play3);
   tcase_add_test(tc,test_btsong_play4);
   tcase_add_test(tc,test_btsong_new1);
+  tcase_add_test(tc,test_btsong_idle1);
+  tcase_add_test(tc,test_btsong_idle2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

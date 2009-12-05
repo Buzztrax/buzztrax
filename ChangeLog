@@ -1,3 +1,21 @@
+2009-12-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/pattern.c:
+	  Fix a leak found by new tests.
+
+	* src/lib/core/song.c:
+	* src/lib/core/tools.c:
+	  Doc typo fixes, comments and todos.
+
+	* tests/bt-cmd-cli.sh:
+	* tests/bt-edit-cli.sh:
+	  Ideas.
+
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/e-wire-pattern.c:
+	  More tests (pattern resize, song-idle loops, wire-pattern editing).
+
 2009-12-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-properties-dialog.c:

@@ -342,7 +342,7 @@ BT_START_TEST(test_btpattern_shrink_length) {
 
   /* set some test data */
   bt_pattern_set_global_event(pattern,0,0,"5");
-  bt_pattern_set_global_event(pattern,4,0,"10");
+  bt_pattern_set_global_event(pattern,12,0,"10");
 
   /* verify length */
   g_object_get(pattern,"length",&length,NULL);

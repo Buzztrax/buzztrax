@@ -264,12 +264,143 @@ BT_START_TEST(test_btwirepattern_enlarge_length) {
   /* verify data */
   data=bt_wire_pattern_get_event(wire_pattern,0,0);
   fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"100",1),"data is '%s' instead of '5'",data);
+  fail_if(strncmp(data,"100",1),"data is '%s' instead of '100'",data);
   g_free(data);
 
   data=bt_wire_pattern_get_event(wire_pattern,4,0);
   fail_unless(data==NULL, "data is '%s' instead of ''",data);
 
+  g_object_unref(wire_pattern);
+  g_object_unref(pattern);
+  g_object_unref(wire);
+  g_object_unref(src_machine);
+  g_object_unref(sink_machine);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+BT_START_TEST(test_btwirepattern_insert_row) {
+  BtApplication *app=NULL;
+  GError *err=NULL;
+  BtSong *song=NULL;
+  BtMachine *src_machine=NULL,*sink_machine=NULL;
+  BtWire *wire=NULL;
+  BtPattern *pattern=NULL;
+  BtWirePattern *wire_pattern=NULL;
+  gchar *data;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create a new song */
+  song=bt_song_new(app);
+  fail_unless(song!=NULL, NULL);
+
+  /* create a source machine */
+  src_machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
+  fail_unless(src_machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  /* create sink machine (default audio sink) */
+  sink_machine=BT_MACHINE(bt_sink_machine_new(song,"sink",&err));
+  fail_unless(sink_machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  /* create the wire */
+  wire = bt_wire_new(song,src_machine,sink_machine,&err);
+  fail_unless(wire!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  
+  /* create a pattern */
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,sink_machine);
+  fail_unless(pattern!=NULL, NULL);
+  
+  /* create a wire-pattern */
+  wire_pattern=bt_wire_pattern_new(song,wire,pattern);
+  fail_unless(wire_pattern!=NULL, NULL);
+    
+  /* set some test data */
+  bt_pattern_set_global_event(pattern,0,0,"50");
+  bt_wire_pattern_set_event(wire_pattern,0,0,"100");
+
+  /* insert row */
+  bt_wire_pattern_insert_row(wire_pattern,0,0);
+  
+  /* verify data */
+  data=bt_wire_pattern_get_event(wire_pattern,0,0);
+  fail_unless(data==NULL, "data is '%s' instead of ''",data);
+  data=bt_wire_pattern_get_event(wire_pattern,1,0);
+  fail_unless(data!=NULL, NULL);
+  fail_if(strncmp(data,"100",1),"data is '%s' instead of '100'",data);
+  g_free(data);
+
+  /* cleanup */
+  g_object_unref(wire_pattern);
+  g_object_unref(pattern);
+  g_object_unref(wire);
+  g_object_unref(src_machine);
+  g_object_unref(sink_machine);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+BT_START_TEST(test_btwirepattern_delete_row) {
+  BtApplication *app=NULL;
+  GError *err=NULL;
+  BtSong *song=NULL;
+  BtMachine *src_machine=NULL,*sink_machine=NULL;
+  BtWire *wire=NULL;
+  BtPattern *pattern=NULL;
+  BtWirePattern *wire_pattern=NULL;
+  gchar *data;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create a new song */
+  song=bt_song_new(app);
+  fail_unless(song!=NULL, NULL);
+
+  /* create a source machine */
+  src_machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
+  fail_unless(src_machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  /* create sink machine (default audio sink) */
+  sink_machine=BT_MACHINE(bt_sink_machine_new(song,"sink",&err));
+  fail_unless(sink_machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  /* create the wire */
+  wire = bt_wire_new(song,src_machine,sink_machine,&err);
+  fail_unless(wire!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  
+  /* create a pattern */
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,sink_machine);
+  fail_unless(pattern!=NULL, NULL);
+  
+  /* create a wire-pattern */
+  wire_pattern=bt_wire_pattern_new(song,wire,pattern);
+  fail_unless(wire_pattern!=NULL, NULL);
+    
+  /* set some test data */
+  bt_pattern_set_global_event(pattern,0,0,"50");
+  bt_wire_pattern_set_event(wire_pattern,0,0,"100");
+  bt_wire_pattern_set_event(wire_pattern,4,0,"15");
+
+  /* insert row */
+  bt_wire_pattern_delete_row(wire_pattern,0,0);
+  
+  /* verify data */
+  data=bt_wire_pattern_get_event(wire_pattern,0,0);
+  fail_unless(data==NULL, "data is '%s' instead of ''",data);
+  data=bt_wire_pattern_get_event(wire_pattern,3,0);
+  fail_unless(data!=NULL, NULL);
+  fail_if(strncmp(data,"15",1),"data is '%s' instead of '15'",data);
+  g_free(data);
+
+  /* cleanup */
   g_object_unref(wire_pattern);
   g_object_unref(pattern);
   g_object_unref(wire);
@@ -288,6 +419,8 @@ TCase *bt_wire_pattern_example_case(void) {
   tcase_add_test(tc,test_btwirepattern_obj2);
   tcase_add_test(tc,test_btwirepattern_copy);
   tcase_add_test(tc,test_btwirepattern_enlarge_length);
+  tcase_add_test(tc,test_btwirepattern_insert_row);
+  tcase_add_test(tc,test_btwirepattern_delete_row);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

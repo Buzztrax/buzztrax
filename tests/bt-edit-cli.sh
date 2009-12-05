@@ -27,7 +27,7 @@ if [ ! -z `which 2>/dev/null Xvfb` ]; then
   btedit_pid=$!
   sleep 1s && kill $btedit_pid
 
-  DISPLAY=:9 libtool --mode=execute $BUZZTARD_EDIT  >/dev/null --command=test5 &
+  DISPLAY=:9 libtool --mode=execute $BUZZTARD_EDIT >/dev/null --command=test5 &
   btedit_pid=$!
   sleep 1s && kill $btedit_pid
 

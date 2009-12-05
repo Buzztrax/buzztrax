@@ -211,7 +211,7 @@ static void bt_pattern_resize_data_length(const BtPattern * const self, const gu
       if(old_data_count>new_data_count) {
         gulong i;
 
-        for(i=old_data_count;i<new_data_count;i++) {
+        for(i=new_data_count;i<old_data_count;i++) {
           if(G_IS_VALUE(&data[i]))
             g_value_unset(&data[i]);
         }

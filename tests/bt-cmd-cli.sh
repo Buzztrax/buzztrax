@@ -43,3 +43,6 @@ libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --command=encode -q --input
 if [ ! -r $TESTRESULTDIR/test-simple1.ogg ]; then exit 1; fi
 rm -f $TESTRESULTDIR/test-simple1.ogg
 
+
+# check what happens when we face a broken setup
+#GST_PLUGIN_SYSTEM_PATH=/tmp GST_PLUGIN_PATH=/tmp ./src/ui/cmd/buzztard-cmd --command=play --input-file=tests/songs/melo3.xml

@@ -880,13 +880,6 @@ void bt_song_write_to_highlevel_dot_file(const BtSong * const self) {
   gchar * const file_name=g_alloca(strlen(song_name)+10);
   g_sprintf(file_name,"/tmp/%s_highlevel.dot",song_name);
 
-  /* @idea: improve dot output
-   * - make border of main element in machine black, other borders gray
-   * - get caps for each wire segment
-   *   - use colors for float/int
-   *   - use line style for mono/stereo/quadro
-   */
-
   if((out=fopen(file_name,"wb"))) {
     GList * const list,*node,*sublist,*subnode;
     BtMachine * const src,* const dst;
@@ -1026,6 +1019,8 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
   g_object_get(self->priv->song_info,"name",&song_name,NULL);
   g_strcanon(song_name, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
 
+  // @todo: check g_getenv("GST_DEBUG_DUMP_DOT_DIR") for the path
+  // and skip if ""
   gchar * const file_name=g_alloca(strlen(song_name)+10);
   g_sprintf(file_name,"/tmp/%s_lowlevel.dot",song_name);
 
