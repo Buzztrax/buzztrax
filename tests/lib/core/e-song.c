@@ -327,8 +327,8 @@ BT_END_TEST
 // test, if a newly created song contains empty setup, sequence, song-info and
 // wavetable
 BT_START_TEST(test_btsong_new1){
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
+  BtApplication *app=NULL,*app2;
+  BtSong *song=NULL,*song2;
   BtSetup *setup=NULL;
   BtSequence *sequence=NULL;
   BtSongInfo *songinfo=NULL;
@@ -340,25 +340,40 @@ BT_START_TEST(test_btsong_new1){
   // create a new, empty song
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
+  g_object_get(song,"app",&app2,NULL);
+  fail_unless(app2==app,NULL);
+  g_object_unref(app2);
 
   // get the setup property
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
+  g_object_get(setup,"song",&song2,NULL);
+  fail_unless(song2==song,NULL);
+  g_object_unref(song2);
   g_object_unref(setup);
 
   // get the sequence property
   g_object_get(song,"sequence",&sequence,NULL);
   fail_unless(sequence!=NULL,NULL);
+  g_object_get(sequence,"song",&song2,NULL);
+  fail_unless(song2==song,NULL);
+  g_object_unref(song2);
   g_object_unref(sequence);
 
   // get the song-info property
   g_object_get(song,"song-info",&songinfo,NULL);
   fail_unless(songinfo!=NULL,NULL);
+  g_object_get(songinfo,"song",&song2,NULL);
+  fail_unless(song2==song,NULL);
+  g_object_unref(song2);
   g_object_unref(songinfo);
 
   // get the wavetable property
   g_object_get(song,"wavetable",&wavetable,NULL);
   fail_unless(wavetable!=NULL,NULL);
+  g_object_get(wavetable,"song",&song2,NULL);
+  fail_unless(song2==song,NULL);
+  g_object_unref(song2);
   g_object_unref(wavetable);
 
   g_object_checked_unref(song);

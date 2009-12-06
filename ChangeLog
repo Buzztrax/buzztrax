@@ -1,5 +1,10 @@
 2009-12-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/core/e-song.c:
+	  Check a few more basics.
+
+2009-12-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/tools.c:
 	  Add one more element to the checklist and reorder.
 
