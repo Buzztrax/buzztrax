@@ -42,6 +42,7 @@ BT_START_TEST(test_btpattern_obj_mono1) {
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
+  gchar *data;
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -60,6 +61,25 @@ BT_START_TEST(test_btpattern_obj_mono1) {
 
   /* should have patterns now */
   fail_unless(bt_machine_has_patterns(machine),NULL);
+
+  /* set some test data */
+  bt_pattern_set_global_event(pattern,0,0,"5");
+  bt_pattern_set_global_event(pattern,0,1,"2.5");
+  bt_pattern_set_global_event(pattern,0,2,"1");
+  
+  /* verify test data */
+  data=bt_pattern_get_global_event(pattern,0,0);
+  fail_unless(data!=NULL, NULL);
+  fail_if(strncmp(data,"5",1),"data is '%s' instead of '5'",data);
+  g_free(data);
+  data=bt_pattern_get_global_event(pattern,0,1);
+  fail_unless(data!=NULL, NULL);
+  fail_if(strncmp(data,"2.5",1),"data is '%s' instead of '2.5'",data);
+  g_free(data);
+  data=bt_pattern_get_global_event(pattern,0,2);
+  fail_unless(data!=NULL, NULL);
+  fail_if(strncmp(data,"1",1),"data is '%s' instead of '1'",data);
+  g_free(data);
 
   g_object_try_unref(pattern);
   g_object_try_unref(machine);
@@ -97,6 +117,9 @@ BT_START_TEST(test_btpattern_obj_poly1) {
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   fail_unless(pattern!=NULL, NULL);
+  
+  g_object_get(pattern,"voices",&voices,NULL);
+  fail_unless(voices==2, NULL);
 
   g_object_unref(pattern);
   g_object_unref(machine);

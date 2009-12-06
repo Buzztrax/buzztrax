@@ -115,6 +115,15 @@ static void bt_wire_pattern_resize_data_length(const BtWirePattern * const self,
       GST_DEBUG("keeping data count=%lu, old=%lu, new=%lu",count,old_data_count,new_data_count);
       // copy old values over
       memcpy(self->priv->data,data,count*sizeof(GValue));
+      // free gvalues
+      if(old_data_count>new_data_count) {
+        gulong i;
+
+        for(i=new_data_count;i<old_data_count;i++) {
+          if(G_IS_VALUE(&data[i]))
+            g_value_unset(&data[i]);
+        }
+      }
       // free old data
       g_free(data);
     }

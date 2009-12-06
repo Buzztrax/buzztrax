@@ -106,34 +106,38 @@ static void bt_test_child_proxy_interface_init(gpointer g_iface, gpointer iface_
 
 //-- test_mono_source
 
-static void bt_test_mono_source_get_property(GObject *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
+static void bt_test_mono_source_get_property(GObject *object,guint property_id,GValue *value,GParamSpec *pspec) {
   BtTestMonoSource *self = BT_TEST_MONO_SOURCE(object);
 
   switch (property_id) {
     case ARG_ULONG:
       g_value_set_ulong(value, self->ulong_val);
       break;
+    case ARG_DOUBLE:
+      g_value_set_double(value, self->double_val);
+      break;
+    case ARG_SWITCH:
+      g_value_set_boolean(value, self->switch_val);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
       break;
   }
 }
 
-static void bt_test_mono_source_set_property(GObject *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_test_mono_source_set_property(GObject *object,guint property_id,const GValue *value,GParamSpec *pspec) {
   BtTestMonoSource *self = BT_TEST_MONO_SOURCE(object);
   
   switch (property_id) {
     case ARG_ULONG:
       self->ulong_val = g_value_get_ulong(value);
       break;
+    case ARG_DOUBLE:
+      self->double_val = g_value_get_double(value);
+      break;
+    case ARG_SWITCH:
+      self->switch_val = g_value_get_boolean(value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
       break;
@@ -141,7 +145,7 @@ static void bt_test_mono_source_set_property(GObject *object,
 }
 
 
-static void bt_test_mono_source_init (GTypeInstance *instance, gpointer g_class) {
+static void bt_test_mono_source_init(GTypeInstance *instance, gpointer g_class) {
   BtTestMonoSource *self = BT_TEST_MONO_SOURCE(instance);
   GstElementClass *klass = GST_ELEMENT_GET_CLASS(instance);
   GstPad *src_pad;
@@ -167,6 +171,22 @@ static void bt_test_mono_source_class_init(BtTestMonoSourceClass *klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
+                                     G_PARAM_READWRITE|GST_PARAM_CONTROLLABLE));
+
+  g_object_class_install_property(gobject_class,ARG_DOUBLE,
+                                  g_param_spec_double("g-double",
+                                     "double prop",
+                                     "double number parameter for the test_mono_source",
+                                     -1000.0,
+                                     1000.0,
+                                     0,
+                                     G_PARAM_READWRITE|GST_PARAM_CONTROLLABLE));
+
+  g_object_class_install_property(gobject_class,ARG_SWITCH,
+                                  g_param_spec_boolean("g-switch",
+                                     "switch prop",
+                                     "switch parameter for the test_mono_source",
+                                     FALSE,
                                      G_PARAM_READWRITE|GST_PARAM_CONTROLLABLE));
 }
 
@@ -215,28 +235,26 @@ GType bt_test_mono_source_get_type(void) {
 
 static GObjectClass *poly_parent_class=NULL;
 
-static void bt_test_poly_source_get_property(GObject *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
+static void bt_test_poly_source_get_property(GObject *object,guint property_id,GValue *value,GParamSpec *pspec) {
   BtTestPolySource *self = BT_TEST_POLY_SOURCE(object);
 
   switch (property_id) {
     case ARG_ULONG:
       g_value_set_ulong(value, self->ulong_val);
       break;
+    case ARG_DOUBLE:
+      g_value_set_double(value, self->double_val);
+      break;
+    case ARG_SWITCH:
+      g_value_set_boolean(value, self->switch_val);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
       break;
   }
-}  
+}
 
-static void bt_test_poly_source_set_property(GObject *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_test_poly_source_set_property(GObject *object,guint property_id,const GValue *value,GParamSpec *pspec) {
   BtTestPolySource *self = BT_TEST_POLY_SOURCE(object);
   BtTestMonoSource *voice;
   gulong i,num_voices;
@@ -266,6 +284,12 @@ static void bt_test_poly_source_set_property(GObject *object,
     case ARG_ULONG:
       self->ulong_val = g_value_get_ulong(value);
       break;
+    case ARG_DOUBLE:
+      self->double_val = g_value_get_double(value);
+      break;
+    case ARG_SWITCH:
+      self->switch_val = g_value_get_boolean(value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
       break;
@@ -290,7 +314,7 @@ static void bt_test_poly_source_finalize(GObject *object) {
   G_OBJECT_CLASS(poly_parent_class)->finalize(object);
 }
 
-static void bt_test_poly_source_init (GTypeInstance *instance, gpointer g_class) {
+static void bt_test_poly_source_init(GTypeInstance *instance, gpointer g_class) {
   BtTestPolySource *self = BT_TEST_POLY_SOURCE(instance);
   GstElementClass *klass = GST_ELEMENT_GET_CLASS(instance);
   GstPad *src_pad;
@@ -317,10 +341,26 @@ static void bt_test_poly_source_class_init(BtTestPolySourceClass *klass) {
   g_object_class_install_property(gobject_class,ARG_ULONG,
                                   g_param_spec_ulong("v-ulong",
                                      "ulong prop",
-                                     "ulong number parameter for the test_mono_source",
+                                     "ulong number parameter for the test_poly_source",
                                      0,
                                      G_MAXULONG,
                                      0,
+                                     G_PARAM_READWRITE|GST_PARAM_CONTROLLABLE));
+
+  g_object_class_install_property(gobject_class,ARG_DOUBLE,
+                                  g_param_spec_double("g-double",
+                                     "double prop",
+                                     "double number parameter for the test_poly_source",
+                                     -1000.0,
+                                     1000.0,
+                                     0,
+                                     G_PARAM_READWRITE|GST_PARAM_CONTROLLABLE));
+
+  g_object_class_install_property(gobject_class,ARG_SWITCH,
+                                  g_param_spec_boolean("g-switch",
+                                     "switch prop",
+                                     "switch parameter for the test_poly_source",
+                                     FALSE,
                                      G_PARAM_READWRITE|GST_PARAM_CONTROLLABLE));
 }
 

@@ -1,5 +1,21 @@
 2009-12-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/tools.c:
+	  Add one more element to the checklist and reorder.
+
+	* src/lib/core/wire-pattern.c:
+	  Free unneded gvalues when resizing.
+
+	* tests/bt-test-plugin.c:
+	* tests/bt-test-plugin.h:
+	  Add more properties.
+
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/e-wire-pattern.c:
+	  More test coverage.
+
+2009-12-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/pattern.c:
 	  Fix a leak found by new tests.
 

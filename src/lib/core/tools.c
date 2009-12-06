@@ -120,7 +120,7 @@ gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,c
  *
  * Check if the given elements exist.
  *
- * Returns: a list of elements which do not exist, %NULL if all elements exist
+ * Returns: a list of element-names which do not exist, %NULL if all elements exist
  */
 GList *bt_gst_check_elements(GList *list) {
   GList *res=NULL,*node;
@@ -154,11 +154,12 @@ GList *bt_gst_check_core_elements(void) {
   static GList *res=NULL;
 
   if(!core_elements) {
-    core_elements=g_list_prepend(core_elements,"volume");
-    core_elements=g_list_prepend(core_elements,"tee");
     core_elements=g_list_prepend(core_elements,"capsfilter");
+    core_elements=g_list_prepend(core_elements,"queue");
+    core_elements=g_list_prepend(core_elements,"tee");
     core_elements=g_list_prepend(core_elements,"audioconvert");
     core_elements=g_list_prepend(core_elements,"adder");
+    core_elements=g_list_prepend(core_elements,"volume");
     /* @todo: if registry ever gets a 'changed' signal, we need to connect to that and
      * reset core_elements_checked to FALSE
      * There is gst_registry_get_feature_list_cookie() now
