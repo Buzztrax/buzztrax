@@ -36,9 +36,11 @@ extern GList *bt_gst_check_core_elements(void);
 
 //-- debugging
 
-extern void bt_gst_element_dbg_pads(GstElement * const elem);
-
 //-- gst compat
+
+#if !GST_CHECK_VERSION(0,10,15)
+#define GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(bin, details, name)
+#endif
 
 //-- glib compat & helper
 

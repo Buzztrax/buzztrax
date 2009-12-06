@@ -728,11 +728,7 @@ static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMach
   if(!(peer=bt_machine_get_sink_peer(target))) {
     GST_DEBUG("target '%s' is not yet connected on the input side",GST_OBJECT_NAME(target));
     if(!gst_element_link(self->priv->machines[part],target)) {
-      // DEBUG
-      // bt_machine_dbg_print_parts(self);
-      // bt_gst_element_dbg_pads(self->priv->machines[ part]);
-      // bt_gst_element_dbg_pads(target);
-      // DEBUG
+      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(self),GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
     self->priv->dst_elem=self->priv->machines[part];
@@ -777,11 +773,7 @@ static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMac
   if(!(peer=bt_machine_get_source_peer(target))) {
     GST_DEBUG("target '%s' is not yet connected on the output side",GST_OBJECT_NAME(target));
     if(!gst_element_link(target,self->priv->machines[part])) {
-      // DEBUG
-      // bt_machine_dbg_print_parts(self);
-      // bt_gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);
-      // bt_gst_element_dbg_pads(self->priv->machines[ part]);
-      // DEBUG
+      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(self),GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
     self->priv->src_elem=self->priv->machines[part];
@@ -2677,6 +2669,7 @@ BtWire *bt_machine_get_wire_by_dst_machine(const BtMachine * const self, const B
 
 //-- debug helper
 
+// used in bt_song_write_to_highlevel_dot_file
 GList *bt_machine_get_element_list(const BtMachine * const self) {
   GList *list=NULL;
   gulong i;
@@ -2737,6 +2730,7 @@ void bt_machine_dbg_print_parts(const BtMachine * const self) {
   );
 }
 
+#if 0
 void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
   gulong i;
   FILE *file;
@@ -2808,6 +2802,7 @@ void bt_machine_dbg_dump_voice_controller_queue(const BtMachine * const self) {
     g_free(name);
   }
 }
+#endif
 
 //-- io interface
 

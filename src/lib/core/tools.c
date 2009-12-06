@@ -175,55 +175,6 @@ GList *bt_gst_check_core_elements(void) {
 
 //-- gst compat
 
-//-- debugging
-
-/**
- * bt_gst_element_dbg_pads:
- * @elem: a #GstElement
- *
- * Write out a list of pads for the given element
- *
- */
-void bt_gst_element_dbg_pads(GstElement * const elem) {
-  GstIterator *it;
-  GstPad * const pad;
-  GstPadDirection dir;
-  const gchar *dirs[]={"unknown","src","sink",NULL};
-  gboolean done;
-  guint i;
-
-  GST_DEBUG("machine: %s",GST_ELEMENT_NAME(elem));
-  it=gst_element_iterate_pads(elem);
-  done = FALSE;
-  while (!done) {
-    switch (gst_iterator_next (it, (gpointer)&pad)) {
-      case GST_ITERATOR_OK:
-        dir=gst_pad_get_direction(pad);
-        GstCaps * const caps=gst_pad_get_caps(pad);
-        const guint size=gst_caps_get_size(caps);
-        GST_DEBUG("  pad: %s:%s, dir: %s, nr-caps: %d",GST_DEBUG_PAD_NAME(pad),dirs[dir],size);
-        // iterate over structures and print
-        for(i=0;i<size;i++) {
-          const GstStructure * const structure=gst_caps_get_structure(caps,i);
-          gchar * const str=gst_structure_to_string(structure);
-          GST_DEBUG("    caps[%2d]: %s : %s",i,GST_STR_NULL(gst_structure_get_name(structure)),str);
-          g_free(str);
-         }
-        gst_caps_unref(caps);
-        gst_object_unref(pad);
-        break;
-      case GST_ITERATOR_RESYNC:
-        gst_iterator_resync (it);
-        break;
-      case GST_ITERATOR_ERROR:
-      case GST_ITERATOR_DONE:
-        done = TRUE;
-        break;
-    }
-  }
-  gst_iterator_free(it);
-}
-
 //-- glib compat & helper
 
 /**

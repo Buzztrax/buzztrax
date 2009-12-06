@@ -1,5 +1,16 @@
 2009-12-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/core.c:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/song.c:
+	* src/lib/core/tools.c:
+	  Remove some hardly used debug code.
+
+2009-12-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/core.c:
 	* src/lib/core/tools.c:
 	* src/ui/edit/edit-application.c:

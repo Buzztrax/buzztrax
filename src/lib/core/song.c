@@ -685,7 +685,7 @@ gboolean bt_song_play(const BtSong * const self) {
   switch(res) {
     case GST_STATE_CHANGE_FAILURE:
       GST_WARNING("can't go to paused state");
-      bt_machine_dbg_print_parts(BT_MACHINE(self->priv->master));
+      bt_song_write_to_lowlevel_dot_file(self);
       return(FALSE);
       break;
     case GST_STATE_CHANGE_ASYNC:
