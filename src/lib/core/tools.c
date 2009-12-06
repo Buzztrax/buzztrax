@@ -141,18 +141,23 @@ GList *bt_gst_check_elements(GList *list) {
   return(res);
 }
 
-static gboolean core_elements_checked=FALSE;
 /**
  * bt_gst_check_core_elements:
  *
  * Check if all core elements exist.
  *
- * Returns: a list of elements that does not exist, %NULL if all elements exist
+ * Returns: a list of elements that does not exist, %NULL if all elements exist.
+ * The list is static, don't free.
  */
 GList *bt_gst_check_core_elements(void) {
   static GList *core_elements=NULL;
   static GList *res=NULL;
+  static gboolean core_elements_checked=FALSE;
 
+  /* @todo: if registry ever gets a 'changed' signal, we need to connect to that and
+   * reset core_elements_checked to FALSE
+   * There is gst_registry_get_feature_list_cookie() now
+   */
   if(!core_elements) {
     core_elements=g_list_prepend(core_elements,"capsfilter");
     core_elements=g_list_prepend(core_elements,"queue");
@@ -160,10 +165,6 @@ GList *bt_gst_check_core_elements(void) {
     core_elements=g_list_prepend(core_elements,"audioconvert");
     core_elements=g_list_prepend(core_elements,"adder");
     core_elements=g_list_prepend(core_elements,"volume");
-    /* @todo: if registry ever gets a 'changed' signal, we need to connect to that and
-     * reset core_elements_checked to FALSE
-     * There is gst_registry_get_feature_list_cookie() now
-     */
   }
   if(!core_elements_checked) {
     core_elements_checked=TRUE;

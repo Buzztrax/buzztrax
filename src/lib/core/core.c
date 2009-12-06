@@ -255,9 +255,13 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
         GST_WARNING("missing core element '%s'",(gchar *)node->data);
       }
       g_list_free(missing);
+      // we need to build an error message, so the any of the UIs can tell the
+      // user, for now, lets fail
+      res = FALSE;
     }
-    
-    bt_initialized=TRUE;
+    else {
+      bt_initialized=TRUE;
+    }
   }
 
   return(res);

@@ -150,7 +150,8 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
       gtk_widget_destroy(dialog);
     }
   }
-  g_list_free(missing_core_elements);
+  // don't free. its static
+  //g_list_free(missing_core_elements);
   g_list_free(missing_edit_elements);
   return(res);
 }
