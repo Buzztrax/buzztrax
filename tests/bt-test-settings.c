@@ -68,11 +68,7 @@ const BtTestSettings *bt_test_settings_new(void) {
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_test_settings_get_property(GObject      * const object,
-                               const guint         property_id,
-                               GValue       * const value,
-                               GParamSpec   * const pspec)
-{
+static void bt_test_settings_get_property(GObject * const object,const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtTestSettings * const self = BT_TEST_SETTINGS(object);
   GValue *prop=self->priv->settings[property_id];
   return_if_disposed();
@@ -125,11 +121,7 @@ static void bt_test_settings_get_property(GObject      * const object,
 }
 
 /* sets the given properties for this object */
-static void bt_test_settings_set_property(GObject      * const object,
-                              const guint         property_id,
-                              const GValue * const value,
-                              GParamSpec   * const pspec)
-{
+static void bt_test_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtTestSettings * const self = BT_TEST_SETTINGS(object);
   GValue *prop=self->priv->settings[property_id];
   return_if_disposed();
@@ -220,6 +212,29 @@ static void bt_test_settings_class_init(BtTestSettingsClass * const klass) {
   gobject_class->get_property = bt_test_settings_get_property;
   gobject_class->dispose      = bt_test_settings_dispose;
   gobject_class->finalize     = bt_test_settings_finalize;
+}
+
+/* helper to test otherwise readonly settings */
+void bt_test_settings_set(BtTestSettings * const self, gchar *property_name, gpointer value) {
+  guint property_id=0;
+  
+  if(!strcmp(property_name,"system-audiosink")) property_id=BT_SETTINGS_SYSTEM_AUDIOSINK;
+  if(!strcmp(property_name,"toolbar-style")) property_id=BT_SETTINGS_SYSTEM_TOOLBAR_STYLE;
+  
+  switch (property_id) {
+    case BT_SETTINGS_SYSTEM_AUDIOSINK:
+    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
+      gchar **ptr = (gchar **)value;
+      gchar *val = *ptr;
+      GValue *prop=self->priv->settings[property_id];
+
+      if(!prop) {
+        self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
+        g_value_init(prop,G_TYPE_STRING);
+      }
+      g_value_set_string(prop, val);
+    } break;
+  }
 }
 
 GType bt_test_settings_get_type(void) {

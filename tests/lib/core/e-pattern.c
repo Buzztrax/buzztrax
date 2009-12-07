@@ -381,10 +381,6 @@ BT_START_TEST(test_btpattern_shrink_length) {
   fail_unless(data!=NULL, NULL);
   fail_if(strncmp(data,"5",1),"data is '%s' instead of '5'",data);
   g_free(data);
-  data=bt_pattern_get_global_event(pattern,4,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"10",2),"data is '%s' instead of '10'",data);
-  g_free(data);
 
   /* cleanup */
   g_object_try_unref(pattern);

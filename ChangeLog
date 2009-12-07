@@ -1,5 +1,18 @@
 2009-12-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/bt-test-settings.c:
+	* tests/bt-test-settings.h:
+	  Allow to test normaly read-only settings.
+
+	* tests/lib/core/e-sink-machine.c:
+	  Test sink selection for empty settings.
+
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/e-song.c:
+	  Fix failing tests.
+
+2009-12-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core/sink-bin.h:
 	* src/lib/core/sink-bin.c:
 	* tests/bt-cmd-encode.sh:

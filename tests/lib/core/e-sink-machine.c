@@ -122,12 +122,70 @@ BT_START_TEST(test_btsinkmachine_obj2) {
 }
 BT_END_TEST
 
+BT_START_TEST(test_btsinkmachine_default) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSinkMachine *machine;
+  BtSettings *settings=NULL;
+  GError *err=NULL;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* configure a sink for testing */
+  settings=bt_settings_make();
+  g_object_set(settings,"audiosink",NULL,NULL);
+  /* create a new song */
+  song=bt_song_new(app);
+
+  /* create a machine */
+  machine=bt_sink_machine_new(song,"master",&err);
+  fail_unless(machine != NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  g_object_try_unref(machine);
+  g_object_unref(settings);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+BT_START_TEST(test_btsinkmachine_fallback) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSinkMachine *machine;
+  BtSettings *settings=NULL;
+  GError *err=NULL;
+  gchar *settings_str=NULL;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* configure a sink for testing */
+  settings=bt_settings_make();
+  g_object_set(settings,"audiosink",NULL,NULL);
+  bt_test_settings_set(BT_TEST_SETTINGS(settings),"system-audiosink",&settings_str);
+  /* create a new song */
+  song=bt_song_new(app);
+
+  /* create a machine */
+  machine=bt_sink_machine_new(song,"master",&err);
+  fail_unless(machine != NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  g_object_try_unref(machine);
+  g_object_unref(settings);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
 
 TCase *bt_sink_machine_example_case(void) {
   TCase *tc = tcase_create("BtSinkMachineExamples");
 
   tcase_add_test(tc,test_btsinkmachine_obj1);
   tcase_add_test(tc,test_btsinkmachine_obj2);
+  tcase_add_test(tc,test_btsinkmachine_default);
+  tcase_add_test(tc,test_btsinkmachine_fallback);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

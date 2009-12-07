@@ -58,6 +58,8 @@ struct _BtTestSettingsClass {
 
 const BtTestSettings *bt_test_settings_new(void);
 
+extern void bt_test_settings_set(BtTestSettings * const self, gchar *property_name, gpointer value);
+
 GType bt_test_settings_get_type(void) G_GNUC_CONST;
 
 #endif // BT_TEST_SETTINGS_H
