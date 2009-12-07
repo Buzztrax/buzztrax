@@ -192,11 +192,9 @@ GType bt_sink_bin_record_format_get_type(void) {
       { BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, ".ogg", "ogg-vorbis" },
       { BT_SINK_BIN_RECORD_FORMAT_MP3,        ".mp3",        "mp3" },
       { BT_SINK_BIN_RECORD_FORMAT_WAV,        ".wav",        "wav" },
-      { BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,   ".flac",   "ogg-flac" },
+      { BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,   ".flac",  "ogg-flac" },
       { BT_SINK_BIN_RECORD_FORMAT_RAW,        ".raw",        "raw" },
-      /*
-      { BT_SINK_BIN_RECORD_FORMAT_MP4_AAC,   ".m4a",   "mp4 aac" },
-      */
+      { BT_SINK_BIN_RECORD_FORMAT_MP4_AAC,    ".m4a",    "mp4 aac" },
       { 0, NULL, NULL},
     };
     type = g_enum_register_static("BtSinkBinRecordFormat", values);
@@ -461,11 +459,17 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
       }
       list=g_list_append(list,element);
       break;
-    /*
-    BT_SINK_BIN_RECORD_FORMAT_MP4_AAC:
+    case BT_SINK_BIN_RECORD_FORMAT_MP4_AAC:
       // faac ! mp4mux ! filesink location="song.m4a"
+      if(!(element=gst_element_factory_make("faac","faac"))) {
+        GST_INFO("Can't instantiate 'faac' element");goto Error;
+      }
+      list=g_list_append(list,element);
+      if(!(element=gst_element_factory_make("mp4mux","mp4mux"))) {
+        GST_INFO("Can't instantiate 'mp4mux' element");goto Error;
+      }
+      list=g_list_append(list,element);
       break;
-    */
     case BT_SINK_BIN_RECORD_FORMAT_RAW:
       // no element needed
       break;

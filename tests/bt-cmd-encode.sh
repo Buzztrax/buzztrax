@@ -28,7 +28,18 @@ for song in $E_SONGS; do
   echo "testing $song"
   audio=`basename $song .xml`
   audio="$TESTRESULTDIR/$audio.ogg"
-  echo >>/tmp/bt_cmd_encode.log "== $song =="
+  echo >>/tmp/bt_cmd_encode.log "== $song.ogg =="
+  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute $BUZZTARD_CMD 2>>/tmp/bt_cmd_encode.log -q --command=encode --input-file=$song --output-file=$audio
+  if [ $? -ne 0 ]; then res=1; fi
+done
+
+# test formats
+song="$TESTSONGDIR/simple1.xml"
+for format in ogg mp3 wav flac m4a raw; do
+  echo "testing $format"
+  audio=`basename $song .xml`
+  audio="$TESTRESULTDIR/$audio.$format"
+  echo >>/tmp/bt_cmd_encode.log "== $song.$format =="
   GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute $BUZZTARD_CMD 2>>/tmp/bt_cmd_encode.log -q --command=encode --input-file=$song --output-file=$audio
   if [ $? -ne 0 ]; then res=1; fi
 done
