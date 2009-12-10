@@ -1,5 +1,10 @@
 2009-12-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Sent news.
+
+2009-12-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/bt-check.c:
 	  Whitespace.
 
@@ -214,7 +219,7 @@
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/pattern-editor.c:
 	* src/ui/edit/pattern-editor.h:
-	  Rename some structs fro consistency.
+	  Rename some structs for consistency.
 
 2009-11-26  Stefan Kost  <ensonic@users.sf.net>
 
@@ -287,12 +292,12 @@
 	* src/lib/core/wire.c:
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/machine-canvas-item.h:
-	  Remove unnneded slots in classes for signals.
+	  Remove unneeded slots in classes for signals.
 
 2009-11-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:
-          Add workaround for enum type issue.
+      Add workaround for enum type issue.
 
 2009-11-12  Stefan Kost  <ensonic@users.sf.net>
 
@@ -353,7 +358,7 @@
 	* src/lib/core/machine.c:
 	* src/lib/core/setup.c:
 	* src/lib/core/wire.c:
-	  Use a fixed internal format. This allows up to avoid plugging audioconvert
+	  Use a fixed internal format. This allows us to avoid plugging audioconvert
 	  elements in wires and machines. Now we plug them only if the machine
 	  cannot support the internal format. This gives 7 -> 1 sec speedup for
 	  load & play of Aenathron.

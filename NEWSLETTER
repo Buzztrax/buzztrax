@@ -1,5 +1,25 @@
+2010/01 ========================================================================
+
 2009/12 ========================================================================
 
+I made a nice change to the pipeline graph builder - It now uses a fixed 
+internal format (float 32bit). This allows us to avoid plugging audioconvert
+elements in wires and machines. Now we plug them only if the machine cannot
+support the internal format. This gives 7 -> 1 sec speedup for load & play of
+e.g. Aenathron.bmx.
+
+In general also plain to wav rendering is now quite fast. On my AMD64 @ 1.8GHz
+the 11:45 min. song renders in 45 sec. and on my Intel Core 2 Duo @ 2.0GHz it
+takes 28 sec..
+
+The rest of the month I spent a lot of time on project maintenance, improving
+the api-docs and writing more test. Regarding the latter, I got the test
+coverage improved a lot. Writing automated tests for some areas is quite tough
+though.
+
+Then I also made a small change in the UI. All context menus can now be invoked
+via a popup menu button in the toolbar above (machine, pattern and sequence
+view), this makes it more usable on touchscreen devices.
 
 
 2009/11 ========================================================================
