@@ -77,7 +77,6 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
     case BT_SETTINGS_AUDIOSINK:
     case BT_SETTINGS_SYSTEM_AUDIOSINK:
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
-    case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_MISSING_MACHINES:
     case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:
     case BT_SETTINGS_FOLDER_SONG:
@@ -105,6 +104,7 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
     } break; 
     case BT_SETTINGS_SAMPLE_RATE:
     case BT_SETTINGS_CHANNELS:
+    case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
     {
       if(prop) {
@@ -130,7 +130,6 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
     case BT_SETTINGS_AUDIOSINK:
     case BT_SETTINGS_SYSTEM_AUDIOSINK:
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
-    case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:
     case BT_SETTINGS_FOLDER_SONG:
     case BT_SETTINGS_FOLDER_RECORD:
@@ -154,13 +153,14 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
     } break; 
     case BT_SETTINGS_SAMPLE_RATE:
     case BT_SETTINGS_CHANNELS:
+    case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
     {
       if(!prop) {
         self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_UINT);
       }
-      g_value_set_boolean(prop, g_value_get_uint(value));
+      g_value_set_uint(prop, g_value_get_uint(value));
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

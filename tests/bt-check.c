@@ -253,7 +253,7 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
 
 // ttest selection
 gboolean
-_bt_check_run_test_func (const gchar * func_name)
+_bt_check_run_test_func(const gchar * func_name)
 {
   const gchar *checks;
   gboolean res = FALSE;

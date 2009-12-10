@@ -47,7 +47,7 @@ static gboolean timeout(gpointer data) {
 //-- tests
 
 // create app and then unconditionally destroy window
-BT_START_TEST(test_create_app) {
+BT_START_TEST(test_create) {
   BtEditApplication *app;
   BtMainWindow *main_window;
 
@@ -88,11 +88,34 @@ BT_START_TEST(test_create_app) {
 }
 BT_END_TEST
 
+static gboolean finish_main_loops(gpointer user_data) {
+  gtk_main_quit();
+  return FALSE;
+}
+
+// create app and then unconditionally destroy window
+BT_START_TEST(test_run) {
+  BtEditApplication *app;
+  BtSettings *settings=NULL;
+
+  app=bt_edit_application_new();
+  fail_unless(app != NULL, NULL);
+  
+  // avoid the about dialog
+  settings=bt_settings_make();
+  g_object_set(settings,"news-seen",PACKAGE_VERSION_NUMBER,NULL);
+
+  // run and quit
+  g_idle_add(finish_main_loops,NULL);
+  bt_edit_application_run(app);
+  
+  // free application
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+
 // create a new song
-/* fails with gtk-2.4
- * -> when destroying menus one gets
- * (bt-edit:22237): Gtk-WARNING **: mnemonic "g" wasn't removed for widget (0x856cd40)
- */
 BT_START_TEST(test_new1) {
   BtEditApplication *app;
   BtMainWindow *main_window;
@@ -580,7 +603,8 @@ BT_END_TEST
 TCase *bt_edit_application_example_case(void) {
   TCase *tc = tcase_create("BtEditApplicationExamples");
 
-  tcase_add_test(tc,test_create_app);
+  tcase_add_test(tc,test_create);
+  tcase_add_test(tc,test_run);
   tcase_add_test(tc,test_new1);
   tcase_add_test(tc,test_load1);
   tcase_add_test(tc,test_load2);
