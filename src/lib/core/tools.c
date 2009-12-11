@@ -66,9 +66,9 @@ GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *cl
 
   for(node=list;node;node=g_list_next(node)) {
     GstPluginFeature * const feature=GST_PLUGIN_FEATURE(node->data);
-    res=g_list_prepend(res,(gchar *)gst_plugin_feature_get_name(feature));
+    res=g_list_prepend(res,(gpointer)gst_plugin_feature_get_name(feature));
   }
-  g_list_free(list);
+  gst_plugin_feature_list_free((GList *)list);
   g_strfreev(categories);
   return(res);
 }

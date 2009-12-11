@@ -1,5 +1,10 @@
 2009-12-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/tools.c:
+	  Use the right function to free the list.
+
+2009-12-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-bin.c:
 	  This is now fixed upstream. Make the hack version dependent.
 
