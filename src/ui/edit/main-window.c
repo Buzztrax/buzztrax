@@ -35,7 +35,8 @@ enum {
   MAIN_WINDOW_APP=1,
   MAIN_WINDOW_TOOLBAR,
   MAIN_WINDOW_STATUSBAR,
-  MAIN_WINDOW_PAGES
+  MAIN_WINDOW_PAGES,
+  MAIN_WINDOW_DIALOG
 };
 
 
@@ -54,6 +55,8 @@ struct _BtMainWindowPrivate {
   BtMainPages *pages;
   /* the statusbar of the window */
   BtMainStatusbar *statusbar;
+  /* active dialog */
+  GtkDialog *dialog;
 
   /* file-chooser stuff */
   GtkFileChooser *file_chooser;
@@ -642,7 +645,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   guint ix;
   //gchar *glob;
 
-  // store for signal handler
+  // store for format-changed signal handler
   self->priv->file_chooser=GTK_FILE_CHOOSER(dialog);
 
   // set filters and build format selector
@@ -870,6 +873,123 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   g_free(old_file_name);
 }
 
+// @todo use GtkMessageDialog for the next two
+
+/**
+ * bt_dialog_message:
+ * @self: the applications main window
+ * @title: the title of the message
+ * @headline: the bold headline of the message
+ * @message: the message itself
+ *
+ * Displays a modal message dialog, that needs to be confirmed with "Okay".
+ */
+void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message) {
+  GtkWidget *label,*icon,*box;
+  gchar *str;
+
+  g_return_if_fail(BT_IS_MAIN_WINDOW(self));
+  g_return_if_fail(BT_IS_STRING(title));
+  g_return_if_fail(BT_IS_STRING(headline));
+  g_return_if_fail(BT_IS_STRING(message));
+
+  self->priv->dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(title,
+                                        GTK_WINDOW(self),
+                                        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                        NULL));
+
+  box=gtk_hbox_new(FALSE,12);
+  gtk_container_set_border_width(GTK_CONTAINER(box),6);
+
+  // @todo: when to use GTK_STOCK_DIALOG_WARNING ?
+  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
+  gtk_container_add(GTK_CONTAINER(box),icon);
+
+  // @idea if headline is NULL use title ?
+  str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
+  label=g_object_new(GTK_TYPE_LABEL,
+    "use-markup",TRUE,"selectable",TRUE,"wrap",TRUE,
+    "label",str,
+    NULL);
+  g_free(str);
+  gtk_container_add(GTK_CONTAINER(box),label);
+  gtk_container_add(GTK_CONTAINER(self->priv->dialog->vbox),box);
+  gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
+  g_object_notify(G_OBJECT(self), "dialog");
+
+  gtk_dialog_run(self->priv->dialog);
+  gtk_widget_destroy(GTK_WIDGET(self->priv->dialog));
+  self->priv->dialog=NULL;
+  g_object_notify(G_OBJECT(self), "dialog");
+}
+
+/**
+ * bt_dialog_question:
+ * @self: the applications main window
+ * @title: the title of the message
+ * @headline: the bold headline of the message
+ * @message: the message itself
+ *
+ * Displays a modal question dialog, that needs to be confirmed with "Okay" or aborted with "Cancel".
+ * Returns: %TRUE for Okay, %FALSE otherwise
+ */
+gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message) {
+  gboolean result=FALSE;
+  gint answer;
+  GtkWidget *label,*icon,*box;
+  gchar *str;
+
+  g_return_val_if_fail(BT_IS_MAIN_WINDOW(self),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(title),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(headline),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(message),FALSE);
+
+  self->priv->dialog = GTK_DIALOG(gtk_dialog_new_with_buttons(title,
+                                        GTK_WINDOW(self),
+                                        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                        GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                                        NULL));
+
+  box=gtk_hbox_new(FALSE,12);
+  gtk_container_set_border_width(GTK_CONTAINER(box),6);
+
+  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
+  gtk_container_add(GTK_CONTAINER(box),icon);
+
+  // @idea if headline is NULL use title ?
+  str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
+  label=g_object_new(GTK_TYPE_LABEL,
+    "use-markup",TRUE,"selectable",TRUE,"wrap",TRUE,
+    "label",str,
+    NULL);
+  g_free(str);
+  gtk_container_add(GTK_CONTAINER(box),label);
+  gtk_container_add(GTK_CONTAINER(self->priv->dialog->vbox),box);
+  gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
+  g_object_notify(G_OBJECT(self), "dialog");
+
+  answer=gtk_dialog_run(self->priv->dialog);
+  switch(answer) {
+    case GTK_RESPONSE_ACCEPT:
+      result=TRUE;
+      break;
+    case GTK_RESPONSE_REJECT:
+      result=FALSE;
+      break;
+    default:
+      GST_WARNING("unhandled response code = %d",answer);
+  }
+  gtk_widget_destroy(GTK_WIDGET(self->priv->dialog));
+  self->priv->dialog=NULL;
+  g_object_notify(G_OBJECT(self), "dialog");
+
+  GST_INFO("bt_dialog_question(\"%s\") = %d",title,result);
+  return(result);
+}
+
+
 //-- wrapper
 
 //-- class internals
@@ -894,6 +1014,9 @@ static void bt_main_window_get_property(GObject      *object,
     } break;
     case MAIN_WINDOW_PAGES: {
       g_value_set_object(value, self->priv->pages);
+    } break;
+    case MAIN_WINDOW_DIALOG: {
+      g_value_set_object(value, self->priv->dialog);
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -992,6 +1115,13 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
                                      "pages prop",
                                      "Get the pages widget",
                                      BT_TYPE_MAIN_PAGES, /* object type */
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,MAIN_WINDOW_DIALOG,
+                                  g_param_spec_object("dialog",
+                                     "dialog prop",
+                                     "Get the active dialog",
+                                     GTK_TYPE_DIALOG, /* object type */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 

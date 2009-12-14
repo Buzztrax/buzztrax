@@ -35,4 +35,8 @@ extern void bt_main_window_open_song(const BtMainWindow *self);
 extern void bt_main_window_save_song(const BtMainWindow *self);
 extern void bt_main_window_save_song_as(const BtMainWindow *self);
 
+/* helper for simple message/question dialogs */
+extern void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);
+extern gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);
+
 #endif // BT_MAIN_WINDOW_METHDOS_H

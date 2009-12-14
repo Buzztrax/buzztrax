@@ -30,10 +30,6 @@ extern GtkWidget *gtk_image_new_from_filename(const gchar *filename);
 extern GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename);
 extern GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size);
 
-/* helper for simple message/question dialogs */
-extern void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);
-extern gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);
-
 /* gtk toolbar helper */
 extern GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name);
 
