@@ -1,5 +1,18 @@
 2009-12-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbuzztard-core/Makefile.am:
+	  Also disable the file we skip here.
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  Repair the gir-building to scan only what we build. We get linker errors
+	  otherwise.
+
+	* src/lib/core/sink-bin.c:
+	  Fix a warning from the gir-scanner.
+
+2009-12-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	* tests/m-bt-edit.c:
 	* tests/ui/edit/Makefile.am:

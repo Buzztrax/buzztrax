@@ -194,7 +194,7 @@ GType bt_sink_bin_record_format_get_type(void) {
       { BT_SINK_BIN_RECORD_FORMAT_WAV,        ".wav",        "wav" },
       { BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,   ".flac",  "ogg-flac" },
       { BT_SINK_BIN_RECORD_FORMAT_RAW,        ".raw",        "raw" },
-      { BT_SINK_BIN_RECORD_FORMAT_MP4_AAC,    ".m4a",    "mp4 aac" },
+      { BT_SINK_BIN_RECORD_FORMAT_MP4_AAC,    ".m4a",    "mp4-aac" },
       { 0, NULL, NULL},
     };
     type = g_enum_register_static("BtSinkBinRecordFormat", values);

@@ -50,8 +50,7 @@ BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
              --pkg gstreamer-0.10 \
              --output $@ \
 	     -I$(srcdir)/libbuzztard-ic/ \
-             $(srcdir)/*.c \
-             $(srcdir)/libbuzztard-ic/*.h
+             $(libbuzztard_ic_la_SOURCES)
 BUILT_GIRSOURCES = BuzztardIc-0.0.gir
 
 girdir = $(datadir)/gir
