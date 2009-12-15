@@ -601,81 +601,6 @@ BT_START_TEST(test_machine_view_edit) {
 }
 BT_END_TEST
 
-// this could help to test triggering certain resposes
-static struct {
-  GtkDialog *dialog;
-  gint response;
-} dialog_data;
-
-static gboolean leave_dialog(gpointer user_data) {
-  if (dialog_data.dialog) {
-    gtk_dialog_response(dialog_data.dialog,dialog_data.response);
-    return FALSE;
-  } else {
-    BtMainWindow *main_window=BT_MAIN_WINDOW(user_data);
-
-    // need to get get the dialog here
-    g_object_get(main_window,"dialog",&dialog_data.dialog,NULL);
-    return TRUE;
-  }
-}
-
-// test message dialog
-BT_START_TEST(test_message_dialog1) {
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-
-  app=bt_edit_application_new();
-  fail_unless(app != NULL, NULL);
-
-  // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
-
-  dialog_data.dialog=NULL;
-  dialog_data.response=GTK_RESPONSE_ACCEPT;
-  g_idle_add(leave_dialog,(gpointer)main_window);
-  bt_dialog_message(main_window,"title","headline","message");
-
-  // close window
-  gtk_widget_destroy(GTK_WIDGET(main_window));
-
-  while(gtk_events_pending()) gtk_main_iteration();
-
-  // free application
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-// test message dialog
-BT_START_TEST(test_question_dialog1) {
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  gboolean res;
-
-  app=bt_edit_application_new();
-  fail_unless(app != NULL, NULL);
-
-  // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
-
-  dialog_data.dialog=NULL;
-  dialog_data.response=GTK_RESPONSE_ACCEPT;
-  g_idle_add(leave_dialog,(gpointer)main_window);
-  res=bt_dialog_question(main_window,"title","headline","message");
-  fail_unless(res == TRUE, NULL);
-
-  // close window
-  gtk_widget_destroy(GTK_WIDGET(main_window));
-
-  while(gtk_events_pending()) gtk_main_iteration();
-
-  // free application
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
 TCase *bt_edit_application_example_case(void) {
   TCase *tc = tcase_create("BtEditApplicationExamples");
 
@@ -690,9 +615,6 @@ TCase *bt_edit_application_example_case(void) {
   tcase_add_test(tc,test_tabs1);
   tcase_add_test(tc,test_tabs_playing);
   tcase_add_test(tc,test_machine_view_edit);
-  // those should be elsewhere
-  tcase_add_test(tc,test_message_dialog1);
-  tcase_add_test(tc,test_question_dialog1);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   return(tc);

@@ -41,6 +41,7 @@ extern Suite *bt_machine_preset_properties_dialog_suite(void);
 extern Suite *bt_machine_preferences_dialog_suite(void);
 extern Suite *bt_machine_properties_dialog_suite(void);
 extern Suite *bt_machine_rename_dialog_suite(void);
+extern Suite *bt_main_window_suite(void);
 extern Suite *bt_missing_framework_elements_dialog_suite(void);
 extern Suite *bt_missing_song_elements_dialog_suite(void);
 extern Suite *bt_pattern_page_suite(void);
@@ -132,6 +133,7 @@ int main(int argc, char **argv) {
   srunner_add_suite(sr, bt_machine_preferences_dialog_suite());
   srunner_add_suite(sr, bt_machine_properties_dialog_suite());
   srunner_add_suite(sr, bt_machine_rename_dialog_suite());
+  srunner_add_suite(sr, bt_main_window_suite());
   srunner_add_suite(sr, bt_missing_framework_elements_dialog_suite());
   srunner_add_suite(sr, bt_missing_song_elements_dialog_suite());
   srunner_add_suite(sr, bt_pattern_page_suite());

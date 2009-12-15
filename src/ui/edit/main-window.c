@@ -488,17 +488,20 @@ void bt_main_window_new_song(const BtMainWindow *self) {
  */
 void bt_main_window_open_song(const BtMainWindow *self) {
   BtSettings *settings;
-  GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Open a song"),GTK_WINDOW(self),
-    GTK_FILE_CHOOSER_ACTION_OPEN,
-    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-    NULL);
   gint result;
   gchar *folder_name,*file_name=NULL;
   GtkFileFilter *filter,*filter_all;
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
   guint ix;
+
+  self->priv->dialog=GTK_DIALOG(gtk_file_chooser_dialog_new(_("Open a song"),
+    GTK_WINDOW(self),
+    GTK_FILE_CHOOSER_ACTION_OPEN,
+    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+    NULL));
+  self->priv->file_chooser=GTK_FILE_CHOOSER(self->priv->dialog);
 
   // set filters
   filter_all=gtk_file_filter_new();
@@ -522,36 +525,39 @@ void bt_main_window_open_song(const BtMainWindow *self) {
         gtk_file_filter_add_pattern(filter_all,"*.xml");
       }
 #endif
-      gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+      gtk_file_chooser_add_filter(self->priv->file_chooser,filter);
       ix++;
     }
   }
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter_all);
+  gtk_file_chooser_add_filter(self->priv->file_chooser,filter_all);
   filter=gtk_file_filter_new();
   gtk_file_filter_set_name(filter,"all files");
   gtk_file_filter_add_pattern(filter,"*");
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+  gtk_file_chooser_add_filter(self->priv->file_chooser,filter);
   // set default filter
-  gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter_all);
+  gtk_file_chooser_set_filter(self->priv->file_chooser,filter_all);
 
   // set a default songs folder
-  //gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
+  //gtk_file_chooser_set_current_folder(self->priv->file_chooser,DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(settings,"song-folder",&folder_name,NULL);
   // reuse last folder (store in self, if we loaded something
-  gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),self->priv->last_folder?self->priv->last_folder:folder_name);
-  gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(dialog),folder_name,NULL);
+  gtk_file_chooser_set_current_folder(self->priv->file_chooser,self->priv->last_folder?self->priv->last_folder:folder_name);
+  gtk_file_chooser_add_shortcut_folder(self->priv->file_chooser,folder_name,NULL);
   g_free(folder_name);
   g_object_unref(settings);
  
-  result=gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
+  g_object_notify(G_OBJECT(self), "dialog");
+  
+  result=gtk_dialog_run(self->priv->dialog);
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK:
-      file_name=gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      file_name=gtk_file_chooser_get_filename(self->priv->file_chooser);
       // remember last folder
       g_free(self->priv->last_folder);
-      self->priv->last_folder=gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(dialog));
+      self->priv->last_folder=gtk_file_chooser_get_current_folder(self->priv->file_chooser);
       break;
     case GTK_RESPONSE_REJECT:
     case GTK_RESPONSE_CANCEL:
@@ -560,7 +566,10 @@ void bt_main_window_open_song(const BtMainWindow *self) {
     default:
       GST_WARNING("unhandled response code = %d",result);
   }
-  gtk_widget_destroy(dialog);
+  gtk_widget_destroy(GTK_WIDGET(self->priv->dialog));
+  self->priv->dialog=NULL;
+  g_object_notify(G_OBJECT(self), "dialog");
+
   // load after destoying the dialog, otherwise it stays open all time
   if(file_name) {
     if(!bt_edit_application_load_song(self->priv->app,file_name)) {
@@ -633,20 +642,22 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   gchar *old_file_name=NULL;
   gchar *ext;
   gint result;
-  GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Save a song"),GTK_WINDOW(self),
-    GTK_FILE_CHOOSER_ACTION_SAVE,
-    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-    GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-    NULL);
   GtkWidget *format_chooser,*box;
   GtkFileFilter *filter,*filter_all;
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
   guint ix;
   //gchar *glob;
+  
+  self->priv->dialog=GTK_DIALOG(gtk_file_chooser_dialog_new(_("Save a song"),
+    GTK_WINDOW(self),
+    GTK_FILE_CHOOSER_ACTION_SAVE,
+    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+    GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+    NULL));
 
   // store for format-changed signal handler
-  self->priv->file_chooser=GTK_FILE_CHOOSER(dialog);
+  self->priv->file_chooser=GTK_FILE_CHOOSER(self->priv->dialog);
 
   // set filters and build format selector
   format_chooser=gtk_combo_box_new_text();
@@ -674,7 +685,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
         gtk_file_filter_add_pattern(filter_all,"*.xml");
       }
 #endif
-      gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+      gtk_file_chooser_add_filter(self->priv->file_chooser,filter);
       gtk_combo_box_append_text(GTK_COMBO_BOX(format_chooser),info->formats[ix].name);
       GST_DEBUG("add filter %p for %s/%s/%s",
         filter,
@@ -685,20 +696,20 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       self->priv->filters=g_list_append(self->priv->filters,filter);
     }
   }
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter_all);
+  gtk_file_chooser_add_filter(self->priv->file_chooser,filter_all);
   filter=gtk_file_filter_new();
   gtk_file_filter_set_name(filter,"all files");
   gtk_file_filter_add_pattern(filter,"*");
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+  gtk_file_chooser_add_filter(self->priv->file_chooser,filter);
   // set default filter - not here, only in load
-  //gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter_all);
+  //gtk_file_chooser_set_filter(self->priv->file_chooser,filter_all);
 
   // get songs file-name
   g_object_get(G_OBJECT(self->priv->app),"song",&song,"settings",&settings,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"name",&name,"file-name",&file_name,NULL);
   g_object_get(settings,"song-folder",&folder_name,NULL);
-  gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(dialog),folder_name,NULL);
+  gtk_file_chooser_add_shortcut_folder(self->priv->file_chooser,folder_name,NULL);
   if(!file_name) {
     gchar *new_file_name;
 
@@ -707,8 +718,8 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     new_file_name=g_strdup_printf("%s.%s",name,info->formats[0].extension);
     GST_DEBUG("use defaults %s/%s",folder_name,new_file_name);
     /* the user just created a new document */
-    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), folder_name);
-    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), new_file_name);
+    gtk_file_chooser_set_current_folder(self->priv->file_chooser, folder_name);
+    gtk_file_chooser_set_current_name(self->priv->file_chooser, new_file_name);
     gtk_combo_box_set_active(GTK_COMBO_BOX(format_chooser),0);
     g_free(new_file_name);
   }
@@ -722,7 +733,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       NULL // mime-type
     };
     /* the user edited an existing document */
-    gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),file_name);
+    gtk_file_chooser_set_filename(self->priv->file_chooser,file_name);
     GST_DEBUG("use existing %s",file_name);
     /* select the format of this file */
     for(node=self->priv->filters,ix=0;node;node=g_list_next(node),ix++) {
@@ -733,7 +744,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
          * fixed in gtk-2.17.X
          */
         GST_DEBUG("use last path %s, format is '%s', filter %p",file_name,gtk_file_filter_get_name(filter),filter);
-        gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter);
+        gtk_file_chooser_set_filter(self->priv->file_chooser,filter);
         gtk_combo_box_set_active(GTK_COMBO_BOX(format_chooser),ix);
         found=TRUE;
         break;
@@ -758,7 +769,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
                * fixed in gtk-2.17.X
                */
               GST_DEBUG("format is '%s', filter %p",gtk_file_filter_get_name(filter),filter);
-              gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog),filter);
+              gtk_file_chooser_set_filter(self->priv->file_chooser,filter);
               gtk_combo_box_set_active(GTK_COMBO_BOX(format_chooser),ix);
               found=TRUE;
             }
@@ -784,18 +795,20 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Format")),FALSE,FALSE,0);
   gtk_box_pack_start(GTK_BOX(box),format_chooser,TRUE,TRUE,0);
-  gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),box,FALSE,FALSE,0);
+  gtk_box_pack_start(GTK_BOX(self->priv->dialog->vbox),box,FALSE,FALSE,0);
   g_signal_connect(G_OBJECT(format_chooser), "changed", G_CALLBACK(on_format_chooser_changed), (gpointer)self);
 
-  gtk_widget_show_all(dialog);
-  result=gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
+  g_object_notify(G_OBJECT(self), "dialog");
+  
+  result=gtk_dialog_run(self->priv->dialog);
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK: {
       file_name=gtk_file_chooser_get_filename(self->priv->file_chooser);
       // remember last folder
       g_free(self->priv->last_folder);
-      self->priv->last_folder=gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(dialog));
+      self->priv->last_folder=gtk_file_chooser_get_current_folder(self->priv->file_chooser);
     } break;
     case GTK_RESPONSE_REJECT:
     case GTK_RESPONSE_CANCEL:
@@ -804,9 +817,12 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     default:
       GST_WARNING("unhandled response code = %d",result);
   }
-  gtk_widget_destroy(dialog);
+  gtk_widget_destroy(GTK_WIDGET(self->priv->dialog));
+  self->priv->dialog=NULL;
+  g_object_notify(G_OBJECT(self), "dialog");
   g_list_free(self->priv->filters);
   self->priv->filters=NULL;
+
   // save after destoying the dialog, otherwise it stays open all time
   if(file_name) {
     FILE *file;
@@ -858,7 +874,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
           if(!gtk_recent_manager_remove_item(manager, uri, NULL)) {
             GST_WARNING("Can't store recent file");
           }
-          g_free(uri);         
+          g_free(uri);
         }
         uri=g_filename_to_uri(file_name,NULL,NULL);
         if(!gtk_recent_manager_add_item(manager, uri)) {

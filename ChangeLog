@@ -1,3 +1,18 @@
+2009-12-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-window.c:
+	* tests/m-bt-edit.c:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-edit-application.c:
+	* tests/ui/edit/e-bt-main-window.c:
+	* tests/ui/edit/s-bt-main-window.c:
+	* tests/ui/edit/s-bt-main-window.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/e-bt-main-window.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/e-bt-main-window.c (added):
+	* tests/ui/edit/s-bt-main-window.c (added):
+	  Move the dialog tests to new file and add similar for two more main-window
+	  functions.
+
 2009-12-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
