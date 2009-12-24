@@ -164,6 +164,7 @@ BtPatternPrivate
 <SECTION>
 <FILE>btpersistence</FILE>
 <TITLE>BtPersistence</TITLE>
+BtPersistence
 bt_persistence_strfmt_uchar
 bt_persistence_strfmt_long
 bt_persistence_strfmt_ulong
@@ -179,7 +180,6 @@ bt_persistence_get_value
 bt_persistence_save
 bt_persistence_load
 <SUBSECTION Standard>
-BtPersistence
 BtPersistenceInterface
 BT_TYPE_PERSISTENCE
 BT_PERSISTENCE
@@ -191,8 +191,8 @@ bt_persistence_get_type
 <SECTION>
 <FILE>btpersistencelocation</FILE>
 <TITLE>BtPersistenceLocation</TITLE>
-<SUBSECTION Standard>
 BtPersistenceLocation
+<SUBSECTION Standard>
 BtPersistenceLocationClass
 BT_PERSISTENCE_LOCATION
 BT_IS_PERSISTENCE_LOCATION
@@ -206,8 +206,8 @@ bt_persistence_location_get_type
 <SECTION>
 <FILE>btpersistenceselection</FILE>
 <TITLE>BtPersistenceSelection</TITLE>
-<SUBSECTION Standard>
 BtPersistenceSelection
+<SUBSECTION Standard>
 BtPersistenceSelectionClass
 BT_PERSISTENCE_SELECTION
 BT_IS_PERSISTENCE_SELECTION
@@ -218,22 +218,22 @@ BT_PERSISTENCE_SELECTION_GET_CLASS
 bt_persistence_selection_get_type
 </SECTION>
 
-<!--SECTION>
-<FILE>btplainfilesettings</FILE>
-<TITLE>BtPlainfileSettings</TITLE>
-BtPlainfileSettings
-bt_plainfile_settings_new
-<SUBSECTION Standard>
-BtPlainfileSettingsClass
-BT_PLAINFILE_SETTINGS
-BT_IS_PLAINFILE_SETTINGS
-BT_PLAINFILE_SETTINGS_CLASS
-BT_IS_PLAINFILE_SETTINGS_CLASS
-BT_TYPE_PLAINFILE_SETTINGS
-BT_PLAINFILE_SETTINGS_GET_CLASS
-bt_plainfile_settings_get_type
-BtPlainfileSettingsPrivate
-</SECTION-->
+#<SECTION>
+#<FILE>btplainfilesettings</FILE>
+#<TITLE>BtPlainfileSettings</TITLE>
+#BtPlainfileSettings
+#bt_plainfile_settings_new
+#<SUBSECTION Standard>
+#BtPlainfileSettingsClass
+#BT_PLAINFILE_SETTINGS
+#BT_IS_PLAINFILE_SETTINGS
+#BT_PLAINFILE_SETTINGS_CLASS
+#BT_IS_PLAINFILE_SETTINGS_CLASS
+#BT_TYPE_PLAINFILE_SETTINGS
+#BT_PLAINFILE_SETTINGS_GET_CLASS
+#bt_plainfile_settings_get_type
+#BtPlainfileSettingsPrivate
+#</SECTION>
 
 <SECTION>
 <FILE>btprocessormachine</FILE>

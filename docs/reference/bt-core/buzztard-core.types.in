@@ -3,6 +3,9 @@
 bt_application_get_type
 @GCONF_DOC_TYPES@bt_gconf_settings_get_type
 bt_machine_get_type
+bt_persistence_get_type
+bt_persistence_location_get_type
+bt_persistence_selection_get_type
 bt_pattern_get_type
 %bt_plainfile_settings_get_type
 bt_processor_machine_get_type
