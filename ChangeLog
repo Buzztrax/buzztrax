@@ -1,3 +1,21 @@
+2010-01-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/core_private.h:
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/sink-bin.h:
+	* src/lib/core/libbuzztard-core/song-io.h:
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/persistence.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/interaction-controller-menu.h:
+	* src/ui/edit/machine-menu.h:
+	* src/ui/edit/pattern-editor.h:
+	* src/ui/edit/ui-resources.h:
+	  API doc cleanup.
+
 2009-12-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/buzztard-core-sections.txt:

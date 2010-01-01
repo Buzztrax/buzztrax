@@ -20,11 +20,12 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-/* @todo:
- * - add properties:
+/* @todo: add properties:
  *   - vertical : gboolean, readonly
  *   - min,max,rms,peak : gint, read/write
  *   - peaks_falloff,scale_type : enum, read/write
+ * @todo: revisit cairo usage
+ *   - http://www.cairographics.org/FAQ/#sharp_lines
  */
 /**
  * SECTION:gtkvumeter

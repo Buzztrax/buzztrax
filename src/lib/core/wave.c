@@ -481,7 +481,7 @@ static gboolean bt_wave_save_from_fd(const BtWave * const self, BtSongIONative *
  * @uri: the location of the sample data
  * @index: the list slot for the new wave
  * @volume: the volume of the wave
- * @loop-mode: loop playback mode
+ * @loop_mode: loop playback mode
  * @channels: number of audio channels
  *
  * Create a new instance

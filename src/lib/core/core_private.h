@@ -89,8 +89,10 @@
 
 #include <libbuzztard-core/core.h>
 
-/*
- * default caps to avoid plugging converters
+/**
+ * bt_default_caps:
+ *
+ * Default caps to avoid plugging converters. Used in #BtWires and #BtMachines.
  */
 extern GstCaps *bt_default_caps;
 

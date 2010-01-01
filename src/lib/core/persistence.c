@@ -254,7 +254,6 @@ gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node) {
 
 /**
  * bt_persistence_set_value:
- * @pspec: parameter definition
  * @gvalue: a #GValue
  * @svalue: the string representation of the value to store
  *
@@ -403,6 +402,7 @@ xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr cons
  * @self: a deserialiable object
  * @node: the xml node
  * @location: an optional location
+ * @err: a GError for deserialisation errors
  * @...: extra parameters NULL terminated name/value pairs.
  *
  * Deserializes the given object from the @node. If @self is NULL and a @type is

@@ -96,7 +96,7 @@ typedef enum {
   BT_UI_RES_COLOR_MACHINE_BRIGHT1,    /* list view odd */
   BT_UI_RES_COLOR_MACHINE_BRIGHT2,    /* list view even */
   BT_UI_RES_COLOR_MACHINE_DARK1,      /* --- */
-  BT_UI_RES_COLOR_MACHINE_DARK2       /* --- */  
+  BT_UI_RES_COLOR_MACHINE_DARK2       /* --- */
 } BtUIResourcesMachineColors;
 
 /* used by UI_RESOURCES_TYPE */

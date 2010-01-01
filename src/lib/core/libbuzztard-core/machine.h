@@ -48,9 +48,12 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
  */
 struct _BtMachine {
   const GstBin parent;
+
+  /*< public >*/
   
   /*< read-only >*/
-  GList *src_wires,*dst_wires;
+  GList *src_wires;
+  GList *dst_wires;
 
   /*< private >*/
   BtMachinePrivate *priv;
@@ -82,7 +85,8 @@ typedef enum {
   BT_MACHINE_STATE_MUTE,
   BT_MACHINE_STATE_SOLO,
   BT_MACHINE_STATE_BYPASS,
-  BT_MACHINE_STATE_COUNT  
+  /*< private >*/
+  BT_MACHINE_STATE_COUNT
 } BtMachineState;
 
 /* used by MACHINE_TYPE */

@@ -76,6 +76,8 @@ typedef struct _BtPatternEditorColumnGroup BtPatternEditorColumnGroup;
 
 /**
  * BtPatternEditorCallbacks:
+ * @get_data_func: called to fetch data from the model and convert for view
+ * @set_data_func: called to convert from view format for storage in the model
  *
  * Data format conversion callbacks.
  */
@@ -90,6 +92,8 @@ struct _BtPatternEditorCallbacks
 };
 typedef struct _BtPatternEditorCallbacks BtPatternEditorCallbacks;
 
+typedef struct _BtPatternEditor BtPatternEditor;
+typedef struct _BtPatternEditorClass BtPatternEditorClass;
 typedef struct _BtPatternEditorPrivate BtPatternEditorPrivate;
 
 enum BtPatternEditorSelectionMode
@@ -104,7 +108,7 @@ enum BtPatternEditorSelectionMode
  *
  * Opaque editor instance data.
  */
-typedef struct _BtPatternEditor
+struct _BtPatternEditor
 {
   GtkWidget parent;
 
@@ -146,9 +150,9 @@ typedef struct _BtPatternEditor
   /* scroll adjustments */
   GtkAdjustment *hadj,*vadj;
 
-} BtPatternEditor;
+};
 
-typedef struct _BtPatternEditorClass
+struct _BtPatternEditorClass
 {
   GtkWidgetClass parent_class;
 
@@ -156,11 +160,11 @@ typedef struct _BtPatternEditorClass
   void (*set_scroll_adjustments) (BtPatternEditor* self,
 				  GtkAdjustment  * horizontal,
 				  GtkAdjustment  * vertical);
-} BtPatternEditorClass;
+};
 
 /* note: does not copy the BtPatternEditorColumn * data (in this version) */
 extern void
-bt_pattern_editor_set_pattern (BtPatternEditor *view,
+bt_pattern_editor_set_pattern (BtPatternEditor *self,
                           gpointer pattern_data,
                           int num_rows,
                           int num_groups,

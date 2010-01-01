@@ -114,7 +114,7 @@ typedef GType (*BtSongIODetect)(const gchar * const file_name);
  * BtSongIOFormatInfo:
  * @name: format name
  * @mime_type: mime type
- * @externsion: file extension
+ * @extension: file extension
  *
  * Metadata structure for #BtSongIO plugins describing one format.
  */

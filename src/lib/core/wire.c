@@ -771,6 +771,7 @@ Error:
  * @song: the song the new instance belongs to
  * @src_machine: the data source (#BtSourceMachine or #BtProcessorMachine)
  * @dst_machine: the data sink (#BtSinkMachine or #BtProcessorMachine)
+ * @err: inform about failed instance creation
  *
  * Create a new instance.
  * The new wire is automaticall added to a songs setup. You don't need to call

@@ -40,7 +40,6 @@ typedef struct _BtMachineMenuPrivate BtMachineMenuPrivate;
 
 /**
  * BtMachineMenu:
- * @parent: parent type
  *
  * the machine selection sub-menu for the canvas page context menu
  */
