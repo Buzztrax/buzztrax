@@ -1,3 +1,10 @@
+2010-01-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* buzztard.schemas.in:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbuzztard-core/settings-private.h:
+	  Add new settings for tip-of-the-day.
+
 2010-01-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/buzztard-core-sections.txt:

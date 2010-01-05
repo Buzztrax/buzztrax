@@ -1,6 +1,105 @@
 <?xml version="1.0"?>
 <gconfschemafile>
   <schemalist>
+    <!-- ui -->
+    <schema>
+      <key>/schemas/apps/buzztard/news-seen</key>
+      <applyto>/apps/buzztard/news-seen</applyto>
+      <owner>buzztard</owner>
+      <type>int</type>
+      <locale name="C">
+        <default>0</default>
+        <short>Version number for that the user has seen the news</short>
+        <long>Tracks for which application version the user has seen the news already.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/missing-machines</key>
+      <applyto>/apps/buzztard/missing-machines</applyto>
+      <owner>buzztard</owner>
+      <type>string</type>
+      <locale name="C">
+        <default></default>
+        <short>List of missing machines to ignore</short>
+        <long>
+          Comma separated list of machine names, that we will not warn about on startup, if they are missing.
+        </long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/presented-tips</key>
+      <applyto>/apps/buzztard/presented-tips</applyto>
+      <owner>buzztard</owner>
+      <type>string</type>
+      <locale name="C">
+        <default></default>
+        <short>List of tip-numbers that were shown</short>
+        <long>
+          Comma separated list of tip-of-the-day numbers, that the user has seen.
+        </long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/show-tips</key>
+      <applyto>/apps/buzztard/show-tips</applyto>
+      <owner>buzztard</owner>
+      <type>bool</type>
+      <locale name="C">
+        <default>true</default>
+        <short>Show tips on startup</short>
+        <long>
+          Should the tip-of-the-day dialog be shown everytime the application starts.
+        </long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/toolbar-hide</key>
+      <applyto>/apps/buzztard/toolbar-hide</applyto>
+      <owner>buzztard</owner>
+      <type>bool</type>
+      <locale name="C">
+        <default>false</default>
+        <short>Hide main toolbar</short>
+        <long>Should the main application toolbar be hidden.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/statusbar-hide</key>
+      <applyto>/apps/buzztard/statusbar-hide</applyto>
+      <owner>buzztard</owner>
+      <type>bool</type>
+      <locale name="C">false
+        <default>false</default>
+        <short>Hide bottom statusbar</short>
+        <long>Should the main application statusbar be hidden.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/tabs-hide</key>
+      <applyto>/apps/buzztard/tabs-hide</applyto>
+      <owner>buzztard</owner>
+      <type>bool</type>
+      <locale name="C">
+        <default>false</default>
+        <short>Hide main page tabs</short>
+        <long>Should the main application notebook pages tabs be hidden.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/grid-density</key>
+      <applyto>/apps/buzztard/grid-density</applyto>
+      <owner>buzztard</owner>
+      <type>string</type>
+      <locale name="C">
+        <default>low</default>
+        <short>Machine view grid detail level</short>
+        <long>
+          How dense the app should draw the grid lines shown in machine view:
+          (off,low,medium,high)
+        </long>
+      </locale>
+    </schema>
+    <!-- audio settings -->
     <schema>
       <key>/schemas/apps/buzztard/audiosink</key>
       <applyto>/apps/buzztard/audiosink</applyto>
@@ -32,77 +131,6 @@
         <default>2</default>
         <short>How many audio channels to use</short>
         <long>How many audio channels should be used for the generated audio.</long>
-      </locale>
-    </schema>
-    <schema>
-      <key>/schemas/apps/buzztard/toolbar-hide</key>
-      <applyto>/apps/buzztard/toolbar-hide</applyto>
-      <owner>buzztard</owner>
-      <type>bool</type>
-      <locale name="C">
-        <default>false</default>
-        <short>Hide main toolbar</short>
-        <long>Should the main application toolbar be hidden.</long>
-      </locale>
-    </schema>
-    <schema>
-      <key>/schemas/apps/buzztard/statusbar-hide</key>
-      <applyto>/apps/buzztard/statusbar-hide</applyto>
-      <owner>buzztard</owner>
-      <type>bool</type>
-      <locale name="C">
-        <default>false</default>
-        <short>Hide bottom statusbar</short>
-        <long>Should the main application statusbar be hidden.</long>
-      </locale>
-    </schema>
-    <schema>
-      <key>/schemas/apps/buzztard/tabs-hide</key>
-      <applyto>/apps/buzztard/tabs-hide</applyto>
-      <owner>buzztard</owner>
-      <type>bool</type>
-      <locale name="C">
-        <default>false</default>
-        <short>Hide main page tabs</short>
-        <long>Should the main application notebook pages tabs be hidden.</long>
-      </locale>
-    </schema>
-    <schema>
-      <key>/schemas/apps/buzztard/grid-density</key>
-      <applyto>/apps/buzztard/grid-density</applyto>
-      <owner>buzztard</owner>
-      <type>string</type>
-      <locale name="C">
-        <default>low</default>
-        <short>Machine view grid detail level</short>
-        <long>
-          How dense the app should draw the grid lines shown in machine view:
-          (off,low,medium,high)
-        </long>
-      </locale>
-    </schema>
-    <schema>
-      <key>/schemas/apps/buzztard/news-seen</key>
-      <applyto>/apps/buzztard/news-seen</applyto>
-      <owner>buzztard</owner>
-      <type>int</type>
-      <locale name="C">
-        <default>0</default>
-        <short>Version number for that the user has seen the news</short>
-        <long>Tracks for which application version the user has seen the news already.</long>
-      </locale>
-    </schema>
-    <schema>
-      <key>/schemas/apps/buzztard/missing-machines</key>
-      <applyto>/apps/buzztard/missing-machines</applyto>
-      <owner>buzztard</owner>
-      <type>string</type>
-      <locale name="C">
-        <default></default>
-        <short>List of missing machines to ignore</short>
-        <long>
-          Comma separated list of machine names, that we will not warn about on startup, if they are missing.
-        </long>
       </locale>
     </schema>
     <!-- playback controller -->

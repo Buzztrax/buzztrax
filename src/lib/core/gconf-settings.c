@@ -60,6 +60,71 @@ static void bt_gconf_settings_notify_toolbar_style(GConfClient * const client, g
   g_object_notify(G_OBJECT(self),"toolbar-style");
 }
 
+//-- helper
+
+static void read_boolean(const BtGConfSettings * const self, const gchar *path, GValue * const value) {
+  gboolean prop=gconf_client_get_bool(self->priv->client,path,NULL);
+  GST_DEBUG("application reads '%s' : '%d'",path,prop);
+  g_value_set_boolean(value,prop);
+}
+
+static void read_uint(const BtGConfSettings * const self, const gchar *path, GValue * const value) {
+  guint prop=gconf_client_get_int(self->priv->client,path,NULL);
+  GST_DEBUG("application reads '%s' : '%u'",path,prop);
+  g_value_set_uint(value,prop);
+}
+
+static void read_uint_def(const BtGConfSettings * const self, const gchar *path, GValue * const value, GParamSpecUInt * const pspec) {
+  guint prop=gconf_client_get_int(self->priv->client,path,NULL);
+  if(prop) {
+    GST_DEBUG("application reads '%s' : '%u'",path,prop);
+    g_value_set_uint(value,prop);
+  }
+  else {
+    GST_DEBUG("application reads [def] '%s' : '%u'",path,pspec->default_value);
+    g_value_set_uint(value,pspec->default_value);
+  }
+}
+
+static void read_string(const BtGConfSettings * const self, const gchar *path, GValue * const value) {
+  gchar * const prop=gconf_client_get_string(self->priv->client,path,NULL);
+  GST_DEBUG("application reads '%s' : '%s'",path,prop);
+  g_value_set_string(value,prop);
+  g_free(prop);
+}
+
+static void read_string_def(const BtGConfSettings * const self, const gchar *path, GValue * const value, GParamSpecString * const pspec) {
+  gchar * const prop=gconf_client_get_string(self->priv->client,path,NULL);
+  if(prop) {
+    GST_DEBUG("application reads '%s' : '%s'",path,prop);
+    g_value_set_string(value,prop);
+    g_free(prop);
+  }
+  else {
+    GST_DEBUG("application reads [def] '%s' : '%s'",path,pspec->default_value);
+    g_value_set_string(value,pspec->default_value);
+  }
+}
+
+
+static void write_boolean(const BtGConfSettings * const self, const gchar *path, const GValue * const value) {
+  gboolean prop=g_value_get_boolean(value);
+  gboolean res=gconf_client_set_bool(self->priv->client,path,prop,NULL);
+  GST_DEBUG("application wrote '%s' : '%d' (%s)",path,prop,(res?"okay":"fail"));
+}
+
+static void write_uint(const BtGConfSettings * const self, const gchar *path, const GValue * const value) {
+  gboolean prop=g_value_get_uint(value);
+  gboolean res=gconf_client_set_int(self->priv->client,path,prop,NULL);
+  GST_DEBUG("application wrote '%s' : '%u' (%s)",path,prop,(res?"okay":"fail"));
+}
+
+static void write_string(const BtGConfSettings * const self, const gchar *path, const GValue * const value) {
+  const gchar *prop=g_value_get_string(value);
+  gboolean res=gconf_client_set_string(self->priv->client,path,prop,NULL);
+  GST_DEBUG("application wrote '%s' : '%s' (%s)",path,prop,(res?"okay":"fail"));
+}
+
 //-- constructor methods
 
 /**
@@ -85,138 +150,64 @@ static void bt_gconf_settings_get_property(GObject * const object, const guint p
 
   return_if_disposed();
   switch (property_id) {
-    case BT_SETTINGS_AUDIOSINK: {
-      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",NULL);
-      if(prop) {
-        GST_DEBUG("application reads audiosink gconf_settings : '%s'",prop);
-        g_value_set_string(value, prop);
-        g_free(prop);
-      }
-      else {
-        GST_DEBUG("application reads [def] audiosink gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
-        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
-      }
-    } break;
-    case BT_SETTINGS_SAMPLE_RATE: {
-      guint prop=gconf_client_get_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/sample-rate",NULL);
-      if(!prop) {
-        GST_DEBUG("application reads [def] sample-rate gconf_settings : '%u'",((GParamSpecUInt *)pspec)->default_value);
-        g_value_set_uint(value, ((GParamSpecUInt *)pspec)->default_value);
-      }
-      else {
-        GST_DEBUG("application reads sample-rate gconf_settings : '%u'",prop);
-        g_value_set_uint(value, prop);
-      }
-    } break;
-    case BT_SETTINGS_CHANNELS: {
-      guint prop=gconf_client_get_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/channels",NULL);
-      if(!prop) {
-        GST_DEBUG("application reads [def] channels gconf_settings : '%u'",((GParamSpecUInt *)pspec)->default_value);
-        g_value_set_uint(value, ((GParamSpecUInt *)pspec)->default_value);
-      }
-      else {
-        GST_DEBUG("application reads channels gconf_settings : '%u'",prop);
-        g_value_set_uint(value, prop);
-      }
-    } break;
-    case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
-      gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",NULL);
-      GST_DEBUG("application reads system toolbar-hide gconf_settings : %d",prop);
-      g_value_set_boolean(value, prop);
-    } break;
-    case BT_SETTINGS_MENU_STATUSBAR_HIDE: {
-      gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/statusbar-hide",NULL);
-      GST_DEBUG("application reads system statusbar-hide gconf_settings : %d",prop);
-      g_value_set_boolean(value, prop);
-    } break;
-    case BT_SETTINGS_MENU_TABS_HIDE: {
-      gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/tabs-hide",NULL);
-      GST_DEBUG("application reads tabs-hide gconf_settings : %d",prop);
-      g_value_set_boolean(value, prop);
-    } break;
-    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
-      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",NULL);
-      if(prop) {
-        GST_DEBUG("application reads grid-density gconf_settings : '%s'",prop);
-        g_value_set_string(value, prop);
-        g_free(prop);
-      }
-      else {
-        GST_DEBUG("application reads [def] grid-density gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
-        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
-      }
-    } break;
+    /* ui */
     case BT_SETTINGS_NEWS_SEEN: {
-      guint prop=gconf_client_get_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/news-seen",NULL);
-      GST_DEBUG("application reads news-seen gconf_settings : '%u'",prop);
-      g_value_set_uint(value, prop);
+      read_uint(self,BT_GCONF_PATH_BUZZTARD"/news-seen",value);
     } break;
     case BT_SETTINGS_MISSING_MACHINES: {
-      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/missing-machines",NULL);
-      GST_DEBUG("application reads missing-machines gconf_settings : '%s'",prop);
-      g_value_set_string(value, prop);
-      g_free(prop);
+      read_string(self,BT_GCONF_PATH_BUZZTARD"/missing-machines",value);
+    } break;
+    case BT_SETTINGS_PRESENTED_TIPS: {
+      read_string(self,BT_GCONF_PATH_BUZZTARD"/presented-tips",value);
+    } break;
+    case BT_SETTINGS_SHOW_TIPS: {
+      read_boolean(self,BT_GCONF_PATH_BUZZTARD"/show-tips",value);
+    } break;
+    case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
+      read_boolean(self,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",value);
+    } break;
+    case BT_SETTINGS_MENU_STATUSBAR_HIDE: {
+      read_boolean(self,BT_GCONF_PATH_BUZZTARD"/statusbar-hide",value);
+    } break;
+    case BT_SETTINGS_MENU_TABS_HIDE: {
+      read_boolean(self,BT_GCONF_PATH_BUZZTARD"/tabs-hide",value);
+    } break;
+    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
+      read_string_def(self,BT_GCONF_PATH_BUZZTARD"/grid-density",value,(GParamSpecString *)pspec);
+    } break;
+    /* audio settings */
+    case BT_SETTINGS_AUDIOSINK: {
+      read_string_def(self,BT_GCONF_PATH_BUZZTARD"/audiosink",value,(GParamSpecString *)pspec);
+    } break;
+    case BT_SETTINGS_SAMPLE_RATE: {
+      read_uint_def(self,BT_GCONF_PATH_BUZZTARD"/sample-rate",value,(GParamSpecUInt *)pspec);
+    } break;
+    case BT_SETTINGS_CHANNELS: {
+      read_uint_def(self,BT_GCONF_PATH_BUZZTARD"/channels",value,(GParamSpecUInt *)pspec);
     } break;
     /* playback controller */
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE: {
-      gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-active",NULL);
-      GST_DEBUG("application reads playback-controller/coherence-upnp-activee gconf_settings : %d",prop);
-      g_value_set_boolean(value, prop);
+      read_boolean(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-active",value);
     } break;
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT: {
-      guint prop=gconf_client_get_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",NULL);
-      GST_DEBUG("application reads playback-controller/coherence-upnp-port gconf_settings : '%u'",prop);
-      g_value_set_uint(value, prop);
+      read_uint(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",value);
     } break;
     /* directory settings */
     case BT_SETTINGS_FOLDER_SONG: {
-      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/song-folder",NULL);
-      if(prop && g_file_test(prop,G_FILE_TEST_IS_DIR)) {
-        GST_DEBUG("application reads song-folder gconf_settings : '%s'",prop);
-        g_value_set_string(value, prop);
-        g_free(prop);
-      }
-      else {
-        GST_DEBUG("application reads [def] song-folder gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
-        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
-      }
-    } break;   
+      read_string_def(self,BT_GCONF_PATH_BUZZTARD"/song-folder",value,(GParamSpecString *)pspec);
+    } break;
     case BT_SETTINGS_FOLDER_RECORD: {
-      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/record-folder",NULL);
-      if(prop && g_file_test(prop,G_FILE_TEST_IS_DIR)) {
-        GST_DEBUG("application reads record-folder gconf_settings : '%s'",prop);
-        g_value_set_string(value, prop);
-        g_free(prop);
-      }
-      else {
-        GST_DEBUG("application reads [def] record-folder gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
-        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
-      }
-    } break;   
+      read_string_def(self,BT_GCONF_PATH_BUZZTARD"/record-folder",value,(GParamSpecString *)pspec);
+    } break;
     case BT_SETTINGS_FOLDER_SAMPLE: {
-      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/sample-folder",NULL);
-      if(prop && g_file_test(prop,G_FILE_TEST_IS_DIR)) {
-        GST_DEBUG("application reads sample-folder gconf_settings : '%s'",prop);
-        g_value_set_string(value, prop);
-        g_free(prop);
-      }
-      else {
-        GST_DEBUG("application reads [def] sample-folder gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
-        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
-      }
-    } break;   
+      read_string_def(self,BT_GCONF_PATH_BUZZTARD"/sample-folder",value,(GParamSpecString *)pspec);
+    } break;
     /* system settings */
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
-      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);
-      GST_DEBUG("application reads system audiosink gconf_settings : '%s'",prop);
-      g_value_set_string(value, prop);
-      g_free(prop);
+      read_string(self,BT_GCONF_PATH_GSTREAMER"/audiosink",value);
     } break;
     case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
-      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GNOME"/toolbar_style",NULL);
-      GST_DEBUG("application reads system toolbar style gconf_settings : '%s'",prop);
-      g_value_set_string(value, prop);
-      g_free(prop);
+      read_string(self,BT_GCONF_PATH_GNOME"/toolbar_style",value);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -227,116 +218,63 @@ static void bt_gconf_settings_get_property(GObject * const object, const guint p
 /* sets the given properties for this object */
 static void bt_gconf_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
+
   return_if_disposed();
 
   self->priv->dirty=TRUE;
 
   switch (property_id) {
-    case BT_SETTINGS_AUDIOSINK: {
-      gboolean gconf_ret=FALSE;
-      gchar * const prop=g_value_dup_string(value);
-      GST_DEBUG("application writes audiosink gconf_settings(%p) : %s",self,prop);
-      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",prop,NULL);
-      g_free(prop);
-      g_return_if_fail(gconf_ret == TRUE);
-    } break;
-    case BT_SETTINGS_SAMPLE_RATE: {
-      gboolean gconf_ret=FALSE;
-      guint prop=g_value_get_uint(value);
-      GST_DEBUG("application writes sample-rate gconf_settings : %u",prop);
-      gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/sample-rate",prop,NULL);
-      g_return_if_fail(gconf_ret == TRUE);
-    } break;
-    case BT_SETTINGS_CHANNELS: {
-      gboolean gconf_ret=FALSE;
-      guint prop=g_value_get_uint(value);
-      GST_DEBUG("application writes channels gconf_settings : %u",prop);
-      gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/channels",prop,NULL);
-      g_return_if_fail(gconf_ret == TRUE);
-    } break;
-    case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
-      gboolean gconf_ret=FALSE;
-      gboolean prop=g_value_get_boolean(value);
-      GST_DEBUG("application writes toolbar-hide gconf_settings : %d",prop);
-      gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",prop,NULL);
-      g_return_if_fail(gconf_ret == TRUE);
-    } break;
-    case BT_SETTINGS_MENU_STATUSBAR_HIDE: {
-      gboolean gconf_ret=FALSE;
-      gboolean prop=g_value_get_boolean(value);
-      GST_DEBUG("application writes statusbar-hide gconf_settings : %d",prop);
-      gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/statusbar-hide",prop,NULL);
-      g_return_if_fail(gconf_ret == TRUE);
-    } break;
-    case BT_SETTINGS_MENU_TABS_HIDE: {
-      gboolean gconf_ret=FALSE;
-      gboolean prop=g_value_get_boolean(value);
-      GST_DEBUG("application writes tabs-hide gconf_settings : %d",prop);
-      gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/tabs-hide",prop,NULL);
-      g_return_if_fail(gconf_ret == TRUE);
-    } break;
-    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
-      gboolean gconf_ret=FALSE;
-      gchar *prop=g_value_dup_string(value);
-      GST_DEBUG("application writes grid-density gconf_settings : %s",prop);
-      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",prop,NULL);
-      g_free(prop);
-      g_return_if_fail(gconf_ret == TRUE);
-    } break;
+    /* ui */
     case BT_SETTINGS_NEWS_SEEN: {
-      gboolean gconf_ret=FALSE;
-      guint prop=g_value_get_uint(value);
-      GST_DEBUG("application writes news-seen gconf_settings : %u",prop);
-      gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/news-seen",prop,NULL);
-      g_return_if_fail(gconf_ret == TRUE);
+      write_uint(self,BT_GCONF_PATH_BUZZTARD"/news-seen",value);
     } break;
     case BT_SETTINGS_MISSING_MACHINES: {
-      gboolean gconf_ret=FALSE;
-      gchar *prop=g_value_dup_string(value);
-      GST_DEBUG("application writes missing-machines gconf_settings : %s",prop);
-      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/missing-machines",prop,NULL);
-      g_free(prop);
-      g_return_if_fail(gconf_ret == TRUE);
+      write_string(self,BT_GCONF_PATH_BUZZTARD"/missing-machines",value);
+    } break;
+    case BT_SETTINGS_PRESENTED_TIPS: {
+      write_string(self,BT_GCONF_PATH_BUZZTARD"/presented-tips",value);
+    } break;
+    case BT_SETTINGS_SHOW_TIPS: {
+      write_boolean(self,BT_GCONF_PATH_BUZZTARD"/show-tips",value);
+    } break;
+    case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
+      write_boolean(self,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",value);
+    } break;
+    case BT_SETTINGS_MENU_STATUSBAR_HIDE: {
+      write_boolean(self,BT_GCONF_PATH_BUZZTARD"/statusbar-hide",value);
+    } break;
+    case BT_SETTINGS_MENU_TABS_HIDE: {
+      write_boolean(self,BT_GCONF_PATH_BUZZTARD"/tabs-hide",value);
+    } break;
+    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
+      write_string(self,BT_GCONF_PATH_BUZZTARD"/grid-density",value);
+    } break;
+    /* audio settings */
+    case BT_SETTINGS_AUDIOSINK: {
+      write_string(self,BT_GCONF_PATH_BUZZTARD"/audiosink",value);
+    } break;
+    case BT_SETTINGS_SAMPLE_RATE: {
+      write_uint(self,BT_GCONF_PATH_BUZZTARD"/sample-rate",value);
+    } break;
+    case BT_SETTINGS_CHANNELS: {
+      write_uint(self,BT_GCONF_PATH_BUZZTARD"/channels",value);
     } break;
     /* playback controller */
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE: {
-      gboolean gconf_ret=FALSE;
-      gboolean prop=g_value_get_boolean(value);
-      GST_DEBUG("application writes playback-controller/coherence-upnp-active gconf_settings : %d",prop);
-      gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-active",prop,NULL);
-      g_return_if_fail(gconf_ret == TRUE);
+      write_boolean(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-active",value);
     } break;
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT: {
-     gboolean gconf_ret=FALSE;
-      guint prop=g_value_get_uint(value);
-      GST_DEBUG("application writes playback-controller/coherence-upnp-port gconf_settings : %u",prop);
-      gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",prop,NULL);
-      g_return_if_fail(gconf_ret == TRUE);
+      write_uint(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",value);
     } break;
     /* directory settings */
     case BT_SETTINGS_FOLDER_SONG: {
-      gboolean gconf_ret=FALSE;
-      gchar *prop=g_value_dup_string(value);
-      GST_DEBUG("application writes song-folder gconf_settings : %s",prop);
-      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/song-folder",prop,NULL);
-      g_free(prop);
-      g_return_if_fail(gconf_ret == TRUE);
+      write_string(self,BT_GCONF_PATH_BUZZTARD"/song-folder",value);
     } break;
     case BT_SETTINGS_FOLDER_RECORD: {
-      gboolean gconf_ret=FALSE;
-      gchar *prop=g_value_dup_string(value);
-      GST_DEBUG("application writes record-folder gconf_settings : %s",prop);
-      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/record-folder",prop,NULL);
-      g_free(prop);
-      g_return_if_fail(gconf_ret == TRUE);
+      write_string(self,BT_GCONF_PATH_BUZZTARD"/record-folder",value);
     } break;
     case BT_SETTINGS_FOLDER_SAMPLE: {
-      gboolean gconf_ret=FALSE;
-      gchar *prop=g_value_dup_string(value);
-      GST_DEBUG("application writes sample-folder gconf_settings : %s",prop);
-      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/sample-folder",prop,NULL);
-      g_free(prop);
-      g_return_if_fail(gconf_ret == TRUE);
+      write_string(self,BT_GCONF_PATH_BUZZTARD"/sample-folder",value);
     } break;
     /* system settings */
     default: {
