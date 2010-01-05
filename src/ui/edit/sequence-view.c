@@ -385,7 +385,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
 
 GType bt_sequence_view_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof(BtSequenceViewClass),
       NULL, // base_init

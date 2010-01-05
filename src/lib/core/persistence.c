@@ -449,7 +449,7 @@ static void bt_persistence_base_init(gpointer g_class) {
 GType bt_persistence_get_type (void) {
   static GType type = 0;
 
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof (BtPersistenceInterface),
       bt_persistence_base_init,   /* base_init */

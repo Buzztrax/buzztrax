@@ -433,7 +433,7 @@ static void bt_wavetable_class_init(BtWavetableClass * const klass) {
 
 GType bt_wavetable_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof(BtWavetableClass),
       NULL, // base_init

@@ -580,7 +580,7 @@ static void bt_ui_resources_class_init(BtUIResourcesClass *klass) {
 
 GType bt_ui_resources_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof(BtUIResourcesClass),
       NULL, // base_init

@@ -681,7 +681,7 @@ static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogC
 
 GType bt_machine_preferences_dialog_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof (BtMachinePreferencesDialogClass),
       NULL, // base_init

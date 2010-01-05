@@ -741,7 +741,7 @@ static void bt_wire_analysis_dialog_class_init(BtWireAnalysisDialogClass *klass)
 
 GType bt_wire_analysis_dialog_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof (BtWireAnalysisDialogClass),
       NULL, // base_init

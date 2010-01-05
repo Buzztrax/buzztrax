@@ -1,5 +1,32 @@
 2010-01-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/persistence-location.c:
+	* src/lib/core/persistence-selection.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/ic/learn.c:
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/interaction-controller-menu.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/ui-resources.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Add G_UNLIKELY() to _get_type function
+
+2010-01-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* buzztard.schemas.in:
 	* src/lib/core/gconf-settings.c:
 	* src/lib/core/libbuzztard-core/settings-private.h:

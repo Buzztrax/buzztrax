@@ -68,14 +68,20 @@ int main(int argc, char **argv) {
   textdomain(GETTEXT_PACKAGE);
 #endif /* ENABLE_NLS */
 
-  GOptionEntry options[] = {
-    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_version,      N_("Print application version"),     NULL },
-    {"quiet",       'q',  G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_quiet,        N_("Be quiet"),         NULL },
-    {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,          N_("Command name"),     "{info, play, convert, encode}" },
-    {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name,  N_("Input file name"),  N_("<songfile>") },
-    {"output-file", '\0', 0,                    G_OPTION_ARG_FILENAME, &output_file_name, N_("Output file name"), N_("<songfile>") },
+  static GOptionEntry options[] = {
+    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     NULL, N_("Print application version"),     NULL },
+    {"quiet",       'q',  G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     NULL, N_("Be quiet"),         NULL },
+    {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   NULL, N_("Command name"),     "{info, play, convert, encode}" },
+    {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, NULL, N_("Input file name"),  N_("<songfile>") },
+    {"output-file", '\0', 0,                    G_OPTION_ARG_FILENAME, NULL, N_("Output file name"), N_("<songfile>") },
     {NULL}
   };
+  // setting this separately gets us from 76 to 10 instructions
+  options[0].arg_data=&arg_version;
+  options[1].arg_data=&arg_quiet;
+  options[2].arg_data=&command;
+  options[3].arg_data=&input_file_name;
+  options[4].arg_data=&output_file_name;
 
   // initialize as soon as possible
   if(!g_thread_supported()) {

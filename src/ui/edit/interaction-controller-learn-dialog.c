@@ -239,7 +239,7 @@ static void bt_interaction_controller_learn_dialog_class_init(BtInteractionContr
 
 GType bt_interaction_controller_learn_dialog_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof (BtInteractionControllerLearnDialogClass),
       NULL, // base_init

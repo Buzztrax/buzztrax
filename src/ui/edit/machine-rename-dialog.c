@@ -307,7 +307,7 @@ static void bt_machine_rename_dialog_class_init(BtMachineRenameDialogClass *klas
 
 GType bt_machine_rename_dialog_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof (BtMachineRenameDialogClass),
       NULL, // base_init

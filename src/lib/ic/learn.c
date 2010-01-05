@@ -119,7 +119,7 @@ static void btic_learn_base_init(gpointer g_iface) {
 GType btic_learn_get_type (void) {
   static GType type = 0;
 
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof (BtIcLearnInterface),
       btic_learn_base_init,   /* base_init */

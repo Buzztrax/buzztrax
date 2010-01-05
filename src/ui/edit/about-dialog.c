@@ -22,7 +22,7 @@
  * SECTION:btaboutdialog
  * @short_description: class for the editor about dialog
  *
- * Provides UI to access the song recording
+ * Info about the project, people involved, license and so on.
  */
 
 #define BT_EDIT
@@ -185,24 +185,6 @@ Error:
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_about_dialog_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
-  BtAboutDialog *self = BT_ABOUT_DIALOG(object);
-  return_if_disposed();
-  switch (property_id) {
-    case ABOUT_DIALOG_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 /* sets the given properties for this object */
 static void bt_about_dialog_set_property(GObject      *object,
                               guint         property_id,
@@ -256,7 +238,6 @@ static void bt_about_dialog_class_init(BtAboutDialogClass *klass) {
   g_type_class_add_private(klass,sizeof(BtAboutDialogPrivate));
 
   gobject_class->set_property = bt_about_dialog_set_property;
-  gobject_class->get_property = bt_about_dialog_get_property;
   gobject_class->dispose      = bt_about_dialog_dispose;
   gobject_class->finalize     = bt_about_dialog_finalize;
 
@@ -265,7 +246,7 @@ static void bt_about_dialog_class_init(BtAboutDialogClass *klass) {
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_about_dialog_get_type(void) {

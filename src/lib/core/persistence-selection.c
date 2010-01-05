@@ -35,7 +35,7 @@
 
 GType bt_persistence_selection_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof(BtPersistenceSelectionClass),
       NULL, // base_init

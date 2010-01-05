@@ -364,7 +364,7 @@ static void bt_machine_preset_properties_dialog_class_init(BtMachinePresetProper
 
 GType bt_machine_preset_properties_dialog_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof (BtMachinePresetPropertiesDialogClass),
       NULL, // base_init

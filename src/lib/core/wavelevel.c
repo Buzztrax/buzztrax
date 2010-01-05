@@ -395,7 +395,7 @@ static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
 
 GType bt_wavelevel_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof(BtWavelevelClass),
       NULL, // base_init

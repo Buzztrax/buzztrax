@@ -356,7 +356,7 @@ static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogCla
 
 GType bt_pattern_properties_dialog_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof (BtPatternPropertiesDialogClass),
       NULL, // base_init
