@@ -33,7 +33,7 @@
       <type>string</type>
       <locale name="C">
         <default></default>
-        <short>List of tip-numbers that were shown</short>
+        <short>List of tip-numbers that were shown already</short>
         <long>
           Comma separated list of tip-of-the-day numbers, that the user has seen.
         </long>

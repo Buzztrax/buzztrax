@@ -167,8 +167,66 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
   gobject_class->dispose      = bt_settings_dispose;
   gobject_class->finalize     = bt_settings_finalize;
 
-  // application settings
+  // ui
+  g_object_class_install_property(gobject_class,BT_SETTINGS_NEWS_SEEN,
+                                  g_param_spec_uint("news-seen",
+                                     "news-seen prop",
+                                     "version number for that the user has seen the news",
+                                     0,
+                                     G_MAXUINT,
+                                     0, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property(gobject_class,BT_SETTINGS_MISSING_MACHINES,
+                                  g_param_spec_string("missing-machines",
+                                     "missing-machines prop",
+                                     "list of tip-numbers that were shown already",
+                                     NULL, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_PRESENTED_TIPS,
+                                  g_param_spec_string("presented-tips",
+                                     "presented-tips prop",
+                                     "list of missing machines to ignore",
+                                     NULL, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_SHOW_TIPS,
+                                  g_param_spec_boolean("show-tips",
+                                     "show-tips prop",
+                                     "show tips on startup",
+                                     TRUE, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TOOLBAR_HIDE,
+                                  g_param_spec_boolean("toolbar-hide",
+                                     "toolbar-hide prop",
+                                     "hide main toolbar",
+                                     FALSE, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_STATUSBAR_HIDE,
+                                  g_param_spec_boolean("statusbar-hide",
+                                     "statusbar-hide prop",
+                                     "hide bottom statusbar",
+                                     FALSE, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TABS_HIDE,
+                                  g_param_spec_boolean("tabs-hide",
+                                     "tabs-hide prop",
+                                     "hide main page tabs",
+                                     FALSE, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY,
+                                  g_param_spec_string("grid-density",
+                                     "grid-density prop",
+                                     "machine view grid detail level",
+                                     "low", /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  
+  // audio settings
   g_object_class_install_property(gobject_class,BT_SETTINGS_AUDIOSINK,
                                   g_param_spec_string("audiosink",
                                      "audiosink prop",
@@ -192,50 +250,6 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      1,
                                      2,
                                      2, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TOOLBAR_HIDE,
-                                  g_param_spec_boolean("toolbar-hide",
-                                     "toolbar-hide",
-                                     "hide main toolbar",
-                                     FALSE, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_STATUSBAR_HIDE,
-                                  g_param_spec_boolean("statusbar-hide",
-                                     "statusbar-hide",
-                                     "hide bottom statusbar",
-                                     FALSE, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TABS_HIDE,
-                                  g_param_spec_boolean("tabs-hide",
-                                     "tabs-hide",
-                                     "hide main page tabs",
-                                     FALSE, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property(gobject_class,BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY,
-                                  g_param_spec_string("grid-density",
-                                     "grid-density prop",
-                                     "machine view grid detail level",
-                                     "low", /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property(gobject_class,BT_SETTINGS_NEWS_SEEN,
-                                  g_param_spec_uint("news-seen",
-                                     "news-seen prop",
-                                     "version number for that the user has seen the news",
-                                     0,
-                                     G_MAXUINT,
-                                     0, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property(gobject_class,BT_SETTINGS_MISSING_MACHINES,
-                                  g_param_spec_string("missing-machines",
-                                     "missing-machines prop",
-                                     "list of missing machines to ignore",
-                                     NULL, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   // playback controller

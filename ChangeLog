@@ -1,5 +1,13 @@
 2010-01-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* buzztard.schemas.in:
+	  Fix description.
+
+	* src/lib/core/settings.c:
+	  Add new settings as object properties.
+
+2010-01-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* src/ui/edit/Makefile.am:
