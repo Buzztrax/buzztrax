@@ -1,3 +1,21 @@
+2010-01-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/tip-dialog-methods.h:
+	* src/ui/edit/tip-dialog.c:
+	* src/ui/edit/tip-dialog.h:
+	* src/ui/edit/tip-dialog.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/tip-dialog-methods.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/tip-dialog.c (svn:keywords, svn:eol-style):
+	* src/ui/edit/tip-dialog-methods.h (added):
+	* src/ui/edit/tip-dialog.c (added):
+	* src/ui/edit/tip-dialog.h (added):
+	  Add basic tip dialog.
+
 2010-01-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/persistence-location.c:

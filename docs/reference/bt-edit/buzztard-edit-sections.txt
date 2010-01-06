@@ -707,6 +707,24 @@ BtSettingsPageDirectoriesPrivate
 
 
 <SECTION>
+<FILE>bttipdialog</FILE>
+<TITLE>BtTipDialog</TITLE>
+BtTipDialog
+bt_tip_dialog_new
+<SUBSECTION Standard>
+BtTipDialogClass
+BT_TIP_DIALOG
+BT_IS_TIP_DIALOG
+BT_TYPE_TIP_DIALOG
+BT_TIP_DIALOG_CLASS
+BT_IS_TIP_DIALOG_CLASS
+BT_TIP_DIALOG_GET_CLASS
+bt_tip_dialog_get_type
+BtTipDialogPrivate
+</SECTION>
+
+
+<SECTION>
 <FILE>btuiresources</FILE>
 <TITLE>BtUIResources</TITLE>
 BtUIResources

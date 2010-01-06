@@ -610,6 +610,26 @@ static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
 #endif
 }
 
+static void on_menu_help_show_tip(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtTipDialog *dialog;
+
+  g_assert(user_data);
+
+  if((dialog=bt_tip_dialog_new(self->priv->app))) {
+    // set parent relationship
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+    gtk_widget_show_all(GTK_WIDGET(dialog));
+  
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(GTK_WIDGET(dialog));
+    g_object_unref(main_window);
+  }
+}
+
 static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 
@@ -1061,7 +1081,11 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_help_activate),(gpointer)self);
 
-  /* @todo 'tip of the day' */
+  subitem=gtk_image_menu_item_new_with_label(_("Tip of the day"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_MENU));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_help_show_tip),(gpointer)self);
+  
   /* @todo 'translate application' -> link to translator project
    * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-translate.png
    */

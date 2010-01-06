@@ -143,6 +143,7 @@
 #include "settings-page-directories-methods.h"
 #include "settings-page-interaction-controller-methods.h"
 #include "settings-page-playback-controller-methods.h"
+#include "tip-dialog-methods.h"
 #include "tools.h"
 #include "ui-resources-methods.h"
 #include "volume-popup.h"

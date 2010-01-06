@@ -49,6 +49,7 @@ libbtedit_la_SOURCES	= \
 	settings-page-directories.c settings-page-directories.h settings-page-directories-methods.h \
 	settings-page-interaction-controller.c settings-page-interaction-controller.h settings-page-interaction-controller-methods.h \
 	settings-page-playback-controller.c settings-page-playback-controller.h settings-page-playback-controller-methods.h \
+	tip-dialog.c tip-dialog.h tip-dialog-methods.h \
 	tools.c tools.h \
 	ui-resources.c ui-resources.h ui-resources-methods.h \
 	volume-popup.c volume-popup.h \

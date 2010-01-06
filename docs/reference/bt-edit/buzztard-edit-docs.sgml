@@ -97,6 +97,7 @@
       <xi:include href="xml/btsettingspageinteractioncontroller.xml" />
       <xi:include href="xml/btsettingspageplaybackcontroller.xml" />
       <xi:include href="xml/btsettingspagedirectories.xml" />
+      <xi:include href="xml/bttipdialog.xml" />
       <xi:include href="xml/btuiresources.xml" />
       <xi:include href="xml/btvolumepopup.xml" />
       <xi:include href="xml/btwireanalysisdialog.xml" />
