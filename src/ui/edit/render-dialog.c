@@ -207,13 +207,13 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   BtSongInfo *song_info;
   gchar *file_name=NULL,*ext;
   
-  GST_DEBUG("prepare render dialog");
+  GST_DEBUG("read settings");
   
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(settings,"record-folder",&self->priv->folder,NULL);
   g_object_unref(settings);
 
-  GST_DEBUG("read settings");
+  GST_DEBUG("prepare render dialog");
 
   gtk_widget_set_name(GTK_WIDGET(self),"song rendering");
 

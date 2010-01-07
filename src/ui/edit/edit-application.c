@@ -169,7 +169,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
 static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   BtSettings *settings;
   guint version;
-  gboolean res;
+  gboolean res,show_tips;
 
   g_assert(self);
   g_assert(self->priv->main_window);
@@ -177,7 +177,7 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   GST_INFO("application.run_ui launched");
 
   g_object_get(G_OBJECT(self),"settings",&settings,NULL);
-  g_object_get(G_OBJECT(settings),"news-seen",&version,NULL);
+  g_object_get(G_OBJECT(settings),"news-seen",&version,"show-tips",&show_tips,NULL);
 
   if(PACKAGE_VERSION_NUMBER>version) {
     // show about
@@ -185,6 +185,9 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
     // store new version
     version=PACKAGE_VERSION_NUMBER;
     g_object_set(G_OBJECT(settings),"news-seen",version,NULL);
+  } else if(show_tips) {
+    // show tip-of-the-day
+    bt_edit_application_show_tip(self);
   }
   g_object_unref(settings);
 
@@ -536,18 +539,38 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
 void bt_edit_application_show_about(const BtEditApplication *self) {
   GtkWidget *dialog;
 
-  GST_INFO("menu about event occurred");
-
   if((dialog=GTK_WIDGET(bt_about_dialog_new(self)))) {
     // set parent relationship
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
     gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-    gtk_widget_show_all(GTK_WIDGET(dialog));
+    gtk_widget_show_all(dialog);
 
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
   }
 }
+
+/**
+ * bt_edit_application_show_tip:
+ * @self: the application instance
+ *
+ * Shows the tip of the day window
+ */
+void bt_edit_application_show_tip(const BtEditApplication *self) {
+  GtkWidget *dialog;
+
+  if((dialog=GTK_WIDGET(bt_tip_dialog_new(self)))) {
+    // set parent relationship
+    gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+    gtk_widget_show_all(dialog);
+  
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+  }
+
+}
+
 
 /**
  * bt_edit_application_ui_lock:

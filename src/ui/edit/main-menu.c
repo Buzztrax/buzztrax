@@ -612,22 +612,10 @@ static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
 static void on_menu_help_show_tip(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  BtMainWindow *main_window;
-  BtTipDialog *dialog;
 
   g_assert(user_data);
 
-  if((dialog=bt_tip_dialog_new(self->priv->app))) {
-    // set parent relationship
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-    gtk_widget_show_all(GTK_WIDGET(dialog));
-  
-    gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(GTK_WIDGET(dialog));
-    g_object_unref(main_window);
-  }
+  bt_edit_application_show_tip(self->priv->app);
 }
 
 static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {

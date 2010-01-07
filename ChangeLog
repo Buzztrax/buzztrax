@@ -1,3 +1,13 @@
+2010-01-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/edit-application-methods.h:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/tip-dialog.c:
+	  Finish tip-of-the-day implementation.
+
 2010-01-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* buzztard.schemas.in:

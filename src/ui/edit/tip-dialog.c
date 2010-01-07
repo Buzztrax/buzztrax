@@ -45,12 +45,13 @@ Algorithmus:
 
 static gchar *tips[]={
   N_("New machines are added in machine view from the context menu."),
+  N_("Connect machines by holding the shift key and dragging a connection for the source to the target machine."),
   N_("Songs can be recoderd as single waves per track to give it to remixers."),
   N_("Fill the details on the info page. When recording songs the metadata is added to the recording as tags."),
   N_("Use jackaudio sink in audio device settings to get lower latencies for live machine control."),
   N_("You can use input devices such as joysticks, beside midi devices to live control machine parameters."),
   N_("You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."),
-  N_("To enter notes, imagine you pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."),
+  N_("To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."),
   N_("You can get more help from the community on irc://irc.freenode.net/#buzztard.")
 };
 
@@ -63,7 +64,12 @@ struct _BtTipDialogPrivate {
   gboolean dispose_has_run;
   
   BtSettings *settings;
-  GtkLabel *tip_view;
+  GtkTextView *tip_view;
+  
+  /* tip history */
+  gint tip_status[G_N_ELEMENTS(tips)];
+  gint pending_tips[G_N_ELEMENTS(tips)];
+  gint n_pending_tips;
 
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
@@ -76,17 +82,80 @@ static GtkDialogClass *parent_class=NULL;
 static void on_refresh_clicked(GtkButton *button, gpointer user_data) {
   BtTipDialog *self = BT_TIP_DIALOG(user_data);
   guint ix=g_random_int_range(0,G_N_ELEMENTS(tips));
+  gint i,j;
 
-  // @todo: use and update settings
-  gtk_label_set_text(self->priv->tip_view, tips[ix]);
+  if(!self->priv->n_pending_tips) {
+    // reset shown tips
+    self->priv->n_pending_tips=G_N_ELEMENTS(tips);
+    for(i=0;i<G_N_ELEMENTS(tips);i++) {
+      self->priv->tip_status[i]=i;
+      self->priv->pending_tips[i]=i;
+    }
+  }
+  // get a tip index we haven't shown yet
+  ix=self->priv->pending_tips[g_random_int_range(0,self->priv->n_pending_tips)];
+
+  GST_DEBUG("show [%d]",ix);
+  self->priv->tip_status[ix]=-1;
+  for(i=j=0;i<G_N_ELEMENTS(tips);i++) {
+    if(self->priv->tip_status[i]>-1)
+      self->priv->pending_tips[j++]=i;
+  }
+  self->priv->n_pending_tips=j;
+  gtk_text_buffer_set_text(gtk_text_view_get_buffer(self->priv->tip_view),tips[ix],-1);
+}
+
+static void on_show_tips_toggled(GtkToggleButton *togglebutton, gpointer user_data) {
+  BtTipDialog *self = BT_TIP_DIALOG(user_data);
+
+  g_object_set(self->priv->settings,"show-tips",gtk_toggle_button_get_active(togglebutton),NULL);
 }
 
 //-- helper methods
 
 static gboolean bt_tip_dialog_init_ui(const BtTipDialog *self) {
-  GtkWidget *label,*icon,*hbox,*vbox,*btn;
+  GtkWidget *label,*icon,*hbox,*vbox,*btn,*chk,*tip_view;
+  gboolean show_tips;
   gchar *str;
+  gint i,j;
+
+  GST_DEBUG("read settings");
+
+  g_object_get(G_OBJECT(self->priv->app),"settings",&self->priv->settings,NULL);
+  g_object_get(self->priv->settings,"show-tips",&show_tips,"presented-tips",&str,NULL);
+  GST_DEBUG("read [%s]",str);
   
+  // parse str to update tip status
+  for(i=0;i<G_N_ELEMENTS(tips);i++) {
+    self->priv->tip_status[i]=i;
+  }
+  if(str) {
+    gint ix;
+    gchar *p1,*p2;
+    
+    p1=str;
+    p2=strchr(p1,',');
+    while(p2) {
+      *p2='\0';
+      ix=atoi(p1);
+      if(ix<G_N_ELEMENTS(tips))
+        self->priv->tip_status[ix]=-1;
+      p1=&p2[1];
+      p2=strchr(p1,',');
+    }
+    ix=atoi(p1);
+    if(ix<G_N_ELEMENTS(tips))
+      self->priv->tip_status[ix]=-1;
+    g_free(str);
+  }
+  for(i=j=0;i<G_N_ELEMENTS(tips);i++) {
+    if(self->priv->tip_status[i]>-1)
+      self->priv->pending_tips[j++]=i;
+  }
+  self->priv->n_pending_tips=j;
+
+  GST_DEBUG("prepare tips dialog");
+
   gtk_window_set_title(GTK_WINDOW(self),_("tip of the day"));
 
   // add dialog commision widgets (okay)
@@ -95,7 +164,6 @@ static gboolean bt_tip_dialog_init_ui(const BtTipDialog *self) {
                           NULL);
 
   // content area
-  // @todo: need a "show tips on startup" checkbox
   hbox=gtk_hbox_new(FALSE,12);
   
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
@@ -106,11 +174,25 @@ static gboolean bt_tip_dialog_init_ui(const BtTipDialog *self) {
   label=g_object_new(GTK_TYPE_LABEL,"use-markup",TRUE,"label",str,NULL);
   g_free(str);
   gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,FALSE,0);
-  // @todo: make readonly textview (see about dialog)
-  self->priv->tip_view=GTK_LABEL(g_object_new(GTK_TYPE_LABEL,"selectable",TRUE,"wrap",TRUE,"label",NULL,NULL));
-  gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(self->priv->tip_view),TRUE,TRUE,0);
-  gtk_box_pack_start(GTK_BOX(hbox),vbox,TRUE,TRUE,0);
 
+  self->priv->tip_view=GTK_TEXT_VIEW(gtk_text_view_new());
+  gtk_text_view_set_cursor_visible(self->priv->tip_view, FALSE);
+  gtk_text_view_set_editable(self->priv->tip_view, FALSE);
+  gtk_text_view_set_wrap_mode(self->priv->tip_view, GTK_WRAP_WORD);
+  
+  tip_view = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tip_view), GTK_SHADOW_IN);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(tip_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_container_add(GTK_CONTAINER(tip_view),GTK_WIDGET(self->priv->tip_view));
+  
+  gtk_box_pack_start(GTK_BOX(vbox),tip_view,TRUE,TRUE,0);
+
+  chk=gtk_check_button_new_with_label(_("Show tips on startup"));
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chk),show_tips);
+  g_signal_connect(chk, "toggled", G_CALLBACK (on_show_tips_toggled), (gpointer)self);
+  gtk_box_pack_start(GTK_BOX(vbox),chk,FALSE,FALSE,0);
+
+  gtk_box_pack_start(GTK_BOX(hbox),vbox,TRUE,TRUE,0);
   gtk_box_pack_start(GTK_BOX(GTK_DIALOG(self)->vbox),hbox,TRUE,TRUE,0);
   
   // add "refresh" button to action area
@@ -179,11 +261,30 @@ static void bt_tip_dialog_set_property(GObject      *object,
 
 static void bt_tip_dialog_dispose(GObject *object) {
   BtTipDialog *self = BT_TIP_DIALOG(object);
+  gchar *str;
+  gint i,j,shown;
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
+  
+  // update tip-status in settings
+  shown=G_N_ELEMENTS(tips)-self->priv->n_pending_tips;
+  str=g_malloc(6*shown);
+  for(i=j=0;i<G_N_ELEMENTS(tips);i++) {
+    if(self->priv->tip_status[i]==-1) {
+      j+=g_sprintf(&str[j],"%d,",i);
+    }
+  }
+  if(j) {
+    str[j-1]='\0';
+  }
+  GST_DEBUG("write [%s]",str);
+  g_object_set(self->priv->settings,"presented-tips",str,NULL);
+  g_free(str);
 
   GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->settings);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

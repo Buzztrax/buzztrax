@@ -39,6 +39,7 @@ bt_edit_application_save_song
 bt_edit_application_run
 bt_edit_application_load_and_run
 bt_edit_application_show_about
+bt_edit_application_show_tip
 bt_edit_application_ui_lock
 bt_edit_application_ui_unlock
 <SUBSECTION Standard>
