@@ -164,7 +164,19 @@ clean-local:
 ##	echo "build with --enable-debug=yes"
 ##	echo "========================================"
 
-.PHONY: splint valgrind todo
+.PHONY: splint coverage valgrind todo
+
+if USE_BCOV
+coverage:: $(TESTS_BIN)
+	rm -f .bcovdump.all; \
+	for i in $^; do \
+	  $(TESTS_ENVIRONMENT) bcov ./$$i; \
+	  if test -f .bcovdump; then \
+	    cat .bcovdump >>.bcovdump.all; \
+	    rm -f .bcovdump; \
+	  fi \
+	done
+endif
 
 if USE_VALGRIND
 VALPREFIX = \

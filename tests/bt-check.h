@@ -84,9 +84,16 @@ static void __testname (int _i __attribute__((unused)))\
  */
 gboolean _bt_check_run_test_func (const gchar * func_name);
 
-#if CHECK_MAJOR_VERSION > 0 || \
-    (CHECK_MAJOR_VERSION == 0 && CHECK_MINOR_VERSION > 9) || \
-    (CHECK_MAJOR_VERSION == 0 && CHECK_MINOR_VERSION == 9 && CHECK_MICRO_VERSION > 3)
+#if CHECK_VERSION <= 903
+static inline void
+__bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal)
+{
+  if (_bt_check_run_test_func (fname)) {
+    _tcase_add_test (tc, tf, fname, signal);
+  }
+}
+#else
+#if CHECK_VERSION <= 906
 static inline void
 __bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal,
     int start, int end)
@@ -97,12 +104,14 @@ __bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal,
 }
 #else
 static inline void
-__bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal)
+__bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal,
+    int allowed_exit_value, int start, int end)
 {
   if (_bt_check_run_test_func (fname)) {
-    _tcase_add_test (tc, tf, fname, signal);
+    _tcase_add_test (tc, tf, fname, signal, allowed_exit_value, start, end);
   }
 }
+#endif
 #endif
 
 #define _tcase_add_test __bt_tcase_add_test

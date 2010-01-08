@@ -80,6 +80,12 @@ coverage::
 	$(RM) ./coverage/$(PACKAGE)_tmp.info
 	genhtml -o ./coverage --num-spaces 2 ./coverage/$(PACKAGE).info
 endif
+if USE_BCOV
+coverage::
+	mkdir -p ./coverage
+	$(MAKE) -C tests coverage
+	bcov-report tests/.bcovdump.all ./coverage
+endif
 
 if USE_VALGRIND
 valgrind::

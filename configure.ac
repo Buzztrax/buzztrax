@@ -114,7 +114,6 @@ AC_MSG_RESULT($enable_debug)
 if test "$enable_debug" = "yes"; then
   AC_DEFINE(USE_DEBUG, [1], [enable runtime debugging code])
   DEBUG_CFLAGS="-O0 -Wall -Werror -g"
-  # DEBUG_CFLAGS="-O0 -Wall -Werror -Wno-strict-aliasing -g"
   DEBUG_LDFLAGS="-Wl,--warn-common"
   AM_CONDITIONAL(USE_DEBUG, true)
 else
@@ -158,29 +157,39 @@ AC_ARG_ENABLE(
   ,
   [enable_coverage="no"])
 AC_MSG_RESULT($enable_coverage)
+COVERAGE_CFLAGS=""
+COVERAGE_LIBS=""
 if test "$enable_coverage" = "yes"; then
-  COVERAGE_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
-  COVERAGE_LIBS="-lgcov"
-
-  AC_PATH_PROG(locv_path, [lcov], [no])
-  if test "x$lcov_path" != "xno" ; then
-    LCOV_VERSION=`lcov --version|head -n 1| $SED 's/^.* version //'`
-    LCOV_MAJOR=`echo $LCOV_VERSION | cut -d. -f1 | $SED s/[a-zA-Z\-].*//g`
-    LCOV_MINOR=`echo $LCOV_VERSION | cut -d. -f2 | $SED s/[a-zA-Z\-].*//g`
-    if [[ "$LCOV_MAJOR" -lt "1" ]]; then
-      AC_MSG_WARN([lcov >= 1.6 is required, you have $LCOV_VERSION])
-      lcov_path="no"
-    elif [[ "$LCOV_MAJOR" -eq "1" ]] && \
-         [[ "$LCOV_MINOR" -lt "6" ]]; then
-      AC_MSG_WARN([lcov >= 1.6 is required, you have $LCOV_VERSION])
-      lcov_path="no"
+  bcov_path="no"
+  lcov_path="no"
+  dnl bcov isn't ready yet
+  #AC_PATH_PROG(bcov_path, [bcov], [no])
+  #if test "x$bcov_path" != "xno" ; then
+  #  coverage_tool="bcov"
+  #else
+    AC_PATH_PROG(lcov_path, [lcov], [no])
+    if test "x$lcov_path" != "xno" ; then
+      LCOV_VERSION=`lcov --version|head -n 1| $SED 's/^.* version //'`
+      LCOV_MAJOR=`echo $LCOV_VERSION | cut -d. -f1 | $SED s/[a-zA-Z\-].*//g`
+      LCOV_MINOR=`echo $LCOV_VERSION | cut -d. -f2 | $SED s/[a-zA-Z\-].*//g`
+      if [[ "$LCOV_MAJOR" -lt "1" ]]; then
+        AC_MSG_WARN([lcov >= 1.6 is required, you have $LCOV_VERSION])
+        lcov_path="no"
+      elif [[ "$LCOV_MAJOR" -eq "1" ]] && \
+           [[ "$LCOV_MINOR" -lt "6" ]]; then
+        AC_MSG_WARN([lcov >= 1.6 is required, you have $LCOV_VERSION])
+        lcov_path="no"
+      fi
+      if test "x$lcov_path" != "xno" ; then
+        coverage_tool="gcov + lcov"
+        COVERAGE_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
+        COVERAGE_LIBS="-lgcov"
+      fi
     fi
-  fi
-else
-  COVERAGE_CFLAGS=""
-  COVERAGE_LIBS=""
+  #fi
 fi
-AM_CONDITIONAL(USE_LCOV, test ! x$lcov_path = xyes)
+AM_CONDITIONAL(USE_BCOV, test "x$bcov_path" != "xno")
+AM_CONDITIONAL(USE_LCOV, test "x$lcov_path" != "xno")
 
 
 dnl valgrind integration for tests
@@ -191,7 +200,7 @@ AC_ARG_WITH([valgrind],
 AC_MSG_RESULT($ac_cv_use_valgrind)
 VALGRIND=$ac_cv_use_valgrind
 AC_SUBST(VALGRIND)
-AM_CONDITIONAL(USE_VALGRIND, test x$VALGRIND != xno)
+AM_CONDITIONAL(USE_VALGRIND, test "x$VALGRIND" != "xno")
 
 VALGRIND_CPPFLAGS=
 if test $ac_cv_use_valgrind != no; then
@@ -503,6 +512,10 @@ AC_CONFIG_FILES(Makefile shave shave-libtool \
 )
 AC_OUTPUT
 
+if test "x${coverage_tool}" != "x"; then
+  using_coverage_tool="(using ${coverage_tool})"
+fi
+
 echo "
 Configuration
 	Version                         : ${VERSION}
@@ -520,7 +533,7 @@ Configuration
 	Hildon Desktop Integration      : ${use_hildon}
         
 	Debug                           : ${enable_debug}
-	Coverage profiling              : ${enable_coverage}
+	Coverage profiling              : ${enable_coverage} ${using_coverage_tool}
 	Use of deprecated API           : ${set_enable_deprecated}
 "
 
