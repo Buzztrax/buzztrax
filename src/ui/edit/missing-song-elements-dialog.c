@@ -182,31 +182,6 @@ Error:
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_missing_song_elements_dialog_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
-  BtMissingSongElementsDialog *self = BT_MISSING_SONG_ELEMENTS_DIALOG(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MISSING_SONG_ELEMENTS_DIALOG_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    case MISSING_SONG_ELEMENTS_DIALOG_MACHINES: {
-      g_value_set_pointer(value, self->priv->machines);
-    } break;
-    case MISSING_SONG_ELEMENTS_DIALOG_WAVES: {
-      g_value_set_pointer(value, self->priv->waves);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-/* sets the given properties for this object */
 static void bt_missing_song_elements_dialog_set_property(GObject      *object,
                               guint         property_id,
                               const GValue *value,
@@ -270,7 +245,6 @@ static void bt_missing_song_elements_dialog_class_init(BtMissingSongElementsDial
   g_type_class_add_private(klass,sizeof(BtMissingSongElementsDialogPrivate));
 
   gobject_class->set_property = bt_missing_song_elements_dialog_set_property;
-  gobject_class->get_property = bt_missing_song_elements_dialog_get_property;
   gobject_class->dispose      = bt_missing_song_elements_dialog_dispose;
   gobject_class->finalize     = bt_missing_song_elements_dialog_finalize;
 
@@ -279,19 +253,19 @@ static void bt_missing_song_elements_dialog_class_init(BtMissingSongElementsDial
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MISSING_SONG_ELEMENTS_DIALOG_MACHINES,
                                   g_param_spec_pointer("machines",
                                      "machines construct prop",
                                      "Set missing machines list, the dialog handles",
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MISSING_SONG_ELEMENTS_DIALOG_WAVES,
                                   g_param_spec_pointer("waves",
                                      "waves construct prop",
                                      "Set missing waves list, the dialog handles",
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_missing_song_elements_dialog_get_type(void) {

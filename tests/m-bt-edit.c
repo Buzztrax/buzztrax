@@ -49,6 +49,7 @@ extern Suite *bt_pattern_properties_dialog_suite(void);
 extern Suite *bt_render_dialog_suite(void);
 extern Suite *bt_render_progress_dialog_suite(void);
 extern Suite *bt_settings_dialog_suite(void);
+extern Suite *bt_tip_dialog_suite(void);
 extern Suite *bt_wire_analysis_dialog_suite(void);
 
 gint test_argc=2;
@@ -141,6 +142,7 @@ int main(int argc, char **argv) {
   srunner_add_suite(sr, bt_render_dialog_suite());
   srunner_add_suite(sr, bt_render_progress_dialog_suite());
   srunner_add_suite(sr, bt_settings_dialog_suite());
+  srunner_add_suite(sr, bt_tip_dialog_suite());
   srunner_add_suite(sr, bt_wire_analysis_dialog_suite());
   //srunner_set_fork_status(sr,CK_NOFORK);
   srunner_run_all(sr,CK_NORMAL);

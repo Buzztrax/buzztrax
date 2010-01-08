@@ -354,9 +354,6 @@ static void bt_render_dialog_get_property(GObject      *object,
   BtRenderDialog *self = BT_RENDER_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case RENDER_DIALOG_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
     case RENDER_DIALOG_FILENAME: {
       gchar *file_name=bt_render_dialog_make_file_name(self);
       g_value_set_string(value, file_name);
@@ -438,7 +435,7 @@ static void bt_render_dialog_class_init(BtRenderDialogClass *klass) {
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,RENDER_DIALOG_FILENAME,
                                   g_param_spec_string("file-name",

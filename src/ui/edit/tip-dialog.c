@@ -47,7 +47,7 @@ static gchar *tips[]={
   N_("New machines are added in machine view from the context menu."),
   N_("Connect machines by holding the shift key and dragging a connection for the source to the target machine."),
   N_("Songs can be recoderd as single waves per track to give it to remixers."),
-  N_("Fill the details on the info page. When recording songs the metadata is added to the recording as tags."),
+  N_("Fill the details on the info page. When recording songs, the metadata is added to the recording as tags."),
   N_("Use jackaudio sink in audio device settings to get lower latencies for live machine control."),
   N_("You can use input devices such as joysticks, beside midi devices to live control machine parameters."),
   N_("You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."),
@@ -155,6 +155,8 @@ static gboolean bt_tip_dialog_init_ui(const BtTipDialog *self) {
   self->priv->n_pending_tips=j;
 
   GST_DEBUG("prepare tips dialog");
+
+  gtk_widget_set_name(GTK_WIDGET(self),"tip of the day");
 
   gtk_window_set_title(GTK_WINDOW(self),_("tip of the day"));
 

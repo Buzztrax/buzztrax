@@ -6,7 +6,7 @@ libbt_edit_check_la_LIBADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) \
 libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-about-dialog.c e-bt-about-dialog.c \
 	s-bt-edit-application.c e-bt-edit-application.c \
-	s-bt-interaction-controller-menu.c e-bt-interaction-controller-menu.c \	
+	s-bt-interaction-controller-menu.c e-bt-interaction-controller-menu.c \
 	s-bt-machine-preset-properties-dialog.c e-bt-machine-preset-properties-dialog.c \
 	s-bt-machine-preferences-dialog.c e-bt-machine-preferences-dialog.c \
 	s-bt-machine-properties-dialog.c e-bt-machine-properties-dialog.c \
@@ -19,6 +19,7 @@ libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-render-dialog.c e-bt-render-dialog.c \
 	s-bt-render-progress-dialog.c e-bt-render-progress-dialog.c \
 	s-bt-settings-dialog.c e-bt-settings-dialog.c \
+	s-bt-tip-dialog.c e-bt-tip-dialog.c \
 	s-bt-wire-analysis-dialog.c e-bt-wire-analysis-dialog.c
 
 AM_CPPFLAGS = \

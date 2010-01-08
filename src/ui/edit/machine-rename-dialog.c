@@ -198,28 +198,6 @@ void bt_machine_rename_dialog_apply(const BtMachineRenameDialog *self) {
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_machine_rename_dialog_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
-  BtMachineRenameDialog *self = BT_MACHINE_RENAME_DIALOG(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MACHINE_RENAME_DIALOG_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    case MACHINE_RENAME_DIALOG_MACHINE: {
-      g_value_set_object(value, self->priv->machine);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-/* sets the given rename for this object */
 static void bt_machine_rename_dialog_set_property(GObject      *object,
                               guint         property_id,
                               const GValue *value,
@@ -285,7 +263,6 @@ static void bt_machine_rename_dialog_class_init(BtMachineRenameDialogClass *klas
   g_type_class_add_private(klass,sizeof(BtMachineRenameDialogPrivate));
 
   gobject_class->set_property = bt_machine_rename_dialog_set_property;
-  gobject_class->get_property = bt_machine_rename_dialog_get_property;
   gobject_class->dispose      = bt_machine_rename_dialog_dispose;
   gobject_class->finalize     = bt_machine_rename_dialog_finalize;
 
@@ -294,14 +271,14 @@ static void bt_machine_rename_dialog_class_init(BtMachineRenameDialogClass *klas
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_RENAME_DIALOG_MACHINE,
                                   g_param_spec_object("machine",
                                      "machine construct prop",
                                      "Set machine object, the dialog handles",
                                      BT_TYPE_MACHINE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
 }
 

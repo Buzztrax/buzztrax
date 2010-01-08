@@ -246,28 +246,6 @@ void bt_pattern_properties_dialog_apply(const BtPatternPropertiesDialog *self) {
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_pattern_properties_dialog_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
-  BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(object);
-  return_if_disposed();
-  switch (property_id) {
-    case PATTERN_PROPERTIES_DIALOG_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    case PATTERN_PROPERTIES_DIALOG_PATTERN: {
-      g_value_set_object(value, self->priv->pattern);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-/* sets the given properties for this object */
 static void bt_pattern_properties_dialog_set_property(GObject      *object,
                               guint         property_id,
                               const GValue *value,
@@ -334,7 +312,6 @@ static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogCla
   g_type_class_add_private(klass,sizeof(BtPatternPropertiesDialogPrivate));
 
   gobject_class->set_property = bt_pattern_properties_dialog_set_property;
-  gobject_class->get_property = bt_pattern_properties_dialog_get_property;
   gobject_class->dispose      = bt_pattern_properties_dialog_dispose;
   gobject_class->finalize     = bt_pattern_properties_dialog_finalize;
 
@@ -343,14 +320,14 @@ static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogCla
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_PROPERTIES_DIALOG_PATTERN,
                                   g_param_spec_object("pattern",
                                      "pattern construct prop",
                                      "Set pattern object, the dialog handles",
                                      BT_TYPE_PATTERN, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
 }
 

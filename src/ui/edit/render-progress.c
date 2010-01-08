@@ -266,28 +266,6 @@ void bt_render_progress_run(const BtRenderProgress *self) {
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_render_progress_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
-  BtRenderProgress *self = BT_RENDER_PROGRESS(object);
-  return_if_disposed();
-  switch (property_id) {
-    case RENDER_PROGRESS_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    case RENDER_PROGRESS_SETTINGS: {
-      g_value_set_object(value, self->priv->settings);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-/* sets the given properties for this object */
 static void bt_render_progress_set_property(GObject      *object,
                               guint         property_id,
                               const GValue *value,
@@ -355,7 +333,6 @@ static void bt_render_progress_class_init(BtRenderProgressClass *klass) {
   g_type_class_add_private(klass,sizeof(BtRenderProgressPrivate));
 
   gobject_class->set_property = bt_render_progress_set_property;
-  gobject_class->get_property = bt_render_progress_get_property;
   gobject_class->dispose      = bt_render_progress_dispose;
   gobject_class->finalize     = bt_render_progress_finalize;
 
@@ -364,14 +341,14 @@ static void bt_render_progress_class_init(BtRenderProgressClass *klass) {
                                      "app construct prop",
                                      "Set application object, the progress belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,RENDER_PROGRESS_SETTINGS,
                                   g_param_spec_object("settings",
                                      "settings construct prop",
                                      "Set settings object, the progress dialog handles",
                                      BT_TYPE_RENDER_DIALOG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
 }
 
