@@ -1,5 +1,10 @@
 2010-01-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  And fix one loader.
+
+2010-01-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* docs/reference/bt-core/buzztard-core-docs.sgml:
 	* docs/reference/bt-core/buzztard-core-sections.txt:

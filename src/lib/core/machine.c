@@ -2946,7 +2946,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
               g_object_set_property(G_OBJECT(machine),(gchar *)name,&value);
               g_value_unset(&value);
               bt_machine_set_global_param_default(self,
-                bt_machine_get_global_param_index(self,(gchar *)name,NULL));
+              bt_machine_get_global_param_index(self,(gchar *)name,NULL));
             }
             GST_INFO("initialized global machine data for param %ld: %s",param, name);
           }
@@ -2992,7 +2992,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
           for(child_node=node->children;child_node;child_node=child_node->next) {
             if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"pattern\0",8))) {
               GError *err=NULL;
-              pattern=BT_PATTERN(bt_persistence_load(BT_TYPE_PATTERN,NULL,child_node,NULL,&err,"song",self->priv->song,"machine",self,NULL));
+              pattern=BT_PATTERN(bt_persistence_load(BT_TYPE_PATTERN,NULL,child_node,&err,"song",self->priv->song,"machine",self,NULL));
               if(err!=NULL) {
                 GST_WARNING("Can't create pattern: %s",err->message);
                 g_error_free(err);
