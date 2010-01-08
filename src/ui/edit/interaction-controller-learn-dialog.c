@@ -160,11 +160,7 @@ Error:
 
 //-- class internals
 
-static void bt_interaction_controller_learn_dialog_set_property(GObject      *object,
-					 guint         property_id,
-					 const GValue *value,
-					 GParamSpec   *pspec)
-{
+static void bt_interaction_controller_learn_dialog_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtInteractionControllerLearnDialog *self = BT_INTERACTION_CONTROLLER_LEARN_DIALOG(object);
   return_if_disposed();
   switch (property_id) {

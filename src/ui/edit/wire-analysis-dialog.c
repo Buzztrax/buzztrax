@@ -595,11 +595,7 @@ Error:
 
 //-- class internals
 
-static void bt_wire_analysis_dialog_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_wire_analysis_dialog_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtWireAnalysisDialog *self = BT_WIRE_ANALYSIS_DIALOG(object);
   return_if_disposed();
   switch (property_id) {

@@ -606,12 +606,7 @@ void bt_edit_application_ui_unlock(const BtEditApplication *self) {
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_edit_application_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
+static void bt_edit_application_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   BtEditApplication *self = BT_EDIT_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
@@ -630,12 +625,7 @@ static void bt_edit_application_get_property(GObject      *object,
   }
 }
 
-/* sets the given properties for this object */
-static void bt_edit_application_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_edit_application_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtEditApplication *self = BT_EDIT_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {

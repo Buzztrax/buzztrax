@@ -292,11 +292,7 @@ void bt_missing_framework_elements_dialog_apply(const BtMissingFrameworkElements
 
 //-- class internals
 
-static void bt_missing_framework_elements_dialog_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_missing_framework_elements_dialog_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMissingFrameworkElementsDialog *self = BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(object);
   return_if_disposed();
   switch (property_id) {

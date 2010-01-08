@@ -182,11 +182,7 @@ Error:
 
 //-- class internals
 
-static void bt_missing_song_elements_dialog_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_missing_song_elements_dialog_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMissingSongElementsDialog *self = BT_MISSING_SONG_ELEMENTS_DIALOG(object);
   return_if_disposed();
   switch (property_id) {

@@ -566,11 +566,7 @@ Error:
 
 //-- class internals
 
-static void bt_machine_preferences_dialog_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_machine_preferences_dialog_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG(object);
   return_if_disposed();
   switch (property_id) {

@@ -246,11 +246,7 @@ void bt_pattern_properties_dialog_apply(const BtPatternPropertiesDialog *self) {
 
 //-- class internals
 
-static void bt_pattern_properties_dialog_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_pattern_properties_dialog_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(object);
   return_if_disposed();
   switch (property_id) {

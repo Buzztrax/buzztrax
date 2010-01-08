@@ -2940,12 +2940,7 @@ void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_main_page_patterns_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
+static void bt_main_page_patterns_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
   return_if_disposed();
   switch (property_id) {
@@ -2958,12 +2953,7 @@ static void bt_main_page_patterns_get_property(GObject      *object,
   }
 }
 
-/* sets the given properties for this object */
-static void bt_main_page_patterns_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_main_page_patterns_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
   return_if_disposed();
   switch (property_id) {

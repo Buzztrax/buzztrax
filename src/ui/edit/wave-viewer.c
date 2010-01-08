@@ -173,7 +173,6 @@ bt_waveform_viewer_finalize (GObject * object)
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
-/* returns a property for the given property_id for this object */
 static void
 bt_waveform_viewer_get_property(GObject      *object,
                                guint         property_id,
@@ -201,7 +200,6 @@ bt_waveform_viewer_get_property(GObject      *object,
   }
 }
 
-/* sets the given properties for this object */
 static void
 bt_waveform_viewer_set_property(GObject      *object,
                               guint         property_id,

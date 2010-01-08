@@ -266,11 +266,7 @@ void bt_render_progress_run(const BtRenderProgress *self) {
 
 //-- class internals
 
-static void bt_render_progress_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_render_progress_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtRenderProgress *self = BT_RENDER_PROGRESS(object);
   return_if_disposed();
   switch (property_id) {

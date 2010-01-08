@@ -223,12 +223,7 @@ void bt_machine_preset_properties_dialog_apply(const BtMachinePresetPropertiesDi
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_machine_preset_properties_dialog_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
+static void bt_machine_preset_properties_dialog_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   BtMachinePresetPropertiesDialog *self = BT_MACHINE_PRESET_PROPERTIES_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
@@ -250,12 +245,7 @@ static void bt_machine_preset_properties_dialog_get_property(GObject      *objec
   }
 }
 
-/* sets the given properties for this object */
-static void bt_machine_preset_properties_dialog_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_machine_preset_properties_dialog_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMachinePresetPropertiesDialog *self = BT_MACHINE_PRESET_PROPERTIES_DIALOG(object);
   return_if_disposed();
   switch (property_id) {

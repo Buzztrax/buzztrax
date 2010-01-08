@@ -1010,12 +1010,7 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_main_window_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
+static void bt_main_window_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   BtMainWindow *self = BT_MAIN_WINDOW(object);
   return_if_disposed();
   switch (property_id) {
@@ -1040,12 +1035,7 @@ static void bt_main_window_get_property(GObject      *object,
   }
 }
 
-/* sets the given properties for this object */
-static void bt_main_window_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_main_window_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMainWindow *self = BT_MAIN_WINDOW(object);
   return_if_disposed();
   switch (property_id) {

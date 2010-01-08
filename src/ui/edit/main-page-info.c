@@ -515,12 +515,7 @@ Error:
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_main_page_info_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
+static void bt_main_page_info_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
   return_if_disposed();
   switch (property_id) {
@@ -533,12 +528,7 @@ static void bt_main_page_info_get_property(GObject      *object,
   }
 }
 
-/* sets the given properties for this object */
-static void bt_main_page_info_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_main_page_info_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
   return_if_disposed();
   switch (property_id) {

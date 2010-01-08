@@ -310,12 +310,7 @@ Error:
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_settings_page_audiodevices_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
+static void bt_settings_page_audiodevices_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   BtSettingsPageAudiodevices *self = BT_SETTINGS_PAGE_AUDIODEVICES(object);
   return_if_disposed();
   switch (property_id) {
@@ -328,12 +323,7 @@ static void bt_settings_page_audiodevices_get_property(GObject      *object,
   }
 }
 
-/* sets the given properties for this object */
-static void bt_settings_page_audiodevices_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_settings_page_audiodevices_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtSettingsPageAudiodevices *self = BT_SETTINGS_PAGE_AUDIODEVICES(object);
   return_if_disposed();
   switch (property_id) {

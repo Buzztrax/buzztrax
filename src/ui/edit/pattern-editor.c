@@ -183,7 +183,7 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
 }
 
 static void
-bt_pattern_editor_draw_colnames(BtPatternEditor *self,
+bt_pattern_editor_draw_colnames (BtPatternEditor *self,
                           int x,
                           int y)
 {
@@ -206,7 +206,7 @@ bt_pattern_editor_draw_colnames(BtPatternEditor *self,
 }
 
 static void
-bt_pattern_editor_draw_rowname(BtPatternEditor *self,
+bt_pattern_editor_draw_rowname (BtPatternEditor *self,
                           int x,
                           int y)
 {
@@ -494,7 +494,7 @@ char_to_coords(int charpos,
  * Returns: the widget
  */
 GtkWidget *
-bt_pattern_editor_new(void)
+bt_pattern_editor_new (void)
 {
   return GTK_WIDGET( g_object_new (BT_TYPE_PATTERN_EDITOR, NULL ));
 }
@@ -1184,7 +1184,6 @@ bt_pattern_editor_set_scroll_adjustments (BtPatternEditor* self,
 	bt_pattern_editor_update_adjustments (self);
 }
 
-/* returns a property for the given property_id for this object */
 static void
 bt_pattern_editor_get_property(GObject      *object,
                                guint         property_id,
@@ -1209,7 +1208,6 @@ bt_pattern_editor_get_property(GObject      *object,
   }
 }
 
-/* sets the given properties for this object */
 static void
 bt_pattern_editor_set_property(GObject      *object,
                               guint         property_id,

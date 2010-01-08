@@ -276,12 +276,7 @@ Error:
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_interaction_controller_menu_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
+static void bt_interaction_controller_menu_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU(object);
   return_if_disposed();
   switch (property_id) {
@@ -307,11 +302,7 @@ static void bt_interaction_controller_menu_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_interaction_controller_menu_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_interaction_controller_menu_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU(object);
   return_if_disposed();
   switch (property_id) {
