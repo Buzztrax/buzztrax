@@ -116,8 +116,6 @@
       <xi:include href="xml/btgconfsettings.xml" />
       <!--xi:include href="xml/btplainfilesettings.xml" /-->
       <xi:include href="xml/btpersistence.xml" />
-      <xi:include href="xml/btpersistencelocation.xml" />
-      <xi:include href="xml/btpersistenceselection.xml" />
     </chapter>
     <chapter>
       <title>Song Class Reference</title>

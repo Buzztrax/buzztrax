@@ -25,8 +25,6 @@
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
 #include <libxml/tree.h>
-#include "persistence-selection.h"
-#include "persistence-location.h"
 #include "persistence.h"
 
 
@@ -53,7 +51,7 @@ extern gboolean bt_persistence_set_value(GValue* const gvalue, const gchar * con
 extern gchar *bt_persistence_get_value(GValue * const gvalue);
 
 // wrapper
-extern xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection);
-extern BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const self, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, ...);
+extern xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node);
+extern BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const self, xmlNodePtr node, GError **err, ...);
 
 #endif // BT_PERSISTENCE_METHDOS_H

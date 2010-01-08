@@ -922,7 +922,7 @@ gboolean bt_wire_pattern_deserialize_column(const BtWirePattern * const self, co
 
 //-- io interface
 
-static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   const BtWirePattern * const self = BT_WIRE_PATTERN(persistence);
   gchar *id;
   xmlNodePtr node=NULL;
@@ -962,7 +962,7 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
   return(node);
 }
 
-static BtPersistence *bt_wire_pattern_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_wire_pattern_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   BtWirePattern *self;
   BtPersistence *result;
   BtMachine *dst_machine=NULL;

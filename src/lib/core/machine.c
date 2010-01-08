@@ -1227,7 +1227,7 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
         gst_caps_unref(c);
 #endif
         gst_object_unref(pad);
-      }     
+      }
     }
     if(skip_convert) {
       GST_DEBUG_OBJECT(self,"  about to link adder -> dst_elem");
@@ -1250,7 +1250,7 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
       GST_WARNING_OBJECT(self,"adding converter");
       if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
       if(!BT_IS_SINK_MACHINE(self)) {
-        // only do this for the final mix
+        // only do this for the final mix, if at all
         g_object_set(self->priv->machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
       }
       GST_DEBUG_OBJECT(self,"  about to link adder -> convert -> dst_elem");
@@ -2806,7 +2806,7 @@ void bt_machine_dbg_dump_voice_controller_queue(const BtMachine * const self) {
 
 //-- io interface
 
-static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persistence, const xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persistence, const xmlNodePtr const parent_node) {
   const BtMachine * const self = BT_MACHINE(persistence);
   GstObject *machine,*machine_voice;
   xmlNodePtr node=NULL;
@@ -2919,7 +2919,7 @@ Error:
   return(node);
 }
 
-static BtPersistence *bt_machine_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_machine_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   BtMachine * const self = BT_MACHINE(persistence);
   xmlChar *name,*global_str,*voice_str,*value_str;
   xmlNodePtr child_node;

@@ -108,7 +108,7 @@ Error:
 
 //-- io interface
 
-static xmlNodePtr bt_sink_machine_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_sink_machine_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   //BtSinkMachine *self = BT_SINK_MACHINE(persistence);
   BtPersistenceInterface * const parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlNodePtr node=NULL;
@@ -116,14 +116,14 @@ static xmlNodePtr bt_sink_machine_persistence_save(const BtPersistence * const p
   GST_DEBUG("PERSISTENCE::sink-machine");
 
   // save parent class stuff
-  if((node=parent_iface->save(persistence,parent_node,selection))) {
+  if((node=parent_iface->save(persistence,parent_node))) {
     /* @todo: save own stuff */
     xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("sink"));
   }
   return(node);
 }
 
-static BtPersistence *bt_sink_machine_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_sink_machine_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   BtSinkMachine *self;
   BtPersistence *result;
   BtPersistenceInterface *parent_iface;
@@ -164,7 +164,7 @@ static BtPersistence *bt_sink_machine_persistence_load(const GType type, const B
   
   // load parent class stuff
   parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(result));
-  parent_iface->load(BT_TYPE_MACHINE,result,node,location,NULL,NULL);
+  parent_iface->load(BT_TYPE_MACHINE,result,node,NULL,NULL);
 
   return(result);
 }

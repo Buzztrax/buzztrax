@@ -1,5 +1,40 @@
 2010-01-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* docs/reference/bt-core/buzztard-core-docs.sgml:
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztard-core.types.in:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbuzztard-core/Makefile.am:
+	* src/lib/core/libbuzztard-core/persistence-methods.h:
+	* src/lib/core/libbuzztard-core/persistence.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/lib/core/persistence-selection.c (deleted):
+	* src/lib/core/libbuzztard-core/persistence-location.h (deleted):
+	* src/lib/core/libbuzztard-core/persistence-selection.h (deleted):
+	* src/lib/core/persistence-location.c (deleted):
+	  Remove persistens selection and location. We don't use this for copy/paste
+	  and we will also do the undo/redo differently.
+
+2010-01-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	* configure.ac:
 	* tests/Makefile.am:

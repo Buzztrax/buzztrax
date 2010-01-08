@@ -164,7 +164,7 @@ gboolean bt_persistence_save_list(const GList *list,xmlNodePtr const node) {
   gboolean res=TRUE;
 
   for(;(list && res);list=g_list_next(list)) {
-    res&=(bt_persistence_save(BT_PERSISTENCE(list->data),node,NULL)!=NULL);
+    res&=(bt_persistence_save(BT_PERSISTENCE(list->data),node)!=NULL);
   }
   return(res);
 }
@@ -384,16 +384,15 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
  * bt_persistence_save:
  * @self: a serialiable object
  * @parent_node: the parent xml node
- * @selection: an optional selection
  *
  * Serializes the given object into @node.
  *
  * Returns: the new node if the object has been serialized, else %NULL.
  */
-xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
 
-  return (BT_PERSISTENCE_GET_INTERFACE (self)->save (self, parent_node, selection));
+  return (BT_PERSISTENCE_GET_INTERFACE (self)->save (self, parent_node));
 }
 
 /**
@@ -401,7 +400,6 @@ xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr cons
  * @type: a #GObject type
  * @self: a deserialiable object
  * @node: the xml node
- * @location: an optional location
  * @err: a GError for deserialisation errors
  * @...: extra parameters NULL terminated name/value pairs.
  *
@@ -410,7 +408,7 @@ xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr cons
  *
  * Returns: the deserialized object or %NULL.
  */
-BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const self, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, ...) {
+BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const self, xmlNodePtr node, GError **err, ...) {
   BtPersistence *result;
   va_list var_args;
   
@@ -423,13 +421,13 @@ BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const
 
     klass = g_type_class_ref (type);
     iface = g_type_interface_peek (klass, BT_TYPE_PERSISTENCE);
-    result = iface->load (type, self, node, location, err, var_args);
+    result = iface->load (type, self, node, err, var_args);
     g_type_class_unref(klass);
   }
   else {
     g_return_val_if_fail (BT_IS_PERSISTENCE (self), NULL);
 
-    result = BT_PERSISTENCE_GET_INTERFACE (self)->load (type, self, node, location, err, var_args);
+    result = BT_PERSISTENCE_GET_INTERFACE (self)->load (type, self, node, err, var_args);
   }
   va_end (var_args);
   return (result);
@@ -437,22 +435,13 @@ BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const
 
 //-- interface internals
 
-static void bt_persistence_base_init(gpointer g_class) {
-  static gboolean initialized = FALSE;
-
-  if (!initialized) {
-    /* create interface signals and properties here. */
-    initialized = TRUE;
-  }
-}
-
 GType bt_persistence_get_type (void) {
   static GType type = 0;
 
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
       sizeof (BtPersistenceInterface),
-      bt_persistence_base_init,   /* base_init */
+      NULL,   /* base_init */
       NULL,   /* base_finalize */
       NULL,   /* class_init */
       NULL,   /* class_finalize */

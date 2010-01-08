@@ -546,7 +546,7 @@ BtWavelevel *bt_wave_get_level_by_index(const BtWave * const self,const gulong i
 
 //-- io interface
 
-static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persistence, const xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persistence, const xmlNodePtr const parent_node) {
   const BtWave * const self = BT_WAVE(persistence);
   xmlNodePtr node=NULL;
   xmlNodePtr child_node;
@@ -591,7 +591,7 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
   return(node);
 }
 
-static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   BtWave *self;
   BtPersistence *result;
   BtSongIONative *song_io;
@@ -699,7 +699,7 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
         if(lnode) {
           BtWavelevel * const wave_level=BT_WAVELEVEL(lnode->data);
 
-          bt_persistence_load(BT_TYPE_WAVELEVEL,BT_PERSISTENCE(wave_level),node,NULL,NULL,NULL);
+          bt_persistence_load(BT_TYPE_WAVELEVEL,BT_PERSISTENCE(wave_level),node,NULL,NULL);
           lnode=g_list_next(lnode);
         }
       }

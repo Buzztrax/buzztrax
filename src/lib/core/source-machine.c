@@ -70,7 +70,7 @@ BtSourceMachine *bt_source_machine_new(const BtSong * const song, const gchar * 
 
 //-- io interface
 
-static xmlNodePtr bt_source_machine_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_source_machine_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   const BtSourceMachine * const self = BT_SOURCE_MACHINE(persistence);
   const BtPersistenceInterface * const parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlNodePtr node=NULL;
@@ -80,7 +80,7 @@ static xmlNodePtr bt_source_machine_persistence_save(const BtPersistence * const
   GST_DEBUG("PERSISTENCE::source-machine");
 
   // save parent class stuff
-  if((node=parent_iface->save(persistence,parent_node,selection))) {
+  if((node=parent_iface->save(persistence,parent_node))) {
     xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("source"));
 
     g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,"voices",&voices,NULL);
@@ -91,7 +91,7 @@ static xmlNodePtr bt_source_machine_persistence_save(const BtPersistence * const
   return(node);
 }
 
-static BtPersistence *bt_source_machine_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_source_machine_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   BtSourceMachine *self;
   BtPersistence *result;
   BtPersistenceInterface *parent_iface;
@@ -133,7 +133,7 @@ static BtPersistence *bt_source_machine_persistence_load(const GType type, const
   
   // load parent class stuff
   parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(result));
-  parent_iface->load(BT_TYPE_MACHINE,result,node,location,NULL,NULL);
+  parent_iface->load(BT_TYPE_MACHINE,result,node,NULL,NULL);
 
   return(result);
 }

@@ -99,7 +99,7 @@ BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wa
 
 //-- io interface
 
-static xmlNodePtr bt_wavelevel_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_wavelevel_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   const BtWavelevel * const self = BT_WAVELEVEL(persistence);
   xmlNodePtr node=NULL;
 
@@ -116,7 +116,7 @@ static xmlNodePtr bt_wavelevel_persistence_save(const BtPersistence * const pers
 }
 
 
-static BtPersistence *bt_wavelevel_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_wavelevel_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   BtWavelevel * const self = BT_WAVELEVEL(persistence);
   xmlChar *root_note_str,*rate_str,*loop_start_str,*loop_end_str;
   glong loop_start,loop_end;

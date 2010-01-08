@@ -80,7 +80,7 @@ static gboolean bt_song_io_native_xml_load(gconstpointer const _self, const BtSo
         else {
           GError *err=NULL;
 
-          bt_persistence_load(BT_TYPE_SONG,BT_PERSISTENCE(song),root_node,NULL,&err,NULL);
+          bt_persistence_load(BT_TYPE_SONG,BT_PERSISTENCE(song),root_node,&err,NULL);
           if(err!=NULL) {
             g_error_free(err);
           }
@@ -115,7 +115,7 @@ static gboolean bt_song_io_native_xml_save(gconstpointer const _self, const BtSo
 
   xmlDocPtr const song_doc=xmlNewDoc(XML_CHAR_PTR("1.0"));
   if(song_doc) {
-    xmlNodePtr const root_node=bt_persistence_save(BT_PERSISTENCE(song),NULL,NULL);
+    xmlNodePtr const root_node=bt_persistence_save(BT_PERSISTENCE(song),NULL);
     if(root_node) {
       xmlDocSetRootElement(song_doc,root_node);
       if(xmlSaveFile(file_name,song_doc)!=-1) {

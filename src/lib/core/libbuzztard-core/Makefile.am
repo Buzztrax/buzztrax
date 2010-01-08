@@ -11,8 +11,6 @@ libbtcore_HEADERS = \
 	machine.h machine-methods.h \
 	pattern.h pattern-methods.h \
 	persistence.h persistence-methods.h \
-	persistence-location.h \
-	persistence-selection.h \
 	plainfile-settings.h plainfile-settings-methods.h \
 	processor-machine.h processor-machine-methods.h \
 	sequence.h sequence-methods.h \

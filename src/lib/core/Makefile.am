@@ -32,8 +32,6 @@ libbuzztard_core_la_SOURCES = \
 	machine.c libbuzztard-core/machine.h libbuzztard-core/machine-methods.h \
 	pattern.c libbuzztard-core/pattern.h libbuzztard-core/pattern-methods.h \
 	persistence.c libbuzztard-core/persistence.h libbuzztard-core/persistence-methods.h \
-	persistence-location.c libbuzztard-core/persistence-location.h \
-	persistence-selection.c libbuzztard-core/persistence-selection.h \
 	processor-machine.c libbuzztard-core/processor-machine.h libbuzztard-core/processor-machine-methods.h \
 	sequence.c libbuzztard-core/sequence.h libbuzztard-core/sequence-methods.h \
 	settings.c libbuzztard-core/settings.h libbuzztard-core/settings-methods.h libbuzztard-core/settings-private.h \

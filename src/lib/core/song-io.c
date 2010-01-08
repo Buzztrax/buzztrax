@@ -305,6 +305,8 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
     //DEBUG
   }
   g_object_set(G_OBJECT(song),"song-io",NULL,NULL);
+  
+  GST_INFO("loaded song [%s] = %d",self->priv->file_name,result);
   return(result);
 }
 
@@ -337,6 +339,8 @@ gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
     bt_song_set_unsaved(song,FALSE);
   }
   g_object_set(G_OBJECT(song),"song-io",NULL,NULL);
+  
+  GST_INFO("saved song [%s] = %d",self->priv->file_name,result);
   return(result);
 }
 

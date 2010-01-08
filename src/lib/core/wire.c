@@ -1106,7 +1106,7 @@ void bt_wire_dbg_print_parts(const BtWire * const self) {
 
 //-- io interface
 
-static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   const BtWire * const self = BT_WIRE(persistence);
   gchar * const id;
   xmlNodePtr node=NULL;
@@ -1152,7 +1152,7 @@ Error:
   return(node);
 }
 
-static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   BtWire *self;
   BtPersistence *result;
   BtSetup *setup = NULL;
@@ -1226,7 +1226,7 @@ static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersist
           if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"pattern\0",8))) {
             GError *err=NULL;
             
-            wire_pattern=BT_WIRE_PATTERN(bt_persistence_load(BT_TYPE_WIRE_PATTERN,NULL,child_node,NULL,&err,"song",self->priv->song,"wire",self,NULL));
+            wire_pattern=BT_WIRE_PATTERN(bt_persistence_load(BT_TYPE_WIRE_PATTERN,NULL,child_node,&err,"song",self->priv->song,"wire",self,NULL));
             if(err!=NULL) {
               GST_WARNING("Can't create wire-pattern: %s",err->message);
               g_error_free(err);

@@ -138,7 +138,7 @@ BtSongInfo *bt_song_info_new(const BtSong * const song) {
 
 //-- io interface
 
-static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   const BtSongInfo * const self = BT_SONG_INFO(persistence);
   xmlNodePtr node=NULL;
 
@@ -187,7 +187,7 @@ static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const pers
   return(node);
 }
 
-static BtPersistence *bt_song_info_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_song_info_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   const BtSongInfo * const self = BT_SONG_INFO(persistence);
 
   GST_DEBUG("PERSISTENCE::song-info");

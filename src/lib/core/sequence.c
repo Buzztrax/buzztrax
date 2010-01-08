@@ -1755,7 +1755,7 @@ void bt_sequence_update_tempo(const BtSequence * const self) {
 
 //-- io interface
 
-static xmlNodePtr bt_sequence_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_sequence_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   BtSequence * const self = BT_SEQUENCE(persistence);
   xmlNodePtr node=NULL;
   xmlNodePtr child_node,child_node2,child_node3;
@@ -1814,7 +1814,7 @@ Error:
   return(node);
 }
 
-static BtPersistence *bt_sequence_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_sequence_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   BtSequence * const self = BT_SEQUENCE(persistence);
   xmlNodePtr child_node,child_node2;
   gboolean sequence_changed=FALSE;

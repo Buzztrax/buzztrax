@@ -105,58 +105,6 @@ struct _BtPatternPrivate {
   GValue *data;
 };
 
-#if 0
-/* a copy would do:
- *   create xml-doc with root-node
- *   bt_pattern_persistence_save(self, parent_node, selection)
- *   write xml document to clipboard
- * a paste would do:
- *   load xml document from clipboard
- *   bt_pattern_persistence_load(type, self, parent_node, locatio, NULL, NULL)
- *
- * - do we really need gobjects for it?
- * - atleast we need to supply the selection/location from the application side 
- * 
- * - what info do we need
- *   - pattern:
- *     width, height, type (param) for each column
- *     each cell would be the value
- *   - sequence:
- *     width, height, type (machine) for each column
- *     each cell would be the pattern id
- * - if we don't like xml we could use something simple:
- *   - 1st line: width, height
- *   - 2nd line: types
- *   - data values
- * - pattern api
- *   gchar *bt_pattern_copy_area(pattern,start_row,stop_row,start_col,stop_col);
- *   gchar *bt_pattern_cut_area(pattern,start_row,stop_row,start_col,stop_col);
- *   gboolean bt_pattern_delete_area(pattern,start_row,stop_row,start_col,stop_col);
- *   gboolean bt_pattern_paste_position(pattern,data,start_row,start_col);
- * - pattern-page api
- *   - do clipboard io (check gtk_text_entry/view)
- *     - gtk_clipboard_set_...
- *     - gtk_selection_
- */
-struct _BtPatternPersistenceSelection {
-  const BtPersistenceSelection parent;
-
-  gulong start_tick, end_tick;
-  gulong start_group, end_group;
-  gulong start_param, end_param;
-};
-
-struct _BtPatternPersistenceLocation {
-  const BtPersistenceLocation parent;
-
-  // @todo: can we paste into a selection (use selection as a mask)
-  // and if whats the difference between a curser and single char selection?
-  gulong start_tick;
-  gulong start_group;
-  gulong start_param;
-};
-#endif
-
 static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -1419,7 +1367,7 @@ gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulon
 
 //-- io interface
 
-static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   const BtPattern * const self = BT_PATTERN(persistence);;
   xmlNodePtr node=NULL;
   xmlNodePtr child_node,child_node2;
@@ -1468,7 +1416,7 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
   return(node);
 }
 
-static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   BtPattern *self;
   BtPersistence *result;
   xmlChar *id,*name,*length_str,*tick_str,*value,*voice_str;

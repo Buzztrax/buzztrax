@@ -1222,7 +1222,7 @@ bt_song_child_proxy_init(gpointer g_iface, gpointer iface_data)
 
 //-- io interface
 
-static xmlNodePtr bt_song_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_song_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   const BtSong * const self = BT_SONG(persistence);
   xmlNodePtr node=NULL;
 
@@ -1233,15 +1233,15 @@ static xmlNodePtr bt_song_persistence_save(const BtPersistence * const persisten
     xmlNewProp(node,XML_CHAR_PTR("xmlns:xsd"),XML_CHAR_PTR("http://www.w3.org/2001/XMLSchema-instance"));
     xmlNewProp(node,XML_CHAR_PTR("xsd:noNamespaceSchemaLocation"),XML_CHAR_PTR("buzztard.xsd"));
 
-    bt_persistence_save(BT_PERSISTENCE(self->priv->song_info),node,NULL);
-    bt_persistence_save(BT_PERSISTENCE(self->priv->setup),node,NULL);
-    bt_persistence_save(BT_PERSISTENCE(self->priv->sequence),node,NULL);
-    bt_persistence_save(BT_PERSISTENCE(self->priv->wavetable),node,NULL);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->song_info),node);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->setup),node);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->sequence),node);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->wavetable),node);
   }
   return(node);
 }
 
-static BtPersistence *bt_song_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_song_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   const BtSong * const self = BT_SONG(persistence);
   // @todo: this is a bit inconsistent
   // gtk is getting labels with progressbar, we could use this then
@@ -1255,22 +1255,22 @@ static BtPersistence *bt_song_persistence_load(const GType type, const BtPersist
     if(!xmlNodeIsText(node)) {
       if(!strncmp((gchar *)node->name,"meta\0",5)) {
         //g_sprintf(status,msg,"metadata");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
-        if(!bt_persistence_load(BT_TYPE_SONG_INFO,BT_PERSISTENCE(self->priv->song_info),node,NULL,NULL,NULL))
+        if(!bt_persistence_load(BT_TYPE_SONG_INFO,BT_PERSISTENCE(self->priv->song_info),node,NULL,NULL))
           goto Error;
       }
       else if(!strncmp((gchar *)node->name,"setup\0",6)) {
         //g_sprintf(status,msg,"setup");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
-        if(!bt_persistence_load(BT_TYPE_SETUP,BT_PERSISTENCE(self->priv->setup),node,NULL,NULL,NULL))
+        if(!bt_persistence_load(BT_TYPE_SETUP,BT_PERSISTENCE(self->priv->setup),node,NULL,NULL))
           goto Error;
       }
       else if(!strncmp((gchar *)node->name,"sequence\0",9)) {
         //g_sprintf(status,msg,"sequence");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
-        if(!bt_persistence_load(BT_TYPE_SEQUENCE,BT_PERSISTENCE(self->priv->sequence),node,NULL,NULL,NULL))
+        if(!bt_persistence_load(BT_TYPE_SEQUENCE,BT_PERSISTENCE(self->priv->sequence),node,NULL,NULL))
           goto Error;
       }
       else if(!strncmp((gchar *)node->name,"wavetable\0",10)) {
         //g_sprintf(status,msg,"wavetable");g_object_set(G_OBJECT(self->priv->song_io),"status",status,NULL);
-        if(!bt_persistence_load(BT_TYPE_WAVETABLE,BT_PERSISTENCE(self->priv->wavetable),node,NULL,NULL,NULL))
+        if(!bt_persistence_load(BT_TYPE_WAVETABLE,BT_PERSISTENCE(self->priv->wavetable),node,NULL,NULL))
           goto Error;
       }
     }

@@ -38,8 +38,8 @@ typedef struct _BtPersistenceInterface BtPersistenceInterface;
 struct _BtPersistenceInterface {
   const GTypeInterface parent;
 
-  xmlNodePtr (*save)(const BtPersistence * const self, xmlNodePtr const node, const BtPersistenceSelection * const selection);
-  BtPersistence* (*load)(const GType type, const BtPersistence * const self, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args);
+  xmlNodePtr (*save)(const BtPersistence * const self, xmlNodePtr const node);
+  BtPersistence* (*load)(const GType type, const BtPersistence * const self, xmlNodePtr node, GError **err, va_list var_args);
 };
 
 GType bt_persistence_get_type(void) G_GNUC_CONST;

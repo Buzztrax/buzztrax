@@ -200,7 +200,7 @@ void bt_wavetable_remember_missing_wave(const BtWavetable * const self, const gc
 
 //-- io interface
 
-static xmlNodePtr bt_wavetable_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_wavetable_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   const BtWavetable * const self = BT_WAVETABLE(persistence);
   xmlNodePtr node=NULL;
 
@@ -212,7 +212,7 @@ static xmlNodePtr bt_wavetable_persistence_save(const BtPersistence * const pers
   return(node);
 }
 
-static BtPersistence *bt_wavetable_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_wavetable_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   const BtWavetable * const self = BT_WAVETABLE(persistence);
   xmlNodePtr child_node;
 
@@ -223,7 +223,7 @@ static BtPersistence *bt_wavetable_persistence_load(const GType type, const BtPe
     if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wave\0",5))) {
       GError *err=NULL;
       
-      BtWave * const wave=BT_WAVE(bt_persistence_load(BT_TYPE_WAVE,NULL,child_node,NULL,&err,"song",self->priv->song,NULL));
+      BtWave * const wave=BT_WAVE(bt_persistence_load(BT_TYPE_WAVE,NULL,child_node,&err,"song",self->priv->song,NULL));
       if(err!=NULL) {
         // collect failed waves
         gchar * const name, * const uri;

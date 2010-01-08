@@ -75,7 +75,7 @@ static BtSongIONativeClass *parent_class=NULL;
  */
 gboolean bt_song_io_native_bzt_copy_to_fd(const BtSongIONativeBZT * const self, const gchar *file_name, gint fd) {
   gboolean res=FALSE;
-#ifdef USE_GSF  
+#ifdef USE_GSF
   GsfInput *data;
 #if 1
   GsfInfile *infile=self->priv->infile,*tmp_infile=NULL;
@@ -157,7 +157,7 @@ gboolean bt_song_io_native_bzt_copy_to_fd(const BtSongIONativeBZT * const self, 
 
 gboolean bt_song_io_native_bzt_copy_from_uri(const BtSongIONativeBZT * const self, const gchar *file_name, const gchar *uri) {
   gboolean res=FALSE;
-#ifdef USE_GSF  
+#ifdef USE_GSF
   GsfOutput *data;
 
   if((data=gsf_outfile_new_child(self->priv->outfile,file_name,FALSE))) {
@@ -303,7 +303,7 @@ static gboolean bt_song_io_native_bzt_load(gconstpointer const _self, const BtSo
         else {
           GError *err=NULL;
 
-          bt_persistence_load(BT_TYPE_SONG,BT_PERSISTENCE(song),root_node,NULL,&err,NULL);
+          bt_persistence_load(BT_TYPE_SONG,BT_PERSISTENCE(song),root_node,&err,NULL);
           if(err!=NULL) {
             g_error_free(err);
           }
@@ -369,7 +369,7 @@ static gboolean bt_song_io_native_bzt_save(gconstpointer const _self, const BtSo
     }
 
     if(cont) {
-      xmlNodePtr const root_node=bt_persistence_save(BT_PERSISTENCE(song),NULL,NULL);
+      xmlNodePtr const root_node=bt_persistence_save(BT_PERSISTENCE(song),NULL);
       if(root_node) {
         xmlDocSetRootElement(song_doc,root_node);
         if(self->priv->output && self->priv->outfile) {

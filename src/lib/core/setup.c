@@ -1391,7 +1391,7 @@ void bt_setup_remember_missing_machine(const BtSetup * const self, const gchar *
 
 //-- io interface
 
-static xmlNodePtr bt_setup_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+static xmlNodePtr bt_setup_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
   BtSetup * const self = BT_SETUP(persistence);
   xmlNodePtr node=NULL;
   xmlNodePtr child_node;
@@ -1416,7 +1416,7 @@ Error:
   return(node);
 }
 
-static BtPersistence *bt_setup_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location, GError **err, va_list var_args) {
+static BtPersistence *bt_setup_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   BtSetup * const self = BT_SETUP(persistence);
   xmlNodePtr child_node;
   gboolean failed_parts=FALSE;
@@ -1451,7 +1451,7 @@ static BtPersistence *bt_setup_persistence_load(const GType type, const BtPersis
               }
               if(type) {
                 GError *err=NULL;
-                BtMachine *machine=BT_MACHINE(bt_persistence_load(type,NULL,child_node,NULL,&err,"song",self->priv->song,NULL));
+                BtMachine *machine=BT_MACHINE(bt_persistence_load(type,NULL,child_node,&err,"song",self->priv->song,NULL));
                 if(err!=NULL) {
                   // collect failed machines
                   gchar * const plugin_name;
@@ -1476,7 +1476,7 @@ static BtPersistence *bt_setup_persistence_load(const GType type, const BtPersis
           if(!xmlNodeIsText(child_node)) {
             GError *err=NULL;
             // @todo: rework construction
-            BtWire * const wire=BT_WIRE(bt_persistence_load(BT_TYPE_WIRE,NULL,child_node,NULL,&err,"song",self->priv->song,NULL));
+            BtWire * const wire=BT_WIRE(bt_persistence_load(BT_TYPE_WIRE,NULL,child_node,&err,"song",self->priv->song,NULL));
             if(err!=NULL) {
               failed_parts=TRUE;
               
