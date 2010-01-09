@@ -540,30 +540,8 @@ Error:
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
-static void bt_cmd_application_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
-{
-  BtCmdApplication *self = BT_CMD_APPLICATION(object);
-  return_if_disposed();
-  switch (property_id) {
-    case CMD_APP_QUIET: {
-      g_value_set_boolean(value, self->priv->quiet);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 /* sets the given properties for this object */
-static void bt_cmd_application_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
-{
+static void bt_cmd_application_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
@@ -627,7 +605,6 @@ static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
   gobject_class->constructor  = bt_cmd_application_construct;
 #endif
   gobject_class->set_property = bt_cmd_application_set_property;
-  gobject_class->get_property = bt_cmd_application_get_property;
   gobject_class->dispose      = bt_cmd_application_dispose;
   gobject_class->finalize     = bt_cmd_application_finalize;
 
@@ -636,7 +613,7 @@ static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
                                      "quiet prop",
                                      "tell wheter the app should do output or not",
                                      FALSE,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
 }
 

@@ -1,5 +1,11 @@
 2010-01-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/cmd/cmd-application.c:
+	  Remove getter, there is no other class that might want to read the
+	  property back.
+
+2010-01-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/m-bt-edit.c:
 	* tests/ui/edit/Makefile.am:
 	* tests/ui/edit/e-bt-controller-learn-dialog.c:
