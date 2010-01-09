@@ -23,7 +23,7 @@
 /* @todo: add properties:
  *   - vertical : gboolean, readonly
  *   - min,max,rms,peak : gint, read/write
- *   - peaks_falloff,scale_type : enum, read/write
+ *   - scale_type : enum, read/write
  * @todo: revisit cairo usage
  *   - http://www.cairographics.org/FAQ/#sharp_lines
  */
@@ -93,7 +93,6 @@ static void gtk_vumeter_init (GtkVUMeter *vumeter)
     vumeter->rms_level = 0;
     vumeter->min = 0;
     vumeter->max = 32767;
-    vumeter->peaks_falloff = GTK_VUMETER_PEAKS_FALLOFF_MEDIUM;
     vumeter->peak_level = 0;
     vumeter->delay_peak_level = 0;
 
@@ -438,25 +437,6 @@ void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak)
     if ((old_rms_level != vumeter->rms_level) || (old_peak_level != vumeter->peak_level)) {
       gtk_widget_queue_draw (GTK_WIDGET(vumeter));
     }
-}
-
-/**
- * gtk_vumeter_set_peaks_falloff:
- * @vumeter: the vumeter widget to change the current level
- * @peaks_falloff: controls the speed to the peak decay
- *
- * Sets the speed for the peaks to decay.
- *
- * PLEASE NOTE: the falloff is not yet implemented
- */
-void gtk_vumeter_set_peaks_falloff (GtkVUMeter *vumeter, gint peaks_falloff)
-{
-    g_return_if_fail (GTK_IS_VUMETER (vumeter));
-
-    if (peaks_falloff > GTK_VUMETER_PEAKS_FALLOFF_FAST) {
-        peaks_falloff = GTK_VUMETER_PEAKS_FALLOFF_FAST;
-    }
-    vumeter->peaks_falloff=peaks_falloff;
 }
 
 /**

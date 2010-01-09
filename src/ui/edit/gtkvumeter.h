@@ -50,7 +50,6 @@ struct _GtkVUMeter {
     gint        min;
     gint        max;
 
-    gint        peaks_falloff;
     gint        delay_peak_level;
     gint        peak_level;
 
@@ -60,14 +59,6 @@ struct _GtkVUMeter {
 
 struct _GtkVUMeterClass {
     GtkWidgetClass  parent_class;
-};
-
-/* this is not yet implemented */
-enum {
-    GTK_VUMETER_PEAKS_FALLOFF_SLOW,
-    GTK_VUMETER_PEAKS_FALLOFF_MEDIUM,
-    GTK_VUMETER_PEAKS_FALLOFF_FAST,
-    GTK_VUMETER_PEAKS_FALLOFF_LAST
 };
 
 enum {

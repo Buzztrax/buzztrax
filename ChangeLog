@@ -1,5 +1,11 @@
 2010-01-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/gtkvumeter.h:
+	  Remove dead code.
+
+2010-01-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/bt-edit.c:
 	  Fix the build for old gtk version.
 
