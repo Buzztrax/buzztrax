@@ -1,7 +1,7 @@
 /* $Id$
  *
  * Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2010 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -38,62 +38,59 @@ static void test_teardown(void) {
 // create app and then unconditionally destroy window
 BT_START_TEST(test_create_dialog) {
   BtEditApplication *app;
-  GError *err=NULL;
   BtMainWindow *main_window;
-  BtSong *song;
-  BtMachine *machine=NULL;
-  BtPattern *pattern;
   GtkWidget *dialog;
+  BtIcRegistry *ic_registry;
+  BtIcDevice *device=NULL;
+  GList *node,*list;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
-
-  // create a new song
-  bt_edit_application_new_song(app);
-
-  // get window and song
-  g_object_get(app,"main-window",&main_window,"song",&song,NULL);
-  fail_unless(main_window != NULL, NULL);
-  fail_unless(song != NULL, NULL);
-
-  // create a source machine
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  // new_pattern
-  pattern=bt_pattern_new(song, "test", "test", /*length=*/16, machine);
-  fail_unless(pattern!=NULL, NULL);
-
-  // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(app,pattern));
-  fail_unless(dialog!=NULL, NULL);
-  gtk_widget_show_all(dialog);
-  // leave out that line! (modal dialog)
-  //gtk_dialog_run(GTK_DIALOG(dialog));
   
-  // make screenshot
-  check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
+  // get a device that implements learn iface
+  g_object_get(app,"ic-registry",&ic_registry,NULL);
+  g_object_get(ic_registry,"devices",&list,NULL);
+  for(node=list;node;node=g_list_next(node)) {
+    device=BTIC_DEVICE(node->data);
+    if(BTIC_IS_LEARN(device))
+      break;
+  }
+  g_list_free(list);
+  g_object_unref(ic_registry);
+
+  if(BTIC_IS_LEARN(device)) {
+    // get window
+    g_object_get(app,"main-window",&main_window,NULL);
+    fail_unless(main_window != NULL, NULL);
   
-  gtk_widget_destroy(dialog);
+    // create, show and destroy dialog
+    dialog=GTK_WIDGET(bt_interaction_controller_learn_dialog_new(device));
+    fail_unless(dialog!=NULL, NULL);
+    GST_INFO("dialog created");
+    gtk_widget_show_all(dialog);
+    // leave out that line! (modal dialog)
+    //gtk_dialog_run(GTK_DIALOG(dialog));
   
-  // close window
-  gtk_widget_destroy(GTK_WIDGET(main_window));
-  while(gtk_events_pending()) gtk_main_iteration();
+    // make screenshot
+    check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
   
+    gtk_widget_destroy(dialog);
+  
+    // close window
+    gtk_widget_destroy(GTK_WIDGET(main_window));
+    while(gtk_events_pending()) gtk_main_iteration();
+  }
+
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
-  g_object_unref(pattern);
-  g_object_unref(machine);
-  g_object_unref(song);
   g_object_checked_unref(app);
 }
 BT_END_TEST
 
-TCase *bt_pattern_properties_dialog_example_case(void) {
-  TCase *tc = tcase_create("BtPatternPropertiesDialogExamples");
-  
+TCase *bt_controller_learn_dialog_example_case(void) {
+  TCase *tc = tcase_create("BtControllerLearnDialogExamples");
+
   tcase_add_test(tc,test_create_dialog);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);

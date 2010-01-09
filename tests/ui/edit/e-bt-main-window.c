@@ -46,7 +46,7 @@ static gboolean timeout(gpointer data) {
 
 //-- tests
 
-// this could help to test triggering certain resposes
+// this tests triggering certain dialog resposes
 static struct {
   GtkDialog *dialog;
   gint response;

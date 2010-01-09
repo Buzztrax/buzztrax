@@ -1,5 +1,27 @@
 2010-01-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/m-bt-edit.c:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-controller-learn-dialog.c:
+	* tests/ui/edit/e-bt-machine-actions.c:
+	* tests/ui/edit/e-bt-main-window.c:
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c:
+	* tests/ui/edit/s-bt-controller-learn-dialog.c:
+	* tests/ui/edit/s-bt-machine-actions.c:
+	* tests/ui/edit/s-bt-controller-learn-dialog.c (svn:keywords, svn:eol-
+	  style):
+	* tests/ui/edit/e-bt-machine-actions.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/e-bt-controller-learn-dialog.c (svn:keywords, svn:eol-
+	  style):
+	* tests/ui/edit/s-bt-machine-actions.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/e-bt-machine-actions.c (added):
+	* tests/ui/edit/e-bt-controller-learn-dialog.c (added):
+	* tests/ui/edit/s-bt-machine-actions.c (added):
+	* tests/ui/edit/s-bt-controller-learn-dialog.c (added):
+	  Add tests for two more dialogs.
+
+2010-01-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/interaction-controller-learn-dialog.c:
 	* src/ui/edit/interaction-controller-menu.c:
 	  Small refac and cleanup.

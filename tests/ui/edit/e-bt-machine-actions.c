@@ -1,7 +1,7 @@
 /* $Id$
  *
  * Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2010 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -35,15 +35,33 @@ static void test_teardown(void) {
 
 //-- tests
 
+// this tests triggering certain dialog resposes
+static struct {
+  GtkDialog *dialog;
+  gint response;
+} dialog_data;
+
+static gboolean leave_dialog(gpointer user_data) {
+  if (dialog_data.dialog) {
+    gtk_dialog_response(dialog_data.dialog,dialog_data.response);
+    return FALSE;
+  } else {
+    BtMainWindow *main_window=BT_MAIN_WINDOW(user_data);
+
+    // need to get get the dialog here
+    g_object_get(main_window,"dialog",&dialog_data.dialog,NULL);
+    return TRUE;
+  }
+}
+
 // create app and then unconditionally destroy window
-BT_START_TEST(test_create_dialog) {
+BT_START_TEST(test_about_dialog) {
   BtEditApplication *app;
   GError *err=NULL;
   BtMainWindow *main_window;
   BtSong *song;
-  BtMachine *machine=NULL;
-  BtPattern *pattern;
-  GtkWidget *dialog;
+  BtMachine *machine;
+  GstElement *element;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -52,7 +70,7 @@ BT_START_TEST(test_create_dialog) {
   // create a new song
   bt_edit_application_new_song(app);
 
-  // get window and song
+  // get window
   g_object_get(app,"main-window",&main_window,"song",&song,NULL);
   fail_unless(main_window != NULL, NULL);
   fail_unless(song != NULL, NULL);
@@ -61,40 +79,30 @@ BT_START_TEST(test_create_dialog) {
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
   fail_unless(machine!=NULL, NULL);
   fail_unless(err==NULL, NULL);
+  g_object_get(G_OBJECT(machine),"machine",&element,NULL);
 
-  // new_pattern
-  pattern=bt_pattern_new(song, "test", "test", /*length=*/16, machine);
-  fail_unless(pattern!=NULL, NULL);
+  dialog_data.dialog=NULL;
+  dialog_data.response=GTK_RESPONSE_ACCEPT;
+  g_idle_add(leave_dialog,(gpointer)main_window);
+  bt_machine_action_about(element,main_window);
 
-  // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(app,pattern));
-  fail_unless(dialog!=NULL, NULL);
-  gtk_widget_show_all(dialog);
-  // leave out that line! (modal dialog)
-  //gtk_dialog_run(GTK_DIALOG(dialog));
-  
-  // make screenshot
-  check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
-  
-  gtk_widget_destroy(dialog);
-  
   // close window
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
   
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
-  g_object_unref(pattern);
+  gst_object_unref(element);
   g_object_unref(machine);
   g_object_unref(song);
   g_object_checked_unref(app);
 }
 BT_END_TEST
 
-TCase *bt_pattern_properties_dialog_example_case(void) {
-  TCase *tc = tcase_create("BtPatternPropertiesDialogExamples");
-  
-  tcase_add_test(tc,test_create_dialog);
+TCase *bt_machine_actions_example_case(void) {
+  TCase *tc = tcase_create("BtMachineActionsExamples");
+
+  tcase_add_test(tc,test_about_dialog);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   return(tc);
