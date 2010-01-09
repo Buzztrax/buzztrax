@@ -25,7 +25,7 @@
  * Show a tip, that has not yet been shown to the user.
  */
 /*
-Algorithmus:
+Algorithm:
 - max_tips = G_N_ELEMENTS(tips)
 - fill gint pending_tips[max_tips] with 0...(max_tips-1)
 - read presented-tips from settings

@@ -1,3 +1,12 @@
+2010-01-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/interaction-controller-menu.c:
+	  Small refac and cleanup.
+
+	* src/ui/edit/tip-dialog.c:
+	  Use english comments :)
+
 2010-01-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/about-dialog.c:

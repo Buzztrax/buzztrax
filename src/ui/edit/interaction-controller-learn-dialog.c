@@ -94,13 +94,16 @@ static gboolean bt_interaction_controller_learn_dialog_init_ui(const BtInteracti
   GtkWidget *label_detected, *label_naming, *box;
   gchar* title;
 
-  g_object_get( BTIC_DEVICE(self->priv->device), "name", &title, NULL );
+  gtk_widget_set_name(GTK_WIDGET(self),"interaction controller learn");
 
+  // set a title
+  g_object_get(self->priv->device,"name",&title,NULL);
   gtk_window_set_title(GTK_WINDOW(self), title);
-  gtk_window_set_resizable(GTK_WINDOW(self), FALSE);
 
-  gtk_dialog_add_button(GTK_DIALOG(self), GTK_STOCK_OK, GTK_RESPONSE_ACCEPT);
-  gtk_dialog_add_button(GTK_DIALOG(self), GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT);
+  gtk_dialog_add_buttons(GTK_DIALOG(self),
+                         GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                         GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                         NULL);
 
   label_detected=gtk_label_new(_("detected control"));
   label_naming=gtk_label_new(_("register as"));
@@ -124,6 +127,7 @@ static gboolean bt_interaction_controller_learn_dialog_init_ui(const BtInteracti
 
   GST_INFO("BtInteractionControllerLearnDialog ui initialized");
 
+  btic_learn_start(BTIC_LEARN(self->priv->device));
   return(TRUE);
 }
 
