@@ -74,7 +74,7 @@ static void on_folder_changed(GtkFileChooser *chooser,gpointer user_data) {
 
 //-- helper methods
 
-static gboolean bt_settings_page_directories_init_ui(const BtSettingsPageDirectories *self) {
+static void bt_settings_page_directories_init_ui(const BtSettingsPageDirectories *self) {
   BtSettings *settings;
   GtkWidget *label,*spacer,*widget;
   gchar *str;
@@ -130,7 +130,6 @@ static gboolean bt_settings_page_directories_init_ui(const BtSettingsPageDirecto
   g_free(record_folder);
   g_free(sample_folder);
   g_object_unref(settings);
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -141,28 +140,20 @@ static gboolean bt_settings_page_directories_init_ui(const BtSettingsPageDirecto
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtSettingsPageDirectories *bt_settings_page_directories_new(const BtEditApplication *app) {
   BtSettingsPageDirectories *self;
 
-  if(!(self=BT_SETTINGS_PAGE_DIRECTORIES(g_object_new(BT_TYPE_SETTINGS_PAGE_DIRECTORIES,
+  self=BT_SETTINGS_PAGE_DIRECTORIES(g_object_new(BT_TYPE_SETTINGS_PAGE_DIRECTORIES,
     "app",app,
     "n-rows",4,
     "n-columns",3,
     "homogeneous",FALSE,
-    NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_settings_page_directories_init_ui(self)) {
-    goto Error;
-  }
+    NULL));
+  bt_settings_page_directories_init_ui(self);
   gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
@@ -170,19 +161,6 @@ Error:
 //-- wrapper
 
 //-- class internals
-
-static void bt_settings_page_directories_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtSettingsPageDirectories *self = BT_SETTINGS_PAGE_DIRECTORIES(object);
-  return_if_disposed();
-  switch (property_id) {
-    case SETTINGS_PAGE_DIRECTORIES_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
 
 static void bt_settings_page_directories_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtSettingsPageDirectories *self = BT_SETTINGS_PAGE_DIRECTORIES(object);
@@ -233,7 +211,6 @@ static void bt_settings_page_directories_class_init(BtSettingsPageDirectoriesCla
   g_type_class_add_private(klass,sizeof(BtSettingsPageDirectoriesPrivate));
 
   gobject_class->set_property = bt_settings_page_directories_set_property;
-  gobject_class->get_property = bt_settings_page_directories_get_property;
   gobject_class->dispose      = bt_settings_page_directories_dispose;
   gobject_class->finalize     = bt_settings_page_directories_finalize;
 
@@ -242,7 +219,7 @@ static void bt_settings_page_directories_class_init(BtSettingsPageDirectoriesCla
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
 }
 

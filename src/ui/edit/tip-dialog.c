@@ -113,7 +113,7 @@ static void on_show_tips_toggled(GtkToggleButton *togglebutton, gpointer user_da
 
 //-- helper methods
 
-static gboolean bt_tip_dialog_init_ui(const BtTipDialog *self) {
+static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
   GtkWidget *label,*icon,*hbox,*vbox,*btn,*chk,*tip_view;
   gboolean show_tips;
   gchar *str;
@@ -205,7 +205,6 @@ static gboolean bt_tip_dialog_init_ui(const BtTipDialog *self) {
   gtk_dialog_set_has_separator(GTK_DIALOG(self),TRUE);
 
   on_refresh_clicked(GTK_BUTTON(btn),(gpointer)self);
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -216,22 +215,14 @@ static gboolean bt_tip_dialog_init_ui(const BtTipDialog *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtTipDialog *bt_tip_dialog_new(const BtEditApplication *app) {
   BtTipDialog *self;
 
-  if(!(self=BT_TIP_DIALOG(g_object_new(BT_TYPE_TIP_DIALOG,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_tip_dialog_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_TIP_DIALOG(g_object_new(BT_TYPE_TIP_DIALOG,"app",app,NULL));
+  bt_tip_dialog_init_ui(self);
   return(self);
-Error:
-  gtk_widget_destroy(GTK_WIDGET(self));
-  return(NULL);
 }
 
 //-- methods

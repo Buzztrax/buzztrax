@@ -79,7 +79,7 @@ static gpointer singleton=NULL;
   self->priv->colors[ix].green=(guint16)((g2+((g1-g2)>>1))*256); \
   self->priv->colors[ix].blue= (guint16)((b2+((b1-b2)>>1))*256)
 
-static gboolean bt_ui_resources_init_colors(BtUIResources *self) {
+static void bt_ui_resources_init_colors(BtUIResources *self) {
   GdkColormap *colormap;
   GtkSettings *settings;
   gboolean color_res[BT_UI_RES_COLOR_COUNT];
@@ -203,12 +203,10 @@ static gboolean bt_ui_resources_init_colors(BtUIResources *self) {
       }
     }
   }
-
-  return(TRUE);
 }
 
 
-static gboolean bt_ui_resources_init_icons(BtUIResources *self) {
+static void bt_ui_resources_init_icons(BtUIResources *self) {
   GtkSettings *settings;
   gchar *icon_theme_name,*fallback_icon_theme_name;
   gint w,h;
@@ -239,8 +237,6 @@ static gboolean bt_ui_resources_init_icons(BtUIResources *self) {
   self->priv->source_machine_pixbuf   =gdk_pixbuf_new_from_theme("buzztard_menu_source_machine",w);
   self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_theme("buzztard_menu_processor_machine",w);
   self->priv->sink_machine_pixbuf     =gdk_pixbuf_new_from_theme("buzztard_menu_sink_machine",w);
-
-  return(TRUE);
 }
 
 /*
@@ -267,7 +263,7 @@ static void bt_ui_resources_free_graphics(BtUIResources *self) {
   }
 }
   
-static gboolean bt_ui_resources_init_graphics(BtUIResources *self) {
+static void bt_ui_resources_init_graphics(BtUIResources *self) {
   // 12*6=72, 14*6=84
   const gint size=(gint)(self->priv->zoom*(gdouble)(GTK_ICON_SIZE_DIALOG*14));
   
@@ -289,8 +285,6 @@ static gboolean bt_ui_resources_init_graphics(BtUIResources *self) {
   g_object_get(self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL],"width",&w,"height",&h,NULL);
   GST_DEBUG("svg: w,h = %d, %d",w,h);  
   */
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -300,35 +294,26 @@ static gboolean bt_ui_resources_init_graphics(BtUIResources *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new signleton instance
  */
 BtUIResources *bt_ui_resources_new(void) {
   if(!singleton) {
+    BtUIResources *ui_resources;
+
     // create singleton
-    if(!(singleton=(gpointer)(g_object_new(BT_TYPE_UI_RESOURCES,NULL)))) {
-      goto Error;
-    }
-    else {
-      BtUIResources *ui_resources=BT_UI_RESOURCES(singleton);
-      // initialise ressources
-      if(!bt_ui_resources_init_colors(ui_resources)) {
-        goto Error;
-      }
-      if(!bt_ui_resources_init_icons(ui_resources)) {
-        goto Error;
-      }
-      ui_resources->priv->accel_group=gtk_accel_group_new();
-  
-      g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
-    }
+    singleton=(gpointer)(g_object_new(BT_TYPE_UI_RESOURCES,NULL));
+    ui_resources=BT_UI_RESOURCES(singleton);
+    // initialise ressources
+    bt_ui_resources_init_colors(ui_resources);
+    bt_ui_resources_init_icons(ui_resources);
+    ui_resources->priv->accel_group=gtk_accel_group_new();
+
+    g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
   }
   else {
     singleton=g_object_ref(G_OBJECT(singleton));
-  } 
+  }
   return(BT_UI_RESOURCES(singleton));
-Error:
-  g_object_try_unref(G_OBJECT(singleton));
-  return(NULL);
 }
 
 //-- methods

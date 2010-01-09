@@ -284,7 +284,7 @@ next:
   g_list_free(element_names);
 }
 
-static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
+static void bt_machine_menu_init_ui(const BtMachineMenu *self) {
   GtkWidget *menu_item,*submenu,*image;
 
   gtk_widget_set_name(GTK_WIDGET(self),"add machine menu");
@@ -314,8 +314,6 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
 
   bt_machine_menu_init_submenu(self,submenu,"Filter/Effect/Audio",G_CALLBACK(on_processor_machine_add_activated));
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -326,22 +324,14 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtMachineMenu *bt_machine_menu_new(const BtEditApplication *app) {
   BtMachineMenu *self;
 
-  if(!(self=BT_MACHINE_MENU(g_object_new(BT_TYPE_MACHINE_MENU,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_machine_menu_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_MACHINE_MENU(g_object_new(BT_TYPE_MACHINE_MENU,"app",app,NULL));
+  bt_machine_menu_init_ui(self);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
@@ -349,20 +339,6 @@ Error:
 
 //-- class internals
 
-static void bt_machine_menu_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtMachineMenu *self = BT_MACHINE_MENU(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MACHINE_MENU_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-/* sets the given properties for this object */
 static void bt_machine_menu_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMachineMenu *self = BT_MACHINE_MENU(object);
   return_if_disposed();
@@ -415,7 +391,6 @@ static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
   g_type_class_add_private(klass,sizeof(BtMachineMenuPrivate));
 
   gobject_class->set_property = bt_machine_menu_set_property;
-  gobject_class->get_property = bt_machine_menu_get_property;
   gobject_class->dispose      = bt_machine_menu_dispose;
   gobject_class->finalize     = bt_machine_menu_finalize;
 
@@ -424,7 +399,7 @@ static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_machine_menu_get_type(void) {

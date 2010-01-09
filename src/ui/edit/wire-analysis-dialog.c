@@ -460,7 +460,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   g_object_unref(src_machine);
   g_object_unref(dst_machine);
 
-  vbox = gtk_vbox_new(FALSE, 0);
+  vbox=gtk_vbox_new(FALSE, 0);
 
   /* add scales for spectrum analyzer drawable */
   /* @todo: we need to use a gtk_table() and also add a vruler with levels */
@@ -471,14 +471,14 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   gtk_box_pack_start(GTK_BOX(vbox), ruler, FALSE, FALSE,0);
 
   /* add spectrum canvas */
-  self->priv->spectrum_drawingarea=gtk_drawing_area_new ();
+  self->priv->spectrum_drawingarea=gtk_drawing_area_new();
   gtk_widget_set_size_request(self->priv->spectrum_drawingarea, self->priv->spect_bands, self->priv->spect_height);
-  g_signal_connect (G_OBJECT (self->priv->spectrum_drawingarea), "size-allocate",
-      G_CALLBACK (on_size_allocate), (gpointer) self);
+  g_signal_connect(G_OBJECT (self->priv->spectrum_drawingarea), "size-allocate",
+      G_CALLBACK(on_size_allocate), (gpointer) self);
   gtk_box_pack_start(GTK_BOX(vbox), self->priv->spectrum_drawingarea, TRUE, TRUE, 0);
 
   /* spacer */
-  gtk_box_pack_start (GTK_BOX (vbox), gtk_label_new(" "), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX (vbox), gtk_label_new(" "), FALSE, FALSE, 0);
 
   /* add scales for level meter */
   hbox = gtk_hbox_new(FALSE, 0);
@@ -497,13 +497,18 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
   /* add level-meter canvas */
-  self->priv->level_drawingarea = gtk_drawing_area_new ();
-  gtk_widget_set_size_request (self->priv->level_drawingarea, self->priv->spect_bands, LEVEL_HEIGHT);
-  gtk_box_pack_start (GTK_BOX (vbox), self->priv->level_drawingarea, FALSE, FALSE, 0);
+  self->priv->level_drawingarea=gtk_drawing_area_new();
+  gtk_widget_set_size_request(self->priv->level_drawingarea, self->priv->spect_bands, LEVEL_HEIGHT);
+  gtk_box_pack_start(GTK_BOX(vbox), self->priv->level_drawingarea, FALSE, FALSE, 0);
 
   gtk_container_set_border_width(GTK_CONTAINER (self), 6);
-  gtk_container_add (GTK_CONTAINER (self), vbox);
+  gtk_container_add(GTK_CONTAINER(self), vbox);
 
+  /* @todo: 
+   * - don't fail if we miss only spectrum or level
+   * - also don't return false, but instead add a label with the error message
+   */
+  
   // create fakesink
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_FAKESINK,"fakesink")) {
     res=FALSE;
@@ -569,14 +574,12 @@ Error:
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtWireAnalysisDialog *bt_wire_analysis_dialog_new(const BtEditApplication *app,const BtWire *wire) {
   BtWireAnalysisDialog *self;
 
-  if(!(self=BT_WIRE_ANALYSIS_DIALOG(g_object_new(BT_TYPE_WIRE_ANALYSIS_DIALOG,"app",app,"wire",wire,NULL)))) {
-    goto Error;
-  }
+  self=BT_WIRE_ANALYSIS_DIALOG(g_object_new(BT_TYPE_WIRE_ANALYSIS_DIALOG,"app",app,"wire",wire,NULL));
   // generate UI
   if(!bt_wire_analysis_dialog_init_ui(self)) {
     goto Error;

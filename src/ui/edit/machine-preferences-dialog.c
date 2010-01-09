@@ -227,7 +227,7 @@ static gboolean skip_property(GstElement *element,GParamSpec *pspec) {
   return(FALSE);
 }
 
-static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDialog *self) {
+static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDialog *self) {
   BtMainWindow *main_window;
   GtkWidget *label,*widget1,*widget2,*table,*scrolled_window;
   GtkAdjustment *spin_adjustment;
@@ -529,7 +529,6 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 
   g_object_unref(machine);
   g_object_unref(main_window);
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -541,23 +540,15 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance
  */
 BtMachinePreferencesDialog *bt_machine_preferences_dialog_new(const BtEditApplication *app,const BtMachine *machine) {
   BtMachinePreferencesDialog *self;
 
-  if(!(self=BT_MACHINE_PREFERENCES_DIALOG(g_object_new(BT_TYPE_MACHINE_PREFERENCES_DIALOG,"app",app,"machine",machine,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_machine_preferences_dialog_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_MACHINE_PREFERENCES_DIALOG(g_object_new(BT_TYPE_MACHINE_PREFERENCES_DIALOG,"app",app,"machine",machine,NULL));
+  bt_machine_preferences_dialog_init_ui(self);
   gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
-Error:
-  gtk_widget_destroy(GTK_WIDGET(self));
-  return(NULL);
 }
 
 //-- methods

@@ -787,7 +787,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 //-- helper methods
 
-static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
+static void bt_main_menu_init_ui(const BtMainMenu *self) {
   GtkWidget *item,*menu,*submenu,*subitem;
   BtSettings *settings;
   gboolean toolbar_hide,statusbar_hide,tabs_hide;
@@ -795,7 +795,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   GtkSettings *gtk_settings;
 
   // disable F10 keybinding to activate the menu
-  gtk_settings = gtk_settings_get_for_screen(gdk_screen_get_default());
+  gtk_settings=gtk_settings_get_for_screen(gdk_screen_get_default());
   g_object_set(gtk_settings, "gtk-menu-bar-accel", NULL, NULL);
 
   gtk_widget_set_name(GTK_WIDGET(self),"main menu");
@@ -1156,8 +1156,6 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -1168,41 +1166,20 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtMainMenu *bt_main_menu_new(const BtEditApplication *app) {
   BtMainMenu *self;
 
-  if(!(self=BT_MAIN_MENU(g_object_new(BT_TYPE_MAIN_MENU,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_main_menu_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_MAIN_MENU(g_object_new(BT_TYPE_MAIN_MENU,"app",app,NULL));
+  bt_main_menu_init_ui(self);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
 
 
 //-- class internals
-
-static void bt_main_menu_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtMainMenu *self = BT_MAIN_MENU(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_MENU_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
 
 static void bt_main_menu_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMainMenu *self = BT_MAIN_MENU(object);
@@ -1257,7 +1234,6 @@ static void bt_main_menu_class_init(BtMainMenuClass *klass) {
   g_type_class_add_private(klass,sizeof(BtMainMenuPrivate));
 
   gobject_class->set_property = bt_main_menu_set_property;
-  gobject_class->get_property = bt_main_menu_get_property;
   gobject_class->dispose      = bt_main_menu_dispose;
   gobject_class->finalize     = bt_main_menu_finalize;
 
@@ -1266,7 +1242,7 @@ static void bt_main_menu_class_init(BtMainMenuClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_menu_get_type(void) {

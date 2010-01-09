@@ -245,7 +245,7 @@ static gboolean on_cpu_load_update(gpointer user_data) {
 
 //-- helper methods
 
-static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditApplication *app) {
+static void bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditApplication *app) {
   GtkWidget *ev_box;
   gchar str[]="00:00.000";
 #if !GTK_CHECK_VERSION(2,12,0)
@@ -314,8 +314,6 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -326,41 +324,20 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtMainStatusbar *bt_main_statusbar_new(const BtEditApplication *app) {
   BtMainStatusbar *self;
 
-  if(!(self=BT_MAIN_STATUSBAR(g_object_new(BT_TYPE_MAIN_STATUSBAR,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_main_statusbar_init_ui(self,app)) {
-    goto Error;
-  }
+  self=BT_MAIN_STATUSBAR(g_object_new(BT_TYPE_MAIN_STATUSBAR,"app",app,NULL));
+  bt_main_statusbar_init_ui(self,app);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
 
 
 //-- class internals
-
-static void bt_main_statusbar_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_STATUSBAR_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
 
 static void bt_main_statusbar_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
@@ -442,7 +419,6 @@ static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
   g_type_class_add_private(klass,sizeof(BtMainStatusbarPrivate));
 
   gobject_class->set_property = bt_main_statusbar_set_property;
-  gobject_class->get_property = bt_main_statusbar_get_property;
   gobject_class->dispose      = bt_main_statusbar_dispose;
   gobject_class->finalize     = bt_main_statusbar_finalize;
 
@@ -451,7 +427,7 @@ static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_STATUSBAR_STATUS,
                                   g_param_spec_string("status",

@@ -90,7 +90,7 @@ static void on_dialog_response(GtkDialog *dialog,
 
 //-- helper methods
 
-static gboolean bt_interaction_controller_learn_dialog_init_ui(const BtInteractionControllerLearnDialog *self) {
+static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionControllerLearnDialog *self) {
   GtkWidget *label_detected, *label_naming, *box;
   gchar* title;
 
@@ -128,7 +128,6 @@ static gboolean bt_interaction_controller_learn_dialog_init_ui(const BtInteracti
   GST_INFO("BtInteractionControllerLearnDialog ui initialized");
 
   btic_learn_start(BTIC_LEARN(self->priv->device));
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -139,23 +138,14 @@ static gboolean bt_interaction_controller_learn_dialog_init_ui(const BtInteracti
  *
  * Create a new instance.
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtInteractionControllerLearnDialog *bt_interaction_controller_learn_dialog_new(BtIcDevice *device) {
   BtInteractionControllerLearnDialog *self;
 
-  if(!(self=BT_INTERACTION_CONTROLLER_LEARN_DIALOG(g_object_new(BT_TYPE_INTERACTION_CONTROLLER_LEARN_DIALOG,"device",device,NULL)))) {
-    goto Error;
-  }
-
-  // generate UI
-  if(!bt_interaction_controller_learn_dialog_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_INTERACTION_CONTROLLER_LEARN_DIALOG(g_object_new(BT_TYPE_INTERACTION_CONTROLLER_LEARN_DIALOG,"device",device,NULL));
+  bt_interaction_controller_learn_dialog_init_ui(self);
   return(self);
-Error:
-  gtk_widget_destroy(GTK_WIDGET(self));
-  return(NULL);
 }
 
 //-- methods

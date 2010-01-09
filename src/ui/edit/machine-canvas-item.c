@@ -819,9 +819,6 @@ static void bt_machine_canvas_item_get_property(GObject *object, guint property_
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(object);
   return_if_disposed();
   switch (property_id) {
-    case MACHINE_CANVAS_ITEM_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
     case MACHINE_CANVAS_ITEM_MACHINES_PAGE: {
       g_value_set_object(value, self->priv->main_page_machines);
     } break;
@@ -1261,7 +1258,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_MACHINES_PAGE,
                                   g_param_spec_object("machines-page",

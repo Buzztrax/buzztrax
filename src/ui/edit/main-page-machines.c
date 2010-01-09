@@ -1001,7 +1001,7 @@ static void bt_main_page_machines_init_grid_density_menu(const BtMainPageMachine
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_high_activated),(gpointer)self);
 }
 
-static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,const BtMainPages *pages) {
+static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const BtMainPages *pages) {
   BtSettings *settings;
   GtkWidget *image,*scrolled_window;
   GtkWidget *tool_item;
@@ -1084,7 +1084,6 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
 
-
   gtk_box_pack_start(GTK_BOX(self),self->priv->toolbar,FALSE,FALSE,0);
 
   // add canvas
@@ -1142,7 +1141,6 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   g_object_unref(settings);
   
   GST_DEBUG("  done");
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -1154,22 +1152,14 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPageMachines *self;
 
-  if(!(self=BT_MAIN_PAGE_MACHINES(g_object_new(BT_TYPE_MAIN_PAGE_MACHINES,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_main_page_machines_init_ui(self,pages)) {
-    goto Error;
-  }
+  self=BT_MAIN_PAGE_MACHINES(g_object_new(BT_TYPE_MAIN_PAGE_MACHINES,"app",app,NULL));
+  bt_main_page_machines_init_ui(self,pages);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods

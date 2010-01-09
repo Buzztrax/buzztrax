@@ -429,9 +429,6 @@ static void bt_wire_canvas_item_get_property(GObject *object, guint property_id,
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
   return_if_disposed();
   switch (property_id) {
-    case WIRE_CANVAS_ITEM_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
     case WIRE_CANVAS_ITEM_MACHINES_PAGE: {
       g_value_set_object(value, self->priv->main_page_machines);
     } break;
@@ -824,7 +821,7 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_MACHINES_PAGE,
                                   g_param_spec_object("machines-page",

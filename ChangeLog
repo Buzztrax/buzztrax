@@ -1,5 +1,45 @@
 2010-01-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/interaction-controller-menu.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/playback-controller-socket.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-directories.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	* src/ui/edit/settings-page-playback-controller.c:
+	* src/ui/edit/tip-dialog.c:
+	* src/ui/edit/ui-resources.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  _new() never fail - removed if statements. Alse make 'app' more often
+	  write-only and remove getter.
+
+2010-01-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/cmd/cmd-application.c:
 	  Remove getter, there is no other class that might want to read the
 	  property back.

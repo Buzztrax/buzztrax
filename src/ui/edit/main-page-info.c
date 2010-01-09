@@ -320,7 +320,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 //-- helper methods
 
-static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPages *pages) {
+static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPages *pages) {
   GtkWidget *label,*frame,*box;
   GtkWidget *table;
   GtkWidget *scrolledwindow;
@@ -479,7 +479,6 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   GST_DEBUG("  done");
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -491,22 +490,14 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPageInfo *self;
 
-  if(!(self=BT_MAIN_PAGE_INFO(g_object_new(BT_TYPE_MAIN_PAGE_INFO,"app",app,"spacing",6,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_main_page_info_init_ui(self,pages)) {
-    goto Error;
-  }
+  self=BT_MAIN_PAGE_INFO(g_object_new(BT_TYPE_MAIN_PAGE_INFO,"app",app,"spacing",6,NULL));
+  bt_main_page_info_init_ui(self,pages);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
@@ -514,19 +505,6 @@ Error:
 //-- wrapper
 
 //-- class internals
-
-static void bt_main_page_info_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_PAGE_INFO_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
 
 static void bt_main_page_info_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
@@ -579,7 +557,6 @@ static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
   g_type_class_add_private(klass,sizeof(BtMainPageInfoPrivate));
 
   gobject_class->set_property = bt_main_page_info_set_property;
-  gobject_class->get_property = bt_main_page_info_get_property;
   gobject_class->dispose      = bt_main_page_info_dispose;
   gobject_class->finalize     = bt_main_page_info_finalize;
 
@@ -588,7 +565,7 @@ static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_page_info_get_type(void) {

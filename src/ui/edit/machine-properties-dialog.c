@@ -1834,7 +1834,7 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
 }
 
 
-static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
+static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
   BtMainWindow *main_window;
   BtSong *song;
   BtSetup *setup;
@@ -1999,7 +1999,6 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   g_object_unref(song);
   g_object_unref(main_window);
   g_object_unref(settings);
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -2011,26 +2010,18 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance
  */
 BtMachinePropertiesDialog *bt_machine_properties_dialog_new(const BtEditApplication *app,const BtMachine *machine) {
   BtMachinePropertiesDialog *self;
 
-  if(!(self=BT_MACHINE_PROPERTIES_DIALOG(g_object_new(BT_TYPE_MACHINE_PROPERTIES_DIALOG,"app",app,"machine",machine,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_machine_properties_dialog_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_MACHINE_PROPERTIES_DIALOG(g_object_new(BT_TYPE_MACHINE_PROPERTIES_DIALOG,"app",app,"machine",machine,NULL));
+  bt_machine_properties_dialog_init_ui(self);
   gtk_widget_show_all(GTK_WIDGET(self));
   if(self->priv->preset_box) {
     gtk_widget_set_no_show_all(self->priv->preset_box,FALSE);
   }
   return(self);
-Error:
-  gtk_widget_destroy(GTK_WIDGET(self));
-  return(NULL);
 }
 
 //-- methods

@@ -113,7 +113,7 @@ static void on_voices_changed(GtkSpinButton *spinbutton,gpointer user_data) {
 }
 //-- helper methods
 
-static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog *self) {
+static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog *self) {
   GtkWidget *box,*label,*widget,*table;
   GtkAdjustment *spin_adjustment;
   gchar *title,*length_str;
@@ -197,8 +197,6 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   }
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   GST_INFO("dialog done");
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -210,22 +208,14 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance
  */
 BtPatternPropertiesDialog *bt_pattern_properties_dialog_new(const BtEditApplication *app,const BtPattern *pattern) {
   BtPatternPropertiesDialog *self;
 
-  if(!(self=BT_PATTERN_PROPERTIES_DIALOG(g_object_new(BT_TYPE_PATTERN_PROPERTIES_DIALOG,"app",app,"pattern",pattern,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_pattern_properties_dialog_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_PATTERN_PROPERTIES_DIALOG(g_object_new(BT_TYPE_PATTERN_PROPERTIES_DIALOG,"app",app,"pattern",pattern,NULL));
+  bt_pattern_properties_dialog_init_ui(self);
   return(self);
-Error:
-  gtk_widget_destroy(GTK_WIDGET(self));
-  return(NULL);
 }
 
 //-- methods

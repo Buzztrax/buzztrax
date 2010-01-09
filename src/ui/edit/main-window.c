@@ -275,7 +275,7 @@ static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer us
 
 //-- helper methods
 
-static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
+static void bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
   GdkPixbuf *window_icon;
 
@@ -332,8 +332,6 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   */
 
   GST_INFO("signal connected, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -344,7 +342,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   BtMainWindow *self;
@@ -363,14 +361,9 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
     NULL);
   g_object_unref(settings);
 
-  if(!(self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,"type",GTK_WINDOW_TOPLEVEL,NULL)))) {
-    goto Error;
-  }
+  self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,"type",GTK_WINDOW_TOPLEVEL,NULL));
   GST_INFO("new main_window created, app->ref_ct=%d",G_OBJECT(app)->ref_count);
-  // generate UI
-  if(!bt_main_window_init_ui(self)) {
-    goto Error;
-  }
+  bt_main_window_init_ui(self);
   GST_INFO("new main_window layouted, app->ref_ct=%d",G_OBJECT(app)->ref_count);
 
   // this enforces a minimum size
@@ -402,10 +395,6 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
 
   GST_INFO("new main_window shown");
   return(self);
-Error:
-  GST_WARNING("new main_window failed");
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
@@ -1014,9 +1003,6 @@ static void bt_main_window_get_property(GObject *object, guint property_id, GVal
   BtMainWindow *self = BT_MAIN_WINDOW(object);
   return_if_disposed();
   switch (property_id) {
-    case MAIN_WINDOW_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
     case MAIN_WINDOW_TOOLBAR: {
       g_value_set_object(value, self->priv->toolbar);
     } break;
@@ -1100,7 +1086,7 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
                                      "app construct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_WINDOW_TOOLBAR,
                                   g_param_spec_object("toolbar",

@@ -93,18 +93,13 @@ static void bt_sequence_view_invalidate(const BtSequenceView *self, gdouble old_
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtSequenceView *bt_sequence_view_new(const BtEditApplication *app) {
   BtSequenceView *self;
 
-  if(!(self=BT_SEQUENCE_VIEW(g_object_new(BT_TYPE_SEQUENCE_VIEW,"app",app,NULL)))) {
-    goto Error;
-  }
+  self=BT_SEQUENCE_VIEW(g_object_new(BT_TYPE_SEQUENCE_VIEW,"app",app,NULL));
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
@@ -222,19 +217,6 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
   return(FALSE);
 }
 
-static void bt_sequence_view_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtSequenceView *self = BT_SEQUENCE_VIEW(object);
-  return_if_disposed();
-  switch (property_id) {
-    case SEQUENCE_VIEW_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_sequence_view_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(object);
 
@@ -320,7 +302,6 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
   g_type_class_add_private(klass,sizeof(BtSequenceViewPrivate));
 
   gobject_class->set_property = bt_sequence_view_set_property;
-  gobject_class->get_property = bt_sequence_view_get_property;
   gobject_class->dispose      = bt_sequence_view_dispose;
   gobject_class->finalize     = bt_sequence_view_finalize;
 
@@ -334,7 +315,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_VIEW_PLAY_POSITION,
                                   g_param_spec_double("play-position",

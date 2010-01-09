@@ -61,7 +61,7 @@ static void on_about_dialog_url_clicked(GtkAboutDialog *about, const gchar *link
 
 //-- helper methods
 
-static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
+static void bt_about_dialog_init_ui(const BtAboutDialog *self) {
   GtkWidget *news,*news_view;
   const gchar *authors[] = {
     "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
@@ -149,8 +149,6 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
   gtk_box_pack_start(GTK_BOX(GTK_DIALOG(self)->vbox), news_view, TRUE, TRUE, 0);
 
   gtk_dialog_set_has_separator(GTK_DIALOG(self), TRUE);
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -161,22 +159,14 @@ static gboolean bt_about_dialog_init_ui(const BtAboutDialog *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtAboutDialog *bt_about_dialog_new(const BtEditApplication *app) {
   BtAboutDialog *self;
 
-  if(!(self=BT_ABOUT_DIALOG(g_object_new(BT_TYPE_ABOUT_DIALOG,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_about_dialog_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_ABOUT_DIALOG(g_object_new(BT_TYPE_ABOUT_DIALOG,"app",app,NULL));
+  bt_about_dialog_init_ui(self);
   return(self);
-Error:
-  gtk_widget_destroy(GTK_WIDGET(self));
-  return(NULL);
 }
 
 //-- methods

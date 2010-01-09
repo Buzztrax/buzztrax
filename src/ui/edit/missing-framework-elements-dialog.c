@@ -222,20 +222,17 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case there is nothing new to show
  */
 BtMissingFrameworkElementsDialog *bt_missing_framework_elements_dialog_new(const BtEditApplication *app,GList *core_elements,GList *edit_elements) {
   BtMissingFrameworkElementsDialog *self;
 
-  if(!(self=BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(g_object_new(BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG,"app",app,"core-elements",core_elements,"edit-elements",edit_elements,NULL)))) {
-    goto Error;
-  }
-  // generate UI
+  self=BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(g_object_new(BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG,"app",app,"core-elements",core_elements,"edit-elements",edit_elements,NULL));
   if(!bt_missing_framework_elements_dialog_init_ui(self)) {
-    goto Error;
+    goto EmptyLists;
   }
   return(self);
-Error:
+EmptyLists:
   gtk_widget_destroy(GTK_WIDGET(self));
   return(NULL);
 }

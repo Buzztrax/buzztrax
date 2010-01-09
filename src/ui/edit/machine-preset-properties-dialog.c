@@ -111,7 +111,7 @@ static void on_comment_changed(GtkEditable *editable,gpointer user_data) {
 
 //-- helper methods
 
-static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPropertiesDialog *self) {
+static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPropertiesDialog *self) {
   GtkWidget *label,*widget,*table;
   //GdkPixbuf *window_icon=NULL;
   GList *buttons;
@@ -169,8 +169,6 @@ static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePrese
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_comment_changed), (gpointer)self);
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),table);
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -184,22 +182,14 @@ static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePrese
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance
  */
 BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(const BtEditApplication *app,GstElement *machine,gchar **name,gchar **comment) {
   BtMachinePresetPropertiesDialog *self;
 
-  if(!(self=BT_MACHINE_PRESET_PROPERTIES_DIALOG(g_object_new(BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG,"app",app,"machine",machine,"name",name,"comment",comment,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_machine_preset_properties_dialog_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_MACHINE_PRESET_PROPERTIES_DIALOG(g_object_new(BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG,"app",app,"machine",machine,"name",name,"comment",comment,NULL));
+  bt_machine_preset_properties_dialog_init_ui(self);
   return(self);
-Error:
-  gtk_widget_destroy(GTK_WIDGET(self));
-  return(NULL);
 }
 
 //-- methods

@@ -2259,7 +2259,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 
 //-- helper methods
 
-static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const BtMainPages *pages) {
+static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const BtMainPages *pages) {
   GtkWidget *toolbar,*tool_item,*box;
   GtkWidget *scrolled_window;
   GtkWidget *menu_item,*image;
@@ -2521,7 +2521,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   g_object_unref(settings);
 
   GST_DEBUG("  done");
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -2533,22 +2532,14 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPagePatterns *self;
 
-  if(!(self=BT_MAIN_PAGE_PATTERNS(g_object_new(BT_TYPE_MAIN_PAGE_PATTERNS,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_main_page_patterns_init_ui(self,pages)) {
-    goto Error;
-  }
+  self=BT_MAIN_PAGE_PATTERNS(g_object_new(BT_TYPE_MAIN_PAGE_PATTERNS,"app",app,NULL));
+  bt_main_page_patterns_init_ui(self,pages);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
@@ -2940,19 +2931,6 @@ void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
 
 //-- class internals
 
-static void bt_main_page_patterns_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_PAGE_PATTERNS_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_main_page_patterns_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
   return_if_disposed();
@@ -3032,7 +3010,6 @@ static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
   g_type_class_add_private(klass,sizeof(BtMainPagePatternsPrivate));
 
   gobject_class->set_property = bt_main_page_patterns_set_property;
-  gobject_class->get_property = bt_main_page_patterns_get_property;
   gobject_class->dispose      = bt_main_page_patterns_dispose;
   gobject_class->finalize     = bt_main_page_patterns_finalize;
 
@@ -3041,7 +3018,7 @@ static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_page_patterns_get_type(void) {

@@ -561,18 +561,13 @@ static void settings_listen(BtPlaybackControllerSocket *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtPlaybackControllerSocket *bt_playback_controller_socket_new(const BtEditApplication *app) {
   BtPlaybackControllerSocket *self;
 
-  if(!(self=BT_PLAYBACK_CONTROLLER_SOCKET(g_object_new(BT_TYPE_PLAYBACK_CONTROLLER_SOCKET,"app",app,NULL)))) {
-    goto Error;
-  }
+  self=BT_PLAYBACK_CONTROLLER_SOCKET(g_object_new(BT_TYPE_PLAYBACK_CONTROLLER_SOCKET,"app",app,NULL));
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
@@ -580,19 +575,6 @@ Error:
 //-- wrapper
 
 //-- class internals
-
-static void bt_playback_controller_socket_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(object);
-  return_if_disposed();
-  switch (property_id) {
-    case SETTINGS_DIALOG_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
 
 static void bt_playback_controller_socket_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(object);
@@ -660,7 +642,6 @@ static void bt_playback_controller_socket_class_init(BtPlaybackControllerSocketC
   g_type_class_add_private(klass,sizeof(BtPlaybackControllerSocketPrivate));
 
   gobject_class->set_property = bt_playback_controller_socket_set_property;
-  gobject_class->get_property = bt_playback_controller_socket_get_property;
   gobject_class->dispose      = bt_playback_controller_socket_dispose;
   gobject_class->finalize     = bt_playback_controller_socket_finalize;
 
@@ -669,7 +650,7 @@ static void bt_playback_controller_socket_class_init(BtPlaybackControllerSocketC
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
 }
 

@@ -691,7 +691,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 
 //-- helper methods
 
-static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
+static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   BtSettings *settings;
   GtkWidget *tool_item;
   GtkWidget *box;
@@ -812,8 +812,6 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
   g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
   g_object_unref(settings);
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -824,41 +822,20 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtMainToolbar *bt_main_toolbar_new(const BtEditApplication *app) {
   BtMainToolbar *self;
 
-  if(!(self=BT_MAIN_TOOLBAR(g_object_new(BT_TYPE_MAIN_TOOLBAR,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_main_toolbar_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_MAIN_TOOLBAR(g_object_new(BT_TYPE_MAIN_TOOLBAR,"app",app,NULL));
+  bt_main_toolbar_init_ui(self);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
 
 
 //-- class internals
-
-static void bt_main_toolbar_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_TOOLBAR_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
 
 static void bt_main_toolbar_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
@@ -939,7 +916,6 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
   g_type_class_add_private(klass,sizeof(BtMainToolbarPrivate));
 
   gobject_class->set_property = bt_main_toolbar_set_property;
-  gobject_class->get_property = bt_main_toolbar_get_property;
   gobject_class->dispose      = bt_main_toolbar_dispose;
   gobject_class->finalize     = bt_main_toolbar_finalize;
 
@@ -948,7 +924,7 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
                                      "app construct prop",
                                      "Set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
 }
 

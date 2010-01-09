@@ -132,7 +132,7 @@ static void on_settings_list_size_request(GtkWidget *widget,GtkRequisition *requ
 
 //-- helper methods
 
-static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
+static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   GtkWidget *box,*scrolled_window,*page;
   GtkCellRenderer *renderer;
   GtkListStore *store;
@@ -281,7 +281,6 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
    */
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -292,22 +291,14 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtSettingsDialog *bt_settings_dialog_new(const BtEditApplication *app) {
   BtSettingsDialog *self;
 
-  if(!(self=BT_SETTINGS_DIALOG(g_object_new(BT_TYPE_SETTINGS_DIALOG,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_settings_dialog_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_SETTINGS_DIALOG(g_object_new(BT_TYPE_SETTINGS_DIALOG,"app",app,NULL));
+  bt_settings_dialog_init_ui(self);
   return(self);
-Error:
-  gtk_widget_destroy(GTK_WIDGET(self));
-  return(NULL);
 }
 
 //-- methods
@@ -320,9 +311,6 @@ static void bt_settings_dialog_get_property(GObject *object, guint property_id, 
   BtSettingsDialog *self = BT_SETTINGS_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case SETTINGS_DIALOG_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
     case SETTINGS_DIALOG_PAGE: {
       g_value_set_enum(value, self->priv->page);
     } break;
@@ -407,7 +395,7 @@ static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SETTINGS_DIALOG_PAGE,
                                   g_param_spec_enum("page",

@@ -1013,7 +1013,7 @@ static void on_wavelevels_list_row_activated(GtkTreeView *tree_view,GtkTreePath 
 
 //-- helper methods
 
-static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainPages *pages) {
+static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainPages *pages) {
   BtSettings *settings;
   GtkWidget *vpaned,*hpaned,*box,*box2,*table;
   GtkWidget *tool_item;
@@ -1230,7 +1230,6 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   g_object_unref(settings);
 
   GST_DEBUG("  done");
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -1242,29 +1241,24 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance
  */
 BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPageWaves *self;
   GstBus *bus;
 
-  if(!(self=BT_MAIN_PAGE_WAVES(g_object_new(BT_TYPE_MAIN_PAGE_WAVES,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_main_page_waves_init_ui(self,pages)) {
-    goto Error;
-  }
+  self=BT_MAIN_PAGE_WAVES(g_object_new(BT_TYPE_MAIN_PAGE_WAVES,"app",app,NULL));
+  bt_main_page_waves_init_ui(self,pages);
+  
   // create playbin
+  // @todo: playbin2?
   self->priv->playbin=gst_element_factory_make("playbin",NULL);
   bus=gst_element_get_bus(self->priv->playbin);
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
   g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_playbin_state_changed), (gpointer)self);
   gst_object_unref(bus);
+  
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
@@ -1272,19 +1266,6 @@ Error:
 //-- wrapper
 
 //-- class internals
-
-static void bt_main_page_waves_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_PAGE_WAVES_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
 
 static void bt_main_page_waves_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(object);
@@ -1364,7 +1345,6 @@ static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {
   g_type_class_add_private(klass,sizeof(BtMainPageWavesPrivate));
 
   gobject_class->set_property = bt_main_page_waves_set_property;
-  gobject_class->get_property = bt_main_page_waves_get_property;
   gobject_class->dispose      = bt_main_page_waves_dispose;
   gobject_class->finalize     = bt_main_page_waves_finalize;
 
@@ -1373,7 +1353,7 @@ static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_page_waves_get_type(void) {

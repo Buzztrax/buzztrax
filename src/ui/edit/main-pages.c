@@ -158,7 +158,7 @@ static void bt_main_pages_init_tab(const BtMainPages *self,guint index,gchar *st
   gtk_widget_set_tooltip_text(event_box,tip);
 }
 
-static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
+static void bt_main_pages_init_ui(const BtMainPages *self) {
   gtk_widget_set_name(GTK_WIDGET(self),"song views");
 
   GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
@@ -197,7 +197,6 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   g_signal_connect(G_OBJECT(self), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   GST_DEBUG("  done");
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -208,22 +207,14 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtMainPages *bt_main_pages_new(const BtEditApplication *app) {
   BtMainPages *self;
 
-  if(!(self=BT_MAIN_PAGES(g_object_new(BT_TYPE_MAIN_PAGES,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_main_pages_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_MAIN_PAGES(g_object_new(BT_TYPE_MAIN_PAGES,"app",app,NULL));
+  bt_main_pages_init_ui(self);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
@@ -236,9 +227,6 @@ static void bt_main_pages_get_property(GObject *object, guint property_id, GValu
   BtMainPages *self = BT_MAIN_PAGES(object);
   return_if_disposed();
   switch (property_id) {
-    case MAIN_PAGES_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
     case MAIN_PAGES_MACHINES_PAGE: {
       g_value_set_object(value, self->priv->machines_page);
     } break;
@@ -320,7 +308,7 @@ static void bt_main_pages_class_init(BtMainPagesClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGES_MACHINES_PAGE,
                                   g_param_spec_object("machines-page",

@@ -95,10 +95,9 @@ static void make_listview(GtkWidget *vbox,GList *missing_elements,const gchar *m
   gtk_box_pack_start(GTK_BOX(vbox),missing_list_view,TRUE,TRUE,0);
 }
 
-static gboolean bt_missing_song_elements_dialog_init_ui(const BtMissingSongElementsDialog *self) {
+static void bt_missing_song_elements_dialog_init_ui(const BtMissingSongElementsDialog *self) {
   GtkWidget *label,*icon,*hbox,*vbox;
   gchar *str;
-  gboolean res=TRUE;
   //GdkPixbuf *window_icon=NULL;
 
   gtk_widget_set_name(GTK_WIDGET(self),"Missing elements in song");
@@ -144,8 +143,6 @@ static gboolean bt_missing_song_elements_dialog_init_ui(const BtMissingSongEleme
   }
   gtk_container_add(GTK_CONTAINER(hbox),vbox);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),hbox);
-
-  return(res);
 }
 
 //-- constructor methods
@@ -158,22 +155,14 @@ static gboolean bt_missing_song_elements_dialog_init_ui(const BtMissingSongEleme
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance
  */
 BtMissingSongElementsDialog *bt_missing_song_elements_dialog_new(const BtEditApplication *app,GList *machines,GList *waves) {
   BtMissingSongElementsDialog *self;
 
-  if(!(self=BT_MISSING_SONG_ELEMENTS_DIALOG(g_object_new(BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG,"app",app,"machines",machines,"waves",waves,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_missing_song_elements_dialog_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_MISSING_SONG_ELEMENTS_DIALOG(g_object_new(BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG,"app",app,"machines",machines,"waves",waves,NULL));
+  bt_missing_song_elements_dialog_init_ui(self);
   return(self);
-Error:
-  gtk_widget_destroy(GTK_WIDGET(self));
-  return(NULL);
 }
 
 //-- methods

@@ -118,7 +118,7 @@ static gboolean bt_render_progress_record(const BtRenderProgress *self, BtSong *
 }
 
 
-static gboolean bt_render_progress_init_ui(const BtRenderProgress *self) {
+static void bt_render_progress_init_ui(const BtRenderProgress *self) {
   GtkWidget *box;
 
   gtk_widget_set_name(GTK_WIDGET(self),"song render progress");
@@ -143,8 +143,6 @@ static gboolean bt_render_progress_init_ui(const BtRenderProgress *self) {
 
   self->priv->track_progress=GTK_PROGRESS_BAR(gtk_progress_bar_new());
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->track_progress),FALSE,FALSE,0);
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -156,22 +154,14 @@ static gboolean bt_render_progress_init_ui(const BtRenderProgress *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtRenderProgress *bt_render_progress_new(const BtEditApplication *app,BtRenderDialog *settings) {
   BtRenderProgress *self;
 
-  if(!(self=BT_RENDER_PROGRESS(g_object_new(BT_TYPE_RENDER_PROGRESS,"app",app,"settings",settings,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_render_progress_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_RENDER_PROGRESS(g_object_new(BT_TYPE_RENDER_PROGRESS,"app",app,"settings",settings,NULL));
+  bt_render_progress_init_ui(self);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods

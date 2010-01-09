@@ -201,7 +201,7 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
   g_object_unref(ic_registry);
 }
 
-static gboolean bt_interaction_controller_menu_init_ui(const BtInteractionControllerMenu *self) {
+static void bt_interaction_controller_menu_init_ui(const BtInteractionControllerMenu *self) {
   GtkWidget *menu_item,*submenu,*image;
 
   gtk_widget_set_name(GTK_WIDGET(self),"interaction controller menu");
@@ -229,8 +229,6 @@ static gboolean bt_interaction_controller_menu_init_ui(const BtInteractionContro
   image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -242,22 +240,14 @@ static gboolean bt_interaction_controller_menu_init_ui(const BtInteractionContro
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtInteractionControllerMenu *bt_interaction_controller_menu_new(const BtEditApplication *app,BtInteractionControllerMenuType type) {
   BtInteractionControllerMenu *self;
 
-  if(!(self=BT_INTERACTION_CONTROLLER_MENU(g_object_new(BT_TYPE_INTERACTION_CONTROLLER_MENU,"app",app,"type",type,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_interaction_controller_menu_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_INTERACTION_CONTROLLER_MENU(g_object_new(BT_TYPE_INTERACTION_CONTROLLER_MENU,"app",app,"type",type,NULL));
+  bt_interaction_controller_menu_init_ui(self);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods

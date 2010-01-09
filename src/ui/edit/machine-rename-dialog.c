@@ -89,7 +89,7 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
 
 //-- helper methods
 
-static gboolean bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *self) {
+static void bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *self) {
   GtkWidget *box,*label,*widget,*table;
   gchar *title;
   //GdkPixbuf *window_icon=NULL;
@@ -147,10 +147,6 @@ static gboolean bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *se
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
-
-  GST_INFO("dialog done");
-
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -162,22 +158,14 @@ static gboolean bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *se
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance
  */
 BtMachineRenameDialog *bt_machine_rename_dialog_new(const BtEditApplication *app,const BtMachine *machine) {
   BtMachineRenameDialog *self;
 
-  if(!(self=BT_MACHINE_RENAME_DIALOG(g_object_new(BT_TYPE_MACHINE_RENAME_DIALOG,"app",app,"machine",machine,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_machine_rename_dialog_init_ui(self)) {
-    goto Error;
-  }
+  self=BT_MACHINE_RENAME_DIALOG(g_object_new(BT_TYPE_MACHINE_RENAME_DIALOG,"app",app,"machine",machine,NULL));
+  bt_machine_rename_dialog_init_ui(self);
   return(self);
-Error:
-  gtk_widget_destroy(GTK_WIDGET(self));
-  return(NULL);
 }
 
 //-- methods

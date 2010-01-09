@@ -2810,7 +2810,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 
 //-- helper methods
 
-static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const BtMainPages *pages) {
+static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const BtMainPages *pages) {
   GtkWidget *toolbar;
   GtkWidget *split_box,*box,*vbox,*tool_item;
   GtkWidget *scrolled_window,*scrolled_vsync_window,*scrolled_hsync_window;
@@ -3092,7 +3092,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   g_object_unref(settings);
 
   GST_DEBUG("  done");
-  return(TRUE);
 }
 
 //-- constructor methods
@@ -3104,22 +3103,14 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPageSequence *self;
 
-  if(!(self=BT_MAIN_PAGE_SEQUENCE(g_object_new(BT_TYPE_MAIN_PAGE_SEQUENCE,"app",app,NULL)))) {
-    goto Error;
-  }
-  // generate UI
-  if(!bt_main_page_sequence_init_ui(self,pages)) {
-    goto Error;
-  }
+  self=BT_MAIN_PAGE_SEQUENCE(g_object_new(BT_TYPE_MAIN_PAGE_SEQUENCE,"app",app,NULL));
+  bt_main_page_sequence_init_ui(self,pages);
   return(self);
-Error:
-  if(self) gtk_object_destroy(GTK_OBJECT(self));
-  return(NULL);
 }
 
 //-- methods
@@ -3456,9 +3447,6 @@ static void bt_main_page_sequence_get_property(GObject *object, guint property_i
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
   return_if_disposed();
   switch (property_id) {
-    case MAIN_PAGE_SEQUENCE_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
     case MAIN_PAGE_SEQUENCE_CURSOR_ROW: {
       g_value_set_long(value, self->priv->cursor_row);
     } break;
@@ -3587,7 +3575,7 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGE_SEQUENCE_CURSOR_ROW,
                                   g_param_spec_long("cursor-row",
