@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
   //-- initialize gnome-vfs
   if (!gnome_vfs_init ()) {
     GST_WARNING("gnome vfs failed to initialize");
-    goto Error;
+    goto Done;
   }
 #endif
 
@@ -180,7 +180,9 @@ int main(int argc, char **argv) {
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_object_unref(app);
 
-//Done:
+#if !GTK_CHECK_VERSION(2,14,0)
+Done:
+#endif
   g_free(command);
   g_free(input_file_name);
   g_option_context_free(ctx);

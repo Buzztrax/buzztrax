@@ -1,3 +1,11 @@
+2010-01-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/bt-edit.c:
+	  Fix the build for old gtk version.
+
+	* src/ui/edit/edit-application.c:
+	  Get rid of goto Error.
+
 2010-01-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/about-dialog.c:

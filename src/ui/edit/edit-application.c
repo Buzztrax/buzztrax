@@ -671,25 +671,22 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
   }
 }
 
-static GObject* bt_edit_application_construct (GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
+static GObject* bt_edit_application_construct(GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
   BtEditApplication *self;
   
   //GST_DEBUG("<<<");
   self = BT_EDIT_APPLICATION (G_OBJECT_CLASS (parent_class)->constructor (type, n_construct_params, construct_params));
   GST_INFO("new edit app instantiated");
   // create or ref the shared ui ressources
-  if(!(self->priv->ui_resources=bt_ui_resources_new())) {
-    goto Error;
-  }
+  self->priv->ui_resources=bt_ui_resources_new();
   // create the playback controller
   self->priv->pb_controller=bt_playback_controller_socket_new(self);
   // create the interaction controller registry
   self->priv->ic_registry=btic_registry_new();
   // create main window
   GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
-  if(!(self->priv->main_window=bt_main_window_new(self))) {
-    goto Error;
-  }
+  self->priv->main_window=bt_main_window_new(self);
+
   // warning: dereferencing type-punned pointer will break strict-aliasing rules
   g_object_add_weak_pointer(G_OBJECT(self->priv->main_window),(gpointer*)(gpointer)&self->priv->main_window);
 #ifdef USE_HILDON
@@ -699,10 +696,6 @@ static GObject* bt_edit_application_construct (GType type, guint n_construct_par
   GST_INFO("new edit app window created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
   //GST_DEBUG(">>>");
   return(G_OBJECT(self));
-Error:
-  g_object_try_unref(self);
-  //GST_DEBUG(">>>");
-  return NULL;
 }
 
 
