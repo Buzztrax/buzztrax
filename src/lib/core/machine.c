@@ -550,7 +550,6 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
       gst_element_unlink_many(peer,machines[part_position],machines[post],NULL);
       GST_WARNING("failed to link part '%s' before '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[post]));
       // try to re-wire
-      //if((res=gst_element_link(machines[part_position],machines[post]))) {
       if((res=gst_element_link_pads(machines[part_position],src_pad_name[part_position],machines[post],sink_pad_name[post]))) {
         if((wire=(self->dst_wires?(BtWire*)(self->dst_wires->data):NULL))) {
           if(!(res=bt_wire_reconnect(wire))) {
@@ -573,7 +572,6 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
       gst_element_unlink_many(machines[pre],machines[part_position],peer,NULL);
       GST_WARNING("failed to link part '%s' after '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[pre]));
       // try to re-wire
-      //if((res=gst_element_link(machines[pre],machines[part_position]))) {
       if((res=gst_element_link_pads(machines[pre],src_pad_name[pre],machines[part_position],sink_pad_name[part_position]))) {
         if((wire=(self->src_wires?(BtWire*)(self->src_wires->data):NULL))) {
           if(!(res=bt_wire_reconnect(wire))) {

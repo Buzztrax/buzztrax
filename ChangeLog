@@ -1,6 +1,16 @@
 2010-01-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	  Remove code that is commented out.
+
+	* src/lib/core/wave.c:
+	  Add todo.
+	  
+
+2010-01-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
 	* src/lib/core/sink-bin.c:
 	  Turn some gst_element_{link,unlink} into gst_element_{link,unlink}_pads.
 

@@ -169,8 +169,9 @@ static void wave_loader_free(const BtWave *self) {
 }
 
 static void on_wave_loader_new_pad(GstElement *bin,GstPad *pad,gboolean islast,gpointer user_data) {
+  // @todo: if we pass the pad in user_data we can use gst_pad_link()
   if(!gst_element_link(bin,GST_ELEMENT(user_data))) {
-    GST_WARNING("Can't link output of wave decoder.");
+    GST_WARNING("Can't link output of wave decoder to converter.");
   }
 }
 

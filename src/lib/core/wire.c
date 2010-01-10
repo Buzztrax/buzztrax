@@ -302,10 +302,9 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
     if(!(gst_element_sync_state_with_parent(next))) {
       GST_INFO("cannot sync state for elements \"%s\"",GST_OBJECT_NAME(next));
     }
-  }  
+  }
   GST_INFO("linking to tee");
   if(GST_PAD_LINK_FAILED(gst_pad_link(tee_src,analyzer_sink))) {
-  //if(!(res=gst_element_link(self->priv->machines[PART_TEE],GST_ELEMENT(self->priv->analyzers->data)))) {
     GST_INFO("cannot link analyzers to tee");
   }
   if(is_playing)
