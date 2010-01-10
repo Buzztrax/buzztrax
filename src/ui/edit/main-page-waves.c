@@ -644,8 +644,6 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   BtWave *wave;
 
-  g_assert(user_data);
-
   GST_DEBUG("waves list cursor changed");
   wave=waves_list_get_current(self);
   wavelevels_list_refresh(self,wave);
@@ -716,20 +714,16 @@ static void on_volume_changed(GtkRange *range,gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   BtWave *wave;
 
-  g_assert(user_data);
-
   if((wave=waves_list_get_current(self))) {
     gdouble volume=gtk_range_get_value(range);
     g_object_set(wave,"volume",volume,NULL);
     g_object_unref(wave);
-  }  
+  }
 }
 
 static void on_loop_mode_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   BtWave *wave;
-
-  g_assert(user_data);
 
   if((wave=waves_list_get_current(self))) {
     BtWaveLoopMode loop_mode=gtk_combo_box_get_active(self->priv->loop_mode);
@@ -743,8 +737,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   BtSong *song;
   BtWave *wave;
-
-  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song

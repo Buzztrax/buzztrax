@@ -70,7 +70,6 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   const gchar *name=gtk_entry_get_text(GTK_ENTRY(editable));
   gboolean unique=FALSE;
 
-  g_assert(user_data);
   GST_DEBUG("change name");
   // assure uniqueness of the entered data
   if(*name) {
@@ -96,7 +95,6 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
 static void on_length_changed(GtkEditable *editable,gpointer user_data) {
   BtPatternPropertiesDialog *self=BT_PATTERN_PROPERTIES_DIALOG(user_data);
 
-  g_assert(user_data);
   // update field
   self->priv->length=atol(gtk_entry_get_text(GTK_ENTRY(editable)));
   //g_object_set(G_OBJECT(self->priv->pattern),"length",atol(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
@@ -104,8 +102,6 @@ static void on_length_changed(GtkEditable *editable,gpointer user_data) {
 
 static void on_voices_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtPatternPropertiesDialog *self=BT_PATTERN_PROPERTIES_DIALOG(user_data);
-
-  g_assert(user_data);
 
   // update field
   self->priv->voices=gtk_spin_button_get_value_as_int(spinbutton);

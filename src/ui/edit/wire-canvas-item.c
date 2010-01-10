@@ -221,8 +221,6 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
 static void on_wire_analysis_dialog_destroy(GtkWidget *widget, gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
 
-  g_assert(user_data);
-
   GST_INFO("wire analysis dialog destroy occurred");
   self->priv->analysis_dialog=NULL;
   // remember open/closed state
@@ -233,7 +231,6 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   BtMachine *src,*dst;
 
-  g_assert(user_data);
   g_return_if_fail(BT_IS_MACHINE(machine));
 
   g_object_get(self->priv->src,"machine",&src,NULL);
@@ -289,7 +286,6 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
   BtSong *song;
   BtSetup *setup;
 
-  g_assert(user_data);
   GST_INFO("context_menu disconnect item selected");
 
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -306,7 +302,6 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
 static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
 
-  g_assert(user_data);
   GST_INFO("context_menu analysis item selected");
   if(!self->priv->analysis_dialog) {
     if((self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->app,self->priv->wire)))) {

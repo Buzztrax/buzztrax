@@ -105,7 +105,6 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   gulong pos,msec,sec,min;
   GstClockTime bar_time;
 
-  g_assert(user_data);
   GST_DEBUG("tick update");
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
@@ -145,8 +144,6 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   gboolean is_playing;
   gulong play_start;
-
-  g_assert(user_data);
 
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,"play-pos",&play_start,NULL);
   self->priv->total_time=G_GINT64_CONSTANT(0);
@@ -200,8 +197,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSongInfo *song_info;
   BtSequence *sequence;
 
-  g_assert(user_data);
-
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -231,9 +226,7 @@ static gboolean on_cpu_load_update(gpointer user_data) {
   guint cpu_load=bt_cpu_load_get_current();
   gchar str[strlen("CPU: 000 %") + 3];
 
-  g_assert(user_data);
-
-  // @todo: we nned to handle multi core cpus and divide by num-cores  
+  // @todo: we might need to handle multi core cpus and divide by num-cores
   // http://lxr.linux.no/linux/include/linux/cpumask.h
   if(cpu_load>100.0) cpu_load=100.0;
 

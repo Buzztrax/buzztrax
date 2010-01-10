@@ -72,8 +72,6 @@ static void on_range_property_notify(const GstElement *machine,GParamSpec *prope
   GtkWidget *widget=GTK_WIDGET(user_data);
   gdouble value;
 
-  g_assert(user_data);
-
   //GST_INFO("preferences value notify received for: '%s'",property->name);
 
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
@@ -86,8 +84,6 @@ static void on_double_entry_property_notify(const GstElement *machine,GParamSpec
   GtkWidget *widget=GTK_WIDGET(user_data);
   gdouble value;
   gchar *str_value;
-
-  g_assert(user_data);
 
   //GST_INFO("preferences value notify received for: '%s'",property->name);
 
@@ -105,8 +101,6 @@ static void on_combobox_property_notify(const GstElement *machine,GParamSpec *pr
   GtkTreeModel *store;
   GtkTreeIter iter;
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(machine),property->name,&nvalue,NULL);
   store=gtk_combo_box_get_model(GTK_COMBO_BOX(widget));
   gtk_tree_model_get_iter_first(store,&iter);
@@ -123,8 +117,6 @@ static void on_range_property_changed(GtkRange *range,gpointer user_data) {
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
   BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
 
-  g_assert(user_data);
-
   //GST_INFO("preferences value change received for: '%s'",name);
   g_object_set(machine,name,gtk_range_get_value(range),NULL);
   mark_song_as_changed(self);
@@ -135,8 +127,6 @@ static void on_double_entry_property_changed(GtkEditable *editable,gpointer user
   gdouble value;
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(editable));
   BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(g_object_get_qdata(G_OBJECT(editable),widget_parent_quark));
-
-  g_assert(user_data);
 
   //GST_INFO("preferences value change received for: '%s'",name);
   value=g_ascii_strtod(gtk_entry_get_text(GTK_ENTRY(editable)),NULL);
@@ -149,8 +139,6 @@ static void on_spinbutton_property_changed(GtkSpinButton *spinbutton,gpointer us
   gint value;
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(spinbutton));
   BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(g_object_get_qdata(G_OBJECT(spinbutton),widget_parent_quark));
-
-  g_assert(user_data);
 
   GST_INFO("preferences value change received for: '%s'",name);
   value=gtk_spin_button_get_value_as_int(spinbutton);
@@ -165,8 +153,6 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
   BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(g_object_get_qdata(G_OBJECT(combobox),widget_parent_quark));
   GtkTreeModel *store;
   GtkTreeIter iter;
-
-  g_assert(user_data);
 
   GST_INFO("preferences value change received for: '%s'",name);
   //value=gtk_combo_box_get_active(combobox);

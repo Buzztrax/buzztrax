@@ -81,7 +81,6 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
 
   GST_INFO("preset text changed: '%s'",name);
 
-  g_assert(user_data);
   // assure validity & uniquness of the entered data
   if(!(*name))
     // empty box
@@ -104,7 +103,6 @@ static void on_comment_changed(GtkEditable *editable,gpointer user_data) {
 
   GST_INFO("preset comment changed");
 
-  g_assert(user_data);
   g_free(self->priv->comment);
   self->priv->comment=g_strdup(comment);
 }

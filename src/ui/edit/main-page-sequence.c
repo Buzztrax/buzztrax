@@ -843,6 +843,7 @@ static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer u
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
 
+  // @todo: use gst_structure_get_name_id
   if(!strcmp(name,"level")) {
     BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
     GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
@@ -1890,8 +1891,6 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   gulong sequence_length,pos;
   GtkTreePath *path;
 
-  g_assert(user_data);
-
   // calculate fractional pos and set into sequence-viewer
   g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
   g_object_get(G_OBJECT(self->priv->sequence),"length",&sequence_length,NULL);
@@ -1927,8 +1926,6 @@ static void reset_level_meter(gpointer key, gpointer value, gpointer user_data) 
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
   // stop all level meters
   if(!self->priv->is_playing) {
@@ -1940,8 +1937,6 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   GtkTreeModel *store;
   GtkTreeIter iter;
-
-  g_assert(user_data);
 
   GST_INFO("bars_menu has changed : page=%p",user_data);
 
@@ -1975,8 +1970,6 @@ static void on_label_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   GtkTreeModel *store;
   GtkTreeIter iter;
-
-  g_assert(user_data);
 
   GST_INFO("bars_menu has changed : page=%p",user_data);
 
@@ -2083,7 +2076,6 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   gboolean res=FALSE;
   gulong row,track;
 
-  g_assert(user_data);
   if(!GTK_WIDGET_REALIZED(self->priv->sequence_table)) return(FALSE);
 
   GST_INFO("sequence_table key key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
@@ -2478,8 +2470,6 @@ static gboolean on_sequence_header_button_press_event(GtkWidget *widget,GdkEvent
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   gboolean res=FALSE;
 
-  g_assert(user_data);
-
   GST_INFO("sequence_header button_press : button 0x%x, type 0x%d",event->button,event->type);
   if(event->button==3) {
     gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
@@ -2491,8 +2481,6 @@ static gboolean on_sequence_header_button_press_event(GtkWidget *widget,GdkEvent
 static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   gboolean res=FALSE;
-
-  g_assert(user_data);
 
   GST_INFO("sequence_table button_press : button 0x%x, type 0x%d",event->button,event->type);
   if(event->button==1) {
@@ -2557,8 +2545,6 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
 static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEventMotion *event,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   gboolean res=FALSE;
-
-  g_assert(user_data);
 
   // only activate in button_press ?
   if(event->state&GDK_BUTTON1_MASK) {
@@ -2660,8 +2646,6 @@ static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScrol
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
-  g_assert(user_data);
-
   GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
   machine_menu_refresh(self,setup);
   if(BT_IS_SOURCE_MACHINE(machine)) {
@@ -2674,7 +2658,6 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
 
-  g_assert(user_data);
   g_return_if_fail(BT_IS_MACHINE(machine));
 
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
@@ -2698,8 +2681,6 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
 
-  g_assert(user_data);
-
   GST_INFO("pattern has been added/removed");
   // reinit the list
   pattern_list_refresh(self);
@@ -2715,8 +2696,6 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
 static void on_song_info_bars_changed(const BtSongInfo *song_info,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   glong bars;
-
-  g_assert(user_data);
 
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   // this also recolors the sequence
@@ -2734,8 +2713,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   glong loop_start_pos,loop_end_pos;
   gulong sequence_length;
   gdouble loop_start,loop_end;
-
-  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song

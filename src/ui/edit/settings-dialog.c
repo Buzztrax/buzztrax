@@ -95,8 +95,6 @@ void on_settings_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
   GtkTreeModel     *model;
   GtkTreeIter       iter;
 
-  g_assert(user_data);
-
   GST_INFO("settings list cursor changed");
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->settings_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {

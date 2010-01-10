@@ -387,8 +387,6 @@ static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condit
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
 
   if(self->priv->is_playing && self->priv->seek) {
@@ -404,8 +402,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSong *song;
   BtSinkMachine *master;
   gulong msec,sec,min;
-
-  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
 

@@ -72,8 +72,6 @@ static void on_device_menu_changed(GtkComboBox *combo_box, gpointer user_data) {
   gchar *str;
   GtkTreeIter iter;
 
-  g_assert(user_data);
-
   GST_INFO("interaction controller device changed");
   model=gtk_combo_box_get_model(self->priv->device_menu);
   if(gtk_combo_box_get_active_iter(self->priv->device_menu,&iter)) {

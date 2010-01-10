@@ -57,8 +57,6 @@ static void on_audiosink_menu_changed(GtkComboBox *combo_box, gpointer user_data
   BtSettings *settings;
   gulong index;
 
-  g_assert(user_data);
-
   index=gtk_combo_box_get_active(self->priv->audiosink_menu);
   GST_INFO("audiosink changed : index=%lu",index);
 
@@ -77,8 +75,6 @@ static void on_samplerate_menu_changed(GtkComboBox *combo_box, gpointer user_dat
   BtSettings *settings;
   gulong index,rate;
 
-  g_assert(user_data);
-
   index=gtk_combo_box_get_active(self->priv->samplerate_menu);
   rate=atoi(gtk_combo_box_get_active_text(self->priv->samplerate_menu));
   GST_INFO("sample-rate changed : index=%lu, rate=%lu",index,rate);
@@ -92,8 +88,6 @@ static void on_channels_menu_changed(GtkComboBox *combo_box, gpointer user_data)
   BtSettingsPageAudiodevices *self=BT_SETTINGS_PAGE_AUDIODEVICES(user_data);
   BtSettings *settings;
   gulong index;
-
-  g_assert(user_data);
 
   index=gtk_combo_box_get_active(self->priv->channels_menu);
   GST_INFO("channels changed : index=%lu",index);

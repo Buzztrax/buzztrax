@@ -100,8 +100,6 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   BtSong *song;
   BtSongInfo *song_info;
 
-  g_assert(user_data);
-
   GST_INFO("name changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -117,8 +115,6 @@ static void on_genre_changed(GtkEditable *editable,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   BtSong *song;
   BtSongInfo *song_info;
-
-  g_assert(user_data);
 
   GST_INFO("genre changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
   // get song from app
@@ -136,8 +132,6 @@ static void on_author_changed(GtkEditable *editable,gpointer user_data) {
   BtSong *song;
   BtSongInfo *song_info;
 
-  g_assert(user_data);
-
   GST_INFO("author changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -153,8 +147,6 @@ static void on_bpm_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   BtSong *song;
   BtSongInfo *song_info;
-
-  g_assert(user_data);
 
   GST_INFO("bpm changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
   // get song from app
@@ -172,8 +164,6 @@ static void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtSong *song;
   BtSongInfo *song_info;
   gulong tpb,beats,bars;
-
-  g_assert(user_data);
 
   GST_INFO("tpb changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
   // get song from app
@@ -194,8 +184,6 @@ static void on_beats_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtSong *song;
   BtSongInfo *song_info;
   gulong tpb,beats;
-
-  g_assert(user_data);
 
   GST_INFO("beats changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
   // get song from app
@@ -251,8 +239,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   gchar *name,*genre,*author,*create_dts,*change_dts;
   gulong bpm,tpb,bars;
   gchar *info;
-
-  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app

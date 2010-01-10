@@ -122,8 +122,6 @@ static gboolean on_song_playback_update(gpointer user_data) {
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
   if(!self->priv->is_playing) {
     gint i;
@@ -173,8 +171,6 @@ static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtMainWindow *main_window;
 
-  g_assert(user_data);
-
   GST_INFO("toolbar new event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
@@ -184,8 +180,6 @@ static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
 static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtMainWindow *main_window;
-
-  g_assert(user_data);
 
   GST_INFO("toolbar open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
@@ -197,8 +191,6 @@ static void on_toolbar_save_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtMainWindow *main_window;
 
-  g_assert(user_data);
-
   GST_INFO("toolbar open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_save_song(main_window);
@@ -207,8 +199,6 @@ static void on_toolbar_save_clicked(GtkButton *button, gpointer user_data) {
 
 static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-
-  g_assert(user_data);
 
   if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button))) {
     BtSong *song;
@@ -231,8 +221,6 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtSong *song;
 
-  g_assert(user_data);
-
   GST_INFO("toolbar stop event occurred");
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -247,8 +235,6 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   BtSong *song;
   BtSequence *sequence;
   gboolean loop;
-
-  g_assert(user_data);
 
   loop=gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button));
   GST_INFO("toolbar loop toggle event occurred, new-state=%d",loop);
@@ -376,6 +362,7 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
 
+  // @todo: use gst_structure_get_name_id
   if(!strcmp(name,"level")) {
     BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
     GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
@@ -455,7 +442,6 @@ static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gdouble nvalue,ovalue;
 
-  g_assert(user_data);
   g_assert(self->priv->gain);
   g_assert(self->priv->volume);
 
@@ -527,7 +513,6 @@ static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer u
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gdouble nvalue,ovalue;
 
-  g_assert(user_data);
   g_assert(self->priv->gain);
   g_assert(self->priv->volume);
 
@@ -550,8 +535,6 @@ static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer u
 
 static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
   GstCaps *caps;
-
-  g_assert(user_data);
 
   if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
     BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
@@ -579,8 +562,6 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gboolean unsaved;
 
-  g_assert(user_data);
-
   GST_INFO("song.unsaved has changed : song=%p, toolbar=%p",song,user_data);
 
   g_object_get(G_OBJECT(song),"unsaved",&unsaved,NULL);
@@ -590,8 +571,6 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
 static void on_sequence_loop_notify(const BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gboolean loop;
-
-  g_assert(user_data);
 
   g_object_get(G_OBJECT(sequence),"loop",&loop,NULL);
   g_signal_handlers_block_matched(self->priv->loop_button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_toolbar_loop_toggled,(gpointer)self);
@@ -605,8 +584,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSequence *sequence;
   GstBin *bin;
   //gboolean loop;
-
-  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
 

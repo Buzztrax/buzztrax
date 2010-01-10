@@ -72,9 +72,6 @@ static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer u
   BtMainStatusbar *statusbar;
   gchar *str;
 
-  g_assert(BT_IS_SONG_IO(songio));
-  g_assert(user_data);
-
   /* @idea: bind properties */
   g_object_get(self->priv->main_window,"statusbar",&statusbar,NULL);
   g_object_get(songio,"status",&str,NULL);

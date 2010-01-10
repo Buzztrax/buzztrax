@@ -416,7 +416,6 @@ static gboolean on_song_paused_timeout(gpointer user_data) {
 static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
-  g_assert(user_data);
   //GST_INFO("user_data=%p,<%s>, bin=%p, msg->src=%p,<%s>",
   //  user_data, G_OBJECT_TYPE_NAME(G_OBJECT(user_data)),
   //  self->priv->bin,GST_MESSAGE_SRC(message),G_OBJECT_TYPE_NAME(GST_MESSAGE_SRC(message)));
@@ -473,8 +472,6 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
 
 static void on_song_async_done(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
-
-  g_assert(user_data);
   
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GST_INFO("async state-change done");
@@ -484,8 +481,6 @@ static void on_song_async_done(const GstBus * const bus, GstMessage *message, gc
 
 static void on_song_clock_lost (const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
-
-  g_assert(user_data);
   
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GST_INFO("clock·lost!·PAUSE·and·PLAY·to·select·a·new·clock");

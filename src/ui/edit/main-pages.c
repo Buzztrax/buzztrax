@@ -73,8 +73,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GHashTable *properties;
   gchar *prop;
 
-  g_assert(user_data);
-
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -104,8 +102,6 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
   BtSetup *setup;
   GHashTable *properties;
   gchar *prop;
-
-  g_assert(user_data);
 
   GST_INFO("page has switched : self=%p, page=%d",self,page_num);
   // get objects

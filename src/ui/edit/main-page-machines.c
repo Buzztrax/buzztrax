@@ -424,7 +424,6 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   GHashTable *properties;
 
-  g_assert(user_data);
   GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
 
   g_object_get(machine,"properties",&properties,NULL);
@@ -465,8 +464,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSong *song;
   BtSetup *setup;
 
-  g_assert(user_data);
-
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -505,8 +502,6 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   gdouble /*pg_xs,pg_x,pg_xe,pg_xd,*/pg_xl;
   gdouble /*pg_ys,pg_y,pg_ye,pg_yd,*/pg_yl;
   gdouble old_zoom=self->priv->zoom;
-
-  g_assert(user_data);
 
   //calculate bounds
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -578,8 +573,6 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
 static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
 
-  g_assert(user_data);
-
   self->priv->zoom*=1.5;
   GST_INFO("toolbar zoom_in event occurred : %lf",self->priv->zoom);
   
@@ -593,8 +586,6 @@ static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
 
 static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-
-  g_assert(user_data);
 
   self->priv->zoom/=1.5;
   GST_INFO("toolbar zoom_out event occurred : %lf",self->priv->zoom);
@@ -621,7 +612,6 @@ static void on_toolbar_grid_density_off_activated(GtkMenuItem *menuitem, gpointe
 
   if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
 
-  g_assert(user_data);
   self->priv->grid_density=0;
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
@@ -637,7 +627,6 @@ static void on_toolbar_grid_density_low_activated(GtkMenuItem *menuitem, gpointe
 
   if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
 
-  g_assert(user_data);
   self->priv->grid_density=1;
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
@@ -653,7 +642,6 @@ static void on_toolbar_grid_density_mid_activated(GtkMenuItem *menuitem, gpointe
 
   if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
 
-  g_assert(user_data);
   self->priv->grid_density=2;
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
@@ -669,7 +657,6 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
 
   if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
 
-  g_assert(user_data);
   self->priv->grid_density=3;
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
@@ -763,7 +750,6 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
   //if(!GTK_WIDGET_REALIZED(canvas)) return(res);
   //GST_INFO("canvas event received: type=%d", event->type);
 
-  g_assert(user_data);
   switch(event->type) {
     case GDK_BUTTON_PRESS:
       /*

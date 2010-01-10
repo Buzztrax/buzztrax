@@ -492,7 +492,6 @@ static void on_double_range_property_notify(const GstElement *machine,GParamSpec
   BtNotifyIdleData *data;
   //BtMachinePropertiesDialog *self=g_object_get_qdata(G_OBJECT(user_data),widget_parent_quark);
 
-  g_assert(user_data);
   MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data);
   //if (!self->priv->double_notify_source_id)
   //  self->priv->double_notify_source_id=
@@ -506,7 +505,6 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
   gdouble value=gtk_range_get_value(range);
 
-  g_assert(user_data);
   //GST_INFO("property value change received : %lf",value);
 
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
@@ -549,7 +547,6 @@ static gboolean on_float_range_property_notify_idle(gpointer _data) {
 static void on_float_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   BtNotifyIdleData *data;
 
-  g_assert(user_data);
   MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data);
   g_idle_add(on_float_range_property_notify_idle,(gpointer)data);
 }
@@ -561,7 +558,6 @@ static void on_float_range_property_changed(GtkRange *range,gpointer user_data) 
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
   gfloat value=gtk_range_get_value(range);
 
-  g_assert(user_data);
   //GST_INFO("property value change received : %f",value);
 
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_notify,(gpointer)range);
@@ -607,7 +603,6 @@ static gboolean on_int_range_property_notify_idle(gpointer _data) {
 static void on_int_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   BtNotifyIdleData *data;
 
-  g_assert(user_data);
   MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data);
   g_idle_add(on_int_range_property_notify_idle,(gpointer)data);
 }
@@ -619,7 +614,6 @@ static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
   gdouble value=gtk_range_get_value(range);
 
-  g_assert(user_data);
   //GST_INFO("property value change received");
 
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
@@ -665,7 +659,6 @@ static gboolean on_uint_range_property_notify_idle(gpointer _data) {
 static void on_uint_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   BtNotifyIdleData *data;
 
-  g_assert(user_data);
   MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data);
   g_idle_add(on_uint_range_property_notify_idle,(gpointer)data);
 }
@@ -677,7 +670,6 @@ static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
   gdouble value=gtk_range_get_value(range);
 
-  g_assert(user_data);
   GST_INFO("property value change received");
 
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_notify,(gpointer)range);
@@ -720,7 +712,6 @@ static gboolean on_combobox_property_notify_idle(gpointer _data) {
 static void on_combobox_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   BtNotifyIdleData *data;
 
-  g_assert(user_data);
   MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data);
   g_idle_add(on_combobox_property_notify_idle,(gpointer)data);
 }
@@ -733,7 +724,6 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
   GtkTreeIter iter;
   gint value;
 
-  g_assert(user_data);
   //GST_INFO("property value change received");
 
   //value=gtk_combo_box_get_active(combobox);
@@ -773,7 +763,6 @@ static gboolean on_checkbox_property_notify_idle(gpointer _data) {
 static void on_checkbox_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   BtNotifyIdleData *data;
 
-  g_assert(user_data);
   MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data);
   g_idle_add(on_checkbox_property_notify_idle,(gpointer)data);
 }
@@ -784,7 +773,6 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(togglebutton),widget_parent_quark));
   gboolean value;
 
-  g_assert(user_data);
   //GST_INFO("property value change received");
 
   value=gtk_toggle_button_get_active(togglebutton);
@@ -800,8 +788,6 @@ static void on_toolbar_help_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   GstElement *machine;
 
-  g_assert(user_data);
-
   // show help for machine
   g_object_get(self->priv->machine,"machine",&machine,NULL);
   bt_machine_action_help(GTK_WIDGET(self),machine);
@@ -812,8 +798,6 @@ static void on_toolbar_about_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   BtMainWindow *main_window;
   GstElement *machine;
-
-  g_assert(user_data);
 
   GST_INFO("context_menu about event occurred");
   // show info about machine
@@ -838,8 +822,6 @@ static void on_toolbar_reset_clicked(GtkButton *button,gpointer user_data) {
 
 static void on_toolbar_show_hide_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-
-  g_assert(user_data);
 
   if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button))) {
     GST_DEBUG("win: %d,%d, box: %d,%d",

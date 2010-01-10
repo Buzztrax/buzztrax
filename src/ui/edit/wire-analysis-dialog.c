@@ -333,9 +333,8 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
 
-  g_assert(user_data);
-
-  if((!strcmp(name,"level")) || (!strcmp(name,"spectrum"))) {  
+  // @todo: use gst_structure_get_name_id
+  if((!strcmp(name,"level")) || (!strcmp(name,"spectrum"))) {
     GstElement *meter=GST_ELEMENT(GST_MESSAGE_SRC(message));
     
     if((meter==self->priv->analyzers[ANALYZER_LEVEL]) ||

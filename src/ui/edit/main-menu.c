@@ -67,8 +67,6 @@ static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
 
-  g_assert(user_data);
-
   GST_INFO("menu new event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
@@ -78,8 +76,6 @@ static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
 static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
-
-  g_assert(user_data);
 
   GST_INFO("menu open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
@@ -120,8 +116,6 @@ static void on_menu_save_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
 
-  g_assert(user_data);
-
   GST_INFO("menu save event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_save_song(main_window);
@@ -132,8 +126,6 @@ static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
 
-  g_assert(user_data);
-
   GST_INFO("menu saveas event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_save_song_as(main_window);
@@ -143,8 +135,6 @@ static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
 static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   GtkWidget *settings,*progress;
-
-  g_assert(user_data);
 
   GST_INFO("menu render event occurred");
   if((settings=GTK_WIDGET(bt_render_dialog_new(self->priv->app)))) {
@@ -178,8 +168,6 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   // @todo: this should have the code from main-window.c:on_window_delete_event
   // and on_window_delete_event() should trigger this
 
-  g_assert(user_data);
-
   GST_INFO("menu quit event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_signal_emit_by_name(G_OBJECT(main_window),"delete_event",(gpointer)main_window,&cont);
@@ -194,8 +182,6 @@ static void on_menu_cut_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
   BtMainPages *pages;
-
-  g_assert(user_data);
 
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
@@ -235,8 +221,6 @@ static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_assert(user_data);
-  
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 
@@ -275,8 +259,6 @@ static void on_menu_paste_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_assert(user_data);
-  
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 
@@ -315,8 +297,6 @@ static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_assert(user_data);
-  
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 
@@ -354,8 +334,6 @@ static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) 
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   GtkWidget *dialog;
 
-  g_assert(user_data);
-
   GST_INFO("menu settings event occurred");
   if((dialog=GTK_WIDGET(bt_settings_dialog_new(self->priv->app)))) {
     BtMainWindow *main_window;
@@ -377,8 +355,6 @@ static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_dat
   BtSettings *settings;
   gboolean shown;
 
-  g_assert(user_data);
-
   GST_INFO("menu 'view toolbar' event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
   g_object_get(G_OBJECT(main_window),"toolbar",&toolbar,NULL);
@@ -399,8 +375,6 @@ static void on_menu_view_statusbar_toggled(GtkMenuItem *menuitem,gpointer user_d
   BtSettings *settings;
   gboolean shown;
 
-  g_assert(user_data);
-
   GST_INFO("menu 'view toolbar' event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
   g_object_get(G_OBJECT(main_window),"statusbar",&statusbar,NULL);
@@ -420,8 +394,6 @@ static void on_menu_view_tabs_toggled(GtkMenuItem *menuitem,gpointer user_data) 
   BtMainPages *pages;
   BtSettings *settings;
   gboolean shown;
-
-  g_assert(user_data);
 
   GST_INFO("menu 'view tabs' event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
@@ -463,8 +435,6 @@ static void on_menu_goto_machine_view_activate(GtkMenuItem *menuitem,gpointer us
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 
@@ -478,8 +448,6 @@ static void on_menu_goto_pattern_view_activate(GtkMenuItem *menuitem,gpointer us
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
   BtMainPages *pages;
-
-  g_assert(user_data);
 
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
@@ -495,8 +463,6 @@ static void on_menu_goto_sequence_view_activate(GtkMenuItem *menuitem,gpointer u
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 
@@ -511,8 +477,6 @@ static void on_menu_goto_waves_view_activate(GtkMenuItem *menuitem,gpointer user
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 
@@ -526,8 +490,6 @@ static void on_menu_goto_info_view_activate(GtkMenuItem *menuitem,gpointer user_
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
   BtMainPages *pages;
-
-  g_assert(user_data);
 
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
@@ -595,8 +557,6 @@ static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GError *error=NULL;
 #endif
 
-  //g_assert(user_data);
-
   GST_INFO("menu help event occurred");
   
   // use "ghelp:buzztard-edit?topic" for context specific help
@@ -613,15 +573,11 @@ static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
 static void on_menu_help_show_tip(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 
-  g_assert(user_data);
-
   bt_edit_application_show_tip(self->priv->app);
 }
 
 static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-
-  g_assert(user_data);
 
   bt_edit_application_show_about(self->priv->app);
 }
@@ -630,7 +586,6 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
 static void on_menu_debug_show_media_types_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 
-  g_assert(user_data);
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
     self->priv->debug_graph_details|=GST_DEBUG_GRAPH_SHOW_MEDIA_TYPE;
   else
@@ -640,7 +595,6 @@ static void on_menu_debug_show_media_types_toggled(GtkMenuItem *menuitem,gpointe
 static void on_menu_debug_show_caps_details_types_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 
-  g_assert(user_data);
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
     self->priv->debug_graph_details|=GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS;
   else
@@ -650,7 +604,6 @@ static void on_menu_debug_show_caps_details_types_toggled(GtkMenuItem *menuitem,
 static void on_menu_debug_show_non_default_params_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 
-  g_assert(user_data);
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
     self->priv->debug_graph_details|=GST_DEBUG_GRAPH_SHOW_NON_DEFAULT_PARAMS;
   else
@@ -660,7 +613,6 @@ static void on_menu_debug_show_non_default_params_toggled(GtkMenuItem *menuitem,
 static void on_menu_debug_show_states_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 
-  g_assert(user_data);
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
     self->priv->debug_graph_details|=GST_DEBUG_GRAPH_SHOW_STATES;
   else
@@ -670,7 +622,6 @@ static void on_menu_debug_show_states_toggled(GtkMenuItem *menuitem,gpointer use
 static void on_menu_debug_use_svg_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 
-  g_assert(user_data);
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
     self->priv->debug_graph_format="svg";
 }
@@ -678,7 +629,6 @@ static void on_menu_debug_use_svg_toggled(GtkMenuItem *menuitem,gpointer user_da
 static void on_menu_debug_use_png_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 
-  g_assert(user_data);
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)))
     self->priv->debug_graph_format="png";
 }
@@ -761,8 +711,6 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   gboolean unsaved;
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(song),"unsaved",&unsaved,NULL);
   gtk_widget_set_sensitive(self->priv->save_item,unsaved);
 
@@ -772,8 +720,6 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtSong *song;
-
-  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
 

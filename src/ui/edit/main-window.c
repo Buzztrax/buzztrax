@@ -162,8 +162,6 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   gboolean res=TRUE;
 
-  g_assert(user_data);
-
   GST_INFO("delete event occurred");
   // returning TRUE means, we don't want the window to be destroyed
   if(bt_main_window_check_quit(self)) {
@@ -200,8 +198,6 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   BtSongInfo *song_info;
   gboolean unsaved;
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(song),"song-info",&song_info,"unsaved",&unsaved,NULL);
   // compose title
   g_object_get(G_OBJECT(song_info),"name",&name,NULL);
@@ -219,8 +215,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   BtSong *song;
 
-  g_assert(user_data);
-
   GST_INFO("song has changed : app=%p, window=%p",app,user_data);
 
   // get song from app
@@ -237,8 +231,6 @@ static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gi
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   glong i=0;
   gchar *ptr=(gchar *)selection_data->data;
-
-  g_assert(user_data);
 
   GST_INFO("something has been dropped on our app: window=%p data='%s'",user_data,selection_data->data);
   // find first \0 or \n or \r

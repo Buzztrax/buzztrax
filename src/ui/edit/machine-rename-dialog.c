@@ -66,7 +66,6 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   const gchar *name=gtk_entry_get_text(GTK_ENTRY(editable));
   gboolean unique=FALSE;
 
-  g_assert(user_data);
   GST_DEBUG("change name");
   // assure uniqueness of the entered data
   if(*name) {

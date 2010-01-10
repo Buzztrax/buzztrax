@@ -375,7 +375,6 @@ static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpoint
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   BtMachineState state;
   
-  g_assert(user_data);
   g_object_get(machine,"state",&state,NULL);
   GST_INFO(" new state is %d",state);
   
@@ -459,8 +458,6 @@ static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpoint
 static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
-  g_assert(user_data);
-
   GST_INFO("machine properties dialog destroy occurred");
   self->priv->properties_dialog=NULL;
   // remember open/closed state
@@ -470,8 +467,6 @@ static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer use
 static void on_machine_preferences_dialog_destroy(GtkWidget *widget, gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
-  g_assert(user_data);
-
   GST_INFO("machine preferences dialog destroy occurred");
   self->priv->preferences_dialog=NULL;
 }
@@ -479,7 +474,6 @@ static void on_machine_preferences_dialog_destroy(GtkWidget *widget, gpointer us
 static void on_context_menu_mute_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
-  g_assert(user_data);
   GST_INFO("context_menu mute toggled");
 
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
@@ -493,7 +487,6 @@ static void on_context_menu_mute_toggled(GtkMenuItem *menuitem,gpointer user_dat
 static void on_context_menu_solo_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
-  g_assert(user_data);
   GST_INFO("context_menu solo toggled");
 
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
@@ -507,7 +500,6 @@ static void on_context_menu_solo_toggled(GtkMenuItem *menuitem,gpointer user_dat
 static void on_context_menu_bypass_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
-  g_assert(user_data);
   GST_INFO("context_menu bypass toggled");
 
   if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
@@ -521,15 +513,11 @@ static void on_context_menu_bypass_toggled(GtkMenuItem *menuitem,gpointer user_d
 static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
-  g_assert(user_data);
-  
   show_machine_properties_dialog(self);
 }
 
 static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-
-  g_assert(user_data);
 
   if(!self->priv->preferences_dialog) {
     if((self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->app,self->priv->machine)))) {
@@ -545,7 +533,6 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   GtkWidget *dialog;
 
-  g_assert(user_data);
   GST_INFO("context_menu rename event occurred");
 
   if((dialog=GTK_WIDGET(bt_machine_rename_dialog_new(self->priv->app,self->priv->machine)))) {
@@ -574,7 +561,6 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   gboolean has_patterns,is_connected,remove=FALSE;
   //BtWire *wire1,*wire2;
 
-  g_assert(user_data);
   GST_INFO("context_menu delete event occurred for machine : %p",self->priv->machine);
 
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"song",&song,NULL);
@@ -631,8 +617,6 @@ static void on_context_menu_help_activate(GtkMenuItem *menuitem,gpointer user_da
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   GstElement *machine;
 
-  g_assert(user_data);
-
   // show help for machine
   g_object_get(self->priv->machine,"machine",&machine,NULL);
   bt_machine_action_help(GTK_WIDGET(self->priv->main_page_machines),machine);
@@ -643,8 +627,6 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   BtMainWindow *main_window;
   GstElement *machine;
-
-  g_assert(user_data);
 
   GST_INFO("context_menu about event occurred");
   // show info about machine

@@ -463,8 +463,6 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
   GtkTreeIter iter;
   gchar *str;
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(machine),"id",&str,NULL);
   GST_INFO("machine id changed to \"%s\"",str);
 
@@ -481,8 +479,6 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   GtkTreeModel *store;
   GtkTreeIter iter;
   gchar *str;
-
-  g_assert(user_data);
 
   g_object_get(G_OBJECT(pattern),"name",&str,NULL);
   GST_INFO("pattern name changed to \"%s\"",str);
@@ -501,7 +497,6 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
   //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
 
-  g_assert(user_data);
   if(!GTK_WIDGET_REALIZED(self->priv->pattern_table)) return(FALSE);
 
   GST_INFO("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
@@ -964,8 +959,6 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   gboolean res=FALSE;
-
-  g_assert(user_data);
 
   GST_INFO("pattern_table button_press : button 0x%x, type 0x%d",event->button,event->type);
   if(event->button==3) {
@@ -1817,7 +1810,6 @@ static void on_pattern_size_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
 static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
-  g_assert(user_data);
   // refresh pattern view
   change_current_pattern(self,bt_main_page_patterns_get_current_pattern(self));
   GST_INFO("ref'ed new pattern: %p,refs=%d",
@@ -1829,16 +1821,12 @@ static void on_wavetable_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   guint wave_ix;
 
-  g_assert(user_data);
-
   wave_ix=gtk_combo_box_get_active(self->priv->wavetable_menu);
 }
 */
 
 static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-
-  g_assert(user_data);
 
   self->priv->base_octave=gtk_combo_box_get_active(self->priv->base_octave_menu);
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,NULL);
@@ -1847,8 +1835,6 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
 static void on_play_live_toggled(GtkButton *button, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtSong *song;
-
-  g_assert(user_data);
 
   self->priv->play_live=gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button));
 
@@ -1867,8 +1853,6 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeModel *store;
   gint index;
-
-  g_assert(user_data);
 
   GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
   
@@ -1893,7 +1877,6 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   GtkTreeIter iter;
   gint index;
 
-  g_assert(user_data);
   g_return_if_fail(BT_IS_MACHINE(machine));
 
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
@@ -1935,7 +1918,6 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMachine *machine;
 
-  g_assert(user_data);
   GST_INFO("machine_menu changed");
   if((machine=bt_main_page_patterns_get_current_machine(self))) {
     GST_INFO("refreshing menues for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
@@ -2010,8 +1992,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSetup *setup;
   BtWavetable *wavetable;
 
-  g_assert(user_data);
-
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -2043,8 +2023,6 @@ static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer us
   BtMachine *machine;
   gint voices;
 
-  g_assert(user_data);
-
   machine=bt_main_page_patterns_get_current_machine(self);
   g_return_if_fail(machine);
   g_object_get(machine,"voices",&voices,NULL);
@@ -2057,15 +2035,12 @@ static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer us
   context_menu_refresh(self,machine);
 
   g_object_unref(machine);
-  g_assert(user_data);
 }
 
 static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMachine *machine;
   gint voices;
-
-  g_assert(user_data);
 
   machine=bt_main_page_patterns_get_current_machine(self);
   g_return_if_fail(machine);
@@ -2079,7 +2054,6 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
   context_menu_refresh(self,machine);
 
   g_object_unref(machine);
-  g_assert(user_data);
 }
 
 static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -2088,8 +2062,6 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
   BtMachine *machine;
   BtPattern *pattern;
   GtkWidget *dialog;
-
-  g_assert(user_data);
 
   machine=bt_main_page_patterns_get_current_machine(self);
   g_return_if_fail(machine);
@@ -2129,8 +2101,6 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
   BtPattern *pattern;
   GtkWidget *dialog;
 
-  g_assert(user_data);
-
   pattern=bt_main_page_patterns_get_current_pattern(self);
   g_return_if_fail(pattern);
 
@@ -2159,8 +2129,6 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
   BtSequence *sequence;
   gchar *msg=NULL,*id;
   gboolean is_used,remove=FALSE;
-
-  g_assert(user_data);
 
   pattern=bt_main_page_patterns_get_current_pattern(self);
   g_return_if_fail(pattern);
@@ -2203,8 +2171,6 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
   BtMachine *machine;
   BtPattern *pattern,*pattern_new;
   GtkWidget *dialog;
-
-  g_assert(user_data);
 
   machine=bt_main_page_patterns_get_current_machine(self);
   g_return_if_fail(machine);

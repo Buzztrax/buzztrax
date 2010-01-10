@@ -779,8 +779,6 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
 static void on_audio_sink_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
   BtSinkBin *self = BT_SINK_BIN(user_data);
 
-  g_assert(user_data);
-
   GST_INFO("audio-sink has changed");
   gchar * const plugin_name=bt_sink_bin_determine_plugin_name(self);
   GST_INFO("  -> '%s'",plugin_name);
@@ -800,8 +798,6 @@ static void on_audio_sink_changed(const BtSettings * const settings, GParamSpec 
 static void on_system_audio_sink_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
   BtSinkBin *self = BT_SINK_BIN(user_data);
 
-  g_assert(user_data);
-
   GST_INFO("system audio-sink has changed");
   gchar * const plugin_name=bt_sink_bin_determine_plugin_name(self);
   gchar *sink_name;
@@ -820,8 +816,6 @@ static void on_system_audio_sink_changed(const BtSettings * const settings, GPar
 static void on_sample_rate_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
   BtSinkBin *self = BT_SINK_BIN(user_data);
 
-  g_assert(user_data);
-
   GST_INFO("sample-rate has changed");
   g_object_get(G_OBJECT(settings),"sample-rate",&self->priv->sample_rate,NULL);
   bt_sink_bin_format_update(self);
@@ -829,8 +823,6 @@ static void on_sample_rate_changed(const BtSettings * const settings, GParamSpec
 
 static void on_channels_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
   BtSinkBin *self = BT_SINK_BIN(user_data);
-
-  g_assert(user_data);
 
   GST_INFO("channels have changed");
   g_object_get(G_OBJECT(settings),"channels",&self->priv->channels,NULL);

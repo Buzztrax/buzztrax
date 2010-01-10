@@ -58,7 +58,6 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
   gchar *name,*id;
   GError *err=NULL;
 
-  g_assert(user_data);
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
   id=(gchar*)gtk_label_get_text(GTK_LABEL((GTK_BIN(menuitem)->child)));
   GST_DEBUG("adding source machine \"%s\" : \"%s\"",name,id);
@@ -92,7 +91,6 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
   gchar *name,*id;
   GError *err=NULL;
 
-  g_assert(user_data);
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
   id=(gchar*)gtk_label_get_text(GTK_LABEL((GTK_BIN(menuitem)->child)));
   GST_DEBUG("adding processor machine \"%s\"",name);

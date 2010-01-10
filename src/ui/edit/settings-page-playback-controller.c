@@ -60,8 +60,6 @@ static void on_activate_toggled(GtkToggleButton *togglebutton, gpointer user_dat
   gboolean active=gtk_toggle_button_get_active(togglebutton);
   gboolean active_setting;
 
-  g_assert(user_data);
-
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active_setting,NULL);
   GST_INFO("upnp active changes from %d -> %d",active_setting,active);
@@ -75,8 +73,6 @@ static void on_activate_toggled(GtkToggleButton *togglebutton, gpointer user_dat
 static void on_port_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtSettingsPagePlaybackController *self=BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER(user_data);
   BtSettings *settings;
-
-  g_assert(user_data);
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_set(G_OBJECT(settings),"coherence-upnp-port",gtk_spin_button_get_value_as_int(spinbutton),NULL);
