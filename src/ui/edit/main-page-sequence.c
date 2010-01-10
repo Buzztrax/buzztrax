@@ -158,6 +158,8 @@ struct _BtMainPageSequencePrivate {
 
 static GtkVBoxClass *parent_class=NULL;
 
+static GQuark bus_msg_level_quark=0;
+
 static GdkAtom sequence_atom;
 
 /* internal data model fields */
@@ -841,10 +843,9 @@ static gboolean on_delayed_track_level_change(GstClock *clock,GstClockTime time,
 
 static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
-  const gchar *name = gst_structure_get_name(structure);
+  const GQuark name_id=gst_structure_get_name_id(structure);
 
-  // @todo: use gst_structure_get_name_id
-  if(!strcmp(name,"level")) {
+  if(name_id==bus_msg_level_quark) {
     BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
     GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
     
@@ -3538,6 +3539,7 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   column_index_quark=g_quark_from_static_string("BtMainPageSequence::column-index");
+  bus_msg_level_quark=g_quark_from_static_string("level");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageSequencePrivate));

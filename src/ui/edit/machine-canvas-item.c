@@ -140,6 +140,8 @@ static guint signals[LAST_SIGNAL]={0,};
 
 static GnomeCanvasGroupClass *parent_class=NULL;
 
+static GQuark bus_msg_level_quark=0;
+
 //-- prototypes
 
 static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer user_data);
@@ -310,9 +312,9 @@ static gboolean on_delayed_machine_level_change(GstClock *clock,GstClockTime tim
 
 static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
-  const gchar *name = gst_structure_get_name(structure);
+  const GQuark name_id=gst_structure_get_name_id(structure);
 
-  if(!strcmp(name,"level")) {
+  if(name_id==bus_msg_level_quark) {
     BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
     GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
 
@@ -1203,6 +1205,8 @@ static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_clas
 static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GnomeCanvasItemClass *citem_class=GNOME_CANVAS_ITEM_CLASS(klass);
+
+  bus_msg_level_quark=g_quark_from_static_string("level");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachineCanvasItemPrivate));

@@ -82,6 +82,9 @@ struct _BtMainToolbarPrivate {
 
 static GtkHandleBoxClass *parent_class=NULL;
 
+static GQuark bus_msg_level_quark=0;
+static GQuark bus_msg_level_caps_changed_quark=0;
+
 static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data);
 static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data);
 
@@ -360,10 +363,9 @@ static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,G
 
 static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
-  const gchar *name = gst_structure_get_name(structure);
+  const GQuark name_id=gst_structure_get_name_id(structure);
 
-  // @todo: use gst_structure_get_name_id
-  if(!strcmp(name,"level")) {
+  if(name_id==bus_msg_level_quark) {
     BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
     GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
 
@@ -404,10 +406,10 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
 
 static void on_song_level_negotiated(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
-  const gchar *name = gst_structure_get_name(structure);
+  const GQuark name_id=gst_structure_get_name_id(structure);
 
   // receive message from on_channels_negotiated()
-  if(!strcmp(name,"level-caps-changed")) {
+  if(name_id==bus_msg_level_caps_changed_quark) {
     BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
     gint i,channels;
 
@@ -888,6 +890,9 @@ static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+  bus_msg_level_quark=g_quark_from_static_string("level");
+  bus_msg_level_caps_changed_quark=g_quark_from_static_string("level-caps-changed");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainToolbarPrivate));

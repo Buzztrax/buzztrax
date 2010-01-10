@@ -115,6 +115,9 @@ struct _BtWireAnalysisDialogPrivate {
 
 static GtkDialogClass *parent_class=NULL;
 
+static GQuark bus_msg_level_quark=0;
+static GQuark bus_msg_spectrum_quark=0;
+
 static gint8 grid_dash_list[]= {1};
 
 //-- event handler
@@ -242,14 +245,14 @@ static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(params[0]);
   GstMessage *message=(GstMessage *)params[1];
   const GstStructure *structure=gst_message_get_structure(message);
-  const gchar *name = gst_structure_get_name(structure);
+  const GQuark name_id=gst_structure_get_name_id(structure);
   
   if(!self)
     goto done;
 
   g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
 
-  if(!strcmp(name,"level")) {
+  if(name_id==bus_msg_level_quark) {
     const GValue *l_cur,*l_peak;
     guint i;
     gdouble val;
@@ -284,7 +287,7 @@ static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
     }
     gtk_widget_queue_draw(self->priv->level_drawingarea);
   }
-  else if(!strcmp(name,"spectrum")) {
+  else if(name_id==bus_msg_spectrum_quark) {
     const GValue *list;
     const GValue *value;
     guint i, spect_bands=self->priv->spect_bands,size;
@@ -331,10 +334,9 @@ static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime tim
 static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
   const GstStructure *structure=gst_message_get_structure(message);
-  const gchar *name = gst_structure_get_name(structure);
+  const GQuark name_id=gst_structure_get_name_id(structure);
 
-  // @todo: use gst_structure_get_name_id
-  if((!strcmp(name,"level")) || (!strcmp(name,"spectrum"))) {
+  if((name_id==bus_msg_level_quark) || (name_id==bus_msg_spectrum_quark)) {
     GstElement *meter=GST_ELEMENT(GST_MESSAGE_SRC(message));
     
     if((meter==self->priv->analyzers[ANALYZER_LEVEL]) ||
@@ -348,8 +350,8 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
         waittime=timestamp+duration/2;
       }
       else if(gst_structure_get_clock_time (structure, "endtime", &timestamp)) {
-        if(!strcmp(name,"level")) {
-          /* level send endtime as stream_time and not as running_time */
+        if(name_id==bus_msg_level_quark) {
+          /* level sends endtime as stream_time and not as running_time */
           waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(meter)->segment, GST_FORMAT_TIME, timestamp);
         }
         else {
@@ -690,6 +692,9 @@ static void bt_wire_analysis_dialog_init(GTypeInstance *instance, gpointer g_cla
 
 static void bt_wire_analysis_dialog_class_init(BtWireAnalysisDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  
+  bus_msg_level_quark=g_quark_from_static_string("level");
+  bus_msg_spectrum_quark=g_quark_from_static_string("spectrum");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWireAnalysisDialogPrivate));
