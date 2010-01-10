@@ -597,7 +597,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   /* add audioresample */ 
   first_elem=audio_resample=gst_element_factory_make("audioresample","sink-audioresample");
   gst_bin_add(GST_BIN(self),audio_resample);
-  if(!gst_element_link(self->priv->caps_filter,audio_resample)) {
+  if(!gst_element_link_pads(self->priv->caps_filter,"src",audio_resample,"sink")) {
     GST_WARNING("Can't link caps-filter and audio-resample");
   }
 
@@ -608,7 +608,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     first_elem=identity=gst_element_factory_make("identity","identity");
     g_object_set(identity,"check-perfect",TRUE,NULL);
     gst_bin_add(GST_BIN(self),identity);
-    if(!gst_element_link(audio_resample,identity)) {
+    if(!gst_element_link_pads(audio_resample,"src",identity,"sink")) {
       GST_WARNING("Can't link caps-filter and audio-resample");
     }
   }
@@ -647,7 +647,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       tee=gst_element_factory_make("tee",name);
       g_free(name);
       gst_bin_add(GST_BIN(self),tee);
-      gst_element_link(first_elem,tee);
+      gst_element_link_pads(first_elem,"src",tee,"sink");
       // add player elems
       GList * const list1=bt_sink_bin_get_player_elements(self);
       if(list1) {

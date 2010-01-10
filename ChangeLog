@@ -1,5 +1,11 @@
 2010-01-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/sink-bin.c:
+	  Turn some gst_element_{link,unlink} into gst_element_{link,unlink}_pads.
+
+2010-01-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/main-toolbar.c:

@@ -84,6 +84,10 @@
  * @todo: cache the GstControlSource objects?
  * - we look them up a lot, its a linear search in a list, locking and ref/unref
  * - one for each param and again each voice
+ *
+ * @todo: we could determine the pad-names for parts and use gst_element_{link,unlink}_pads
+ * - we get a little speedup if the pad-names are known
+ * - passing NULL for a pad-name is ok
  */
 
 #define BT_CORE
@@ -225,6 +229,33 @@ static GQuark error_domain=0;
 static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
+
+static gchar *src_pad_name[]={
+  "src",  /* adder */
+  "src",  /* caps filter */
+  "src",  /* audioconvert */
+  "src",  /* input pre level */
+  "src",  /* input gain */
+  "src",  /* input post level */
+  "src",  /* machine */
+  "src",  /* output pre level */
+  "src",  /* output gain */
+  "src",  /* output post level */
+  "src%d" /* tee */
+};
+static gchar *sink_pad_name[]={
+  "sink%d", /* adder */
+  "sink",   /* caps filter */
+  "sink",   /* audioconvert */
+  "sink",   /* input pre level */
+  "sink",   /* input gain */
+  "sink",   /* input post level */
+  "sink",   /* machine */
+  "sink",   /* output pre level */
+  "sink",   /* output gain */
+  "sink",   /* output post level */
+  "sink"    /* tee */
+};
 
 // macros
 
@@ -481,79 +512,82 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
   gboolean res=FALSE;
   gint i,pre,post;
   BtWire *wire;
+  GstElement **machines=self->priv->machines;
 
   // look for elements before and after part_position
   pre=post=-1;
   for(i=part_position-1;i>-1;i--) {
-    if(self->priv->machines[i]) {
+    if(machines[i]) {
       pre=i;break;
     }
   }
   for(i=part_position+1;i<PART_COUNT;i++) {
-    if(self->priv->machines[i]) {
+    if(machines[i]) {
       post=i;break;
     }
   }
-  GST_INFO("positions: %d ... %d(%s) ... %d",pre,part_position,GST_OBJECT_NAME(self->priv->machines[part_position]),post);
+  GST_INFO("positions: %d ... %d(%s) ... %d",pre,part_position,GST_OBJECT_NAME(machines[part_position]),post);
   // get pads
   if((pre!=-1) && (post!=-1)) {
     // unlink old connection
-    gst_element_unlink(self->priv->machines[pre],self->priv->machines[post]);
+    gst_element_unlink_pads(machines[pre],src_pad_name[pre],machines[post],sink_pad_name[post]);
     // link new connection
-    res=gst_element_link_many(self->priv->machines[pre],self->priv->machines[part_position],self->priv->machines[post],NULL);
+    res=gst_element_link_many(machines[pre],machines[part_position],machines[post],NULL);
     if(!res) {
-      gst_element_unlink_many(self->priv->machines[pre],self->priv->machines[part_position],self->priv->machines[post],NULL);
-      GST_WARNING("failed to link part '%s' inbetween '%s' and '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]),GST_OBJECT_NAME(self->priv->machines[post]));
+      gst_element_unlink_many(machines[pre],machines[part_position],machines[post],NULL);
+      GST_WARNING("failed to link part '%s' inbetween '%s' and '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[pre]),GST_OBJECT_NAME(machines[post]));
       // relink previous connection
-      gst_element_link(self->priv->machines[pre],self->priv->machines[post]);
+      gst_element_link_pads(machines[pre],src_pad_name[pre],machines[post],sink_pad_name[post]);
     }
   }
   else if(pre==-1) {
-    self->priv->dst_elem=self->priv->machines[part_position];
+    self->priv->dst_elem=machines[part_position];
     // unlink old connection
-    gst_element_unlink(peer,self->priv->machines[post]);
+    gst_element_unlink(peer,machines[post]);
     // link new connection
-    res=gst_element_link_many(peer,self->priv->machines[part_position],self->priv->machines[post],NULL);
+    res=gst_element_link_many(peer,machines[part_position],machines[post],NULL);
     if(!res) {
-      gst_element_unlink_many(peer,self->priv->machines[part_position],self->priv->machines[post],NULL);
-      GST_WARNING("failed to link part '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
+      gst_element_unlink_many(peer,machines[part_position],machines[post],NULL);
+      GST_WARNING("failed to link part '%s' before '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[post]));
       // try to re-wire
-      if((res=gst_element_link(self->priv->machines[part_position],self->priv->machines[post]))) {
+      //if((res=gst_element_link(machines[part_position],machines[post]))) {
+      if((res=gst_element_link_pads(machines[part_position],src_pad_name[part_position],machines[post],sink_pad_name[post]))) {
         if((wire=(self->dst_wires?(BtWire*)(self->dst_wires->data):NULL))) {
           if(!(res=bt_wire_reconnect(wire))) {
-            GST_WARNING("failed to reconnect wire after linking '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
+            GST_WARNING("failed to reconnect wire after linking '%s' before '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[post]));
           }
         }
       }
       else {
-        GST_WARNING("failed to link part '%s' before '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
+        GST_WARNING("failed to link part '%s' before '%s' again",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[post]));
       }
     }
   }
   else if(post==-1) {
-    self->priv->src_elem=self->priv->machines[part_position];
+    self->priv->src_elem=machines[part_position];
     // unlink old connection
-    gst_element_unlink(self->priv->machines[pre],peer);
+    gst_element_unlink(machines[pre],peer);
     // link new connection
-    res=gst_element_link_many(self->priv->machines[pre],self->priv->machines[part_position],peer,NULL);
+    res=gst_element_link_many(machines[pre],machines[part_position],peer,NULL);
     if(!res) {
-      gst_element_unlink_many(self->priv->machines[pre],self->priv->machines[part_position],peer,NULL);
-      GST_WARNING("failed to link part '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
+      gst_element_unlink_many(machines[pre],machines[part_position],peer,NULL);
+      GST_WARNING("failed to link part '%s' after '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[pre]));
       // try to re-wire
-      if((res=gst_element_link(self->priv->machines[pre],self->priv->machines[part_position]))) {
+      //if((res=gst_element_link(machines[pre],machines[part_position]))) {
+      if((res=gst_element_link_pads(machines[pre],src_pad_name[pre],machines[part_position],sink_pad_name[part_position]))) {
         if((wire=(self->src_wires?(BtWire*)(self->src_wires->data):NULL))) {
           if(!(res=bt_wire_reconnect(wire))) {
-            GST_WARNING("failed to reconnect wire after linking '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
+            GST_WARNING("failed to reconnect wire after linking '%s' after '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[pre]));
           }
         }
       }
       else {
-        GST_WARNING("failed to link part '%s' after '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
+        GST_WARNING("failed to link part '%s' after '%s' again",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[pre]));
       }
     }
   }
   else {
-    GST_ERROR("failed to link part '%s' in broken machine",GST_OBJECT_NAME(self->priv->machines[part_position]));
+    GST_ERROR("failed to link part '%s' in broken machine",GST_OBJECT_NAME(machines[part_position]));
   }
   return(res);
 }
@@ -712,13 +746,15 @@ Error:
  */
 static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMachinePart part) {
   gboolean res=FALSE;
-  GstElement *peer,*target=self->priv->machines[PART_MACHINE];
-  guint i;
+  GstElement **machines=self->priv->machines;
+  GstElement *peer,*target=machines[PART_MACHINE];
+  guint i, tix=PART_MACHINE;
 
   // get next element on the source side
   for(i=part+1;i<=PART_MACHINE;i++) {
-    if(self->priv->machines[i]) {
-      target=self->priv->machines[i];
+    if(machines[i]) {
+      target=machines[i];
+      tix=i;
       GST_DEBUG("src side target at %d: %s",i,GST_OBJECT_NAME(target));
       break;
     }
@@ -727,21 +763,21 @@ static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMach
   // is the machine connected towards the input side (its sink)?
   if(!(peer=bt_machine_get_sink_peer(target))) {
     GST_DEBUG("target '%s' is not yet connected on the input side",GST_OBJECT_NAME(target));
-    if(!gst_element_link(self->priv->machines[part],target)) {
+    if(!gst_element_link_pads(machines[part],src_pad_name[part],target,sink_pad_name[tix])) {
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(self),GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
-      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
+      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
     }
     self->priv->dst_elem=self->priv->machines[part];
-    GST_INFO("sucessfully prepended element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+    GST_INFO("sucessfully prepended element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
   }
   else {
     GST_DEBUG("target '%s' has peer element '%s', need to inseert",GST_OBJECT_NAME(target),GST_OBJECT_NAME(peer));
     if(!bt_machine_insert_element(self,peer,part)) {
       gst_object_unref(peer);
-      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
+      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
     }
     gst_object_unref(peer);
-    GST_INFO("sucessfully inserted element'%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+    GST_INFO("sucessfully inserted element'%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
   }
   res=TRUE;
 Error:
@@ -757,13 +793,15 @@ Error:
  */
 static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMachinePart part) {
   gboolean res=FALSE;
-  GstElement *peer,*target=self->priv->machines[PART_MACHINE];
-  guint i;
+  GstElement **machines=self->priv->machines;
+  GstElement *peer,*target=machines[PART_MACHINE];
+  guint i, tix=PART_MACHINE;
   
   // get next element on the sink side
   for(i=part-1;i>=PART_MACHINE;i--) {
-    if(self->priv->machines[i]) {
-      target=self->priv->machines[i];
+    if(machines[i]) {
+      target=machines[i];
+      tix=i;
       GST_DEBUG("ssink side target at %d: %s",i,GST_OBJECT_NAME(target));
       break;
     }
@@ -772,21 +810,21 @@ static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMac
   // is the machine unconnected towards the output side (its source)?
   if(!(peer=bt_machine_get_source_peer(target))) {
     GST_DEBUG("target '%s' is not yet connected on the output side",GST_OBJECT_NAME(target));
-    if(!gst_element_link(target,self->priv->machines[part])) {
+    if(!gst_element_link_pads(target,src_pad_name[tix],machines[part],sink_pad_name[part])) {
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(self),GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
-      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
+      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
     }
     self->priv->src_elem=self->priv->machines[part];
-    GST_INFO("sucessfully appended element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+    GST_INFO("sucessfully appended element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
   }
   else {
     GST_DEBUG("target '%s' has peer element '%s', need to inseert",GST_OBJECT_NAME(target),GST_OBJECT_NAME(peer));
     if(!bt_machine_insert_element(self,peer,part)) {
       gst_object_unref(peer);
-      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
+      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
     }
     gst_object_unref(peer);
-    GST_INFO("sucessfully inserted element'%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+    GST_INFO("sucessfully inserted element'%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
   }
   res=TRUE;
 Error:
