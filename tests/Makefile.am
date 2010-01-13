@@ -51,7 +51,7 @@ bt_core_LDADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	$(top_builddir)/tests/lib/core/libbtcore-check.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
-bt_core_LDFLAGS = -Wl,--rpath -Wl,$(top_builddir)/src/lib/core 
+bt_core_LDFLAGS = -Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
 bt_core_SOURCES= \
 	m-bt-core.c
 
@@ -59,7 +59,7 @@ bt_cmd_LDADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
-bt_cmd_LDFLAGS = -Wl,--rpath -Wl,$(top_builddir)/src/lib/core 
+bt_cmd_LDFLAGS = -Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
 bt_cmd_SOURCES= \
 	m-bt-cmd.c
 
@@ -69,8 +69,8 @@ bt_edit_LDADD = \
 	$(top_builddir)/tests/ui/edit/libbt-edit-check.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
 bt_edit_LDFLAGS = \
-	-Wl,--rpath -Wl,$(top_builddir)/src/lib/core \
-	-Wl,--rpath -Wl,$(top_builddir)/src/lib/ic 
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/ic/.libs
 bt_edit_SOURCES= \
 	m-bt-edit.c
 
@@ -167,12 +167,19 @@ clean-local:
 .PHONY: splint coverage valgrind todo
 
 if USE_BCOV
+## LD_PRELOAD=../src/lib/core/.libs/libbuzztard-core.so.0.6.0 CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so.0.6.0 ./.libs/bt_cmd
+## LD_PRELOAD=../src/lib/core/.libs/libbuzztard-core.so CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so ./.libs/bt_cmd
+## CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so ./.libs/bt_cmd
 coverage:: $(TESTS_BIN)
-	rm -f .bcovdump.all; \
+	echo "command make check" >.bcovdump.all; \
+	echo "date "`date` >>.bcovdump.all; \
 	for i in $^; do \
-	  $(TESTS_ENVIRONMENT) bcov ./$$i; \
+	  CK_FORK="no" $(TESTS_ENVIRONMENT) bcov \
+	    -l$(top_builddir)/src/lib/core/.libs/libbuzztard-core.so \
+	    -l$(top_builddir)/src/lib/ic/.libs/libbuzztard-ic.so \
+	    ./$$i; \
 	  if test -f .bcovdump; then \
-	    cat .bcovdump >>.bcovdump.all; \
+	    tail -n +5 ~/temp/.bcovdump >>.bcovdump.all; \
 	    rm -f .bcovdump; \
 	  fi \
 	done

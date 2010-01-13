@@ -84,7 +84,7 @@ if USE_BCOV
 coverage::
 	mkdir -p ./coverage
 	$(MAKE) -C tests coverage
-	bcov-report tests/.bcovdump.all ./coverage
+	bcov-report -i $(abs_top_builddir)/src tests/.bcovdump.all ./coverage
 endif
 
 if USE_VALGRIND

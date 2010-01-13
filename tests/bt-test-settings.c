@@ -22,7 +22,7 @@
  * SECTION:bttestsettings
  * @short_description: unit test helper for buzztard settings handling
  *
- * Non-persistent dummy implementation to programmatically test application
+ * Non-persistent stub implementation to programmatically test application
  * settings.
  */ 
 

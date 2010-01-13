@@ -24,8 +24,8 @@
  * SECTION::bttestplugin:
  * @short_description: test gstreamer element for unit tests
  *
- * Two test elements for unit-tests. The Polyphonic elemnt use the monophonic
- * one for their voices. Thus prefix the parameter names with 'g-' for 'global'
+ * Two stub elements for unit-tests. The Polyphonic elemnt use the monophonic
+ * one for its voices. Thus prefix the parameter names with 'g-' for 'global'
  * (in the monophonic class) and 'v-' for 'voice' in the poly class.
  */
 /* @todo:

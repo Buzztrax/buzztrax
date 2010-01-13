@@ -45,24 +45,27 @@ void bt_check_init(void) {
     bt_test_plugin_init,
     VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
 #endif
-  
+
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   // no ansi color codes in logfiles please
   gst_debug_set_colored(FALSE);
   // use our dummy settings
   bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
-  
+
 #ifdef HAVE_SETRLIMIT
-  struct rlimit rl;
-  
-  rl.rlim_max = RLIM_INFINITY;
-  
-  // limit cpu in seconds
-  rl.rlim_cur = 20;
-  if(setrlimit(RLIMIT_CPU,&rl)<0) perror("setrlimit(RLIMIT_CPU) failed");
-  // limit process’s virtual memory in bytes
-  rl.rlim_cur = 1024 * 1024 * 256; // 256 Mb
-  if(setrlimit(RLIMIT_AS,&rl)<0) perror("setrlimit(RLIMIT_AS) failed");
+  // only fork mode limit cpu/mem usage
+  const gchar *mode = g_getenv ("CK_FORK");
+  if (!mode || strcmp(mode, "no")) {
+    struct rlimit rl;
+
+    rl.rlim_max = RLIM_INFINITY;
+    // limit cpu in seconds
+    rl.rlim_cur = 20;
+    if(setrlimit(RLIMIT_CPU,&rl)<0) perror("setrlimit(RLIMIT_CPU) failed");
+    // limit process’s virtual memory in bytes
+    rl.rlim_cur = 1024 * 1024 * 256; // 256 Mb
+    if(setrlimit(RLIMIT_AS,&rl)<0) perror("setrlimit(RLIMIT_AS) failed");
+  }
 #endif
 }
 
@@ -252,8 +255,7 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
 
 
 // ttest selection
-gboolean
-_bt_check_run_test_func(const gchar * func_name)
+gboolean _bt_check_run_test_func(const gchar * func_name)
 {
   const gchar *checks;
   gboolean res = FALSE;

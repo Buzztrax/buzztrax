@@ -1,3 +1,17 @@
+2010-01-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* configure.ac:
+	* tests/Makefile.am:
+	  reenable and tweak bcov support.
+
+	* tests/bt-check.c:
+	  Only limmit resources if we run in fork mode.
+	
+	* tests/bt-test-plugin.c:
+	* tests/bt-test-settings.c:
+	  Terminology fix in the comments.
+
 2010-01-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

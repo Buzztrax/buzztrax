@@ -163,10 +163,10 @@ if test "$enable_coverage" = "yes"; then
   bcov_path="no"
   lcov_path="no"
   dnl bcov isn't ready yet
-  #AC_PATH_PROG(bcov_path, [bcov], [no])
-  #if test "x$bcov_path" != "xno" ; then
-  #  coverage_tool="bcov"
-  #else
+  AC_PATH_PROG(bcov_path, [bcov], [no])
+  if test "x$bcov_path" != "xno" ; then
+    coverage_tool="bcov"
+  else
     AC_PATH_PROG(lcov_path, [lcov], [no])
     if test "x$lcov_path" != "xno" ; then
       LCOV_VERSION=`lcov --version|head -n 1| $SED 's/^.* version //'`
@@ -186,7 +186,7 @@ if test "$enable_coverage" = "yes"; then
         COVERAGE_LIBS="-lgcov"
       fi
     fi
-  #fi
+  fi
 fi
 AM_CONDITIONAL(USE_BCOV, test "x$bcov_path" != "xno")
 AM_CONDITIONAL(USE_LCOV, test "x$lcov_path" != "xno")
