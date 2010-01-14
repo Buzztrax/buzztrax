@@ -1,4 +1,21 @@
+2010/02 ========================================================================
+
+- tip of the day
+- refactoring
+  - faster pipeline linking
+  - remove some dead code
+  - removed some double checking
+
 2010/01 ========================================================================
+
+I worked most of the December time on gtk-doc [1]. After more that a year I
+released 1.12 and 1.13 on the same day:). 
+
+On buzztard I also spent a little time, improving the docs and pushing the test
+coverage further. I will attack the bullets on the 0.6 roadmap next. Happy new
+year and stay tuned.
+
+[1] http://www.gtk.org/gtk-doc/
 
 2009/12 ========================================================================
 

@@ -1,5 +1,10 @@
 2010-01-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Collecting news.
+
+2010-01-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Use gst_pad_link/unlink. This is most unambigous & faster.
 
@@ -158,7 +163,7 @@
 
 	* src/ui/edit/interaction-controller-learn-dialog.c:
 	* src/ui/edit/interaction-controller-menu.c:
-	  Small refac and cleanup.
+	  Small refactoring and cleanup.
 
 	* src/ui/edit/tip-dialog.c:
 	  Use english comments :)
