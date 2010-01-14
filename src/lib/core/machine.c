@@ -196,7 +196,11 @@ struct _BtMachinePrivate {
 
   /* the gstreamer elements that are used */
   GstElement *machines[PART_COUNT];
-  /* convinience pointers to first and last GstElement in local chain */
+  GstPad *src_pads[PART_COUNT],*sink_pads[PART_COUNT];
+  /* convinience pointers to first and last GstElement in local chain
+   * @todo: we don't really need them anymore, just having src_part, sink_part
+   * would be enough
+   */
   GstElement *dst_elem;
   GstElement *src_elem;
 
@@ -211,10 +215,6 @@ struct _BtMachinePrivate {
 
   /* src/sink ghost-pad counters for the machine */
   gint src_pad_counter, sink_pad_counter;
-  
-  /* public fields are
-  GstElement *dst_elem,*src_elem;
-  */
 };
 
 typedef struct {
@@ -230,7 +230,7 @@ static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
 
-static gchar *src_pad_name[]={
+static gchar *src_pn[]={
   "src",  /* adder */
   "src",  /* caps filter */
   "src",  /* audioconvert */
@@ -241,10 +241,10 @@ static gchar *src_pad_name[]={
   "src",  /* output pre level */
   "src",  /* output gain */
   "src",  /* output post level */
-  "src%d" /* tee */
+  NULL /* tee */
 };
-static gchar *sink_pad_name[]={
-  "sink%d", /* adder */
+static gchar *sink_pn[]={
+  NULL, /* adder */
   "sink",   /* caps filter */
   "sink",   /* audioconvert */
   "sink",   /* input pre level */
@@ -301,65 +301,6 @@ void bt_machine_on_tpb_changed(BtSongInfo * const song_info, const GParamSpec * 
 
 //-- helper methods
 
-static GstElement *bt_machine_get_peer(GstElement * const elem, GstIterator *it) {
-  GstElement *peer=NULL;
-  gboolean done=FALSE;
-  gpointer item;
-  GstPad *peer_pad;
-
-  if(!it) return(NULL);
-
-  while (!done) {
-    switch (gst_iterator_next (it, &item)) {
-      case GST_ITERATOR_OK:
-        if((peer_pad=gst_pad_get_peer(item))) {
-          peer=gst_pad_get_parent_element(peer_pad);
-          gst_object_unref(peer_pad);
-          done=TRUE;
-        }
-        gst_object_unref(item);
-        break;
-      case GST_ITERATOR_RESYNC:
-        gst_iterator_resync(it);
-        break;
-      case GST_ITERATOR_ERROR:
-        done=TRUE;
-        break;
-      case GST_ITERATOR_DONE:
-        done=TRUE;
-        break;
-    }
-  }
-  gst_iterator_free(it);
-  return(peer);
-}
-
-/*
- * bt_machine_get_sink_peer:
- * @elem: the element to locate the sink peer for
- *
- * Locates the #GstElement that is connected to the sink pad of the given
- * #GstElement.
- *
- * Returns: the sink peer #GstElement or NULL
- */
-static GstElement *bt_machine_get_sink_peer(GstElement *elem) {
-  return(bt_machine_get_peer(elem,gst_element_iterate_sink_pads(elem)));
-}
-
-/*
- * bt_machine_get_source_peer:
- * @elem: the element to locate the source peer for
- *
- * Locates the #GstElement that is connected to the source pad of the given
- * #GstElement.
- *
- * Returns: the source peer #GstElement or NULL
- */
-static GstElement *bt_machine_get_source_peer(GstElement * const elem) {
-  return(bt_machine_get_peer(elem,gst_element_iterate_src_pads(elem)));
-}
-
 /*
  * mute the machine output
  */
@@ -372,7 +313,7 @@ static gboolean bt_machine_set_mute(const BtMachine * const self,const BtSetup *
     g_object_set(self->priv->machines[part],"mute",TRUE,NULL);
     return(TRUE);
   }
-  GST_WARNING("can't mute element '%s'",self->priv->id);
+  GST_WARNING_OBJECT(self,"can't mute element '%s'",self->priv->id);
   return(FALSE);
 }
 
@@ -388,7 +329,7 @@ static gboolean bt_machine_unset_mute(const BtMachine *const self, const BtSetup
     g_object_set(self->priv->machines[part],"mute",FALSE,NULL);
     return(TRUE);
   }
-  GST_WARNING("can't unmute element '%s'",self->priv->id);
+  GST_WARNING_OBJECT(self,"can't unmute element '%s'",self->priv->id);
   return(FALSE);
 }
 
@@ -446,7 +387,7 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
       //g_return_val_if_reached(FALSE);
       break;
     default:
-      GST_WARNING("invalid old machine state: %d",self->priv->state);
+      GST_WARNING_OBJECT(self,"invalid old machine state: %d",self->priv->state);
       break;
   }
   // set to new state
@@ -488,7 +429,7 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
       //g_return_val_if_reached(FALSE);
       break;
     default:
-      GST_WARNING("invalid new machine state: %d",new_state);
+      GST_WARNING_OBJECT(self,"invalid new machine state: %d",new_state);
       break;
   }
   self->priv->state=new_state;
@@ -498,94 +439,120 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
 }
 
 /*
+ * bt_machine_link_elements:
+ * @self: the machine for which the element should be inserted
+ * @src,@sink: the pads
+ *
+ * Link two pads.
+ *
+ * Returns: %TRUE for sucess
+ */
+static gboolean bt_machine_link_elements(const BtMachine * const self, GstPad *src, GstPad *sink) {
+  GstPadLinkReturn plr;
+  
+  if((plr=gst_pad_link(src,sink))!=GST_PAD_LINK_OK) {
+    GST_WARNING_OBJECT(self,"can't link %s:%s with %s:%s: %d",GST_DEBUG_PAD_NAME(src),GST_DEBUG_PAD_NAME(sink),plr);
+    return(FALSE);
+  }
+  return(TRUE);
+}
+/*
  * bt_machine_insert_element:
  * @self: the machine for which the element should be inserted
- * @peer: the peer element
- * @part_position: the element at this position should be inserted (activated)
+ * @peer: the peer pad element
+ * @pos: the element at this position should be inserted (activated)
  *
  * Searches surrounding elements of the new element for active peers
  * and connects them. The new elemnt needs to be created before calling this method.
  *
  * Returns: %TRUE for sucess
  */
-static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * const peer, const BtMachinePart part_position) {
+static gboolean bt_machine_insert_element(BtMachine *const self, GstPad * const peer, const BtMachinePart pos) {
   gboolean res=FALSE;
   gint i,pre,post;
   BtWire *wire;
   GstElement **machines=self->priv->machines;
+  GstPad **src_pads=self->priv->src_pads;
+  GstPad **sink_pads=self->priv->sink_pads;
 
-  // look for elements before and after part_position
+  // look for elements before and after pos
   pre=post=-1;
-  for(i=part_position-1;i>-1;i--) {
+  for(i=pos-1;i>-1;i--) {
     if(machines[i]) {
       pre=i;break;
     }
   }
-  for(i=part_position+1;i<PART_COUNT;i++) {
+  for(i=pos+1;i<PART_COUNT;i++) {
     if(machines[i]) {
       post=i;break;
     }
   }
-  GST_INFO("positions: %d ... %d(%s) ... %d",pre,part_position,GST_OBJECT_NAME(machines[part_position]),post);
+  GST_INFO("positions: %d ... %d(%s) ... %d",pre,pos,GST_OBJECT_NAME(machines[pos]),post);
   // get pads
   if((pre!=-1) && (post!=-1)) {
     // unlink old connection
-    gst_element_unlink_pads(machines[pre],src_pad_name[pre],machines[post],sink_pad_name[post]);
+    gst_pad_unlink(src_pads[pre],sink_pads[post]);
     // link new connection
-    res=gst_element_link_many(machines[pre],machines[part_position],machines[post],NULL);
+    res=bt_machine_link_elements(self,src_pads[pre],sink_pads[pos]);
+    res&=bt_machine_link_elements(self,src_pads[pos],sink_pads[post]);
     if(!res) {
-      gst_element_unlink_many(machines[pre],machines[part_position],machines[post],NULL);
-      GST_WARNING("failed to link part '%s' inbetween '%s' and '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[pre]),GST_OBJECT_NAME(machines[post]));
+      gst_pad_unlink(src_pads[pre],sink_pads[pos]);
+      gst_pad_unlink(src_pads[pos],sink_pads[post]);
+      GST_WARNING_OBJECT(self,"failed to link part '%s' inbetween '%s' and '%s'",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[pre]),GST_OBJECT_NAME(machines[post]));
       // relink previous connection
-      gst_element_link_pads(machines[pre],src_pad_name[pre],machines[post],sink_pad_name[post]);
+      bt_machine_link_elements(self,src_pads[pre],sink_pads[post]);
     }
   }
   else if(pre==-1) {
-    self->priv->dst_elem=machines[part_position];
+    self->priv->dst_elem=machines[pos];
     // unlink old connection
-    gst_element_unlink(peer,machines[post]);
+    gst_pad_unlink(peer,sink_pads[post]);
     // link new connection
-    res=gst_element_link_many(peer,machines[part_position],machines[post],NULL);
+    res=bt_machine_link_elements(self,peer,sink_pads[pos]);
+    res&=bt_machine_link_elements(self,src_pads[pos],sink_pads[post]);
     if(!res) {
-      gst_element_unlink_many(peer,machines[part_position],machines[post],NULL);
-      GST_WARNING("failed to link part '%s' before '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[post]));
+      gst_pad_unlink(peer,sink_pads[pos]);
+      gst_pad_unlink(src_pads[pos],sink_pads[post]);
+      GST_WARNING_OBJECT(self,"failed to link part '%s' before '%s'",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[post]));
       // try to re-wire
-      if((res=gst_element_link_pads(machines[part_position],src_pad_name[part_position],machines[post],sink_pad_name[post]))) {
+      if((res=bt_machine_link_elements(self,src_pads[pos],sink_pads[post]))) {
         if((wire=(self->dst_wires?(BtWire*)(self->dst_wires->data):NULL))) {
           if(!(res=bt_wire_reconnect(wire))) {
-            GST_WARNING("failed to reconnect wire after linking '%s' before '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[post]));
+            GST_WARNING_OBJECT(self,"failed to reconnect wire after linking '%s' before '%s'",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[post]));
           }
         }
       }
       else {
-        GST_WARNING("failed to link part '%s' before '%s' again",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[post]));
+        GST_WARNING_OBJECT(self,"failed to link part '%s' before '%s' again",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[post]));
       }
     }
   }
   else if(post==-1) {
-    self->priv->src_elem=machines[part_position];
+    self->priv->src_elem=machines[pos];
     // unlink old connection
-    gst_element_unlink(machines[pre],peer);
+    gst_pad_unlink(src_pads[pre],peer);
     // link new connection
-    res=gst_element_link_many(machines[pre],machines[part_position],peer,NULL);
+    res=bt_machine_link_elements(self,src_pads[pre],sink_pads[pos]);
+    res&=bt_machine_link_elements(self,src_pads[pos],peer);
     if(!res) {
-      gst_element_unlink_many(machines[pre],machines[part_position],peer,NULL);
-      GST_WARNING("failed to link part '%s' after '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[pre]));
+      gst_pad_unlink(src_pads[pre],sink_pads[pos]);
+      gst_pad_unlink(src_pads[pos],peer);
+      GST_WARNING_OBJECT(self,"failed to link part '%s' after '%s'",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[pre]));
       // try to re-wire
-      if((res=gst_element_link_pads(machines[pre],src_pad_name[pre],machines[part_position],sink_pad_name[part_position]))) {
+      if((res=bt_machine_link_elements(self,src_pads[pre],sink_pads[pos]))) {
         if((wire=(self->src_wires?(BtWire*)(self->src_wires->data):NULL))) {
           if(!(res=bt_wire_reconnect(wire))) {
-            GST_WARNING("failed to reconnect wire after linking '%s' after '%s'",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[pre]));
+            GST_WARNING_OBJECT(self,"failed to reconnect wire after linking '%s' after '%s'",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[pre]));
           }
         }
       }
       else {
-        GST_WARNING("failed to link part '%s' after '%s' again",GST_OBJECT_NAME(machines[part_position]),GST_OBJECT_NAME(machines[pre]));
+        GST_WARNING_OBJECT(self,"failed to link part '%s' after '%s' again",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[pre]));
       }
     }
   }
   else {
-    GST_ERROR("failed to link part '%s' in broken machine",GST_OBJECT_NAME(machines[part_position]));
+    GST_ERROR_OBJECT(self,"failed to link part '%s' in broken machine",GST_OBJECT_NAME(machines[pos]));
   }
   return(res);
 }
@@ -616,7 +583,7 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
 
   // @todo GSTBT_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
   if((!self->priv->machines[PART_MACHINE]) || (!GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]))) {
-    GST_WARNING("machine %s:%p is NULL or not polyphonic!",self->priv->id,self->priv->machines[PART_MACHINE]);
+    GST_WARNING_OBJECT(self,"machine %s:%p is NULL or not polyphonic!",self->priv->id,self->priv->machines[PART_MACHINE]);
     return;
   }
 
@@ -665,7 +632,7 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
 
     // it can be that qdata is NULL if the value is NULL
     //if(!qdata) {
-    //  GST_WARNING("no property metadata for '%s'",property->name);
+    //  GST_WARNING_OBJECT(self,"no property metadata for '%s'",property->name);
     //  return(FALSE);
     //}
 
@@ -723,12 +690,18 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
   const gchar * const parent_name=GST_OBJECT_NAME(self);
   gchar * const name=g_alloca(strlen(parent_name)+2+strlen(element_name));
 
-  // add internal element
+  // create internal element
   //strcat(name,parent_name);strcat(name,":");strcat(name,element_name);
   g_sprintf(name,"%s:%s",parent_name,element_name);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_WARNING_OBJECT(self,"failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
+  // get the pads
+  if(src_pn[part])
+    self->priv->src_pads[part]=gst_element_get_static_pad(self->priv->machines[part],src_pn[part]);
+  if(sink_pn[part])
+    self->priv->sink_pads[part]=gst_element_get_static_pad(self->priv->machines[part],sink_pn[part]);
+
   gst_bin_add(GST_BIN(self),self->priv->machines[part]);
   res=TRUE;
 Error:
@@ -745,34 +718,35 @@ Error:
 static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMachinePart part) {
   gboolean res=FALSE;
   GstElement **machines=self->priv->machines;
-  GstElement *peer,*target=machines[PART_MACHINE];
+  GstPad **src_pads=self->priv->src_pads;
+  GstPad **sink_pads=self->priv->sink_pads;
+  GstPad *peer;
   guint i, tix=PART_MACHINE;
 
   // get next element on the source side
   for(i=part+1;i<=PART_MACHINE;i++) {
     if(machines[i]) {
-      target=machines[i];
       tix=i;
-      GST_DEBUG("src side target at %d: %s",i,GST_OBJECT_NAME(target));
+      GST_DEBUG("src side target at %d: %s:%s",i,GST_PAD_NAME(sink_pads[tix]));
       break;
     }
   }
 
   // is the machine connected towards the input side (its sink)?
-  if(!(peer=bt_machine_get_sink_peer(target))) {
-    GST_DEBUG("target '%s' is not yet connected on the input side",GST_OBJECT_NAME(target));
-    if(!gst_element_link_pads(machines[part],src_pad_name[part],target,sink_pad_name[tix])) {
+  if(!(peer=gst_pad_get_peer(sink_pads[tix]))) {
+    GST_DEBUG("target '%s:%s' is not yet connected on the input side",GST_PAD_NAME(sink_pads[tix]));
+    if(!bt_machine_link_elements(self,src_pads[part],sink_pads[tix])) {
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(self),GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
-      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
+      GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
     }
     self->priv->dst_elem=self->priv->machines[part];
     GST_INFO("sucessfully prepended element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
   }
   else {
-    GST_DEBUG("target '%s' has peer element '%s', need to inseert",GST_OBJECT_NAME(target),GST_OBJECT_NAME(peer));
+    GST_DEBUG("target '%s:%s' has peer pad '%s:%s', need to inseert",GST_PAD_NAME(sink_pads[tix]),GST_PAD_NAME(peer));
     if(!bt_machine_insert_element(self,peer,part)) {
       gst_object_unref(peer);
-      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
+      GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
     }
     gst_object_unref(peer);
     GST_INFO("sucessfully inserted element'%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
@@ -792,34 +766,35 @@ Error:
 static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMachinePart part) {
   gboolean res=FALSE;
   GstElement **machines=self->priv->machines;
-  GstElement *peer,*target=machines[PART_MACHINE];
+  GstPad **src_pads=self->priv->src_pads;
+  GstPad **sink_pads=self->priv->sink_pads;
+  GstPad *peer;
   guint i, tix=PART_MACHINE;
   
   // get next element on the sink side
   for(i=part-1;i>=PART_MACHINE;i--) {
     if(machines[i]) {
-      target=machines[i];
       tix=i;
-      GST_DEBUG("ssink side target at %d: %s",i,GST_OBJECT_NAME(target));
+      GST_DEBUG("sink side target at %d: %s:%s",i,GST_PAD_NAME(src_pads[tix]));
       break;
     }
   }
 
   // is the machine unconnected towards the output side (its source)?
-  if(!(peer=bt_machine_get_source_peer(target))) {
-    GST_DEBUG("target '%s' is not yet connected on the output side",GST_OBJECT_NAME(target));
-    if(!gst_element_link_pads(target,src_pad_name[tix],machines[part],sink_pad_name[part])) {
+  if(!(peer=gst_pad_get_peer(src_pads[tix]))) {
+    GST_DEBUG("target '%s:%s' is not yet connected on the output side",GST_PAD_NAME(src_pads[tix]));
+    if(!bt_machine_link_elements(self,src_pads[tix],sink_pads[part])) {
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(self),GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
-      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
+      GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
     }
     self->priv->src_elem=self->priv->machines[part];
     GST_INFO("sucessfully appended element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
   }
   else {
-    GST_DEBUG("target '%s' has peer element '%s', need to inseert",GST_OBJECT_NAME(target),GST_OBJECT_NAME(peer));
+    GST_DEBUG("target '%s:%s' has peer pad '%s:%s', need to inseert",GST_PAD_NAME(src_pads[tix]),GST_PAD_NAME(peer));
     if(!bt_machine_insert_element(self,peer,part)) {
       gst_object_unref(peer);
-      GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
+      GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
     }
     gst_object_unref(peer);
     GST_INFO("sucessfully inserted element'%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
@@ -900,7 +875,7 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
   // initialize child-proxy iface properties
   if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
     if(!self->priv->voices) {
-      GST_WARNING("voices==0");
+      GST_WARNING_OBJECT(self,"voices==0");
       //g_object_get(self->priv->machines[PART_MACHINE],"children",&self->priv->voices,NULL);
     }
     else {
@@ -942,7 +917,7 @@ static gboolean bt_machine_check_type(const BtMachine * const self) {
   gboolean done;
 
   if(!klass->check_type) {
-    GST_WARNING("no BtMachine::check_type() implemented");
+    GST_WARNING_OBJECT(self,"no BtMachine::check_type() implemented");
     return(TRUE);
   }
 
@@ -1047,7 +1022,7 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
           if(has_meta) {
             self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gstbt_property_meta_quark_flags));
             if(!(bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gstbt_property_meta_quark_no_val))) {
-              GST_WARNING("    can't get no-val property-meta for global_param [%u/%lu] \"%s\"",j,self->priv->global_params,property->name);
+              GST_WARNING_OBJECT(self,"    can't get no-val property-meta for global_param [%u/%lu] \"%s\"",j,self->priv->global_params,property->name);
             }
           }
         }
@@ -1104,7 +1079,7 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
               if(has_meta) {
                 self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gstbt_property_meta_quark_flags));
                 if(!(bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gstbt_property_meta_quark_no_val))) {
-                  GST_WARNING("    can't get no-val property-meta for voice_param [%u/%lu] \"%s\"",j,self->priv->voice_params,property->name);
+                  GST_WARNING_OBJECT(self,"    can't get no-val property-meta for voice_param [%u/%lu] \"%s\"",j,self->priv->voice_params,property->name);
                 }
               }
             }
@@ -1120,7 +1095,7 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
       g_object_unref(voice_child);
     }
     else {
-      GST_WARNING("  can't get first voice child!");
+      GST_WARNING_OBJECT(self,"  can't get first voice child!");
     }
   }
   else {
@@ -1233,10 +1208,23 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
 
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
+  
+  GstElement **machines=self->priv->machines;
 
-  if(!self->priv->machines[PART_ADDER]) {
+  if(!machines[PART_ADDER]) {
     gboolean skip_convert=FALSE;
-    GstPad *pad;
+    GstPad **src_pads=self->priv->src_pads;
+    GstPad **sink_pads=self->priv->sink_pads;
+    guint i, tix=PART_MACHINE;
+
+    // get first element on the source side
+    for(i=PART_INPUT_PRE_LEVEL;i<=PART_MACHINE;i++) {
+      if(machines[i]) {
+        tix=i;
+        GST_DEBUG("src side target at %d: %s:%s",i,GST_PAD_NAME(sink_pads[tix]));
+        break;
+      }
+    }
 
     // create the adder
     if(!(bt_machine_make_internal_element(self,PART_ADDER,"adder","adder"))) goto Error;
@@ -1244,17 +1232,19 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     //if(!(bt_machine_make_internal_element(self,PART_ADDER,"liveadder","adder"))) goto Error;
 
     // try without capsfilter (>= 0.10.24)
-    if(!g_object_class_find_property(G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_ADDER])),"caps")) {
+    if(!g_object_class_find_property(G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(machines[PART_ADDER])),"caps")) {
       if(!(bt_machine_make_internal_element(self,PART_CAPS_FILTER,"capsfilter","capsfilter"))) goto Error;
-      g_object_set(self->priv->machines[PART_CAPS_FILTER],"caps",bt_default_caps,NULL);
+      g_object_set(machines[PART_CAPS_FILTER],"caps",bt_default_caps,NULL);
     }
     else {
-      g_object_set(self->priv->machines[PART_ADDER],"caps",bt_default_caps,NULL);
+      g_object_set(machines[PART_ADDER],"caps",bt_default_caps,NULL);
     }
 
     if(!BT_IS_SINK_MACHINE(self)) {
+      GstPad *pad;
+      
       // try without converters in effects
-      if((pad=gst_element_get_static_pad(self->priv->machines[PART_MACHINE],"sink"))) {
+      if((pad=gst_element_get_static_pad(machines[PART_MACHINE],"sink"))) {
 #if GST_CHECK_VERSION(0,10,25)
         skip_convert=gst_caps_can_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
 #else
@@ -1267,16 +1257,18 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     }
     if(skip_convert) {
       GST_DEBUG_OBJECT(self,"  about to link adder -> dst_elem");
-      if(!self->priv->machines[PART_CAPS_FILTER]) {
-        if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->dst_elem, NULL)) {
-          gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->dst_elem, NULL);
+      if(!machines[PART_CAPS_FILTER]) {
+        if(!bt_machine_link_elements(self,src_pads[PART_ADDER], sink_pads[tix])) {
           GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
           goto Error;
         }
       }
       else {
-        if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->dst_elem, NULL)) {
-          gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->dst_elem, NULL);
+        res=bt_machine_link_elements(self,src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
+        res&=bt_machine_link_elements(self,src_pads[PART_CAPS_FILTER], sink_pads[tix]);
+        if(!res) {
+          gst_pad_unlink(src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
+          gst_pad_unlink(src_pads[PART_CAPS_FILTER], sink_pads[tix]);
           GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
           goto Error;
         }
@@ -1287,26 +1279,34 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
       if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
       if(!BT_IS_SINK_MACHINE(self)) {
         // only do this for the final mix, if at all
-        g_object_set(self->priv->machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+        g_object_set(machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
       }
       GST_DEBUG_OBJECT(self,"  about to link adder -> convert -> dst_elem");
-      if(!self->priv->machines[PART_CAPS_FILTER]) {
-        if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL)) {
-          gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL);
+      if(!machines[PART_CAPS_FILTER]) {
+        res=bt_machine_link_elements(self,src_pads[PART_ADDER], sink_pads[PART_ADDER_CONVERT]);
+        res&=bt_machine_link_elements(self,src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
+        if(!res) {
+          gst_pad_unlink(src_pads[PART_ADDER], sink_pads[PART_ADDER_CONVERT]);
+          gst_pad_unlink(src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
           GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
           goto Error;
         }
       }
       else {
-        if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL)) {
-          gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->priv->dst_elem, NULL);
+        res=bt_machine_link_elements(self,src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
+        res&=bt_machine_link_elements(self,src_pads[PART_CAPS_FILTER], sink_pads[PART_ADDER_CONVERT]);
+        res&=bt_machine_link_elements(self,src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
+        if(!res) {
+          gst_pad_unlink(src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
+          gst_pad_unlink(src_pads[PART_CAPS_FILTER], sink_pads[PART_ADDER_CONVERT]);
+          gst_pad_unlink(src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
           GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
           goto Error;
         }
       }
     }
     GST_DEBUG_OBJECT(self,"  adder activated");
-    self->priv->dst_elem=self->priv->machines[PART_ADDER];
+    self->priv->dst_elem=machines[PART_ADDER];
   }
   res=TRUE;
 Error:
@@ -1344,17 +1344,32 @@ gboolean bt_machine_activate_spreader(BtMachine * const self) {
 
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
+  
+  GstElement **machines=self->priv->machines;
 
-  if(!self->priv->machines[PART_SPREADER]) {
+  if(!machines[PART_SPREADER]) {
+    GstPad **src_pads=self->priv->src_pads;
+    GstPad **sink_pads=self->priv->sink_pads;
+    guint i, tix=PART_MACHINE;
+    
+    // get next element on the sink side
+    for(i=PART_OUTPUT_POST_LEVEL;i>=PART_MACHINE;i--) {
+      if(machines[i]) {
+        tix=i;
+        GST_DEBUG("sink side target at %d: %s:%s",i,GST_PAD_NAME(src_pads[tix]));
+        break;
+      }
+    }
+
     // create the spreader (tee)
     if(!(bt_machine_make_internal_element(self,PART_SPREADER,"tee","tee"))) goto Error;
-    if(!gst_element_link(self->priv->src_elem, self->priv->machines[PART_SPREADER])) {
+    if(!bt_machine_link_elements(self,src_pads[tix], sink_pads[PART_SPREADER])) {
       GST_ERROR_OBJECT(self,"failed to link the internal spreader of machine");
       goto Error;
     }
     else {
       GST_DEBUG_OBJECT(self,"  spreader activated");
-      self->priv->src_elem=self->priv->machines[PART_SPREADER];
+      self->priv->src_elem=machines[PART_SPREADER];
     }
   }
   res=TRUE;
@@ -1410,7 +1425,7 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
     }
   }
   else {
-    GST_WARNING("trying to add pattern again");
+    GST_WARNING_OBJECT(self,"trying to add pattern again");
   }
 }
 
@@ -1433,7 +1448,7 @@ void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * c
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
-    GST_WARNING("trying to remove pattern that is not in machine");
+    GST_WARNING_OBJECT(self,"trying to remove pattern that is not in machine");
   }
 }
 
@@ -1802,7 +1817,7 @@ glong bt_machine_get_global_param_index(const BtMachine *const self, const gchar
     }
   }
   if(!found) {
-    GST_WARNING("global param for name %s not found", name);
+    GST_WARNING_OBJECT(self,"global param for name %s not found", name);
     if(error) {
       g_set_error (error, error_domain, /* errorcode= */0,
                   "global param for name %s not found", name);
@@ -1840,7 +1855,7 @@ glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar
     }
   }
   if(!found) {
-    GST_WARNING("voice param for name %s not found", name);
+    GST_WARNING_OBJECT(self,"voice param for name %s not found", name);
     if(error) {
       g_set_error (error, error_domain, /* errorcode= */0,
                   "voice param for name %s not found", name);
@@ -2035,7 +2050,7 @@ static void bt_machine_get_param_details(const BtMachine * const self, GParamSpe
           // nothing to do for this
           break;
         default:
-          GST_ERROR("unsupported GType=%lu:'%s' ('%s')",(gulong)property->value_type,g_type_name(property->value_type),g_type_name(base_type));
+          GST_ERROR_OBJECT(self,"unsupported GType=%lu:'%s' ('%s')",(gulong)property->value_type,g_type_name(property->value_type),g_type_name(base_type));
       }
     }
   }
@@ -2166,16 +2181,16 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const
         str=gstbt_property_meta_describe_property(GSTBT_PROPERTY_META(voice_child),index,event);
       }
       //else {
-        //GST_WARNING("%s is not PROPERTY_META",self->priv->id);
+        //GST_WARNING_OBJECT(self,"%s is not PROPERTY_META",self->priv->id);
       //}
       g_object_unref(voice_child);
     }
     //else {
-      //GST_WARNING("%s has no voice child",self->priv->id);
+      //GST_WARNING_OBJECT(self,"%s has no voice child",self->priv->id);
     //}
   }
   //else {
-    //GST_WARNING("%s is not CHILD_BIN",self->priv->id);
+    //GST_WARNING_OBJECT(self,"%s is not CHILD_BIN",self->priv->id);
   //}
   return(str);
 }
@@ -2505,7 +2520,7 @@ void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *
       data->handler_id=g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_double_control_notify),(gpointer)data);
       break;
     default:
-      GST_WARNING("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(pspec));
+      GST_WARNING_OBJECT(self,"unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(pspec));
       break;
   }
 
@@ -2987,7 +3002,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
             GST_INFO("initialized global machine data for param %ld: %s",param, name);
           }
           else {
-            GST_WARNING("error while loading global machine data for param %ld: %s",param,error->message);
+            GST_WARNING_OBJECT(self,"error while loading global machine data for param %ld: %s",param,error->message);
             g_error_free(error);error=NULL;
           }
           xmlFree(name);xmlFree(value_str);
@@ -3014,7 +3029,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
             GST_INFO("initialized voice machine data for param %ld: %s",param, name);
           }
           else {
-            GST_WARNING("error while loading voice machine data for param %ld, voice %ld: %s",param,voice,error->message);
+            GST_WARNING_OBJECT(self,"error while loading voice machine data for param %ld, voice %ld: %s",param,voice,error->message);
             g_error_free(error);error=NULL;
           }
           xmlFree(name);xmlFree(value_str);xmlFree(voice_str);
@@ -3030,7 +3045,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
               GError *err=NULL;
               pattern=BT_PATTERN(bt_persistence_load(BT_TYPE_PATTERN,NULL,child_node,&err,"song",self->priv->song,"machine",self,NULL));
               if(err!=NULL) {
-                GST_WARNING("Can't create pattern: %s",err->message);
+                GST_WARNING_OBJECT(self,"Can't create pattern: %s",err->message);
                 g_error_free(err);
               }
               g_object_unref(pattern);
@@ -3229,10 +3244,8 @@ static void bt_machine_constructed(GObject *object) {
   // post sanity checks
   GST_INFO("  added machine %p to bin, machine->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
-  g_assert(self->priv->src_elem!=NULL);
-  g_assert(self->priv->dst_elem!=NULL);
   if(!(self->priv->global_params+self->priv->voice_params)) {
-    GST_WARNING("  machine %s has no params",self->priv->id);
+    GST_WARNING_OBJECT(self,"  machine %s has no params",self->priv->id);
   }
 
   // prepare common internal patterns for the machine
@@ -3244,7 +3257,7 @@ static void bt_machine_constructed(GObject *object) {
   GST_INFO("machine constructed");
   return;
 Error:
-  GST_WARNING("failed to create machine: %s",self->priv->plugin_name);
+  GST_WARNING_OBJECT(self,"failed to create machine: %s",self->priv->plugin_name);
   if(self->priv->constrution_error) {
     g_set_error(self->priv->constrution_error, error_domain, /* errorcode= */0,
                "failed to setup the machine.");
@@ -3428,6 +3441,14 @@ static void bt_machine_dispose(GObject * const object) {
       //self->priv->voice_controllers[i]=NULL; // <- this is wrong, controllers have a refcount on the gstelement
       g_object_try_unref(self->priv->voice_controllers[i]);
     }
+  }
+  
+  // unref the pads
+  for(i=0;i<PART_COUNT;i++) {
+    if(self->priv->src_pads[i])
+      gst_object_unref(self->priv->src_pads[i]);
+    if(self->priv->sink_pads[i])
+      gst_object_unref(self->priv->sink_pads[i]);
   }
 
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin

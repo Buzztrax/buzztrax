@@ -1,3 +1,8 @@
+2010-01-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Use gst_pad_link/unlink. This is most unambigous & faster.
+
 2010-01-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:
@@ -20,7 +25,6 @@
 
 	* src/lib/core/wave.c:
 	  Add todo.
-	  
 
 2010-01-10  Stefan Kost  <ensonic@users.sf.net>
 
