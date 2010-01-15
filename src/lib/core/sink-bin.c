@@ -987,7 +987,7 @@ static void bt_sink_bin_dispose(GObject * const object) {
       gst_pad_remove_buffer_probe(sink_pad,self->priv->mv_handler_id);
       gst_object_unref(sink_pad);
     }
-  }  
+  }
   g_object_try_weak_unref(self->priv->gain);
 
   GST_INFO("self->sink=%p, refct=%d",self->priv->sink,(G_OBJECT(self->priv->sink))->ref_count);

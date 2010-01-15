@@ -1,3 +1,14 @@
+2010-01-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Adding some const, small cleaups.
+
+	* src/lib/core/sink-bin.c:
+	  Whitespace.
+
+	* src/lib/core/wire.c:
+	  Also use fast pad_link in wire. Only analyzers left using slower api.
+
 2010-01-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/about-dialog.c:

@@ -434,7 +434,7 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
 
 /*
  * bt_machine_link_elements:
- * @self: the machine for which the element should be inserted
+ * @self: the machine in which we link
  * @src,@sink: the pads
  *
  * Link two pads.
@@ -450,6 +450,7 @@ static gboolean bt_machine_link_elements(const BtMachine * const self, GstPad *s
   }
   return(TRUE);
 }
+
 /*
  * bt_machine_insert_element:
  * @self: the machine for which the element should be inserted
@@ -465,9 +466,9 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstPad * const 
   gboolean res=FALSE;
   gint i,pre,post;
   BtWire *wire;
-  GstElement **machines=self->priv->machines;
-  GstPad **src_pads=self->priv->src_pads;
-  GstPad **sink_pads=self->priv->sink_pads;
+  GstElement ** const machines=self->priv->machines;
+  GstPad ** const src_pads=self->priv->src_pads;
+  GstPad ** const sink_pads=self->priv->sink_pads;
 
   // look for elements before and after pos
   pre=post=-1;
@@ -688,6 +689,7 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_WARNING_OBJECT(self,"failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
+
   // get the pads
   if(src_pn[part])
     self->priv->src_pads[part]=gst_element_get_static_pad(self->priv->machines[part],src_pn[part]);
@@ -709,9 +711,9 @@ Error:
  */
 static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMachinePart part) {
   gboolean res=FALSE;
-  GstElement **machines=self->priv->machines;
-  GstPad **src_pads=self->priv->src_pads;
-  GstPad **sink_pads=self->priv->sink_pads;
+  GstElement ** const machines=self->priv->machines;
+  GstPad ** const src_pads=self->priv->src_pads;
+  GstPad ** const sink_pads=self->priv->sink_pads;
   GstPad *peer;
   guint i, tix=PART_MACHINE;
 
@@ -756,9 +758,9 @@ Error:
  */
 static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMachinePart part) {
   gboolean res=FALSE;
-  GstElement **machines=self->priv->machines;
-  GstPad **src_pads=self->priv->src_pads;
-  GstPad **sink_pads=self->priv->sink_pads;
+  GstElement ** const machines=self->priv->machines;
+  GstPad ** const src_pads=self->priv->src_pads;
+  GstPad ** const sink_pads=self->priv->sink_pads;
   GstPad *peer;
   guint i, tix=PART_MACHINE;
   
@@ -1196,12 +1198,12 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
   
-  GstElement **machines=self->priv->machines;
+  GstElement ** const machines=self->priv->machines;
 
   if(!machines[PART_ADDER]) {
     gboolean skip_convert=FALSE;
-    GstPad **src_pads=self->priv->src_pads;
-    GstPad **sink_pads=self->priv->sink_pads;
+    GstPad ** const src_pads=self->priv->src_pads;
+    GstPad ** const sink_pads=self->priv->sink_pads;
     guint i, tix=PART_MACHINE;
 
     // get first element on the source side
@@ -1264,10 +1266,11 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     else {
       GST_WARNING_OBJECT(self,"adding converter");
       if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
-      if(!BT_IS_SINK_MACHINE(self)) {
+      //if(!BT_IS_SINK_MACHINE(self)) {
         // only do this for the final mix, if at all
-        g_object_set(machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
-      }
+        // this is off by default anyway
+        //g_object_set(machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+      //}
       GST_DEBUG_OBJECT(self,"  about to link adder -> convert -> dst_elem");
       if(!machines[PART_CAPS_FILTER]) {
         res=bt_machine_link_elements(self,src_pads[PART_ADDER], sink_pads[PART_ADDER_CONVERT]);
@@ -1331,11 +1334,11 @@ gboolean bt_machine_activate_spreader(BtMachine * const self) {
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
   
-  GstElement **machines=self->priv->machines;
+  GstElement ** const machines=self->priv->machines;
 
   if(!machines[PART_SPREADER]) {
-    GstPad **src_pads=self->priv->src_pads;
-    GstPad **sink_pads=self->priv->sink_pads;
+    GstPad ** const src_pads=self->priv->src_pads;
+    GstPad ** const sink_pads=self->priv->sink_pads;
     guint i, tix=PART_MACHINE;
     
     // get next element on the sink side
