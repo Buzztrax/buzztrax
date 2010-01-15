@@ -110,7 +110,7 @@ static void on_comment_changed(GtkEditable *editable,gpointer user_data) {
 //-- helper methods
 
 static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPropertiesDialog *self) {
-  GtkWidget *label,*widget,*table;
+  GtkWidget *label,*widget,*box,*table;
   //GdkPixbuf *window_icon=NULL;
   GList *buttons;
 
@@ -141,12 +141,17 @@ static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPro
   self->priv->okay_button=GTK_WIDGET(g_list_nth_data(buttons,1));
   g_list_free(buttons);
 
+  box=GTK_DIALOG(self)->vbox;
+  gtk_box_set_spacing(GTK_BOX(box),6);
+  gtk_container_set_border_width(GTK_CONTAINER(box),6);
+  
   table=gtk_table_new(/*rows=*/2,/*columns=*/2,/*homogenous=*/FALSE);
+  gtk_container_add(GTK_CONTAINER(box),table);
 
   // GtkEntry : preset name
   label=gtk_label_new(_("name"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
   widget=gtk_entry_new();
   if(self->priv->name)
     gtk_entry_set_text(GTK_ENTRY(widget),self->priv->name);
@@ -159,14 +164,12 @@ static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPro
   // GtkEntry : preset comment
   label=gtk_label_new(_("comment"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
   widget=gtk_entry_new();
   if(self->priv->comment) gtk_entry_set_text(GTK_ENTRY(widget),self->priv->comment);
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_comment_changed), (gpointer)self);
-
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),table);
 }
 
 //-- constructor methods

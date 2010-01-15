@@ -91,7 +91,7 @@ static void on_dialog_response(GtkDialog *dialog,
 //-- helper methods
 
 static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionControllerLearnDialog *self) {
-  GtkWidget *label_detected, *label_naming, *box;
+  GtkWidget *label,*box,*table;
   gchar* title;
 
   gtk_widget_set_name(GTK_WIDGET(self),"interaction controller learn");
@@ -99,31 +99,41 @@ static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionCo
   // set a title
   g_object_get(self->priv->device,"name",&title,NULL);
   gtk_window_set_title(GTK_WINDOW(self), title);
+  g_free(title);
 
   gtk_dialog_add_buttons(GTK_DIALOG(self),
                          GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                          GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
                          NULL);
 
-  label_detected=gtk_label_new(_("detected control"));
-  label_naming=gtk_label_new(_("register as"));
-  self->priv->label_output=gtk_label_new(_("none"));
-  self->priv->entry_name=gtk_entry_new();
-  gtk_entry_set_alignment(GTK_ENTRY(self->priv->entry_name), 0.5f);
-
   box=GTK_DIALOG(self)->vbox;
-  gtk_container_add(GTK_CONTAINER(box), label_detected);
-  gtk_container_add(GTK_CONTAINER(box), self->priv->label_output);
-  gtk_container_add(GTK_CONTAINER(box), label_naming);
-  gtk_container_add(GTK_CONTAINER(box), self->priv->entry_name);
+  gtk_box_set_spacing(GTK_BOX(box),6);
+  gtk_container_set_border_width(GTK_CONTAINER(box),6);
   
+  table=gtk_table_new(/*rows=*/2,/*columns=*/2,/*homogenous=*/FALSE);
+  gtk_container_add(GTK_CONTAINER(box),table);
+
+  label=gtk_label_new(_("detected control"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
+
+  self->priv->label_output=gtk_label_new(_("none"));
+  gtk_misc_set_alignment(GTK_MISC(self->priv->label_output),0.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),self->priv->label_output, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+
+  label=gtk_label_new(_("register as"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
+
+  self->priv->entry_name=gtk_entry_new();
+  gtk_table_attach(GTK_TABLE(table),self->priv->entry_name, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  
+
   g_signal_connect(self->priv->device, "notify::device-controlchange",
 		   G_CALLBACK(notify_device_controlchange), (gpointer)self);
 
   g_signal_connect(GTK_DIALOG(self), "response",
 		   G_CALLBACK(on_dialog_response), (gpointer)self);
-
-  g_free(title);
 
   GST_INFO("BtInteractionControllerLearnDialog ui initialized");
 

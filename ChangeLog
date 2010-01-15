@@ -1,5 +1,16 @@
 2010-01-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	  Unify dialog layout.
+
+2010-01-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Remove two vars.
 

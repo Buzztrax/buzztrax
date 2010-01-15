@@ -130,8 +130,8 @@ static void bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *self) 
   g_list_free(buttons);
 
   // add widgets to the dialog content area
-  box=GTK_DIALOG(self)->vbox;  //gtk_vbox_new(FALSE,12);
-  gtk_box_set_spacing(GTK_BOX(box),12);
+  box=GTK_DIALOG(self)->vbox;
+  gtk_box_set_spacing(GTK_BOX(box),6);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 
   table=gtk_table_new(/*rows=*/1,/*columns=*/2,/*homogenous=*/FALSE);
@@ -140,7 +140,7 @@ static void bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *self) 
   // GtkEntry : machine name
   label=gtk_label_new(_("name"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
   widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(widget),self->priv->name);
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);

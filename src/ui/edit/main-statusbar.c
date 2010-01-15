@@ -260,6 +260,8 @@ static void bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditA
 
   // cpu load
   // @todo: make this dependend on settings (view menu?)
+  // @todo: this pushes the height of the status-bar
+  //   (e.g. setting this to 10 instead of -1 saves pixels)
   self->priv->cpu_load=GTK_PROGRESS_BAR(gtk_progress_bar_new());
   // @idea: this could be used to avoid resizing when the label changes
   //gtk_progress_bar_set_ellipsize(self->priv->cpu_load,PANGO_ELLIPSIZE_END);

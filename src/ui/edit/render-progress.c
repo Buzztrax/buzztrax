@@ -133,8 +133,8 @@ static void bt_render_progress_init_ui(const BtRenderProgress *self) {
   gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_REJECT);
 
   // add widgets to the progress content area
-  box=GTK_DIALOG(self)->vbox;  //gtk_vbox_new(FALSE,12);
-  gtk_box_set_spacing(GTK_BOX(box),12);
+  box=GTK_DIALOG(self)->vbox;
+  gtk_box_set_spacing(GTK_BOX(box),6);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 
 

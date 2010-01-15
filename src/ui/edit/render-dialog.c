@@ -226,8 +226,8 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
                           NULL);
 
   // add widgets to the dialog content area
-  box=GTK_DIALOG(self)->vbox;  //gtk_vbox_new(FALSE,12);
-  gtk_box_set_spacing(GTK_BOX(box),12);
+  box=GTK_DIALOG(self)->vbox;
+  gtk_box_set_spacing(GTK_BOX(box),6);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 
   table=gtk_table_new(/*rows=*/5,/*columns=*/2,/*homogenous=*/FALSE);
@@ -236,7 +236,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
 
   label=gtk_label_new(_("Folder"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
 
   widget=gtk_file_chooser_button_new(_("Select a folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
   gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (widget), self->priv->folder);
@@ -246,7 +246,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
 
   label=gtk_label_new(_("Filename"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
 
   // set deault name
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -272,7 +272,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
 
   label=gtk_label_new(_("Format"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
 
   // query supported formats from sinkbin
   self->priv->format_menu=widget=gtk_combo_box_new_text();
@@ -289,7 +289,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
 
   label=gtk_label_new(_("Mode"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 3, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 3, 4, GTK_FILL,GTK_SHRINK, 2,1);
 
   // query supported formats from sinkbin
   widget=gtk_combo_box_new_text();

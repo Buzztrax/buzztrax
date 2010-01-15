@@ -150,8 +150,8 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   g_list_free(buttons);
 
   // add widgets to the dialog content area
-  box=GTK_DIALOG(self)->vbox;  //gtk_vbox_new(FALSE,12);
-  gtk_box_set_spacing(GTK_BOX(box),12);
+  box=GTK_DIALOG(self)->vbox;
+  gtk_box_set_spacing(GTK_BOX(box),6);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 
   table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
@@ -160,7 +160,7 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   // GtkEntry : pattern name
   label=gtk_label_new(_("name"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
   widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(widget),self->priv->name);
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
@@ -170,7 +170,7 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   // GtkComboBox : pattern length
   label=gtk_label_new(_("length"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
   length_str=g_strdup_printf("%lu",self->priv->length);
   widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(widget),length_str);g_free(length_str);
@@ -180,7 +180,7 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   // GtkSpinButton : number of voices
   label=gtk_label_new(_("voices"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
   // @todo get min/max number of voices
   spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(1.0, 1.0, 16.0, 1.0, 4.0, 0.0));
   widget=gtk_spin_button_new(spin_adjustment,(gdouble)(self->priv->voices),0);
