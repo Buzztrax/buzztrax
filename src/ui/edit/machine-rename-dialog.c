@@ -124,13 +124,13 @@ static void bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *self) 
   gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
   // grab okay button, so that we can block if input is not valid
-  buttons=gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(self)->action_area));
+  buttons=gtk_container_get_children(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(self))));
   GST_INFO("dialog buttons: %d",g_list_length(buttons));
   self->priv->okay_button=GTK_WIDGET(g_list_nth_data(buttons,1));
   g_list_free(buttons);
 
   // add widgets to the dialog content area
-  box=GTK_DIALOG(self)->vbox;
+  box=gtk_dialog_get_content_area(GTK_DIALOG(self));
   gtk_box_set_spacing(GTK_BOX(box),6);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 

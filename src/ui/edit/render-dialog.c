@@ -226,7 +226,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
                           NULL);
 
   // add widgets to the dialog content area
-  box=GTK_DIALOG(self)->vbox;
+  box=gtk_dialog_get_content_area(GTK_DIALOG(self));
   gtk_box_set_spacing(GTK_BOX(box),6);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 

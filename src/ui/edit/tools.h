@@ -51,4 +51,15 @@ extern void gtk_widget_grab_focus_savely(GtkWidget *widget);
     
 #endif
 
+#if !GTK_CHECK_VERSION(2,14,0)
+
+#define gtk_dialog_get_content_area(dialog) \
+    (dialog->vbox)
+
+#define gtk_dialog_get_action_area(dialog) \
+    (dialog->action_area)
+
+#endif
+
+
 #endif // BT_EDIT_TOOLS_H

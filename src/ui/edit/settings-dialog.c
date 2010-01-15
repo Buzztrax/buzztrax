@@ -278,7 +278,7 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
    *   - cpu monitor (view menu?)
    */
 
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
+  gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),box);
 }
 
 //-- constructor methods

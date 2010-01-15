@@ -142,7 +142,7 @@ static void bt_missing_song_elements_dialog_init_ui(const BtMissingSongElementsD
     make_listview(vbox,self->priv->waves,_("The waves listed below are missing or failed to load."));
   }
   gtk_container_add(GTK_CONTAINER(hbox),vbox);
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),hbox);
+  gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),hbox);
 }
 
 //-- constructor methods

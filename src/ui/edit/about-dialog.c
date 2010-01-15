@@ -146,7 +146,7 @@ static void bt_about_dialog_init_ui(const BtAboutDialog *self) {
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (news_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_container_add(GTK_CONTAINER(news_view), news);
 
-  gtk_box_pack_start(GTK_BOX(GTK_DIALOG(self)->vbox), news_view, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(self))), news_view, TRUE, TRUE, 0);
 
   gtk_dialog_set_has_separator(GTK_DIALOG(self), TRUE);
 }

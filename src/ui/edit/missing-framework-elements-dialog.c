@@ -207,7 +207,7 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
     }
   }
   gtk_container_add(GTK_CONTAINER(hbox),vbox);
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),hbox);
+  gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),hbox);
 
   return(res);
 }

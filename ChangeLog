@@ -1,5 +1,23 @@
 2010-01-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/tip-dialog.c:
+	  Use dislog accessors instead of sealed variabled. Fixes #2916141.
+
+	* src/ui/edit/tools.h:
+	  Add dialog accessors for older gtk+ versions.
+
+2010-01-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/interaction-controller-learn-dialog.c:
 	* src/ui/edit/machine-preset-properties-dialog.c:
 	* src/ui/edit/machine-rename-dialog.c:

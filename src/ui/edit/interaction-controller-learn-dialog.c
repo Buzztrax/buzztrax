@@ -106,7 +106,7 @@ static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionCo
                          GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
                          NULL);
 
-  box=GTK_DIALOG(self)->vbox;
+  box=gtk_dialog_get_content_area(GTK_DIALOG(self));
   gtk_box_set_spacing(GTK_BOX(box),6);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
   
