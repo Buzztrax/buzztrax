@@ -27,7 +27,6 @@
  */
 
 /* @todo more graphics:
- * - move state (mute, solo, bypass) elsehwere to have more space for the tile
  * - use svg gfx (design/gui/svgcanvas.c )
  *   - need to have prerenderend images for current zoom level
  *     - idealy have them in ui-resources, in order to have them shared
@@ -43,8 +42,6 @@
  *       one filled o on top of 4 hollow o's
  *   - use transparency for mute/bypass, solo would switch all other sources to
  *     muted, can't differenciate mute from bypass on an fx
- * - have less saturated images for not yet connected machines
- *
  *
  * @todo: add insert before/after to context menu (see wire-canvas item)
  *
@@ -55,12 +52,20 @@
  *   - playing multiple machines with a split keyboard would be nice too
  *
  * @todo: "remove and relink" is difficult if there are non empty wire patterns
- * - those would need to be copies to new target machine(s) and we would need to
- *   add more tracks for playing them.
- * - we could ask the user if that is what he wants:
- *   - "don't remove"
- *   - "drop wire patterns"
- *   - "copy wire patterns"
+ *   - those would need to be copies to new target machine(s) and we would need
+ *     to add more tracks for playing them.
+ *   - we could ask the user if that is what he wants:
+ *     - "don't remove"
+ *     - "drop wire patterns"
+ *     - "copy wire patterns"
+ *
+ * @todo: dialog manager
+ *   - store preferences and properties dialog pointers not here, but in a
+ *     app-wide dialog manager
+ *   - this allows to:
+ *     - show/hide the dialog also from e.g. the pattern/sequence page
+ *     - makes it easier to show/hide all
+ *     - makes it easier to store the state in the song
  */
 
 #define BT_EDIT

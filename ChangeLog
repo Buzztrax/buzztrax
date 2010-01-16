@@ -1,7 +1,14 @@
 2010-01-17  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Planning.
+
+2010-01-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/interaction-controller-learn-dialog.c:
 	* src/ui/edit/machine-preset-properties-dialog.c:
 	* src/ui/edit/machine-rename-dialog.c:
 	* src/ui/edit/pattern-properties-dialog.c:

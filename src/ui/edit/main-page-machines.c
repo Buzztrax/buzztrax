@@ -715,6 +715,13 @@ static gboolean on_page_switched_idle(gpointer user_data) {
   // hmm, when it comes from any but pattern page it works
   // when it comes from pattern page main-pages::on_page_switched comes after this
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
+  
+  /* @todo: use status bar
+   * g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+   * g_object_get(main_window,"statusbar",&statusbar,NULL);
+   * g_object_get(main_window,"statusbar",&statusbar,NULL);
+   * g_object_set(statusbar,"status",_("Add new machines from right click context menu. Connect machines with shift+drag from source to target."),NULL);
+   */
   return(FALSE);
 }
 
@@ -734,6 +741,10 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
     // only do this if the page was BT_MAIN_PAGES_MACHINES_PAGE
     if(prev_page_num == BT_MAIN_PAGES_MACHINES_PAGE) {
       GST_DEBUG("leave machine page");
+      /* @todo: revert status bar:
+       * ...
+       * g_object_set(statusbar,"status",NULL,NULL);
+       */
     }
   }
   prev_page_num = page_num;

@@ -167,9 +167,10 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       GST_INFO("skipping uncompatible element : '%s'",(gchar *)node->data);
       goto next;
     }
-    // @TODO: we could also hide elements without controlable parameters,
+    // @todo: we could also hide elements without controlable parameters,
     // that derive from basesrc, but not from pushsrc
     // this could help to hide "dtmfsrc" and "sfsrc"
+    // for this it would be helpful to get a src/sink hint from the previous function
 
     klass_name=gst_element_factory_get_klass(factory);
     GST_LOG("adding element : '%s' with classification: '%s'",(gchar*)node->data,klass_name);
