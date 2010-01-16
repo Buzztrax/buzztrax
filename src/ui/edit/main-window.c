@@ -911,7 +911,7 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
     NULL);
   g_free(str);
   gtk_container_add(GTK_CONTAINER(box),label);
-  gtk_container_add(GTK_CONTAINER(self->priv->dialog->vbox),box);
+  gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(self->priv->dialog)),box);
   gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
   g_object_notify(G_OBJECT(self), "dialog");
 
@@ -963,7 +963,7 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
     NULL);
   g_free(str);
   gtk_container_add(GTK_CONTAINER(box),label);
-  gtk_container_add(GTK_CONTAINER(self->priv->dialog->vbox),box);
+  gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(self->priv->dialog)),box);
   gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
   g_object_notify(G_OBJECT(self), "dialog");
 
