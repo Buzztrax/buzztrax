@@ -22,9 +22,11 @@
  * SECTION:btinteractioncontrollerlearndialog
  * @short_description: learn dialog for interaction devices
  *
- * A dialog to prompt the user for an input channel assignment.
+ * A dialog to prompt the user for an interaction controller assignment.
  */
-
+/* @todo: having okay & assign would be nice
+ * @todo: having a way to train multiple controllers would be nice
+ */
 #define BT_EDIT
 #define BT_INTERACTION_CONTROLLER_LEARN_DIALOG_C
 
@@ -106,9 +108,10 @@ static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionCo
                          GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
                          NULL);
 
-  box=gtk_dialog_get_content_area(GTK_DIALOG(self));
-  gtk_box_set_spacing(GTK_BOX(box),6);
+  // add widgets to the dialog content area
+  box=gtk_vbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
+  gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),box);
   
   table=gtk_table_new(/*rows=*/2,/*columns=*/2,/*homogenous=*/FALSE);
   gtk_container_add(GTK_CONTAINER(box),table);

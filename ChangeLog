@@ -1,5 +1,16 @@
 2010-01-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	  Use new vbox to not modify the spacing of the dialogs own vbox.
+
+2010-01-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	  Fix two more places where we accessed ->vox of a GtkDialog.
 
