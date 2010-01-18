@@ -25,6 +25,6 @@
 #include "tip-dialog.h"
 #include "edit-application.h"
 
-extern BtTipDialog *bt_tip_dialog_new(const BtEditApplication *app);
+extern BtTipDialog *bt_tip_dialog_new(void);
 
 #endif // BT_TIP_DIALOG_METHDOS_H

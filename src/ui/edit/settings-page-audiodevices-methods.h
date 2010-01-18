@@ -25,6 +25,6 @@
 #include "settings-page-audiodevices.h"
 #include "edit-application.h"
 
-extern BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new(const BtEditApplication *app);
+extern BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new(void);
 
 #endif // BT_SETTINGS_PAGE_AUDIODEVICES_METHDOS_H

@@ -25,6 +25,6 @@
 #include "settings-page-directories.h"
 #include "edit-application.h"
 
-extern BtSettingsPageDirectories *bt_settings_page_directories_new(const BtEditApplication *app);
+extern BtSettingsPageDirectories *bt_settings_page_directories_new(void);
 
 #endif // BT_SETTINGS_PAGE_DIRECTORIES_METHDOS_H

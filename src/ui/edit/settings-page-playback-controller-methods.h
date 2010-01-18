@@ -25,6 +25,6 @@
 #include "settings-page-playback-controller.h"
 #include "edit-application.h"
 
-extern BtSettingsPagePlaybackController *bt_settings_page_playback_controller_new(const BtEditApplication *app);
+extern BtSettingsPagePlaybackController *bt_settings_page_playback_controller_new(void);
 
 #endif // BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER_METHDOS_H

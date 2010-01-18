@@ -1,5 +1,37 @@
 2010-01-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/about-dialog-methods.h:
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/missing-framework-elements-dialog-methods.h:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog-methods.h:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	* src/ui/edit/settings-dialog-methods.h:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-audiodevices-methods.h:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-directories-methods.h:
+	* src/ui/edit/settings-page-directories.c:
+	* src/ui/edit/settings-page-interaction-controller-methods.h:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	* src/ui/edit/settings-page-playback-controller-methods.h:
+	* src/ui/edit/settings-page-playback-controller.c:
+	* src/ui/edit/tip-dialog-methods.h:
+	* src/ui/edit/tip-dialog.c:
+	* src/ui/edit/ui-resources.c:
+	* tests/ui/edit/e-bt-about-dialog.c:
+	* tests/ui/edit/e-bt-missing-framework-elements-dialog.c:
+	* tests/ui/edit/e-bt-missing-song-elements-dialog.c:
+	* tests/ui/edit/e-bt-settings-dialog.c:
+	* tests/ui/edit/e-bt-tip-dialog.c:
+	  Turn BtEditApplication into a signelton. First batch of removing the
+	  properties.
+
+2010-01-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/ui-resources.c:
 	  Turn into a proepr singleton.
 

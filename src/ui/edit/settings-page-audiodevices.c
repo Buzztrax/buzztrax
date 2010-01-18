@@ -30,16 +30,12 @@
 
 #include "bt-edit.h"
 
-enum {
-  SETTINGS_PAGE_AUDIODEVICES_APP=1,
-};
-
 struct _BtSettingsPageAudiodevicesPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   GtkComboBox *audiosink_menu;
   GList *audiosink_names;
@@ -269,17 +265,15 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
 
 /**
  * bt_settings_page_audiodevices_new:
- * @app: the application the dialog belongs to
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new(const BtEditApplication *app) {
+BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new() {
   BtSettingsPageAudiodevices *self;
 
   self=BT_SETTINGS_PAGE_AUDIODEVICES(g_object_new(BT_TYPE_SETTINGS_PAGE_AUDIODEVICES,
-    "app",app,
     "n-rows",5,
     "n-columns",3,
     "homogeneous",FALSE,
@@ -295,29 +289,13 @@ BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new(const BtEditApplic
 
 //-- class internals
 
-static void bt_settings_page_audiodevices_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtSettingsPageAudiodevices *self = BT_SETTINGS_PAGE_AUDIODEVICES(object);
-  return_if_disposed();
-  switch (property_id) {
-    case SETTINGS_PAGE_AUDIODEVICES_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for settings_page_audiodevices: %p",self->priv->app);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_settings_page_audiodevices_dispose(GObject *object) {
   BtSettingsPageAudiodevices *self = BT_SETTINGS_PAGE_AUDIODEVICES(object);
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
@@ -335,6 +313,7 @@ static void bt_settings_page_audiodevices_init(GTypeInstance *instance, gpointer
   BtSettingsPageAudiodevices *self = BT_SETTINGS_PAGE_AUDIODEVICES(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_AUDIODEVICES, BtSettingsPageAudiodevicesPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_settings_page_audiodevices_class_init(BtSettingsPageAudiodevicesClass *klass) {
@@ -343,17 +322,8 @@ static void bt_settings_page_audiodevices_class_init(BtSettingsPageAudiodevicesC
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSettingsPageAudiodevicesPrivate));
 
-  gobject_class->set_property = bt_settings_page_audiodevices_set_property;
   gobject_class->dispose      = bt_settings_page_audiodevices_dispose;
   gobject_class->finalize     = bt_settings_page_audiodevices_finalize;
-
-  g_object_class_install_property(gobject_class,SETTINGS_PAGE_AUDIODEVICES_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the dialog belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
-
 }
 
 GType bt_settings_page_audiodevices_get_type(void) {

@@ -48,9 +48,8 @@
 //-- property ids
 
 enum {
-  MISSING_FRAMEWORK_ELEMENTS_DIALOG_APP=1,
-  MISSING_FRAMEWORK_ELEMENTS_DIALOG_CORE_ELEMENTS,
-  MISSING_FRAMEWORK_ELEMENTS_DIALOG_EDIT_ELEMENTS,
+  MISSING_FRAMEWORK_ELEMENTS_DIALOG_CORE_ELEMENTS=1,
+  MISSING_FRAMEWORK_ELEMENTS_DIALOG_EDIT_ELEMENTS
 };
 
 struct _BtMissingFrameworkElementsDialogPrivate {
@@ -216,7 +215,6 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
 
 /**
  * bt_missing_framework_elements_dialog_new:
- * @app: the application the dialog belongs to
  * @core_elements: list of missing core elements
  * @edit_elements: list of missing edit elements
  *
@@ -224,10 +222,10 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
  *
  * Returns: the new instance or %NULL in case there is nothing new to show
  */
-BtMissingFrameworkElementsDialog *bt_missing_framework_elements_dialog_new(const BtEditApplication *app,GList *core_elements,GList *edit_elements) {
+BtMissingFrameworkElementsDialog *bt_missing_framework_elements_dialog_new(GList *core_elements,GList *edit_elements) {
   BtMissingFrameworkElementsDialog *self;
 
-  self=BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(g_object_new(BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG,"app",app,"core-elements",core_elements,"edit-elements",edit_elements,NULL));
+  self=BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(g_object_new(BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG,"core-elements",core_elements,"edit-elements",edit_elements,NULL));
   if(!bt_missing_framework_elements_dialog_init_ui(self)) {
     goto EmptyLists;
   }
@@ -293,11 +291,6 @@ static void bt_missing_framework_elements_dialog_set_property(GObject *object, g
   BtMissingFrameworkElementsDialog *self = BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case MISSING_FRAMEWORK_ELEMENTS_DIALOG_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
-      GST_DEBUG("set the app for missing_framework_elements_dialog: %p",self->priv->app);
-    } break;
     case MISSING_FRAMEWORK_ELEMENTS_DIALOG_CORE_ELEMENTS: {
       self->priv->core_elements = g_value_get_pointer(value);
     } break;
@@ -318,27 +311,16 @@ static void bt_missing_framework_elements_dialog_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_object_try_unref(self->priv->app);
+  g_object_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
-}
-
-static void bt_missing_framework_elements_dialog_finalize(GObject *object) {
-  BtMissingFrameworkElementsDialog *self = BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(object);
-
-  GST_DEBUG("!!!! self=%p",self);
-
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_missing_framework_elements_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtMissingFrameworkElementsDialog *self = BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG, BtMissingFrameworkElementsDialogPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_missing_framework_elements_dialog_class_init(BtMissingFrameworkElementsDialogClass *klass) {
@@ -349,14 +331,6 @@ static void bt_missing_framework_elements_dialog_class_init(BtMissingFrameworkEl
 
   gobject_class->set_property = bt_missing_framework_elements_dialog_set_property;
   gobject_class->dispose      = bt_missing_framework_elements_dialog_dispose;
-  gobject_class->finalize     = bt_missing_framework_elements_dialog_finalize;
-
-  g_object_class_install_property(gobject_class,MISSING_FRAMEWORK_ELEMENTS_DIALOG_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the dialog belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MISSING_FRAMEWORK_ELEMENTS_DIALOG_CORE_ELEMENTS,
                                   g_param_spec_pointer("core-elements",

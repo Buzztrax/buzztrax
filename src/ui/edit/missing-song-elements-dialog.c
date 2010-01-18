@@ -35,9 +35,8 @@
 //-- property ids
 
 enum {
-  MISSING_SONG_ELEMENTS_DIALOG_APP=1,
-  MISSING_SONG_ELEMENTS_DIALOG_MACHINES,
-  MISSING_SONG_ELEMENTS_DIALOG_WAVES,
+  MISSING_SONG_ELEMENTS_DIALOG_MACHINES=1,
+  MISSING_SONG_ELEMENTS_DIALOG_WAVES
 };
 
 struct _BtMissingSongElementsDialogPrivate {
@@ -149,7 +148,6 @@ static void bt_missing_song_elements_dialog_init_ui(const BtMissingSongElementsD
 
 /**
  * bt_missing_song_elements_dialog_new:
- * @app: the application the dialog belongs to
  * @machines: list of missing machine elements
  * @waves: list of missing wave files
  *
@@ -157,10 +155,10 @@ static void bt_missing_song_elements_dialog_init_ui(const BtMissingSongElementsD
  *
  * Returns: the new instance
  */
-BtMissingSongElementsDialog *bt_missing_song_elements_dialog_new(const BtEditApplication *app,GList *machines,GList *waves) {
+BtMissingSongElementsDialog *bt_missing_song_elements_dialog_new(GList *machines,GList *waves) {
   BtMissingSongElementsDialog *self;
 
-  self=BT_MISSING_SONG_ELEMENTS_DIALOG(g_object_new(BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG,"app",app,"machines",machines,"waves",waves,NULL));
+  self=BT_MISSING_SONG_ELEMENTS_DIALOG(g_object_new(BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG,"machines",machines,"waves",waves,NULL));
   bt_missing_song_elements_dialog_init_ui(self);
   return(self);
 }
@@ -175,11 +173,6 @@ static void bt_missing_song_elements_dialog_set_property(GObject *object, guint 
   BtMissingSongElementsDialog *self = BT_MISSING_SONG_ELEMENTS_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case MISSING_SONG_ELEMENTS_DIALOG_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
-      GST_DEBUG("set the app for missing_song_elements_dialog: %p",self->priv->app);
-    } break;
     case MISSING_SONG_ELEMENTS_DIALOG_MACHINES: {
       self->priv->machines = g_value_get_pointer(value);
     } break;
@@ -194,33 +187,21 @@ static void bt_missing_song_elements_dialog_set_property(GObject *object, guint 
 
 static void bt_missing_song_elements_dialog_dispose(GObject *object) {
   BtMissingSongElementsDialog *self = BT_MISSING_SONG_ELEMENTS_DIALOG(object);
-
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_object_try_unref(self->priv->app);
+  g_object_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
-}
-
-static void bt_missing_song_elements_dialog_finalize(GObject *object) {
-  BtMissingSongElementsDialog *self = BT_MISSING_SONG_ELEMENTS_DIALOG(object);
-
-  GST_DEBUG("!!!! self=%p",self);
-
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_missing_song_elements_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtMissingSongElementsDialog *self = BT_MISSING_SONG_ELEMENTS_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG, BtMissingSongElementsDialogPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_missing_song_elements_dialog_class_init(BtMissingSongElementsDialogClass *klass) {
@@ -231,14 +212,6 @@ static void bt_missing_song_elements_dialog_class_init(BtMissingSongElementsDial
 
   gobject_class->set_property = bt_missing_song_elements_dialog_set_property;
   gobject_class->dispose      = bt_missing_song_elements_dialog_dispose;
-  gobject_class->finalize     = bt_missing_song_elements_dialog_finalize;
-
-  g_object_class_install_property(gobject_class,MISSING_SONG_ELEMENTS_DIALOG_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the dialog belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MISSING_SONG_ELEMENTS_DIALOG_MACHINES,
                                   g_param_spec_pointer("machines",

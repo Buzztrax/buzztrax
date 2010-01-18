@@ -53,7 +53,7 @@ BT_START_TEST(test_create_dialog) {
   fail_unless(main_window != NULL, NULL);
 
   // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_settings_dialog_new(app));
+  dialog=GTK_WIDGET(bt_settings_dialog_new());
   fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)

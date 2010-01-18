@@ -32,8 +32,7 @@
 #include "bt-edit.h"
 
 enum {
-  SETTINGS_DIALOG_APP=1,
-  SETTINGS_DIALOG_PAGE
+  SETTINGS_DIALOG_PAGE=1
 };
 
 enum {
@@ -48,7 +47,7 @@ struct _BtSettingsDialogPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* current page */
   BtSettingsPage page;
@@ -224,21 +223,21 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_container_add(GTK_CONTAINER(box),GTK_WIDGET(self->priv->settings_pages));
 
   // add audio device page
-  self->priv->audiodevices_page=bt_settings_page_audiodevices_new(self->priv->app);
+  self->priv->audiodevices_page=bt_settings_page_audiodevices_new();
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->audiodevices_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
   gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_AUDIO_DEVICES),
   gtk_label_new(_("Audio Devices")));
 
   // add interaction controller page
-  self->priv->interaction_controller_page=bt_settings_page_interaction_controller_new(self->priv->app);
+  self->priv->interaction_controller_page=bt_settings_page_interaction_controller_new();
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->interaction_controller_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
   gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_INTERACTION_CONTROLLER),
   gtk_label_new(_("Interaction Controller")));
 
   // add playback controller page
-  self->priv->playback_controller_page=bt_settings_page_playback_controller_new(self->priv->app);
+  self->priv->playback_controller_page=bt_settings_page_playback_controller_new();
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->playback_controller_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
   gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER),
@@ -263,7 +262,7 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_label_new(_("Shortcuts")));
 
   // add notebook page #6
-  self->priv->directories_page=bt_settings_page_directories_new(self->priv->app);
+  self->priv->directories_page=bt_settings_page_directories_new();
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->directories_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
   gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_DIRECTORIES),
@@ -285,16 +284,15 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
 
 /**
  * bt_settings_dialog_new:
- * @app: the application the dialog belongs to
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtSettingsDialog *bt_settings_dialog_new(const BtEditApplication *app) {
+BtSettingsDialog *bt_settings_dialog_new(void) {
   BtSettingsDialog *self;
 
-  self=BT_SETTINGS_DIALOG(g_object_new(BT_TYPE_SETTINGS_DIALOG,"app",app,NULL));
+  self=BT_SETTINGS_DIALOG(g_object_new(BT_TYPE_SETTINGS_DIALOG,NULL));
   bt_settings_dialog_init_ui(self);
   return(self);
 }
@@ -322,12 +320,6 @@ static void bt_settings_dialog_set_property(GObject *object, guint property_id, 
   BtSettingsDialog *self = BT_SETTINGS_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case SETTINGS_DIALOG_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
-    } break;
     case SETTINGS_DIALOG_PAGE: {
       BtSettingsPage old_page=self->priv->page;
 
@@ -358,23 +350,16 @@ static void bt_settings_dialog_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
-}
-
-static void bt_settings_dialog_finalize(GObject *object) {
-  //BtSettingsDialog *self = BT_SETTINGS_DIALOG(object);
-
-  //GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_settings_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtSettingsDialog *self = BT_SETTINGS_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_DIALOG, BtSettingsDialogPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
@@ -386,14 +371,6 @@ static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
   gobject_class->set_property = bt_settings_dialog_set_property;
   gobject_class->get_property = bt_settings_dialog_get_property;
   gobject_class->dispose      = bt_settings_dialog_dispose;
-  gobject_class->finalize     = bt_settings_dialog_finalize;
-
-  g_object_class_install_property(gobject_class,SETTINGS_DIALOG_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the dialog belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SETTINGS_DIALOG_PAGE,
                                   g_param_spec_enum("page",

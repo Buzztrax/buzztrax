@@ -25,6 +25,6 @@
 #include "settings-dialog.h"
 #include "edit-application.h"
 
-extern BtSettingsDialog *bt_settings_dialog_new(const BtEditApplication *app);
+extern BtSettingsDialog *bt_settings_dialog_new(void);
 
 #endif // BT_SETTINGS_DIALOG_METHDOS_H

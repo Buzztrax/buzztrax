@@ -65,6 +65,8 @@ struct _BtEditApplicationPrivate {
 
 static BtApplicationClass *parent_class=NULL;
 
+static BtEditApplication *singleton=NULL;
+
 //-- event handler
 
 static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer user_data) {
@@ -138,7 +140,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
   if(missing) {
     GtkWidget *dialog;
 
-    if((dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(self,missing_core_elements, missing_edit_elements)))) {
+    if((dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(missing_core_elements, missing_edit_elements)))) {
       gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
       gtk_widget_show_all(dialog);
 
@@ -202,9 +204,9 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
 /**
  * bt_edit_application_new:
  *
- * Create a new instance
+ * Create a new instance on first call and return a reference later on.
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new signleton instance
  */
 BtEditApplication *bt_edit_application_new(void) {
   return(BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL)));
@@ -364,7 +366,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     if(missing_machines || missing_waves) {
       GtkWidget *dialog;
 
-      if((dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(self,missing_machines,missing_waves)))) {
+      if((dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(missing_machines,missing_waves)))) {
         gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
         gtk_widget_show_all(dialog);
 
@@ -536,7 +538,7 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
 void bt_edit_application_show_about(const BtEditApplication *self) {
   GtkWidget *dialog;
 
-  if((dialog=GTK_WIDGET(bt_about_dialog_new(self)))) {
+  if((dialog=GTK_WIDGET(bt_about_dialog_new()))) {
     // set parent relationship
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
     gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
@@ -556,7 +558,7 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
 void bt_edit_application_show_tip(const BtEditApplication *self) {
   GtkWidget *dialog;
 
-  if((dialog=GTK_WIDGET(bt_tip_dialog_new(self)))) {
+  if((dialog=GTK_WIDGET(bt_tip_dialog_new()))) {
     // set parent relationship
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
     gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
@@ -668,31 +670,38 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
   }
 }
 
-static GObject* bt_edit_application_construct(GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
-  BtEditApplication *self;
-  
-  //GST_DEBUG("<<<");
-  self = BT_EDIT_APPLICATION (G_OBJECT_CLASS (parent_class)->constructor (type, n_construct_params, construct_params));
-  GST_INFO("new edit app instantiated");
-  // create or ref the shared ui ressources
-  self->priv->ui_resources=bt_ui_resources_new();
-  // create the playback controller
-  self->priv->pb_controller=bt_playback_controller_socket_new(self);
-  // create the interaction controller registry
-  self->priv->ic_registry=btic_registry_new();
-  // create main window
-  GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
-  self->priv->main_window=bt_main_window_new(self);
+static GObject* bt_edit_application_constructor(GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
+  GObject *object;
 
-  // warning: dereferencing type-punned pointer will break strict-aliasing rules
-  g_object_add_weak_pointer(G_OBJECT(self->priv->main_window),(gpointer*)(gpointer)&self->priv->main_window);
+  if(G_UNLIKELY(!singleton)) {
+    object=G_OBJECT_CLASS(parent_class)->constructor(type,n_construct_params,construct_params);
+    singleton=BT_EDIT_APPLICATION(object);
+
+    //GST_DEBUG("<<<");
+    GST_INFO("new edit app instantiated");
+    // create or ref the shared ui ressources
+    singleton->priv->ui_resources=bt_ui_resources_new();
+    // create the playback controller
+    singleton->priv->pb_controller=bt_playback_controller_socket_new(singleton);
+    // create the interaction controller registry
+    singleton->priv->ic_registry=btic_registry_new();
+    // create main window
+    GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(singleton)->ref_count);
+    singleton->priv->main_window=bt_main_window_new(singleton);
+  
+    // warning: dereferencing type-punned pointer will break strict-aliasing rules
+    g_object_add_weak_pointer(G_OBJECT(singleton->priv->main_window),(gpointer*)(gpointer)&singleton->priv->main_window);
 #ifdef USE_HILDON
-  hildon_program_add_window(HILDON_PROGRAM(hildon_program_get_instance()),
-    HILDON_WINDOW(self->priv->main_window));
+    hildon_program_add_window(HILDON_PROGRAM(hildon_program_get_instance()),
+      HILDON_WINDOW(singleton->priv->main_window));
 #endif
-  GST_INFO("new edit app window created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
-  //GST_DEBUG(">>>");
-  return(G_OBJECT(self));
+    GST_INFO("new edit app window created, app->ref_ct=%d",G_OBJECT(singleton)->ref_count);
+    //GST_DEBUG(">>>");
+  }
+  else {
+    object=g_object_ref(G_OBJECT(singleton));
+  }
+  return object;
 }
 
 
@@ -755,7 +764,7 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtEditApplicationPrivate));
 
-  gobject_class->constructor  = bt_edit_application_construct;
+  gobject_class->constructor  = bt_edit_application_constructor;
   gobject_class->set_property = bt_edit_application_set_property;
   gobject_class->get_property = bt_edit_application_get_property;
   gobject_class->dispose      = bt_edit_application_dispose;

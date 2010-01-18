@@ -335,7 +335,7 @@ static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) 
   GtkWidget *dialog;
 
   GST_INFO("menu settings event occurred");
-  if((dialog=GTK_WIDGET(bt_settings_dialog_new(self->priv->app)))) {
+  if((dialog=GTK_WIDGET(bt_settings_dialog_new()))) {
     BtMainWindow *main_window;
 
     g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);

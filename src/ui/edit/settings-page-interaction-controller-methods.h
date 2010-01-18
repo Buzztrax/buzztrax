@@ -25,6 +25,6 @@
 #include "settings-page-interaction-controller.h"
 #include "edit-application.h"
 
-extern BtSettingsPageInteractionController *bt_settings_page_interaction_controller_new(const BtEditApplication *app);
+extern BtSettingsPageInteractionController *bt_settings_page_interaction_controller_new(void);
 
 #endif // BT_SETTINGS_PAGE_INTERACTION_CONTROLLER_METHDOS_H

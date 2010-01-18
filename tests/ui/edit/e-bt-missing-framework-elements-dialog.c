@@ -50,7 +50,7 @@ BT_START_TEST(test_create_empty_dialog) {
   fail_unless(main_window != NULL, NULL);
 
   // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(app,NULL,NULL));
+  dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(NULL,NULL));
   fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)
@@ -87,7 +87,7 @@ BT_START_TEST(test_create_dialog) {
   missing_elements=g_list_append(missing_elements,"-> You will not see any level-meters");
 
   // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(app,NULL,missing_elements));
+  dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(NULL,missing_elements));
   fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)

@@ -25,6 +25,6 @@
 #include "about-dialog.h"
 #include "edit-application.h"
 
-extern BtAboutDialog *bt_about_dialog_new(const BtEditApplication *app);
+extern BtAboutDialog *bt_about_dialog_new(void);
 
 #endif // BT_ABOUT_DIALOG_METHDOS_H

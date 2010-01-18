@@ -50,7 +50,7 @@ BT_START_TEST(test_create_empty_dialog) {
   fail_unless(main_window != NULL, NULL);
 
   // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(app,NULL,NULL));
+  dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(NULL,NULL));
   fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)
@@ -88,7 +88,7 @@ BT_START_TEST(test_create_dialog) {
   missing_waves=g_list_append(missing_waves,"/home/user/sounds/meep.wav");
 
   // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(app,missing_machines,missing_waves));
+  dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(missing_machines,missing_waves));
   fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)

@@ -292,7 +292,7 @@ static void bt_ui_resources_init_graphics(BtUIResources *self) {
 /**
  * bt_ui_resources_new:
  *
- * Create a new instance
+ * Create a new instance on first call and return a reference later on.
  *
  * Returns: the new signleton instance
  */
@@ -499,10 +499,10 @@ static void bt_ui_resources_finalize(GObject *object) {
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
-static GObject *bt_ui_resources_constructor (GType type,guint n_construct_params,GObjectConstructParam *construct_params) {
+static GObject *bt_ui_resources_constructor(GType type,guint n_construct_params,GObjectConstructParam *construct_params) {
   GObject *object;
 
-  if(!singleton) {
+  if(G_UNLIKELY(!singleton)) {
     object=G_OBJECT_CLASS(parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BT_UI_RESOURCES(object);
 

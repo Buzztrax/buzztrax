@@ -25,7 +25,7 @@
 #include "missing-framework-elements-dialog.h"
 #include "edit-application.h"
 
-extern BtMissingFrameworkElementsDialog *bt_missing_framework_elements_dialog_new(const BtEditApplication *app,GList *core_elements,GList *edit_elements);
+extern BtMissingFrameworkElementsDialog *bt_missing_framework_elements_dialog_new(GList *core_elements,GList *edit_elements);
 extern void bt_missing_framework_elements_dialog_apply(const BtMissingFrameworkElementsDialog *self);
 
 #endif // BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG_METHDOS_H

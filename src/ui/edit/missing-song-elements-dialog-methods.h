@@ -25,6 +25,6 @@
 #include "missing-song-elements-dialog.h"
 #include "edit-application.h"
 
-extern BtMissingSongElementsDialog *bt_missing_song_elements_dialog_new(const BtEditApplication *app,GList *machines,GList *waves);
+extern BtMissingSongElementsDialog *bt_missing_song_elements_dialog_new(GList *machines,GList *waves);
 
 #endif // BT_MISSING_SONG_ELEMENTS_DIALOG_METHDOS_H
