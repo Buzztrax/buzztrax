@@ -25,6 +25,6 @@
 #include "machine-properties-dialog.h"
 #include "edit-application.h"
 
-extern BtMachinePropertiesDialog *bt_machine_properties_dialog_new(const BtEditApplication *app,const BtMachine *machine);
+extern BtMachinePropertiesDialog *bt_machine_properties_dialog_new(const BtMachine *machine);
 
 #endif // BT_MACHINE_PROPERTIES_DIALOG_METHDOS_H

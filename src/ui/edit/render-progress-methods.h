@@ -25,7 +25,7 @@
 #include "render-progress.h"
 #include "edit-application.h"
 
-extern BtRenderProgress *bt_render_progress_new(const BtEditApplication *app,BtRenderDialog *settings);
+extern BtRenderProgress *bt_render_progress_new(BtRenderDialog *settings);
 extern void bt_render_progress_run(const BtRenderProgress *self);
 
 #endif // BT_RENDER_PROGRESS_METHDOS_H

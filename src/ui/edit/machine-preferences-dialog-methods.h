@@ -25,6 +25,6 @@
 #include "machine-preferences-dialog.h"
 #include "edit-application.h"
 
-extern BtMachinePreferencesDialog *bt_machine_preferences_dialog_new(const BtEditApplication *app,const BtMachine *machine);
+extern BtMachinePreferencesDialog *bt_machine_preferences_dialog_new(const BtMachine *machine);
 
 #endif // BT_MACHINE_PREFERENCES_DIALOG_METHDOS_H

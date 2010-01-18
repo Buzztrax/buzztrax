@@ -33,8 +33,7 @@
 //-- property ids
 
 enum {
-  MACHINE_RENAME_DIALOG_APP=1,
-  MACHINE_RENAME_DIALOG_MACHINE
+  MACHINE_RENAME_DIALOG_MACHINE=1
 };
 
 struct _BtMachineRenameDialogPrivate {
@@ -152,17 +151,16 @@ static void bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *self) 
 
 /**
  * bt_machine_rename_dialog_new:
- * @app: the application the dialog belongs to
  * @machine: the machine for which to create the dialog for
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMachineRenameDialog *bt_machine_rename_dialog_new(const BtEditApplication *app,const BtMachine *machine) {
+BtMachineRenameDialog *bt_machine_rename_dialog_new(const BtMachine *machine) {
   BtMachineRenameDialog *self;
 
-  self=BT_MACHINE_RENAME_DIALOG(g_object_new(BT_TYPE_MACHINE_RENAME_DIALOG,"app",app,"machine",machine,NULL));
+  self=BT_MACHINE_RENAME_DIALOG(g_object_new(BT_TYPE_MACHINE_RENAME_DIALOG,"machine",machine,NULL));
   bt_machine_rename_dialog_init_ui(self);
   return(self);
 }
@@ -189,11 +187,6 @@ static void bt_machine_rename_dialog_set_property(GObject *object, guint propert
   BtMachineRenameDialog *self = BT_MACHINE_RENAME_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case MACHINE_RENAME_DIALOG_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
-    } break;
     case MACHINE_RENAME_DIALOG_MACHINE: {
       g_object_try_unref(self->priv->machine);
       self->priv->machine = g_object_try_ref(g_value_get_object(value));
@@ -212,13 +205,11 @@ static void bt_machine_rename_dialog_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
   g_object_try_unref(self->priv->setup);
+  g_object_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_machine_rename_dialog_finalize(GObject *object) {
@@ -228,15 +219,14 @@ static void bt_machine_rename_dialog_finalize(GObject *object) {
 
   g_free(self->priv->name);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_machine_rename_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtMachineRenameDialog *self = BT_MACHINE_RENAME_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_RENAME_DIALOG, BtMachineRenameDialogPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_machine_rename_dialog_class_init(BtMachineRenameDialogClass *klass) {
@@ -248,13 +238,6 @@ static void bt_machine_rename_dialog_class_init(BtMachineRenameDialogClass *klas
   gobject_class->set_property = bt_machine_rename_dialog_set_property;
   gobject_class->dispose      = bt_machine_rename_dialog_dispose;
   gobject_class->finalize     = bt_machine_rename_dialog_finalize;
-
-  g_object_class_install_property(gobject_class,MACHINE_RENAME_DIALOG_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the dialog belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_RENAME_DIALOG_MACHINE,
                                   g_param_spec_object("machine",

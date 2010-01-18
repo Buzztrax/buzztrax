@@ -25,6 +25,6 @@
 #include "render-dialog.h"
 #include "edit-application.h"
 
-extern BtRenderDialog *bt_render_dialog_new(const BtEditApplication *app);
+extern BtRenderDialog *bt_render_dialog_new(void);
 
 #endif // BT_RENDER_DIALOG_METHDOS_H

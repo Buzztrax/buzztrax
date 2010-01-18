@@ -1,5 +1,29 @@
 2010-01-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-preferences-dialog-methods.h:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog-methods.h:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog-methods.h:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog-methods.h:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/render-dialog-methods.h:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress-methods.h:
+	* src/ui/edit/render-progress.c:
+	* tests/ui/edit/e-bt-machine-preferences-dialog.c:
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	* tests/ui/edit/e-bt-machine-properties-dialog.c:
+	* tests/ui/edit/e-bt-machine-rename-dialog.c:
+	* tests/ui/edit/e-bt-render-dialog.c:
+	* tests/ui/edit/e-bt-render-progress-dialog.c:
+	  2nd batch of removing the "app" properties.
+
+2010-01-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/POTFILES.in:
 	  Add two missing files.
 

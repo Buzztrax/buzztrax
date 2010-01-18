@@ -33,8 +33,7 @@
 #include "bt-edit.h"
 
 enum {
-  RENDER_PROGRESS_APP=1,
-  RENDER_PROGRESS_SETTINGS
+  RENDER_PROGRESS_SETTINGS=1
 };
 
 struct _BtRenderProgressPrivate {
@@ -42,7 +41,7 @@ struct _BtRenderProgressPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* dialog that has the settings */
   G_POINTER_ALIAS(BtRenderDialog *,settings);
@@ -149,17 +148,16 @@ static void bt_render_progress_init_ui(const BtRenderProgress *self) {
 
 /**
  * bt_render_progress_new:
- * @app: the application the progress-dialog belongs to
  * @settings: the settings for the rendering
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtRenderProgress *bt_render_progress_new(const BtEditApplication *app,BtRenderDialog *settings) {
+BtRenderProgress *bt_render_progress_new(BtRenderDialog *settings) {
   BtRenderProgress *self;
 
-  self=BT_RENDER_PROGRESS(g_object_new(BT_TYPE_RENDER_PROGRESS,"app",app,"settings",settings,NULL));
+  self=BT_RENDER_PROGRESS(g_object_new(BT_TYPE_RENDER_PROGRESS,"settings",settings,NULL));
   bt_render_progress_init_ui(self);
   return(self);
 }
@@ -260,12 +258,6 @@ static void bt_render_progress_set_property(GObject *object, guint property_id, 
   BtRenderProgress *self = BT_RENDER_PROGRESS(object);
   return_if_disposed();
   switch (property_id) {
-    case RENDER_PROGRESS_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for render_progress: %p",self->priv->app);
-    } break;
     case RENDER_PROGRESS_SETTINGS: {
       g_object_try_weak_unref(self->priv->settings);
       self->priv->settings = BT_RENDER_DIALOG(g_value_get_object(value));
@@ -292,24 +284,17 @@ static void bt_render_progress_dispose(GObject *object) {
     g_object_unref(song);
   }
   
-  g_object_try_weak_unref(self->priv->app);
   g_object_try_weak_unref(self->priv->settings);
+  g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
-}
-
-static void bt_render_progress_finalize(GObject *object) {
-  //BtRenderProgress *self = BT_RENDER_PROGRESS(object);
-
-  //GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_render_progress_init(GTypeInstance *instance, gpointer g_class) {
   BtRenderProgress *self = BT_RENDER_PROGRESS(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_RENDER_PROGRESS, BtRenderProgressPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_render_progress_class_init(BtRenderProgressClass *klass) {
@@ -320,14 +305,6 @@ static void bt_render_progress_class_init(BtRenderProgressClass *klass) {
 
   gobject_class->set_property = bt_render_progress_set_property;
   gobject_class->dispose      = bt_render_progress_dispose;
-  gobject_class->finalize     = bt_render_progress_finalize;
-
-  g_object_class_install_property(gobject_class,RENDER_PROGRESS_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the progress belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,RENDER_PROGRESS_SETTINGS,
                                   g_param_spec_object("settings",

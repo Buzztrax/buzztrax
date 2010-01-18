@@ -37,8 +37,7 @@
 //-- property ids
 
 enum {
-  MACHINE_PREFERENCES_DIALOG_APP=1,
-  MACHINE_PREFERENCES_DIALOG_MACHINE
+  MACHINE_PREFERENCES_DIALOG_MACHINE=1
 };
 
 struct _BtMachinePreferencesDialogPrivate {
@@ -521,17 +520,16 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
 
 /**
  * bt_machine_preferences_dialog_new:
- * @app: the application the dialog belongs to
  * @machine: the machine to create the dialog for
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMachinePreferencesDialog *bt_machine_preferences_dialog_new(const BtEditApplication *app,const BtMachine *machine) {
+BtMachinePreferencesDialog *bt_machine_preferences_dialog_new(const BtMachine *machine) {
   BtMachinePreferencesDialog *self;
 
-  self=BT_MACHINE_PREFERENCES_DIALOG(g_object_new(BT_TYPE_MACHINE_PREFERENCES_DIALOG,"app",app,"machine",machine,NULL));
+  self=BT_MACHINE_PREFERENCES_DIALOG(g_object_new(BT_TYPE_MACHINE_PREFERENCES_DIALOG,"machine",machine,NULL));
   bt_machine_preferences_dialog_init_ui(self);
   gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
@@ -547,11 +545,6 @@ static void bt_machine_preferences_dialog_set_property(GObject *object, guint pr
   BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case MACHINE_PREFERENCES_DIALOG_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
-    } break;
     case MACHINE_PREFERENCES_DIALOG_MACHINE: {
       g_object_try_unref(self->priv->machine);
       self->priv->machine = g_object_try_ref(g_value_get_object(value));
@@ -577,28 +570,17 @@ static void bt_machine_preferences_dialog_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_entry_property_notify,NULL);
   g_object_unref(machine);
 
-  g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
+  g_object_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
-}
-
-static void bt_machine_preferences_dialog_finalize(GObject *object) {
-  //BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG(object);
-
-  //GST_DEBUG("!!!! self=%p",self);
-
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_machine_preferences_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PREFERENCES_DIALOG, BtMachinePreferencesDialogPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogClass *klass) {
@@ -611,14 +593,6 @@ static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogC
 
   gobject_class->set_property = bt_machine_preferences_dialog_set_property;
   gobject_class->dispose      = bt_machine_preferences_dialog_dispose;
-  gobject_class->finalize     = bt_machine_preferences_dialog_finalize;
-
-  g_object_class_install_property(gobject_class,MACHINE_PREFERENCES_DIALOG_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the dialog belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_PREFERENCES_DIALOG_MACHINE,
                                   g_param_spec_object("machine",

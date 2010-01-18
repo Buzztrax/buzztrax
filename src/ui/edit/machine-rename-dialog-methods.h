@@ -25,7 +25,7 @@
 #include "machine-rename-dialog.h"
 #include "edit-application.h"
 
-extern BtMachineRenameDialog *bt_machine_rename_dialog_new(const BtEditApplication *app,const BtMachine *machine);
+extern BtMachineRenameDialog *bt_machine_rename_dialog_new(const BtMachine *machine);
 extern void bt_machine_rename_dialog_apply(const BtMachineRenameDialog *self);
 
 #endif // BT_MACHINE_RENAME_DIALOG_METHDOS_H

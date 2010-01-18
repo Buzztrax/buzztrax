@@ -135,29 +135,24 @@ static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
 static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   GtkWidget *settings,*progress;
+  BtMainWindow *main_window;
 
   GST_INFO("menu render event occurred");
-  if((settings=GTK_WIDGET(bt_render_dialog_new(self->priv->app)))) {
-    BtMainWindow *main_window;
-    gint answer;
-
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    gtk_window_set_transient_for(GTK_WINDOW(settings),GTK_WINDOW(main_window));
-    gtk_widget_show_all(settings);
-    answer=gtk_dialog_run(GTK_DIALOG(settings));
-    if(answer==GTK_RESPONSE_ACCEPT) {
-      gtk_widget_hide_all(settings);
-      if((progress=GTK_WIDGET(bt_render_progress_new(self->priv->app,BT_RENDER_DIALOG(settings))))) {
-        gtk_window_set_transient_for(GTK_WINDOW(progress),GTK_WINDOW(main_window));
-        gtk_widget_show_all(progress);
-        // run song rendering
-        bt_render_progress_run(BT_RENDER_PROGRESS(progress));
-        gtk_widget_destroy(progress);
-      }
-    }
-    gtk_widget_destroy(settings);
-    g_object_unref(main_window);
+  settings=GTK_WIDGET(bt_render_dialog_new());
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  gtk_window_set_transient_for(GTK_WINDOW(settings),GTK_WINDOW(main_window));
+  gtk_widget_show_all(settings);
+  if(gtk_dialog_run(GTK_DIALOG(settings))==GTK_RESPONSE_ACCEPT) {
+    gtk_widget_hide_all(settings);
+    progress=GTK_WIDGET(bt_render_progress_new(BT_RENDER_DIALOG(settings)));
+    gtk_window_set_transient_for(GTK_WINDOW(progress),GTK_WINDOW(main_window));
+    gtk_widget_show_all(progress);
+    // run song rendering
+    bt_render_progress_run(BT_RENDER_PROGRESS(progress));
+    gtk_widget_destroy(progress);
   }
+  gtk_widget_destroy(settings);
+  g_object_unref(main_window);
 }
 
 static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {

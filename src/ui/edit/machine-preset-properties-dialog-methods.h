@@ -25,7 +25,7 @@
 #include "machine-preset-properties-dialog.h"
 #include "edit-application.h"
 
-extern BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(const BtEditApplication *app,GstElement *machine,gchar **name,gchar **comment);
+extern BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(GstElement *machine,gchar **name,gchar **comment);
 extern void bt_machine_preset_properties_dialog_apply(const BtMachinePresetPropertiesDialog *self);
 
 #endif // BT_MACHINE_PRESET_PROPERTIES_DIALOG_METHDOS_H

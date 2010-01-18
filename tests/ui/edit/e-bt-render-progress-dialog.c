@@ -54,11 +54,11 @@ BT_START_TEST(test_create_dialog) {
   fail_unless(main_window != NULL, NULL);
 
   // create parent
-  render_settings=bt_render_dialog_new(app);
+  render_settings=bt_render_dialog_new();
   fail_unless(render_settings!=NULL, NULL);
   
   // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_render_progress_new(app,render_settings));
+  dialog=GTK_WIDGET(bt_render_progress_new(render_settings));
   fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)

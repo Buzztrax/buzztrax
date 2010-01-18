@@ -63,7 +63,7 @@ BT_START_TEST(test_machine_preferences_dialog) {
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
 
-  dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(app,machine));
+  dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(machine));
   fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
 

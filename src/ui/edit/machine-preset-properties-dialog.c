@@ -33,8 +33,7 @@
 //-- property ids
 
 enum {
-  MACHINE_PRESET_PROPERTIES_DIALOG_APP=1,
-  MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE,
+  MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE=1,
   MACHINE_PRESET_PROPERTIES_DIALOG_NAME,
   MACHINE_PRESET_PROPERTIES_DIALOG_COMMENT
 };
@@ -176,7 +175,6 @@ static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPro
 
 /**
  * bt_machine_preset_properties_dialog_new:
- * @app: the application the dialog belongs to
  * @machine: the machine for which to create the dialog for
  * @name: the preset name
  * @comment: the comment name
@@ -185,10 +183,10 @@ static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPro
  *
  * Returns: the new instance
  */
-BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(const BtEditApplication *app,GstElement *machine,gchar **name,gchar **comment) {
+BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(GstElement *machine,gchar **name,gchar **comment) {
   BtMachinePresetPropertiesDialog *self;
 
-  self=BT_MACHINE_PRESET_PROPERTIES_DIALOG(g_object_new(BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG,"app",app,"machine",machine,"name",name,"comment",comment,NULL));
+  self=BT_MACHINE_PRESET_PROPERTIES_DIALOG(g_object_new(BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG,"machine",machine,"name",name,"comment",comment,NULL));
   bt_machine_preset_properties_dialog_init_ui(self);
   return(self);
 }
@@ -218,9 +216,6 @@ static void bt_machine_preset_properties_dialog_get_property(GObject *object, gu
   BtMachinePresetPropertiesDialog *self = BT_MACHINE_PRESET_PROPERTIES_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case MACHINE_PRESET_PROPERTIES_DIALOG_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
     case MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE: {
       g_value_set_object(value, self->priv->machine);
     } break;
@@ -240,11 +235,6 @@ static void bt_machine_preset_properties_dialog_set_property(GObject *object, gu
   BtMachinePresetPropertiesDialog *self = BT_MACHINE_PRESET_PROPERTIES_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case MACHINE_PRESET_PROPERTIES_DIALOG_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for preset_dialog: %p",self->priv->app);
-    } break;
     case MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE: {
       g_object_try_unref(self->priv->machine);
       self->priv->machine = g_object_try_ref(g_value_get_object(value));
@@ -277,12 +267,10 @@ static void bt_machine_preset_properties_dialog_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
+  g_object_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_machine_preset_properties_dialog_finalize(GObject *object) {
@@ -294,15 +282,14 @@ static void bt_machine_preset_properties_dialog_finalize(GObject *object) {
   g_free(self->priv->comment);
   g_strfreev(self->priv->presets);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_machine_preset_properties_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtMachinePresetPropertiesDialog *self = BT_MACHINE_PRESET_PROPERTIES_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG, BtMachinePresetPropertiesDialogPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_machine_preset_properties_dialog_class_init(BtMachinePresetPropertiesDialogClass *klass) {
@@ -315,13 +302,6 @@ static void bt_machine_preset_properties_dialog_class_init(BtMachinePresetProper
   gobject_class->get_property = bt_machine_preset_properties_dialog_get_property;
   gobject_class->dispose      = bt_machine_preset_properties_dialog_dispose;
   gobject_class->finalize     = bt_machine_preset_properties_dialog_finalize;
-
-  g_object_class_install_property(gobject_class,MACHINE_PRESET_PROPERTIES_DIALOG_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the dialog belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE,
                                   g_param_spec_object("machine",
