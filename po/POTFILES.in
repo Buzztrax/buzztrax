@@ -14,6 +14,7 @@ src/ui/edit/about-dialog.c
 src/ui/edit/bt-edit.c
 src/ui/edit/buzztard-edit.desktop
 src/ui/edit/edit-application.c
+src/ui/edit/interaction-controller-learn-dialog.c
 src/ui/edit/interaction-controller-menu.c
 src/ui/edit/machine-actions.c
 src/ui/edit/machine-canvas-item.c
@@ -42,6 +43,7 @@ src/ui/edit/settings-page-audiodevices.c
 src/ui/edit/settings-page-directories.c
 src/ui/edit/settings-page-interaction-controller.c
 src/ui/edit/settings-page-playback-controller.c
+src/ui/edit/tip-dialog.c
 src/ui/edit/tools.c
 src/ui/edit/volume-popup.c
 src/ui/edit/wire-analysis-dialog.c

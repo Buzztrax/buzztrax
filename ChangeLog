@@ -1,3 +1,8 @@
+2010-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/POTFILES.in:
+	  Add two missing files.
+
 2010-01-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/about-dialog-methods.h:
