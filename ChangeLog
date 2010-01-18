@@ -1,5 +1,10 @@
 2010-01-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/ui-resources.c:
+	  Turn into a proepr singleton.
+
+2010-01-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Fix crashers in logging due to wrong macro usage.
 

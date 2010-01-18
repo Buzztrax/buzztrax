@@ -58,7 +58,7 @@ struct _BtUIResourcesPrivate {
 
 static GObjectClass *parent_class=NULL;
 
-static gpointer singleton=NULL;
+static BtUIResources *singleton=NULL;
 
 //-- event handler
 
@@ -297,23 +297,7 @@ static void bt_ui_resources_init_graphics(BtUIResources *self) {
  * Returns: the new signleton instance
  */
 BtUIResources *bt_ui_resources_new(void) {
-  if(!singleton) {
-    BtUIResources *ui_resources;
-
-    // create singleton
-    singleton=(gpointer)(g_object_new(BT_TYPE_UI_RESOURCES,NULL));
-    ui_resources=BT_UI_RESOURCES(singleton);
-    // initialise ressources
-    bt_ui_resources_init_colors(ui_resources);
-    bt_ui_resources_init_icons(ui_resources);
-    ui_resources->priv->accel_group=gtk_accel_group_new();
-
-    g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
-  }
-  else {
-    singleton=g_object_ref(G_OBJECT(singleton));
-  }
-  return(BT_UI_RESOURCES(singleton));
+  return (g_object_new(BT_TYPE_UI_RESOURCES,NULL));
 }
 
 //-- methods
@@ -515,6 +499,24 @@ static void bt_ui_resources_finalize(GObject *object) {
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
+static GObject *bt_ui_resources_constructor (GType type,guint n_construct_params,GObjectConstructParam *construct_params) {
+  GObject *object;
+
+  if(!singleton) {
+    object=G_OBJECT_CLASS(parent_class)->constructor(type,n_construct_params,construct_params);
+    singleton=BT_UI_RESOURCES(object);
+
+    // initialise ressources
+    bt_ui_resources_init_colors(singleton);
+    bt_ui_resources_init_icons(singleton);
+    singleton->priv->accel_group=gtk_accel_group_new();
+  }
+  else {
+    object=g_object_ref(G_OBJECT(singleton));
+  }
+  return object;
+}
+
 static void bt_ui_resources_init(GTypeInstance *instance, gpointer g_class) {
   BtUIResources *self = BT_UI_RESOURCES(instance);
   
@@ -527,6 +529,7 @@ static void bt_ui_resources_class_init(BtUIResourcesClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtUIResourcesPrivate));
 
+  gobject_class->constructor  = bt_ui_resources_constructor;
   gobject_class->dispose      = bt_ui_resources_dispose;
   gobject_class->finalize     = bt_ui_resources_finalize;
 }
