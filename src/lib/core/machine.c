@@ -721,14 +721,14 @@ static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMach
   for(i=part+1;i<=PART_MACHINE;i++) {
     if(machines[i]) {
       tix=i;
-      GST_DEBUG("src side target at %d: %s:%s",i,GST_PAD_NAME(sink_pads[tix]));
+      GST_DEBUG("src side target at %d: %s:%s",i,GST_DEBUG_PAD_NAME(sink_pads[tix]));
       break;
     }
   }
 
   // is the machine connected towards the input side (its sink)?
   if(!(peer=gst_pad_get_peer(sink_pads[tix]))) {
-    GST_DEBUG("target '%s:%s' is not yet connected on the input side",GST_PAD_NAME(sink_pads[tix]));
+    GST_DEBUG("target '%s:%s' is not yet connected on the input side",GST_DEBUG_PAD_NAME(sink_pads[tix]));
     if(!bt_machine_link_elements(self,src_pads[part],sink_pads[tix])) {
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(self),GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
       GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
@@ -736,7 +736,7 @@ static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMach
     GST_INFO("sucessfully prepended element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
   }
   else {
-    GST_DEBUG("target '%s:%s' has peer pad '%s:%s', need to inseert",GST_PAD_NAME(sink_pads[tix]),GST_PAD_NAME(peer));
+    GST_DEBUG("target '%s:%s' has peer pad '%s:%s', need to inseert",GST_DEBUG_PAD_NAME(sink_pads[tix]),GST_DEBUG_PAD_NAME(peer));
     if(!bt_machine_insert_element(self,peer,part)) {
       gst_object_unref(peer);
       GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
@@ -768,14 +768,14 @@ static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMac
   for(i=part-1;i>=PART_MACHINE;i--) {
     if(machines[i]) {
       tix=i;
-      GST_DEBUG("sink side target at %d: %s:%s",i,GST_PAD_NAME(src_pads[tix]));
+      GST_DEBUG_OBJECT(self,"sink side target at %d: %s:%s",i,GST_DEBUG_PAD_NAME(src_pads[tix]));
       break;
     }
   }
 
   // is the machine unconnected towards the output side (its source)?
   if(!(peer=gst_pad_get_peer(src_pads[tix]))) {
-    GST_DEBUG("target '%s:%s' is not yet connected on the output side",GST_PAD_NAME(src_pads[tix]));
+    GST_DEBUG("target '%s:%s' is not yet connected on the output side",GST_DEBUG_PAD_NAME(src_pads[tix]));
     if(!bt_machine_link_elements(self,src_pads[tix],sink_pads[part])) {
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(self),GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
       GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
@@ -783,7 +783,7 @@ static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMac
     GST_INFO("sucessfully appended element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
   }
   else {
-    GST_DEBUG("target '%s:%s' has peer pad '%s:%s', need to inseert",GST_PAD_NAME(src_pads[tix]),GST_PAD_NAME(peer));
+    GST_DEBUG("target '%s:%s' has peer pad '%s:%s', need to inseert",GST_DEBUG_PAD_NAME(src_pads[tix]),GST_DEBUG_PAD_NAME(peer));
     if(!bt_machine_insert_element(self,peer,part)) {
       gst_object_unref(peer);
       GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
@@ -1210,7 +1210,7 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     for(i=PART_INPUT_PRE_LEVEL;i<=PART_MACHINE;i++) {
       if(machines[i]) {
         tix=i;
-        GST_DEBUG("src side target at %d: %s:%s",i,GST_PAD_NAME(sink_pads[tix]));
+        GST_DEBUG_OBJECT(self,"src side target at %d: %s:%s",i,GST_DEBUG_PAD_NAME(sink_pads[tix]));
         break;
       }
     }
@@ -1345,7 +1345,7 @@ gboolean bt_machine_activate_spreader(BtMachine * const self) {
     for(i=PART_OUTPUT_POST_LEVEL;i>=PART_MACHINE;i--) {
       if(machines[i]) {
         tix=i;
-        GST_DEBUG("sink side target at %d: %s:%s",i,GST_PAD_NAME(src_pads[tix]));
+        GST_DEBUG_OBJECT(self,"sink side target at %d: %s:%s",i,GST_DEBUG_PAD_NAME(src_pads[tix]));
         break;
       }
     }
