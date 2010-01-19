@@ -33,8 +33,7 @@
 //-- property ids
 
 enum {
-  PATTERN_PROPERTIES_DIALOG_APP=1,
-  PATTERN_PROPERTIES_DIALOG_PATTERN
+  PATTERN_PROPERTIES_DIALOG_PATTERN=1
 };
 
 struct _BtPatternPropertiesDialogPrivate {
@@ -199,17 +198,16 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
 
 /**
  * bt_pattern_properties_dialog_new:
- * @app: the application the dialog belongs to
  * @pattern: the pattern for which to create the dialog for
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtPatternPropertiesDialog *bt_pattern_properties_dialog_new(const BtEditApplication *app,const BtPattern *pattern) {
+BtPatternPropertiesDialog *bt_pattern_properties_dialog_new(const BtPattern *pattern) {
   BtPatternPropertiesDialog *self;
 
-  self=BT_PATTERN_PROPERTIES_DIALOG(g_object_new(BT_TYPE_PATTERN_PROPERTIES_DIALOG,"app",app,"pattern",pattern,NULL));
+  self=BT_PATTERN_PROPERTIES_DIALOG(g_object_new(BT_TYPE_PATTERN_PROPERTIES_DIALOG,"pattern",pattern,NULL));
   bt_pattern_properties_dialog_init_ui(self);
   return(self);
 }
@@ -236,11 +234,6 @@ static void bt_pattern_properties_dialog_set_property(GObject *object, guint pro
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case PATTERN_PROPERTIES_DIALOG_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
-    } break;
     case PATTERN_PROPERTIES_DIALOG_PATTERN: {
       g_object_try_unref(self->priv->pattern);
       self->priv->pattern = g_object_try_ref(g_value_get_object(value));
@@ -259,13 +252,11 @@ static void bt_pattern_properties_dialog_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->pattern);
   g_object_try_unref(self->priv->machine);
+  g_object_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_pattern_properties_dialog_finalize(GObject *object) {
@@ -276,15 +267,14 @@ static void bt_pattern_properties_dialog_finalize(GObject *object) {
   g_free(self->priv->machine_id);
   g_free(self->priv->name);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_pattern_properties_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PATTERN_PROPERTIES_DIALOG, BtPatternPropertiesDialogPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogClass *klass) {
@@ -296,13 +286,6 @@ static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogCla
   gobject_class->set_property = bt_pattern_properties_dialog_set_property;
   gobject_class->dispose      = bt_pattern_properties_dialog_dispose;
   gobject_class->finalize     = bt_pattern_properties_dialog_finalize;
-
-  g_object_class_install_property(gobject_class,PATTERN_PROPERTIES_DIALOG_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the dialog belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_PROPERTIES_DIALOG_PATTERN,
                                   g_param_spec_object("pattern",

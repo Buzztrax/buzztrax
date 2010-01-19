@@ -33,8 +33,7 @@
 //-- property ids
 
 enum {
-  INTERACTION_CONTROLLER_MENU_APP=1,
-  INTERACTION_CONTROLLER_MENU_TYPE,
+  INTERACTION_CONTROLLER_MENU_TYPE=1,
   INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL,
   INTERACTION_CONTROLLER_MENU_ITEM_UNBIND,
   INTERACTION_CONTROLLER_MENU_ITEM_UNBIND_ALL
@@ -46,7 +45,7 @@ struct _BtInteractionControllerMenuPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   BtInteractionControllerMenuType type;
 
@@ -235,17 +234,16 @@ static void bt_interaction_controller_menu_init_ui(const BtInteractionController
 
 /**
  * bt_interaction_controller_menu_new:
- * @app: the application the menu belongs to
  * @type: for which kind of controllers make a menu
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtInteractionControllerMenu *bt_interaction_controller_menu_new(const BtEditApplication *app,BtInteractionControllerMenuType type) {
+BtInteractionControllerMenu *bt_interaction_controller_menu_new(BtInteractionControllerMenuType type) {
   BtInteractionControllerMenu *self;
 
-  self=BT_INTERACTION_CONTROLLER_MENU(g_object_new(BT_TYPE_INTERACTION_CONTROLLER_MENU,"app",app,"type",type,NULL));
+  self=BT_INTERACTION_CONTROLLER_MENU(g_object_new(BT_TYPE_INTERACTION_CONTROLLER_MENU,"type",type,NULL));
   bt_interaction_controller_menu_init_ui(self);
   return(self);
 }
@@ -259,9 +257,6 @@ static void bt_interaction_controller_menu_get_property(GObject *object, guint p
   BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU(object);
   return_if_disposed();
   switch (property_id) {
-    case INTERACTION_CONTROLLER_MENU_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
     case INTERACTION_CONTROLLER_MENU_TYPE: {
       g_value_set_enum(value, self->priv->type);
     } break;
@@ -285,12 +280,6 @@ static void bt_interaction_controller_menu_set_property(GObject *object, guint p
   BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU(object);
   return_if_disposed();
   switch (property_id) {
-    case INTERACTION_CONTROLLER_MENU_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for interaction_controller_menu: %p",self->priv->app);
-    } break;
     case INTERACTION_CONTROLLER_MENU_TYPE: {
       self->priv->type=g_value_get_enum(value);
     } break;
@@ -310,28 +299,17 @@ static void bt_interaction_controller_menu_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_weak_unref(self->priv->app);
   g_object_try_unref(self->priv->selected_control);
+  g_object_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
-}
-
-static void bt_interaction_controller_menu_finalize(GObject *object) {
-  BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU(object);
-
-  GST_DEBUG("!!!! self=%p",self);
-
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_interaction_controller_menu_init(GTypeInstance *instance, gpointer g_class) {
   BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_INTERACTION_CONTROLLER_MENU, BtInteractionControllerMenuPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_interaction_controller_menu_class_init(BtInteractionControllerMenuClass *klass) {
@@ -345,14 +323,6 @@ static void bt_interaction_controller_menu_class_init(BtInteractionControllerMen
   gobject_class->set_property = bt_interaction_controller_menu_set_property;
   gobject_class->get_property = bt_interaction_controller_menu_get_property;
   gobject_class->dispose      = bt_interaction_controller_menu_dispose;
-  gobject_class->finalize     = bt_interaction_controller_menu_finalize;
-
-  g_object_class_install_property(gobject_class,INTERACTION_CONTROLLER_MENU_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "set application object, the menu belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,INTERACTION_CONTROLLER_MENU_TYPE,
                                   g_param_spec_enum("type",

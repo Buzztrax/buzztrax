@@ -951,7 +951,7 @@ static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachine
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   // add machine selection sub-menu
-  menu=GTK_WIDGET(bt_machine_menu_new(self->priv->app));
+  menu=GTK_WIDGET(bt_machine_menu_new());
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),menu);
 
   menu_item=gtk_separator_menu_item_new();

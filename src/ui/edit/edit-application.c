@@ -682,7 +682,7 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     // create or ref the shared ui ressources
     singleton->priv->ui_resources=bt_ui_resources_new();
     // create the playback controller
-    singleton->priv->pb_controller=bt_playback_controller_socket_new(singleton);
+    singleton->priv->pb_controller=bt_playback_controller_socket_new();
     // create the interaction controller registry
     singleton->priv->ic_registry=btic_registry_new();
     // create main window

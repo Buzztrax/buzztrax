@@ -287,7 +287,7 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
   GST_INFO("before creating content, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
 
   // add the menu-bar
-  self->priv->menu=bt_main_menu_new(self->priv->app);
+  self->priv->menu=bt_main_menu_new();
 #ifndef USE_HILDON
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->menu),FALSE,FALSE,0);
 #else

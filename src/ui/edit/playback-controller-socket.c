@@ -38,16 +38,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-enum {
-  SETTINGS_DIALOG_APP=1,
-};
-
 struct _BtPlaybackControllerSocketPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* positions for each label */
   GList *playlist;
@@ -553,16 +549,15 @@ static void settings_listen(BtPlaybackControllerSocket *self) {
 
 /**
  * bt_playback_controller_socket_new:
- * @app: the application to create the controller for
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtPlaybackControllerSocket *bt_playback_controller_socket_new(const BtEditApplication *app) {
+BtPlaybackControllerSocket *bt_playback_controller_socket_new(void) {
   BtPlaybackControllerSocket *self;
 
-  self=BT_PLAYBACK_CONTROLLER_SOCKET(g_object_new(BT_TYPE_PLAYBACK_CONTROLLER_SOCKET,"app",app,NULL));
+  self=BT_PLAYBACK_CONTROLLER_SOCKET(g_object_new(BT_TYPE_PLAYBACK_CONTROLLER_SOCKET,NULL));
   return(self);
 }
 
@@ -572,27 +567,6 @@ BtPlaybackControllerSocket *bt_playback_controller_socket_new(const BtEditApplic
 
 //-- class internals
 
-static void bt_playback_controller_socket_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(object);
-  return_if_disposed();
-  switch (property_id) {
-    case SETTINGS_DIALOG_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
-      // check settings
-      //master_connection_open(self);
-      settings_listen(self);
-      // register event handlers
-      g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_playback_controller_socket_dispose(GObject *object) {
   BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(object);
 
@@ -600,9 +574,9 @@ static void bt_playback_controller_socket_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_weak_unref(self->priv->app);
   g_object_try_weak_unref(self->priv->gain);
   g_object_try_weak_unref(self->priv->sequence);
+  g_object_unref(self->priv->app);
 
   master_connection_close(self);
 
@@ -629,6 +603,12 @@ static void bt_playback_controller_socket_init(GTypeInstance *instance, gpointer
   BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PLAYBACK_CONTROLLER_SOCKET, BtPlaybackControllerSocketPrivate);
+  self->priv->app = bt_edit_application_new();
+  // check settings
+  //master_connection_open(self);
+  settings_listen(self);
+  // register event handlers
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 }
 
 static void bt_playback_controller_socket_class_init(BtPlaybackControllerSocketClass *klass) {
@@ -637,17 +617,8 @@ static void bt_playback_controller_socket_class_init(BtPlaybackControllerSocketC
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtPlaybackControllerSocketPrivate));
 
-  gobject_class->set_property = bt_playback_controller_socket_set_property;
   gobject_class->dispose      = bt_playback_controller_socket_dispose;
   gobject_class->finalize     = bt_playback_controller_socket_finalize;
-
-  g_object_class_install_property(gobject_class,SETTINGS_DIALOG_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the dialog belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
-
 }
 
 GType bt_playback_controller_socket_get_type(void) {

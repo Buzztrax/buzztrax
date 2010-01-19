@@ -2071,23 +2071,22 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
   pattern=add_new_pattern(self, machine);
 
   // pattern_properties
-  if((dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern)))) {
-    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
-    gtk_widget_show_all(dialog);
+  dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(pattern));
+  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
+  gtk_widget_show_all(dialog);
 
-    if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
-      bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+  if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+    bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
 
-      GST_INFO("new pattern added : %p",pattern);
-      change_current_pattern(self,pattern);
-      pattern_menu_refresh(self,machine);
-      context_menu_refresh(self,machine);
-    }
-    else {
-      bt_machine_remove_pattern(machine,pattern);
-    }
-    gtk_widget_destroy(dialog);
+    GST_INFO("new pattern added : %p",pattern);
+    change_current_pattern(self,pattern);
+    pattern_menu_refresh(self,machine);
+    context_menu_refresh(self,machine);
   }
+  else {
+    bt_machine_remove_pattern(machine,pattern);
+  }
+  gtk_widget_destroy(dialog);
 
   // free ressources
   g_object_unref(pattern);
@@ -2098,6 +2097,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 
 static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMainWindow *main_window;
   BtPattern *pattern;
   GtkWidget *dialog;
 
@@ -2105,19 +2105,17 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
   g_return_if_fail(pattern);
 
   // pattern_properties
-  if((dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern)))) {
-    BtMainWindow *main_window;
+  dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(pattern));
 
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
-    g_object_unref(main_window);
-    gtk_widget_show_all(dialog);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
+  g_object_unref(main_window);
+  gtk_widget_show_all(dialog);
 
-    if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
-      bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
-    }
-    gtk_widget_destroy(dialog);
+  if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+    bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
   }
+  gtk_widget_destroy(dialog);
   g_object_unref(pattern);
 }
 
@@ -2168,6 +2166,7 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 
 static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMainWindow *main_window;
   BtMachine *machine;
   BtPattern *pattern,*pattern_new;
   GtkWidget *dialog;
@@ -2185,27 +2184,25 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
   g_return_if_fail(pattern);
 
   // pattern_properties
-  if((dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern)))) {
-    BtMainWindow *main_window;
+  dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(pattern));
 
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
-    g_object_unref(main_window);
-    gtk_widget_show_all(dialog);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
+  g_object_unref(main_window);
+  gtk_widget_show_all(dialog);
 
-    if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
-      bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+  if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+    bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
 
-      GST_INFO("new pattern added : %p",pattern);
-      change_current_pattern(self,pattern);
-      pattern_menu_refresh(self,machine);
-      context_menu_refresh(self,machine);
-    }
-    else {
-      bt_machine_remove_pattern(machine,pattern);
-    }
-    gtk_widget_destroy(dialog);
+    GST_INFO("new pattern added : %p",pattern);
+    change_current_pattern(self,pattern);
+    pattern_menu_refresh(self,machine);
+    context_menu_refresh(self,machine);
   }
+  else {
+    bt_machine_remove_pattern(machine,pattern);
+  }
+  gtk_widget_destroy(dialog);
 
   g_object_unref(pattern);
   g_object_unref(machine);

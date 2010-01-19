@@ -25,6 +25,6 @@
 #include "main-menu.h"
 #include "edit-application.h"
 
-extern BtMainMenu *bt_main_menu_new(const BtEditApplication *app);
+extern BtMainMenu *bt_main_menu_new(void);
 
 #endif // BT_MAIN_MENU_METHDOS_H

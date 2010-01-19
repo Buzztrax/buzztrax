@@ -85,8 +85,7 @@ enum {
 //-- property ids
 
 enum {
-  MACHINE_CANVAS_ITEM_APP=1,
-  MACHINE_CANVAS_ITEM_MACHINES_PAGE,
+  MACHINE_CANVAS_ITEM_MACHINES_PAGE=1,
   MACHINE_CANVAS_ITEM_MACHINE,
   MACHINE_CANVAS_ITEM_ZOOM
 };
@@ -97,7 +96,8 @@ struct _BtMachineCanvasItemPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
+
   /* the machine page we are on */
   G_POINTER_ALIAS(BtMainPageMachines *,main_page_machines);
 
@@ -772,15 +772,13 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
  */
 BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_page_machines,BtMachine *machine,gdouble xpos,gdouble ypos,gdouble zoom) {
   BtMachineCanvasItem *self;
-  BtEditApplication *app;
   GnomeCanvas *canvas;
 
-  g_object_get(G_OBJECT(main_page_machines),"app",&app,"canvas",&canvas,NULL);
+  g_object_get(G_OBJECT(main_page_machines),"canvas",&canvas,NULL);
 
   self=BT_MACHINE_CANVAS_ITEM(gnome_canvas_item_new(gnome_canvas_root(canvas),
                             BT_TYPE_MACHINE_CANVAS_ITEM,
                             "machines-page",main_page_machines,
-                            "app", app,
                             "machine", machine,
                             "x", xpos,
                             "y", ypos,
@@ -790,7 +788,6 @@ BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_p
   //GST_INFO("machine canvas item added, ref-ct=%d",G_OBJECT(self)->ref_count);
 
   g_object_unref(canvas);
-  g_object_unref(app);
   return(self);
 }
 
@@ -825,12 +822,6 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(object);
   return_if_disposed();
   switch (property_id) {
-    case MACHINE_CANVAS_ITEM_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app=BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for machine_canvas_item: %p",self->priv->app);
-    } break;
     case MACHINE_CANVAS_ITEM_MACHINES_PAGE: {
       g_object_try_weak_unref(self->priv->main_page_machines);
       self->priv->main_page_machines = BT_MAIN_PAGE_MACHINES(g_value_get_object(value));
@@ -932,12 +923,12 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 
   GST_DEBUG("  signal disconected");
   
-  g_object_try_weak_unref(self->priv->app);
   g_object_try_weak_unref(self->priv->output_level);
   g_object_try_weak_unref(self->priv->input_level);
   g_object_try_unref(self->priv->machine);
   g_object_try_weak_unref(self->priv->main_page_machines);  
   if(self->priv->clock) gst_object_unref(self->priv->clock);
+  g_object_unref(self->priv->app);
 
   GST_DEBUG("  unrefing done");
 
@@ -1189,6 +1180,7 @@ static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_clas
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_CANVAS_ITEM, BtMachineCanvasItemPrivate);
+  self->priv->app = bt_edit_application_new();
 
   // generate the context menu
   self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
@@ -1235,16 +1227,6 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
                                         G_TYPE_NONE, // return type
                                         0 // n_params
                                         );
-
-  g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_APP,
-                                  g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the window belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
-                                     G_PARAM_CONSTRUCT_ONLY |
-#endif
-                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_MACHINES_PAGE,
                                   g_param_spec_object("machines-page",

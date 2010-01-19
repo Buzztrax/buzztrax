@@ -25,6 +25,6 @@
 #include "playback-controller-socket.h"
 #include "edit-application.h"
 
-extern BtPlaybackControllerSocket *bt_playback_controller_socket_new(const BtEditApplication *app);
+extern BtPlaybackControllerSocket *bt_playback_controller_socket_new(void);
 
 #endif // BT_PLAYBACK_CONTROLLER_SOCKET_METHDOS_H

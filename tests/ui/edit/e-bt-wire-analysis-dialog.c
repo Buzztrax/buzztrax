@@ -66,7 +66,7 @@ BT_START_TEST(test_wire_analysis_dialog) {
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
 
-  if((dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(app,wire)))) {
+  if((dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(wire)))) {
     // if we miss gst-plugins like level or spectrum, we don't get the dialog
     gtk_widget_show_all(dialog);
   

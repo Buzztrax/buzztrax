@@ -25,7 +25,7 @@
 #include "pattern-properties-dialog.h"
 #include "edit-application.h"
 
-extern BtPatternPropertiesDialog *bt_pattern_properties_dialog_new(const BtEditApplication *app,const BtPattern *pattern);
+extern BtPatternPropertiesDialog *bt_pattern_properties_dialog_new(const BtPattern *pattern);
 extern void bt_pattern_properties_dialog_apply(const BtPatternPropertiesDialog *self);
 
 #endif // BT_PATTERN_PROPERTIES_DIALOG_METHDOS_H

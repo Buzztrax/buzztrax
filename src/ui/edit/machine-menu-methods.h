@@ -25,6 +25,6 @@
 #include "machine-menu.h"
 #include "edit-application.h"
 
-extern BtMachineMenu *bt_machine_menu_new(const BtEditApplication *app);
+extern BtMachineMenu *bt_machine_menu_new(void);
 
 #endif // BT_MACHINE_MENU_METHDOS_H

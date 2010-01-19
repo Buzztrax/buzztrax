@@ -404,7 +404,7 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
 
       // create context menu
       // @todo: do we leak that menu here?
-      menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,type));
+      menu=GTK_MENU(bt_interaction_controller_menu_new(type));
       g_object_get(G_OBJECT(menu),"item-unbind",&item_unbind,"item-unbind-all",&item_unbind_all,NULL);
       g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
       g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);

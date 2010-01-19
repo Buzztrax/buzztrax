@@ -25,6 +25,6 @@
 #include "interaction-controller-menu.h"
 #include "edit-application.h"
 
-extern BtInteractionControllerMenu *bt_interaction_controller_menu_new(const BtEditApplication *app,BtInteractionControllerMenuType type);
+extern BtInteractionControllerMenu *bt_interaction_controller_menu_new(BtInteractionControllerMenuType type);
 
 #endif // BT_INTERACTION_CONTROLLER_MENU_METHDOS_H

@@ -30,17 +30,12 @@
 
 #include "bt-edit.h"
 
-enum {
-  MACHINE_MENU_APP=1,
-};
-
-
 struct _BtMachineMenuPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* MenuItems */
   //GtkWidget *save_item;
@@ -322,16 +317,15 @@ static void bt_machine_menu_init_ui(const BtMachineMenu *self) {
 
 /**
  * bt_machine_menu_new:
- * @app: the application the menu belongs to
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMachineMenu *bt_machine_menu_new(const BtEditApplication *app) {
+BtMachineMenu *bt_machine_menu_new(void) {
   BtMachineMenu *self;
 
-  self=BT_MACHINE_MENU(g_object_new(BT_TYPE_MACHINE_MENU,"app",app,NULL));
+  self=BT_MACHINE_MENU(g_object_new(BT_TYPE_MACHINE_MENU,NULL));
   bt_machine_menu_init_ui(self);
   return(self);
 }
@@ -341,49 +335,22 @@ BtMachineMenu *bt_machine_menu_new(const BtEditApplication *app) {
 
 //-- class internals
 
-static void bt_machine_menu_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtMachineMenu *self = BT_MACHINE_MENU(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MACHINE_MENU_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for machine_menu: %p",self->priv->app);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_machine_menu_dispose(GObject *object) {
   BtMachineMenu *self = BT_MACHINE_MENU(object);
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
-}
-
-static void bt_machine_menu_finalize(GObject *object) {
-  //BtMachineMenu *self = BT_MACHINE_MENU(object);
-
-  //GST_DEBUG("!!!! self=%p",self);
-
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_machine_menu_init(GTypeInstance *instance, gpointer g_class) {
   BtMachineMenu *self = BT_MACHINE_MENU(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_MENU, BtMachineMenuPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
@@ -392,16 +359,7 @@ static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachineMenuPrivate));
 
-  gobject_class->set_property = bt_machine_menu_set_property;
   gobject_class->dispose      = bt_machine_menu_dispose;
-  gobject_class->finalize     = bt_machine_menu_finalize;
-
-  g_object_class_install_property(gobject_class,MACHINE_MENU_APP,
-                                  g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the menu belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_machine_menu_get_type(void) {

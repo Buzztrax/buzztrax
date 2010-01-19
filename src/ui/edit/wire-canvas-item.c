@@ -45,8 +45,7 @@
 //-- property ids
 
 enum {
-  WIRE_CANVAS_ITEM_APP=1,
-  WIRE_CANVAS_ITEM_MACHINES_PAGE,
+  WIRE_CANVAS_ITEM_MACHINES_PAGE=1,
   WIRE_CANVAS_ITEM_WIRE,
   WIRE_CANVAS_ITEM_W,
   WIRE_CANVAS_ITEM_H,
@@ -62,7 +61,8 @@ struct _BtWireCanvasItemPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
+
   /* the machine page we are on */
   G_POINTER_ALIAS(BtMainPageMachines *,main_page_machines);
 
@@ -308,12 +308,11 @@ static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer use
 
   GST_INFO("context_menu analysis item selected");
   if(!self->priv->analysis_dialog) {
-    if((self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->app,self->priv->wire)))) {
-      GST_INFO("analyzer dialog opened");
-      // remember open/closed state
-      g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
-      g_signal_connect(G_OBJECT(self->priv->analysis_dialog),"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
-    }
+    self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->wire));
+    GST_INFO("analyzer dialog opened");
+    // remember open/closed state
+    g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
+    g_signal_connect(G_OBJECT(self->priv->analysis_dialog),"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
   }
   else {
     gtk_window_present(GTK_WINDOW(self->priv->analysis_dialog));
@@ -380,15 +379,12 @@ static void on_wire_pan_changed(GstElement *element, GParamSpec *arg, gpointer u
  */
 BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_machines,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item) {
   BtWireCanvasItem *self;
-  BtEditApplication *app;
   GnomeCanvas *canvas;
   BtSong *song;
   BtSetup *setup;
   gdouble w,h;
 
-  g_object_get(G_OBJECT(main_page_machines),"app",&app,"canvas",&canvas,NULL);
-  g_object_get(G_OBJECT(app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(G_OBJECT(main_page_machines),"canvas",&canvas,NULL);
 
   w=(pos_xe-pos_xs);
   h=(pos_ye-pos_ys);
@@ -397,7 +393,6 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
   self=BT_WIRE_CANVAS_ITEM(gnome_canvas_item_new(gnome_canvas_root(canvas),
                             BT_TYPE_WIRE_CANVAS_ITEM,
                             "machines-page",main_page_machines,
-                            "app", app,
                             "wire", wire,
                             "x", pos_xs,
                             "y", pos_ys,
@@ -407,6 +402,9 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
                             "dst", dst_machine_item,
                             NULL));
   gnome_canvas_item_lower_to_bottom(GNOME_CANVAS_ITEM(self));
+
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   
   //GST_INFO("wire canvas item added");
@@ -414,7 +412,6 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
   g_object_unref(setup);
   g_object_unref(song);
   g_object_unref(canvas);
-  g_object_unref(app);
   return(self);
 }
 
@@ -456,12 +453,6 @@ static void bt_wire_canvas_item_set_property(GObject *object, guint property_id,
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
   return_if_disposed();
   switch (property_id) {
-    case WIRE_CANVAS_ITEM_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app=BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for wire_canvas_item: %p",self->priv->app);
-    } break;
     case WIRE_CANVAS_ITEM_MACHINES_PAGE: {
       g_object_try_weak_unref(self->priv->main_page_machines);
       self->priv->main_page_machines = BT_MAIN_PAGE_MACHINES(g_value_get_object(value));
@@ -538,11 +529,11 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->wire),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_pan_changed,(gpointer)self);
   GST_DEBUG("  signal disconected");
   
-  g_object_try_weak_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);
   g_object_try_unref(self->priv->dst);
   g_object_try_weak_unref(self->priv->main_page_machines);
+  g_object_unref(self->priv->app);
 
   GST_DEBUG("  unrefing done");
 
@@ -555,15 +546,6 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
-  GST_DEBUG("  done");
-}
-
-static void bt_wire_canvas_item_finalize(GObject *object) {
-  //BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
-
-  //GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
@@ -706,7 +688,7 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
 
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"analyzer-shown");
   if(prop && prop[0]=='1' && prop[1]=='\0') {
-    if((self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->app,self->priv->wire)))) {
+    if((self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->wire)))) {
       g_signal_connect(G_OBJECT(self->priv->analysis_dialog),"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
     }
   }
@@ -776,6 +758,7 @@ static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) 
   GtkWidget *menu_item;
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE_CANVAS_ITEM, BtWireCanvasItemPrivate);
+  self->priv->app = bt_edit_application_new();
 
   // generate the context menu
   self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
@@ -807,20 +790,9 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
   gobject_class->set_property = bt_wire_canvas_item_set_property;
   gobject_class->get_property = bt_wire_canvas_item_get_property;
   gobject_class->dispose      = bt_wire_canvas_item_dispose;
-  gobject_class->finalize     = bt_wire_canvas_item_finalize;
 
   citem_class->realize        = bt_wire_canvas_item_realize;
   citem_class->event          = bt_wire_canvas_item_event;
-
-  g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_APP,
-                                  g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the window belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
-                                     G_PARAM_CONSTRUCT_ONLY |
-#endif
-                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_MACHINES_PAGE,
                                   g_param_spec_object("machines-page",

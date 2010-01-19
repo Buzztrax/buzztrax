@@ -46,11 +46,11 @@ BT_START_TEST(test_create_menu) {
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
   
-  menu=(GtkWidget *)bt_interaction_controller_menu_new(app,BT_INTERACTION_CONTROLLER_RANGE_MENU);
+  menu=(GtkWidget *)bt_interaction_controller_menu_new(BT_INTERACTION_CONTROLLER_RANGE_MENU);
   fail_unless(menu != NULL, NULL);
   gtk_widget_destroy(menu);
 
-  menu=(GtkWidget *)bt_interaction_controller_menu_new(app,BT_INTERACTION_CONTROLLER_TRIGGER_MENU);
+  menu=(GtkWidget *)bt_interaction_controller_menu_new(BT_INTERACTION_CONTROLLER_TRIGGER_MENU);
   fail_unless(menu != NULL, NULL);
   gtk_widget_destroy(menu);
 

@@ -1,5 +1,31 @@
 2010-01-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/interaction-controller-menu-methods.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-menu-methods.h:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-menu-methods.h:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/pattern-properties-dialog-methods.h:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/playback-controller-socket-methods.h:
+	* src/ui/edit/playback-controller-socket.c:
+	* src/ui/edit/wire-analysis-dialog-methods.h:
+	* src/ui/edit/wire-analysis-dialog.c:
+	* src/ui/edit/wire-canvas-item.c:
+	* tests/ui/edit/e-bt-interaction-controller-menu.c:
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c:
+	* tests/ui/edit/e-bt-wire-analysis-dialog.c:
+	  3rd batch of removing the "app" properties.
+
+2010-01-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/machine-preferences-dialog-methods.h:
 	* src/ui/edit/machine-preferences-dialog.c:
