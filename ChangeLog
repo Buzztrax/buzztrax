@@ -1,3 +1,17 @@
+2010-01-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/machine-actions.c:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Add more comments for translatable strings.
+
 2010-01-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/edit-application.c:

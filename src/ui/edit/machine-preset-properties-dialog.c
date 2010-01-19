@@ -123,7 +123,7 @@ static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPro
   }
   */
 
-  // set a title
+  // set dialog title
   gtk_window_set_title(GTK_WINDOW(self),_("preset name and comment"));
 
     // add dialog commision widgets (okay, cancel)

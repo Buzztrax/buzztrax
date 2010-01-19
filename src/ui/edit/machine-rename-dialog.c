@@ -109,7 +109,7 @@ static void bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *self) 
   g_object_get(song,"setup",&self->priv->setup,NULL);
   g_object_unref(song);
 
-  // set a title
+  // set dialog title
   title=g_strdup_printf(_("%s name"),self->priv->name);
   gtk_window_set_title(GTK_WINDOW(self),title);
   g_free(title);

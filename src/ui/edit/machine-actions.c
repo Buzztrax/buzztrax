@@ -89,8 +89,8 @@ void bt_machine_action_about(GstElement *machine,BtMainWindow *main_window) {
       if(*str==' ') *str='\n';
     }
     
-    str=g_strdup_printf(
-      _("by %s\n\n%s"),
+    // format about message for machines
+    str=g_strdup_printf(_("by %s\n\n%s"),
       str_author,str_desc
     );
     bt_dialog_message(main_window,_("About..."),element_longname,str);

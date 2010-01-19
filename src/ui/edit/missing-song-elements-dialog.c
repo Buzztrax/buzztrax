@@ -109,7 +109,7 @@ static void bt_missing_song_elements_dialog_init_ui(const BtMissingSongElementsD
   }
   */
 
-  // set a title
+  // set dialog title
   gtk_window_set_title(GTK_WINDOW(self),_("Missing elements in song"));
 
     // add dialog commision widgets (okay, cancel)

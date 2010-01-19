@@ -94,14 +94,15 @@ static void on_dialog_response(GtkDialog *dialog,
 
 static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionControllerLearnDialog *self) {
   GtkWidget *label,*box,*table;
-  gchar* title;
+  gchar *name,*title;
 
   gtk_widget_set_name(GTK_WIDGET(self),"interaction controller learn");
 
-  // set a title
-  g_object_get(self->priv->device,"name",&title,NULL);
+  g_object_get(self->priv->device,"name",&name,NULL);
+  // set dialog title
+  title=g_strdup_printf(_("learn controller for %s"),name);
   gtk_window_set_title(GTK_WINDOW(self), title);
-  g_free(title);
+  g_free(name);g_free(title);
 
   gtk_dialog_add_buttons(GTK_DIALOG(self),
                          GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,

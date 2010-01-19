@@ -449,11 +449,10 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
 
   // leave the choice of width to gtk
   gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
-  // set a title
   g_object_get(self->priv->wire,"src",&src_machine,"dst",&dst_machine,NULL);
   g_object_get(src_machine,"id",&src_id,NULL);
   g_object_get(dst_machine,"id",&dst_id,NULL);
-  // machine -> machine connection analyzer
+  // set dialog title : machine -> machine analysis
   title=g_strdup_printf(_("%s -> %s analysis"),src_id,dst_id);
   gtk_window_set_title(GTK_WINDOW(self),title);
   g_free(src_id);g_free(dst_id);g_free(title);

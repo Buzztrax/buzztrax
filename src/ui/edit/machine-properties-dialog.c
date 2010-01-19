@@ -1856,7 +1856,7 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
     "voices",&self->priv->voices,
     "machine",&machine,
     NULL);
-  // set a title
+  // set dialog title
   title=g_strdup_printf(_("%s properties"),id);
   gtk_window_set_title(GTK_WINDOW(self),title);
   g_free(id);g_free(title);

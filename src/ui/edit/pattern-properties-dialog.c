@@ -129,7 +129,7 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   g_object_get(self->priv->pattern,"name",&self->priv->name,"length",&self->priv->length,"voices",&self->priv->voices,"machine",&self->priv->machine,NULL);
   g_object_get(self->priv->machine,"id",&self->priv->machine_id,NULL);
 
-  // set a title
+  // set dialog title
   title=g_strdup_printf(_("%s properties"),self->priv->name);
   gtk_window_set_title(GTK_WINDOW(self),title);
   g_free(title);

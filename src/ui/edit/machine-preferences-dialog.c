@@ -241,8 +241,8 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
   ////gtk_widget_set_size_request(GTK_WIDGET(self),300,200);
   //gtk_window_set_default_size(GTK_WINDOW(self),300,-1);
 
-  // set a title
   g_object_get(self->priv->machine,"id",&id,"machine",&machine,NULL);
+  // set dialog title
   title=g_strdup_printf(_("%s preferences"),id);
   gtk_window_set_title(GTK_WINDOW(self),title);
   g_free(id);g_free(title);

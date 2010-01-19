@@ -123,7 +123,7 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
   }
   */
 
-  // set a title
+  // set dialog title
   gtk_window_set_title(GTK_WINDOW(self),_("Missing GStreamer elements"));
 
     // add dialog commision widgets (okay, cancel)
