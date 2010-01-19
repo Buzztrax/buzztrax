@@ -32,8 +32,7 @@
 #include "bt-edit.h"
 
 enum {
-  MAIN_WINDOW_APP=1,
-  MAIN_WINDOW_TOOLBAR,
+  MAIN_WINDOW_TOOLBAR=1,
   MAIN_WINDOW_STATUSBAR,
   MAIN_WINDOW_PAGES,
   MAIN_WINDOW_DIALOG
@@ -45,7 +44,7 @@ struct _BtMainWindowPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* the menu of the window */
   BtMainMenu *menu;
@@ -301,7 +300,7 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
   hildon_window_add_toolbar(HILDON_WINDOW(self), GTK_TOOLBAR(self->priv->toolbar));
 #endif
   // add the window content pages
-  self->priv->pages=bt_main_pages_new(self->priv->app);
+  self->priv->pages=bt_main_pages_new();
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pages),TRUE,TRUE,0);
   // add the status bar
   self->priv->statusbar=bt_main_statusbar_new();
@@ -330,21 +329,26 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
 
 /**
  * bt_main_window_new:
- * @app: the application the window belongs to
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
+BtMainWindow *bt_main_window_new(void) {
   BtMainWindow *self;
   BtSettings *settings;
   gboolean toolbar_hide,statusbar_hide,tabs_hide;
   // int x, y, w, h;
 
-  GST_INFO("creating a new window, app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("creating a new window");
+
+  self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"type",GTK_WINDOW_TOPLEVEL,NULL));
+  GST_INFO("new main_window created");
+  bt_main_window_init_ui(self);
+  GST_INFO("new main_window layouted");
+
   // eventualy hide the toolbar
-  g_object_get(G_OBJECT(app),"settings",&settings,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(G_OBJECT(settings),
     "toolbar-hide",&toolbar_hide,
     "statusbar-hide",&statusbar_hide,
@@ -352,11 +356,6 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
     //"window-xpos",&x,"window-ypos",&y,"window-width",&w,"window-height",&h,
     NULL);
   g_object_unref(settings);
-
-  self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,"type",GTK_WINDOW_TOPLEVEL,NULL));
-  GST_INFO("new main_window created, app->ref_ct=%d",G_OBJECT(app)->ref_count);
-  bt_main_window_init_ui(self);
-  GST_INFO("new main_window layouted, app->ref_ct=%d",G_OBJECT(app)->ref_count);
 
   // this enforces a minimum size
   //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
@@ -1013,22 +1012,6 @@ static void bt_main_window_get_property(GObject *object, guint property_id, GVal
   }
 }
 
-static void bt_main_window_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtMainWindow *self = BT_MAIN_WINDOW(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_WINDOW_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      GST_DEBUG("set the app for main_window: %p, app->ref_ct=%d",self->priv->app,G_OBJECT(self->priv->app)->ref_count);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_main_window_dispose(GObject *object) {
   BtMainWindow *self = BT_MAIN_WINDOW(object);
   return_if_disposed();
@@ -1038,7 +1021,7 @@ static void bt_main_window_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
   //g_signal_handlers_disconnect_matched(self,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_window_delete_event,NULL);
   //g_signal_handlers_disconnect_matched(self,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_window_destroy,NULL);
-  g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->app);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
@@ -1060,6 +1043,7 @@ static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
   BtMainWindow *self = BT_MAIN_WINDOW(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_WINDOW, BtMainWindowPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_main_window_class_init(BtMainWindowClass *klass) {
@@ -1068,17 +1052,9 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainWindowPrivate));
 
-  gobject_class->set_property = bt_main_window_set_property;
   gobject_class->get_property = bt_main_window_get_property;
   gobject_class->dispose      = bt_main_window_dispose;
   gobject_class->finalize     = bt_main_window_finalize;
-
-  g_object_class_install_property(gobject_class,MAIN_WINDOW_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the window belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_WINDOW_TOOLBAR,
                                   g_param_spec_object("toolbar",

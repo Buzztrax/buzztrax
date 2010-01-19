@@ -26,6 +26,6 @@
 #include "main-page-waves.h"
 #include "edit-application.h"
 
-extern BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app,const BtMainPages *pages);
+extern BtMainPageWaves *bt_main_page_waves_new(const BtMainPages *pages);
 
 #endif // BT_MAIN_PAGE_WAVES_METHDOS_H

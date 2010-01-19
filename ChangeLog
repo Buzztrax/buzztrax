@@ -1,5 +1,24 @@
 2010-01-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-page-info-methods.h:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines-methods.h:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns-methods.h:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence-methods.h:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves-methods.h:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages-methods.h:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-window-methods.h:
+	* src/ui/edit/main-window.c:
+	  And last batch of removing the "app" property usage.
+
+2010-01-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/main-statusbar-methods.h:
 	* src/ui/edit/main-statusbar.c:

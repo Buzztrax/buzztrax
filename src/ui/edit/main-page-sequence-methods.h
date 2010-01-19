@@ -26,7 +26,7 @@
 #include "main-page-sequence.h"
 #include "edit-application.h"
 
-extern BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app,const BtMainPages *pages);
+extern BtMainPageSequence *bt_main_page_sequence_new(const BtMainPages *pages);
 
 extern BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self);
 

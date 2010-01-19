@@ -54,8 +54,7 @@
 #include "bt-edit.h"
 
 enum {
-  MAIN_PAGE_MACHINES_APP=1,
-  MAIN_PAGE_MACHINES_CANVAS
+  MAIN_PAGE_MACHINES_CANVAS=1
 };
 
 struct _BtMainPageMachinesPrivate {
@@ -63,7 +62,7 @@ struct _BtMainPageMachinesPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* the toolbar widget */
   GtkWidget *toolbar;
@@ -1146,17 +1145,16 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
 
 /**
  * bt_main_page_machines_new:
- * @app: the application the window belongs to
  * @pages: the page collection
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app,const BtMainPages *pages) {
+BtMainPageMachines *bt_main_page_machines_new(const BtMainPages *pages) {
   BtMainPageMachines *self;
 
-  self=BT_MAIN_PAGE_MACHINES(g_object_new(BT_TYPE_MAIN_PAGE_MACHINES,"app",app,NULL));
+  self=BT_MAIN_PAGE_MACHINES(g_object_new(BT_TYPE_MAIN_PAGE_MACHINES,NULL));
   bt_main_page_machines_init_ui(self,pages);
   return(self);
 }
@@ -1241,30 +1239,11 @@ static void bt_main_page_machines_get_property(GObject *object, guint property_i
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(object);
   return_if_disposed();
   switch (property_id) {
-    case MAIN_PAGE_MACHINES_APP: {
-      g_value_set_object(value, self->priv->app);
-    } break;
     case MAIN_PAGE_MACHINES_CANVAS: {
       g_value_set_object(value, self->priv->canvas);
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-static void bt_main_page_machines_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_PAGE_MACHINES_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for main_page_machines: %p",self->priv->app);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -1295,7 +1274,7 @@ static void bt_main_page_machines_dispose(GObject *object) {
   //g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
   //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
-  g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->app);
 
   gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
   g_object_unref(G_OBJECT(self->priv->context_menu));
@@ -1321,6 +1300,7 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachinesPrivate);
+  self->priv->app = bt_edit_application_new();
 
   self->priv->zoom=MACHINE_VIEW_ZOOM_FC;
   self->priv->grid_density=1;
@@ -1340,17 +1320,9 @@ static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageMachinesPrivate));
 
-  gobject_class->set_property = bt_main_page_machines_set_property;
   gobject_class->get_property = bt_main_page_machines_get_property;
   gobject_class->dispose      = bt_main_page_machines_dispose;
   gobject_class->finalize     = bt_main_page_machines_finalize;
-
-  g_object_class_install_property(gobject_class,MAIN_PAGE_MACHINES_APP,
-                                  g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the window belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGE_MACHINES_CANVAS,
                                   g_param_spec_object("canvas",

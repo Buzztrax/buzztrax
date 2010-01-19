@@ -34,8 +34,7 @@
 #include "bt-edit.h"
 
 enum {
-  MAIN_PAGES_APP=1,
-  MAIN_PAGES_MACHINES_PAGE,
+  MAIN_PAGES_MACHINES_PAGE=1,
   MAIN_PAGES_PATTERNS_PAGE,
   MAIN_PAGES_SEQUENCE_PAGE,
   MAIN_PAGES_WAVES_PAGE,
@@ -48,7 +47,7 @@ struct _BtMainPagesPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* the machines tab */
   BtMainPageMachines *machines_page;
@@ -160,33 +159,33 @@ static void bt_main_pages_init_ui(const BtMainPages *self) {
   GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
 
   // add wigets for machine view
-  self->priv->machines_page=bt_main_page_machines_new(self->priv->app,self);
+  self->priv->machines_page=bt_main_page_machines_new(self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
   bt_main_pages_init_tab(self,BT_MAIN_PAGES_MACHINES_PAGE,_("machines"),"buzztard_tab_machines",_("machines used in the song and their wires"));
 
   // add wigets for pattern view
-  self->priv->patterns_page=bt_main_page_patterns_new(self->priv->app,self);
+  self->priv->patterns_page=bt_main_page_patterns_new(self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
   bt_main_pages_init_tab(self,BT_MAIN_PAGES_PATTERNS_PAGE,_("patterns"),"buzztard_tab_patterns",_("event pattern editor"));
 
   // add wigets for sequence view
-  self->priv->sequence_page=bt_main_page_sequence_new(self->priv->app,self);
+  self->priv->sequence_page=bt_main_page_sequence_new(self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
   bt_main_pages_init_tab(self,BT_MAIN_PAGES_SEQUENCE_PAGE,_("sequence"),"buzztard_tab_sequence",_("song sequence editor"));
 
   // add wigets for waves view
-  self->priv->waves_page=bt_main_page_waves_new(self->priv->app,self);
+  self->priv->waves_page=bt_main_page_waves_new(self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->waves_page));
   bt_main_pages_init_tab(self,BT_MAIN_PAGES_WAVES_PAGE,_("wave table"),"buzztard_tab_waves",_("sample wave table editor"));
 
   // add widgets for song info view
-  self->priv->info_page=bt_main_page_info_new(self->priv->app,self);
+  self->priv->info_page=bt_main_page_info_new(self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
   bt_main_pages_init_tab(self,BT_MAIN_PAGES_INFO_PAGE,_("information"),"buzztard_tab_info",_("song meta data editor"));
 
   // @idea add widgets for machine help view
   // GTK_STOCK_HELP icon
-  // embed mozilla/gtk-html
+  // embed mozilla/gtk-html/webkit-gtk
   
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
@@ -199,16 +198,15 @@ static void bt_main_pages_init_ui(const BtMainPages *self) {
 
 /**
  * bt_main_pages_new:
- * @app: the application the window belongs to
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMainPages *bt_main_pages_new(const BtEditApplication *app) {
+BtMainPages *bt_main_pages_new(void) {
   BtMainPages *self;
 
-  self=BT_MAIN_PAGES(g_object_new(BT_TYPE_MAIN_PAGES,"app",app,NULL));
+  self=BT_MAIN_PAGES(g_object_new(BT_TYPE_MAIN_PAGES,NULL));
   bt_main_pages_init_ui(self);
   return(self);
 }
@@ -244,22 +242,6 @@ static void bt_main_pages_get_property(GObject *object, guint property_id, GValu
   }
 }
 
-static void bt_main_pages_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtMainPages *self = BT_MAIN_PAGES(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_PAGES_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for main_pages: %p",self->priv->app);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_main_pages_dispose(GObject *object) {
   BtMainPages *self = BT_MAIN_PAGES(object);
   return_if_disposed();
@@ -269,23 +251,16 @@ static void bt_main_pages_dispose(GObject *object) {
   
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
 
-  g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->app);
   // this disposes the pages for us
   G_OBJECT_CLASS(parent_class)->dispose(object);
-}
-
-static void bt_main_pages_finalize(GObject *object) {
-  //BtMainPages *self = BT_MAIN_PAGES(object);
-
-  //GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_pages_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPages *self = BT_MAIN_PAGES(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGES, BtMainPagesPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_main_pages_class_init(BtMainPagesClass *klass) {
@@ -294,17 +269,8 @@ static void bt_main_pages_class_init(BtMainPagesClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPagesPrivate));
 
-  gobject_class->set_property = bt_main_pages_set_property;
   gobject_class->get_property = bt_main_pages_get_property;
   gobject_class->dispose      = bt_main_pages_dispose;
-  gobject_class->finalize     = bt_main_pages_finalize;
-
-  g_object_class_install_property(gobject_class,MAIN_PAGES_APP,
-                                  g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the window belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGES_MACHINES_PAGE,
                                   g_param_spec_object("machines-page",

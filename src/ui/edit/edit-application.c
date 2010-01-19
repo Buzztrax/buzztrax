@@ -687,7 +687,7 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     singleton->priv->ic_registry=btic_registry_new();
     // create main window
     GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(singleton)->ref_count);
-    singleton->priv->main_window=bt_main_window_new(singleton);
+    singleton->priv->main_window=bt_main_window_new();
   
     // warning: dereferencing type-punned pointer will break strict-aliasing rules
     g_object_add_weak_pointer(G_OBJECT(singleton->priv->main_window),(gpointer*)(gpointer)&singleton->priv->main_window);

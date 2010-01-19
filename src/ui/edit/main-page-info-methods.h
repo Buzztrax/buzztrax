@@ -26,6 +26,6 @@
 #include "main-page-info.h"
 #include "edit-application.h"
 
-extern BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app,const BtMainPages *pages);
+extern BtMainPageInfo *bt_main_page_info_new(const BtMainPages *pages);
 
 #endif // BT_MAIN_PAGE_INFO_METHDOS_H

@@ -38,16 +38,13 @@
 
 #include "bt-edit.h"
 
-enum {
-  MAIN_PAGE_WAVES_APP=1,
-};
-
 struct _BtMainPageWavesPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
+
   /* the wavetable we are showing*/
   BtWavetable *wavetable;
   /* the waveform graph widget */
@@ -1228,18 +1225,17 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
 
 /**
  * bt_main_page_waves_new:
- * @app: the application the window belongs to
  * @pages: the page collection
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app,const BtMainPages *pages) {
+BtMainPageWaves *bt_main_page_waves_new(const BtMainPages *pages) {
   BtMainPageWaves *self;
   GstBus *bus;
 
-  self=BT_MAIN_PAGE_WAVES(g_object_new(BT_TYPE_MAIN_PAGE_WAVES,"app",app,NULL));
+  self=BT_MAIN_PAGE_WAVES(g_object_new(BT_TYPE_MAIN_PAGE_WAVES,NULL));
   bt_main_page_waves_init_ui(self,pages);
   
   // create playbin
@@ -1259,22 +1255,6 @@ BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app,const BtMai
 
 //-- class internals
 
-static void bt_main_page_waves_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_PAGE_WAVES_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for MAIN_PAGE_WAVES: %p",self->priv->app);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_main_page_waves_dispose(GObject *object) {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(object);
   GstBus *bus;
@@ -1286,7 +1266,7 @@ static void bt_main_page_waves_dispose(GObject *object) {
 
   g_object_unref(self->priv->n2f);
   g_object_try_unref(self->priv->wavetable);
-  g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->app);
 
   // shut down loader-preview playbin
   gst_element_set_state(self->priv->playbin,GST_STATE_NULL);
@@ -1315,18 +1295,11 @@ static void bt_main_page_waves_dispose(GObject *object) {
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
-static void bt_main_page_waves_finalize(GObject *object) {
-  //BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(object);
-
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
-}
-
 static void bt_main_page_waves_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_WAVES, BtMainPageWavesPrivate);
+  self->priv->app = bt_edit_application_new();
   self->priv->n2f = gstbt_tone_conversion_new(GSTBT_TONE_CONVERSION_CROMATIC);
 }
 
@@ -1336,16 +1309,7 @@ static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageWavesPrivate));
 
-  gobject_class->set_property = bt_main_page_waves_set_property;
   gobject_class->dispose      = bt_main_page_waves_dispose;
-  gobject_class->finalize     = bt_main_page_waves_finalize;
-
-  g_object_class_install_property(gobject_class,MAIN_PAGE_WAVES_APP,
-                                  g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the window belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_page_waves_get_type(void) {

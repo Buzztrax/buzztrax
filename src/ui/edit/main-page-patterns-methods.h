@@ -26,7 +26,7 @@
 #include "main-page-patterns.h"
 #include "edit-application.h"
 
-extern BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app,const BtMainPages *pages);
+extern BtMainPagePatterns *bt_main_page_patterns_new(const BtMainPages *pages);
 
 extern BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *self);
 extern BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *self);

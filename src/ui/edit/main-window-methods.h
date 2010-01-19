@@ -25,7 +25,7 @@
 #include "main-window.h"
 #include "edit-application.h"
 
-extern BtMainWindow *bt_main_window_new(const BtEditApplication *app);
+extern BtMainWindow *bt_main_window_new(void);
 
 extern gboolean bt_main_window_run(const BtMainWindow *self);
 

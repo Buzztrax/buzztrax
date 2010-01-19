@@ -28,7 +28,7 @@
 #include "machine-canvas-item.h"
 #include "wire-canvas-item.h"
 
-extern BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app,const BtMainPages *pages);
+extern BtMainPageMachines *bt_main_page_machines_new(const BtMainPages *pages);
 
 extern void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y);
 

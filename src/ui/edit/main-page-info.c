@@ -38,17 +38,12 @@
 
 #include "bt-edit.h"
 
-enum {
-  MAIN_PAGE_INFO_APP=1,
-};
-
-
 struct _BtMainPageInfoPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* name, genre, author of the song */
   GtkEntry *name,*genre,*author;
@@ -471,17 +466,16 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
 
 /**
  * bt_main_page_info_new:
- * @app: the application the window belongs to
  * @pages: the page collection
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app,const BtMainPages *pages) {
+BtMainPageInfo *bt_main_page_info_new(const BtMainPages *pages) {
   BtMainPageInfo *self;
 
-  self=BT_MAIN_PAGE_INFO(g_object_new(BT_TYPE_MAIN_PAGE_INFO,"app",app,"spacing",6,NULL));
+  self=BT_MAIN_PAGE_INFO(g_object_new(BT_TYPE_MAIN_PAGE_INFO,"spacing",6,NULL));
   bt_main_page_info_init_ui(self,pages);
   return(self);
 }
@@ -491,22 +485,6 @@ BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app,const BtMainP
 //-- wrapper
 
 //-- class internals
-
-static void bt_main_page_info_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_PAGE_INFO_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for main_page_info: %p",self->priv->app);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
 
 static void bt_main_page_info_dispose(GObject *object) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
@@ -518,22 +496,17 @@ static void bt_main_page_info_dispose(GObject *object) {
   // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
   gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
 
-  g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->app);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
-}
-
-static void bt_main_page_info_finalize(GObject *object) {
-  //BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
-
-  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_INFO, BtMainPageInfoPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
@@ -542,16 +515,7 @@ static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageInfoPrivate));
 
-  gobject_class->set_property = bt_main_page_info_set_property;
   gobject_class->dispose      = bt_main_page_info_dispose;
-  gobject_class->finalize     = bt_main_page_info_finalize;
-
-  g_object_class_install_property(gobject_class,MAIN_PAGE_INFO_APP,
-                                  g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the window belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_page_info_get_type(void) {

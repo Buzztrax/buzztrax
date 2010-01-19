@@ -70,8 +70,7 @@
 #include "gtkvumeter.h"
 
 enum {
-  MAIN_PAGE_SEQUENCE_APP=1,
-  MAIN_PAGE_SEQUENCE_CURSOR_ROW
+  MAIN_PAGE_SEQUENCE_CURSOR_ROW=1
 };
 
 struct _BtMainPageSequencePrivate {
@@ -79,7 +78,8 @@ struct _BtMainPageSequencePrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
+
   /* the sequence we are showing */
   BtSequence *sequence;
   /* machine for current column */
@@ -3076,17 +3076,16 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
 
 /**
  * bt_main_page_sequence_new:
- * @app: the application the window belongs to
  * @pages: the page collection
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app,const BtMainPages *pages) {
+BtMainPageSequence *bt_main_page_sequence_new(const BtMainPages *pages) {
   BtMainPageSequence *self;
 
-  self=BT_MAIN_PAGE_SEQUENCE(g_object_new(BT_TYPE_MAIN_PAGE_SEQUENCE,"app",app,NULL));
+  self=BT_MAIN_PAGE_SEQUENCE(g_object_new(BT_TYPE_MAIN_PAGE_SEQUENCE,NULL));
   bt_main_page_sequence_init_ui(self,pages);
   return(self);
 }
@@ -3434,22 +3433,6 @@ static void bt_main_page_sequence_get_property(GObject *object, guint property_i
   }
 }
 
-static void bt_main_page_sequence_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_PAGE_SEQUENCE_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for MAIN_PAGE_SEQUENCE: %p",self->priv->app);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_main_page_sequence_dispose(GObject *object) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
   BtSong *song;
@@ -3486,7 +3469,8 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 
   g_object_try_unref(self->priv->sequence);
 
-  g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->app);
+
   if(self->priv->machine) {
     GST_INFO("unref old cur-machine: %p,refs=%d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
     if(self->priv->pattern_added_handler)
@@ -3501,7 +3485,6 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 
   g_object_try_unref(self->priv->accel_group);
 
-  g_hash_table_destroy(self->priv->level_to_vumeter);
   if(self->priv->clock) gst_object_unref(self->priv->clock);
 
   GST_DEBUG("  chaining up");
@@ -3512,7 +3495,8 @@ static void bt_main_page_sequence_finalize(GObject *object) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  g_mutex_free (self->priv->lock);
+  g_mutex_free(self->priv->lock);
+  g_hash_table_destroy(self->priv->level_to_vumeter);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
@@ -3521,6 +3505,7 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequencePrivate);
+  self->priv->app = bt_edit_application_new();
 
   self->priv->bars=1;
   //self->priv->cursor_column=0;
@@ -3532,7 +3517,7 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
   self->priv->row_filter_pos=SEQUENCE_ROW_ADDITION_INTERVAL;
   self->priv->sequence_length=SEQUENCE_ROW_ADDITION_INTERVAL;
   
-  self->priv->lock=g_mutex_new ();
+  self->priv->lock=g_mutex_new();
 }
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
@@ -3544,17 +3529,9 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageSequencePrivate));
 
-  gobject_class->set_property = bt_main_page_sequence_set_property;
   gobject_class->get_property = bt_main_page_sequence_get_property;
   gobject_class->dispose      = bt_main_page_sequence_dispose;
   gobject_class->finalize     = bt_main_page_sequence_finalize;
-
-  g_object_class_install_property(gobject_class,MAIN_PAGE_SEQUENCE_APP,
-                                  g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the window belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGE_SEQUENCE_CURSOR_ROW,
                                   g_param_spec_long("cursor-row",

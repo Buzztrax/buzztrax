@@ -25,6 +25,6 @@
 #include "main-pages.h"
 #include "edit-application.h"
 
-extern BtMainPages *bt_main_pages_new(const BtEditApplication *app);
+extern BtMainPages *bt_main_pages_new(void);
 
 #endif // BT_MAIN_PAGES_METHDOS_H
