@@ -35,8 +35,7 @@
 #include "bt-edit.h"
 
 enum {
-  MAIN_STATUSBAR_APP=1,
-  MAIN_STATUSBAR_STATUS
+  MAIN_STATUSBAR_STATUS=1
 };
 
 
@@ -45,7 +44,7 @@ struct _BtMainStatusbarPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* main status bar */
   GtkStatusbar *status;
@@ -238,7 +237,7 @@ static gboolean on_cpu_load_update(gpointer user_data) {
 
 //-- helper methods
 
-static void bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditApplication *app) {
+static void bt_main_statusbar_init_ui(const BtMainStatusbar *self) {
   GtkWidget *ev_box;
   gchar str[]="00:00.000";
 #if !GTK_CHECK_VERSION(2,12,0)
@@ -308,24 +307,23 @@ static void bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditA
   gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 }
 
 //-- constructor methods
 
 /**
  * bt_main_statusbar_new:
- * @app: the application the statusbar belongs to
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMainStatusbar *bt_main_statusbar_new(const BtEditApplication *app) {
+BtMainStatusbar *bt_main_statusbar_new(void) {
   BtMainStatusbar *self;
 
-  self=BT_MAIN_STATUSBAR(g_object_new(BT_TYPE_MAIN_STATUSBAR,"app",app,NULL));
-  bt_main_statusbar_init_ui(self,app);
+  self=BT_MAIN_STATUSBAR(g_object_new(BT_TYPE_MAIN_STATUSBAR,NULL));
+  bt_main_statusbar_init_ui(self);
   return(self);
 }
 
@@ -338,12 +336,6 @@ static void bt_main_statusbar_set_property(GObject *object, guint property_id, c
   BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
   return_if_disposed();
   switch (property_id) {
-    case MAIN_STATUSBAR_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for main_statusbar: %p",self->priv->app);
-    } break;
     case MAIN_STATUSBAR_STATUS: {
       gchar *str=g_value_dup_string(value);
       gtk_statusbar_pop(GTK_STATUSBAR(self->priv->status),self->priv->status_context_id);
@@ -388,23 +380,16 @@ static void bt_main_statusbar_dispose(GObject *object) {
   }
   g_source_remove(self->priv->cpu_load_handler_id);
 
-  g_object_try_weak_unref(self->priv->app);
+  g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
-}
-
-static void bt_main_statusbar_finalize(GObject *object) {
-  //BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
-
-  //GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_statusbar_init(GTypeInstance *instance, gpointer g_class) {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_STATUSBAR, BtMainStatusbarPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
@@ -415,14 +400,6 @@ static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
 
   gobject_class->set_property = bt_main_statusbar_set_property;
   gobject_class->dispose      = bt_main_statusbar_dispose;
-  gobject_class->finalize     = bt_main_statusbar_finalize;
-
-  g_object_class_install_property(gobject_class,MAIN_STATUSBAR_APP,
-                                  g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the menu belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_STATUSBAR_STATUS,
                                   g_param_spec_string("status",

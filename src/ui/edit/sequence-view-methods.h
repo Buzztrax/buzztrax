@@ -25,6 +25,6 @@
 #include "sequence-view.h"
 #include "edit-application.h"
 
-extern BtSequenceView *bt_sequence_view_new(const BtEditApplication *app);
+extern BtSequenceView *bt_sequence_view_new(void);
 
 #endif // BT_SEQUENCE_VIEW_METHDOS_H

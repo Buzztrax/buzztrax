@@ -294,7 +294,7 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
   hildon_window_set_menu(HILDON_WINDOW(self), GTK_MENU(self->priv->menu));
 #endif
   // add the tool-bar
-  self->priv->toolbar=bt_main_toolbar_new(self->priv->app);
+  self->priv->toolbar=bt_main_toolbar_new();
 #ifndef USE_HILDON
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->toolbar),FALSE,FALSE,0);
 #else
@@ -304,7 +304,7 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
   self->priv->pages=bt_main_pages_new(self->priv->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pages),TRUE,TRUE,0);
   // add the status bar
-  self->priv->statusbar=bt_main_statusbar_new(self->priv->app);
+  self->priv->statusbar=bt_main_statusbar_new();
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->statusbar),FALSE,FALSE,0);
 
   gtk_window_add_accel_group(GTK_WINDOW(self),bt_ui_resources_get_accel_group());

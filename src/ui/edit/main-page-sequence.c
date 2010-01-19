@@ -2918,7 +2918,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   scrolled_vsync_window=gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_vsync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_vsync_window),GTK_SHADOW_NONE);
-  self->priv->sequence_pos_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
+  self->priv->sequence_pos_table=GTK_TREE_VIEW(bt_sequence_view_new());
   g_object_set(self->priv->sequence_pos_table,
     "enable-search",FALSE,
     "rules-hint",TRUE,
@@ -2977,7 +2977,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
-  self->priv->sequence_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
+  self->priv->sequence_table=GTK_TREE_VIEW(bt_sequence_view_new());
   g_object_set(self->priv->sequence_table,
     "enable-search",FALSE,
     "rules-hint",TRUE,

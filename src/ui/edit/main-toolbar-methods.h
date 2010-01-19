@@ -25,6 +25,6 @@
 #include "main-toolbar.h"
 #include "edit-application.h"
 
-extern BtMainToolbar *bt_main_toolbar_new(const BtEditApplication *app);
+extern BtMainToolbar *bt_main_toolbar_new(void);
 
 #endif // BT_MAIN_TOOLBAR_METHDOS_H

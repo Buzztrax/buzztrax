@@ -1,5 +1,17 @@
 2010-01-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-statusbar-methods.h:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar-methods.h:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/sequence-view-methods.h:
+	* src/ui/edit/sequence-view.c:
+	  4th batch of removing the "app" properties.
+
+2010-01-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/interaction-controller-menu-methods.h:
 	* src/ui/edit/interaction-controller-menu.c:

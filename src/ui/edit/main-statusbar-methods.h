@@ -25,6 +25,6 @@
 #include "main-statusbar.h"
 #include "edit-application.h"
 
-extern BtMainStatusbar *bt_main_statusbar_new(const BtEditApplication *app);
+extern BtMainStatusbar *bt_main_statusbar_new(void);
 
 #endif // BT_MAIN_STATUSBAR_METHDOS_H

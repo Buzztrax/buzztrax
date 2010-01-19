@@ -36,10 +36,6 @@
 #include "bt-edit.h"
 #include "gtkvumeter.h"
 
-enum {
-  MAIN_TOOLBAR_APP=1,
-};
-
 /* lets keep multichannel audio for later :) */
 //#define MAX_VUMETER 4
 #define MAX_VUMETER 2
@@ -51,7 +47,7 @@ struct _BtMainToolbarPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* the level meters */
   GtkVUMeter *vumeter[MAX_VUMETER];
@@ -797,16 +793,15 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
 /**
  * bt_main_toolbar_new:
- * @app: the application the toolbar belongs to
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtMainToolbar *bt_main_toolbar_new(const BtEditApplication *app) {
+BtMainToolbar *bt_main_toolbar_new(void) {
   BtMainToolbar *self;
 
-  self=BT_MAIN_TOOLBAR(g_object_new(BT_TYPE_MAIN_TOOLBAR,"app",app,NULL));
+  self=BT_MAIN_TOOLBAR(g_object_new(BT_TYPE_MAIN_TOOLBAR,NULL));
   bt_main_toolbar_init_ui(self);
   return(self);
 }
@@ -815,22 +810,6 @@ BtMainToolbar *bt_main_toolbar_new(const BtEditApplication *app) {
 
 
 //-- class internals
-
-static void bt_main_toolbar_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
-  return_if_disposed();
-  switch (property_id) {
-    case MAIN_TOOLBAR_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for main_toolbar: %p",self->priv->app);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
 
 static void bt_main_toolbar_dispose(GObject *object) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
@@ -864,9 +843,9 @@ static void bt_main_toolbar_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->master);
   g_object_try_weak_unref(self->priv->gain);
   g_object_try_weak_unref(self->priv->level);
-  g_object_try_weak_unref(self->priv->app);
   
   if(self->priv->clock) gst_object_unref(self->priv->clock);
+  g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
@@ -884,7 +863,7 @@ static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_TOOLBAR, BtMainToolbarPrivate);
-  
+  self->priv->app = bt_edit_application_new();
   self->priv->lock=g_mutex_new ();
 }
 
@@ -897,16 +876,8 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainToolbarPrivate));
 
-  gobject_class->set_property = bt_main_toolbar_set_property;
   gobject_class->dispose      = bt_main_toolbar_dispose;
   gobject_class->finalize     = bt_main_toolbar_finalize;
-
-  g_object_class_install_property(gobject_class,MAIN_TOOLBAR_APP,
-                                  g_param_spec_object("app",
-                                     "app construct prop",
-                                     "Set application object, the menu belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
 }
 

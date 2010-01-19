@@ -33,8 +33,7 @@
 #include "bt-edit.h"
 
 enum {
-  SEQUENCE_VIEW_APP=1,
-  SEQUENCE_VIEW_PLAY_POSITION,
+  SEQUENCE_VIEW_PLAY_POSITION=1,
   SEQUENCE_VIEW_LOOP_START,
   SEQUENCE_VIEW_LOOP_END,
   SEQUENCE_VIEW_VISIBLE_ROWS
@@ -46,7 +45,7 @@ struct _BtSequenceViewPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
+  BtEditApplication *app;
 
   /* position of playing pointer from 0.0 ... 1.0 */
   gdouble play_pos;
@@ -89,16 +88,15 @@ static void bt_sequence_view_invalidate(const BtSequenceView *self, gdouble old_
 
 /**
  * bt_sequence_view_new:
- * @app: the application the window belongs to
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtSequenceView *bt_sequence_view_new(const BtEditApplication *app) {
+BtSequenceView *bt_sequence_view_new(void) {
   BtSequenceView *self;
 
-  self=BT_SEQUENCE_VIEW(g_object_new(BT_TYPE_SEQUENCE_VIEW,"app",app,NULL));
+  self=BT_SEQUENCE_VIEW(g_object_new(BT_TYPE_SEQUENCE_VIEW,NULL));
   return(self);
 }
 
@@ -222,12 +220,6 @@ static void bt_sequence_view_set_property(GObject *object, guint property_id, co
 
   return_if_disposed();
   switch (property_id) {
-    case SEQUENCE_VIEW_APP: {
-      g_object_try_weak_unref(self->priv->app);
-      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for sequence_view: %p",self->priv->app);
-    } break;
     case SEQUENCE_VIEW_PLAY_POSITION: {
       gdouble old_pos = self->priv->play_pos;
 
@@ -271,27 +263,19 @@ static void bt_sequence_view_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_weak_unref(self->priv->app);
-
   g_object_try_unref(self->priv->play_pos_gc);
   g_object_try_unref(self->priv->loop_pos_gc);
   g_object_try_unref(self->priv->end_pos_gc);
+  g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
-}
-
-static void bt_sequence_view_finalize(GObject *object) {
-  //BtSequenceView *self = BT_SEQUENCE_VIEW(object);
-
-  //GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_sequence_view_init(GTypeInstance *instance, gpointer g_class) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SEQUENCE_VIEW, BtSequenceViewPrivate);
+  self->priv->app = bt_edit_application_new();
 }
 
 static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
@@ -303,19 +287,11 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
 
   gobject_class->set_property = bt_sequence_view_set_property;
   gobject_class->dispose      = bt_sequence_view_dispose;
-  gobject_class->finalize     = bt_sequence_view_finalize;
 
-  // override some gtkwidget methods
   gtkwidget_class->realize = bt_sequence_view_realize;
   gtkwidget_class->unrealize = bt_sequence_view_unrealize;
   gtkwidget_class->expose_event = bt_sequence_view_expose_event;
 
-  g_object_class_install_property(gobject_class,SEQUENCE_VIEW_APP,
-                                  g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the window belongs to",
-                                     BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_VIEW_PLAY_POSITION,
                                   g_param_spec_double("play-position",
