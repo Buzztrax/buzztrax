@@ -218,7 +218,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
   BtMainWindow *main_window;
   BtMainStatusbar *statusbar;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   // called too early
   if(!main_window) return;
 
@@ -503,9 +503,9 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     BtMainPages *pages;
     //BtMainPageSequence *sequence_page;
 
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-    //g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
+    g_object_get(self->priv->app,"main-window",&main_window,NULL);
+    g_object_get(main_window,"pages",&pages,NULL);
+    //g_object_get(pages,"sequence-page",&sequence_page,NULL);
 
     gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
     //bt_main_page_sequence_goto_???(sequence_page,pattern);
@@ -1757,7 +1757,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
         g_object_unref(machine);
       }
       // add local commands
-      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"song",&song,NULL);
+      g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
       if(main_window) {
         gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
 #if !GTK_CHECK_VERSION(2,12,0)
@@ -1783,7 +1783,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       GST_DEBUG("leave pattern page");
       pattern_view_update_column_description(self,UPDATE_COLUMN_POP);
       // remove local commands
-      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"song",&song,NULL);
+      g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
       if(main_window) {
         gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
         g_object_unref(main_window);
@@ -2063,7 +2063,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
   machine=bt_main_page_patterns_get_current_machine(self);
   g_return_if_fail(machine);
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   // new_pattern
   pattern=add_new_pattern(self, machine);
 
@@ -2104,7 +2104,7 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
   // pattern_properties
   dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(pattern));
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
   g_object_unref(main_window);
   gtk_widget_show_all(dialog);
@@ -2128,8 +2128,8 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
   pattern=bt_main_page_patterns_get_current_pattern(self);
   g_return_if_fail(pattern);
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
+  g_object_get(song,"sequence",&sequence,NULL);
 
   is_used=bt_sequence_is_pattern_used(sequence,pattern);
   
@@ -2183,7 +2183,7 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
   // pattern_properties
   dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(pattern));
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
   g_object_unref(main_window);
   gtk_widget_show_all(dialog);

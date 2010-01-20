@@ -171,7 +171,7 @@ static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
   BtMainWindow *main_window;
 
   GST_INFO("toolbar new event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
   g_object_unref(main_window);
 }
@@ -181,7 +181,7 @@ static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
   BtMainWindow *main_window;
 
   GST_INFO("toolbar open event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
   g_object_unref(main_window);
 }
@@ -191,7 +191,7 @@ static void on_toolbar_save_clicked(GtkButton *button, gpointer user_data) {
   BtMainWindow *main_window;
 
   GST_INFO("toolbar open event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   bt_main_window_save_song(main_window);
   g_object_unref(main_window);
 }

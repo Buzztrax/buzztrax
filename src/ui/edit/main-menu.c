@@ -63,7 +63,7 @@ static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
 
   GST_INFO("menu new event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
   g_object_unref(main_window);
 }
@@ -73,7 +73,7 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
 
   GST_INFO("menu open event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
   g_object_unref(main_window);
 }
@@ -97,7 +97,7 @@ static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user
   if(!bt_edit_application_load_song(self->priv->app,file_name)) {
     BtMainWindow *main_window;
     gchar *msg=g_strdup_printf(_("An error occurred while loading the song from file '%s'"),file_name);
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    g_object_get(self->priv->app,"main-window",&main_window,NULL);
     
     bt_dialog_message(main_window,_("Can't load song"),_("Can't load song"),msg);
     g_free(msg);
@@ -112,7 +112,7 @@ static void on_menu_save_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
 
   GST_INFO("menu save event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   bt_main_window_save_song(main_window);
   g_object_unref(main_window);
 }
@@ -122,7 +122,7 @@ static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
 
   GST_INFO("menu saveas event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   bt_main_window_save_song_as(main_window);
   g_object_unref(main_window);
 }
@@ -134,7 +134,7 @@ static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
   GST_INFO("menu render event occurred");
   settings=GTK_WIDGET(bt_render_dialog_new());
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(settings),GTK_WINDOW(main_window));
   gtk_widget_show_all(settings);
   if(gtk_dialog_run(GTK_DIALOG(settings))==GTK_RESPONSE_ACCEPT) {
@@ -159,7 +159,7 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   // and on_window_delete_event() should trigger this
 
   GST_INFO("menu quit event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   g_signal_emit_by_name(G_OBJECT(main_window),"delete_event",(gpointer)main_window,&cont);
   g_object_unref(main_window);
   GST_INFO("  result = %d",cont);
@@ -173,7 +173,7 @@ static void on_menu_cut_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 
   switch(gtk_notebook_get_current_page(GTK_NOTEBOOK(pages))) {
@@ -211,8 +211,8 @@ static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
 
   switch(gtk_notebook_get_current_page(GTK_NOTEBOOK(pages))) {
     case BT_MAIN_PAGES_MACHINES_PAGE: {
@@ -249,8 +249,8 @@ static void on_menu_paste_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
 
   switch(gtk_notebook_get_current_page(GTK_NOTEBOOK(pages))) {
     case BT_MAIN_PAGES_MACHINES_PAGE: {
@@ -287,8 +287,8 @@ static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
 
   switch(gtk_notebook_get_current_page(GTK_NOTEBOOK(pages))) {
     case BT_MAIN_PAGES_MACHINES_PAGE: {
@@ -328,7 +328,7 @@ static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) 
   if((dialog=GTK_WIDGET(bt_settings_dialog_new()))) {
     BtMainWindow *main_window;
 
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    g_object_get(self->priv->app,"main-window",&main_window,NULL);
     gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
     g_object_unref(main_window);
     gtk_widget_show_all(dialog);
@@ -346,12 +346,12 @@ static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_dat
   gboolean shown;
 
   GST_INFO("menu 'view toolbar' event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
-  g_object_get(G_OBJECT(main_window),"toolbar",&toolbar,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,"settings",&settings,NULL);
+  g_object_get(main_window,"toolbar",&toolbar,NULL);
 
   shown=gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem));
-  g_object_set(G_OBJECT(toolbar),"visible",shown,NULL);
-  g_object_set(G_OBJECT(settings),"toolbar-hide",!shown,NULL);
+  g_object_set(toolbar,"visible",shown,NULL);
+  g_object_set(settings,"toolbar-hide",!shown,NULL);
 
   g_object_unref(toolbar);
   g_object_unref(settings);
@@ -366,12 +366,12 @@ static void on_menu_view_statusbar_toggled(GtkMenuItem *menuitem,gpointer user_d
   gboolean shown;
 
   GST_INFO("menu 'view toolbar' event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
-  g_object_get(G_OBJECT(main_window),"statusbar",&statusbar,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,"settings",&settings,NULL);
+  g_object_get(main_window,"statusbar",&statusbar,NULL);
 
   shown=gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem));
-  g_object_set(G_OBJECT(statusbar),"visible",shown,NULL);
-  g_object_set(G_OBJECT(settings),"statusbar-hide",!shown,NULL);
+  g_object_set(statusbar,"visible",shown,NULL);
+  g_object_set(settings,"statusbar-hide",!shown,NULL);
 
   g_object_unref(statusbar);
   g_object_unref(settings);
@@ -386,12 +386,12 @@ static void on_menu_view_tabs_toggled(GtkMenuItem *menuitem,gpointer user_data) 
   gboolean shown;
 
   GST_INFO("menu 'view tabs' event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,"settings",&settings,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
 
   shown=gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem));
-  g_object_set(G_OBJECT(pages),"show-tabs",shown,NULL);
-  g_object_set(G_OBJECT(settings),"tabs-hide",!shown,NULL);
+  g_object_set(pages,"show-tabs",shown,NULL);
+  g_object_set(settings,"tabs-hide",!shown,NULL);
 
   g_object_unref(pages);
   g_object_unref(settings);
@@ -403,7 +403,7 @@ static void on_menu_fullscreen_activate(GtkMenuItem *menuitem,gpointer user_data
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   /* @idea: reflow things a bit for full-screen:
    * - hide menu bar and have a menu-button on toolbar
    * - have a right justified label on toolbar to show window title
@@ -425,8 +425,8 @@ static void on_menu_goto_machine_view_activate(GtkMenuItem *menuitem,gpointer us
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_MACHINES_PAGE);
 
@@ -439,8 +439,8 @@ static void on_menu_goto_pattern_view_activate(GtkMenuItem *menuitem,gpointer us
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
 
@@ -453,8 +453,8 @@ static void on_menu_goto_sequence_view_activate(GtkMenuItem *menuitem,gpointer u
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
 
@@ -467,8 +467,8 @@ static void on_menu_goto_waves_view_activate(GtkMenuItem *menuitem,gpointer user
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
 
@@ -481,8 +481,8 @@ static void on_menu_goto_info_view_activate(GtkMenuItem *menuitem,gpointer user_
   BtMainWindow *main_window;
   BtMainPages *pages;
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
 
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
 

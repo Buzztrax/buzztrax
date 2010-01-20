@@ -658,7 +658,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
     if(prev_page_num != BT_MAIN_PAGES_SEQUENCE_PAGE) {
       GST_DEBUG("enter sequence page");
       // add local commands
-      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+      g_object_get(self->priv->app,"main-window",&main_window,NULL);
       if(main_window) {
         gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
 #if !GTK_CHECK_VERSION(2,12,0)
@@ -676,7 +676,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
     if(prev_page_num == BT_MAIN_PAGES_SEQUENCE_PAGE) {
       GST_DEBUG("leave sequence page");
       // remove local commands
-      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+      g_object_get(self->priv->app,"main-window",&main_window,NULL);
       if(main_window) {
         gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
         g_object_unref(main_window);
@@ -1510,10 +1510,10 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     BtMainWindow *main_window;
     BtMainPages *pages;
     BtMainPagePatterns *patterns_page;
-  
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-    g_object_get(G_OBJECT(pages),"patterns-page",&patterns_page,NULL);
+
+    g_object_get(self->priv->app,"main-window",&main_window,NULL);
+    g_object_get(main_window,"pages",&pages,NULL);
+    g_object_get(pages,"patterns-page",&patterns_page,NULL);
   
     bt_main_page_patterns_show_machine(patterns_page,self->priv->machine);
     
@@ -2124,9 +2124,9 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         BtPattern *pattern;
         BtMachine *machine;
 
-        g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-        g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-        g_object_get(G_OBJECT(pages),"patterns-page",&patterns_page,NULL);
+        g_object_get(self->priv->app,"main-window",&main_window,NULL);
+        g_object_get(main_window,"pages",&pages,NULL);
+        g_object_get(pages,"patterns-page",&patterns_page,NULL);
 
         gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
         if((row<length) && (pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1))) {

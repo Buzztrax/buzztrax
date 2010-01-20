@@ -716,7 +716,7 @@ static gboolean on_page_switched_idle(gpointer user_data) {
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
   
   /* @todo: use status bar
-   * g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+   * g_object_get(self->priv->app,"main-window",&main_window,NULL);
    * g_object_get(main_window,"statusbar",&statusbar,NULL);
    * g_object_set(statusbar,"status",_("Add new machines from right click context menu. Connect machines with shift+drag from source to target."),NULL);
    *

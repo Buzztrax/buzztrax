@@ -544,7 +544,7 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
 
   dialog=GTK_WIDGET(bt_machine_rename_dialog_new(self->priv->machine));
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
   g_object_unref(main_window);
   gtk_widget_show_all(dialog);
@@ -566,8 +566,8 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
 
   GST_INFO("context_menu delete event occurred for machine : %p",self->priv->machine);
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,"sequence",&sequence,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
+  g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
 
   // don't ask if machine has no patterns and is not connected
   has_patterns=bt_machine_has_patterns(self->priv->machine);
@@ -633,8 +633,8 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
 
   GST_INFO("context_menu about event occurred");
   // show info about machine
-  g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->machine,"machine",&machine,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   bt_machine_action_about(machine,main_window);
   g_object_unref(main_window);
   gst_object_unref(machine);

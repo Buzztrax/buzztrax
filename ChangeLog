@@ -1,5 +1,16 @@
 2010-01-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	  Get rid of some unneded G_OBJECT casts.
+
+2010-01-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/interaction-controller-learn-dialog.c:
 	* src/ui/edit/machine-actions.c:
 	* src/ui/edit/machine-preferences-dialog.c:

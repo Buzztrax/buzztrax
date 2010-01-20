@@ -799,8 +799,8 @@ static void on_toolbar_about_clicked(GtkButton *button,gpointer user_data) {
 
   GST_INFO("context_menu about event occurred");
   // show info about machine
-  g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(self->priv->machine,"machine",&machine,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   bt_machine_action_about(machine,main_window);
   g_object_unref(main_window);
   gst_object_unref(machine);
@@ -1833,8 +1833,8 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
   
   gtk_widget_set_name(GTK_WIDGET(self),_("machine properties"));
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(self->priv->app,"main-window",&main_window,"settings",&settings,"song",&song,NULL);
+  g_object_get(song,"setup",&setup,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
   // create and set window icon
