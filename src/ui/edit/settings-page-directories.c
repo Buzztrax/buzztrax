@@ -55,7 +55,7 @@ static void on_folder_changed(GtkFileChooser *chooser,gpointer user_data) {
     const gchar *folder_name=gtk_widget_get_name(GTK_WIDGET(chooser));
     gchar *old_folder;
 
-    g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+    g_object_get(self->priv->app,"settings",&settings,NULL);
     g_object_get(settings,folder_name,&old_folder,NULL);
     if(!old_folder || strcmp(old_folder,new_folder)) {
       // store in settings
@@ -79,7 +79,7 @@ static void bt_settings_page_directories_init_ui(const BtSettingsPageDirectories
   gtk_widget_set_name(GTK_WIDGET(self),"default directory settings");
 
   // get settings
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   g_object_get(settings,"song-folder",&song_folder,"record-folder",&record_folder,"sample-folder",&sample_folder,NULL);
 
   // add setting widgets

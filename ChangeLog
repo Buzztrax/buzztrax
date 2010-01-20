@@ -1,3 +1,36 @@
+2010-01-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/interaction-controller-menu.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/playback-controller-socket.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-directories.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	* src/ui/edit/settings-page-playback-controller.c:
+	* src/ui/edit/tip-dialog.c:
+	* src/ui/edit/wave-viewer.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Get rid of some more unneded G_OBJECT casts in g_object_(set|get).
+
 2010-01-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-canvas-item.c:

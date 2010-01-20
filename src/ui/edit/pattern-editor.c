@@ -944,7 +944,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           if (self->row > 0) {
             bt_pattern_editor_refresh_cursor(self);
             /* @todo: should we tell pattern editor about the meassure
-             * g_object_get(G_OBJECT(song_info),"bars",&bars,NULL); for 4/4 => 16
+             * g_object_get(song_info,"bars",&bars,NULL); for 4/4 => 16
              */
             self->row = control ? 0 : (self->row - 16);
             if (self->row < 0)

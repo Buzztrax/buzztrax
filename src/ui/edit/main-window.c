@@ -168,11 +168,11 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
     BtSettings *settings;
     int x, y, w, h;
 
-    g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+    g_object_get(self->priv->app,"settings",&settings,NULL);
     gtk_window_get_position (GTK_WINDOW (self), &x, &y);
     gtk_window_get_size (GTK_WINDOW (self), &w, &h);
 
-    g_object_set(G_OBJECT(settings),"window-xpos",x,"window-ypos",y,"window-width",w,"window-height",h,NULL);
+    g_object_set(settings,"window-xpos",x,"window-ypos",y,"window-width",w,"window-height",h,NULL);
 
     g_object_unref(settings);
     */
@@ -199,7 +199,7 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
 
   g_object_get(G_OBJECT(song),"song-info",&song_info,"unsaved",&unsaved,NULL);
   // compose title
-  g_object_get(G_OBJECT(song_info),"name",&name,NULL);
+  g_object_get(song_info,"name",&name,NULL);
   // we don't use PACKAGE_NAME = 'buzztard' for the window title
   title=g_strdup_printf("%s (%s) - Buzztard",name,(unsaved?_("unsaved"):_("saved")));g_free(name);
   gtk_window_set_title(GTK_WINDOW(self), title);
@@ -348,8 +348,8 @@ BtMainWindow *bt_main_window_new(void) {
   GST_INFO("new main_window layouted");
 
   // eventualy hide the toolbar
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_get(G_OBJECT(settings),
+  g_object_get(self->priv->app,"settings",&settings,NULL);
+  g_object_get(settings,
     "toolbar-hide",&toolbar_hide,
     "statusbar-hide",&statusbar_hide,
     "tabs-hide",&tabs_hide,
@@ -419,7 +419,7 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   gboolean unsaved=FALSE;
   BtSong *song;
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
     g_object_get(song,"unsaved",&unsaved,NULL);
     g_object_unref(song);
@@ -442,7 +442,7 @@ void bt_main_window_new_song(const BtMainWindow *self) {
   gboolean unsaved=FALSE;
   BtSong *song;
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
     g_object_get(song,"unsaved",&unsaved,NULL);
     g_object_unref(song);
@@ -519,7 +519,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
 
   // set a default songs folder
   //gtk_file_chooser_set_current_folder(self->priv->file_chooser,DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   g_object_get(settings,"song-folder",&folder_name,NULL);
   // reuse last folder (store in self, if we loaded something
   gtk_file_chooser_set_current_folder(self->priv->file_chooser,self->priv->last_folder?self->priv->last_folder:folder_name);
@@ -586,9 +586,9 @@ void bt_main_window_save_song(const BtMainWindow *self) {
   gchar *file_name=NULL;
 
   // get songs file-name
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-  g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
+  g_object_get(song_info,"file-name",&file_name,NULL);
 
   // check the file_name of the song
   if(file_name) {
@@ -685,9 +685,9 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   //gtk_file_chooser_set_filter(self->priv->file_chooser,filter_all);
 
   // get songs file-name
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,"settings",&settings,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-  g_object_get(G_OBJECT(song_info),"name",&name,"file-name",&file_name,NULL);
+  g_object_get(self->priv->app,"song",&song,"settings",&settings,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
+  g_object_get(song_info,"name",&name,"file-name",&file_name,NULL);
   g_object_get(settings,"song-folder",&folder_name,NULL);
   gtk_file_chooser_add_shortcut_folder(self->priv->file_chooser,folder_name,NULL);
   if(!file_name) {

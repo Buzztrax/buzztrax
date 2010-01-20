@@ -56,7 +56,7 @@ static void on_audiosink_menu_changed(GtkComboBox *combo_box, gpointer user_data
   index=gtk_combo_box_get_active(self->priv->audiosink_menu);
   GST_INFO("audiosink changed : index=%lu",index);
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   if(index) {
     g_object_set(settings,"audiosink",g_list_nth_data(self->priv->audiosink_names,index-1),NULL);
   }
@@ -75,7 +75,7 @@ static void on_samplerate_menu_changed(GtkComboBox *combo_box, gpointer user_dat
   rate=atoi(gtk_combo_box_get_active_text(self->priv->samplerate_menu));
   GST_INFO("sample-rate changed : index=%lu, rate=%lu",index,rate);
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   g_object_set(settings,"sample-rate",rate,NULL);
   g_object_unref(settings);
 }
@@ -88,7 +88,7 @@ static void on_channels_menu_changed(GtkComboBox *combo_box, gpointer user_data)
   index=gtk_combo_box_get_active(self->priv->channels_menu);
   GST_INFO("channels changed : index=%lu",index);
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   g_object_set(settings,"channels",index+1,NULL);
   g_object_unref(settings);
 }
@@ -110,7 +110,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   gtk_widget_set_name(GTK_WIDGET(self),"audio device settings");
 
   // get settings
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   g_object_get(settings,
     "audiosink",&audiosink_name,
     "system-audiosink",&system_audiosink_name,

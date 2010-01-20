@@ -274,13 +274,13 @@ static void label_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *re
     bg_col=((row/self->priv->bars)&1)?self->priv->selection_bg2:self->priv->selection_bg1;
   }
   if(bg_col) {
-    g_object_set(G_OBJECT(renderer),
+    g_object_set(renderer,
       "background-gdk",bg_col,
       "background-set",TRUE,
       NULL);
   }
   else {
-    g_object_set(G_OBJECT(renderer),
+    g_object_set(renderer,
       "background-set",FALSE,
       NULL);
   }
@@ -315,7 +315,7 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
   else {
     bg_col=def_bg_col;
   }
-  g_object_set(G_OBJECT(renderer),
+  g_object_set(renderer,
     "background-gdk",bg_col,
     "text",str,
      NULL);
@@ -348,7 +348,7 @@ static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCell
   else {
     bg_col=def_bg_col;
   }
-  g_object_set(G_OBJECT(renderer),
+  g_object_set(renderer,
     "background-gdk",bg_col,
     "text",str,
      NULL);
@@ -381,7 +381,7 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
   else {
     bg_col=def_bg_col;
   }
-  g_object_set(G_OBJECT(renderer),
+  g_object_set(renderer,
     "background-gdk",bg_col,
     "text",str,
      NULL);
@@ -690,7 +690,7 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
   GtkLabel *label=GTK_LABEL(user_data);
   gchar *str;
 
-  g_object_get(G_OBJECT(machine),"id",&str,NULL);
+  g_object_get(machine,"id",&str,NULL);
   GST_INFO("machine id changed to \"%s\"",str);
   gtk_label_set_text(label,str);
   g_free(str);
@@ -915,13 +915,13 @@ static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar
         gulong length;
 
         GST_INFO("label changed");
-        g_object_get(G_OBJECT(self->priv->sequence),"length",&length,NULL);
+        g_object_get(self->priv->sequence,"length",&length,NULL);
 
         // need to change it in the model
         gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_LABEL,new_text,-1);
         // update the sequence
         if(pos>=length) {
-          g_object_set(G_OBJECT(self->priv->sequence),"length",pos+1,NULL);
+          g_object_set(self->priv->sequence,"length",pos+1,NULL);
         }
         bt_sequence_set_label(self->priv->sequence,pos,new_text);
         // update label_menu
@@ -939,7 +939,7 @@ static void on_pos_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   self->priv->pos_format=gtk_combo_box_get_active(combo_box);
 
   // reformat pos-column and label-menu (this is inefficient)
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   // @todo: inefficient (we ideally just want to poke new stings into the model)
   sequence_table_refresh(self,song);
   sequence_table_refresh_labels(self);
@@ -985,7 +985,7 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
 
   // add static column
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),
+  g_object_set(renderer,
     "mode",GTK_CELL_RENDERER_MODE_INERT,
     "xalign",1.0,
     "yalign",0.5,
@@ -1099,7 +1099,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 
   // re-add static columns
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),
+  g_object_set(renderer,
     "mode",GTK_CELL_RENDERER_MODE_EDITABLE,
     "xalign",1.0,
     "yalign",0.5,
@@ -1144,7 +1144,7 @@ static void sequence_table_refresh_labels(const BtMainPageSequence *self) {
   // label menu will have 'position : label'
   label_menu_store=gtk_list_store_new(3,G_TYPE_ULONG,G_TYPE_STRING,G_TYPE_STRING);
 
-  g_object_get(G_OBJECT(self->priv->sequence),"length",&timeline_ct,NULL);
+  g_object_get(self->priv->sequence,"length",&timeline_ct,NULL);
 
   for(i=0;i<self->priv->sequence_length;i++) {
     pos_str=sequence_format_positions(self,i);
@@ -1195,7 +1195,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   GST_INFO("refresh sequence table");
 
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-  g_object_get(G_OBJECT(self->priv->sequence),"length",&timeline_ct,"tracks",&track_ct,NULL);
+  g_object_get(self->priv->sequence,"length",&timeline_ct,"tracks",&track_ct,NULL);
   GST_DEBUG("  size is %2lu,%2lu",timeline_ct,track_ct);
 
   // reset columns
@@ -1279,7 +1279,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   for(j=0;j<track_ct;j++) {
     machine=bt_sequence_get_machine(self->priv->sequence,j);
     renderer=gtk_cell_renderer_text_new();
-    g_object_set(G_OBJECT(renderer),
+    g_object_set(renderer,
       "mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
       "xalign",0.0,
       "yalign",0.5,
@@ -1311,7 +1311,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         // its the sink, which already has it enabled
         level_name="input-post-level";
       }
-      g_object_get(G_OBJECT(machine),"id",&str,level_name,&level,NULL);
+      g_object_get(machine,"id",&str,level_name,&level,NULL);
 
       // @todo: add context menu like that in the machine_view to the header
 
@@ -1419,7 +1419,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
   // add a final column that eats remaining space
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),
+  g_object_set(renderer,
     "mode",GTK_CELL_RENDERER_MODE_INERT,
     NULL);
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
@@ -1481,10 +1481,10 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     }
   
     //-- append pattern rows
-    g_object_get(G_OBJECT(self->priv->machine),"patterns",&list,NULL);
+    g_object_get(self->priv->machine,"patterns",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
-      g_object_get(G_OBJECT(pattern),"name",&str,"is-internal",&is_internal,NULL);
+      g_object_get(pattern,"name",&str,"is-internal",&is_internal,NULL);
       if(!is_internal) {
         //GST_DEBUG("  adding \"%s\" at index %d -> '%c'",str,index,self->priv->pattern_keys[index]);
         key[0]=(index<64)?self->priv->pattern_keys[index]:' ';
@@ -1590,7 +1590,7 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
   g_object_get(G_OBJECT(setup),"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
-    g_object_get(G_OBJECT(machine),"id",&str,NULL);
+    g_object_get(machine,"id",&str,NULL);
 
     menu_item=gtk_image_menu_item_new_with_label(str);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),bt_ui_resources_get_icon_image_by_machine(machine));
@@ -1623,7 +1623,7 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
   gdouble pos;
   glong play_pos,loop_start,loop_end;
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"play-pos",&play_pos,NULL);
   g_object_get(self->priv->sequence,"length",&sequence_length,"loop-end",&loop_end,NULL);
   if(row==-1) row=sequence_length;
@@ -1705,7 +1705,7 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   GList *columns;
 
   // get song from app and then setup from song
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
 
   bt_sequence_add_track(self->priv->sequence,machine);
 
@@ -1781,7 +1781,7 @@ static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
     const gchar *id;
 
     // get song from app and then setup from song
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(self->priv->app,"song",&song,NULL);
     g_object_get(song,"setup",&setup,NULL);
   
     id=gtk_label_get_text(GTK_LABEL(label));
@@ -1802,7 +1802,7 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
   gulong number_of_tracks;
 
   // get song from app and then setup from song
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
 
   // change number of tracks
   g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
@@ -1849,7 +1849,7 @@ static void on_track_move_left_activated(GtkMenuItem *menuitem, gpointer user_da
 
   if(track>0) {
     // get song from app and then setup from song
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(self->priv->app,"song",&song,NULL);
     
     if(bt_sequence_move_track_left(self->priv->sequence,track)) {
       self->priv->cursor_column--;
@@ -1871,8 +1871,8 @@ static void on_track_move_right_activated(GtkMenuItem *menuitem, gpointer user_d
   GST_INFO("move track %ld to right",self->priv->cursor_column);
 
   // get song from app and then setup from song
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(self->priv->sequence),"tracks",&number_of_tracks,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
 
   if(track<number_of_tracks) {
     if(bt_sequence_move_track_right(self->priv->sequence,track)) {
@@ -1894,7 +1894,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
 
   // calculate fractional pos and set into sequence-viewer
   g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
-  g_object_get(G_OBJECT(self->priv->sequence),"length",&sequence_length,NULL);
+  g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
   play_pos=(gdouble)pos/(gdouble)sequence_length;
   if(play_pos<=1.0) {
     g_object_set(self->priv->sequence_table,"play-position",play_pos,NULL);
@@ -2038,7 +2038,7 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
         if( self->priv->row_filter_pos > self->priv->sequence_length ) {
           BtSong *song;
 
-          g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+          g_object_get(self->priv->app,"song",&song,NULL);
 
           self->priv->sequence_length+=SEQUENCE_ROW_ADDITION_INTERVAL;
           sequence_table_refresh(self,song);
@@ -2092,12 +2092,12 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     gboolean pattern_usage_changed=FALSE;
     gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
 
-    g_object_get(G_OBJECT(self->priv->sequence),"length",&length,"tracks",&tracks,NULL);
+    g_object_get(self->priv->sequence,"length",&length,"tracks",&tracks,NULL);
     
     GST_DEBUG("cursor pos : %lu/%lu, %lu/%lu",row,length,track,tracks);
     if(track>tracks) return(FALSE);
 
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(self->priv->app,"song",&song,NULL);
 
     // look up pattern for key
     if(event->keyval==GDK_space || event->keyval == GDK_period) {
@@ -2387,7 +2387,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
             if((pattern=bt_machine_get_pattern_by_index(machine,index))) {
               pattern_usage_changed=!bt_sequence_is_pattern_used(self->priv->sequence,pattern);
               bt_sequence_set_pattern(self->priv->sequence,row,track-1,pattern);
-              g_object_get(G_OBJECT(pattern),"name",&str,NULL);
+              g_object_get(pattern,"name",&str,NULL);
               g_object_unref(pattern);
               free_str=TRUE;
               change=TRUE;
@@ -2667,7 +2667,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   machine_menu_refresh(self,setup);
 
   // get song from app and then setup from song
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
 
   bt_sequence_remove_track_by_machine(self->priv->sequence,machine);
   // reinit the view
@@ -2687,7 +2687,7 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
   pattern_list_refresh(self);
 
   // get song from app and then setup from song
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   // reinit the sequence view
   sequence_table_refresh(self,song);
   sequence_model_recolorize(self);
@@ -2717,13 +2717,13 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) return;
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
   g_object_try_unref(self->priv->sequence);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,"setup",&setup,"sequence",&self->priv->sequence,"bin", &bin,NULL);
-  g_object_get(G_OBJECT(self->priv->sequence),"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
+  g_object_get(song,"song-info",&song_info,"setup",&setup,"sequence",&self->priv->sequence,"bin", &bin,NULL);
+  g_object_get(self->priv->sequence,"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
   // make sequence_length and step_filter_pos accord to song length
   self->priv->sequence_length=self->priv->row_filter_pos=sequence_length;
 
@@ -2744,7 +2744,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   // update toolbar
-  g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
+  g_object_get(song_info,"bars",&bars,NULL);
   update_bars_menu(self,bars);
 
   // update sequence view
@@ -3023,7 +3023,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_widget_set_name(GTK_WIDGET(self->priv->pattern_list),"sequence-pattern-list");
 
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),
+  g_object_set(renderer,
     "xalign",1.0,
     NULL);
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
@@ -3064,7 +3064,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   // let settings control toolbar style
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   on_toolbar_style_changed(settings,NULL,(gpointer)toolbar);
   g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)toolbar);
   g_object_unref(settings);
@@ -3314,7 +3314,7 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
     gchar *id, *str;
     gboolean res=TRUE;
 
-    g_object_get(G_OBJECT(self->priv->sequence),"length",&sequence_length,NULL);
+    g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
     
     ticks=atol(lines[0]);
     sequence_length--;
@@ -3445,14 +3445,14 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
   gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
     BtSongInfo *song_info;
     GstBin *bin;
     GstBus *bus;
 
     GST_DEBUG("disconnect handlers from song=%p",song);
-    g_object_get(G_OBJECT(song),"song-info",&song_info,"bin", &bin,NULL);
+    g_object_get(song,"song-info",&song_info,"bin", &bin,NULL);
 
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
@@ -3481,7 +3481,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   }
 
   gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
-  g_object_unref(G_OBJECT(self->priv->context_menu));
+  g_object_unref(self->priv->context_menu);
 
   g_object_try_unref(self->priv->accel_group);
 

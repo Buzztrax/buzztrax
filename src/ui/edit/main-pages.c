@@ -74,14 +74,14 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) {
     return;
   }
 
   // restore page
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-  g_object_get(G_OBJECT(setup),"properties",&properties,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+  g_object_get(setup,"properties",&properties,NULL);
   if((prop=(gchar *)g_hash_table_lookup(properties,"active-page"))) {
     guint page=atoi(prop);
     
@@ -104,14 +104,14 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
 
   GST_INFO("page has switched : self=%p, page=%d",self,page_num);
   // get objects
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) {
     return;
   }
   
   // remember page
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-  g_object_get(G_OBJECT(setup),"properties",&properties,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+  g_object_get(setup,"properties",&properties,NULL);
   prop=g_strdup_printf("%u",page_num);
   g_hash_table_insert(properties,g_strdup("active-page"),prop);
 

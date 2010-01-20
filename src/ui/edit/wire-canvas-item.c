@@ -292,8 +292,8 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
 
   GST_INFO("context_menu disconnect item selected");
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"setup",&setup,NULL);
 
   GST_INFO("now removing wire : %p,ref_count=%d",self->priv->wire,G_OBJECT(self->priv->wire)->ref_count);
   bt_setup_remove_wire(setup,self->priv->wire);
@@ -324,7 +324,7 @@ static void on_gain_changed(GstElement *element, GParamSpec *arg, gpointer user_
   gdouble s=MACHINE_VIEW_WIRE_PAD_SIZE,ox=2.5*s,px=-ox+(1.3*s);
   gdouble gain;
   
-  g_object_get(G_OBJECT(self->priv->wire_gain),"volume",&gain,NULL);
+  g_object_get(self->priv->wire_gain,"volume",&gain,NULL);
   // do some sensible clamping
   if(gain>4.0) gain=4.0;  
   gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->vol_level_item),"x2", px+(gain*0.55*s),NULL);
@@ -335,7 +335,7 @@ static void on_pan_changed(GstElement *element, GParamSpec *arg, gpointer user_d
   gdouble s=MACHINE_VIEW_WIRE_PAD_SIZE,ox=2.5*s,px=-ox+(1.3*s);
   gfloat pan;
   
-  g_object_get(G_OBJECT(self->priv->wire_pan),"panorama",&pan,NULL);
+  g_object_get(self->priv->wire_pan,"panorama",&pan,NULL);
   if(pan<0.0) {
     gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->pan_pos_item),
       "x1", px+((1.0+pan)*1.1*s),
@@ -403,8 +403,8 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
                             NULL));
   gnome_canvas_item_lower_to_bottom(GNOME_CANVAS_ITEM(self));
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"setup",&setup,NULL);
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   
   //GST_INFO("wire canvas item added");
@@ -509,11 +509,11 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   if(self->priv->dst) {
     g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->dst),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_position_changed,(gpointer)self);
   }
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
     BtSetup *setup;
 
-    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+    g_object_get(song,"setup",&setup,NULL);
     g_signal_handlers_disconnect_matched(G_OBJECT(setup),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
     g_object_unref(setup);
     g_object_unref(song);

@@ -131,7 +131,7 @@ struct _BtMachineCanvasItemPrivate {
   double zoom;
 
   /* interaction state */
-  gboolean dragging,moved,switching;
+  gboolean dragging,moved/*,switching*/;
   gdouble offx,offy,dragx,dragy;
 
   /* playback state */
@@ -642,15 +642,15 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
 
 //-- helper methods
 
-static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanvasItem *self,GdkEvent *event) {
 #if 0
+static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanvasItem *self,GdkEvent *event) {
   GnomeCanvas *canvas;
   GnomeCanvasItem *ci,*pci;
   gboolean res=FALSE;
 
-  g_object_get(G_OBJECT(self->priv->main_page_machines),"canvas",&canvas,NULL);
+  g_object_get(self->priv->main_page_machines,"canvas",&canvas,NULL);
   if((ci=gnome_canvas_get_item_at(canvas,event->button.x,event->button.y))) {
-    g_object_get(G_OBJECT(ci),"parent",&pci,NULL);
+    g_object_get(ci,"parent",&pci,NULL);
     //GST_DEBUG("ci=%p : self=%p, self->box=%p, self->state_switch=%p",ci,self,self->priv->box,self->priv->state_switch);
     if((ci==self->priv->state_switch)
       || (ci==self->priv->state_mute) || (pci==self->priv->state_mute)
@@ -662,10 +662,8 @@ static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanva
   }
   g_object_unref(canvas);
   return(res);
-#else
-  return(FALSE);
-#endif
 }
+#endif
 
 static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasItem *self) {
   GtkWidget *menu_item,*label;
@@ -847,9 +845,9 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
         g_signal_connect(G_OBJECT(self->priv->machine), "parent-unset", G_CALLBACK(on_machine_parent_changed), (gpointer)self);
         // DEBUG
 
-        g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+        g_object_get(self->priv->app,"song",&song,NULL);
         g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
-        g_object_get(G_OBJECT(song),"bin", &bin,NULL);
+        g_object_get(song,"bin", &bin,NULL);
         bus=gst_element_get_bus(GST_ELEMENT(bin));
         g_signal_connect(bus, "message::element", G_CALLBACK(on_machine_level_change), (gpointer)self);
         gst_object_unref(bus);
@@ -859,7 +857,7 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
 
         if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
           if(bt_machine_enable_output_post_level(self->priv->machine)) {
-            g_object_get(G_OBJECT(self->priv->machine),"output-post-level",&self->priv->output_level,NULL);
+            g_object_get(self->priv->machine,"output-post-level",&self->priv->output_level,NULL);
             g_object_try_weak_ref(self->priv->output_level);
             gst_object_unref(self->priv->output_level);
           }
@@ -869,7 +867,7 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
         }
         if(!BT_IS_SOURCE_MACHINE(self->priv->machine)) {
           if(bt_machine_enable_input_pre_level(self->priv->machine)) {
-            g_object_get(G_OBJECT(self->priv->machine),"input-pre-level",&self->priv->input_level,NULL);
+            g_object_get(self->priv->machine,"input-pre-level",&self->priv->input_level,NULL);
             g_object_try_weak_ref(self->priv->input_level);
             gst_object_unref(self->priv->input_level);
           }
@@ -911,7 +909,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   
   g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->machine),G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,"bin",&bin,NULL);
+  g_object_get(self->priv->app,"song",&song,"bin",&bin,NULL);
   if(song) {
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
     g_object_unref(song);
@@ -1068,17 +1066,21 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
     case GDK_BUTTON_PRESS:
       GST_DEBUG("GDK_BUTTON_PRESS: %d, 0x%x",event->button.button,event->button.state);
       if((event->button.button==1) && !(event->button.state&GDK_SHIFT_MASK)) {
+#if 0
         if(!bt_machine_canvas_item_is_over_state_switch(self,event)) {
+#endif
           // dragx/y coords are world coords of button press
           self->priv->dragx=event->button.x;
           self->priv->dragy=event->button.y;
           // set some flags
           self->priv->dragging=TRUE;
           self->priv->moved=FALSE;
+#if 0
         }
         else {
           self->priv->switching=TRUE;
         }
+#endif
         res=TRUE;
       }
       else if(event->button.button==3) {
@@ -1126,7 +1128,9 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         }
         res=TRUE;
       }
-      else if(self->priv->switching) {
+      else
+#if 0
+      if(self->priv->switching) {
         self->priv->switching=FALSE;
         // still over mode switch
         if(bt_machine_canvas_item_is_over_state_switch(self,event)) {
@@ -1149,6 +1153,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
           }
         }
       }
+#endif
       break;
     case GDK_KEY_RELEASE:
       GST_DEBUG("GDK_KEY_RELEASE: %d",event->key.keyval);

@@ -223,7 +223,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   else {
     gdouble xs,xe,xp;
     // center
-    g_object_get(G_OBJECT(self->priv->hadjustment),"lower",&xs,"upper",&xe,"page-size",&xp,NULL);
+    g_object_get(self->priv->hadjustment,"lower",&xs,"upper",&xe,"page-size",&xp,NULL);
     gtk_adjustment_set_value(self->priv->hadjustment,xs+((xe-xs-xp)*0.5));
   }
   if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"ypos"))) {
@@ -232,7 +232,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   else {
     gdouble ys,ye,yp;
     // center
-    g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
+    g_object_get(self->priv->vadjustment,"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
     gtk_adjustment_set_value(self->priv->vadjustment,ys+((ye-ys-yp)*0.5));
   }
 
@@ -369,7 +369,7 @@ static BtMachineCanvasItem *bt_main_page_machines_get_machine_canvas_item_at(con
   //GST_DEBUG("is there a machine at pos?");
 
   if((ci=gnome_canvas_get_item_at(self->priv->canvas,mouse_x,mouse_y))) {
-    g_object_get(G_OBJECT(ci),"parent",&pci,NULL);
+    g_object_get(ci,"parent",&pci,NULL);
     if(BT_IS_MACHINE_CANVAS_ITEM(pci)) {
       mitem=BT_MACHINE_CANVAS_ITEM(pci);
       //GST_DEBUG("  yes!");
@@ -465,7 +465,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) {
     self->priv->properties=NULL;
     machine_view_clear(self);
@@ -474,7 +474,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   }
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(song,"setup",&setup,NULL);
   // update page
   machine_view_refresh(self,setup);
   g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
@@ -503,9 +503,9 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   gdouble old_zoom=self->priv->zoom;
 
   //calculate bounds
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-  g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+  g_object_get(setup,"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
     // get position
@@ -529,8 +529,8 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   ma_ys-=ms;ma_ye+=ms;
   ma_yd=(ma_ye-ma_ys);
 
-  g_object_get(G_OBJECT(self->priv->hadjustment),/*"lower",&pg_xs,"value",&pg_x,"upper",&pg_xe,*/"page-size",&pg_xl,NULL);
-  g_object_get(G_OBJECT(self->priv->vadjustment),/*"lower",&pg_ys,"value",&pg_y,"upper",&pg_ye,*/"page-size",&pg_yl,NULL);
+  g_object_get(self->priv->hadjustment,/*"lower",&pg_xs,"value",&pg_x,"upper",&pg_xe,*/"page-size",&pg_xl,NULL);
+  g_object_get(self->priv->vadjustment,/*"lower",&pg_ys,"value",&pg_y,"upper",&pg_ye,*/"page-size",&pg_yl,NULL);
   /*
   pg_xd=(pg_xe-pg_xs)/MACHINE_VIEW_ZOOM_X;
   pg_yd=(pg_ye-pg_ys)/MACHINE_VIEW_ZOOM_Y;
@@ -613,8 +613,8 @@ static void on_toolbar_grid_density_off_activated(GtkMenuItem *menuitem, gpointe
 
   self->priv->grid_density=0;
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_set(G_OBJECT(settings),"grid-density","off",NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
+  g_object_set(settings,"grid-density","off",NULL);
   g_object_unref(settings);
 
   bt_main_page_machines_draw_grid(self);
@@ -628,8 +628,8 @@ static void on_toolbar_grid_density_low_activated(GtkMenuItem *menuitem, gpointe
 
   self->priv->grid_density=1;
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_set(G_OBJECT(settings),"grid-density","low",NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
+  g_object_set(settings,"grid-density","low",NULL);
   g_object_unref(settings);
 
   bt_main_page_machines_draw_grid(self);
@@ -643,8 +643,8 @@ static void on_toolbar_grid_density_mid_activated(GtkMenuItem *menuitem, gpointe
 
   self->priv->grid_density=2;
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_set(G_OBJECT(settings),"grid-density","medium",NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
+  g_object_set(settings,"grid-density","medium",NULL);
   g_object_unref(settings);
 
   bt_main_page_machines_draw_grid(self);
@@ -658,8 +658,8 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
 
   self->priv->grid_density=3;
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_set(G_OBJECT(settings),"grid-density","high",NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
+  g_object_set(settings,"grid-density","high",NULL);
   g_object_unref(settings);
 
   bt_main_page_machines_draw_grid(self);
@@ -675,7 +675,7 @@ static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gdouble vs,ve,vp,val,v;
   
-  g_object_get(G_OBJECT(self->priv->vadjustment),"value",&val,"lower",&vs,"upper",&ve,"page-size",&vp,NULL);
+  g_object_get(self->priv->vadjustment,"value",&val,"lower",&vs,"upper",&ve,"page-size",&vp,NULL);
   v=(ve-vs-vp);
   if(v) {
     self->priv->scroll_y=(val-vs)/(ve-vs-vp);
@@ -693,7 +693,7 @@ static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gdouble vs,ve,vp,val,v;
   
-  g_object_get(G_OBJECT(self->priv->hadjustment),"value",&val,"lower",&vs,"upper",&ve,"page-size",&vp,NULL);
+  g_object_get(self->priv->hadjustment,"value",&val,"lower",&vs,"upper",&ve,"page-size",&vp,NULL);
   v=(ve-vs-vp);
   if(v) {
     self->priv->scroll_x=(val-vs)/(ve-vs-vp);
@@ -784,10 +784,10 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
       }
       else {
         if((event->button.button==1) && (event->button.state&GDK_SHIFT_MASK)) {
-          g_object_get(G_OBJECT(ci),"parent",&pci,NULL);
+          g_object_get(ci,"parent",&pci,NULL);
           if(BT_IS_MACHINE_CANVAS_ITEM(pci)) {
             self->priv->new_wire_src=BT_MACHINE_CANVAS_ITEM(pci);
-            g_object_get(G_OBJECT(pci),"machine",&machine,NULL);
+            g_object_get(pci,"machine",&machine,NULL);
             // if the citem->machine is a source/processor-machine
             if(BT_IS_SOURCE_MACHINE(machine) || BT_IS_PROCESSOR_MACHINE(machine)) {
               // handle drawing a new wire
@@ -907,13 +907,13 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 static void on_volume_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gdouble gain = gtk_adjustment_get_value (adj);
-  g_object_set(G_OBJECT(self->priv->wire_gain),"volume",gain,NULL);
+  g_object_set(self->priv->wire_gain,"volume",gain,NULL);
 }
 
 static void on_panorama_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gfloat pan = (gfloat)gtk_adjustment_get_value (adj);
-  g_object_set(G_OBJECT(self->priv->wire_pan),"panorama",pan,NULL);
+  g_object_set(self->priv->wire_pan,"panorama",pan,NULL);
 }
 
 #if 0
@@ -923,9 +923,9 @@ static void on_canvas_size_allocate(GtkWidget *widget,GtkAllocation *allocation,
   gdouble ys,ye,yp;
 
   // center
-  g_object_get(G_OBJECT(self->priv->hadjustment),"lower",&xs,"upper",&xe,"page-size",&xp,NULL);
+  g_object_get(self->priv->hadjustment,"lower",&xs,"upper",&xe,"page-size",&xp,NULL);
   gtk_adjustment_set_value(self->priv->hadjustment,xs+((xe-xs-xp)*self->priv->scroll_x));
-  g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
+  g_object_get(self->priv->vadjustment,"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
   gtk_adjustment_set_value(self->priv->vadjustment,ys+((ye-ys-yp)*self->priv->scroll_y));
   GST_WARNING("canvas: abs. scroll pos %lf x %lf, abs. scroll pos %lf x %lf",
     xs+((xe-xs-xp)*self->priv->scroll_x),
@@ -1012,9 +1012,9 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
 
   gtk_widget_set_name(GTK_WIDGET(self),"machine view");
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
 
-  g_object_get(G_OBJECT(settings),"grid-density",&density,NULL);
+  g_object_get(settings,"grid-density",&density,NULL);
   if(!strcmp(density,"off")) self->priv->grid_density=0;
   else if(!strcmp(density,"low")) self->priv->grid_density=1;
   else if(!strcmp(density,"medium")) self->priv->grid_density=2;
@@ -1183,7 +1183,7 @@ gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self,
   g_object_try_unref(self->priv->wire_gain);
   g_object_get(wire,"gain",&self->priv->wire_gain,NULL);
   /* set initial value */
-  g_object_get(G_OBJECT(self->priv->wire_gain),"volume",&gain,NULL);
+  g_object_get(self->priv->wire_gain,"volume",&gain,NULL);
   gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj),gain);
 
   /* show directly over mouse-pos */
@@ -1220,7 +1220,7 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
   g_object_get(wire,"pan",&self->priv->wire_pan,NULL);
   if(self->priv->wire_pan) {
     /* set initial value */
-    g_object_get(G_OBJECT(self->priv->wire_pan),"panorama",&pan,NULL);
+    g_object_get(self->priv->wire_pan,"panorama",&pan,NULL);
     gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->pan_popup_adj),(gdouble)pan);
   
     /* show directly over mouse-pos */

@@ -80,8 +80,8 @@ static void on_device_menu_changed(GtkComboBox *combo_box, gpointer user_data) {
   if(device) {
     g_object_get(device,"controls",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
-      control=BTIC_CONTROL(node->data);      
-      g_object_get(G_OBJECT(control),"name",&str,NULL);
+      control=BTIC_CONTROL(node->data);
+      g_object_get(control,"name",&str,NULL);
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store,&iter,
         CONTROLLER_LIST_LABEL,str,
@@ -120,7 +120,7 @@ static void on_ic_registry_devices_changed(BtIcRegistry *ic_registry,GParamSpec 
   g_object_get(ic_registry,"devices",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     device=BTIC_DEVICE(node->data);
-    g_object_get(G_OBJECT(device),"name",&str,NULL);
+    g_object_get(device,"name",&str,NULL);
     gtk_list_store_append(store,&menu_iter);
     gtk_list_store_set(store,&menu_iter,
       //DEVICE_MENU_ICON,pixbuf,

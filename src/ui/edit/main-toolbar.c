@@ -205,7 +205,7 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     GST_INFO("toolbar play activated");
 
     // get song from app and start playback
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(self->priv->app,"song",&song,NULL);
     if(!bt_song_play(song)) {
       // switch off play button
       gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(button),FALSE);
@@ -222,7 +222,7 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
 
   GST_INFO("toolbar stop event occurred");
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   bt_song_stop(song);
   GST_INFO("  song stopped");
   // release the reference
@@ -238,9 +238,9 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   loop=gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button));
   GST_INFO("toolbar loop toggle event occurred, new-state=%d",loop);
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-  g_object_set(G_OBJECT(sequence),"loop",loop,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"sequence",&sequence,NULL);
+  g_object_set(sequence,"loop",loop,NULL);
   // release the references
   g_object_unref(sequence);
   g_object_unref(song);
@@ -263,7 +263,7 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
     BtMainWindow *main_window;
   
     // get song from app
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
+    g_object_get(self->priv->app,"song",&song,"main-window",&main_window,NULL);
     // debug the state
     bt_song_write_to_lowlevel_dot_file(song);
     bt_song_stop(song);
@@ -297,7 +297,7 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
     BtMainWindow *main_window;
 
     // get song from app
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
+    g_object_get(self->priv->app,"song",&song,"main-window",&main_window,NULL);
     //bt_song_stop(song);
 
     bt_dialog_message(main_window,_("Warning"),_("A problem occurred"),err->message);
@@ -454,7 +454,7 @@ static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
     g_object_set(self->priv->gain,"volume",nvalue,NULL);
     g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
   
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(self->priv->app,"song",&song,NULL);
     bt_song_set_unsaved(song,TRUE);
     g_object_unref(song);
   }
@@ -470,7 +470,7 @@ static gboolean on_song_volume_slider_press_event(GtkWidget *widget, GdkEventBut
       GstElement *machine;
       GstController *ctrl;
 
-      g_object_get(G_OBJECT(self->priv->master),"machine",&machine,NULL);
+      g_object_get(self->priv->master,"machine",&machine,NULL);
       if((ctrl=gst_object_get_controller(G_OBJECT(machine)))) {
         gst_controller_set_property_disabled(ctrl,"master-volume",TRUE);
       }
@@ -486,7 +486,7 @@ static gboolean on_song_volume_slider_release_event(GtkWidget *widget, GdkEventB
     GstElement *machine;
     GstController *ctrl;
 
-    g_object_get(G_OBJECT(self->priv->master),"machine",&machine,NULL);
+    g_object_get(self->priv->master,"machine",&machine,NULL);
     if((ctrl=gst_object_get_controller(G_OBJECT(self->priv->master)))) {
       // update the default value at ts=0
       bt_machine_set_global_param_default(self->priv->master,
@@ -550,7 +550,7 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
         "channels", G_TYPE_INT, channels, NULL);
     message = gst_message_new_application (NULL, structure);
 
-    g_object_get(G_OBJECT(self->priv->app),"bin",&bin,NULL);
+    g_object_get(self->priv->app,"bin",&bin,NULL);
     gst_element_post_message(bin,message);
     gst_object_unref(bin);
   }
@@ -585,12 +585,12 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) return;
 
   // get the audio_sink (song->master is a bt_sink_machine) if there is one already
   g_object_try_weak_unref(self->priv->master);
-  g_object_get(G_OBJECT(song),"master",&self->priv->master,"sequence",&sequence,"bin", &bin,NULL);
+  g_object_get(song,"master",&self->priv->master,"sequence",&sequence,"bin", &bin,NULL);
 
   if(self->priv->master) {
     GstPad *pad;
@@ -602,7 +602,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // get the input_level and input_gain properties from audio_sink
     g_object_try_weak_unref(self->priv->gain);
     g_object_try_weak_unref(self->priv->level);
-    g_object_get(G_OBJECT(self->priv->master),"input-post-level",&self->priv->level,"input-gain",&self->priv->gain,NULL);
+    g_object_get(self->priv->master,"input-post-level",&self->priv->level,"input-gain",&self->priv->gain,NULL);
     g_object_try_weak_ref(self->priv->gain);
     g_object_try_weak_ref(self->priv->level);
 
@@ -783,7 +783,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 
   // let settings control toolbar style
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
   g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
   g_object_unref(settings);
@@ -820,7 +820,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
     GstBin *bin;
     GstBus *bus;
@@ -829,7 +829,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
 
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
 
-    g_object_get(G_OBJECT(song),"bin", &bin, NULL);
+    g_object_get(song,"bin", &bin, NULL);
     bus=gst_element_get_bus(GST_ELEMENT(bin));
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_error,NULL);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_warning,NULL);

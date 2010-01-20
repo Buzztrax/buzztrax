@@ -208,7 +208,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
   
   GST_DEBUG("read settings");
   
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   g_object_get(settings,"record-folder",&self->priv->folder,NULL);
   g_object_unref(settings);
 
@@ -248,9 +248,9 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
 
   // set deault name
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-  g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
+  g_object_get(song_info,"file-name",&file_name,NULL);
   if(file_name) {
     // cut off extension from file_name
     if((ext=strchr(file_name,'.'))) *ext='\0';

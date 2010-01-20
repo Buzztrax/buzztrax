@@ -165,9 +165,9 @@ static void on_song_info_rhythm_notify(const BtSongInfo *song_info,GParamSpec *a
   BtSequence *sequence;
 
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   g_return_if_fail(song);
-  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+  g_object_get(song,"sequence",&sequence,NULL);
 
   bt_main_statusbar_update_length(self,song,sequence);
 
@@ -181,7 +181,7 @@ static void on_sequence_loop_time_notify(const BtSequence *sequence,GParamSpec *
   BtSong *song;
 
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   g_return_if_fail(song);
 
   bt_main_statusbar_update_length(self,song,sequence);
@@ -198,10 +198,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) return;
 
-  g_object_get(G_OBJECT(song),"sequence",&sequence,"song-info",&song_info,NULL);
+  g_object_get(song,"sequence",&sequence,"song-info",&song_info,NULL);
   bt_main_statusbar_update_length(self,song,sequence);
   // subscribe to property changes in song
   g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
@@ -362,13 +362,13 @@ static void bt_main_statusbar_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
     BtSongInfo *song_info;
     BtSequence *sequence;
 
     GST_DEBUG("disconnect handlers from song=%p",song);
-    g_object_get(G_OBJECT(song),"sequence",&sequence,"song-info",&song_info,NULL);
+    g_object_get(song,"sequence",&sequence,"song-info",&song_info,NULL);
 
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);

@@ -66,7 +66,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   GstClockTime bar_time;
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
-  g_object_get(G_OBJECT(sequence),"length",&length,NULL);
+  g_object_get(sequence,"length",&length,NULL);
   bar_time=bt_sequence_get_bar_time(sequence);
 
   progress=(gdouble)pos/(gdouble)length;
@@ -106,7 +106,7 @@ static gboolean bt_render_progress_record(const BtRenderProgress *self, BtSong *
 
   bt_song_play(song);
   gtk_dialog_run(GTK_DIALOG(self));
-  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
+  g_object_get(song,"is-playing",&is_playing,NULL);
   if(!is_playing) {
     return(TRUE);
   }
@@ -178,7 +178,7 @@ void bt_render_progress_run(const BtRenderProgress *self) {
   gboolean unsaved;
 
   g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,"song-info",&song_info,"unsaved",&unsaved,NULL);
+  g_object_get(song,"setup",&setup,"song-info",&song_info,"unsaved",&unsaved,NULL);
 
   // lookup the audio-sink machine and change mode
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
@@ -187,8 +187,8 @@ void bt_render_progress_run(const BtRenderProgress *self) {
     BtRenderMode mode;
     BtSinkBin *sink_bin;
 
-    g_object_get(G_OBJECT(machine),"machine",&sink_bin,NULL);
-    g_object_get(G_OBJECT(self->priv->settings),"format",&format,"mode",&mode,"file-name",&file_name,NULL);
+    g_object_get(machine,"machine",&sink_bin,NULL);
+    g_object_get(self->priv->settings,"format",&format,"mode",&mode,"file-name",&file_name,NULL);
 
     g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
 
@@ -208,16 +208,16 @@ void bt_render_progress_run(const BtRenderProgress *self) {
       guint track=0;
       gboolean res;
 
-      g_object_get(G_OBJECT(song_info),"name",&song_name,NULL);
+      g_object_get(song_info,"name",&song_name,NULL);
 
       list=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
       for(node=list;node;node=g_list_next(node)) {
         machine=BT_MACHINE(node->data);
-        g_object_set(G_OBJECT(machine),"state",BT_MACHINE_STATE_SOLO,NULL);
+        g_object_set(machine,"state",BT_MACHINE_STATE_SOLO,NULL);
 
-        g_object_get(G_OBJECT(machine),"id",&id,NULL);
+        g_object_get(machine,"id",&id,NULL);
         track_name=g_strdup_printf("%s : %s",song_name,id);
-        g_object_set(G_OBJECT(song_info),"name",track_name,NULL);
+        g_object_set(song_info,"name",track_name,NULL);
         g_free(track_name);
         g_free(id);
 
@@ -225,11 +225,11 @@ void bt_render_progress_run(const BtRenderProgress *self) {
         res=bt_render_progress_record(self,song,sink_bin,track_file_name);
         g_free(track_file_name);
 
-        g_object_set(G_OBJECT(machine),"state",BT_MACHINE_STATE_NORMAL,NULL);
+        g_object_set(machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
         if(!res) break;
         track++;
       }
-      g_object_set(G_OBJECT(song_info),"name",song_name,NULL);
+      g_object_set(song_info,"name",song_name,NULL);
       g_list_free(list);
       g_free(song_name);
       bt_song_set_unsaved(song,unsaved);

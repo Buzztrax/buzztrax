@@ -117,7 +117,7 @@ static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
 
   GST_DEBUG("read settings");
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&self->priv->settings,NULL);
+  g_object_get(self->priv->app,"settings",&self->priv->settings,NULL);
   g_object_get(self->priv->settings,"show-tips",&show_tips,"presented-tips",&str,NULL);
   GST_DEBUG("read [%s]",str);
   

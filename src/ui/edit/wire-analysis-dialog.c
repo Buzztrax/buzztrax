@@ -530,7 +530,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     res=FALSE;
     goto Error;
   }
-  g_object_set(G_OBJECT(self->priv->analyzers[ANALYZER_LEVEL]),
+  g_object_set(self->priv->analyzers[ANALYZER_LEVEL],
       "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
       "peak-ttl",(GstClockTime)(0.3*GST_SECOND),"peak-falloff", 80.0,
       NULL);
@@ -539,13 +539,13 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     res=FALSE;
     goto Error;
   }
-  g_object_set(G_OBJECT(self->priv->analyzers[ANALYZER_QUEUE]),
+  g_object_set(self->priv->analyzers[ANALYZER_QUEUE],
       "max-size-buffers",1,"max-size-bytes",0,"max-size-time",G_GUINT64_CONSTANT(0),
       "leaky",2,NULL);
 
-  g_object_set(G_OBJECT(self->priv->wire),"analyzers",self->priv->analyzers_list,NULL);
+  g_object_set(self->priv->wire,"analyzers",self->priv->analyzers_list,NULL);
 
-  g_object_get(G_OBJECT(song),"bin", &bin, NULL);
+  g_object_get(song,"bin", &bin, NULL);
   bus=gst_element_get_bus(GST_ELEMENT(bin));
   g_signal_connect(bus, "message::element", G_CALLBACK(on_wire_analyzer_change), (gpointer)self);
   gst_object_unref(bus);
@@ -631,12 +631,12 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
 
   GST_DEBUG("!!!! removing signal handler");
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
     GstBin *bin;
     GstBus *bus;
 
-    g_object_get(G_OBJECT(song),"bin", &bin, NULL);
+    g_object_get(song,"bin", &bin, NULL);
 
     bus=gst_element_get_bus(GST_ELEMENT(bin));
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_analyzer_change,NULL);
@@ -647,9 +647,9 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
 
   // this destroys the analyzers too
   GST_DEBUG("!!!! free analyzers");
-  g_object_set(G_OBJECT(self->priv->wire),"analyzers",NULL,NULL);
+  g_object_set(self->priv->wire,"analyzers",NULL,NULL);
 
-  g_object_try_unref(self->priv->wire);
+  g_object_unref(self->priv->wire);
   g_object_unref(self->priv->app);
 
   GST_DEBUG("!!!! done");

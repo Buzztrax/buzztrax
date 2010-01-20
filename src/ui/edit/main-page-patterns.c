@@ -227,8 +227,8 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     BtMainPages *pages;
     gint page_num;
 
-    g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-    //g_object_get(G_OBJECT(pages),"page",&page_num,NULL);
+    g_object_get(main_window,"pages",&pages,NULL);
+    //g_object_get(pages,"page",&page_num,NULL);
     page_num=gtk_notebook_get_current_page(GTK_NOTEBOOK(pages));
     g_object_unref(pages);
 
@@ -252,7 +252,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
       GParamSpec *property=NULL;
       BtPatternEditorColumnGroup *group;
       
-      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
+      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
       
       group = &self->priv->param_groups[self->priv->cursor_group];
       switch (group->type) {
@@ -346,15 +346,6 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
       pc_group=&self->priv->param_groups[0];
       while(pc_group->type==0) {
         wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-        /* FIXME: why would we want to create it? 
-        if(!wire_pattern) {
-          BtSong *song;
-  
-          g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-          wire_pattern=bt_wire_pattern_new(song,pc_group->user_data,self->priv->pattern);
-          g_object_unref(song);
-        }
-        */
         if(wire_pattern) {
           do_wire_pattern_columns(wire_pattern,beg,end);
           g_object_unref(wire_pattern);
@@ -372,15 +363,6 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
       switch(pc_group->type) {
         case 0: {
           BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-          /* FIXME: why would we want to create it?
-          if(!wire_pattern) {
-            BtSong *song;
-    
-            g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-            wire_pattern=bt_wire_pattern_new(song,pc_group->user_data,self->priv->pattern);
-            g_object_unref(song);
-          }
-          */
           if(wire_pattern) {
             // 0,group.num_columns-1
             do_wire_pattern_columns(wire_pattern,beg,end);
@@ -399,8 +381,8 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
           gulong global_params, voice_params, params;
           guint i;
           
-          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          g_object_get(self->priv->pattern,"machine",&machine,NULL);
+          g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
           params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
           for(i=0;i<pc_group->num_columns;i++) {
             do_pattern_column(self->priv->pattern,beg,end,params+i);
@@ -417,15 +399,6 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
       switch(pc_group->type) {
         case 0: {
           BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-          /* FIXME: why would we want to create it?
-          if(!wire_pattern) {
-            BtSong *song;
-    
-            g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-            wire_pattern=bt_wire_pattern_new(song,pc_group->user_data,self->priv->pattern);
-            g_object_unref(song);
-          }
-          */
           if(wire_pattern) {
             do_wire_pattern_column(wire_pattern,beg,end,param);
             g_object_unref(wire_pattern);
@@ -438,8 +411,8 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
           BtMachine *machine;
           gulong global_params, voice_params, params;
           
-          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          g_object_get(self->priv->pattern,"machine",&machine,NULL);
+          g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
           params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
           do_pattern_column(self->priv->pattern,beg,end,params+param);
           g_object_unref(machine);
@@ -460,7 +433,7 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
   GtkTreeIter iter;
   gchar *str;
 
-  g_object_get(G_OBJECT(machine),"id",&str,NULL);
+  g_object_get(machine,"id",&str,NULL);
   GST_INFO("machine id changed to \"%s\"",str);
 
   store=gtk_combo_box_get_model(self->priv->machine_menu);
@@ -477,7 +450,7 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   GtkTreeIter iter;
   gchar *str;
 
-  g_object_get(G_OBJECT(pattern),"name",&str,NULL);
+  g_object_get(pattern,"name",&str,NULL);
   GST_INFO("pattern name changed to \"%s\"",str);
 
   store=gtk_combo_box_get_model(self->priv->pattern_menu);
@@ -526,7 +499,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       BtWirePattern *wire_pattern;
       guint i=0;
 
-      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, NULL);
+      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, NULL);
       GST_INFO("ctrl-shift-insert pressed, row %lu",self->priv->cursor_row);
       while(self->priv->param_groups[i].type==0) {
         if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
@@ -541,7 +514,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     }
     else if(modifier&GDK_SHIFT_MASK) {
       // insert group
-      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, NULL);
+      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, NULL);
       GST_INFO("shift-insert pressed, row %ld, group %u",self->priv->cursor_row,self->priv->cursor_group);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case 0: {
@@ -563,8 +536,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           gulong global_params, voice_params, params;
           guint i;
           
-          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          g_object_get(self->priv->pattern,"machine",&machine,NULL);
+          g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
           params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
           for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
             bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, params+i);
@@ -577,7 +550,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     }
     else {
       // insert column
-      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
+      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
       GST_INFO("insert pressed, row %ld, group %u, param %u",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case 0: {
@@ -594,8 +567,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           BtMachine *machine;
           gulong global_params, voice_params, params;
           
-          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          g_object_get(self->priv->pattern,"machine",&machine,NULL);
+          g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
           params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
           bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, params+self->priv->cursor_param);
           g_object_unref(machine);
@@ -611,7 +584,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       BtWirePattern *wire_pattern;
       guint i=0;
 
-      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, NULL);
+      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, NULL);
       GST_INFO("ctrl-shift-delete pressed, row %lu",self->priv->cursor_row);
       while(self->priv->param_groups[i].type==0) {
         if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
@@ -626,7 +599,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     }
     else if(modifier&GDK_SHIFT_MASK) {
       // delete group
-      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, NULL);
+      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, NULL);
       GST_INFO("delete pressed, row %ld, group %u",self->priv->cursor_row,self->priv->cursor_group);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case 0: {
@@ -648,8 +621,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           gulong global_params, voice_params, params;
           guint i;
           
-          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          g_object_get(self->priv->pattern,"machine",&machine,NULL);
+          g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
           params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
           for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
             bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, params+i);
@@ -662,7 +635,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     }  
     else {
       // delete group
-      g_object_get(G_OBJECT(self->priv->pattern_table), "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
+      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
       GST_INFO("delete pressed, row %ld, group %u, param %u",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case 0: {
@@ -679,8 +652,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           BtMachine *machine;
           gulong global_params, voice_params, params;
           
-          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          g_object_get(self->priv->pattern,"machine",&machine,NULL);
+          g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
           params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
           bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, params+self->priv->cursor_param);
           g_object_unref(machine);
@@ -710,7 +683,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
             if(!wire_pattern) {
               BtSong *song;
       
-              g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+              g_object_get(self->priv->app,"song",&song,NULL);
               wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[i].user_data,self->priv->pattern);
               g_object_unref(song);
             }
@@ -732,7 +705,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               if(!wire_pattern) {
                 BtSong *song;
         
-                g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+                g_object_get(self->priv->app,"song",&song,NULL);
                 wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[group].user_data,self->priv->pattern);
                 g_object_unref(song);
               }
@@ -753,8 +726,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               gulong global_params, voice_params, params;
               guint i;
               
-              g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-              g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+              g_object_get(self->priv->pattern,"machine",&machine,NULL);
+              g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
               params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
               for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
                 bt_pattern_blend_column(self->priv->pattern,beg,end,params+i);
@@ -773,7 +746,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               if(!wire_pattern) {
                 BtSong *song;
         
-                g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+                g_object_get(self->priv->app,"song",&song,NULL);
                 wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[group].user_data,self->priv->pattern);
                 g_object_unref(song);
               }
@@ -789,8 +762,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               BtMachine *machine;
               gulong global_params, voice_params, params;
               
-              g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-              g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+              g_object_get(self->priv->pattern,"machine",&machine,NULL);
+              g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
               params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
               bt_pattern_blend_column(self->priv->pattern,beg,end,params+param);
               g_object_unref(machine);
@@ -823,7 +796,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
             if(!wire_pattern) {
               BtSong *song;
       
-              g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+              g_object_get(self->priv->app,"song",&song,NULL);
               wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[i].user_data,self->priv->pattern);
               g_object_unref(song);
             }
@@ -845,7 +818,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               if(!wire_pattern) {
                 BtSong *song;
         
-                g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+                g_object_get(self->priv->app,"song",&song,NULL);
                 wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[group].user_data,self->priv->pattern);
                 g_object_unref(song);
               }
@@ -866,8 +839,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               gulong global_params, voice_params, params;
               guint i;
               
-              g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-              g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+              g_object_get(self->priv->pattern,"machine",&machine,NULL);
+              g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
               params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
               for(i=0;i<self->priv->param_groups[self->priv->cursor_group].num_columns;i++) {
                 bt_pattern_randomize_column(self->priv->pattern,beg,end,params+i);
@@ -886,7 +859,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               if(!wire_pattern) {
                 BtSong *song;
         
-                g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+                g_object_get(self->priv->app,"song",&song,NULL);
                 wire_pattern=bt_wire_pattern_new(song,self->priv->param_groups[group].user_data,self->priv->pattern);
                 g_object_unref(song);
               }
@@ -902,8 +875,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               BtMachine *machine;
               gulong global_params, voice_params, params;
               
-              g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-              g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+              g_object_get(self->priv->pattern,"machine",&machine,NULL);
+              g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
               params=global_params+(GPOINTER_TO_UINT(self->priv->param_groups[self->priv->cursor_group].user_data)*voice_params);
               bt_pattern_randomize_column(self->priv->pattern,beg,end,params+param);
               g_object_unref(machine);
@@ -993,7 +966,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
   GtkTreeIter menu_iter;
   GdkPixbuf *pixbuf=bt_ui_resources_get_icon_pixbuf_by_machine(machine);
 
-  g_object_get(G_OBJECT(machine),"id",&str,NULL);
+  g_object_get(machine,"id",&str,NULL);
   GST_INFO("  adding %p, \"%s\"  (machine-refs: %d)",machine,str,(G_OBJECT(machine))->ref_count);
 
   gtk_list_store_append(store,&menu_iter);
@@ -1047,12 +1020,12 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
     BtSong *song;
     BtSequence *sequence;
 
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-    g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
+    g_object_get(self->priv->app,"song",&song,NULL);
+    g_object_get(song,"sequence",&sequence,NULL);
+    g_object_get(machine,"patterns",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
-      g_object_get(G_OBJECT(pattern),"name",&str,"is-internal",&is_internal,NULL);
+      g_object_get(pattern,"name",&str,"is-internal",&is_internal,NULL);
       if(!is_internal) {
         GST_INFO("  adding \"%s\"",str);
         is_used=bt_sequence_is_pattern_used(sequence,pattern);
@@ -1106,7 +1079,7 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
       self->priv->wave_to_combopos[i] = count;
       self->priv->combopos_to_wave[count] = i;
       gtk_list_store_append(store, &menu_iter);
-      g_object_get(G_OBJECT(wave),"name",&str,NULL);
+      g_object_get(wave,"name",&str,NULL);
       GST_INFO("  adding [%3d] \"%s\"",i,str);
       // buzz shows index as hex, because trackers needs it this way
       sprintf(hstr,"%02x",i);
@@ -1326,7 +1299,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       if(!wire_pattern) {
         BtSong *song;
         
-        g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+        g_object_get(self->priv->app,"song",&song,NULL);
         wire_pattern=bt_wire_pattern_new(song,group->user_data,self->priv->pattern);
         g_object_unref(song);
       }
@@ -1529,8 +1502,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
     GValue *min_val,*max_val;
     GParamSpec *property;
 
-    g_object_get(G_OBJECT(self->priv->pattern),"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
-    g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+    g_object_get(self->priv->pattern,"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
+    g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
     GST_DEBUG("  size is %2lu,%2lu",number_of_ticks,global_params);
 
     pattern_table_clear(self);
@@ -1554,9 +1527,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
 
         wire=BT_WIRE(node->data);
         // check wire config
-        g_object_get(G_OBJECT(wire),"num-params",&wire_params,"src",&src,NULL);
+        g_object_get(wire,"num-params",&wire_params,"src",&src,NULL);
         group->type=0;
-        g_object_get(G_OBJECT(src),"id",&group->name,NULL), 
+        g_object_get(src,"id",&group->name,NULL), 
         group->user_data=wire;
         group->num_columns=wire_params;
         group->columns=g_new(BtPatternEditorColumn,wire_params);
@@ -1671,17 +1644,17 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   }
 }
 
-static BtPattern * add_new_pattern(const BtMainPagePatterns *self,BtMachine *machine) {
+static BtPattern *add_new_pattern(const BtMainPagePatterns *self,BtMachine *machine) {
   BtSong *song;
   BtSongInfo *song_info;
   BtPattern *pattern;
   gchar *mid,*id,*name;
   gulong bars;
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-  g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
-  g_object_get(G_OBJECT(machine),"id",&mid,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
+  g_object_get(song_info,"bars",&bars,NULL);
+  g_object_get(machine,"id",&mid,NULL);
 
   name=bt_machine_get_unique_pattern_name(machine);
   id=g_strdup_printf("%s %s",mid,name);
@@ -1767,7 +1740,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
         g_object_unref(main_window);
       }
       if(song) {
-        g_object_set(G_OBJECT(song),"is-idle",self->priv->play_live,NULL);
+        g_object_set(song,"is-idle",self->priv->play_live,NULL);
         g_object_unref(song);
       }
       // delay the pattern_table grab
@@ -1789,7 +1762,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
         g_object_unref(main_window);
       }
       if(song) {
-        g_object_set(G_OBJECT(song),"is-idle",FALSE,NULL);
+        g_object_set(song,"is-idle",FALSE,NULL);
         g_object_unref(song);
       }
     }
@@ -1835,8 +1808,8 @@ static void on_play_live_toggled(GtkButton *button, gpointer user_data) {
 
   self->priv->play_live=gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button));
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_set(G_OBJECT(song),"is-idle",self->priv->play_live,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_set(song,"is-idle",self->priv->play_live,NULL);
   g_object_unref(song);
 }
 
@@ -1944,9 +1917,9 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
 
   if(!self->priv->pattern) return;
 
-  g_object_get(G_OBJECT(self->priv->pattern),"machine",&cur_machine,"length",&length,NULL);
+  g_object_get(self->priv->pattern,"machine",&cur_machine,"length",&length,NULL);
   g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
-  g_object_get(G_OBJECT(sequence),"tracks",&tracks,"length",&sequence_length,NULL);
+  g_object_get(sequence,"tracks",&tracks,"length",&sequence_length,NULL);
 
   if(pos<sequence_length) {
     // check all tracks
@@ -1991,11 +1964,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) return;
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
-  g_object_get(G_OBJECT(song),"setup",&setup,"wavetable",&wavetable,NULL);
+  g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
   // update page
   machine_menu_refresh(self,setup);
   //pattern_menu_refresh(self); // should be triggered by machine_menu_refresh()
@@ -2278,8 +2251,8 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   renderer=gtk_cell_renderer_text_new();
   //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
-  g_object_set(G_OBJECT(renderer), 	 
-    "foreground","gray", 	 
+  g_object_set(renderer,
+    "foreground","gray",
     NULL);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,
@@ -2307,7 +2280,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   renderer=gtk_cell_renderer_text_new();
   //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
-  g_object_set(G_OBJECT(renderer), "width", 22, NULL);
+  g_object_set(renderer, "width", 22, NULL);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,FALSE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 0,NULL);
   renderer=gtk_cell_renderer_text_new();
@@ -2475,7 +2448,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   // let settings control toolbar style
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   on_toolbar_style_changed(settings,NULL,(gpointer)toolbar);
   g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)toolbar);
   g_object_unref(settings);
@@ -2584,7 +2557,7 @@ void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern
   GtkTreeIter iter;
   GtkTreeModel *store;
 
-  g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
+  g_object_get(pattern,"machine",&machine,NULL);
   // update machine menu
   store=gtk_combo_box_get_model(self->priv->machine_menu);
   machine_model_get_iter_by_machine(store,&iter,machine);
@@ -2740,8 +2713,8 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
           gulong global_params, voice_params, params;
           guint i;
           
-          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          g_object_get(self->priv->pattern,"machine",&machine,NULL);
+          g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
           params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
           for(i=0;i<pc_group->num_columns;i++) {
             bt_pattern_serialize_column(self->priv->pattern,beg,end,params+i,data);
@@ -2768,8 +2741,8 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
           BtMachine *machine;
           gulong global_params, voice_params, params;
           
-          g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          g_object_get(self->priv->pattern,"machine",&machine,NULL);
+          g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
           params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
           bt_pattern_serialize_column(self->priv->pattern,beg,end,params+param,data);
           g_object_unref(machine);
@@ -2819,7 +2792,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     BtMachine *machine;
     gboolean res=TRUE;
 
-    g_object_get(G_OBJECT(self->priv->pattern),"length",&pattern_length,"machine",&machine,NULL);
+    g_object_get(self->priv->pattern,"length",&pattern_length,"machine",&machine,NULL);
     
     ticks=atol(lines[0]);
     pattern_length--;
@@ -2848,7 +2821,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
         case 2: {
           gulong global_params, voice_params, params;
       
-          g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+          g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
           params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
           res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,params+p,lines[i]);
         } break;

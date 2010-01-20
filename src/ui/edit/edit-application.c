@@ -176,14 +176,14 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   GST_INFO("application.run_ui launched");
 
   g_object_get(G_OBJECT(self),"settings",&settings,NULL);
-  g_object_get(G_OBJECT(settings),"news-seen",&version,"show-tips",&show_tips,NULL);
+  g_object_get(settings,"news-seen",&version,"show-tips",&show_tips,NULL);
 
   if(PACKAGE_VERSION_NUMBER>version) {
     // show about
     bt_edit_application_show_about(self);
     // store new version
     version=PACKAGE_VERSION_NUMBER;
-    g_object_set(G_OBJECT(settings),"news-seen",version,NULL);
+    g_object_set(settings,"news-seen",version,NULL);
   } else if(show_tips) {
     // show tip-of-the-day
     bt_edit_application_show_tip(self);
@@ -360,8 +360,8 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
 
     // get missing element info
     g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
-    g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
-    g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
+    g_object_get(setup,"missing-machines",&missing_machines,NULL);
+    g_object_get(wavetable,"missing-waves",&missing_waves,NULL);
     // tell about missing machines and/or missing waves
     if(missing_machines || missing_waves) {
       GtkWidget *dialog;
@@ -409,8 +409,8 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
     bt_edit_application_ui_lock(self);
     g_signal_connect(G_OBJECT(saver),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
 
-    g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
-    g_object_get(G_OBJECT(song_info),"file-name",&old_file_name,NULL);
+    g_object_get(self->priv->song,"song-info",&song_info,NULL);
+    g_object_get(song_info,"file-name",&old_file_name,NULL);
     g_object_unref(song_info);
 
     /* save file saving (bak files)
@@ -447,7 +447,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
     if(g_file_test(file_name,G_FILE_TEST_EXISTS)) {
       bak_file_name=g_strconcat(file_name,".bak",NULL);
       g_rename(file_name,bak_file_name);
-    }  
+    }
     if(bt_song_io_save(saver,self->priv->song)) {
       res=TRUE;
       if(!old_file_name || strcmp(old_file_name,file_name)) {

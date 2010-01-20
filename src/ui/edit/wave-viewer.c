@@ -42,7 +42,7 @@ static GtkWidgetClass *parent_class=NULL;
 
 
 static gboolean
-bt_waveform_viewer_expose (GtkWidget *widget, GdkEventExpose *event)
+bt_waveform_viewer_expose(GtkWidget *widget, GdkEventExpose *event)
 {
   int i, ch;
     
@@ -143,7 +143,7 @@ bt_waveform_viewer_expose (GtkWidget *widget, GdkEventExpose *event)
 
 /*
 static void
-bt_waveform_viewer_size_request (GtkWidget *widget,
+bt_waveform_viewer_size_request(GtkWidget *widget,
                            GtkRequisition *requisition)
 {
     g_assert(BT_IS_WAVEFORM_VIEWER(widget));
@@ -151,7 +151,7 @@ bt_waveform_viewer_size_request (GtkWidget *widget,
 */
 
 static void
-bt_waveform_viewer_size_allocate (GtkWidget *widget,
+bt_waveform_viewer_size_allocate(GtkWidget *widget,
                            GtkAllocation *allocation)
 {
     g_assert(BT_IS_WAVEFORM_VIEWER(widget));
@@ -164,7 +164,7 @@ bt_waveform_viewer_size_allocate (GtkWidget *widget,
 }
 
 static void
-bt_waveform_viewer_finalize (GObject * object)
+bt_waveform_viewer_finalize(GObject * object)
 {
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER(object);
   
@@ -235,7 +235,7 @@ bt_waveform_viewer_set_property(GObject      *object,
 }
 
 static void
-bt_waveform_viewer_class_init (BtWaveformViewer *klass)
+bt_waveform_viewer_class_init(BtWaveformViewer *klass)
 {
   GObjectClass * gobject_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
@@ -288,7 +288,7 @@ bt_waveform_viewer_class_init (BtWaveformViewer *klass)
 }
 
 static void
-bt_waveform_viewer_init (BtWaveformViewer *self)
+bt_waveform_viewer_init(BtWaveformViewer *self)
 {
   GtkWidget *widget = GTK_WIDGET(self);
 
@@ -373,7 +373,7 @@ bt_waveform_viewer_new()
 }
 
 GType
-bt_waveform_viewer_get_type (void)
+bt_waveform_viewer_get_type(void)
 {
   static GType type = 0;
   if (!type) {

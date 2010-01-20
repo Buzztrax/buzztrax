@@ -176,7 +176,7 @@ BtMachineRenameDialog *bt_machine_rename_dialog_new(const BtMachine *machine) {
 void bt_machine_rename_dialog_apply(const BtMachineRenameDialog *self) {
   GST_INFO("applying machine settings");
 
-  g_object_set(G_OBJECT(self->priv->machine),"id",self->priv->name,NULL);
+  g_object_set(self->priv->machine,"id",self->priv->name,NULL);
 }
 
 //-- wrapper

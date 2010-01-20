@@ -174,7 +174,7 @@ static void on_menu_cut_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPages *pages;
 
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
 
   switch(gtk_notebook_get_current_page(GTK_NOTEBOOK(pages))) {
     case BT_MAIN_PAGES_MACHINES_PAGE: {
@@ -183,14 +183,14 @@ static void on_menu_cut_activate(GtkMenuItem *menuitem,gpointer user_data) {
     case BT_MAIN_PAGES_PATTERNS_PAGE: {
       BtMainPagePatterns *page;
       GST_INFO("menu cut event occurred for pattern page");
-      g_object_get(G_OBJECT(pages),"patterns-page",&page,NULL);
+      g_object_get(pages,"patterns-page",&page,NULL);
       bt_main_page_patterns_cut_selection(page);
       g_object_unref(page);
     } break;
     case BT_MAIN_PAGES_SEQUENCE_PAGE: {
       BtMainPageSequence *page;
       GST_INFO("menu cut event occurred for sequence page");
-      g_object_get(G_OBJECT(pages),"sequence-page",&page,NULL);
+      g_object_get(pages,"sequence-page",&page,NULL);
       bt_main_page_sequence_cut_selection(page);
       g_object_unref(page);
     } break;
@@ -221,14 +221,14 @@ static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
     case BT_MAIN_PAGES_PATTERNS_PAGE: {
       BtMainPagePatterns *page;
       GST_INFO("menu copy event occurred for pattern page");
-      g_object_get(G_OBJECT(pages),"patterns-page",&page,NULL);
+      g_object_get(pages,"patterns-page",&page,NULL);
       bt_main_page_patterns_copy_selection(page);
       g_object_unref(page);
     } break;
     case BT_MAIN_PAGES_SEQUENCE_PAGE: {
       BtMainPageSequence *page;
       GST_INFO("menu copy event occurred for sequence page");
-      g_object_get(G_OBJECT(pages),"sequence-page",&page,NULL);
+      g_object_get(pages,"sequence-page",&page,NULL);
       bt_main_page_sequence_copy_selection(page);
       g_object_unref(page);
     } break;
@@ -259,14 +259,14 @@ static void on_menu_paste_activate(GtkMenuItem *menuitem,gpointer user_data) {
     case BT_MAIN_PAGES_PATTERNS_PAGE: {
       BtMainPagePatterns *page;
       GST_INFO("menu paste event occurred for pattern page");
-      g_object_get(G_OBJECT(pages),"patterns-page",&page,NULL);
+      g_object_get(pages,"patterns-page",&page,NULL);
       bt_main_page_patterns_paste_selection(page);
       g_object_unref(page);
     } break;
     case BT_MAIN_PAGES_SEQUENCE_PAGE: {
       BtMainPageSequence *page;
       GST_INFO("menu paste event occurred for sequence page");
-      g_object_get(G_OBJECT(pages),"sequence-page",&page,NULL);
+      g_object_get(pages,"sequence-page",&page,NULL);
       bt_main_page_sequence_paste_selection(page);
       g_object_unref(page);
     } break;
@@ -297,14 +297,14 @@ static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
     case BT_MAIN_PAGES_PATTERNS_PAGE: {
       BtMainPagePatterns *patterns_page;
       GST_INFO("menu delete event occurred for pattern page");
-      g_object_get(G_OBJECT(pages),"patterns-page",&patterns_page,NULL);
+      g_object_get(pages,"patterns-page",&patterns_page,NULL);
       bt_main_page_patterns_delete_selection(patterns_page);
       g_object_unref(patterns_page);
     } break;
     case BT_MAIN_PAGES_SEQUENCE_PAGE: {
       BtMainPageSequence *sequence_page;
       GST_INFO("menu delete event occurred for sequence page");
-      g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
+      g_object_get(pages,"sequence-page",&sequence_page,NULL);
       bt_main_page_sequence_delete_selection(sequence_page);
       g_object_unref(sequence_page);
     } break;
@@ -495,7 +495,7 @@ static void on_menu_play_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtSong *song;
 
   // get song from app and start playback
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!bt_song_play(song)) {
     GST_WARNING("failed to play");
   }
@@ -512,11 +512,11 @@ static void  on_menu_play_from_cursor_activate(GtkMenuItem *menuitem,gpointer us
   glong pos=0;
 
   // get song from app and seek to cursor
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-  g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
-  g_object_get(G_OBJECT(sequence_page),"cursor-row",&pos,NULL);
-  g_object_set(G_OBJECT(song),"play-pos",pos,NULL);
+  g_object_get(self->priv->app,"song",&song,"main-window",&main_window,NULL);
+  g_object_get(main_window,"pages",&pages,NULL);
+  g_object_get(pages,"sequence-page",&sequence_page,NULL);
+  g_object_get(sequence_page,"cursor-row",&pos,NULL);
+  g_object_set(song,"play-pos",pos,NULL);
   g_object_unref(sequence_page);
   g_object_unref(pages);
   g_object_unref(main_window);
@@ -533,7 +533,7 @@ static void on_menu_stop_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtSong *song;
 
   // get song from app and stop playback
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!bt_song_stop(song)) {
     GST_WARNING("failed to stop");
   }
@@ -633,8 +633,8 @@ static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpo
     gchar *cmd;
     GError *error=NULL;
 
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    g_object_get(G_OBJECT(song),"bin",&bin,NULL);
+    g_object_get(self->priv->app,"song",&song,NULL);
+    g_object_get(song,"bin",&bin,NULL);
 
     GST_INFO_OBJECT(bin, "dump dot graph as %s with 0x%x details",self->priv->debug_graph_format,self->priv->debug_graph_details);
                              
@@ -713,12 +713,12 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) return;
 
   on_song_unsaved_changed(song,NULL,self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
-  g_object_try_unref(song);
+  g_object_unref(song);
 }
 
 //-- helper methods
@@ -735,8 +735,8 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   g_object_set(gtk_settings, "gtk-menu-bar-accel", NULL, NULL);
 
   gtk_widget_set_name(GTK_WIDGET(self),"main menu");
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_get(G_OBJECT(settings),
+  g_object_get(self->priv->app,"settings",&settings,NULL);
+  g_object_get(settings,
     "toolbar-hide",&toolbar_hide,
     "statusbar-hide",&statusbar_hide,
     "tabs-hide",&tabs_hide,

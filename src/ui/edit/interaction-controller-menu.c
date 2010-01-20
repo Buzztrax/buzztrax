@@ -117,7 +117,7 @@ static void on_control_learn_activated(GtkMenuItem *menuitem, gpointer user_data
 //-- helper methods
 
 static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInteractionControllerMenu *self,BtIcDevice *device) {
-  BtIcControl *control=NULL;
+  BtIcControl *control;
   GtkWidget *menu_item;
   GList *node,*list;
   gchar *str;
@@ -151,7 +151,7 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
         break;
     }
 
-    g_object_get(G_OBJECT(control),"name",&str,NULL);
+    g_object_get(control,"name",&str,NULL);
 
     if(!submenu) {
       submenu=gtk_menu_new();
@@ -173,7 +173,7 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
 
 static void bt_interaction_controller_menu_init_device_menu(const BtInteractionControllerMenu *self,GtkWidget *submenu) {
   BtIcRegistry *ic_registry;
-  BtIcDevice *device=NULL;
+  BtIcDevice *device;
   GtkWidget *menu_item,*parentmenu;
   GList *node,*list;
   gchar *str;
@@ -186,7 +186,7 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
 
     // only create items for non-empty submenus
     if((parentmenu=bt_interaction_controller_menu_init_control_menu(self,device))) {
-      g_object_get(G_OBJECT(device),"name",&str,NULL);
+      g_object_get(device,"name",&str,NULL);
   
       menu_item=gtk_image_menu_item_new_with_label(str);
       gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);

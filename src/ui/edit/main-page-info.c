@@ -97,10 +97,10 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
 
   GST_INFO("name changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_set(G_OBJECT(song_info),"name",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  g_object_set(song_info,"name",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -113,10 +113,10 @@ static void on_genre_changed(GtkEditable *editable,gpointer user_data) {
 
   GST_INFO("genre changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_set(G_OBJECT(song_info),"genre",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  g_object_set(song_info,"genre",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -129,10 +129,10 @@ static void on_author_changed(GtkEditable *editable,gpointer user_data) {
 
   GST_INFO("author changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_set(G_OBJECT(song_info),"author",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  g_object_set(song_info,"author",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -145,10 +145,10 @@ static void on_bpm_changed(GtkSpinButton *spinbutton,gpointer user_data) {
 
   GST_INFO("bpm changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_set(G_OBJECT(song_info),"bpm",gtk_spin_button_get_value_as_int(spinbutton),NULL);
+  g_object_set(song_info,"bpm",gtk_spin_button_get_value_as_int(spinbutton),NULL);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -162,13 +162,13 @@ static void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
 
   GST_INFO("tpb changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_get(G_OBJECT(song_info),"bars",&bars,"tpb",&tpb,NULL);
+  g_object_get(song_info,"bars",&bars,"tpb",&tpb,NULL);
   beats = bars/tpb;
   tpb = gtk_spin_button_get_value_as_int(spinbutton);
-  g_object_set(G_OBJECT(song_info),"tpb",tpb,"bars",beats*tpb,NULL);
+  g_object_set(song_info,"tpb",tpb,"bars",beats*tpb,NULL);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -182,12 +182,12 @@ static void on_beats_changed(GtkSpinButton *spinbutton,gpointer user_data) {
 
   GST_INFO("beats changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_get(G_OBJECT(song_info),"tpb",&tpb,NULL);
+  g_object_get(song_info,"tpb",&tpb,NULL);
   beats = gtk_spin_button_get_value_as_int(spinbutton);
-  g_object_set(G_OBJECT(song_info),"bars",beats*tpb,NULL);
+  g_object_set(song_info,"bars",beats*tpb,NULL);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -202,14 +202,14 @@ static void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
 
   GST_INFO("info changed : self=%p",self);
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
   // get begin and end textiters :(, then get text
   gtk_text_buffer_get_iter_at_offset(textbuffer,&beg_iter,0);
   gtk_text_buffer_get_iter_at_offset(textbuffer,&end_iter,-1);
   str=gtk_text_buffer_get_text(textbuffer,&beg_iter,&end_iter,FALSE);
-  g_object_set(G_OBJECT(song_info),"info",str,NULL);
+  g_object_set(song_info,"info",str,NULL);
   g_free(str);
   // release the references
   g_object_unref(song_info);
@@ -237,13 +237,13 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) return;
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_get(G_OBJECT(song_info),
+  g_object_get(song_info,
     "name",&name,"genre",&genre,"author",&author,"info",&info,
     "bpm",&bpm,"tpb",&tpb,"bars",&bars,
     "create-dts",&create_dts,"change-dts",&change_dts,

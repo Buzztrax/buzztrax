@@ -131,7 +131,7 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
 
   GST_INFO("rebuilding preset list");
 
-  g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+  g_object_get(self->priv->machine,"machine",&machine,NULL);
   presets=gst_preset_get_preset_names(GST_PRESET(machine));
 
   // we store the string twice, as we use the pointer as the key in the hashmap
@@ -405,7 +405,7 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       // create context menu
       // @todo: do we leak that menu here?
       menu=GTK_MENU(bt_interaction_controller_menu_new(type));
-      g_object_get(G_OBJECT(menu),"item-unbind",&item_unbind,"item-unbind-all",&item_unbind_all,NULL);
+      g_object_get(menu,"item-unbind",&item_unbind,"item-unbind-all",&item_unbind_all,NULL);
       g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
       g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
       g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_control_bind),(gpointer)self);
@@ -859,7 +859,7 @@ static void on_toolbar_preset_add_clicked(GtkButton *button,gpointer user_data) 
   GstElement *machine;
   gchar *name=NULL,*comment=NULL;
 
-  g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+  g_object_get(self->priv->machine,"machine",&machine,NULL);
 
   // ask for name & comment
   if(preset_list_edit_preset_meta(self,machine,&name,&comment)) {
@@ -885,7 +885,7 @@ static void on_toolbar_preset_remove_clicked(GtkButton *button,gpointer user_dat
     GstElement *machine;
 
     gtk_tree_model_get(model,&iter,PRESET_LIST_LABEL,&name,-1);
-    g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+    g_object_get(self->priv->machine,"machine",&machine,NULL);
 
     GST_INFO("about to delete preset : '%s'",name);
     gst_preset_delete_preset(GST_PRESET(machine),name);
@@ -907,7 +907,7 @@ static void on_toolbar_preset_edit_clicked(GtkButton *button,gpointer user_data)
     GstElement *machine;
 
     gtk_tree_model_get(model,&iter,PRESET_LIST_LABEL,&old_name,-1);
-    g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+    g_object_get(self->priv->machine,"machine",&machine,NULL);
 
     GST_INFO("about to edit preset : '%s'",old_name);
     gst_preset_get_meta(GST_PRESET(machine),old_name,"comment",&comment);
@@ -937,7 +937,7 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
 
     gtk_tree_model_get(model,&iter,PRESET_LIST_LABEL,&name,-1);
 
-    g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+    g_object_get(self->priv->machine,"machine",&machine,NULL);
 
     GST_INFO("about to load preset : '%s'",name);
     if(gst_preset_load_preset(GST_PRESET(machine),name)) {
@@ -1073,12 +1073,12 @@ static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gp
 
 //-- helper methods
 
-static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
+static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gint value;
 
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_object_get(machine,property->name,&value,NULL);
   //step=(int_property->maximum-int_property->minimum)/1024.0;
   widget=gtk_hscale_new_with_range(g_value_get_int(range_min),g_value_get_int(range_max),1.0);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
@@ -1109,12 +1109,12 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, G
   return(widget);
 }
 
-static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
+static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gint value;
 
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_object_get(machine,property->name,&value,NULL);
   //step=(int_property->maximum-int_property->minimum)/1024.0;
   widget=gtk_hscale_new_with_range(g_value_get_uint(range_min),g_value_get_uint(range_max),1.0);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
@@ -1145,14 +1145,14 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, 
   return(widget);
 }
 
-static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
+static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gfloat step,value;
   gfloat value_min=g_value_get_float(range_min);
   gfloat value_max=g_value_get_float(range_max);
 
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_object_get(machine,property->name,&value,NULL);
   step=((gdouble)value_max-(gdouble)value_min)/1024.0;
   //GST_WARNING("step = %f", step);
 
@@ -1179,14 +1179,14 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
   return(widget);
 }
 
-static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
+static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gdouble step,value;
   gdouble value_min=g_value_get_double(range_min);
   gdouble value_max=g_value_get_double(range_max);
 
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_object_get(machine,property->name,&value,NULL);
   step=(value_max-value_min)/1024.0;
 
   widget=gtk_hscale_new_with_range(value_min,value_max,step);
@@ -1212,7 +1212,7 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   return(widget);
 }
 
-static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max) {
+static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max) {
   GtkWidget *widget;
   gchar *signal_name;
   GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
@@ -1268,12 +1268,12 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
   return(widget);
 }
 
-static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property) {
+static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property) {
   GtkWidget *widget;
   gchar *signal_name;
   gboolean value;
 
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_object_get(machine,property->name,&value,NULL);
 
   widget=gtk_check_button_new();
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),value);
@@ -1606,9 +1606,9 @@ static GtkWidget *make_wire_param_box(const BtMachinePropertiesDialog *self,BtWi
 #endif
   BtMachine *src;
 
-  g_object_get(G_OBJECT(wire),"num-params",&params,"src",&src,NULL);
+  g_object_get(wire,"num-params",&params,"src",&src,NULL);
   if(params) {
-    g_object_get(G_OBJECT(src),"id",&src_id,NULL);
+    g_object_get(src,"id",&src_id,NULL);
     name=g_strdup_printf(_("%s wire properties"),src_id);
     expander=gtk_expander_new(name);
     gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
@@ -1644,10 +1644,10 @@ static GtkWidget *make_wire_param_box(const BtMachinePropertiesDialog *self,BtWi
       // bah, hardcoded hack
       switch(i) {
         case 0:
-          g_object_get(G_OBJECT(wire),"gain",&param_parent,NULL);
+          g_object_get(wire,"gain",&param_parent,NULL);
           break;
         case 1:
-          g_object_get(G_OBJECT(wire),"pan",&param_parent,NULL);
+          g_object_get(wire,"pan",&param_parent,NULL);
           break;
         default:
           GST_WARNING("unimplemented wire param");
@@ -1709,7 +1709,7 @@ static void on_wire_added(const BtSetup *setup,BtWire *wire,gpointer user_data) 
   GtkWidget *expander;
   BtMachine *dst;
   
-  g_object_get(G_OBJECT(wire),"dst",&dst,NULL);
+  g_object_get(wire,"dst",&dst,NULL);
   if(dst==self->priv->machine) {
     if((expander=make_wire_param_box(self,wire))) {
       gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
@@ -1789,7 +1789,7 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
-  g_object_set(G_OBJECT(renderer),"xalign",0.0,NULL);
+  g_object_set(renderer,"xalign",0.0,NULL);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Preset"),renderer,"text",0,NULL))) {
     g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",135,NULL);
     gtk_tree_view_insert_column(GTK_TREE_VIEW(self->priv->preset_list),tree_col,-1);
@@ -2037,9 +2037,9 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
-    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+    g_object_get(song,"setup",&setup,NULL);
   }
   else {
     setup=NULL;
@@ -2076,7 +2076,7 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
     
     for(node=wires;node;node=g_list_next(node)) {
       wire=BT_WIRE(node->data);
-      g_object_get(G_OBJECT(wire),"gain",&gain,"pan",&pan,NULL);
+      g_object_get(wire,"gain",&gain,"pan",&pan,NULL);
       if(gain) {
         g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
         g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);

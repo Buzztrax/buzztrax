@@ -99,7 +99,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
   gchar *reply=NULL;
   BtSong *song;
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) return(NULL);
 
   if(!strcasecmp(cmd,"browse")) {
@@ -109,9 +109,9 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     gulong i,length;
     gboolean no_labels=TRUE;
 
-    g_object_get(G_OBJECT(song),"sequence",&sequence,"song-info",&song_info,NULL);
-    g_object_get(G_OBJECT(song_info),"name",&str,NULL);
-    g_object_get(G_OBJECT(sequence),"length",&length,NULL);
+    g_object_get(song,"sequence",&sequence,"song-info",&song_info,NULL);
+    g_object_get(song_info,"name",&str,NULL);
+    g_object_get(sequence,"length",&length,NULL);
 
     reply=g_strconcat("playlist|",str,NULL);
     g_free(str);
@@ -169,7 +169,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     //GST_INFO("seeking to pos=%d",self->priv->cur_pos);
     // this causes stack smashing, but only if we play afterwards
     // its also avoided by making the string buffer in main-statusbar.c (notify) +4 bytes
-    //g_object_set(G_OBJECT(song),"play-pos",self->priv->cur_pos,NULL);
+    //g_object_set(song,"play-pos",self->priv->cur_pos,NULL);
     self->priv->seek=TRUE;
 
   }
@@ -186,9 +186,9 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     gdouble volume;
     gboolean loop;
 
-    g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
+    g_object_get(song,"play-pos",&pos,NULL);
     bar_time=bt_sequence_get_bar_time(self->priv->sequence);
-    g_object_get(G_OBJECT(self->priv->sequence),"loop",&loop,NULL);
+    g_object_get(self->priv->sequence,"loop",&loop,NULL);
 
     // calculate playtime
     msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
@@ -223,10 +223,10 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     }
     else if(!strncasecmp(subcmd,"repeat|",7)) {
       if(!strcasecmp(&subcmd[7],"on")) {
-        g_object_set(G_OBJECT(self->priv->sequence),"loop",TRUE,NULL);
+        g_object_set(self->priv->sequence,"loop",TRUE,NULL);
       }
       else if(!strcasecmp(&subcmd[7],"off")) {
-        g_object_set(G_OBJECT(self->priv->sequence),"loop",FALSE,NULL);
+        g_object_set(self->priv->sequence,"loop",FALSE,NULL);
       }
     }
     else {
@@ -250,7 +250,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
       gboolean loop;
       gchar *mode[]={"on","off"};
 
-      g_object_get(G_OBJECT(self->priv->sequence),"loop",&loop,NULL);
+      g_object_get(self->priv->sequence,"loop",&loop,NULL);
       reply=g_strdup_printf("repeat|%s",mode[loop]);
     }
     else {
@@ -401,7 +401,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
 
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) return;
 
   self->priv->cur_pos=0;
@@ -409,12 +409,12 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
 
   g_object_try_weak_unref(self->priv->sequence);
-  g_object_get(G_OBJECT(song),"sequence",&self->priv->sequence,"master",&master,NULL);
+  g_object_get(song,"sequence",&self->priv->sequence,"master",&master,NULL);
   g_object_try_weak_ref(self->priv->sequence);
   g_object_unref(self->priv->sequence);
 
   g_object_try_weak_unref(self->priv->gain);
-  g_object_get(G_OBJECT(master),"input-gain",&self->priv->gain,NULL);
+  g_object_get(master,"input-gain",&self->priv->gain,NULL);
   g_object_try_weak_ref(self->priv->gain);
   g_object_unref(self->priv->gain);
 
@@ -463,8 +463,8 @@ static void master_connection_open(BtPlaybackControllerSocket *self) {
   guint port;
   static struct sockaddr_in serv_addr;
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active,"coherence-upnp-port",&port,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
+  g_object_get(settings,"coherence-upnp-active",&active,"coherence-upnp-port",&port,NULL);
   g_object_unref(settings);
 
   if(!active) return;
@@ -510,7 +510,7 @@ static void on_port_notify(BtSettings * const settings, GParamSpec * const arg, 
   BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
   gboolean active;
 
-  g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active,NULL);
+  g_object_get(settings,"coherence-upnp-active",&active,NULL);
 
   if(active) {
     master_connection_close(self);
@@ -522,7 +522,7 @@ static void on_active_notify(BtSettings * const settings, GParamSpec * const arg
   BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
   gboolean active;
 
-  g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active,NULL);
+  g_object_get(settings,"coherence-upnp-active",&active,NULL);
 
   if(active) {
     if(!self->priv->master_channel) {
@@ -537,7 +537,7 @@ static void on_active_notify(BtSettings * const settings, GParamSpec * const arg
 static void settings_listen(BtPlaybackControllerSocket *self) {
   BtSettings *settings;
 
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(self->priv->app,"settings",&settings,NULL);
   g_signal_connect(G_OBJECT(settings), "notify::coherence-upnp-active", G_CALLBACK(on_active_notify), (gpointer)self);
   g_signal_connect(G_OBJECT(settings), "notify::coherence-upnp-port", G_CALLBACK(on_port_notify), (gpointer)self);
   on_active_notify(settings,NULL,(gpointer)self);
