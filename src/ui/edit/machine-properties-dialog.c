@@ -1291,13 +1291,95 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self,Gst
   return(widget);
 }
 
+static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *object,const gchar *pname,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *table,gulong row) {
+  GtkWidget *label,*widget1,*widget2;
+  GType base_type;
+
+  // set parameter name
+  label=gtk_label_new(pname);
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, row, row+1, GTK_FILL,GTK_SHRINK, 2,1);
+ 
+  base_type=bt_g_type_get_base_type(property->value_type);
+  GST_INFO("... base type is : %s",g_type_name(base_type));
+
+#ifdef USE_DEBUG
+  if(range_min && range_max) {
+    gchar *str_min=g_strdup_value_contents(range_min);
+    gchar *str_max=g_strdup_value_contents(range_max);
+    GST_DEBUG("... has range : %s ... %s",str_min,str_max);
+    g_free(str_min);g_free(str_max);
+  }
+#endif
+
+  // implement widget types
+  switch(base_type) {
+    case G_TYPE_STRING:
+      widget1=gtk_label_new("string");
+      widget2=NULL;
+      break;
+    case G_TYPE_BOOLEAN:
+      widget1=make_checkbox_widget(self,object,property);
+      widget2=NULL;
+      break;
+    case G_TYPE_INT:
+      widget2=gtk_label_new(NULL);
+      widget1=make_int_range_widget(self,object,property,range_min,range_max,widget2);
+     break;
+    case G_TYPE_UINT:
+      widget2=gtk_label_new(NULL);
+      widget1=make_uint_range_widget(self,object,property,range_min,range_max,widget2);
+      break;
+    case G_TYPE_FLOAT:
+      widget2=gtk_label_new(NULL);
+      widget1=make_float_range_widget(self,object,property,range_min,range_max,widget2);
+      break;
+    case G_TYPE_DOUBLE:
+      widget2=gtk_label_new(NULL);
+      widget1=make_double_range_widget(self,object,property,range_min,range_max,widget2);
+      break;
+    case G_TYPE_ENUM: {
+      if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH)
+        widget1=make_checkbox_widget(self,object,property);
+      else
+        widget1=make_combobox_widget(self,object,property,range_min,range_max);
+      widget2=NULL;
+    } break;
+    default: {
+      gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+      widget1=gtk_label_new(str);g_free(str);
+      widget2=NULL;
+    }
+  }
+  if(range_min) { g_free(range_min);range_min=NULL; }
+  if(range_max) { g_free(range_max);range_max=NULL; }
+
+  gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
+  if(!widget2) {
+    gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, row, row+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+  }
+  else {
+    gtk_widget_set_tooltip_text(widget2,g_param_spec_get_blurb(property));
+    gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, row, row+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+    /* @todo how can we avoid the wobble here?
+     * hack would be to set some 'good' default size
+     * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
+     */
+    gtk_widget_set_size_request(widget2,DEFAULT_LABEL_WIDTH,-1);
+    if(GTK_IS_LABEL(widget2)) {
+      gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
+      gtk_label_set_single_line_mode(GTK_LABEL(widget2),TRUE);
+      gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+    }
+    gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, row, row+1, GTK_FILL,GTK_SHRINK, 2,1);
+  }
+}
+
 static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gulong global_params,gulong voice_params,GstElement *machine) {
   GtkWidget *expander=NULL;
-  GtkWidget *label,*table;
-  GtkWidget *widget1,*widget2;
+  GtkWidget *table;
   GParamSpec *property;
   GValue *range_min,*range_max;
-  GType base_type;
   gulong i,k,params;
 #if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
@@ -1312,6 +1394,8 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
     }
   }
   if(params) {
+    const gchar *pname;
+
     expander=gtk_expander_new(_("global properties"));
     gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
 
@@ -1323,87 +1407,10 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
       if(bt_machine_is_global_param_trigger(self->priv->machine,i)) continue;
       if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) continue;
 
+      pname=bt_machine_get_global_param_name(self->priv->machine,i);
       bt_machine_get_global_param_details(self->priv->machine,i,&property,&range_min,&range_max);
-      GST_INFO("global property %p has name '%s','%s'",property,property->name,bt_machine_get_global_param_name(self->priv->machine,i));
-      // get name
-      label=gtk_label_new((gchar *)bt_machine_get_global_param_name(self->priv->machine,i));
-      gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-      gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-     
-      base_type=bt_g_type_get_base_type(property->value_type);
-      GST_INFO("... base type is : %s",g_type_name(base_type));
-
-      // DEBUG
-      if(range_min && range_max) {
-        gchar *str_min=g_strdup_value_contents(range_min);
-        gchar *str_max=g_strdup_value_contents(range_max);
-        GST_INFO("... has range : %s ... %s",str_min,str_max);
-        g_free(str_min);g_free(str_max);
-      }
-      // DEBUG
-
-      // implement widget types
-      switch(base_type) {
-        case G_TYPE_STRING:
-          widget1=gtk_label_new("string");
-          widget2=NULL;
-          break;
-        case G_TYPE_BOOLEAN:
-          widget1=make_checkbox_widget(self,GST_OBJECT(machine),property);
-          widget2=NULL;
-          break;
-        case G_TYPE_INT:
-          widget2=gtk_label_new(NULL);
-          widget1=make_int_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-         break;
-        case G_TYPE_UINT:
-          widget2=gtk_label_new(NULL);
-          widget1=make_uint_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-          break;
-        case G_TYPE_FLOAT:
-          widget2=gtk_label_new(NULL);
-          widget1=make_float_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-          break;
-        case G_TYPE_DOUBLE:
-          widget2=gtk_label_new(NULL);
-          widget1=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-          break;
-        case G_TYPE_ENUM: {
-          if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH)
-            widget1=make_checkbox_widget(self,GST_OBJECT(machine),property);
-          else
-            widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
-          widget2=NULL;
-        } break;
-        default: {
-          gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-          widget1=gtk_label_new(str);g_free(str);
-          widget2=NULL;
-        }
-      }
-      if(range_min) { g_free(range_min);range_min=NULL; }
-      if(range_max) { g_free(range_max);range_max=NULL; }
-
-      gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
-      if(!widget2) {
-        gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-      }
-      else {
-        gtk_widget_set_tooltip_text(widget2,g_param_spec_get_blurb(property));
-        gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-        /* @todo how can we avoid the wobble here?
-         * hack would be to set some 'good' default size
-         * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
-         */
-        gtk_widget_set_size_request(widget2,DEFAULT_LABEL_WIDTH,-1);
-        if(GTK_IS_LABEL(widget2)) {
-          gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
-          gtk_label_set_single_line_mode(GTK_LABEL(widget2),TRUE);
-          gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
-        }
-        gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-      }
-      k++;
+      GST_INFO("global property %p has name '%s','%s'",property,property->name,pname);
+      make_param_control(self,GST_OBJECT(machine),pname,property,range_min,range_max,table,k++);
     }
     // eat remaning space
     //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
@@ -1417,11 +1424,9 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
 
 static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gulong voice_params,gulong voice,GstElement *machine) {
   GtkWidget *expander=NULL;
-  GtkWidget *label,*table;
-  GtkWidget *widget1,*widget2;
+  GtkWidget *table;
   GParamSpec *property;
   GValue *range_min,*range_max;
-  GType base_type;
   GstObject *machine_voice;
   gchar *name;
   gulong i,k,params;
@@ -1437,6 +1442,8 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
     }
   }
   if(params) {
+    const gchar *pname;
+
     name=g_strdup_printf(_("voice %lu properties"),voice+1);
     expander=gtk_expander_new(name);
     gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
@@ -1451,92 +1458,13 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
     table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
 
     for(i=0,k=0;i<voice_params;i++) {
-      if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) {
-        GST_INFO("skipping voice param %lu",i);
-        continue;
-      }
+      if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) continue;
 
+      pname=bt_machine_get_voice_param_name(self->priv->machine,i);
       bt_machine_get_voice_param_details(self->priv->machine,i,&property,&range_min,&range_max);
-      GST_INFO("voice property %p has name '%s','%s'",property,property->name,bt_machine_get_voice_param_name(self->priv->machine,i));
-      // get name
-      label=gtk_label_new((gchar *)bt_machine_get_voice_param_name(self->priv->machine,i));
-      gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-      gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-
-      base_type=bt_g_type_get_base_type(property->value_type);
-      GST_INFO("... base typoe is : %s",g_type_name(base_type));
+      GST_INFO("voice property %p has name '%s','%s'",property,property->name,pname);
+      make_param_control(self,machine_voice,pname,property,range_min,range_max,table,k++);
       
-      // DEBUG
-      if(range_min && range_max) {
-        gchar *str_min=g_strdup_value_contents(range_min);
-        gchar *str_max=g_strdup_value_contents(range_max);
-        GST_INFO("... has range : %s ... %s",str_min,str_max);
-        g_free(str_min);g_free(str_max);
-      }
-      // DEBUG
-
-      // implement widget types
-      switch(base_type) {
-        case G_TYPE_STRING:
-          widget1=gtk_label_new("string");
-          widget2=NULL;
-          break;
-        case G_TYPE_BOOLEAN:
-          widget1=make_checkbox_widget(self,machine_voice,property);
-          widget2=NULL;
-          break;
-        case G_TYPE_INT:
-          widget2=gtk_label_new(NULL);
-          widget1=make_int_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-          break;
-        case G_TYPE_UINT:
-          widget2=gtk_label_new(NULL);
-          widget1=make_uint_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-          break;
-        case G_TYPE_FLOAT:
-          widget2=gtk_label_new(NULL);
-          widget1=make_float_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-          break;
-        case G_TYPE_DOUBLE:
-          widget2=gtk_label_new(NULL);
-          widget1=make_double_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-          break;
-        case G_TYPE_ENUM: {
-          if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH)
-            widget1=make_checkbox_widget(self,machine_voice,property);
-          else
-            widget1=make_combobox_widget(self,machine_voice,property,range_min,range_max);
-          widget2=NULL;
-        } break;
-        default: {
-          gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-          widget1=gtk_label_new(str);g_free(str);
-          widget2=NULL;
-        }
-      }
-      if(range_min) { g_free(range_min);range_min=NULL; }
-      if(range_max) { g_free(range_max);range_max=NULL; }
-
-      gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
-      if(!widget2) {
-        gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-      }
-      else {
-        gtk_widget_set_tooltip_text(widget2,g_param_spec_get_blurb(property));
-        gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-        /* @todo how can we avoid the wobble here?
-         * hack would be to set some 'good' default size
-         * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
-         */
-        gtk_widget_set_size_request(widget2,DEFAULT_LABEL_WIDTH,-1);
-        if(GTK_IS_LABEL(widget2)) {
-          gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
-          gtk_label_set_single_line_mode(GTK_LABEL(widget2),TRUE);
-          gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
-        }
-        gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-      }
-      k++;
     }
     // eat remaning space
     //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
@@ -1545,7 +1473,6 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
   }
   return(expander);
 }
-
 
 static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);

@@ -1,5 +1,10 @@
 2010-01-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-properties-dialog.c:
+	  Refactor to reduce merge a big blob of identical code.
+
+2010-01-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/interaction-controller-menu.c:
 	* src/ui/edit/machine-canvas-item.c:
