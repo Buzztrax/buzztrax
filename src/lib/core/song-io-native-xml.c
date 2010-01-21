@@ -47,7 +47,7 @@ static gboolean bt_song_io_native_xml_load(gconstpointer const _self, const BtSo
   gboolean result=FALSE;
   gchar * const file_name;
   
-  g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
+  g_object_get((gpointer)self,"file-name",&file_name,NULL);
   GST_INFO("native io xml will now load song from \"%s\"",file_name);
 
   const gchar * const msg=_("Loading file '%s'");
@@ -55,7 +55,7 @@ static gboolean bt_song_io_native_xml_load(gconstpointer const _self, const BtSo
   g_sprintf(status,msg,file_name);
   //gchar * const status=g_alloca(1+strlen(_("Loading file '%s'"))+strlen(file_name));
   //g_sprintf(status,_("Loading file '%s'"),file_name);
-  g_object_set(G_OBJECT(self),"status",status,NULL);
+  g_object_set((gpointer)self,"status",status,NULL);
       
   xmlParserCtxtPtr const ctxt=xmlNewParserCtxt();
   if(ctxt) {
@@ -94,7 +94,7 @@ static gboolean bt_song_io_native_xml_load(gconstpointer const _self, const BtSo
   else GST_ERROR("failed to create file-parser context");
   if(ctxt) xmlFreeParserCtxt(ctxt);
   g_free(file_name);
-  g_object_set(G_OBJECT(self),"status",NULL,NULL);
+  g_object_set((gpointer)self,"status",NULL,NULL);
   return(result);
 }
 
@@ -103,7 +103,7 @@ static gboolean bt_song_io_native_xml_save(gconstpointer const _self, const BtSo
   gboolean result=FALSE;
   gchar * const file_name;
   
-  g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
+  g_object_get((gpointer)self,"file-name",&file_name,NULL);
   GST_INFO("native io xml will now save song to \"%s\"",file_name);
 
   const gchar * const msg=_("Saving file '%s'");
@@ -111,7 +111,7 @@ static gboolean bt_song_io_native_xml_save(gconstpointer const _self, const BtSo
   g_sprintf(status,msg,file_name);
   //gchar * const status=g_alloca(1+strlen(_("Saving file '%s'"))+strlen(file_name));
   //g_sprintf(status,_("Saving file '%s'"),file_name);
-  g_object_set(G_OBJECT(self),"status",status,NULL);
+  g_object_set((gpointer)self,"status",status,NULL);
 
   xmlDocPtr const song_doc=xmlNewDoc(XML_CHAR_PTR("1.0"));
   if(song_doc) {
@@ -128,7 +128,7 @@ static gboolean bt_song_io_native_xml_save(gconstpointer const _self, const BtSo
     
   g_free(file_name);
 
-  g_object_set(G_OBJECT(self),"status",NULL,NULL);
+  g_object_set((gpointer)self,"status",NULL,NULL);
   return(result);
 }
 

@@ -877,7 +877,7 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     BtSongInfo *song_info;
     gulong bpm,tpb;
 
-    g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
+    g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
     // @todo handle stpb later (subtick per beat)
     g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
     gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,-1);
@@ -1397,10 +1397,10 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
   if(!g_list_find(self->priv->patterns,pattern)) {
     gboolean is_internal;
 
-    self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref(G_OBJECT(pattern)));
+    self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref((gpointer)pattern));
 
     // check if its a internal pattern and if it is update count of those
-    g_object_get(G_OBJECT(pattern),"is-internal",&is_internal,NULL);
+    g_object_get((gpointer)pattern,"is-internal",&is_internal,NULL);
     if(is_internal) {
       self->priv->private_patterns++;
       GST_DEBUG("adding internal pattern, nr=%u",self->priv->private_patterns);
@@ -1462,7 +1462,7 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar
 
   for(node=self->priv->patterns;node;node=g_list_next(node)) {
     pattern=BT_PATTERN(node->data);
-    g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
+    g_object_get(pattern,"id",&pattern_id,NULL);
     if(!strcmp(pattern_id,id)) found=TRUE;
     g_free(pattern_id);
     if(found) return(g_object_ref(pattern));
@@ -2408,13 +2408,13 @@ static void free_control_data(BtControlData *data) {
   BtIcDevice *device;
 
   // stop the device
-  g_object_get(G_OBJECT(data->control),"device",&device,NULL);
+  g_object_get((gpointer)(data->control),"device",&device,NULL);
   btic_device_stop(device);
   g_object_unref(device);
 
   // disconnect the handler
   g_signal_handler_disconnect((gpointer)data->control,data->handler_id);
-  g_object_unref(G_OBJECT(data->control));
+  g_object_unref((gpointer)(data->control));
 
   g_free(data);
 }
@@ -2423,7 +2423,7 @@ static void on_boolean_control_notify(const BtIcControl *control,GParamSpec *arg
   BtControlData *data=(BtControlData *)(user_data);
   gboolean value;
 
-  g_object_get(G_OBJECT(data->control),"value",&value,NULL);
+  g_object_get((gpointer)(data->control),"value",&value,NULL);
   g_object_set(data->object,data->pspec->name,value,NULL);
 }
 
@@ -2433,7 +2433,7 @@ static void on_uint_control_notify(const BtIcControl *control,GParamSpec *arg,gp
   glong svalue,min,max;
   guint dvalue;
 
-  g_object_get(G_OBJECT(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
+  g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
   dvalue=pspec->minimum+(guint)((svalue-min)*((gdouble)(pspec->maximum-pspec->minimum)/(gdouble)(max-min)));
   dvalue=CLAMP(dvalue,pspec->minimum,pspec->maximum);
   g_object_set(data->object,data->pspec->name,dvalue,NULL);
@@ -2445,7 +2445,7 @@ static void on_double_control_notify(const BtIcControl *control,GParamSpec *arg,
   glong svalue,min,max;
   gdouble dvalue;
 
-  g_object_get(G_OBJECT(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
+  g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
   dvalue=pspec->minimum+((svalue-min)*((pspec->maximum-pspec->minimum)/(gdouble)(max-min)));
   dvalue=CLAMP(dvalue,pspec->minimum,pspec->maximum);
   //GST_INFO("setting %s value %lf",data->pspec->name,dvalue);
@@ -2479,16 +2479,16 @@ void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *
   }
   else {
     // stop the old device
-    g_object_get(G_OBJECT(data->control),"device",&device,NULL);
+    g_object_get((gpointer)(data->control),"device",&device,NULL);
     btic_device_stop(device);
     g_object_unref(device);
     // disconnect old signal handler
     g_signal_handler_disconnect((gpointer)data->control,data->handler_id);
-    g_object_unref(G_OBJECT(data->control));
+    g_object_unref((gpointer)(data->control));
   }
   data->control=g_object_ref(control);
   // start the new device
-  g_object_get(G_OBJECT(data->control),"device",&device,NULL);
+  g_object_get((gpointer)(data->control),"device",&device,NULL);
   btic_device_start(device);
   g_object_unref(device);
   /* @todo: controls need flags to indicate wheter they are absolute or relative
@@ -2694,7 +2694,7 @@ BtWire *bt_machine_get_wire_by_dst_machine(const BtMachine * const self, const B
   // ideally we would search the shorter of the lists
   for(node=self->src_wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
-    g_object_get(G_OBJECT(wire),"dst",&machine,NULL);
+    g_object_get(wire,"dst",&machine,NULL);
     if(machine==dst) found=TRUE;
     g_object_unref(machine);
     if(found) return(g_object_ref(wire));
@@ -2883,7 +2883,7 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
         for(lnode=list;lnode;lnode=g_list_next(lnode)) {
           data=(BtControlData *)lnode->data;
 
-          g_object_get(G_OBJECT(data->control),"device",&device,"name",&control_name,NULL);
+          g_object_get((gpointer)(data->control),"device",&device,"name",&control_name,NULL);
           g_object_get(device,"name",&device_name,NULL);
           g_object_unref(device);
 
@@ -3366,7 +3366,7 @@ static void bt_machine_dispose(GObject * const object) {
   // disconnect notify handlers
   if(self->priv->song) {
     BtSongInfo *song_info;
-    g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
+    g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
     if(song_info) {
       GST_DEBUG("  disconnecting song-info handlers");
       g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_bpm_changed,NULL);

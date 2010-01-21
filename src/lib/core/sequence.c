@@ -317,11 +317,7 @@ static gulong bt_sequence_get_number_of_pattern_uses(const BtSequence * const se
   BtPattern *that_pattern;
   gulong i,j=0;
 
-  // don't do such check in internal api
-  //g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
-  //g_return_val_if_fail(BT_IS_PATTERN(this_pattern),0);
-
-  g_object_get(G_OBJECT(this_pattern),"machine",&machine,NULL);
+  g_object_get((gpointer)this_pattern,"machine",&machine,NULL);
   for(i=0;i<self->priv->tracks;i++) {
     // track uses the same machine
     if(self->priv->machines[i]==machine) {
@@ -442,7 +438,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
    */
 
   // determine region of change
-  g_object_get(G_OBJECT(pattern),"length",&length,"machine",&machine,NULL);
+  g_object_get((gpointer)pattern,"length",&length,"machine",&machine,NULL);
   if(G_UNLIKELY(!length)) {
     g_object_unref(machine);
     GST_WARNING("pattern has length 0");
@@ -669,7 +665,7 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
   BtSongInfo * const song_info;
   gulong beats_per_minute,ticks_per_beat;
 
-  g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
+  g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
   g_object_get(song_info,"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
   /* the number of pattern-events for one playline-step,
    * when using 4 ticks_per_beat then
@@ -705,7 +701,7 @@ static void bt_sequence_on_pattern_global_param_changed(const BtPattern * const 
   BtMachine *this_machine;
   gulong i,j,k;
 
-  g_object_get(G_OBJECT(pattern),"machine",&this_machine,NULL);
+  g_object_get((gpointer)pattern,"machine",&this_machine,NULL);
 
   GST_INFO("pattern %p changed",pattern);
 
@@ -743,7 +739,7 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const p
   BtMachine *this_machine;
   gulong i,j,k;
   
-  g_object_get(G_OBJECT(pattern),"machine",&this_machine,NULL);
+  g_object_get((gpointer)pattern,"machine",&this_machine,NULL);
   // for all occurences of pattern
   for(i=0;i<self->priv->tracks;i++) {
     BtMachine * const that_machine=bt_sequence_get_machine_unchecked(self,i);
@@ -782,7 +778,7 @@ static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern *
   BtMachine *this_machine;
   gulong i,j,k;
   
-  g_object_get(G_OBJECT(wire_pattern),"pattern",&pattern,NULL);
+  g_object_get((gpointer)wire_pattern,"pattern",&pattern,NULL);
   g_object_get(pattern,"machine",&this_machine,NULL);
   // for all occurences of pattern
   for(i=0;i<self->priv->tracks;i++) {
@@ -825,7 +821,7 @@ static void bt_sequence_on_pattern_changed(const BtPattern * const pattern, gcon
   gulong i,j;
 
   GST_DEBUG("repair damage after a pattern %p has been changed",pattern);
-  g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
+  g_object_get((gpointer)pattern,"machine",&machine,NULL);
 
   // for all tracks
   for(i=0;i<self->priv->tracks;i++) {
@@ -855,7 +851,7 @@ static void bt_sequence_on_wire_pattern_changed(const BtWirePattern * const wire
   gulong i,j;
 
   GST_DEBUG("repair damage after a wire-pattern %p has been changed",wire_pattern); 
-  g_object_get(G_OBJECT(wire_pattern),"pattern",&pattern,NULL);
+  g_object_get((gpointer)wire_pattern,"pattern",&pattern,NULL);
   g_object_get(pattern,"machine",&machine,NULL);
 
   // for all tracks
@@ -917,8 +913,8 @@ static void bt_sequence_on_pattern_removed(const BtMachine * const machine, cons
 static void on_wire_pattern_added(BtWire *wire,BtWirePattern *wire_pattern,gpointer user_data) {
   BtSequence *self=BT_SEQUENCE(user_data);
 
-  g_signal_connect(G_OBJECT(wire_pattern),"param-changed",G_CALLBACK(bt_sequence_on_wire_pattern_wire_param_changed),(gpointer)self);
-  g_signal_handlers_disconnect_matched(G_OBJECT(wire),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_pattern_added,NULL);
+  g_signal_connect(wire_pattern,"param-changed",G_CALLBACK(bt_sequence_on_wire_pattern_wire_param_changed),(gpointer)self);
+  g_signal_handlers_disconnect_matched(wire,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_pattern_added,NULL);
 }
 
 static void on_wire_added(BtSetup *setup,BtWire *wire,gpointer user_data) {
@@ -934,7 +930,7 @@ static void on_wire_added(BtSetup *setup,BtWire *wire,gpointer user_data) {
     pattern=BT_PATTERN(node->data);
     if(bt_sequence_get_number_of_pattern_uses(self,pattern,1)>0) {
       // we need to wait for the first wire-pattern
-      g_signal_connect(G_OBJECT(wire),"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
+      g_signal_connect(wire,"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
     }
   }
   g_list_free(patterns);
@@ -955,9 +951,9 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
     pattern=BT_PATTERN(node->data);
     if(bt_sequence_get_number_of_pattern_uses(self,pattern,1)>0) {
       if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
-        g_signal_handlers_disconnect_matched(G_OBJECT(wire_pattern),G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
+        g_signal_handlers_disconnect_matched(wire_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
         g_object_unref(wire_pattern);
-      }     
+      }
     }
   }
   g_list_free(patterns);
@@ -1099,11 +1095,11 @@ gboolean bt_sequence_add_track(const BtSequence * const self, const BtMachine * 
   const gulong track=self->priv->tracks;
   GST_INFO("add track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT(machine)->ref_count,track);
 
-  g_object_set(G_OBJECT(self),"tracks",(gulong)(track+1),NULL);
-  self->priv->machines[track]=g_object_ref(G_OBJECT(machine));
+  g_object_set((gpointer)self,"tracks",(gulong)(track+1),NULL);
+  self->priv->machines[track]=g_object_ref((gpointer)machine);
   // check if that has already been connected
-  if(!g_signal_handler_find(G_OBJECT(machine), G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA, 0, 0, NULL, bt_sequence_on_pattern_removed, (gpointer)self)) {
-    g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(bt_sequence_on_pattern_removed),(gpointer)self);
+  if(!g_signal_handler_find((gpointer)machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_sequence_on_pattern_removed,(gpointer)self)) {
+    g_signal_connect((gpointer)machine,"pattern-removed",G_CALLBACK(bt_sequence_on_pattern_removed),(gpointer)self);
   }
   return(TRUE);
 }
@@ -1146,13 +1142,13 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   // disconnect signal handler if its the last of this machine
   other_track=bt_sequence_get_track_by_machine(self,self->priv->machines[track]);
   if(other_track==-1 || other_track==track) {
-    g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->machines[track]),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA, 0, 0, NULL, bt_sequence_on_pattern_removed, (gpointer)self);
+    g_signal_handlers_disconnect_matched(self->priv->machines[track],G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA, 0, 0, NULL, bt_sequence_on_pattern_removed, (gpointer)self);
   }
   GST_INFO("and release machine %p,ref_count=%d",self->priv->machines[track],G_OBJECT(self->priv->machines[track])->ref_count);
-  g_object_unref(G_OBJECT(self->priv->machines[track]));
+  g_object_unref(self->priv->machines[track]);
   memmove(&self->priv->machines[track],&self->priv->machines[track+1],count*sizeof(gpointer));
   self->priv->machines[self->priv->tracks-1]=NULL;
-  g_object_set(G_OBJECT(self),"tracks",(gulong)(self->priv->tracks-1),NULL);
+  g_object_set((gpointer)self,"tracks",(gulong)(self->priv->tracks-1),NULL);
 
   GST_INFO("done");
   return(TRUE);
@@ -1321,7 +1317,7 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
 
   if(pattern) {
     g_return_val_if_fail(BT_IS_PATTERN(pattern),FALSE);
-    g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
+    g_object_get((gpointer)pattern,"machine",&machine,NULL);
     if(self->priv->machines[track]!=machine) {
       GST_WARNING("adding a pattern to a track with different machine!");
       g_object_unref(machine);
@@ -1352,8 +1348,8 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
       for(node=machine->dst_wires;node;node=g_list_next(node)) {
         wire=BT_WIRE(node->data);
         if((wire_pattern=bt_wire_get_pattern(wire,old_pattern))) {
-          g_signal_handlers_disconnect_matched(G_OBJECT(wire_pattern),G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
-          g_signal_handlers_disconnect_matched(G_OBJECT(wire_pattern),G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_changed,NULL);
+          g_signal_handlers_disconnect_matched(wire_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
+          g_signal_handlers_disconnect_matched(wire_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_changed,NULL);
           g_object_unref(wire_pattern);
         }
       }
@@ -1368,29 +1364,29 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
   if(pattern) {
     GST_DEBUG("set new pattern");
     // enter the new pattern
-    self->priv->patterns[index]=g_object_ref(G_OBJECT(pattern));
-    //g_object_add_weak_pointer(G_OBJECT(pattern),(gpointer *)(&self->priv->patterns[index]));
+    self->priv->patterns[index]=g_object_ref((gpointer)pattern);
+    //g_object_add_weak_pointer((gpointer)pattern,(gpointer *)(&self->priv->patterns[index]));
 
     // attach a signal handler if this is the first usage
     // @todo: cache the number of pattern uses within the pattern
     //   or have a quick variant that returns one the 2nd pattern
     if(bt_sequence_get_number_of_pattern_uses(self,pattern,2)==1) {
       //GST_INFO("subscribing to changes for pattern %p",pattern);
-      g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
-      g_signal_connect(G_OBJECT(pattern),"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
-      g_signal_connect(G_OBJECT(pattern),"pattern-changed",G_CALLBACK(bt_sequence_on_pattern_changed),(gpointer)self);
+      g_signal_connect((gpointer)pattern,"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
+      g_signal_connect((gpointer)pattern,"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
+      g_signal_connect((gpointer)pattern,"pattern-changed",G_CALLBACK(bt_sequence_on_pattern_changed),(gpointer)self);
 
-      g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
+      g_object_get((gpointer)pattern,"machine",&machine,NULL);
       for(node=machine->dst_wires;node;node=g_list_next(node)) {
         wire=BT_WIRE(node->data);
         if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
-          g_signal_connect(G_OBJECT(wire_pattern),"param-changed",G_CALLBACK(bt_sequence_on_wire_pattern_wire_param_changed),(gpointer)self);
-          g_signal_connect(G_OBJECT(wire_pattern),"pattern-changed",G_CALLBACK(bt_sequence_on_wire_pattern_changed),(gpointer)self);
+          g_signal_connect(wire_pattern,"param-changed",G_CALLBACK(bt_sequence_on_wire_pattern_wire_param_changed),(gpointer)self);
+          g_signal_connect(wire_pattern,"pattern-changed",G_CALLBACK(bt_sequence_on_wire_pattern_changed),(gpointer)self);
           g_object_unref(wire_pattern);
         }
         else {
           // we need to wait for the first wire-pattern
-          g_signal_connect(G_OBJECT(wire),"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
+          g_signal_connect(wire,"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
         }
       }
       g_object_unref(machine);
@@ -1505,7 +1501,7 @@ gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPatte
   g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
   g_return_val_if_fail(BT_IS_PATTERN(pattern),0);
 
-  g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
+  g_object_get((gpointer)pattern,"machine",&machine,NULL);
   for(i=0;(i<self->priv->tracks && !res);i++) {
     // track uses the same machine
     if(self->priv->machines[i]==machine) {
@@ -1601,7 +1597,7 @@ void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong ti
 
   GST_DEBUG("insert %lu full-rows at %lu / %lu", rows, time, self->priv->length);
 
-  g_object_set(G_OBJECT(self),"length",self->priv->length+rows,NULL);
+  g_object_set((gpointer)self,"length",self->priv->length+rows,NULL);
 
   // shift label down
   memmove(&self->priv->labels[time+rows],&self->priv->labels[time],((self->priv->length-rows)-time)*sizeof(gpointer));
@@ -1721,7 +1717,7 @@ void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong ti
   }
 
   // don't make it shorter because of loop-end ?
-  g_object_set(G_OBJECT(self),"length",self->priv->length-rows,NULL);
+  g_object_set((gpointer)self,"length",self->priv->length-rows,NULL);
 
   bt_sequence_repair_damage(self);
 }
@@ -1785,21 +1781,23 @@ static xmlNodePtr bt_sequence_persistence_save(const BtPersistence * const persi
     else goto Error;
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tracks"),NULL))) {
       gchar * const machine_id, * const pattern_id;
+      BtMachine *machine;
+      BtPattern *pattern;
 
       // iterate over tracks
       for(j=0;j<self->priv->tracks;j++) {
         child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("track"),NULL);
-        const BtMachine * const machine=self->priv->machines[j];
-        g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
+        machine=self->priv->machines[j];
+        g_object_get(machine,"id",&machine_id,NULL);
         xmlNewProp(child_node2,XML_CHAR_PTR("index"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(j)));
         xmlNewProp(child_node2,XML_CHAR_PTR("machine"),XML_CHAR_PTR(machine_id));
         g_free(machine_id);
         // iterate over timelines
         for(i=0;i<self->priv->length;i++) {
           // get pattern
-          const BtPattern * const pattern=self->priv->patterns[i*self->priv->tracks+j];
+          pattern=self->priv->patterns[i*self->priv->tracks+j];
           if(pattern) {
-            g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
+            g_object_get(pattern,"id",&pattern_id,NULL);
             child_node3=xmlNewChild(child_node2,NULL,XML_CHAR_PTR("position"),NULL);
             xmlNewProp(child_node3,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
             xmlNewProp(child_node3,XML_CHAR_PTR("pattern"),XML_CHAR_PTR(pattern_id));
@@ -1943,10 +1941,10 @@ static void bt_sequence_constructed(GObject *object) {
 
   g_return_if_fail(BT_IS_SONG(self->priv->song));
 
-  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+  g_object_get((gpointer)(self->priv->song),"setup",&setup,NULL);
   if(setup) {
-    g_signal_connect(G_OBJECT(setup),"wire-added",G_CALLBACK(on_wire_added),(gpointer)self);
-    g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
+    g_signal_connect(setup,"wire-added",G_CALLBACK(on_wire_added),(gpointer)self);
+    g_signal_connect(setup,"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
     g_object_unref(setup);
   }
   else {

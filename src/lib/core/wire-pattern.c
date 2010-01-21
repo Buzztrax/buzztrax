@@ -163,7 +163,7 @@ static void on_pattern_length_changed(BtPattern *pattern,GParamSpec *arg,gpointe
   const gulong length=self->priv->length;
 
   GST_INFO("pattern length changed : %p",self->priv->pattern);
-  g_object_get(G_OBJECT(self->priv->pattern),"length",&self->priv->length,NULL);
+  g_object_get((gpointer)(self->priv->pattern),"length",&self->priv->length,NULL);
   if(length!=self->priv->length) {
     GST_DEBUG("set the length for wire-pattern: %lu",self->priv->length);
     bt_wire_pattern_resize_data_length(self,length);
@@ -282,7 +282,7 @@ gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulon
     }
     if(res) {
       // notify others that the data has been changed
-      g_signal_emit(G_OBJECT(self),signals[PARAM_CHANGED_EVENT],0,tick,self->priv->wire,param);
+      g_signal_emit((gpointer)self,signals[PARAM_CHANGED_EVENT],0,tick,self->priv->wire,param);
       bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
@@ -404,7 +404,7 @@ void bt_wire_pattern_insert_row(const BtWirePattern * const self, const gulong t
   g_return_if_fail(self->priv->data);
 
   _insert_row(self,tick,param);
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -426,7 +426,7 @@ void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gul
   for(j=0;j<self->priv->num_params;j++) {
     _insert_row(self,tick,j);
   }
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 
@@ -470,7 +470,7 @@ void bt_wire_pattern_delete_row(const BtWirePattern * const self, const gulong t
   g_return_if_fail(self->priv->data);
 
   _delete_row(self,tick,param);
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -492,7 +492,7 @@ void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gul
   for(j=0;j<self->priv->num_params;j++) {
     _delete_row(self,tick,j);
   }
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 
@@ -526,7 +526,7 @@ void bt_wire_pattern_delete_column(const BtWirePattern * const self, const gulon
   g_return_if_fail(self->priv->data);
 
   _delete_column(self,start_tick,end_tick,param);
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -550,7 +550,7 @@ void bt_wire_pattern_delete_columns(const BtWirePattern * const self, const gulo
   for(j=0;j<self->priv->num_params;j++) {
     _delete_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 
@@ -633,7 +633,7 @@ void bt_wire_pattern_blend_column(const BtWirePattern * const self, const gulong
   g_return_if_fail(self->priv->data);
   
   _blend_column(self,start_tick,end_tick,param);
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -657,7 +657,7 @@ void bt_wire_pattern_blend_columns(const BtWirePattern * const self, const gulon
   for(j=0;j<self->priv->num_params;j++) {
     _blend_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 
@@ -758,7 +758,7 @@ void bt_wire_pattern_randomize_column(const BtWirePattern * const self, const gu
   g_return_if_fail(self->priv->data);
 
   _randomize_column(self,start_tick,end_tick,param);
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -783,7 +783,7 @@ void bt_wire_pattern_randomize_columns(const BtWirePattern * const self, const g
   for(j=0;j<self->priv->num_params;j++) {
     _randomize_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 
@@ -935,11 +935,11 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
     gchar *value;
     BtWire *wire;
     
-    g_object_get(G_OBJECT(self->priv->pattern),"id",&id,NULL);
+    g_object_get((gpointer)(self->priv->pattern),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("pattern"),XML_CHAR_PTR(id));
     g_free(id);
 
-    g_object_get(G_OBJECT(self),"wire",&wire,NULL);
+    g_object_get((gpointer)self,"wire",&wire,NULL);
 
     // save pattern data
     for(i=0;i<self->priv->length;i++) {
@@ -1118,7 +1118,7 @@ static void bt_wire_pattern_set_property(GObject * const object, const guint pro
     case WIRE_PATTERN_WIRE: {
       if((self->priv->wire = BT_WIRE(g_value_get_object(value)))) {
         g_object_try_weak_ref(self->priv->wire);
-        g_object_get(G_OBJECT(self->priv->wire),"num-params",&self->priv->num_params,NULL);
+        g_object_get((gpointer)(self->priv->wire),"num-params",&self->priv->num_params,NULL);
         GST_DEBUG("set the wire for the wire-pattern: %p",self->priv->wire);
       }
     } break;
@@ -1126,10 +1126,10 @@ static void bt_wire_pattern_set_property(GObject * const object, const guint pro
       g_object_try_weak_unref(self->priv->pattern);
       if((self->priv->pattern = BT_PATTERN(g_value_get_object(value)))) {
         g_object_try_weak_ref(self->priv->pattern);
-        g_object_get(G_OBJECT(self->priv->pattern),"length",&self->priv->length,NULL);
+        g_object_get((gpointer)(self->priv->pattern),"length",&self->priv->length,NULL);
         bt_wire_pattern_resize_data_length(self,self->priv->length);
         // watch the pattern
-        self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_length_changed),(gpointer)self);
+        self->priv->pattern_length_changed=g_signal_connect((gpointer)(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_length_changed),(gpointer)self);
         GST_DEBUG("set the pattern for the wire-pattern: %p",self->priv->pattern);
       }
     } break;

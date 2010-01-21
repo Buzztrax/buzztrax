@@ -341,7 +341,7 @@ BtPattern *bt_pattern_new_with_event(const BtSong * const song, const BtMachine 
   const gchar * const cmd_names[]={ N_("normal"),N_("break"),N_("mute"),N_("solo"),N_("bypass") };
 
   if(BT_IS_MACHINE(machine)) {
-    g_object_get(G_OBJECT(machine),"id",&mid,NULL);
+    g_object_get((gpointer)machine,"id",&mid,NULL);
     // use spaces/_ to avoid clashes with normal patterns?
     id=g_strdup_printf("%s___%s",mid,cmd_names[cmd]);
     name=g_strdup_printf("   %s",_(cmd_names[cmd]));
@@ -377,7 +377,7 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
 
   GST_INFO("copying pattern");
 
-  g_object_get(G_OBJECT(self->priv->machine),"id",&mid,NULL);
+  g_object_get((gpointer)(self->priv->machine),"id",&mid,NULL);
 
   name=bt_machine_get_unique_pattern_name(self->priv->machine);
   id=g_strdup_printf("%s %s",mid,name);
@@ -572,7 +572,7 @@ gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong 
     }
     if(res) {
       // notify others that the data has been changed
-      g_signal_emit(G_OBJECT(self),signals[GLOBAL_PARAM_CHANGED_EVENT],0,tick,param);
+      g_signal_emit((gpointer)self,signals[GLOBAL_PARAM_CHANGED_EVENT],0,tick,param);
       bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
@@ -624,7 +624,7 @@ gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong t
     }
     if(res) {
       // notify others that the data has been changed
-      g_signal_emit(G_OBJECT(self),signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
+      g_signal_emit((gpointer)self,signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
       bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
@@ -820,7 +820,7 @@ void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, cons
   g_return_if_fail(self->priv->data);
 
   _insert_row(self,tick,param);
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -843,7 +843,7 @@ void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick)
   for(j=0;j<params;j++) {
     _insert_row(self,tick,j);
   }
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 
@@ -887,7 +887,7 @@ void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, cons
   g_return_if_fail(self->priv->data);
 
   _delete_row(self,tick,param);
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -910,7 +910,7 @@ void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick)
   for(j=0;j<params;j++) {
     _delete_row(self,tick,j);
   }
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 
@@ -944,7 +944,7 @@ void bt_pattern_delete_column(const BtPattern * const self, const gulong start_t
   g_return_if_fail(self->priv->data);
 
   _delete_column(self,start_tick,end_tick,param);
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -969,7 +969,7 @@ void bt_pattern_delete_columns(const BtPattern * const self, const gulong start_
   for(j=0;j<params;j++) {
     _delete_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 
@@ -1053,7 +1053,7 @@ void bt_pattern_blend_column(const BtPattern * const self, const gulong start_ti
   g_return_if_fail(self->priv->data);
 
   _blend_column(self,start_tick,end_tick,param);
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -1078,7 +1078,7 @@ void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_t
   for(j=0;j<params;j++) {
     _blend_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 
@@ -1186,7 +1186,7 @@ void bt_pattern_randomize_column(const BtPattern * const self, const gulong star
   g_return_if_fail(self->priv->data);
 
   _randomize_column(self,start_tick,end_tick,param);
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 /**
@@ -1211,7 +1211,7 @@ void bt_pattern_randomize_columns(const BtPattern * const self, const gulong sta
   for(j=0;j<params;j++) {
     _randomize_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
 
@@ -1572,7 +1572,7 @@ static void bt_pattern_get_property(GObject * const object, const guint property
 
 /* sets the given properties for this object */
 static void bt_pattern_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtPattern * const self = BT_PATTERN(object);
+  BtPattern * const self = BT_PATTERN(object);
 
   return_if_disposed();
   switch (property_id) {
@@ -1616,9 +1616,9 @@ static void bt_pattern_set_property(GObject * const object, const guint property
         
         g_object_try_weak_ref(self->priv->machine);
         // @todo shouldn't we just listen to notify::voices too and resize patterns automatically
-        g_object_get(G_OBJECT(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,"voices",&voices,NULL);
+        g_object_get((gpointer)(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,"voices",&voices,NULL);
         // need to do that so that data is reallocated
-        g_object_set(G_OBJECT(self),"voices",voices,NULL);
+        g_object_set(self,"voices",voices,NULL);
         GST_DEBUG("set the machine for pattern: %p (machine-refs: %d)",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
       }
     } break;

@@ -1,3 +1,24 @@
+2010-01-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	  Core is cleaned fro superflous typechecking casts.
+
 2010-01-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

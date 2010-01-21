@@ -233,21 +233,21 @@ static void on_wave_loader_eos(const GstBus * const bus, const GstMessage * cons
         g_object_unref(wavelevel);
         /* emit signal so that UI can redraw */
         GST_INFO("sample loaded (%"G_GSSIZE_FORMAT"/%ld bytes)",bytes,buf.st_size);
-        g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, TRUE);
+        g_signal_emit(self,signals[LOADING_DONE_EVENT], 0, TRUE);
       }
       else {
         GST_WARNING("can't seek to start of sample data");
-        g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
+        g_signal_emit(self,signals[LOADING_DONE_EVENT], 0, FALSE);
       }
     }
     else {
       GST_WARNING("sample is too long (%ld bytes), not trying to load",buf.st_size);
-      g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
+      g_signal_emit(self,signals[LOADING_DONE_EVENT], 0, FALSE);
     }
   }
   else {
     GST_WARNING("can't stat() sample");
-    g_signal_emit(G_OBJECT(self),signals[LOADING_DONE_EVENT], 0, FALSE);
+    g_signal_emit(self,signals[LOADING_DONE_EVENT], 0, FALSE);
   }
   
   gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
@@ -310,7 +310,7 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
     GST_WARNING ("Can't link wave loader pipeline (conf ! fmt ! sink).");
     goto Error;
   }
-  g_signal_connect(G_OBJECT(dec),"new-decoded-pad",G_CALLBACK(on_wave_loader_new_pad),(gpointer)conv);
+  g_signal_connect(dec,"new-decoded-pad",G_CALLBACK(on_wave_loader_new_pad),(gpointer)conv);
 
   /* @todo: during loading wave-data (into wavelevels)
    * - use statusbar for loader progress ("status" property like in song_io)
@@ -515,8 +515,8 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
 
   if(!g_list_find(self->priv->wavelevels,wavelevel)) {
     ret=TRUE;
-    self->priv->wavelevels=g_list_append(self->priv->wavelevels,g_object_ref(G_OBJECT(wavelevel)));
-    //g_signal_emit(G_OBJECT(self),signals[WAVELEVEL_ADDED_EVENT], 0, wavelevel);
+    self->priv->wavelevels=g_list_append(self->priv->wavelevels,g_object_ref((gpointer)wavelevel));
+    //g_signal_emit((gpointer)self,signals[WAVELEVEL_ADDED_EVENT], 0, wavelevel);
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
@@ -759,7 +759,7 @@ static void bt_wave_constructed(GObject *object) {
   if(okay) {
     BtWavetable *wavetable;
     // add the wave to the wavetable of the song
-    g_object_get(G_OBJECT(self->priv->song),"wavetable",&wavetable,NULL);
+    g_object_get((gpointer)(self->priv->song),"wavetable",&wavetable,NULL);
     bt_wavetable_add_wave(wavetable,self);
     g_object_unref(wavetable);
   }

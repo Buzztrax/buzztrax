@@ -181,7 +181,7 @@ static void bt_song_io_update_filename(const BtSongIO * const self, const BtSong
   BtSongInfo *song_info;
   gchar *file_path;
 
-  g_object_get(G_OBJECT(self),"file-name",&file_path,NULL);
+  g_object_get((gpointer)self,"file-name",&file_path,NULL);
   if(!g_path_is_absolute(file_path)) {
     gchar *cur_path,*rel_path;
     
@@ -192,7 +192,7 @@ static void bt_song_io_update_filename(const BtSongIO * const self, const BtSong
     g_free(rel_path);
   }
   GST_INFO("file path is : %s",file_path);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get((gpointer)song,"song-info",&song_info,NULL);
   g_object_set(song_info,"file-name",file_path,NULL);
   g_free(file_path);
   g_object_unref(song_info);
@@ -278,7 +278,7 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
   
   GST_INFO("loading song [%s]",self->priv->file_name);
 
-  g_object_set(G_OBJECT(song),"song-io",self,NULL);
+  g_object_set((gpointer)song,"song-io",self,NULL);
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
     GST_INFO("loading done");
@@ -290,8 +290,8 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
       GList * const list;
       const GList *node;
 
-      g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-      g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+      g_object_get((gpointer)song,"setup",&setup,NULL);
+      g_object_get(setup,"machines",&list,NULL);
       for(node=list;node;node=g_list_next(node)) {
         const BtMachine * const machine=BT_MACHINE(node->data);
         if(BT_IS_SOURCE_MACHINE(machine)) {
@@ -304,7 +304,7 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
     */
     //DEBUG
   }
-  g_object_set(G_OBJECT(song),"song-io",NULL,NULL);
+  g_object_set((gpointer)song,"song-io",NULL,NULL);
   
   GST_INFO("loaded song [%s] = %d",self->priv->file_name,result);
   return(result);
@@ -329,16 +329,16 @@ gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
   GST_INFO("saving song [%s]",self->priv->file_name);
 
   // this updates the time-stamp
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get((gpointer)song,"song-info",&song_info,NULL);
   g_object_set(song_info,"change-dts",NULL,NULL);
   g_object_unref(song_info);
 
-  g_object_set(G_OBJECT(song),"song-io",self,NULL);
+  g_object_set((gpointer)song,"song-io",self,NULL);
   if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
     bt_song_set_unsaved(song,FALSE);
   }
-  g_object_set(G_OBJECT(song),"song-io",NULL,NULL);
+  g_object_set((gpointer)song,"song-io",NULL,NULL);
   
   GST_INFO("saved song [%s] = %d",self->priv->file_name,result);
   return(result);

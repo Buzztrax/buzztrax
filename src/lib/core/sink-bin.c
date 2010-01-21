@@ -803,7 +803,7 @@ static void on_system_audio_sink_changed(const BtSettings * const settings, GPar
   gchar *sink_name;
 
   // exchange the machine (only if the system-audiosink is in use)
-  g_object_get(G_OBJECT(settings),"system-audiosink-name",&sink_name,NULL);
+  g_object_get((gpointer)settings,"system-audiosink-name",&sink_name,NULL);
 
   GST_INFO("  -> '%s' (sytem_sink is '%s')",plugin_name,sink_name);
   if (!strcmp(plugin_name,sink_name)) {
@@ -817,7 +817,7 @@ static void on_sample_rate_changed(const BtSettings * const settings, GParamSpec
   BtSinkBin *self = BT_SINK_BIN(user_data);
 
   GST_INFO("sample-rate has changed");
-  g_object_get(G_OBJECT(settings),"sample-rate",&self->priv->sample_rate,NULL);
+  g_object_get((gpointer)settings,"sample-rate",&self->priv->sample_rate,NULL);
   bt_sink_bin_format_update(self);
 }
 
@@ -825,7 +825,7 @@ static void on_channels_changed(const BtSettings * const settings, GParamSpec * 
   BtSinkBin *self = BT_SINK_BIN(user_data);
 
   GST_INFO("channels have changed");
-  g_object_get(G_OBJECT(settings),"channels",&self->priv->channels,NULL);
+  g_object_get((gpointer)settings,"channels",&self->priv->channels,NULL);
   bt_sink_bin_format_update(self);
   // @todo: this would render all panorama/balance elements useless and also
   // affect wire patterns - how do we want to handle it
@@ -1031,10 +1031,10 @@ static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_cla
   // watch settings changes
   self->priv->settings=bt_settings_make();
   //GST_DEBUG("listen to settings changes (%p)",self->priv->settings);
-  g_signal_connect(G_OBJECT(self->priv->settings), "notify::audiosink", G_CALLBACK(on_audio_sink_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->settings), "notify::system-audiosink", G_CALLBACK(on_system_audio_sink_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->settings), "notify::sample-rate", G_CALLBACK(on_sample_rate_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->settings), "notify::channels", G_CALLBACK(on_channels_changed), (gpointer)self);
+  g_signal_connect(self->priv->settings, "notify::audiosink", G_CALLBACK(on_audio_sink_changed), (gpointer)self);
+  g_signal_connect(self->priv->settings, "notify::system-audiosink", G_CALLBACK(on_system_audio_sink_changed), (gpointer)self);
+  g_signal_connect(self->priv->settings, "notify::sample-rate", G_CALLBACK(on_sample_rate_changed), (gpointer)self);
+  g_signal_connect(self->priv->settings, "notify::channels", G_CALLBACK(on_channels_changed), (gpointer)self);
 
   g_object_get(self->priv->settings,
     "sample-rate",&self->priv->sample_rate,

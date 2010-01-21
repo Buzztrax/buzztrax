@@ -117,7 +117,6 @@ static xmlNodePtr bt_sink_machine_persistence_save(const BtPersistence * const p
 
   // save parent class stuff
   if((node=parent_iface->save(persistence,parent_node))) {
-    /* @todo: save own stuff */
     xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("sink"));
   }
   return(node);
@@ -182,12 +181,8 @@ static void bt_sink_machine_persistence_interface_init(gpointer const g_iface, g
 
 static gboolean bt_sink_machine_check_type(const BtMachine * const self, const gulong pad_src_ct, const gulong pad_sink_ct) {
   if(pad_src_ct>0 || pad_sink_ct==0) {
-    gchar * const plugin_name;
-    
-    g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
-    GST_ERROR("  plugin \"%s\" is has %lu src pads instead of 0 and %lu sink pads instead of >0",
-      plugin_name,pad_src_ct,pad_sink_ct);
-    g_free(plugin_name);
+    GST_ERROR_OBJECT(self,"plugin has %lu src pads instead of 0 and %lu sink pads instead of >0",
+      pad_src_ct,pad_sink_ct);
     return(FALSE);
   }
   return(TRUE);
@@ -203,24 +198,26 @@ static void bt_sink_machine_constructed(GObject *object) {
 
   G_OBJECT_CLASS(parent_class)->constructed(object);
 
-  g_object_get(G_OBJECT(self),"construction-error",&err,NULL);
+  g_object_get(self,"construction-error",&err,NULL);
   if(err==NULL || *err==NULL) {
     BtSong * const song;
     GstElement * const element;
     GstElement * const gain;
     BtSetup *setup;
+    BtMachine *machine=(BtMachine *)self;
     
-    bt_machine_activate_adder(BT_MACHINE(self));
-    bt_machine_enable_input_gain(BT_MACHINE(self));
-    g_object_get(G_OBJECT(self),"machine",&element,"song",&song,"input-gain",&gain, NULL);
+    bt_machine_activate_adder(machine);
+    bt_machine_enable_input_gain(machine);
+    
+    g_object_get(self,"machine",&element,"song",&song,"input-gain",&gain, NULL);
     g_object_set(element,"input-gain",gain,NULL);
-    g_object_set(song,"master",G_OBJECT(self),NULL);
+    g_object_set(song,"master",self,NULL);
     gst_object_unref(element);
     gst_object_unref(gain);
     
     // add the machine to the setup of the song
     g_object_get(song,"setup",&setup,NULL);
-    bt_setup_add_machine(setup,BT_MACHINE(self));
+    bt_setup_add_machine(setup,machine);
     g_object_unref(setup);
     
     g_object_unref(song);

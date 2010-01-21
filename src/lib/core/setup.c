@@ -913,10 +913,10 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
 
   if(!g_list_find(self->priv->machines,machine)) {
     ret=TRUE;
-    self->priv->machines=g_list_prepend(self->priv->machines,g_object_ref(G_OBJECT(machine)));
+    self->priv->machines=g_list_prepend(self->priv->machines,g_object_ref((gpointer)machine));
     set_disconnected(self,GST_BIN(machine));
 
-    g_signal_emit(G_OBJECT(self),signals[MACHINE_ADDED_EVENT], 0, machine);
+    g_signal_emit((gpointer)self,signals[MACHINE_ADDED_EVENT], 0, machine);
     bt_song_set_unsaved(self->priv->song,TRUE);
     GST_DEBUG("added machine: %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
   }
@@ -952,16 +952,16 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
     BtMachine *src,*dst;
 
     // add to main list
-    self->priv->wires=g_list_prepend(self->priv->wires,g_object_ref(G_OBJECT(wire)));
+    self->priv->wires=g_list_prepend(self->priv->wires,g_object_ref((gpointer)wire));
 
     // also add to convinience lists per machine
-    g_object_get(G_OBJECT(wire),"src",&src,"dst",&dst,NULL);
+    g_object_get((gpointer)wire,"src",&src,"dst",&dst,NULL);
     src->src_wires=g_list_prepend(src->src_wires,(gpointer)wire);
     dst->dst_wires=g_list_prepend(dst->dst_wires,(gpointer)wire);
     set_disconnected(self,GST_BIN(wire));
     bt_setup_update_pipeline(self);
 
-    g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
+    g_signal_emit((gpointer)self,signals[WIRE_ADDED_EVENT], 0, wire);
     bt_song_set_unsaved(self->priv->song,TRUE);
     GST_DEBUG("added wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
 
@@ -994,7 +994,7 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
     g_hash_table_remove(self->priv->graph_depth,(gpointer)machine);
 
     GST_DEBUG("removing machine: %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
-    g_signal_emit(G_OBJECT(self),signals[MACHINE_REMOVED_EVENT], 0, machine);
+    g_signal_emit((gpointer)self,signals[MACHINE_REMOVED_EVENT], 0, machine);
 
     // this triggers finalize if we don't have a ref
     if(GST_OBJECT_FLAG_IS_SET(machine,GST_OBJECT_FLOATING)) {
@@ -1030,14 +1030,14 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
     self->priv->wires=g_list_remove(self->priv->wires,wire);
 
     // also remove from the convinience lists
-    g_object_get(G_OBJECT(wire),"src",&src,"dst",&dst,NULL);
+    g_object_get((gpointer)wire,"src",&src,"dst",&dst,NULL);
     src->src_wires=g_list_remove(src->src_wires,wire);
     dst->dst_wires=g_list_remove(dst->dst_wires,wire);
     g_object_unref(src);
     g_object_unref(dst);
 
     GST_DEBUG("removing wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
-    g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
+    g_signal_emit((gpointer)self,signals[WIRE_REMOVED_EVENT], 0, wire);
 
     set_disconnecting(self,GST_BIN(wire));
     bt_setup_update_pipeline(self);
@@ -1560,7 +1560,7 @@ static void bt_setup_set_property(GObject * const object, const guint property_i
     case SETUP_SONG: {
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
-      g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
+      g_object_get((gpointer)(self->priv->song),"bin",&self->priv->bin,NULL);
       GST_INFO("set the song for setup: %p and get the bin: %p",self->priv->song,self->priv->bin);
     } break;
     default: {

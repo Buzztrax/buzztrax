@@ -420,8 +420,8 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
  */
 static gboolean bt_wire_link_machines(const BtWire * const self) {
   gboolean res=TRUE;
-  const BtMachine * const src = self->priv->src;
-  const BtMachine * const dst = self->priv->dst;
+  BtMachine * const src = self->priv->src;
+  BtMachine * const dst = self->priv->dst;
   GstElement ** const machines=self->priv->machines;
   GstPad ** const src_pads=self->priv->src_pads;
   GstPad ** const sink_pads=self->priv->sink_pads;
@@ -458,7 +458,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     GST_DEBUG("created volume-gain element for wire : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
   }
   
-  g_object_get(G_OBJECT(dst),"machine",&dst_machine,NULL);
+  g_object_get(dst,"machine",&dst_machine,NULL);
   if((pad=gst_element_get_static_pad(dst_machine,"sink"))) {
     // this does not work for unlinked pads
     // @todo: if we link multiple machines to one, we could cache this
@@ -515,7 +515,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   }
   gst_object_unref(dst_machine);
 
-  g_object_get(G_OBJECT(src),"machine",&src_machine,NULL);
+  g_object_get(src,"machine",&src_machine,NULL);
   if((pad=gst_element_get_static_pad(src_machine,"src"))) {
 #if GST_CHECK_VERSION(0,10,25)
     skip_convert=gst_caps_can_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
@@ -714,8 +714,8 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   }
 
   // name the wire
-  g_object_get(G_OBJECT(src),"id",&src_name,NULL);
-  g_object_get(G_OBJECT(dst),"id",&dst_name,NULL);
+  g_object_get(src,"id",&src_name,NULL);
+  g_object_get(dst,"id",&dst_name,NULL);
   name=g_strdup_printf("%s_%s",src_name,dst_name);
   gst_object_set_name(GST_OBJECT(self),name);
   GST_INFO("naming wire : %s",name);
@@ -824,9 +824,9 @@ gboolean bt_wire_reconnect(BtWire * const self) {
  * #bt_wire_pattern_new().
  */
 void bt_wire_add_wire_pattern(const BtWire * const self, const BtPattern * const pattern, const BtWirePattern * const wire_pattern) {
-  g_hash_table_insert(self->priv->patterns,(gpointer)pattern,(gpointer)g_object_ref(G_OBJECT(wire_pattern)));
+  g_hash_table_insert(self->priv->patterns,(gpointer)pattern,(gpointer)g_object_ref((gpointer)wire_pattern));
   // notify others that the pattern has been created
-  g_signal_emit(G_OBJECT(self),signals[PATTERN_CREATED_EVENT],0,wire_pattern);
+  g_signal_emit((gpointer)self,signals[PATTERN_CREATED_EVENT],0,wire_pattern);
 }
 
 /**
@@ -1126,19 +1126,19 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
     gdouble gain;
     gfloat pan;
   
-    g_object_get(G_OBJECT(self->priv->src),"id",&id,NULL);
+    g_object_get(self->priv->src,"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("src"),XML_CHAR_PTR(id));
     g_free(id);
 
-    g_object_get(G_OBJECT(self->priv->dst),"id",&id,NULL);
+    g_object_get(self->priv->dst,"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("dst"),XML_CHAR_PTR(id));
     g_free(id);
 
     // serialize gain and panorama
-    g_object_get(G_OBJECT(self->priv->machines[PART_GAIN]),"volume",&gain,NULL);
+    g_object_get(self->priv->machines[PART_GAIN],"volume",&gain,NULL);
     xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double(gain)));
     if(self->priv->machines[PART_PAN]) {
-       g_object_get(G_OBJECT(self->priv->machines[PART_PAN]),"panorama",&pan,NULL);
+       g_object_get(self->priv->machines[PART_PAN],"panorama",&pan,NULL);
        xmlNewProp(node,XML_CHAR_PTR("panorama"),XML_CHAR_PTR(bt_persistence_strfmt_double((gdouble)pan)));
     }
     
@@ -1285,7 +1285,7 @@ static void bt_wire_constructed(GObject *object) {
     }
 
     // add the wire to the setup of the song
-    g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+    g_object_get((gpointer)(self->priv->song),"setup",&setup,NULL);
     bt_setup_add_wire(setup,self);
     g_object_unref(setup);
   }

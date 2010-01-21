@@ -835,7 +835,7 @@ void bt_song_write_to_xml_file(const BtSong * const self) {
 
   g_return_if_fail(BT_IS_SONG(self));
 
-  g_object_get(G_OBJECT(self),"song-info",&song_info,NULL);
+  g_object_get((gpointer)self,"song-info",&song_info,NULL);
   g_object_get(song_info,"name",&song_name,NULL);
   gchar * const file_name=g_alloca(strlen(song_name)+20);
   // not overwrite files during a run by adding current time
@@ -1299,7 +1299,7 @@ static void bt_song_constructed(GObject *object) {
 
   g_return_if_fail(BT_IS_APPLICATION(self->priv->app));
   
-  g_object_get(G_OBJECT(self->priv->app),"bin",&self->priv->bin,NULL);
+  g_object_get((gpointer)(self->priv->app),"bin",&self->priv->bin,NULL);
   
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
   GST_DEBUG("listen to bus messages (%p)",bus);
@@ -1395,7 +1395,7 @@ static void bt_song_set_property(GObject * const object, const guint property_id
       g_object_try_weak_unref(self->priv->master);
       self->priv->master = BT_SINK_MACHINE(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->master);
-      g_object_get(G_OBJECT(self->priv->master),"machine",&self->priv->master_bin,NULL);
+      g_object_get((gpointer)(self->priv->master),"machine",&self->priv->master_bin,NULL);
       GST_DEBUG("set the master for the song: %p (machine-refs: %d)",self->priv->master,(G_OBJECT(self->priv->master))->ref_count);
     } break;
     case SONG_UNSAVED: {
@@ -1476,7 +1476,9 @@ static void bt_song_dispose(GObject * const object) {
     g_signal_handlers_disconnect_matched(self->priv->song_info,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_tempo_changed,(gpointer)self);
   }
 
-  if(self->priv->master) GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);
+  if(self->priv->master) {
+    GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);
+  }
   if(self->priv->master_bin) gst_object_unref(self->priv->master_bin);
   g_object_try_weak_unref(self->priv->master);
   

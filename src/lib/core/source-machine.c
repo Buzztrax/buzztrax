@@ -83,7 +83,7 @@ static xmlNodePtr bt_source_machine_persistence_save(const BtPersistence * const
   if((node=parent_iface->save(persistence,parent_node))) {
     xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("source"));
 
-    g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,"voices",&voices,NULL);
+    g_object_get((gpointer)self,"plugin-name",&plugin_name,"voices",&voices,NULL);
     xmlNewProp(node,XML_CHAR_PTR("plugin-name"),XML_CHAR_PTR(plugin_name));
     xmlNewProp(node,XML_CHAR_PTR("voices"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(voices)));
     g_free(plugin_name);
@@ -151,12 +151,8 @@ static void bt_source_machine_persistence_interface_init(gpointer const g_iface,
 
 static gboolean bt_source_machine_check_type(const BtMachine * const self, const gulong pad_src_ct, const gulong pad_sink_ct) {
   if(pad_src_ct==0 || pad_sink_ct>0) {
-    gchar * const plugin_name;
-    
-    g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
-    GST_ERROR("  plugin \"%s\" is has %lu src pads instead of >0 and %lu sink pads instead of 0",
-      plugin_name,pad_src_ct,pad_sink_ct);
-    g_free(plugin_name);
+    GST_ERROR_OBJECT(self,"plugin has %lu src pads instead of >0 and %lu sink pads instead of 0",
+      pad_src_ct,pad_sink_ct);
     return(FALSE);
   }
   return(TRUE);
@@ -172,34 +168,35 @@ static void bt_source_machine_constructed(GObject *object) {
 
   G_OBJECT_CLASS(parent_class)->constructed(object);
 
-  g_object_get(G_OBJECT(self),"construction-error",&err,NULL);
+  g_object_get(self,"construction-error",&err,NULL);
   if(err==NULL || *err==NULL) {
     GstElement * const element;
     BtSong * const song;
     BtSetup *setup;
     BtPattern *pattern;
+    BtMachine *machine=(BtMachine *)self;
     
-    g_object_get(G_OBJECT(self),"machine",&element,"song",&song,NULL);
+    g_object_get(self,"machine",&element,"song",&song,NULL);
     if(GST_IS_BASE_SRC(element)) {
       // don't ever again get the idea to turn of is_live for basesrc elements
       // if they are live, they are, no matter what we want
       //  we get "can't record audio fast enough"
-      if(gst_base_src_is_live(GST_BASE_SRC(element))) {
+      if(gst_base_src_is_live((GstBaseSrc *)element)) {
         if(GST_IS_BASE_AUDIO_SRC(element)) {
           g_object_set(element,"buffer-time",150*GST_MSECOND,NULL);
         }
       }
     }
     gst_object_unref(element);
-    pattern=bt_pattern_new_with_event(song,BT_MACHINE(self),BT_PATTERN_CMD_SOLO);
+    pattern=bt_pattern_new_with_event(song,machine,BT_PATTERN_CMD_SOLO);
     g_object_unref(pattern);
     
-    bt_machine_activate_spreader(BT_MACHINE(self));
-    bt_machine_enable_output_gain(BT_MACHINE(self));
+    bt_machine_activate_spreader(machine);
+    bt_machine_enable_output_gain(machine);
 
     // add the machine to the setup of the song
     g_object_get(song,"setup",&setup,NULL);
-    bt_setup_add_machine(setup,BT_MACHINE(self));
+    bt_setup_add_machine(setup,machine);
     g_object_unref(setup);
 
     g_object_unref(song);

@@ -156,7 +156,7 @@ static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const pers
         *ext='\0';
       }
       GST_INFO("using '%s' instead of default title",file_name);  
-      g_object_set(G_OBJECT(self),"name",file_name,NULL);
+      g_object_set((gpointer)self,"name",file_name,NULL);
       g_free(file_name);
       g_free(file_path);
       g_object_unref(song_io);
@@ -209,12 +209,12 @@ static BtPersistence *bt_song_info_persistence_load(const GType type, const BtPe
             !strncmp(property_name,"create-dts",10) ||
             !strncmp(property_name,"change-dts",10)
           ) {
-            g_object_set(G_OBJECT(self),property_name,elem,NULL);
+            g_object_set((gpointer)self,property_name,elem,NULL);
           }
           else if(!strncmp(property_name,"bpm",3) ||
             !strncmp(property_name,"tpb",3) ||
             !strncmp(property_name,"bars",4)) {
-            g_object_set(G_OBJECT(self),property_name,atol((char *)elem),NULL);
+            g_object_set((gpointer)self,property_name,atol((char *)elem),NULL);
           }
           xmlFree(elem);
         }

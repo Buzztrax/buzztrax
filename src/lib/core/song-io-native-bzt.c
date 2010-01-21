@@ -97,7 +97,7 @@ gboolean bt_song_io_native_bzt_copy_to_fd(const BtSongIONativeBZT * const self, 
       num=0;
     }
     if(infile!=self->priv->infile)
-      g_object_unref(G_OBJECT(infile));
+      g_object_unref(infile);
     infile=tmp_infile;
   }
   g_strfreev(parts);
@@ -133,7 +133,7 @@ gboolean bt_song_io_native_bzt_copy_to_fd(const BtSongIONativeBZT * const self, 
     else {
       GST_WARNING("error reading data \"%s\"",file_name);
     }
-    g_object_unref(G_OBJECT(data));
+    g_object_unref(data);
   }
   else {
     GST_WARNING("error opening \"%s\"",file_name);
@@ -217,7 +217,7 @@ gboolean bt_song_io_native_bzt_copy_from_uri(const BtSongIONativeBZT * const sel
     }
     g_free(src_file_name);
     gsf_output_close(data);
-    g_object_unref(G_OBJECT(data));
+    g_object_unref(data);
   }
 #endif
   return(res);
@@ -231,7 +231,7 @@ static gboolean bt_song_io_native_bzt_load(gconstpointer const _self, const BtSo
   const BtSongIONativeBZT * const self=BT_SONG_IO_NATIVE_BZT(_self);
   gchar * const file_name;
   
-  g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
+  g_object_get((gpointer)self,"file-name",&file_name,NULL);
   GST_INFO("native io bzt will now load song from \"%s\"",file_name);
 
   const gchar * const msg=_("Loading file '%s'");
@@ -239,7 +239,7 @@ static gboolean bt_song_io_native_bzt_load(gconstpointer const _self, const BtSo
   g_sprintf(status,msg,file_name);
   //gchar * const status=g_alloca(1+strlen(_("Loading file '%s'"))+strlen(file_name));
   //g_sprintf(status,_("Loading file '%s'"),file_name);
-  g_object_set(G_OBJECT(self),"status",status,NULL);
+  g_object_set((gpointer)self,"status",status,NULL);
       
   xmlParserCtxtPtr const ctxt=xmlNewParserCtxt();
   if(ctxt) {
@@ -271,7 +271,7 @@ static gboolean bt_song_io_native_bzt_load(gconstpointer const _self, const BtSo
           else {
             GST_WARNING("'%s': error reading data",file_name);
           }
-          g_object_unref(G_OBJECT(data));
+          g_object_unref(data);
         }
       }
       else {
@@ -315,11 +315,11 @@ static gboolean bt_song_io_native_bzt_load(gconstpointer const _self, const BtSo
     else GST_ERROR("failed to read song file '%s'",file_name);
     
     if(self->priv->infile) {
-      g_object_unref(G_OBJECT(self->priv->infile));
+      g_object_unref(self->priv->infile);
       self->priv->infile=NULL;
     }
     if(self->priv->input) {
-      g_object_unref(G_OBJECT(self->priv->input));
+      g_object_unref(self->priv->input);
       self->priv->input=NULL;
     }
 
@@ -327,7 +327,7 @@ static gboolean bt_song_io_native_bzt_load(gconstpointer const _self, const BtSo
   else GST_ERROR("failed to create file-parser context");
   if(ctxt) xmlFreeParserCtxt(ctxt);
   g_free(file_name);
-  g_object_set(G_OBJECT(self),"status",NULL,NULL);
+  g_object_set((gpointer)self,"status",NULL,NULL);
 #endif
   return(result);
 }
@@ -338,7 +338,7 @@ static gboolean bt_song_io_native_bzt_save(gconstpointer const _self, const BtSo
   const BtSongIONativeBZT * const self=BT_SONG_IO_NATIVE_BZT(_self);
   gchar * const file_name;
   
-  g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
+  g_object_get((gpointer)self,"file-name",&file_name,NULL);
   GST_INFO("native io bzt will now save song to \"%s\"",file_name);
 
   const gchar * const msg=_("Saving file '%s'");
@@ -346,7 +346,7 @@ static gboolean bt_song_io_native_bzt_save(gconstpointer const _self, const BtSo
   g_sprintf(status,msg,file_name);
   //gchar * const status=g_alloca(1+strlen(_("Saving file '%s'"))+strlen(file_name));
   //g_sprintf(status,_("Saving file '%s'"),file_name);
-  g_object_set(G_OBJECT(self),"status",status,NULL);
+  g_object_set((gpointer)self,"status",status,NULL);
 
   xmlDocPtr const song_doc=xmlNewDoc(XML_CHAR_PTR("1.0"));
   if(song_doc) {
@@ -388,7 +388,7 @@ static gboolean bt_song_io_native_bzt_save(gconstpointer const _self, const BtSo
             else GST_ERROR("failed to write song file \"%s\"",file_name);
             xmlFree(bytes);
             gsf_output_close(data);
-            g_object_unref(G_OBJECT(data));
+            g_object_unref(data);
           }
         }
       }
@@ -397,18 +397,18 @@ static gboolean bt_song_io_native_bzt_save(gconstpointer const _self, const BtSo
   
   if(self->priv->output) {
     gsf_output_close(GSF_OUTPUT(self->priv->outfile));
-    g_object_unref(G_OBJECT(self->priv->outfile));
+    g_object_unref(self->priv->outfile);
     self->priv->outfile=NULL;
   }
   if(self->priv->output) {
     gsf_output_close(self->priv->output);
-    g_object_unref(G_OBJECT(self->priv->output));
+    g_object_unref(self->priv->output);
     self->priv->output=NULL;
   }
  
   g_free(file_name);
 
-  g_object_set(G_OBJECT(self),"status",NULL,NULL);
+  g_object_set((gpointer)self,"status",NULL,NULL);
 #endif
   return(result);
 }
