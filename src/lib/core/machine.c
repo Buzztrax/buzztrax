@@ -817,7 +817,7 @@ static gboolean bt_machine_enable_part(BtMachine * const self,const BtMachinePar
     case PART_INPUT_POST_LEVEL:
     case PART_OUTPUT_PRE_LEVEL:
     case PART_OUTPUT_POST_LEVEL:
-      g_object_set(G_OBJECT(self->priv->machines[part]),
+      g_object_set(self->priv->machines[part],
         "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
         "peak-ttl",(GstClockTime)(0.2*GST_SECOND),"peak-falloff", 50.0,
         NULL);
@@ -2884,7 +2884,7 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
           data=(BtControlData *)lnode->data;
 
           g_object_get(G_OBJECT(data->control),"device",&device,"name",&control_name,NULL);
-          g_object_get(G_OBJECT(device),"name",&device_name,NULL);
+          g_object_get(device,"name",&device_name,NULL);
           g_object_unref(device);
 
           sub_node=xmlNewChild(child_node,NULL,XML_CHAR_PTR("interaction-controller"),NULL);
@@ -3018,7 +3018,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
           gboolean found;
   
           registry=btic_registry_new();
-          g_object_get(G_OBJECT(registry),"devices",&devices,NULL);
+          g_object_get(registry,"devices",&devices,NULL);
   
           for(child_node=node->children;child_node;child_node=child_node->next) {
             if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"interaction-controller\0",23))) {
@@ -3028,7 +3028,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
                 found=FALSE;
                 for(lnode=devices;lnode;lnode=g_list_next(lnode)) {
                   device=BTIC_DEVICE(lnode->data);
-                  g_object_get(G_OBJECT(device),"name",&name,NULL);
+                  g_object_get(device,"name",&name,NULL);
                   if(!strcmp(name,(gchar *)device_str))
                     found=TRUE;
                   g_free(name);
@@ -3037,10 +3037,10 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
                 if(found) {
                   if((control_str=xmlGetProp(child_node,XML_CHAR_PTR("control")))) {
                     found=FALSE;
-                    g_object_get(G_OBJECT(device),"controls",&controls,NULL);
+                    g_object_get(device,"controls",&controls,NULL);
                     for(lnode=controls;lnode;lnode=g_list_next(lnode)) {
                       control=BTIC_CONTROL(lnode->data);
-                      g_object_get(G_OBJECT(control),"name",&name,NULL);
+                      g_object_get(control,"name",&name,NULL);
                       if(!strcmp(name,(gchar *)control_str))
                         found=TRUE;
                       g_free(name);

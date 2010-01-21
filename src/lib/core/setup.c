@@ -412,7 +412,7 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup * const self, con
 
   for(node=self->priv->wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
-    g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
+    g_object_get(wire,type,&search_machine,NULL);
     if(search_machine==machine) found=TRUE;
     g_object_unref(search_machine);
     if(found) return(g_object_ref(wire));
@@ -438,7 +438,7 @@ static GList *bt_setup_get_wires_by_machine_type(const BtSetup * const self,cons
 
   for(node=self->priv->wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
-    g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
+    g_object_get(wire,type,&search_machine,NULL);
     if(search_machine==machine) {
       wires=g_list_prepend(wires,g_object_ref(wire));
     }
@@ -676,7 +676,7 @@ static void add_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data)
     GST_INFO_OBJECT(key,"add & link wire");
     update_bin_in_pipeline(self,GST_BIN(key),TRUE,NULL);
 
-    g_object_get(G_OBJECT(key),"src",&src,"dst",&dst,NULL);
+    g_object_get(key,"src",&src,"dst",&dst,NULL);
     link_wire(self,GST_ELEMENT(key),src,dst);
     // @todo: what todo if it fails? We should always be able to link in theory
     // maybe dump extensive diagnostics to add debugging
@@ -753,7 +753,7 @@ static void del_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data)
     GstElement *src,*dst;
     
     GST_INFO_OBJECT(key,"remove & unlink wire");
-    g_object_get(G_OBJECT(key),"src",&src,"dst",&dst,NULL);
+    g_object_get(key,"src",&src,"dst",&dst,NULL);
     unlink_wire(self,GST_ELEMENT(key),src,dst);
     g_object_unref(src);
     g_object_unref(dst);
@@ -1108,7 +1108,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
 
   for(node=self->priv->machines;node;node=g_list_next(node)) {
     BtMachine * const machine=BT_MACHINE(node->data);
-    g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
+    g_object_get(machine,"id",&machine_id,NULL);
     if(!strcmp(machine_id,id)) found=TRUE;
     g_free(machine_id);
     if(found) {
@@ -1264,7 +1264,7 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
   // bt_machine_get_wire_by_{src,dst}(machine,peer_machine);
   for(node=src->src_wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
-    g_object_get(G_OBJECT(wire),"dst",&machine,NULL);
+    g_object_get(wire,"dst",&machine,NULL);
     if(machine==dst) found=TRUE;
     g_object_unref(machine);
     if(found) return(g_object_ref(wire));
@@ -1272,14 +1272,14 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
 #if 0
   for(node=dst->dst_wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
-    g_object_get(G_OBJECT(wire),"src",&machine,NULL);
+    g_object_get(wire,"src",&machine,NULL);
     if(machine==src) found=TRUE;
     g_object_unref(machine);
     if(found) return(g_object_ref(wire));
   }
   for(node=self->priv->wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
-    g_object_get(G_OBJECT(wire),"src",&src_machine,"dst",&dst_machine,NULL);
+    g_object_get(wire,"src",&src_machine,"dst",&dst_machine,NULL);
     if((src_machine==src) && (dst_machine==dst)) found=TRUE;
     g_object_unref(src_machine);
     g_object_unref(dst_machine);
@@ -1587,7 +1587,7 @@ static void bt_setup_dispose(GObject * const object) {
 
         GST_DEBUG_OBJECT(obj,"  free wire: %p, ref=%d, floating? %d",obj,obj->ref_count,GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING));
 
-        g_object_get(G_OBJECT(obj),"src",&src,"dst",&dst,NULL);
+        g_object_get(obj,"src",&src,"dst",&dst,NULL);
         unlink_wire(self,GST_ELEMENT(obj),src,dst);
         g_object_unref(src);
         g_object_unref(dst);

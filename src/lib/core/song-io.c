@@ -330,7 +330,7 @@ gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
 
   // this updates the time-stamp
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-  g_object_set(G_OBJECT(song_info),"change-dts",NULL,NULL);
+  g_object_set(song_info,"change-dts",NULL,NULL);
   g_object_unref(song_info);
 
   g_object_set(G_OBJECT(song),"song-io",self,NULL);

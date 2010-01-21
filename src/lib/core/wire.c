@@ -1191,7 +1191,7 @@ static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersist
       param_name=va_arg(var_args,gchar*);
     }
 
-    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+    g_object_get(song,"setup",&setup,NULL);
     src_machine=bt_setup_get_machine_by_id(setup,(gchar *)src_id);
     dst_machine=bt_setup_get_machine_by_id(setup,(gchar *)dst_id);
     
@@ -1213,12 +1213,12 @@ static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersist
   
   if((gain_str=xmlGetProp(node,XML_CHAR_PTR("gain")))) {
     gdouble gain=g_ascii_strtod((gchar *)gain_str,NULL);
-    g_object_set(G_OBJECT(self->priv->machines[PART_GAIN]),"volume",gain,NULL);
+    g_object_set(self->priv->machines[PART_GAIN],"volume",gain,NULL);
     xmlFree(gain_str);
   }
   if(self->priv->machines[PART_PAN] && (pan_str=xmlGetProp(node,XML_CHAR_PTR("panorama")))) {
     gfloat pan=g_ascii_strtod((gchar *)pan_str,NULL);
-    g_object_set(G_OBJECT(self->priv->machines[PART_PAN]),"panorama",pan,NULL);
+    g_object_set(self->priv->machines[PART_PAN],"panorama",pan,NULL);
     xmlFree(pan_str);
   }
   

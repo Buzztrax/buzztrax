@@ -177,7 +177,7 @@ BtWave *bt_wavetable_get_wave_by_index(const BtWavetable * const self, const gul
 
   for(node=self->priv->waves;node;node=g_list_next(node)) {
     BtWave * const wave=BT_WAVE(node->data);
-    g_object_get(G_OBJECT(wave),"index",&wave_index,NULL);
+    g_object_get(wave,"index",&wave_index,NULL);
     if(index==wave_index) return(g_object_ref(wave));
   }
   return(NULL);

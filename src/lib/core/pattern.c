@@ -1461,7 +1461,7 @@ static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPers
     self=BT_PATTERN(persistence);
     result=BT_PERSISTENCE(self);
 
-    g_object_set(G_OBJECT(self),"id",id,"name",name,"length",length,NULL);
+    g_object_set(self,"id",id,"name",name,"length",length,NULL);
   }
   xmlFree(id);xmlFree(name);xmlFree(length_str);
   

@@ -632,13 +632,13 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
      * which we do below (see also: bt_wave_constructed) */
     self=bt_wave_new(song,(gchar*)name,NULL,index,volume,loop_mode,0);
     result=BT_PERSISTENCE(self);
-    g_object_set(G_OBJECT(self),"uri",uri_str,NULL);
+    g_object_set(self,"uri",uri_str,NULL);
   }
   else {
     self=BT_WAVE(persistence);
     result=BT_PERSISTENCE(self);
 
-    g_object_set(G_OBJECT(self),"index",index,"name",name,"uri",uri_str,"volume",volume,"loop-mode",loop_mode,NULL);
+    g_object_set(self,"index",index,"name",name,"uri",uri_str,"volume",volume,"loop-mode",loop_mode,NULL);
   }   
   
   xmlFree(index_str);

@@ -449,7 +449,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
     return;
   }
   g_assert(machine);
-  g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
+  g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
   // check if from time+1 to time+length another pattern starts (in this track)
   for(i=1;((i<length) && (time+i<self->priv->length));i++) {
     if(bt_sequence_test_pattern(self,time+i,track)) break;
@@ -460,7 +460,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   param_offset=global_params+voices*voice_params;
   for(node=machine->dst_wires;node;node=g_list_next(node),param_offset++) {
     wire=BT_WIRE(node->data);
-    g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
+    g_object_get(wire,"num-params",&wire_params,NULL);
     if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
       for(i=0;i<length;i++) {
         // check wire params
@@ -547,7 +547,7 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
       if(pattern) {
         gulong length,pos=tick-j;
 
-        g_object_get(G_OBJECT(pattern),"length",&length,NULL);
+        g_object_get(pattern,"length",&length,NULL);
         if(pos<length) {
           // get value at tick position or NULL
           if((cur_value=bt_pattern_get_global_event_data(pattern,pos,param)) && G_IS_VALUE(cur_value)) {
@@ -596,7 +596,7 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
       if(pattern) {
         gulong length,pos=tick-j;
 
-        g_object_get(G_OBJECT(pattern),"length",&length,NULL);
+        g_object_get(pattern,"length",&length,NULL);
         if(pos<length) {
           // get value at tick position or NULL
           if((cur_value=bt_pattern_get_voice_event_data(pattern,tick-j,voice,param)) && G_IS_VALUE(cur_value)) {
@@ -645,7 +645,7 @@ static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _valu
       if(pattern) {
         gulong length,pos=tick-j;
 
-        g_object_get(G_OBJECT(pattern),"length",&length,NULL);
+        g_object_get(pattern,"length",&length,NULL);
         if(pos<length) {
           BtWirePattern *wire_pattern=bt_wire_get_pattern(wire,pattern);
           // get value at tick position or NULL
@@ -670,7 +670,7 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
   gulong beats_per_minute,ticks_per_beat;
 
   g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
-  g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
+  g_object_get(song_info,"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
   /* the number of pattern-events for one playline-step,
    * when using 4 ticks_per_beat then
    *   for 4/4 bars it is 16 (standart dance rhythm)
@@ -758,7 +758,7 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const p
           // for tick==0 we always invalidate
           if(!tick || k==tick) {
             gulong global_params,voice_params,param_offset;
-            g_object_get(G_OBJECT(this_machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+            g_object_get(this_machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
             param_offset=global_params+voice*voice_params;
             bt_sequence_invalidate_voice_param(self,this_machine,j+tick,voice,param_offset+param);
           }
@@ -783,7 +783,7 @@ static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern *
   gulong i,j,k;
   
   g_object_get(G_OBJECT(wire_pattern),"pattern",&pattern,NULL);
-  g_object_get(G_OBJECT(pattern),"machine",&this_machine,NULL);
+  g_object_get(pattern,"machine",&this_machine,NULL);
   // for all occurences of pattern
   for(i=0;i<self->priv->tracks;i++) {
     BtMachine * const that_machine=bt_sequence_get_machine_unchecked(self,i);
@@ -801,10 +801,10 @@ static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern *
             gulong l;
             GList *node;
 
-            g_object_get(G_OBJECT(this_machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
+            g_object_get(this_machine,"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
             // get the index for the given wires
             for(l=0,node=this_machine->dst_wires;node;node=g_list_next(node),l++) {
-              if(BT_WIRE(node->data)==wire) break;
+              if(node->data==(gpointer)wire) break;
             }
             param_offset=(global_params+voices*voice_params)+(BT_WIRE_MAX_NUM_PARAMS*l);
             bt_sequence_invalidate_wire_param(self,this_machine,j+tick,wire,param_offset+param);
@@ -856,7 +856,7 @@ static void bt_sequence_on_wire_pattern_changed(const BtWirePattern * const wire
 
   GST_DEBUG("repair damage after a wire-pattern %p has been changed",wire_pattern); 
   g_object_get(G_OBJECT(wire_pattern),"pattern",&pattern,NULL);
-  g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
+  g_object_get(pattern,"machine",&machine,NULL);
 
   // for all tracks
   for(i=0;i<self->priv->tracks;i++) {
@@ -1012,13 +1012,13 @@ void bt_sequence_repair_damage(const BtSequence * const self) {
       GST_DEBUG("check damage for track %lu",i);
       if((hash=g_hash_table_lookup(self->priv->damage,machine))) {
         GST_DEBUG("repair damage for track %lu",i);
-        g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
+        g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
         hash_params[1]=machine;
 
         // repair damage of wires
         for(k=0,node=machine->dst_wires;node;node=g_list_next(node)) {
           wire=BT_WIRE(node->data);
-          g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
+          g_object_get(wire,"num-params",&wire_params,NULL);
           hash_params[3]=GUINT_TO_POINTER(wire);
           // repair damage of wire params
           for(j=0;j<wire_params;j++) {
@@ -1348,7 +1348,7 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
       g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_voice_param_changed,NULL);
       g_signal_handlers_disconnect_matched(old_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_changed,NULL);
 
-      g_object_get(G_OBJECT(old_pattern),"machine",&machine,NULL);
+      g_object_get(old_pattern,"machine",&machine,NULL);
       for(node=machine->dst_wires;node;node=g_list_next(node)) {
         wire=BT_WIRE(node->data);
         if((wire_pattern=bt_wire_get_pattern(wire,old_pattern))) {

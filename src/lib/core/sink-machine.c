@@ -158,7 +158,7 @@ static BtPersistence *bt_sink_machine_persistence_load(const GType type, const B
     self=BT_SINK_MACHINE(persistence); 
     result=BT_PERSISTENCE(persistence);
 
-    g_object_set(G_OBJECT(self),"plugin-name","bt-sink-bin",NULL);
+    g_object_set(self,"plugin-name","bt-sink-bin",NULL);
   }
   xmlFree(id);
   
@@ -213,13 +213,13 @@ static void bt_sink_machine_constructed(GObject *object) {
     bt_machine_activate_adder(BT_MACHINE(self));
     bt_machine_enable_input_gain(BT_MACHINE(self));
     g_object_get(G_OBJECT(self),"machine",&element,"song",&song,"input-gain",&gain, NULL);
-    g_object_set(G_OBJECT(element),"input-gain",gain,NULL);
-    g_object_set(G_OBJECT(song),"master",G_OBJECT(self),NULL);
+    g_object_set(element,"input-gain",gain,NULL);
+    g_object_set(song,"master",G_OBJECT(self),NULL);
     gst_object_unref(element);
     gst_object_unref(gain);
     
     // add the machine to the setup of the song
-    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+    g_object_get(song,"setup",&setup,NULL);
     bt_setup_add_machine(setup,BT_MACHINE(self));
     g_object_unref(setup);
     

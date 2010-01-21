@@ -288,7 +288,7 @@ static gchar *bt_sink_bin_determine_plugin_name(const BtSinkBin * const self) {
   gchar *audiosink_name,*system_audiosink_name;
   gchar *plugin_name=NULL;
 
-  g_object_get(G_OBJECT(self->priv->settings),"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
+  g_object_get(self->priv->settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
 
   if(BT_IS_STRING(audiosink_name)) {
     GST_INFO("get audiosink from config");
@@ -1036,7 +1036,7 @@ static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_cla
   g_signal_connect(G_OBJECT(self->priv->settings), "notify::sample-rate", G_CALLBACK(on_sample_rate_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->settings), "notify::channels", G_CALLBACK(on_channels_changed), (gpointer)self);
 
-  g_object_get(G_OBJECT(self->priv->settings),
+  g_object_get(self->priv->settings,
     "sample-rate",&self->priv->sample_rate,
     "channels",&self->priv->channels,
     NULL);

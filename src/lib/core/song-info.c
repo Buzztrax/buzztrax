@@ -150,7 +150,7 @@ static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const pers
       gchar *file_path,*file_name,*ext;
       
       g_object_get(self->priv->song,"song-io",&song_io,NULL);
-      g_object_get(G_OBJECT(song_io),"file-name",&file_path,NULL);
+      g_object_get(song_io,"file-name",&file_path,NULL);
       file_name=g_path_get_basename(file_path);
       if((ext=strrchr(file_name,'.'))) {
         *ext='\0';

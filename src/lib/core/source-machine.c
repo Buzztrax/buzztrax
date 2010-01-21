@@ -125,7 +125,7 @@ static BtPersistence *bt_source_machine_persistence_load(const GType type, const
     self=BT_SOURCE_MACHINE(persistence);
     result=BT_PERSISTENCE(persistence);
 
-    g_object_set(G_OBJECT(self),"plugin-name",plugin_name,"voices",voices,NULL);
+    g_object_set(self,"plugin-name",plugin_name,"voices",voices,NULL);
   }
   xmlFree(id);
   xmlFree(plugin_name);
@@ -198,7 +198,7 @@ static void bt_source_machine_constructed(GObject *object) {
     bt_machine_enable_output_gain(BT_MACHINE(self));
 
     // add the machine to the setup of the song
-    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+    g_object_get(song,"setup",&setup,NULL);
     bt_setup_add_machine(setup,BT_MACHINE(self));
     g_object_unref(setup);
 
