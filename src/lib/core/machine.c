@@ -882,8 +882,8 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
     gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,-1);
 
-    g_signal_connect(G_OBJECT(song_info),"notify::bpm",G_CALLBACK(bt_machine_on_bpm_changed),(gpointer)self);
-    g_signal_connect(G_OBJECT(song_info),"notify::tpb",G_CALLBACK(bt_machine_on_tpb_changed),(gpointer)self);
+    g_signal_connect(song_info,"notify::bpm",G_CALLBACK(bt_machine_on_bpm_changed),(gpointer)self);
+    g_signal_connect(song_info,"notify::tpb",G_CALLBACK(bt_machine_on_tpb_changed),(gpointer)self);
     g_object_unref(song_info);
     GST_INFO("  tempo iface initialized");
   }
@@ -1406,7 +1406,7 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
       GST_DEBUG("adding internal pattern, nr=%u",self->priv->private_patterns);
     }
     else {
-      g_signal_emit(G_OBJECT(self),signals[PATTERN_ADDED_EVENT], 0, pattern);
+      g_signal_emit((gpointer)self,signals[PATTERN_ADDED_EVENT], 0, pattern);
       bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
@@ -1428,7 +1428,7 @@ void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * c
 
   if(g_list_find(self->priv->patterns,pattern)) {
     self->priv->patterns=g_list_remove(self->priv->patterns,pattern);
-    g_signal_emit(G_OBJECT(self),signals[PATTERN_REMOVED_EVENT], 0, pattern);
+    g_signal_emit((gpointer)self,signals[PATTERN_REMOVED_EVENT], 0, pattern);
     GST_DEBUG("removing pattern: ref_count=%d",G_OBJECT(pattern)->ref_count);
     g_object_unref(G_OBJECT(pattern));
     bt_song_set_unsaved(self->priv->song,TRUE);
@@ -2497,13 +2497,13 @@ void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *
   // connect signal handler
   switch(bt_g_type_get_base_type(pspec->value_type)) {
     case G_TYPE_BOOLEAN:
-      data->handler_id=g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_boolean_control_notify),(gpointer)data);
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_boolean_control_notify),(gpointer)data);
       break;
     case G_TYPE_UINT:
-      data->handler_id=g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_uint_control_notify),(gpointer)data);
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_uint_control_notify),(gpointer)data);
       break;
     case G_TYPE_DOUBLE:
-      data->handler_id=g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_double_control_notify),(gpointer)data);
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_double_control_notify),(gpointer)data);
       break;
     default:
       GST_WARNING_OBJECT(self,"unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(pspec));

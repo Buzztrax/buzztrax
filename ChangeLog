@@ -1,6 +1,12 @@
 2010-01-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Kill more casts from signal handlers.
+
+2010-01-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
 	* src/lib/core/pattern.c:
 	* src/lib/core/processor-machine.c:
 	* src/lib/core/sequence.c:

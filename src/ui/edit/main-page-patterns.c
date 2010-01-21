@@ -975,7 +975,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
     MACHINE_MENU_LABEL,str,
     MACHINE_MENU_MACHINE,machine,
     -1);
-  g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)self);
+  g_signal_connect(machine,"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)self);
 
   GST_DEBUG("  (machine-refs: %d)",(G_OBJECT(machine))->ref_count);
   g_free(str);
@@ -1035,7 +1035,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
           PATTERN_MENU_PATTERN,pattern,
           PATTERN_MENU_COLOR_SET,!is_used,
           -1);
-        g_signal_connect(G_OBJECT(pattern),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
+        g_signal_connect(pattern,"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
         index++;  // count pattern index, so that we can activate one in the combobox
         if(pattern==self->priv->pattern) {
           active=index;
@@ -1696,8 +1696,8 @@ static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *ne
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
   if(self->priv->pattern) {
     // watch the pattern
-    self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
-    self->priv->pattern_voices_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::voices",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
+    self->priv->pattern_length_changed=g_signal_connect(new_pattern,"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
+    self->priv->pattern_voices_changed=g_signal_connect(new_pattern,"notify::voices",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
   }
 }
 
@@ -1973,14 +1973,14 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   machine_menu_refresh(self,setup);
   //pattern_menu_refresh(self); // should be triggered by machine_menu_refresh()
   wavetable_menu_refresh(self,wavetable);
-  g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
-  g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
-  g_signal_connect(G_OBJECT(setup),"wire-added",G_CALLBACK(on_wire_added_or_removed),(gpointer)self);
-  g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_added_or_removed),(gpointer)self);
-  g_signal_connect(G_OBJECT(wavetable),"wave-added",G_CALLBACK(on_wave_added_or_removed),(gpointer)self);
-  g_signal_connect(G_OBJECT(wavetable),"wave-removed",G_CALLBACK(on_wave_added_or_removed),(gpointer)self);
+  g_signal_connect(setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
+  g_signal_connect(setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
+  g_signal_connect(setup,"wire-added",G_CALLBACK(on_wire_added_or_removed),(gpointer)self);
+  g_signal_connect(setup,"wire-removed",G_CALLBACK(on_wire_added_or_removed),(gpointer)self);
+  g_signal_connect(wavetable,"wave-added",G_CALLBACK(on_wave_added_or_removed),(gpointer)self);
+  g_signal_connect(wavetable,"wave-removed",G_CALLBACK(on_wave_added_or_removed),(gpointer)self);
   // subscribe to play-pos changes of song->sequence
-  g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
+  g_signal_connect(song, "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
   // release the references
   g_object_unref(wavetable);
   g_object_unref(setup);
@@ -2225,7 +2225,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"text",MACHINE_MENU_LABEL,NULL);
-  g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", G_CALLBACK(on_machine_menu_changed), (gpointer)self);
+  g_signal_connect(self->priv->machine_menu, "changed", G_CALLBACK(on_machine_menu_changed), (gpointer)self);
   /* this won't work, as we can't pass anything to the event handler
    * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
    * so, we need to subclass the combobox and add two signals: select-next, select-prev
@@ -2261,7 +2261,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
     NULL);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Pattern")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pattern_menu),TRUE,TRUE,2);
-  self->priv->pattern_menu_changed=g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", G_CALLBACK(on_pattern_menu_changed), (gpointer)self);
+  self->priv->pattern_menu_changed=g_signal_connect(self->priv->pattern_menu, "changed", G_CALLBACK(on_pattern_menu_changed), (gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
   gtk_widget_set_name(tool_item,"Pattern");
@@ -2290,7 +2290,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 1,NULL);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Wave")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->wavetable_menu),TRUE,TRUE,2);
-  //g_signal_connect(G_OBJECT(self->priv->wavetable_menu), "changed", G_CALLBACK(on_wavetable_menu_changed), (gpointer)self);
+  //g_signal_connect(self->priv->wavetable_menu, "changed", G_CALLBACK(on_wavetable_menu_changed), (gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
   gtk_widget_set_name(tool_item,"Wave");
@@ -2313,7 +2313,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_combo_box_set_active(self->priv->base_octave_menu,self->priv->base_octave);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Octave")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->base_octave_menu),TRUE,TRUE,2);
-  g_signal_connect(G_OBJECT(self->priv->base_octave_menu), "changed", G_CALLBACK(on_base_octave_menu_changed), (gpointer)self);
+  g_signal_connect(self->priv->base_octave_menu, "changed", G_CALLBACK(on_base_octave_menu_changed), (gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
   gtk_widget_set_name(tool_item,"Octave");
@@ -2331,7 +2331,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_widget_set_name(tool_item,"Play live");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play notes and triggers while editing the pattern"));
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"toggled",G_CALLBACK(on_play_live_toggled),(gpointer)self);
+  g_signal_connect(tool_item,"toggled",G_CALLBACK(on_play_live_toggled),(gpointer)self);
 
 #ifndef USE_HILDON
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
@@ -2342,7 +2342,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   tool_item=GTK_WIDGET(gtk_tool_button_new(image,_("Pattern view menu")));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Menu actions for pattern view below"));
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
 
 
   // get colors
@@ -2361,11 +2361,11 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   self->priv->pattern_table=BT_PATTERN_EDITOR(bt_pattern_editor_new());
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,"play-position",-1.0,NULL);
   //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
-  g_signal_connect(G_OBJECT(self->priv->pattern_table), "key-release-event", G_CALLBACK(on_pattern_table_key_release_event), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-group", G_CALLBACK(on_pattern_table_cursor_group_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-param", G_CALLBACK(on_pattern_table_cursor_param_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->pattern_table), "notify::cursor-row", G_CALLBACK(on_pattern_table_cursor_row_changed), (gpointer)self);
+  g_signal_connect(self->priv->pattern_table, "key-release-event", G_CALLBACK(on_pattern_table_key_release_event), (gpointer)self);
+  g_signal_connect(self->priv->pattern_table, "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
+  g_signal_connect(self->priv->pattern_table, "notify::cursor-group", G_CALLBACK(on_pattern_table_cursor_group_changed), (gpointer)self);
+  g_signal_connect(self->priv->pattern_table, "notify::cursor-param", G_CALLBACK(on_pattern_table_cursor_param_changed), (gpointer)self);
+  g_signal_connect(self->priv->pattern_table, "notify::cursor-row", G_CALLBACK(on_pattern_table_cursor_row_changed), (gpointer)self);
   gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(scrolled_window));
 
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
@@ -2384,7 +2384,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/AddTrack", GDK_plus, GDK_CONTROL_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_track_add_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_track_add_activate),(gpointer)self);
 
   self->priv->context_menu_track_remove=menu_item=gtk_image_menu_item_new_with_label(_("Remove last track"));
   image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
@@ -2393,7 +2393,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/RemoveTrack", GDK_minus, GDK_CONTROL_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_track_remove_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_track_remove_activate),(gpointer)self);
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -2407,7 +2407,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/NewPattern", GDK_Return, GDK_CONTROL_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_new_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_pattern_new_activate),(gpointer)self);
 
   self->priv->context_menu_pattern_properties=menu_item=gtk_image_menu_item_new_with_label(_("Pattern properties..."));
   image=gtk_image_new_from_stock(GTK_STOCK_PROPERTIES,GTK_ICON_SIZE_MENU);
@@ -2416,7 +2416,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/PatternProperties", GDK_BackSpace, GDK_CONTROL_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_properties_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_pattern_properties_activate),(gpointer)self);
 
   self->priv->context_menu_pattern_remove=menu_item=gtk_image_menu_item_new_with_label(_("Remove pattern..."));
   image=gtk_image_new_from_stock(GTK_STOCK_DELETE,GTK_ICON_SIZE_MENU);
@@ -2425,7 +2425,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/RemovePattern", GDK_Delete, GDK_CONTROL_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_remove_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_pattern_remove_activate),(gpointer)self);
 
   self->priv->context_menu_pattern_copy=menu_item=gtk_image_menu_item_new_with_label(_("Copy pattern..."));
   image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
@@ -2434,7 +2434,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/CopyPattern", GDK_Return, GDK_CONTROL_MASK|GDK_SHIFT_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_copy_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_pattern_copy_activate),(gpointer)self);
   // --
   // @todo solo, mute, bypass
   // --
@@ -2443,14 +2443,14 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   // set default widget
   gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->pattern_table));
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect((gpointer)(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   // listen to page changes
-  g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+  g_signal_connect((gpointer)pages,"switch-page",G_CALLBACK(on_page_switched),(gpointer)self);
 
   // let settings control toolbar style
   g_object_get(self->priv->app,"settings",&settings,NULL);
   on_toolbar_style_changed(settings,NULL,(gpointer)toolbar);
-  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)toolbar);
+  g_signal_connect(settings,"notify::toolbar-style",G_CALLBACK(on_toolbar_style_changed),(gpointer)toolbar);
   g_object_unref(settings);
 
   GST_DEBUG("  done");
