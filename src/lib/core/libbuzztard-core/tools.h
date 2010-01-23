@@ -46,6 +46,10 @@ extern GList *bt_gst_check_core_elements(void);
 
 extern GType bt_g_type_get_base_type(const GType type);
 
+//-- cpu load monitoring
+
+extern guint bt_cpu_load_get_current(void);
+
 #endif // !BT_TOOLS_C
 
 //-- glib compat & helper
@@ -168,8 +172,14 @@ sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
 #define	G_PARAM_STATIC_STRINGS (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
 #endif
 
-//-- cpu load monitoring
-
-extern guint bt_cpu_load_get_current(void);
+/**
+ * G_OBJECT_REF_COUNT:
+ * @obj: the object
+ *
+ * Read the objects reference counter.
+ *
+ * Returns: the reference counter.
+ */
+#define G_OBJECT_REF_COUNT(obj) ((G_OBJECT(obj))->ref_count)
 
 #endif // !BT_TOOLS_H

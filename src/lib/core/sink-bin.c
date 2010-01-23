@@ -244,7 +244,7 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
     while(bin->children) {
       elem=GST_ELEMENT_CAST (bin->children->data);
       GST_DEBUG_OBJECT(elem,"  removing elem=%p (ref_ct=%d),'%s'",
-        elem,(G_OBJECT(elem)->ref_count),GST_OBJECT_NAME(elem));
+        elem,(G_OBJECT_REF_COUNT(elem)),GST_OBJECT_NAME(elem));
       if((res=gst_element_set_state(elem,GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
         GST_WARNING("can't go to null state");
       else
@@ -690,8 +690,8 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       }
     }
     GST_INFO ("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
-      self->priv->caps_filter,(G_OBJECT(self->priv->caps_filter)->ref_count),GST_OBJECT_NAME(self->priv->caps_filter),
-      sink_pad,(G_OBJECT(sink_pad)->ref_count));
+      self->priv->caps_filter,(G_OBJECT_REF_COUNT(self->priv->caps_filter)),GST_OBJECT_NAME(self->priv->caps_filter),
+      sink_pad,(G_OBJECT_REF_COUNT(sink_pad)));
     
     /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=596366 
      * at least version 0.10.24-25 suffer from it, fixed with
@@ -717,7 +717,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     }
 #endif
     
-    GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
+    GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT_REF_COUNT(sink_pad)));
     // request pads need to be released
     if(!req_sink_pad) {
       gst_object_unref(sink_pad);
@@ -990,7 +990,7 @@ static void bt_sink_bin_dispose(GObject * const object) {
   }
   g_object_try_weak_unref(self->priv->gain);
 
-  GST_INFO("self->sink=%p, refct=%d",self->priv->sink,(G_OBJECT(self->priv->sink))->ref_count);
+  GST_INFO("self->sink=%p, refct=%d",self->priv->sink,G_OBJECT_REF_COUNT(self->priv->sink));
   gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
   //gst_object_unref(self->priv->sink);
   

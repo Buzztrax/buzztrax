@@ -80,8 +80,8 @@ BtSettings *bt_settings_make(void) {
     g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
   }
   else {
-    GST_INFO("return cached settings object (refct=%d) for thread %p",G_OBJECT(singleton)->ref_count,g_thread_self());
-    singleton=g_object_ref(G_OBJECT(singleton));
+    GST_INFO("return cached settings object (refct=%d) for thread %p",G_OBJECT_REF_COUNT(singleton),g_thread_self());
+    singleton=g_object_ref(singleton);
   }
   return(BT_SETTINGS(singleton));
 }
@@ -101,7 +101,7 @@ void bt_settings_set_factory(BtSettingsFactory factory) {
     bt_settings_factory=factory;
   }
   else {
-    GST_WARNING("can't change factory while having %d usages",G_OBJECT(singleton)->ref_count);
+    GST_WARNING("can't change factory while having %d usages",G_OBJECT_REF_COUNT(singleton));
   }
 }
 
@@ -135,17 +135,9 @@ static void bt_settings_dispose(GObject * const object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
+  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
-}
-
-static void bt_settings_finalize(GObject * const object) {
-  const BtSettings * const self = BT_SETTINGS(object);
-
-  GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 //-- class internals
@@ -165,7 +157,6 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
   gobject_class->set_property = bt_settings_set_property;
   gobject_class->get_property = bt_settings_get_property;
   gobject_class->dispose      = bt_settings_dispose;
-  gobject_class->finalize     = bt_settings_finalize;
 
   // ui
   g_object_class_install_property(gobject_class,BT_SETTINGS_NEWS_SEEN,

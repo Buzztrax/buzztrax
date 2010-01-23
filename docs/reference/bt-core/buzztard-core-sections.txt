@@ -627,6 +627,7 @@ g_object_try_ref
 g_object_try_unref
 g_object_try_weak_ref
 g_object_try_weak_unref
+G_OBJECT_REF_COUNT
 bt_gst_registry_get_element_names_matching_all_categories
 bt_gst_check_elements
 bt_gst_check_core_elements

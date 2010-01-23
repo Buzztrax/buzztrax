@@ -597,15 +597,15 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   if(res) {
     // update ghostpads
     GST_INFO ("updating sink ghostpad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
-      machines[six],(G_OBJECT(machines[six])->ref_count),GST_OBJECT_NAME(machines[six]),
-      sink_pads[six],(G_OBJECT(sink_pads[six])->ref_count));
+      machines[six],(G_OBJECT_REF_COUNT(machines[six])),GST_OBJECT_NAME(machines[six]),
+      sink_pads[six],(G_OBJECT_REF_COUNT(sink_pads[six])));
     if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink_pad),sink_pads[six])) {
       GST_WARNING("failed to link internal pads for sink ghostpad");
     }
 
     GST_INFO ("updating src ghostpad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
-      machines[dix],(G_OBJECT(machines[dix])->ref_count),GST_OBJECT_NAME(machines[dix]),
-      src_pads[dix],(G_OBJECT(src_pads[dix])->ref_count));
+      machines[dix],(G_OBJECT_REF_COUNT(machines[dix])),GST_OBJECT_NAME(machines[dix]),
+      src_pads[dix],(G_OBJECT_REF_COUNT(src_pads[dix])));
     if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->src_pad),src_pads[dix])) {
       GST_WARNING("failed to link internal pads for src ghostpad");
     }
@@ -689,7 +689,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     return(res);
   }
   
-  GST_DEBUG("self=%p, src->refs=%d, dst->refs=%d",self,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
+  GST_DEBUG("self=%p, src->refs=%d, dst->refs=%d",self,G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
   GST_DEBUG("trying to link machines : %p '%s' [%p %p] -> %p '%s' [%p %p]",
     src,GST_OBJECT_NAME(src),src->src_wires, src->dst_wires,
     dst,GST_OBJECT_NAME(dst),dst->dst_wires, dst->src_wires);
@@ -757,7 +757,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     }
   }
 
-  GST_DEBUG("link prepared, src->refs=%d, dst->refs=%d",G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
+  GST_DEBUG("link prepared, src->refs=%d, dst->refs=%d",G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
 
   if(!bt_wire_link_machines(self)) {
     GST_ERROR("linking machines failed : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
@@ -767,7 +767,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     // register params
     bt_wire_init_params(self);
   }
-  GST_DEBUG("linking machines succeeded, src->refs=%d, dst->refs=%d",G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
+  GST_DEBUG("linking machines succeeded, src->refs=%d, dst->refs=%d",G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
 
   res=TRUE;
 
@@ -1451,10 +1451,10 @@ static void bt_wire_dispose(GObject * const object) {
   g_object_try_weak_unref(self->priv->song);
   //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
   GST_DEBUG("  releasing the dst %p, dst->ref_count=%d",
-    self->priv->dst,(self->priv->dst?(G_OBJECT(self->priv->dst))->ref_count:-1));
+    self->priv->dst,(self->priv->dst?G_OBJECT_REF_COUNT(self->priv->dst):-1));
   g_object_try_unref(self->priv->dst);
   GST_DEBUG("  releasing the src %p, src->ref_count=%d",
-    self->priv->src,(self->priv->src?(G_OBJECT(self->priv->src))->ref_count:-1));
+    self->priv->src,(self->priv->src?G_OBJECT_REF_COUNT(self->priv->src):-1));
   g_object_try_unref(self->priv->src);
 
   GST_DEBUG("  chaining up");

@@ -1,5 +1,27 @@
 2010-01-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/application.c:
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/settings.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song.c:
+	* src/lib/core/wire.c:
+	* src/lib/ic/abs-range-control.c:
+	* src/lib/ic/control.c:
+	* src/lib/ic/device.c:
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/midi-device.c:
+	* src/lib/ic/registry.c:
+	* src/lib/ic/trigger-control.c:
+	  Use a macro for accessing the ref-count of GObjects.
+
+2010-01-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/registry.c:
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/ui-resources.c:

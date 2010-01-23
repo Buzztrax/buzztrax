@@ -1396,7 +1396,7 @@ static void bt_song_set_property(GObject * const object, const guint property_id
       self->priv->master = BT_SINK_MACHINE(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->master);
       g_object_get((gpointer)(self->priv->master),"machine",&self->priv->master_bin,NULL);
-      GST_DEBUG("set the master for the song: %p (machine-refs: %d)",self->priv->master,(G_OBJECT(self->priv->master))->ref_count);
+      GST_DEBUG("set the master for the song: %p (machine-refs: %d)",self->priv->master,G_OBJECT_REF_COUNT(self->priv->master));
     } break;
     case SONG_UNSAVED: {
       self->priv->unsaved = g_value_get_boolean(value);
@@ -1477,25 +1477,25 @@ static void bt_song_dispose(GObject * const object) {
   }
 
   if(self->priv->master) {
-    GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);
+    GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(self->priv->master));
   }
   if(self->priv->master_bin) gst_object_unref(self->priv->master_bin);
   g_object_try_weak_unref(self->priv->master);
   
   if(self->priv->song_info) {
-    GST_DEBUG("song_info->refs: %d",(G_OBJECT(self->priv->song_info))->ref_count);
+    GST_DEBUG("song_info->refs: %d",G_OBJECT_REF_COUNT(self->priv->song_info));
     g_object_unref(self->priv->song_info);
   }
   if(self->priv->sequence) {
-    GST_DEBUG("sequence->refs: %d",(G_OBJECT(self->priv->sequence))->ref_count);
+    GST_DEBUG("sequence->refs: %d",G_OBJECT_REF_COUNT(self->priv->sequence));
     g_object_unref(self->priv->sequence);
   }
   if(self->priv->setup) {
-    GST_DEBUG("setup->refs: %d",(G_OBJECT(self->priv->setup))->ref_count);
+    GST_DEBUG("setup->refs: %d",G_OBJECT_REF_COUNT(self->priv->setup));
     g_object_unref(self->priv->setup);
   }
   if(self->priv->wavetable) {
-    GST_DEBUG("wavetable->refs: %d",(G_OBJECT(self->priv->wavetable))->ref_count);
+    GST_DEBUG("wavetable->refs: %d",G_OBJECT_REF_COUNT(self->priv->wavetable));
     g_object_unref(self->priv->wavetable);
   }
 

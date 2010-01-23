@@ -108,10 +108,10 @@ static void bt_application_dispose(GObject * const object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
-  GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
+  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
+  GST_INFO("bin->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->bin));
   GST_INFO("bin->numchildren=%d",GST_BIN(self->priv->bin)->numchildren);
-  GST_INFO("settings->ref_ct=%d",G_OBJECT(self->priv->settings)->ref_count);
+  GST_INFO("settings->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->settings));
 
   gst_object_unref(self->priv->bin);
   g_object_try_unref(self->priv->settings);
@@ -140,7 +140,7 @@ static void bt_application_init(const GTypeInstance * const instance, gconstpoin
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_APPLICATION, BtApplicationPrivate);
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_ELEMENT(self->priv->bin));
-  GST_DEBUG("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
+  GST_DEBUG("bin->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->bin));
 
   // tried this when debuging a case where we don't get bus messages
   //gst_pipeline_set_auto_flush_bus(GST_PIPELINE(self->priv->bin),FALSE);

@@ -843,7 +843,7 @@ static gboolean bt_machine_init_core_machine(BtMachine * const self) {
   gboolean res=FALSE;
 
   if(!bt_machine_make_internal_element(self,PART_MACHINE,self->priv->plugin_name,self->priv->id)) goto Error;
-  GST_INFO("  instantiated machine %p, \"%s\", machine->ref_count=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
+  GST_INFO("  instantiated machine %p, \"%s\", machine->ref_count=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT_REF_COUNT(self->priv->machines[PART_MACHINE]));
 
   res=TRUE;
 Error:
@@ -1429,8 +1429,8 @@ void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * c
   if(g_list_find(self->priv->patterns,pattern)) {
     self->priv->patterns=g_list_remove(self->priv->patterns,pattern);
     g_signal_emit((gpointer)self,signals[PATTERN_REMOVED_EVENT], 0, pattern);
-    GST_DEBUG("removing pattern: ref_count=%d",G_OBJECT(pattern)->ref_count);
-    g_object_unref(G_OBJECT(pattern));
+    GST_DEBUG("removing pattern: ref_count=%d",G_OBJECT_REF_COUNT(pattern));
+    g_object_unref((gpointer)pattern);
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
@@ -3188,17 +3188,17 @@ static void bt_machine_constructed(GObject *object) {
     goto Error;
   }
 
-  GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
+  GST_DEBUG("machine-refs: %d",G_OBJECT_REF_COUNT(self));
 
   // register global params
   bt_machine_init_global_params(self);
   // register voice params
   bt_machine_init_voice_params(self);
 
-  GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
+  GST_DEBUG("machine-refs: %d",G_OBJECT_REF_COUNT(self));
 
   // post sanity checks
-  GST_INFO("  added machine %p to bin, machine->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
+  GST_INFO("  added machine %p to bin, machine->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT_REF_COUNT(self->priv->machines[PART_MACHINE]));
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
   if(!(self->priv->global_params+self->priv->voice_params)) {
     GST_WARNING_OBJECT(self,"  machine %s has no params",self->priv->id);
@@ -3377,7 +3377,7 @@ static void bt_machine_dispose(GObject * const object) {
   
   // unref controllers
   GST_DEBUG("  releasing controllers, global.ref_ct=%d, voices=%lu",
-    (self->priv->global_controller?(G_OBJECT(self->priv->global_controller))->ref_count:-1),
+    (self->priv->global_controller?G_OBJECT_REF_COUNT(self->priv->global_controller):-1),
     self->priv->voices);
   param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
   for(j=0;j<self->priv->global_params;j++) {

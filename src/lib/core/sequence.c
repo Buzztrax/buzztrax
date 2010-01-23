@@ -116,7 +116,7 @@ static BtPattern *bt_sequence_get_pattern_unchecked(const BtSequence * const sel
 
 
 static BtMachine *bt_sequence_get_machine_unchecked(const BtSequence * const self,const gulong track) {
-  //GST_DEBUG("getting machine : %p,ref_count=%d",self->priv->machines[track],(self->priv->machines[track]?G_OBJECT(self->priv->machines[track])->ref_count:-1));
+  //GST_DEBUG("getting machine : %p,ref_count=%d",self->priv->machines[track],(self->priv->machines[track]?G_OBJECT_REF_COUNT(self->priv->machines[track]):-1));
   return(self->priv->machines[track]);
 }
 
@@ -238,7 +238,7 @@ static void bt_sequence_resize_data_tracks(const BtSequence * const self, const 
           gulong i;
           for(i=self->priv->tracks;i<old_tracks;i++) {
             GST_INFO("release machine %p,ref_count=%d for track %lu",
-              machines[i],(machines[i]?G_OBJECT(machines[i])->ref_count:-1),i);
+              machines[i],(machines[i]?G_OBJECT_REF_COUNT(machines[i]):-1),i);
             g_object_try_unref(machines[i]);
           }
         }
@@ -1070,7 +1070,7 @@ BtMachine *bt_sequence_get_machine(const BtSequence * const self,const gulong tr
 
   if(track>=self->priv->tracks) return(NULL);
 
-  GST_DEBUG("getting machine : %p,ref_count=%d",self->priv->machines[track],(self->priv->machines[track]?G_OBJECT(self->priv->machines[track])->ref_count:-1));
+  GST_DEBUG("getting machine : %p,ref_count=%d",self->priv->machines[track],(self->priv->machines[track]?G_OBJECT_REF_COUNT(self->priv->machines[track]):-1));
   return(g_object_try_ref(bt_sequence_get_machine_unchecked(self,track)));
 }
 
@@ -1093,7 +1093,7 @@ gboolean bt_sequence_add_track(const BtSequence * const self, const BtMachine * 
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
 
   const gulong track=self->priv->tracks;
-  GST_INFO("add track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT(machine)->ref_count,track);
+  GST_INFO("add track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT_REF_COUNT(machine),track);
 
   g_object_set((gpointer)self,"tracks",(gulong)(track+1),NULL);
   self->priv->machines[track]=g_object_ref((gpointer)machine);
@@ -1129,7 +1129,7 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   for(i=0;i<self->priv->length;i++) {
     // unref patterns
     if(*dst) {
-      GST_INFO("unref pattern: %p,refs=%d at timeline %lu", *dst,(G_OBJECT(*dst))->ref_count,i);
+      GST_INFO("unref pattern: %p,refs=%d at timeline %lu", *dst,G_OBJECT_REF_COUNT(*dst),i);
       g_object_unref(*dst);
     }
     if(count) {
@@ -1144,7 +1144,7 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   if(other_track==-1 || other_track==track) {
     g_signal_handlers_disconnect_matched(self->priv->machines[track],G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA, 0, 0, NULL, bt_sequence_on_pattern_removed, (gpointer)self);
   }
-  GST_INFO("and release machine %p,ref_count=%d",self->priv->machines[track],G_OBJECT(self->priv->machines[track])->ref_count);
+  GST_INFO("and release machine %p,ref_count=%d",self->priv->machines[track],G_OBJECT_REF_COUNT(self->priv->machines[track]));
   g_object_unref(self->priv->machines[track]);
   memmove(&self->priv->machines[track],&self->priv->machines[track+1],count*sizeof(gpointer));
   self->priv->machines[self->priv->tracks-1]=NULL;
@@ -1228,13 +1228,13 @@ gboolean bt_sequence_remove_track_by_machine(const BtSequence * const self,const
   g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
 
-  GST_INFO("remove tracks for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+  GST_INFO("remove tracks for machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
 
   // do bt_sequence_remove_track_by_ix() for each occurance
   while(((track=bt_sequence_get_track_by_machine(self,machine))>-1) && res) {
     res=bt_sequence_remove_track_by_ix(self,(gulong)track);
   }
-  GST_INFO("removed tracks for machine %p,ref_count=%d,res=%d",machine,G_OBJECT(machine)->ref_count,res);
+  GST_INFO("removed tracks for machine %p,ref_count=%d,res=%d",machine,G_OBJECT_REF_COUNT(machine),res);
   return(res);
 }
 
@@ -1867,7 +1867,7 @@ static BtPersistence *bt_sequence_persistence_load(const GType type, const BtPer
             BtMachine * const machine=bt_setup_get_machine_by_id(setup, (gchar *)machine_id);
 
             if(machine) {
-              GST_INFO("add track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT(machine)->ref_count,index);
+              GST_INFO("add track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT_REF_COUNT(machine),index);
               if(index<tracks) {
                 self->priv->machines[index]=machine;
                 GST_DEBUG("loading track with index=%s for machine=\"%s\"",index_str,machine_id);
@@ -2108,7 +2108,7 @@ static void bt_sequence_dispose(GObject * const object) {
   GST_DEBUG("unref %lu machines",self->priv->tracks);
   for(i=0;i<self->priv->tracks;i++) {
     GST_INFO("releasing machine %p,ref_count=%d",
-      self->priv->machines[i],(self->priv->machines[i]?G_OBJECT(self->priv->machines[i])->ref_count:-1));
+      self->priv->machines[i],(self->priv->machines[i]?G_OBJECT_REF_COUNT(self->priv->machines[i]):-1));
     g_object_try_unref(self->priv->machines[i]);
   }
   // free the labels

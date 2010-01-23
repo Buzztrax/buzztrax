@@ -1619,7 +1619,7 @@ static void bt_pattern_set_property(GObject * const object, const guint property
         g_object_get((gpointer)(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,"voices",&voices,NULL);
         // need to do that so that data is reallocated
         g_object_set(self,"voices",voices,NULL);
-        GST_DEBUG("set the machine for pattern: %p (machine-refs: %d)",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
+        GST_DEBUG("set the machine for pattern: %p (machine-refs: %d)",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
       }
     } break;
     case PATTERN_IS_INTERNAL: {
