@@ -220,7 +220,7 @@ static void on_name_notify(const BtSongInfo *song_info,GParamSpec *arg,gpointer 
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   gchar *name;
 
-  g_object_get(G_OBJECT(song_info),"name",&name,NULL);
+  g_object_get((gpointer)song_info,"name",&name,NULL);
   g_signal_handlers_block_matched(self->priv->name,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);
   gtk_entry_set_text(self->priv->name,safe_string(name));g_free(name);
   g_signal_handlers_unblock_matched(self->priv->name,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);  
@@ -287,11 +287,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   gtk_entry_set_text(self->priv->date_changed,change_dts);g_free(change_dts);
   
   buffer=gtk_text_view_get_buffer(self->priv->info);
-  g_signal_handlers_block_matched(G_OBJECT(buffer),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_info_changed,(gpointer)self);
+  g_signal_handlers_block_matched(buffer,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_info_changed,(gpointer)self);
   gtk_text_buffer_set_text(buffer,safe_string(info),-1);g_free(info);
-  g_signal_handlers_unblock_matched(G_OBJECT(buffer),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_info_changed,(gpointer)self);
+  g_signal_handlers_unblock_matched(buffer,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_info_changed,(gpointer)self);
 
-  g_signal_connect(G_OBJECT(song_info), "notify::name", G_CALLBACK(on_name_notify), (gpointer)self);
+  g_signal_connect(song_info, "notify::name", G_CALLBACK(on_name_notify), (gpointer)self);
   
   // release the references
   g_object_unref(song_info);
@@ -343,21 +343,21 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->name=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->name), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->name), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
+  g_signal_connect(self->priv->name, "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 
   label=gtk_label_new(_("genre"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->genre=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->genre), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->genre), "changed", G_CALLBACK(on_genre_changed), (gpointer)self);
+  g_signal_connect(self->priv->genre, "changed", G_CALLBACK(on_genre_changed), (gpointer)self);
 
   label=gtk_label_new(_("author"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->author=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->author), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->author), "changed", G_CALLBACK(on_author_changed), (gpointer)self);
+  g_signal_connect(self->priv->author, "changed", G_CALLBACK(on_author_changed), (gpointer)self);
   
   label=gtk_label_new(_("created"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -377,7 +377,7 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(130.0, 20.0, 300.0, 1.0, 5.0, 0.0));
   self->priv->bpm=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->bpm), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->bpm), "value-changed", G_CALLBACK(on_bpm_changed), (gpointer)self);
+  g_signal_connect(self->priv->bpm, "value-changed", G_CALLBACK(on_bpm_changed), (gpointer)self);
 
   label=gtk_label_new(_("beats"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -385,7 +385,7 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(8.0, 1.0, 32.0, 1.0, 4.0, 0.0));
   self->priv->beats=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->beats), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->beats), "value-changed", G_CALLBACK(on_beats_changed), (gpointer)self);
+  g_signal_connect(self->priv->beats, "value-changed", G_CALLBACK(on_beats_changed), (gpointer)self);
 
   label=gtk_label_new(_("ticks per beat"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -393,7 +393,7 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(8.0, 1.0, 64.0, 1.0, 4.0, 0.0));
   self->priv->tpb=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->tpb), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->tpb), "value-changed", G_CALLBACK(on_tpb_changed), (gpointer)self);
+  g_signal_connect(self->priv->tpb, "value-changed", G_CALLBACK(on_tpb_changed), (gpointer)self);
 
   label=gtk_label_new(_("last saved"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -450,14 +450,14 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   GST_DEBUG("  text view: %p",self->priv->info);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->priv->info),GTK_WRAP_WORD);
   gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->priv->info));
-  g_signal_connect(G_OBJECT(gtk_text_view_get_buffer(self->priv->info)), "changed", G_CALLBACK(on_info_changed), (gpointer)self);
+  g_signal_connect(gtk_text_view_get_buffer(self->priv->info), "changed", G_CALLBACK(on_info_changed), (gpointer)self);
 
   // set default widget
   gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info));
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   // listen to page changes
-  g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+  g_signal_connect((gpointer)pages, "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   GST_DEBUG("  done");
 }

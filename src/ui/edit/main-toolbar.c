@@ -121,7 +121,7 @@ static gboolean on_song_playback_update(gpointer user_data) {
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
 
-  g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
+  g_object_get((gpointer)song,"is-playing",&self->priv->is_playing,NULL);
   if(!self->priv->is_playing) {
     gint i;
 
@@ -322,7 +322,7 @@ static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
     guint i;
 
     g_mutex_lock(self->priv->lock);
-    g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+    g_object_remove_weak_pointer((gpointer)self,(gpointer *)&params[0]);
     g_mutex_unlock(self->priv->lock);
 
     if(!self->priv->is_playing)
@@ -390,7 +390,7 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
         g_mutex_lock(self->priv->lock);
-        g_object_add_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+        g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
         g_mutex_unlock(self->priv->lock);
         clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
         gst_clock_id_wait_async(clock_id,on_delayed_song_level_change,(gpointer)params);
@@ -562,7 +562,7 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
 
   GST_INFO("song.unsaved has changed : song=%p, toolbar=%p",song,user_data);
 
-  g_object_get(G_OBJECT(song),"unsaved",&unsaved,NULL);
+  g_object_get((gpointer)song,"unsaved",&unsaved,NULL);
   gtk_widget_set_sensitive(self->priv->save_button,unsaved);
 }
 
@@ -570,7 +570,7 @@ static void on_sequence_loop_notify(const BtSequence *sequence,GParamSpec *arg,g
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gboolean loop;
 
-  g_object_get(G_OBJECT(sequence),"loop",&loop,NULL);
+  g_object_get((gpointer)sequence,"loop",&loop,NULL);
   g_signal_handlers_block_matched(self->priv->loop_button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_toolbar_loop_toggled,(gpointer)self);
   gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->loop_button),loop);
   g_signal_handlers_unblock_matched(self->priv->loop_button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_toolbar_loop_toggled,(gpointer)self);
@@ -629,10 +629,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
      on_song_volume_changed(self->priv->gain,NULL,(gpointer)self);
 
     // connect slider changed and volume changed events
-    g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_slider_change),(gpointer)self);
-    g_signal_connect(G_OBJECT(self->priv->volume),"button-press-event",G_CALLBACK(on_song_volume_slider_press_event),(gpointer)self);
-    g_signal_connect(G_OBJECT(self->priv->volume),"button-release-event",G_CALLBACK(on_song_volume_slider_release_event),(gpointer)self);   
-    g_signal_connect(G_OBJECT(self->priv->gain) ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
+    g_signal_connect(self->priv->volume,"value_changed",G_CALLBACK(on_song_volume_slider_change),(gpointer)self);
+    g_signal_connect(self->priv->volume,"button-press-event",G_CALLBACK(on_song_volume_slider_press_event),(gpointer)self);
+    g_signal_connect(self->priv->volume,"button-release-event",G_CALLBACK(on_song_volume_slider_release_event),(gpointer)self);   
+    g_signal_connect(self->priv->gain ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
 
     gst_object_unref(self->priv->gain);
     gst_object_unref(self->priv->level);
@@ -641,11 +641,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   else {
     GST_WARNING("failed to get the master element of the song");
   }
-  g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
+  g_signal_connect(song,"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   on_sequence_loop_notify(sequence,NULL,(gpointer)self);
-  g_signal_connect(G_OBJECT(sequence),"notify::loop",G_CALLBACK(on_sequence_loop_notify),(gpointer)self);
+  g_signal_connect(sequence,"notify::loop",G_CALLBACK(on_sequence_loop_notify),(gpointer)self);
   on_song_unsaved_changed(song,NULL,(gpointer)self);
-  g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
+  g_signal_connect(song, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   //-- release the references
   gst_object_unref(bin);
   g_object_unref(sequence);
@@ -656,7 +656,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gchar *toolbar_style;
 
-  g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
+  g_object_get((gpointer)settings,"toolbar-style",&toolbar_style,NULL);
   if(!BT_IS_STRING(toolbar_style)) return;
 
   GST_INFO("!!!  toolbar style has changed '%s'", toolbar_style);
@@ -683,20 +683,20 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_widget_set_name(tool_item,"New");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Prepare a new empty song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_new_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_new_clicked),(gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_OPEN));
   gtk_widget_set_name(tool_item,"Open");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Load a new song"));
 
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_SAVE));
   gtk_widget_set_name(tool_item,"Save");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Save this song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_save_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_save_clicked),(gpointer)self);
   self->priv->save_button=tool_item;
 
   gtk_toolbar_insert(GTK_TOOLBAR(self),gtk_separator_tool_item_new(),-1);
@@ -707,14 +707,14 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_widget_set_name(tool_item,"Play");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play this song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
   self->priv->play_button=tool_item;
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
   gtk_widget_set_name(tool_item,"Stop");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Stop playback of this song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
   self->priv->stop_button=tool_item;
 
@@ -724,7 +724,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_widget_set_name(tool_item,"Loop");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Toggle looping of playback"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"toggled",G_CALLBACK(on_toolbar_loop_toggled),(gpointer)self);
+  g_signal_connect(tool_item,"toggled",G_CALLBACK(on_toolbar_loop_toggled),(gpointer)self);
   self->priv->loop_button=tool_item;
 
   gtk_toolbar_insert(GTK_TOOLBAR(self),gtk_separator_tool_item_new(),-1);
@@ -780,12 +780,12 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 
   // let settings control toolbar style
   g_object_get(self->priv->app,"settings",&settings,NULL);
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
-  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
+  g_signal_connect(settings, "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
   g_object_unref(settings);
 }
 

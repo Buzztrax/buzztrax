@@ -164,7 +164,7 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   gtk_entry_set_text(GTK_ENTRY(widget),self->priv->name);
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
+  g_signal_connect(widget, "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 
   // GtkComboBox : pattern length
   label=gtk_label_new(_("length"));
@@ -174,7 +174,7 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(widget),length_str);g_free(length_str);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_length_changed), (gpointer)self);
+  g_signal_connect(widget, "changed", G_CALLBACK(on_length_changed), (gpointer)self);
 
   // GtkSpinButton : number of voices
   label=gtk_label_new(_("voices"));
@@ -185,7 +185,7 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   widget=gtk_spin_button_new(spin_adjustment,(gdouble)(self->priv->voices),0);
   if(bt_machine_is_polyphonic(self->priv->machine)) {
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),(gdouble)self->priv->voices);
-    g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_voices_changed), (gpointer)self);
+    g_signal_connect(widget, "value-changed", G_CALLBACK(on_voices_changed), (gpointer)self);
   }
   else {
     gtk_widget_set_sensitive(widget,FALSE);

@@ -106,7 +106,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
 
   GST_DEBUG("tick update");
 
-  g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
+  g_object_get((gpointer)song,"sequence",&sequence,"play-pos",&pos,NULL);
   //GST_INFO("sequence tick received : %d",pos);
   bar_time=bt_sequence_get_bar_time(sequence);
 
@@ -144,7 +144,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   gboolean is_playing;
   gulong play_start;
 
-  g_object_get(G_OBJECT(song),"is-playing",&is_playing,"play-pos",&play_start,NULL);
+  g_object_get((gpointer)song,"is-playing",&is_playing,"play-pos",&play_start,NULL);
   self->priv->total_time=G_GINT64_CONSTANT(0);
   if(!is_playing) {
     GST_INFO("play_start=%lu",play_start);
@@ -204,16 +204,16 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(song,"sequence",&sequence,"song-info",&song_info,NULL);
   bt_main_statusbar_update_length(self,song,sequence);
   // subscribe to property changes in song
-  g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
-  g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
+  g_signal_connect(song, "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
+  g_signal_connect(song, "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   // subscribe to property changes in song_info
-  g_signal_connect(G_OBJECT(song_info), "notify::bpm", G_CALLBACK(on_song_info_rhythm_notify), (gpointer)self);
-  g_signal_connect(G_OBJECT(song_info), "notify::tpb", G_CALLBACK(on_song_info_rhythm_notify), (gpointer)self);
+  g_signal_connect(song_info, "notify::bpm", G_CALLBACK(on_song_info_rhythm_notify), (gpointer)self);
+  g_signal_connect(song_info, "notify::tpb", G_CALLBACK(on_song_info_rhythm_notify), (gpointer)self);
   // subscribe to property changes in sequence
-  g_signal_connect(G_OBJECT(sequence), "notify::length", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
-  g_signal_connect(G_OBJECT(sequence), "notify::loop", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
-  g_signal_connect(G_OBJECT(sequence), "notify::loop-start", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
-  g_signal_connect(G_OBJECT(sequence), "notify::loop-end", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
+  g_signal_connect(sequence, "notify::length", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
+  g_signal_connect(sequence, "notify::loop", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
+  g_signal_connect(sequence, "notify::loop-start", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
+  g_signal_connect(sequence, "notify::loop-end", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
   // release the references
   g_object_unref(song_info);
   g_object_unref(sequence);
@@ -307,7 +307,7 @@ static void bt_main_statusbar_init_ui(const BtMainStatusbar *self) {
   gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 }
 
 //-- constructor methods

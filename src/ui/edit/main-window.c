@@ -197,7 +197,7 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   BtSongInfo *song_info;
   gboolean unsaved;
 
-  g_object_get(G_OBJECT(song),"song-info",&song_info,"unsaved",&unsaved,NULL);
+  g_object_get((gpointer)song,"song-info",&song_info,"unsaved",&unsaved,NULL);
   // compose title
   g_object_get(song_info,"name",&name,NULL);
   // we don't use PACKAGE_NAME = 'buzztard' for the window title
@@ -217,11 +217,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, window=%p",app,user_data);
 
   // get song from app
-  g_object_get(G_OBJECT(app),"song",&song,NULL);
+  g_object_get((gpointer)app,"song",&song,NULL);
   if(!song) return;
 
   on_song_unsaved_changed(song,arg,self);
-  g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
+  g_signal_connect(song, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   //-- release the references
   g_object_unref(song);
 }
@@ -311,15 +311,15 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
   gtk_drag_dest_set(GTK_WIDGET(self),
     (GtkDestDefaults) (GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP),
     drop_types, n_drop_types, GDK_ACTION_COPY);
-  g_signal_connect(G_OBJECT(self), "drag-data-received", G_CALLBACK(on_window_dnd_drop),(gpointer)self);
+  g_signal_connect((gpointer)self, "drag-data-received", G_CALLBACK(on_window_dnd_drop),(gpointer)self);
 
   GST_INFO("content created, app->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->app));
 
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self),"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
-  g_signal_connect(G_OBJECT(self),"destroy",      G_CALLBACK(on_window_destroy),(gpointer)self);
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect((gpointer)self,"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
+  g_signal_connect((gpointer)self,"destroy",      G_CALLBACK(on_window_destroy),(gpointer)self);
   /* just for testing
-  g_signal_connect(G_OBJECT(self),"event",G_CALLBACK(on_window_event),(gpointer)self);
+  g_signal_connect((gpointer)self,"event",G_CALLBACK(on_window_event),(gpointer)self);
   */
 
   GST_INFO("signal connected, app->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->app));
@@ -528,7 +528,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   g_object_unref(settings);
  
   gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
-  g_object_notify(G_OBJECT(self), "dialog");
+  g_object_notify((gpointer)self, "dialog");
   
   result=gtk_dialog_run(self->priv->dialog);
   switch(result) {
@@ -548,7 +548,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   }
   gtk_widget_destroy(GTK_WIDGET(self->priv->dialog));
   self->priv->dialog=NULL;
-  g_object_notify(G_OBJECT(self), "dialog");
+  g_object_notify((gpointer)self, "dialog");
 
   // load after destoying the dialog, otherwise it stays open all time
   if(file_name) {
@@ -776,10 +776,10 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Format")),FALSE,FALSE,0);
   gtk_box_pack_start(GTK_BOX(box),format_chooser,TRUE,TRUE,0);
   gtk_box_pack_start(GTK_BOX(self->priv->dialog->vbox),box,FALSE,FALSE,0);
-  g_signal_connect(G_OBJECT(format_chooser), "changed", G_CALLBACK(on_format_chooser_changed), (gpointer)self);
+  g_signal_connect(format_chooser, "changed", G_CALLBACK(on_format_chooser_changed), (gpointer)self);
 
   gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
-  g_object_notify(G_OBJECT(self), "dialog");
+  g_object_notify((gpointer)self, "dialog");
   
   result=gtk_dialog_run(self->priv->dialog);
   switch(result) {
@@ -799,7 +799,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   }
   gtk_widget_destroy(GTK_WIDGET(self->priv->dialog));
   self->priv->dialog=NULL;
-  g_object_notify(G_OBJECT(self), "dialog");
+  g_object_notify((gpointer)self, "dialog");
   g_list_free(self->priv->filters);
   self->priv->filters=NULL;
 
@@ -912,12 +912,12 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   gtk_container_add(GTK_CONTAINER(box),label);
   gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(self->priv->dialog)),box);
   gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
-  g_object_notify(G_OBJECT(self), "dialog");
+  g_object_notify((gpointer)self, "dialog");
 
   gtk_dialog_run(self->priv->dialog);
   gtk_widget_destroy(GTK_WIDGET(self->priv->dialog));
   self->priv->dialog=NULL;
-  g_object_notify(G_OBJECT(self), "dialog");
+  g_object_notify((gpointer)self, "dialog");
 }
 
 /**
@@ -964,7 +964,7 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   gtk_container_add(GTK_CONTAINER(box),label);
   gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(self->priv->dialog)),box);
   gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
-  g_object_notify(G_OBJECT(self), "dialog");
+  g_object_notify((gpointer)self, "dialog");
 
   answer=gtk_dialog_run(self->priv->dialog);
   switch(answer) {
@@ -979,7 +979,7 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   }
   gtk_widget_destroy(GTK_WIDGET(self->priv->dialog));
   self->priv->dialog=NULL;
-  g_object_notify(G_OBJECT(self), "dialog");
+  g_object_notify((gpointer)self, "dialog");
 
   GST_INFO("bt_dialog_question(\"%s\") = %d",title,result);
   return(result);

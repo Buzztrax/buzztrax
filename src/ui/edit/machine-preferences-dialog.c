@@ -73,7 +73,7 @@ static void on_range_property_notify(const GstElement *machine,GParamSpec *prope
 
   //GST_INFO("preferences value notify received for: '%s'",property->name);
 
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_object_get((gpointer)machine,property->name,&value,NULL);
   //gdk_threads_enter();
   gtk_range_set_value(GTK_RANGE(widget),value);
   //gdk_threads_leave();
@@ -86,7 +86,7 @@ static void on_double_entry_property_notify(const GstElement *machine,GParamSpec
 
   //GST_INFO("preferences value notify received for: '%s'",property->name);
 
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_object_get((gpointer)machine,property->name,&value,NULL);
   str_value=g_strdup_printf("%f",value);
   //gdk_threads_enter();
   gtk_entry_set_text(GTK_ENTRY(widget),str_value);
@@ -100,7 +100,7 @@ static void on_combobox_property_notify(const GstElement *machine,GParamSpec *pr
   GtkTreeModel *store;
   GtkTreeIter iter;
 
-  g_object_get(G_OBJECT(machine),property->name,&nvalue,NULL);
+  g_object_get((gpointer)machine,property->name,&nvalue,NULL);
   store=gtk_combo_box_get_model(GTK_COMBO_BOX(widget));
   gtk_tree_model_get_iter_first(store,&iter);
   do {
@@ -268,7 +268,7 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
       // add machine preferences into the table
       table=gtk_table_new(/*rows=*/props/*+1 (space eater)*/,/*columns=*/3,/*homogenous=*/FALSE);
       gtk_container_set_border_width(GTK_CONTAINER(table),6);
-      g_signal_connect(G_OBJECT(table),"size-request",G_CALLBACK(on_table_size_request),(gpointer)self);
+      g_signal_connect(table,"size-request",G_CALLBACK(on_table_size_request),(gpointer)self);
 
       for(i=0,k=0;i<number_of_properties;i++) {
         property=properties[i];
@@ -317,7 +317,7 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
-            g_signal_connect(G_OBJECT(widget1), "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
+            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
           } break;
           case G_TYPE_UINT: {
             GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
@@ -334,7 +334,7 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
-            g_signal_connect(G_OBJECT(widget1), "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
+            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
           } break;
           case G_TYPE_LONG: {
             GParamSpecLong *long_property=G_PARAM_SPEC_LONG(property);
@@ -351,7 +351,7 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
-            g_signal_connect(G_OBJECT(widget1), "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
+            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
           } break;
           case G_TYPE_ULONG: {
             GParamSpecULong *ulong_property=G_PARAM_SPEC_ULONG(property);
@@ -368,7 +368,7 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
-            g_signal_connect(G_OBJECT(widget1), "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
+            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
           } break;
           case G_TYPE_INT64: {
             GParamSpecInt64 *int64_property=G_PARAM_SPEC_INT64(property);
@@ -385,7 +385,7 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
-            g_signal_connect(G_OBJECT(widget1), "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
+            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
           } break;
           case G_TYPE_UINT64: {
             GParamSpecUInt64 *uint64_property=G_PARAM_SPEC_UINT64(property);
@@ -402,7 +402,7 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
             widget2=NULL;
             // connect handlers
-            g_signal_connect(G_OBJECT(widget1), "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
+            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
           } break;
           case G_TYPE_DOUBLE: {
             GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
@@ -425,10 +425,10 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             g_object_set(widget2,"max-length",9,"width-chars",9,NULL);
             g_free(str_value);
             signal_name=g_strdup_printf("notify::%s",property->name);
-            g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_range_property_notify), (gpointer)widget1);
-            g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_double_entry_property_notify), (gpointer)widget2);
-            g_signal_connect(G_OBJECT(widget1), "value-changed", G_CALLBACK(on_range_property_changed), (gpointer)machine);
-            g_signal_connect(G_OBJECT(widget2), "changed", G_CALLBACK(on_double_entry_property_changed), (gpointer)machine);
+            g_signal_connect(machine, signal_name, G_CALLBACK(on_range_property_notify), (gpointer)widget1);
+            g_signal_connect(machine, signal_name, G_CALLBACK(on_double_entry_property_notify), (gpointer)widget2);
+            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_range_property_changed), (gpointer)machine);
+            g_signal_connect(widget2, "changed", G_CALLBACK(on_double_entry_property_changed), (gpointer)machine);
             g_free(signal_name);
           } break;
           case G_TYPE_ENUM: {
@@ -474,8 +474,8 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             
             signal_name=g_strdup_printf("notify::%s",property->name);
-            g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_combobox_property_notify), (gpointer)widget1);
-            g_signal_connect(G_OBJECT(widget1), "changed", G_CALLBACK(on_combobox_property_changed), (gpointer)machine);
+            g_signal_connect(machine, signal_name, G_CALLBACK(on_combobox_property_notify), (gpointer)widget1);
+            g_signal_connect(widget1, "changed", G_CALLBACK(on_combobox_property_changed), (gpointer)machine);
             g_free(signal_name);
             widget2=NULL;
           } break;

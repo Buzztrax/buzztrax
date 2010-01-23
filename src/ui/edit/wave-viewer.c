@@ -351,10 +351,10 @@ bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels,
     }
   }
   self->active = 1;
-  g_object_notify(G_OBJECT(self), "wave-length");
-  g_object_notify(G_OBJECT(self), "loop-begin");
-  g_object_notify(G_OBJECT(self), "loop-end");
-  g_object_notify(G_OBJECT(self), "playback-cursor");
+  g_object_notify((gpointer)self, "wave-length");
+  g_object_notify((gpointer)self, "loop-begin");
+  g_object_notify((gpointer)self, "loop-end");
+  g_object_notify((gpointer)self, "playback-cursor");
   gtk_widget_queue_draw(GTK_WIDGET(self));
 }
 

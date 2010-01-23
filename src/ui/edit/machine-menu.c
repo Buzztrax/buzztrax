@@ -273,7 +273,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     gtk_widget_set_name(menu_item,node->data);
     gtk_menu_shell_append(GTK_MENU_SHELL(parentmenu),menu_item);
     gtk_widget_show(menu_item);
-    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(handler),(gpointer)self);
+    g_signal_connect(menu_item,"activate",G_CALLBACK(handler),(gpointer)self);
 next:
     gst_object_unref (factory);
   }

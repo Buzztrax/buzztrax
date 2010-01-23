@@ -196,7 +196,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   GST_INFO("current sink (is_system? %d): %lu",use_system_audiosink,audiosink_index);
   gtk_combo_box_set_active(self->priv->audiosink_menu,audiosink_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->audiosink_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", G_CALLBACK(on_audiosink_menu_changed), (gpointer)self);
+  g_signal_connect(self->priv->audiosink_menu, "changed", G_CALLBACK(on_audiosink_menu_changed), (gpointer)self);
 
   label=gtk_label_new(_("Sampling rate"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -224,7 +224,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   }
   gtk_combo_box_set_active(self->priv->samplerate_menu,sampling_rate_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->samplerate_menu), 2, 3, 2, 3, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->samplerate_menu), "changed", G_CALLBACK(on_samplerate_menu_changed), (gpointer)self);
+  g_signal_connect(self->priv->samplerate_menu, "changed", G_CALLBACK(on_samplerate_menu_changed), (gpointer)self);
 
   label=gtk_label_new(_("Channels"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -235,7 +235,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->channels_menu),_("stereo"));
   gtk_combo_box_set_active(self->priv->channels_menu,(channels-1));
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->channels_menu), 2, 3, 3, 4, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->channels_menu), "changed", G_CALLBACK(on_channels_menu_changed), (gpointer)self);
+  g_signal_connect(self->priv->channels_menu, "changed", G_CALLBACK(on_channels_menu_changed), (gpointer)self);
 
   /* @todo: add audiosink parameters
    * e.g. device-name

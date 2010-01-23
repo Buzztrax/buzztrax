@@ -175,7 +175,7 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
 
   GST_INFO("application.run_ui launched");
 
-  g_object_get(G_OBJECT(self),"settings",&settings,NULL);
+  g_object_get((gpointer)self,"settings",&settings,NULL);
   g_object_get(settings,"news-seen",&version,"show-tips",&show_tips,NULL);
 
   if(PACKAGE_VERSION_NUMBER>version) {
@@ -257,7 +257,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
       GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(machine));
       // set new song in application
       bt_song_set_unsaved(song,FALSE);
-      g_object_set(G_OBJECT(self),"song",song,NULL);
+      g_object_set((gpointer)self,"song",song,NULL);
       res=TRUE;
     }
     else {
@@ -303,16 +303,16 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     GList *missing_machines,*missing_waves;
 
     bt_edit_application_ui_lock(self);
-    g_signal_connect(G_OBJECT(loader),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
+    g_signal_connect(loader,"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
 
     // create new song
     song=bt_song_new(BT_APPLICATION(self));
-    g_object_set(G_OBJECT(self),"song",NULL,NULL);
+    g_object_set((gpointer)self,"song",NULL,NULL);
     
     // do sanity check that bin is empty
     {
       GstBin *bin;
-      g_object_get(G_OBJECT(self),"bin",&bin,NULL);
+      g_object_get((gpointer)self,"bin",&bin,NULL);
 
       if(GST_BIN_NUMCHILDREN(bin)) {  
         GST_WARNING("bin.num_children=%d has left-overs",GST_BIN_NUMCHILDREN(bin));
@@ -338,7 +338,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
           //bt_song_write_to_highlevel_dot_file(song);
           // DEBUG
           // set new song
-          g_object_set(G_OBJECT(self),"song",song,NULL);
+          g_object_set((gpointer)self,"song",song,NULL);
           res=TRUE;
           GST_INFO("new song activated");
         }
@@ -407,7 +407,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
     gchar *old_file_name=NULL,*bak_file_name=NULL;
 
     bt_edit_application_ui_lock(self);
-    g_signal_connect(G_OBJECT(saver),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
+    g_signal_connect(saver,"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
 
     g_object_get(self->priv->song,"song-info",&song_info,NULL);
     g_object_get(song_info,"file-name",&old_file_name,NULL);

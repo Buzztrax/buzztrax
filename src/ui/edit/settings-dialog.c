@@ -103,7 +103,7 @@ void on_settings_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
     GST_INFO("selected entry id %lu",id);
     gtk_notebook_set_current_page(self->priv->settings_pages,id);
     self->priv->page=id;
-    g_object_notify(G_OBJECT(self),"page");
+    g_object_notify((gpointer)self,"page");
   }
 }
 
@@ -165,8 +165,8 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->settings_list));
   gtk_container_add(GTK_CONTAINER(box),GTK_WIDGET(scrolled_window));
 
-  g_signal_connect(G_OBJECT(self->priv->settings_list),"size-request",G_CALLBACK(on_settings_list_size_request),(gpointer)scrolled_window);
-  g_signal_connect(G_OBJECT(self->priv->settings_list),"cursor-changed",G_CALLBACK(on_settings_list_cursor_changed),(gpointer)self);
+  g_signal_connect(self->priv->settings_list,"size-request",G_CALLBACK(on_settings_list_size_request),(gpointer)scrolled_window);
+  g_signal_connect(self->priv->settings_list,"cursor-changed",G_CALLBACK(on_settings_list_cursor_changed),(gpointer)self);
 
   store=gtk_list_store_new(4,G_TYPE_STRING,G_TYPE_LONG,GDK_TYPE_PIXBUF,G_TYPE_STRING);
   //-- append entries for settings pages

@@ -249,7 +249,7 @@ static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
   if(!self)
     goto done;
 
-  g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+  g_object_remove_weak_pointer((gpointer)self,(gpointer *)&params[0]);
 
   if(name_id==bus_msg_level_quark) {
     const GValue *l_cur,*l_peak;
@@ -367,7 +367,7 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
       
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
-        g_object_add_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+        g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
         clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
         gst_clock_id_wait_async(clock_id,on_delayed_wire_analyzer_change,(gpointer)params);
         gst_clock_id_unref(clock_id);
@@ -513,7 +513,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     res=FALSE;
     goto Error;
   }
-  g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_FAKESINK]),
+  g_object_set (self->priv->analyzers[ANALYZER_FAKESINK],
       "sync", FALSE, "qos", FALSE, "silent", TRUE, "async", FALSE,
       NULL);
   // create spectrum analyzer
@@ -521,7 +521,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     res=FALSE;
     goto Error;
   }
-  g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]),
+  g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM],
       "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
       "bands", self->priv->spect_bands, "threshold", -80,
       NULL);
@@ -553,10 +553,10 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   gst_object_unref(bin);
 
   // allocate visual ressources after the window has been realized
-  g_signal_connect(G_OBJECT(self),"realize",G_CALLBACK(bt_wire_analysis_dialog_realize),(gpointer)self);
+  g_signal_connect((gpointer)self,"realize",G_CALLBACK(bt_wire_analysis_dialog_realize),(gpointer)self);
   // redraw when needed
-  g_signal_connect(G_OBJECT(self->priv->level_drawingarea),"expose-event",G_CALLBACK(bt_wire_analysis_dialog_level_expose),(gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->spectrum_drawingarea),"expose-event",G_CALLBACK(bt_wire_analysis_dialog_spectrum_expose),(gpointer)self);
+  g_signal_connect(self->priv->level_drawingarea,"expose-event",G_CALLBACK(bt_wire_analysis_dialog_level_expose),(gpointer)self);
+  g_signal_connect(self->priv->spectrum_drawingarea,"expose-event",G_CALLBACK(bt_wire_analysis_dialog_spectrum_expose),(gpointer)self);
 
 Error:
   g_object_unref(song);

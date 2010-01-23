@@ -93,7 +93,7 @@ static void bt_about_dialog_init_ui(const BtAboutDialog *self) {
   }
   */
 
-  g_object_set(G_OBJECT(self),
+  g_object_set((gpointer)self,
     "artists",artists,
     "authors",authors,
     "comments",_("Music production environment"),

@@ -346,7 +346,7 @@ GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachin
     bt_ui_resources_init_graphics(ui_resources);
   }
   
-  g_object_get(G_OBJECT(machine),"state",&state,NULL);
+  g_object_get((gpointer)machine,"state",&state,NULL);
 
   if(BT_IS_SOURCE_MACHINE(machine)) {
     return(g_object_ref(ui_resources->priv->source_machine_pixbufs[state]));

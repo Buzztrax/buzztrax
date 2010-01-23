@@ -921,7 +921,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             // invalidate old pos
             bt_pattern_editor_refresh_cursor(self);
             self->row -= 1;
-            g_object_notify(G_OBJECT(self),"cursor-row");
+            g_object_notify((gpointer)self,"cursor-row");
             bt_pattern_editor_refresh_cursor_or_scroll(self);
           }
           return TRUE;
@@ -933,7 +933,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             // invalidate old pos
             bt_pattern_editor_refresh_cursor(self);
             self->row += 1;
-            g_object_notify(G_OBJECT(self),"cursor-row");
+            g_object_notify((gpointer)self,"cursor-row");
             bt_pattern_editor_refresh_cursor_or_scroll(self);
           }
           return TRUE;
@@ -949,7 +949,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             self->row = control ? 0 : (self->row - 16);
             if (self->row < 0)
               self->row = 0;
-            g_object_notify(G_OBJECT(self),"cursor-row");
+            g_object_notify((gpointer)self,"cursor-row");
             bt_pattern_editor_refresh_cursor_or_scroll(self);
           }
           return TRUE;
@@ -963,7 +963,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             self->row = control ? self->num_rows - 1 : self->row + 16;
             if (self->row > self->num_rows - 1)
               self->row = self->num_rows - 1;
-            g_object_notify(G_OBJECT(self),"cursor-row");
+            g_object_notify((gpointer)self,"cursor-row");
             bt_pattern_editor_refresh_cursor_or_scroll(self);
           }
           return TRUE;
@@ -975,20 +975,20 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           /* shouldn't this go to top left */
           self->digit = 0;
           self->parameter = 0;
-          g_object_notify(G_OBJECT(self),"cursor-param");
+          g_object_notify((gpointer)self,"cursor-param");
         } else {
           /* go to begin of cell, group, pattern, top of pattern */
           if (self->digit > 0) {
             self->digit = 0;
           } else if (self->parameter > 0) {
             self->parameter = 0;
-            g_object_notify(G_OBJECT(self),"cursor-param");
+            g_object_notify((gpointer)self,"cursor-param");
           } else if (self->group > 0) {
             self->group = 0;
-            g_object_notify(G_OBJECT(self),"cursor-group");
+            g_object_notify((gpointer)self,"cursor-group");
           } else {
             self->row = 0;
-            g_object_notify(G_OBJECT(self),"cursor-row");
+            g_object_notify((gpointer)self,"cursor-row");
           }
         }
         bt_pattern_editor_refresh_cursor_or_scroll(self);
@@ -999,7 +999,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           /* shouldn't this go to bottom right */
           if (self->groups[self->group].num_columns > 0)
             self->parameter = self->groups[self->group].num_columns - 1;
-          g_object_notify(G_OBJECT(self),"cursor-param");
+          g_object_notify((gpointer)self,"cursor-param");
         }
         else {
           /* go to end of cell, group, pattern, bottom of pattern */
@@ -1008,13 +1008,13 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             self->digit = param_types[pc->type].columns - 1;
           } else if (self->parameter < self->groups[self->group].num_columns - 1) {
             self->parameter = self->groups[self->group].num_columns - 1;
-            g_object_notify(G_OBJECT(self),"cursor-param");
+            g_object_notify((gpointer)self,"cursor-param");
           } else if (self->group < self->num_groups - 1) {
             self->group = self->num_groups - 1;
-            g_object_notify(G_OBJECT(self),"cursor-group");
+            g_object_notify((gpointer)self,"cursor-group");
           } else {
             self->row = self->num_rows - 1;
-            g_object_notify(G_OBJECT(self),"cursor-row");
+            g_object_notify((gpointer)self,"cursor-row");
           }
         }
         bt_pattern_editor_refresh_cursor_or_scroll(self);
@@ -1028,13 +1028,13 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             BtPatternEditorColumn *pc;
             if (self->parameter > 0) {
               self->parameter--;
-              g_object_notify(G_OBJECT(self),"cursor-param");
+              g_object_notify((gpointer)self,"cursor-param");
             }
             else if (self->group > 0) { 
               self->group--;
               self->parameter = self->groups[self->group].num_columns - 1;
               /* only notify group, param will be read along anyway */
-              g_object_notify(G_OBJECT(self),"cursor-group");
+              g_object_notify((gpointer)self,"cursor-group");
             }
             else
               return FALSE;
@@ -1054,12 +1054,12 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           }
           else if (self->parameter < self->groups[self->group].num_columns - 1) {
             self->parameter++; self->digit = 0;
-            g_object_notify(G_OBJECT(self),"cursor-param");
+            g_object_notify((gpointer)self,"cursor-param");
           }
           else if (self->group < self->num_groups - 1) {
             self->group++; self->parameter = 0; self->digit = 0;
             /* only notify group, param will be read along anyway */
-            g_object_notify(G_OBJECT(self),"cursor-group");
+            g_object_notify((gpointer)self,"cursor-group");
           }
           bt_pattern_editor_refresh_cursor_or_scroll (self);
           return TRUE;  
@@ -1074,7 +1074,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
               self->parameter = 0; self->digit = 0;
             }
             self->group++;
-            g_object_notify(G_OBJECT(self),"cursor-group");
+            g_object_notify((gpointer)self,"cursor-group");
           }
           bt_pattern_editor_refresh_cursor_or_scroll (self);
           return TRUE;
@@ -1088,7 +1088,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             if (self->groups[self->group].type != self->groups[self->group + 1].type) {
               self->parameter = 0; self->digit = 0;
             }
-            g_object_notify(G_OBJECT(self),"cursor-group");
+            g_object_notify((gpointer)self,"cursor-group");
           }
           else /* at leftmost group, reset cursor to first column */
             self->parameter = 0, self->digit = 0;
@@ -1133,8 +1133,8 @@ bt_pattern_editor_button_press (GtkWidget *widget,
         self->group = g;
         self->parameter = parameter;
         self->digit = digit;
-        g_object_notify(G_OBJECT(self),"cursor-row");
-        g_object_notify(G_OBJECT(self),"cursor-group");
+        g_object_notify((gpointer)self,"cursor-row");
+        g_object_notify((gpointer)self,"cursor-group");
         bt_pattern_editor_refresh_cursor_or_scroll(self);
         return TRUE;
       }

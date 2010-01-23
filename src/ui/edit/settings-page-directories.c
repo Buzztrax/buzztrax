@@ -99,7 +99,7 @@ static void bt_settings_page_directories_init_ui(const BtSettingsPageDirectories
   widget=gtk_file_chooser_button_new(_("Select a folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
   gtk_widget_set_name(widget,"song-folder");
   gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (widget), song_folder);
-  g_signal_connect(G_OBJECT(widget), "selection-changed", G_CALLBACK(on_folder_changed), (gpointer)self);
+  g_signal_connect(widget, "selection-changed", G_CALLBACK(on_folder_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(self),widget, 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
 
   label=gtk_label_new(_("Recordings"));
@@ -109,7 +109,7 @@ static void bt_settings_page_directories_init_ui(const BtSettingsPageDirectories
   widget=gtk_file_chooser_button_new(_("Select a folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
   gtk_widget_set_name(widget,"record-folder");
   gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (widget), record_folder);
-  g_signal_connect(G_OBJECT(widget), "selection-changed", G_CALLBACK(on_folder_changed), (gpointer)self);
+  g_signal_connect(widget, "selection-changed", G_CALLBACK(on_folder_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(self),widget, 2, 3, 2, 3, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
 
   label=gtk_label_new(_("Waveforms"));
@@ -119,7 +119,7 @@ static void bt_settings_page_directories_init_ui(const BtSettingsPageDirectories
   widget=gtk_file_chooser_button_new(_("Select a folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
   gtk_widget_set_name(widget,"sample-folder");
   gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (widget), sample_folder);
-  g_signal_connect(G_OBJECT(widget), "selection-changed", G_CALLBACK(on_folder_changed), (gpointer)self);
+  g_signal_connect(widget, "selection-changed", G_CALLBACK(on_folder_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(self),widget, 2, 3, 3, 4, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
 
   g_free(song_folder);

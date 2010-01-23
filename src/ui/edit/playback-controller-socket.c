@@ -383,13 +383,13 @@ static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condit
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
 
-  g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
+  g_object_get((gpointer)song,"is-playing",&self->priv->is_playing,NULL);
 
   if(self->priv->is_playing && self->priv->seek) {
     // do this only if play was invoked via playbackcontroller
     self->priv->seek=FALSE;
     GST_INFO("seeking to pos=%lu",self->priv->cur_pos);
-    g_object_set(G_OBJECT(song),"play-pos",self->priv->cur_pos,NULL);
+    g_object_set((gpointer)song,"play-pos",self->priv->cur_pos,NULL);
   }
 }
 
@@ -406,7 +406,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   self->priv->cur_pos=0;
   client_write(self,"flush");
-  g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
+  g_signal_connect(song,"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
 
   g_object_try_weak_unref(self->priv->sequence);
   g_object_get(song,"sequence",&self->priv->sequence,"master",&master,NULL);
@@ -538,8 +538,8 @@ static void settings_listen(BtPlaybackControllerSocket *self) {
   BtSettings *settings;
 
   g_object_get(self->priv->app,"settings",&settings,NULL);
-  g_signal_connect(G_OBJECT(settings), "notify::coherence-upnp-active", G_CALLBACK(on_active_notify), (gpointer)self);
-  g_signal_connect(G_OBJECT(settings), "notify::coherence-upnp-port", G_CALLBACK(on_port_notify), (gpointer)self);
+  g_signal_connect(settings, "notify::coherence-upnp-active", G_CALLBACK(on_active_notify), (gpointer)self);
+  g_signal_connect(settings, "notify::coherence-upnp-port", G_CALLBACK(on_port_notify), (gpointer)self);
   on_active_notify(settings,NULL,(gpointer)self);
   g_object_unref(settings);
 
@@ -608,7 +608,7 @@ static void bt_playback_controller_socket_init(GTypeInstance *instance, gpointer
   //master_connection_open(self);
   settings_listen(self);
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 }
 
 static void bt_playback_controller_socket_class_init(BtPlaybackControllerSocketClass *klass) {

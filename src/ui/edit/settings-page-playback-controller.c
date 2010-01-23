@@ -125,9 +125,9 @@ static void bt_settings_page_playback_controller_init_ui(const BtSettingsPagePla
   gtk_table_attach(GTK_TABLE(self),label, 1, 3, 3, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
 
   // set current settings
-  g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(on_activate_toggled), (gpointer)self);
+  g_signal_connect(widget, "toggled", G_CALLBACK(on_activate_toggled), (gpointer)self);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),active);
-  g_signal_connect(G_OBJECT(self->priv->port_entry), "value-changed", G_CALLBACK(on_port_changed), (gpointer)self);
+  g_signal_connect(self->priv->port_entry, "value-changed", G_CALLBACK(on_port_changed), (gpointer)self);
 
   g_object_unref(settings);
 }

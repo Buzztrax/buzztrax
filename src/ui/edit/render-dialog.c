@@ -239,7 +239,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
 
   widget=gtk_file_chooser_button_new(_("Select a folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
   gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (widget), self->priv->folder);
-  g_signal_connect(G_OBJECT(widget), "selection-changed", G_CALLBACK(on_folder_changed), (gpointer)self);
+  g_signal_connect(widget, "selection-changed", G_CALLBACK(on_folder_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
 
@@ -265,7 +265,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
 
   self->priv->file_name_entry=widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY (widget), self->priv->filename);
-  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_filename_changed), (gpointer)self);
+  g_signal_connect(widget, "changed", G_CALLBACK(on_filename_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
 
@@ -282,7 +282,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
     }
   }
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS);
-  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_format_menu_changed), (gpointer)self);
+  g_signal_connect(widget, "changed", G_CALLBACK(on_format_menu_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
 
@@ -299,7 +299,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
     }
   }
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),BT_RENDER_MODE_MIXDOWN);
-  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_mode_menu_changed), (gpointer)self);
+  g_signal_connect(widget, "changed", G_CALLBACK(on_mode_menu_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 3, 4, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   /* @todo: add more widgets

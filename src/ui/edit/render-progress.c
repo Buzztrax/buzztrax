@@ -65,7 +65,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   gulong msec1,sec1,min1,msec2,sec2,min2;
   GstClockTime bar_time;
 
-  g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
+  g_object_get((gpointer)song,"sequence",&sequence,"play-pos",&pos,NULL);
   g_object_get(sequence,"length",&length,NULL);
   bar_time=bt_sequence_get_bar_time(sequence);
 
@@ -190,7 +190,7 @@ void bt_render_progress_run(const BtRenderProgress *self) {
     g_object_get(machine,"machine",&sink_bin,NULL);
     g_object_get(self->priv->settings,"format",&format,"mode",&mode,"file-name",&file_name,NULL);
 
-    g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
+    g_signal_connect(song, "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
 
     g_object_set(sink_bin,
       "mode",BT_SINK_BIN_MODE_RECORD,
@@ -280,7 +280,7 @@ static void bt_render_progress_dispose(GObject *object) {
 
   g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
-    g_signal_handlers_disconnect_matched(G_OBJECT(song),G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
     g_object_unref(song);
   }
   

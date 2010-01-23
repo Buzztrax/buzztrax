@@ -170,7 +170,7 @@ static void on_control_bind(const BtInteractionControllerMenu *menu,GParamSpec *
   GstObject *object;
   gchar *property_name;
 
-  g_object_get(G_OBJECT(menu),"selected-control",&control,NULL);
+  g_object_get((gpointer)menu,"selected-control",&control,NULL);
   //GST_INFO("control selected: %p",control);
   object=g_object_get_qdata(G_OBJECT(menu),control_object_quark);
   property_name=g_object_get_qdata(G_OBJECT(menu),control_property_quark);
@@ -408,9 +408,9 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       g_object_get(menu,"item-unbind",&item_unbind,"item-unbind-all",&item_unbind_all,NULL);
       g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
       g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
-      g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_control_bind),(gpointer)self);
-      g_signal_connect(G_OBJECT(item_unbind),"activate",G_CALLBACK(on_control_unbind),(gpointer)self);
-      g_signal_connect(G_OBJECT(item_unbind_all),"activate",G_CALLBACK(on_control_unbind_all),(gpointer)self);
+      g_signal_connect(menu,"notify::selected-control",G_CALLBACK(on_control_bind),(gpointer)self);
+      g_signal_connect(item_unbind,"activate",G_CALLBACK(on_control_unbind),(gpointer)self);
+      g_signal_connect(item_unbind_all,"activate",G_CALLBACK(on_control_unbind_all),(gpointer)self);
 
       // add extra items
       menu_item=gtk_separator_menu_item_new();
@@ -419,12 +419,12 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       gtk_widget_show(menu_item);
     
       menu_item=gtk_image_menu_item_new_with_label(_("Reset parameter"));
-      g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_parameter_reset),(gpointer)self);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_reset),(gpointer)self);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
       gtk_widget_show(menu_item);
 
       menu_item=gtk_image_menu_item_new_with_label(_("Reset all parameters"));
-      g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_parameter_reset_all),(gpointer)self);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_reset_all),(gpointer)self);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
       gtk_widget_show(menu_item);
 
@@ -476,7 +476,7 @@ static gboolean on_double_range_property_notify_idle(gpointer _data) {
   
     GST_INFO("property value notify received : %s ",property->name);
   
-    g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+    g_object_get((gpointer)machine,property->name,&value,NULL);
     g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
     gtk_range_set_value(GTK_RANGE(widget),value);
     g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
@@ -532,7 +532,7 @@ static gboolean on_float_range_property_notify_idle(gpointer _data) {
   
     //GST_INFO("property value notify received : %s ",property->name);
   
-    g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+    g_object_get((gpointer)machine,property->name,&value,NULL);
     g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_changed,(gpointer)machine);
     gtk_range_set_value(GTK_RANGE(widget),value);
     g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_changed,(gpointer)machine);
@@ -586,7 +586,7 @@ static gboolean on_int_range_property_notify_idle(gpointer _data) {
     BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
     gint value;
   
-    g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+    g_object_get((gpointer)machine,property->name,&value,NULL);
     //GST_INFO("property value notify received : %s => : %d",property->name,value);
   
     g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
@@ -644,7 +644,7 @@ static gboolean on_uint_range_property_notify_idle(gpointer _data) {
   
     //GST_INFO("property value notify received : %s ",property->name);
   
-    g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+    g_object_get((gpointer)machine,property->name,&value,NULL);
     g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_changed,(gpointer)machine);
     gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
     g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_changed,(gpointer)machine);
@@ -691,7 +691,7 @@ static gboolean on_combobox_property_notify_idle(gpointer _data) {
   
     GST_DEBUG("property value notify received : %s ",property->name);
   
-    g_object_get(G_OBJECT(machine),property->name,&nvalue,NULL);
+    g_object_get((gpointer)machine,property->name,&nvalue,NULL);
     store=gtk_combo_box_get_model(GTK_COMBO_BOX(widget));
     gtk_tree_model_get_iter_first(store,&iter);
     do {
@@ -749,7 +749,7 @@ static gboolean on_checkbox_property_notify_idle(gpointer _data) {
   
     //GST_INFO("property value notify received : %s ",property->name);
   
-    g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+    g_object_get((gpointer)machine,property->name,&value,NULL);
     g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_toggled,(gpointer)machine);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),value);
     g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_toggled,(gpointer)machine);
@@ -1031,7 +1031,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   gchar *toolbar_style;
 
-  g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
+  g_object_get((gpointer)settings,"toolbar-style",&toolbar_style,NULL);
   if(!BT_IS_STRING(toolbar_style)) return;
 
   GST_INFO("!!!  toolbar style has changed '%s'",toolbar_style);
@@ -1091,18 +1091,18 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,Gs
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
-  g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_int_range_property_notify), (gpointer)widget);
-  g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_int_range_property_changed), (gpointer)machine);
+  g_signal_connect(machine, signal_name, G_CALLBACK(on_int_range_property_notify), (gpointer)widget);
+  g_signal_connect(widget, "value-changed", G_CALLBACK(on_int_range_property_changed), (gpointer)machine);
   /* we have draw_value=FALSE
   if(GST_IS_ELEMENT(machine)) {
-    g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(on_int_range_global_property_format_value), (gpointer)self->priv->machine);
+    g_signal_connect(widget, "format-value", G_CALLBACK(on_int_range_global_property_format_value), (gpointer)self->priv->machine);
   }
   else {
-    g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(on_int_range_voice_property_format_value), (gpointer)self->priv->machine);
+    g_signal_connect(widget, "format-value", G_CALLBACK(on_int_range_voice_property_format_value), (gpointer)self->priv->machine);
   }
   */
-  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
-  g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   // update formatted text on label
   update_int_range_label(self,GTK_RANGE(widget),machine,GTK_LABEL(label),(gdouble)value);
@@ -1127,18 +1127,18 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,G
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
-  g_signal_connect(G_OBJECT(machine),signal_name,G_CALLBACK(on_uint_range_property_notify), (gpointer)widget);
-  g_signal_connect(G_OBJECT(widget),"value-changed",G_CALLBACK(on_uint_range_property_changed), (gpointer)machine);
+  g_signal_connect(machine,signal_name,G_CALLBACK(on_uint_range_property_notify), (gpointer)widget);
+  g_signal_connect(widget,"value-changed",G_CALLBACK(on_uint_range_property_changed), (gpointer)machine);
   /* we have draw_value=FALSE
   if(GST_IS_ELEMENT(machine)) {
-    g_signal_connect(G_OBJECT(widget),"format-value",G_CALLBACK(on_uint_range_global_property_format_value), (gpointer)self->priv->machine);
+    g_signal_connect(widget,"format-value",G_CALLBACK(on_uint_range_global_property_format_value), (gpointer)self->priv->machine);
   }
   else {
-    g_signal_connect(G_OBJECT(widget),"format-value",G_CALLBACK(on_uint_range_voice_property_format_value), (gpointer)self->priv->machine);
+    g_signal_connect(widget,"format-value",G_CALLBACK(on_uint_range_voice_property_format_value), (gpointer)self->priv->machine);
   }
   */
-  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
-  g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   // update formatted text on label
   update_uint_range_label(self,GTK_RANGE(widget),machine,GTK_LABEL(label),(gdouble)value);
@@ -1167,12 +1167,12 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
-  g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_float_range_property_notify), (gpointer)widget);
-  g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_float_range_property_changed), (gpointer)machine);
-  //g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(on_float_range_global_property_format_value), (gpointer)machine);
+  g_signal_connect(machine, signal_name, G_CALLBACK(on_float_range_property_notify), (gpointer)widget);
+  g_signal_connect(widget, "value-changed", G_CALLBACK(on_float_range_property_changed), (gpointer)machine);
+  //g_signal_connect(widget, "format-value", G_CALLBACK(on_float_range_global_property_format_value), (gpointer)machine);
 
-  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
-  g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   // update formatted text on label
   update_float_range_label(GTK_LABEL(label),value);
@@ -1200,12 +1200,12 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
-  g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_double_range_property_notify), (gpointer)widget);
-  g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_double_range_property_changed), (gpointer)machine);
-  //g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(on_double_range_global_property_format_value), (gpointer)machine);
+  g_signal_connect(machine, signal_name, G_CALLBACK(on_double_range_property_notify), (gpointer)widget);
+  g_signal_connect(widget, "value-changed", G_CALLBACK(on_double_range_property_changed), (gpointer)machine);
+  //g_signal_connect(widget, "format-value", G_CALLBACK(on_double_range_global_property_format_value), (gpointer)machine);
 
-  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
-  g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   // update formatted text on label
   update_double_range_label(GTK_LABEL(label),value);
@@ -1259,11 +1259,11 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self,Gst
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
-  g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_combobox_property_notify), (gpointer)widget);
-  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_combobox_property_changed), (gpointer)machine);
+  g_signal_connect(machine, signal_name, G_CALLBACK(on_combobox_property_notify), (gpointer)widget);
+  g_signal_connect(widget, "changed", G_CALLBACK(on_combobox_property_changed), (gpointer)machine);
 
-  //g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
-  //g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  //g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  //g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
@@ -1282,11 +1282,11 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self,Gst
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
-  g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_checkbox_property_notify), (gpointer)widget);
-  g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(on_checkbox_property_toggled), (gpointer)machine);
+  g_signal_connect(machine, signal_name, G_CALLBACK(on_checkbox_property_notify), (gpointer)widget);
+  g_signal_connect(widget, "toggled", G_CALLBACK(on_checkbox_property_toggled), (gpointer)machine);
 
-  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_trigger_button_press_event), (gpointer)machine);
-  g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(widget,"button-press-event",G_CALLBACK(on_trigger_button_press_event), (gpointer)machine);
+  g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
@@ -1480,7 +1480,7 @@ static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gp
   GtkWidget *expander;
   GstElement *machine_object;
 
-  g_object_get(G_OBJECT(machine),
+  g_object_get((gpointer)machine,
     "voices",&new_voices,
     "voice-params",&voice_params,
     "machine",&machine_object,
@@ -1676,17 +1676,17 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ADD));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Add new preset"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_add_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_preset_add_clicked),(gpointer)self);
 
   remove_tool_button=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_REMOVE));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Remove preset"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(remove_tool_button),-1);
-  g_signal_connect(G_OBJECT(remove_tool_button),"clicked",G_CALLBACK(on_toolbar_preset_remove_clicked),(gpointer)self);
+  g_signal_connect(remove_tool_button,"clicked",G_CALLBACK(on_toolbar_preset_remove_clicked),(gpointer)self);
 
   edit_tool_button=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_EDIT));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Edit preset name and comment"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(edit_tool_button),-1);
-  g_signal_connect(G_OBJECT(edit_tool_button),"clicked",G_CALLBACK(on_toolbar_preset_edit_clicked),(gpointer)self);
+  g_signal_connect(edit_tool_button,"clicked",G_CALLBACK(on_toolbar_preset_edit_clicked),(gpointer)self);
 
   gtk_box_pack_start(GTK_BOX(self->priv->preset_box),self->priv->preset_toolbar,FALSE,FALSE,0);
 
@@ -1702,15 +1702,15 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
 #if !GTK_CHECK_VERSION(2,12,0)
   self->priv->preset_tips=gtk_tooltips_new();
   gtk_tooltips_set_tip(self->priv->preset_tips,self->priv->preset_list,"",NULL);
-  g_signal_connect(G_OBJECT(self->priv->preset_list), "motion-notify-event", G_CALLBACK(on_preset_list_motion_notify), (gpointer)self);
+  g_signal_connect(self->priv->preset_list, "motion-notify-event", G_CALLBACK(on_preset_list_motion_notify), (gpointer)self);
 #else
   g_object_set(self->priv->preset_list,"has-tooltip",TRUE,NULL);
-  g_signal_connect(G_OBJECT(self->priv->preset_list), "query-tooltip", G_CALLBACK(on_preset_list_query_tooltip), (gpointer)self);
+  g_signal_connect(self->priv->preset_list, "query-tooltip", G_CALLBACK(on_preset_list_query_tooltip), (gpointer)self);
   // alternative: gtk_tree_view_set_tooltip_row
 #endif
-  g_signal_connect(G_OBJECT(self->priv->preset_list), "row-activated", G_CALLBACK(on_preset_list_row_activated), (gpointer)self);
-  g_signal_connect(G_OBJECT(tree_sel), "changed", G_CALLBACK(on_preset_list_selection_changed), (gpointer)remove_tool_button);
-  g_signal_connect(G_OBJECT(tree_sel), "changed", G_CALLBACK(on_preset_list_selection_changed), (gpointer)edit_tool_button);
+  g_signal_connect(self->priv->preset_list, "row-activated", G_CALLBACK(on_preset_list_row_activated), (gpointer)self);
+  g_signal_connect(tree_sel, "changed", G_CALLBACK(on_preset_list_selection_changed), (gpointer)remove_tool_button);
+  g_signal_connect(tree_sel, "changed", G_CALLBACK(on_preset_list_selection_changed), (gpointer)edit_tool_button);
 
   // add cell renderers
   renderer=gtk_cell_renderer_text_new();
@@ -1812,7 +1812,7 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ABOUT));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Info about this machine"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_about_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_about_clicked),(gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_HELP));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Help for this machine"));
@@ -1821,18 +1821,18 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
     gtk_widget_set_sensitive(tool_item,FALSE);
   }
   else {
-    g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_help_clicked),(gpointer)self);
+    g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_help_clicked),(gpointer)self);
   }
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_NEW));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Randomize parameters"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_random_clicked),(gpointer)self);  
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_random_clicked),(gpointer)self);  
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_UNDO));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Reset parameters to defaults"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_reset_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_reset_clicked),(gpointer)self);
   
   // @todo: add copy/paste buttons
 
@@ -1847,12 +1847,12 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
     /* @todo: add settings for "show presets by default" */
     gtk_widget_set_no_show_all(self->priv->preset_box,TRUE);
     gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(tool_item),FALSE);
-    g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_show_hide_clicked),(gpointer)self);
+    g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_show_hide_clicked),(gpointer)self);
   }
 
   // let settings control toolbar style
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
-  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
+  g_signal_connect(settings, "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
 
   gtk_box_pack_start(GTK_BOX(param_box),self->priv->main_toolbar,FALSE,FALSE,0);
 
@@ -1863,7 +1863,7 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
   self->priv->param_group_box=gtk_vbox_new(FALSE,0);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),self->priv->param_group_box);
   gtk_box_pack_start(GTK_BOX(param_box),scrolled_window,TRUE,TRUE,0);
-  g_signal_connect(G_OBJECT(self->priv->param_group_box),"size-request",G_CALLBACK(on_box_size_request),(gpointer)self);
+  g_signal_connect(self->priv->param_group_box,"size-request",G_CALLBACK(on_box_size_request),(gpointer)self);
 
   /* show widgets for global parameters */
   if(global_params) {
@@ -1896,10 +1896,10 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
   gtk_container_add(GTK_CONTAINER(self),hbox);
 
   // dynamically adjust voices
-  g_signal_connect(G_OBJECT(self->priv->machine),"notify::voices",G_CALLBACK(on_machine_voices_notify),(gpointer)self);
+  g_signal_connect(self->priv->machine,"notify::voices",G_CALLBACK(on_machine_voices_notify),(gpointer)self);
   // dynamically adjust wire params
-  g_signal_connect(G_OBJECT(setup),"wire-added",G_CALLBACK(on_wire_added),(gpointer)self);
-  g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
+  g_signal_connect(setup,"wire-added",G_CALLBACK(on_wire_added),(gpointer)self);
+  g_signal_connect(setup,"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
 
   g_object_unref(machine);
   g_object_unref(setup);

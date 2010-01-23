@@ -158,7 +158,7 @@ static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPro
     gtk_widget_set_sensitive(self->priv->okay_button,FALSE);
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
+  g_signal_connect(widget, "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 
   // GtkEntry : preset comment
   label=gtk_label_new(_("comment"));
@@ -168,7 +168,7 @@ static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPro
   if(self->priv->comment) gtk_entry_set_text(GTK_ENTRY(widget),self->priv->comment);
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_comment_changed), (gpointer)self);
+  g_signal_connect(widget, "changed", G_CALLBACK(on_comment_changed), (gpointer)self);
 }
 
 //-- constructor methods

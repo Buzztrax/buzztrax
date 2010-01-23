@@ -175,13 +175,13 @@ static void bt_settings_page_interaction_controller_init_ui(const BtSettingsPage
 
   // get list of devices from libbtic and listen to changes
   g_object_get(self->priv->app,"ic-registry",&ic_registry,NULL);
-  g_signal_connect(G_OBJECT(ic_registry),"notify::devices",G_CALLBACK(on_ic_registry_devices_changed),(gpointer)self);
+  g_signal_connect(ic_registry,"notify::devices",G_CALLBACK(on_ic_registry_devices_changed),(gpointer)self);
   on_ic_registry_devices_changed(ic_registry,NULL,(gpointer)self);
   g_object_unref(ic_registry);
 
   gtk_combo_box_set_active(self->priv->device_menu,0);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->device_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->device_menu), "changed", G_CALLBACK(on_device_menu_changed), (gpointer)self);
+  g_signal_connect(self->priv->device_menu, "changed", G_CALLBACK(on_device_menu_changed), (gpointer)self);
 
   // add list of controllers (updated when selecting a device)
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
@@ -248,7 +248,7 @@ static void bt_settings_page_interaction_controller_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_object_get(self->priv->app,"ic-registry",&ic_registry,NULL);
-  g_signal_handlers_disconnect_matched(G_OBJECT(ic_registry),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,G_CALLBACK(on_ic_registry_devices_changed),(gpointer)self);
+  g_signal_handlers_disconnect_matched(ic_registry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,G_CALLBACK(on_ic_registry_devices_changed),(gpointer)self);
   g_object_unref(ic_registry);
 
   g_object_unref(self->priv->app);

@@ -144,7 +144,7 @@ static void bt_machine_rename_dialog_init_ui(const BtMachineRenameDialog *self) 
   gtk_entry_set_text(GTK_ENTRY(widget),self->priv->name);
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
+  g_signal_connect(widget, "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 }
 
 //-- constructor methods

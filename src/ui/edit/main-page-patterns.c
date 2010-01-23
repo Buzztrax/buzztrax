@@ -941,21 +941,21 @@ static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventBu
 static void on_pattern_table_cursor_group_changed(const BtPatternEditor *editor,GParamSpec *arg,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   
-  g_object_get(G_OBJECT(editor), "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
+  g_object_get((gpointer)editor, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
 }
 
 static void on_pattern_table_cursor_param_changed(const BtPatternEditor *editor,GParamSpec *arg,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   
-  g_object_get(G_OBJECT(editor), "cursor-param", &self->priv->cursor_param, NULL);
+  g_object_get((gpointer)editor, "cursor-param", &self->priv->cursor_param, NULL);
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
 }
 
 static void on_pattern_table_cursor_row_changed(const BtPatternEditor *editor,GParamSpec *arg,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   
-  g_object_get(G_OBJECT(editor), "cursor-row", &self->priv->cursor_row, NULL);
+  g_object_get((gpointer)editor, "cursor-row", &self->priv->cursor_row, NULL);
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
 }
 
@@ -990,7 +990,7 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
 
   // update machine menu
   store=gtk_list_store_new(3,GDK_TYPE_PIXBUF,G_TYPE_STRING,BT_TYPE_MACHINE);
-  g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+  g_object_get((gpointer)setup,"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
     machine_menu_add(self,machine,store);
@@ -1918,7 +1918,7 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   if(!self->priv->pattern) return;
 
   g_object_get(self->priv->pattern,"machine",&cur_machine,"length",&length,NULL);
-  g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
+  g_object_get((gpointer)song,"sequence",&sequence,"play-pos",&pos,NULL);
   g_object_get(sequence,"tracks",&tracks,"length",&sequence_length,NULL);
 
   if(pos<sequence_length) {
@@ -2182,7 +2182,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   GtkToolbar *toolbar=GTK_TOOLBAR(user_data);
   gchar *toolbar_style;
 
-  g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
+  g_object_get((gpointer)settings,"toolbar-style",&toolbar_style,NULL);
   if(!BT_IS_STRING(toolbar_style)) return;
 
   GST_INFO("!!!  toolbar style has changed '%s'", toolbar_style);
@@ -2373,7 +2373,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
 
   // generate the context menu
   self->priv->accel_group=gtk_accel_group_new();
-  self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
+  self->priv->context_menu=GTK_MENU(g_object_ref_sink(gtk_menu_new()));
   gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), self->priv->accel_group);
   gtk_menu_set_accel_path(GTK_MENU(self->priv->context_menu),"<Buzztard-Main>/PatternView/PatternContext");
 
@@ -2880,7 +2880,7 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   g_object_try_unref(self->priv->pattern);
 
   gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
-  g_object_unref(G_OBJECT(self->priv->context_menu));
+  g_object_unref(self->priv->context_menu);
 
   g_object_try_unref(self->priv->accel_group);
 

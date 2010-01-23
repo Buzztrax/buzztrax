@@ -233,7 +233,7 @@ static void show_machine_properties_dialog(BtMachineCanvasItem *self) {
     GST_INFO("machine properties dialog opened");
     // remember open/closed state
     g_hash_table_insert(self->priv->properties,g_strdup("properties-shown"),g_strdup("1"));
-    g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
+    g_signal_connect(self->priv->properties_dialog,"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
   } 
   else {
     gtk_window_present(GTK_WINDOW(self->priv->properties_dialog));
@@ -245,7 +245,7 @@ static void show_machine_properties_dialog(BtMachineCanvasItem *self) {
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
-  g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
+  g_object_get((gpointer)song,"is-playing",&self->priv->is_playing,NULL);
   if(!self->priv->is_playing) {
     const gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
 
@@ -272,7 +272,7 @@ static gboolean on_delayed_idle_machine_level_change(gpointer user_data) {
     guint i,size;
 
     g_mutex_lock(self->priv->lock);
-    g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+    g_object_remove_weak_pointer((gpointer)self,(gpointer *)&params[0]);
     g_mutex_unlock(self->priv->lock);
 
     if(!self->priv->is_playing)
@@ -352,7 +352,7 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
         g_mutex_lock(self->priv->lock);
-        g_object_add_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+        g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
         g_mutex_unlock(self->priv->lock);
         clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
         gst_clock_id_wait_async(clock_id,on_delayed_machine_level_change,(gpointer)params);
@@ -528,7 +528,7 @@ static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer 
 
   if(!self->priv->preferences_dialog) {
     self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->machine));
-    g_signal_connect(G_OBJECT(self->priv->preferences_dialog),"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
+    g_signal_connect(self->priv->preferences_dialog,"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
   }
   else {
     gtk_window_present(GTK_WINDOW(self->priv->preferences_dialog));
@@ -672,18 +672,18 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   self->priv->menu_item_mute=menu_item=gtk_check_menu_item_new_with_label(_("Mute"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  self->priv->id_mute=g_signal_connect(G_OBJECT(menu_item),"toggled",G_CALLBACK(on_context_menu_mute_toggled),(gpointer)self);
+  self->priv->id_mute=g_signal_connect(menu_item,"toggled",G_CALLBACK(on_context_menu_mute_toggled),(gpointer)self);
   if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
     self->priv->menu_item_solo=menu_item=gtk_check_menu_item_new_with_label(_("Solo"));
     gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
     gtk_widget_show(menu_item);
-    self->priv->id_solo=g_signal_connect(G_OBJECT(menu_item),"toggled",G_CALLBACK(on_context_menu_solo_toggled),(gpointer)self);
+    self->priv->id_solo=g_signal_connect(menu_item,"toggled",G_CALLBACK(on_context_menu_solo_toggled),(gpointer)self);
   }
   if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
     self->priv->menu_item_bypass=menu_item=gtk_check_menu_item_new_with_label(_("Bypass"));
     gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
     gtk_widget_show(menu_item);
-    self->priv->id_bypass=g_signal_connect(G_OBJECT(menu_item),"toggled",G_CALLBACK(on_context_menu_bypass_toggled),(gpointer)self);
+    self->priv->id_bypass=g_signal_connect(menu_item,"toggled",G_CALLBACK(on_context_menu_bypass_toggled),(gpointer)self);
   }
 
   menu_item=gtk_separator_menu_item_new();
@@ -709,11 +709,11 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
     GST_WARNING("expecting a GtkLabel as a first child");
   }
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_properties_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_properties_activate),(gpointer)self);
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES,NULL); // static part
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_preferences_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_preferences_activate),(gpointer)self);
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -723,12 +723,12 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   menu_item=gtk_menu_item_new_with_label(_("Rename..."));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_rename_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_rename_activate),(gpointer)self);
   if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
     menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_DELETE,NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
     gtk_widget_show(menu_item);
-    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_delete_activate),(gpointer)self);
+    g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_delete_activate),(gpointer)self);
   }
 
   menu_item=gtk_separator_menu_item_new();
@@ -744,12 +744,12 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   }
   gst_object_unref(machine);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_help_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_help_activate),(gpointer)self);
 
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT,NULL);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_about_activate),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_about_activate),(gpointer)self);
 
   return(TRUE);
 }
@@ -772,7 +772,7 @@ BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_p
   BtMachineCanvasItem *self;
   GnomeCanvas *canvas;
 
-  g_object_get(G_OBJECT(main_page_machines),"canvas",&canvas,NULL);
+  g_object_get((gpointer)main_page_machines,"canvas",&canvas,NULL);
 
   self=BT_MACHINE_CANVAS_ITEM(gnome_canvas_item_new(gnome_canvas_root(canvas),
                             BT_TYPE_MACHINE_CANVAS_ITEM,
@@ -838,15 +838,13 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
         g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
-        g_signal_connect(G_OBJECT(self->priv->machine), "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);
-        g_signal_connect(G_OBJECT(self->priv->machine), "notify::state", G_CALLBACK(on_machine_state_changed), (gpointer)self);
-        // DEBUG
-        g_signal_connect(G_OBJECT(self->priv->machine), "parent-set", G_CALLBACK(on_machine_parent_changed), (gpointer)self);
-        g_signal_connect(G_OBJECT(self->priv->machine), "parent-unset", G_CALLBACK(on_machine_parent_changed), (gpointer)self);
-        // DEBUG
+        g_signal_connect(self->priv->machine, "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);
+        g_signal_connect(self->priv->machine, "notify::state", G_CALLBACK(on_machine_state_changed), (gpointer)self);
+        g_signal_connect(self->priv->machine, "parent-set", G_CALLBACK(on_machine_parent_changed), (gpointer)self);
+        g_signal_connect(self->priv->machine, "parent-unset", G_CALLBACK(on_machine_parent_changed), (gpointer)self);
 
         g_object_get(self->priv->app,"song",&song,NULL);
-        g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
+        g_signal_connect(song,"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
         g_object_get(song,"bin", &bin,NULL);
         bus=gst_element_get_bus(GST_ELEMENT(bin));
         g_signal_connect(bus, "message::element", G_CALLBACK(on_machine_level_change), (gpointer)self);
@@ -907,7 +905,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 
   GST_DEBUG("machine: %p,ref_count %d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
   
-  g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->machine),G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
+  g_signal_handlers_disconnect_matched(self->priv->machine,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
 
   g_object_get(self->priv->app,"song",&song,"bin",&bin,NULL);
   if(song) {
@@ -941,7 +939,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   gdk_cursor_unref(self->priv->drag_cursor);
 
   gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
-  g_object_try_unref(G_OBJECT(self->priv->context_menu));
+  g_object_try_unref(self->priv->context_menu);
   GST_DEBUG("  destroying done, machine: %p,ref_count %d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
 
   GST_DEBUG("  chaining up");
@@ -1043,7 +1041,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"properties-shown");
   if(prop && prop[0]=='1' && prop[1]=='\0') {
     self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->machine));
-    g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
+    g_signal_connect(self->priv->properties_dialog,"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
   }
 
   //item->realized = TRUE;
@@ -1188,7 +1186,7 @@ static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_clas
   self->priv->app = bt_edit_application_new();
 
   // generate the context menu
-  self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
+  self->priv->context_menu=GTK_MENU(g_object_ref_sink(gtk_menu_new()));
   // the menu-items are generated in bt_machine_canvas_item_init_context_menu()
 
   // the cursor for dragging

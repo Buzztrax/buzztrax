@@ -797,7 +797,7 @@ static gboolean on_delayed_idle_track_level_change(gpointer user_data) {
     GtkVUMeter *vumeter;
 
     g_mutex_lock(self->priv->lock);
-    g_object_remove_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+    g_object_remove_weak_pointer((gpointer)self,(gpointer *)&params[0]);
     g_mutex_unlock(self->priv->lock);
 
     if(!self->priv->is_playing)
@@ -873,7 +873,7 @@ static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer u
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
         g_mutex_lock(self->priv->lock);
-        g_object_add_weak_pointer(G_OBJECT(self),(gpointer *)&params[0]);
+        g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
         g_mutex_unlock(self->priv->lock);
         clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
         gst_clock_id_wait_async(clock_id,on_delayed_track_level_change,(gpointer)params);
@@ -977,7 +977,7 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
   gtk_combo_box_set_active(self->priv->pos_menu,0);
   gtk_box_pack_start(GTK_BOX(self->priv->pos_header),GTK_WIDGET(self->priv->pos_menu),TRUE,TRUE,0);
   //gtk_widget_set_size_request(self->priv->pos_header,POSITION_CELL_WIDTH,-1);
-  g_signal_connect(G_OBJECT(self->priv->pos_menu),"changed",G_CALLBACK(on_pos_menu_changed), (gpointer)self);
+  g_signal_connect(self->priv->pos_menu,"changed",G_CALLBACK(on_pos_menu_changed), (gpointer)self);
   gtk_widget_show_all(self->priv->pos_header);
 
   gtk_box_pack_start(GTK_BOX(self->priv->sequence_pos_table_header),self->priv->pos_header,TRUE,TRUE,0);
@@ -1095,7 +1095,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   gtk_widget_set_size_request(header,SEQUENCE_CELL_WIDTH,-1);
   gtk_widget_show_all(header);
   gtk_box_pack_start(GTK_BOX(self->priv->sequence_table_header),header,FALSE,FALSE,0);
-  g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
+  g_signal_connect(header,"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
 
   // re-add static columns
   renderer=gtk_cell_renderer_text_new();
@@ -1114,7 +1114,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
     NULL);
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
-  g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_sequence_label_edited),(gpointer)self);
+  g_signal_connect(renderer,"edited",G_CALLBACK(on_sequence_label_edited),(gpointer)self);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
     "foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
@@ -1194,7 +1194,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
   GST_INFO("refresh sequence table");
 
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get((gpointer)song,"setup",&setup,NULL);
   g_object_get(self->priv->sequence,"length",&timeline_ct,"tracks",&track_ct,NULL);
   GST_DEBUG("  size is %2lu,%2lu",timeline_ct,track_ct);
 
@@ -1326,15 +1326,15 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       g_free(str);
       gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
 
-      // disconnecting old handler here would be better, but then we need to differentiate
-      g_signal_handlers_disconnect_matched(G_OBJECT(machine),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_seq,NULL);
-      g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed_seq),(gpointer)label);
+      // disconnecting old handler here would be better, but then we need to differentiate (see below)
+      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_seq,NULL);
+      g_signal_connect(machine,"notify::id",G_CALLBACK(on_machine_id_changed_seq),(gpointer)label);
       // we need to remove the signal handler when updating the labels
       //g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
       /* we have the label column already
       if(j==0) {
         // connect to the size-allocate signal to adjust the height of the other treeview header
-        g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
+        g_signal_connect(header,"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
       }
       */
 
@@ -1355,21 +1355,21 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         // @todo: use colors from ui-resources
         button=make_mini_button("M",1.2, 1.0/1.25, 1.0/1.25,(state==BT_MACHINE_STATE_MUTE)); // red
         gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
-        g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
-        g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_mute), (gpointer)button);
+        g_signal_connect(button,"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
+        g_signal_connect(machine,"notify::state", G_CALLBACK(on_machine_state_changed_mute), (gpointer)button);
 
         if(BT_IS_SOURCE_MACHINE(machine)) {
           button=make_mini_button("S",1.0/1.2,1.0/1.2,1.1,(state==BT_MACHINE_STATE_SOLO)); // blue
           gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
-          g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_solo_toggled),(gpointer)machine);
-          g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_solo), (gpointer)button);
+          g_signal_connect(button,"toggled",G_CALLBACK(on_solo_toggled),(gpointer)machine);
+          g_signal_connect(machine,"notify::state", G_CALLBACK(on_machine_state_changed_solo), (gpointer)button);
         }
 
         if(BT_IS_PROCESSOR_MACHINE(machine)) {
           button=make_mini_button("B",1.2,1.0/1.1,1.0/1.4,(state==BT_MACHINE_STATE_BYPASS)); // orange
           gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
-          g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_bypass_toggled),(gpointer)machine);
-          g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_bypass), (gpointer)button);
+          g_signal_connect(button,"toggled",G_CALLBACK(on_bypass_toggled),(gpointer)machine);
+          g_signal_connect(machine,"notify::state", G_CALLBACK(on_machine_state_changed_bypass), (gpointer)button);
         }
         vumeter=GTK_VUMETER(gtk_vumeter_new(FALSE));
         gtk_vumeter_set_min_max(vumeter, LOW_VUMETER_VAL, 0);
@@ -1548,8 +1548,8 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
   if(machine!=self->priv->machine) {
     if(self->priv->machine) {
       GST_INFO("unref old cur-machine %p,refs=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
-      g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
-      g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
+      g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_added_handler);
+      g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_removed_handler);
       // unref the old machine
       g_object_unref(self->priv->machine);
       self->priv->machine=NULL;
@@ -1558,12 +1558,12 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
     }
     if(machine) {
       GST_INFO("ref new cur-machine: refs: %d",G_OBJECT_REF_COUNT(machine));
-      self->priv->pattern_added_handler=g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
-      self->priv->pattern_removed_handler=g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
+      self->priv->pattern_added_handler=g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
+      self->priv->pattern_removed_handler=g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
       // remember the new machine
       self->priv->machine=machine;
     }  
-    pattern_list_refresh(self);    
+    pattern_list_refresh(self);
   }
   else {
     g_object_try_unref(machine);
@@ -1587,7 +1587,7 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(self->priv->context_menu_add),submenu);
 
   // fill machine menu
-  g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+  g_object_get((gpointer)setup,"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
     g_object_get(machine,"id",&str,NULL);
@@ -1600,12 +1600,12 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
     label=g_list_nth_data(widgets,0);
     if(GTK_IS_LABEL(label)) {
       GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
-      g_signal_handlers_disconnect_matched(G_OBJECT(machine),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_menu,NULL);
-      g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed_menu),(gpointer)label);
+      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_menu,NULL);
+      g_signal_connect(machine,"notify::id",G_CALLBACK(on_machine_id_changed_menu),(gpointer)label);
       // we need to remove the signal handler when updating the labels
       //g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
     }
-    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);
+    g_signal_connect(menu_item,"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);
     g_list_free(widgets);
     g_free(str);
   }
@@ -1893,7 +1893,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   GtkTreePath *path;
 
   // calculate fractional pos and set into sequence-viewer
-  g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
+  g_object_get((gpointer)song,"play-pos",&pos,NULL);
   g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
   play_pos=(gdouble)pos/(gdouble)sequence_length;
   if(play_pos<=1.0) {
@@ -1927,7 +1927,7 @@ static void reset_level_meter(gpointer key, gpointer value, gpointer user_data) 
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
-  g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
+  g_object_get((gpointer)song,"is-playing",&self->priv->is_playing,NULL);
   // stop all level meters
   if(!self->priv->is_playing) {
     g_hash_table_foreach(self->priv->level_to_vumeter,reset_level_meter,NULL);
@@ -2630,11 +2630,11 @@ static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScrol
     */
     
     keyevent.type = GDK_KEY_PRESS;
-    //g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-press-event", &keyevent );
+    //g_signal_emit_by_name(self->priv->sequence_table, "key-press-event", &keyevent );
     gtk_main_do_event((GdkEvent *)&keyevent);
     
     keyevent.type = GDK_KEY_RELEASE;
-    //g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-release-event", &keyevent );
+    //g_signal_emit_by_name(self->priv->sequence_table, "key-release-event", &keyevent );
     gtk_main_do_event((GdkEvent *)&keyevent);
 
     return TRUE;
@@ -2698,7 +2698,7 @@ static void on_song_info_bars_changed(const BtSongInfo *song_info,GParamSpec *ar
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   glong bars;
 
-  g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
+  g_object_get((gpointer)song_info,"bars",&bars,NULL);
   // this also recolors the sequence
   update_bars_menu(self,bars);
 }
@@ -2741,8 +2741,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   sequence_table_refresh_labels(self);
   update_after_track_changed(self);
   machine_menu_refresh(self,setup);
-  g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
-  g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
+  g_signal_connect(setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
+  g_signal_connect(setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   // update toolbar
   g_object_get(song_info,"bars",&bars,NULL);
   update_bars_menu(self,bars);
@@ -2762,10 +2762,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   self->priv->clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
 
   // subscribe to play-pos changes of song->sequence
-  g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
-  g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
+  g_signal_connect(song, "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
+  g_signal_connect(song,"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   // subscribe to changes in the rythm
-  g_signal_connect(G_OBJECT(song_info), "notify::bars", G_CALLBACK(on_song_info_bars_changed), (gpointer)self);
+  g_signal_connect(song_info, "notify::bars", G_CALLBACK(on_song_info_bars_changed), (gpointer)self);
   //-- release the references
   gst_object_unref(bin);
   g_object_unref(song_info);
@@ -2778,7 +2778,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   GtkToolbar *toolbar=GTK_TOOLBAR(user_data);
   gchar *toolbar_style;
 
-  g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
+  g_object_get((gpointer)settings,"toolbar-style",&toolbar_style,NULL);
   if(!BT_IS_STRING(toolbar_style)) return;
 
   GST_INFO("!!!  toolbar style has changed '%s'", toolbar_style);
@@ -2821,7 +2821,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,"text", 0,NULL);
-  g_signal_connect(G_OBJECT(self->priv->bars_menu),"changed",G_CALLBACK(on_bars_menu_changed), (gpointer)self);
+  g_signal_connect(self->priv->bars_menu,"changed",G_CALLBACK(on_bars_menu_changed), (gpointer)self);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Steps")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->bars_menu),TRUE,TRUE,2);
 
@@ -2839,7 +2839,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   tool_item=GTK_WIDGET(gtk_tool_button_new(image,_("Sequence view menu")));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Menu actions for sequence view below"));
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
 
 
   // get colors
@@ -2855,7 +2855,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
 
   // generate the context menu
   self->priv->accel_group=gtk_accel_group_new();
-  self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
+  self->priv->context_menu=GTK_MENU(g_object_ref_sink(gtk_menu_new()));
   gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), self->priv->accel_group);
   gtk_menu_set_accel_path(GTK_MENU(self->priv->context_menu),"<Buzztard-Main>/SequenceView/SequenceContext");
 
@@ -2872,7 +2872,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_accel_map_add_entry ("<Buzztard-Main>/SequenceView/SequenceContext/RemoveTrack", GDK_Delete, GDK_CONTROL_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_remove_activated),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_track_remove_activated),(gpointer)self);
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -2886,7 +2886,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_accel_map_add_entry ("<Buzztard-Main>/SequenceView/SequenceContext/MoveTrackLeft", GDK_Left, GDK_CONTROL_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_move_left_activated),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_track_move_left_activated),(gpointer)self);
 
   menu_item=gtk_image_menu_item_new_with_label(_("Move track right"));
   image=gtk_image_new_from_stock(GTK_STOCK_GO_FORWARD,GTK_ICON_SIZE_MENU);
@@ -2895,7 +2895,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_accel_map_add_entry ("<Buzztard-Main>/SequenceView/SequenceContext/MoveTrackRight", GDK_Right, GDK_CONTROL_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_move_right_activated),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_track_move_right_activated),(gpointer)self);
 
   // --
   // @todo cut, copy, paste
@@ -2932,7 +2932,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   sequence_pos_table_init(self);
   gtk_container_add(GTK_CONTAINER(scrolled_vsync_window),GTK_WIDGET(self->priv->sequence_pos_table));
   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_vsync_window), TRUE, TRUE, 0);
-  g_signal_connect(G_OBJECT(self->priv->sequence_pos_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
+  g_signal_connect(self->priv->sequence_pos_table, "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
 
   // add vertical separator
   gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
@@ -2950,7 +2950,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_LABEL,NULL);
-  g_signal_connect(G_OBJECT(self->priv->label_menu),"changed",G_CALLBACK(on_label_menu_changed), (gpointer)self);
+  g_signal_connect(self->priv->label_menu,"changed",G_CALLBACK(on_label_menu_changed), (gpointer)self);
 
   vbox=gtk_vbox_new(FALSE,0);
   gtk_box_pack_start(GTK_BOX(box), vbox, TRUE, TRUE, 0);
@@ -2966,12 +2966,12 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
   gtk_widget_set_size_request(GTK_WIDGET(hsync_viewport),SEQUENCE_CELL_WIDTH,-1);
   /* DEBUG
-  g_signal_connect(G_OBJECT(self->priv->sequence_table_header),"size-allocate",G_CALLBACK(on_sequence_header_size_allocate),(gpointer)"box");
-  g_signal_connect(G_OBJECT(self->priv->sequence_table_header),"size-allocate",G_CALLBACK(on_sequence_header_size_allocate),(gpointer)"vport");
+  g_signal_connect(self->priv->sequence_table_header,"size-allocate",G_CALLBACK(on_sequence_header_size_allocate),(gpointer)"box");
+  g_signal_connect(self->priv->sequence_table_header,"size-allocate",G_CALLBACK(on_sequence_header_size_allocate),(gpointer)"vport");
   // DEBUG */
   
   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_hsync_window), FALSE, FALSE, 0);
-  g_signal_connect(G_OBJECT(scrolled_hsync_window), "button-press-event", G_CALLBACK(on_sequence_header_button_press_event), (gpointer)self);
+  g_signal_connect(scrolled_hsync_window, "button-press-event", G_CALLBACK(on_sequence_header_button_press_event), (gpointer)self);
 
   // add sequence list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
@@ -2989,11 +2989,11 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   sequence_table_init(self);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
-  g_signal_connect_after(G_OBJECT(self->priv->sequence_table), "cursor-changed", G_CALLBACK(on_sequence_table_cursor_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->sequence_table), "key-release-event", G_CALLBACK(on_sequence_table_key_release_event), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->sequence_table), "motion-notify-event", G_CALLBACK(on_sequence_table_motion_notify_event), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->sequence_table), "scroll-event", G_CALLBACK(on_sequence_table_scroll_event), (gpointer)self);
+  g_signal_connect_after(self->priv->sequence_table, "cursor-changed", G_CALLBACK(on_sequence_table_cursor_changed), (gpointer)self);
+  g_signal_connect(self->priv->sequence_table, "key-release-event", G_CALLBACK(on_sequence_table_key_release_event), (gpointer)self);
+  g_signal_connect(self->priv->sequence_table, "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
+  g_signal_connect(self->priv->sequence_table, "motion-notify-event", G_CALLBACK(on_sequence_table_motion_notify_event), (gpointer)self);
+  g_signal_connect(self->priv->sequence_table, "scroll-event", G_CALLBACK(on_sequence_table_scroll_event), (gpointer)self);
   gtk_widget_set_name(GTK_WIDGET(self->priv->sequence_table),"sequence editor");
 
   // make pos scrolled-window also use the vertical-scrollbar of the sequence scrolled-window
@@ -3059,14 +3059,14 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   //g_signal_connect_after(GTK_WIDGET(self->priv->sequence_table),"realize",G_CALLBACK(on_sequence_view_realized),(gpointer)self);
   gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_table));
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   // listen to page changes
-  g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+  g_signal_connect((gpointer)pages, "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   // let settings control toolbar style
   g_object_get(self->priv->app,"settings",&settings,NULL);
   on_toolbar_style_changed(settings,NULL,(gpointer)toolbar);
-  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)toolbar);
+  g_signal_connect(settings, "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)toolbar);
   g_object_unref(settings);
 
   GST_DEBUG("  done");
@@ -3474,9 +3474,9 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   if(self->priv->machine) {
     GST_INFO("unref old cur-machine: %p,refs=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
     if(self->priv->pattern_added_handler)
-      g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
+      g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_added_handler);
     if(self->priv->pattern_removed_handler)
-      g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
+      g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_removed_handler);
     g_object_unref(self->priv->machine);
   }
 

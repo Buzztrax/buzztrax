@@ -233,7 +233,7 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
     gulong i=0;
 
     //-- append wavelevels rows
-    g_object_get(G_OBJECT(wave),"wavelevels",&list,NULL);
+    g_object_get((gpointer)wave,"wavelevels",&list,NULL);
     for(node=list;node;node=g_list_next(node),i++) {
       wavelevel=BT_WAVELEVEL(node->data);
       g_object_get(wavelevel,
@@ -745,7 +745,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(song,"wavetable",&self->priv->wavetable,NULL);
   // update page
   if((wave=waves_list_get_current(self))) {
-    g_signal_connect(G_OBJECT(wave),"loading-done",G_CALLBACK(on_wave_loading_done),(gpointer)self);
+    g_signal_connect(wave,"loading-done",G_CALLBACK(on_wave_loading_done),(gpointer)self);
     g_object_unref(wave);
   }
   waves_list_refresh(self);
@@ -760,7 +760,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   GtkToolbarStyle style;
   gchar *toolbar_style;
 
-  g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
+  g_object_get((gpointer)settings,"toolbar-style",&toolbar_style,NULL);
   if(!BT_IS_STRING(toolbar_style)) return;
 
   GST_INFO("!!!  toolbar style has changed '%s'",toolbar_style);
@@ -775,7 +775,7 @@ static void on_default_sample_folder_changed(const BtSettings *settings,GParamSp
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   gchar *sample_folder;
 
-  g_object_get(G_OBJECT(settings),"sample-folder",&sample_folder,NULL);
+  g_object_get((gpointer)settings,"sample-folder",&sample_folder,NULL);
   gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (self->priv->file_chooser), sample_folder);
   g_free(sample_folder);
 }
@@ -978,7 +978,7 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     // @idea: listen to status property on wave for loader updates
     
     // listen to wave::loaded signal and refresh the wave list on success
-    g_signal_connect(G_OBJECT(wave),"loading-done",G_CALLBACK(on_wave_loading_done),(gpointer)self);
+    g_signal_connect(wave,"loading-done",G_CALLBACK(on_wave_loading_done),(gpointer)self);
 
     // release the references
     g_object_unref(wave);
@@ -1041,21 +1041,21 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   gtk_widget_set_name(tool_item,"Play");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play current wave table entry as C-4"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_play_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_wavetable_toolbar_play_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
 
   self->priv->wavetable_stop=tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
   gtk_widget_set_name(tool_item,"Stop");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Stop playback of current wave table entry"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_stop_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_wavetable_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
 
   self->priv->wavetable_clear=tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR));
   gtk_widget_set_name(tool_item,"Clear");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Clear current wave table entry"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_clear_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_wavetable_toolbar_clear_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
 
   gtk_box_pack_start(GTK_BOX(box),self->priv->list_toolbar,FALSE,FALSE,0);
@@ -1068,8 +1068,8 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   gtk_widget_set_name(GTK_WIDGET(self->priv->waves_list),"wave list");
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->waves_list),GTK_SELECTION_BROWSE);
   g_object_set(self->priv->waves_list,"enable-search",FALSE,"rules-hint",TRUE,NULL);
-  g_signal_connect(G_OBJECT(self->priv->waves_list),"cursor-changed",G_CALLBACK(on_waves_list_cursor_changed),(gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->waves_list),"row-activated",G_CALLBACK(on_waves_list_row_activated),(gpointer)self);
+  g_signal_connect(self->priv->waves_list,"cursor-changed",G_CALLBACK(on_waves_list_cursor_changed),(gpointer)self);
+  g_signal_connect(self->priv->waves_list,"row-activated",G_CALLBACK(on_waves_list_row_activated),(gpointer)self);
 
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
@@ -1081,7 +1081,7 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(renderer,"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
-  g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wave_name_edited),(gpointer)self);
+  g_signal_connect(renderer,"edited",G_CALLBACK(on_wave_name_edited),(gpointer)self);
   gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Wave"),renderer,"text",WAVE_TABLE_NAME,NULL);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->waves_list));
   gtk_container_add(GTK_CONTAINER(box),scrolled_window);
@@ -1091,7 +1091,7 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   gtk_table_attach(GTK_TABLE(table),gtk_label_new(_("Volume")), 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->volume=GTK_HSCALE(gtk_hscale_new_with_range(0.0,1.0,0.01));
   gtk_scale_set_value_pos(GTK_SCALE(self->priv->volume),GTK_POS_RIGHT);
-  g_signal_connect(G_OBJECT(self->priv->volume), "value-changed", G_CALLBACK(on_volume_changed), (gpointer)self);
+  g_signal_connect(self->priv->volume, "value-changed", G_CALLBACK(on_volume_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->volume), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   gtk_table_attach(GTK_TABLE(table),gtk_label_new(_("Loop")), 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->loop_mode=GTK_COMBO_BOX(gtk_combo_box_new_text());
@@ -1104,7 +1104,7 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   }
   g_type_class_unref(enum_class);
   gtk_combo_box_set_active(self->priv->loop_mode,BT_WAVE_LOOP_MODE_OFF);
-  g_signal_connect(G_OBJECT(self->priv->loop_mode), "changed", G_CALLBACK(on_loop_mode_changed), (gpointer)self);
+  g_signal_connect(self->priv->loop_mode, "changed", G_CALLBACK(on_loop_mode_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->loop_mode), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   gtk_box_pack_start(GTK_BOX(box),table,FALSE,FALSE,0);
 
@@ -1120,20 +1120,20 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   gtk_widget_set_name(tool_item,"Play");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play current sample"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_browser_toolbar_play_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_browser_toolbar_play_clicked),(gpointer)self);
 
   self->priv->browser_stop=tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
   gtk_widget_set_name(tool_item,"Stop");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Stop playback of current sample"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_browser_toolbar_stop_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_browser_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_OPEN));
   gtk_widget_set_name(tool_item,"Open");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Load current sample into selected wave table entry"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_browser_toolbar_open_clicked),(gpointer)self);
+  //g_signal_connect(tool_item,"clicked",G_CALLBACK(on_browser_toolbar_open_clicked),(gpointer)self);
 
   gtk_box_pack_start(GTK_BOX(box),self->priv->browser_toolbar,FALSE,FALSE,0);
 
@@ -1143,8 +1143,8 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
    * Gdk-CRITICAL **: gdk_drawable_get_size: assertion `GDK_IS_DRAWABLE (drawable)' failed
    */
   self->priv->file_chooser=gtk_file_chooser_widget_new(GTK_FILE_CHOOSER_ACTION_OPEN);
-  g_signal_connect(G_OBJECT(self->priv->file_chooser),"file-activated",G_CALLBACK(on_file_chooser_load_sample),(gpointer)self);
-  //g_signal_connect(G_OBJECT(self->priv->file_chooser),"update-preview",G_CALLBACK(on_file_chooser_info_sample),(gpointer)self);
+  g_signal_connect(self->priv->file_chooser,"file-activated",G_CALLBACK(on_file_chooser_load_sample),(gpointer)self);
+  //g_signal_connect(self->priv->file_chooser,"update-preview",G_CALLBACK(on_file_chooser_info_sample),(gpointer)self);
   gtk_box_pack_start(GTK_BOX(box),self->priv->file_chooser,TRUE,TRUE,BOX_BORDER);
 
   //   vbox (sample view)
@@ -1167,15 +1167,15 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   gtk_widget_set_name(GTK_WIDGET(self->priv->wavelevels_list),"wave-level list");
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->wavelevels_list),GTK_SELECTION_BROWSE);
   g_object_set(self->priv->wavelevels_list,"enable-search",FALSE,"rules-hint",TRUE,NULL);
-  g_signal_connect(G_OBJECT(self->priv->wavelevels_list),"cursor-changed",G_CALLBACK(on_wavelevels_list_cursor_changed),(gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->wavelevels_list),"row-activated",G_CALLBACK(on_wavelevels_list_row_activated),(gpointer)self);
+  g_signal_connect(self->priv->wavelevels_list,"cursor-changed",G_CALLBACK(on_wavelevels_list_cursor_changed),(gpointer)self);
+  g_signal_connect(self->priv->wavelevels_list,"row-activated",G_CALLBACK(on_wavelevels_list_row_activated),(gpointer)self);
 
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(renderer,"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Root"),renderer,"text",WAVELEVEL_TABLE_ROOT_NOTE,NULL);
-  g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_root_note_edited),(gpointer)self);
+  g_signal_connect(renderer,"edited",G_CALLBACK(on_wavelevel_root_note_edited),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
@@ -1185,19 +1185,19 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(renderer,"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Rate"),renderer,"text",WAVELEVEL_TABLE_RATE,NULL);
-  g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_rate_edited),(gpointer)self);
+  g_signal_connect(renderer,"edited",G_CALLBACK(on_wavelevel_rate_edited),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(renderer,"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Loop start"),renderer,"text",WAVELEVEL_TABLE_LOOP_START,NULL);
-  g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_loop_start_edited),(gpointer)self);
+  g_signal_connect(renderer,"edited",G_CALLBACK(on_wavelevel_loop_start_edited),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(renderer,"mode",GTK_CELL_RENDERER_MODE_EDITABLE,"editable",TRUE,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Loop end"),renderer,"text",WAVELEVEL_TABLE_LOOP_END,NULL);
-  g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_wavelevel_loop_end_edited),(gpointer)self);
+  g_signal_connect(renderer,"edited",G_CALLBACK(on_wavelevel_loop_end_edited),(gpointer)self);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->wavelevels_list));
   gtk_box_pack_start(GTK_BOX(box2),scrolled_window,FALSE,FALSE,0);
 
@@ -1208,13 +1208,13 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   gtk_box_pack_start(GTK_BOX(box2),self->priv->waveform_viewer,TRUE,TRUE,0);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 
   // let settings control toolbar style and listen to other settings changes
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
   on_default_sample_folder_changed(settings,NULL,(gpointer)self);
-  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(settings), "notify::sample-folder", G_CALLBACK(on_default_sample_folder_changed), (gpointer)self);
+  g_signal_connect(settings, "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
+  g_signal_connect(settings, "notify::sample-folder", G_CALLBACK(on_default_sample_folder_changed), (gpointer)self);
 
   g_object_unref(settings);
 

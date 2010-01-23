@@ -211,7 +211,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   machine_view_clear(self);
 
   // update view
-  g_object_get(G_OBJECT(setup),"properties",&self->priv->properties,NULL);
+  g_object_get((gpointer)setup,"properties",&self->priv->properties,NULL);
   if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"zoom"))) {
     self->priv->zoom=g_ascii_strtod(prop,NULL);
     gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
@@ -237,7 +237,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   }
 
   // draw all machines
-  g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+  g_object_get((gpointer)setup,"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
     // get position
@@ -249,7 +249,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   g_list_free(list);
 
   // draw all wires
-  g_object_get(G_OBJECT(setup),"wires",&list,NULL);
+  g_object_get((gpointer)setup,"wires",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     wire=BT_WIRE(node->data);
     // get positions of source and dest
@@ -477,9 +477,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(song,"setup",&setup,NULL);
   // update page
   machine_view_refresh(self,setup);
-  g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
-  g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
-  g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
+  g_signal_connect(setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
+  g_signal_connect(setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
+  g_signal_connect(setup,"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
   // release the reference
   g_object_unref(setup);
   g_object_unref(song);
@@ -896,7 +896,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gchar *toolbar_style;
 
-  g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
+  g_object_get((gpointer)settings,"toolbar-style",&toolbar_style,NULL);
   if(!BT_IS_STRING(toolbar_style)) return;
 
   GST_INFO("!!!  toolbar style has changed '%s'",toolbar_style);
@@ -941,7 +941,7 @@ static void on_canvas_size_allocate(GtkWidget *widget,GtkAllocation *allocation,
 static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachines *self) {
   GtkWidget *menu_item,*menu,*image;
 
-  self->priv->context_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
+  self->priv->context_menu=GTK_MENU(g_object_ref_sink(gtk_menu_new()));
 
   //menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
   menu_item=gtk_image_menu_item_new_with_label(_("Add machine"));
@@ -968,35 +968,35 @@ static void bt_main_page_machines_init_grid_density_menu(const BtMainPageMachine
   GtkWidget *menu_item;
 
   // create grid-density menu with grid-density={off,low,mid,high}
-  self->priv->grid_density_menu=GTK_MENU(g_object_ref_sink(G_OBJECT(gtk_menu_new())));
+  self->priv->grid_density_menu=GTK_MENU(g_object_ref_sink(gtk_menu_new()));
 
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Off"));
   self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
   if(self->priv->grid_density==0) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->grid_density_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_off_activated),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_toolbar_grid_density_off_activated),(gpointer)self);
 
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Low"));
   self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
   if(self->priv->grid_density==1) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->grid_density_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_low_activated),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_toolbar_grid_density_low_activated),(gpointer)self);
 
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Medium"));
   self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
   if(self->priv->grid_density==2) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->grid_density_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_mid_activated),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_toolbar_grid_density_mid_activated),(gpointer)self);
 
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("High"));
   self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
   if(self->priv->grid_density==3) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->grid_density_menu),menu_item);
   gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_high_activated),(gpointer)self);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_toolbar_grid_density_high_activated),(gpointer)self);
 }
 
 static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const BtMainPages *pages) {
@@ -1041,14 +1041,14 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(self->priv->zoom_in),_("Zoom in for more details"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_in),-1);
-  g_signal_connect(G_OBJECT(self->priv->zoom_in),"clicked",G_CALLBACK(on_toolbar_zoom_in_clicked),(gpointer)self);
+  g_signal_connect(self->priv->zoom_in,"clicked",G_CALLBACK(on_toolbar_zoom_in_clicked),(gpointer)self);
 
   self->priv->zoom_out=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_OUT));
   gtk_widget_set_name(self->priv->zoom_out,"Zoom Out");
   gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(self->priv->zoom_out),_("Zoom out for better overview"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_out),-1);
-  g_signal_connect(G_OBJECT(self->priv->zoom_out),"clicked",G_CALLBACK(on_toolbar_zoom_out_clicked),(gpointer)self);
+  g_signal_connect(self->priv->zoom_out,"clicked",G_CALLBACK(on_toolbar_zoom_out_clicked),(gpointer)self);
 
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
 
@@ -1062,13 +1062,13 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(tool_item),_("Show background grid"));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Show background grid"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
+  //g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
 #else
   image=gtk_image_new_from_icon_name("buzztard_menu_grid",GTK_ICON_SIZE_MENU);
   tool_item=GTK_WIDGET(gtk_tool_button_new(image,_("Grid")));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Show background grid"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
 #endif
 
 #ifndef USE_HILDON
@@ -1080,7 +1080,7 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   tool_item=GTK_WIDGET(gtk_tool_button_new(image,_("Machine view menu")));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Menu actions for machine view below"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
+  g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
 
   gtk_box_pack_start(GTK_BOX(self),self->priv->toolbar,FALSE,FALSE,0);
 
@@ -1103,7 +1103,7 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   gtk_widget_set_name(GTK_WIDGET(self->priv->canvas),"machine-and-wire-editor");
   /* DEBUG
-  g_signal_connect(G_OBJECT(self->priv->canvas),"size-allocate",G_CALLBACK(on_canvas_size_allocate),(gpointer)self);
+  g_signal_connect(self->priv->canvas,"size-allocate",G_CALLBACK(on_canvas_size_allocate),(gpointer)self);
   DEBUG */
 
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
@@ -1111,31 +1111,31 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   bt_main_page_machines_draw_grid(self);
 
   self->priv->vadjustment=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
-  g_signal_connect(G_OBJECT(self->priv->vadjustment),"value-changed",G_CALLBACK(on_vadjustment_changed),(gpointer)self);
+  g_signal_connect(self->priv->vadjustment,"value-changed",G_CALLBACK(on_vadjustment_changed),(gpointer)self);
   self->priv->hadjustment=gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
-  g_signal_connect(G_OBJECT(self->priv->hadjustment),"value-changed",G_CALLBACK(on_hadjustment_changed),(gpointer)self);
+  g_signal_connect(self->priv->hadjustment,"value-changed",G_CALLBACK(on_hadjustment_changed),(gpointer)self);
 
   // create volume popup
   self->priv->vol_popup_adj=gtk_adjustment_new(1.0, 0.0, 4.0, 0.05, 0.1, 0.0);
   self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
-  g_signal_connect(G_OBJECT(self->priv->vol_popup_adj),"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
+  g_signal_connect(self->priv->vol_popup_adj,"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
 
   // create panorama popup
   self->priv->pan_popup_adj=gtk_adjustment_new(0.0, -1.0, 1.0, 0.05, 0.1, 0.0);
   self->priv->pan_popup=BT_PANORAMA_POPUP(bt_panorama_popup_new(GTK_ADJUSTMENT(self->priv->pan_popup_adj)));
-  g_signal_connect(G_OBJECT(self->priv->pan_popup_adj),"value-changed",G_CALLBACK(on_panorama_popup_changed),(gpointer)self);
+  g_signal_connect(self->priv->pan_popup_adj,"value-changed",G_CALLBACK(on_panorama_popup_changed),(gpointer)self);
   
   // set default widget
   gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->canvas));
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(self->priv->canvas,"event",G_CALLBACK(on_canvas_event),(gpointer)self);
   // listen to page changes
-  g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+  g_signal_connect((gpointer)pages, "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   // let settings control toolbar style
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
-  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
+  g_signal_connect(settings, "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
   g_object_unref(settings);
   
   GST_DEBUG("  done");
@@ -1277,9 +1277,9 @@ static void bt_main_page_machines_dispose(GObject *object) {
   g_object_unref(self->priv->app);
 
   gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
-  g_object_unref(G_OBJECT(self->priv->context_menu));
+  g_object_unref(self->priv->context_menu);
   gtk_widget_destroy(GTK_WIDGET(self->priv->grid_density_menu));
-  g_object_unref(G_OBJECT(self->priv->grid_density_menu));
+  g_object_unref(self->priv->grid_density_menu);
 
   gdk_cursor_unref(self->priv->drag_cursor);
 

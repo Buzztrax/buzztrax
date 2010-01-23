@@ -188,8 +188,8 @@ static void bt_main_pages_init_ui(const BtMainPages *self) {
   // embed mozilla/gtk-html/webkit-gtk
   
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect((gpointer)self, "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   GST_DEBUG("  done");
 }

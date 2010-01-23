@@ -131,7 +131,7 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
     g_object_set_qdata(G_OBJECT(menu_item),widget_parent_quark,(gpointer)self);
     gtk_widget_show(menu_item);
     // connect handler
-    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_control_learn_activated),device);
+    g_signal_connect(menu_item,"activate",G_CALLBACK(on_control_learn_activated),device);
   }
 
   // get list of controls per device
@@ -164,7 +164,7 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
     g_free(str);
 
     // connect handler
-    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_control_bind_activated),(gpointer)control);
+    g_signal_connect(menu_item,"activate",G_CALLBACK(on_control_bind_activated),(gpointer)control);
   }
   g_list_free(list);
   
