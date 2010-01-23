@@ -265,6 +265,7 @@ static void btic_registry_finalize(GObject * const object) {
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
+  singleton=NULL;
 }
 
 static GObject *btic_registry_constructor(GType type,guint n_construct_params,GObjectConstructParam *construct_params) {

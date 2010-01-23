@@ -497,6 +497,7 @@ static void bt_ui_resources_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
+  singleton=NULL;
 }
 
 static GObject *bt_ui_resources_constructor(GType type,guint n_construct_params,GObjectConstructParam *construct_params) {

@@ -750,6 +750,7 @@ static void bt_edit_application_finalize(GObject *object) {
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
+  singleton=NULL;
 }
 
 static void bt_edit_application_init(GTypeInstance *instance, gpointer g_class) {
