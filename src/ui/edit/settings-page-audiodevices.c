@@ -24,7 +24,13 @@
  *
  * List available GStreamer audio devices. User can pick and configure one.
  */
-
+/* @todo: check if sinks implement property probe for device names
+ * - if so add device selection (combobox)
+ * - needs a way to store at least the current device
+ * - needs changes in sink-bin to use the setting
+ * - we should probably parse the system-audiosink settings more to eventualy
+ *   get the device from the setting
+ */
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_AUDIODEVICES_C
 
@@ -154,15 +160,16 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   /* @todo: use GST_IS_BIN(gst_element_factory_get_element_type(factory)) to skip bins
    * add autoaudiosink as the first and make it default
    *   but then again bins seem to be filtered out already, by below
-   * should we filter by baseclass, GST_IS_BASE_AUDIO_SINK(...) - need instances
+   *
+   * we could also filter by baseclass, GST_IS_BASE_AUDIO_SINK(...) now that we have instances
    */
 
   // add audio sinks gstreamer provides
   for(node=audiosink_names,ct=1;node;node=g_list_next(node)) {
     name=node->data;
 
-    // filter some known analyzer sinks
-    if(strncasecmp("ladspa-",name,7)) {
+    // filter some known analyzer sinks (ladspa and lv2)
+    if(strncasecmp("ladspa-",name,7) && strncasecmp("http-",name,5)) {
       GstElementFactory * const factory=gst_element_factory_find(name);
 
       // can the sink accept raw audio?
@@ -171,19 +178,33 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
       //can_int_caps=gst_element_factory_can_sink_caps(factory,int_caps);
       //can_float_caps=gst_element_factory_can_sink_caps(factory,float_caps);
       if(can_int_caps || can_float_caps) {
-        // @todo: try to open the element and skip those that we can't open
-  
-        // compare with audiosink_name and set audiosink_index if equal
-        if(!use_system_audiosink) {
-          if(!strcmp(audiosink_name,name)) audiosink_index=ct;
+        GstElement *sink;
+        gboolean works=FALSE;
+
+        // try to open the element and skip those that we can't open
+        if((sink=gst_element_factory_make(name,NULL))) {
+          GstStateChangeReturn ret=gst_element_set_state(sink,GST_STATE_READY);
+          works=(ret!=GST_STATE_CHANGE_FAILURE);
+          gst_element_set_state(sink,GST_STATE_NULL);
+          gst_object_unref(sink);
         }
-        str=g_strdup_printf("%s (%s)",name,gst_element_factory_get_description(factory));
-        gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
-        g_free(str);
-        // add this to instance list
-        self->priv->audiosink_names=g_list_append(self->priv->audiosink_names,name);
-        GST_INFO("  adding audio sink: \"%s\"",name);
-        ct++;
+        
+        if(works) {
+          // compare with audiosink_name and set audiosink_index if equal
+          if(!use_system_audiosink) {
+            if(!strcmp(audiosink_name,name)) audiosink_index=ct;
+          }
+          str=g_strdup_printf("%s (%s)",name,gst_element_factory_get_description(factory));
+          gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
+          g_free(str);
+          // add this to instance list
+          self->priv->audiosink_names=g_list_append(self->priv->audiosink_names,name);
+          GST_INFO("  adding audio sink: \"%s\"",name);
+          ct++;
+        }
+        else {
+          GST_INFO("  skipping audio sink: \"%s\" as if cannot go to READY",name);
+        }
       }
       else {
         GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps (%d,%d)",name,can_int_caps,can_float_caps);
