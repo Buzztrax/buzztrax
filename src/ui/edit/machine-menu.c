@@ -65,7 +65,7 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
   // bt_machine_init_voice_params()
   machine=BT_MACHINE(bt_source_machine_new(song,id,name,/*voices=*/1,&err));
   if(err==NULL) {
-    GST_INFO("created source machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+    GST_INFO("created source machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
   }
   else {
     GST_WARNING("Can't create source machine: %s",err->message);
@@ -98,7 +98,7 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
   // bt_machine_init_voice_params()
   machine=BT_MACHINE(bt_processor_machine_new(song,id,name,/*voices=*/1,&err));
   if(err==NULL) {
-    GST_INFO("created processor machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+    GST_INFO("created processor machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
   }
   else {
     GST_WARNING("Can't create processor machine: %s",err->message);

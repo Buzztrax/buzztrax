@@ -604,10 +604,10 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   }
   
   if(remove || bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no undo for this."))) {
-    GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
+    GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
     bt_setup_remove_machine(setup,self->priv->machine);
     // this segfaults if the machine is finalized
-    //GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
+    //GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
   }
   g_object_unref(setup);
   g_object_unref(sequence);
@@ -783,7 +783,7 @@ BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_p
                             "zoom", zoom,
                             NULL));
 
-  //GST_INFO("machine canvas item added, ref-ct=%d",G_OBJECT(self)->ref_count);
+  //GST_INFO("machine canvas item added, ref-ct=%d",G_OBJECT_REF_COUNT(self));
 
   g_object_unref(canvas);
   return(self);
@@ -803,9 +803,9 @@ static void bt_machine_canvas_item_get_property(GObject *object, guint property_
       g_value_set_object(value, self->priv->main_page_machines);
     } break;
     case MACHINE_CANVAS_ITEM_MACHINE: {
-      GST_INFO("getting machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
+      GST_INFO("getting machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
       g_value_set_object(value, self->priv->machine);
-      //GST_INFO("... : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
+      //GST_INFO("... : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
     } break;
     case MACHINE_CANVAS_ITEM_ZOOM: {
       g_value_set_double(value, self->priv->zoom);
@@ -834,7 +834,7 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
         GstBin *bin;
         GstBus *bus;
 
-        GST_INFO("set the  machine %p,machine->ref_ct=%d for new canvas item",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
+        GST_INFO("set the  machine %p,machine->ref_ct=%d for new canvas item",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
         g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
@@ -905,7 +905,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  GST_DEBUG("machine: %p,ref_count %d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
+  GST_DEBUG("machine: %p,ref_count %d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
   
   g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->machine),G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
 
@@ -942,7 +942,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 
   gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));
   g_object_try_unref(G_OBJECT(self->priv->context_menu));
-  GST_DEBUG("  destroying done, machine: %p,ref_count %d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
+  GST_DEBUG("  destroying done, machine: %p,ref_count %d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);

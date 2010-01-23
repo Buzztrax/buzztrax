@@ -283,7 +283,7 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
   box=gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(self),box);
 
-  GST_INFO("before creating content, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
+  GST_INFO("before creating content, app->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->app));
 
   // add the menu-bar
   self->priv->menu=bt_main_menu_new();
@@ -313,7 +313,7 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
     drop_types, n_drop_types, GDK_ACTION_COPY);
   g_signal_connect(G_OBJECT(self), "drag-data-received", G_CALLBACK(on_window_dnd_drop),(gpointer)self);
 
-  GST_INFO("content created, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
+  GST_INFO("content created, app->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->app));
 
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self),"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
@@ -322,7 +322,7 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
   g_signal_connect(G_OBJECT(self),"event",G_CALLBACK(on_window_event),(gpointer)self);
   */
 
-  GST_INFO("signal connected, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
+  GST_INFO("signal connected, app->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->app));
 }
 
 //-- constructor methods
@@ -1031,7 +1031,7 @@ static void bt_main_window_dispose(GObject *object) {
 static void bt_main_window_finalize(GObject *object) {
   BtMainWindow *self = BT_MAIN_WINDOW(object);
 
-  GST_DEBUG("!!!! self=%p, ref_ct=%d",self,G_OBJECT(self)->ref_count);
+  GST_DEBUG("!!!! self=%p, ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
 
   g_free(self->priv->last_folder);
   

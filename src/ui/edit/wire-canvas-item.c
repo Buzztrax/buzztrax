@@ -240,15 +240,15 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_object_get(self->priv->src,"machine",&src,NULL);
   g_object_get(self->priv->dst,"machine",&dst,NULL);
 
-  GST_INFO("machine %p,machine->ref_ct=%d has been removed, checking wire %p->%p", machine,G_OBJECT(machine)->ref_count,src,dst);
+  GST_INFO("machine %p,machine->ref_ct=%d has been removed, checking wire %p->%p", machine,G_OBJECT_REF_COUNT(machine),src,dst);
   if((src==machine) || (dst==machine) || (src==NULL) || (dst==NULL)) {
     GST_INFO("the machine, this wire is connected to, has been removed");
     bt_setup_remove_wire(setup,self->priv->wire);
 
     GST_INFO("... machine %p,ref_count=%d has been removed, src %p,ref=%d, dst %p,ref=%d",
-      machine,G_OBJECT(machine)->ref_count,
-      src,(src?G_OBJECT(src)->ref_count:0),
-      dst,(dst?G_OBJECT(dst)->ref_count:0)
+      machine,G_OBJECT_REF_COUNT(machine),
+      src,(src?G_OBJECT_REF_COUNT(src):0),
+      dst,(dst?G_OBJECT_REF_COUNT(dst):0)
     );
   }
   g_object_try_unref(src);
@@ -295,9 +295,9 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"setup",&setup,NULL);
 
-  GST_INFO("now removing wire : %p,ref_count=%d",self->priv->wire,G_OBJECT(self->priv->wire)->ref_count);
+  GST_INFO("now removing wire : %p,ref_count=%d",self->priv->wire,G_OBJECT_REF_COUNT(self->priv->wire));
   bt_setup_remove_wire(setup,self->priv->wire);
-  //GST_INFO("... wire : %p,ref_count=%d",self->priv->wire,G_OBJECT(self->priv->wire)->ref_count);
+  //GST_INFO("... wire : %p,ref_count=%d",self->priv->wire,G_OBJECT_REF_COUNT(self->priv->wire));
 
   g_object_unref(setup);
   g_object_unref(song);

@@ -156,7 +156,7 @@ static void bt_main_pages_init_tab(const BtMainPages *self,guint index,gchar *st
 static void bt_main_pages_init_ui(const BtMainPages *self) {
   gtk_widget_set_name(GTK_WIDGET(self),"song views");
 
-  GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
+  GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->app));
 
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(self);

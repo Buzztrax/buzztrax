@@ -177,7 +177,7 @@ int main(int argc, char **argv) {
   }
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_unref(app);
 
 #if !GTK_CHECK_VERSION(2,14,0)

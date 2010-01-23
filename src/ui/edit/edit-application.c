@@ -246,7 +246,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   if(err==NULL) {
     GHashTable *properties;
 
-    GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
+    GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(machine));
     g_object_get(machine,"properties",&properties,NULL);
     if(properties) {
       gchar str[G_ASCII_DTOSTR_BUF_SIZE];
@@ -254,7 +254,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
       g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
     }
     if(bt_machine_enable_input_post_level(machine)) {
-      GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
+      GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(machine));
       // set new song in application
       bt_song_set_unsaved(song,FALSE);
       g_object_set(G_OBJECT(self),"song",song,NULL);
@@ -263,7 +263,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
     else {
       GST_WARNING("Can't add input level/gain element in sink machine");
     }
-    GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
+    GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(machine));
   }
   else {
     GST_WARNING("Can't create sink machine: %s",err->message);
@@ -319,7 +319,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
         GList *node=GST_BIN_CHILDREN(bin);
 
         while(node) {
-          GST_INFO_OBJECT(node->data,"removing object (ref-ct=%d)",G_OBJECT(node->data)->ref_count);
+          GST_INFO_OBJECT(node->data,"removing object (ref-ct=%d)",G_OBJECT_REF_COUNT(node->data));
           gst_bin_remove(bin,GST_ELEMENT(node->data));
           node=GST_BIN_CHILDREN(bin);
         }
@@ -636,11 +636,11 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
       // DEBUG
 
       if(self->priv->song) {
-        if(G_OBJECT(self->priv->song)->ref_count>1) {
-          GST_WARNING("old song->ref_ct=%d!",G_OBJECT(self->priv->song)->ref_count);
+        if(G_OBJECT_REF_COUNT(self->priv->song)>1) {
+          GST_WARNING("old song->ref_ct=%d!",G_OBJECT_REF_COUNT(self->priv->song));
         }
         else {
-          GST_INFO("old song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+          GST_INFO("old song->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->song));
         }
         g_object_unref(self->priv->song);
         // DEBUG - if new song is NULL, it should be empty now
@@ -651,7 +651,7 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
 
           GST_INFO("bin->num_children=%d",num);
           for(;node;node=g_list_next(node)) {
-            GST_INFO("  %p, ref_ct=%d, '%s'",node->data,G_OBJECT(node->data)->ref_count,GST_ELEMENT_NAME(node->data));
+            GST_INFO("  %p, ref_ct=%d, '%s'",node->data,G_OBJECT_REF_COUNT(node->data),GST_ELEMENT_NAME(node->data));
           }
         }
 #endif
@@ -662,7 +662,7 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
       // DEBUG
 
       self->priv->song=BT_SONG(g_value_dup_object(value));
-      if(self->priv->song) GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT(self->priv->song)->ref_count);
+      if(self->priv->song) GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT_REF_COUNT(self->priv->song));
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -686,7 +686,7 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     // create the interaction controller registry
     singleton->priv->ic_registry=btic_registry_new();
     // create main window
-    GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(singleton)->ref_count);
+    GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
     singleton->priv->main_window=bt_main_window_new();
   
     // warning: dereferencing type-punned pointer will break strict-aliasing rules
@@ -695,7 +695,7 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     hildon_program_add_window(HILDON_PROGRAM(hildon_program_get_instance()),
       HILDON_WINDOW(singleton->priv->main_window));
 #endif
-    GST_INFO("new edit app window created, app->ref_ct=%d",G_OBJECT(singleton)->ref_count);
+    GST_INFO("new edit app window created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
     //GST_DEBUG(">>>");
   }
   else {
@@ -716,16 +716,16 @@ static void bt_edit_application_dispose(GObject *object) {
    * strong reference to the app.
    * Solution 1: Only use weak refs when reffing upstream objects
    */
-  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
+  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
 
   if(self->priv->song) {
-    GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+    GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->song));
     bt_song_stop(self->priv->song);
     g_object_unref(self->priv->song);
   }
 
   if(self->priv->main_window) {
-    GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);
+    GST_INFO("main_window->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->main_window));
     //main-menu.c::on_menu_quit_activate
     gtk_widget_destroy(GTK_WIDGET(self->priv->main_window));
     // we get this if we unref

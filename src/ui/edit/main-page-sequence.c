@@ -1048,7 +1048,7 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
 }
 
 static void remove_container_widget(GtkWidget *widget,gpointer user_data) {
-  GST_LOG("removing: %d, %s",G_OBJECT(widget)->ref_count,gtk_widget_get_name(widget));
+  GST_LOG("removing: %d, %s",G_OBJECT_REF_COUNT(widget),gtk_widget_get_name(widget));
   gtk_container_remove(GTK_CONTAINER(user_data),widget);
 }
 
@@ -1069,10 +1069,10 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 
   // do not destroy when flushing the header
   if((vbox=gtk_widget_get_parent(GTK_WIDGET(self->priv->label_menu)))) {
-    GST_INFO("holding label widget: %d",G_OBJECT(self->priv->label_menu)->ref_count);
+    GST_INFO("holding label widget: %d",G_OBJECT_REF_COUNT(self->priv->label_menu));
     gtk_container_remove(GTK_CONTAINER(vbox),GTK_WIDGET(g_object_ref(self->priv->label_menu)));
     //gtk_widget_unparent(GTK_WIDGET(g_object_ref(self->priv->label_menu)));
-    GST_INFO("                    : %d",G_OBJECT(self->priv->label_menu)->ref_count);
+    GST_INFO("                    : %d",G_OBJECT_REF_COUNT(self->priv->label_menu));
   }
   // empty header widget
   gtk_container_forall(GTK_CONTAINER(self->priv->sequence_table_header),(GtkCallback)remove_container_widget,GTK_CONTAINER(self->priv->sequence_table_header));
@@ -1547,7 +1547,7 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
   machine=bt_main_page_sequence_get_current_machine(self);
   if(machine!=self->priv->machine) {
     if(self->priv->machine) {
-      GST_INFO("unref old cur-machine %p,refs=%d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
+      GST_INFO("unref old cur-machine %p,refs=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
       g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
       g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
       // unref the old machine
@@ -1557,7 +1557,7 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
       self->priv->pattern_removed_handler=0;
     }
     if(machine) {
-      GST_INFO("ref new cur-machine: refs: %d",(G_OBJECT(machine))->ref_count);
+      GST_INFO("ref new cur-machine: refs: %d",G_OBJECT_REF_COUNT(machine));
       self->priv->pattern_added_handler=g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
       self->priv->pattern_removed_handler=g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
       // remember the new machine
@@ -1599,7 +1599,7 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
     widgets=gtk_container_get_children(GTK_CONTAINER(menu_item));
     label=g_list_nth_data(widgets,0);
     if(GTK_IS_LABEL(label)) {
-      GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+      GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
       g_signal_handlers_disconnect_matched(G_OBJECT(machine),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_menu,NULL);
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed_menu),(gpointer)label);
       // we need to remove the signal handler when updating the labels
@@ -2647,12 +2647,12 @@ static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScrol
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
-  GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
+  GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
   machine_menu_refresh(self,setup);
   if(BT_IS_SOURCE_MACHINE(machine)) {
     sequence_add_track(self,machine);
   }
-  GST_INFO("... new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
+  GST_INFO("... new machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 }
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
@@ -2661,7 +2661,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
   g_return_if_fail(BT_IS_MACHINE(machine));
 
-  GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
+  GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 
   // reinit the menu
   machine_menu_refresh(self,setup);
@@ -2675,7 +2675,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   sequence_model_recolorize(self);
 
   g_object_unref(song);
-  //GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
+  //GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 }
 
 static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
@@ -2719,7 +2719,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // get song from app and then setup from song
   g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) return;
-  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
+  GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
 
   g_object_try_unref(self->priv->sequence);
   g_object_get(song,"song-info",&song_info,"setup",&setup,"sequence",&self->priv->sequence,"bin", &bin,NULL);
@@ -3472,7 +3472,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   g_object_unref(self->priv->app);
 
   if(self->priv->machine) {
-    GST_INFO("unref old cur-machine: %p,refs=%d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
+    GST_INFO("unref old cur-machine: %p,refs=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
     if(self->priv->pattern_added_handler)
       g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
     if(self->priv->pattern_removed_handler)

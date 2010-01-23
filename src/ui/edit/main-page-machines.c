@@ -423,7 +423,7 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   GHashTable *properties;
 
-  GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
+  GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 
   g_object_get(machine,"properties",&properties,NULL);
   if(properties) {
@@ -444,7 +444,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_hash_table_remove(self->priv->machines,machine);
   gtk_object_destroy(GTK_OBJECT(item));
 
-  if(machine) GST_INFO("removed canvas item: %p,machine->ref_ct=%d",machine,G_OBJECT(machine)->ref_count);
+  if(machine) GST_INFO("removed canvas item: %p,machine->ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
 }
 
 static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
@@ -455,7 +455,7 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
   g_hash_table_remove(self->priv->wires,wire);
   gtk_object_destroy(GTK_OBJECT(item));
 
-  if(wire) GST_INFO("removed canvas item: %p,wire->ref_ct=%d",wire,G_OBJECT(wire)->ref_count);
+  if(wire) GST_INFO("removed canvas item: %p,wire->ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -472,7 +472,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     GST_INFO("song (null) has changed done");
     return;
   }
-  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
+  GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
 
   g_object_get(song,"setup",&setup,NULL);
   // update page
