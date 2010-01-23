@@ -1,6 +1,13 @@
 2010-01-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/registry.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/ui-resources.c:
+	  No need for G_OBJECT typechecks when reffing singletons.
+
+2010-01-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/registry.c:
 	  Turn into proper singleton.
 
 2010-01-22  Stefan Kost  <ensonic@users.sf.net>

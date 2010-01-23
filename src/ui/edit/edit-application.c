@@ -699,7 +699,7 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     //GST_DEBUG(">>>");
   }
   else {
-    object=g_object_ref(G_OBJECT(singleton));
+    object=g_object_ref(singleton);
   }
   return object;
 }

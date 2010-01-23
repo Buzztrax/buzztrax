@@ -134,28 +134,27 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
   libhal_free_string_array(cap);
 
   // finished checking devices regarding capabilities, now checking category
-  if(!strcmp(hal_category,"alsa"))
-  {
-      gchar *alsatype = libhal_device_get_property_string(ctx,udi,"alsa.type",NULL);
-      if(!strcmp(alsatype,"midi")) {
-	  devnode=libhal_device_get_property_string(ctx,udi,"linux.device_file",NULL);
+  if(!strcmp(hal_category,"alsa")) {
+    gchar *alsatype = libhal_device_get_property_string(ctx,udi,"alsa.type",NULL);
+    if(!strcmp(alsatype,"midi")) {
+      devnode=libhal_device_get_property_string(ctx,udi,"linux.device_file",NULL);
 
-	  GST_INFO("midi device added: product=%s, devnode=%s", name,devnode);
-	  // create device
-	  device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
-	  libhal_free_string(devnode);
-      }
-      libhal_free_string(alsatype);
+      GST_INFO("midi device added: product=%s, devnode=%s", name,devnode);
+      // create device
+      device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
+      libhal_free_string(devnode);
+    }
+    libhal_free_string(alsatype);
   }
 
   if(device) {
-      // add devices to our list and trigger notify
-      self->priv->devices=g_list_append(self->priv->devices,(gpointer)device);
-      g_object_notify(G_OBJECT(self),"devices");
-      device=NULL;
+    // add devices to our list and trigger notify
+    self->priv->devices=g_list_append(self->priv->devices,(gpointer)device);
+    g_object_notify(G_OBJECT(self),"devices");
+    device=NULL;
   }
   else
-      GST_INFO("unknown device found, not added: name=%s",name);
+    GST_INFO("unknown device found, not added: name=%s",name);
 
   libhal_free_string(hal_category);
   libhal_free_string(name);
@@ -339,7 +338,7 @@ static GObject *btic_registry_constructor(GType type,guint n_construct_params,GO
 #endif
   }
   else {
-    object=g_object_ref(G_OBJECT(singleton));
+    object=g_object_ref(singleton);
   }
   return object;
 }

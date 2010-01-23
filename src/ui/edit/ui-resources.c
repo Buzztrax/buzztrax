@@ -512,7 +512,7 @@ static GObject *bt_ui_resources_constructor(GType type,guint n_construct_params,
     singleton->priv->accel_group=gtk_accel_group_new();
   }
   else {
-    object=g_object_ref(G_OBJECT(singleton));
+    object=g_object_ref(singleton);
   }
   return object;
 }
