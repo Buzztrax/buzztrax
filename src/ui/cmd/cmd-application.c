@@ -66,7 +66,7 @@ static gboolean is_playing=FALSE;
  * playback status signal callback function
  */
 static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpointer user_data) {
-  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
+  g_object_get((gpointer)song,"is-playing",&is_playing,NULL);
   GST_INFO("%s playing - invoked per signal : song=%p, user_data=%p",
     (is_playing?"started":"stopped"),song,user_data);
 }
@@ -87,8 +87,8 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   //bt_song_write_to_highlevel_dot_file(song);
   // DEBUG
 
-  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-  g_object_get(G_OBJECT(sequence),"length",&length,NULL);
+  g_object_get((gpointer)song,"sequence",&sequence,NULL);
+  g_object_get(sequence,"length",&length,NULL);
 
   bar_time=bt_sequence_get_bar_time(sequence);
   tmsec=(gulong)((length*bar_time)/G_USEC_PER_SEC);
@@ -96,7 +96,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   tsec=(gulong)(tmsec/ 1000);tmsec-=(tsec* 1000);
   
   // connection play and stop signals
-  g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
+  g_signal_connect((gpointer)song, "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   if(bt_song_play(song)) {
     GST_INFO("playing is starting, is_playing=%d",is_playing);
     while(!is_playing) {
@@ -108,7 +108,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
       if (!bt_song_update_playback_position(song)) {
         bt_song_stop(song);
       }
-      g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
+      g_object_get((gpointer)song,"play-pos",&pos,NULL);
 
       if(!self->priv->quiet) {
         // get song->play-pos and print progress
@@ -153,7 +153,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   guint i;
   gboolean matched=FALSE;
 
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get((gpointer)song,"setup",&setup,NULL);
 
   lc_file_name=g_ascii_strdown(output_file_name,-1);
 
@@ -174,7 +174,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
 
   // lookup the audio-sink machine and change mode
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-    g_object_get(G_OBJECT(machine),"machine",&sink_bin,NULL);
+    g_object_get(machine,"machine",&sink_bin,NULL);
 
     /* @todo eventually have a method for the sink bin to only update once
      * after the changes, right now keep the order as it is, as sink-bin only
@@ -243,10 +243,10 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
     BtWavetable *wavetable;
     GList *node,*missing_machines,*missing_waves;
 
-    g_object_get(G_OBJECT(song),"setup",&setup,"wavetable",&wavetable,NULL);
+    g_object_get((gpointer)song,"setup",&setup,"wavetable",&wavetable,NULL);
     // get missing element info
-    g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
-    g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
+    g_object_get(setup,"missing-machines",&missing_machines,NULL);
+    g_object_get(wavetable,"missing-waves",&missing_waves,NULL);
 
     if(missing_machines || missing_waves) {
       printf("could not load all of song\"%s\"\n",input_file_name);
@@ -341,13 +341,13 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     //bt_song_write_to_highlevel_dot_file(song);
     //DEBUG
 
-    g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,"wavetable",&wavetable,NULL);
+    g_object_get((gpointer)song,"song-info",&song_info,"sequence",&sequence,"setup",&setup,"wavetable",&wavetable,NULL);
     // get missing element info
-    g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
-    g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
+    g_object_get(setup,"missing-machines",&missing_machines,NULL);
+    g_object_get(wavetable,"missing-waves",&missing_waves,NULL);
 
     // print some info about the song
-    g_object_get(G_OBJECT(song_info),
+    g_object_get(song_info,
       "name",&name,"author",&author,"genre",&genre,"info",&info,
       "bpm",&beats_per_minute,"tpb",&ticks_per_beat,
       "create-dts",&create_dts,"change-dts",&change_dts,
@@ -361,7 +361,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_fprintf(output_file,"song.song_info.created: \"%s\"\n",create_dts);g_free(create_dts);
     g_fprintf(output_file,"song.song_info.changed: \"%s\"\n",change_dts);g_free(change_dts);
     // print some info about the sequence
-    g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
+    g_object_get(sequence,"length",&length,"tracks",&tracks,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
     g_fprintf(output_file,"song.sequence.length: %lu\n",length);
     g_fprintf(output_file,"song.sequence.tracks: %lu\n",tracks);
     g_fprintf(output_file,"song.sequence.loop: %s\n",(loop?"yes":"no"));
@@ -374,11 +374,11 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_fprintf(output_file,"song.sequence.playing_time: %02lu:%02lu.%03lu\n",min,sec,msec);
 
     // print some statistics about the song (number of machines, wires, patterns)
-    g_object_get(G_OBJECT(setup),"machines",&machines,"wires",&wires,NULL);
+    g_object_get(setup,"machines",&machines,"wires",&wires,NULL);
     g_fprintf(output_file,"song.setup.number_of_machines: %u\n",g_list_length(machines));
     g_fprintf(output_file,"song.setup.number_of_wires: %u\n",g_list_length(wires));
     for(node=machines;node;node=g_list_next(node)) {
-      g_object_get(G_OBJECT(node->data),"patterns",&patterns,NULL);
+      g_object_get(node->data,"patterns",&patterns,NULL);
       // @todo: this include internal ones
       n_patterns+=g_list_length(patterns);
       g_list_free(patterns);
@@ -390,20 +390,20 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     }
     g_list_free(machines);
     g_list_free(wires);
-    g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
+    g_object_get(wavetable,"waves",&waves,NULL);
     g_fprintf(output_file,"song.wavetable.number_of_waves: %u\n",g_list_length(waves));
     g_fprintf(output_file,"song.wavetable.number_of_missing_waves: %u\n",g_list_length(missing_waves));
     for(node=missing_waves;node;node=g_list_next(node)) {
       g_fprintf(output_file,"  %s\n",(gchar *)(node->data));
     }
     g_list_free(waves);
-    g_object_get(G_OBJECT(self),"bin",&bin,NULL);
+    g_object_get((gpointer)self,"bin",&bin,NULL);
     g_fprintf(output_file,"app.bin.number_of_elements: %u\n",GST_BIN_NUMCHILDREN(bin));
     gst_object_unref(bin);
 
     // lookup the audio-sink machine and print some info about it
     if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-      g_object_get(G_OBJECT(machine),"id",&id,"plugin_name",&name,NULL);
+      g_object_get(machine,"id",&id,"plugin_name",&name,NULL);
       g_fprintf(output_file,"machine.id: \"%s\"\n",id);g_free(id);
       g_fprintf(output_file,"machine.plugin_name: \"%s\"\n",name);g_free(name);
       g_object_unref(machine);

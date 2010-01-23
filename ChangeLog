@@ -1,5 +1,10 @@
 2010-01-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/cmd/cmd-application.c:
+	  Removed unnedded G_OBJECT type casts here.
+
+2010-01-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/registry.c:
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/ui-resources.c:
