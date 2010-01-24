@@ -5,6 +5,7 @@ bin_PROGRAMS=buzztard-edit
 buzztard_edit_LDADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBINTL) \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
+	-lgstinterfaces-0.10 \
 	libbtedit.la
 buzztard_edit_SOURCES= \
 	bt-edit.c bt-edit.h

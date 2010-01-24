@@ -184,7 +184,32 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
         // try to open the element and skip those that we can't open
         if((sink=gst_element_factory_make(name,NULL))) {
           GstStateChangeReturn ret=gst_element_set_state(sink,GST_STATE_READY);
-          works=(ret!=GST_STATE_CHANGE_FAILURE);
+          if(ret!=GST_STATE_CHANGE_FAILURE) {
+            works=TRUE;
+            if(GST_IS_PROPERTY_PROBE(sink)) {
+              GstPropertyProbe *probe=GST_PROPERTY_PROBE(sink);
+              const GParamSpec *devspec;
+
+              GST_INFO("sink \"%s\" support property probe",name);
+              if((devspec=gst_property_probe_get_property(probe,"device"))) {
+                GValueArray *array;
+        
+                if((array=gst_property_probe_probe_and_get_values(probe,devspec))) {
+                  guint n;
+          
+                  GST_DEBUG("there are %d available devices",array->n_values);
+                  for(n=0;n<array->n_values;n++) {
+                    GValue *device;
+          
+                    /* set this device */
+                    device=g_value_array_get_nth(array,n);
+                    GST_DEBUG("  device[%2d] \"%s\"",n,g_value_get_string(device));
+                  }
+                  g_value_array_free(array);
+                }
+              }
+            }
+          }
           gst_element_set_state(sink,GST_STATE_NULL);
           gst_object_unref(sink);
         }

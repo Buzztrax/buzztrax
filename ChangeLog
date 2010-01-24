@@ -1,5 +1,12 @@
 2010-01-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Add property probing code. Needs new setting and ui still.
+
+2010-01-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/settings-page-audiodevices.c:
 	  Probe audiodevices to only list working ones. Also add todo for device
 	  selection via property probe.

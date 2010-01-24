@@ -72,6 +72,7 @@
 #include <libbuzztard-ic/ic.h>
 //-- gstreamer
 #include <gst/base/gstpushsrc.h>
+#include <gst/interfaces/propertyprobe.h>
 //-- gstbuzztard
 #include <libgstbuzztard/help.h>
 #include <libgstbuzztard/musicenums.h>
