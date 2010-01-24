@@ -302,7 +302,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     else {
       GST_DEBUG("no or empty pattern");
     }
-    g_object_set(statusbar,"status",(str?str:BT_MAIN_STATUSBAR_DEFAULT),NULL);
+    g_object_set(statusbar,"status",(str?str:_("Add new patterns from right click context menu.")),NULL);
     g_free(str);
   }
 

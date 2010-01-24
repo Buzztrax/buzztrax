@@ -640,11 +640,20 @@ static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat b
 
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  BtMainWindow *main_window;
+  BtMainStatusbar *statusbar;
 
   //if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) { 
     // do we need to set the cursor here?
     sequence_view_set_cursor_pos(self);
   //}
+
+  /* use status bar */
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get(main_window,"statusbar",&statusbar,NULL);
+  g_object_set(statusbar,"status",_("Add new tracks from right click context menu."),NULL);
+  g_object_unref(statusbar);
+  g_object_unref(main_window);
   return(FALSE);
 }
 
@@ -674,11 +683,15 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
   else {
     // only do this if the page was BT_MAIN_PAGES_SEQUENCE_PAGE
     if(prev_page_num == BT_MAIN_PAGES_SEQUENCE_PAGE) {
+      BtMainStatusbar *statusbar;
       GST_DEBUG("leave sequence page");
       // remove local commands
       g_object_get(self->priv->app,"main-window",&main_window,NULL);
       if(main_window) {
         gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+        g_object_get(main_window,"statusbar",&statusbar,NULL);
+        g_object_set(statusbar,"status",NULL,NULL);
+        g_object_unref(statusbar);
         g_object_unref(main_window);
       }
     }
