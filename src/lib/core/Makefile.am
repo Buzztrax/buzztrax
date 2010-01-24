@@ -28,6 +28,7 @@ libbuzztard_core_la_SOURCES = \
 	buzzcallbacks.c \
 	\
 	application.c libbuzztard-core/application.h libbuzztard-core/application-methods.h \
+	childproxy.c libbuzztard-core/childproxy.h libbuzztard-core/childproxy-methods.h \
 	$(GCONF_SETTINGS_SRC) \
 	machine.c libbuzztard-core/machine.h libbuzztard-core/machine-methods.h \
 	pattern.c libbuzztard-core/pattern.h libbuzztard-core/pattern-methods.h \

@@ -1,0 +1,65 @@
+/*  $Id$
+ *
+ * Buzztard
+ * Copyright (C) 2005 Buzztard team <buzztard-devel@lists.sf.net>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+#ifndef BT_CHILD_PROXY_H
+#define BT_CHILD_PROXY_H
+
+#include <glib.h>
+#include <glib-object.h>
+
+G_BEGIN_DECLS
+
+#define BT_TYPE_CHILD_PROXY               (bt_child_proxy_get_type ())
+#define BT_CHILD_PROXY(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_CHILD_PROXY, BtChildProxy))
+#define BT_IS_CHILD_PROXY(obj)	         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_CHILD_PROXY))
+#define BT_CHILD_PROXY_GET_INTERFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), BT_TYPE_CHILD_PROXY, BtChildProxyInterface))
+
+/**
+ * BtChildProxy:
+ *
+ * Opaque #BtChildProxy data structure.
+ */
+typedef struct _BtChildProxy BtChildProxy;    /* dummy object */
+typedef struct _BtChildProxyInterface BtChildProxyInterface;
+
+/**
+ * BtChildProxyInterface:
+ * @parent: parent interface type.
+ * @get_child_by_index: virtual method to fetch the child
+ * @get_children_count: virtual method to get the children count
+ *
+ * #BtChildProxy interface.
+ */
+struct _BtChildProxyInterface
+{
+  GTypeInterface parent;
+
+  /* methods */
+  GObject *(*get_child_by_name)(BtChildProxy *parent,const gchar *name);
+  GObject *(*get_child_by_index) (BtChildProxy *parent,guint index);
+  guint (*get_children_count) (BtChildProxy *parent);
+};
+
+GType bt_child_proxy_get_type(void) G_GNUC_CONST;
+
+G_END_DECLS
+
+#endif // BT_CHILD_PROXY_H */

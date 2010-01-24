@@ -985,6 +985,61 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   return(result);
 }
 
+//-- child proxy interface
+
+static GObject *bt_main_window_child_proxy_get_child_by_name(BtChildProxy *child_proxy,const gchar *name) {
+  BtMainWindow *self=BT_MAIN_WINDOW(child_proxy);
+  GObject *res=NULL;
+
+  if(!strcmp("toolbar",name)) {
+    res=(GObject *)self->priv->toolbar;
+  } else if(!strcmp("pages",name)) {
+    res=(GObject *)self->priv->pages;
+  } else if(!strcmp("statusbar",name)) {
+    res=(GObject *)self->priv->statusbar;
+  } else {
+    GST_WARNING("no child %s in main_window",name);
+  }
+
+  if(res)
+    g_object_ref(res);
+  return res;
+}
+
+static GObject *bt_main_window_child_proxy_get_child_by_index(BtChildProxy *child_proxy,guint index) {
+  BtMainWindow *self=BT_MAIN_WINDOW(child_proxy);
+  GObject *res=NULL;
+  
+  switch(index) {
+    case 0:
+      res=(GObject *)self->priv->toolbar;
+      break;
+    case 1:
+      res=(GObject *)self->priv->pages;
+      break;
+    case 2:
+      res=(GObject *)self->priv->statusbar;
+      break;
+    default:
+      GST_WARNING("no child %d in main_window",index);
+      break;
+  }
+  if(res)
+    g_object_ref(res);
+  return res;
+}
+
+static guint bt_main_window_child_proxy_get_children_count(BtChildProxy *child_proxy) {
+  return 3;
+}
+
+static void bt_main_window_child_proxy_init(gpointer g_iface,gpointer iface_data) {
+  BtChildProxyInterface *iface=g_iface;
+
+  iface->get_child_by_name=bt_main_window_child_proxy_get_child_by_name;
+  iface->get_child_by_index=bt_main_window_child_proxy_get_child_by_index;
+  iface->get_children_count=bt_main_window_child_proxy_get_children_count; 
+}
 
 //-- wrapper
 
@@ -1086,8 +1141,8 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
 }
 
 GType bt_main_window_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
+  static GType type=0;
+  if(G_UNLIKELY(type==0)) {
     const GTypeInfo info = {
       sizeof(BtMainWindowClass),
       NULL, // base_init
@@ -1100,11 +1155,17 @@ GType bt_main_window_get_type(void) {
       (GInstanceInitFunc)bt_main_window_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo iface_info = {
+      bt_main_window_child_proxy_init,
+      NULL,
+      NULL
+    };
 #ifndef USE_HILDON
-    type = g_type_register_static(GTK_TYPE_WINDOW,"BtMainWindow",&info,0);
+    type=g_type_register_static(GTK_TYPE_WINDOW,"BtMainWindow",&info,0);
 #else
-    type = g_type_register_static(HILDON_TYPE_WINDOW,"BtMainWindow",&info,0);
+    type=g_type_register_static(HILDON_TYPE_WINDOW,"BtMainWindow",&info,0);
 #endif
+    g_type_add_interface_static(type,BT_TYPE_CHILD_PROXY,&iface_info);
   }
   return type;
 }

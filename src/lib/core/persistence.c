@@ -435,7 +435,7 @@ BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const
 
 //-- interface internals
 
-GType bt_persistence_get_type (void) {
+GType bt_persistence_get_type(void) {
   static GType type = 0;
 
   if (G_UNLIKELY(type == 0)) {
@@ -450,7 +450,7 @@ GType bt_persistence_get_type (void) {
       0,      /* n_preallocs */
       NULL    /* instance_init */
     };
-    type = g_type_register_static (G_TYPE_INTERFACE,"BtPersistence",&info,0);
+    type=g_type_register_static(G_TYPE_INTERFACE,"BtPersistence",&info,0);
   }
   return type;
 }

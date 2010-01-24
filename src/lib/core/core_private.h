@@ -87,7 +87,7 @@
 #include <gconf/gconf-client.h>
 #endif
 
-#include <libbuzztard-core/core.h>
+#include "libbuzztard-core/core.h"
 
 /**
  * bt_default_caps:

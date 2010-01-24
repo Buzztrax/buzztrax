@@ -7,6 +7,7 @@ libbtcore_HEADERS = \
 	version.h \
 	\
 	application.h application-methods.h \
+	childproxy.h childproxy-methods.h \
 	gconf-settings.h gconf-settings-methods.h \
 	machine.h machine-methods.h \
 	pattern.h pattern-methods.h \

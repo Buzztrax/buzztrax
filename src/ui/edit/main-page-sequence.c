@@ -650,11 +650,7 @@ static gboolean on_page_switched_idle(gpointer user_data) {
   /* use status bar */
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   if(main_window) {
-    BtMainStatusbar *statusbar;
-
-    g_object_get(main_window,"statusbar",&statusbar,NULL);
-    g_object_set(statusbar,"status",_("Add new tracks from right click context menu."),NULL);
-    g_object_unref(statusbar);
+    bt_child_proxy_set(main_window,"statusbar::status",_("Add new tracks from right click context menu."),NULL);
     g_object_unref(main_window);
   }
   return(FALSE);
@@ -690,11 +686,8 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       // remove local commands
       g_object_get(self->priv->app,"main-window",&main_window,NULL);
       if(main_window) {
-        BtMainStatusbar *statusbar;
         gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
-        g_object_get(main_window,"statusbar",&statusbar,NULL);
-        g_object_set(statusbar,"status",NULL,NULL);
-        g_object_unref(statusbar);
+        bt_child_proxy_set(main_window,"statusbar::status",NULL,NULL);
         g_object_unref(main_window);
       }
     }

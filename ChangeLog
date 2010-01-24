@@ -1,5 +1,35 @@
 2010-01-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-docs.sgml:
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztard-core.types.in:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/childproxy.c:
+	* src/lib/core/core_private.h:
+	* src/lib/core/libbuzztard-core/Makefile.am:
+	* src/lib/core/libbuzztard-core/childproxy-methods.h:
+	* src/lib/core/libbuzztard-core/childproxy.h:
+	* src/lib/core/libbuzztard-core/core.h:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-window.c:
+	* src/lib/core/libbuzztard-core/childproxy.h (svn:keywords, svn:eol-
+	  style):
+	* src/lib/core/libbuzztard-core/childproxy-methods.h (svn:keywords, svn
+	  :eol-style):
+	* src/lib/core/childproxy.c (svn:keywords, svn:eol-style):
+	* src/lib/core/childproxy.c (added):
+	* src/lib/core/libbuzztard-core/childproxy.h (added):
+	* src/lib/core/libbuzztard-core/childproxy-methods.h (added):
+	  Add BtChildProxy interface (a pure GObject based variant of GstChildProxy
+	  without signals). Make use of that for setting the statusbar::status.
+
+	* src/lib/core/persistence.c:
+	  Formating.
+
+2010-01-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Collect NEWS.
 	  

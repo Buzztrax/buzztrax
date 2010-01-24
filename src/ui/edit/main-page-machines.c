@@ -719,13 +719,10 @@ static gboolean on_page_switched_idle(gpointer user_data) {
   /* use status bar */
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   if(main_window) {
-    BtMainStatusbar *statusbar;
     /* it would be nice if we could just do:
      * bt_child_proxy_set(self->priv->app,"main-window::statusbar::status",_(".."),NULL);
      */
-    g_object_get(main_window,"statusbar",&statusbar,NULL);
-    g_object_set(statusbar,"status",_("Add new machines from right click context menu. Connect machines with shift+drag from source to target."),NULL);
-    g_object_unref(statusbar);
+    bt_child_proxy_set(main_window,"statusbar::status",_("Add new machines from right click context menu. Connect machines with shift+drag from source to target."),NULL);
     g_object_unref(main_window);
   }
   return(FALSE);
@@ -751,10 +748,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
 
       g_object_get(self->priv->app,"main-window",&main_window,NULL);
       if(main_window) {
-        BtMainStatusbar *statusbar;
-        g_object_get(main_window,"statusbar",&statusbar,NULL);
-        g_object_set(statusbar,"status",NULL,NULL);
-        g_object_unref(statusbar);
+        bt_child_proxy_set(main_window,"statusbar::status",NULL,NULL);
         g_object_unref(main_window);
       }
     }

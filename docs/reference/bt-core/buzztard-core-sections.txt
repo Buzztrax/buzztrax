@@ -27,6 +27,29 @@ BtApplicationPrivate
 </SECTION>
 
 <SECTION>
+<FILE>btchildproxy</FILE>
+<TITLE>BtChildProxy</TITLE>
+BtChildProxy
+bt_child_proxy_get_child_by_name
+bt_child_proxy_get_child_by_index
+bt_child_proxy_get_children_count
+
+bt_child_proxy_lookup
+bt_child_proxy_get_property
+bt_child_proxy_get_valist
+bt_child_proxy_get
+bt_child_proxy_set_property
+bt_child_proxy_set_valist
+bt_child_proxy_set
+<SUBSECTION Standard>
+BtChildProxyInterface
+BT_CHILD_PROXY
+BT_TYPE_CHILD_PROXY
+BT_CHILD_PROXY_GET_INTERFACE
+bt_child_proxy_get_type
+</SECTION>
+
+<SECTION>
 <FILE>btgconfsettings</FILE>
 <TITLE>BtGConfSettings</TITLE>
 BtGConfSettings

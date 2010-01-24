@@ -216,7 +216,6 @@ static void pattern_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *i
 
 static void pattern_view_update_column_description(const BtMainPagePatterns *self, BtPatternViewUpdateColumn mode) {
   BtMainWindow *main_window;
-  BtMainStatusbar *statusbar;
 
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   // called too early
@@ -238,19 +237,16 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     }
   }
 
-  g_object_get(main_window,"statusbar",&statusbar,NULL);
-
   // pop previous text by passing str=NULL;
   if(mode&UPDATE_COLUMN_POP)
-    g_object_set(statusbar,"status",NULL,NULL);
+    bt_child_proxy_set(main_window,"statusbar::status",NULL,NULL);
 
   if(mode&UPDATE_COLUMN_PUSH) {
-    gchar *str=NULL,*desc=NULL;
-    const gchar *blurb="";
-
     if(self->priv->pattern && self->priv->number_of_groups) {
       GParamSpec *property=NULL;
       BtPatternEditorColumnGroup *group;
+      gchar *str=NULL,*desc=NULL;
+      const gchar *blurb="";
       
       g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-param", &self->priv->cursor_param, "cursor-group", &self->priv->cursor_group, NULL);
       
@@ -298,15 +294,15 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
           str=g_strdup(blurb);
         }
       }
+      bt_child_proxy_set(main_window,"statusbar::status",(str?str:BT_MAIN_STATUSBAR_DEFAULT),NULL);
+      g_free(str);
     }
     else {
       GST_DEBUG("no or empty pattern");
+      bt_child_proxy_set(main_window,"statusbar::status",_("Add new patterns from right click context menu."),NULL);
     }
-    g_object_set(statusbar,"status",(str?str:_("Add new patterns from right click context menu.")),NULL);
-    g_free(str);
   }
 
-  g_object_unref(statusbar);
   g_object_unref(main_window);
 }
 

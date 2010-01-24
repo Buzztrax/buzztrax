@@ -45,7 +45,8 @@
 #include <libgstbuzztard/tempo.h>
 
 //-- libbtcore
-// method prototype includes do include the data defs themself
+// method prototype includes include the data definitions themself
+#include "childproxy-methods.h"
 #include "persistence-methods.h"
 
 #include "song-methods.h"
