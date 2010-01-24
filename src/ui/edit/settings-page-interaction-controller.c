@@ -160,7 +160,7 @@ static void bt_settings_page_interaction_controller_init_ui(const BtSettingsPage
 
   label=gtk_label_new(_("Device"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->device_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   /* @todo: add icon: midi, joystick (from hal?)
    * /usr/share/icons/gnome/24x24/stock/media/stock_midi.png

@@ -104,25 +104,25 @@ static void bt_settings_page_playback_controller_init_ui(const BtSettingsPagePla
   // don't translate, this is a product
   label=gtk_label_new("Coherence UPnP");
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
 
   widget=gtk_check_button_new();
-  gtk_table_attach(GTK_TABLE(self),widget, 2, 3, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(self),widget, 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
 
   // local network port number for socket communication
   label=gtk_label_new(_("Port number"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
 
   spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)port, 1024.0, 65536.0, 1.0, 5.0, 0.0));
   self->priv->port_entry=gtk_spin_button_new(spin_adjustment,1.0,0);
-  gtk_table_attach(GTK_TABLE(self),self->priv->port_entry, 2, 3, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(self),self->priv->port_entry, 2, 3, 2, 3, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
 
   // add coherence URL
   label=gtk_label_new("Requires Coherence UPnP framework which can be found at: https://coherence.beebits.net.");
   gtk_label_set_line_wrap(GTK_LABEL(label),TRUE);
   gtk_label_set_selectable(GTK_LABEL(label),TRUE);
-  gtk_table_attach(GTK_TABLE(self),label, 1, 3, 3, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 3, 3, 4, GTK_FILL,GTK_SHRINK, 2,1);
 
   // set current settings
   g_signal_connect(widget, "toggled", G_CALLBACK(on_activate_toggled), (gpointer)self);

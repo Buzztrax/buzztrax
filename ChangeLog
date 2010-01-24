@@ -1,5 +1,13 @@
 2010-01-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-directories.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	* src/ui/edit/settings-page-playback-controller.c:
+	  Fix table layout.
+
+2010-01-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.h:
 	* src/ui/edit/settings-page-audiodevices.c:

@@ -137,7 +137,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
 
   label=gtk_label_new(_("Sink"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->audiosink_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
 
   /* @idea: we could use a real combo and use markup in the cells, to have the
@@ -246,7 +246,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
 
   label=gtk_label_new(_("Sampling rate"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
   
   self->priv->samplerate_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"8000");
@@ -274,7 +274,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
 
   label=gtk_label_new(_("Channels"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 3, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 3, 4, GTK_FILL,GTK_SHRINK, 2,1);
   
   self->priv->channels_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->channels_menu),_("mono"));
