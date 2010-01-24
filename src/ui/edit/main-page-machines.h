@@ -72,7 +72,8 @@ GType bt_main_page_machines_get_type(void) G_GNUC_CONST;
 #define MACHINE_VIEW_MACHINE_SIZE_X 42.0
 #define MACHINE_VIEW_MACHINE_SIZE_Y 31.5
 
-#define MACHINE_VIEW_FONT_SIZE 7.0
+// 6.0 is too small
+#define MACHINE_VIEW_FONT_SIZE 6.5
 
 #define MACHINE_VIEW_WIRE_PAD_SIZE 6.0
 

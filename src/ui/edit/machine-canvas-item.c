@@ -993,17 +993,17 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            /* can we use the x-anchor to position left ? */
                            /*"x-offset",-(w*0.1),*/
                            "x", 0.0,
-                           "y", -h+(fh+(w-h)),
+                           "y", -(h*0.65)+fh,
                            "justification", GTK_JUSTIFY_LEFT,
                            /* test if this ensures equal sizes among systems,
                             * maybe we should leave it blank */
-                           "font", "helvetica",
+                           "font", "sans", /* "helvetica" */
                            "size-points", fh*self->priv->zoom,
                            "size-set", TRUE,
                            "text", id,
                            "fill-color", "black",
                            "clip", TRUE,
-                           "clip-width",(w+w)*0.80,
+                           "clip-width",(w+w)*0.70,
                            "clip-height",h+h,
                            NULL);
 

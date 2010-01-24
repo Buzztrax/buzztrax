@@ -1,10 +1,15 @@
 2010/02 ========================================================================
 
-- tip of the day
+- ui
+  - tip of the day
+  - dialog clean up
 - refactoring
   - faster pipeline linking
   - remove some dead code
   - removed some double checking
+  - more singletons
+  - remove lots of checking G_OBJECT casts
+- settings, started adding device setting for audio outputs
 
 2010/01 ========================================================================
 

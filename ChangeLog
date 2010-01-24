@@ -1,5 +1,16 @@
 2010-01-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Collect NEWS.
+	  
+	* src/ui/edit/machine-canvas-item.c:
+	  Fix label positioning and clipping.
+
+	* src/ui/edit/main-page-machines.h:
+	  Tune the machine label size a bit.
+
+2010-01-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-menu.c:
 	  Less g_object_set/get, grab main-window when we get mapped and reuse.
 	  Need to do that elsewhere.
