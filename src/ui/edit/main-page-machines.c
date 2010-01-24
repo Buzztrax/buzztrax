@@ -710,7 +710,6 @@ static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtMainWindow *main_window;
-  BtMainStatusbar *statusbar;
 
   //GST_DEBUG("grabing focus");
   // hmm, when it comes from any but pattern page it works
@@ -719,14 +718,16 @@ static gboolean on_page_switched_idle(gpointer user_data) {
   
   /* use status bar */
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  g_object_get(main_window,"statusbar",&statusbar,NULL);
-  g_object_set(statusbar,"status",_("Add new machines from right click context menu. Connect machines with shift+drag from source to target."),NULL);
-  g_object_unref(statusbar);
-  g_object_unref(main_window);
-  /*
-   * wait until we can do:
-   * bt_child_proxy_set(self->priv->app,"main-window::statusbar::status",_(".."),NULL);
-   */
+  if(main_window) {
+    BtMainStatusbar *statusbar;
+    /* it would be nice if we could just do:
+     * bt_child_proxy_set(self->priv->app,"main-window::statusbar::status",_(".."),NULL);
+     */
+    g_object_get(main_window,"statusbar",&statusbar,NULL);
+    g_object_set(statusbar,"status",_("Add new machines from right click context menu. Connect machines with shift+drag from source to target."),NULL);
+    g_object_unref(statusbar);
+    g_object_unref(main_window);
+  }
   return(FALSE);
 }
 
@@ -746,14 +747,16 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
     // only do this if the page was BT_MAIN_PAGES_MACHINES_PAGE
     if(prev_page_num == BT_MAIN_PAGES_MACHINES_PAGE) {
       BtMainWindow *main_window;
-      BtMainStatusbar *statusbar;
       GST_DEBUG("leave machine page");
 
       g_object_get(self->priv->app,"main-window",&main_window,NULL);
-      g_object_get(main_window,"statusbar",&statusbar,NULL);
-      g_object_set(statusbar,"status",NULL,NULL);
-      g_object_unref(statusbar);
-      g_object_unref(main_window);
+      if(main_window) {
+        BtMainStatusbar *statusbar;
+        g_object_get(main_window,"statusbar",&statusbar,NULL);
+        g_object_set(statusbar,"status",NULL,NULL);
+        g_object_unref(statusbar);
+        g_object_unref(main_window);
+      }
     }
   }
   prev_page_num = page_num;

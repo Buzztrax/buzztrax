@@ -1,6 +1,12 @@
 2010-01-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Don't deref NULL (mistake in prev commit).
+
+2010-01-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-machines.c:
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/main-page-sequence.c:
 	  Add page specific hints for status bar.
