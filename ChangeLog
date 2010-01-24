@@ -1,5 +1,11 @@
 2010-01-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-menu.c:
+	  Less g_object_set/get, grab main-window when we get mapped and reuse.
+	  Need to do that elsewhere.
+
+2010-01-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-machines.c:
 	* src/ui/edit/main-page-sequence.c:
 	  Don't deref NULL (mistake in prev commit).
