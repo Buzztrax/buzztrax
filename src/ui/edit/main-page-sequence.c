@@ -1517,18 +1517,13 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     
     // sync machine in pattern page
     BtMainWindow *main_window;
-    BtMainPages *pages;
     BtMainPagePatterns *patterns_page;
 
     g_object_get(self->priv->app,"main-window",&main_window,NULL);
-    g_object_get(main_window,"pages",&pages,NULL);
-    g_object_get(pages,"patterns-page",&patterns_page,NULL);
-  
+    bt_child_proxy_get(main_window,"pages::patterns-page",&patterns_page,NULL);
     bt_main_page_patterns_show_machine(patterns_page,self->priv->machine);
-    
     g_object_unref(patterns_page);
-    g_object_unref(pages);
-    g_object_unref(main_window);     
+    g_object_unref(main_window);
   }
   else {
     GST_INFO("no machine for cursor_column: %ld",self->priv->cursor_column);
@@ -2128,16 +2123,13 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       // first column is label
       if(track>0) {
         BtMainWindow *main_window;
-        BtMainPages *pages;
         BtMainPagePatterns *patterns_page;
         BtPattern *pattern;
         BtMachine *machine;
 
         g_object_get(self->priv->app,"main-window",&main_window,NULL);
-        g_object_get(main_window,"pages",&pages,NULL);
-        g_object_get(pages,"patterns-page",&patterns_page,NULL);
-
-        gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+        bt_child_proxy_get(main_window,"pages::patterns-page",&patterns_page,NULL);
+        bt_child_proxy_set(main_window,"pages::page",BT_MAIN_PAGES_PATTERNS_PAGE,NULL);
         if((row<length) && (pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1))) {
           GST_INFO("show pattern");
           bt_main_page_patterns_show_pattern(patterns_page,pattern);
@@ -2148,9 +2140,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
           bt_main_page_patterns_show_machine(patterns_page,machine);
           g_object_unref(machine);
         }
-
         g_object_unref(patterns_page);
-        g_object_unref(pages);
         g_object_unref(main_window);
 
         res=TRUE;

@@ -223,14 +223,9 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
 
   // our page is not the current
   if(mode&UPDATE_COLUMN_UPDATE) {
-    BtMainPages *pages;
     gint page_num;
 
-    g_object_get(main_window,"pages",&pages,NULL);
-    //g_object_get(pages,"page",&page_num,NULL);
-    page_num=gtk_notebook_get_current_page(GTK_NOTEBOOK(pages));
-    g_object_unref(pages);
-
+    bt_child_proxy_get(main_window,"pages::page",&page_num,NULL);
     if(page_num!=BT_MAIN_PAGES_PATTERNS_PAGE) {
       g_object_unref(main_window);
       return;
@@ -469,18 +464,17 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     event->state,event->keyval,event->hardware_keycode,gdk_keyval_name(event->keyval));
   if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
     BtMainWindow *main_window;
-    BtMainPages *pages;
     //BtMainPageSequence *sequence_page;
 
     g_object_get(self->priv->app,"main-window",&main_window,NULL);
-    g_object_get(main_window,"pages",&pages,NULL);
-    //g_object_get(pages,"sequence-page",&sequence_page,NULL);
-
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
+    //bt_child_proxy_get(main_window,"pages::sequence-page",&sequence_page,NULL);
+    bt_child_proxy_set(main_window,"pages::page",BT_MAIN_PAGES_SEQUENCE_PAGE,NULL);
+    /* if we came from sequesnce page via Enter we could go back
+     * if the machine or pattern has been changed here, we could go to first
+     * track and first pos where the new pattern is used.
+     */
     //bt_main_page_sequence_goto_???(sequence_page,pattern);
-
     //g_object_unref(sequence_page);
-    g_object_unref(pages);
     g_object_unref(main_window);
 
     res=TRUE;
