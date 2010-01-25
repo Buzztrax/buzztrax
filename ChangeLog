@@ -1,3 +1,8 @@
+2010-01-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Autofoo cleanups.
+
 2010-01-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/buzztard-core-docs.sgml:
