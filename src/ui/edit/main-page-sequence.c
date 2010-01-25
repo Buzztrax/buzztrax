@@ -799,7 +799,7 @@ static void on_machine_state_changed_bypass(BtMachine *machine,GParamSpec *arg,g
 
 static gboolean on_delayed_idle_track_level_change(gpointer user_data) {
   gconstpointer * const params=(gconstpointer *)user_data;
-  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(params[0]);
+  BtMainPageSequence *self=(BtMainPageSequence *)params[0];
   GstMessage *message=(GstMessage *)params[1];
   
   if(self) {

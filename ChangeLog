@@ -1,5 +1,12 @@
 2010-01-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	  Use plain C casts here. We checked these already.
+
+2010-01-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Autofoo cleanups.
 

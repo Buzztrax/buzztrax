@@ -261,7 +261,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
 
 static gboolean on_delayed_idle_machine_level_change(gpointer user_data) {
   gconstpointer * const params=(gconstpointer *)user_data;
-  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(params[0]);
+  BtMachineCanvasItem *self=(BtMachineCanvasItem *)params[0];
   GstMessage *message=(GstMessage *)params[1];
 
   if(self) {
@@ -289,12 +289,12 @@ static gboolean on_delayed_idle_machine_level_change(gpointer user_data) {
     if(val>0.0) val=0.0;
     val=val/LOW_VUMETER_VAL;
     if(val>1.0) val=1.0;
-    if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->output_level)) {
+    if(GST_MESSAGE_SRC(message)==(GstObject *)(self->priv->output_level)) {
       gnome_canvas_item_set(self->priv->output_meter,
         "y1", h*0.05+(0.55*h*val),
         NULL);
     }
-    if(GST_MESSAGE_SRC(message)==GST_OBJECT(self->priv->input_level)) {
+    if(GST_MESSAGE_SRC(message)==(GstObject *)(self->priv->input_level)) {
       gnome_canvas_item_set(self->priv->input_meter,
         "y1", h*0.05+(0.55*h*val),
         NULL);

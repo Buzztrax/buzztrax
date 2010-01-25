@@ -312,7 +312,7 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
 
 static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
   gconstpointer * const params=(gconstpointer *)user_data;
-  BtMainToolbar *self=BT_MAIN_TOOLBAR(params[0]);
+  BtMainToolbar *self=(BtMainToolbar *)params[0];
   GstMessage *message=(GstMessage *)params[1];
   
   if(self) {
