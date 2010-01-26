@@ -71,9 +71,9 @@ int main(int argc, char **argv) {
   static GOptionEntry options[] = {
     {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     NULL, N_("Print application version"),     NULL },
     {"quiet",       'q',  G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     NULL, N_("Be quiet"),         NULL },
-    {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   NULL, N_("Command name"),     "{info, play, convert, encode}" },
-    {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, NULL, N_("Input file name"),  N_("<songfile>") },
-    {"output-file", '\0', 0,                    G_OPTION_ARG_FILENAME, NULL, N_("Output file name"), N_("<songfile>") },
+    {"command",     'c',  0,                    G_OPTION_ARG_STRING,   NULL, N_("Command name"),     "{info, play, convert, encode}" },
+    {"input-file",  'i',  0,                    G_OPTION_ARG_FILENAME, NULL, N_("Input file name"),  N_("<songfile>") },
+    {"output-file", 'o',  0,                    G_OPTION_ARG_FILENAME, NULL, N_("Output file name"), N_("<songfile>") },
     {NULL}
   };
   // setting this separately gets us from 76 to 10 instructions
@@ -126,19 +126,19 @@ int main(int argc, char **argv) {
   app=bt_cmd_application_new(arg_quiet);
 
   // depending on the popt options call the correct method
-  if(!strncmp(command,"play",4)) {
+  if(!strcmp(command,"p") || !strcmp(command,"play")) {
     if(!input_file_name) usage(argc, argv, ctx);
     res=bt_cmd_application_play(app,input_file_name);
   }
-  else if(!strncmp(command,"info",4)) {
+  else if(!strcmp(command,"i") || !strcmp(command,"info")) {
     if(!input_file_name) usage(argc, argv, ctx);
     res=bt_cmd_application_info(app,input_file_name, output_file_name);
   }
-  else if(!strncmp(command,"convert",7)) {
+  else if(!strcmp(command,"c") || !strcmp(command,"convert")) {
     if(!input_file_name || !output_file_name) usage(argc, argv, ctx);
     res=bt_cmd_application_convert(app,input_file_name,output_file_name);
   }
-  else if(!strncmp(command,"encode",6)) {
+  else if(!strcmp(command,"e") ||!strcmp(command,"encode")) {
     if(!input_file_name || !output_file_name) usage(argc, argv, ctx);
     res=bt_cmd_application_encode(app,input_file_name,output_file_name);
   }

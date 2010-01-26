@@ -80,8 +80,8 @@ int main(int argc, char **argv) {
 
   GOptionEntry options[] = {
     {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg,     N_("Print application version"),    NULL },
-    {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,         N_("Command name"),    "{load}" },
-    {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name, N_("Input file name"), N_("<songfile>") },
+    {"command",     'c',  0,                    G_OPTION_ARG_STRING,   &command,         N_("Command name"),    "{load}" },
+    {"input-file",  'i',  0,                    G_OPTION_ARG_FILENAME, &input_file_name, N_("Input file name"), N_("<songfile>") },
     {NULL}
   };
   
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
   
   if(command) {
     // depending on the popt options call the correct method
-    if(!strncmp(command,"load",4)) {
+    if(!strcmp(command,"l") || !strcmp(command,"load")) {
       if(!input_file_name) {
         usage(argc, argv, ctx);
         // if commandline options where wrong, just start

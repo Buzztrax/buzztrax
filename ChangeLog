@@ -1,5 +1,12 @@
 2010-01-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Add one letter commandline options and also allow one letter commands. We
+	  can do that as all commands are still starting with unique letters.
+
+2010-01-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/childproxy.c:
 	  Comment.
 
