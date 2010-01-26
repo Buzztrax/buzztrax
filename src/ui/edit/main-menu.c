@@ -41,9 +41,8 @@ struct _BtMainMenuPrivate {
   /* the application */
   BtEditApplication *app;
   
-  /* the main window, see bt_main_menu_show */
+  /* the main window */
   BtMainWindow *main_window;
-  /**/
 
   /* MenuItems */
   GtkWidget *save_item;
@@ -1044,11 +1043,11 @@ static void bt_main_menu_map(GtkWidget *widget) {
 
   GTK_WIDGET_CLASS(parent_class)->map(widget);
 
-  /* bah, it is still NULL here */
+  /* bah, it is still NULL here becasue of the construction sequence */
   //g_object_get(self->priv->app,"main-window",&self->priv->main_window,NULL);
   //GST_DEBUG("main-window = %p",self->priv->main_window);
 
-  toplevel=gtk_widget_get_toplevel (widget);
+  toplevel=gtk_widget_get_toplevel(widget);
   if(GTK_WIDGET_TOPLEVEL(toplevel)) {
     self->priv->main_window=BT_MAIN_WINDOW(toplevel);
     GST_DEBUG("top-level-window = %p",toplevel);
@@ -1061,6 +1060,7 @@ static void bt_main_menu_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  self->priv->main_window=NULL;
   g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
@@ -1087,7 +1087,7 @@ static void bt_main_menu_class_init(BtMainMenuClass *klass) {
 
   gobject_class->dispose      = bt_main_menu_dispose;
   
-  widget_class->map          = bt_main_menu_map;
+  widget_class->map           = bt_main_menu_map;
 }
 
 GType bt_main_menu_get_type(void) {

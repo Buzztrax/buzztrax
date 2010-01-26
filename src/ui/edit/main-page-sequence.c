@@ -80,6 +80,9 @@ struct _BtMainPageSequencePrivate {
   /* the application */
   BtEditApplication *app;
 
+  /* the main window */
+  BtMainWindow *main_window;
+
   /* the sequence we are showing */
   BtSequence *sequence;
   /* machine for current column */
@@ -230,6 +233,15 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
 static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data);
 static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer user_data);
+
+//-- main-window helper
+static void grab_main_window(const BtMainPageSequence *self) {
+  GtkWidget *toplevel=gtk_widget_get_toplevel((GtkWidget *)self);
+  if(GTK_WIDGET_TOPLEVEL(toplevel)) {
+    self->priv->main_window=BT_MAIN_WINDOW(toplevel);
+    GST_DEBUG("top-level-window = %p",toplevel);
+  }
+}
 
 //-- tree filter func
 
@@ -428,7 +440,7 @@ static gboolean sequence_view_set_cursor_pos(const BtMainPageSequence *self) {
   GtkTreePath *path;
   gboolean res=FALSE;
   
-  // @todo: http://bugzilla.gnome.org/show_bug.cgi?id=498010
+  // @todo: http://bugzilla.gnome.org/show_bug.cgi?id=498010, fixed in 2008
   if(!GTK_IS_TREE_VIEW(self->priv->sequence_table) || !gtk_tree_view_get_model(self->priv->sequence_table)) return(FALSE);
 
   if((path=gtk_tree_path_new_from_indices((self->priv->cursor_row/self->priv->bars),-1))) {
@@ -640,55 +652,48 @@ static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat b
 
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtMainWindow *main_window;
 
-  //if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) { 
-    // do we need to set the cursor here?
-    sequence_view_set_cursor_pos(self);
-  //}
+  if(!self->priv->main_window)
+    return(FALSE);
 
+  // do we need to set the cursor here?
+  sequence_view_set_cursor_pos(self);
   /* use status bar */
-  g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  if(main_window) {
-    bt_child_proxy_set(main_window,"statusbar::status",_("Add new tracks from right click context menu."),NULL);
-    g_object_unref(main_window);
-  }
+  bt_child_proxy_set(self->priv->main_window,"statusbar::status",_("Add new tracks from right click context menu."),NULL);
   return(FALSE);
 }
 
 static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtMainWindow *main_window;
   static gint prev_page_num=-1;
 
   if(page_num==BT_MAIN_PAGES_SEQUENCE_PAGE) {
     // only do this if the page really has changed
     if(prev_page_num != BT_MAIN_PAGES_SEQUENCE_PAGE) {
-      GST_DEBUG("enter sequence page");
-      // add local commands
-      g_object_get(self->priv->app,"main-window",&main_window,NULL);
-      if(main_window) {
-        gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+      GST_WARNING("enter sequence page");
+      // this is emmitted before we are mapped etc.
+      if(!self->priv->main_window)
+        grab_main_window(self);
+      if(self->priv->main_window) {
+        // add local commands
+        gtk_window_add_accel_group(GTK_WINDOW(self->priv->main_window),self->priv->accel_group);
 #if !GTK_CHECK_VERSION(2,12,0)
         // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
-        g_signal_emit_by_name (main_window, "keys-changed", 0);
+        g_signal_emit_by_name(self->priv->main_window, "keys-changed", 0);
 #endif
-        g_object_unref(main_window);
+        // delay the sequence_table grab
+        g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
       }
-      // delay the sequence_table grab
-      g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
     }
   }
   else {
     // only do this if the page was BT_MAIN_PAGES_SEQUENCE_PAGE
     if(prev_page_num == BT_MAIN_PAGES_SEQUENCE_PAGE) {
       GST_DEBUG("leave sequence page");
-      // remove local commands
-      g_object_get(self->priv->app,"main-window",&main_window,NULL);
-      if(main_window) {
-        gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
-        bt_child_proxy_set(main_window,"statusbar::status",NULL,NULL);
-        g_object_unref(main_window);
+      if(self->priv->main_window) {
+        // remove local commands
+        gtk_window_remove_accel_group(GTK_WINDOW(self->priv->main_window),self->priv->accel_group);
+        bt_child_proxy_set(self->priv->main_window,"statusbar::status",NULL,NULL);
       }
     }
   }
@@ -1516,14 +1521,13 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     g_list_free(list);
     
     // sync machine in pattern page
-    BtMainWindow *main_window;
-    BtMainPagePatterns *patterns_page;
+    if(self->priv->main_window) {
+      BtMainPagePatterns *patterns_page;
 
-    g_object_get(self->priv->app,"main-window",&main_window,NULL);
-    bt_child_proxy_get(main_window,"pages::patterns-page",&patterns_page,NULL);
-    bt_main_page_patterns_show_machine(patterns_page,self->priv->machine);
-    g_object_unref(patterns_page);
-    g_object_unref(main_window);
+      bt_child_proxy_get(self->priv->main_window,"pages::patterns-page",&patterns_page,NULL);
+      bt_main_page_patterns_show_machine(patterns_page,self->priv->machine);
+      g_object_unref(patterns_page);
+    }
   }
   else {
     GST_INFO("no machine for cursor_column: %ld",self->priv->cursor_column);
@@ -1566,7 +1570,7 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
       self->priv->pattern_removed_handler=g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
       // remember the new machine
       self->priv->machine=machine;
-    }  
+    }
     pattern_list_refresh(self);
   }
   else {
@@ -2122,14 +2126,12 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     else if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
       // first column is label
       if(track>0) {
-        BtMainWindow *main_window;
         BtMainPagePatterns *patterns_page;
         BtPattern *pattern;
         BtMachine *machine;
 
-        g_object_get(self->priv->app,"main-window",&main_window,NULL);
-        bt_child_proxy_get(main_window,"pages::patterns-page",&patterns_page,NULL);
-        bt_child_proxy_set(main_window,"pages::page",BT_MAIN_PAGES_PATTERNS_PAGE,NULL);
+        bt_child_proxy_get(self->priv->main_window,"pages::patterns-page",&patterns_page,NULL);
+        bt_child_proxy_set(self->priv->main_window,"pages::page",BT_MAIN_PAGES_PATTERNS_PAGE,NULL);
         if((row<length) && (pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1))) {
           GST_INFO("show pattern");
           bt_main_page_patterns_show_pattern(patterns_page,pattern);
@@ -2141,13 +2143,12 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
           g_object_unref(machine);
         }
         g_object_unref(patterns_page);
-        g_object_unref(main_window);
 
         res=TRUE;
       }
     }
     else if(event->keyval==GDK_Menu) {
-      gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());   
+      gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     }
     else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
       // work around http://bugzilla.gnome.org/show_bug.cgi?id=371756
@@ -3420,7 +3421,7 @@ void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self) {
 //-- class internals
 
 static void bt_main_page_sequence_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(object);
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_SEQUENCE_CURSOR_ROW: {
@@ -3467,7 +3468,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   }
 
   g_object_try_unref(self->priv->sequence);
-
+  self->priv->main_window=NULL;
   g_object_unref(self->priv->app);
 
   if(self->priv->machine) {
@@ -3531,7 +3532,7 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   gobject_class->get_property = bt_main_page_sequence_get_property;
   gobject_class->dispose      = bt_main_page_sequence_dispose;
   gobject_class->finalize     = bt_main_page_sequence_finalize;
-
+  
   g_object_class_install_property(gobject_class,MAIN_PAGE_SEQUENCE_CURSOR_ROW,
                                   g_param_spec_long("cursor-row",
                                      "cursor-row prop",

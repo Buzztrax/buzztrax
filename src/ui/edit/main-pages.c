@@ -158,18 +158,26 @@ static void bt_main_pages_init_ui(const BtMainPages *self) {
 
   GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->app));
 
+  // block "switch-page" signal, adding pages emits that signal unnecesarily
+  // guint sid=g_signal_lookup("switch-page",GTK_TYPE_NOTEBOOK);
+  
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(self);
+  //g_signal_handlers_block_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->machines_page);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
   bt_main_pages_init_tab(self,BT_MAIN_PAGES_MACHINES_PAGE,_("machines"),"buzztard_tab_machines",_("machines used in the song and their wires"));
+  // according to gtk_notebook_real_insert_page() this should prevent "switch-page" emmission
+  //gtk_notebook_set_current_page(GTK_NOTEBOOK(self),BT_MAIN_PAGES_MACHINES_PAGE);
 
   // add wigets for pattern view
   self->priv->patterns_page=bt_main_page_patterns_new(self);
+  //g_signal_handlers_block_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->patterns_page);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
   bt_main_pages_init_tab(self,BT_MAIN_PAGES_PATTERNS_PAGE,_("patterns"),"buzztard_tab_patterns",_("event pattern editor"));
 
   // add wigets for sequence view
   self->priv->sequence_page=bt_main_page_sequence_new(self);
+  //g_signal_handlers_block_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->sequence_page);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
   bt_main_pages_init_tab(self,BT_MAIN_PAGES_SEQUENCE_PAGE,_("sequence"),"buzztard_tab_sequence",_("song sequence editor"));
 
@@ -186,6 +194,12 @@ static void bt_main_pages_init_ui(const BtMainPages *self) {
   // @idea add widgets for machine help view
   // GTK_STOCK_HELP icon
   // embed mozilla/gtk-html/webkit-gtk
+  
+  /*
+  g_signal_handlers_unblock_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->sequence_page);
+  g_signal_handlers_unblock_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->sequence_page);
+  g_signal_handlers_unblock_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->sequence_page);
+  */
   
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);

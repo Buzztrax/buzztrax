@@ -1,3 +1,19 @@
+2010-01-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/tools.h:
+	  Add a return_val_if_disposed macro too.
+
+	* src/ui/edit/main-menu.c:
+	  Set cached main_window=NULL in dispose.
+
+	* src/ui/edit/main-pages.c:
+	  Add comments about a possible gtk+ bug in notbook initialisation.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Try savig more ref/unrefs. Still fighting a bit with initialisation
+	  sequence and ensuring we can cache main-window,
+
 2010-01-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/cmd/bt-cmd.c:

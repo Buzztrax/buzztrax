@@ -644,6 +644,7 @@ BtWirePatternPrivate
 BT_IS_STRING
 safe_string
 return_if_disposed
+return_val_if_disposed
 G_POINTER_ALIAS
 XML_CHAR_PTR
 g_object_try_ref

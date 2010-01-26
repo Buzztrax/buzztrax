@@ -55,15 +55,23 @@ extern guint bt_cpu_load_get_current(void);
 //-- glib compat & helper
 /**
  * return_if_disposed:
- * @a: return value or nothing
  *
- * checks <code>self->priv->dispose_has_run</code> and
- * if true returns with the supplied arg.
+ * Checks <code>self->priv->dispose_has_run</code> and
+ * if %TRUE returns.
  * This macro is handy to use at the start of all class routines
  * such as #GObjectClass.get_property(), #GObjectClass.set_property(),
  * #GObjectClass.dispose().
  */
 #define return_if_disposed() if(self->priv->dispose_has_run) return
+/**
+ * return_val_if_disposed:
+ * @a: return value
+ *
+ * Checks <code>self->priv->dispose_has_run</code> and
+ * if %TRUE returns with the supplied arg @a.
+ * This macro is handy to use at the start of e.g. idle handlers.
+ */
+#define return_val_if_disposed(a) if(self->priv->dispose_has_run) return(a)
 
 /**
  * BT_IS_STRING:
