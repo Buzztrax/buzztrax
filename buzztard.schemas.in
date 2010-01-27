@@ -99,6 +99,50 @@
         </long>
       </locale>
     </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/window/x-pos</key>
+      <applyto>/apps/buzztard/window/x-pos</applyto>
+      <owner>buzztard</owner>
+      <type>int</type>
+      <locale name="C">
+        <default>-1</default>
+        <short>window-xpos</short>
+        <long>Last application window x-position.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/window/y-pos</key>
+      <applyto>/apps/buzztard/window/y-pos</applyto>
+      <owner>buzztard</owner>
+      <type>int</type>
+      <locale name="C">
+        <default>-1</default>
+        <short>window-ypos</short>
+        <long>Last application window y-position.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/window/width</key>
+      <applyto>/apps/buzztard/window/width</applyto>
+      <owner>buzztard</owner>
+      <type>int</type>
+      <locale name="C">
+        <default>-1</default>
+        <short>window-width</short>
+        <long>Last application window width.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/window/height</key>
+      <applyto>/apps/buzztard/window/height</applyto>
+      <owner>buzztard</owner>
+      <type>int</type>
+      <locale name="C">
+        <default>-1</default>
+        <short>window-height</short>
+        <long>Last application window height.</long>
+      </locale>
+    </schema>
     <!-- audio settings -->
     <schema>
       <key>/schemas/apps/buzztard/audiosink</key>

@@ -68,6 +68,26 @@ static void read_boolean(const BtGConfSettings * const self, const gchar *path, 
   g_value_set_boolean(value,prop);
 }
 
+#if 0
+static void read_int(const BtGConfSettings * const self, const gchar *path, GValue * const value) {
+  guint prop=gconf_client_get_int(self->priv->client,path,NULL);
+  GST_DEBUG("application reads '%s' : '%u'",path,prop);
+  g_value_set_uint(value,prop);
+}
+#endif
+
+static void read_int_def(const BtGConfSettings * const self, const gchar *path, GValue * const value, GParamSpecInt * const pspec) {
+  gint prop=gconf_client_get_int(self->priv->client,path,NULL);
+  if(prop) {
+    GST_DEBUG("application reads '%s' : '%i'",path,prop);
+    g_value_set_int(value,prop);
+  }
+  else {
+    GST_DEBUG("application reads [def] '%s' : '%i'",path,pspec->default_value);
+    g_value_set_int(value,pspec->default_value);
+  }
+}
+
 static void read_uint(const BtGConfSettings * const self, const gchar *path, GValue * const value) {
   guint prop=gconf_client_get_int(self->priv->client,path,NULL);
   GST_DEBUG("application reads '%s' : '%u'",path,prop);
@@ -113,8 +133,14 @@ static void write_boolean(const BtGConfSettings * const self, const gchar *path,
   GST_DEBUG("application wrote '%s' : '%d' (%s)",path,prop,(res?"okay":"fail"));
 }
 
+static void write_int(const BtGConfSettings * const self, const gchar *path, const GValue * const value) {
+  gint prop=g_value_get_int(value);
+  gboolean res=gconf_client_set_int(self->priv->client,path,prop,NULL);
+  GST_DEBUG("application wrote '%s' : '%i' (%s)",path,prop,(res?"okay":"fail"));
+}
+
 static void write_uint(const BtGConfSettings * const self, const gchar *path, const GValue * const value) {
-  gboolean prop=g_value_get_uint(value);
+  guint prop=g_value_get_uint(value);
   gboolean res=gconf_client_set_int(self->priv->client,path,prop,NULL);
   GST_DEBUG("application wrote '%s' : '%u' (%s)",path,prop,(res?"okay":"fail"));
 }
@@ -174,6 +200,18 @@ static void bt_gconf_settings_get_property(GObject * const object, const guint p
     } break;
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
       read_string_def(self,BT_GCONF_PATH_BUZZTARD"/grid-density",value,(GParamSpecString *)pspec);
+    } break;
+    case BT_SETTINGS_WINDOW_XPOS: {
+      read_int_def(self,BT_GCONF_PATH_BUZZTARD"/window/x-pos",value,(GParamSpecInt *)pspec);
+    } break;
+    case BT_SETTINGS_WINDOW_YPOS: {
+      read_int_def(self,BT_GCONF_PATH_BUZZTARD"/window/y-pos",value,(GParamSpecInt *)pspec);
+    } break;
+    case BT_SETTINGS_WINDOW_WIDTH: {
+      read_int_def(self,BT_GCONF_PATH_BUZZTARD"/window/width",value,(GParamSpecInt *)pspec);
+    } break;
+    case BT_SETTINGS_WINDOW_HEIGHT: {
+      read_int_def(self,BT_GCONF_PATH_BUZZTARD"/window/height",value,(GParamSpecInt *)pspec);
     } break;
     /* audio settings */
     case BT_SETTINGS_AUDIOSINK: {
@@ -248,6 +286,18 @@ static void bt_gconf_settings_set_property(GObject * const object, const guint p
     } break;
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
       write_string(self,BT_GCONF_PATH_BUZZTARD"/grid-density",value);
+    } break;
+    case BT_SETTINGS_WINDOW_XPOS: {
+      write_int(self,BT_GCONF_PATH_BUZZTARD"/window/x-pos",value);
+    } break;
+    case BT_SETTINGS_WINDOW_YPOS: {
+      write_int(self,BT_GCONF_PATH_BUZZTARD"/window/y-pos",value);
+    } break;
+    case BT_SETTINGS_WINDOW_WIDTH: {
+      write_int(self,BT_GCONF_PATH_BUZZTARD"/window/width",value);
+    } break;
+    case BT_SETTINGS_WINDOW_HEIGHT: {
+      write_int(self,BT_GCONF_PATH_BUZZTARD"/window/height",value);
     } break;
     /* audio settings */
     case BT_SETTINGS_AUDIOSINK: {

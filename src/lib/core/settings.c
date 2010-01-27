@@ -217,6 +217,34 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      "low", /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
   
+  g_object_class_install_property(gobject_class,BT_SETTINGS_WINDOW_XPOS,
+                                  g_param_spec_int("window-xpos",
+                                     "window-xpos prop",
+                                     "last application window x-position",
+                                     -1, G_MAXINT, -1,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_WINDOW_YPOS,
+                                  g_param_spec_int("window-ypos",
+                                     "window-ypos prop",
+                                     "last application window y-position",
+                                     -1, G_MAXINT, -1,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_WINDOW_WIDTH,
+                                  g_param_spec_int("window-width",
+                                     "window-width prop",
+                                     "last application window width",
+                                     -1, G_MAXINT, -1,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_WINDOW_HEIGHT,
+                                  g_param_spec_int("window-height",
+                                     "window-height prop",
+                                     "last application window height",
+                                     -1, G_MAXINT, -1,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
   // audio settings
   g_object_class_install_property(gobject_class,BT_SETTINGS_AUDIOSINK,
                                   g_param_spec_string("audiosink",

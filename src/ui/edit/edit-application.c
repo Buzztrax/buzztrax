@@ -542,18 +542,16 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
  */
 gboolean bt_edit_application_quit(const BtEditApplication *self) {
   if(bt_main_window_check_quit(self->priv->main_window)) {
-    /* @todo: remember window size
     BtSettings *settings;
-    int x, y, w, h;
+    gint x, y, w, h;
 
-    g_object_get(self->priv->app,"settings",&settings,NULL);
-    gtk_window_get_position (GTK_WINDOW (self), &x, &y);
-    gtk_window_get_size (GTK_WINDOW (self), &w, &h);
-
+    // remember window size
+    g_object_get((gpointer)self,"settings",&settings,NULL);
+    gtk_window_get_position(GTK_WINDOW(self->priv->main_window),&x,&y);
+    gtk_window_get_size(GTK_WINDOW(self->priv->main_window),&w,&h);
     g_object_set(settings,"window-xpos",x,"window-ypos",y,"window-width",w,"window-height",h,NULL);
-
     g_object_unref(settings);
-    */
+
     return(TRUE);
   }
   return(FALSE);

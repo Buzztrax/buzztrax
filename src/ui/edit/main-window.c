@@ -320,7 +320,7 @@ BtMainWindow *bt_main_window_new(void) {
   BtMainWindow *self;
   BtSettings *settings;
   gboolean toolbar_hide,statusbar_hide,tabs_hide;
-  // int x, y, w, h;
+  gint x, y, w, h;
 
   GST_INFO("creating a new window");
 
@@ -335,7 +335,7 @@ BtMainWindow *bt_main_window_new(void) {
     "toolbar-hide",&toolbar_hide,
     "statusbar-hide",&statusbar_hide,
     "tabs-hide",&tabs_hide,
-    //"window-xpos",&x,"window-ypos",&y,"window-width",&w,"window-height",&h,
+    "window-xpos",&x,"window-ypos",&y,"window-width",&w,"window-height",&h,
     NULL);
   g_object_unref(settings);
 
@@ -346,14 +346,14 @@ BtMainWindow *bt_main_window_new(void) {
   // this is deprecated
   //gtk_widget_set_usize(GTK_WIDGET(self), 800,600);
 
-  gtk_window_resize(GTK_WINDOW(self),800,600);
-
-  /* @todo: use position from settings
-  if(w>0 && h>0) {
-    gtk_window_move (window, x, y);
-    gtk_window_set_default_size (window, w, h);
+  // use position from settings
+  if(w>=0 && h>=0) {
+    gtk_window_move(GTK_WINDOW(self),x,y);
+    gtk_window_set_default_size(GTK_WINDOW(self),w,h);
   }
-  */
+  else {
+    gtk_window_resize(GTK_WINDOW(self),800,600);
+  }
 
   gtk_widget_show_all(GTK_WIDGET(self));
   if(toolbar_hide) {
