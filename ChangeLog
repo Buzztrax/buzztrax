@@ -1,5 +1,12 @@
 2010-01-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gui/notebook.c:
+	* src/ui/edit/main-pages.c:
+	* design/gui/notebook.c (added):
+	  Add a test case for weired gtk behaviour.
+
+2010-01-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/tools.h:
 	  Add a return_val_if_disposed macro too.
