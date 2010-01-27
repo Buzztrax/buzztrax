@@ -38,6 +38,7 @@ bt_edit_application_load_song
 bt_edit_application_save_song
 bt_edit_application_run
 bt_edit_application_load_and_run
+bt_edit_application_quit
 bt_edit_application_show_about
 bt_edit_application_show_tip
 bt_edit_application_ui_lock
@@ -406,7 +407,6 @@ BtMainToolbarPrivate
 <TITLE>BtMainWindow</TITLE>
 BtMainWindow
 bt_main_window_new
-bt_main_window_run
 bt_main_window_check_quit
 bt_main_window_new_song
 bt_main_window_open_song

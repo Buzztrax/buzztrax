@@ -136,16 +136,10 @@ static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
 }
 
 static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  gboolean cont;
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   
-  // @todo: this should have the code from main-window.c:on_window_delete_event
-  // and on_window_delete_event() should trigger this
-
   GST_INFO("menu quit event occurred");
-  g_signal_emit_by_name(self->priv->main_window,"delete_event",(gpointer)self->priv->main_window,&cont);
-  GST_INFO("  result = %d",cont);
-  if(!cont) {
+  if(bt_edit_application_quit(self->priv->app)) {
     gtk_widget_destroy(GTK_WIDGET(self->priv->main_window));
   }
 }

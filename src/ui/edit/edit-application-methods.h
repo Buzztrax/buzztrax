@@ -32,6 +32,7 @@ extern gboolean bt_edit_application_save_song(const BtEditApplication *self,cons
 
 extern gboolean bt_edit_application_run(const BtEditApplication *self);
 extern gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const gchar *input_file_name);
+extern gboolean bt_edit_application_quit(const BtEditApplication *self);
 
 extern void bt_edit_application_show_about(const BtEditApplication *self);
 extern void bt_edit_application_show_tip(const BtEditApplication *self);

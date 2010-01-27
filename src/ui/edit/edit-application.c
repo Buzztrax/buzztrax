@@ -192,7 +192,10 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
 
   // check for missing elements
   if((res=bt_edit_application_check_missing(self))) {
-    res=bt_main_window_run(self->priv->main_window);
+    GST_INFO("before running the UI");
+    gtk_main();
+    GST_INFO("after running the UI");
+    res=TRUE;
   }
 
   GST_INFO("application.run_ui finished : %d",res);
@@ -482,9 +485,9 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
  * bt_edit_application_run:
  * @self: the application instance to run
  *
- * start the gtk based editor application
+ * Start the gtk based editor application
  *
- * Returns: true for success
+ * Returns: %TRUE for success
  */
 gboolean bt_edit_application_run(const BtEditApplication *self) {
   gboolean res=FALSE;
@@ -527,6 +530,33 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
   }
   GST_INFO("application.load_and_run finished");
   return(res);
+}
+
+/**
+ * bt_edit_application_quit:
+ * @self: the application instance to quit
+ *
+ * End the application. Eventualy asks the user for confirmation.
+ *
+ * Returns: %TRUE it ending the application was confirmed
+ */
+gboolean bt_edit_application_quit(const BtEditApplication *self) {
+  if(bt_main_window_check_quit(self->priv->main_window)) {
+    /* @todo: remember window size
+    BtSettings *settings;
+    int x, y, w, h;
+
+    g_object_get(self->priv->app,"settings",&settings,NULL);
+    gtk_window_get_position (GTK_WINDOW (self), &x, &y);
+    gtk_window_get_size (GTK_WINDOW (self), &w, &h);
+
+    g_object_set(settings,"window-xpos",x,"window-ypos",y,"window-width",w,"window-height",h,NULL);
+
+    g_object_unref(settings);
+    */
+    return(TRUE);
+  }
+  return(FALSE);
 }
 
 /**

@@ -159,28 +159,10 @@ static void on_format_chooser_changed(GtkComboBox *menu, gpointer user_data) {
 
 static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
-  gboolean res=TRUE;
 
   GST_INFO("delete event occurred");
   // returning TRUE means, we don't want the window to be destroyed
-  if(bt_main_window_check_quit(self)) {
-    /* @todo: remember window size
-    BtSettings *settings;
-    int x, y, w, h;
-
-    g_object_get(self->priv->app,"settings",&settings,NULL);
-    gtk_window_get_position (GTK_WINDOW (self), &x, &y);
-    gtk_window_get_size (GTK_WINDOW (self), &w, &h);
-
-    g_object_set(settings,"window-xpos",x,"window-ypos",y,"window-width",w,"window-height",h,NULL);
-
-    g_object_unref(settings);
-    */
-    // @todo: if we do this the refcount goes from 1 to 3
-    //gtk_widget_hide_all(GTK_WIDGET(self));
-    res=FALSE;
-  }
-  return(res);
+  return(!bt_edit_application_quit(self->priv->app));
 }
 
 static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
@@ -389,22 +371,6 @@ BtMainWindow *bt_main_window_new(void) {
 }
 
 //-- methods
-
-/**
- * bt_main_window_run:
- * @self: the window instance to setup and run
- *
- * build, show and run the main window
- *
- * Returns: true for success
- */
-gboolean bt_main_window_run(const BtMainWindow *self) {
-  gboolean res=TRUE;
-  GST_INFO("before running the UI");
-  gtk_main();
-  GST_INFO("after running the UI");
-  return(res);
-}
 
 /**
  * bt_main_window_check_quit:
