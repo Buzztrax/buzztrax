@@ -1,3 +1,9 @@
+2010-01-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Also treat non readable properties as triggers. With this we can get rid
+	  of some of the buzz property flags.
+
 2010-01-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* buzztard.schemas.in:

@@ -1001,9 +1001,13 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
         GST_DEBUG("    adding global_param [%u/%lu] \"%s\"",j,self->priv->global_params,property->name);
         // add global param
         self->priv->global_props[j]=property;
-        self->priv->global_flags[j]=GSTBT_PROPERTY_META_STATE;
         self->priv->global_quarks[j]=g_quark_from_string(qname);
         g_free(qname);
+        
+        // treat readable params as normal ones, others as triggers
+        if(property->flags&G_PARAM_READABLE) {
+          self->priv->global_flags[j]=GSTBT_PROPERTY_META_STATE;
+        }
 
         if(GSTBT_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
           gconstpointer const has_meta=g_param_spec_get_qdata(property,gstbt_property_meta_quark);
@@ -1058,10 +1062,14 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
             GST_DEBUG("    adding voice_param %p, [%u/%lu] \"%s\"",property, j,self->priv->voice_params,property->name);
             // add voice param
             self->priv->voice_props[j]=property;
-            self->priv->voice_flags[j]=GSTBT_PROPERTY_META_STATE;
             self->priv->voice_quarks[j]=g_quark_from_string(qname);
             g_free(qname);
-
+            
+            // treat readable params as normal ones, others as triggers
+            if(property->flags&G_PARAM_READABLE) {
+              self->priv->voice_flags[j]=GSTBT_PROPERTY_META_STATE;
+            }
+    
             if(GSTBT_IS_PROPERTY_META(voice_child)) {
               gconstpointer const has_meta=g_param_spec_get_qdata(property,gstbt_property_meta_quark);
 
