@@ -427,6 +427,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   GstPad ** const sink_pads=self->priv->sink_pads;
   GstElement *dst_machine, *src_machine;
   GstCaps *caps;
+  const GstCaps *dst_caps=NULL;
   GstPad *pad;
   gboolean skip_convert=FALSE;
   guint six,dix;
@@ -511,18 +512,28 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     else {
       GST_INFO("empty caps :(");
     }
+    dst_caps=gst_pad_get_pad_template_caps(pad);
     gst_object_unref(pad);
   }
   gst_object_unref(dst_machine);
 
   g_object_get(src,"machine",&src_machine,NULL);
   if((pad=gst_element_get_static_pad(src_machine,"src"))) {
+    const GstCaps *src_caps=gst_pad_get_pad_template_caps(pad);
 #if GST_CHECK_VERSION(0,10,25)
-    skip_convert=gst_caps_can_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
+    skip_convert=gst_caps_can_intersect(bt_default_caps, src_caps);
+    if(skip_convert) {
+      skip_convert&=gst_caps_can_intersect(dst_caps, src_caps);
+    }
 #else
-    GstCaps *c=gst_caps_intersect(bt_default_caps, gst_pad_get_pad_template_caps(pad));
+    GstCaps *c=gst_caps_intersect(bt_default_caps, src_caps);
     skip_convert=!(c && gst_caps_is_empty(c));
     gst_caps_unref(c);
+    if(skip_convert) {
+      c=gst_caps_intersect(dst_caps, src_caps);
+      skip_convert&=!(c && gst_caps_is_empty(c));
+      gst_caps_unref(c);
+    }
 #endif
     gst_object_unref(pad);
   }

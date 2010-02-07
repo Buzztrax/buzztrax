@@ -1,3 +1,17 @@
+2010-02-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c:
+	  Small init tuning and whitespace fixes.
+  
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/setup.c:
+	* src/lib/core/tools.c:
+	  Better logging of pad-link failure.
+
+	* src/lib/core/wire.c:
+	  We need to plug converters in more cases. Fixes hangs of songs-playback
+	  due to unlinked components.
+	
 2010-02-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

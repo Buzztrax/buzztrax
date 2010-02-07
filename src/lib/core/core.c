@@ -116,9 +116,10 @@ static gboolean bt_init_post (void) {
   xmlInitParser();
   // xmlInitParser does that for us
   //xmlXPathInit();
-  xmlSubstituteEntitiesDefault(1);
-  xmlLoadExtDtdDefaultValue=TRUE;            // always load DTD default values (even when not validating)
-  xmlDoValidityCheckingDefaultValue=FALSE;  // do not validate files (we load xsl files as well  
+  // we don't use entities
+  xmlSubstituteEntitiesDefault(0);
+  xmlLoadExtDtdDefaultValue=FALSE;          // do not always load DTD default values
+  xmlDoValidityCheckingDefaultValue=FALSE;  // do not validate files
   
 #if 0
 // I just got
@@ -189,7 +190,7 @@ static gboolean parse_goption_arg (const gchar * opt, const gchar * arg, gpointe
  *
  * Returns: a pointer to a GOption group. Should be dereferenced after use.
  */
-GOptionGroup *bt_init_get_option_group(void) {  
+GOptionGroup *bt_init_get_option_group(void) {
   GOptionGroup *group;
   static GOptionEntry bt_args[] = {
     {"bt-version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg, N_("Print the buzztard core version"), NULL},

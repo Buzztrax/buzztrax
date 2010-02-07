@@ -24,7 +24,7 @@
 
 #include "core_private.h"
 
-//-- registry
+//-- gst registry
 
 static gboolean bt_gst_registry_class_filter(GstPluginFeature * const feature, gpointer user_data) {
   const gchar ** categories=(const gchar **)user_data;
@@ -171,6 +171,77 @@ GList *bt_gst_check_core_elements(void) {
     res=bt_gst_check_elements(core_elements);
   }
   return(res);
+}
+
+//-- gst debugging
+
+const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res, GstPad *src_pad, GstPad *sink_pad) {
+  static gchar msg1[5000];
+  gchar msg2[4000];
+  static gchar *link_res_desc[] = {
+    "link succeeded",
+    "pads have no common grandparent",
+    "pad was already linked",
+    "pads have wrong direction",
+    "pads do not have common format",
+    "pads cannot cooperate in scheduling",
+    "refused for some reason"
+  };
+  
+  if (!src_pad || !sink_pad) {
+    /* one of the pads is NULL */
+    msg2[0]='\0';
+  }
+  else {
+    switch(link_res) {
+      case GST_PAD_LINK_WRONG_HIERARCHY: {
+        GstObject *src_parent = GST_OBJECT_PARENT(src_pad);
+        GstObject *sink_parent = GST_OBJECT_PARENT(sink_pad);
+        sprintf(msg2," : parent(src) = %s, parent(sink) = %s",
+          (src_parent?GST_OBJECT_NAME(src_parent):"(NULL)"),
+          (sink_parent?GST_OBJECT_NAME(sink_parent):"(NULL)"));
+        break;
+      }
+      case GST_PAD_LINK_WAS_LINKED: {
+        GstPad *src_peer = src_pad->peer;
+        GstPad *sink_peer = sink_pad->peer;
+        sprintf(msg2," : peer(src) = %s:%s, peer(sink) = %s:%s",
+          GST_DEBUG_PAD_NAME(src_peer),
+          GST_DEBUG_PAD_NAME(sink_peer));
+        break;
+      }
+      case GST_PAD_LINK_WRONG_DIRECTION: {
+        static gchar *dir_name[] = {"unknown", "src", "sink" };
+        sprintf(msg2," : direction(src) = %s, direction(sink) = %s",
+          ((src_pad->direction<3)?dir_name[src_pad->direction]:"invalid"),
+          ((sink_pad->direction<3)?dir_name[sink_pad->direction]:"invalid"));
+        break;
+      }
+      case GST_PAD_LINK_NOFORMAT: {
+        GstCaps *srcc = gst_pad_get_caps_reffed(src_pad);
+        gchar *src_caps = gst_caps_to_string(srcc);
+        GstCaps *sinkc = gst_pad_get_caps_reffed(sink_pad);
+        gchar *sink_caps = gst_caps_to_string(sinkc);
+        sprintf(msg2," : caps(src) = %s, caps(sink) = %s",src_caps,sink_caps);
+        g_free(src_caps);g_free(sink_caps);
+        gst_caps_unref(srcc);gst_caps_unref(sinkc);
+        break;
+      }
+      case GST_PAD_LINK_NOSCHED:
+      case GST_PAD_LINK_REFUSED:
+      case GST_PAD_LINK_OK:
+      default:
+        msg2[0]='\0';
+        break;
+    }
+  }
+  
+  sprintf(msg1, "%s:%s -> %s:%s : %s%s",
+        GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(sink_pad),
+        link_res_desc[-link_res], msg2);
+  
+  
+  return msg1;
 }
 
 //-- gst compat

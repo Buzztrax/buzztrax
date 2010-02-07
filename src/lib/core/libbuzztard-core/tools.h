@@ -26,7 +26,7 @@
 
 #include <gst/gst.h>
 
-//-- registry
+//-- gst registry
 
 extern GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *class_filter);
 extern gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,const gchar *name);
@@ -34,7 +34,9 @@ extern gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *fa
 extern GList *bt_gst_check_elements(GList *list);
 extern GList *bt_gst_check_core_elements(void);
 
-//-- debugging
+//-- gst debugging
+
+extern const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPad *src_pad,GstPad *sink_pad);
 
 //-- gst compat
 
