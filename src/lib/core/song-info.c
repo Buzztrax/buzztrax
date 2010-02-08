@@ -34,7 +34,9 @@
  */
 /* @todo: add more metadata
  *  - copyright: GST_TAG_COPYRIGHT
+ *    string: "(C) YYYY <SONG_INFO_AUTHOR>"
  *  - license: GST_TAG_LICENSE (http://creativecommons.org/licenses/)
+ *    - would be nice to use liblicense (not widely packaged :/)
  *
  * @todo: add sample-rate and channels properties
  *  - they will be set on sink-bin

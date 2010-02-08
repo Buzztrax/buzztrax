@@ -254,7 +254,7 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
 }
 
 
-// ttest selection
+// runtime test selection via env-var BT_CHECKS
 gboolean _bt_check_run_test_func(const gchar * func_name)
 {
   const gchar *checks;
@@ -267,7 +267,7 @@ gboolean _bt_check_run_test_func(const gchar * func_name)
   if (checks == NULL || *checks == '\0')
     return TRUE;
 
-  /* only run specified functions */
+  /* only run specified functions, globbing or regexps would be nice */
   funcs = g_strsplit (checks, ",", -1);
   for (f = funcs; f != NULL && *f != NULL; ++f) {
     if (strcmp (*f, func_name) == 0) {

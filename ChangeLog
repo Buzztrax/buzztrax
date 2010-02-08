@@ -1,3 +1,9 @@
+2010-02-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-info.c:
+	* tests/bt-check.c:
+	  Comment only fixes.
+
 2010-02-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/core.c:
