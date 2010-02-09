@@ -61,7 +61,6 @@ BT_START_TEST(test_about_dialog) {
   BtMainWindow *main_window;
   BtSong *song;
   BtMachine *machine;
-  GstElement *element;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -79,12 +78,11 @@ BT_START_TEST(test_about_dialog) {
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
   fail_unless(machine!=NULL, NULL);
   fail_unless(err==NULL, NULL);
-  g_object_get(G_OBJECT(machine),"machine",&element,NULL);
 
   dialog_data.dialog=NULL;
   dialog_data.response=GTK_RESPONSE_ACCEPT;
   g_idle_add(leave_dialog,(gpointer)main_window);
-  bt_machine_action_about(element,main_window);
+  bt_machine_action_about(machine,main_window);
 
   // close window
   gtk_widget_destroy(GTK_WIDGET(main_window));
@@ -92,7 +90,6 @@ BT_START_TEST(test_about_dialog) {
   
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
-  gst_object_unref(element);
   g_object_unref(machine);
   g_object_unref(song);
   g_object_checked_unref(app);

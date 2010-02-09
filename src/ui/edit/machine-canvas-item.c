@@ -66,6 +66,20 @@
  *     - show/hide the dialog also from e.g. the pattern/sequence page
  *     - makes it easier to show/hide all
  *     - makes it easier to store the state in the song
+ *
+ * @todo: gray out "properties"/"preferences" items in context menu if resulting
+ * dialog would be empty
+ * - can't do that yet as it is code in the dialog that implements the logic
+ *
+ * @todo: should we make show_machine_properties_dialog(self) public
+ * as bt_machine_action_show_properties_dialog(BtMachine *machine)
+ * - we would also like to call this from sequence and from pattern page
+ * - the common denominator is the BtMachine
+ * - unfortunately we need to keep track which windows are open/close and
+ *   bt_machine_action is not a class (only methods).
+ * - exposing this method in this class is awkward as then one first needs to
+ *   lookup the machine canvas item (this needs api in main-pages-machines.c)
+ * - we could set the dialog as qdata on the BtMachine object
  */
 
 #define BT_EDIT
@@ -234,7 +248,7 @@ static void show_machine_properties_dialog(BtMachineCanvasItem *self) {
     // remember open/closed state
     g_hash_table_insert(self->priv->properties,g_strdup("properties-shown"),g_strdup("1"));
     g_signal_connect(self->priv->properties_dialog,"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
-  } 
+  }
   else {
     gtk_window_present(GTK_WINDOW(self->priv->properties_dialog));
   }
@@ -618,26 +632,19 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
 
 static void on_context_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-  GstElement *machine;
 
   // show help for machine
-  g_object_get(self->priv->machine,"machine",&machine,NULL);
-  bt_machine_action_help(GTK_WIDGET(self->priv->main_page_machines),machine);
-  gst_object_unref(machine);
+  bt_machine_action_help(self->priv->machine,GTK_WIDGET(self->priv->main_page_machines));
 }
 
 static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   BtMainWindow *main_window;
-  GstElement *machine;
 
-  GST_INFO("context_menu about event occurred");
   // show info about machine
-  g_object_get(self->priv->machine,"machine",&machine,NULL);
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  bt_machine_action_about(machine,main_window);
+  bt_machine_action_about(self->priv->machine,main_window);
   g_object_unref(main_window);
-  gst_object_unref(machine);
 }
 
 //-- helper methods

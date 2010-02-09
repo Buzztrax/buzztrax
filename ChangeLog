@@ -1,3 +1,19 @@
+2010-02-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-actions.c:
+	* src/ui/edit/machine-actions.h:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* tests/ui/edit/e-bt-machine-actions.c:
+	  Move more common code to machine-actions and harmonize the parameter type
+	  and ordering. Add more ideas.
+
+	* src/ui/edit/main-page-machines.c:
+	  Make one method static. Comment formatting.
+
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Ideas.
+
 2010-02-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-info.c:

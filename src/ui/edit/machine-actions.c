@@ -32,21 +32,24 @@
 
 /**
  * bt_machine_action_help:
- * @widget: widget that triggered the action
  * @machine: the machine
+ * @widget: widget that triggered the action
  * 
  * Show help for the given @machine. Uses same screen as @widget (default if
  * @widget is NULL).
  */
-void bt_machine_action_help(GtkWidget *widget, GstElement *machine) {
+void bt_machine_action_help(BtMachine *machine, GtkWidget *widget) {
   gchar *uri;
+  GstElement *element;
 #if GTK_CHECK_VERSION(2,14,0)
   GError *error=NULL;
   GdkScreen *screen=NULL;
 #endif
 
   // show help for machine
-  g_object_get(machine,"documentation-uri",&uri,NULL);
+  g_object_get(machine,"machine",&element,NULL);
+  g_object_get(element,"documentation-uri",&uri,NULL);
+  gst_object_unref(element);
   GST_INFO("context_menu help event occurred : %s",uri);
 
 #if GTK_CHECK_VERSION(2,14,0)
@@ -69,12 +72,14 @@ void bt_machine_action_help(GtkWidget *widget, GstElement *machine) {
  *
  * Shows the about dialog for the given @machine.
  */
-void bt_machine_action_about(GstElement *machine,BtMainWindow *main_window) {
+void bt_machine_action_about(BtMachine *machine,BtMainWindow *main_window) {
   GstElementFactory *element_factory;
+  GstElement *element;
   
   GST_INFO("context_menu about event occurred");
   // show info about machine
-  if((element_factory=gst_element_get_factory(machine))) {
+  g_object_get(machine,"machine",&element,NULL);
+  if((element_factory=gst_element_get_factory(element))) {
     const gchar *element_longname=gst_element_factory_get_longname(element_factory);
     const gchar *element_author=gst_element_factory_get_author(element_factory);
     const gchar *element_description=gst_element_factory_get_description(element_factory);
@@ -97,4 +102,5 @@ void bt_machine_action_about(GstElement *machine,BtMainWindow *main_window) {
     
     g_free(str);g_free(str_author);g_free(str_desc);
   }
+  gst_object_unref(element);
 }

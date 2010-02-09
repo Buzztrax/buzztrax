@@ -33,6 +33,7 @@
  *   - delete
  *   - mute/solo/bypass ?
  * - move machines when moving the selection
+ *
  * @todo: move functions in context menu
  * - machines
  *   - clone machine (no patterns)
@@ -45,6 +46,7 @@
  * - wires
  *   - insert machine (like menu on canvas)
  *     - what to do with wire-patterns?
+ *
  * @todo: click in the background to pan canvas around
  *
  */
@@ -125,14 +127,14 @@ static GtkVBoxClass *parent_class=NULL;
 
 //-- data helper
 
-gboolean canvas_item_destroy(gpointer key,gpointer value,gpointer user_data) {
+static gboolean canvas_item_destroy(gpointer key,gpointer value,gpointer user_data) {
   gtk_object_destroy(GTK_OBJECT(value));
   return(TRUE);
 }
 
 //-- event handler helper
 
-// @todo this method probably should go to BtMachine, but on the other hand it is GUI related
+// @todo: this method probably should go to BtMachine, but on the other hand it is GUI related
 void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
   gchar *prop;
 

@@ -24,9 +24,14 @@
  *
  * List available GStreamer audio devices. User can pick and configure one.
  */
-/* @todo: check if sinks implement property probe for device names
- * - if so add device selection (combobox)
+/* @todo: add device selection
+ * - we already have the property probing code
+ * - we need to add device selection (combobox)
  * - needs a way to store at least the current device
+ *   - add a setting: BT_SETTINGS_AUDIOSINK_DEVIDE of type string
+ *   - set it as "alsa=hw:0.0"
+ *   - this goes to BT_GCONF_PATH_BUZZTARD"/audiosink-device/alsa=hw:0.0
+ *   - these keys are not in the schema
  * - needs changes in sink-bin to use the setting
  * - we should probably parse the system-audiosink settings more to eventualy
  *   get the device from the setting

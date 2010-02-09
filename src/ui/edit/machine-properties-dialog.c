@@ -784,26 +784,19 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
 
 static void on_toolbar_help_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-  GstElement *machine;
 
   // show help for machine
-  g_object_get(self->priv->machine,"machine",&machine,NULL);
-  bt_machine_action_help(GTK_WIDGET(self),machine);
-  gst_object_unref(machine);
+  bt_machine_action_help(self->priv->machine, GTK_WIDGET(self));
 }
 
 static void on_toolbar_about_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   BtMainWindow *main_window;
-  GstElement *machine;
 
-  GST_INFO("context_menu about event occurred");
   // show info about machine
-  g_object_get(self->priv->machine,"machine",&machine,NULL);
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  bt_machine_action_about(machine,main_window);
+  bt_machine_action_about(self->priv->machine,main_window);
   g_object_unref(main_window);
-  gst_object_unref(machine);
 }
 
 static void on_toolbar_random_clicked(GtkButton *button,gpointer user_data) {
