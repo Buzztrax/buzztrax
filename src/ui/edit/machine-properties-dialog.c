@@ -1042,7 +1042,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
  */
 static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-  GtkWidget *parent=widget->parent->parent;
+  GtkWidget *parent=gtk_widget_get_parent(gtk_widget_get_parent(widget));
   gint height=requisition->height,width=-1;
   gint max_height=gdk_screen_get_height(gdk_screen_get_default());
   gint available_heigth;

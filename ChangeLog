@@ -1,5 +1,12 @@
 2010-02-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/pattern-editor.c:
+	  More gtk-3 fixes (GtkWidget::parent).
+
+2010-02-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/machine-menu.c:
 	* src/ui/edit/main-page-machines.c:

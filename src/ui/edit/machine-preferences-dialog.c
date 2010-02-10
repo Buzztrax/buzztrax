@@ -170,7 +170,7 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
  */
 static void on_table_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
   //BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(user_data);
-  GtkWidget *parent=widget->parent->parent;
+  GtkWidget *parent=gtk_widget_get_parent(gtk_widget_get_parent(widget));
   gint height=requisition->height,width=-1;
   gint max_height=gdk_screen_get_height(gdk_screen_get_default());
   gint available_heigth;
