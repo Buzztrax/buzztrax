@@ -1,5 +1,10 @@
 2010-02-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-window.c:
+	  More gtk-3 fixes (GtkSelectiondata::data, GtkDialog::vbox).
+
+2010-02-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	* src/ui/edit/tools.h:
 	  More gtk-3 fixes (GtkWidget::allocation).

@@ -211,15 +211,16 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gint y, GtkSelectionData *selection_data, guint info, guint t, gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   glong i=0;
-  gchar *ptr=(gchar *)selection_data->data;
+  gchar *data=(gchar *)gtk_selection_data_get_data(selection_data);
+  gchar *ptr=data;
 
-  GST_INFO("something has been dropped on our app: window=%p data='%s'",user_data,selection_data->data);
+  GST_INFO("something has been dropped on our app: window=%p data='%s'",user_data,data);
   // find first \0 or \n or \r
   while((*ptr) && (*ptr!='\n') && (*ptr!='\r')) {
     ptr++;i++;
   }
   if(i) {
-    gchar *file_name=g_strndup((gchar *)selection_data->data,i);
+    gchar *file_name=g_strndup(data,i);
     gboolean res=TRUE;
 
     if(!bt_edit_application_load_song(self->priv->app,file_name)) {
@@ -741,7 +742,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Format")),FALSE,FALSE,0);
   gtk_box_pack_start(GTK_BOX(box),format_chooser,TRUE,TRUE,0);
-  gtk_box_pack_start(GTK_BOX(self->priv->dialog->vbox),box,FALSE,FALSE,0);
+  gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(self->priv->dialog)),box,FALSE,FALSE,0);
   g_signal_connect(format_chooser, "changed", G_CALLBACK(on_format_chooser_changed), (gpointer)self);
 
   gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
