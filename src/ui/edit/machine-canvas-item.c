@@ -71,15 +71,8 @@
  * dialog would be empty
  * - can't do that yet as it is code in the dialog that implements the logic
  *
- * @todo: should we make show_machine_properties_dialog(self) public
- * as bt_machine_action_show_properties_dialog(BtMachine *machine)
- * - we would also like to call this from sequence and from pattern page
- * - the common denominator is the BtMachine
- * - unfortunately we need to keep track which windows are open/close and
- *   bt_machine_action is not a class (only methods).
- * - exposing this method in this class is awkward as then one first needs to
- *   lookup the machine canvas item (this needs api in main-pages-machines.c)
- * - we could set the dialog as qdata on the BtMachine object
+ * @todo; make the properties dialog a readable gobject property
+ * - then we can go over all of them from machine page and show/hide them
  */
 
 #define BT_EDIT
@@ -142,7 +135,7 @@ struct _BtMachineCanvasItemPrivate {
   GdkCursor *drag_cursor;
 
   /* the zoomration in pixels/per unit */
-  double zoom;
+  gdouble zoom;
 
   /* interaction state */
   gboolean dragging,moved/*,switching*/;
@@ -160,10 +153,12 @@ static guint signals[LAST_SIGNAL]={0,};
 static GnomeCanvasGroupClass *parent_class=NULL;
 
 static GQuark bus_msg_level_quark=0;
+static GQuark machine_canvas_item_quark=0;
 
 //-- prototypes
 
 static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer user_data);
+static void on_machine_preferences_dialog_destroy(GtkWidget *widget, gpointer user_data);
 
 //-- helper methods
 
@@ -253,6 +248,17 @@ static void show_machine_properties_dialog(BtMachineCanvasItem *self) {
     gtk_window_present(GTK_WINDOW(self->priv->properties_dialog));
   }
 }
+
+static void show_machine_preferences_dialog(BtMachineCanvasItem *self) {
+  if(!self->priv->preferences_dialog) {
+    self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->machine));
+    g_signal_connect(self->priv->preferences_dialog,"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
+  }
+  else {
+    gtk_window_present(GTK_WINDOW(self->priv->preferences_dialog));
+  }
+}
+
 
 //-- event handler
 
@@ -540,13 +546,7 @@ static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer u
 static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
-  if(!self->priv->preferences_dialog) {
-    self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->machine));
-    g_signal_connect(self->priv->preferences_dialog,"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
-  }
-  else {
-    gtk_window_present(GTK_WINDOW(self->priv->preferences_dialog));
-  }
+  show_machine_preferences_dialog(self);
 }
 
 static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -717,6 +717,7 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   }
   gtk_widget_show(menu_item);
   g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_properties_activate),(gpointer)self);
+
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES,NULL); // static part
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
@@ -798,6 +799,30 @@ BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_p
 
 //-- methods
 
+/**
+ * bt_machine_show_properties_dialog:
+ * @machine: machine to show the dialog for
+ *
+ * Shows the machine properties dialog.
+ */
+void bt_machine_show_properties_dialog(BtMachine *machine) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(g_object_get_qdata((GObject *)machine,machine_canvas_item_quark));
+
+  show_machine_properties_dialog(self);
+}
+
+/**
+ * bt_machine_show_preferences_dialog:
+ * @machine: machine to show the dialog for
+ *
+ * Shows the machine preferences dialog.
+ */
+void bt_machine_show_preferences_dialog(BtMachine *machine) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(g_object_get_qdata((GObject *)machine,machine_canvas_item_quark));
+
+  show_machine_preferences_dialog(self);
+}
+
 //-- wrapper
 
 //-- class internals
@@ -842,6 +867,7 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
         GstBus *bus;
 
         GST_INFO("set the  machine %p,machine->ref_ct=%d for new canvas item",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
+        g_object_set_qdata((GObject *)self->priv->machine,machine_canvas_item_quark,(gpointer)self);
         g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
@@ -1209,6 +1235,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
   GnomeCanvasItemClass *citem_class=GNOME_CANVAS_ITEM_CLASS(klass);
 
   bus_msg_level_quark=g_quark_from_static_string("level");
+  machine_canvas_item_quark=g_quark_from_static_string("machine-canvas-item");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachineCanvasItemPrivate));

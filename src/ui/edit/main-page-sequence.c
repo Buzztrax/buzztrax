@@ -1894,6 +1894,19 @@ static void on_track_move_right_activated(GtkMenuItem *menuitem, gpointer user_d
   g_object_unref(song);
 }
 
+static void on_context_menu_machine_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  
+  bt_machine_show_properties_dialog(self->priv->machine);
+}
+
+static void on_context_menu_machine_preferences_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  
+  bt_machine_show_preferences_dialog(self->priv->machine);
+}
+
+
 static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   gdouble play_pos;
@@ -2896,6 +2909,25 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   g_signal_connect(menu_item,"activate",G_CALLBACK(on_track_move_right_activated),(gpointer)self);
+
+  menu_item=gtk_separator_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_set_sensitive(menu_item,FALSE);
+  gtk_widget_show(menu_item);
+
+  menu_item=gtk_image_menu_item_new_with_label(_("Machine properties"));  // dynamic part
+  image=gtk_image_new_from_stock(GTK_STOCK_PROPERTIES,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_machine_properties_activate),(gpointer)self);
+
+  menu_item=gtk_image_menu_item_new_with_label(_("Machine preferences"));  // static part
+  image=gtk_image_new_from_stock(GTK_STOCK_PREFERENCES,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_machine_preferences_activate),(gpointer)self);
 
   // --
   // @todo cut, copy, paste

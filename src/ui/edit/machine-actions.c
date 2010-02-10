@@ -22,8 +22,8 @@
  * SECTION:btmachineactions
  * @short_description: shared machine released ui actions
  *
- * Shared UI actions for machines that can be incoked from several UI classes.
- */ 
+ * Shared UI actions for machines that can be invoked from several UI classes.
+ */
 
 #define BT_EDIT
 #define BT_MACHINE_ACTIONS_C
@@ -104,3 +104,4 @@ void bt_machine_action_about(BtMachine *machine,BtMainWindow *main_window) {
   }
   gst_object_unref(element);
 }
+

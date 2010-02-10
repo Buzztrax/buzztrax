@@ -109,6 +109,8 @@ bt_machine_action_help
 <TITLE>BtMachineCanvasItem</TITLE>
 BtMachineCanvasItem
 bt_machine_canvas_item_new
+bt_machine_show_properties_dialog
+bt_machine_show_preferences_dialog
 <SUBSECTION Standard>
 BtMachineCanvasItemClass
 BT_MACHINE_CANVAS_ITEM

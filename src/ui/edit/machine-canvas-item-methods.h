@@ -27,4 +27,7 @@
 
 extern BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_page_machines,BtMachine *machine,gdouble xpos,gdouble ypos,gdouble zoom);
 
+extern void bt_machine_show_properties_dialog(BtMachine *machine);
+extern void bt_machine_show_preferences_dialog(BtMachine *machine);
+
 #endif // BT_MACHINE_CANVAS_ITEM_METHODS_H

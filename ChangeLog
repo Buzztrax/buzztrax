@@ -1,3 +1,16 @@
+2010-02-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Add idea for news.
+
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/machine-actions.c:
+	* src/ui/edit/machine-canvas-item-methods.h:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Allow to show machine dialogs also from pattern/sequence view.
+
 2010-02-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:
