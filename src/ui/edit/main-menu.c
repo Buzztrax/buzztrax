@@ -1042,7 +1042,7 @@ static void bt_main_menu_map(GtkWidget *widget) {
   //GST_DEBUG("main-window = %p",self->priv->main_window);
 
   toplevel=gtk_widget_get_toplevel(widget);
-  if(GTK_WIDGET_TOPLEVEL(toplevel)) {
+  if(gtk_widget_is_toplevel(toplevel)) {
     self->priv->main_window=BT_MAIN_WINDOW(toplevel);
     GST_DEBUG("top-level-window = %p",toplevel);
   }

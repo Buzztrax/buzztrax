@@ -237,7 +237,7 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
 //-- main-window helper
 static void grab_main_window(const BtMainPageSequence *self) {
   GtkWidget *toplevel=gtk_widget_get_toplevel((GtkWidget *)self);
-  if(GTK_WIDGET_TOPLEVEL(toplevel)) {
+  if(gtk_widget_is_toplevel(toplevel)) {
     self->priv->main_window=BT_MAIN_WINDOW(toplevel);
     GST_DEBUG("top-level-window = %p",toplevel);
   }

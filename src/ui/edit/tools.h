@@ -62,7 +62,8 @@ extern void gtk_widget_grab_focus_savely(GtkWidget *widget);
 
 #if !GTK_CHECK_VERSION(2,18,0)
 
-gtk_widget_get_allocation(widget, alloc) memcpy(alloc,&(widget->allocation),sizeof(GtkAllocation))
+#define gtk_widget_get_allocation(widget, alloc) memcpy(alloc,&(widget->allocation),sizeof(GtkAllocation))
+#define gtk_widget_is_toplevel(widget) GTK_WIDGET_TOPLEVEL(widget)
 
 #endif
 
