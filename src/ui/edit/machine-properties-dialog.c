@@ -813,37 +813,29 @@ static void on_toolbar_reset_clicked(GtkButton *button,gpointer user_data) {
 
 static void on_toolbar_show_hide_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GtkAllocation win_alloc, pb_alloc;
+  
+  gtk_widget_get_allocation(GTK_WIDGET(self),&win_alloc);
+  gtk_widget_get_allocation(GTK_WIDGET(self->priv->preset_box),&pb_alloc);
+
+  GST_DEBUG("win: %d,%d, box: %d,%d",
+    win_alloc.width,win_alloc.height,
+    pb_alloc.width,pb_alloc.height);
 
   if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button))) {
-    GST_DEBUG("win: %d,%d, box: %d,%d",
-      GTK_WIDGET(self)->allocation.width,GTK_WIDGET(self)->allocation.height,
-      GTK_WIDGET(self->priv->preset_box)->allocation.width,GTK_WIDGET(self->priv->preset_box)->allocation.height);
     // expand window
     gtk_window_resize(GTK_WINDOW(self),
-      GTK_WIDGET(self)->allocation.width+(GTK_WIDGET(self->priv->preset_box)->allocation.width+12),
-      GTK_WIDGET(self)->allocation.height);
+      win_alloc.width+(pb_alloc.width+12),
+      win_alloc.height);
 
     gtk_widget_show_all(self->priv->preset_box);
   }
   else {
-    /*
-    GtkRequisition wsize,bsize;
-
-    gtk_widget_size_request(GTK_WIDGET(self),&wsize);
-    gtk_widget_size_request(GTK_WIDGET(self->priv->preset_box),&bsize);
-    GST_WARNING("win: %d,%d, box: %d,%d",wsize.width,wsize.height,bsize.width,bsize.height);
-    */
-    GST_DEBUG("win: %d,%d, box: %d,%d",
-      GTK_WIDGET(self)->allocation.width,GTK_WIDGET(self)->allocation.height,
-      GTK_WIDGET(self->priv->preset_box)->allocation.width,GTK_WIDGET(self->priv->preset_box)->allocation.height);
-
     gtk_widget_hide(self->priv->preset_box);
     // shrink window
-    //gtk_widget_set_size_request(GTK_WIDGET(self),wsize.width-bsize.width,wsize.height);
-    //gtk_window_resize(GTK_WINDOW(self),wsize.width-bsize.width,wsize.height);
     gtk_window_resize(GTK_WINDOW(self),
-      GTK_WIDGET(self)->allocation.width-(GTK_WIDGET(self->priv->preset_box)->allocation.width+12),
-      GTK_WIDGET(self)->allocation.height);
+      win_alloc.width-(pb_alloc.width+12),
+      win_alloc.height);
   }
 }
 
@@ -975,8 +967,6 @@ static void on_preset_list_motion_notify(GtkTreeView *tree_view,GdkEventMotion *
           gdk_window_get_origin(bin_window,&tx,&ty);
           gtk_tree_view_tree_to_widget_coords(tree_view,vr.x+cr.x,vr.y+cr.y,&ox,&oy);
           GST_INFO("tx=%4d,ty=%4d  ox=%4d,oy=%4d",tx,ty,ox,oy);
-          //tx += GTK_WIDGET(tree_view)->allocation.x + ox + cr.width / 2 - (GTK_WIDGET(tip_window)->allocation.width / 2 + 4);
-          //ty += GTK_WIDGET(tree_view)->allocation.y + oy + cr.height;
           tx += ox + cr.width / 2 - (GTK_WIDGET(tip_window)->allocation.width / 2 + 4);
           ty += oy + cr.height;
           GST_INFO("tx=%4d,ty=%4d",tx,ty);
@@ -1046,17 +1036,20 @@ static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gp
   gint height=requisition->height,width=-1;
   gint max_height=gdk_screen_get_height(gdk_screen_get_default());
   gint available_heigth;
+  GtkAllocation tb_alloc;
+  
+  gtk_widget_get_allocation(GTK_WIDGET(self->priv->main_toolbar),&tb_alloc);
 
   GST_DEBUG("#### box size req %d x %d (max-height=%d, toolbar-height=%d)",
     requisition->width,requisition->height,
-    max_height,self->priv->main_toolbar->allocation.height);
+    max_height,tb_alloc.height);
   // have a minimum width
   if(requisition->width<300) {
     width=300;
   }
   // constrain the height by screen height minus some space for panels, deco and
   // our toolbar
-  available_heigth=max_height-SCREEN_BORDER_HEIGHT-self->priv->main_toolbar->allocation.height;
+  available_heigth=max_height-SCREEN_BORDER_HEIGHT-tb_alloc.height;
   if(height>available_heigth) {
     height=available_heigth;
   }

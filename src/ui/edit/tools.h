@@ -60,5 +60,10 @@ extern void gtk_widget_grab_focus_savely(GtkWidget *widget);
 
 #endif
 
+#if !GTK_CHECK_VERSION(2,18,0)
+
+gtk_widget_get_allocation(widget, alloc) memcpy(alloc,&(widget->allocation),sizeof(GtkAllocation))
+
+#endif
 
 #endif // BT_EDIT_TOOLS_H
