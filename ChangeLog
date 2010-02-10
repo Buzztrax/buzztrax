@@ -1,3 +1,14 @@
+2010-02-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/tools.h:
+	* src/ui/edit/volume-popup.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  More gtk-3 fixes (GtkWidget::window, GtkWidget::child).
+
 2010-02-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-actions.c:

@@ -173,17 +173,19 @@ bt_panorama_popup_new(GtkAdjustment *adj) {
  * Show and activate the widget
  */
 void bt_panorama_popup_show(BtPanoramaPopup *self) {
+  GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(self));
+
   gtk_widget_show_all(GTK_WIDGET(self));
 
   /* grab focus */
   gtk_widget_grab_focus_savely(GTK_WIDGET(self));
   gtk_grab_add(GTK_WIDGET(self));
-  gdk_pointer_grab(GTK_WIDGET(self)->window, TRUE,
+  gdk_pointer_grab(window, TRUE,
         GDK_BUTTON_PRESS_MASK |
         GDK_BUTTON_RELEASE_MASK |
         GDK_POINTER_MOTION_MASK,
         NULL, NULL, GDK_CURRENT_TIME);
-  gdk_keyboard_grab(GTK_WIDGET(self)->window, TRUE, GDK_CURRENT_TIME);
+  gdk_keyboard_grab(window, TRUE, GDK_CURRENT_TIME);
 }
 
 /**

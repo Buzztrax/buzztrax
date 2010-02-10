@@ -608,7 +608,7 @@ void bt_edit_application_show_tip(const BtEditApplication *self) {
 void bt_edit_application_ui_lock(const BtEditApplication *self) {
   GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
 
-  gdk_window_set_cursor(GTK_WIDGET(self->priv->main_window)->window,cursor);
+  gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(self->priv->main_window)),cursor);
   gdk_cursor_unref(cursor);
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
 
@@ -623,7 +623,7 @@ void bt_edit_application_ui_lock(const BtEditApplication *self) {
  */
 void bt_edit_application_ui_unlock(const BtEditApplication *self) {
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
-  gdk_window_set_cursor(GTK_WIDGET(self->priv->main_window)->window,NULL);
+  gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(self->priv->main_window)),NULL);
 }
 
 

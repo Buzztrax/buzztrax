@@ -546,7 +546,6 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   GST_INFO("zoom old=%6.4lf, x:%+6.4lf / %+6.4lf = %+6.4lf and y:%+6.4lf / %+6.4lf = %+6.4lf",self->priv->zoom, pg_xl,ma_xd,fc_x, pg_yl,ma_yd,fc_y);
   self->priv->zoom=MIN(fc_x,fc_y);
 
-  //gdk_window_freeze_updates(GTK_WIDGET(self->priv->canvas)->window);
   // center region
   /* pos can be between: lower ... upper-page_size) */
   GST_INFO("x: (%+6.4lf-%+6.4lf)/2=%+6.4lf",pg_xl,(ma_xd*self->priv->zoom),((pg_xl-(ma_xd*self->priv->zoom))/2.0));
@@ -565,7 +564,6 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
     update_machines_zoom(self);
     gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   }
-  //gdk_window_thaw_updates(GTK_WIDGET(self->priv->canvas)->window);
   
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
 
@@ -577,10 +575,8 @@ static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
   self->priv->zoom*=1.5;
   GST_INFO("toolbar zoom_in event occurred : %lf",self->priv->zoom);
   
-  //gdk_window_freeze_updates(GTK_WIDGET(self->priv->canvas)->window);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   update_machines_zoom(self);
-  //gdk_window_thaw_updates(GTK_WIDGET(self->priv->canvas)->window);
   
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
 }
@@ -591,10 +587,8 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   self->priv->zoom/=1.5;
   GST_INFO("toolbar zoom_out event occurred : %lf",self->priv->zoom);
   
-  //gdk_window_freeze_updates(GTK_WIDGET(self->priv->canvas)->window);
   update_machines_zoom(self);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
-  //gdk_window_thaw_updates(GTK_WIDGET(self->priv->canvas)->window);
   
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
 }

@@ -54,7 +54,7 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
   GError *err=NULL;
 
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
-  id=(gchar*)gtk_label_get_text(GTK_LABEL((GTK_BIN(menuitem)->child)));
+  id=(gchar*)gtk_label_get_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(menuitem))));
   GST_DEBUG("adding source machine \"%s\" : \"%s\"",name,id);
 
   g_object_get(self->priv->app,"song",&song,NULL);
@@ -87,7 +87,7 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
   GError *err=NULL;
 
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
-  id=(gchar*)gtk_label_get_text(GTK_LABEL((GTK_BIN(menuitem)->child)));
+  id=(gchar*)gtk_label_get_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(menuitem))));
   GST_DEBUG("adding processor machine \"%s\"",name);
 
   g_object_get(self->priv->app,"song",&song,NULL);

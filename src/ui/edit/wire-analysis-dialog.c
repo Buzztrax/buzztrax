@@ -215,11 +215,12 @@ static gboolean redraw_spectrum(gpointer user_data) {
 
 static void bt_wire_analysis_dialog_realize(GtkWidget *widget,gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+  GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(self));
 
   GST_DEBUG("dialog realize");
-  self->priv->peak_gc=gdk_gc_new(GTK_WIDGET(self)->window);
+  self->priv->peak_gc=gdk_gc_new(window);
   gdk_gc_set_rgb_fg_color(self->priv->peak_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_ANALYZER_PEAK));
-  self->priv->grid_gc=gdk_gc_new(GTK_WIDGET(self)->window);
+  self->priv->grid_gc=gdk_gc_new(window);
   gdk_gc_set_rgb_fg_color(self->priv->grid_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_GRID_LINES));
   gdk_gc_set_line_attributes(self->priv->grid_gc,1,GDK_LINE_ON_OFF_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
   gdk_gc_set_dashes(self->priv->grid_gc,0,grid_dash_list,1);
