@@ -131,7 +131,7 @@ static gint8 grid_dash_list[]= {1};
 static gboolean redraw_level(gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
 
-  if(!GTK_WIDGET_REALIZED(self)) return(TRUE);
+  if(!gtk_widget_get_realized(GTK_WIDGET(self))) return(TRUE);
   if(!GDK_IS_GC(self->priv->peak_gc)) return(TRUE);
 
   //GST_DEBUG("redraw analyzers");
@@ -175,7 +175,7 @@ static gboolean redraw_level(gpointer user_data) {
 static gboolean redraw_spectrum(gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
 
-  if(!GTK_WIDGET_REALIZED(self)) return(TRUE);
+  if(!gtk_widget_get_realized(GTK_WIDGET(self))) return(TRUE);
   if(!GDK_IS_GC(self->priv->peak_gc)) return(TRUE);
 
   // draw spectrum

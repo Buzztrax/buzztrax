@@ -58,12 +58,34 @@ extern void gtk_widget_grab_focus_savely(GtkWidget *widget);
 
 #define gtk_widget_get_window(widget) (widget->window)
 
+#define gtk_selection_data_get_data(sdata) (sdata->data);
+#define gtk_selection_data_get_target(sdata) (sdata->taget);
+
 #endif
 
 #if !GTK_CHECK_VERSION(2,18,0)
 
 #define gtk_widget_get_allocation(widget, alloc) memcpy(alloc,&(widget->allocation),sizeof(GtkAllocation))
 #define gtk_widget_is_toplevel(widget) GTK_WIDGET_TOPLEVEL(widget)
+#define gtk_widget_set_has_window(widget, flag) \
+  if (!flag) GTK_WIDGET_SET_FLAGS (widget, GTK_NO_WINDOW); \
+  else GTK_WIDGET_UNSET_FLAGS (widget, GTK_NO_WINDOW)
+
+#endif
+
+#if !GTK_CHECK_VERSION(2,20,0)
+
+#define gtk_widget_set_realized(widget, flag) \
+  if (flag) GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED); \
+  else GTK_WIDGET_UNSET_FLAGS (widget, GTK_REALIZED)
+#define gtk_widget_set_can_focus(widget, flag) \
+  if (flag) GTK_WIDGET_SET_FLAGS (widget, GTK_CAN_FOCUS); \
+  else GTK_WIDGET_UNSET_FLAGS (widget, GTK_CAN_FOCUS)
+
+#define gtk_widget_get_realized(widget) \
+  ((GTK_WIDGET_FLAGS (widget) & GTK_REALIZED) != 0)
+#define gtk_widget_get_mapped(widget) \
+  ((GTK_WIDGET_FLAGS (widget) & GTK_MAPPED) != 0)
 
 #endif
 

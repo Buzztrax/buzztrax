@@ -211,19 +211,19 @@ bt_waveform_viewer_set_property(GObject      *object,
   switch (property_id) {
     case WAVE_VIEWER_LOOP_BEGIN: {
       self->loop_begin = g_value_get_int64(value);
-      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+      if(gtk_widget_get_realized(GTK_WIDGET(self))) {
         gtk_widget_queue_draw(GTK_WIDGET(self));
       }
     } break;
     case WAVE_VIEWER_LOOP_END: {
       self->loop_end = g_value_get_int64(value);
-      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+      if(gtk_widget_get_realized(GTK_WIDGET(self))) {
         gtk_widget_queue_draw(GTK_WIDGET(self));
       }
     } break;
     case WAVE_VIEWER_PLAYBACK_CURSOR: {
       self->playback_cursor = g_value_get_int64(value);
-      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+      if(gtk_widget_get_realized(GTK_WIDGET(self))) {
         gtk_widget_queue_draw(GTK_WIDGET(self));
       }
     } break;
@@ -292,7 +292,7 @@ bt_waveform_viewer_init(BtWaveformViewer *self)
 {
   GtkWidget *widget = GTK_WIDGET(self);
 
-  GTK_WIDGET_SET_FLAGS (widget, GTK_NO_WINDOW);
+  gtk_widget_set_has_window(widget, FALSE);
   widget->requisition.width = 40;
   widget->requisition.height = 40;
 

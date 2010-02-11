@@ -1,5 +1,21 @@
 2010-02-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	* src/ui/edit/volume-popup.c:
+	* src/ui/edit/wave-viewer.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  More gtk-3 fixes (GtkSelectiondata::target, GtkObject::flags)
+
+2010-02-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Add idea for news.
 

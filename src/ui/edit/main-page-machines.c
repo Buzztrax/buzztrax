@@ -760,7 +760,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
   gchar *color;
   BtMachine *machine;
 
-  //if(!GTK_WIDGET_REALIZED(canvas)) return(res);
+  //if(!gtk_widget_get_realized(GTK_WIDGET(canvas))) return(res);
   //GST_INFO("canvas event received: type=%d", event->type);
 
   switch(event->type) {
@@ -1096,7 +1096,7 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new());
   */
   gtk_widget_pop_colormap();
-  GTK_WIDGET_SET_FLAGS(self->priv->canvas,GTK_CAN_FOCUS);
+  gtk_widget_set_can_focus(GTK_WIDGET(self->priv->canvas), TRUE);
   gnome_canvas_set_center_scroll_region(self->priv->canvas,TRUE);
   gnome_canvas_set_scroll_region(self->priv->canvas,
     -MACHINE_VIEW_ZOOM_X,-MACHINE_VIEW_ZOOM_Y,

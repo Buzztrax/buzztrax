@@ -1929,11 +1929,11 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
     // scroll  to make play pos visible
     if((path=gtk_tree_path_new_from_indices((pos/self->priv->bars),-1))) {
       // that would try to keep the cursor in the middle (means it will scroll more)
-      if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+      if(gtk_widget_get_realized(GTK_WIDGET(self->priv->sequence_table))) {
         gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,TRUE,0.5,0.5);
         //gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
       }
-      if(GTK_WIDGET_REALIZED(self->priv->sequence_pos_table)) {
+      if(gtk_widget_get_realized(GTK_WIDGET(self->priv->sequence_pos_table))) {
         gtk_tree_view_scroll_to_cell(self->priv->sequence_pos_table,path,NULL,TRUE,0.5,0.5);
       }
       gtk_tree_path_free(path);
@@ -2005,7 +2005,7 @@ static void on_label_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
     GST_INFO("  move to = %lu",pos);
     if((path=gtk_tree_path_new_from_indices((pos/self->priv->bars),-1))) {
       // that would try to keep the cursor in the middle (means it will scroll more)
-      if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+      if(gtk_widget_get_realized(GTK_WIDGET(self->priv->sequence_table))) {
         gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,TRUE,0.5,0.5);
       }
       gtk_tree_path_free(path);
@@ -2098,7 +2098,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   gboolean res=FALSE;
   gulong row,track;
 
-  if(!GTK_WIDGET_REALIZED(self->priv->sequence_table)) return(FALSE);
+  if(!gtk_widget_get_realized(GTK_WIDGET(self->priv->sequence_table))) return(FALSE);
 
   GST_INFO("sequence_table key key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
     event->state,event->keyval,event->hardware_keycode,gdk_keyval_name(event->keyval));

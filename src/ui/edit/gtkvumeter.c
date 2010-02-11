@@ -39,6 +39,14 @@
 #include <gtk/gtk.h>
 #include "gtkvumeter.h"
 
+#if !GTK_CHECK_VERSION(2,20,0)
+#define gtk_widget_set_realized(widget, flag) \
+  if (flag) GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED); \
+  else GTK_WIDGET_UNSET_FLAGS (widget, GTK_REALIZED)
+#define gtk_widget_get_realized(widget) \
+  ((GTK_WIDGET_FLAGS (widget) & GTK_REALIZED) != 0)
+#endif
+
 #define MIN_HORIZONTAL_VUMETER_WIDTH   150
 #define HORIZONTAL_VUMETER_HEIGHT  6
 #define VERTICAL_VUMETER_WIDTH     6
@@ -189,7 +197,7 @@ static void gtk_vumeter_realize (GtkWidget *widget)
     g_return_if_fail (widget != NULL);
     g_return_if_fail (GTK_IS_VUMETER (widget));
 
-    GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
+    gtk_widget_set_realized(widget, TRUE);
     vumeter = GTK_VUMETER (widget);
 
     attributes.x = widget->allocation.x;
@@ -242,7 +250,7 @@ static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocat
     widget->allocation = *allocation;
     vumeter = GTK_VUMETER (widget);
 
-    if (GTK_WIDGET_REALIZED (widget)) {
+    if (gtk_widget_get_realized (widget)) {
         if (vumeter->vertical) {
             /* veritcal */
             gdk_window_move_resize (widget->window, allocation->x, allocation->y,
@@ -456,7 +464,7 @@ void gtk_vumeter_set_scale (GtkVUMeter *vumeter, gint scale)
 
     if (scale != vumeter->scale) {
         vumeter->scale = CLAMP(scale, GTK_VUMETER_SCALE_LINEAR, GTK_VUMETER_SCALE_LAST - 1);
-        if (GTK_WIDGET_REALIZED(vumeter)) {
+        if (gtk_widget_get_realized (vumeter)) {
             gtk_widget_queue_draw (GTK_WIDGET(vumeter));
         }
     }

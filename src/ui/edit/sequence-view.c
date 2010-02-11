@@ -224,7 +224,7 @@ static void bt_sequence_view_set_property(GObject *object, guint property_id, co
       gdouble old_pos = self->priv->play_pos;
 
       self->priv->play_pos = g_value_get_double(value);
-      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+      if(gtk_widget_get_realized(GTK_WIDGET(self))) {
         bt_sequence_view_invalidate(self,old_pos,self->priv->play_pos);
       }
     } break;
@@ -232,7 +232,7 @@ static void bt_sequence_view_set_property(GObject *object, guint property_id, co
       gdouble old_pos = self->priv->loop_start;
 
       self->priv->loop_start = g_value_get_double(value);
-      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+      if(gtk_widget_get_realized(GTK_WIDGET(self))) {
         bt_sequence_view_invalidate(self,old_pos,self->priv->loop_start);
       }
     } break;
@@ -240,15 +240,15 @@ static void bt_sequence_view_set_property(GObject *object, guint property_id, co
       gdouble  old_pos = self->priv->loop_end;
 
       self->priv->loop_end = g_value_get_double(value);
-      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+      if(gtk_widget_get_realized(GTK_WIDGET(self))) {
         bt_sequence_view_invalidate(self,old_pos,self->priv->loop_end);
       }
     } break;
     case SEQUENCE_VIEW_VISIBLE_ROWS: {
       self->priv->visible_rows = g_value_get_ulong(value);
       GST_INFO("visible-rows = %lu",self->priv->visible_rows);
-      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-	      gtk_widget_queue_draw(GTK_WIDGET(self));
+      if(gtk_widget_get_realized(GTK_WIDGET(self))) {
+        gtk_widget_queue_draw(GTK_WIDGET(self));
       }
     } break;
     default: {

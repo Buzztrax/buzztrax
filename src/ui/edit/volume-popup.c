@@ -55,7 +55,7 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
 {
   BtVolumePopup *self = BT_VOLUME_POPUP(data);
 
-  //if(!GTK_WIDGET_REALIZED(self)) return FALSE;
+  //if(!gtk_widget_get_realized(GTK_WIDGET(self)) return FALSE;
 
   if (event->type == GDK_BUTTON_PRESS) {
     GdkEventButton *e;

@@ -458,7 +458,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
   //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
 
-  if(!GTK_WIDGET_REALIZED(self->priv->pattern_table)) return(FALSE);
+  if(!gtk_widget_get_realized(GTK_WIDGET(self->priv->pattern_table))) return(FALSE);
 
   GST_INFO("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
     event->state,event->keyval,event->hardware_keycode,gdk_keyval_name(event->keyval));
@@ -2627,7 +2627,7 @@ static void pattern_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData 
   GST_INFO("get clipboard data, info=%d, data=%p",info,data);
   GST_INFO("sending : [%s]",data);
   // FIXME: do we need to format differently depending on info?
-  if(selection_data->target==pattern_atom) {
+  if(gtk_selection_data_get_target(selection_data)==pattern_atom) {
     gtk_selection_data_set(selection_data,pattern_atom,8,(guchar *)data,strlen(data));
   }
   else {

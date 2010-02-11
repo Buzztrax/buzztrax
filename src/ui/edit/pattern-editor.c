@@ -514,7 +514,8 @@ bt_pattern_editor_realize (GtkWidget *widget)
 
   g_return_if_fail (BT_IS_PATTERN_EDITOR (widget));
   
-  GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED | GTK_CAN_FOCUS);
+  gtk_widget_set_realized(widget, TRUE);
+  gtk_widget_set_can_focus(widget, TRUE);
   attributes.x = widget->allocation.x;
   attributes.y = widget->allocation.y;
   attributes.width = widget->allocation.width;
@@ -706,7 +707,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
 static void
 bt_pattern_editor_update_adjustments (BtPatternEditor *self)
 {
-  if(!GTK_WIDGET_REALIZED(self)) return;
+  if(!gtk_widget_get_realized(GTK_WIDGET(self))) return;
 
   if (self->hadj) {
     self->hadj->upper = bt_pattern_editor_get_row_width(self);
@@ -1219,7 +1220,7 @@ bt_pattern_editor_set_property(GObject      *object,
     case PATTERN_EDITOR_PLAY_POSITION: {
       gdouble old_pos = self->play_pos;
       self->play_pos = g_value_get_double(value);
-      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+      if(gtk_widget_get_realized(GTK_WIDGET(self))) {
         gint y;
         gdouble h=(gdouble)(bt_pattern_editor_get_col_height(self)-self->colhdr_height);
         GtkAllocation allocation=GTK_WIDGET(self)->allocation;
