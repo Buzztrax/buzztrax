@@ -2274,7 +2274,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
             }
             break;
           case GDK_Right:
-            if(self->priv->cursor_column<=tracks) {
+            if(self->priv->cursor_column<tracks) {
               // move cursor
               self->priv->cursor_column++;
               sequence_view_set_cursor_pos(self);
@@ -3287,7 +3287,7 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
         if((pattern=bt_sequence_get_pattern(self->priv->sequence,j,i-1))) {
           g_object_get(pattern,"name",&id,NULL);
           g_string_append_c(data,',');
-          g_string_append(data,id);         
+          g_string_append(data,id);
           g_free(id);
           g_object_unref(pattern);
         }

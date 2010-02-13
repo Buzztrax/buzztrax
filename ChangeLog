@@ -1,3 +1,11 @@
+2010-02-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Sent news.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Don't select beyond tracks.
+
 2010-02-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/gtkvumeter.c:

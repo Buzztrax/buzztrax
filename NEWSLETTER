@@ -1,18 +1,35 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2010/03 ========================================================================
+
+- ui
+  - machine dialogs in context menus on pattern and sequence page
+- refactoring
+  - gtk+3 sealing
 
 2010/02 ========================================================================
 
-- ui
-  - tip of the day
-  - dialog clean up
-- refactoring
-  - faster pipeline linking
-  - remove some dead code
-  - removed some double checking
-  - more singletons
-  - remove lots of checking G_OBJECT casts
-- settings, started adding device setting for audio outputs
+I couldn't really concentrate one a single task this months. Thus I ended up
+with lots of small changes here and there. First obvious change is that buzztard
+got an over-engineered tip-of-the-day dialog. I takes extra care to present tips
+in random order, without repeating tips before you have seen them all.
+I also played a bit with parasite [1] - the cool gtk ui introspector and noticed
+that my dialogs are inconsistently layouted. Well, fixed now. 
+
+Besides I did lots of small cleanups and refactorings. GStreamer pipelines load
+faster as I now link pads directly (not elements). This also gives me better
+diagnostics if it goes wrong. I could get rid of some dead code, removed a lot
+of double checking and generally lowered the amount of gobject runtime type
+checks. I also turned some more objects into proper gobject singletons. This way
+I don't need to pass them around anymore.
+
+Finally I wrote some test code in preparation of adding device selection to the
+audio settings (like selecting the alsa device). Need to make a plan of how to
+store the selection for multiple sinks.
+
+173 files changed, 6014 insertions(+), 5939 deletions(-)
+
+[1] http://chipx86.github.com/gtkparasite/
 
 2010/01 ========================================================================
 
