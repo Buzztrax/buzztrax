@@ -3389,7 +3389,7 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
                   }
                   sequence_changed|=bt_sequence_set_pattern_quick(self->priv->sequence,self->priv->cursor_row+(j-1),track,pattern);
                   gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
-                  GST_WARNING("inserted %s @ %d,%d - changed=%d",str,self->priv->cursor_row+(j-1),track,sequence_changed);
+                  GST_DEBUG("inserted %s @ %d,%d - changed=%d",str,self->priv->cursor_row+(j-1),track,sequence_changed);
                   g_object_try_unref(pattern);
                   g_free(str);
                   if(!gtk_tree_model_iter_next(store,&iter)) {
@@ -3420,12 +3420,8 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
           i++;
         }
         if(sequence_changed) {
-          GST_WARNING("repair sequence");
           // repair damage
           bt_sequence_repair_damage(self->priv->sequence);
-        }
-        else {
-          GST_WARNING("no changes after paste");
         }
         gtk_tree_path_free(path);
       }

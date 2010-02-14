@@ -1369,7 +1369,7 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
 
     // attach a signal handler if this is the first usage
     // @todo: cache the number of pattern uses within the pattern
-    //   or have a quick variant that returns one the 2nd pattern
+    //   or have a quick variant that returns once the 2nd pattern use is found
     if(bt_sequence_get_number_of_pattern_uses(self,pattern,2)==1) {
       //GST_INFO("subscribing to changes for pattern %p",pattern);
       g_signal_connect((gpointer)pattern,"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
