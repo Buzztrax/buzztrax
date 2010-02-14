@@ -873,7 +873,7 @@ static void bt_sequence_on_wire_pattern_changed(const BtWirePattern * const wire
   g_object_unref(pattern);
   // repair damage
   bt_sequence_repair_damage(self);
-  GST_DEBUG("Done");  
+  GST_DEBUG("Done");
 }
 
 /*
@@ -1395,7 +1395,7 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
     bt_sequence_invalidate_pattern_region(self,time,track,pattern);
     changed=TRUE;
   }
-  GST_DEBUG("done");
+  GST_DEBUG("done: %d",changed);
   return(changed);
 }
 

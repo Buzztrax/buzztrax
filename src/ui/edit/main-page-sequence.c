@@ -3285,7 +3285,7 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
       for(j=self->priv->selection_start_row;j<=self->priv->selection_end_row;j++) {
         // store pattern id
         if((pattern=bt_sequence_get_pattern(self->priv->sequence,j,i-1))) {
-          g_object_get(pattern,"name",&id,NULL);
+          g_object_get(pattern,"id",&id,NULL);
           g_string_append_c(data,',');
           g_string_append(data,id);
           g_free(id);
@@ -3302,7 +3302,7 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
     
     GST_INFO("copying : [%s]",data->str);
 
-    /* put to clipboard */    
+    /* put to clipboard */
     if(gtk_clipboard_set_with_data (cb, targets, n_targets,
                      sequence_clipboard_get_func, sequence_clipboard_clear_func,
                      g_string_free (data, FALSE))
@@ -3378,16 +3378,20 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
                 while(fields[j] && *fields[j] && res) {
                   if(*fields[j]!=' ') {
                     pattern=bt_machine_get_pattern_by_id(machine,fields[j]);
-                    str=fields[j];
+                    if(!pattern) {
+                      GST_WARNING("machine %p on track %d, has no pattern with id %s",machine,track,fields[j]);
+                    }
+                    g_object_get(pattern,"name",&str,NULL);
                   }
                   else {
                     pattern=NULL;
                     str=NULL;
                   }
-                  //GST_INFO("insert %s @ %d,%d",str,self->priv->cursor_row+(j-1),track);
-                  sequence_changed|=bt_sequence_set_pattern_quick(self->priv->sequence,self->priv->cursor_row+(j-1),track,NULL);
+                  sequence_changed|=bt_sequence_set_pattern_quick(self->priv->sequence,self->priv->cursor_row+(j-1),track,pattern);
                   gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
+                  GST_WARNING("inserted %s @ %d,%d - changed=%d",str,self->priv->cursor_row+(j-1),track,sequence_changed);
                   g_object_try_unref(pattern);
+                  g_free(str);
                   if(!gtk_tree_model_iter_next(store,&iter)) {
                     GST_WARNING("  can't get next tree-iter");
                     res=FALSE;
@@ -3416,8 +3420,12 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
           i++;
         }
         if(sequence_changed) {
+          GST_WARNING("repair sequence");
           // repair damage
           bt_sequence_repair_damage(self->priv->sequence);
+        }
+        else {
+          GST_WARNING("no changes after paste");
         }
         gtk_tree_path_free(path);
       }

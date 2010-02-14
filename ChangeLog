@@ -1,5 +1,13 @@
 2010-02-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Logging.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Fix copy and pasting. Don't mismatch pattern name and id.
+
+2010-02-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Sent news.
 
