@@ -1682,10 +1682,10 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_IN);
   self->priv->preset_list=gtk_tree_view_new();
   g_object_set(self->priv->preset_list,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
-  gtk_widget_set_events(self->priv->preset_list,gtk_widget_get_events(self->priv->preset_list)|GDK_POINTER_MOTION_MASK);
   tree_sel=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_SINGLE);
 #if !GTK_CHECK_VERSION(2,12,0)
+  gtk_widget_set_events(self->priv->preset_list,gtk_widget_get_events(self->priv->preset_list)|GDK_POINTER_MOTION_MASK);
   self->priv->preset_tips=gtk_tooltips_new();
   gtk_tooltips_set_tip(self->priv->preset_tips,self->priv->preset_list,"",NULL);
   g_signal_connect(self->priv->preset_list, "motion-notify-event", G_CALLBACK(on_preset_list_motion_notify), (gpointer)self);

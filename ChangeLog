@@ -1,5 +1,10 @@
 2010-02-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-properties-dialog.c:
+	  We only need to change the event mask for older gtk-versions.
+
+2010-02-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  Logging.
 
