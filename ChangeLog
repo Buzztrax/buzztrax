@@ -1,3 +1,8 @@
+2010-02-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Use default values for trigger params that are not using property meta.
+
 2010-02-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c:

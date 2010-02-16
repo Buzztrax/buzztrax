@@ -1019,6 +1019,11 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
             }
           }
         }
+        // use the properties default value for triggers as a no_value
+        if(!G_IS_VALUE(&self->priv->global_no_val[j]) && !(property->flags&G_PARAM_READABLE)) {
+          g_value_init(&self->priv->global_no_val[j], property->value_type);
+          g_param_value_set_default(property, &self->priv->global_no_val[j]);
+        }
         // bind param to machines global controller (possibly returns ref to existing)
         GST_DEBUG("    added global_param [%u/%lu] \"%s\"",j,self->priv->global_params,property->name);
         j++;
@@ -1079,6 +1084,11 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
                   GST_WARNING_OBJECT(self,"    can't get no-val property-meta for voice_param [%u/%lu] \"%s\"",j,self->priv->voice_params,property->name);
                 }
               }
+            }
+            // use the properties default value for triggers as a no_value
+            if(!G_IS_VALUE(&self->priv->voice_no_val[j]) && !(property->flags&G_PARAM_READABLE)) {
+              g_value_init(&self->priv->voice_no_val[j], property->value_type);
+              g_param_value_set_default(property, &self->priv->voice_no_val[j]);
             }
             GST_DEBUG("    added voice_param [%u/%lu] \"%s\"",j,self->priv->voice_params,property->name);
             j++;
@@ -2295,7 +2305,6 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
           }
           else {
             gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&self->priv->global_no_val[param]);
-            
           }
         }
       }
@@ -2670,7 +2679,7 @@ void bt_machine_reset_parameters(const BtMachine * const self) {
 
   for(i=0;i<self->priv->global_params;i++) {
     g_value_init(&gvalue, GLOBAL_PARAM_TYPE(i));
-    g_param_value_set_default (self->priv->global_props[i], &gvalue);
+    g_param_value_set_default(self->priv->global_props[i], &gvalue);
     g_object_set_property (machine, GLOBAL_PARAM_NAME(i), &gvalue);
     g_value_unset(&gvalue);
   }
@@ -2678,8 +2687,8 @@ void bt_machine_reset_parameters(const BtMachine * const self) {
     voice=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j));
     for(i=0;i<self->priv->voice_params;i++) {
       g_value_init(&gvalue, VOICE_PARAM_TYPE(i));
-      g_param_value_set_default (self->priv->voice_props[i], &gvalue);
-      g_object_set_property (voice, VOICE_PARAM_NAME(i), &gvalue);
+      g_param_value_set_default(self->priv->voice_props[i], &gvalue);
+      g_object_set_property(voice, VOICE_PARAM_NAME(i), &gvalue);
       g_value_unset(&gvalue);
     }
   }
