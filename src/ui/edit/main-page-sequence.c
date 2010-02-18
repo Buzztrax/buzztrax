@@ -566,15 +566,33 @@ static void sequence_model_recolorize(const BtMainPageSequence *self) {
   }
 }
 
+/*
+ * sequence_calculate_visible_lines:
+ * @self: the sequence subpage
+ *
+ * Recalculate the visible lines after length or bar-stepping changes. Also
+ * updated the loop marker positions accordingly.
+ */
 static void sequence_calculate_visible_lines(const BtMainPageSequence *self) {
   gulong visible_rows,sequence_length;
+  glong loop_start_pos,loop_end_pos;
+  gdouble loop_start,loop_end;
 
-  g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
+  g_object_get(self->priv->sequence,"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
+  
+  if(self->priv->sequence_length<sequence_length) {
+    self->priv->sequence_length=sequence_length;
+  }
+  if(self->priv->row_filter_pos<sequence_length) {
+    self->priv->row_filter_pos=sequence_length;
+  }
 
   visible_rows=sequence_length/self->priv->bars;
+  loop_start=(loop_start_pos>-1)?(gdouble)loop_start_pos/(gdouble)sequence_length:0.0;
+  loop_end  =(loop_end_pos  >-1)?(gdouble)loop_end_pos  /(gdouble)sequence_length:1.0;
   GST_INFO("visible_rows=%lu = %lu / %lu",visible_rows,sequence_length,self->priv->bars);
-  g_object_set(self->priv->sequence_table,"visible-rows",visible_rows,NULL);
-  g_object_set(self->priv->sequence_pos_table,"visible-rows",visible_rows,NULL);
+  g_object_set(self->priv->sequence_table,"visible-rows",visible_rows,"loop-start",loop_start,"loop-end",loop_end,NULL);
+  g_object_set(self->priv->sequence_pos_table,"visible-rows",visible_rows,"loop-start",loop_start,"loop-end",loop_end,NULL);
 }
 
 static gchar *sequence_format_positions(const BtMainPageSequence *self,gulong pos) {
@@ -1639,7 +1657,9 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
   /* @todo should the sequence-view listen to notify::xxx ? */
   switch(type) {
     case SEQUENCE_VIEW_POS_PLAY:
-      g_object_set(song,"play-pos",row,NULL);
+      if(play_pos!=row) {
+        g_object_set(song,"play-pos",row,NULL);
+      }
       break;
     case SEQUENCE_VIEW_POS_LOOP_START:
       // set and read back, as sequence might clamp the value
@@ -2042,9 +2062,9 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       }
         
       GST_INFO("new col = %3lu <-> old col = %3ld",cursor_column,self->priv->cursor_column);
-      if(cursor_column!=self->priv->cursor_column) {       
+      if(cursor_column!=self->priv->cursor_column) {
         self->priv->cursor_column=cursor_column;
-        update_after_track_changed(self);        
+        update_after_track_changed(self);
       }
       GST_INFO("cursor has changed: %3ld,%3ld",self->priv->cursor_column,self->priv->cursor_row);
 
@@ -2377,7 +2397,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       }
     }
 
-    if(event->keyval<='z' && (modifier==0)) {
+    if((!res) && (event->keyval<='z') && (modifier==0)) {
       // first column is label
       if((track>0) && (row<length)) {
         BtMachine *machine;
@@ -2510,15 +2530,15 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
           GST_INFO("  left click to column %lu, row %lu",track,row);
           if(widget==GTK_WIDGET(self->priv->sequence_pos_table)) {
             switch(modifier) {
-            case 0:
-              sequence_view_set_pos(self,SEQUENCE_VIEW_POS_PLAY,(glong)row);
-              break;
-            case GDK_CONTROL_MASK:
-              sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_START,(glong)row);
-              break;
-            case GDK_MOD4_MASK:
-              sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_END,(glong)row);
-              break;
+              case 0:
+                sequence_view_set_pos(self,SEQUENCE_VIEW_POS_PLAY,(glong)row);
+                break;
+              case GDK_CONTROL_MASK:
+                sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_START,(glong)row);
+                break;
+              case GDK_MOD4_MASK:
+                sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_END,(glong)row);
+                break;
             }
           }
           else {
@@ -2534,15 +2554,15 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
       else {
         GST_INFO("clicked outside data area - #1");
         switch(modifier) {
-        case 0:
-          sequence_view_set_pos(self,SEQUENCE_VIEW_POS_PLAY,-1);
-          break;
-        case GDK_CONTROL_MASK:
-          sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_START,-1);
-          break;
-        case GDK_MOD4_MASK:
-          sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_END,-1);
-          break;
+          case 0:
+            sequence_view_set_pos(self,SEQUENCE_VIEW_POS_PLAY,-1);
+            break;
+          case GDK_CONTROL_MASK:
+            sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_START,-1);
+            break;
+          case GDK_MOD4_MASK:
+            sequence_view_set_pos(self,SEQUENCE_VIEW_POS_LOOP_END,-1);
+            break;
         }
         res=TRUE;
       }
@@ -2567,45 +2587,53 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
       GtkTreeViewColumn *column;
       // determine sequence position from mouse coordinates
       if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),event->x,event->y,&path,&column,NULL,NULL)) {
-        // handle selection
-        glong cursor_column=self->priv->cursor_column;
-        glong cursor_row=self->priv->cursor_row;
-
-        if(self->priv->selection_start_column==-1) {
-          self->priv->selection_column=self->priv->cursor_column;
-          self->priv->selection_row=self->priv->cursor_row;
+        if(widget==GTK_WIDGET(self->priv->sequence_pos_table)) {
+          gulong track,row;
+          if(sequence_view_get_cursor_pos(GTK_TREE_VIEW(widget),path,column,&track,&row)) {
+            sequence_view_set_pos(self,SEQUENCE_VIEW_POS_PLAY,(glong)row);
+          }
         }
-        gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
-        gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
-        // cursor updates are not yet processed
-        on_sequence_table_cursor_changed_idle(self);
-        GST_INFO("cursor new/old: %3ld,%3ld -> %3ld,%3ld",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
-        if((cursor_column!=self->priv->cursor_column) || (cursor_row!=self->priv->cursor_row)) {
+        else {
+          // handle selection
+          glong cursor_column=self->priv->cursor_column;
+          glong cursor_row=self->priv->cursor_row;
+  
           if(self->priv->selection_start_column==-1) {
-            self->priv->selection_start_column=MIN(cursor_column,self->priv->selection_column);
-            self->priv->selection_start_row=MIN(cursor_row,self->priv->selection_row);
-            self->priv->selection_end_column=MAX(cursor_column,self->priv->selection_column);
-            self->priv->selection_end_row=MAX(cursor_row,self->priv->selection_row);
+            self->priv->selection_column=self->priv->cursor_column;
+            self->priv->selection_row=self->priv->cursor_row;
           }
-          else {
-            if(self->priv->cursor_column<self->priv->selection_column) {
-              self->priv->selection_start_column=self->priv->cursor_column;
-              self->priv->selection_end_column=self->priv->selection_column;
+          gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
+          gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
+          // cursor updates are not yet processed
+          on_sequence_table_cursor_changed_idle(self);
+          GST_DEBUG("cursor new/old: %3ld,%3ld -> %3ld,%3ld",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
+          if((cursor_column!=self->priv->cursor_column) || (cursor_row!=self->priv->cursor_row)) {
+            if(self->priv->selection_start_column==-1) {
+              self->priv->selection_start_column=MIN(cursor_column,self->priv->selection_column);
+              self->priv->selection_start_row=MIN(cursor_row,self->priv->selection_row);
+              self->priv->selection_end_column=MAX(cursor_column,self->priv->selection_column);
+              self->priv->selection_end_row=MAX(cursor_row,self->priv->selection_row);
             }
             else {
-              self->priv->selection_start_column=self->priv->selection_column;
-              self->priv->selection_end_column=self->priv->cursor_column;
+              if(self->priv->cursor_column<self->priv->selection_column) {
+                self->priv->selection_start_column=self->priv->cursor_column;
+                self->priv->selection_end_column=self->priv->selection_column;
+              }
+              else {
+                self->priv->selection_start_column=self->priv->selection_column;
+                self->priv->selection_end_column=self->priv->cursor_column;
+              }
+              if(self->priv->cursor_row<self->priv->selection_row) {
+                self->priv->selection_start_row=self->priv->cursor_row;
+                self->priv->selection_end_row=self->priv->selection_row;
+              }
+              else {
+                self->priv->selection_start_row=self->priv->selection_row;
+                self->priv->selection_end_row=self->priv->cursor_row;
+              }
             }
-            if(self->priv->cursor_row<self->priv->selection_row) {
-              self->priv->selection_start_row=self->priv->cursor_row;
-              self->priv->selection_end_row=self->priv->selection_row;
-            }
-            else {
-              self->priv->selection_start_row=self->priv->selection_row;
-              self->priv->selection_end_row=self->priv->cursor_row;
-            }
+            gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
           }
-          gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
         }
         res=TRUE;
       }
@@ -2724,9 +2752,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GstBin *bin;
   GstBus *bus;
   glong bars;
-  glong loop_start_pos,loop_end_pos;
   gulong sequence_length;
-  gdouble loop_start,loop_end;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
@@ -2736,7 +2762,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   g_object_try_unref(self->priv->sequence);
   g_object_get(song,"song-info",&song_info,"setup",&setup,"sequence",&self->priv->sequence,"bin", &bin,NULL);
-  g_object_get(self->priv->sequence,"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
+  g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
   // make sequence_length and step_filter_pos accord to song length
   self->priv->sequence_length=self->priv->row_filter_pos=sequence_length;
 
@@ -2763,10 +2789,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update sequence view
   sequence_calculate_visible_lines(self);
   sequence_model_recolorize(self);
-  loop_start=(loop_start_pos>-1)?(gdouble)loop_start_pos/(gdouble)sequence_length:0.0;
-  loop_end  =(loop_end_pos  >-1)?(gdouble)loop_end_pos  /(gdouble)sequence_length:1.0;
-  g_object_set(self->priv->sequence_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
-  g_object_set(self->priv->sequence_pos_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
+  g_object_set(self->priv->sequence_table,"play-position",0.0,NULL);
+  g_object_set(self->priv->sequence_pos_table,"play-position",0.0,NULL);
   // vumeters
   bus=gst_element_get_bus(GST_ELEMENT(bin));
   g_signal_connect(bus, "message::element", G_CALLBACK(on_track_level_change), (gpointer)self);
@@ -2957,6 +2981,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
     "fixed-height-mode",TRUE,
     "headers-visible", FALSE,
     NULL);
+  gtk_widget_set_events(GTK_WIDGET(self->priv->sequence_pos_table),gtk_widget_get_events(GTK_WIDGET(self->priv->sequence_pos_table))|GDK_POINTER_MOTION_HINT_MASK);
   // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_pos_table),POSITION_CELL_WIDTH,40);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_pos_table);
@@ -2965,6 +2990,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_container_add(GTK_CONTAINER(scrolled_vsync_window),GTK_WIDGET(self->priv->sequence_pos_table));
   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_vsync_window), TRUE, TRUE, 0);
   g_signal_connect(self->priv->sequence_pos_table, "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
+  g_signal_connect(self->priv->sequence_pos_table, "motion-notify-event", G_CALLBACK(on_sequence_table_motion_notify_event), (gpointer)self);
 
   // add vertical separator
   gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
@@ -3016,6 +3042,8 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
     "fixed-height-mode",TRUE,
     "headers-visible", FALSE,
     NULL);
+  //GST_DEBUG("sequence-view events = 0x%x",gtk_widget_get_events(GTK_WIDGET(self->priv->sequence_table)));
+  gtk_widget_set_events(GTK_WIDGET(self->priv->sequence_table),gtk_widget_get_events(GTK_WIDGET(self->priv->sequence_table))|GDK_POINTER_MOTION_HINT_MASK);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   sequence_table_init(self);
