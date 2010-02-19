@@ -88,7 +88,7 @@
 #endif
 #include "libbuzztard-ic/midi-device-methods.h"
 
-#define GST_CAT_DEFAULT bt_ic_debug
+#define GST_CAT_DEFAULT btic_debug
 #ifndef BTIC_CORE_C
   GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif

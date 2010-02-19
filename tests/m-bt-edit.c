@@ -31,7 +31,7 @@
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
-GST_DEBUG_CATEGORY_EXTERN(bt_ic_debug);
+GST_DEBUG_CATEGORY_EXTERN(btic_debug);
 GST_DEBUG_CATEGORY_EXTERN(bt_edit_debug);
 
 extern Suite *bt_about_dialog_suite(void);
@@ -86,7 +86,7 @@ void bt_edit_setup(void) {
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING);
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_ic_debug,GST_LEVEL_DEBUG);
+  gst_debug_category_set_threshold(btic_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 
