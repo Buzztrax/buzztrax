@@ -20,7 +20,9 @@ lib_LTLIBRARIES = libbuzztard-core.la
 libbuzztard_core_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL) \
 	-lgstaudio-0.10 \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la
-libbuzztard_core_la_LDFLAGS = -version-info @BT_VERSION_INFO@
+libbuzztard_core_la_LDFLAGS = \
+	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
+	-version-info @BT_VERSION_INFO@
 libbuzztard_core_la_SOURCES = \
 	core.c libbuzztard-core/core.h \
 	tools.c libbuzztard-core/tools.h \

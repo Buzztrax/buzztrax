@@ -1,5 +1,11 @@
 2010-02-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  Filter symbols in the libraries.
+
+2010-02-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Allow scrubbing on the timeline. Fix some issues with view updates when
 	  inserting/deleting. Reduce the motion event overhead on the sequence
