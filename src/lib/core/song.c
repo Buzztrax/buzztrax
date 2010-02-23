@@ -28,9 +28,7 @@
  * To load or save a song, use a #BtSongIO object. These implement loading and
  * saving for different file-formats.
  */
-/* @todo: idle looping (needed for playing machines live)
- * - add an "is-idle" property
- * - make bt_song_idle_{start,stop} static
+/* idle looping (needed for playing machines live)
  * - states:
  *   is_playing is_idle
  *   FALSE      FALSE    no playback
@@ -58,6 +56,13 @@
  *     if(!is_playing)
  *       bt_song_idle_stop();
  *   }
+ */
+/* fast seeking
+ * - see bt_song_change_play_rate()
+ * - on_song_segment_done probably needs to use the rate as well
+ * - the machines need to support backwards playback
+ * - for some reason the play-position updates don't happen while seeking
+ * - need to figure if EOS is @ 0 for backwards seeking
  */
 #define BT_CORE
 #define BT_SONG_C
@@ -96,6 +101,7 @@ enum {
   SONG_WAVETABLE,
   SONG_UNSAVED,
   SONG_PLAY_POS,
+  SONG_PLAY_RATE,
   SONG_IS_PLAYING,
   SONG_IS_IDLE,
   SONG_IO
@@ -116,6 +122,8 @@ struct _BtSongPrivate {
 
   /* the playback position of the song */
   gulong play_pos,play_end;
+  gdouble play_rate;
+
   /* flag to signal playing and idle states */
   gboolean is_playing,is_preparing;
   gboolean is_idle,is_idle_active;
@@ -150,6 +158,53 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper
 
+static void bt_song_update_play_seek_event(const BtSong * const self) {
+  gboolean loop;
+  glong loop_start,loop_end,length;
+  gulong play_pos=self->priv->play_pos;
+
+  g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
+  const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+
+  //GST_INFO("rate %lf, loop %d? %ld ... %ld, length %ld, pos %lu",self->priv->play_rate,loop,loop_start,loop_end,length,play_pos);
+
+  if(loop_start==-1) loop_start=0;
+  if(loop_end==-1) loop_end=length+1;
+  if(play_pos>=loop_end) play_pos=loop_start;
+  
+  // remember end for eos
+  self->priv->play_end=loop_end;
+  
+  GST_INFO("loop %d? %ld ... %ld, length %ld, pos %lu, bar_time %"GST_TIME_FORMAT,
+    loop,loop_start,loop_end,length,play_pos,GST_TIME_ARGS(bar_time));
+
+  if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
+  if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
+    
+  /* we need to use FLUSH for play (due to prerolling), otherwise:
+     0:00:00.866899000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1644:gst_base_sink_do_sync:<player> prerolling object 0x818ce90
+     0:00:00.866948000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1493:gst_base_sink_wait_preroll:<player> waiting in preroll for flush or PLAYING
+     but not for loop
+   */
+  if (loop) {
+    self->priv->play_seek_event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_TYPE_SET, play_pos*bar_time,
+        GST_SEEK_TYPE_SET, loop_end*bar_time);
+    self->priv->loop_seek_event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_TYPE_SET, loop_start*bar_time,
+        GST_SEEK_TYPE_SET, loop_end*bar_time);
+  }
+  else {
+    self->priv->play_seek_event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH,
+        GST_SEEK_TYPE_SET, play_pos*bar_time,
+        GST_SEEK_TYPE_SET, loop_end*bar_time);
+    self->priv->loop_seek_event = NULL;
+  }
+}
+
 /*
  * bt_song_seek_to_play_pos:
  * @self: #BtSong to seek
@@ -169,7 +224,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
 
   GST_INFO("loop %d? %ld, length %ld, bar_time %"GST_TIME_FORMAT,loop,loop_end,length,GST_TIME_ARGS(bar_time));
 
-  // we need to flush, otheriwse mixing goes out of sync */
+  // we need to flush, otherwise mixing goes out of sync
   if (loop) {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
@@ -183,62 +238,54 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
         GST_SEEK_TYPE_SET, (length+1)*bar_time);
   }
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
-      GST_WARNING("element failed to seek to play_pos event");
+    GST_WARNING("element failed to seek to play_pos event");
   }
 }
 
+static void bt_song_change_play_rate(const BtSong * const self) {
+  GstEvent *event;
+  gboolean loop;
+  glong loop_end,length;
+
+  if(!self->priv->is_playing) return;
+
+  g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
+  const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+
+  GST_INFO("rate %lf, loop %d?",self->priv->play_rate,loop);
+  bt_song_update_play_seek_event(self);
+
+  // changing the playback rate should mostly affect sinks
+  // still we need to flsuh to avoid adder locking up
+  // and we need to give the position to workaround basesrc starting from 0
+  if (loop) {
+    event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
+        GST_SEEK_TYPE_SET, (loop_end+0)*bar_time);
+  }
+  else {
+    event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH,
+        GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
+        GST_SEEK_TYPE_SET, (length+1)*bar_time);
+  }
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
+    GST_WARNING("element failed to change playback rate");
+  }
+  GST_INFO("rate updated");
+}
+
 /*
- * bt_song_update_play_seek_event:
+ * bt_song_update_play_seek_event_and_play_pos:
  * @self: #BtSong to seek
  *
  * Prepares a new playback segment, that goes from the new start position (loop
  * or song start) to the new end position (loop or song end).
  * Also calls bt_song_seek_to_play_pos() to update the current playback segment.
  */
-static void bt_song_update_play_seek_event(const BtSong * const self) {
-  gboolean loop;
-  glong loop_start,loop_end,length;
-  gulong play_pos=self->priv->play_pos;
-
-  g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
-  const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
-
-  //GST_INFO("loop %d? %ld ... %ld, length %ld, pos %lu", loop,loop_start,loop_end,length,play_pos);
-
-  if(loop_start==-1) loop_start=0;
-  if(loop_end==-1) loop_end=length;
-  if(play_pos>=loop_end) play_pos=loop_start;
-  
-  // remember end for eos
-  self->priv->play_end=loop_end;
-  
-  GST_INFO("loop %d? %ld ... %ld, length %ld, pos %lu, bar_time %"GST_TIME_FORMAT,
-    loop,loop_start,loop_end,length,play_pos,GST_TIME_ARGS(bar_time));
-
-  if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
-  if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
-  /* we need to use FLUSH for play (due to prerolling), otherwise:
-     0:00:00.866899000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1644:gst_base_sink_do_sync:<player> prerolling object 0x818ce90
-     0:00:00.866948000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1493:gst_base_sink_wait_preroll:<player> waiting in preroll for flush or PLAYING
-     but not for loop
-   */
-  if (loop) {
-    self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, play_pos*bar_time,
-        GST_SEEK_TYPE_SET, loop_end*bar_time);
-    self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, loop_start*bar_time,
-        GST_SEEK_TYPE_SET, loop_end*bar_time);
-  }
-  else {
-    self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH,
-        GST_SEEK_TYPE_SET, play_pos*bar_time,
-        GST_SEEK_TYPE_SET, loop_end*bar_time);
-    self->priv->loop_seek_event = NULL;
-  }
+static void bt_song_update_play_seek_event_and_play_pos(const BtSong * const self) {
+  bt_song_update_play_seek_event(self);
   /* the update needs to take the current play-position into account */
   bt_song_seek_to_play_pos(self);
 }
@@ -479,7 +526,7 @@ static void on_song_async_done(const GstBus * const bus, GstMessage *message, gc
   }
 }
 
-static void on_song_clock_lost (const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+static void on_song_clock_lost(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
   
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
@@ -491,23 +538,23 @@ static void on_song_clock_lost (const GstBus * const bus, GstMessage *message, g
 }
 
 static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data));
+  bt_song_update_play_seek_event_and_play_pos(BT_SONG(user_data));
 }
 
 static void bt_song_on_loop_start_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data));
+  bt_song_update_play_seek_event_and_play_pos(BT_SONG(user_data));
 }
 
 static void bt_song_on_loop_end_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data));
+  bt_song_update_play_seek_event_and_play_pos(BT_SONG(user_data));
 }
 
 static void bt_song_on_length_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data));
+  bt_song_update_play_seek_event_and_play_pos(BT_SONG(user_data));
 }
 
 static void bt_song_on_tempo_changed(BtSongInfo * const song_info, GParamSpec * const arg, gconstpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data));
+  bt_song_update_play_seek_event_and_play_pos(BT_SONG(user_data));
 }
 
 
@@ -652,7 +699,7 @@ gboolean bt_song_play(const BtSong * const self) {
 
   GST_INFO("prepare playback");
   // update play-pos
-  bt_song_update_play_seek_event(self);
+  bt_song_update_play_seek_event_and_play_pos(self);
 
 #ifdef USE_READY_FOR_STOPPED
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
@@ -805,13 +852,13 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
     }
     else {
       GST_WARNING("query playback-pos: invalid pos");
-      return(FALSE);
     }
   }
   else {
     GST_WARNING("query playback-pos: failed");
-    return(FALSE);
   }
+  // don't return FALSE in the WARNING case above, we use the return value to
+  // return from time-out handlers
   return(TRUE);
 }
 
@@ -1326,7 +1373,7 @@ static void bt_song_constructed(GObject *object) {
   g_signal_connect(self->priv->song_info,"notify::bpm",G_CALLBACK(bt_song_on_tempo_changed),(gpointer)self);
   GST_DEBUG("  tempo-signals connected");
 
-  bt_song_update_play_seek_event(BT_SONG(self));
+  bt_song_update_play_seek_event_and_play_pos(BT_SONG(self));
   GST_INFO("  new song created: %p",self);
 }
 
@@ -1361,6 +1408,9 @@ static void bt_song_get_property(GObject * const object, const guint property_id
     } break;
     case SONG_PLAY_POS: {
       g_value_set_ulong(value, self->priv->play_pos);
+    } break;
+    case SONG_PLAY_RATE: {
+      g_value_set_double(value, self->priv->play_rate);
     } break;
     case SONG_IS_PLAYING: {
       g_value_set_boolean(value, self->priv->is_playing);
@@ -1407,6 +1457,12 @@ static void bt_song_set_property(GObject * const object, const guint property_id
       GST_DEBUG("set the play-pos for sequence: %lu",self->priv->play_pos);
       // seek on playpos changes (if playing)
       bt_song_seek_to_play_pos(self);
+    } break;
+    case SONG_PLAY_RATE: {
+      self->priv->play_rate=g_value_get_double(value);
+      GST_DEBUG("set the play-rate: %lf",self->priv->play_rate);
+      // update rate (if playing)
+      bt_song_change_play_rate(self);
     } break;
     case SONG_IS_IDLE: {
       self->priv->is_idle=g_value_get_boolean(value);
@@ -1530,6 +1586,7 @@ static void bt_song_init(const GTypeInstance * const instance, gconstpointer con
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG, BtSongPrivate);
 
   self->priv->position_query=gst_query_new_position(GST_FORMAT_TIME);
+  self->priv->play_rate=1.0;
 
   self->priv->idle_seek_event=gst_event_new_seek(1.0, GST_FORMAT_TIME,
     GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
@@ -1629,6 +1686,15 @@ static void bt_song_class_init(BtSongClass * const klass) {
                                      0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property(gobject_class,SONG_PLAY_RATE,
+                                  g_param_spec_double("play-rate",
+                                     "play-rate prop",
+                                     "playback rate of the sequence",
+                                     -5.0,
+                                     5.0,
+                                     1.0,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
   g_object_class_install_property(gobject_class,SONG_IS_PLAYING,
                                   g_param_spec_boolean("is-playing",
                                      "is-playing prop",
@@ -1636,7 +1702,7 @@ static void bt_song_class_init(BtSongClass * const klass) {
                                      FALSE,
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
-    g_object_class_install_property(gobject_class,SONG_IS_IDLE,
+  g_object_class_install_property(gobject_class,SONG_IS_IDLE,
                                   g_param_spec_boolean("is-idle",
                                      "is-idle prop",
                                      "request that the song should idle-loop if not playing",

@@ -65,12 +65,14 @@ struct _BtMainToolbarPrivate {
   GtkWidget *stop_button;
   GtkWidget *loop_button;
 
-  /* update handler id */
+  /* signal handler ids */
   guint playback_update_id;
+  guint playback_rate_id;
 
   /* playback state */
   gboolean is_playing;
   gboolean has_error;
+  gdouble playback_rate;
   
   /* lock for multithreaded access */
   GMutex        *lock;
@@ -244,6 +246,119 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   // release the references
   g_object_unref(sequence);
   g_object_unref(song);
+}
+
+static void set_new_playback_rate(BtMainToolbar *self) {
+  BtSong *song;
+
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_set(song,"play-rate",self->priv->playback_rate,NULL);
+  g_object_unref(song);
+}
+
+static gboolean on_song_playback_rate_rewind(gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  gdouble playback_rate = self->priv->playback_rate * 1.3;
+  
+  GST_WARNING(" << speedup");
+
+  if (playback_rate > -5.0) {
+    self->priv->playback_rate = playback_rate;
+    set_new_playback_rate(self);
+    return(TRUE);
+  } else {
+    self->priv->playback_rate_id=0;
+    return(FALSE);
+  }
+}
+
+static gboolean on_toolbar_rewind_pressed(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  
+  if(event->button!=1)
+    return(FALSE);
+  
+  GST_WARNING(" << pressed");
+
+  self->priv->playback_rate=-1.3;
+  set_new_playback_rate(self);
+  
+  self->priv->playback_rate_id=g_timeout_add(3000,on_song_playback_rate_rewind,(gpointer)self);
+  
+  GST_WARNING(" << <<");
+
+  return(FALSE);
+}
+
+static gboolean on_toolbar_rewind_released(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+
+  if(event->button!=1)
+    return(FALSE);
+  
+  GST_WARNING(" << released");
+
+  self->priv->playback_rate=1.0;
+  set_new_playback_rate(self);
+
+  if(self->priv->playback_rate_id) {
+    g_source_remove(self->priv->playback_rate_id);
+    self->priv->playback_rate_id=0;
+  }
+
+  return(FALSE);
+}
+
+static gboolean on_song_playback_rate_forward(gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  gdouble playback_rate = self->priv->playback_rate * 1.3;
+
+  GST_WARNING(" >> speedup");
+
+  if (playback_rate < 5.0) {
+    self->priv->playback_rate = playback_rate;
+    set_new_playback_rate(self);
+    return(TRUE);
+  } else {
+    self->priv->playback_rate_id=0;
+    return(FALSE);
+  }
+}
+
+static gboolean on_toolbar_forward_pressed(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  
+  if(event->button!=1)
+    return(FALSE);
+  
+  GST_WARNING(" >> pressed");
+  
+  self->priv->playback_rate=1.3;
+  set_new_playback_rate(self);
+  
+  self->priv->playback_rate_id=g_timeout_add(3000,on_song_playback_rate_forward,(gpointer)self);
+  
+  GST_WARNING(" >> >>");
+  return(FALSE);
+}
+
+static gboolean on_toolbar_forward_released(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+
+  if(event->button!=1)
+    return(FALSE);
+
+  GST_WARNING(" >> released");
+
+  self->priv->playback_rate=1.0;
+  set_new_playback_rate(self);
+  
+  if(self->priv->playback_rate_id) {
+    g_source_remove(self->priv->playback_rate_id);
+    self->priv->playback_rate_id=0;
+  }
+
+  return(FALSE);
 }
 
 static void on_song_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
@@ -669,7 +784,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   BtSettings *settings;
   GtkWidget *tool_item;
-  GtkWidget *box;
+  GtkWidget *box, *child;
   gulong i;
 #if !GTK_CHECK_VERSION(2,12,0)
   GtkTooltips *tips=gtk_tooltips_new();
@@ -703,16 +818,32 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   //-- media controls
 
+  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_REWIND));
+  gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(tool_item),_("Rewind playback position of this song"));
+  gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
+  child=gtk_bin_get_child(GTK_BIN(tool_item));
+  gtk_widget_set_events(child,gtk_widget_get_events(child)|GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
+  g_signal_connect(child,"button-press-event",G_CALLBACK(on_toolbar_rewind_pressed),(gpointer)self);
+  g_signal_connect(child,"button-release-event",G_CALLBACK(on_toolbar_rewind_released),(gpointer)self);
+
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name(tool_item,"Play");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Play this song"));
+  gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(tool_item),_("Play this song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
   self->priv->play_button=tool_item;
 
+  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_FORWARD));
+  gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(tool_item),_("Fordward playback position of this song"));
+  gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
+  child=gtk_bin_get_child(GTK_BIN(tool_item));
+  gtk_widget_set_events(child,gtk_widget_get_events(child)|GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
+  g_signal_connect(child,"button-press-event",G_CALLBACK(on_toolbar_forward_pressed),(gpointer)self);
+  g_signal_connect(child,"button-release-event",G_CALLBACK(on_toolbar_forward_released),(gpointer)self);
+
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
   gtk_widget_set_name(tool_item,"Stop");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Stop playback of this song"));
+  gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(tool_item),_("Stop playback of this song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
@@ -722,7 +853,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_tool_button_set_icon_widget(GTK_TOOL_BUTTON(tool_item),gtk_image_new_from_filename("stock_repeat.png"));
   gtk_tool_button_set_label(GTK_TOOL_BUTTON(tool_item),_("Loop"));
   gtk_widget_set_name(tool_item,"Loop");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Toggle looping of playback"));
+  gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(tool_item),_("Toggle looping of playback"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(tool_item,"toggled",G_CALLBACK(on_toolbar_loop_toggled),(gpointer)self);
   self->priv->loop_button=tool_item;
@@ -865,6 +996,7 @@ static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_TOOLBAR, BtMainToolbarPrivate);
   self->priv->app = bt_edit_application_new();
   self->priv->lock=g_mutex_new ();
+  self->priv->playback_rate=1.0;
 }
 
 static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {

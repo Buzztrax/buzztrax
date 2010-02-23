@@ -1,5 +1,12 @@
 2010-02-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	* src/ui/edit/main-toolbar.c:
+	  Add fast forward and backward seeking. Its including several work-arounds
+	  already and still needs more work.
+
+2010-02-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/bt-edit.c:
 	  Add code to sanity check registry search path and the apps libdir. Disable
 	  as it does not work as expected (bug filed).
