@@ -151,6 +151,25 @@ int main(int argc, char **argv) {
 #endif
 
   GST_INFO("starting: thread=%p",g_thread_self());
+  
+#if 0
+  /* check if LIBDIR"/gstreamer-0.10" is in $GST_PLUGIN_PATH
+   * gst_default_registry_get_path_list() is useless right now,
+   * see https://bugzilla.gnome.org/show_bug.cgi?id=608841
+   */
+  {
+    const gchar plugin_path[]=LIBDIR G_DIR_SEPARATOR_S "gstreamer-0.10";
+    GList *node,*paths=gst_default_registry_get_path_list();
+    // irks, that list is NULL, gst, checks GST_PLUGIN_PATH, GST_PLUGIN_STSTEM_PATH
+    // and if !GST_PLUGIN_STSTEM_PATH PLUGINDIR
+
+    GST_INFO("check that %s is scanned by gst registry",plugin_path);
+    for(node=paths;node;node=g_list_next(node)) {
+      GST_INFO("  checking %s",(gchar *)node->data);
+    }
+    g_list_free(paths);
+  }
+#endif
 
   app=bt_edit_application_new();
   

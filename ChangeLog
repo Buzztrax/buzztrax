@@ -1,3 +1,9 @@
+2010-02-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/bt-edit.c:
+	  Add code to sanity check registry search path and the apps libdir. Disable
+	  as it does not work as expected (bug filed).
+
 2010-02-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/ic_private.h:
