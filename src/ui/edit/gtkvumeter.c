@@ -228,7 +228,7 @@ static void gtk_vumeter_size_request (GtkWidget *widget, GtkRequisition *requisi
 
     vumeter = GTK_VUMETER (widget);
 
-    if (vumeter->vertical == TRUE) {
+    if (vumeter->vertical) {
         requisition->width = VERTICAL_VUMETER_WIDTH;
         requisition->height = MIN_VERTICAL_VUMETER_HEIGHT;
     } else {
@@ -240,29 +240,34 @@ static void gtk_vumeter_size_request (GtkWidget *widget, GtkRequisition *requisi
 static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
     GtkVUMeter *vumeter;
+    GtkAllocation *a;
 
-    g_return_if_fail (widget != NULL);
     g_return_if_fail (GTK_IS_VUMETER (widget));
     g_return_if_fail (allocation != NULL);
 
     GTK_WIDGET_CLASS (parent_class)->size_allocate (widget, allocation);
 
-    widget->allocation = *allocation;
     vumeter = GTK_VUMETER (widget);
 
-    if (gtk_widget_get_realized (widget)) {
-        if (vumeter->vertical) {
-            /* veritcal */
-            gdk_window_move_resize (widget->window, allocation->x, allocation->y,
-                MAX(allocation->width,VERTICAL_VUMETER_WIDTH),
-                MIN(allocation->height, MIN_VERTICAL_VUMETER_HEIGHT));
+    a = &widget->allocation;
+#if 0
+    a->x = allocation->x;
+    a->y = allocation->y;
+    if (vumeter->vertical) {
+       a->width = MAX(allocation->width, VERTICAL_VUMETER_WIDTH);
+       a->height = MAX(allocation->height, MIN_VERTICAL_VUMETER_HEIGHT);
+       //printf("V geometry: %dx%d - %dx%d\n",a->x,a->y,a->width,a->height);
+    } else {
+       a->width = MAX(allocation->width, MIN_HORIZONTAL_VUMETER_WIDTH);
+       a->height = MAX(allocation->height, HORIZONTAL_VUMETER_HEIGHT);
+       //printf("H geometry: %dx%d - %dx%d\n",a->x,a->y,a->width,a->height);
+    }
+#else
+    *a = *allocation;
+#endif
 
-        } else {
-            /* horizontal */
-            gdk_window_move_resize (widget->window, allocation->x, allocation->y,
-                MIN(allocation->width, MIN_HORIZONTAL_VUMETER_WIDTH),
-                MAX(allocation->height,HORIZONTAL_VUMETER_HEIGHT));
-        }
+    if (gtk_widget_get_realized (widget)) {
+        gdk_window_move_resize (widget->window, a->x, a->y, a->width, a->height);
     }
     gtk_vumeter_allocate_colors (vumeter);
 }

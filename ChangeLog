@@ -1,3 +1,12 @@
+2010-02-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/levelmeter.c:
+	* src/ui/edit/gtkvumeter.c:
+	* design/gui/levelmeter.c (svn:keywords, svn:eol-style):
+	* design/gui/levelmeter.c (added):
+	  Add an standalone example for the level meter widget and tune the resize
+	  behaviour. Previously it was overdrawing the max border.
+
 2010-02-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:
