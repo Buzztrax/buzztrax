@@ -1,11 +1,31 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2010/04 ========================================================================
+
+
 2010/03 ========================================================================
 
-- ui
-  - machine dialogs in context menus on pattern and sequence page
-- refactoring
-  - gtk+3 sealing
+As if February isn't short enough already a nasty stomach infection send me to
+the couch (and bathroom) for a couple of days. 
+
+Still managed to do a couple of things. Some refactoring in the editor allowed
+me to harmonize context menus. E.g. one can open machine windows also from
+pattern and sequence view.
+
+GStreamer has support for accelerated and decelerated playback, forward and
+backward. I started to overhaul the seek handling a bit and added UI for fast-
+forward and fast-backward. Fast-forward is working with some limitations, but
+reverse playback needs some fixes in plugins still. As a side effect one can now
+scrub with the mouse over the timeline.
+
+I also wrote a standalone test app for my level meter. I was still not convinced
+that is was always drawing correctly. Indeed there was a bug in the resize
+behaviour, that now is fixed too.
+
+As gtk+3 comes closer I did several rounds of adapting the the new style to use
+accessor functions everywhere.
+  
+44 files changed, 1087 insertions(+), 317 deletions(-)
 
 2010/02 ========================================================================
 
