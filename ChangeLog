@@ -1,3 +1,13 @@
+2010-03-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  No need to copy static strings.
+
+	* src/ui/edit/buzztard-edit.desktop.in.in:
+	  According to this post
+	  http://lists.fedoraproject.org/pipermail/devel/2010-March/133523.html
+	  we should add this flag.
+
 2010-03-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

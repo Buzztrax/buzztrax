@@ -8,5 +8,6 @@ Exec=buzztard-edit --command=load --input-file=%f
 Terminal=false
 Icon=buzztard
 DocPath=buzztard/buzztard.xml
+StartupNotify=true
 Categories=GNOME;GTK;AudioVideo;Audio;Sequencer;
 MimeType=audio/x-bzt;audio/x-bzt-xml;

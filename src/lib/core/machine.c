@@ -653,10 +653,10 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
           g_value_set_string(value,qdata);
         }
         else {
-          g_value_set_string(value,"");
+          g_value_set_static_string(value,"");
         }
         */
-        g_value_set_string(value,"");
+        g_value_set_static_string(value,"");
         break;
       default:
         if(qdata) {
