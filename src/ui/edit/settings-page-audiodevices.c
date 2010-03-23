@@ -173,9 +173,15 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   for(node=audiosink_names,ct=1;node;node=g_list_next(node)) {
     name=node->data;
 
-    // filter some known analyzer sinks (ladspa and lv2)
-    if(strncasecmp("ladspa-",name,7) && strncasecmp("http-",name,5)) {
+    // filter some known analyzer sinks
+    if(strncasecmp("ladspa-",name,7)) {
       GstElementFactory * const factory=gst_element_factory_find(name);
+      
+      // filter some known plugins
+      if (!strcmp(GST_PLUGIN_FEATURE(factory)->plugin_name,"lv2")) {
+        GST_INFO("  skipping audio sink: \"%s\" - its a lv2 element",name);
+        continue;
+      }
 
       // can the sink accept raw audio?
       can_int_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-int");
@@ -233,7 +239,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
           ct++;
         }
         else {
-          GST_INFO("  skipping audio sink: \"%s\" as if cannot go to READY",name);
+          GST_INFO("  skipping audio sink: \"%s\" as it cannot go to READY",name);
         }
       }
       else {
@@ -241,7 +247,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
       }
     }
     else {
-      GST_INFO("  skipping audio sink: \"%s\" - its a ladspa element but not asm audio output",name);
+      GST_INFO("  skipping audio sink: \"%s\" - its a ladspa element",name);
     }
   }
   GST_INFO("current sink (is_system? %d): %lu",use_system_audiosink,audiosink_index);

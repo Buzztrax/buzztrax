@@ -1,5 +1,10 @@
 2010-03-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Improve filtering.
+
+2010-03-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/about-dialog.c:
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/interaction-controller-menu.c:
