@@ -167,6 +167,9 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
    *   but then again bins seem to be filtered out already, by below
    *
    * we could also filter by baseclass, GST_IS_BASE_AUDIO_SINK(...) now that we have instances
+   *
+   * we should factor out the code below to a function and add a rescan button
+   * -> useful if e.g. someone started jack in the meantime
    */
 
   // add audio sinks gstreamer provides

@@ -217,7 +217,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       
       // add sub-menu for all audio inputs
       // get element type for filtering, this slows things down :/
-      if(!(loaded_feature=gst_plugin_feature_load (GST_PLUGIN_FEATURE(factory)))) {
+      if(!(loaded_feature=gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)))) {
         GST_INFO("skipping unloadable element : '%s'",(gchar *)node->data);
         goto next;
       }
@@ -267,7 +267,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       // remove prefix "<plugin-name>-"
       if(!strncasecmp(menu_name,plugin_name,len) && menu_name[len]=='-') {
         menu_name=&menu_name[len+1];
-      }      
+      }
     }
     menu_item=gtk_menu_item_new_with_label(menu_name);
     gtk_widget_set_name(menu_item,node->data);
@@ -275,7 +275,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     gtk_widget_show(menu_item);
     g_signal_connect(menu_item,"activate",G_CALLBACK(handler),(gpointer)self);
 next:
-    gst_object_unref (factory);
+    gst_object_unref(factory);
   }
   g_hash_table_destroy(parent_menu_hash);
   g_list_free(element_names);
