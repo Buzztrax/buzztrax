@@ -389,6 +389,7 @@ static void bt_main_statusbar_init(GTypeInstance *instance, gpointer g_class) {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_STATUSBAR, BtMainStatusbarPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

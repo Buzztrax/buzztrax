@@ -2026,6 +2026,7 @@ static void bt_machine_properties_dialog_init(GTypeInstance *instance, gpointer 
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PROPERTIES_DIALOG, BtMachinePropertiesDialogPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

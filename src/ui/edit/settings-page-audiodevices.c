@@ -364,6 +364,7 @@ static void bt_settings_page_audiodevices_init(GTypeInstance *instance, gpointer
   BtSettingsPageAudiodevices *self = BT_SETTINGS_PAGE_AUDIODEVICES(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_AUDIODEVICES, BtSettingsPageAudiodevicesPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

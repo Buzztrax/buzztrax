@@ -1065,6 +1065,7 @@ static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
   BtMainWindow *self = BT_MAIN_WINDOW(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_WINDOW, BtMainWindowPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

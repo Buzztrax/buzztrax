@@ -226,6 +226,7 @@ static void bt_machine_rename_dialog_init(GTypeInstance *instance, gpointer g_cl
   BtMachineRenameDialog *self = BT_MACHINE_RENAME_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_RENAME_DIALOG, BtMachineRenameDialogPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

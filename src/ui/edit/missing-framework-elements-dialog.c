@@ -320,6 +320,7 @@ static void bt_missing_framework_elements_dialog_init(GTypeInstance *instance, g
   BtMissingFrameworkElementsDialog *self = BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG, BtMissingFrameworkElementsDialogPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

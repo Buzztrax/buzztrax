@@ -274,6 +274,7 @@ static void bt_pattern_properties_dialog_init(GTypeInstance *instance, gpointer 
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PATTERN_PROPERTIES_DIALOG, BtPatternPropertiesDialogPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

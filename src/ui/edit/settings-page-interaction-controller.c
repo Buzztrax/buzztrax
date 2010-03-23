@@ -260,6 +260,7 @@ static void bt_settings_page_interaction_controller_init(GTypeInstance *instance
   BtSettingsPageInteractionController *self = BT_SETTINGS_PAGE_INTERACTION_CONTROLLER(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER, BtSettingsPageInteractionControllerPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

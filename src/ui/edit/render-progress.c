@@ -294,6 +294,7 @@ static void bt_render_progress_init(GTypeInstance *instance, gpointer g_class) {
   BtRenderProgress *self = BT_RENDER_PROGRESS(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_RENDER_PROGRESS, BtRenderProgressPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

@@ -758,6 +758,7 @@ static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) 
   GtkWidget *menu_item;
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE_CANVAS_ITEM, BtWireCanvasItemPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 
   // generate the context menu

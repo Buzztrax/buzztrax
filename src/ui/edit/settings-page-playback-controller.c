@@ -177,6 +177,7 @@ static void bt_settings_page_playback_controller_init(GTypeInstance *instance, g
   BtSettingsPagePlaybackController *self = BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER, BtSettingsPagePlaybackControllerPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

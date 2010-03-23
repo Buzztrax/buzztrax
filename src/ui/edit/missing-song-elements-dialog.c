@@ -201,6 +201,7 @@ static void bt_missing_song_elements_dialog_init(GTypeInstance *instance, gpoint
   BtMissingSongElementsDialog *self = BT_MISSING_SONG_ELEMENTS_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG, BtMissingSongElementsDialogPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

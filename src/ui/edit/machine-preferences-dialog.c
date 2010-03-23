@@ -580,6 +580,7 @@ static void bt_machine_preferences_dialog_init(GTypeInstance *instance, gpointer
   BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PREFERENCES_DIALOG, BtMachinePreferencesDialogPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

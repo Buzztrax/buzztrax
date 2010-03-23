@@ -180,6 +180,7 @@ static void bt_settings_page_directories_init(GTypeInstance *instance, gpointer 
   BtSettingsPageDirectories *self = BT_SETTINGS_PAGE_DIRECTORIES(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_DIRECTORIES, BtSettingsPageDirectoriesPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

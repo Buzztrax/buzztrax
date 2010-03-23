@@ -185,6 +185,7 @@ static void bt_about_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtAboutDialog *self = BT_ABOUT_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_ABOUT_DIALOG, BtAboutDialogPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

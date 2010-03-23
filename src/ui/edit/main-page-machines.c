@@ -1301,6 +1301,7 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachinesPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 
   self->priv->zoom=MACHINE_VIEW_ZOOM_FC;

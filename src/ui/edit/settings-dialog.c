@@ -359,6 +359,7 @@ static void bt_settings_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtSettingsDialog *self = BT_SETTINGS_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_DIALOG, BtSettingsDialogPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

@@ -260,6 +260,7 @@ static void bt_tip_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtTipDialog *self = BT_TIP_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_TIP_DIALOG, BtTipDialogPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

@@ -281,6 +281,7 @@ static void bt_main_pages_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPages *self = BT_MAIN_PAGES(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGES, BtMainPagesPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

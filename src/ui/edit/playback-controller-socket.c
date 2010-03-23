@@ -43,7 +43,7 @@ struct _BtPlaybackControllerSocketPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  BtEditApplication *app;
+  G_POINTER_ALIAS(BtEditApplication *,app);
 
   /* positions for each label */
   GList *playlist;
@@ -576,7 +576,7 @@ static void bt_playback_controller_socket_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->gain);
   g_object_try_weak_unref(self->priv->sequence);
-  g_object_unref(self->priv->app);
+  g_object_try_weak_unref(self->priv->app);
 
   master_connection_close(self);
 
@@ -603,7 +603,12 @@ static void bt_playback_controller_socket_init(GTypeInstance *instance, gpointer
   BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PLAYBACK_CONTROLLER_SOCKET, BtPlaybackControllerSocketPrivate);
+  GST_DEBUG("!!!! self=%p",self);
+  /* this is created from the app, we need to avoid a ref-cycle */
   self->priv->app = bt_edit_application_new();
+  g_object_try_weak_ref(self->priv->app);
+  g_object_unref(self->priv->app);
+
   // check settings
   //master_connection_open(self);
   settings_listen(self);

@@ -3569,6 +3569,7 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequencePrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 
   self->priv->bars=1;

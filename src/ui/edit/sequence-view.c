@@ -275,6 +275,7 @@ static void bt_sequence_view_init(GTypeInstance *instance, gpointer g_class) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SEQUENCE_VIEW, BtSequenceViewPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

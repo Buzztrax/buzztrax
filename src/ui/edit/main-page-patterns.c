@@ -2933,6 +2933,7 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
   int i;
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_PATTERNS, BtMainPagePatternsPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 
   //self->priv->cursor_column=0;

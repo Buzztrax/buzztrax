@@ -350,6 +350,7 @@ static void bt_machine_menu_init(GTypeInstance *instance, gpointer g_class) {
   BtMachineMenu *self = BT_MACHINE_MENU(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_MENU, BtMachineMenuPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

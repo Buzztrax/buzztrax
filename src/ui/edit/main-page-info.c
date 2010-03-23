@@ -506,6 +506,7 @@ static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_INFO, BtMainPageInfoPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 }
 

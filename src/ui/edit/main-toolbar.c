@@ -994,6 +994,7 @@ static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_TOOLBAR, BtMainToolbarPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
   self->priv->lock=g_mutex_new ();
   self->priv->playback_rate=1.0;

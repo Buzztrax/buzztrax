@@ -723,7 +723,7 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     hildon_program_add_window(HILDON_PROGRAM(hildon_program_get_instance()),
       HILDON_WINDOW(singleton->priv->main_window));
 #endif
-    GST_INFO("new edit app window created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
+    GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
     //GST_DEBUG(">>>");
   }
   else {

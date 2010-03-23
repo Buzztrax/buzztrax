@@ -1216,6 +1216,7 @@ static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_clas
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_CANVAS_ITEM, BtMachineCanvasItemPrivate);
+  GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
 
   // generate the context menu
