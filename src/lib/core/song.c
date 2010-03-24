@@ -725,6 +725,8 @@ gboolean bt_song_play(const BtSong * const self) {
   res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
   GST_DEBUG("->PAUSED state change returned '%s'",gst_element_state_change_return_get_name(res));
   switch(res) {
+    case GST_STATE_CHANGE_SUCCESS:
+      break;
     case GST_STATE_CHANGE_FAILURE:
       GST_WARNING("can't go to paused state");
       bt_song_write_to_lowlevel_dot_file(self);
@@ -736,7 +738,7 @@ gboolean bt_song_play(const BtSong * const self) {
       self->priv->paused_timeout_id=g_timeout_add(BT_SONG_STATE_CHANGE_TIMEOUT, on_song_paused_timeout, (gpointer)self);
       break;
     default:
-      GST_WARNING("unexpected state-change-return %d",res);
+      GST_WARNING("unexpected state-change-return %d:%s",res,gst_element_state_change_return_get_name(res));
       break;
   }
   GST_INFO("playback started");
@@ -1437,10 +1439,6 @@ static void bt_song_set_property(GObject * const object, const guint property_id
       g_object_try_weak_ref(self->priv->app);
       GST_DEBUG("set the app for the song: %p",self->priv->app);
     } break;
-    /*case SONG_BIN: {
-      self->priv->bin=GST_BIN(g_value_dup_object(value));
-      GST_DEBUG("set the bin for the song: %p",self->priv->bin);
-    } break;*/
     case SONG_MASTER: {
       g_object_try_weak_unref(self->priv->master);
       self->priv->master = BT_SINK_MACHINE(g_value_get_object(value));
@@ -1560,7 +1558,10 @@ static void bt_song_dispose(GObject * const object) {
   if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
   if(self->priv->idle_seek_event) gst_event_unref(self->priv->idle_seek_event);
   if(self->priv->idle_loop_seek_event) gst_event_unref(self->priv->idle_loop_seek_event);
-  if(self->priv->bin) gst_object_unref(self->priv->bin);
+  if(self->priv->bin) {
+    GST_DEBUG("bin-refs: %d",G_OBJECT_REF_COUNT(self->priv->bin));
+    gst_object_unref(self->priv->bin);
+  }
   g_object_try_weak_unref(self->priv->app);
 
   GST_DEBUG("  chaining up");

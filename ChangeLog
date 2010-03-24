@@ -1,5 +1,10 @@
 2010-03-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Logging and code cleanups. Also don't warn in the case of success.
+
+2010-03-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/settings-page-audiodevices.c:
 	  More detailed logging.
 
