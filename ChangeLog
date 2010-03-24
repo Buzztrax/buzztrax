@@ -1,5 +1,11 @@
 2010-03-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	  Rework state-change handling. No more fiddling with the bus. Keep sink
+	  locked in READY to keep connection to pulse/jack.
+
+2010-03-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
 	  Logging and code cleanups. Also don't warn in the case of success.
 
