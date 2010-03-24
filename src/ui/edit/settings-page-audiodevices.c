@@ -224,9 +224,16 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
               }
             }
           }
+          else {
+            GST_INFO("  skipping audio sink: \"%s\" as it could not go to READY",name);
+          }
           gst_element_set_state(sink,GST_STATE_NULL);
           gst_object_unref(sink);
         }
+        else {
+          GST_INFO("  skipping audio sink: \"%s\" as it could be instantiated",name);
+        }
+
         
         if(works) {
           // compare with audiosink_name and set audiosink_index if equal
@@ -240,9 +247,6 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
           self->priv->audiosink_names=g_list_append(self->priv->audiosink_names,name);
           GST_INFO("  adding audio sink: \"%s\"",name);
           ct++;
-        }
-        else {
-          GST_INFO("  skipping audio sink: \"%s\" as it cannot go to READY",name);
         }
       }
       else {

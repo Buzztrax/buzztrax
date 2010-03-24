@@ -1,3 +1,8 @@
+2010-03-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/settings-page-audiodevices.c:
+	  More detailed logging.
+
 2010-03-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-menu.c:
