@@ -1,3 +1,9 @@
+2010-03-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* COPYING:
+	* COPYING (added):
+	  Add LGPL COPYING file as automake cannot be asked to copy that one instead of a GPL one.
+
 2010-03-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:
