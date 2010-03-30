@@ -1,5 +1,11 @@
 2010-03-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/tools.c:
+	  gst_pad_get_caps_reffed() is only available in gstreamer-0.10.26. Use a
+	  less optimal function, if we don't have it.
+
+2010-03-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Improve checking of non-std install prefix.
 
