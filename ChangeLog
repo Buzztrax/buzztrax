@@ -1,3 +1,8 @@
+2010-03-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Improve checking of non-std install prefix.
+
 2010-03-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* COPYING:
