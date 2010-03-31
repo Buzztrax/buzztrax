@@ -354,6 +354,9 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
   BtPatternEditorColumnGroup *cgrp;
   BtPatternEditorColumn *col;
   struct ParamType *pt;
+  
+  if (!self->num_groups)
+    return;
     
   for (g = 0; g < self->group; g++) {
     cgrp = &self->groups[g];

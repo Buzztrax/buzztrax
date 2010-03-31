@@ -1,3 +1,8 @@
+2010-03-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Don't refresh cursor in pattern that have no groups. Fixes #2980015.
+
 2010-03-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/tools.c:
