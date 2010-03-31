@@ -114,6 +114,18 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
         g_value_set_uint(value, ((GParamSpecUInt *)pspec)->default_value);
       }
     } break;
+    case BT_SETTINGS_WINDOW_XPOS:
+    case BT_SETTINGS_WINDOW_YPOS:
+    case BT_SETTINGS_WINDOW_WIDTH:
+    case BT_SETTINGS_WINDOW_HEIGHT:
+    {
+      if(prop) {
+        g_value_set_int(value, g_value_get_int(prop));
+      }
+      else {
+        g_value_set_int(value, ((GParamSpecInt *)pspec)->default_value);
+      }
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -161,6 +173,17 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
         g_value_init(prop,G_TYPE_UINT);
       }
       g_value_set_uint(prop, g_value_get_uint(value));
+    } break;
+    case BT_SETTINGS_WINDOW_XPOS:
+    case BT_SETTINGS_WINDOW_YPOS:
+    case BT_SETTINGS_WINDOW_WIDTH:
+    case BT_SETTINGS_WINDOW_HEIGHT:
+    {
+      if(!prop) {
+        self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
+        g_value_init(prop,G_TYPE_INT);
+      }
+      g_value_set_int(prop, g_value_get_int(value));
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
