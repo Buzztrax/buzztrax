@@ -1,5 +1,14 @@
 2010-03-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/s-bt-pattern-page.c:
+	* tests/ui/edit/t-bt-pattern-page.c:
+	* tests/ui/edit/t-bt-pattern-page.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/t-bt-pattern-page.c (added):
+	  Add two new tests to cover the issue reported in #2980015.
+
+2010-03-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/bt-test-settings.c:
 	  Add missing new settings.
 	

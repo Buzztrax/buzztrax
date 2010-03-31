@@ -16,7 +16,7 @@ libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-main-window.c e-bt-main-window.c \
 	s-bt-missing-framework-elements-dialog.c e-bt-missing-framework-elements-dialog.c \
 	s-bt-missing-song-elements-dialog.c e-bt-missing-song-elements-dialog.c \
-	s-bt-pattern-page.c e-bt-pattern-page.c \	
+	s-bt-pattern-page.c e-bt-pattern-page.c t-bt-pattern-page.c \	
 	s-bt-pattern-properties-dialog.c e-bt-pattern-properties-dialog.c \
 	s-bt-render-dialog.c e-bt-render-dialog.c \
 	s-bt-render-progress-dialog.c e-bt-render-progress-dialog.c \
