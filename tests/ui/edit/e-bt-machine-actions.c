@@ -69,7 +69,7 @@ BT_START_TEST(test_about_dialog) {
   // create a new song
   bt_edit_application_new_song(app);
 
-  // get window
+  // get window && song
   g_object_get(app,"main-window",&main_window,"song",&song,NULL);
   fail_unless(main_window != NULL, NULL);
   fail_unless(song != NULL, NULL);

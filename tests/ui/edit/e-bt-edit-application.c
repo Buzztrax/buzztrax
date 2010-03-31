@@ -97,11 +97,17 @@ static gboolean finish_main_loops(gpointer user_data) {
 // create app and then unconditionally destroy window
 BT_START_TEST(test_run) {
   BtEditApplication *app;
+  BtMainWindow *main_window;
   BtSettings *settings=NULL;
 
   app=bt_edit_application_new();
   fail_unless(app != NULL, NULL);
-  
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+  GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
+
   // avoid the about dialog
   settings=bt_settings_make();
   g_object_set(settings,"news-seen",PACKAGE_VERSION_NUMBER,NULL);
@@ -109,6 +115,8 @@ BT_START_TEST(test_run) {
   // run and quit
   g_idle_add(finish_main_loops,NULL);
   bt_edit_application_run(app);
+  
+  gtk_widget_destroy(GTK_WIDGET(main_window));
   
   // free application
   g_object_checked_unref(app);

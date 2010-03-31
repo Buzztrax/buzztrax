@@ -1,5 +1,14 @@
 2010-03-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/ui/edit/e-bt-edit-application.c:
+	* tests/ui/edit/e-bt-interaction-controller-menu.c:
+	  Destroy window, to unref the app.
+
+	* tests/ui/edit/e-bt-machine-actions.c:
+	  Fix comment.
+
+2010-03-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/ui/edit/Makefile.am:
 	* tests/ui/edit/s-bt-pattern-page.c:
 	* tests/ui/edit/t-bt-pattern-page.c:
