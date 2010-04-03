@@ -326,14 +326,19 @@ static void preview_update_seeks(const BtMainPageWaves *self) {
     /* calculate pitch rate from root-note */
     prate=gstbt_tone_conversion_translate_from_number(self->priv->n2f,BT_WAVELEVEL_DEFAULT_ROOT_NOTE)/
         gstbt_tone_conversion_translate_from_number(self->priv->n2f,root_note);
-    
+        
     old_play_event =self->priv->play_seek_event;
     old_loop_event0=self->priv->loop_seek_event[0];
     old_loop_event1=self->priv->loop_seek_event[1];
     /* new events */
     if (loop_mode!=BT_WAVE_LOOP_MODE_OFF) {
-      GstClockTime play_beg=gst_util_uint64_scale_int(GST_SECOND,loop_start,srate);
-      GstClockTime play_end=gst_util_uint64_scale_int(GST_SECOND,loop_end,srate);
+      GstClockTime play_beg,play_end;
+      
+      if(loop_start==-1) loop_start=0;
+      if(loop_end==-1) loop_end=length+1;
+
+      play_beg=gst_util_uint64_scale_int(GST_SECOND,loop_start,srate);
+      play_end=gst_util_uint64_scale_int(GST_SECOND,loop_end,srate);
 
       new_play_event = gst_event_new_seek(prate, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
@@ -352,7 +357,7 @@ static void preview_update_seeks(const BtMainPageWaves *self) {
         GST_DEBUG("prepare for pingpong loop play: %"GST_TIME_FORMAT" ... %"GST_TIME_FORMAT,
           GST_TIME_ARGS(play_beg),GST_TIME_ARGS(play_end));
       
-        new_loop_event0=gst_event_new_seek(-1.0*prate, GST_FORMAT_TIME, 
+        new_loop_event0=gst_event_new_seek(-1.0*prate, GST_FORMAT_TIME,
             GST_SEEK_FLAG_SEGMENT,
             GST_SEEK_TYPE_SET, play_beg,
             GST_SEEK_TYPE_SET, play_end);
@@ -375,7 +380,7 @@ static void preview_update_seeks(const BtMainPageWaves *self) {
             GST_SEEK_FLAG_NONE,
             GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT(0),
             GST_SEEK_TYPE_SET, play_end);
-        new_loop_event1 = NULL;      
+        new_loop_event1 = NULL;
     }
     
     /* swap and replace */
@@ -814,11 +819,18 @@ static gboolean on_preview_playback_update(gpointer user_data) {
   gint64 pos_cur;
 
   // query playback position and update playcursor;
-  gst_element_query(GST_ELEMENT(self->priv->preview),self->priv->position_query);
-  gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
-  // update play-cursor in samples
-  g_object_set(self->priv->waveform_viewer,"playback-cursor",pos_cur,NULL);
-  
+  //if((gst_element_query(GST_ELEMENT(self->priv->preview),self->priv->position_query))) {
+  if((gst_element_query(GST_ELEMENT(self->priv->preview_src),self->priv->position_query))) {
+    gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
+    // update play-cursor in samples
+    g_object_set(self->priv->waveform_viewer,"playback-cursor",pos_cur,NULL);
+    /*GST_WARNING_OBJECT(self->priv->preview, "position query returned: %" G_GINT64_FORMAT " as %s",
+      pos_cur, gst_format_get_name(fmt));
+    */
+  }
+  else {
+    GST_WARNING_OBJECT(self->priv->preview, "position query failed");
+  }
   return(TRUE);
 }
 
@@ -894,8 +906,8 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
       // build seek events for looping
       preview_update_seeks(self);
       
-      // update playback position 10 times a second
-      self->priv->preview_update_id=g_timeout_add(100,on_preview_playback_update,(gpointer)self);
+      // update playback position 15 times a second
+      self->priv->preview_update_id=g_timeout_add(1000/15,on_preview_playback_update,(gpointer)self);
 
       // set playing
       gst_element_set_state(self->priv->preview,GST_STATE_PLAYING);

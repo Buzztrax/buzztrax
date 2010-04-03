@@ -46,13 +46,6 @@ loop_end =  7  n_samples_stop=7          =15-3=12
 GST_DEBUG_CATEGORY_STATIC (memory_audio_src_debug);
 #define GST_CAT_DEFAULT memory_audio_src_debug
 
-static const GstElementDetails bt_memory_audio_src_details =
-GST_ELEMENT_DETAILS ("Memory audio source",
-    "Source/Audio",
-    "Plays audio from memory",
-    "Stefan Kost <ensonic@users.sf.net>");
-
-
 enum
 {
   PROP_0,
@@ -88,9 +81,6 @@ static gboolean bt_memory_audio_src_do_seek (GstBaseSrc * basesrc,
 static gboolean bt_memory_audio_src_query (GstBaseSrc * basesrc,
     GstQuery * query);
 
-
-static void bt_memory_audio_src_get_times (GstBaseSrc * basesrc,
-    GstBuffer * buffer, GstClockTime * start, GstClockTime * end);
 static GstFlowReturn bt_memory_audio_src_create (GstBaseSrc * basesrc,
     guint64 offset, guint length, GstBuffer ** buffer);
 
@@ -102,7 +92,11 @@ bt_memory_audio_src_base_init (gpointer g_class)
 
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&bt_memory_audio_src_src_template));
-  gst_element_class_set_details (element_class, &bt_memory_audio_src_details);
+  gst_element_class_set_details_simple (element_class,
+      "Memory audio source",
+      "Source/Audio",
+      "Plays audio from memory",
+      "Stefan Kost <ensonic@users.sf.net>");
 }
 
 static void
@@ -120,14 +114,14 @@ bt_memory_audio_src_class_init (BtMemoryAudioSrcClass * klass)
 
   g_object_class_install_property(gobject_class, PROP_CAPS,
       g_param_spec_boxed("caps", "Output caps",
-          "Data format of sample.", 
+          "Data format of sample.",
           GST_TYPE_CAPS,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
   g_object_class_install_property(gobject_class, PROP_DATA,
       g_param_spec_pointer("data", "Sample data",
          "The sample data (interleaved for multi-channel)",
          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  g_object_class_install_property (gobject_class, PROP_LENGTH,
+  g_object_class_install_property(gobject_class, PROP_LENGTH,
       g_param_spec_ulong("length", "Length in samples",
          "Length of the sample in number of samples",
          0, G_MAXLONG, 0,
@@ -142,7 +136,6 @@ bt_memory_audio_src_class_init (BtMemoryAudioSrcClass * klass)
   gstbasesrc_class->is_seekable = GST_DEBUG_FUNCPTR (bt_memory_audio_src_is_seekable);
   gstbasesrc_class->do_seek = GST_DEBUG_FUNCPTR (bt_memory_audio_src_do_seek);
   gstbasesrc_class->query = GST_DEBUG_FUNCPTR (bt_memory_audio_src_query);
-  gstbasesrc_class->get_times = GST_DEBUG_FUNCPTR (bt_memory_audio_src_get_times);
   gstbasesrc_class->create = GST_DEBUG_FUNCPTR (bt_memory_audio_src_create);
 }
 
@@ -159,7 +152,8 @@ bt_memory_audio_src_init (BtMemoryAudioSrc * src, BtMemoryAudioSrcClass * g_clas
   gst_base_src_set_live (GST_BASE_SRC (src), FALSE);
 
   src->caps = gst_caps_new_any ();
-  src->samples_per_buffer = 4096;
+  // this gives us max 15 position updates per sec.
+  src->samples_per_buffer = GST_AUDIO_DEF_RATE/15;
   src->generate_samples_per_buffer = src->samples_per_buffer;
 }
 
@@ -231,31 +225,8 @@ bt_memory_audio_src_query (GstBaseSrc * basesrc, GstQuery * query)
   /* ERROR */
 error:
   {
-    GST_DEBUG_OBJECT (src, "query failed");
+    GST_WARNING_OBJECT (src, "query %s failed", gst_query_type_get_name (GST_QUERY_TYPE (query)));
     return FALSE;
-  }
-}
-
-static void
-bt_memory_audio_src_get_times (GstBaseSrc * basesrc, GstBuffer * buffer,
-    GstClockTime * start, GstClockTime * end)
-{
-  /* for live sources, sync on the timestamp of the buffer */
-  if (gst_base_src_is_live (basesrc)) {
-    GstClockTime timestamp = GST_BUFFER_TIMESTAMP (buffer);
-
-    if (GST_CLOCK_TIME_IS_VALID (timestamp)) {
-      /* get duration to calculate end time */
-      GstClockTime duration = GST_BUFFER_DURATION (buffer);
-
-      if (GST_CLOCK_TIME_IS_VALID (duration)) {
-        *end = timestamp + duration;
-      }
-      *start = timestamp;
-    }
-  } else {
-    *start = -1;
-    *end = -1;
   }
 }
 
@@ -267,7 +238,8 @@ bt_memory_audio_src_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
 
   src->rate = segment->rate;
   
-  GST_INFO("rates : %lf %lf %lf",segment->rate, segment->abs_rate, segment->applied_rate);
+  GST_LOG_OBJECT(src, "rates : %lf %lf %lf -------------------------------",
+    segment->rate, segment->abs_rate, segment->applied_rate);
   
   time = segment->last_stop;
   /* now move to the time indicated */
@@ -292,6 +264,8 @@ bt_memory_audio_src_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
   else {
     segment->time = segment->stop;
     src->n_samples = src->length - src->n_samples;
+    src->running_time =
+        gst_util_uint64_scale_int (src->n_samples, GST_SECOND, src->samplerate);
 
     if (GST_CLOCK_TIME_IS_VALID (segment->start)) {
       time = segment->start;
@@ -302,6 +276,9 @@ bt_memory_audio_src_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
     }
   }
   src->eos_reached = FALSE;
+  
+  GST_LOG_OBJECT(src, "range : %"G_GUINT64_FORMAT " - %"G_GUINT64_FORMAT,
+    src->n_samples,src->n_samples_stop);
 
   return TRUE;
 }
@@ -322,8 +299,10 @@ bt_memory_audio_src_create (GstBaseSrc * basesrc, guint64 offset,
   GstClockTime next_time;
   gint64 n_samples;
   
-  if (src->eos_reached)
+  if (src->eos_reached) {
+    GST_WARNING ("have eos");
     return GST_FLOW_UNEXPECTED;
+  }
 
   /* check for eos */
   if ((src->n_samples_stop > src->n_samples) &&
@@ -345,23 +324,22 @@ bt_memory_audio_src_create (GstBaseSrc * basesrc, guint64 offset,
   
   if(src->rate>0.0) {
     GST_BUFFER_DATA(buf) = (gpointer)&src->data[src->n_samples * src->channels];
-    GST_BUFFER_TIMESTAMP (buf) = src->running_time;
-    GST_BUFFER_OFFSET (buf) = src->n_samples;
-    GST_BUFFER_OFFSET_END (buf) = n_samples;
+    GST_BUFFER_TIMESTAMP(buf) = src->running_time;
+    GST_BUFFER_OFFSET(buf) = src->n_samples;
+    GST_BUFFER_OFFSET_END(buf) = n_samples;
   }
   else {
     GstClockTime end_time = gst_util_uint64_scale (src->length, GST_SECOND,
         (guint64) src->samplerate);
 
     GST_BUFFER_DATA(buf) = (gpointer)&src->data[(src->length - src->n_samples) * src->channels];
-    GST_BUFFER_TIMESTAMP (buf) = end_time - src->running_time;
-    GST_BUFFER_OFFSET (buf) = src->length - src->n_samples;
-    GST_BUFFER_OFFSET_END (buf) = src->length - n_samples;
-    
+    GST_BUFFER_TIMESTAMP(buf) = end_time - src->running_time;
+    GST_BUFFER_OFFSET(buf) = src->length - src->n_samples;
+    GST_BUFFER_OFFSET_END(buf) = src->length - n_samples;
   }
-  GST_BUFFER_DURATION (buf) = next_time - src->running_time;
-  GST_BUFFER_SIZE (buf) =  src->generate_samples_per_buffer * (src->width/8);
-  GST_BUFFER_FLAGS (buf) = GST_BUFFER_FLAG_READONLY;
+  GST_BUFFER_DURATION(buf) = next_time - src->running_time;
+  GST_BUFFER_SIZE(buf) =  src->generate_samples_per_buffer * (src->width/8);
+  GST_BUFFER_FLAGS(buf) = GST_BUFFER_FLAG_READONLY;
 
 /*
   GST_BUFFER_DATA(buf) = (gpointer)&src->data[src->n_samples * src->channels];
@@ -373,7 +351,7 @@ bt_memory_audio_src_create (GstBaseSrc * basesrc, guint64 offset,
   GST_BUFFER_FLAGS (buf) = GST_BUFFER_FLAG_READONLY;
 */
 
-  GST_LOG("play from ts %"GST_TIME_FORMAT
+  GST_LOG_OBJECT(src, "play from ts %"GST_TIME_FORMAT
     " with duration %"GST_TIME_FORMAT", size %u, and data %p",
     GST_TIME_ARGS(GST_BUFFER_TIMESTAMP(buf)),
     GST_TIME_ARGS(GST_BUFFER_DURATION(buf)),

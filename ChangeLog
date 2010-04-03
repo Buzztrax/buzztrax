@@ -1,3 +1,13 @@
+2010-04-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/btmemoryaudiosrc.c:
+	  Make ping pong playback work again. Remove unneeded _get_times vmethod.
+	  Use gst_element_class_set_details_simple() to save relocs.
+	
+	* src/ui/edit/main-page-waves.c:
+	  Use queries on the source to make playpos indicators work again. Fix
+	  play beg/end values if no loop is set.
+
 2010-03-31  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/ui/edit/e-bt-edit-application.c:
