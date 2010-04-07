@@ -1,5 +1,12 @@
 2010-04-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* shave.in (deleted):
+	* shave-libtool.in (deleted):
+	  Previous commit also switched to automake silent rules (if available). Lets
+	  complete this and remove shave again.
+
+2010-04-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* docs/reference/bt-ic/buzztard-ic-sections.txt:
