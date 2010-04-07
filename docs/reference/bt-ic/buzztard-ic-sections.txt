@@ -157,12 +157,6 @@ btic_trigger_control_get_type
 btic_init_get_option_group
 btic_init_check
 btic_init
-BTIC_MAJOR_VERSION
-BTIC_MINOR_VERSION
-BTIC_MICRO_VERSION
-btic_major_version
-btic_minor_version
-btic_micro_version
 <SUBSECTION Standard>
 GST_CAT_DEFAULT
 # gettext extras

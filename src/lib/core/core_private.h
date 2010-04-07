@@ -89,6 +89,9 @@
 
 #include "libbuzztard-core/core.h"
 
+#include "marshal.h"
+#include "version.h"
+
 /**
  * bt_default_caps:
  *

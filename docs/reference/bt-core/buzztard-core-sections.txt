@@ -663,12 +663,6 @@ bt_init_get_option_group
 bt_init_add_option_groups
 bt_init_check
 bt_init
-BT_MAJOR_VERSION
-BT_MINOR_VERSION
-BT_MICRO_VERSION
-bt_major_version
-bt_minor_version
-bt_micro_version
 <SUBSECTION Standard>
 # glib extras
 G_OPTION_FLAG_NO_ARG

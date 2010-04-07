@@ -15,7 +15,6 @@ libbuzztard_ic_la_LDFLAGS = \
 	-version-info @BT_VERSION_INFO@
 libbuzztard_ic_la_SOURCES = \
 	ic.c libbuzztard-ic/ic.h \
-	libbuzztard-ic/version.h \
 	registry.c libbuzztard-ic/registry.h libbuzztard-ic/registry-methods.h \
 	\
 	device.c libbuzztard-ic/device.h libbuzztard-ic/device-methods.h \
@@ -27,6 +26,7 @@ libbuzztard_ic_la_SOURCES = \
 	abs-range-control.c libbuzztard-ic/abs-range-control.h libbuzztard-ic/abs-range-control-methods.h \
 	trigger-control.c libbuzztard-ic/trigger-control.h libbuzztard-ic/trigger-control-methods.h
 libbuzztard_ic_la_CFLAGS = \
+	-I$(builddir)/libbuzztard-ic \
 	-I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
@@ -35,12 +35,15 @@ libbuzztard_ic_la_CFLAGS = \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
-noinst_HEADERS = ic_private.h
+noinst_HEADERS = ic_private.h libbuzztard-ic/version.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libbuzztard-ic.pc
 
 if USE_GIR
+
+gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_ic_la_SOURCES))
+
 BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
 	libtool --mode=execute $(G_IR_SCANNER) -v \
 	     --namespace BuzztardIc --nsversion 0.0 \
@@ -51,8 +54,9 @@ BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
              --pkg gobject-2.0 \
              --pkg gstreamer-0.10 \
              --output $@ \
+	     -I$(builddir)/libbuzztard-ic \
 	     -I$(srcdir)/libbuzztard-ic/ \
-             $(libbuzztard_ic_la_SOURCES)
+             $(gir_sources)
 BUILT_GIRSOURCES = BuzztardIc-0.0.gir
 
 girdir = $(datadir)/gir

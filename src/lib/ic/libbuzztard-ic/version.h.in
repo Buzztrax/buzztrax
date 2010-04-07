@@ -22,23 +22,11 @@
 #ifndef BTIC_VERSION_H
 #define BTIC_VERSION_H
 
-/** 
- * BTIC_MAJOR_VERSION:
- *
- * buzztard version stamp, major part; determined from configure.ac
+/*
+ * buzztard version stamp; determined from configure.ac
  */
 #define BTIC_MAJOR_VERSION @BT_MAJOR_VERSION@
-/**
- * BTIC_MINOR_VERSION:
- *
- * buzztard version stamp, minor part; determined from configure.ac
- */
 #define BTIC_MINOR_VERSION @BT_MINOR_VERSION@
-/**
- * BTIC_MICRO_VERSION:
- *
- * buzztard version stamp, micro part; determined from configure.ac
- */
 #define BTIC_MICRO_VERSION @BT_MICRO_VERSION@
 
 #ifndef BTIC_CORE_C

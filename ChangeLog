@@ -1,3 +1,18 @@
+2010-04-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/core_private.h:
+	* src/lib/core/libbuzztard-core/core.h:
+	* src/lib/core/libbuzztard-core/version.h.in:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/ic_private.h:
+	* src/lib/ic/libbuzztard-ic/ic.h:
+	* src/lib/ic/libbuzztard-ic/version.h.in:
+	  Improve out of sourcedir builds.
+
 2010-04-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/btmemoryaudiosrc.c:

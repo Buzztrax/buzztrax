@@ -72,9 +72,7 @@
 #include "wavelevel-methods.h"
 #include "wavetable-methods.h"
 
-#include "marshal.h"
 #include "tools.h"
-#include "version.h"
 
 // this does not hurt if gconf is off, but the 'ifdef breaks the build as we don't include config.h here
 //#ifdef USE_GCONF

@@ -62,6 +62,7 @@ libbuzztard_core_la_SOURCES = \
 #
 
 libbuzztard_core_la_CFLAGS = \
+	-I$(builddir)/libbuzztard-core \
 	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
@@ -82,6 +83,9 @@ marshal.c: marshal.list
 	glib-genmarshal --body --prefix=bt_marshal $(srcdir)/marshal.list > marshal.c
 
 if USE_GIR
+
+gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_core_la_SOURCES))
+
 BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
 	-libtool --mode=execute $(G_IR_SCANNER) -v \
 	     --namespace BuzztardCore --nsversion 0.0 \
@@ -98,9 +102,10 @@ BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
              --pkg libxml-2.0 \
              --pkg gstreamer-0.10 \
              --output $@ \
+	     -I$(builddir)/libbuzztard-core \
 	     -I$(top_srcdir)/src/lib/ic/libbuzztard-ic/ \
 	     -I$(srcdir)/libbuzztard_core/ \
-	         $(libbuzztard_core_la_SOURCES)
+	     $(gir_sources)
 BUILT_GIRSOURCES = BuzztardCore-0.0.gir
 
 girdir = $(datadir)/gir

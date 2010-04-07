@@ -22,23 +22,11 @@
 #ifndef BT_VERSION_H
 #define BT_VERSION_H
 
-/** 
- * BT_MAJOR_VERSION:
- *
- * buzztard version stamp, major part; determined from configure.ac
+/*
+ * buzztard version stamp; determined from configure.ac
  */
 #define BT_MAJOR_VERSION @BT_MAJOR_VERSION@
-/**
- * BT_MINOR_VERSION:
- *
- * buzztard version stamp, minor part; determined from configure.ac
- */
 #define BT_MINOR_VERSION @BT_MINOR_VERSION@
-/**
- * BT_MICRO_VERSION:
- *
- * buzztard version stamp, micro part; determined from configure.ac
- */
 #define BT_MICRO_VERSION @BT_MICRO_VERSION@
 
 #ifndef BT_CORE_C

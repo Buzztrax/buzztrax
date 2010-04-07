@@ -43,8 +43,6 @@
 #include "registry-methods.h"
 #include "learn-methods.h"
 
-#include "version.h"
-
 //-- prototypes ----------------------------------------------------------------
 
 #ifndef BTIC_CORE_C
