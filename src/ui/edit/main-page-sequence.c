@@ -1418,6 +1418,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       }
     }
     else {
+      // a missing machine
       header=gtk_label_new("???");
       GST_WARNING("can't get machine for column %lu",j);
     }

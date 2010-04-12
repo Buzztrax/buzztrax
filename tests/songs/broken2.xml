@@ -39,7 +39,7 @@
     
     <wires>
       <wire src="missing1" dst="audio_sink" gain="1.0"/>
-    </wires>    
+    </wires>
   </setup>
   
   <sequence length="16" tracks="1">

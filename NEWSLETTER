@@ -1,7 +1,37 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2010/05 ========================================================================
+
+- we're in debian
+- trick play improvements
+
 2010/04 ========================================================================
 
+I will give a talk about "Writing audio applications using gstreamer" at the 
+Linux Audio Conference 2010 [1]. Naturally quite some time went for writing the
+article. Now that it has been accepted, I need to start working on the slides
+and demos.
+
+In buzztard I've tried to make the life of people that use jack or pulse a bit
+easier. The problem here is that the player is only visible in jack/pulse when
+it is actually playing. I have now some code that keeps the sink alive (in
+GST_STATE_READY). This allows e.g. changing the volume in pulse or routing the
+output in QJackCtrl even if the app is not playing. Unfortunately it only works
+after the sink was in playing once. I need to confirm my theory of what wrong
+still.
+
+I recently brought a netbook (MSI L1300) and thus wanted to try buzztard on this
+machine. I have installed moblin 2.1 on it to play with moblin. As usual, 
+installing own software on a new linux distro/machine always brings up
+something. After a few rounds of configure maintenance and dependency trimming
+I am set and having it running. Performance seems to be okay even for complex
+songs. Yay!
+
+Besides that, I fixed a few more bugs and wrote more tests.
+
+43 files changed, 796 insertions(+), 100 deletions(-)
+
+[1] http://lac.linuxaudio.org/2010/
 
 2010/03 ========================================================================
 

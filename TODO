@@ -67,3 +67,9 @@ $Id$
     - need a way to do it without exposing GstControlPoint internals
       - void callback(GstClockTime *timestamp, GValue *value, gpointer user_data);
 
+* migrate from libhal to libgudev
+  udevadm info --export-db | grep -i input
+  udevadm info --export-db | grep -i midi
+  udevadm monitor --property 
+  + attach detach devices to see if there is some property that uniquely identifies audio and midi ones
+

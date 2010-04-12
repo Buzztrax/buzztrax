@@ -262,7 +262,6 @@ static gboolean bt_sink_bin_add_many(const BtSinkBin * const self, GList * const
 
   for(node=list;node;node=node->next) {
     gst_bin_add(GST_BIN(self),GST_ELEMENT(node->data));
-    gst_element_set_state(GST_ELEMENT(node->data),GST_STATE_READY);
   }
   return(TRUE);
 }

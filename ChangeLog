@@ -1,3 +1,23 @@
+2010-04-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Wrote NEWS. Collect for next round
+
+	* TODO:
+	  Add idea for updating translations.
+
+	* src/lib/core/sink-bin.c:
+	  Remove old attempt to prestart sink-bin elements.
+	  
+	* src/lib/core/song.c:
+	  Fix seek event in backwards playback.
+	
+	* src/ui/edit/main-page-sequence.c:
+	  Comment.
+
+	* tests/songs/broken2.xml:
+	  Whitespaces. 
+
 2010-04-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* shave.in (deleted):

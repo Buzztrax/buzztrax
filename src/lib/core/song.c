@@ -245,30 +245,46 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
 static void bt_song_change_play_rate(const BtSong * const self) {
   GstEvent *event;
   gboolean loop;
-  glong loop_end,length;
+  glong loop_start,loop_end,length;
 
   if(!self->priv->is_playing) return;
 
-  g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
+  g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
   const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
 
   GST_INFO("rate %lf, loop %d?",self->priv->play_rate,loop);
   bt_song_update_play_seek_event(self);
 
   // changing the playback rate should mostly affect sinks
-  // still we need to flsuh to avoid adder locking up
+  // still we need to flush to avoid adder locking up
   // and we need to give the position to workaround basesrc starting from 0
   if (loop) {
-    event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
-        GST_SEEK_TYPE_SET, (loop_end+0)*bar_time);
+    if(self->priv->play_rate>0.0) {
+      event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+          GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+          GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
+          GST_SEEK_TYPE_SET, loop_end*bar_time);
+    }
+    else {
+      event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+          GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+          GST_SEEK_TYPE_SET, loop_start*bar_time,
+          GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time);
+    }
   }
   else {
-    event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH,
-        GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
-        GST_SEEK_TYPE_SET, (length+1)*bar_time);
+    if(self->priv->play_rate>0.0) {
+      event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+          GST_SEEK_FLAG_FLUSH,
+          GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
+          GST_SEEK_TYPE_SET, (length+1)*bar_time);
+    }
+    else {
+      event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+          GST_SEEK_FLAG_FLUSH,
+          GST_SEEK_TYPE_SET, G_GINT64_CONSTANT(0),
+          GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time);
+    }
   }
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
     GST_WARNING("element failed to change playback rate");
