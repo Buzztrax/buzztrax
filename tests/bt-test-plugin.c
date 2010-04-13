@@ -191,18 +191,16 @@ static void bt_test_mono_source_class_init(BtTestMonoSourceClass *klass) {
 }
 
 static void bt_test_mono_source_base_init(BtTestMonoSourceClass *klass) {
-  static const GstElementDetails details = {
-    "Monophonic source for unit tests",
-    "Source/Audio/MonoSource",
-    "Use in unit tests",
-    "Stefan Kost <ensonic@users.sf.net>"
-  };
   GstElementClass *element_class = GST_ELEMENT_CLASS(klass);
 
   gst_element_class_add_pad_template (element_class,
         gst_static_pad_template_get (&src_pad_template));
     
-  gst_element_class_set_details(element_class, &details);
+  gst_element_class_set_details_simple(element_class, 
+    "Monophonic source for unit tests",
+    "Source/Audio/MonoSource",
+    "Use in unit tests",
+    "Stefan Kost <ensonic@users.sf.net>");
 }
 
 GType bt_test_mono_source_get_type(void) {
@@ -365,18 +363,16 @@ static void bt_test_poly_source_class_init(BtTestPolySourceClass *klass) {
 }
 
 static void bt_test_poly_source_base_init(BtTestPolySourceClass *klass) {
-  static const GstElementDetails details = {
-    "Polyphonic source for unit tests",
-    "Source/Audio/PolySource",
-    "Use in unit tests",
-    "Stefan Kost <ensonic@users.sf.net>"
-  };
   GstElementClass *element_class = GST_ELEMENT_CLASS(klass);
 
   gst_element_class_add_pad_template (element_class,
         gst_static_pad_template_get (&src_pad_template));
 
-  gst_element_class_set_details(element_class, &details);
+  gst_element_class_set_details_simple(element_class, 
+    "Polyphonic source for unit tests",
+    "Source/Audio/PolySource",
+    "Use in unit tests",
+    "Stefan Kost <ensonic@users.sf.net>");
 }
 
 GType bt_test_poly_source_get_type(void) {

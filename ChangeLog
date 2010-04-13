@@ -1,5 +1,10 @@
 2010-04-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/bt-test-plugin.c:
+	  Switch to _set_details_simple to avoid using deprecated function.
+
+2010-04-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* omf.make:
 	  Fix omf_dest_dir to get help catalogs into cotrrect place.
 
