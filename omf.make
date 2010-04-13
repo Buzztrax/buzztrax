@@ -26,7 +26,7 @@
 # 	Version: 0.1.2 (last updated: March 20, 2002)
 #
 
-omf_dest_dir=$(datadir)/omf/@PACKAGE@
+omf_dest_dir=$(datadir)/omf/$(docname)
 scrollkeeper_localstate_dir = $(localstatedir)/scrollkeeper
 CLEANFILES += *.out
 

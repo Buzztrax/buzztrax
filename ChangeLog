@@ -1,12 +1,17 @@
 2010-04-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* omf.make:
+	  Fix omf_dest_dir to get help catalogs into cotrrect place.
+
+2010-04-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Also check for typelib dir. Both dirs are not yet used.
 
 2010-04-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
-	  Wrote NEWS. Collect for next round
+	  Wrote NEWS. Collect for next round.
 
 	* TODO:
 	  Add idea for updating translations.
