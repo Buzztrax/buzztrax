@@ -59,10 +59,7 @@
  */
 /* fast seeking
  * - see bt_song_change_play_rate()
- * - on_song_segment_done probably needs to use the rate as well
- * - the machines need to support backwards playback
- * - for some reason the play-position updates don't happen while seeking
- * - need to figure if EOS is @ 0 for backwards seeking
+ * - there is a problem with wrapping around in loop mode, when playing backwards
  */
 #define BT_CORE
 #define BT_SONG_C

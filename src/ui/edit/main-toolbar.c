@@ -256,9 +256,12 @@ static void set_new_playback_rate(BtMainToolbar *self) {
   g_object_unref(song);
 }
 
+#define SEEK_FACTOR 1.25
+#define SEEK_TIMEOUT 2000
+
 static gboolean on_song_playback_rate_rewind(gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  gdouble playback_rate = self->priv->playback_rate * 1.3;
+  gdouble playback_rate = self->priv->playback_rate * SEEK_FACTOR;
   
   GST_WARNING(" << speedup");
 
@@ -280,10 +283,10 @@ static gboolean on_toolbar_rewind_pressed(GtkWidget *widget,GdkEventButton *even
   
   GST_WARNING(" << pressed");
 
-  self->priv->playback_rate=-1.3;
+  self->priv->playback_rate=-1.0;
   set_new_playback_rate(self);
   
-  self->priv->playback_rate_id=g_timeout_add(3000,on_song_playback_rate_rewind,(gpointer)self);
+  self->priv->playback_rate_id=g_timeout_add(SEEK_TIMEOUT,on_song_playback_rate_rewind,(gpointer)self);
   
   GST_WARNING(" << <<");
 
@@ -311,7 +314,7 @@ static gboolean on_toolbar_rewind_released(GtkWidget *widget,GdkEventButton *eve
 
 static gboolean on_song_playback_rate_forward(gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  gdouble playback_rate = self->priv->playback_rate * 1.3;
+  gdouble playback_rate = self->priv->playback_rate * SEEK_FACTOR;
 
   GST_WARNING(" >> speedup");
 
@@ -333,10 +336,10 @@ static gboolean on_toolbar_forward_pressed(GtkWidget *widget,GdkEventButton *eve
   
   GST_WARNING(" >> pressed");
   
-  self->priv->playback_rate=1.3;
+  self->priv->playback_rate=SEEK_FACTOR;
   set_new_playback_rate(self);
   
-  self->priv->playback_rate_id=g_timeout_add(3000,on_song_playback_rate_forward,(gpointer)self);
+  self->priv->playback_rate_id=g_timeout_add(SEEK_TIMEOUT,on_song_playback_rate_forward,(gpointer)self);
   
   GST_WARNING(" >> >>");
   return(FALSE);

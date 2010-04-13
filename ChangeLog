@@ -1,5 +1,16 @@
 2010-04-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Update TODO.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Downgrade a log.
+
+	* src/ui/edit/main-toolbar.c:
+	  Use a define for the seek factor and timeouts.
+
+2010-04-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* download-translations:
 	* po/LINGUAS:
 	* po/vi.po:

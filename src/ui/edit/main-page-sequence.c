@@ -688,7 +688,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
   if(page_num==BT_MAIN_PAGES_SEQUENCE_PAGE) {
     // only do this if the page really has changed
     if(prev_page_num != BT_MAIN_PAGES_SEQUENCE_PAGE) {
-      GST_WARNING("enter sequence page");
+      GST_DEBUG("enter sequence page");
       // this is emmitted before we are mapped etc.
       if(!self->priv->main_window)
         grab_main_window(self);
