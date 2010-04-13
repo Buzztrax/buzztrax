@@ -344,6 +344,8 @@ PKG_CHECK_MODULES(GOBJECT_INTROSPECTION, [gobject-introspection-1.0],[
     AC_SUBST(G_IR_GENERATE)
     GIRDIR=`$PKG_CONFIG --variable=girdir gobject-introspection-1.0`
     AC_SUBST(GIRDIR)
+    TYPELIBDIR=`$PKG_CONFIG --variable=typelibdir gobject-introspection-1.0`
+    AC_SUBST(TYPELIBDIR)
     enable_gir="yes"
   ],[
     AM_CONDITIONAL(USE_GIR, false)
