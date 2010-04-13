@@ -562,6 +562,7 @@ export DEVHELP_SEARCH_PATH="\$DEVHELP_SEARCH_PATH:$prefix/share/gtk-doc/html"
 export PKG_CONFIG_PATH="\$PKG_CONFIG_PATH:$prefix/lib/pkgconfig"
 export GST_PLUGIN_PATH="\$GST_PLUGIN_PATH:$prefix/lib/gstreamer-0.10"
 export XDG_DATA_DIRS="\$XDG_DATA_DIRS:$prefix/share"
+export GI_TYPELIB_PATH="\$GI_TYPELIB_PATH:$prefix/lib/girepository"
 "
 fi
 
