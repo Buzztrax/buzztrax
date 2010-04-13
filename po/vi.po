@@ -1,0 +1,1141 @@
+# Vietnamese translation for Buzztard.
+# Copyright © 2010 Free Software Foundation, Inc.
+# This file is distributed under the same license as the buzztard package.
+# Clytie Siddall <clytie@riverland.net.au>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: buzztard 0.5.0-pre1\n"
+"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2009-07-17 23:30+0300\n"
+"PO-Revision-Date: 2010-03-31 16:10+1030\n"
+"Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
+"Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: LocFactoryEditor 1.8\n"
+
+#: ../src/lib/core/core.c:196
+msgid "Print the buzztard core version"
+msgstr "Hiển thị phiên bản lõi buzztard"
+
+#: ../src/lib/core/core.c:200
+msgid "Buzztard core options"
+msgstr "Tùy chọn lõi buzztard"
+
+#: ../src/lib/core/core.c:200
+msgid "Show buzztard core options"
+msgstr "Hiển thị các tuỳ chọn lõi của buzztard"
+
+#. track commands in sequencer
+#: ../src/lib/core/pattern.c:341
+msgid "normal"
+msgstr "bình thường"
+
+#: ../src/lib/core/pattern.c:341
+msgid "break"
+msgstr "ngắt"
+
+#: ../src/lib/core/pattern.c:341
+msgid "mute"
+msgstr "câm"
+
+#: ../src/lib/core/pattern.c:341
+msgid "solo"
+msgstr "đơn"
+
+#: ../src/lib/core/pattern.c:341
+msgid "bypass"
+msgstr "đi vòng"
+
+#: ../src/lib/core/song-io-native-bzt.c:237
+#: ../src/lib/core/song-io-native-xml.c:53
+#, c-format
+msgid "Loading file '%s'"
+msgstr "Đang nạp tập tin « %s »"
+
+#: ../src/lib/core/song-io-native-bzt.c:344
+#: ../src/lib/core/song-io-native-xml.c:109
+#, c-format
+msgid "Saving file '%s'"
+msgstr "Đang lưu tập tin « %s »"
+
+#. default name for new songs
+#: ../src/lib/core/song-info.c:101
+msgid "untitled song"
+msgstr "bài hát không tên"
+
+#: ../src/lib/ic/ic.c:119
+msgid "Print the buzztard interaction controller version"
+msgstr "Hiển thị phiên bản của trình điều khiển chức năng tương tác buzztard"
+
+#: ../src/lib/ic/ic.c:123
+msgid "Buzztard interaction controller options"
+msgstr "Tuỳ chọn điều khiển buzztard tương tác"
+
+#: ../src/lib/ic/ic.c:123
+msgid "Show buzztard interaction controller options"
+msgstr "Hiển thị các tuỳ chọn về trình điều khiển chức năng tương tác buzztard"
+
+#: ../src/ui/cmd/bt-cmd.c:65 ../src/ui/edit/bt-edit.c:75
+msgid "Print application version"
+msgstr "Hiển thị phiên bản của ứng dụng"
+
+#: ../src/ui/cmd/bt-cmd.c:66
+msgid "Be quiet"
+msgstr "Chạy im"
+
+#: ../src/ui/cmd/bt-cmd.c:67 ../src/ui/edit/bt-edit.c:76
+msgid "Command name"
+msgstr "Tên lệnh"
+
+#: ../src/ui/cmd/bt-cmd.c:68 ../src/ui/edit/bt-edit.c:77
+msgid "Input file name"
+msgstr "Tên tập tin nhập"
+
+#: ../src/ui/cmd/bt-cmd.c:68 ../src/ui/cmd/bt-cmd.c:69
+#: ../src/ui/edit/bt-edit.c:77
+msgid "<songfile>"
+msgstr "<tệp_hát>"
+
+#: ../src/ui/cmd/bt-cmd.c:69
+msgid "Output file name"
+msgstr "Tên tập tin kết xuất"
+
+#. g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
+#: ../src/ui/cmd/bt-cmd.c:88
+msgid "buzztard-cmd options"
+msgstr "Tuỳ chọn buzztard-cmd"
+
+#: ../src/ui/cmd/bt-cmd.c:88
+msgid "Show buzztard-cmd options"
+msgstr "Hiển thị các tuỳ chọn về buzztard-cmd"
+
+#. Note to translators: put here your name and email so it will show up in
+#. * the "about" box. Example: Stefan 'ensonic' Kost <ensonic@users.sf.net>
+#: ../src/ui/edit/about-dialog.c:84
+msgid "translator-credits"
+msgstr "Clytie Siddall <clytie@riverland.net.au>"
+
+#: ../src/ui/edit/about-dialog.c:86 ../src/ui/edit/about-dialog.c:87
+#, c-format
+msgid "Copyright © 2003-%d Buzztard developer team"
+msgstr "Tác quyền © năm 2003-%d của Nhóm phát triển Buzztard"
+
+#: ../src/ui/edit/about-dialog.c:103
+msgid "Music production environment"
+msgstr "Môi trường sáng tạo âm nhạc"
+
+#: ../src/ui/edit/about-dialog.c:108
+msgid ""
+"This package is free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n"
+"\n"
+"This package is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.\n"
+"\n"
+"You should have received a copy of the GNU Library General Public License along with this package; if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
+msgstr ""
+"Chương trình này là phần mềm dùng tự do;\n"
+"bạn có thể phân phối lại và/hay sửa đổí nó với điều kiện cua\n"
+"Giấy Phép Công Cộng GNU (GPL) như được xuất do\n"
+"Tổ Chức Phần Mềm Dùng Tự Do; hoặc phiên bản 2, hoặc (tùy chọn)\n"
+"bất cứ phiên bản sau nào.\n"
+"\n"
+"Chúng tôi phân phối chương trình này vì mong nó có ích, nhưng\n"
+"không bảo đảm gì cả, không bảo đảm một cách ngụ ý\n"
+"khả năng bán hay khả năng làm việc dứt khoát.\n"
+"Xem Giấy Phép Công Cộng GNU để tim thấy chi tiết thêm.\n"
+"\n"
+"Bạn nên được nhận một bản Giấy Phép Công Cộng GNU\n"
+"cùng với chương trình này; nếu không thì hãy viết thư cho\n"
+"Free Software Foundation, Inc.,\n"
+"59 Temple Place - Suite 330, Boston,\n"
+"MA 02111-1307, USA (Mỹ)."
+
+#. _("Development version (do not translate this)"
+#: ../src/ui/edit/about-dialog.c:141
+msgid "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztard can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
+msgstr "Vừa tạo lại chức năng quản lý ống dẫn nội bộ. Người dùng giờ có khả năng phát các bài hát được kết nối không hoàn chỉnh, và thêm/bỏ phần bổ sung trong khi phát. Trình Buzztard giờ có khả năng phát nốt trong khi chỉnh sửa. Chức năng lưu bài hát giờ mạnh hơn. Có nhiều sự sửa chữa lỗi và sự cải tiến giao diện. Cũng có sổ tay người dùng tăng cường, gồm có ba trợ lý nhỏ. Có hỗ trợ đầu tiên cho python và javascript thông qua sự nội quan gobject."
+
+#. g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
+#: ../src/ui/edit/bt-edit.c:103
+msgid "buzztard-edit options"
+msgstr "Tuỳ chọn buzztard-edit"
+
+#: ../src/ui/edit/bt-edit.c:103
+msgid "Show buzztard-edit options"
+msgstr "Hiển thị các tùy chọn về chức năng chỉnh sửa buzztard-edit"
+
+#: ../src/ui/edit/edit-application.c:110
+msgid "-> You will not see any level-meters."
+msgstr "-> Bạn sẽ không thấy cái đo mức nào."
+
+#: ../src/ui/edit/edit-application.c:117
+msgid "-> You will not see the frequency spectrum in the analyzer window."
+msgstr "-> Bạn sẽ không thấy quang phổ tần số trong cửa sổ phân tích."
+
+#: ../src/ui/edit/interaction-controller-menu.c:141
+msgid "Learn..."
+msgstr "Học hiểu..."
+
+#: ../src/ui/edit/interaction-controller-menu.c:210
+msgid "Bind controller"
+msgstr "Kết hợp bộ điều khiển"
+
+#: ../src/ui/edit/interaction-controller-menu.c:222
+msgid "Unbind controller"
+msgstr "Bỏ kết hợp bộ điều khiển"
+
+#: ../src/ui/edit/interaction-controller-menu.c:228
+msgid "Unbind all controllers"
+msgstr "Bỏ kết hợp tất cả các bộ điều khiển"
+
+#: ../src/ui/edit/machine-actions.c:93
+#, c-format
+msgid ""
+"by %s\n"
+"\n"
+"%s"
+msgstr ""
+"bởi %s\n"
+"\n"
+"%s"
+
+#: ../src/ui/edit/machine-actions.c:96
+msgid "About..."
+msgstr "Giới thiệu..."
+
+#: ../src/ui/edit/machine-canvas-item.c:603
+#, c-format
+msgid "Delete machine '%s'"
+msgstr "Xoá máy « %s »"
+
+#: ../src/ui/edit/machine-canvas-item.c:611
+msgid "Delete machine..."
+msgstr "Xoá máy..."
+
+#: ../src/ui/edit/machine-canvas-item.c:611
+#: ../src/ui/edit/main-page-patterns.c:2145
+msgid "There is no undo for this."
+msgstr "Không có chức năng hoàn tác cho chức năng này."
+
+#: ../src/ui/edit/machine-canvas-item.c:683
+msgid "Mute"
+msgstr "Câm"
+
+#: ../src/ui/edit/machine-canvas-item.c:688
+msgid "Solo"
+msgstr "Đơn"
+
+#: ../src/ui/edit/machine-canvas-item.c:694
+msgid "Bypass"
+msgstr "Đi vòng"
+
+#: ../src/ui/edit/machine-canvas-item.c:734
+msgid "Rename..."
+msgstr "Thay tên..."
+
+#. generators
+#: ../src/ui/edit/machine-menu.c:289
+msgid "Generators"
+msgstr "Bộ phát sinh"
+
+#. effects
+#: ../src/ui/edit/machine-menu.c:302
+msgid "Effects"
+msgstr "Hiệu ứng"
+
+#. create and set window icon
+#.
+#. if((window_icon=bt_ui_resources_get_icon_pixbuf_by_machine(self->priv->machine))) {
+#. gtk_window_set_icon(GTK_WINDOW(self),window_icon);
+#. g_object_unref(window_icon);
+#. }
+#.
+#. set a title
+#: ../src/ui/edit/machine-preset-properties-dialog.c:130
+msgid "preset name and comment"
+msgstr "tên và ghi chú định sẵn"
+
+#. rows=
+#. columns=
+#. homogenous=
+#. GtkEntry : preset name
+#. GtkEntry : machine name
+#. GtkEntry : pattern name
+#: ../src/ui/edit/machine-preset-properties-dialog.c:149
+#: ../src/ui/edit/machine-rename-dialog.c:142
+#: ../src/ui/edit/main-page-info.c:360
+#: ../src/ui/edit/pattern-properties-dialog.c:165
+msgid "name"
+msgstr "tên"
+
+#. GtkEntry : preset comment
+#: ../src/ui/edit/machine-preset-properties-dialog.c:162
+msgid "comment"
+msgstr "ghi chú"
+
+#: ../src/ui/edit/machine-preferences-dialog.c:261
+#, c-format
+msgid "%s preferences"
+msgstr "Tuỳ thích %s"
+
+#: ../src/ui/edit/machine-preferences-dialog.c:520
+msgid "no settings"
+msgstr "không có thiết lập"
+
+#: ../src/ui/edit/machine-preferences-dialog.c:527
+msgid "machine has no preferences"
+msgstr "máy không có tùy thích"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1299
+msgid "global properties"
+msgstr "thuộc tính toàn cục"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1423
+#, c-format
+msgid "voice %lu properties"
+msgstr "thuộc tính %lu giọng nói"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1594
+#, c-format
+msgid "%s wire properties"
+msgstr "thuộc tính dây %s"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1731
+msgid "Add new preset"
+msgstr "Thêm định sẵn mới"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1736
+msgid "Remove preset"
+msgstr "Bỏ định sẵn"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1741
+msgid "Edit preset name and comment"
+msgstr "Sửa tên và ghi chú định sẵn"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1774
+msgid "Preset"
+msgstr "Định sẵn"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1815
+msgid "machine properties"
+msgstr "thuộc tính máy"
+
+#. set a title
+#: ../src/ui/edit/machine-properties-dialog.c:1841
+#: ../src/ui/edit/pattern-properties-dialog.c:138
+#, c-format
+msgid "%s properties"
+msgstr "thuộc tính %s"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1867
+msgid "Info about this machine"
+msgstr "thông tin về máy này"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1872
+msgid "Help for this machine"
+msgstr "Trợ giúp cho máy này"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1882
+msgid "Randomize parameters"
+msgstr "Tham số ngẫu nhiên"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1887
+msgid "Reset parameters to defaults"
+msgstr "Đặt mọi tham số về mặc định"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1894
+msgid "Show/Hide preset pane"
+msgstr "Hiện/Ẩn ô định sẵn"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1895
+msgid "Presets"
+msgstr "Định sẵn"
+
+#. set a title
+#: ../src/ui/edit/machine-rename-dialog.c:115
+#, c-format
+msgid "%s name"
+msgstr "tên %s"
+
+#: ../src/ui/edit/main-menu.c:102 ../src/ui/edit/main-window.c:563
+#, c-format
+msgid "An error occurred while loading the song from file '%s'"
+msgstr "Gặp lỗi khi nạp bài hát từ tập tin « %s »"
+
+#: ../src/ui/edit/main-menu.c:105 ../src/ui/edit/main-window.c:251
+#: ../src/ui/edit/main-window.c:564
+msgid "Can't load song"
+msgstr "Không thể nạp bài hát"
+
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+#. -- file menu
+#: ../src/ui/edit/main-menu.c:655
+msgid "_File"
+msgstr "_Tập tin"
+
+#: ../src/ui/edit/main-menu.c:670
+msgid "_Recently used"
+msgstr "_Vừa dùng"
+
+#. edit menu
+#: ../src/ui/edit/main-menu.c:732
+msgid "_Edit"
+msgstr "_Sửa"
+
+#. view menu
+#: ../src/ui/edit/main-menu.c:763
+msgid "_View"
+msgstr "_Xem"
+
+#: ../src/ui/edit/main-menu.c:771
+msgid "Toolbar"
+msgstr "Thanh công cụ"
+
+#: ../src/ui/edit/main-menu.c:777
+msgid "Statusbar"
+msgstr "Thanh trạng thái"
+
+#: ../src/ui/edit/main-menu.c:783
+msgid "Tabs"
+msgstr "Thẻ"
+
+#: ../src/ui/edit/main-menu.c:804
+msgid "Go to machine view"
+msgstr "Tới ô xem máy"
+
+#: ../src/ui/edit/main-menu.c:811
+msgid "Go to pattern view"
+msgstr "Tới ô xem mẫu"
+
+#: ../src/ui/edit/main-menu.c:818
+msgid "Go to sequence view"
+msgstr "Tới ô xem dãy"
+
+#: ../src/ui/edit/main-menu.c:825
+msgid "Go to wave table view"
+msgstr "Tới ô xem bảng sóng"
+
+#: ../src/ui/edit/main-menu.c:832
+msgid "Go to song information"
+msgstr "Tới thông tin bài hát"
+
+#. @todo zoom menu items
+#. *  machine view:  zoom-in/zoom-out/zoom-fit
+#. *  sequence vide: zoom-in/zoom-out
+#. *
+#.
+#. subitem=gtk_separator_menu_item_new();
+#. gtk_container_add(GTK_CONTAINER(menu),subitem);
+#. gtk_widget_set_sensitive(subitem,FALSE);
+#.
+#. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_FIT,accel_group);
+#. gtk_container_add(GTK_CONTAINER(menu),subitem);
+#. g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_fit_activate),(gpointer)self);
+#.
+#. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_IN,accel_group);
+#. gtk_container_add(GTK_CONTAINER(menu),subitem);
+#. g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_in_activate),(gpointer)self);
+#.
+#. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_OUT,accel_group);
+#. gtk_container_add(GTK_CONTAINER(menu),subitem);
+#. g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
+#.
+#. playback menu
+#: ../src/ui/edit/main-menu.c:862
+msgid "_Playback"
+msgstr "_Phát lại"
+
+#: ../src/ui/edit/main-menu.c:876
+msgid "Play from cursor"
+msgstr "Phát từ con chạy"
+
+#. @todo toggle loop item
+#. * - we only have:
+#. *   gtk_image_menu_item_new_from_stock - not a toggle
+#. *   gtk_check_menu_item_new_with_mnemonic - no image
+#.
+#. @todo: tools menu
+#. * 'normalize song'
+#. * - dummy render with master->input-pre-gain, adjust master volume
+#. * 'cleanup'
+#. * - remove unsused patterns, unconnected machines with no empty/tracks
+#.
+#. help menu
+#: ../src/ui/edit/main-menu.c:902
+msgid "_Help"
+msgstr "Trợ g_iúp"
+
+#: ../src/ui/edit/main-page-info.c:338 ../src/ui/edit/main-page-info.c:340
+msgid "song meta data"
+msgstr "siêu dữ liệu bài hát"
+
+#: ../src/ui/edit/main-page-info.c:367
+msgid "genre"
+msgstr "thể loại"
+
+#: ../src/ui/edit/main-page-info.c:374
+msgid "author"
+msgstr "tác giả"
+
+#: ../src/ui/edit/main-page-info.c:381
+msgid "created"
+msgstr "đã tạo"
+
+#: ../src/ui/edit/main-page-info.c:393
+msgid "beats per minute"
+msgstr "nhịp mỗi phút"
+
+#: ../src/ui/edit/main-page-info.c:401
+msgid "beats"
+msgstr "nhịp"
+
+#: ../src/ui/edit/main-page-info.c:409
+msgid "ticks per beat"
+msgstr "nhịp phụ mỗi nhịp"
+
+#: ../src/ui/edit/main-page-info.c:417
+msgid "last saved"
+msgstr "lưu cuối cùng"
+
+#: ../src/ui/edit/main-page-info.c:435 ../src/ui/edit/main-page-info.c:437
+msgid "free text info"
+msgstr "thông tin đoạn văn tự do"
+
+#. menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
+#: ../src/ui/edit/main-page-machines.c:947
+msgid "Add machine"
+msgstr "Thêm máy"
+
+#: ../src/ui/edit/main-page-machines.c:961
+msgid "Unmute all machines"
+msgstr "Bỏ câm mọi máy"
+
+#: ../src/ui/edit/main-page-machines.c:973
+msgid "Off"
+msgstr "Tắt"
+
+#: ../src/ui/edit/main-page-machines.c:980
+msgid "Low"
+msgstr "Thấp"
+
+#: ../src/ui/edit/main-page-machines.c:987
+msgid "Medium"
+msgstr "Vừa"
+
+#: ../src/ui/edit/main-page-machines.c:994
+msgid "High"
+msgstr "Cao"
+
+#: ../src/ui/edit/main-page-machines.c:1035
+msgid "Zoom in/out so that everything is visible"
+msgstr "Thu phóng để mọi đồ đều hiện rõ"
+
+#: ../src/ui/edit/main-page-machines.c:1042
+msgid "Zoom in for more details"
+msgstr "Phóng to để xem chi tiết"
+
+#: ../src/ui/edit/main-page-machines.c:1049
+msgid "Zoom out for better overview"
+msgstr "Thu nhỏ để xem toàn cảnh"
+
+#: ../src/ui/edit/main-page-machines.c:1057
+msgid "Grid"
+msgstr "Lưới"
+
+#: ../src/ui/edit/main-page-machines.c:1059
+msgid "Show background grid"
+msgstr "Hiển thị lưới nền"
+
+#: ../src/ui/edit/main-page-machines.c:1060 ../src/ui/edit/main-toolbar.c:739
+msgid "Stop playback of this song"
+msgstr "Dừng phát lại bài hát này"
+
+#. label for first global parameter column in a pattern
+#: ../src/ui/edit/main-page-patterns.c:1561
+msgid "Globals"
+msgstr "Toàn cục"
+
+#. label for parameters of first voice column in a pattern
+#: ../src/ui/edit/main-page-patterns.c:1577
+msgid "Voice 1"
+msgstr "Giọng nối 1"
+
+#. label for parameters of voice columns in a pattern
+#: ../src/ui/edit/main-page-patterns.c:1590
+#, c-format
+msgid "Voice %u"
+msgstr "Giọng nối %u"
+
+#: ../src/ui/edit/main-page-patterns.c:2137
+#, c-format
+msgid "Delete pattern '%s'"
+msgstr "Xoá mẫu « %s »"
+
+#: ../src/ui/edit/main-page-patterns.c:2145
+msgid "Delete pattern..."
+msgstr "Xoá mẫu..."
+
+#. this won't work, as we can't pass anything to the event handler
+#. * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
+#. * so, we need to subclass the combobox and add two signals: select-next, select-prev
+#.
+#: ../src/ui/edit/main-page-patterns.c:2263
+msgid "Machine"
+msgstr "Máy"
+
+#: ../src/ui/edit/main-page-patterns.c:2291
+msgid "Pattern"
+msgstr "Mẫu"
+
+#: ../src/ui/edit/main-page-patterns.c:2320
+#: ../src/ui/edit/main-page-waves.c:1096
+msgid "Wave"
+msgstr "Sóng"
+
+#: ../src/ui/edit/main-page-patterns.c:2343
+msgid "Octave"
+msgstr "Quãng tám"
+
+#: ../src/ui/edit/main-page-patterns.c:2359
+msgid "Play live"
+msgstr "Phát động"
+
+#: ../src/ui/edit/main-page-patterns.c:2361
+msgid "Play notes and triggers while editing the pattern"
+msgstr "Phát các nốt và bộ gây nên trong khi chỉnh sửa mẫu đó"
+
+#: ../src/ui/edit/main-page-patterns.c:2398
+msgid "New track"
+msgstr "Rãnh mới"
+
+#: ../src/ui/edit/main-page-patterns.c:2407
+msgid "Remove last track"
+msgstr "Bỏ rãnh cuối"
+
+#: ../src/ui/edit/main-page-patterns.c:2421
+msgid "New pattern ..."
+msgstr "Mẫu mới..."
+
+#: ../src/ui/edit/main-page-patterns.c:2430
+msgid "Pattern properties..."
+msgstr "Thuộc tính mẫu..."
+
+#: ../src/ui/edit/main-page-patterns.c:2439
+msgid "Remove pattern..."
+msgstr "Bỏ mẫu..."
+
+#: ../src/ui/edit/main-page-patterns.c:2448
+msgid "Copy pattern..."
+msgstr "Chép mẫu..."
+
+#. time line position
+#: ../src/ui/edit/main-page-sequence.c:965
+msgid "Pos."
+msgstr "Vị trí"
+
+#: ../src/ui/edit/main-page-sequence.c:970
+msgid "Ticks"
+msgstr "Nhịp phụ"
+
+#: ../src/ui/edit/main-page-sequence.c:971
+msgid "Time"
+msgstr "Loại nhịp"
+
+#: ../src/ui/edit/main-page-sequence.c:1081
+#: ../src/ui/edit/main-page-sequence.c:1113
+msgid "Labels"
+msgstr "Nhãn"
+
+#. use spaces to avoid clashes with normal patterns?
+#: ../src/ui/edit/main-page-sequence.c:1460
+msgid "  clear"
+msgstr "  rõ"
+
+#: ../src/ui/edit/main-page-sequence.c:1462
+msgid "  mute"
+msgstr "  câm"
+
+#: ../src/ui/edit/main-page-sequence.c:1464
+msgid "  break"
+msgstr "  ngắt"
+
+#: ../src/ui/edit/main-page-sequence.c:1467
+msgid "  bypass"
+msgstr "  đi vòng"
+
+#: ../src/ui/edit/main-page-sequence.c:1473
+msgid "  solo"
+msgstr "   đơn"
+
+#: ../src/ui/edit/main-page-sequence.c:2821
+msgid "Show every n-th line"
+msgstr "Hiện mỗi dòng thứ n"
+
+#: ../src/ui/edit/main-page-sequence.c:2828
+msgid "Steps"
+msgstr "Bước"
+
+#: ../src/ui/edit/main-page-sequence.c:2853
+msgid "Add track"
+msgstr "Thêm rãnh"
+
+#: ../src/ui/edit/main-page-sequence.c:2859
+msgid "Remove track"
+msgstr "Bỏ rãnh"
+
+#: ../src/ui/edit/main-page-sequence.c:2873
+msgid "Move track left"
+msgstr "Dời rãnh phía trái"
+
+#: ../src/ui/edit/main-page-sequence.c:2882
+msgid "Move track right"
+msgstr "Dời rãnh phía phải"
+
+#: ../src/ui/edit/main-page-sequence.c:2933
+msgid "Browse to labels in the sequence"
+msgstr "Duyệt qua các nhãn trong dãy"
+
+#: ../src/ui/edit/main-page-sequence.c:3022
+msgid "Key"
+msgstr "Khoá"
+
+#: ../src/ui/edit/main-page-sequence.c:3035
+msgid "Patterns"
+msgstr "Mẫu"
+
+#: ../src/ui/edit/main-page-waves.c:1053
+msgid "Play current wave table entry as C-4"
+msgstr "Phát mục nhập bảng sóng hiện thời như là C-4"
+
+#: ../src/ui/edit/main-page-waves.c:1060
+msgid "Stop playback of current wave table entry"
+msgstr "Dừng phát mục nhập bảng sóng hiện thời"
+
+#: ../src/ui/edit/main-page-waves.c:1067
+msgid "Clear current wave table entry"
+msgstr "Xoá sạch mục nhập bảng sóng hiện thời"
+
+#. Ix: index in wavetable
+#: ../src/ui/edit/main-page-waves.c:1090
+msgid "Ix"
+msgstr "Ix"
+
+#: ../src/ui/edit/main-page-waves.c:1102
+msgid "Volume"
+msgstr "Âm lượng"
+
+#: ../src/ui/edit/main-page-waves.c:1107 ../src/ui/edit/main-toolbar.c:747
+msgid "Loop"
+msgstr "Vòng lặp"
+
+#: ../src/ui/edit/main-page-waves.c:1132
+msgid "Play current sample"
+msgstr "Phát mẫu hiện có"
+
+#: ../src/ui/edit/main-page-waves.c:1138
+msgid "Stop playback of current sample"
+msgstr "Dừng phát lại mẫu hiện có"
+
+#: ../src/ui/edit/main-page-waves.c:1145
+msgid "Load current sample into selected wave table entry"
+msgstr "Nạp mẫu hiện thời vào mục nhập bảng sóng được chọn"
+
+#: ../src/ui/edit/main-page-waves.c:1188
+msgid "Root"
+msgstr "Gốc"
+
+#: ../src/ui/edit/main-page-waves.c:1193
+msgid "Length"
+msgstr "Chiều dài"
+
+#: ../src/ui/edit/main-page-waves.c:1198
+msgid "Rate"
+msgstr "Tỷ lệ"
+
+#: ../src/ui/edit/main-page-waves.c:1204
+msgid "Loop start"
+msgstr "Đầu vòng lặp"
+
+#: ../src/ui/edit/main-page-waves.c:1210
+msgid "Loop end"
+msgstr "Cuối vòng lặp"
+
+#: ../src/ui/edit/main-pages.c:169
+msgid "machines"
+msgstr "máy"
+
+#: ../src/ui/edit/main-pages.c:169
+msgid "machines used in the song and their wires"
+msgstr "máy được dùng trong bài hát và các dãy tương ứng"
+
+#: ../src/ui/edit/main-pages.c:174
+msgid "patterns"
+msgstr "mẫu"
+
+#: ../src/ui/edit/main-pages.c:174
+msgid "event pattern editor"
+msgstr "bộ chỉnh sửa mẫu sự kiện"
+
+#: ../src/ui/edit/main-pages.c:179
+msgid "sequence"
+msgstr "dãy"
+
+#: ../src/ui/edit/main-pages.c:179
+msgid "song sequence editor"
+msgstr "bộ chỉnh sửa dãy bài hát"
+
+#: ../src/ui/edit/main-pages.c:184
+msgid "wave table"
+msgstr "bảng sóng"
+
+#: ../src/ui/edit/main-pages.c:184
+msgid "sample wave table editor"
+msgstr "bộ chỉnh sửa bảng sóng lấy mẫu"
+
+#: ../src/ui/edit/main-pages.c:189
+msgid "information"
+msgstr "thông tin"
+
+#: ../src/ui/edit/main-pages.c:189
+msgid "song meta data editor"
+msgstr "bộ chỉnh sửa siêu dữ liệu bài hát"
+
+#: ../src/ui/edit/main-statusbar.c:263 ../src/ui/edit/main-statusbar.c:283
+#: ../src/ui/edit/main-statusbar.c:295 ../src/ui/edit/main-statusbar.c:307
+msgid "default"
+msgstr "mặc định"
+
+#: ../src/ui/edit/main-statusbar.c:265 ../src/ui/edit/main-statusbar.c:391
+msgid "Ready to rock!"
+msgstr "Sẵn sàng rốc !"
+
+#. @idea: this could be used to avoid resizing when the label changes
+#. gtk_progress_bar_set_ellipsize(self->priv->cpu_load,PANGO_ELLIPSIZE_END);
+#: ../src/ui/edit/main-statusbar.c:273
+msgid "CPU load"
+msgstr "Trọng tải CPU"
+
+#: ../src/ui/edit/main-statusbar.c:281
+msgid "Playback time"
+msgstr "Thời gian phát lại"
+
+#: ../src/ui/edit/main-statusbar.c:293
+msgid "Playback position"
+msgstr "Vị trí phát lại"
+
+#: ../src/ui/edit/main-statusbar.c:305
+msgid "Playback length"
+msgstr "Chiều dài phát lại"
+
+#: ../src/ui/edit/main-toolbar.c:282
+msgid "Error"
+msgstr "Lỗi"
+
+#: ../src/ui/edit/main-toolbar.c:282
+msgid "An error occurred"
+msgstr "Gặp lỗi"
+
+#. bt_song_stop(song);
+#: ../src/ui/edit/main-toolbar.c:314
+msgid "Warning"
+msgstr "Cảnh báo"
+
+#: ../src/ui/edit/main-toolbar.c:314
+msgid "A problem occurred"
+msgstr "Một vấn đề đã xảy ra"
+
+#: ../src/ui/edit/main-toolbar.c:707
+msgid "Prepare a new empty song"
+msgstr "Chuẩn bị một bài hát trắng mới"
+
+#: ../src/ui/edit/main-toolbar.c:713
+msgid "Load a new song"
+msgstr "Nạp một bài hát mới"
+
+#: ../src/ui/edit/main-toolbar.c:720
+msgid "Save this song"
+msgstr "Lưu bài hát này"
+
+#: ../src/ui/edit/main-toolbar.c:731
+msgid "Play this song"
+msgstr "Phát bài hát này"
+
+#: ../src/ui/edit/main-toolbar.c:749
+msgid "Toggle looping of playback"
+msgstr "Bật tắt vòng lặp phát lại"
+
+#. @idea have distinct tooltips with channel names
+#: ../src/ui/edit/main-toolbar.c:769
+msgid "playback volume"
+msgstr "âm lượng phát lại"
+
+#. add gain-control
+#. min=
+#. max=
+#. step=
+#: ../src/ui/edit/main-toolbar.c:787
+msgid "Change playback volume"
+msgstr "Đổi âm lượng phát lại"
+
+#. we don't use PACKAGE_NAME = 'buzztard' for the window title
+#: ../src/ui/edit/main-window.c:206
+msgid "unsaved"
+msgstr "chưa lưu"
+
+#: ../src/ui/edit/main-window.c:206
+msgid "saved"
+msgstr "đã lưu"
+
+#: ../src/ui/edit/main-window.c:250
+#, c-format
+msgid "An error occurred while trying to load the song from file '%s'"
+msgstr "Gặp lỗi trong khi thử nạp bài hát từ tập tin « %s »"
+
+#: ../src/ui/edit/main-window.c:445
+msgid "Really quit?"
+msgstr "Thực sự thoát ?"
+
+#: ../src/ui/edit/main-window.c:445 ../src/ui/edit/main-window.c:469
+msgid "All unsaved changes will be lost then."
+msgstr "Mọi thay đổi chưa lưu đều thì bị mất."
+
+#. @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
+#: ../src/ui/edit/main-window.c:469
+msgid "New song?"
+msgstr "Bài hát mới ?"
+
+#: ../src/ui/edit/main-window.c:488
+msgid "Open a song"
+msgstr "Mở một bài hát"
+
+#: ../src/ui/edit/main-window.c:603
+#, c-format
+msgid "An error occurred while saving the song to file '%s'."
+msgstr "Gặp lỗi trong khi lưu bài hát vào tập tin « %s »."
+
+#: ../src/ui/edit/main-window.c:604 ../src/ui/edit/main-window.c:802
+#: ../src/ui/edit/main-window.c:814
+msgid "Can't save song"
+msgstr "Không thể lưu bài hát"
+
+#: ../src/ui/edit/main-window.c:632
+msgid "Save a song"
+msgstr "Lưu bài hát"
+
+#: ../src/ui/edit/main-window.c:752 ../src/ui/edit/render-dialog.c:273
+msgid "Format"
+msgstr "Định dạng"
+
+#: ../src/ui/edit/main-window.c:788 ../src/ui/edit/main-window.c:789
+msgid "File already exists"
+msgstr "Tập tin đã có"
+
+#: ../src/ui/edit/main-window.c:790
+msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
+msgstr "Chọn « OK » để ghi đè hoặc « Thôi » để hủy bỏ việc lưu bài hát này."
+
+#: ../src/ui/edit/main-window.c:801
+#, c-format
+msgid "An error occurred while trying to open the file '%s' for writing: %s"
+msgstr "Gặp lỗi trong khi thử mở tập tin « %s » để ghi vào : %s"
+
+#: ../src/ui/edit/main-window.c:813
+#, c-format
+msgid "An error occurred while trying to save the song to file '%s'."
+msgstr "Gặp lỗi trong khi thử lưu bài hát vào tập tin « %s »."
+
+#. create and set window icon
+#.
+#. if((window_icon=bt_ui_resources_get_icon_pixbuf_by_machine(self->priv->machine))) {
+#. gtk_window_set_icon(GTK_WINDOW(self),window_icon);
+#. g_object_unref(window_icon);
+#. }
+#.
+#. set a title
+#: ../src/ui/edit/missing-framework-elements-dialog.c:128
+#: ../src/ui/edit/missing-framework-elements-dialog.c:145
+msgid "Missing GStreamer elements"
+msgstr "Thiếu phần tử GStreamer"
+
+#: ../src/ui/edit/missing-framework-elements-dialog.c:152
+msgid "The elements listed below are missing from your installation, but are required."
+msgstr "Theo đây có một số phần tử còn thiếu trong bản cài đặt này, mà cần thiết."
+
+#: ../src/ui/edit/missing-framework-elements-dialog.c:192
+msgid "The elements listed below are missing from your installation, but are recommended for full functionality."
+msgstr "Theo đây có một số phần tử còn thiếu trong bản cài đặt này, mà khuyến khích để chức năng đầy đủ."
+
+#: ../src/ui/edit/missing-framework-elements-dialog.c:194
+msgid "don't warn again"
+msgstr "đừng cảnh báo lần nữa"
+
+#. create and set window icon
+#.
+#. if((window_icon=bt_ui_resources_get_icon_pixbuf_by_machine(self->priv->machine))) {
+#. gtk_window_set_icon(GTK_WINDOW(self),window_icon);
+#. g_object_unref(window_icon);
+#. }
+#.
+#. set a title
+#: ../src/ui/edit/missing-song-elements-dialog.c:115
+#: ../src/ui/edit/missing-song-elements-dialog.c:132
+msgid "Missing elements in song"
+msgstr "Thiếu phần tử trong bài hát"
+
+#: ../src/ui/edit/missing-song-elements-dialog.c:139
+msgid "The machines listed below are missing or failed to load."
+msgstr "Theo đây có một số máy còn thiếu hay không nạp được."
+
+#: ../src/ui/edit/missing-song-elements-dialog.c:143
+msgid "The waves listed below are missing or failed to load."
+msgstr "Theo đây có một số sóng còn thiếu hay không nạp được."
+
+#. GtkComboBox : pattern length
+#: ../src/ui/edit/pattern-properties-dialog.c:175
+msgid "length"
+msgstr "độ dài"
+
+#. GtkSpinButton : number of voices
+#: ../src/ui/edit/pattern-properties-dialog.c:185
+msgid "voices"
+msgstr "giọng nối"
+
+#: ../src/ui/edit/render-dialog.c:220
+msgid "song rendering"
+msgstr "diễn tấu bài hát"
+
+#: ../src/ui/edit/render-dialog.c:237
+msgid "Folder"
+msgstr "Thư mục"
+
+#: ../src/ui/edit/render-dialog.c:241
+#: ../src/ui/edit/settings-page-directories.c:103
+#: ../src/ui/edit/settings-page-directories.c:113
+#: ../src/ui/edit/settings-page-directories.c:123
+msgid "Select a folder"
+msgstr "Chọn thư mục"
+
+#: ../src/ui/edit/render-dialog.c:247
+msgid "Filename"
+msgstr "Tên tập tin"
+
+#: ../src/ui/edit/render-dialog.c:290
+msgid "Mode"
+msgstr "Chế độ"
+
+#: ../src/ui/edit/render-progress.c:104
+#, c-format
+msgid "Recording to: %s"
+msgstr "Đang thu vào : %s"
+
+#: ../src/ui/edit/render-progress.c:126
+msgid "song render progress"
+msgstr "Tiến hành diễn tấu"
+
+#. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
+#: ../src/ui/edit/settings-dialog.c:144
+msgid "buzztard settings"
+msgstr "Thiết lập buzztard"
+
+#: ../src/ui/edit/settings-dialog.c:178 ../src/ui/edit/settings-dialog.c:233
+msgid "Audio Devices"
+msgstr "Thiết bị âm thanh"
+
+#: ../src/ui/edit/settings-dialog.c:185 ../src/ui/edit/settings-dialog.c:240
+#: ../src/ui/edit/settings-page-interaction-controller.c:114
+msgid "Interaction Controller"
+msgstr "Điều khiển sự tương tác"
+
+#: ../src/ui/edit/settings-dialog.c:192 ../src/ui/edit/settings-dialog.c:247
+#: ../src/ui/edit/settings-page-playback-controller.c:105
+msgid "Playback Controller"
+msgstr "Điều khiển sự phát lại"
+
+#: ../src/ui/edit/settings-dialog.c:199 ../src/ui/edit/settings-dialog.c:256
+msgid "Colors"
+msgstr "Màu sắc"
+
+#: ../src/ui/edit/settings-dialog.c:206 ../src/ui/edit/settings-dialog.c:265
+msgid "Shortcuts"
+msgstr "Phím tắt"
+
+#: ../src/ui/edit/settings-dialog.c:213 ../src/ui/edit/settings-dialog.c:272
+#: ../src/ui/edit/settings-page-directories.c:92
+msgid "Directories"
+msgstr "Thư mục"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:135
+msgid "Audio Device"
+msgstr "Thiết bị âm thanh"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:142
+msgid "Sink"
+msgstr "Ổ chìm"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:151
+#, c-format
+msgid "system default: %s (%s)"
+msgstr "mặc định của hệ thống: %s (%s)"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:158
+msgid "system default: -"
+msgstr "mặc định hệ thống: -"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:211
+msgid "Sampling rate"
+msgstr "Tần số lấy mẫu"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:239
+msgid "Channels"
+msgstr "Kênh"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:244
+msgid "mono"
+msgstr "nguồn đơn"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:245
+msgid "stereo"
+msgstr "âm lập thể"
+
+#: ../src/ui/edit/settings-page-directories.c:99
+msgid "Songs"
+msgstr "Bài hát"
+
+#: ../src/ui/edit/settings-page-directories.c:109
+msgid "Recordings"
+msgstr "Bản thu"
+
+#: ../src/ui/edit/settings-page-directories.c:119
+msgid "Waveforms"
+msgstr "Dạng sóng"
+
+#: ../src/ui/edit/settings-page-interaction-controller.c:121
+msgid "Device"
+msgstr "Thiết bị"
+
+#. local network port number for socket communication
+#: ../src/ui/edit/settings-page-playback-controller.c:121
+msgid "Port number"
+msgstr "Số thứ tự cổng"
+
+#: ../src/ui/edit/tools.c:79 ../src/ui/edit/tools.c:106
+#, c-format
+msgid "Couldn't find pixmap file: %s"
+msgstr "Không tìm thấy tập tin sơ đồ điểm ảnh: %s"
+
+#. machine -> machine connection analyzer
+#: ../src/ui/edit/wire-analysis-dialog.c:453
+#, c-format
+msgid "%s -> %s analysis"
+msgstr "Phân tích %s -> %s"
+
+#: ../src/ui/edit/wire-canvas-item.c:797
+msgid "Disconnect"
+msgstr "Ngắt kết nối"
+
+#: ../src/ui/edit/wire-canvas-item.c:807
+msgid "Signal Analysis..."
+msgstr "Phân tích tín hiệu..."
