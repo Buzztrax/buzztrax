@@ -1,3 +1,10 @@
+2010-04-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/source-machine.c:
+	  Fix portability issues caused by passing NULL for va_list.
+
 2010-04-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:

@@ -104,18 +104,20 @@ static BtPersistence *bt_source_machine_persistence_load(const GType type, const
   if(!persistence) {
     BtSong *song=NULL;
     gchar *param_name;
+    va_list va;
 
+    G_VA_COPY(va,var_args);
     // we need to get parameters from var_args
-    param_name=va_arg(var_args,gchar*);
+    param_name=va_arg(va,gchar*);
     while(param_name) {
       if(!strcmp(param_name,"song")) {
-        song=va_arg(var_args, gpointer);
+        song=va_arg(va, gpointer);
       }
       else {
         GST_WARNING("unhandled argument: %s",param_name);
         break;
       }
-      param_name=va_arg(var_args,gchar*);
+      param_name=va_arg(va,gchar*);
     }
     
     self=bt_source_machine_new(song,(gchar*)id,(gchar *)plugin_name,voices,err);
@@ -133,7 +135,7 @@ static BtPersistence *bt_source_machine_persistence_load(const GType type, const
   
   // load parent class stuff
   parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(result));
-  parent_iface->load(BT_TYPE_MACHINE,result,node,NULL,NULL);
+  parent_iface->load(BT_TYPE_MACHINE,result,node,NULL,var_args);
 
   return(result);
 }
