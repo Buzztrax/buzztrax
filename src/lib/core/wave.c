@@ -639,7 +639,7 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
     result=BT_PERSISTENCE(self);
 
     g_object_set(self,"index",index,"name",name,"uri",uri_str,"volume",volume,"loop-mode",loop_mode,NULL);
-  }   
+  }
   
   xmlFree(index_str);
   xmlFree(name);

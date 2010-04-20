@@ -1,5 +1,10 @@
 2010-04-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wave.c:
+	  Whitespaces.
+
+2010-04-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/processor-machine.c:
 	* src/lib/core/sink-machine.c:
 	* src/lib/core/source-machine.c:
