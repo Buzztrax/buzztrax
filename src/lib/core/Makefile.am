@@ -97,7 +97,6 @@ BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
 	     --include=BuzztardIc-0.0 \
 	     --library=buzztard-core \
              --pkg gobject-2.0 \
-             --pkg libbuzztard-ic \
              --pkg libgstbuzztard \
              --pkg libxml-2.0 \
              --pkg gstreamer-0.10 \
