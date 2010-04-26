@@ -29,7 +29,7 @@ static void query_and_print(GstElement *element, GstQuery *query) {
   */
 }
 
-static void message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
+static void message_received(GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
   const GstStructure *s;
 
   s = gst_message_get_structure (message);
@@ -66,8 +66,8 @@ int main(int argc, char **argv) {
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
 
   /* create a new bin to hold the elements */
-  bin = gst_pipeline_new ("song");
-  clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
+  bin = gst_pipeline_new("song");
+  clock = gst_pipeline_get_clock(GST_PIPELINE (bin));
 
   /* make a sink */
   if(!(sink = gst_element_factory_make (SINK_NAME, "sink"))) {
