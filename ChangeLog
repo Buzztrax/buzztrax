@@ -1,3 +1,22 @@
+2010-04-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* TODO:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/change-log-methods.h:
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/change-log.h:
+	* src/ui/edit/change-log-methods.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/change-log.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/change-log.c (svn:keywords, svn:eol-style):
+	* src/ui/edit/change-log-methods.h (added):
+	* src/ui/edit/change-log.c (added):
+	* src/ui/edit/change-log.h (added):
+	  Boilerplate for change log journaling.
+
+	* src/ui/edit/ui-resources.h:
+	  Whitespace.
+
 2010-04-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/controller.c:

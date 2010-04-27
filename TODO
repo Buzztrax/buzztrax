@@ -7,18 +7,10 @@ $Id$
   * cd po;intltool-update -M
   * make dist
 
-* gobject private members
-  * we need guidelines for use of ->priv,
-    when make members private, when public
-  * we need some convention how to shorten all the
-    object->priv->member statements
-    * do once object_p=object->priv;
-    * #define G_SELF self->priv
 
 * new tests
   * load songs and lookup the parts
     (e.g. bt_machine_get_pattern_by_id)
-  * try gtk_main_do_event() in GUI tests
   * add test for trigger params
 
 * new stats
@@ -31,8 +23,8 @@ $Id$
 * check translation markup
   podebug --rewrite=xxx buzztard.pot aa.po
   LC_ALL=aa ./buzztard-edit
-  - his creates a translation with all strings wrapped by 'xxx' (Help -> xxxHelpxxx)
-  - its easy to see what is not marked for translation  
+  - this creates a translation with all strings wrapped by 'xxx' (Help -> xxxHelpxxx)
+  - it is easy to see what is not marked for translation  
 
 * sparse
   make CC=cgcc
@@ -41,6 +33,15 @@ $Id$
  * try getting e.g. the shortcuts table from our wiki
    http://freshmeat.net/projects/wt2db/
    http://wiki.blender.org/index.php/Meta/DocBook_to_Wiki
+
+
+* gobject private members
+  * we need guidelines for use of ->priv,
+    when make members private, when public
+  * we need some convention how to shorten all the
+    object->priv->member statements
+    * do once object_p=object->priv;
+    * #define G_SELF self->priv
 
 * song-io refactoring
   * problem
@@ -73,3 +74,14 @@ $Id$
   udevadm monitor --property 
   + attach detach devices to see if there is some property that uniquely identifies audio and midi ones
 
+* undo/redo/journaling
+  - links
+    http://www.buzztard.org/index.php/Undo,_redo
+    http://www.buzztard.org/index.php/Song_autosaving
+  - we do that on the ui level (also the hournalling and the replay of it)
+  - singleton journal object
+    - each undo/redo capabale object registeres with its name there
+    - on replay we can take the prefix og the entry and dispatch
+    - on journalling we can probably add the prefix
+    - it is a stack of journal entries
+    

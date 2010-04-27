@@ -51,7 +51,7 @@ struct _BtUIResources {
 };
 /* structure of the ui-resources class */
 struct _BtUIResourcesClass {
-  GObjectClass parent; 
+  GObjectClass parent;
 };
 
 /**
