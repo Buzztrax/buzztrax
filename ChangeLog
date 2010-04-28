@@ -3,6 +3,12 @@
 	* design/gst/controller.c:
 	  Tweak example.
 
+	* src/ui/edit/change-log.c:
+	  Add cache dir and property.
+
+	* src/ui/edit/edit-application.c:
+	  Fix typo.
+
 2010-04-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* TODO:

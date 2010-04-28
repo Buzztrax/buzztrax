@@ -25,7 +25,10 @@
  * Tracks edits actions since last save. Logs those to disk for crash recovery.
  * Provides undo/redo.
  */
-/* @todo: reset change-log on new/open-song (song property)
+/* @todo: application should own the logger
+ * 
+ * @todo: reset change-log on new/open-song
+ * (song property - or app.notify::song)
  * - flush old entries
  * - remove old log file
  * - start new log file
@@ -44,16 +47,20 @@
 
 #include "bt-edit.h"
 
+//-- property ids
+
+enum {
+  CHANGE_LOG_SONG=1
+};
+
 struct _BtChangeLogPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
-  /*
+  /* properties */
   BtSong *song;
-  gchar *song_file_name;
-  
-  gchar *cache_dir; // xdg-cache dir, init in constructor
-  */
+
+  const gchar *cache_dir;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -84,6 +91,33 @@ BtChangeLog *bt_change_log_new(void) {
 
 //-- class internals
 
+static void bt_change_log_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
+  BtChangeLog *self = BT_CHANGE_LOG(object);
+  return_if_disposed();
+  switch (property_id) {
+    case CHANGE_LOG_SONG: {
+      g_value_set_object(value, self->priv->song);
+    } break;
+    default: {
+       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
+  }
+}
+
+static void bt_change_log_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
+  BtChangeLog *self = BT_CHANGE_LOG(object);
+  return_if_disposed();
+  switch (property_id) {
+    case CHANGE_LOG_SONG: {
+      g_object_try_unref(self->priv->song);
+      self->priv->song=BT_SONG(g_value_dup_object(value));
+    } break;
+    default: {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
+  }
+}
+
 static void bt_change_log_dispose(GObject *object) {
   BtChangeLog *self = BT_CHANGE_LOG(object);
   
@@ -91,7 +125,7 @@ static void bt_change_log_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  
+  g_object_try_unref(self->priv->song);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
@@ -114,6 +148,7 @@ static GObject *bt_change_log_constructor(GType type,guint n_construct_params,GO
 
     // initialise
     // singleton->priv->xxx=...;
+    singleton->priv->cache_dir=g_get_user_cache_dir();
   }
   else {
     object=g_object_ref(singleton);
@@ -134,8 +169,17 @@ static void bt_change_log_class_init(BtChangeLogClass *klass) {
   g_type_class_add_private(klass,sizeof(BtChangeLogPrivate));
 
   gobject_class->constructor  = bt_change_log_constructor;
+  gobject_class->set_property = bt_change_log_set_property;
+  gobject_class->get_property = bt_change_log_get_property;
   gobject_class->dispose      = bt_change_log_dispose;
   gobject_class->finalize     = bt_change_log_finalize;
+
+  g_object_class_install_property(gobject_class,CHANGE_LOG_SONG,
+                                  g_param_spec_object("song",
+                                     "song prop",
+                                     "the song object",
+                                     BT_TYPE_SONG, /* object type */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_change_log_get_type(void) {

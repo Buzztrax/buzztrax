@@ -803,8 +803,8 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
 
   g_object_class_install_property(gobject_class,EDIT_APPLICATION_SONG,
                                   g_param_spec_object("song",
-                                     "song construct prop",
-                                     "the song object, the wire belongs to",
+                                     "song prop",
+                                     "the current song object",
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
