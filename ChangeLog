@@ -1,5 +1,10 @@
 2010-04-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gst/controller.c:
+	  Tweak example.
+
+2010-04-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* TODO:
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.h:

@@ -53,7 +53,7 @@ main (gint argc, gchar **argv)
     return -1;
   }
   g_object_set (src, "wave", /* saw */ 2, "filter", /* lowpass */ 1, "decay", 0.75, NULL);
-  gstbt_tempo_change_tempo (GSTBT_TEMPO (src), 125, 16, -1);
+  gstbt_tempo_change_tempo (GSTBT_TEMPO (src), 125, 32, -1);
 
   /* add objects to the main bin */
   gst_bin_add_many (GST_BIN (bin), src, fx, sink, NULL);
@@ -120,7 +120,7 @@ main (gint argc, gchar **argv)
   
   g_value_init (&val, G_TYPE_DOUBLE);
   g_value_set_double (&val, 1.0);
-  g_object_set (lfo_csrc, "frequency", 1.0, "amplitude", &val, NULL);
+  g_object_set (lfo_csrc, "frequency", 2.0, "amplitude", &val, NULL);
 
   g_value_unset (&val);
   g_object_unref (lfo_csrc);
@@ -131,7 +131,7 @@ main (gint argc, gchar **argv)
   /* we want to play for 5 sec. */
   clock_id =
         gst_clock_new_single_shot_id (clock,
-        gst_clock_get_time (clock) + (6 * GST_SECOND));
+        gst_clock_get_time (clock) + (7 * GST_SECOND));
   
   /* play and wait */
   gst_element_set_state (bin, GST_STATE_PLAYING);
