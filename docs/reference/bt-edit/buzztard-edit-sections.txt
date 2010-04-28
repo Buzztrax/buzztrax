@@ -29,6 +29,24 @@ BtAboutDialogPrivate
 
 
 <SECTION>
+<FILE>btchangelog</FILE>
+<TITLE>BtAboutDialog</TITLE>
+BtChangeLog
+bt_change_log_new
+<SUBSECTION Standard>
+BtChangeLogClass
+BT_CHANGE_LOG
+BT_IS_CHANGE_LOG
+BT_TYPE_CHANGE_LOG
+BT_CHANGE_LOG_CLASS
+BT_IS_CHANGE_LOG_CLASS
+BT_CHANGE_LOG_GET_CLASS
+bt_change_log_get_type
+BtChangeLogPrivate
+</SECTION>
+
+
+<SECTION>
 <FILE>bteditapplication</FILE>
 <TITLE>BtEditApplication</TITLE>
 BtEditApplication
@@ -833,7 +851,6 @@ GtkVUMeter
 gtk_vumeter_new
 gtk_vumeter_set_min_max
 gtk_vumeter_set_levels
-gtk_vumeter_set_peaks_falloff
 gtk_vumeter_set_scale
 <SUBSECTION Standard>
 GtkVUMeterClass

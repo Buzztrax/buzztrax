@@ -787,10 +787,10 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       fclose(file);
     }
     else {
-      const gchar *reason=(const gchar *)strerror(errno);
+      const gchar *reason=(const gchar *)g_strerror(errno);
       gchar *msg;
 
-      GST_INFO("file can not be opened : %d : %s",errno,reason);
+      GST_INFO("file '%s' can not be opened : %d : %s",file_name,errno,reason);
       switch(errno) {
         case EACCES:  // Permission denied.
           cont=FALSE;

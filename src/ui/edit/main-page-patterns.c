@@ -2643,7 +2643,7 @@ static void pattern_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) 
 }
 
 /**
- * bt_main_page_pattern_delete_selection:
+ * bt_main_page_patterns_delete_selection:
  * @self: the pattern subpage
  *
  * Delete (clear) the selected area.

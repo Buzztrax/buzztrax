@@ -27,8 +27,7 @@
  */
 /* @todo: application should own the logger
  * 
- * @todo: reset change-log on new/open-song
- * (song property - or app.notify::song)
+ * @todo: reset change-log on new/open-song (app.notify::song)
  * - flush old entries
  * - remove old log file
  * - start new log file
@@ -49,17 +48,15 @@
 
 //-- property ids
 
-enum {
-  CHANGE_LOG_SONG=1
-};
-
 struct _BtChangeLogPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
-  /* properties */
-  BtSong *song;
+  /* the application */
+  G_POINTER_ALIAS(BtEditApplication *,app);
 
+  FILE *log_file;
+  gchar *log_file_name;
   const gchar *cache_dir;
 };
 
@@ -68,6 +65,66 @@ static GObjectClass *parent_class=NULL;
 static BtChangeLog *singleton=NULL;
 
 //-- helper
+
+static void free_log_file(BtChangeLog *self) {
+  if(self->priv->log_file) {
+    fclose(self->priv->log_file);
+    self->priv->log_file=NULL;
+  }
+  if(self->priv->log_file_name) {
+    g_unlink(self->priv->log_file_name);
+    g_free(self->priv->log_file_name);
+    self->priv->log_file_name=NULL;
+  }
+}
+
+//-- event handler
+
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
+  BtChangeLog *self = BT_CHANGE_LOG(user_data);
+  BtSong *song;
+  BtSongInfo *song_info;
+  gchar *file_name,*name,*dts;
+
+  GST_INFO("song has changed : app=%p, self=%p",app,self);
+  // get song from app
+  g_object_get(self->priv->app,"song",&song,NULL);
+  if(!song) {
+    GST_INFO("song (null) has changed done");
+    return;
+  }
+
+  // remove old log file
+  free_log_file(self);
+  
+  // ensure cachedir
+  file_name=g_build_filename(self->priv->cache_dir,PACKAGE,NULL);
+  g_mkdir_with_parents(file_name,S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
+  g_free(file_name);
+  
+  // create new log file
+  g_object_get(song,"song-info",&song_info,NULL);
+  g_object_get(song_info,"name",&name,"create-dts",&dts,NULL);
+  file_name=g_strdup_printf("%s_%s.log",dts,name);
+  g_free(name);
+  g_free(dts);
+  self->priv->log_file_name=g_build_filename(self->priv->cache_dir,PACKAGE,file_name,NULL);
+  g_free(file_name);
+  if(!(self->priv->log_file=fopen(self->priv->log_file_name,"wt"))) {
+    GST_WARNING("can't open log file '%s' : %d : %s",self->priv->log_file_name,errno,g_strerror(errno));
+    g_free(self->priv->log_file_name);
+    self->priv->log_file_name=NULL;
+  }
+  
+  // @todo: notify on name changes to move the log?
+  // g_signal_connect(song, "notify::name", G_CALLBACK(on_song_file_name_changed), (gpointer)self);
+
+  // release the reference
+  g_object_unref(song_info);
+  g_object_unref(song);
+  GST_INFO("song has changed done");
+}
+
 
 //-- constructor methods
 
@@ -91,33 +148,6 @@ BtChangeLog *bt_change_log_new(void) {
 
 //-- class internals
 
-static void bt_change_log_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtChangeLog *self = BT_CHANGE_LOG(object);
-  return_if_disposed();
-  switch (property_id) {
-    case CHANGE_LOG_SONG: {
-      g_value_set_object(value, self->priv->song);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-static void bt_change_log_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtChangeLog *self = BT_CHANGE_LOG(object);
-  return_if_disposed();
-  switch (property_id) {
-    case CHANGE_LOG_SONG: {
-      g_object_try_unref(self->priv->song);
-      self->priv->song=BT_SONG(g_value_dup_object(value));
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_change_log_dispose(GObject *object) {
   BtChangeLog *self = BT_CHANGE_LOG(object);
   
@@ -125,7 +155,10 @@ static void bt_change_log_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_unref(self->priv->song);
+  g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
+  
+  free_log_file(self);
+  g_object_try_weak_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
@@ -145,10 +178,6 @@ static GObject *bt_change_log_constructor(GType type,guint n_construct_params,GO
   if(G_UNLIKELY(!singleton)) {
     object=G_OBJECT_CLASS(parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BT_CHANGE_LOG(object);
-
-    // initialise
-    // singleton->priv->xxx=...;
-    singleton->priv->cache_dir=g_get_user_cache_dir();
   }
   else {
     object=g_object_ref(singleton);
@@ -159,7 +188,14 @@ static GObject *bt_change_log_constructor(GType type,guint n_construct_params,GO
 static void bt_change_log_init(GTypeInstance *instance, gpointer g_class) {
   BtChangeLog *self = BT_CHANGE_LOG(instance);
   
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_CHANGE_LOG, BtChangeLogPrivate);
+  self->priv=G_TYPE_INSTANCE_GET_PRIVATE(self,BT_TYPE_CHANGE_LOG,BtChangeLogPrivate);
+  /* this is created from the app, we need to avoid a ref-cycle */
+  self->priv->app = bt_edit_application_new();
+  g_object_try_weak_ref(self->priv->app);
+  g_object_unref(self->priv->app);
+
+  self->priv->cache_dir=g_get_user_cache_dir();
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 }
 
 static void bt_change_log_class_init(BtChangeLogClass *klass) {
@@ -169,17 +205,8 @@ static void bt_change_log_class_init(BtChangeLogClass *klass) {
   g_type_class_add_private(klass,sizeof(BtChangeLogPrivate));
 
   gobject_class->constructor  = bt_change_log_constructor;
-  gobject_class->set_property = bt_change_log_set_property;
-  gobject_class->get_property = bt_change_log_get_property;
   gobject_class->dispose      = bt_change_log_dispose;
   gobject_class->finalize     = bt_change_log_finalize;
-
-  g_object_class_install_property(gobject_class,CHANGE_LOG_SONG,
-                                  g_param_spec_object("song",
-                                     "song prop",
-                                     "the song object",
-                                     BT_TYPE_SONG, /* object type */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_change_log_get_type(void) {

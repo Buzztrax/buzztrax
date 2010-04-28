@@ -20,8 +20,11 @@
  */
 /**
  * SECTION:btmemoryaudiosrc
+ * @short_description: play samples from memory
  *
- * Play samples from memory. Supports interleaved multi-channels audio.
+ * Gstreamer audio source to play samples from memory. Supports interleaved
+ * multi-channels audio. Supports trickmode playback (resampling and ping-pong
+ * loops).
  */
 /* seeking
                               forward    backward

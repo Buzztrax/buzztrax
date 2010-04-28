@@ -41,7 +41,7 @@ typedef struct _BtChangeLogPrivate BtChangeLogPrivate;
 /**
  * BtChangeLog:
  *
- * a collection of shared ui ressources
+ * Editor action journal.
  */
 struct _BtChangeLog {
   GObject parent;

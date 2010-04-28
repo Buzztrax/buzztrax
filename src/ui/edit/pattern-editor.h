@@ -69,7 +69,7 @@ struct _BtPatternEditorColumnGroup
   char *name;
   int num_columns;
   BtPatternEditorColumn *columns;
-  gpointer user_data;  
+  gpointer user_data;
   int width; /* in pixels for now, may change to chars some day when needed */
 };
 typedef struct _BtPatternEditorColumnGroup BtPatternEditorColumnGroup;

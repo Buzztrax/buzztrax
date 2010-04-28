@@ -55,6 +55,9 @@ struct _BtEditApplicationPrivate {
   BtUIResources *ui_resources;
   /* the top-level window of our app */
   BtMainWindow *main_window;
+  
+  /* editor change log */
+  BtChangeLog *change_log;
 
   /* remote playback controller */
   BtPlaybackControllerSocket *pb_controller;
@@ -657,11 +660,10 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
-      // DEBUG
+#ifdef USE_DEBUG
       GstElement *bin;
       g_object_get(self,"bin",&bin,NULL);
       GST_INFO("bin->num_children=%d",GST_BIN_NUMCHILDREN(bin));
-      // DEBUG
 
       if(self->priv->song) {
         if(G_OBJECT_REF_COUNT(self->priv->song)>1) {
@@ -671,7 +673,7 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
           GST_INFO("old song->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->song));
         }
         g_object_unref(self->priv->song);
-        // DEBUG - if new song is NULL, it should be empty now
+        // if new song is NULL, it should be empty now
 #if 0
         {
           gint num=GST_BIN_NUMCHILDREN(bin);
@@ -683,11 +685,11 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
           }
         }
 #endif
-        // DEBUG
       }
-      // DEBUG
       gst_object_unref(bin);
-      // DEBUG
+#else
+      g_object_try_unref(self->priv->song);
+#endif
 
       self->priv->song=BT_SONG(g_value_dup_object(value));
       if(self->priv->song) GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT_REF_COUNT(self->priv->song));
@@ -713,6 +715,8 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     singleton->priv->pb_controller=bt_playback_controller_socket_new();
     // create the interaction controller registry
     singleton->priv->ic_registry=btic_registry_new();
+    // create the editor change log
+    singleton->priv->change_log=bt_change_log_new();
     // create main window
     GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
     singleton->priv->main_window=bt_main_window_new();
@@ -765,6 +769,7 @@ static void bt_edit_application_dispose(GObject *object) {
   g_object_try_unref(self->priv->ui_resources);
   g_object_try_unref(self->priv->pb_controller);
   g_object_try_unref(self->priv->ic_registry);
+  g_object_try_unref(self->priv->change_log);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);

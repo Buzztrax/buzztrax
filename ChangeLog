@@ -1,3 +1,26 @@
+2010-04-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/change-log.h:
+	* src/ui/edit/edit-application.c:
+	  Create and remove the journal file.
+
+	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/btmemoryaudiosrc.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.h:
+	  API doc fixes.
+
+	* src/lib/core/song-info.c:
+	  Copy and paste typo fix.
+
+	* src/ui/edit/main-window.c:
+	  Better error reporting.
+
+	* src/lib/core/song.c:
+	  Experiments.
+
 2010-04-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/controller.c:

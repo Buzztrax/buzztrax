@@ -238,7 +238,7 @@ static void bt_song_info_persistence_interface_init(gpointer const g_iface, gpoi
 //-- g_object overrides
 
 #if 0
-static void bt_setup_constructed(GObject *object) {
+static void bt_song_info_constructed(GObject *object) {
   BtSongInfo *self=BT_SONG_INFO(object);
   
   if(G_OBJECT_CLASS(parent_class)->constructed)
