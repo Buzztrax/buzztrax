@@ -1,6 +1,11 @@
 2010-04-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/change-log.c:
+	  Add header to log and do a bit more drafting.
+
+2010-04-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/change-log.c:
 	* src/ui/edit/change-log.h:
 	* src/ui/edit/edit-application.c:
 	  Create and remove the journal file.

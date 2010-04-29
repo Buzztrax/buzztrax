@@ -25,20 +25,17 @@
  * Tracks edits actions since last save. Logs those to disk for crash recovery.
  * Provides undo/redo.
  */
-/* @todo: application should own the logger
- * 
- * @todo: reset change-log on new/open-song (app.notify::song)
+/* @todo: reset change-log on new/open-song (app.notify::song)
  * - flush old entries
- * - remove old log file
- * - start new log file
+ *
  * @todo: rename change-log on save-as (notify on song:name)
- * - rename log file
  *
- * @todo: do we want an iface, so that objects can implement undo/redo vmethods
+ * @todo: check for logs on startup -> bt_change_log_crash_check()
  *
- * @todo: what info do we need in a changelog entry?
- * - owner (object that implements undo/redo iface)
- * - serialized data
+ * @todo: do we want an iface?
+ * - then objects can implement undo/redo vmethods
+ *
+ * check http://github.com/herzi/gundo more
  */
 
 #define BT_EDIT
@@ -47,6 +44,21 @@
 #include "bt-edit.h"
 
 //-- property ids
+
+#if 0
+
+typedef struct {
+  gboolean (*undo)(BtChangeLogger *owner,gchar *data);
+  gboolean (*redo)(BtChangeLogger *owner,gchar *data);
+} BtChangeLoggerClass;
+
+
+typedef struct {
+  BtChangeLogger *owner;
+  gchar *data;
+} BtChangeLogEntry;
+
+#endif
 
 struct _BtChangeLogPrivate {
   /* used to validate if dispose has run */
@@ -58,6 +70,13 @@ struct _BtChangeLogPrivate {
   FILE *log_file;
   gchar *log_file_name;
   const gchar *cache_dir;
+  
+#if 0
+  /* each entry pointing to a BtChangeLogEntry */
+  GPtrArray *change_stack;
+  guint last_saved;
+  guint current;
+#endif
 };
 
 static GObjectClass *parent_class=NULL;
@@ -115,6 +134,16 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_free(self->priv->log_file_name);
     self->priv->log_file_name=NULL;
   }
+  else {
+    g_object_get(song_info,"file-name",&file_name,NULL);
+    fputs(PACKAGE" edit journal : "PACKAGE_VERSION"\n",self->priv->log_file);
+    if(file_name) {
+      fputs(file_name,self->priv->log_file);
+      g_free(file_name);
+    }
+    fputs("\n",self->priv->log_file);
+    fflush(self->priv->log_file);
+  }
   
   // @todo: notify on name changes to move the log?
   // g_signal_connect(song, "notify::name", G_CALLBACK(on_song_file_name_changed), (gpointer)self);
@@ -142,8 +171,38 @@ BtChangeLog *bt_change_log_new(void) {
 
 //-- methods
 
-/*
-*/
+#if 0
+
+GList *bt_change_log_crash_check(BtChangeLog *self) {
+ /*
+ - can be done at any time, even if we create a new _unnamed_, it will have a
+   different dts
+ - should list found logs, except the current one
+ - the log would need to point to the actual filename
+   - only offer recover if the original file is available
+ */
+ return(NULL);
+}
+
+gboolean bt_change_log_recover(BtChangeLog *self,XXX *entry) {
+  /*
+  - we should not have any unsaved work at this momement
+  - load the song pointed to be entry
+  - replay the log
+  - message box, asking the user to check it and save if happy
+  - saving, will remove the log
+  */
+}
+
+void bt_change_log_reset(BtChangeLog *self) {
+  /*
+  - call after a song has been saved
+  - reset the on-disk log
+  - update pointer last_saved pointer in change stack
+  */
+}
+
+#endif
 
 
 //-- class internals
