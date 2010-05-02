@@ -416,10 +416,12 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
   switch(self->priv->record_format) {
     case BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS:
       // vorbisenc ! oggmux ! filesink location="song.ogg"
+      /* we use float internaly anyway
       if(!(element=gst_element_factory_make("audioconvert","makefloat"))) {
         GST_INFO("Can't instantiate 'audioconvert' element");goto Error;
       }
       list=g_list_append(list,element);
+      */
       if(!(element=gst_element_factory_make("vorbisenc","vorbisenc"))) {
         GST_INFO("Can't instantiate 'vorbisenc' element");goto Error;
       }

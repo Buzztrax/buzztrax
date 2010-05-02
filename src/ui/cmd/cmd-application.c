@@ -174,7 +174,9 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
 
   // lookup the audio-sink machine and change mode
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-    g_object_get(machine,"machine",&sink_bin,NULL);
+    GstElement *convert;
+
+    g_object_get(machine,"machine",&sink_bin,"adder-convert",&convert,NULL);
 
     /* @todo eventually have a method for the sink bin to only update once
      * after the changes, right now keep the order as it is, as sink-bin only
@@ -185,9 +187,13 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
       "record-format",format,
       "record-file-name",(file_name?file_name:output_file_name),
       NULL);
+    /* see comments in edit/render-progress.c */
+    g_object_set(convert,"dithering",2,"noise-shaping",3,NULL);
+
     ret=TRUE;
 
     g_free(file_name);
+    gst_object_unref(convert);
     gst_object_unref(sink_bin);
     g_object_unref(machine);
   }

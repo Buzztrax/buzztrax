@@ -1,3 +1,15 @@
+2010-05-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Disable audioconvert in encoder pipe, we use float anyway.
+
+	* src/lib/core/machine.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	  Enable dithering and noiseshaping on recording.
+	  
+
 2010-04-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/change-log.c:

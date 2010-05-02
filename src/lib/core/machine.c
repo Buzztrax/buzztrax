@@ -116,6 +116,7 @@ enum {
   MACHINE_GLOBAL_PARAMS,
   MACHINE_VOICE_PARAMS,
   MACHINE_MACHINE,
+  MACHINE_ADDER_CONVERT,
   MACHINE_INPUT_PRE_LEVEL,
   MACHINE_INPUT_GAIN,
   MACHINE_INPUT_POST_LEVEL,
@@ -1279,11 +1280,10 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     else {
       GST_WARNING_OBJECT(self,"adding converter");
       if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
-      //if(!BT_IS_SINK_MACHINE(self)) {
+      if(!BT_IS_SINK_MACHINE(self)) {
         // only do this for the final mix, if at all
-        // this is off by default anyway
-        //g_object_set(machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
-      //}
+        g_object_set(machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+      }
       GST_DEBUG_OBJECT(self,"  about to link adder -> convert -> dst_elem");
       if(!machines[PART_CAPS_FILTER]) {
         res=bt_machine_link_elements(self,src_pads[PART_ADDER], sink_pads[PART_ADDER_CONVERT]);
@@ -3277,6 +3277,9 @@ static void bt_machine_get_property(GObject * const object, const guint property
     case MACHINE_MACHINE: {
       g_value_set_object(value, self->priv->machines[PART_MACHINE]);
     } break;
+    case MACHINE_ADDER_CONVERT: {
+      g_value_set_object(value, self->priv->machines[PART_ADDER_CONVERT]);
+    } break;
     case MACHINE_INPUT_PRE_LEVEL: {
       g_value_set_object(value, self->priv->machines[PART_INPUT_PRE_LEVEL]);
     } break;
@@ -3635,6 +3638,13 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                   g_param_spec_object("machine",
                                      "machine element prop",
                                      "the machine element, if any",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,MACHINE_ADDER_CONVERT,
+                                  g_param_spec_object("adder-convert",
+                                     "adder-convert prop",
+                                     "the after mixing format converter element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 

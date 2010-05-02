@@ -25,8 +25,12 @@
  * Provides UI to access the song recording
  */
 /* @todo:
- * - use chooserbutton to choose name too - no, it can not do save_as
+ * - use chooserbutton to choose name too
+ *   (arg, the chooser button cannot do save_as)
  * - use song-name based file-name by default
+ *
+ * @todo: more options
+ * - have dithering and noise shaping options here
  */
 
 #define BT_EDIT

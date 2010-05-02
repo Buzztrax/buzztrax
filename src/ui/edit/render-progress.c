@@ -186,8 +186,9 @@ void bt_render_progress_run(const BtRenderProgress *self) {
     BtSinkBinRecordFormat format;
     BtRenderMode mode;
     BtSinkBin *sink_bin;
+    GstElement *convert;
 
-    g_object_get(machine,"machine",&sink_bin,NULL);
+    g_object_get(machine,"machine",&sink_bin,"adder-convert",&convert,NULL);
     g_object_get(self->priv->settings,"format",&format,"mode",&mode,"file-name",&file_name,NULL);
 
     g_signal_connect(song, "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
@@ -196,6 +197,14 @@ void bt_render_progress_run(const BtRenderProgress *self) {
       "mode",BT_SINK_BIN_MODE_RECORD,
       "record-format",format,
       NULL);
+    
+    /* @todo: configure dithering/noise-shaping
+     * - should sink-bin do it so that we get this also when recording from
+     *   the commandline (need some extra cmdline options for it :/
+     * - we could also put it to the options
+     * - sink-machine could also set this (hard-coded) when going to record mode
+     */
+    g_object_set(convert,"dithering",2,"noise-shaping",3,NULL);
 
     if(mode==BT_RENDER_MODE_MIXDOWN) {
       bt_render_progress_record(self,song,sink_bin,file_name);
@@ -240,8 +249,12 @@ void bt_render_progress_run(const BtRenderProgress *self) {
     g_object_set(sink_bin,
       "mode",BT_SINK_BIN_MODE_PLAY,
       NULL);
+    
+    /* reset dithering/noise-shaping */
+    g_object_set(convert,"dithering",0,"noise-shaping",0,NULL);
 
     g_free(file_name);
+    gst_object_unref(convert);
     gst_object_unref(sink_bin);
     g_object_unref(machine);
   }
