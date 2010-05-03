@@ -415,7 +415,6 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       // add extra items
       menu_item=gtk_separator_menu_item_new();
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_set_sensitive(menu_item,FALSE);
       gtk_widget_show(menu_item);
     
       menu_item=gtk_image_menu_item_new_with_label(_("Reset parameter"));
@@ -700,7 +699,13 @@ static gboolean on_combobox_property_notify_idle(gpointer _data) {
     } while(gtk_tree_model_iter_next(store,&iter));
   
     g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
-    gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
+    if(ivalue==nvalue) {
+      gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
+    }
+    else {
+      gtk_combo_box_set_active(GTK_COMBO_BOX(widget),-1);
+      GST_WARNING("current value (%d) for machines parameter %s is not part of the enum values",nvalue,property->name);
+    }
     g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
   }
   FREE_NOTIFY_IDLE_DATA(data);
@@ -1239,7 +1244,13 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self,Gst
     if(ivalue==value) break;
   } while(gtk_tree_model_iter_next(GTK_TREE_MODEL(store),&iter));
   
-  gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
+  if(ivalue==value) {
+    gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
+  }
+  else {
+    gtk_combo_box_set_active(GTK_COMBO_BOX(widget),-1);
+    GST_WARNING("current value (%d) for machines parameter %s is not part of the enum values",value,property->name);
+  }
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
   g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
 
