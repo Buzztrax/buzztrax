@@ -138,7 +138,8 @@ struct _BtMainPagePatternsPrivate {
 
 static GtkVBoxClass *parent_class=NULL;
 
-static GdkAtom pattern_atom;
+/* we need this in machine-properties-dialog.c too */
+GdkAtom pattern_atom;
 
 enum {
   MACHINE_MENU_ICON=0,

@@ -31,6 +31,10 @@
  * - we want to assign a note-controller to a machines note-trigger property
  *   and boolean-trigger controller to machines trigger properties
  *   - right now we don't show widgets for these
+ *
+ * @todo: add copy and paste (pattern data)
+ * - context menu for controls, "copy/paste value", "copy/paste  group", "copy/paste  all"
+ * - context menu for expanders "copy/paste  group"
  */
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
@@ -228,6 +232,92 @@ static void on_parameter_reset_all(GtkMenuItem *menuitem,gpointer user_data) {
   bt_machine_reset_parameters(self->priv->machine);
 }
 
+//-- cut/copy/paste
+
+extern GdkAtom pattern_atom;
+
+static void pattern_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,guint info,gpointer data) {
+  if(gtk_selection_data_get_target(selection_data)==pattern_atom) {
+    gtk_selection_data_set(selection_data,pattern_atom,8,(guchar *)data,strlen(data));
+  }
+  else {
+    // allow pasting into a test editor for debugging
+    // its only active if we register the formats in _copy_selection() below
+    gtk_selection_data_set_text(selection_data,data,-1);
+  }
+}
+
+static void pattern_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) {
+  GST_INFO("freeing clipboard data, data=%p",data);
+  g_free(data);
+}
+
+static void on_parameter_copy(GtkMenuItem *menuitem,gpointer user_data) {
+  //const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GtkWidget *menu;
+  GObject *object;
+  gchar *property_name;
+  GParamSpec *pspec;
+  // it seems that we need the pattern-editor widget here :/ or maybe not
+  GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(menuitem),GDK_SELECTION_CLIPBOARD);
+  GtkTargetList *list;
+  GtkTargetEntry *targets;
+  gint n_targets;
+  GString *data=g_string_new(NULL);
+  GValue value={0,};
+  gchar *val_str;
+  
+  menu=gtk_widget_get_parent(GTK_WIDGET(menuitem));
+  
+  object=g_object_get_qdata(G_OBJECT(menu),control_object_quark);
+  property_name=g_object_get_qdata(G_OBJECT(menu),control_property_quark);
+  pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
+
+  list = gtk_target_list_new (NULL, 0);
+  gtk_target_list_add (list, pattern_atom, 0, 0);
+#if USE_DEBUG
+  // this allows to paste into a text editor
+  gtk_target_list_add (list, gdk_atom_intern_static_string ("UTF8_STRING"), 0, 1);
+  gtk_target_list_add (list, gdk_atom_intern_static_string ("TEXT"), 0, 2);
+  gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain"), 0, 3);
+  gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain;charset=utf-8"), 0, 4);
+#endif
+  targets = gtk_target_table_new_from_list (list, &n_targets);
+
+  g_string_append_printf(data,"1\n");
+  
+  g_string_append(data,g_type_name(pspec->value_type));
+  g_value_init(&value,pspec->value_type);
+  g_object_get_property(object,property_name,&value);
+  if((val_str=bt_persistence_get_value(&value))) {
+    g_string_append_c(data,',');
+    g_string_append(data,val_str);
+    g_free(val_str);
+  }
+  g_string_append_c(data,'\n');
+  
+  GST_INFO("copying : [%s]",data->str);
+
+  /* put to clipboard */    
+  if(gtk_clipboard_set_with_data (cb, targets, n_targets,
+                   pattern_clipboard_get_func, pattern_clipboard_clear_func,
+                   g_string_free (data, FALSE))
+  ) {
+    gtk_clipboard_set_can_store (cb, NULL, 0);
+  }
+  else {
+    GST_INFO("copy failed");
+  }
+
+  gtk_target_table_free (targets, n_targets);
+  gtk_target_list_unref (list);
+}
+
+static void on_parameter_paste(GtkMenuItem *menuitem,gpointer user_data) {
+  //const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+
+  
+}
 
 //-- event handler
 
@@ -399,7 +489,7 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
   if(event->type == GDK_BUTTON_PRESS) {
     if(event->button == 3) {
       GtkMenu *menu;
-      GtkWidget *menu_item;
+      GtkWidget *menu_item,*image;
       GtkWidget *item_unbind,*item_unbind_all;
 
       // create context menu
@@ -426,6 +516,25 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_reset_all),(gpointer)self);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
       gtk_widget_show(menu_item);
+
+      // add copy/paste item
+      menu_item=gtk_separator_menu_item_new();
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+      gtk_widget_show(menu_item);
+
+      menu_item=gtk_image_menu_item_new_with_label(_("Copy parameter"));
+      image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
+      gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_copy),(gpointer)self);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+      gtk_widget_show(menu_item);
+
+      menu_item=gtk_image_menu_item_new_with_label(_("Paste parameter"));
+      image=gtk_image_new_from_stock(GTK_STOCK_PASTE,GTK_ICON_SIZE_MENU);
+      gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_paste),(gpointer)self);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+      gtk_widget_show(menu_item);      
 
       gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
       res=TRUE;

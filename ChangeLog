@@ -1,5 +1,11 @@
 2010-05-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Add copy for parameter values in property dialog (more stuff needed).
+
+2010-05-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.h:
 	* src/ui/edit/change-log-methods.h:
