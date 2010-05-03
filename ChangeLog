@@ -1,5 +1,10 @@
 2010-05-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Do read from trigger params.
+
+2010-05-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	  Handle default combo values out of enum value range.
 

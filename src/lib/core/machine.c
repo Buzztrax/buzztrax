@@ -2261,21 +2261,26 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
 
   if(value) {
     gboolean add=controller_need_activate(cs);
+    gboolean is_trigger=bt_machine_is_global_param_trigger(self,param);
     
     if(G_UNLIKELY(value==&def_value)) {
       // only set default value if this is not the first controlpoint
       if(!add) {
-        g_value_init(&def_value,GLOBAL_PARAM_TYPE(param));
-        g_object_get_property(param_parent,param_name,&def_value);
-        GST_LOG("set global controller: %"GST_TIME_FORMAT" param %s:%s",GST_TIME_ARGS(G_GUINT64_CONSTANT(0)),g_type_name(GLOBAL_PARAM_TYPE(param)),param_name);
-        gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&def_value);
-        g_value_unset(&def_value);
+        if (!is_trigger) {
+          g_value_init(&def_value,GLOBAL_PARAM_TYPE(param));
+          g_object_get_property(param_parent,param_name,&def_value);
+          GST_LOG("set global controller: %"GST_TIME_FORMAT" param %s:%s",GST_TIME_ARGS(G_GUINT64_CONSTANT(0)),g_type_name(GLOBAL_PARAM_TYPE(param)),param_name);
+          gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&def_value);
+          g_value_unset(&def_value);
+        }
+        else {
+          gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&self->priv->global_no_val[param]);
+        }
       }
     }
     else {
       if(G_UNLIKELY(add)) {
         GstController *ctrl;
-        gboolean is_trigger=bt_machine_is_global_param_trigger(self,param);
 
         if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
           cs=gst_interpolation_control_source_new();
@@ -2365,21 +2370,26 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
 
   if(value) {
     gboolean add=controller_need_activate(cs);
+    gboolean is_trigger=bt_machine_is_voice_param_trigger(self,param);
 
     if(G_UNLIKELY(value==&def_value)) {
       // only set default value if this is not the first controlpoint
       if(!add) {
-        g_value_init(&def_value,VOICE_PARAM_TYPE(param));
-        g_object_get_property(param_parent,param_name,&def_value);
-        GST_LOG("set voice[%lu] controller: %"GST_TIME_FORMAT" param %s:%s",voice,GST_TIME_ARGS(G_GUINT64_CONSTANT(0)),g_type_name(VOICE_PARAM_TYPE(param)),param_name);
-        gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&def_value);
-        g_value_unset(&def_value);
+        if (!is_trigger) {
+          g_value_init(&def_value,VOICE_PARAM_TYPE(param));
+          g_object_get_property(param_parent,param_name,&def_value);
+          GST_LOG("set voice[%lu] controller: %"GST_TIME_FORMAT" param %s:%s",voice,GST_TIME_ARGS(G_GUINT64_CONSTANT(0)),g_type_name(VOICE_PARAM_TYPE(param)),param_name);
+          gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&def_value);
+          g_value_unset(&def_value);
+        }
+        else {
+          gst_interpolation_control_source_set(cs,G_GUINT64_CONSTANT(0),&self->priv->voice_no_val[param]);
+        }
       }
     }
     else {
       if(G_UNLIKELY(add)) {
         GstController *ctrl;
-        gboolean is_trigger=bt_machine_is_voice_param_trigger(self,param);
         
         if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
           cs=gst_interpolation_control_source_new();
