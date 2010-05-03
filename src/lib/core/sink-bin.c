@@ -218,9 +218,6 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
       g_object_set(sink,
         "latency-time",chunk,
         "buffer-time",chunk<<1,
-#if GST_CHECK_VERSION(0,10,24)
-        /*TEST "can-activate-pull",TRUE, TEST*/
-#endif
         NULL);
     }
   }
@@ -392,8 +389,14 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
       "sync",TRUE,
       /* if we do this, live pipelines go playing, but still sources don't start */
       /*"async", FALSE,*/ /* <- this breaks scrubbing on timeline */
+       /* this helps trickplay and scrubbing, there seems to be some time issue
+        * in baseaudiosink
+        */
       /*"slave-method",2,*/
       /*"provide-clock",FALSE, */
+#if GST_CHECK_VERSION(0,10,24)
+      /*"can-activate-pull",TRUE,*/
+#endif
       NULL);
     bt_sink_bin_configure_latency(self,element);
   }

@@ -96,6 +96,11 @@ typedef struct _BtPatternEditor BtPatternEditor;
 typedef struct _BtPatternEditorClass BtPatternEditorClass;
 typedef struct _BtPatternEditorPrivate BtPatternEditorPrivate;
 
+/*
+ * BtPatternEditorSelectionMode:
+ *
+ * Seleting single columns, whole groups (e.g. voices) or the whole pattern.
+ */
 enum BtPatternEditorSelectionMode
 {
   PESM_COLUMN,

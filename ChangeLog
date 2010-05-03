@@ -1,5 +1,12 @@
 2010-05-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Code cleanups.
+
+2010-05-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	* src/ui/edit/main-page-patterns.c:
 	  Add copy for parameter values in property dialog (more stuff needed).

@@ -36,6 +36,8 @@
  *       o expand
  *       o shrink 
  * - mouse handling (selections)
+ *   bt_pattern_editor_button_press/release
+ * - shift + cursor selection does not really work with the buzz keybindings
  * - if we want separator bars for headers, look at gtkhseparator.c
  * - drawing
  *   - having some 1 pixel padding left/right of groups would look better
@@ -230,10 +232,13 @@ in_selection (BtPatternEditor *self,
               int param,
               int row)
 {
+  // check rows
   if (row < self->selection_start)
     return FALSE;
   if (row > self->selection_end)
     return FALSE;
+
+  // check columns
   if (self->selection_mode == PESM_COLUMN)
     return (group == self->selection_group) && (param == self->selection_param);
   if (self->selection_mode == PESM_GROUP)
@@ -762,343 +767,345 @@ bt_pattern_editor_key_press (GtkWidget *widget,
                         GdkEventKey *event)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
-  if (self->num_groups && 
-    !(event->state & (GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD1_MASK)) &&
-    (event->keyval >= 32 && event->keyval < 127) &&
-    self->callbacks->set_data_func)
-  {
-    BtPatternEditorColumn *col = &self->groups[self->group].columns[self->parameter];
-    if (event->keyval == '.') {
-      self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, col->def);
-      bt_pattern_editor_refresh_cell (self);
-      advance(self);
-    }
-    else {
-      static const char hexdigits[] = "0123456789abcdef";
-      //static const char notenames[] = "zsxdcvgbhnjm\t\t\t\tq2w3er5t6y7u\t\t\t\ti9o0p";
-      static const char notenames[] = "\x34\x27\x35\x28\x36\x37\x2a\x38\x2b\x39\x2c\x3a\x3a\x3a\x3a\x3a\x18\x0b\x19\x0c\x1a\x1b\x0e\x1c\x0f\x1d\x10\x1e\x1e\x1e\x1e\x1e\x1f\x12\x20\x13\x21";
-      float oldvalue = self->callbacks->get_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter);
-      const char *p;
-      switch(col->type) {
-      case PCT_FLOAT:
-        // no editing yet
-        break;
-      case PCT_SWITCH:
-        if (event->keyval == '0' || event->keyval == '1') {
-          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, event->keyval - '0');
-          advance(self);
-        }
-        break;
-      case PCT_BYTE:
-      case PCT_WORD:
-        p = strchr(hexdigits, (char)event->keyval);
-        if (p) {
-          int value = (int)oldvalue;
-          if (oldvalue == col->def)
-            value = 0;
-          int shift = 4*(((col->type == PCT_BYTE) ? 1 : 3) - self->digit);
-          value = (value &~(15 << shift)) | ((p - hexdigits) << shift);
-          if (value < col->min) value = col->min;
-          if (value > col->max) value = col->max;
-          
-          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
-          bt_pattern_editor_refresh_cell (self);
-          advance(self);
-        }
-        break;
-      case PCT_NOTE:
-        if (self->digit == 0 && event->keyval == '1') {
-          // note off
-          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, 255);
-          bt_pattern_editor_refresh_cell (self);
-          advance(self);
+  
+  if (self->num_groups) {
+    if (!(event->state & (GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD1_MASK)) &&
+      (event->keyval >= 32 && event->keyval < 127) &&
+      self->callbacks->set_data_func)
+    {
+      BtPatternEditorColumn *col = &self->groups[self->group].columns[self->parameter];
+      if (event->keyval == '.') {
+        self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, col->def);
+        bt_pattern_editor_refresh_cell (self);
+        advance(self);
+      }
+      else {
+        static const char hexdigits[] = "0123456789abcdef";
+        //static const char notenames[] = "zsxdcvgbhnjm\t\t\t\tq2w3er5t6y7u\t\t\t\ti9o0p";
+        static const char notenames[] = "\x34\x27\x35\x28\x36\x37\x2a\x38\x2b\x39\x2c\x3a\x3a\x3a\x3a\x3a\x18\x0b\x19\x0c\x1a\x1b\x0e\x1c\x0f\x1d\x10\x1e\x1e\x1e\x1e\x1e\x1f\x12\x20\x13\x21";
+        float oldvalue = self->callbacks->get_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter);
+        const char *p;
+        switch(col->type) {
+        case PCT_FLOAT:
+          // no editing yet
           break;
-        }
-        if (self->digit == 0 && event->hardware_keycode <= 255) {
-          // FIXME: use event->hardware_keycode because of y<>z
-          p = strchr(notenames, (char)event->hardware_keycode);
+        case PCT_SWITCH:
+          if (event->keyval == '0' || event->keyval == '1') {
+            self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, event->keyval - '0');
+            advance(self);
+          }
+          break;
+        case PCT_BYTE:
+        case PCT_WORD:
+          p = strchr(hexdigits, (char)event->keyval);
           if (p) {
-            int value = 1 + (p - notenames) + 16 * self->octave;
+            int value = (int)oldvalue;
+            if (oldvalue == col->def)
+              value = 0;
+            int shift = 4*(((col->type == PCT_BYTE) ? 1 : 3) - self->digit);
+            value = (value &~(15 << shift)) | ((p - hexdigits) << shift);
             if (value < col->min) value = col->min;
             if (value > col->max) value = col->max;
             
-            if (value >= col->min && value <= col->max && (value & 15) <= 12) {
-              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
-              bt_pattern_editor_refresh_cell (self);
-              advance(self);
+            self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
+            bt_pattern_editor_refresh_cell (self);
+            advance(self);
+          }
+          break;
+        case PCT_NOTE:
+          if (self->digit == 0 && event->keyval == '1') {
+            // note off
+            self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, 255);
+            bt_pattern_editor_refresh_cell (self);
+            advance(self);
+            break;
+          }
+          if (self->digit == 0 && event->hardware_keycode <= 255) {
+            // FIXME: use event->hardware_keycode because of y<>z
+            p = strchr(notenames, (char)event->hardware_keycode);
+            if (p) {
+              int value = 1 + (p - notenames) + 16 * self->octave;
+              if (value < col->min) value = col->min;
+              if (value > col->max) value = col->max;
+              
+              if (value >= col->min && value <= col->max && (value & 15) <= 12) {
+                self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
+                bt_pattern_editor_refresh_cell (self);
+                advance(self);
+              }
             }
           }
-        }
-        if (self->digit == 1) {
-          if (isdigit(event->keyval)) {
-            int value = (int)oldvalue;
-            if (oldvalue == col->def)
-              value = 1;
-            value = (value & 15) | ((event->keyval - '0') << 4);
-            
-            // note range = 1..12 and not 0..11
-            if (value >= col->min && value <= col->max && (value & 15) <= 12) {
-              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
-              bt_pattern_editor_refresh_cell (self);
-              advance(self);
+          if (self->digit == 1) {
+            if (isdigit(event->keyval)) {
+              int value = (int)oldvalue;
+              if (oldvalue == col->def)
+                value = 1;
+              value = (value & 15) | ((event->keyval - '0') << 4);
+              
+              // note range = 1..12 and not 0..11
+              if (value >= col->min && value <= col->max && (value & 15) <= 12) {
+                self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
+                bt_pattern_editor_refresh_cell (self);
+                advance(self);
+              }
             }
           }
+          break;
         }
-        break;
       }
     }
-  }
-  if (self->num_groups) {
-    int kup = toupper(event->keyval);
-    int control = (event->state & GDK_CONTROL_MASK) != 0;
-    int shift = (event->state & GDK_SHIFT_MASK) != 0;
-    int modifier = event->state & gtk_accelerator_get_default_mod_mask();
-
-    if (control && event->keyval >= '1' && event->keyval <= '9') {
-      self->step = event->keyval - '0';
-      return TRUE;
-    }
-    else if (control && kup >= 'A' && kup <= 'Z') {
-      int same = 0, handled = 1;
-
-      switch(kup) {
-        case 'B':
-        case 'E':
-          if (kup == 'B') {
-            same = self->selection_enabled && (self->selection_start == self->row)
-              && (self->selection_group == self->group)
-              && (self->selection_param == self->parameter);
-            self->selection_enabled = TRUE;
-            self->selection_start = self->row;
-            if (self->selection_end < self->row)
-              self->selection_end = self->row;
-          } else { /* Ctrl+E */
-            same = self->selection_enabled && (self->selection_end == self->row)
-              && (self->selection_group == self->group)
-              && (self->selection_param == self->parameter);
-            self->selection_enabled = TRUE;
-            self->selection_end = self->row;
-            if (self->selection_start > self->row)
-              self->selection_start = self->row;
-          }
-          
-          /* if Ctrl+B(E) was pressed again, cycle selection mode */
-          if (same) {
-            if (self->selection_mode < (self->num_groups == 1 ? PESM_GROUP : PESM_ALL))
-              self->selection_mode++;
-            else
-              self->selection_mode = PESM_COLUMN;
-          }
-          self->selection_group = self->group;
-          self->selection_param = self->parameter;
-          break;
-        case 'U':
-          self->selection_enabled = FALSE;
-          break;
-        case 'L':
-        case 'K':
-        case 'A':
-          self->selection_enabled = TRUE;
-          self->selection_mode = 
-            kup == 'K' ? PESM_GROUP : 
-              (kup == 'L' ? PESM_COLUMN : PESM_ALL);
-          self->selection_start = 0;
-          self->selection_end = self->num_rows - 1;
-          self->selection_group = self->group;
-          self->selection_param = self->parameter;
-          break;
-        default:
-          handled = 0;
-          break;
-      }
-      if (handled) {
-        // selection changed
-        gtk_widget_queue_draw (GTK_WIDGET(self));
+    else {
+      int kup = toupper(event->keyval);
+      int control = (event->state & GDK_CONTROL_MASK) != 0;
+      int shift = (event->state & GDK_SHIFT_MASK) != 0;
+      int modifier = event->state & gtk_accelerator_get_default_mod_mask();
+  
+      if (control && event->keyval >= '1' && event->keyval <= '9') {
+        self->step = event->keyval - '0';
         return TRUE;
       }
-    }
-    switch(event->keyval) {
-      case GDK_Up:
-        if (!modifier) {
-          if (self->row > 0) {
-            // invalidate old pos
-            bt_pattern_editor_refresh_cursor(self);
-            self->row -= 1;
-            g_object_notify((gpointer)self,"cursor-row");
-            bt_pattern_editor_refresh_cursor_or_scroll(self);
-          }
+      else if (control && kup >= 'A' && kup <= 'Z') {
+        gboolean same = FALSE, handled = TRUE;
+  
+        switch(kup) {
+          case 'B':
+          case 'E':
+            if (kup == 'B') {
+              same = self->selection_enabled && (self->selection_start == self->row)
+                && (self->selection_group == self->group)
+                && (self->selection_param == self->parameter);
+              self->selection_enabled = TRUE;
+              self->selection_start = self->row;
+              if (self->selection_end < self->row)
+                self->selection_end = self->row;
+            } else { /* Ctrl+E */
+              same = self->selection_enabled && (self->selection_end == self->row)
+                && (self->selection_group == self->group)
+                && (self->selection_param == self->parameter);
+              self->selection_enabled = TRUE;
+              self->selection_end = self->row;
+              if (self->selection_start > self->row)
+                self->selection_start = self->row;
+            }
+            
+            /* if Ctrl+B(E) was pressed again, cycle selection mode */
+            if (same) {
+              if (self->selection_mode < (self->num_groups == 1 ? PESM_GROUP : PESM_ALL))
+                self->selection_mode++;
+              else
+                self->selection_mode = PESM_COLUMN;
+            }
+            self->selection_group = self->group;
+            self->selection_param = self->parameter;
+            break;
+          case 'U':
+            self->selection_enabled = FALSE;
+            break;
+          case 'L':
+          case 'K':
+          case 'A':
+            self->selection_enabled = TRUE;
+            self->selection_mode = 
+              kup == 'K' ? PESM_GROUP : 
+                (kup == 'L' ? PESM_COLUMN : PESM_ALL);
+            self->selection_start = 0;
+            self->selection_end = self->num_rows - 1;
+            self->selection_group = self->group;
+            self->selection_param = self->parameter;
+            break;
+          default:
+            handled = FALSE;
+            break;
+        }
+        if (handled) {
+          // selection changed
+          gtk_widget_queue_draw (GTK_WIDGET(self));
           return TRUE;
         }
-        break;
-      case GDK_Down:
-        if (!modifier) {
-          if (self->row < self->num_rows - 1) {
-            // invalidate old pos
-            bt_pattern_editor_refresh_cursor(self);
-            self->row += 1;
-            g_object_notify((gpointer)self,"cursor-row");
-            bt_pattern_editor_refresh_cursor_or_scroll(self);
+      }
+      switch(event->keyval) {
+        case GDK_Up:
+          if (!modifier) {
+            if (self->row > 0) {
+              // invalidate old pos
+              bt_pattern_editor_refresh_cursor(self);
+              self->row -= 1;
+              g_object_notify((gpointer)self,"cursor-row");
+              bt_pattern_editor_refresh_cursor_or_scroll(self);
+            }
+            return TRUE;
           }
-          return TRUE;
-        }
-        break;
-      case GDK_Page_Up:
-        if (!modifier) {
-          if (self->row > 0) {
-            bt_pattern_editor_refresh_cursor(self);
-            /* @todo: should we tell pattern editor about the meassure
-             * g_object_get(song_info,"bars",&bars,NULL); for 4/4 => 16
-             */
-            self->row = control ? 0 : (self->row - 16);
-            if (self->row < 0)
-              self->row = 0;
-            g_object_notify((gpointer)self,"cursor-row");
-            bt_pattern_editor_refresh_cursor_or_scroll(self);
+          break;
+        case GDK_Down:
+          if (!modifier) {
+            if (self->row < self->num_rows - 1) {
+              // invalidate old pos
+              bt_pattern_editor_refresh_cursor(self);
+              self->row += 1;
+              g_object_notify((gpointer)self,"cursor-row");
+              bt_pattern_editor_refresh_cursor_or_scroll(self);
+            }
+            return TRUE;
           }
-          return TRUE;
-        }
-        break;
-      case GDK_Page_Down:
-        if (!modifier) {
-          if (self->row < self->num_rows - 1) {
-            bt_pattern_editor_refresh_cursor(self);
-            /* @todo: see Page_Up */
-            self->row = control ? self->num_rows - 1 : self->row + 16;
-            if (self->row > self->num_rows - 1)
-              self->row = self->num_rows - 1;
-            g_object_notify((gpointer)self,"cursor-row");
-            bt_pattern_editor_refresh_cursor_or_scroll(self);
+          break;
+        case GDK_Page_Up:
+          if (!modifier) {
+            if (self->row > 0) {
+              bt_pattern_editor_refresh_cursor(self);
+              /* @todo: should we tell pattern editor about the meassure
+               * g_object_get(song_info,"bars",&bars,NULL); for 4/4 => 16
+               */
+              self->row = control ? 0 : (self->row - 16);
+              if (self->row < 0)
+                self->row = 0;
+              g_object_notify((gpointer)self,"cursor-row");
+              bt_pattern_editor_refresh_cursor_or_scroll(self);
+            }
+            return TRUE;
           }
-          return TRUE;
-        }
-        break;
-      case GDK_Home:
-        bt_pattern_editor_refresh_cursor(self);
-        if (control) {
-          /* shouldn't this go to top left */
-          self->digit = 0;
-          self->parameter = 0;
-          g_object_notify((gpointer)self,"cursor-param");
-        } else {
-          /* go to begin of cell, group, pattern, top of pattern */
-          if (self->digit > 0) {
+          break;
+        case GDK_Page_Down:
+          if (!modifier) {
+            if (self->row < self->num_rows - 1) {
+              bt_pattern_editor_refresh_cursor(self);
+              /* @todo: see Page_Up */
+              self->row = control ? self->num_rows - 1 : self->row + 16;
+              if (self->row > self->num_rows - 1)
+                self->row = self->num_rows - 1;
+              g_object_notify((gpointer)self,"cursor-row");
+              bt_pattern_editor_refresh_cursor_or_scroll(self);
+            }
+            return TRUE;
+          }
+          break;
+        case GDK_Home:
+          bt_pattern_editor_refresh_cursor(self);
+          if (control) {
+            /* shouldn't this go to top left */
             self->digit = 0;
-          } else if (self->parameter > 0) {
             self->parameter = 0;
             g_object_notify((gpointer)self,"cursor-param");
-          } else if (self->group > 0) {
-            self->group = 0;
-            g_object_notify((gpointer)self,"cursor-group");
           } else {
-            self->row = 0;
-            g_object_notify((gpointer)self,"cursor-row");
+            /* go to begin of cell, group, pattern, top of pattern */
+            if (self->digit > 0) {
+              self->digit = 0;
+            } else if (self->parameter > 0) {
+              self->parameter = 0;
+              g_object_notify((gpointer)self,"cursor-param");
+            } else if (self->group > 0) {
+              self->group = 0;
+              g_object_notify((gpointer)self,"cursor-group");
+            } else {
+              self->row = 0;
+              g_object_notify((gpointer)self,"cursor-row");
+            }
           }
-        }
-        bt_pattern_editor_refresh_cursor_or_scroll(self);
-        return TRUE;
-      case GDK_End:
-        bt_pattern_editor_refresh_cursor(self);
-        if (control) {
-          /* shouldn't this go to bottom right */
-          if (self->groups[self->group].num_columns > 0)
-            self->parameter = self->groups[self->group].num_columns - 1;
-          g_object_notify((gpointer)self,"cursor-param");
-        }
-        else {
-          /* go to end of cell, group, pattern, bottom of pattern */
-          BtPatternEditorColumn *pc = cur_column (self);
-          if (self->digit < param_types[pc->type].columns - 1) {
-            self->digit = param_types[pc->type].columns - 1;
-          } else if (self->parameter < self->groups[self->group].num_columns - 1) {
-            self->parameter = self->groups[self->group].num_columns - 1;
-            g_object_notify((gpointer)self,"cursor-param");
-          } else if (self->group < self->num_groups - 1) {
-            self->group = self->num_groups - 1;
-            g_object_notify((gpointer)self,"cursor-group");
-          } else {
-            self->row = self->num_rows - 1;
-            g_object_notify((gpointer)self,"cursor-row");
-          }
-        }
-        bt_pattern_editor_refresh_cursor_or_scroll(self);
-        return TRUE;
-      case GDK_Left:
-        if (!modifier) {
+          bt_pattern_editor_refresh_cursor_or_scroll(self);
+          return TRUE;
+        case GDK_End:
           bt_pattern_editor_refresh_cursor(self);
-          if (self->digit > 0)
-            self->digit--;
+          if (control) {
+            /* shouldn't this go to bottom right */
+            if (self->groups[self->group].num_columns > 0)
+              self->parameter = self->groups[self->group].num_columns - 1;
+            g_object_notify((gpointer)self,"cursor-param");
+          }
           else {
-            BtPatternEditorColumn *pc;
-            if (self->parameter > 0) {
-              self->parameter--;
+            /* go to end of cell, group, pattern, bottom of pattern */
+            BtPatternEditorColumn *pc = cur_column (self);
+            if (self->digit < param_types[pc->type].columns - 1) {
+              self->digit = param_types[pc->type].columns - 1;
+            } else if (self->parameter < self->groups[self->group].num_columns - 1) {
+              self->parameter = self->groups[self->group].num_columns - 1;
+              g_object_notify((gpointer)self,"cursor-param");
+            } else if (self->group < self->num_groups - 1) {
+              self->group = self->num_groups - 1;
+              g_object_notify((gpointer)self,"cursor-group");
+            } else {
+              self->row = self->num_rows - 1;
+              g_object_notify((gpointer)self,"cursor-row");
+            }
+          }
+          bt_pattern_editor_refresh_cursor_or_scroll(self);
+          return TRUE;
+        case GDK_Left:
+          if (!modifier) {
+            bt_pattern_editor_refresh_cursor(self);
+            if (self->digit > 0)
+              self->digit--;
+            else {
+              BtPatternEditorColumn *pc;
+              if (self->parameter > 0) {
+                self->parameter--;
+                g_object_notify((gpointer)self,"cursor-param");
+              }
+              else if (self->group > 0) { 
+                self->group--;
+                self->parameter = self->groups[self->group].num_columns - 1;
+                /* only notify group, param will be read along anyway */
+                g_object_notify((gpointer)self,"cursor-group");
+              }
+              else
+                return FALSE;
+              pc = cur_column (self);
+              self->digit = param_types[pc->type].columns - 1;
+            }
+            bt_pattern_editor_refresh_cursor_or_scroll (self);
+            return TRUE;
+          }
+          break;
+        case GDK_Right:
+          if (!modifier) {
+            BtPatternEditorColumn *pc = cur_column (self);
+            bt_pattern_editor_refresh_cursor(self);
+            if (self->digit < param_types[pc->type].columns - 1) {
+              self->digit++;
+            }
+            else if (self->parameter < self->groups[self->group].num_columns - 1) {
+              self->parameter++; self->digit = 0;
               g_object_notify((gpointer)self,"cursor-param");
             }
-            else if (self->group > 0) { 
-              self->group--;
-              self->parameter = self->groups[self->group].num_columns - 1;
+            else if (self->group < self->num_groups - 1) {
+              self->group++; self->parameter = 0; self->digit = 0;
               /* only notify group, param will be read along anyway */
               g_object_notify((gpointer)self,"cursor-group");
             }
-            else
-              return FALSE;
-            pc = cur_column (self);
-            self->digit = param_types[pc->type].columns - 1;
+            bt_pattern_editor_refresh_cursor_or_scroll (self);
+            return TRUE;  
           }
-          bt_pattern_editor_refresh_cursor_or_scroll (self);
-          return TRUE;
-        }
-        break;
-      case GDK_Right:
-        if (!modifier) {
-          BtPatternEditorColumn *pc = cur_column (self);
-          bt_pattern_editor_refresh_cursor(self);
-          if (self->digit < param_types[pc->type].columns - 1) {
-            self->digit++;
-          }
-          else if (self->parameter < self->groups[self->group].num_columns - 1) {
-            self->parameter++; self->digit = 0;
-            g_object_notify((gpointer)self,"cursor-param");
-          }
-          else if (self->group < self->num_groups - 1) {
-            self->group++; self->parameter = 0; self->digit = 0;
-            /* only notify group, param will be read along anyway */
-            g_object_notify((gpointer)self,"cursor-group");
-          }
-          bt_pattern_editor_refresh_cursor_or_scroll (self);
-          return TRUE;  
-        }
-        break;
-      case GDK_Tab:
-        if (!modifier) {
-          bt_pattern_editor_refresh_cursor(self);
-          if (self->group < self->num_groups - 1) {
-            /* jump to same column when jumping from track to track, otherwise jump to first column of the group */
-            if (self->groups[self->group].type != self->groups[self->group + 1].type) {
-              self->parameter = 0; self->digit = 0;
+          break;
+        case GDK_Tab:
+          if (!modifier) {
+            bt_pattern_editor_refresh_cursor(self);
+            if (self->group < self->num_groups - 1) {
+              /* jump to same column when jumping from track to track, otherwise jump to first column of the group */
+              if (self->groups[self->group].type != self->groups[self->group + 1].type) {
+                self->parameter = 0; self->digit = 0;
+              }
+              self->group++;
+              g_object_notify((gpointer)self,"cursor-group");
             }
-            self->group++;
-            g_object_notify((gpointer)self,"cursor-group");
+            bt_pattern_editor_refresh_cursor_or_scroll (self);
+            return TRUE;
           }
-          bt_pattern_editor_refresh_cursor_or_scroll (self);
-          return TRUE;
-        }
-        break;
-      case GDK_ISO_Left_Tab:
-        if (shift) {
-          bt_pattern_editor_refresh_cursor(self);
-          if (self->group > 0) {
-            self->group--;
-            if (self->groups[self->group].type != self->groups[self->group + 1].type) {
-              self->parameter = 0; self->digit = 0;
+          break;
+        case GDK_ISO_Left_Tab:
+          if (shift) {
+            bt_pattern_editor_refresh_cursor(self);
+            if (self->group > 0) {
+              self->group--;
+              if (self->groups[self->group].type != self->groups[self->group + 1].type) {
+                self->parameter = 0; self->digit = 0;
+              }
+              g_object_notify((gpointer)self,"cursor-group");
             }
-            g_object_notify((gpointer)self,"cursor-group");
+            else /* at leftmost group, reset cursor to first column */
+              self->parameter = 0, self->digit = 0;
+            bt_pattern_editor_refresh_cursor_or_scroll (self);
+            return TRUE;
           }
-          else /* at leftmost group, reset cursor to first column */
-            self->parameter = 0, self->digit = 0;
-          bt_pattern_editor_refresh_cursor_or_scroll (self);
-          return TRUE;
-        }
-        break;
+          break;
+      }
     }
   }
   return FALSE;
