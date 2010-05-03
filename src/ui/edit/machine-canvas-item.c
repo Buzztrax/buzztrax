@@ -695,7 +695,6 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_PROPERTIES,NULL);  // dynamic part
@@ -725,7 +724,6 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
   menu_item=gtk_menu_item_new_with_label(_("Rename..."));
@@ -741,7 +739,6 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);

@@ -61,6 +61,11 @@
  * - hovering the mouse over the treeview causes redraws for the whole lines
  *   - cells are asked to do prelight, even if they wouldn't draw anything else
  *     http://www.gtk.org/plan/meetings/20041025.txt
+ *
+ * @todo: handle pattern name changes
+ *   - when pattern gets renamed
+ *     - we need to update the pattern list (if shown)
+ *     - we need to update the sequence
  */
 
 #define BT_EDIT
@@ -2914,7 +2919,6 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
   menu_item=gtk_image_menu_item_new_with_label(_("Move track left"));
@@ -2937,7 +2941,6 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
   menu_item=gtk_image_menu_item_new_with_label(_("Machine properties"));  // dynamic part

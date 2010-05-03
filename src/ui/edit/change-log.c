@@ -32,10 +32,25 @@
  *
  * @todo: check for logs on startup -> bt_change_log_crash_check()
  *
- * @todo: do we want an iface?
- * - then objects can implement undo/redo vmethods
- *
  * check http://github.com/herzi/gundo more
+ *
+ * empty stack: undo: -1               redo: 0
+ *               -                      -
+ *
+ * add:         undo: 0                redo: 1
+ *              >pattern.set(0,0,0.0)   pattern.set(0,0,1.0)
+ *
+ * add:         undo: 1                redo: 2
+ *               pattern.set(0,0,0.0)   pattern.set(0,0,1.0)    
+ *              >pattern.set(0,0,1.0)   pattern.set(0,0,2.0)
+ *
+ * undo:        undo: 0                redo: 1
+ *              >pattern.set(0,0,0.0)   pattern.set(0,0,1.0)    
+ *               pattern.set(0,0,1.0)  >pattern.set(0,0,2.0)
+ *
+ * redo:        undo: 1                redo: 2
+ *               pattern.set(0,0,0.0)   pattern.set(0,0,1.0)    
+ *              >pattern.set(0,0,1.0)   pattern.set(0,0,2.0)
  */
 
 #define BT_EDIT
@@ -43,22 +58,22 @@
 
 #include "bt-edit.h"
 
+//-- signal ids
+
 //-- property ids
 
-#if 0
+enum {
+  CHANGE_LOG_CAN_UNDO=1,
+  CHANGE_LOG_CAN_REDO
+};
 
-typedef struct {
-  gboolean (*undo)(BtChangeLogger *owner,gchar *data);
-  gboolean (*redo)(BtChangeLogger *owner,gchar *data);
-} BtChangeLoggerClass;
-
+//-- structs
 
 typedef struct {
   BtChangeLogger *owner;
-  gchar *data;
+  gchar *undo_data;
+  gchar *redo_data;
 } BtChangeLogEntry;
-
-#endif
 
 struct _BtChangeLogPrivate {
   /* used to validate if dispose has run */
@@ -71,12 +86,11 @@ struct _BtChangeLogPrivate {
   gchar *log_file_name;
   const gchar *cache_dir;
   
-#if 0
   /* each entry pointing to a BtChangeLogEntry */
-  GPtrArray *change_stack;
+  GPtrArray *changes;
   guint last_saved;
-  guint current;
-#endif
+  gint next_redo;  // -1 for none, or just have pointers?
+  gint next_undo;  // -1 for none, or just have pointers?
 };
 
 static GObjectClass *parent_class=NULL;
@@ -177,9 +191,14 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
  /*
  - can be done at any time, even if we create a new _unnamed_, it will have a
    different dts
- - should list found logs, except the current one
- - the log would need to point to the actual filename
-   - only offer recover if the original file is available
+ - should list found logs, except the current (loaded song) one
+ - run a pre-check over the logs
+   - auto-clean logs that only consis of the header
+   - the log would need to point to the actual filename
+     - only offer recover if the original file is available
+ - should we have a way to delete logs?
+   - song not there anymore
+   - log was replayed, song saved, but then it crashed (before resetting the log)
  */
  return(NULL);
 }
@@ -187,33 +206,120 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
 gboolean bt_change_log_recover(BtChangeLog *self,XXX *entry) {
   /*
   - we should not have any unsaved work at this momement
-  - load the song pointed to be entry
+  - load the song pointed to by entry
   - replay the log
+    - read the header
+    - foreach line
+      - determine owner
+      - parse redo_data (there is only redo data)
+      - bt_change_logger_change(owner,redo_data);
   - message box, asking the user to check it and save if happy
-  - saving, will remove the log
-  */
-}
-
-void bt_change_log_reset(BtChangeLog *self) {
-  /*
-  - call after a song has been saved
-  - reset the on-disk log
-  - update pointer last_saved pointer in change stack
+  - saving and proper closing the song will remove the log
   */
 }
 
 #endif
 
+void bt_change_log_reset(BtChangeLog *self) {
+  /*
+  - call after a song has been saved
+  - reset the on-disk log
+    - seek to start and rewrite the header
+  - update pointer last_saved pointer in change stack
+  */
+}
+
+/**
+ * bt_change_log_add:
+ * @self: the change log
+ * @owner: the owner of the change
+ * @undo_data: how to undo the change
+ * @redo_data: how to redo the change
+ *
+ * Add a new change to the change log. Changes are passed as serialized strings.
+ * The change-log takes ownership of  @undo_data and @redo_data.
+ */
+void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data) {
+  BtChangeLogEntry *cle;
+  
+  // make new BtChangeLogEntry from the parameters
+  cle=g_slice_new(BtChangeLogEntry);
+  cle->owner=owner;
+  // @todo: prepend object handle to strings
+  cle->undo_data=undo_data;
+  cle->redo_data=redo_data;
+  // append and update undo undo/redo pointers
+  g_ptr_array_add(self->priv->changes,cle);
+  /* @todo: serialize properly
+   * - we need to identify the instance, so that when deserializing, we can get
+   *   the owner from a string
+   * - maybe all serializable objects register with a hashtable in the changelog
+   *   when they are created/destroyed
+   */
+  fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
+  fflush(self->priv->log_file);
+  // update undo undo/redo pointers
+  self->priv->next_undo=self->priv->changes->len-1;
+  self->priv->next_redo++;
+  if(self->priv->next_undo==0) {
+    g_object_notify((GObject *)self,"can-undo");
+  }
+}
+
+void bt_change_log_undo(BtChangeLog *self)
+{
+  if(self->priv->next_undo!=-1) {
+    BtChangeLogEntry *cle=g_ptr_array_index(self->priv->changes,self->priv->next_undo);
+    bt_change_logger_change(cle->owner,cle->undo_data);
+    // update undo undo/redo pointers
+    self->priv->next_redo=self->priv->next_undo;
+    self->priv->next_undo--;
+    if(self->priv->next_undo==-1) {
+      g_object_notify((GObject *)self,"can-undo");
+    }
+    if(self->priv->next_redo==(self->priv->changes->len-1)) {
+      g_object_notify((GObject *)self,"can-redo");
+    }
+  }
+}
+
+void bt_change_log_redo(BtChangeLog *self)
+{
+  if(self->priv->next_redo!=-1) {
+    BtChangeLogEntry *cle=g_ptr_array_index(self->priv->changes,self->priv->next_redo);
+    bt_change_logger_change(cle->owner,cle->redo_data);
+    // update undo undo/redo pointers
+    self->priv->next_undo=self->priv->next_redo;
+    self->priv->next_redo++;
+    if(self->priv->next_redo==self->priv->changes->len) {
+      g_object_notify((GObject *)self,"can-redo");
+    }
+    if(self->priv->next_undo==0) {
+      g_object_notify((GObject *)self,"can-undo");
+    }
+  }
+}
 
 //-- class internals
 
 static void bt_change_log_dispose(GObject *object) {
   BtChangeLog *self = BT_CHANGE_LOG(object);
+  BtChangeLogEntry *cle;
+  guint i;
   
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  for(i=0;i<self->priv->changes->len;i++) {
+    cle=g_ptr_array_index(self->priv->changes,i);
+    g_free(cle->undo_data);
+    g_free(cle->redo_data);
+    g_slice_free(BtChangeLogEntry,cle);
+  }  
+  g_ptr_array_free(self->priv->changes,TRUE);
+  
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
   
   free_log_file(self);
@@ -244,6 +350,22 @@ static GObject *bt_change_log_constructor(GType type,guint n_construct_params,GO
   return object;
 }
 
+static void bt_change_log_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
+  BtChangeLog *self = BT_CHANGE_LOG(object);
+  return_if_disposed();
+  switch (property_id) {
+    case CHANGE_LOG_CAN_UNDO: {
+      g_value_set_boolean(value,(self->priv->next_undo!=-1));
+    } break;
+    case CHANGE_LOG_CAN_REDO: {
+      g_value_set_boolean(value,(self->priv->next_redo!=self->priv->changes->len));
+    } break;
+    default: {
+       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
+  }
+}
+
 static void bt_change_log_init(GTypeInstance *instance, gpointer g_class) {
   BtChangeLog *self = BT_CHANGE_LOG(instance);
   
@@ -255,6 +377,10 @@ static void bt_change_log_init(GTypeInstance *instance, gpointer g_class) {
 
   self->priv->cache_dir=g_get_user_cache_dir();
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  
+  self->priv->changes=g_ptr_array_new();
+  self->priv->next_undo=-1;
+  self->priv->next_redo=0;
 }
 
 static void bt_change_log_class_init(BtChangeLogClass *klass) {
@@ -263,9 +389,24 @@ static void bt_change_log_class_init(BtChangeLogClass *klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtChangeLogPrivate));
 
+  gobject_class->get_property = bt_change_log_get_property;
   gobject_class->constructor  = bt_change_log_constructor;
   gobject_class->dispose      = bt_change_log_dispose;
   gobject_class->finalize     = bt_change_log_finalize;
+
+  g_object_class_install_property(gobject_class,CHANGE_LOG_CAN_UNDO,
+                                  g_param_spec_boolean("can-undo",
+                                     "can-undo prop",
+                                     "Where there are action to undo",
+                                     FALSE,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  
+  g_object_class_install_property(gobject_class,CHANGE_LOG_CAN_REDO,
+                                  g_param_spec_boolean("can-redo",
+                                     "can-redo prop",
+                                     "Where there are action to redo",
+                                     FALSE,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_change_log_get_type(void) {

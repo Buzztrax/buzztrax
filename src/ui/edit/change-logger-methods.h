@@ -19,17 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BT_CHANGE_LOG_METHODS_H
-#define BT_CHANGE_LOG_METHODS_H
+#ifndef BT_CHANGE_LOGGER_METHODS_H
+#define BT_CHANGE_LOGGER_METHODS_H
 
-#include <libbuzztard-core/core.h>
-#include "change-log.h"
 #include "change-logger.h"
 
-extern BtChangeLog *bt_change_log_new(void);
+// wrapper
+extern gboolean bt_change_logger_change(const BtChangeLogger *self,const gchar *data);
 
-extern void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data);
-extern void bt_change_log_undo(BtChangeLog *self);
-extern void bt_change_log_redo(BtChangeLog *self);
-
-#endif // BT_CHANGE_LOG_METHDOS_H
+#endif // BT_CHANGE_LOGGER_METHODS_H

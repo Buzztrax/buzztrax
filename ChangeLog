@@ -1,5 +1,28 @@
 2010-05-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/change-log-methods.h:
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/change-logger-methods.h:
+	* src/ui/edit/change-logger.c:
+	* src/ui/edit/change-logger.h:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/change-logger-methods.h (added):
+	* src/ui/edit/change-logger.c (added):
+	* src/ui/edit/change-logger.h (added):
+	  Add change logger iface. Add undo/redo to menu. Add prototype to
+	  pattern editor.
+
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Cleanup menu code (separators).
+
+2010-05-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Do read from trigger params.
 

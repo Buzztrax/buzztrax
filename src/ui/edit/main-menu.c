@@ -50,6 +50,9 @@ struct _BtMainMenuPrivate {
   /* state */
   gboolean fullscreen;
   
+  /* editor change log */
+  BtChangeLog *change_log;
+
 #ifdef USE_DEBUG
   /* debug menu */
   GstDebugGraphDetails debug_graph_details;
@@ -142,6 +145,35 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   if(bt_edit_application_quit(self->priv->app)) {
     gtk_widget_destroy(GTK_WIDGET(self->priv->main_window));
   }
+}
+
+
+static void on_menu_undo_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  
+  bt_change_log_undo(self->priv->change_log);
+}
+
+static void on_menu_can_undo_changed(const BtChangeLog *change_log,GParamSpec *arg,gpointer user_data) {
+  GtkWidget *menuitem = GTK_WIDGET(user_data);
+  gboolean enabled;
+  
+  g_object_get((GObject *)change_log,"can-undo",&enabled,NULL);
+  gtk_widget_set_sensitive(menuitem, enabled);
+}
+
+static void on_menu_redo_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  bt_change_log_redo(self->priv->change_log);
+}
+
+static void on_menu_can_redo_changed(const BtChangeLog *change_log,GParamSpec *arg,gpointer user_data) {
+  GtkWidget *menuitem = GTK_WIDGET(user_data);
+  gboolean enabled;
+  
+  g_object_get((GObject *)change_log,"can-redo",&enabled,NULL);
+  gtk_widget_set_sensitive(menuitem, enabled);
 }
 
 static void on_menu_cut_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -708,9 +740,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   }
 #endif
   
-  subitem=gtk_separator_menu_item_new();
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  gtk_widget_set_sensitive(subitem,FALSE);
+  gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE,accel_group);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -721,17 +751,13 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_saveas_activate),(gpointer)self);
 
-  subitem=gtk_separator_menu_item_new();
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  gtk_widget_set_sensitive(subitem,FALSE);
+  gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_MEDIA_RECORD,accel_group);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_render_activate),(gpointer)self);
 
-  subitem=gtk_separator_menu_item_new();
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  gtk_widget_set_sensitive(subitem,FALSE);
+  gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT,accel_group);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -743,7 +769,21 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
 
   menu=gtk_menu_new();
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
+  
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDO,accel_group);
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_undo_activate),(gpointer)self);
+  on_menu_can_undo_changed(self->priv->change_log, NULL, subitem);
+  g_signal_connect(self->priv->change_log,"notify::can-undo",G_CALLBACK(on_menu_can_undo_changed),(gpointer)subitem);
 
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_REDO,accel_group);
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_redo_activate),(gpointer)self);
+  on_menu_can_redo_changed(self->priv->change_log, NULL, subitem);
+  g_signal_connect(self->priv->change_log,"notify::can-redo",G_CALLBACK(on_menu_can_redo_changed),(gpointer)subitem);
+  
+  gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
+  
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_CUT,accel_group);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_cut_activate),(gpointer)self);
@@ -760,9 +800,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_delete_activate),(gpointer)self);
 
-  subitem=gtk_separator_menu_item_new();
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  gtk_widget_set_sensitive(subitem,FALSE);
+  gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES,accel_group);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -806,9 +844,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_fullscreen_activate),(gpointer)self);
 #endif
   
-  subitem=gtk_separator_menu_item_new();
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  gtk_widget_set_sensitive(subitem,FALSE);
+  gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_with_label(_("Go to machine view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_icon_name("buzztard_tab_machines",GTK_ICON_SIZE_MENU));
@@ -850,9 +886,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
    *  sequence vide: zoom-in/zoom-out
    *
    
-  subitem=gtk_separator_menu_item_new();
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  gtk_widget_set_sensitive(subitem,FALSE);
+  gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_FIT,accel_group);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -997,9 +1031,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_debug_dump_pipeline_graph_and_show),(gpointer)self);
 
-  subitem=gtk_separator_menu_item_new();
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  gtk_widget_set_sensitive(subitem,FALSE);
+  gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_with_mnemonic("Update plugin registry");
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -1055,6 +1087,8 @@ static void bt_main_menu_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   self->priv->main_window=NULL;
+  
+  g_object_unref(self->priv->change_log);
   g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
@@ -1066,6 +1100,8 @@ static void bt_main_menu_init(GTypeInstance *instance, gpointer g_class) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_MENU, BtMainMenuPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
+
+  self->priv->change_log=bt_change_log_new();
   
 #ifdef USE_DEBUG
   self->priv->debug_graph_details=GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS|GST_DEBUG_GRAPH_SHOW_STATES;

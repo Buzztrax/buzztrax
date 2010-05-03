@@ -18,6 +18,7 @@ noinst_HEADERS			= marshal.h
 libbtedit_la_SOURCES	= \
 	about-dialog.c about-dialog.h about-dialog-methods.h \
 	change-log.c change-log.h change-log-methods.h \
+	change-logger.c change-logger.h change-logger-methods.h \
 	edit-application.c edit-application.h edit-application-methods.h \
 	interaction-controller-menu.c interaction-controller-menu.h interaction-controller-menu-methods.h \
 	interaction-controller-learn-dialog.c interaction-controller-learn-dialog.h interaction-controller-learn-dialog-methods.h \

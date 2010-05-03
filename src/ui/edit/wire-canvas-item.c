@@ -771,7 +771,6 @@ static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) 
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
   menu_item=gtk_menu_item_new_with_label(_("Signal Analysis..."));

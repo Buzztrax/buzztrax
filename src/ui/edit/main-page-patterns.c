@@ -125,6 +125,9 @@ struct _BtMainPagePatternsPrivate {
   gulong number_of_groups;
   BtPatternEditorColumnGroup *param_groups;
   guint *column_keymode;
+  
+  /* editor change log */
+  BtChangeLog *change_log;
 
   /* signal handler ids */
   gint pattern_length_changed,pattern_voices_changed;
@@ -1297,6 +1300,15 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       g_object_unref(wire_pattern);
     } break;
     case 1:
+      {
+        // serialize action
+        // @todo: we need to identify the pattern (owner) for the replay
+        gchar *old_str = bt_pattern_get_global_event(self->priv->pattern,row,param);
+        gchar *undo_str = g_strdup_printf("set_global_event(%d,%d,%s)",row,param,old_str);
+        gchar *redo_str = g_strdup_printf("set_global_event(%d,%d,%s)",row,param,str);
+        bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+        g_free(old_str);
+      }
       bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       break;
     case 2:
@@ -2407,7 +2419,6 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
   menu_item=gtk_image_menu_item_new_with_label(_("New pattern ..."));
@@ -2448,7 +2459,6 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
   menu_item=gtk_image_menu_item_new_with_label(_("Machine properties"));  // dynamic part
@@ -2626,7 +2636,7 @@ void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine
 static void pattern_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,guint info,gpointer data) {
   GST_INFO("get clipboard data, info=%d, data=%p",info,data);
   GST_INFO("sending : [%s]",data);
-  // FIXME: do we need to format differently depending on info?
+  // @todo: do we need to format differently depending on info?
   if(gtk_selection_data_get_target(selection_data)==pattern_atom) {
     gtk_selection_data_set(selection_data,pattern_atom,8,(guchar *)data,strlen(data));
   }
@@ -2659,7 +2669,6 @@ void bt_main_page_patterns_delete_selection(const BtMainPagePatterns *self) {
  * @self: the pattern subpage
  *
  * Cut selected area.
- * <note>not yet working</note>
  */
 void bt_main_page_patterns_cut_selection(const BtMainPagePatterns *self) {
   bt_main_page_patterns_copy_selection(self);
@@ -2671,7 +2680,6 @@ void bt_main_page_patterns_cut_selection(const BtMainPagePatterns *self) {
  * @self: the sequence subpage
  *
  * Copy selected area.
- * <note>not yet working</note>
  */
 void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
   gint beg,end,group,param;
@@ -2879,7 +2887,6 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
  * @self: the pattern subpage
  *
  * Paste at the top of the selected area.
- * <note>not yet working</note>
  */
 void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
   //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
@@ -2887,6 +2894,20 @@ void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
   GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_CLIPBOARD);
 
   gtk_clipboard_request_contents(cb,pattern_atom,pattern_clipboard_received_func,(gpointer)self);
+}
+
+//-- change logger interface
+
+static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger *owner,const gchar *data) {
+  GST_WARNING("undo/redo: %s",data);
+  // @todo: parse data and apply action
+  return TRUE;
+}
+
+static void bt_main_page_patterns_change_logger_interface_init(gpointer const g_iface, gconstpointer const iface_data) {
+  BtChangeLoggerInterface * const iface = g_iface;
+
+  iface->change = bt_main_page_patterns_change_logger_change;
 }
 
 //-- wrapper
@@ -2903,7 +2924,8 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 
   // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
   gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
-
+  
+  g_object_unref(self->priv->change_log);
   g_object_unref(self->priv->app);
   GST_DEBUG("unref pattern: %p,refs=%d",
     self->priv->pattern,(self->priv->pattern?G_OBJECT_REF_COUNT(self->priv->pattern):-1));
@@ -2946,6 +2968,8 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
   self->priv->base_octave=4;
   for (i = 0; i < MAX_WAVETABLE_ITEMS + 2; i++)
     self->priv->wave_to_combopos[i] = self->priv->combopos_to_wave[i] = -1;
+  
+  self->priv->change_log=bt_change_log_new();
 }
 
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
@@ -2976,10 +3000,16 @@ GType bt_main_page_patterns_get_type(void) {
       (GInstanceInitFunc)bt_main_page_patterns_init, // instance_init
       NULL // value_table
     };
+    const GInterfaceInfo change_logger_interface_info = {
+      (GInterfaceInitFunc) bt_main_page_patterns_change_logger_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
 
     pattern_atom=gdk_atom_intern_static_string ("application/buzztard::pattern");
 
     type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPagePatterns",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_CHANGE_LOGGER, &change_logger_interface_info);
   }
   return type;
 }

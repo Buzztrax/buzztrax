@@ -111,6 +111,7 @@
 
 #include "about-dialog-methods.h"
 #include "change-log-methods.h"
+#include "change-logger-methods.h"
 #include "edit-application-methods.h"
 #include "interaction-controller-menu-methods.h"
 #include "interaction-controller-learn-dialog-methods.h"
