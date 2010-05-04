@@ -1,3 +1,9 @@
+2010-05-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/volume-popup.c:
+	  Fix assertions by getting the GdkWindow after showing the popup.
+
 2010-05-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:

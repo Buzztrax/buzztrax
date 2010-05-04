@@ -169,9 +169,11 @@ bt_volume_popup_new(GtkAdjustment *adj) {
  * Show and activate the widget
  */
 void bt_volume_popup_show(BtVolumePopup *self) {
-  GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(self));
+  GdkWindow *window;
 
   gtk_widget_show_all(GTK_WIDGET(self));
+  //gtk_widget_realize(GTK_WIDGET(self)); // not needed (yet)
+  window = gtk_widget_get_window(GTK_WIDGET(self));
 
   /* grab focus */
   gtk_widget_grab_focus_savely(GTK_WIDGET(self));
