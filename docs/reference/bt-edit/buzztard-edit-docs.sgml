@@ -66,6 +66,7 @@
       <xi:include href="xml/btedit.xml" />
       <xi:include href="xml/btaboutdialog.xml" />
       <xi:include href="xml/btchangelog.xml" />
+      <xi:include href="xml/btchangelogger.xml" />
       <xi:include href="xml/bteditapplication.xml" />
       <xi:include href="xml/btinteractioncontrollermenu.xml" />
       <xi:include href="xml/btinteractioncontrollerlearndialog.xml" />

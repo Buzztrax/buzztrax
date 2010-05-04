@@ -30,9 +30,12 @@ BtAboutDialogPrivate
 
 <SECTION>
 <FILE>btchangelog</FILE>
-<TITLE>BtAboutDialog</TITLE>
+<TITLE>BtChangeLog</TITLE>
 BtChangeLog
 bt_change_log_new
+bt_change_log_add
+bt_change_log_redo
+bt_change_log_undo
 <SUBSECTION Standard>
 BtChangeLogClass
 BT_CHANGE_LOG
@@ -43,6 +46,21 @@ BT_IS_CHANGE_LOG_CLASS
 BT_CHANGE_LOG_GET_CLASS
 bt_change_log_get_type
 BtChangeLogPrivate
+</SECTION>
+
+
+<SECTION>
+<FILE>btchangelogger</FILE>
+<TITLE>BtChangeLogger</TITLE>
+BtChangeLogger
+bt_change_logger_change
+<SUBSECTION Standard>
+BtChangeLoggerInterface
+BT_CHANGE_LOGGER
+BT_IS_CHANGE_LOGGER
+BT_TYPE_CHANGE_LOGGER
+BT_CHANGE_LOGGER_GET_INTERFACE
+bt_change_logger_get_type
 </SECTION>
 
 
@@ -536,6 +554,7 @@ BT_PATTERN_EDITOR_CLASS
 BT_IS_PATTERN_EDITOR_CLASS
 BT_TYPE_PATTERN_EDITOR
 bt_pattern_editor_get_type
+BtPatternEditorPrivate
 </SECTION>
 
 
@@ -803,7 +822,7 @@ BT_WAVEFORM_VIEWER
 BT_IS_WAVEFORM_VIEWER
 BT_WAVEFORM_VIEWER_CLASS
 BT_IS_WAVEFORM_VIEWER_CLASS
-BT_TYPEWAVEFORM_VIEWER
+BT_TYPE_WAVEFORM_VIEWER
 bt_waveform_viewer_get_type
 </SECTION>
 

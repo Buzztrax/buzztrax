@@ -1,5 +1,12 @@
 2010-05-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztard-edit.types:
+	  Update docs for latest API additions and fix some typos.
+
+2010-05-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* src/ui/edit/machine-properties-dialog.c:
 	* src/ui/edit/main-page-patterns.c:
