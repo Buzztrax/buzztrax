@@ -1,5 +1,16 @@
 2010-05-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	  Add a new helper to create the gtk target list to lessen the copy and
+	  paste.
+
+2010-05-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/panorama-popup.c:
 	* src/ui/edit/volume-popup.c:
 	  Copyright header cleanups.

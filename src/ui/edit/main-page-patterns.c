@@ -2688,22 +2688,12 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
     //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
     //GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_SECONDARY);
     GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->pattern_table),GDK_SELECTION_CLIPBOARD);
-    GtkTargetList *list;
     GtkTargetEntry *targets;
     gint n_targets;
     BtPatternEditorColumnGroup *pc_group;
     GString *data=g_string_new(NULL);
     
-    list = gtk_target_list_new (NULL, 0);
-    gtk_target_list_add (list, pattern_atom, 0, 0);
-#if USE_DEBUG
-    // this allows to paste into a text editor
-    gtk_target_list_add (list, gdk_atom_intern_static_string ("UTF8_STRING"), 0, 1);
-    gtk_target_list_add (list, gdk_atom_intern_static_string ("TEXT"), 0, 2);
-    gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain"), 0, 3);
-    gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain;charset=utf-8"), 0, 4);
-#endif
-    targets = gtk_target_table_new_from_list (list, &n_targets);
+    targets = gtk_target_table_make(pattern_atom, &n_targets);
     
     /* the number of ticks */
     g_string_append_printf(data,"%d\n",end-beg);
@@ -2803,7 +2793,6 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
     }
 
     gtk_target_table_free (targets, n_targets);
-    gtk_target_list_unref (list);
     GST_INFO("copy done");
   }
 }

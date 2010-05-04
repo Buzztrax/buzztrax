@@ -36,6 +36,9 @@ extern GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name
 /* save focus grab */
 extern void gtk_widget_grab_focus_savely(GtkWidget *widget);
 
+/* gtk clipboard helper */
+extern GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets);
+
 /* gtk+ compatibillity */
 
 #if !GTK_CHECK_VERSION(2,12,0)

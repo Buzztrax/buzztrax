@@ -872,6 +872,7 @@ gtk_image_new_from_filename
 gdk_pixbuf_new_from_filename
 gdk_pixbuf_new_from_theme
 gtk_toolbar_get_style_from_string
+gtk_target_table_make
 GNOME_CANVAS_BROKEN_PROPERTIES
 <SUBSECTION Standard>
 GST_CAT_DEFAULT

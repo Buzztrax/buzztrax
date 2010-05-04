@@ -196,3 +196,33 @@ void gtk_widget_grab_focus_savely(GtkWidget *widget) {
   }
 }
 
+// gtk clipboard helper
+
+/**
+ * gtk_target_table_make:
+ * @format_atom: format atom for the target list
+ * @n_targets: out variable for the size of the table
+ *
+ * Generate the target table for pasting to clipboard. Use
+ * gtk_target_table_free (targets, n_targets);
+ *
+ * Returns: the table and the size in the out variable @n_targets 
+ */
+GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets) {
+  GtkTargetList *list;
+  GtkTargetEntry *targets;
+
+  list = gtk_target_list_new (NULL, 0);
+  gtk_target_list_add (list, format_atom, 0, 0);
+#if USE_DEBUG
+  // this allows to paste into a text editor
+  gtk_target_list_add (list, gdk_atom_intern_static_string ("UTF8_STRING"), 0, 1);
+  gtk_target_list_add (list, gdk_atom_intern_static_string ("TEXT"), 0, 2);
+  gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain"), 0, 3);
+  gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain;charset=utf-8"), 0, 4);
+#endif
+  targets = gtk_target_table_new_from_list (list, n_targets);
+  gtk_target_list_unref (list);
+  
+  return(targets);
+}

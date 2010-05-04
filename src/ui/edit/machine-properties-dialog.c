@@ -252,15 +252,13 @@ static void pattern_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) 
   g_free(data);
 }
 
-static void on_parameter_copy(GtkMenuItem *menuitem,gpointer user_data) {
+static void on_parameter_copy_single(GtkMenuItem *menuitem,gpointer user_data) {
   //const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   GtkWidget *menu;
   GObject *object;
   gchar *property_name;
   GParamSpec *pspec;
-  // it seems that we need the pattern-editor widget here :/ or maybe not
   GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(menuitem),GDK_SELECTION_CLIPBOARD);
-  GtkTargetList *list;
   GtkTargetEntry *targets;
   gint n_targets;
   GString *data=g_string_new(NULL);
@@ -273,16 +271,7 @@ static void on_parameter_copy(GtkMenuItem *menuitem,gpointer user_data) {
   property_name=g_object_get_qdata(G_OBJECT(menu),control_property_quark);
   pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
 
-  list = gtk_target_list_new (NULL, 0);
-  gtk_target_list_add (list, pattern_atom, 0, 0);
-#if USE_DEBUG
-  // this allows to paste into a text editor
-  gtk_target_list_add (list, gdk_atom_intern_static_string ("UTF8_STRING"), 0, 1);
-  gtk_target_list_add (list, gdk_atom_intern_static_string ("TEXT"), 0, 2);
-  gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain"), 0, 3);
-  gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain;charset=utf-8"), 0, 4);
-#endif
-  targets = gtk_target_table_new_from_list (list, &n_targets);
+  targets = gtk_target_table_make(pattern_atom, &n_targets);
 
   g_string_append_printf(data,"1\n");
   
@@ -310,7 +299,9 @@ static void on_parameter_copy(GtkMenuItem *menuitem,gpointer user_data) {
   }
 
   gtk_target_table_free (targets, n_targets);
-  gtk_target_list_unref (list);
+}
+
+static void on_parameter_copy_group(GtkMenuItem *menuitem,gpointer user_data) {
 }
 
 static void on_parameter_paste(GtkMenuItem *menuitem,gpointer user_data) {
@@ -525,11 +516,11 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       menu_item=gtk_image_menu_item_new_with_label(_("Copy parameter"));
       image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
       gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_copy),(gpointer)self);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_copy_single),(gpointer)self);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
       gtk_widget_show(menu_item);
 
-      menu_item=gtk_image_menu_item_new_with_label(_("Paste parameter"));
+      menu_item=gtk_image_menu_item_new_with_label(_("Paste"));
       image=gtk_image_new_from_stock(GTK_STOCK_PASTE,GTK_ICON_SIZE_MENU);
       gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
       g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_paste),(gpointer)self);
@@ -562,6 +553,46 @@ static gboolean on_trigger_button_press_event(GtkWidget *widget, GdkEventButton 
 
 static gboolean on_range_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
   return(on_button_press_event(widget,event,user_data,BT_INTERACTION_CONTROLLER_RANGE_MENU));
+}
+
+static gboolean on_group_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+  GstObject *param_parent=GST_OBJECT(user_data);
+  const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
+  gboolean res=FALSE;
+
+  GST_INFO("button_press : button 0x%x, type 0x%d",event->button,event->type);
+  if(event->type == GDK_BUTTON_PRESS) {
+    if(event->button == 3) {
+      GtkMenu *menu;
+      GtkWidget *menu_item,*image;
+
+      // create context menu
+      // @todo: do we leak that menu here? - gtk_widget_destroy() afterwards?
+      menu=GTK_MENU(gtk_menu_new());
+      g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
+      g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
+
+      // add copy/paste item
+      menu_item=gtk_image_menu_item_new_with_label(_("Copy group"));
+      image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
+      gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_copy_group),(gpointer)self);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+      gtk_widget_show(menu_item);
+
+      menu_item=gtk_image_menu_item_new_with_label(_("Paste"));
+      image=gtk_image_new_from_stock(GTK_STOCK_PASTE,GTK_ICON_SIZE_MENU);
+      gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_paste),(gpointer)self);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+      gtk_widget_show(menu_item);      
+
+      gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+      res=TRUE;
+    }
+  }
+  return(res);
 }
 
 
@@ -1504,6 +1535,8 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
 
     expander=gtk_expander_new(_("global properties"));
     gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
+    
+    g_signal_connect(expander,"button-press-event",G_CALLBACK(on_group_button_press_event), (gpointer)machine);
 
     // add global machine controls into the table
     table=gtk_table_new(/*rows=*/params+1,/*columns=*/3,/*homogenous=*/FALSE);
@@ -1559,6 +1592,8 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
     if(!machine_voice) {
       GST_WARNING("Cannot get voice child for voice %lu",voice);
     }
+    
+    g_signal_connect(expander,"button-press-event",G_CALLBACK(on_group_button_press_event), (gpointer)machine_voice);
 
     // add voice machine controls into the table
     table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
@@ -1570,7 +1605,6 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
       bt_machine_get_voice_param_details(self->priv->machine,i,&property,&range_min,&range_max);
       GST_INFO("voice property %p has name '%s','%s'",property,property->name,pname);
       make_param_control(self,machine_voice,pname,property,range_min,range_max,table,k++);
-      
     }
     // eat remaning space
     //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
