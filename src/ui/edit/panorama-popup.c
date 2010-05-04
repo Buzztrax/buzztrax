@@ -2,8 +2,7 @@
  *
  * GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
- *
- * popup.c: floating window containing volume widgets
+ *               2008 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -26,9 +25,10 @@
  *
  * Shows a popup window containing a horizontal slider
  */
-/*
+/* @bug: http://bugzilla.gnome.org/show_bug.cgi?id=511470
  * level of range widgets are draw always from left-to-right for some themes.
- * http://bugzilla.gnome.org/show_bug.cgi?id=511470
+ *
+ * @todo: use gtk_scale_add_mark() in gtk-2.16 instead of the ruler.
  */
 
 #define BT_EDIT

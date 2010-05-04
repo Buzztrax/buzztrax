@@ -2,6 +2,24 @@
 
 	* src/ui/edit/panorama-popup.c:
 	* src/ui/edit/volume-popup.c:
+	  Copyright header cleanups.
+	
+	* src/ui/edit/change-logger-methods.h (svn:keywords):
+	* src/ui/edit/wave-viewer.h (svn:keywords):
+	* src/lib/ic/ic_private.h (svn:keywords):
+	* src/ui/edit/wave-viewer.c (svn:keywords):
+	* src/ui/edit/change-logger.c (svn:keywords):
+	* src/ui/edit/panorama-popup.h (svn:keywords):
+	* src/lib/core/wire-pattern.c (svn:keywords):
+	* src/ui/edit/change-logger.h (svn:keywords):
+	* src/lib/core/core_private.h (svn:keywords):
+	* src/ui/edit/panorama-popup.c (svn:keywords):
+	  Svn Maintenance: svn propset svn:keywords 'Id' src/*/*/*.{c,h}
+
+2010-05-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/volume-popup.c:
 	  Fix assertions by getting the GdkWindow after showing the popup.
 
 2010-05-03  Stefan Kost  <ensonic@users.sf.net>
