@@ -2800,7 +2800,6 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
 static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,gpointer user_data) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(user_data);
   gchar **lines;
-  guint ticks;
   gchar *data;
 
   GST_INFO("receiving clipboard data");
@@ -2813,6 +2812,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
   
   lines=g_strsplit_set(data,"\n",0);
   if(lines[0]) {
+    guint ticks=atol(lines[0]);
     gint i=1,g,p;
     gint beg,end;
     gulong pattern_length;
@@ -2821,8 +2821,6 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     gboolean res=TRUE;
 
     g_object_get(self->priv->pattern,"length",&pattern_length,"machine",&machine,NULL);
-    
-    ticks=atol(lines[0]);
     pattern_length--;
     // paste from self->priv->cursor_row to MIN(self->priv->cursor_row+ticks,pattern_length)
     beg=self->priv->cursor_row;
