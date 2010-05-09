@@ -136,6 +136,13 @@ static void free_param_group(gpointer data) {
   g_slice_free(ParamGroup,data);
 }
 
+#if 0
+// FIXME: parent is per parameter, we want the wire, machine or voice
+static ParamGroup *find_param_group_by_parent(gpointer key,gpointer value,gpointer user_data) {
+  return (((ParamGroup *)value)->parent==user_data);
+}
+#endif
+
 //-- event handler helper
 
 static gboolean preset_list_edit_preset_meta(const BtMachinePropertiesDialog *self,GstElement *machine,gchar **name,gchar **comment) {
@@ -393,19 +400,19 @@ typedef struct {
 static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,gpointer user_data) {
   PasteData *pd=(PasteData *)user_data;
   const BtMachinePropertiesDialog *self=pd->self;
+  ParamGroup **groups;
   ParamGroup *pg=pd->pg;
   gint p=pd->pi!=-1?pd->pi:0,g=0;
-  gint i=1;
+  gint i;
   gint number_of_groups=g_hash_table_size(self->priv->param_groups);
   GValue value={0,};
   gchar **lines;
   gchar **fields;
   gchar *data;
+#if 0
+  GList *node;
+#endif
   
-  /* FIXME: need to build an array[number_of_groups]
-   * wire-groups, global-group, voices-groups
-   */
-
   GST_INFO("receiving clipboard data");
   g_slice_free(PasteData,pd);
 
@@ -415,6 +422,23 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
   if(!data)
     return;
   
+  /* FIXME: need to build an array[number_of_groups]
+   * wire-groups (machine->dst_wires), global-group, voices-groups (0...)
+   */
+  groups=g_slice_alloc0(sizeof(gpointer)*number_of_groups);
+#if 0
+  i=0;
+  // wires
+  node=self->priv->machine->dst_wires;
+  for(;node;node=g_list_next(node)) {
+    // search param_groups for entry where entry->parent=node->data
+    groups[i++]=g_hash_table_find(self->priv->param_groups,(GHRFunc)find_param_group_by_parent,node->data);
+  }
+  // global
+  groups[i++]=g_hash_table_find(self->priv->param_groups,(GHRFunc)find_param_group_by_parent,XXXX);
+  // voices
+#endif
+  
   lines=g_strsplit_set(data,"\n",0);
   if(lines[0]) {
     GType stype;
@@ -422,6 +446,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     gboolean res=TRUE;
 
     /* we paste from position as long as types match */
+    i=1;
     while(lines[i] && *lines[i] && res) {
       if(*lines[i]!='\n') {
         fields=g_strsplit_set(lines[i],",",0);
@@ -458,7 +483,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
   }
   g_strfreev(lines);
   
-  
+  g_slice_free1(sizeof(gpointer)*number_of_groups,groups);
 }
 
 static void on_parameters_paste(GtkMenuItem *menuitem,gpointer user_data) {

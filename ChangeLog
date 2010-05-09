@@ -1,3 +1,17 @@
+2010-05-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collecting news.
+
+	* docs/reference/bt-cmd/Makefile.am:
+	  Revert change (yes saving a file before committing is great).
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  More prototyping for remaining copy'n'paste functions.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Whitespaces.
+
 2010-05-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-cmd/Makefile.am:

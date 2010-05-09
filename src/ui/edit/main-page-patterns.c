@@ -1545,7 +1545,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       }
     }
     else {
-      group=self->priv->param_groups=g_new(BtPatternEditorColumnGroup,self->priv->number_of_groups);  
+      group=self->priv->param_groups=g_new(BtPatternEditorColumnGroup,self->priv->number_of_groups);
     }
     if(global_params) {
       // create mapping for global params

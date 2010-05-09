@@ -4,6 +4,9 @@ svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
 - we're in debian
 - trick play improvements
+- started undo/redo and journaling
+
+48 files changed, 2240 insertions(+), 351 deletions(-)
 
 2010/04 ========================================================================
 
