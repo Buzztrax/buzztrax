@@ -1,5 +1,11 @@
 2010-05-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  Correct commented out test, just for the case we'll need this again later
+	  on.
+
+2010-05-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/gtkvumeter.c:
 	  Add cast to fix build warnings.
 

@@ -372,15 +372,15 @@ dnl LIBS="$ac_libs_save"
 #dnl check for gstreamer devel additions
 #ac_cflags_save="$CFLAGS"
 #ac_cppflags_save="$CPPFLAGS"
-#ac_ldflags_save="$LDFLAGS"
+#ac_libs_save="$LIBS"
 #CFLAGS="$CFLAGS $BASE_DEPS_CFLAGS"
 #CPPFLAGS="$CPPFLAGS $BASE_DEPS_CFLAGS"
-#LDFLAGS="$LDFLAGS $BASE_DEPS_LIBS"
+#LIBS="$LIBS $BASE_DEPS_LIBS"
 #AC_CHECK_HEADERS(gst/gstpreset.h)
 #LIBS="$ac_libs_save"
 #CFLAGS="$ac_cflags_save"
 #CPPFLAGS="$ac_cppflags_save"
-#LDFLAGS="$ac_ldflags_save"
+#LIBS="$ac_libs_save"
 
 dnl Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
