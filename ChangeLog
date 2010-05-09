@@ -1,5 +1,10 @@
 2010-05-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/gtkvumeter.c:
+	  Add cast to fix build warnings.
+
+2010-05-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-waves.c:
 	  Revert some testing left overs.
 

@@ -469,7 +469,7 @@ void gtk_vumeter_set_scale (GtkVUMeter *vumeter, gint scale)
 
     if (scale != vumeter->scale) {
         vumeter->scale = CLAMP(scale, GTK_VUMETER_SCALE_LINEAR, GTK_VUMETER_SCALE_LAST - 1);
-        if (gtk_widget_get_realized (vumeter)) {
+        if (gtk_widget_get_realized (GTK_WIDGET(vumeter))) {
             gtk_widget_queue_draw (GTK_WIDGET(vumeter));
         }
     }
