@@ -68,7 +68,8 @@ GTKDOC_LIBS = \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	$(top_builddir)/src/ui/cmd/libbtcmd.la \
 	$(BASE_DEPS_LIBS) \
-	$(BT_LIBS)
+	$(BT_LIBS) \
+	-Wl,--no-as-needed -Wl,--buzztard-rocks
 
 # include generic part
 include $(top_srcdir)/gtk-doc.make

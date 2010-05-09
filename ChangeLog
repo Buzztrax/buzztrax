@@ -1,5 +1,16 @@
 2010-05-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	  Docs don't build with --as-needed. We could turn it off, but thats
+	  not portable :/ (linking would fail on linkers that don't know this).
+
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	  Add all needed libraries to LIBADD of the convinience libraries.
+
+2010-05-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Correct commented out test, just for the case we'll need this again later
 	  on.
