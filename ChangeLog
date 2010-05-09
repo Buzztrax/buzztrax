@@ -1,5 +1,10 @@
 2010-05-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-waves.c:
+	  Revert some testing left overs.
+
+2010-05-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/persistence.c:
 	  Remove dummy code.
 	
@@ -8,7 +13,7 @@
 	  callback user-data. More refactoring for copy'n'paste.
 
 	* src/ui/edit/main-page-patterns.c:
-	* src/ui/edit/main-page-waves.c:
+	  Skip empty lines when pasting.
 
 2010-05-04  Stefan Kost  <ensonic@users.sf.net>
 
