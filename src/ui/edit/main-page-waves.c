@@ -818,19 +818,19 @@ static gboolean on_preview_playback_update(gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   gint64 pos_cur;
 
-  // query playback position and update playcursor;
-  //if((gst_element_query(GST_ELEMENT(self->priv->preview),self->priv->position_query))) {
-  if((gst_element_query(GST_ELEMENT(self->priv->preview_src),self->priv->position_query))) {
+  // query playback position and update playcursor
+  GST_WARNING("<<<<<");
+  if((gst_element_query(GST_ELEMENT(self->priv->preview),self->priv->position_query))) {
+  //if((gst_element_query(GST_ELEMENT(self->priv->preview_src),self->priv->position_query))) {
     gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
     // update play-cursor in samples
     g_object_set(self->priv->waveform_viewer,"playback-cursor",pos_cur,NULL);
-    /*GST_WARNING_OBJECT(self->priv->preview, "position query returned: %" G_GINT64_FORMAT " as %s",
-      pos_cur, gst_format_get_name(fmt));
-    */
+    GST_WARNING_OBJECT(self->priv->preview, "position query returned: %" G_GINT64_FORMAT,pos_cur);
   }
   else {
     GST_WARNING_OBJECT(self->priv->preview, "position query failed");
   }
+  GST_WARNING(">>>>>");
   return(TRUE);
 }
 

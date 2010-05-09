@@ -2781,7 +2781,7 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
     
     GST_INFO("copying : [%s]",data->str);
 
-    /* put to clipboard */    
+    /* put to clipboard */
     if(gtk_clipboard_set_with_data (cb, targets, n_targets,
                      pattern_clipboard_get_func, pattern_clipboard_clear_func,
                      g_string_free (data, FALSE))
@@ -2833,24 +2833,29 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     pc_group=&self->priv->param_groups[g];
     // process each line (= pattern column)
     while(lines[i] && *lines[i] && res) {
-      switch (pc_group->type) {
-        case 0: {
-          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-          if(wire_pattern) {
-            res=bt_wire_pattern_deserialize_column(wire_pattern,beg,end,p,lines[i]);
-            g_object_unref(wire_pattern);
-          }
-        } break;
-        case 1:
-          res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,p,lines[i]);
-          break;
-        case 2: {
-          gulong global_params, voice_params, params;
-      
-          g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
-          res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,params+p,lines[i]);
-        } break;
+      if(*lines[i]!='\n') {
+        switch (pc_group->type) {
+          case 0: {
+            BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
+            if(wire_pattern) {
+              res=bt_wire_pattern_deserialize_column(wire_pattern,beg,end,p,lines[i]);
+              g_object_unref(wire_pattern);
+            }
+          } break;
+          case 1:
+            res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,p,lines[i]);
+            break;
+          case 2: {
+            gulong global_params, voice_params, params;
+        
+            g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
+            params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
+            res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,params+p,lines[i]);
+          } break;
+        }
+      }
+      else {
+        GST_INFO("skip blank line");
       }
       i++;p++;
       if(p==pc_group->num_columns) {

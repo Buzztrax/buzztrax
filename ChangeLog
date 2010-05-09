@@ -1,3 +1,15 @@
+2010-05-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/persistence.c:
+	  Remove dummy code.
+	
+	* src/ui/edit/machine-properties-dialog.c:
+	  Code cleanups (use make_param for wire groups too). Use g_slice for
+	  callback user-data. More refactoring for copy'n'paste.
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-waves.c:
+
 2010-05-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

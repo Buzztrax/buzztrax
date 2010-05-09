@@ -265,11 +265,7 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
   GType base_type;
 
   g_return_val_if_fail(G_IS_VALUE(gvalue),FALSE);
-  
-  if(!svalue) {
-    
-  }
-  
+ 
   base_type=bt_g_type_get_base_type(G_VALUE_TYPE(gvalue));
   // depending on the type, set the GValue
   switch(base_type) {

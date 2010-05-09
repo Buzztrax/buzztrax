@@ -70,9 +70,11 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkWidget *param_group_box;
   /* need this to remove right expander when wire is removed */
   GHashTable *group_to_object;
+  /* num_global={0,1}, num_voices is voices above */
   guint num_global, num_wires;
-
-  //guint double_notify_source_id;
+  
+  /* expander to param group */
+  GHashTable *param_groups;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -82,10 +84,14 @@ static GQuark widget_parent_quark=0;
 static GQuark control_object_quark=0;
 static GQuark control_property_quark=0;
 
+static GQuark widget_param_group_quark=0; /* points to ParamGroup */
+static GQuark widget_param_num_quark=0; /* which parameter inside the group */
+
 enum {
   PRESET_LIST_LABEL=0,
   PRESET_LIST_COMMENT
 };
+
 
 typedef struct {
   const GstElement *machine;
@@ -94,7 +100,7 @@ typedef struct {
 } BtNotifyIdleData;
 
 #define MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data) \
-  data=g_new(BtNotifyIdleData,1); \
+  data=g_slice_new(BtNotifyIdleData); \
   data->machine=machine; \
   data->property=property; \
   data->user_data=user_data; \
@@ -102,7 +108,33 @@ typedef struct {
   
 #define FREE_NOTIFY_IDLE_DATA(data) \
   g_object_remove_weak_pointer(data->user_data,&data->user_data); \
-  g_free(data)
+  g_slice_free(BtNotifyIdleData,data)
+
+
+/* wire, global or voice params */
+typedef struct {
+  gint num_params;
+  GstObject **parent;
+  GParamSpec **property;
+} ParamGroup;
+
+static ParamGroup *make_param_group(gint num_params) {
+  ParamGroup *pg=g_slice_new(ParamGroup);
+
+  pg->num_params=num_params;
+  pg->parent=g_slice_alloc0(sizeof(gpointer)*num_params);
+  pg->property=g_slice_alloc0(sizeof(gpointer)*num_params);
+  
+  return(pg);
+}
+  
+static void free_param_group(gpointer data) {
+  ParamGroup *pg=(ParamGroup *)data;
+  
+  g_slice_free1(sizeof(gpointer)*pg->num_params,pg->parent);
+  g_slice_free1(sizeof(gpointer)*pg->num_params,pg->property);
+  g_slice_free(ParamGroup,data);
+}
 
 //-- event handler helper
 
@@ -252,7 +284,7 @@ static void pattern_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) 
   g_free(data);
 }
 
-static void on_parameter_copy_single(GtkMenuItem *menuitem,gpointer user_data) {
+static void on_parameters_copy_single(GtkMenuItem *menuitem,gpointer user_data) {
   //const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   GtkWidget *menu;
   GObject *object;
@@ -283,11 +315,12 @@ static void on_parameter_copy_single(GtkMenuItem *menuitem,gpointer user_data) {
     g_string_append(data,val_str);
     g_free(val_str);
   }
+  g_value_unset(&value);
   g_string_append_c(data,'\n');
   
   GST_INFO("copying : [%s]",data->str);
 
-  /* put to clipboard */    
+  /* put to clipboard */
   if(gtk_clipboard_set_with_data (cb, targets, n_targets,
                    pattern_clipboard_get_func, pattern_clipboard_clear_func,
                    g_string_free (data, FALSE))
@@ -301,13 +334,146 @@ static void on_parameter_copy_single(GtkMenuItem *menuitem,gpointer user_data) {
   gtk_target_table_free (targets, n_targets);
 }
 
-static void on_parameter_copy_group(GtkMenuItem *menuitem,gpointer user_data) {
+static void on_parameters_copy_group(GtkMenuItem *menuitem,gpointer user_data) {
+  GtkWidget *menu;
+  ParamGroup *pg;
+  GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(menuitem),GDK_SELECTION_CLIPBOARD);
+  GtkTargetEntry *targets;
+  gint n_targets;
+  GString *data=g_string_new(NULL);
+  GValue value={0,};
+  gchar *val_str;
+  gint i;
+  
+  menu=gtk_widget_get_parent(GTK_WIDGET(menuitem));
+  
+  pg=g_object_get_qdata(G_OBJECT(menu),widget_param_group_quark);
+
+  targets = gtk_target_table_make(pattern_atom, &n_targets);
+
+  g_string_append_printf(data,"1\n");
+
+  for(i=0;i<pg->num_params;i++) {
+    if(pg->parent[i] && pg->property[i]) {
+      g_string_append(data,g_type_name(pg->property[i]->value_type));
+      g_value_init(&value,pg->property[i]->value_type);
+      g_object_get_property((GObject *)(pg->parent[i]),pg->property[i]->name,&value);
+      if((val_str=bt_persistence_get_value(&value))) {
+        g_string_append_c(data,',');
+        g_string_append(data,val_str);
+        g_free(val_str);
+      }
+      g_value_unset(&value);
+    }
+    g_string_append_c(data,'\n');
+  }
+  
+  GST_INFO("copying : [%s]",data->str);
+
+  /* put to clipboard */
+  if(gtk_clipboard_set_with_data (cb, targets, n_targets,
+                   pattern_clipboard_get_func, pattern_clipboard_clear_func,
+                   g_string_free (data, FALSE))
+  ) {
+    gtk_clipboard_set_can_store (cb, NULL, 0);
+  }
+  else {
+    GST_INFO("copy failed");
+  }
+
+  gtk_target_table_free (targets, n_targets);
 }
 
-static void on_parameter_paste(GtkMenuItem *menuitem,gpointer user_data) {
-  //const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+typedef struct {
+  const BtMachinePropertiesDialog *self;
+  ParamGroup *pg;
+  gint pi;
+} PasteData;
 
+static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,gpointer user_data) {
+  PasteData *pd=(PasteData *)user_data;
+  const BtMachinePropertiesDialog *self=pd->self;
+  ParamGroup *pg=pd->pg;
+  gint p=pd->pi!=-1?pd->pi:0,g=0;
+  gint i=1;
+  gint number_of_groups=g_hash_table_size(self->priv->param_groups);
+  GValue value={0,};
+  gchar **lines;
+  gchar **fields;
+  gchar *data;
   
+  /* FIXME: need to build an array[number_of_groups]
+   * wire-groups, global-group, voices-groups
+   */
+
+  GST_INFO("receiving clipboard data");
+  g_slice_free(PasteData,pd);
+
+  data=(gchar *)gtk_selection_data_get_data(selection_data);
+  GST_INFO("pasting : [%s] @ %p,%d",data,pg,p);
+
+  if(!data)
+    return;
+  
+  lines=g_strsplit_set(data,"\n",0);
+  if(lines[0]) {
+    GType stype;
+    //guint ticks=atol(lines[0]);
+    gboolean res=TRUE;
+
+    /* we paste from position as long as types match */
+    while(lines[i] && *lines[i] && res) {
+      if(*lines[i]!='\n') {
+        fields=g_strsplit_set(lines[i],",",0);
+        stype=g_type_from_name(fields[0]);
+        if(stype==pg->property[p]->value_type) {
+          g_value_init(&value,pg->property[p]->value_type);
+          if(bt_persistence_set_value(&value,fields[1])) {
+            g_object_set_property((GObject *)(pg->parent[p]),pg->property[p]->name,&value);
+          }
+          g_value_unset(&value);
+        }
+        else {
+          GST_INFO("types don't match in %s <-> %s",fields[0],g_type_name(pg->property[p]->value_type));
+          res=FALSE;
+        }
+        g_strfreev(fields);
+      }
+      else {
+        GST_INFO("skip blank line");
+      }
+      i++;p++;
+      if(p==pg->num_params) {
+        // switch to next group or stop
+        if(g<number_of_groups) {
+          g++;p=0;
+          // FIXME: need array with group order
+          //pg=&self->priv->param_groups[g];
+        }
+        else {
+          break;
+        }
+      }
+    }
+  }
+  g_strfreev(lines);
+  
+  
+}
+
+static void on_parameters_paste(GtkMenuItem *menuitem,gpointer user_data) {
+  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(menuitem),GDK_SELECTION_CLIPBOARD);
+  GtkWidget *menu;
+  PasteData *pd;
+  
+  menu=gtk_widget_get_parent(GTK_WIDGET(menuitem));
+  pd=g_slice_new(PasteData);
+  pd->self=self;
+  pd->pg=g_object_get_qdata(G_OBJECT(menu),widget_param_group_quark);
+  pd->pi=GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(menu),widget_param_num_quark));
+
+  gtk_clipboard_request_contents(cb,pattern_atom,pattern_clipboard_received_func,(gpointer)pd);
 }
 
 //-- event handler
@@ -482,6 +648,11 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       GtkMenu *menu;
       GtkWidget *menu_item,*image;
       GtkWidget *item_unbind,*item_unbind_all;
+      ParamGroup *pg;
+      gint pi;
+      
+      pg=g_object_get_qdata(G_OBJECT(widget),widget_param_group_quark);
+      pi=GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(widget),widget_param_num_quark));
 
       // create context menu
       // @todo: do we leak that menu here?
@@ -489,6 +660,9 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       g_object_get(menu,"item-unbind",&item_unbind,"item-unbind-all",&item_unbind_all,NULL);
       g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
       g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
+      g_object_set_qdata(G_OBJECT(menu),widget_param_group_quark,(gpointer)pg);
+      g_object_set_qdata(G_OBJECT(menu),widget_param_num_quark,GINT_TO_POINTER(pi));
+
       g_signal_connect(menu,"notify::selected-control",G_CALLBACK(on_control_bind),(gpointer)self);
       g_signal_connect(item_unbind,"activate",G_CALLBACK(on_control_unbind),(gpointer)self);
       g_signal_connect(item_unbind_all,"activate",G_CALLBACK(on_control_unbind_all),(gpointer)self);
@@ -513,19 +687,20 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
       gtk_widget_show(menu_item);
 
+      // @todo: copy parameter/group/all?
       menu_item=gtk_image_menu_item_new_with_label(_("Copy parameter"));
       image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
       gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_copy_single),(gpointer)self);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_copy_single),(gpointer)self);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
       gtk_widget_show(menu_item);
 
       menu_item=gtk_image_menu_item_new_with_label(_("Paste"));
       image=gtk_image_new_from_stock(GTK_STOCK_PASTE,GTK_ICON_SIZE_MENU);
       gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_paste),(gpointer)self);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_paste),(gpointer)self);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);      
+      gtk_widget_show(menu_item);
 
       gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
       res=TRUE;
@@ -556,9 +731,7 @@ static gboolean on_range_button_press_event(GtkWidget *widget, GdkEventButton *e
 }
 
 static gboolean on_group_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
-  GstObject *param_parent=GST_OBJECT(user_data);
-  const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   gboolean res=FALSE;
 
   GST_INFO("button_press : button 0x%x, type 0x%d",event->button,event->type);
@@ -566,27 +739,30 @@ static gboolean on_group_button_press_event(GtkWidget *widget, GdkEventButton *e
     if(event->button == 3) {
       GtkMenu *menu;
       GtkWidget *menu_item,*image;
+      ParamGroup *pg;
+      
+      pg=g_hash_table_lookup(self->priv->param_groups,widget);
 
       // create context menu
       // @todo: do we leak that menu here? - gtk_widget_destroy() afterwards?
       menu=GTK_MENU(gtk_menu_new());
-      g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
-      g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
+      g_object_set_qdata(G_OBJECT(menu),widget_param_group_quark,(gpointer)pg);
+      g_object_set_qdata(G_OBJECT(menu),widget_param_num_quark,GINT_TO_POINTER(-1));
 
       // add copy/paste item
       menu_item=gtk_image_menu_item_new_with_label(_("Copy group"));
       image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
       gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_copy_group),(gpointer)self);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_copy_group),(gpointer)self);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
       gtk_widget_show(menu_item);
 
       menu_item=gtk_image_menu_item_new_with_label(_("Paste"));
       image=gtk_image_new_from_stock(GTK_STOCK_PASTE,GTK_ICON_SIZE_MENU);
       gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_paste),(gpointer)self);
+      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_paste),(gpointer)self);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);      
+      gtk_widget_show(menu_item);
 
       gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
       res=TRUE;
@@ -630,8 +806,6 @@ static void on_double_range_property_notify(const GstElement *machine,GParamSpec
   //BtMachinePropertiesDialog *self=g_object_get_qdata(G_OBJECT(user_data),widget_parent_quark);
 
   MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data);
-  //if (!self->priv->double_notify_source_id)
-  //  self->priv->double_notify_source_id=
   g_idle_add(on_double_range_property_notify_idle,(gpointer)data);
 }
 
@@ -1215,9 +1389,6 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,Gs
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
   //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
-  gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-  g_object_set_qdata(G_OBJECT(widget),widget_label_quark,(gpointer)label);
-  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
@@ -1251,9 +1422,6 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,G
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
   //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
-  gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-  g_object_set_qdata(G_OBJECT(widget),widget_label_quark,(gpointer)label);
-  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
@@ -1291,9 +1459,6 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
   //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
-  gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-  g_object_set_qdata(G_OBJECT(widget),widget_label_quark,(gpointer)label);
-  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
@@ -1324,9 +1489,6 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
   //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
-  gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-  g_object_set_qdata(G_OBJECT(widget),widget_label_quark,(gpointer)label);
-  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
@@ -1391,8 +1553,6 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self,Gst
     gtk_combo_box_set_active(GTK_COMBO_BOX(widget),-1);
     GST_WARNING("current value (%d) for machines parameter %s is not part of the enum values",value,property->name);
   }
-  gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
@@ -1414,8 +1574,6 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self,Gst
 
   widget=gtk_check_button_new();
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),value);
-  gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
@@ -1428,7 +1586,7 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self,Gst
   return(widget);
 }
 
-static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *object,const gchar *pname,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *table,gulong row) {
+static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *object,const gchar *pname,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *table,gulong row,ParamGroup *pg) {
   GtkWidget *label,*widget1,*widget2;
   GType base_type;
 
@@ -1490,6 +1648,16 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
   }
   if(range_min) { g_free(range_min);range_min=NULL; }
   if(range_max) { g_free(range_max);range_max=NULL; }
+  
+  gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+  g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
+  if(widget2) {
+    g_object_set_qdata(G_OBJECT(widget1),widget_label_quark,(gpointer)widget2);
+  }
+  g_object_set_qdata(G_OBJECT(widget1),widget_param_group_quark,(gpointer)pg);
+  g_object_set_qdata(G_OBJECT(widget1),widget_param_num_quark,GINT_TO_POINTER(row));
+  pg->parent[row]=object;
+  pg->property[row]=property;
 
   gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
   if(!widget2) {
@@ -1515,6 +1683,7 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
 static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gulong global_params,gulong voice_params,GstElement *machine) {
   GtkWidget *expander=NULL;
   GtkWidget *table;
+  ParamGroup *pg;
   GParamSpec *property;
   GValue *range_min,*range_max;
   gulong i,k,params;
@@ -1536,7 +1705,10 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
     expander=gtk_expander_new(_("global properties"));
     gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
     
-    g_signal_connect(expander,"button-press-event",G_CALLBACK(on_group_button_press_event), (gpointer)machine);
+    pg=make_param_group(global_params);
+    g_hash_table_insert(self->priv->param_groups,expander,pg);
+    
+    g_signal_connect(expander,"button-press-event",G_CALLBACK(on_group_button_press_event), (gpointer)self);
 
     // add global machine controls into the table
     table=gtk_table_new(/*rows=*/params+1,/*columns=*/3,/*homogenous=*/FALSE);
@@ -1549,7 +1721,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
       pname=bt_machine_get_global_param_name(self->priv->machine,i);
       bt_machine_get_global_param_details(self->priv->machine,i,&property,&range_min,&range_max);
       GST_INFO("global property %p has name '%s','%s'",property,property->name,pname);
-      make_param_control(self,GST_OBJECT(machine),pname,property,range_min,range_max,table,k++);
+      make_param_control(self,GST_OBJECT(machine),pname,property,range_min,range_max,table,k++,pg);
     }
     // eat remaning space
     //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
@@ -1564,6 +1736,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
 static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gulong voice_params,gulong voice,GstElement *machine) {
   GtkWidget *expander=NULL;
   GtkWidget *table;
+  ParamGroup *pg;
   GParamSpec *property;
   GValue *range_min,*range_max;
   GstObject *machine_voice;
@@ -1593,7 +1766,10 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
       GST_WARNING("Cannot get voice child for voice %lu",voice);
     }
     
-    g_signal_connect(expander,"button-press-event",G_CALLBACK(on_group_button_press_event), (gpointer)machine_voice);
+    pg=make_param_group(voice_params);
+    g_hash_table_insert(self->priv->param_groups,expander,pg);
+
+    g_signal_connect(expander,"button-press-event",G_CALLBACK(on_group_button_press_event), (gpointer)self);
 
     // add voice machine controls into the table
     table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
@@ -1604,7 +1780,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
       pname=bt_machine_get_voice_param_name(self->priv->machine,i);
       bt_machine_get_voice_param_details(self->priv->machine,i,&property,&range_min,&range_max);
       GST_INFO("voice property %p has name '%s','%s'",property,property->name,pname);
-      make_param_control(self,machine_voice,pname,property,range_min,range_max,table,k++);
+      make_param_control(self,machine_voice,pname,property,range_min,range_max,table,k++,pg);
     }
     // eat remaning space
     //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
@@ -1660,12 +1836,11 @@ static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gp
 
 static GtkWidget *make_wire_param_box(const BtMachinePropertiesDialog *self,BtWire *wire) {
   GtkWidget *expander=NULL;
-  GtkWidget *label,*table;
-  GtkWidget *widget1,*widget2;
+  GtkWidget *table;
   GstObject *param_parent;
+  ParamGroup *pg;
   GParamSpec *property;
   GValue *range_min,*range_max;
-  GType base_type;
   gchar *src_id,*name;
   gulong i,params;
 #if !GTK_CHECK_VERSION(2,12,0)
@@ -1675,39 +1850,28 @@ static GtkWidget *make_wire_param_box(const BtMachinePropertiesDialog *self,BtWi
 
   g_object_get(wire,"num-params",&params,"src",&src,NULL);
   if(params) {
+    const gchar *pname;
+
     g_object_get(src,"id",&src_id,NULL);
     name=g_strdup_printf(_("%s wire properties"),src_id);
     expander=gtk_expander_new(name);
     gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
     g_free(name);
     g_free(src_id);
+    
+    pg=make_param_group(params);
+    g_hash_table_insert(self->priv->param_groups,expander,pg);
+    g_hash_table_insert(self->priv->group_to_object,wire,expander);
+    g_signal_connect(expander,"button-press-event",G_CALLBACK(on_group_button_press_event), (gpointer)self);
 
     // add wire controls into the table
     table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
-    g_hash_table_insert(self->priv->group_to_object,wire,expander);
     self->priv->num_wires++;
 
     for(i=0;i<params;i++) {
+      pname=bt_wire_get_param_name(wire,i);
       bt_wire_get_param_details(wire,i,&property,&range_min,&range_max);
-      GST_INFO("wire property %p has name '%s','%s'",property,property->name,bt_wire_get_param_name(wire,i));
-      
-      // get name
-      label=gtk_label_new((gchar *)bt_wire_get_param_name(wire,i));
-      gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-      gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
-
-      base_type=bt_g_type_get_base_type(property->value_type);
-      GST_INFO("... base typoe is : %s",g_type_name(base_type));
-
-      // DEBUG
-      if(range_min && range_max) {
-        gchar *str_min=g_strdup_value_contents(range_min);
-        gchar *str_max=g_strdup_value_contents(range_max);
-        GST_INFO("... has range : %s ... %s",str_min,str_max);
-        g_free(str_min);g_free(str_max);
-      }
-      // DEBUG
-      
+      GST_INFO("wire property %p has name '%s','%s'",property,property->name,pname);
       // bah, hardcoded hack
       switch(i) {
         case 0:
@@ -1721,44 +1885,7 @@ static GtkWidget *make_wire_param_box(const BtMachinePropertiesDialog *self,BtWi
           break;
       }
 
-      // implement widget types
-      switch(base_type) {
-        case G_TYPE_FLOAT:
-          widget2=gtk_label_new(NULL);
-          widget1=make_float_range_widget(self,param_parent,property,range_min,range_max,widget2);
-          break;
-        case G_TYPE_DOUBLE:
-          widget2=gtk_label_new(NULL);
-          widget1=make_double_range_widget(self,param_parent,property,range_min,range_max,widget2);
-          break;
-        default: {
-          gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-          widget1=gtk_label_new(str);g_free(str);
-          widget2=NULL;
-        }
-      }
-      if(range_min) { g_free(range_min);range_min=NULL; }
-      if(range_max) { g_free(range_max);range_max=NULL; }
-
-      gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
-      if(!widget2) {
-        gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-      }
-      else {
-        gtk_widget_set_tooltip_text(widget2,g_param_spec_get_blurb(property));
-        gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-        /* @todo how can we avoid the wobble here?
-         * hack would be to set some 'good' default size
-         * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
-         */
-        gtk_widget_set_size_request(widget2,DEFAULT_LABEL_WIDTH,-1);
-        if(GTK_IS_LABEL(widget2)) {
-          gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
-          gtk_label_set_single_line_mode(GTK_LABEL(widget2),TRUE);
-          gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
-        }
-        gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
-      }
+      make_param_control(self,GST_OBJECT(param_parent),pname,property,range_min,range_max,table,i,pg);
       
       gst_object_unref(param_parent);
       param_parent=NULL;
@@ -1794,6 +1921,7 @@ static void on_wire_removed(const BtSetup *setup,BtWire *wire,gpointer user_data
   if((expander=g_hash_table_lookup(self->priv->group_to_object,wire))) {
     gtk_container_remove(GTK_CONTAINER(self->priv->param_group_box),GTK_WIDGET(expander));
     g_hash_table_remove(self->priv->group_to_object,wire);
+    g_hash_table_remove(self->priv->param_groups,expander);
     self->priv->num_wires--;
   }
 }
@@ -1930,8 +2058,6 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
 
   GST_INFO("machine has %lu global properties, %lu voice properties and %lu voices",global_params,voice_params,self->priv->voices);
   
-  self->priv->group_to_object=g_hash_table_new(NULL,NULL);
-
   // add widgets to the dialog content area
   // should we use a hpaned or hbox for the presets?
   hbox=gtk_hbox_new(FALSE,12);
@@ -2172,6 +2298,7 @@ static void bt_machine_properties_dialog_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   
   g_hash_table_destroy(self->priv->group_to_object);
+  g_hash_table_destroy(self->priv->param_groups);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
@@ -2182,6 +2309,9 @@ static void bt_machine_properties_dialog_init(GTypeInstance *instance, gpointer 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PROPERTIES_DIALOG, BtMachinePropertiesDialogPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
+  
+  self->priv->group_to_object=g_hash_table_new(NULL,NULL);
+  self->priv->param_groups=g_hash_table_new_full(NULL,NULL,NULL,free_param_group);
 }
 
 static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogClass *klass) {
@@ -2191,6 +2321,9 @@ static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogCla
   widget_parent_quark=g_quark_from_static_string("BtMachinePropertiesDialog::widget-parent");
   control_object_quark=g_quark_from_static_string("BtMachinePropertiesDialog::control-object");
   control_property_quark=g_quark_from_static_string("BtMachinePropertiesDialog::control-property");
+
+  widget_param_group_quark=g_quark_from_static_string("BtMachinePropertiesDialog::widget-param-group");
+  widget_param_num_quark=g_quark_from_static_string("BtMachinePropertiesDialog::widget-param-num");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePropertiesDialogPrivate));
