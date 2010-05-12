@@ -1,5 +1,13 @@
 2010-05-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Sent news and start collecting new ones.
+
+	* src/ui/edit/change-logger.c:
+	  Fix typo in log section name.
+
+2010-05-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-edit/Makefile.am:
 	* src/lib/core/Makefile.am:

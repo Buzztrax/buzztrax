@@ -1,10 +1,29 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2010/06 ========================================================================
+
+- arch linux packages
+- LDFLAGS="-Wl,--as-needed" ./autoregen.sh
+
+
 2010/05 ========================================================================
 
-- we're in debian
-- trick play improvements
-- started undo/redo and journaling
+It is nice to  see that more and more distros have buzztard packages. Many
+thanks to Sebastian Dröge for submitting packages to Debian and Ubuntu.
+
+Latest GStreamer releases (gst-plugins-base-0.10.28) have my adder fixes. With
+those trick playback in buzztard works much better. Scrubbing is not locking up
+any more and we can play the score forward and backward at different speeds.
+There seems to be still an issue in more complex songs though. Every time the
+playback accelerates, the sink is waiting for something and thus there is a
+pause.
+
+One major feature I'd like to have for 0.6 is undo/redo and journaling. The
+latter is important to minimise the loss of data in case the application or the
+system crashes. I have been thinking for quite a while how to implement it and
+came to the conclusion that it can be made so that journaling means having a
+serializable redo stack. I have now started to write the code for it. Hopefully
+more news on how it went soon.
 
 48 files changed, 2240 insertions(+), 351 deletions(-)
 

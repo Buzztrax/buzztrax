@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:btchangeloger
+ * SECTION:btchangelogger
  * @short_description: interface for the editor action journaling
  *
  * Defines undo/redo interface.
