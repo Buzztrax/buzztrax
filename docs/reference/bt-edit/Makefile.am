@@ -69,9 +69,9 @@ GTKDOC_CFLAGS = \
 	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = \
+	$(top_builddir)/src/ui/edit/libbtedit.la \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
-	$(top_builddir)/src/ui/edit/libbtedit.la \
 	$(BASE_DEPS_LIBS) \
 	$(GUI_DEPS_LIBS) \
 	$(BT_LIBS)

@@ -17,9 +17,10 @@ endif
 BUILT_SOURCES = marshal.h marshal.c
 
 lib_LTLIBRARIES = libbuzztard-core.la
-libbuzztard_core_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL) \
-	-lgstaudio-0.10 \
-	$(top_builddir)/src/lib/ic/libbuzztard-ic.la
+libbuzztard_core_la_LIBADD = \
+	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
+    $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL) \
+	-lgstaudio-0.10
 libbuzztard_core_la_LDFLAGS = \
 	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
 	-version-info @BT_VERSION_INFO@

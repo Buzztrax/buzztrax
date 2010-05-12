@@ -9,8 +9,10 @@ buzztard_cmd_SOURCES= \
 	bt-cmd.c bt-cmd.h
 
 noinst_LTLIBRARIES      = libbtcmd.la
-libbtcmd_la_LIBDADD = $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL) \
-	$(top_builddir)/src/lib/core/libbuzztard-core.la
+libbtcmd_la_LIBDADD = \
+	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+    $(top_builddir)/src/lib/ic/libbuzztard-ic.la \
+	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL)
 libbtcmd_la_SOURCES   =	\
 	cmd-application.c cmd-application.h cmd-application-methods.h
 

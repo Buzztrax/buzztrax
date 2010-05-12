@@ -1,3 +1,16 @@
+2010-05-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* src/lib/core/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* tests/Makefile.am:
+	* tests/ui/cmd/Makefile.am:
+	* tests/ui/edit/Makefile.am:
+	  Rework library linking order. We have to put needed libraries behind
+	  libraries that need them. This hopefully now fixes --as-needed fully.
+
 2010-05-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
