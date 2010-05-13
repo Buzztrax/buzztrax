@@ -255,12 +255,18 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
    *   the owner from a string
    * - maybe all serializable objects register with a hashtable in the changelog
    *   when they are created/destroyed
+   * - we can also have: const gchar *bt_change_logger_identify(owner)
+   *   and call that instead of G_OBJECT_TYPE_NAME below
+   * - each class that implements changelogger iface would track all
+   *   instances, and we can use: GObject *bt_change_logger_lookup(gchar *id)
    */
   fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
   fflush(self->priv->log_file);
   // update undo undo/redo pointers
-  self->priv->next_undo=self->priv->changes->len-1;
+  //self->priv->next_undo=self->priv->changes->len-1;
+  self->priv->next_undo++;
   self->priv->next_redo++;
+  GST_WARNING("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);
   if(self->priv->next_undo==0) {
     g_object_notify((GObject *)self,"can-undo");
   }
@@ -274,6 +280,7 @@ void bt_change_log_undo(BtChangeLog *self)
     // update undo undo/redo pointers
     self->priv->next_redo=self->priv->next_undo;
     self->priv->next_undo--;
+    GST_WARNING("undo %d, %d",self->priv->next_undo,self->priv->next_redo);
     if(self->priv->next_undo==-1) {
       g_object_notify((GObject *)self,"can-undo");
     }
@@ -291,6 +298,7 @@ void bt_change_log_redo(BtChangeLog *self)
     // update undo undo/redo pointers
     self->priv->next_undo=self->priv->next_redo;
     self->priv->next_redo++;
+    GST_WARNING("redo %d, %d",self->priv->next_undo,self->priv->next_redo);
     if(self->priv->next_redo==self->priv->changes->len) {
       g_object_notify((GObject *)self,"can-redo");
     }

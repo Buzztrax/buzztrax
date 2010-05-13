@@ -1305,8 +1305,8 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
         // serialize action
         // @todo: we need to identify the pattern (owner) for the replay
         gchar *old_str = bt_pattern_get_global_event(self->priv->pattern,row,param);
-        gchar *undo_str = g_strdup_printf("set_global_event(%d,%d,%s)",row,param,old_str);
-        gchar *redo_str = g_strdup_printf("set_global_event(%d,%d,%s)",row,param,str);
+        gchar *undo_str = g_strdup_printf("set_global_event %d,%d,%s",row,param,safe_string(old_str));
+        gchar *redo_str = g_strdup_printf("set_global_event %d,%d,%s",row,param,safe_string(str));
         bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
         g_free(old_str);
       }
@@ -2872,7 +2872,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     g_object_unref(machine);
     gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
   }
-  g_strfreev(lines); 
+  g_strfreev(lines);
 }
 
 /**
@@ -2892,9 +2892,24 @@ void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
 //-- change logger interface
 
 static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger *owner,const gchar *data) {
-  GST_WARNING("undo/redo: %s",data);
-  // @todo: parse data and apply action
-  return TRUE;
+  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(owner);
+  gboolean res=FALSE;
+
+  GST_WARNING("undo/redo: [%s]",data);
+  // parse data and apply action
+  if(!strncmp(data,"set_global_event ",17)) {
+    gint row,param,pos;
+    const gchar *str;
+    
+    sscanf(&data[17],"%d,%d,%n",&row,&param,&pos);
+    str=&data[17+pos];
+    GST_WARNING("-> [%d|%d|%s]",row,param,str);
+    res=bt_pattern_set_global_event(self->priv->pattern,row,param,str);
+    // @todo: move cursor
+  }
+  if(res)
+    pattern_table_refresh(self);
+  return res;
 }
 
 static void bt_main_page_patterns_change_logger_interface_init(gpointer const g_iface, gconstpointer const iface_data) {
