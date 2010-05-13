@@ -41,6 +41,37 @@
 
 #include "core_private.h"
 
+//#define USE_G_DEFINE_TYPE 1
+// G_DEFINE_TYPE*, G_IMPLEMENT_INTERFACE are glib 2.4 (safe to be used)
+/* this actualy produces two more PLT entries :/, but see below
+
+// before
+$ objdump -p /home/ensonic/buzztard/lib/libbuzztard-core.so.0.6.0  | grep REL
+  PLTRELSZ             0x000011f8
+  JMPREL               0x0000916c
+  REL                  0x00008d1c
+$ relinfo.pl /home/ensonic/buzztard/lib/libbuzztard-core.so.0.6.0
+138 relocations, 109 relative (78%), 575 PLT entries, 153 for local syms (26%), 0 users
+
+// after
+$ objdump -p /home/ensonic/buzztard/lib/libbuzztard-core.so.0.6.0  | grep REL
+  PLTRELSZ             0x00001208
+  JMPREL               0x000091cc
+  REL                  0x00008d7c
+$ relinfo.pl /home/ensonic/buzztard/lib/libbuzztard-core.so.0.6.0
+138 relocations, 109 relative (78%), 577 PLT entries, 153 for local syms (26%), 0 users
+  
+// delta
+  PLTRELSZ + 0x10
+  JMPREL   + 0x60
+  REL      + 0x60
+
+// compare
+objdump -R /home/ensonic/buzztard/lib/libbuzztard-core.so.0.6.0 | sed "s%  *% %g" | cut -d" " -f 3- | sort >rel.before
+g_intern_static_string
+g_type_register_static_simple
+*/
+
 //-- signal ids
 
 enum {
@@ -121,7 +152,9 @@ struct _BtWirePrivate {
 
 static GQuark error_domain=0;
 
+#ifndef USE_G_DEFINE_TYPE
 static GObjectClass *parent_class=NULL;
+#endif
 
 static guint signals[LAST_SIGNAL]={0,};
 
@@ -139,6 +172,14 @@ static gchar *sink_pn[]={
   "sink",   /* convert */
   "sink"    /* pan */
 };
+
+#ifdef USE_G_DEFINE_TYPE
+static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, GST_TYPE_BIN,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+    bt_wire_persistence_interface_init));
+#endif
 
 
 //-- pad templates
@@ -158,15 +199,6 @@ GST_STATIC_PAD_TEMPLATE ("src",
 
 #define WIRE_PARAM_NAME(ix) self->priv->wire_props[ix]->name
 #define WIRE_PARAM_TYPE(ix) self->priv->wire_props[ix]->value_type
-
-
-/* this actualy produces two more relocations
-static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
-
-G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, GST_TYPE_BIN,
-  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
-    bt_wire_persistence_interface_init));
-*/
 
 //-- helper methods
 
@@ -1279,8 +1311,13 @@ static void bt_wire_constructed(GObject *object) {
   BtWire * const self=BT_WIRE(object);
   BtSetup * const setup;
 
+#ifdef USE_G_DEFINE_TYPE
+  if(G_OBJECT_CLASS(bt_wire_parent_class)->constructed)
+    G_OBJECT_CLASS(bt_wire_parent_class)->constructed(object);
+#else
   if(G_OBJECT_CLASS(parent_class)->constructed)
     G_OBJECT_CLASS(parent_class)->constructed(object);
+#endif
 
   if(BT_IS_SINK_MACHINE(self->priv->src))
     goto SrcIsSinkMachineError;
@@ -1469,7 +1506,11 @@ static void bt_wire_dispose(GObject * const object) {
   g_object_try_unref(self->priv->src);
 
   GST_DEBUG("  chaining up");
+#ifdef USE_G_DEFINE_TYPE
+  G_OBJECT_CLASS(bt_wire_parent_class)->dispose(object);
+#else
   G_OBJECT_CLASS(parent_class)->dispose(object);
+#endif
   GST_DEBUG("  done");
   
 }
@@ -1482,7 +1523,11 @@ static void bt_wire_finalize(GObject * const object) {
   g_hash_table_destroy(self->priv->properties);
   g_hash_table_destroy(self->priv->patterns);
 
+#ifdef USE_G_DEFINE_TYPE
+  G_OBJECT_CLASS(bt_wire_parent_class)->finalize(object);
+#else
   G_OBJECT_CLASS(parent_class)->finalize(object);
+#endif
 }
 
 static void bt_wire_init(BtWire *self) {
@@ -1504,9 +1549,13 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
   GstElementClass * const gstelement_klass = GST_ELEMENT_CLASS(klass);
 
-  // @idea: g_type_qname(BT_TYPE_WIRE);
-  error_domain=g_quark_from_static_string("BtWire");
+  // g_type_qname() is ((TypeNode *)type)->qname;
+  // seems to be save to call in _class_init  
+  //error_domain=g_quark_from_static_string("BtWire");
+  error_domain=g_type_qname(BT_TYPE_WIRE);
+#ifndef USE_G_DEFINE_TYPE
   parent_class=g_type_class_peek_parent(klass);
+#endif
   g_type_class_add_private(klass,sizeof(BtWirePrivate));
 
   gobject_class->constructed  = bt_wire_constructed;
@@ -1601,6 +1650,7 @@ static void bt_wire_class_init(BtWireClass * const klass) {
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
+#ifndef USE_G_DEFINE_TYPE
 GType bt_wire_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
@@ -1626,4 +1676,4 @@ GType bt_wire_get_type(void) {
   }
   return type;
 }
-
+#endif

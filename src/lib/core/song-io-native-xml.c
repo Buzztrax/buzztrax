@@ -156,7 +156,7 @@ static void bt_song_io_native_xml_class_init(BtSongIONativeClass * const klass) 
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
   BtSongIOClass * const btsongio_class = BT_SONG_IO_CLASS(klass);
 
-  error_domain=g_quark_from_static_string("BtSongIONativeXML");
+  error_domain=g_type_qname(BT_TYPE_SONG_IO_NATIVE_XML);
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongIONativeXMLPrivate));
 

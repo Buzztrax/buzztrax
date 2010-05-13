@@ -901,9 +901,7 @@ static void bt_wave_init(GTypeInstance * const instance, gconstpointer const g_c
 static void bt_wave_class_init(BtWaveClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  // @idea: g_type_qname(BT_TYPE_WAVE);
-  error_domain=g_quark_from_static_string("BtWave");
-
+  error_domain=g_type_qname(BT_TYPE_WAVE);
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWavePrivate));
 

@@ -1,5 +1,16 @@
 2010-05-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	  Use g_type_qname() for error domain. Also experiemnt and add more info
+	  for G_DEFINE_TYPE usage.
+
+2010-05-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	  Update widgets after we set the qdata, as the update functions need
 	  it and would otherwise trigger asserts.

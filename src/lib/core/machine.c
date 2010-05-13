@@ -3531,9 +3531,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
   GstElementClass * const gstelement_class = GST_ELEMENT_CLASS(klass);
 
-  // @idea: g_type_qname(BT_TYPE_MACHINE);
-  error_domain=g_quark_from_static_string("BtMachine");
-
+  error_domain=g_type_qname(BT_TYPE_MACHINE);
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePrivate));
 
