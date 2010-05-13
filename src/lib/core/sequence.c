@@ -279,7 +279,7 @@ static glong bt_sequence_get_track_by_machine(const BtSequence * const self,cons
  * Enforce the playback position to be within loop start and end or the song
  * bounds if there is no loop.
  */
-void bt_sequence_limit_play_pos_internal(const BtSequence * const self) {
+static void bt_sequence_limit_play_pos_internal(const BtSequence * const self) {
   gulong old_play_pos,new_play_pos;
 
   g_object_get(self->priv->song,"play-pos",&old_play_pos,NULL);
