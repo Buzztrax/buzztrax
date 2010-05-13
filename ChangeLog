@@ -1,5 +1,11 @@
 2010-05-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-properties-dialog.c:
+	  Update widgets after we set the qdata, as the update functions need
+	  it and would otherwise trigger asserts.
+
+2010-05-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* autogen.sh:
 	  Also kill shave from default args.
 

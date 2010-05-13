@@ -1412,7 +1412,6 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,Gs
   //step=(int_property->maximum-int_property->minimum)/1024.0;
   widget=gtk_hscale_new_with_range(g_value_get_int(range_min),g_value_get_int(range_max),1.0);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
-  //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   // @todo add numerical entry as well ?
 
@@ -1420,32 +1419,21 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,Gs
   g_sprintf(signal_name,"notify::%s",property->name);
   g_signal_connect(machine, signal_name, G_CALLBACK(on_int_range_property_notify), (gpointer)widget);
   g_signal_connect(widget, "value-changed", G_CALLBACK(on_int_range_property_changed), (gpointer)machine);
-  /* we have draw_value=FALSE
-  if(GST_IS_ELEMENT(machine)) {
-    g_signal_connect(widget, "format-value", G_CALLBACK(on_int_range_global_property_format_value), (gpointer)self->priv->machine);
-  }
-  else {
-    g_signal_connect(widget, "format-value", G_CALLBACK(on_int_range_voice_property_format_value), (gpointer)self->priv->machine);
-  }
-  */
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
-  // update formatted text on label
-  update_int_range_label(self,GTK_RANGE(widget),machine,GTK_LABEL(label),(gdouble)value);
   return(widget);
 }
 
 static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
-  gint value;
+  guint value;
 
   g_object_get(machine,property->name,&value,NULL);
   //step=(int_property->maximum-int_property->minimum)/1024.0;
   widget=gtk_hscale_new_with_range(g_value_get_uint(range_min),g_value_get_uint(range_max),1.0);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
-  //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   // @todo add numerical entry as well ?
 
@@ -1453,19 +1441,9 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,G
   g_sprintf(signal_name,"notify::%s",property->name);
   g_signal_connect(machine,signal_name,G_CALLBACK(on_uint_range_property_notify), (gpointer)widget);
   g_signal_connect(widget,"value-changed",G_CALLBACK(on_uint_range_property_changed), (gpointer)machine);
-  /* we have draw_value=FALSE
-  if(GST_IS_ELEMENT(machine)) {
-    g_signal_connect(widget,"format-value",G_CALLBACK(on_uint_range_global_property_format_value), (gpointer)self->priv->machine);
-  }
-  else {
-    g_signal_connect(widget,"format-value",G_CALLBACK(on_uint_range_voice_property_format_value), (gpointer)self->priv->machine);
-  }
-  */
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
-  // update formatted text on label
-  update_uint_range_label(self,GTK_RANGE(widget),machine,GTK_LABEL(label),(gdouble)value);
   return(widget);
 }
 
@@ -1478,11 +1456,9 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
 
   g_object_get(machine,property->name,&value,NULL);
   step=((gdouble)value_max-(gdouble)value_min)/1024.0;
-  //GST_WARNING("step = %f", step);
 
   widget=gtk_hscale_new_with_range(value_min,value_max,step);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
-  //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   // @todo add numerical entry as well ?
 
@@ -1490,13 +1466,9 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
   g_sprintf(signal_name,"notify::%s",property->name);
   g_signal_connect(machine, signal_name, G_CALLBACK(on_float_range_property_notify), (gpointer)widget);
   g_signal_connect(widget, "value-changed", G_CALLBACK(on_float_range_property_changed), (gpointer)machine);
-  //g_signal_connect(widget, "format-value", G_CALLBACK(on_float_range_global_property_format_value), (gpointer)machine);
-
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
-  // update formatted text on label
-  update_float_range_label(GTK_LABEL(label),value);
   return(widget);
 }
 
@@ -1512,7 +1484,6 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
 
   widget=gtk_hscale_new_with_range(value_min,value_max,step);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
-  //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   // @todo add numerical entry as well ?
 
@@ -1520,13 +1491,9 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   g_sprintf(signal_name,"notify::%s",property->name);
   g_signal_connect(machine, signal_name, G_CALLBACK(on_double_range_property_notify), (gpointer)widget);
   g_signal_connect(widget, "value-changed", G_CALLBACK(on_double_range_property_changed), (gpointer)machine);
-  //g_signal_connect(widget, "format-value", G_CALLBACK(on_double_range_global_property_format_value), (gpointer)machine);
-
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
-  // update formatted text on label
-  update_double_range_label(GTK_LABEL(label),value);
   return(widget);
 }
 
@@ -1583,7 +1550,6 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self,Gst
   g_sprintf(signal_name,"notify::%s",property->name);
   g_signal_connect(machine, signal_name, G_CALLBACK(on_combobox_property_notify), (gpointer)widget);
   g_signal_connect(widget, "changed", G_CALLBACK(on_combobox_property_changed), (gpointer)machine);
-
   //g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   //g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
@@ -1604,7 +1570,6 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self,Gst
   g_sprintf(signal_name,"notify::%s",property->name);
   g_signal_connect(machine, signal_name, G_CALLBACK(on_checkbox_property_notify), (gpointer)widget);
   g_signal_connect(widget, "toggled", G_CALLBACK(on_checkbox_property_toggled), (gpointer)machine);
-
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_trigger_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
@@ -1658,13 +1623,13 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
       widget2=gtk_label_new(NULL);
       widget1=make_double_range_widget(self,object,property,range_min,range_max,widget2);
       break;
-    case G_TYPE_ENUM: {
+    case G_TYPE_ENUM:
       if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH)
         widget1=make_checkbox_widget(self,object,property);
       else
         widget1=make_combobox_widget(self,object,property,range_min,range_max);
       widget2=NULL;
-    } break;
+      break;
     default: {
       gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
       widget1=gtk_label_new(str);g_free(str);
@@ -1683,6 +1648,34 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
   g_object_set_qdata(G_OBJECT(widget1),widget_param_num_quark,GINT_TO_POINTER(row));
   pg->parent[row]=object;
   pg->property[row]=property;
+  
+  // update formatted text on labels
+  switch(base_type) {
+    case G_TYPE_INT: {
+      gint value;
+
+      g_object_get(object,property->name,&value,NULL);
+      update_int_range_label(self,GTK_RANGE(widget1),object,GTK_LABEL(widget2),(gdouble)value);
+    } break;
+    case G_TYPE_UINT: {
+      guint value;
+
+      g_object_get(object,property->name,&value,NULL);
+      update_uint_range_label(self,GTK_RANGE(widget1),object,GTK_LABEL(widget2),(gdouble)value);
+    } break;
+    case G_TYPE_FLOAT: {
+      gfloat value;
+
+      g_object_get(object,property->name,&value,NULL);
+      update_float_range_label(GTK_LABEL(widget2),(gdouble)value);
+    } break;
+    case G_TYPE_DOUBLE: {
+      gdouble value;
+
+      g_object_get(object,property->name,&value,NULL);
+      update_double_range_label(GTK_LABEL(widget2),(gdouble)value);
+    } break;
+  }
 
   gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
   if(!widget2) {
