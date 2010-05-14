@@ -1,5 +1,10 @@
 2010-05-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-menu.c:
+	  Add menu accelerators for undo/redo. Some reformatting.
+
+2010-05-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/change-log.c:
 	* src/ui/edit/main-page-patterns.c:
 	  More undo/redo implementation for patterns. More ideas about the
