@@ -1,3 +1,22 @@
+2010-05-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/change-log.c:
+	  More design comments.
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	  Move cursor (need group and param still).
+	  
+	* tests/m-bt-edit.c:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-change-log.c:
+	* tests/ui/edit/s-bt-change-log.c:
+	* tests/ui/edit/e-bt-change-log.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/s-bt-change-log.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/s-bt-change-log.c (added):
+	* tests/ui/edit/e-bt-change-log.c (added):
+	  Add initial tests for undo/redo.
+
 2010-05-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:

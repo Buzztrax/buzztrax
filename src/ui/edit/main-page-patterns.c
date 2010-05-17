@@ -2905,7 +2905,8 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
     str=&data[17+pos];
     GST_WARNING("-> [%d|%d|%s]",row,param,str);
     res=bt_pattern_set_global_event(self->priv->pattern,row,param,str);
-    // @todo: move cursor
+    // @todo: move cursor group and param?
+    g_object_set(self->priv->pattern_table,"cursor-row",row,NULL);
   }
   if(res)
     pattern_table_refresh(self);

@@ -6,6 +6,7 @@ libbt_edit_check_la_LIBADD = \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS)
 libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-about-dialog.c e-bt-about-dialog.c \
+	s-bt-change-log.c e-bt-change-log.c \
 	s-bt-controller-learn-dialog.c e-bt-controller-learn-dialog.c \
 	s-bt-edit-application.c e-bt-edit-application.c \
 	s-bt-interaction-controller-menu.c e-bt-interaction-controller-menu.c \

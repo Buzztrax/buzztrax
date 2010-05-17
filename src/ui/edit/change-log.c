@@ -41,16 +41,40 @@
  *              >pattern.set(0,0,0.0)   pattern.set(0,0,1.0)
  *
  * add:         undo: 1                redo: 2
- *               pattern.set(0,0,0.0)   pattern.set(0,0,1.0)    
+ *               pattern.set(0,0,0.0)   pattern.set(0,0,1.0)
  *              >pattern.set(0,0,1.0)   pattern.set(0,0,2.0)
  *
  * undo:        undo: 0                redo: 1
- *              >pattern.set(0,0,0.0)   pattern.set(0,0,1.0)    
+ *              >pattern.set(0,0,0.0)   pattern.set(0,0,1.0)
  *               pattern.set(0,0,1.0)  >pattern.set(0,0,2.0)
  *
  * redo:        undo: 1                redo: 2
- *               pattern.set(0,0,0.0)   pattern.set(0,0,1.0)    
+ *               pattern.set(0,0,0.0)   pattern.set(0,0,1.0)
  *              >pattern.set(0,0,1.0)   pattern.set(0,0,2.0)
+
+new:  []         u[]     r[]
+                  ^        ^     -1,0
+add:  [a]        u[ ]    r[a]
+                   ^        ^     0,1
+add:  [ab]       u[  ]   r[ab]
+                    ^ 1      ^    1,2
+add:  [abc]      u[   ]  r[abc]
+                     ^        ^   2,3
+undo: [ab]       u[   ]  r[abc]    \
+                    ^        ^    1,2
+redo: [abc]      u[   ]  r[abc]    /
+                     ^        ^   2,3
+undo: [ab]       u[   ]  r[abc]    \
+                    ^        ^    1,2
+add:  [abd]      u[   ]  r[abd]    /    { this looses the 'c' }
+                     ^        ^   2,3
+undo: [ab]       u[   ]  r[abd]    \
+                    ^        ^    1,2
+
+-- can we get the 'c' back - no
+when adding a new action, we will always truncate the undo/redo stack.
+Otherwise it becomes a graph and then redo would need to know the direction.
+
  */
 
 #define BT_EDIT
@@ -91,6 +115,7 @@ struct _BtChangeLogPrivate {
   guint last_saved;
   gint next_redo;  // -1 for none, or just have pointers?
   gint next_undo;  // -1 for none, or just have pointers?
+  gint item_ct;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -242,6 +267,19 @@ void bt_change_log_reset(BtChangeLog *self) {
 void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data) {
   BtChangeLogEntry *cle;
   
+  // if we have redo data, we have to cut the trail here
+  if(self->priv->next_redo<(self->priv->item_ct-1)) {
+    gint i;
+    
+    GST_WARNING("trunc %d<%d",self->priv->next_redo,(self->priv->item_ct-1));
+    for(i=self->priv->item_ct-1;i>self->priv->next_redo;i--) {
+      cle=g_ptr_array_remove_index(self->priv->changes,i);
+      g_free(cle->undo_data);
+      g_free(cle->redo_data);
+      g_slice_free(BtChangeLogEntry,cle);
+      self->priv->item_ct--;
+    }
+  }
   // make new BtChangeLogEntry from the parameters
   cle=g_slice_new(BtChangeLogEntry);
   cle->owner=owner;
@@ -250,6 +288,7 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
   cle->redo_data=redo_data;
   // append and update undo undo/redo pointers
   g_ptr_array_add(self->priv->changes,cle);
+  self->priv->item_ct++;
   /* @todo: serialize properly
    * - we need to identify the instance, so that when deserializing, we can get
    *   the owner from a string
@@ -263,7 +302,7 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
   fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
   fflush(self->priv->log_file);
   // update undo undo/redo pointers
-  //self->priv->next_undo=self->priv->changes->len-1;
+  //self->priv->next_undo=self->priv->item_ct-1;
   self->priv->next_undo++;
   self->priv->next_redo++;
   GST_WARNING("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);
@@ -284,7 +323,7 @@ void bt_change_log_undo(BtChangeLog *self)
     if(self->priv->next_undo==-1) {
       g_object_notify((GObject *)self,"can-undo");
     }
-    if(self->priv->next_redo==(self->priv->changes->len-1)) {
+    if(self->priv->next_redo==(self->priv->item_ct-1)) {
       g_object_notify((GObject *)self,"can-redo");
     }
   }
@@ -299,7 +338,7 @@ void bt_change_log_redo(BtChangeLog *self)
     self->priv->next_undo=self->priv->next_redo;
     self->priv->next_redo++;
     GST_WARNING("redo %d, %d",self->priv->next_undo,self->priv->next_redo);
-    if(self->priv->next_redo==self->priv->changes->len) {
+    if(self->priv->next_redo==self->priv->item_ct) {
       g_object_notify((GObject *)self,"can-redo");
     }
     if(self->priv->next_undo==0) {
@@ -320,12 +359,12 @@ static void bt_change_log_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   
-  for(i=0;i<self->priv->changes->len;i++) {
+  for(i=0;i<self->priv->item_ct;i++) {
     cle=g_ptr_array_index(self->priv->changes,i);
     g_free(cle->undo_data);
     g_free(cle->redo_data);
     g_slice_free(BtChangeLogEntry,cle);
-  }  
+  }
   g_ptr_array_free(self->priv->changes,TRUE);
   
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
@@ -366,7 +405,7 @@ static void bt_change_log_get_property(GObject *object, guint property_id, GValu
       g_value_set_boolean(value,(self->priv->next_undo!=-1));
     } break;
     case CHANGE_LOG_CAN_REDO: {
-      g_value_set_boolean(value,(self->priv->next_redo!=self->priv->changes->len));
+      g_value_set_boolean(value,(self->priv->next_redo!=self->priv->item_ct));
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

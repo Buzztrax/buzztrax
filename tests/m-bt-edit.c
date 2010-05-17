@@ -35,6 +35,7 @@ GST_DEBUG_CATEGORY_EXTERN(btic_debug);
 GST_DEBUG_CATEGORY_EXTERN(bt_edit_debug);
 
 extern Suite *bt_about_dialog_suite(void);
+extern Suite *bt_change_log_suite(void);
 extern Suite *bt_controller_learn_dialog_suite(void);
 extern Suite *bt_edit_application_suite(void);
 extern Suite *bt_interaction_controller_menu_suite(void);
@@ -130,6 +131,7 @@ int main(int argc, char **argv) {
 #endif
 
   sr=srunner_create(bt_about_dialog_suite());
+  srunner_add_suite(sr, bt_change_log_suite());
   srunner_add_suite(sr, bt_controller_learn_dialog_suite());
   srunner_add_suite(sr, bt_edit_application_suite());
   srunner_add_suite(sr, bt_interaction_controller_menu_suite());

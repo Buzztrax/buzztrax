@@ -1246,6 +1246,15 @@ bt_pattern_editor_set_property(GObject      *object,
     case PATTERN_EDITOR_OCTAVE: {
       self->octave = g_value_get_uint(value);
     } break;
+    case PATTERN_EDITOR_CURSOR_GROUP: {
+      self->group = g_value_get_uint(value);
+    } break;
+    case PATTERN_EDITOR_CURSOR_PARAM: {
+      self->parameter = g_value_get_uint(value);
+    } break;
+    case PATTERN_EDITOR_CURSOR_ROW: {
+      self->row = g_value_get_uint(value);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -1325,7 +1334,7 @@ bt_pattern_editor_class_init (BtPatternEditorClass *klass)
                                      0,
                                      G_MAXUINT,
                                      0,
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_EDITOR_CURSOR_PARAM,
                                   g_param_spec_uint("cursor-param",
@@ -1334,7 +1343,7 @@ bt_pattern_editor_class_init (BtPatternEditorClass *klass)
                                      0,
                                      G_MAXUINT,
                                      0,
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_EDITOR_CURSOR_ROW,
                                   g_param_spec_uint("cursor-row",
@@ -1343,7 +1352,7 @@ bt_pattern_editor_class_init (BtPatternEditorClass *klass)
                                      0,
                                      G_MAXUINT,
                                      0,
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 
