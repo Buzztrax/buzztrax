@@ -26,6 +26,9 @@
 typedef struct {
   const GObject parent;
   
+  BtChangeLog *change_log;
+  
+  gint val;
 } BtTestChangeLogger;
 
 typedef struct {
@@ -34,7 +37,14 @@ typedef struct {
 } BtTestChangeLoggerClass;
 
 static gboolean bt_test_change_logger_change(const BtChangeLogger *owner,const gchar *data) {
-  return TRUE;
+  BtTestChangeLogger *self = (BtTestChangeLogger *)owner;
+  gboolean res=FALSE;
+
+  if(!strncmp(data,"set_value ",10)) {
+    self->val=atoi(&data[10]);
+    res=TRUE;
+  }
+  return res;
 }
 
 static void bt_test_change_logger_interface_init(gpointer const g_iface, gconstpointer const iface_data) {
@@ -43,10 +53,20 @@ static void bt_test_change_logger_interface_init(gpointer const g_iface, gconstp
   iface->change = bt_test_change_logger_change;
 }
 
+static void bt_test_change_logger_dispose(GObject *object) {
+  BtTestChangeLogger *self = (BtTestChangeLogger *)object;
+  
+  g_object_unref(self->change_log);
+}
+
 static void bt_test_change_logger_init(BtTestChangeLogger *self) {
+  self->change_log=bt_change_log_new();
 }
 
 static void bt_test_change_logger_class_init(BtTestChangeLoggerClass * const klass) {
+  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  
+  gobject_class->dispose      = bt_test_change_logger_dispose;
 }
 
 G_DEFINE_TYPE_WITH_CODE(BtTestChangeLogger, bt_test_change_logger, G_TYPE_OBJECT,
@@ -72,7 +92,7 @@ static void test_teardown(void) {
 //-- tests
 
 // test lifecycle/refcounts
-BT_START_TEST(test_create_and_destry) {
+BT_START_TEST(test_create_and_destroy) {
   BtChangeLog *cl;
 
   cl=bt_change_log_new();
@@ -97,9 +117,28 @@ BT_START_TEST(test_undo_redo) {
   
   // create a test instance that implements changelogger iface
   tcl=bt_test_change_logger_new();
-  fail_unless(cl != NULL, NULL);
+  fail_unless(tcl != NULL, NULL);
 
-  // todo: make changes
+  // make changes
+  tcl->val=5;
+  bt_change_log_add(tcl->change_log,BT_CHANGE_LOGGER(tcl),"set_val 0","set_val 5");
+  g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
+  fail_unless(can_undo, NULL);
+  fail_unless(!can_redo, NULL);
+  
+  // undo & verify
+  bt_change_log_undo(tcl->change_log);
+  fail_unless(tcl->val==0, NULL);
+  g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
+  fail_unless(!can_undo, NULL);
+  fail_unless(can_redo, NULL);
+  
+  // redo & verify
+  bt_change_log_redo(tcl->change_log);
+  fail_unless(tcl->val==5, NULL);
+  g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
+  fail_unless(can_undo, NULL);
+  fail_unless(!can_redo, NULL);
 
   g_object_unref(tcl);
   g_object_checked_unref(cl);
@@ -109,7 +148,7 @@ BT_END_TEST
 TCase *bt_change_log_example_case(void) {
   TCase *tc = tcase_create("BtChangeLogExamples");
 
-  tcase_add_test(tc,test_create_and_destry);
+  tcase_add_test(tc,test_create_and_destroy);
   tcase_add_test(tc,test_undo_redo);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);

@@ -1,3 +1,8 @@
+2010-05-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/ui/edit/e-bt-change-log.c:
+	  Further implement the change log tester object and run a few basic tests.
+
 2010-05-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
