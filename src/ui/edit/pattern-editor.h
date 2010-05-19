@@ -62,7 +62,6 @@ enum _BtPatternEditorColumnGroupType {
 };
 typedef enum _BtPatternEditorColumnGroupType BtPatternEditorColumnGroupType;
 
-
 /**
  * BtPatternEditorColumnGroup:
  *

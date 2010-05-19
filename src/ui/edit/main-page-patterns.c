@@ -1116,18 +1116,18 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
   BtPatternEditorColumnGroup *group = &self->priv->param_groups[track];
 
   switch (group->type) {
-    case 0: {
+    case PGT_WIRE: {
       BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
       if(wire_pattern) {
         str=bt_wire_pattern_get_event(wire_pattern,row,param);
         g_object_unref(wire_pattern);
       }
     } break;
-    case 1:
+    case PGT_GLOBAL:
       str=bt_pattern_get_global_event(self->priv->pattern,row,param);
       //if(param==0 && row<2) GST_WARNING("get global event: %s",str);
       break;
-    case 2:
+    case PGT_VOICE:
       str=bt_pattern_get_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),param);
       break;
     default:
@@ -1288,7 +1288,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   }
 
   switch (group->type) {
-    case 0: {
+    case PGT_WIRE: {
       BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
       if(!wire_pattern) {
         BtSong *song;
@@ -1300,7 +1300,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       bt_wire_pattern_set_event(wire_pattern,row,param,str);
       g_object_unref(wire_pattern);
     } break;
-    case 1:
+    case PGT_GLOBAL:
       {
         // serialize action
         // @todo: we need to identify the pattern (owner) for the replay
@@ -1312,7 +1312,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       }
       bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       break;
-    case 2:
+    case PGT_VOICE:
       bt_pattern_set_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),param,str);
       break;
     default:
