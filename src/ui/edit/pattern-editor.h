@@ -34,37 +34,43 @@ G_BEGIN_DECLS
 #define BT_IS_PATTERN_EDITOR_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  BT_TYPE_PATTERN_EDITOR))
 
 
-enum BtPatternEditorColumnType
-{
-  PCT_NOTE,
+enum _BtPatternEditorColumnType {
+  PCT_NOTE=0,
   PCT_SWITCH,
   PCT_BYTE,
   PCT_WORD,
   PCT_FLOAT
 };
+typedef enum _BtPatternEditorColumnType BtPatternEditorColumnType;
 
 /**
  * BtPatternEditorColumn:
  *
  * A parameter column.
  */
-struct _BtPatternEditorColumn
-{
-  enum BtPatternEditorColumnType type;
+struct _BtPatternEditorColumn {
+  BtPatternEditorColumnType type;
   float def, min, max;
   gpointer user_data;
 };
 typedef struct _BtPatternEditorColumn BtPatternEditorColumn;
+
+enum _BtPatternEditorColumnGroupType {
+  PGT_WIRE=0,
+  PGT_GLOBAL,
+  PGT_VOICE
+};
+typedef enum _BtPatternEditorColumnGroupType BtPatternEditorColumnGroupType;
+
 
 /**
  * BtPatternEditorColumnGroup:
  *
  * A group of #BtPatternEditorColumns, such as a voice or all global parameters.
  */
-struct _BtPatternEditorColumnGroup
-{
-  // just an id to tell groups apart (wire=0, global=1, voice=2)
-  int type;
+struct _BtPatternEditorColumnGroup {
+  // just an id to tell groups apart
+  BtPatternEditorColumnGroupType type;
   // can be used for the headline above the group
   char *name;
   int num_columns;
@@ -81,8 +87,7 @@ typedef struct _BtPatternEditorColumnGroup BtPatternEditorColumnGroup;
  *
  * Data format conversion callbacks.
  */
-struct _BtPatternEditorCallbacks
-{
+struct _BtPatternEditorCallbacks {
   /* FIXME: what about supplying
    * - BtPatternEditorColumn instead of BtPatternEditorColumn->user_data
    * - BtPatternEditorColumnGroup instead of track;
@@ -101,20 +106,19 @@ typedef struct _BtPatternEditorPrivate BtPatternEditorPrivate;
  *
  * Seleting single columns, whole groups (e.g. voices) or the whole pattern.
  */
-enum BtPatternEditorSelectionMode
-{
+enum _BtPatternEditorSelectionMode {
   PESM_COLUMN,
   PESM_GROUP,
   PESM_ALL
 };
+typedef enum _BtPatternEditorSelectionMode BtPatternEditorSelectionMode;
 
 /**
  * BtPatternEditor:
  *
  * Opaque editor instance data.
  */
-struct _BtPatternEditor
-{
+struct _BtPatternEditor {
   GtkWidget parent;
 
   /*< private >*/
@@ -134,7 +138,7 @@ struct _BtPatternEditor
   gpointer pattern_data;
   /* selection */
   gboolean selection_enabled;
-  enum BtPatternEditorSelectionMode selection_mode;
+  BtPatternEditorSelectionMode selection_mode;
   int selection_start, selection_end, selection_group, selection_param;
   
   /* font metrics */
@@ -154,11 +158,9 @@ struct _BtPatternEditor
   
   /* scroll adjustments */
   GtkAdjustment *hadj,*vadj;
-
 };
 
-struct _BtPatternEditorClass
-{
+struct _BtPatternEditorClass {
   GtkWidgetClass parent_class;
 
   /* signal slots */

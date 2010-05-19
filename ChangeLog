@@ -1,3 +1,12 @@
+2010-05-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fully restore cursor pos on undo/redo.
+
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Use an enum instead of the group type. Add typedefs for the enums.
+
 2010-05-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/change-log.c:

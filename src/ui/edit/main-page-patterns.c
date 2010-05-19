@@ -339,7 +339,7 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
       guint i=0;
 
       pc_group=&self->priv->param_groups[0];
-      while(pc_group->type==0) {
+      while(pc_group->type==PGT_WIRE) {
         wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
         if(wire_pattern) {
           do_wire_pattern_columns(wire_pattern,beg,end);
@@ -495,7 +495,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
       g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, NULL);
       GST_INFO("ctrl-shift-insert pressed, row %lu",self->priv->cursor_row);
-      while(self->priv->param_groups[i].type==0) {
+      while(self->priv->param_groups[i].type==PGT_WIRE) {
         if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
           bt_wire_pattern_insert_full_row(wire_pattern,self->priv->cursor_row);
           g_object_unref(wire_pattern);
@@ -580,7 +580,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
       g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, NULL);
       GST_INFO("ctrl-shift-delete pressed, row %lu",self->priv->cursor_row);
-      while(self->priv->param_groups[i].type==0) {
+      while(self->priv->param_groups[i].type==PGT_WIRE) {
         if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
           bt_wire_pattern_delete_full_row(wire_pattern,self->priv->cursor_row);
           g_object_unref(wire_pattern);
@@ -672,7 +672,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           BtWirePattern *wire_pattern;
           guint i=0;
     
-          while(self->priv->param_groups[i].type==0) {
+          while(self->priv->param_groups[i].type==PGT_WIRE) {
             wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern);
             if(!wire_pattern) {
               BtSong *song;
@@ -785,7 +785,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           BtWirePattern *wire_pattern;
           guint i=0;
     
-          while(self->priv->param_groups[i].type==0) {
+          while(self->priv->param_groups[i].type==PGT_WIRE) {
             wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern);
             if(!wire_pattern) {
               BtSong *song;
@@ -1157,13 +1157,13 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
     if(value!=group->columns[param].def)
       str=bt_persistence_strfmt_double(value);
 
-  if(group->type==1 || group->type==2) {
+  if(group->type==PGT_GLOBAL || group->type==PGT_VOICE) {
     BtMachine *machine;
     gboolean is_trigger;
 
     g_object_get(self->priv->pattern,"machine",&machine,NULL);
     
-    if(group->type==1)
+    if(group->type==PGT_GLOBAL)
       is_trigger=bt_machine_is_global_param_trigger(machine,param);
     else
       is_trigger=bt_machine_is_voice_param_trigger(machine,param);
@@ -1178,7 +1178,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
         g_object_get(machine,"machine",&element,NULL);
   
         /* @todo: buzz machines need set, tick, unset */ 
-        if(group->type==1) {
+        if(group->type==PGT_GLOBAL) {
           GST_INFO("play global trigger: %f,'%s'",value,str);
           switch(group->columns[param].type) {
             case PCT_NOTE:
@@ -1480,7 +1480,7 @@ static void pattern_table_clear(const BtMainPagePatterns *self) {
   for(i=0;i<self->priv->number_of_groups;i++) {
     for(j=0;j<self->priv->param_groups[i].num_columns;j++) {
       // voice parameter groups are copies
-      if(!((self->priv->param_groups[i].type==2) && (self->priv->param_groups[i].user_data!=NULL)))
+      if(!((self->priv->param_groups[i].type==PGT_VOICE) && (self->priv->param_groups[i].user_data!=NULL)))
         g_free(self->priv->param_groups[i].columns[j].user_data);
     }
     g_free(self->priv->param_groups[i].name);
@@ -1531,7 +1531,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
         wire=BT_WIRE(node->data);
         // check wire config
         g_object_get(wire,"num-params",&wire_params,"src",&src,NULL);
-        group->type=0;
+        group->type=PGT_WIRE;
         g_object_get(src,"id",&group->name,NULL), 
         group->user_data=wire;
         group->num_columns=wire_params;
@@ -1549,7 +1549,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
     }
     if(global_params) {
       // create mapping for global params
-      group->type=1;
+      group->type=PGT_GLOBAL;
       /* label for first global parameter column in a pattern */
       group->name=g_strdup(_("Globals"));
       group->user_data=NULL;
@@ -1565,7 +1565,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
     if(voices) {
       BtPatternEditorColumnGroup *stamp=group;
       // create mapping for voice params
-      group->type=2;
+      group->type=PGT_VOICE;
       /* label for parameters of first voice column in a pattern */
       group->name=g_strdup(_("Voice 1"));
       group->user_data=GUINT_TO_POINTER(0);
@@ -1578,7 +1578,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       }
       group++;
       for(i=1;i<voices;i++) {
-        group->type=2;
+        group->type=PGT_VOICE;
         /* label for parameters of voice columns in a pattern */
         group->name=g_strdup_printf(_("Voice %u"),(guint)(i+1));
         group->user_data=GUINT_TO_POINTER(i);
@@ -2704,7 +2704,7 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
       guint i=0;
 
       pc_group=&self->priv->param_groups[0];
-      while(pc_group->type==0) {
+      while(pc_group->type==PGT_WIRE) {
         wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
         if(wire_pattern) {
           bt_wire_pattern_serialize_columns(wire_pattern,beg,end,data);
@@ -2898,15 +2898,22 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
   GST_WARNING("undo/redo: [%s]",data);
   // parse data and apply action
   if(!strncmp(data,"set_global_event ",17)) {
-    gint row,param,pos;
+    gint row,param,pos,group;
     const gchar *str;
     
     sscanf(&data[17],"%d,%d,%n",&row,&param,&pos);
     str=&data[17+pos];
     GST_WARNING("-> [%d|%d|%s]",row,param,str);
     res=bt_pattern_set_global_event(self->priv->pattern,row,param,str);
-    // @todo: move cursor group and param?
-    g_object_set(self->priv->pattern_table,"cursor-row",row,NULL);
+    
+    // move cursor
+    for(group=0;group<self->priv->number_of_groups;group++) {
+      if(self->priv->param_groups[group].type==PGT_GLOBAL) break;
+    }
+    g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
+  }
+  else {
+    GST_WARNING("unhandled undo/redo: [%s]",data);
   }
   if(res)
     pattern_table_refresh(self);

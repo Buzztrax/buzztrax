@@ -1247,10 +1247,16 @@ bt_pattern_editor_set_property(GObject      *object,
       self->octave = g_value_get_uint(value);
     } break;
     case PATTERN_EDITOR_CURSOR_GROUP: {
+      guint old = self->group;
       self->group = g_value_get_uint(value);
+      if (self->group != old)
+        self->parameter=self->digit=0;
     } break;
     case PATTERN_EDITOR_CURSOR_PARAM: {
+      guint old = self->parameter;
       self->parameter = g_value_get_uint(value);
+      if (self->parameter != old)
+        self->digit=0;
     } break;
     case PATTERN_EDITOR_CURSOR_ROW: {
       self->row = g_value_get_uint(value);
