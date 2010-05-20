@@ -40,8 +40,9 @@ static gboolean bt_test_change_logger_change(const BtChangeLogger *owner,const g
   BtTestChangeLogger *self = (BtTestChangeLogger *)owner;
   gboolean res=FALSE;
 
-  if(!strncmp(data,"set_value ",10)) {
-    self->val=atoi(&data[10]);
+  if(!strncmp(data,"set_val ",8)) {
+    self->val=atoi(&data[8]);
+    GST_DEBUG("val=%d",self->val);
     res=TRUE;
   }
   return res;
@@ -103,7 +104,7 @@ BT_START_TEST(test_create_and_destroy) {
 BT_END_TEST
 
 // test undo/redo actions
-BT_START_TEST(test_undo_redo) {
+BT_START_TEST(test_undo_redo_1) {
   BtChangeLog *cl;
   BtTestChangeLogger *tcl;
   gboolean can_undo,can_redo;
@@ -119,15 +120,16 @@ BT_START_TEST(test_undo_redo) {
   tcl=bt_test_change_logger_new();
   fail_unless(tcl != NULL, NULL);
 
-  // make changes
+  // make 1 change
   tcl->val=5;
-  bt_change_log_add(tcl->change_log,BT_CHANGE_LOGGER(tcl),"set_val 0","set_val 5");
+  bt_change_log_add(tcl->change_log,BT_CHANGE_LOGGER(tcl),g_strdup("set_val 0"),g_strdup("set_val 5"));
   g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
   fail_unless(can_undo, NULL);
   fail_unless(!can_redo, NULL);
   
   // undo & verify
   bt_change_log_undo(tcl->change_log);
+  GST_DEBUG("val=%d",tcl->val);
   fail_unless(tcl->val==0, NULL);
   g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
   fail_unless(!can_undo, NULL);
@@ -135,7 +137,73 @@ BT_START_TEST(test_undo_redo) {
   
   // redo & verify
   bt_change_log_redo(tcl->change_log);
+  GST_DEBUG("val=%d",tcl->val);
   fail_unless(tcl->val==5, NULL);
+  g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
+  fail_unless(can_undo, NULL);
+  fail_unless(!can_redo, NULL);
+
+  g_object_unref(tcl);
+  g_object_checked_unref(cl);
+}
+BT_END_TEST
+
+// test undo/redo actions
+BT_START_TEST(test_undo_redo_2) {
+  BtChangeLog *cl;
+  BtTestChangeLogger *tcl;
+  gboolean can_undo,can_redo;
+
+  cl=bt_change_log_new();
+  fail_unless(cl != NULL, NULL);
+  
+  g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
+  fail_unless(!can_undo, NULL);
+  fail_unless(!can_redo, NULL);
+  
+  // create a test instance that implements changelogger iface
+  tcl=bt_test_change_logger_new();
+  fail_unless(tcl != NULL, NULL);
+
+  // make 2 changes
+  tcl->val=5;
+  bt_change_log_add(tcl->change_log,BT_CHANGE_LOGGER(tcl),g_strdup("set_val 0"),g_strdup("set_val 5"));
+  g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
+  fail_unless(can_undo, NULL);
+  fail_unless(!can_redo, NULL);
+
+  tcl->val=10;
+  bt_change_log_add(tcl->change_log,BT_CHANGE_LOGGER(tcl),g_strdup("set_val 5"),g_strdup("set_val 10"));
+  g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
+  fail_unless(can_undo, NULL);
+  fail_unless(!can_redo, NULL);
+    
+  // undo & verify
+  bt_change_log_undo(tcl->change_log);
+  GST_DEBUG("val=%d",tcl->val);
+  fail_unless(tcl->val==5, NULL);
+  g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
+  fail_unless(can_undo, NULL);
+  fail_unless(can_redo, NULL);
+  
+  bt_change_log_undo(tcl->change_log);
+  GST_DEBUG("val=%d",tcl->val);
+  fail_unless(tcl->val==0, NULL);
+  g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
+  fail_unless(!can_undo, NULL);
+  fail_unless(can_redo, NULL);
+  
+  // redo & verify
+  bt_change_log_redo(tcl->change_log);
+  GST_DEBUG("val=%d",tcl->val);
+  fail_unless(tcl->val==5, NULL);
+  g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
+  fail_unless(can_undo, NULL);
+  fail_unless(can_redo, NULL);
+
+  bt_change_log_redo(tcl->change_log);
+  GST_DEBUG("val=%d",tcl->val);
+  fail_unless(tcl->val==10, NULL);
   g_object_get(cl,"can-undo",&can_undo,"can-redo",&can_redo,NULL);
   fail_unless(can_undo, NULL);
   fail_unless(!can_redo, NULL);
@@ -149,7 +217,8 @@ TCase *bt_change_log_example_case(void) {
   TCase *tc = tcase_create("BtChangeLogExamples");
 
   tcase_add_test(tc,test_create_and_destroy);
-  tcase_add_test(tc,test_undo_redo);
+  tcase_add_test(tc,test_undo_redo_1);
+  tcase_add_test(tc,test_undo_redo_2);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   return(tc);

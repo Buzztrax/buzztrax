@@ -1,3 +1,11 @@
+2010-05-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/change-log.c:
+	  Only log if we have a log.
+
+	* tests/ui/edit/e-bt-change-log.c:
+	  Improve the test and actualy make them work.
+
 2010-05-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/ui/edit/e-bt-change-log.c:

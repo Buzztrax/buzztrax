@@ -299,8 +299,10 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
    * - each class that implements changelogger iface would track all
    *   instances, and we can use: GObject *bt_change_logger_lookup(gchar *id)
    */
-  fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
-  fflush(self->priv->log_file);
+  if(self->priv->log_file) {
+    fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
+    fflush(self->priv->log_file);
+  }
   // update undo undo/redo pointers
   //self->priv->next_undo=self->priv->item_ct-1;
   self->priv->next_undo++;
