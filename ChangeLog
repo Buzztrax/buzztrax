@@ -1,6 +1,13 @@
 2010-05-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	  Fix spelling in comments/debug log, found by linitian :).
+
+2010-05-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
 	* src/lib/core/song-io.c:
 	* src/lib/core/song.c:
 	* src/ui/cmd/cmd-application.c:

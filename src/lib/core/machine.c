@@ -30,15 +30,15 @@
  * <variablelist>
  *  <varlistentry>
  *    <term>adder:</term>
- *    <listitem><simpara>mixes all incomming signals</simpara></listitem>
+ *    <listitem><simpara>mixes all incoming signals</simpara></listitem>
  *  </varlistentry>
  *  <varlistentry>
  *    <term>input volume:</term>
- *    <listitem><simpara>gain for incomming signals</simpara></listitem>
+ *    <listitem><simpara>gain for incoming signals</simpara></listitem>
  *  </varlistentry>
  *  <varlistentry>
  *    <term>input pre/post-gain level:</term>
- *    <listitem><simpara>level meter for incomming signal</simpara></listitem>
+ *    <listitem><simpara>level meter for incoming signal</simpara></listitem>
  *  </varlistentry>
  *  <varlistentry>
  *    <term>machine:</term>

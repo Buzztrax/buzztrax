@@ -599,7 +599,7 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
   
   SET_GRAPH_DEPTH(self,dst_machine,depth);
   
-  GST_INFO_OBJECT(dst_machine,"check %d incomming wires",g_list_length(dst_machine->dst_wires));
+  GST_INFO_OBJECT(dst_machine,"check %d incoming wires",g_list_length(dst_machine->dst_wires));
 
   for(node=dst_machine->dst_wires;node;node=g_list_next(node)) {
     wire=BT_WIRE(node->data);

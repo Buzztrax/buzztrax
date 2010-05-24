@@ -427,7 +427,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   /* @todo: if we load a song and thus set a lot of patterns, this is called a
    * lot. While doing this, there are a few thing that don't change. If we set
    * 100 patterns for one machine, we query, the machine, its parameters and its
-   * list of incomming wires (and its pattern) again and again.
+   * list of incoming wires (and its pattern) again and again.
    *
    * It also involves a lot of creating and destoying of hashtables
    *
