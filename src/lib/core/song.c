@@ -1691,7 +1691,7 @@ static void bt_song_class_init(BtSongClass * const klass) {
   g_object_class_install_property(gobject_class,SONG_UNSAVED,
                                   g_param_spec_boolean("unsaved",
                                      "unsaved prop",
-                                     "tell wheter the current state of the song has been saved",
+                                     "tell whether the current state of the song has been saved",
                                      TRUE,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
@@ -1716,7 +1716,7 @@ static void bt_song_class_init(BtSongClass * const klass) {
   g_object_class_install_property(gobject_class,SONG_IS_PLAYING,
                                   g_param_spec_boolean("is-playing",
                                      "is-playing prop",
-                                     "tell wheter the song is playing right now or not",
+                                     "tell whether the song is playing right now or not",
                                      FALSE,
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 

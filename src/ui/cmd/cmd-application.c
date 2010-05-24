@@ -421,7 +421,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_object_unref(setup);
     g_object_unref(wavetable);
     res=TRUE;
-    GST_INFO("finished succesfully");
+    GST_INFO("finished successfully");
   }
   else {
     GST_ERROR("could not load song \"%s\"",input_file_name);

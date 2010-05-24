@@ -2226,7 +2226,7 @@ static gboolean controller_rem_value(GstInterpolationControlSource *cs, const Gs
  * @timestamp: the time stamp of the change
  * @value: the new value or %NULL to unset a previous one
  *
- * Depending on wheter the given value is NULL, sets or unsets the controller
+ * Depending on whether the given value is NULL, sets or unsets the controller
  * value for the specified param and at the given time.
  * If @timestamp is 0 and @value is %NULL it set a default value for the start
  * of the controller sequence, taken from the current value of the parameter.
@@ -2333,7 +2333,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
  * @timestamp: the time stamp of the change
  * @value: the new value or %NULL to unset a previous one
  *
- * Depending on wheter the given value is NULL, sets or unsets the controller
+ * Depending on whether the given value is NULL, sets or unsets the controller
  * value for the specified param and at the given time.
  * If @timestamp is 0 and @value is %NULL it set a default value for the start
  * of the controller sequence, taken from the current value of the parameter.
@@ -2525,7 +2525,7 @@ void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *
   g_object_get((gpointer)(data->control),"device",&device,NULL);
   btic_device_start(device);
   g_object_unref(device);
-  /* @todo: controls need flags to indicate wheter they are absolute or relative
+  /* @todo: controls need flags to indicate whether they are absolute or relative
    * we conect a different handler for relative ones that add/sub values to current value
    */
   // connect signal handler

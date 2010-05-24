@@ -400,7 +400,7 @@ static void bt_render_dialog_class_init(BtRenderDialogClass *klass) {
   g_object_class_install_property(gobject_class,RENDER_DIALOG_FILENAME,
                                   g_param_spec_string("file-name",
                                      "file-name prop",
-                                     "Get choosen filename",
+                                     "Get chosen filename",
                                      NULL,
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 

@@ -25,7 +25,7 @@
  * A base class for #BtSong loader and saver implementations. A #BtSongIO module
  * needs to be installed as a shared library into LIBDIR/songio. It is
  * recognized, if it exports a #BtSongIOModuleInfo structure. At runtime the
- * detect method of each module is called with the choosen file-name. The module
+ * detect method of each module is called with the chosen file-name. The module
  * should return its #GType if it can handle the format or %NULL else.
  *
  * Such a module should overwrite the bt_song_io_load() and/or bt_song_io_save()
