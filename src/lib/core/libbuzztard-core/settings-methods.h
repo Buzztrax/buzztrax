@@ -27,5 +27,6 @@
 extern BtSettings *bt_settings_make(void);
 
 extern void bt_settings_set_factory(BtSettingsFactory factory);
+extern gchar *bt_settings_determine_audiosink_name(const BtSettings * const self);
 
 #endif // BT_SETTINGS_METHDOS_H

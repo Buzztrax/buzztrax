@@ -291,6 +291,7 @@ BtSettings
 BtSettingsFactory
 bt_settings_make
 bt_settings_set_factory
+bt_settings_determine_audiosink_name
 <SUBSECTION Standard>
 BtSettingsClass
 BT_SETTINGS

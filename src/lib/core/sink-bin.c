@@ -54,7 +54,6 @@
 
 #include "core_private.h"
 #include <libbuzztard-core/sink-bin.h>
-#include <gst/audio/multichannel.h>
 
 /* define this to get diagnostics of the sink data flow */
 //#define BT_MONITOR_SINK_DATA_FLOW
@@ -280,99 +279,13 @@ static void bt_sink_bin_link_many(const BtSinkBin * const self, GstElement *last
   }
 }
 
-static gchar *bt_sink_bin_determine_plugin_name(const BtSinkBin * const self) {
-  gchar *audiosink_name,*system_audiosink_name;
-  gchar *plugin_name=NULL;
-
-  g_object_get(self->priv->settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
-
-  if(BT_IS_STRING(audiosink_name)) {
-    GST_INFO("get audiosink from config");
-    plugin_name=audiosink_name;
-    audiosink_name=NULL;
-  }
-  else if(BT_IS_STRING(system_audiosink_name)) {
-    GST_INFO("get audiosink from system config");
-    plugin_name=system_audiosink_name;
-    system_audiosink_name=NULL;
-  }
-  if(plugin_name) {
-    gchar *sink_name,*eon;
-
-    GST_DEBUG("plugin name is: '%s'", plugin_name);
-
-    // this can be a whole pipeline like "audioconvert ! osssink sync=false"
-    // seek for the last '!'
-    if(!(sink_name=strrchr(plugin_name,'!'))) {
-      sink_name=plugin_name;
-    }
-    else {
-      // skip '!' and spaces
-      sink_name++;
-      while(*sink_name==' ') sink_name++;
-    }
-    // if there is a space following put '\0' in there
-    if((eon=strstr(sink_name," "))) {
-      *eon='\0';
-    }
-    if ((sink_name!=plugin_name) || eon) {
-      // no g_free() to partial memory later
-      gchar * const temp=plugin_name;
-      plugin_name=g_strdup(sink_name);
-      g_free(temp);
-    }
-  }
-  if (!BT_IS_STRING(plugin_name)) {
-    // @todo: try autoaudiosink (if it exists)
-    // iterate over gstreamer-audiosink list and choose element with highest rank
-    const GList *node;
-    GList * const audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
-    guint max_rank=0,cur_rank;
-    GstCaps *caps1=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
-    GstCaps *caps2=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
-
-    GST_INFO("get audiosink from gst registry by rank");
-    /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=601775 */
-    GST_TYPE_AUDIO_CHANNEL_POSITION;
-
-    for(node=audiosink_names;node;node=g_list_next(node)) {
-      GstElementFactory * const factory=gst_element_factory_find(node->data);
-      
-      GST_INFO("  probing audio sink: \"%s\"",(gchar *)node->data);
-
-      // can the sink accept raw audio?
-      if(gst_element_factory_can_sink_caps(factory,caps1) || gst_element_factory_can_sink_caps(factory,caps2)) {
-        // get element max(rank)
-        cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
-        GST_INFO("  trying audio sink: \"%s\" with rank: %d",(gchar *)node->data,cur_rank);
-        if((cur_rank>=max_rank) || (!plugin_name)) {
-          plugin_name=g_strdup(node->data);
-          max_rank=cur_rank;
-        }
-      }
-      else {
-        GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",(gchar *)node->data);
-      }
-    }
-    g_list_free(audiosink_names);
-    gst_caps_unref(caps1);
-    gst_caps_unref(caps2);
-  }
-  GST_INFO("using audio sink : \"%s\"",plugin_name);
-
-  g_free(system_audiosink_name);
-  g_free(audiosink_name);
-
-  return(plugin_name);
-}
-
 static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   GList *list=NULL;
   gchar *plugin_name;
 
   GST_DEBUG("get playback elements");
 
-  if(!(plugin_name=bt_sink_bin_determine_plugin_name(self))) {
+  if(!(plugin_name=bt_settings_determine_audiosink_name(self->priv->settings))) {
     return(NULL);
   }
   GstElement * const element=gst_element_factory_make(plugin_name,"player");
@@ -759,8 +672,9 @@ static void on_audio_sink_changed(const BtSettings * const settings, GParamSpec 
   BtSinkBin *self = BT_SINK_BIN(user_data);
 
   GST_INFO("audio-sink has changed");
-  gchar * const plugin_name=bt_sink_bin_determine_plugin_name(self);
+  gchar * const plugin_name=bt_settings_determine_audiosink_name(self->priv->settings);
   GST_INFO("  -> '%s'",plugin_name);
+  g_free(plugin_name);
 
   // exchange the machine
   switch(self->priv->mode) {
@@ -771,14 +685,13 @@ static void on_audio_sink_changed(const BtSettings * const settings, GParamSpec 
     default:
       break;
   }
-  g_free(plugin_name);
 }
 
 static void on_system_audio_sink_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
   BtSinkBin *self = BT_SINK_BIN(user_data);
 
   GST_INFO("system audio-sink has changed");
-  gchar * const plugin_name=bt_sink_bin_determine_plugin_name(self);
+  gchar * const plugin_name=bt_settings_determine_audiosink_name(self->priv->settings);
   gchar *sink_name;
 
   // exchange the machine (only if the system-audiosink is in use)
@@ -786,7 +699,15 @@ static void on_system_audio_sink_changed(const BtSettings * const settings, GPar
 
   GST_INFO("  -> '%s' (sytem_sink is '%s')",plugin_name,sink_name);
   if (!strcmp(plugin_name,sink_name)) {
-    bt_sink_bin_update(self);
+    // exchange the machine
+    switch(self->priv->mode) {
+      case BT_SINK_BIN_MODE_PLAY:
+      case BT_SINK_BIN_MODE_PLAY_AND_RECORD:
+        bt_sink_bin_update(self);
+        break;
+      default:
+        break;
+    }
   }
   g_free(sink_name);
   g_free(plugin_name);

@@ -38,6 +38,7 @@
 
 #include "core_private.h"
 #include <libbuzztard-core/settings-private.h>
+#include <gst/audio/multichannel.h>
 
 struct _BtSettingsPrivate {
   /* used to validate if dispose has run */
@@ -103,6 +104,101 @@ void bt_settings_set_factory(BtSettingsFactory factory) {
   else {
     GST_WARNING("can't change factory while having %d usages",G_OBJECT_REF_COUNT(singleton));
   }
+}
+
+/**
+ * bt_settings_determine_audiosink_name:
+ * @self: the settings
+ *
+ * Check the settings for the configured audio sink. Pick a fallback if none has
+ * been chosen. Verify that the sink works.
+ *
+ * Returns: the elemnt name, free when done.
+ */
+gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
+  gchar *audiosink_name,*system_audiosink_name;
+  gchar *plugin_name=NULL;
+
+  g_object_get((GObject *)self,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
+
+  if(BT_IS_STRING(audiosink_name)) {
+    GST_INFO("get audiosink from config");
+    plugin_name=audiosink_name;
+    audiosink_name=NULL;
+  }
+  else if(BT_IS_STRING(system_audiosink_name)) {
+    GST_INFO("get audiosink from system config");
+    plugin_name=system_audiosink_name;
+    system_audiosink_name=NULL;
+  }
+  if(plugin_name) {
+    gchar *sink_name,*eon;
+
+    GST_DEBUG("plugin name is: '%s'", plugin_name);
+
+    // this can be a whole pipeline like "audioconvert ! osssink sync=false"
+    // seek for the last '!'
+    if(!(sink_name=strrchr(plugin_name,'!'))) {
+      sink_name=plugin_name;
+    }
+    else {
+      // skip '!' and spaces
+      sink_name++;
+      while(*sink_name==' ') sink_name++;
+    }
+    // if there is a space following put '\0' in there
+    if((eon=strstr(sink_name," "))) {
+      *eon='\0';
+    }
+    if ((sink_name!=plugin_name) || eon) {
+      // no g_free() to partial memory later
+      gchar * const temp=plugin_name;
+      plugin_name=g_strdup(sink_name);
+      g_free(temp);
+    }
+  }
+  if (!BT_IS_STRING(plugin_name)) {
+    // @todo: try autoaudiosink (if it exists)
+    // iterate over gstreamer-audiosink list and choose element with highest rank
+    const GList *node;
+    GList * const audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
+    guint max_rank=0,cur_rank;
+    GstCaps *caps1=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
+    GstCaps *caps2=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
+
+    GST_INFO("get audiosink from gst registry by rank");
+    /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=601775 */
+    GST_TYPE_AUDIO_CHANNEL_POSITION;
+
+    for(node=audiosink_names;node;node=g_list_next(node)) {
+      GstElementFactory * const factory=gst_element_factory_find(node->data);
+      
+      GST_INFO("  probing audio sink: \"%s\"",(gchar *)node->data);
+
+      // can the sink accept raw audio?
+      if(gst_element_factory_can_sink_caps(factory,caps1) || gst_element_factory_can_sink_caps(factory,caps2)) {
+        // get element max(rank)
+        cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
+        GST_INFO("  trying audio sink: \"%s\" with rank: %d",(gchar *)node->data,cur_rank);
+        if((cur_rank>=max_rank) || (!plugin_name)) {
+          plugin_name=g_strdup(node->data);
+          max_rank=cur_rank;
+        }
+      }
+      else {
+        GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",(gchar *)node->data);
+      }
+    }
+    g_list_free(audiosink_names);
+    gst_caps_unref(caps1);
+    gst_caps_unref(caps2);
+  }
+  GST_INFO("using audio sink : \"%s\"",plugin_name);
+
+  g_free(system_audiosink_name);
+  g_free(audiosink_name);
+
+  return(plugin_name);
 }
 
 //-- wrapper

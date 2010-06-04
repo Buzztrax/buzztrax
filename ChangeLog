@@ -1,3 +1,14 @@
+2010-06-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/settings-methods.h:
+	* src/lib/core/settings.c:
+	* src/lib/core/sink-bin.c:
+	* src/ui/edit/main-page-waves.c:
+	  Also sync the sinks used in wave table to the settings. Move code to
+	  figure the sink name from sink-bin to settings and use it in wave table
+	  too. Switch file-choser preview to playbin2.
+
 2010-05-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
