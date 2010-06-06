@@ -267,10 +267,10 @@ gboolean _bt_check_run_test_func(const gchar * func_name)
   if (checks == NULL || *checks == '\0')
     return TRUE;
 
-  /* only run specified functions, globbing or regexps would be nice */
+  /* only run specified functions, regexps would be nice */
   funcs = g_strsplit (checks, ",", -1);
   for (f = funcs; f != NULL && *f != NULL; ++f) {
-    if (strcmp (*f, func_name) == 0) {
+    if (g_pattern_match_simple (*f, func_name)) {
       res = TRUE;
       break;
     }

@@ -1,5 +1,13 @@
 2010-06-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/bt-check.c:
+	  Allow wildcards in BT_CHECKS.
+
+	* tests/ui/edit/e-bt-change-log.c:
+	  Add another test.
+
+2010-06-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Sent NEWS.
 
