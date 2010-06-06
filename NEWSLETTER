@@ -1,10 +1,35 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2010/07 ========================================================================
+
+- apply audio sink settings to wavetable players too
+
 2010/06 ========================================================================
 
-- arch linux packages
-- LDFLAGS="-Wl,--as-needed" ./autoregen.sh
+The packaging continued - I found a Gentoo overlay that has buzztard packages,
+as well as packages for arch Linux. The later brought up some issues as Arch
+Linux uses --as-needed when linking. An article in the Gentoo documentation [1]
+suggests that its not a good idea to use this by default. To cut the long story
+short - normally (without that option) the order of libraries in the linker
+invocation did not really matter. When using --as-needed only libraries that are
+actually used are linked in. To make that work one has to put needed libraries
+behind libraries that need them. If you want to try this on your own software:
+  LDFLAGS="-Wl,--as-needed" ./autoregen.sh
 
+The Debian packages that have been made recently are nice too. All packages 
+undergo various checks, among a spell-checker of strings in binaries.
+
+As planned I worked a bit more on undo/redo. I have it now implemented and in
+use for some case in the pattern editor. I also added unit tests to verify the
+stack logic.
+
+I also managed to finished some work I had started at the Linux Audio 
+Conference - copy and paste of machine parameters between patterns and the 
+machine property window.
+
+54 files changed, 2174 insertions(+), 699 deletions(-)
+
+[1] http://www.gentoo.org/proj/en/qa/asneeded.xml
 
 2010/05 ========================================================================
 
