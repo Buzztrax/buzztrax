@@ -1,3 +1,28 @@
+2010-06-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/buzztard.xsd:
+	* src/lib/core/machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* tests/songs/combi1.xml:
+	* tests/songs/combi2.xml:
+	* tests/songs/combi3.xml:
+	* tests/songs/melo1.xml:
+	* tests/songs/melo2.xml:
+	* tests/songs/melo3.xml:
+	* tests/songs/melo4.xml:
+	* tests/songs/melo5.xml:
+	* tests/songs/simple1.xml:
+	* tests/songs/simple2.xml:
+	* tests/songs/simple3.xml:
+	* tests/songs/simple4.xml:
+	* tests/songs/simple5.xml:
+	* tests/songs/simple6.xml:
+	* tests/xmlvalid.sh:
+	  Improve xsd schema and make songs validatable. Read older tags as a 
+	  fallback. Avoid saving empy lists in some places
+
 2010-06-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

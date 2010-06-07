@@ -65,6 +65,18 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     </xsd:complexType>
   </xsd:element>
   
+  <xsd:element name="wiredata">
+    <xsd:annotation>
+      <xsd:documentation>
+        Pattern data for all voices of a machine.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:attribute name="name" use="required" type="xsd:string"/>
+      <xsd:attribute name="value" use="required" type="xsd:string"/>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:element name="globaldata">
     <xsd:annotation>
       <xsd:documentation>
@@ -123,7 +135,7 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="tick" minOccurs="1" maxOccurs="unbounded"/>
+        <xsd:element ref="tick" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attribute name="id" use="required" type="xsd:string"/>
       <xsd:attribute name="name" use="required" type="xsd:string"/>
@@ -152,9 +164,9 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="properties" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="properties" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="patterns" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
       <xsd:attribute name="type" use="required" type="xsd:string"/>
@@ -177,6 +189,33 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     </xsd:complexType>
   </xsd:element>
   
+  <xsd:element name="wire-pattern">
+    <xsd:annotation>
+      <xsd:documentation>
+        Control change fragment for one wire and pattern.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="tick" minOccurs="1" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="pattern-id" use="required" type="xsd:string"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="wire-patterns">
+    <xsd:annotation>
+      <xsd:documentation>
+        List of control change fragments for one wire.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="wire-pattern" minOccurs="1" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:element name="wire">
     <xsd:annotation>
       <xsd:documentation>
@@ -186,9 +225,7 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="properties" minOccurs="0" maxOccurs="1"/>
-        <!--xsd:element ref="wiredata" minOccurs="0" maxOccurs="unbounded"/-->
-        <!-- hmpf: wirepatterns are a bit different from patterns -->
-        <xsd:element ref="patterns" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="wire-patterns" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
       <xsd:attribute name="src" use="required" type="xsd:string"/>
       <xsd:attribute name="dst" use="required" type="xsd:string"/>
@@ -235,6 +272,7 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       <xsd:sequence>
         <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="wiredata" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attribute name="time" use="required" type="xsd:integer"/>
     </xsd:complexType>
@@ -260,7 +298,7 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="label" minOccurs="1" maxOccurs="unbounded"/>
+        <xsd:element ref="label" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -345,7 +383,7 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="wave" minOccurs="1" maxOccurs="unbounded"/>
+        <xsd:element ref="wave" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>

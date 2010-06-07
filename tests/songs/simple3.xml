@@ -52,11 +52,11 @@
       </machine>
       
       <machine type="source" id="sine1" plugin-name="audiotestsrc" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="sine1_beeps_up" name="beeps_up" length="16">
             <tick time="0">
@@ -90,27 +90,27 @@
       </machine>
 
       <machine type="source" id="sine2" plugin-name="audiotestsrc" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.1"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
       </machine>
 
       <machine type="source" id="sine3" plugin-name="audiotestsrc" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.6"/>
           <property key="ypos" value="0.2"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
       </machine>
 
       <machine type="source" id="sine4" plugin-name="audiotestsrc" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
       </machine>
     </machines>
     
@@ -120,7 +120,7 @@
       <wire src="sine3" dst="amp1" gain="1.0"/>
       <wire src="sine4" dst="amp1" gain="1.0"/>
       <wire src="amp1" dst="audio_sink" gain="1.0" panorama="-0.5"/>
-    </wires>    
+    </wires>
   </setup>
   
   <sequence length="64" tracks="2">

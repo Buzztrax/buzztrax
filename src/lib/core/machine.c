@@ -2896,14 +2896,19 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
       }
       g_object_unref(machine_voice);
     }
-    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
-      if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
+    
+    if(g_hash_table_size(self->priv->properties)) {
+      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
+        if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
+      }
+      else goto Error;
     }
-    else goto Error;
-    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("patterns"),NULL))) {
-      bt_persistence_save_list(self->priv->patterns,child_node);
+    if(bt_machine_has_patterns(self)) {
+      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("patterns"),NULL))) {
+        bt_persistence_save_list(self->priv->patterns,child_node);
+      }
+      else goto Error;
     }
-    else goto Error;
     if(g_hash_table_size(self->priv->control_data)) {
       if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("interaction-controllers"),NULL))) {
         GList *list=NULL,*lnode;

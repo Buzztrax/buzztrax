@@ -1185,19 +1185,22 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
        xmlNewProp(node,XML_CHAR_PTR("panorama"),XML_CHAR_PTR(bt_persistence_strfmt_double((gdouble)pan)));
     }
     
-    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
-      if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
+    if(g_hash_table_size(self->priv->properties)) {
+      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
+        if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
+      }
+      else goto Error;
     }
-    else goto Error;
-    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("patterns"),NULL))) {
-      GList *list=NULL;
-      
-      g_hash_table_foreach(self->priv->patterns,bt_persistence_collect_hashtable_entries,(gpointer)&list);
-      bt_persistence_save_list(list,child_node);
-      g_list_free(list);
+    if(self->priv->patterns) {
+      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wire-patterns"),NULL))) {
+        GList *list=NULL;
+        
+        g_hash_table_foreach(self->priv->patterns,bt_persistence_collect_hashtable_entries,(gpointer)&list);
+        bt_persistence_save_list(list,child_node);
+        g_list_free(list);
+      }
+      else goto Error;
     }
-    else goto Error;
-    
   }
 Error:
   return(node);
@@ -1270,11 +1273,12 @@ static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersist
       if(!strncmp((gchar *)node->name,"properties\0",11)) {
         bt_persistence_load_hashtable(self->priv->properties,node);
       }
-      else if(!strncmp((gchar *)node->name,"patterns\0",9)) {
+      /* "patterns" is legacy, we need "wire-patterns" as a node name to be unique */
+      else if(!strncmp((gchar *)node->name,"wire-patterns\0",14) || !strncmp((gchar *)node->name,"patterns\0",9)) {
         BtWirePattern *wire_pattern;
   
         for(child_node=node->children;child_node;child_node=child_node->next) {
-          if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"pattern\0",8))) {
+          if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wire-pattern\0",13) || (!strncmp((char *)child_node->name,"pattern\0",8)))) {
             GError *err=NULL;
             
             wire_pattern=BT_WIRE_PATTERN(bt_persistence_load(BT_TYPE_WIRE_PATTERN,NULL,child_node,&err,"song",self->priv->song,"wire",self,NULL));

@@ -26,11 +26,11 @@
       </machine>
             
       <machine type="source" id="beep1" plugin-name="simsyn" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="beep1::C-3_E-3_G-3" name="C-3_E-3_G-3" length="16">
             <tick time="0">
@@ -52,7 +52,7 @@
     
     <wires>
       <wire src="beep1" dst="audio_sink" gain="1.0"/>
-    </wires>    
+    </wires>
   </setup>
     
   <sequence loop="off" length="64" tracks="2">

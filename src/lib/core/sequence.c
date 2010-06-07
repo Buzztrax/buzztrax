@@ -1770,7 +1770,7 @@ static xmlNodePtr bt_sequence_persistence_save(const BtPersistence * const persi
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("labels"),NULL))) {
       // iterate over timelines
       for(i=0;i<self->priv->length;i++) {
-	      const gchar * const label=self->priv->labels[i];
+	    const gchar * const label=self->priv->labels[i];
         if(label) {
           child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("label"),NULL);
           xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(label));

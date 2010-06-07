@@ -26,11 +26,11 @@
       </machine>
             
       <machine type="source" id="beep1" plugin-name="simsyn" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="beep1::C-4_E-4_G-4" name="C-4_E-4_G-4" length="16">
             <tick time="0">
@@ -50,11 +50,11 @@
       </machine>
 
       <machine type="source" id="beep2" plugin-name="simsyn" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.0"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="beep2::C-1" name="C-1" length="16">
             <tick time="0">
@@ -68,11 +68,11 @@
       </machine>
 
       <machine type="source" id="beep3" plugin-name="simsyn" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="beep3::C-2_C-3" name="C-2_C-3" length="16">
             <tick time="0">
@@ -128,13 +128,13 @@
       </machine>
 
       <machine type="processor" id="echo1" plugin-name="audiodelay" voices="0">
+        <globaldata name="delaytime" value="25.0"/>
+        <globaldata name="feedback" value="75.0"/>
+        <globaldata name="drywet" value="50.0"/>
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="delaytime" value="25.0"/>
-        <globaldata name="feedback" value="75.0"/>
-        <globaldata name="drywet" value="50.0"/>
       </machine>
     </machines>
     
@@ -143,7 +143,7 @@
       <wire src="echo1" dst="audio_sink" gain="1.0"/>
       <wire src="beep2" dst="audio_sink" gain="1.0" panorama="-0.5"/>
       <wire src="beep3" dst="audio_sink" gain="1.0" panorama="+0.5"/>
-    </wires>    
+    </wires>
   </setup>
   
   <sequence loop="off" length="100" tracks="5">

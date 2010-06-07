@@ -26,11 +26,11 @@
       </machine>
 
       <machine type="source" id="sine1" plugin-name="missing" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="sine1_beeps" name="beeps" length="8">
             <tick time="0">
@@ -59,7 +59,5 @@
       </track>
     </tracks>
   </sequence>
-  
-  <wavetable />
 
 </buzztard>

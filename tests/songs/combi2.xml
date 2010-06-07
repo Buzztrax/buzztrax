@@ -26,11 +26,11 @@
       </machine>
 
       <machine type="source" id="beep1" plugin-name="simsyn" voices="0">
+        <globaldata name="volume" value="0.7"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.8"/>
         </properties>
-        <globaldata name="volume" value="0.7"/>
         <patterns>
           <pattern id="beep1::C-3" name="C-3" length="32">
             <tick time="0">
@@ -84,11 +84,11 @@
       </machine>
 
       <machine type="source" id="beep2" plugin-name="simsyn" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.4"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="beep2::C-1" name="C-1" length="16">
             <tick time="2">
@@ -118,13 +118,13 @@
       </machine>
 
       <machine type="processor" id="echo1" plugin-name="audiodelay" voices="0">
+        <globaldata name="delaytime" value="25.0"/>
+        <globaldata name="feedback" value="70.0"/>
+        <globaldata name="drywet" value="50.0"/>
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="-0.6"/>
         </properties>
-        <globaldata name="delaytime" value="25.0"/>
-        <globaldata name="feedback" value="70.0"/>
-        <globaldata name="drywet" value="50.0"/>
       </machine>
 
       <machine type="source" id="beat" plugin-name="bml-Arguelles-GoaKick" voices="0">

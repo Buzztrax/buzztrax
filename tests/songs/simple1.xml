@@ -26,11 +26,11 @@
       </machine>
 
       <machine type="source" id="sine1" plugin-name="audiotestsrc" voices="0">
+        <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="sine1_beeps" name="beeps" length="8">
             <tick time="0">
@@ -56,7 +56,7 @@
     
     <wires>
       <wire src="sine1" dst="audio_sink" gain="1.0"/>
-    </wires>    
+    </wires>
   </setup>
   
   <sequence length="64" tracks="1">

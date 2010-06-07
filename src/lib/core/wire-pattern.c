@@ -930,13 +930,13 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
 
   GST_DEBUG("PERSISTENCE::wire-pattern");
 
-  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("pattern"),NULL))) {
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wire-pattern"),NULL))) {
     gulong i,k;
     gchar *value;
     BtWire *wire;
     
     g_object_get((gpointer)(self->priv->pattern),"id",&id,NULL);
-    xmlNewProp(node,XML_CHAR_PTR("pattern"),XML_CHAR_PTR(id));
+    xmlNewProp(node,XML_CHAR_PTR("pattern-id"),XML_CHAR_PTR(id));
     g_free(id);
 
     g_object_get((gpointer)self,"wire",&wire,NULL);
@@ -975,7 +975,9 @@ static BtPersistence *bt_wire_pattern_persistence_load(const GType type, const B
   GST_DEBUG("PERSISTENCE::wire-pattern");
   g_assert(node);
   
-  pattern_id=xmlGetProp(node,XML_CHAR_PTR("pattern"));
+  pattern_id=xmlGetProp(node,XML_CHAR_PTR("pattern-id"));
+  if(!pattern_id) /* "patterns" is legacy, it is conflicting with a node type in the xsd */
+    pattern_id=xmlGetProp(node,XML_CHAR_PTR("pattern"));
   
   if(!persistence) {
     BtSong *song=NULL;
@@ -1035,7 +1037,7 @@ static BtPersistence *bt_wire_pattern_persistence_load(const GType type, const B
             else {
               GST_WARNING("error while loading wire pattern data at tick %lu, param %lu: %s",tick,param,error->message);
               g_error_free(error);error=NULL;
-            }  
+            }
           }
           xmlFree(name);
 	      xmlFree(value);
