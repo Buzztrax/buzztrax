@@ -1242,7 +1242,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
         }
   
         switch (group->type) {
-          case 1:
+          case PGT_GLOBAL:
             // search for param that has flags&GSTBT_PROPERTY_META_WAVE in global machine params
             wave_param=bt_machine_get_global_wave_param_index(machine);
             GST_DEBUG("global wav param: %ld",wave_param);
@@ -1250,7 +1250,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
               bt_pattern_set_global_event(self->priv->pattern,row,wave_param,wave_str);
             }
             break;
-          case 2:
+          case PGT_VOICE:
             // search for param that has flags&GSTBT_PROPERTY_META_WAVE in voice machine params
             wave_param=bt_machine_get_voice_wave_param_index(machine);
             GST_DEBUG("voice wav param: %ld",wave_param);
@@ -1269,10 +1269,10 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
     if(group->columns[param].type == PCT_BYTE) {
       glong wave_param = -1;
       switch (group->type) {
-        case 1:
+        case PGT_GLOBAL:
           wave_param = bt_machine_get_global_wave_param_index(machine);
           break;
-        case 2:
+        case PGT_VOICE:
           wave_param=bt_machine_get_voice_wave_param_index(machine);
           break;
         default:
