@@ -32,6 +32,10 @@
  *
  * @todo: check for logs on startup -> bt_change_log_crash_check()
  *
+ * @todo: need change grouping
+ * - when clearing a selection, we can represent this as a group of edits
+ * - bt_change_log_{start,end}_group
+ *
  * check http://github.com/herzi/gundo more
  *
  * empty stack: undo: -1               redo: 0

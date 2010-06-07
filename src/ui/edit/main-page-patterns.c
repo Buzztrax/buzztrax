@@ -1297,23 +1297,34 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
         wire_pattern=bt_wire_pattern_new(song,group->user_data,self->priv->pattern);
         g_object_unref(song);
       }
+      /* if we do undo/redo here, we would need to pass wire_pattern as the BT_CHANGE_LOGGER()
+       * and this get the undo/redo callbacks there, ok?
+       */
       bt_wire_pattern_set_event(wire_pattern,row,param,str);
       g_object_unref(wire_pattern);
     } break;
     case PGT_GLOBAL:
       {
         // serialize action
-        // @todo: we need to identify the pattern (owner) for the replay
         gchar *old_str = bt_pattern_get_global_event(self->priv->pattern,row,param);
         gchar *undo_str = g_strdup_printf("set_global_event %d,%d,%s",row,param,safe_string(old_str));
         gchar *redo_str = g_strdup_printf("set_global_event %d,%d,%s",row,param,safe_string(str));
         bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
         g_free(old_str);
+        bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       }
-      bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       break;
     case PGT_VOICE:
-      bt_pattern_set_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),param,str);
+      {
+        // serialize action
+        guint voice = GPOINTER_TO_UINT(group->user_data);
+        gchar *old_str = bt_pattern_get_voice_event(self->priv->pattern,row,voice,param);
+        gchar *undo_str = g_strdup_printf("set_voice_event %d,%u,%d,%s",row,voice,param,safe_string(old_str));
+        gchar *redo_str = g_strdup_printf("set_voice_event %d,%u,%d,%s",row,voice,param,safe_string(str));
+        bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+        g_free(old_str);
+        bt_pattern_set_voice_event(self->priv->pattern,row,voice,param,str);
+      }
       break;
     default:
       GST_WARNING("invalid column group type");
@@ -2895,20 +2906,35 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(owner);
   gboolean res=FALSE;
 
-  GST_WARNING("undo/redo: [%s]",data);
+  GST_INFO("undo/redo: [%s]",data);
   // parse data and apply action
   if(!strncmp(data,"set_global_event ",17)) {
-    gint row,param,pos,group;
+    guint row,param,pos,group;
     const gchar *str;
-    
-    sscanf(&data[17],"%d,%d,%n",&row,&param,&pos);
+
+    sscanf(&data[17],"%u,%u,%n",&row,&param,&pos);
     str=&data[17+pos];
-    GST_WARNING("-> [%d|%d|%s]",row,param,str);
+    GST_DEBUG("-> [%u|%u|%s]",row,param,str);
     res=bt_pattern_set_global_event(self->priv->pattern,row,param,str);
-    
+
     // move cursor
     for(group=0;group<self->priv->number_of_groups;group++) {
       if(self->priv->param_groups[group].type==PGT_GLOBAL) break;
+    }
+    g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
+  }
+  else if(!strncmp(data,"set_voice_event ",16)) {
+    guint row,voice,param,pos,group;
+    const gchar *str;
+
+    sscanf(&data[16],"%u,%u,%u,%n",&row,&voice,&param,&pos);
+    str=&data[16+pos];
+    GST_DEBUG("-> [%u|%u|%u|%s]",row,voice,param,str);
+    res=bt_pattern_set_voice_event(self->priv->pattern,row,voice,param,str);
+
+    // move cursor
+    for(group=0;group<self->priv->number_of_groups;group++) {
+      if((self->priv->param_groups[group].type==PGT_VOICE) && (GPOINTER_TO_UINT(self->priv->param_groups[group].user_data)==voice)) break;
     }
     g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
   }
