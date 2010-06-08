@@ -10,4 +10,6 @@ omf_timestamp
 *.fo
 *.log
 CATALOG.local
-ersion.entities
+version.entities
+*.pdf
+

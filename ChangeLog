@@ -1,5 +1,25 @@
 2010-06-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/.cvsignore:
+	* docs/reference/bt-cmd/.cvsignore:
+	* docs/reference/bt-core/.cvsignore:
+	* docs/reference/bt-edit/.cvsignore:
+	* docs/reference/bt-ic/.cvsignore:
+	* docs/reference/bt-ic (svn:ignore):
+	* design/gui (svn:ignore):
+	* docs/reference/bt-edit (svn:ignore):
+	* docs/reference/bt-core (svn:ignore):
+	* src/ui/edit (svn:ignore):
+	* docs/reference (svn:ignore):
+	* design/bmxdump (svn:ignore):
+	* design/gui/pixmaps (svn:ignore):
+	* docs/help/bt-edit/C (svn:ignore):
+	* src/ui/cmd (svn:ignore):
+	* docs/reference/bt-cmd (svn:ignore):
+	  Ignore more files.
+
+2010-06-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* .cvsignore:
 	* design/gst/.cvsignore:
 	* design/gui/.cvsignore:
