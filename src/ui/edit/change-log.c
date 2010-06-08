@@ -35,6 +35,17 @@
  * @todo: need change grouping
  * - when clearing a selection, we can represent this as a group of edits
  * - bt_change_log_{start,end}_group
+ * - groups should be hierarchical
+ *
+ * @todo: need a way to log object identifiers and a mechanism to llok then up
+ * when replaying a log
+ * 1.)
+ * - each class that implement change_logger registers a get_child_by_name to the change log
+ * - all vmethods are store in a hastable with the type name as the key
+ * - all new object are added in a class local hashtable and removed on dispose
+ * - then log format is: type::name
+ * - to lock up one object we get the type, pick the get_child_by_name and call
+ *   instance = get_child_by_name(name);
  *
  * check http://github.com/herzi/gundo more
  *
@@ -79,7 +90,7 @@ undo: [ab]       u[   ]  r[abd]    \
 when adding a new action, we will always truncate the undo/redo stack.
 Otherwise it becomes a graph and then redo would need to know the direction.
 
- */
+*/
 
 #define BT_EDIT
 #define BT_CHANGE_LOG_C
@@ -295,13 +306,9 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
   self->priv->item_ct++;
   /* @todo: serialize properly
    * - we need to identify the instance, so that when deserializing, we can get
-   *   the owner from a string
-   * - maybe all serializable objects register with a hashtable in the changelog
-   *   when they are created/destroyed
-   * - we can also have: const gchar *bt_change_logger_identify(owner)
-   *   and call that instead of G_OBJECT_TYPE_NAME below
-   * - each class that implements changelogger iface would track all
-   *   instances, and we can use: GObject *bt_change_logger_lookup(gchar *id)
+   *   the owner from a string, see comment in header
+   * - the owner concept is flawed here, right now its the UI object, but we 
+   *   need the song object
    */
   if(self->priv->log_file) {
     fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);

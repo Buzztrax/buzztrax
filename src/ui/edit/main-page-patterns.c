@@ -2906,6 +2906,10 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(owner);
   gboolean res=FALSE;
 
+  /* @todo: what if we make a change, switch the pattern and press undo :/
+   * - add pattern-id to the undo/redo-data ? (full context) and
+   *   if self->priv->pattern!=pattern switch back?
+   */
   GST_INFO("undo/redo: [%s]",data);
   // parse data and apply action
   if(!strncmp(data,"set_global_event ",17)) {
