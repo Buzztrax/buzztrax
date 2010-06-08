@@ -6,5 +6,8 @@
 *.bbg
 Makefile
 Makefile.in
-libbtcore.pc
+libbuzztard-core.pc
 marshal.*
+*.gir
+*.typelib
+

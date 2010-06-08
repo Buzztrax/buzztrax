@@ -1,5 +1,23 @@
 2010-06-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* .cvsignore:
+	* design/gst/.cvsignore:
+	* design/gui/.cvsignore:
+	* docs/help/bt-edit/.cvsignore:
+	* docs/help/bt-edit/C/.cvsignore:
+	* src/lib/core/.cvsignore:
+	* src/lib/ic/.cvsignore:
+	*  (svn:ignore):
+	* src/lib/core (svn:ignore):
+	* design/gst (svn:ignore):
+	* docs/help/bt-edit (svn:ignore):
+	* src/lib/ic (svn:ignore):
+	* design/gui (svn:ignore):
+	* docs/help/bt-edit/C (svn:ignore):
+	  Repository maintenance.
+
+2010-06-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/change-log.c:
 	  More comments.
 

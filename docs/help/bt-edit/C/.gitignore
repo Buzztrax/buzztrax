@@ -1,7 +1,13 @@
-bt-edit-C.omf
-bt-edit-C.omf.out
-bt-edit.xml
+buzztard-edit-C.omf
+buzztard-edit-C.omf.out
+buzztard-edit.xml
 Makefile
 Makefile.in
 omf_timestamp
-
+*.aux
+*.tex
+*.dsl
+*.fo
+*.log
+CATALOG.local
+ersion.entities

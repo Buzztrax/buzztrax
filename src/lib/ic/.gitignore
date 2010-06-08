@@ -6,5 +6,8 @@
 *.bbg
 Makefile
 Makefile.in
-libbtic.pc
+libbuzztard-ic.pc
 marshal.*
+*.gir
+*.typelib
+

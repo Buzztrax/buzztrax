@@ -22,6 +22,10 @@ Makefile
 ABOUT-NLS
 INSTALL
 COPYING
+GSYMS
+GTAGS
+GPATH
+GRTAGS
 intltool*
 m4
 mkinstalldirs
@@ -32,3 +36,8 @@ buzztard.schemas
 *.log
 *.cache
 *.tar.gz
+.anjuta_sym_db.db
+.anjuta
+cscope.out
+*.anjuta
+
