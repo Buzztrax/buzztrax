@@ -69,18 +69,18 @@ static GtkWidgetClass *parent_class=NULL;
 struct ParamType
 {
   int chars, columns;
-  void (*to_string_func)(gchar *dest, float value, int def);
-  void (*from_key_func)(float *value_ptr, int key, int modifiers); 
-  int column_pos[4];
+  void (*to_string_func)(gchar *dest, gfloat value, gint def);
+  void (*from_key_func)(gfloat *value_ptr, gint key, gint modifiers);
+  guint column_pos[4];
 };
 
 //-- helper methods
 
 static void
-to_string_note (char *buf, float value, int def)
+to_string_note (gchar *buf, gfloat value, gint def)
 {
   static gchar note_names[] = "C-C#D-D#E-F-F#G-G#A-A#B-????????";
-  int note = ((int)value)&255, octave;
+  gint note = ((gint)value)&255, octave;
   if (note == def || note == 0) {
     strcpy(buf, "...");
     return;
@@ -98,9 +98,9 @@ to_string_note (char *buf, float value, int def)
 }
 
 static void
-to_string_trigger (char *buf, float value, int def)
+to_string_trigger (gchar *buf, gfloat value, gint def)
 {
-  int v = (int)value;
+  gint v = (gint)value;
   if (v == def)
     strcpy(buf, ".");
   else
@@ -108,9 +108,9 @@ to_string_trigger (char *buf, float value, int def)
 }
 
 static void
-to_string_byte (char *buf, float value, int def)
+to_string_byte (gchar *buf, gfloat value, gint def)
 {
-  int v = (int)(value+0.5);
+  gint v = (gint)(value+0.5);
   if (v == def)
     strcpy(buf, "..");
   else
@@ -118,9 +118,9 @@ to_string_byte (char *buf, float value, int def)
 }
 
 static void
-to_string_word (char *buf, float value, int def)
+to_string_word (gchar *buf, gfloat value, gint def)
 {
-  int v = (int)(value+0.5);
+  gint v = (gint)(value+0.5);
   if (v == def)
     strcpy(buf, "....");
   else
@@ -128,9 +128,9 @@ to_string_word (char *buf, float value, int def)
 }
 
 static void
-to_string_float (char *buf, float value, int def)
+to_string_float (gchar *buf, gfloat value, gint def)
 {
-  int v = (int)value;
+  gint v = (gint)value;
   if (fabs(v - def) < 0.00001)
     strcpy(buf, "........");
   else
@@ -147,7 +147,7 @@ static struct ParamType param_types[] = {
 };
 
 
-static int
+static gint
 bt_pattern_editor_rownum_width (BtPatternEditor *self)
 {
   return self->cw * 5;
@@ -155,14 +155,11 @@ bt_pattern_editor_rownum_width (BtPatternEditor *self)
 
 static void
 bt_pattern_editor_draw_rownum (BtPatternEditor *self,
-                          int x,
-                          int y,
-                          int row,
-                          int max_y)
+    gint x, gint y, gint row, gint max_y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
-  char buf[16];
-  int col_w = bt_pattern_editor_rownum_width(self);
+  gchar buf[16];
+  gint col_w = bt_pattern_editor_rownum_width(self);
 
   /*gdk_draw_rectangle (widget->window,
       widget->style->bg_gc[GTK_STATE_NORMAL],
@@ -186,11 +183,10 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
 
 static void
 bt_pattern_editor_draw_colnames (BtPatternEditor *self,
-                          int x,
-                          int y)
+    gint x, gint y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
-  int g;
+  gint g;
 
   gdk_draw_rectangle (widget->window,
       widget->style->bg_gc[GTK_STATE_NORMAL],
@@ -209,11 +205,10 @@ bt_pattern_editor_draw_colnames (BtPatternEditor *self,
 
 static void
 bt_pattern_editor_draw_rowname (BtPatternEditor *self,
-                          int x,
-                          int y)
+    gint x, gint y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
-  int col_w = bt_pattern_editor_rownum_width(self);
+  gint col_w = bt_pattern_editor_rownum_width(self);
 
   gdk_draw_rectangle (widget->window,
       widget->style->bg_gc[GTK_STATE_NORMAL],
@@ -228,9 +223,7 @@ bt_pattern_editor_draw_rowname (BtPatternEditor *self,
 
 static gboolean
 in_selection (BtPatternEditor *self,
-              int group,
-              int param,
-              int row)
+    guint group, guint param, guint row)
 {
   // check rows
   if (row < self->selection_start)
@@ -255,23 +248,18 @@ in_selection (BtPatternEditor *self,
  */
 static void
 bt_pattern_editor_draw_column (BtPatternEditor *self,
-                          int x,
-                          int y,
-                          BtPatternEditorColumn *col,
-                          int group,
-                          int param,
-                          int row,
-                          int max_y)
+    gint x, gint y, BtPatternEditorColumn *col,
+    guint group, guint param, guint row, guint max_y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
   struct ParamType *pt = &param_types[col->type];
-  char buf[16];
-  int cw = self->cw, ch = self->ch;
-  int col_w = cw * (pt->chars + 1);
+  gchar buf[16];
+  gint cw = self->cw, ch = self->ch;
+  gint col_w = cw * (pt->chars + 1);
 
   while (y < max_y && row < self->num_rows) {
     GdkGC *gc = (row&0x1) ?self->shade_gc : widget->style->light_gc[GTK_STATE_NORMAL];
-    int col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
+    gint col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
 
     if (self->selection_enabled && in_selection(self, group, param, row)) {
       /* the last space should be selected if it's a within-group "glue" 
@@ -296,7 +284,7 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
       &widget->style->text[GTK_STATE_NORMAL], NULL);
     // draw cursor
     if (row == self->row && param == self->parameter && group == self->group) {
-      int cp = pt->column_pos[self->digit];
+      gint cp = pt->column_pos[self->digit];
       pango_layout_set_text (self->pl, buf + cp, 1);
       // we could also use text_aa[GTK_STATE_SELECTED] for the cursor
       gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x + cw * cp, y, self->pl,
@@ -307,16 +295,16 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
   }
 }
 
-static int
+static gint
 bt_pattern_editor_get_row_width (BtPatternEditor *self)
 {
-  int width = self->rowhdr_width, g;
+  gint width = self->rowhdr_width, g;
   for (g = 0; g < self->num_groups; g++)
     width += self->groups[g].width;
   return width;
 }
 
-static int
+static gint
 bt_pattern_editor_get_col_height (BtPatternEditor *self)
 {
   return (self->colhdr_height + self->num_rows * self->ch);
@@ -325,9 +313,9 @@ bt_pattern_editor_get_col_height (BtPatternEditor *self)
 static void
 bt_pattern_editor_refresh_cell (BtPatternEditor *self)
 {
-  int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
-  int x = self->rowhdr_width - self->ofs_x;
-  int g, i, w;
+  gint y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
+  gint x = self->rowhdr_width - self->ofs_x;
+  gint g, i, w;
   BtPatternEditorColumnGroup *cgrp;
   BtPatternEditorColumn *col;
   struct ParamType *pt;
@@ -353,9 +341,9 @@ bt_pattern_editor_refresh_cell (BtPatternEditor *self)
 static void
 bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 {
-  int y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
-  int x = self->rowhdr_width - self->ofs_x;
-  int g, i;
+  gint y = self->colhdr_height + (self->row * self->ch) - self->ofs_y;
+  gint x = self->rowhdr_width - self->ofs_x;
+  gint g, i;
   BtPatternEditorColumnGroup *cgrp;
   BtPatternEditorColumn *col;
   struct ParamType *pt;
@@ -387,8 +375,8 @@ bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
   gboolean draw=TRUE;
    
   if (self->group < self->num_groups) {
-    int g, p;
-    int xpos = 0;
+    gint g, p;
+    gint xpos = 0;
     BtPatternEditorColumnGroup *grp = NULL;
     
     for (g = 0; g < self->group; g++)
@@ -397,10 +385,10 @@ bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
     for (p = 0; p < self->parameter; p++)
       xpos += self->cw * (param_types[grp->columns[p].type].chars + 1);
     if (p < grp->num_columns) {
-      int cpos = self->ofs_x;
-      int w = self->cw * param_types[grp->columns[p].type].chars; /* column width */
-      int ww = GTK_WIDGET(self)->requisition.width - self->rowhdr_width; /* full width, less rowheader */
-      int pw = GTK_WIDGET(self)->allocation.width - self->rowhdr_width; /* visible (scrolled) width, less rowheader */
+      gint cpos = self->ofs_x;
+      gint w = self->cw * param_types[grp->columns[p].type].chars; /* column width */
+      gint ww = GTK_WIDGET(self)->requisition.width - self->rowhdr_width; /* full width, less rowheader */
+      gint pw = GTK_WIDGET(self)->allocation.width - self->rowhdr_width; /* visible (scrolled) width, less rowheader */
       /* rowheader is subtracted, because it is not taken into account in hscroll range */
       GST_INFO("xpos = %d cpos = %d w = %d width = %d / %d", xpos, cpos, w, ww, pw);
       if (xpos < cpos || xpos + w > cpos + pw) {
@@ -417,11 +405,11 @@ bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
   }
   
   {
-    int ypos = self->row * self->ch;
-    int cpos = self->ofs_y;
-    int h = self->ch;
-    int wh = GTK_WIDGET(self)->requisition.height - self->colhdr_height; /* full heigth, less colheader */
-    int ph = GTK_WIDGET(self)->allocation.height - self->colhdr_height; /* visible (scrolled) heigth, less colheader */
+    gint ypos = self->row * self->ch;
+    gint cpos = self->ofs_y;
+    gint h = self->ch;
+    gint wh = GTK_WIDGET(self)->requisition.height - self->colhdr_height; /* full heigth, less colheader */
+    gint ph = GTK_WIDGET(self)->allocation.height - self->colhdr_height; /* visible (scrolled) heigth, less colheader */
     /* colheader is subtracted, because it is not taken into account in vscroll range */
     GST_INFO("ypos = %d cpos = %d h = %d height = %d / %d", ypos, cpos, h, wh, ph);
     if (ypos < cpos || ypos + h > cpos + ph) {
@@ -461,21 +449,15 @@ cur_column (BtPatternEditor *self)
 }
 
 static gboolean
-char_to_coords(int charpos,
-               BtPatternEditorColumn *columns, 
-               int num_cols,
-               int *parameter,
-               int *digit)
+char_to_coords(gint charpos, BtPatternEditorColumn *columns, gint num_cols,
+  gint *parameter, gint *digit)
 {
-  int i, j;
-  for (i = 0; i < num_cols; i++)
-  {
+  gint i, j;
+  for (i = 0; i < num_cols; i++) {
     struct ParamType *type = &param_types[columns[i].type];
-    if (charpos < type->chars)
-    {
-      for (j = 0; j < type->columns; j++)
-      {
-        int cps = type->column_pos[j], cpe = cps;
+    if (charpos < type->chars) {
+      for (j = 0; j < type->columns; j++) {
+        gint cps = type->column_pos[j], cpe = cps;
         if (columns[i].type == PCT_NOTE && j == 0)
           cpe++;
         if (charpos >= cps && charpos <= cpe) {
@@ -627,9 +609,9 @@ bt_pattern_editor_expose (GtkWidget *widget,
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
   GdkRectangle rect = event->area;
-  int y, x, i, row, g, max_y;
-  int grp_x;
-  int rowhdr_x, hh;
+  gint y, x, i, row, g, max_y;
+  gint grp_x;
+  gint rowhdr_x, hh;
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
@@ -648,11 +630,11 @@ bt_pattern_editor_expose (GtkWidget *widget,
   /* calculate the first a last row in the dirty region */
   self->colhdr_height = hh = self->ch;
   x = 0; 
-  y = hh + (int)(self->ch * floor((rect.y - hh) / self->ch));
+  y = hh + (gint)(self->ch * floor((rect.y - hh) / self->ch));
   if (y < hh)
       y = hh;
   max_y = rect.y + rect.height + hh; // one extra line
-  max_y = hh + (int)(self->ch * ceil((max_y - hh) / self->ch));
+  max_y = hh + (gint)(self->ch * ceil((max_y - hh) / self->ch));
   row = (y - hh) / self->ch;
     
   /* leave space for headers */
@@ -708,7 +690,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
     // do this for resize the after the first redraw (see @todo above)
     self->size_changed=FALSE;
     gtk_widget_queue_resize_no_redraw (widget);
-  }  
+  }
   return FALSE;
 }
 
@@ -780,11 +762,11 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         advance(self);
       }
       else {
-        static const char hexdigits[] = "0123456789abcdef";
+        static const gchar hexdigits[] = "0123456789abcdef";
         //static const char notenames[] = "zsxdcvgbhnjm\t\t\t\tq2w3er5t6y7u\t\t\t\ti9o0p";
-        static const char notenames[] = "\x34\x27\x35\x28\x36\x37\x2a\x38\x2b\x39\x2c\x3a\x3a\x3a\x3a\x3a\x18\x0b\x19\x0c\x1a\x1b\x0e\x1c\x0f\x1d\x10\x1e\x1e\x1e\x1e\x1e\x1f\x12\x20\x13\x21";
-        float oldvalue = self->callbacks->get_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter);
-        const char *p;
+        static const gchar notenames[] = "\x34\x27\x35\x28\x36\x37\x2a\x38\x2b\x39\x2c\x3a\x3a\x3a\x3a\x3a\x18\x0b\x19\x0c\x1a\x1b\x0e\x1c\x0f\x1d\x10\x1e\x1e\x1e\x1e\x1e\x1f\x12\x20\x13\x21";
+        gfloat oldvalue = self->callbacks->get_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter);
+        const gchar *p;
         switch(col->type) {
         case PCT_FLOAT:
           // no editing yet
@@ -799,10 +781,10 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         case PCT_WORD:
           p = strchr(hexdigits, (char)event->keyval);
           if (p) {
-            int value = (int)oldvalue;
+            gint value = (gint)oldvalue;
             if (oldvalue == col->def)
               value = 0;
-            int shift = 4*(((col->type == PCT_BYTE) ? 1 : 3) - self->digit);
+            gint shift = 4*(((col->type == PCT_BYTE) ? 1 : 3) - self->digit);
             value = (value &~(15 << shift)) | ((p - hexdigits) << shift);
             if (value < col->min) value = col->min;
             if (value > col->max) value = col->max;
@@ -824,7 +806,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             // FIXME: use event->hardware_keycode because of y<>z
             p = strchr(notenames, (char)event->hardware_keycode);
             if (p) {
-              int value = 1 + (p - notenames) + 16 * self->octave;
+              gint value = 1 + (p - notenames) + 16 * self->octave;
               if (value < col->min) value = col->min;
               if (value > col->max) value = col->max;
               
@@ -837,7 +819,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           }
           if (self->digit == 1) {
             if (isdigit(event->keyval)) {
-              int value = (int)oldvalue;
+              gint value = (gint)oldvalue;
               if (oldvalue == col->def)
                 value = 1;
               value = (value & 15) | ((event->keyval - '0') << 4);
@@ -855,10 +837,10 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       }
     }
     else {
-      int kup = toupper(event->keyval);
-      int control = (event->state & GDK_CONTROL_MASK) != 0;
-      int shift = (event->state & GDK_SHIFT_MASK) != 0;
-      int modifier = event->state & gtk_accelerator_get_default_mod_mask();
+      gint kup = toupper(event->keyval);
+      gint control = (event->state & GDK_CONTROL_MASK) != 0;
+      gint shift = (event->state & GDK_SHIFT_MASK) != 0;
+      gint modifier = event->state & gtk_accelerator_get_default_mod_mask();
   
       if (control && event->keyval >= '1' && event->keyval <= '9') {
         self->step = event->keyval - '0';
@@ -1116,10 +1098,10 @@ bt_pattern_editor_button_press (GtkWidget *widget,
                                 GdkEventButton *event)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
-  int x = self->ofs_x + event->x;
-  int y = self->ofs_y + event->y;
-  int parameter, digit;
-  int g;
+  gint x = self->ofs_x + event->x;
+  gint y = self->ofs_y + event->y;
+  gint parameter, digit;
+  gint g;
   
   gtk_widget_grab_focus_savely(GTK_WIDGET(self));
   
@@ -1394,13 +1376,10 @@ bt_pattern_editor_init (BtPatternEditor *self)
  * Set pattern data to show in the widget.
  */
 void
-bt_pattern_editor_set_pattern (BtPatternEditor *self,
-                          gpointer pattern_data,
-                          int num_rows,
-                          int num_groups,
-                          BtPatternEditorColumnGroup *groups,
-                          BtPatternEditorCallbacks *cb
-                          )
+bt_pattern_editor_set_pattern (BtPatternEditor *self, gpointer pattern_data,
+    guint num_rows, guint num_groups,
+    BtPatternEditorColumnGroup *groups,
+    BtPatternEditorCallbacks *cb)
 {
   GtkWidget *widget = GTK_WIDGET(self);
   self->num_rows = num_rows;
@@ -1433,8 +1412,8 @@ bt_pattern_editor_set_pattern (BtPatternEditor *self,
  * Returns: %TRUE if there was a selection.
  */
 gboolean bt_pattern_editor_get_selection (BtPatternEditor *self,
-                                          int *start, int *end, 
-                                          int *group, int *param)
+                                          gint *start, gint *end,
+                                          gint *group, gint *param)
 {
   if (!self->selection_enabled)
     return FALSE;

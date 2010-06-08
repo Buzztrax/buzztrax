@@ -1,5 +1,12 @@
 2010-06-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Use glib types for portability and consistency.
+
+2010-06-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/.cvsignore:
 	* po/.cvsignore:
 	* src/ui/cmd/.cvsignore:

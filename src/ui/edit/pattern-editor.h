@@ -71,11 +71,11 @@ struct _BtPatternEditorColumnGroup {
   // just an id to tell groups apart
   BtPatternEditorColumnGroupType type;
   // can be used for the headline above the group
-  char *name;
-  int num_columns;
+  gchar *name;
+  guint num_columns;
   BtPatternEditorColumn *columns;
   gpointer user_data;
-  int width; /* in pixels for now, may change to chars some day when needed */
+  guint width; /* in pixels for now, may change to chars some day when needed */
 };
 typedef struct _BtPatternEditorColumnGroup BtPatternEditorColumnGroup;
 
@@ -91,8 +91,8 @@ struct _BtPatternEditorCallbacks {
    * - BtPatternEditorColumn instead of BtPatternEditorColumn->user_data
    * - BtPatternEditorColumnGroup instead of track;
    */
-  float (*get_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param);
-  void (*set_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param, int digit, float value);
+  gfloat (*get_data_func)(gpointer pattern_data, gpointer column_data, guint row, guint group, guint param);
+  void (*set_data_func)(gpointer pattern_data, gpointer column_data, guint row, guint group, guint param, guint digit, gfloat value);
 };
 typedef struct _BtPatternEditorCallbacks BtPatternEditorCallbacks;
 
@@ -122,28 +122,28 @@ struct _BtPatternEditor {
 
   /*< private >*/
   /* cursor position */
-  int row;
-  int group;
-  int parameter;
-  int digit;
+  guint row;
+  guint group;
+  guint parameter;
+  guint digit;
   /* cursor step */
-  int step;
+  guint step;
   /* scroll location */
-  int ofs_x, ofs_y;
+  gint ofs_x, ofs_y;
   /* pattern data */
-  int num_lines, num_groups, num_rows;
+  guint num_lines, num_groups, num_rows;
   BtPatternEditorColumnGroup *groups;
   BtPatternEditorCallbacks *callbacks;
   gpointer pattern_data;
   /* selection */
   gboolean selection_enabled;
   BtPatternEditorSelectionMode selection_mode;
-  int selection_start, selection_end, selection_group, selection_param;
+  gint selection_start, selection_end, selection_group, selection_param;
   
   /* font metrics */
   PangoLayout *pl;
-  int cw, ch;
-  int rowhdr_width, colhdr_height;
+  guint cw, ch;
+  guint rowhdr_width, colhdr_height;
 
   gboolean size_changed;
   
@@ -169,21 +169,20 @@ struct _BtPatternEditorClass {
 };
 
 /* note: does not copy the BtPatternEditorColumn * data (in this version) */
-extern void
-bt_pattern_editor_set_pattern (BtPatternEditor *self,
+void bt_pattern_editor_set_pattern (BtPatternEditor *self,
                           gpointer pattern_data,
-                          int num_rows,
-                          int num_groups,
+                          guint num_rows,
+                          guint num_groups,
                           BtPatternEditorColumnGroup *groups,
                           BtPatternEditorCallbacks *cb);
 
-GtkWidget *bt_pattern_editor_new();
+gboolean bt_pattern_editor_get_selection (BtPatternEditor *self,
+                                          gint *start, gint *end,
+                                          gint *group, gint *param);
+
+GtkWidget *bt_pattern_editor_new (void);
 
 GType bt_pattern_editor_get_type (void);
-
-gboolean bt_pattern_editor_get_selection (BtPatternEditor *self,
-                                          int *start, int *end, 
-                                          int *group, int *param);
 
 G_END_DECLS
 

@@ -1100,7 +1100,7 @@ typedef struct {
 
 typedef struct {
   BtPatternEditorColumnConvertersCallbacks callbacks;
-  float min,max;
+  gfloat min,max;
 } BtPatternEditorColumnConvertersFloatCallbacks;
 
 typedef struct {
@@ -1110,7 +1110,7 @@ typedef struct {
   };
 } BtPatternEditorColumnConverters;
 
-static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param) {
+static gfloat pattern_edit_get_data_at(gpointer pattern_data, gpointer column_data, guint row, guint track, guint param) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   gchar *str = NULL;
   BtPatternEditorColumnGroup *group = &self->priv->param_groups[track];
@@ -1146,7 +1146,7 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
   return group->columns[param].def;
 }
 
-static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param, int digit, float value) {
+static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data, guint row, guint track, guint param, guint digit, gfloat value) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   const gchar *str = NULL;
   BtPatternEditorColumnGroup *group = &self->priv->param_groups[track];
@@ -1331,15 +1331,15 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   }
 }
 
-static float note_str_to_float(gchar *note, gpointer user_data) {
-  return (float)gstbt_tone_conversion_note_string_2_number(note);
+static gfloat note_str_to_float(gchar *note, gpointer user_data) {
+  return (gfloat)gstbt_tone_conversion_note_string_2_number(note);
 }
 
 static const gchar * note_float_to_str(gfloat in, gpointer user_data) {
   return(gstbt_tone_conversion_note_number_2_string((guint)in));
 }
 
-static float float_str_to_float(gchar *str, gpointer user_data) {
+static gfloat float_str_to_float(gchar *str, gpointer user_data) {
   // scale value into 0...65535 range
   BtPatternEditorColumnConvertersFloatCallbacks *pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)user_data;
   gdouble val=g_ascii_strtod(str,NULL);
