@@ -6,4 +6,4 @@
 *.bbg
 Makefile
 Makefile.in
-bt-cmd
+buzztard-cmd

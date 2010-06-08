@@ -19,3 +19,6 @@ Makefile.in.in
 Makefile.in
 Makefile
 .intltool-merge-cache
+ChangeLog
+*.pot
+
