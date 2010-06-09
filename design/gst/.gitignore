@@ -2,10 +2,13 @@ browser
 connection?
 controller
 gst?
+fmtnego
 link?
 loop?
 net?
+ref
 registry?
+seek?
 states?
 states??
 tags?

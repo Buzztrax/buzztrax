@@ -1,3 +1,17 @@
+2010-06-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/.cvsignore:
+	* design/gui/.cvsignore:
+	* design/gui/canvas-redraw.c:
+	* design/input/.cvsignore:
+	* design/input (svn:ignore):
+	* design/gui/canvas-redraw.c (svn:keywords, svn:eol-style):
+	* design/gst (svn:ignore):
+	* design/gui (svn:ignore):
+	* design/input/.cvsignore (added):
+	* design/gui/canvas-redraw.c (added):
+	  More svn maintenance.
+
 2010-06-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/change-log.c:
