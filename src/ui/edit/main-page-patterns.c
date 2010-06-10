@@ -39,8 +39,9 @@
  * - also do controller-assignments like in machine-property window
  *
  * - use gray text color for disconnected machines in the machine
- *   combobox and unused waves (like for unused patterns)
- *   - sensitve property of renderer does not work in comboboxes 
+ *   combobox (or machine without patterns) and unused waves
+ *   (like for unused patterns)
+ *   - sensitve property of renderer does not work in comboboxes
  *     (unlike in treeviews)
  *     -> we could use italic text in all of them
  *       ("style", PANGO_STYLE_ITALIC and "style-set")
@@ -1150,6 +1151,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   const gchar *str = NULL;
   BtPatternEditorColumnGroup *group = &self->priv->param_groups[track];
+  BtMachine *machine;
   
   if(column_data)
     str=((BtPatternEditorColumnConvertersCallbacks *)column_data)->float_to_str(value,column_data);
@@ -1157,11 +1159,10 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
     if(value!=group->columns[param].def)
       str=bt_persistence_strfmt_double(value);
 
+  g_object_get(self->priv->pattern,"machine",&machine,NULL);
+    
   if(group->type==PGT_GLOBAL || group->type==PGT_VOICE) {
-    BtMachine *machine;
     gboolean is_trigger;
-
-    g_object_get(self->priv->pattern,"machine",&machine,NULL);
     
     if(group->type==PGT_GLOBAL)
       is_trigger=bt_machine_is_global_param_trigger(machine,param);
@@ -1284,7 +1285,6 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
           gtk_combo_box_set_active(self->priv->wavetable_menu, self->priv->wave_to_combopos[v]);
       }
     }
-    g_object_unref(machine);
   }
 
   switch (group->type) {
@@ -1297,8 +1297,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
         wire_pattern=bt_wire_pattern_new(song,group->user_data,self->priv->pattern);
         g_object_unref(song);
       }
-      /* if we do undo/redo here, we would need to pass wire_pattern as the BT_CHANGE_LOGGER()
-       * and this get the undo/redo callbacks there, ok?
+      /* set_wire_event wire,wire_pattern,...
        */
       bt_wire_pattern_set_event(wire_pattern,row,param,str);
       g_object_unref(wire_pattern);
@@ -1307,10 +1306,15 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       {
         // serialize action
         gchar *old_str = bt_pattern_get_global_event(self->priv->pattern,row,param);
-        gchar *undo_str = g_strdup_printf("set_global_event %d,%d,%s",row,param,safe_string(old_str));
-        gchar *redo_str = g_strdup_printf("set_global_event %d,%d,%s",row,param,safe_string(str));
+        gchar *undo_str,*redo_str;
+        gchar *mid,*pid;
+        
+        g_object_get(machine,"id",&mid,NULL);
+        g_object_get(self->priv->pattern,"id",&pid,NULL);
+        undo_str = g_strdup_printf("set_global_event \"%s\",\"%s\",%u,%u,%s",mid,pid,row,param,safe_string(old_str));
+        redo_str = g_strdup_printf("set_global_event \"%s\",\"%s\",%u,%u,%s",mid,pid,row,param,safe_string(str));
         bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-        g_free(old_str);
+        g_free(old_str);g_free(mid);g_free(pid);
         bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       }
       break;
@@ -1319,16 +1323,22 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
         // serialize action
         guint voice = GPOINTER_TO_UINT(group->user_data);
         gchar *old_str = bt_pattern_get_voice_event(self->priv->pattern,row,voice,param);
-        gchar *undo_str = g_strdup_printf("set_voice_event %d,%u,%d,%s",row,voice,param,safe_string(old_str));
-        gchar *redo_str = g_strdup_printf("set_voice_event %d,%u,%d,%s",row,voice,param,safe_string(str));
+        gchar *undo_str,*redo_str;
+        gchar *mid,*pid;
+        
+        g_object_get(machine,"id",&mid,NULL);
+        g_object_get(self->priv->pattern,"id",&pid,NULL);
+        undo_str = g_strdup_printf("set_voice_event \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,row,voice,param,safe_string(old_str));
+        redo_str = g_strdup_printf("set_voice_event \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,row,voice,param,safe_string(str));
         bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-        g_free(old_str);
+        g_free(old_str);g_free(mid);g_free(pid);
         bt_pattern_set_voice_event(self->priv->pattern,row,voice,param,str);
       }
       break;
     default:
       GST_WARNING("invalid column group type");
   }
+  g_object_unref(machine);
 }
 
 static gfloat note_str_to_float(gchar *note, gpointer user_data) {
@@ -1715,6 +1725,24 @@ static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *ne
   }
 }
 
+
+static void switch_machine_and_pattern(const BtMainPagePatterns *self,BtMachine *machine, BtPattern *pattern) {
+  GtkTreeIter iter;
+  GtkTreeModel *store;
+
+  if(machine) {
+    // update machine menu
+    store=gtk_combo_box_get_model(self->priv->machine_menu);
+    machine_model_get_iter_by_machine(store,&iter,machine);
+    gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
+  }
+  if(pattern) {
+    // update pattern menu
+    store=gtk_combo_box_get_model(self->priv->pattern_menu);
+    pattern_model_get_iter_by_pattern(store,&iter,pattern);
+    gtk_combo_box_set_active_iter(self->priv->pattern_menu,&iter);  
+  }
+}
 //-- event handler
 
 static gboolean on_page_switched_idle(gpointer user_data) {
@@ -2606,18 +2634,9 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
  */
 void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern *pattern) {
   BtMachine *machine;
-  GtkTreeIter iter;
-  GtkTreeModel *store;
 
   g_object_get(pattern,"machine",&machine,NULL);
-  // update machine menu
-  store=gtk_combo_box_get_model(self->priv->machine_menu);
-  machine_model_get_iter_by_machine(store,&iter,machine);
-  gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
-  // update pattern menu
-  store=gtk_combo_box_get_model(self->priv->pattern_menu);
-  pattern_model_get_iter_by_pattern(store,&iter,pattern);
-  gtk_combo_box_set_active_iter(self->priv->pattern_menu,&iter);
+  switch_machine_and_pattern(self,machine,pattern);
   // focus pattern editor
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
   // release the references
@@ -2905,48 +2924,116 @@ void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
 static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger *owner,const gchar *data) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(owner);
   gboolean res=FALSE;
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+  BtPattern *pattern=self->priv->pattern;
+  guint row=0,group=0,param=0;
+  gchar *c_mid,*c_pid;
+  GRegex *regex;
+  GMatchInfo *match_info;
+  gchar *s;
+  
+  g_object_get(pattern,"machine",&machine,"id",&c_pid,NULL);
+  g_object_get(machine,"id",&c_mid,NULL);
 
-  /* @todo: what if we make a change, switch the pattern and press undo :/
-   * - add pattern-id to the undo/redo-data ? (full context) and
-   *   if self->priv->pattern!=pattern switch back?
-   */
   GST_INFO("undo/redo: [%s]",data);
   // parse data and apply action
   if(!strncmp(data,"set_global_event ",17)) {
-    guint row,param,pos,group;
-    const gchar *str;
+    gchar *str,*mid,*pid;
 
-    sscanf(&data[17],"%u,%u,%n",&row,&param,&pos);
-    str=&data[17+pos];
-    GST_DEBUG("-> [%u|%u|%s]",row,param,str);
-    res=bt_pattern_set_global_event(self->priv->pattern,row,param,str);
+    regex=g_regex_new("\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),(.*)$",0,0,NULL);
+    if(g_regex_match_full(regex,data,-1,17,0,&match_info,NULL)) {
+      mid=g_match_info_fetch(match_info,1);
+      pid=g_match_info_fetch(match_info,2);
+      s=g_match_info_fetch(match_info,3);row=atoi(s);g_free(s);
+      s=g_match_info_fetch(match_info,4);param=atoi(s);g_free(s);
+      str=g_match_info_fetch(match_info,5);
+      g_match_info_free(match_info);
 
-    // move cursor
-    for(group=0;group<self->priv->number_of_groups;group++) {
-      if(self->priv->param_groups[group].type==PGT_GLOBAL) break;
+      GST_DEBUG("-> [%s|%s|%u|%u|%s]",mid,pid,row,param,str);
+      if(strcmp(mid,c_mid)) {
+        // change machine and pattern
+        g_object_get(self->priv->app,"song",&song,NULL);
+        g_object_get(song,"setup",&setup,NULL);
+        g_object_unref(machine);
+        machine=bt_setup_get_machine_by_id(setup, mid);
+        pattern=bt_machine_get_pattern_by_id(machine,pid);
+        switch_machine_and_pattern(self,machine,pattern);
+        g_object_unref(setup);
+        g_object_unref(song);
+      } else if(strcmp(pid,c_pid)) {
+        // change pattern
+        pattern=bt_machine_get_pattern_by_id(machine,pid);
+        switch_machine_and_pattern(self,NULL,pattern);
+      }
+      res=bt_pattern_set_global_event(pattern,row,param,str);
+      g_free(str);
+  
+      // move cursor
+      for(group=0;group<self->priv->number_of_groups;group++) {
+        if(self->priv->param_groups[group].type==PGT_GLOBAL) break;
+      }
     }
-    g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
+    else {
+      GST_WARNING("no match in pattern \"%s\"",g_regex_get_pattern(regex));
+    }
+    g_regex_unref(regex);
   }
   else if(!strncmp(data,"set_voice_event ",16)) {
-    guint row,voice,param,pos,group;
-    const gchar *str;
+    guint voice;
+    gchar *str,*mid,*pid;
 
-    sscanf(&data[16],"%u,%u,%u,%n",&row,&voice,&param,&pos);
-    str=&data[16+pos];
-    GST_DEBUG("-> [%u|%u|%u|%s]",row,voice,param,str);
-    res=bt_pattern_set_voice_event(self->priv->pattern,row,voice,param,str);
+    regex=g_regex_new("\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$",0,0,NULL);
+    if(g_regex_match_full(regex,data,-1,16,0,&match_info,NULL)) {
+      mid=g_match_info_fetch(match_info,1);
+      pid=g_match_info_fetch(match_info,2);
+      s=g_match_info_fetch(match_info,3);row=atoi(s);g_free(s);
+      s=g_match_info_fetch(match_info,4);voice=atoi(s);g_free(s);
+      s=g_match_info_fetch(match_info,5);param=atoi(s);g_free(s);
+      str=g_match_info_fetch(match_info,6);
+      g_match_info_free(match_info);
 
-    // move cursor
-    for(group=0;group<self->priv->number_of_groups;group++) {
-      if((self->priv->param_groups[group].type==PGT_VOICE) && (GPOINTER_TO_UINT(self->priv->param_groups[group].user_data)==voice)) break;
+      GST_DEBUG("-> [%s|%s|%u|%u|%u|%s]",mid,pid,row,voice,param,str);
+      if(strcmp(mid,c_mid)) {
+        // change machine and pattern
+        g_object_get(self->priv->app,"song",&song,NULL);
+        g_object_get(song,"setup",&setup,NULL);
+        g_object_unref(machine);
+        machine=bt_setup_get_machine_by_id(setup, mid);
+        pattern=bt_machine_get_pattern_by_id(machine,pid);
+        switch_machine_and_pattern(self,machine,pattern);
+        g_object_unref(setup);
+        g_object_unref(song);
+      }
+      if(strcmp(pid,c_pid)) {
+        // change pattern
+        pattern=bt_machine_get_pattern_by_id(machine,pid);
+        switch_machine_and_pattern(self,NULL,pattern);
+      }
+      res=bt_pattern_set_voice_event(pattern,row,voice,param,str);
+  
+      // move cursor
+      for(group=0;group<self->priv->number_of_groups;group++) {
+        if((self->priv->param_groups[group].type==PGT_VOICE) && (GPOINTER_TO_UINT(self->priv->param_groups[group].user_data)==voice)) break;
+      }
     }
-    g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
+    else {
+      GST_WARNING("no match in pattern \"%s\"",g_regex_get_pattern(regex));
+    }
+    g_regex_unref(regex);
   }
   else {
     GST_WARNING("unhandled undo/redo: [%s]",data);
   }
-  if(res)
+
+  if(res) {
+    g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
     pattern_table_refresh(self);
+  }
+
+  g_object_unref(machine);
+  g_free(c_mid);g_free(c_pid);
   return res;
 }
 

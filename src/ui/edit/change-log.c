@@ -282,7 +282,8 @@ void bt_change_log_reset(BtChangeLog *self) {
 void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data) {
   BtChangeLogEntry *cle;
   
-  // if we have redo data, we have to cut the trail here
+  // if we have redo data, we have to cut the trail here otherwise the history
+  // becomes a graph
   if(self->priv->next_redo<(self->priv->item_ct-1)) {
     gint i;
     
@@ -318,7 +319,7 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
   //self->priv->next_undo=self->priv->item_ct-1;
   self->priv->next_undo++;
   self->priv->next_redo++;
-  GST_WARNING("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);
+  GST_INFO("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);
   if(self->priv->next_undo==0) {
     g_object_notify((GObject *)self,"can-undo");
   }
@@ -332,7 +333,7 @@ void bt_change_log_undo(BtChangeLog *self)
     // update undo undo/redo pointers
     self->priv->next_redo=self->priv->next_undo;
     self->priv->next_undo--;
-    GST_WARNING("undo %d, %d",self->priv->next_undo,self->priv->next_redo);
+    GST_INFO("undo %d, %d",self->priv->next_undo,self->priv->next_redo);
     if(self->priv->next_undo==-1) {
       g_object_notify((GObject *)self,"can-undo");
     }
@@ -350,7 +351,7 @@ void bt_change_log_redo(BtChangeLog *self)
     // update undo undo/redo pointers
     self->priv->next_undo=self->priv->next_redo;
     self->priv->next_redo++;
-    GST_WARNING("redo %d, %d",self->priv->next_undo,self->priv->next_redo);
+    GST_INFO("redo %d, %d",self->priv->next_undo,self->priv->next_redo);
     if(self->priv->next_redo==self->priv->item_ct) {
       g_object_notify((GObject *)self,"can-redo");
     }

@@ -1,5 +1,13 @@
 2010-06-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-log.c:
+	  Downgrade some logging.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Take machine and pattern into account for undo/redo.
+
+2010-06-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/ui/edit/e-bt-change-log.c:
 	  Add test for checking that edits after undo, truncate the stack.
 
