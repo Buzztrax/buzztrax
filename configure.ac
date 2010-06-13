@@ -395,9 +395,13 @@ PKG_CHECK_MODULES(CHECK, check >= 0.9.2,
 dnl Check for gtk-doc.
 GTK_DOC_CHECK([1.10],[--flavour no-tmpl])
 
-dnl Check for xsltproc
-dnl AC_PATH_PROG(xsltproc, xsltproc, no)
-dnl AM_CONDITIONAL(ENABLE_XSLTPROC, test ! x$xsltproc = xno)
+AC_ARG_ENABLE(man,
+              [AC_HELP_STRING([--enable-man],
+                              [regenerate man pages from Docbook [default=no]])],enable_man=yes,
+              enable_man=no)
+
+AC_PATH_PROG([XSLTPROC], [xsltproc])
+AM_CONDITIONAL(ENABLE_MAN, test x$enable_man != xno)
 
 dnl Check for scrollkeeper
 AC_PATH_PROG(scrollkeeper_config, scrollkeeper-config, no)
@@ -531,6 +535,7 @@ Configuration
 	Compiler                        : ${CC}
 
 	Documentation (API)             : ${enable_gtk_doc}
+	Documentation (Man)             : ${enable_man}
 	Documentation (User)            : ${have_scrollkeeper}
 	Bindings Metadata (GIR)         : ${enable_gir}
 	HAL for interaction ctrl.       : ${use_hal}

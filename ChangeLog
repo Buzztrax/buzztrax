@@ -1,3 +1,12 @@
+2010-06-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:
+	* docs/reference/bt-cmd/buzztard-cmd.xml:
+	* docs/reference/bt-cmd/buzztard-cmd.xml (added):
+	  Add a man-page for buzztard-cmd.
+
 2010-06-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/change-log.c:

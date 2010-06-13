@@ -74,9 +74,25 @@ GTKDOC_LIBS = \
 # include generic part
 include $(top_srcdir)/gtk-doc.make
 
+man_MANS = \
+	buzztard-cmd.1
+
+if ENABLE_GTK_DOC
+if ENABLE_MAN
+
+%.1 : %.xml
+	 @XSLTPROC@ -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+
+endif
+endif
+
+BUILT_EXTRA_DIST = $(man_MANS)
+
 # Other files to distribute
 # e.g. EXTRA_DIST += version.xml.in
-EXTRA_DIST += $(DOC_MODULE).types
+EXTRA_DIST += \
+	$(DOC_MODULE).types \
+	buzztard-cmd.xml
 
 # Comment this out if you want your docs-status tested during 'make check'
 if ENABLE_GTK_DOC

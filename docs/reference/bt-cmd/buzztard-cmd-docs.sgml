@@ -63,6 +63,8 @@
     </partintro>
     <xi:include href="xml/btcmd.xml"/>
     <xi:include href="xml/btcmdapplication.xml"/>
+    
+    <xi:include href="buzztard-cmd.xml"/>
   </reference>
 
   <part label="III">
