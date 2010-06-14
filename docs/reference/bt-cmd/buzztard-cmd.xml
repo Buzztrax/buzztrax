@@ -4,13 +4,17 @@
 <refentry id="buzztard-cmd-ops">
 
 <refentryinfo>
-  <author><othername>the buzztard project</othername></author>
+  <author>
+    <othername>the buzztard project</othername>
+    <contrib>Development and documentation.</contrib>
+  </author>
   <productname>buzztard</productname>
 </refentryinfo>
 
 <refmeta>
 <refentrytitle>buzztard-cmd</refentrytitle>
 <manvolnum>1</manvolnum>
+<refmiscinfo class="manual">Buzztard Manual Pages</refmiscinfo>
 </refmeta>
 
 <refnamediv>
@@ -49,21 +53,21 @@ Be quiet (no verbose ouput when running)
 </varlistentry>
 
 <varlistentry>
-<term><option>-c</option>, <option>--command</option><replaceable>command-name</replaceable></term>
+<term><option>-c</option>, <option>--command</option> <replaceable>command-name</replaceable></term>
 <listitem><para>
 The command to exeute, one of: info, play, convert, encode
 </para></listitem>
 </varlistentry>
 
 <varlistentry>
-<term><option>-i</option>, <option>--input-file</option><replaceable>song-filename</replaceable></term>
+<term><option>-i</option>, <option>--input-file</option> <replaceable>song-filename</replaceable></term>
 <listitem><para>
 The input filename. This should be a song file buzztard can handle.
 </para></listitem>
 </varlistentry>
 
 <varlistentry>
-<term><option>-o</option>, <option>--output-file</option><replaceable>song-filename</replaceable></term>
+<term><option>-o</option>, <option>--output-file</option> <replaceable>song-filename</replaceable></term>
 <listitem><para>
 The output filename. Depending on the command this is the result of the
 file-format conversion or the song-rendering.
