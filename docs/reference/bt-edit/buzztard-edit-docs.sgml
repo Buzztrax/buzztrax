@@ -50,7 +50,7 @@
   </part>
 
   <reference label="II"  id="uibtedit">
-    <title>User Application Reference</title>
+    <title>User Application API Reference</title>
     <partintro>
       <abstract>
         <para>
@@ -121,7 +121,12 @@
     </chapter>
   </reference>
 
-  <part label="III">
+  <reference label="III"  id="uibteditopts">
+    <title>User Application Command Line Reference</title>
+    <xi:include href="buzztard-edit.xml"/>
+  </reference>
+
+  <part label="IV">
     <title>Appendix</title>
 
     <chapter id="objecttree">

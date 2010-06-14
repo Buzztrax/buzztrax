@@ -50,7 +50,7 @@
   </part>
 
   <reference label="II" id="uibtcmd">
-    <title>User Application Reference</title>
+    <title>User Application API Reference</title>
     <partintro>
       <abstract>
         <para>
@@ -63,11 +63,14 @@
     </partintro>
     <xi:include href="xml/btcmd.xml"/>
     <xi:include href="xml/btcmdapplication.xml"/>
-    
+  </reference>
+
+  <reference label="III" id="uibtcmdopts">
+    <title>User Application Command Line Reference</title>
     <xi:include href="buzztard-cmd.xml"/>
   </reference>
 
-  <part label="III">
+  <part label="IV">
     <title>Appendix</title>
 
     <chapter id="objecttree">

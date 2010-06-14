@@ -1,5 +1,15 @@
 2010-06-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztard-edit.xml:
+	* docs/reference/bt-edit/buzztard-edit.xml (added):
+	  Add man-page for buzztard-edit and move the man pages to separate
+	  section in the interface docs.
+
+2010-06-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/buzztard-cmd.xml:
 	  Update page to get rid of all warnings.
 
