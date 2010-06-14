@@ -1,5 +1,11 @@
 2010-06-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	  Ideas about api changes for bt-bin.
+
+2010-06-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:
 	* docs/reference/bt-edit/Makefile.am:
 	* docs/reference/bt-edit/buzztard-edit-docs.sgml:

@@ -248,9 +248,10 @@ static gboolean bt_song_io_native_bzt_load(gconstpointer const _self, const BtSo
     GError *err=NULL;
     
     // open the file from the file_name argument
-    if((self->priv->input=gsf_input_stdio_new (file_name, &err))) {
+    // @todo: if no file-name: gsf_input_memory_new(buf,len,FALSE);
+    if((self->priv->input=gsf_input_stdio_new(file_name, &err))) {
       // create an gsf input file
-      if((self->priv->infile=gsf_infile_zip_new (self->priv->input, &err))) {
+      if((self->priv->infile=gsf_infile_zip_new(self->priv->input, &err))) {
         GsfInput *data;
         
         GST_INFO("'%s' size: %" GSF_OFF_T_FORMAT ", files: %d", 

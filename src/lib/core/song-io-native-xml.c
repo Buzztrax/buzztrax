@@ -61,6 +61,8 @@ static gboolean bt_song_io_native_xml_load(gconstpointer const _self, const BtSo
   if(ctxt) {
     xmlDocPtr song_doc;
     
+    // open the file from the file_name argument
+    // @todo: if no file-name: xmlCtxtReadMemory(ctxt,buf,len,base_url,NULL,0L)
     if((song_doc=xmlCtxtReadFile(ctxt,file_name,NULL,0L))) {
       if(!ctxt->valid) {
         GST_WARNING("the supplied document is not a XML/Buzztard document");
