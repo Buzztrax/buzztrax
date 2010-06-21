@@ -96,6 +96,9 @@ static void bt_application_set_property(GObject * const object, const guint prop
   const BtApplication * const self = BT_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
+    case APPLICATION_BIN: {
+      self->priv->bin = g_value_get_object(value);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -138,12 +141,14 @@ static void bt_application_init(const GTypeInstance * const instance, gconstpoin
 
   GST_DEBUG("!!!! self=%p",self);
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_APPLICATION, BtApplicationPrivate);
+  // @todo: we could add a construct only property for the bin, so that e.g. bt-bin can pass a bin 
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_ELEMENT(self->priv->bin));
   GST_DEBUG("bin->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->bin));
 
   // tried this when debuging a case where we don't get bus messages
   //gst_pipeline_set_auto_flush_bus(GST_PIPELINE(self->priv->bin),FALSE);
+
   // if we enable this we get lots of diagnostics
   //g_signal_connect (self->priv->bin, "deep_notify", G_CALLBACK(gst_object_default_deep_notify), NULL);
 
@@ -163,12 +168,18 @@ static void bt_application_class_init(BtApplicationClass * const klass) {
   gobject_class->dispose      = bt_application_dispose;
   gobject_class->finalize     = bt_application_finalize;
 
+  /**
+   * BtApplication:bin
+   *
+   * The top-level gstreamer element for the song, e.g. a #GstPipeline or
+   * #GstBin. The application object takes ownership of the element.
+   */
   g_object_class_install_property(gobject_class,APPLICATION_BIN,
                                   g_param_spec_object("bin",
-                                     "bin ro prop",
+                                     "bin prop",
                                      "applications top-level GstElement container",
                                      GST_TYPE_BIN, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,APPLICATION_SETTINGS,
                                   g_param_spec_object("settings",

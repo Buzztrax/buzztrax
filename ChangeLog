@@ -1,3 +1,17 @@
+2010-06-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  White space.
+
+	* src/lib/core/tools.c:
+	  Reword API docs.
+
+	* src/lib/core/application.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/edit-application.c:
+	  Make 'bin' a construct only, but writable property so that subclasses can
+	  set the container.
+
 2010-06-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-io-native-bzt.c:

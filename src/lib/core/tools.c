@@ -78,8 +78,8 @@ GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *cl
  * @factory: element factory to check
  * @name: caps type name
  *
- * Check if a factories sink pads are compatible with the given @name. The @name
- * can e.g. be "audio/x-raw-int".
+ * Check if the sink pads of the given @factory are compatible with the given 
+ * @name. The @name can e.g. be "audio/x-raw-int".
  *
  * Returns: %TRUE if the pads are compatible.
  */
@@ -108,7 +108,7 @@ gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,c
       gst_caps_unref(caps);
     }
     else {
-      GST_INFO("  skipping template, wrong dir: %d", tmpl->direction);
+      GST_DEBUG("  skipping template, wrong dir: %d", tmpl->direction);
     }
   }
   return(FALSE);

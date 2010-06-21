@@ -513,7 +513,7 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
 
   // unlink start of wire
   dst_pad=gst_element_get_static_pad(wire,"sink");
-  GST_INFO_OBJECT(dst_pad,"unlinking start of wire");      
+  GST_INFO_OBJECT(dst_pad,"unlinking start of wire");
   if((src_pad=gst_pad_get_peer(dst_pad))) {
     if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/ 
       (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
@@ -533,7 +533,7 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
   gst_object_unref(dst_pad);
 
   src_pad=gst_element_get_static_pad(wire,"src");
-  GST_INFO_OBJECT(src_pad,"unlinking end of wire");    
+  GST_INFO_OBJECT(src_pad,"unlinking end of wire");
   if((dst_pad=gst_pad_get_peer(src_pad))) {
     gst_pad_unlink(src_pad,dst_pad);
     gst_pad_send_event(dst_pad, gst_event_new_eos ());

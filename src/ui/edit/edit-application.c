@@ -215,7 +215,7 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
  * Returns: the new signleton instance
  */
 BtEditApplication *bt_edit_application_new(void) {
-  return(BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL)));
+  return(BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,"bin",gst_pipeline_new("song"),NULL)));
 }
 
 //-- methods

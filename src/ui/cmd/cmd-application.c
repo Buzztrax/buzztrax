@@ -145,7 +145,6 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   gboolean ret=FALSE;
   BtSetup *setup;
   BtMachine *machine;
-  BtSinkBin *sink_bin;
   BtSinkBinRecordFormat format;
   gchar *lc_file_name,*file_name=NULL;
   GEnumClass *enum_class;
@@ -175,6 +174,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   // lookup the audio-sink machine and change mode
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
     GstElement *convert;
+    BtSinkBin *sink_bin;
 
     g_object_get(machine,"machine",&sink_bin,"adder-convert",&convert,NULL);
 
@@ -212,7 +212,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
  * Returns: the new instance or %NULL in case of an error
  */
 BtCmdApplication *bt_cmd_application_new(gboolean quiet) {
-  return(BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,"quiet",quiet,NULL)));
+  return(BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,"bin",gst_pipeline_new("song"),"quiet",quiet,NULL)));
 }
 
 //-- methods
