@@ -1,5 +1,30 @@
 2010-06-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/song-io-methods.h:
+	* src/lib/core/libbuzztard-core/song-io.h:
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/song-io.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/change-log-methods.h:
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/change-log.h:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-page-machines.c:
+	* tests/lib/core/e-song-info.c:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/lib/core/e-song-io.c:
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/t-sink-machine.c:
+	* tests/lib/core/t-song-io-native.c:
+	* tests/lib/core/t-song-io.c:
+	* tests/lib/core/t-song.c:
+	  BtSongIO api changes: have a init function instead of detect, add GTypes
+	  to the plugin module info. Have a generic detect function. Add a second
+	  song_io constructure for in memory data.
+
+2010-06-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/setup.c:
 	  White space.
 

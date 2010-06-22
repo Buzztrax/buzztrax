@@ -41,7 +41,7 @@ static void test_teardown(void) {
 BT_START_TEST(test_btsong_io_obj1) {
   BtSongIO *song_io;
   
-  song_io=bt_song_io_make(NULL);
+  song_io=bt_song_io_from_file(NULL);
   fail_unless(song_io == NULL, NULL);
 }
 BT_END_TEST
@@ -50,7 +50,7 @@ BT_END_TEST
 BT_START_TEST(test_btsong_io_obj2) {
   BtSongIO *song_io;
 
-  song_io=bt_song_io_make("");
+  song_io=bt_song_io_from_file("");
   fail_unless(song_io==NULL, NULL);
 }
 BT_END_TEST
@@ -59,7 +59,7 @@ BT_END_TEST
 BT_START_TEST(test_btsong_io_obj3) {
   BtSongIO *song_io;
 
-  song_io=bt_song_io_make("test");
+  song_io=bt_song_io_from_file("test");
   fail_unless(song_io==NULL, NULL);
 }
 BT_END_TEST
@@ -68,7 +68,7 @@ BT_END_TEST
 BT_START_TEST(test_btsong_io_obj4) {
   BtSongIO *song_io;
 
-  song_io=bt_song_io_make("test.unk");
+  song_io=bt_song_io_from_file("test.unk");
   fail_unless(song_io==NULL, NULL);
 }
 BT_END_TEST

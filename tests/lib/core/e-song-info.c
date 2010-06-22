@@ -53,7 +53,7 @@ BT_START_TEST(test_btsonginfo_createdate) {
   song=bt_song_new(app);
   mark_point();
   // loading a song xml file
-  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
+  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
   mark_point();
   bt_song_io_load(loader,song);
   mark_point();
@@ -91,7 +91,7 @@ BT_START_TEST(test_btsonginfo_tempo) {
   song=bt_song_new(app);
   mark_point();
   // loading a song xml file
-  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
+  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
   mark_point();
   bt_song_io_load(loader,song);
   mark_point();

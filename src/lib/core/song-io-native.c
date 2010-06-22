@@ -41,50 +41,8 @@ struct _BtSongIONativePrivate {
 static BtSongIOClass *parent_class=NULL;
 
 //-- plugin detect
-/*
- * bt_song_io_native_detect:
- * @file_name: the file to check against
- *
- * Checks if this plugin should manage this kind of file.
- *
- * Returns: the GType of this plugin of %NULL
- */
-static GType bt_song_io_native_detect(const gchar * const file_name) {
-  GType type=0;
 
-  // test filename first  
-  if(!file_name) return(type);
-
-  /* @todo add proper mime-type detection (gio) */
-  // check extension
-  gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
-  if(g_str_has_suffix(lc_file_name,".xml")) {
-    type=BT_TYPE_SONG_IO_NATIVE_XML;
-  }
-#ifdef USE_GSF
-  else if(g_str_has_suffix(lc_file_name,".bzt")) {
-    type=BT_TYPE_SONG_IO_NATIVE_BZT;
-  }
-#endif
-  g_free(lc_file_name);
-
-  /* @todo: check content type */
-#if 0
-  GFile *file;
-  GFileInfo *info;
-  
-  file=g_file_new_for_path(file_name);
-  
-  if((info=g_file_query_info(file,G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,G_FILE_QUERY_INFO_NONE,NULL,NULL))) {
-    const gchar *mime_type=g_file_info_get_content_type(info);
-  
-    g_object_unref (info);
-  }
-  g_object_unref (file);
-  
-#endif
-  return(type);
-}
+static gboolean bt_song_io_init(void);
 
 /**
  * bt_song_io_native_module_info:
@@ -92,15 +50,37 @@ static GType bt_song_io_native_detect(const gchar * const file_name) {
  * Buzztard native format song loader/saver metadata.
  */
 BtSongIOModuleInfo bt_song_io_native_module_info = {
-  bt_song_io_native_detect,
+  bt_song_io_init,
   {
 #ifdef USE_GSF
-    { "buzztard song with externals", "audio/x-bzt", "bzt" },
+    { 0, "buzztard song with externals", "audio/x-bzt", "bzt" },
 #endif
-    { "buzztard song without externals", "audio/x-bzt-xml", "xml" },
-    { NULL, }
+    { 0, "buzztard song without externals", "audio/x-bzt-xml", "xml" },
+    { 0, NULL, NULL, NULL }
   }
 };
+
+static gboolean bt_song_io_init(void) {
+  static gboolean first_run=TRUE;
+
+  if(first_run) {
+#ifdef ENABLE_NLS
+    bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+#endif /* ENABLE_NLS */
+
+    GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-bsl", 0, "music production environment / buzz song io plugin");
+    
+#ifdef USE_GSF
+    bt_song_io_native_module_info.formats[0].type=BT_TYPE_SONG_IO_NATIVE_BZT;
+    bt_song_io_native_module_info.formats[1].type=BT_TYPE_SONG_IO_NATIVE_XML;
+#else
+    bt_song_io_native_module_info.formats[0].type=BT_TYPE_SONG_IO_NATIVE_XML;
+#endif
+    first_run=FALSE;
+  }
+  return(TRUE);
+}
 
 //-- methods
 

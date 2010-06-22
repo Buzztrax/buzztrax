@@ -54,7 +54,7 @@ struct _BtChangeLogClass {
   GObjectClass parent;
 };
 
-/* used by UI_RESOURCES_TYPE */
+/* used by CHANGE_LOG_TYPE */
 GType bt_change_log_get_type(void) G_GNUC_CONST;
 
 #endif // BT_CHANGE_LOG_H

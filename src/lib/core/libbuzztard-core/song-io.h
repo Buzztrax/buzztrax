@@ -91,15 +91,13 @@ struct _BtSongIOClass {
 GType bt_song_io_get_type(void) G_GNUC_CONST;
 
 /**
- * BtSongIODetect:
- * @file_name: the file to run the detection against
+ * BtSongIOInit:
  *
- * Type of the file-format detect function.
- * Each #BtSongIO plugin must provide this one.
+ * Function to init the plugin.
  *
- * Returns: the #GType of the song-io class on succes or %NULL otherwise
+ * Returns: %TRUE if the plugin was initialized fine
  */
-typedef GType (*BtSongIODetect)(const gchar * const file_name);
+typedef gboolean (*BtSongIOInit)(void);
 
 /* @todo: additional fields:
  * - wheter it support load/save? (we have vmethods
@@ -108,6 +106,7 @@ typedef GType (*BtSongIODetect)(const gchar * const file_name);
  * Ugly:
  * - still duplicated info with usr/share/mime database
  * - files are detected twice (e.g. nautilus, buzztard)
+ *   - pass the media-type as a comamndline option and map it right away
  */
 
 /**
@@ -119,6 +118,7 @@ typedef GType (*BtSongIODetect)(const gchar * const file_name);
  * Metadata structure for #BtSongIO plugins describing one format.
  */
 typedef struct {
+  GType type;
   const gchar *name;
   const gchar *mime_type;
   const gchar *extension;
@@ -133,13 +133,13 @@ typedef struct {
 
 /**
  * BtSongIOModuleInfo:
- * @detect: pointer to detection function
+ * @init: pointer to init function, can be %NULL.
  * @formats: %NULL terminated array of formats supported by this plugin
  *
  * Metadata structure for #BtSongIO plugins.
  */
 typedef struct {
-  BtSongIODetect detect;
+  BtSongIOInit init;
   BtSongIOFormatInfo formats[BT_SONG_IO_MODULE_INFO_MAX_FORMATS];
 } BtSongIOModuleInfo;
 

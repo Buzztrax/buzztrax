@@ -49,6 +49,9 @@
  *
  * @todo: click in the background to pan canvas around
  *
+ * @todo: undo/redo/journaling:
+ * - main_page_machines.add_machine(machine_id,...)
+ * - main_page_machines.add_wire(src_machine_id,dst_machine_id)
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C

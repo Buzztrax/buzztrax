@@ -41,7 +41,7 @@ static void test_teardown(void) {
 BT_START_TEST(test_btsong_io_obj1) {
   BtSongIO *song_io;
   
-  song_io=bt_song_io_make(check_get_test_song_path("example.xml"));
+  song_io=bt_song_io_from_file(check_get_test_song_path("example.xml"));
   // check if the type of songIO is native
   fail_unless(BT_IS_SONG_IO_NATIVE(song_io), NULL);
   fail_unless(song_io!=NULL, NULL);

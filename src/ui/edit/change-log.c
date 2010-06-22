@@ -225,8 +225,6 @@ BtChangeLog *bt_change_log_new(void) {
 
 //-- methods
 
-#if 0
-
 GList *bt_change_log_crash_check(BtChangeLog *self) {
  /*
  - can be done at any time, even if we create a new _unnamed_, it will have a
@@ -235,18 +233,44 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
  - run a pre-check over the logs
    - auto-clean logs that only consis of the header
    - the log would need to point to the actual filename
-     - only offer recover if the original file is available
+     - only offer recover if the original file is available or
+       if file-anem is empty
  - should we have a way to delete logs?
    - song not there anymore
    - log was replayed, song saved, but then it crashed (before resetting the log)
  */
+#if 0
+  gchar *path=g_build_filename(self->priv->cache_dir,PACKAGE,NULL);
+  DIR * const dirp=opendir(path);
+ 
+  if(dirp) {
+    const struct dirent *dire;
+    gchar link_target[FILENAME_MAX],log_name[FILENAME_MAX];
+ 
+    while((dire=readdir(dirp))!=NULL) {
+      // skip names starting with a dot
+      if((!dire->d_name) || (*dire->d_name=='.')) continue;
+      g_sprintf(log_name,"%s"G_DIR_SEPARATOR_S"%s",path,dire->d_name);
+      // skip symlinks
+      if(readlink((const char *)log_name,link_target,FILENAME_MAX-1)!=-1) continue;
+      // skip files other then shared librares
+      if(!g_str_has_suffix(log_name,".log")) continue;
+      GST_INFO("    found file '%s'",log_name);
+      
+      // ...
+    }
+    closedir(dirp);
+  }
+  g_free(path);
+#endif
  return(NULL);
 }
 
-gboolean bt_change_log_recover(BtChangeLog *self,XXX *entry) {
+gboolean bt_change_log_recover(BtChangeLog *self,const gchar *entry) {
   /*
   - we should not have any unsaved work at this momement
-  - load the song pointed to by entry
+  - load the song pointed to by entry or replay the new song
+    (no filename = never saved)
   - replay the log
     - read the header
     - foreach line
@@ -256,9 +280,10 @@ gboolean bt_change_log_recover(BtChangeLog *self,XXX *entry) {
   - message box, asking the user to check it and save if happy
   - saving and proper closing the song will remove the log
   */
-}
-
+#if 0
 #endif
+  return(FALSE);
+}
 
 void bt_change_log_reset(BtChangeLog *self) {
   /*
@@ -299,24 +324,17 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
   // make new BtChangeLogEntry from the parameters
   cle=g_slice_new(BtChangeLogEntry);
   cle->owner=owner;
-  // @todo: prepend object handle to strings
   cle->undo_data=undo_data;
   cle->redo_data=redo_data;
   // append and update undo undo/redo pointers
   g_ptr_array_add(self->priv->changes,cle);
   self->priv->item_ct++;
-  /* @todo: serialize properly
-   * - we need to identify the instance, so that when deserializing, we can get
-   *   the owner from a string, see comment in header
-   * - the owner concept is flawed here, right now its the UI object, but we 
-   *   need the song object
-   */
+  // owners are the editor objects where the change was made
   if(self->priv->log_file) {
     fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
     fflush(self->priv->log_file);
   }
   // update undo undo/redo pointers
-  //self->priv->next_undo=self->priv->item_ct-1;
   self->priv->next_undo++;
   self->priv->next_redo++;
   GST_INFO("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);

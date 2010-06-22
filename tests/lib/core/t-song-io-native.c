@@ -50,7 +50,7 @@ BT_START_TEST(test_btsong_io_native_obj1) {
   /* create a new song */
   song=bt_song_new(app);
   
-  song_io=bt_song_io_make(check_get_test_song_path("broken1.xml"));
+  song_io=bt_song_io_from_file(check_get_test_song_path("broken1.xml"));
   fail_unless(song_io != NULL, NULL);
   
   res=bt_song_io_load(song_io,song);

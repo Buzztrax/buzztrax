@@ -57,6 +57,8 @@ struct _BtSongIOPrivate {
 
   /* used to load or save the song file */
   gchar *file_name;
+  gpointer *data;
+  guint len;
 
   /* informs about the progress of the loader */
   gchar *status;
@@ -76,18 +78,21 @@ static GList *plugins=NULL;
 /*
  * bt_song_io_register_plugins:
  *
- * Registers all song-io plugins for later use by bt_song_io_make().
+ * Registers all song-io plugins for later use by bt_song_io_from_file().
  */
 static void bt_song_io_register_plugins(void) {
   DIR * const dirp=opendir(LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
 
   /* @todo the plugin list now has structures
-   * so that apart from the detect ptr, we could keep the modules handle.
+   * so that we could keep the modules handle.
    * we need this to close the plugins at sometime ... (do we?)
    */
   GST_INFO("register song-io plugins...");
   // register internal song-io plugin
-  plugins=g_list_append(plugins,(gpointer)&bt_song_io_native_module_info);
+  if(bt_song_io_native_module_info.init && bt_song_io_native_module_info.init()) {
+    plugins=g_list_append(plugins,(gpointer)&bt_song_io_native_module_info);
+  }
+
   // registering external song-io plugins
   GST_INFO("  scanning external song-io plugins in "LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
   if(dirp) {
@@ -105,7 +110,6 @@ static void bt_song_io_register_plugins(void) {
       // skip files other then shared librares
       if(!g_str_has_suffix(plugin_name,"."G_MODULE_SUFFIX)) continue;
       GST_INFO("    found file '%s'",plugin_name);
-      
 
       // 2.) try to open each as g_module
       //if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
@@ -114,8 +118,12 @@ static void bt_song_io_register_plugins(void) {
         // 3.) gets the address of GType bt_song_io_detect(const gchar *);
         if(g_module_symbol(plugin,"bt_song_io_module_info",&bt_song_io_module_info)) {
           if(!g_list_find(plugins,bt_song_io_module_info)) {
+            BtSongIOModuleInfo *info=(BtSongIOModuleInfo *)bt_song_io_module_info;
             // 4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
-            plugins=g_list_append(plugins,bt_song_io_module_info);
+            
+            if(info->init && info->init()) {
+              plugins=g_list_append(plugins,bt_song_io_module_info);
+            }
           }
           else {
             GST_WARNING("%s skipped as duplicate",plugin_name);
@@ -135,22 +143,42 @@ static void bt_song_io_register_plugins(void) {
   }
 }
 
+
+/* @todo add proper mime-type detection (gio) */
+#if 0
+  GFile *file;
+  GFileInfo *info;
+  
+  file=g_file_new_for_path(file_name);
+  
+  if((info=g_file_query_info(file,G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,G_FILE_QUERY_INFO_NONE,NULL,NULL))) {
+    const gchar *mime_type=g_file_info_get_content_type(info);
+  
+    g_object_unref (info);
+  }
+  g_object_unref (file);
+#endif
+
 /*
  * bt_song_io_detect:
- * @filename: the full filename of the song
+ * @file_name: the full filename of the song or %NULL
+ * @media_type: the media-type for the song or %NULL
  *
  * Factory method that returns the GType of the class that is able to handle
- * the supplied file
+ * the supplied file or media-type.
  *
  * Returns: the type of the #BtSongIO sub-class that can handle the supplied file
  * and %NULL otherwise
  */
-static GType bt_song_io_detect(const gchar * const file_name) {
+static GType bt_song_io_detect(const gchar *file_name, const gchar *media_type) {
   GType type=0;
   const GList *node;
   BtSongIOModuleInfo *info;
+  guint i;
+  gchar *lc_file_name = NULL, *ext = NULL;
 
-  GST_INFO("detecting loader for file '%s'",file_name);
+  GST_INFO("detecting loader for file '%s', type '%s'",
+    safe_string(file_name),safe_string(media_type));
 
   if(!plugins) bt_song_io_register_plugins();
 
@@ -158,17 +186,35 @@ static GType bt_song_io_detect(const gchar * const file_name) {
   for(node=plugins;node;node=g_list_next(node)) {
     info=(BtSongIOModuleInfo *)node->data;
     GST_INFO("  trying...");
-    // the detect function return a GType if the file matches to the plugin or
-    // NULL otheriwse
-    if((type=info->detect(file_name))) {
-      /* @idea: would be good if the detect method could also return some extra
-       * data which the plugin can use for loading/saving (e.g. mime-type)
-       * would it make sense to add the GType to BtSongIOFormatInfo
-       */
-       GST_INFO("  found one: %s!", info->formats[0].name);
+    
+    i=0;
+    while(info->formats[i].type) {
+      if (media_type && info->formats[i].mime_type) {
+        if(!strcmp (media_type, info->formats[i].mime_type)) {
+          type=info->formats[i].type;
+          break;
+        }
+      } else if (file_name) {
+        if(!lc_file_name) {
+          lc_file_name=g_ascii_strdown(file_name,-1);
+          ext = strrchr(lc_file_name,'.');
+        }
+        if(ext && info->formats[i].extension) {
+          if (!strcmp (&ext[1], info->formats[i].extension)) {
+            type=info->formats[i].type;
+            break;
+          }
+        }
+      }
+      i++;
+    }
+    if(type) {
+      GST_INFO("  found one: %s!", info->formats[i].name);
       break;
     }
   }
+
+  g_free(lc_file_name);
   return(type);
 }
 
@@ -201,28 +247,27 @@ static void bt_song_io_update_filename(const BtSongIO * const self, const BtSong
 //-- constructor methods
 
 /**
- * bt_song_io_make:
- * @file_name: the file name of the new song
+ * bt_song_io_from_file:
+ * @file_name: the file name of the song
  *
  * Create a new instance from the given @file_name. Each installed plugin will
  * test if it can handle the file type.
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtSongIO *bt_song_io_make(const gchar * const file_name) {
+BtSongIO *bt_song_io_from_file(const gchar * const file_name) {
   BtSongIO *self=NULL;
   GType type = 0;
 
+  
   if(!BT_IS_STRING(file_name)) {
     GST_WARNING("filename should not be empty");
     return NULL;
   }
-  type=bt_song_io_detect(file_name);
+  type=bt_song_io_detect(file_name,NULL);
   if(type) {
     self=BT_SONG_IO(g_object_new(type,NULL));
-    if(self) {
-      self->priv->file_name=g_strdup(file_name);
-    }
+    self->priv->file_name=g_strdup(file_name);
   }
   else {
     GST_WARNING("failed to detect type for filename %s",file_name);
@@ -230,6 +275,36 @@ BtSongIO *bt_song_io_make(const gchar * const file_name) {
   return(self);
 }
 
+/**
+ * bt_song_io_from_data:
+ * @data: in memory data of the song
+ * @len: the siye of the @data block
+ * @media_type: the media-type of the song, if available
+ *
+ * Create a new instance from the given parameters. Each installed plugin will
+ * test if it can handle the file type.
+ *
+ * Returns: the new instance or %NULL in case of an error
+ */
+BtSongIO *bt_song_io_from_data(gpointer *data, guint len, const gchar *media_type) {
+  BtSongIO *self=NULL;
+  GType type = 0;
+
+  if(!BT_IS_STRING(media_type)) {
+    GST_WARNING("media-type should not be empty");
+    return NULL;
+  }
+  type=bt_song_io_detect(NULL,media_type);
+  if(type) {
+    self=BT_SONG_IO(g_object_new(type,NULL));
+    self->priv->data=data;
+    self->priv->len=len;
+  }
+  else {
+    GST_WARNING("failed to detect type for media-type %s",media_type);
+  }
+  return(self);
+}
 
 //-- methods
 

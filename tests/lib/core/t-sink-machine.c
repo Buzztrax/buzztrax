@@ -176,7 +176,7 @@ BT_START_TEST(test_btsinkmachine_play1) {
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
-  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
+  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
   fail_unless(loader != NULL, NULL);
   load_ret = bt_song_io_load(loader,song);
   fail_unless(load_ret, NULL);
@@ -209,7 +209,7 @@ BT_START_TEST(test_btsinkmachine_play2) {
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
-  loader=bt_song_io_make(check_get_test_song_path("test-simple1.xml"));
+  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
   fail_unless(loader != NULL, NULL);
   load_ret = bt_song_io_load(loader,song);
   fail_unless(load_ret, NULL);

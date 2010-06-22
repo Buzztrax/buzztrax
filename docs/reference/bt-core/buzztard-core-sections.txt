@@ -423,7 +423,8 @@ BtSongInfoPrivate
 <TITLE>BtSongIO</TITLE>
 BtSongIO
 BtSongIOClass
-bt_song_io_make
+bt_song_io_from_file
+bt_song_io_from_data
 bt_song_io_load
 bt_song_io_save
 bt_song_io_get_module_info_list

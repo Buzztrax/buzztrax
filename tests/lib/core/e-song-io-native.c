@@ -95,7 +95,7 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   song=bt_song_new(app);
   
   /* load the song */
-  song_io=bt_song_io_make(check_get_test_song_path("example.xml"));
+  song_io=bt_song_io_from_file(check_get_test_song_path("example.xml"));
   fail_unless(song_io != NULL, NULL);
   
   res=bt_song_io_load(song_io,song);
@@ -176,7 +176,7 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
   song_name=song_names;
   while(*song_name) {
     /* load the song */
-    song_io=bt_song_io_make(check_get_test_song_path(*song_name));
+    song_io=bt_song_io_from_file(check_get_test_song_path(*song_name));
     fail_unless(song_io != NULL, NULL);
     song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);
@@ -228,7 +228,7 @@ BT_START_TEST(test_btsong_io_write_song1) {
 
     /* save empty song */
     song=bt_song_new(app);
-    song_io=bt_song_io_make(song_path);
+    song_io=bt_song_io_from_file(song_path);
     fail_unless(song_io != NULL, NULL);
     res=bt_song_io_save(song_io,song);
     fail_unless(res == TRUE, NULL);
@@ -237,7 +237,7 @@ BT_START_TEST(test_btsong_io_write_song1) {
     g_object_checked_unref(song);
 
     /* load the song */
-    song_io=bt_song_io_make(song_path);
+    song_io=bt_song_io_from_file(song_path);
     fail_unless(song_io != NULL, NULL);
     song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);
@@ -291,7 +291,7 @@ BT_START_TEST(test_btsong_io_write_song2) {
     pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(gen));
 
     /* save the song*/
-    song_io=bt_song_io_make(song_path);
+    song_io=bt_song_io_from_file(song_path);
     fail_unless(song_io != NULL, NULL);
     res=bt_song_io_save(song_io,song);
     fail_unless(res == TRUE, NULL);
@@ -300,7 +300,7 @@ BT_START_TEST(test_btsong_io_write_song2) {
     g_object_checked_unref(song);
 
     /* load the song */
-    song_io=bt_song_io_make(song_path);
+    song_io=bt_song_io_from_file(song_path);
     fail_unless(song_io != NULL, NULL);
     song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);
@@ -373,7 +373,7 @@ BT_START_TEST(test_btsong_io_write_song3) {
     }
 
     /* save the song*/
-    song_io=bt_song_io_make(song_path);
+    song_io=bt_song_io_from_file(song_path);
     fail_unless(song_io != NULL, NULL);
     res=bt_song_io_save(song_io,song);
     fail_unless(res == TRUE, NULL);
@@ -387,7 +387,7 @@ BT_START_TEST(test_btsong_io_write_song3) {
     g_object_checked_unref(song);
 
     /* load the song */
-    song_io=bt_song_io_make(song_path);
+    song_io=bt_song_io_from_file(song_path);
     fail_unless(song_io != NULL, NULL);
     song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);
