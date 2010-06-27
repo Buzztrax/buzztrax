@@ -1,5 +1,13 @@
 2010-06-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/song-io.c:
+	* src/ui/bin/bt-bin.c:
+	  Now actually load songs from memory.
+
+2010-06-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/song.c:
 	* src/ui/bin/Makefile.am:

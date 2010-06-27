@@ -36,6 +36,7 @@
 //#include <gsf/gsf.h>
 #include <gsf/gsf-utils.h>
 #include <gsf/gsf-input-stdio.h>
+#include <gsf/gsf-input-memory.h>
 #include <gsf/gsf-infile.h>
 #include <gsf/gsf-infile-zip.h>
 #include <gsf/gsf-output-stdio.h>
@@ -169,7 +170,7 @@ gboolean bt_song_io_native_bzt_copy_from_uri(const BtSongIONativeBZT * const sel
     
     GST_INFO("src uri : %s",uri);
     
-    // @idea: what about using gio here 
+    // @idea: what about using gio here
     src_file_name=g_filename_from_uri(uri,NULL,NULL);
     if(src_file_name) {
       if(g_file_get_contents(src_file_name,&bytes,&size,&err)) {
@@ -230,15 +231,22 @@ static gboolean bt_song_io_native_bzt_load(gconstpointer const _self, const BtSo
 #ifdef USE_GSF
   const BtSongIONativeBZT * const self=BT_SONG_IO_NATIVE_BZT(_self);
   gchar * const file_name;
+  guint len;
+  gpointer data;
+  gchar *status;
   
-  g_object_get((gpointer)self,"file-name",&file_name,NULL);
-  GST_INFO("native io bzt will now load song from \"%s\"",file_name);
+  g_object_get((gpointer)self,"file-name",&file_name,"data",&data,"data-len",&len,NULL);
+  GST_INFO("native io bzt will now load song from \"%s\"",file_name?file_name:"data");
 
   const gchar * const msg=_("Loading file '%s'");
-  gchar * const status=g_alloca(1+strlen(msg)+strlen(file_name));
-  g_sprintf(status,msg,file_name);
-  //gchar * const status=g_alloca(1+strlen(_("Loading file '%s'"))+strlen(file_name));
-  //g_sprintf(status,_("Loading file '%s'"),file_name);
+  if(file_name) {
+    status=g_alloca(1+strlen(msg)+strlen(file_name));
+    g_sprintf(status,msg,file_name);
+  }
+  else {
+    status=g_alloca(1+strlen(msg)+4);
+    g_sprintf(status,msg,"data");
+  }
   g_object_set((gpointer)self,"status",status,NULL);
       
   xmlParserCtxtPtr const ctxt=xmlNewParserCtxt();
@@ -247,9 +255,15 @@ static gboolean bt_song_io_native_bzt_load(gconstpointer const _self, const BtSo
     
     GError *err=NULL;
     
-    // open the file from the file_name argument
-    // @todo: if no file-name: gsf_input_memory_new(buf,len,FALSE);
-    if((self->priv->input=gsf_input_stdio_new(file_name, &err))) {
+    if(data && len) {
+      // parse the file from the memory block
+      self->priv->input=gsf_input_memory_new(data,len,FALSE);
+    }
+    else {
+      // open the file from the file_name argument
+      self->priv->input=gsf_input_stdio_new(file_name, &err);
+    }
+    if(self->priv->input) {
       // create an gsf input file
       if((self->priv->infile=gsf_infile_zip_new(self->priv->input, &err))) {
         GsfInput *data;

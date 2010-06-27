@@ -24,6 +24,7 @@
  *
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! bt-bin ! fakesink
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! bt-bin ! fakesink
+ * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztard/share/buzztard/songs/303.bzt
  *
 
        filesrc gstfilesrc.c:984:gst_file_src_start:<filesrc0> opening file /home/ensonic/buzztard/share/buzztard/songs/303.bzt
@@ -116,6 +117,8 @@ bt_bin_load_song (BtBin *self)
       res = TRUE;
     }
   }
+  
+  g_free (data);
   
 Error:
   if (loader) {

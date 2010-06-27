@@ -46,24 +46,37 @@ static gboolean bt_song_io_native_xml_load(gconstpointer const _self, const BtSo
   const BtSongIONativeXML * const self=BT_SONG_IO_NATIVE_XML(_self);
   gboolean result=FALSE;
   gchar * const file_name;
+  guint len;
+  gpointer data;
+  gchar *status;
   
-  g_object_get((gpointer)self,"file-name",&file_name,NULL);
-  GST_INFO("native io xml will now load song from \"%s\"",file_name);
+  g_object_get((gpointer)self,"file-name",&file_name,"data",&data,"data-len",&len,NULL);
+  GST_INFO("native io xml will now load song from \"%s\"",file_name?file_name:"data");
 
   const gchar * const msg=_("Loading file '%s'");
-  gchar * const status=g_alloca(1+strlen(msg)+strlen(file_name));
-  g_sprintf(status,msg,file_name);
-  //gchar * const status=g_alloca(1+strlen(_("Loading file '%s'"))+strlen(file_name));
-  //g_sprintf(status,_("Loading file '%s'"),file_name);
+  if(file_name) {
+    status=g_alloca(1+strlen(msg)+strlen(file_name));
+    g_sprintf(status,msg,file_name);
+  }
+  else {
+    status=g_alloca(1+strlen(msg)+4);
+    g_sprintf(status,msg,"data");
+  }
   g_object_set((gpointer)self,"status",status,NULL);
       
   xmlParserCtxtPtr const ctxt=xmlNewParserCtxt();
   if(ctxt) {
     xmlDocPtr song_doc;
     
-    // open the file from the file_name argument
-    // @todo: if no file-name: xmlCtxtReadMemory(ctxt,buf,len,base_url,NULL,0L)
-    if((song_doc=xmlCtxtReadFile(ctxt,file_name,NULL,0L))) {
+    if(data && len) {
+      // parse the file from the memory block
+      song_doc=xmlCtxtReadMemory(ctxt,data,len,NULL,NULL,0L);
+    }
+    else {
+      // open the file from the file_name argument
+      song_doc=xmlCtxtReadFile(ctxt,file_name,NULL,0L);
+    }
+    if(song_doc) {
       if(!ctxt->valid) {
         GST_WARNING("the supplied document is not a XML/Buzztard document");
       }

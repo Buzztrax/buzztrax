@@ -48,6 +48,8 @@
 
 enum {
   SONG_IO_FILE_NAME=1,
+  SONG_IO_DATA,
+  SONG_IO_DATA_LEN,
   SONG_IO_STATUS
 };
 
@@ -221,27 +223,29 @@ static GType bt_song_io_detect(const gchar *file_name, const gchar *media_type) 
 /*
  * bt_song_io_update_filename:
  *
- * Grab the file-name from the path and store it in song-info.
+ * Grab the file-name from the path in song-io and store it in song-info. Does
+ * nothing if we load from memory.
  */
 static void bt_song_io_update_filename(const BtSongIO * const self, const BtSong * const song) {
-  BtSongInfo *song_info;
-  gchar *file_path;
+  if(self->priv->file_name) {
+    BtSongInfo *song_info;
+    gchar *file_path=self->priv->file_name;
+    gboolean need_free=FALSE;
 
-  g_object_get((gpointer)self,"file-name",&file_path,NULL);
-  if(!g_path_is_absolute(file_path)) {
-    gchar *cur_path,*rel_path;
-    
-    cur_path=g_get_current_dir();
-    rel_path=file_path;
-    file_path=g_build_filename(cur_path,rel_path,NULL);
-    g_free(cur_path);
-    g_free(rel_path);
+    if(!g_path_is_absolute(file_path)) {
+      gchar *cur_path=g_get_current_dir();
+      file_path=g_build_filename(cur_path,file_path,NULL);
+      g_free(cur_path);
+      need_free=TRUE;
+    }
+    GST_INFO("file path is : %s",file_path);
+    g_object_get((gpointer)song,"song-info",&song_info,NULL);
+    g_object_set(song_info,"file-name",file_path,NULL);
+    g_object_unref(song_info);
+    if(need_free) {
+      g_free(file_path);
+    }
   }
-  GST_INFO("file path is : %s",file_path);
-  g_object_get((gpointer)song,"song-info",&song_info,NULL);
-  g_object_set(song_info,"file-name",file_path,NULL);
-  g_free(file_path);
-  g_object_unref(song_info);
 }
 
 //-- constructor methods
@@ -351,7 +355,7 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
   g_return_val_if_fail(BT_IS_SONG_IO(self),FALSE);
   g_return_val_if_fail(BT_IS_SONG(song),FALSE);
   
-  GST_INFO("loading song [%s]",self->priv->file_name);
+  GST_INFO("loading song [%s]",self->priv->file_name?self->priv->file_name:"data");
 
   g_object_set((gpointer)song,"song-io",self,NULL);
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
@@ -381,7 +385,7 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
   }
   g_object_set((gpointer)song,"song-io",NULL,NULL);
   
-  GST_INFO("loaded song [%s] = %d",self->priv->file_name,result);
+  GST_INFO("loaded song [%s] = %d",self->priv->file_name?self->priv->file_name:"data",result);
   return(result);
 }
 
@@ -428,6 +432,12 @@ static void bt_song_io_get_property(GObject * const object, const guint property
   switch (property_id) {
     case SONG_IO_FILE_NAME: {
       g_value_set_string(value, self->priv->file_name);
+    } break;
+    case SONG_IO_DATA: {
+      g_value_set_pointer(value, self->priv->data);
+    } break;
+    case SONG_IO_DATA_LEN: {
+      g_value_set_uint(value, self->priv->len);
     } break;
     case SONG_IO_STATUS: {
       g_value_set_string(value, self->priv->status);
@@ -500,6 +510,19 @@ static void bt_song_io_class_init(BtSongIOClass * const klass) {
                                      "filename prop",
                                      "full filename for load save operations",
                                      NULL, /* default value */
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,SONG_IO_DATA,
+                                  g_param_spec_pointer("data",
+                                     "data prop",
+                                     "in memory block pointer for load save operations",
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,SONG_IO_DATA_LEN,
+                                  g_param_spec_uint("data-len",
+                                     "data-len prop",
+                                     "in memory block length for load save operations",
+                                     0,G_MAXUINT,0,
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_IO_STATUS,
