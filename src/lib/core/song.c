@@ -1359,6 +1359,7 @@ static void bt_song_persistence_interface_init(gpointer const g_iface, gpointer 
 
 static void bt_song_constructed(GObject *object) {
   BtSong *self=BT_SONG(object);
+  //GstElement *pipeline, *parent;
   
   if(G_OBJECT_CLASS(parent_class)->constructed)
     G_OBJECT_CLASS(parent_class)->constructed(object);
@@ -1367,15 +1368,28 @@ static void bt_song_constructed(GObject *object) {
   
   g_object_get((gpointer)(self->priv->app),"bin",&self->priv->bin,NULL);
   
+  /* get toplevel pipeline
+  pipeline=gst_object_ref(self->priv->bin);
+  parent=(GstElement *)gst_element_get_parent(pipeline);
+  while(parent) {
+    gst_object_unref(pipeline);
+    pipeline=parent;
+    parent=(GstElement *)gst_element_get_parent(pipeline);
+  }
+  */
+  
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
-  GST_DEBUG("listen to bus messages (%p)",bus);
-  gst_bus_add_signal_watch_full(bus, G_PRIORITY_HIGH);
-  g_signal_connect(bus, "message::segment-done", G_CALLBACK(on_song_segment_done), (gpointer)self);
-  g_signal_connect(bus, "message::eos", G_CALLBACK(on_song_eos), (gpointer)self);
-  g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
-  g_signal_connect(bus, "message::async-done", G_CALLBACK(on_song_async_done), (gpointer)self);
-  g_signal_connect(bus, "message::clock-lost", G_CALLBACK(on_song_clock_lost), (gpointer)self);
-  gst_object_unref(bus);
+  if (bus) {
+    GST_DEBUG("listen to bus messages (%p)",bus);
+    gst_bus_add_signal_watch_full(bus, G_PRIORITY_HIGH);
+    g_signal_connect(bus, "message::segment-done", G_CALLBACK(on_song_segment_done), (gpointer)self);
+    g_signal_connect(bus, "message::eos", G_CALLBACK(on_song_eos), (gpointer)self);
+    g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
+    g_signal_connect(bus, "message::async-done", G_CALLBACK(on_song_async_done), (gpointer)self);
+    g_signal_connect(bus, "message::clock-lost", G_CALLBACK(on_song_clock_lost), (gpointer)self);
+    gst_object_unref(bus);
+  }
+  //gst_object_unref(pipeline);
 
   /* don't change the order */
   self->priv->song_info=bt_song_info_new(self);

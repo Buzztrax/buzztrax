@@ -1,3 +1,20 @@
+2010-06-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/song.c:
+	* src/ui/bin/Makefile.am:
+	* src/ui/bin/bt-bin.c:
+	* src/ui/bin/bt-bin.h:
+	* src/ui/bin/bt-bin.c (svn:keywords, svn:eol-style):
+	* src/ui/bin/bt-bin.h (svn:keywords, svn:eol-style):
+	* src/ui/bin/Makefile.am (svn:keywords, svn:eol-style):
+	* src/ui/bin (added):
+	* src/ui/bin/bt-bin.h (added):
+	* src/ui/bin/Makefile.am (added):
+	* src/ui/bin/bt-bin.c (added):
+	  Add initial version of bt-bin (buzztard song-player for gstreamer based
+	  players). Not build by default yet.
+
 2010-06-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/buzztard-core-sections.txt:

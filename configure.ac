@@ -392,6 +392,21 @@ PKG_CHECK_MODULES(CHECK, check >= 0.9.2,
   AM_CONDITIONAL(BUILD_CHECK_TESTS, false)
 )
 
+
+dnl GStreamer plugin build
+dnl that is needed to figure the directory name, where the plugin goes to
+GST_MAJORMINOR=0.10
+AC_DEFINE_UNQUOTED(GST_MAJORMINOR, "$GST_MAJORMINOR", [gstreamer series])
+AC_SUBST(GST_MAJORMINOR)
+
+plugindir="\$(libdir)/gstreamer-$GST_MAJORMINOR"
+AC_SUBST(plugindir)
+GST_PLUGIN_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS"
+AC_SUBST(GST_PLUGIN_CFLAGS)
+GST_PLUGIN_LDFLAGS="-module -avoid-version -export-symbols-regex '[_]*(gst_|bt_|Bt|BT_).*' $COVERAGE_LIBS"
+AC_SUBST(GST_PLUGIN_LDFLAGS)
+
+
 dnl Check for gtk-doc.
 GTK_DOC_CHECK([1.10],[--flavour no-tmpl])
 
@@ -510,6 +525,7 @@ AC_CONFIG_FILES(Makefile \
         src/lib/ic/libbuzztard-ic/Makefile \
 		src/lib/ic/libbuzztard-ic/version.h \
     src/ui/Makefile \
+      src/ui/bin/Makefile \
       src/ui/cmd/Makefile \
       src/ui/edit/Makefile \
       src/ui/edit/buzztard-edit.desktop.in \
@@ -563,6 +579,7 @@ You are installing buzztard libraries into a location that is not yet known to
 system. In order for other buzztard modules to find them and the application to
 work with all features please register the location (see README for details):
 export LD_LIBRARY_PATH=$prefix/lib:\$LD_LIBRARY_PATH
+export MANPATH=\$MANPATH:$prefix/share/man
 export DEVHELP_SEARCH_PATH="\$DEVHELP_SEARCH_PATH:$prefix/share/gtk-doc/html"
 export PKG_CONFIG_PATH="\$PKG_CONFIG_PATH:$prefix/lib/pkgconfig"
 export GST_PLUGIN_PATH="\$GST_PLUGIN_PATH:$prefix/lib/gstreamer-0.10"
