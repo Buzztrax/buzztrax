@@ -3,6 +3,14 @@ svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 2010/07 ========================================================================
 
 - apply audio sink settings to wavetable players too
+- add man-pages
+- testing
+  - wildcards in BT_CHECKS
+  - xsd schema validation for songs
+- undo/redo more tests, now working well in patter editor for simple operations
+- initial boilerplace and refactorings for bt-bin
+
+83 files changed, 2452 insertions(+), 624 deletions(-)
 
 2010/06 ========================================================================
 
