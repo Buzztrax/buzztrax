@@ -26,26 +26,11 @@
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! bt-bin ! fakesink
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztard/share/buzztard/songs/303.bzt
  *
-
-       filesrc gstfilesrc.c:984:gst_file_src_start:<filesrc0> opening file /home/ensonic/buzztard/share/buzztard/songs/303.bzt
-       filesrc gstfilesrc.c:984:gst_file_src_start:<filesrc0> opening file /home/ensonic/buzztard/share/buzztard/songs/303.bzt
-GST_SCHEDULING gstpad.c:4735:gst_pad_get_range:<filesrc0:src> getrange failed, flow: unexpected
-GST_SCHEDULING gstpad.c:4848:gst_pad_pull_range:<typefindelement0:sink> pullrange failed, flow: unexpected
-GST_SCHEDULING gstpad.c:4735:gst_pad_get_range:<typefindelement0:src> getrange failed, flow: unexpected
-GST_SCHEDULING gstpad.c:4848:gst_pad_pull_range:<btbin0:sink> pullrange failed, flow: unexpected
-        bt-bin bt-bin.c:68:bt_bin_load_song:<btbin0> input caps (NULL)
-        bt-bin bt-bin.c:76:bt_bin_load_song:<btbin0> about to load buzztard song in audio/x-buzztard format
-       bt-core song-io.c:181:bt_song_io_detect: detecting loader for file '', type 'audio/x-buzztard'
-       bt-core song-io.c:188:bt_song_io_detect:   trying...
-       bt-core song-io.c:188:bt_song_io_detect:   trying...
-       bt-core song-io.c:304:bt_song_io_from_data: failed to detect type for media-type audio/x-buzztard
-
-(gst-launch-0.10:29815): buzztard-CRITICAL **: bt_song_io_load: assertion `BT_IS_SONG_IO(self)' failed
-
- GST_DEBUG="*:3,bt*:4,*type*:4" gst-launch-0.10 -v -m filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! fakesink
- GST_DEBUG="*:2,bt*:4,*type*:5,default:5" gst-launch-0.10 filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! fakesink
- 
+ * GST_DEBUG="*:3,bt*:4,*type*:4" gst-launch-0.10 -v -m filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! fakesink
+ * GST_DEBUG="*:2,bt*:4,*type*:5,default:5" gst-launch-0.10 filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! fakesink
+ *
  * gst-typefind $HOME/buzztard/share/buzztard/songs/303.bzt
+ *
  */
  
 #ifdef HAVE_CONFIG_H
@@ -67,7 +52,7 @@ GST_STATIC_PAD_TEMPLATE ("sink",
 static GstStaticPadTemplate bt_bin_src_template =
 GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
-    GST_PAD_ALWAYS,
+    GST_PAD_SOMETIMES,
     GST_STATIC_CAPS_ANY);
 
 
@@ -107,13 +92,31 @@ bt_bin_load_song (BtBin *self)
     g_object_get (self->song,"setup",&setup,NULL);
     if((machine = bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE))) {
       BtSinkBin *sink_bin;
-      GstPad *req_pad;
+      GstPad *target_pad, *machine_pad, *bin_pad;
 
       g_object_get (machine,"machine",&sink_bin,NULL);
-      //g_object_set (sink_bin, "mode", BT_SINK_BIN_MODE_PASS_THRU, NULL);
+      g_object_set (sink_bin, "mode", BT_SINK_BIN_MODE_PASS_THRU, NULL);
+      
+      target_pad = gst_element_get_pad (GST_ELEMENT (sink_bin), "src");
+      machine_pad = gst_ghost_pad_new ("src", target_pad);
+      gst_pad_set_active (machine_pad, TRUE);
+      gst_element_add_pad (GST_ELEMENT (machine), machine_pad);
+      gst_object_unref (target_pad);
+      
+      bin_pad = gst_ghost_pad_new ("src", machine_pad);
+      gst_pad_set_active (bin_pad, TRUE);
+      gst_element_add_pad (GST_ELEMENT (self->bin), bin_pad);
 
-      req_pad = gst_element_get_request_pad (GST_ELEMENT (sink_bin), "src");
-      gst_ghost_pad_set_target (GST_GHOST_PAD (self->srcpad),req_pad);
+      self->srcpad = gst_ghost_pad_new ("src", bin_pad);
+      gst_pad_set_active (self->srcpad, TRUE);
+      gst_element_add_pad (GST_ELEMENT (self), self->srcpad);
+      
+      gst_element_no_more_pads (GST_ELEMENT (self));
+      
+      GST_INFO_OBJECT (self, "ghost pads connected");
+      
+      gst_object_unref (sink_bin);
+      g_object_unref (machine);
       res = TRUE;
     }
   }
@@ -174,13 +177,17 @@ bt_bin_loop (GstPad * sinkpad)
   GstFlowReturn ret;
   GstBuffer *buffer;
 
-  GST_DEBUG_OBJECT (self, "loading song");
+  GST_DEBUG_OBJECT (self, "loading song ...");
 
   ret = gst_pad_pull_range (self->sinkpad, self->offset, -1, &buffer);
   if (ret == GST_FLOW_UNEXPECTED) {
     GST_DEBUG_OBJECT (self, "song loaded");
     /* parse the song */
-    bt_bin_load_song (self);
+    if (bt_bin_load_song (self)) {
+      GST_DEBUG_OBJECT (self, "start to play");
+      bt_song_play (self->song);
+    }
+    ret = GST_FLOW_OK;
     goto pause;
   } else if (ret != GST_FLOW_OK) {
     GST_ELEMENT_ERROR (self, STREAM, DECODE, (NULL), ("Unable to read song"));
@@ -246,6 +253,8 @@ bt_bin_activatepull (GstPad * pad, gboolean active)
 static void
 bt_bin_reset (BtBin *self)
 {
+  GstPad *bin_pad;
+
   self->offset = 0;
   //self->discont = FALSE;
   /*
@@ -256,6 +265,16 @@ bt_bin_reset (BtBin *self)
   GST_OBJECT_UNLOCK (self);
   */
   gst_adapter_clear (self->adapter);
+  
+  bin_pad = gst_element_get_pad (GST_ELEMENT (self->bin), "src");
+  gst_pad_set_active (bin_pad, FALSE);
+  gst_element_remove_pad (GST_ELEMENT (self->bin), bin_pad);
+  gst_object_unref (bin_pad);
+  
+  gst_pad_set_active (self->srcpad, FALSE);
+  gst_element_remove_pad (GST_ELEMENT (self), self->srcpad);
+  self->srcpad = NULL;
+
 }
 
 static GstStateChangeReturn
@@ -263,6 +282,10 @@ bt_bin_change_state (GstElement * element, GstStateChange transition)
 {
   GstStateChangeReturn ret = GST_STATE_CHANGE_SUCCESS;
   BtBin *self = BT_BIN (element);
+  
+  GST_INFO_OBJECT (self, "state change on the bin: %s -> %s",
+      gst_element_state_get_name (GST_STATE_TRANSITION_CURRENT (transition)),
+      gst_element_state_get_name (GST_STATE_TRANSITION_NEXT (transition)));
 
   switch (transition) {
     case GST_STATE_CHANGE_NULL_TO_READY:
@@ -270,6 +293,7 @@ bt_bin_change_state (GstElement * element, GstStateChange transition)
     case GST_STATE_CHANGE_READY_TO_PAUSED:
       break;
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+      //bt_song_play (self->song);
       break;
     default:
       break;
@@ -279,6 +303,7 @@ bt_bin_change_state (GstElement * element, GstStateChange transition)
 
   switch (transition) {
     case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+      //bt_song_stop (self->song);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
       bt_bin_reset (self);
@@ -356,9 +381,7 @@ bt_bin_init (BtBin * self, BtBinClass * g_class)
   gst_pad_set_chain_function (self->sinkpad, bt_bin_chain);
   gst_element_add_pad (GST_ELEMENT (self), self->sinkpad);
 
-  // a ghostpad for sinkbins:src ghostpad
-  self->srcpad = gst_ghost_pad_new_no_target ("src", GST_PAD_SRC);
-  gst_element_add_pad (GST_ELEMENT (self), self->srcpad);
+  /* we add the src-pad dynamically */
 }
 
 

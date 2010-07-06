@@ -93,8 +93,8 @@ struct _BtSinkBinPrivate {
 
   gchar *record_file_name;
   
-  /* sink ghost-pad of the bin */
-  GstPad *sink;
+  /* ghost-pads of the bin */
+  GstPad *sink,*src;
 
   /* we need to hold the reference to not kill the notifies */
   BtSettings *settings;
@@ -176,6 +176,7 @@ GType bt_sink_bin_mode_get_type(void) {
       { BT_SINK_BIN_MODE_PLAY,            "BT_SINK_BIN_MODE_PLAY",            "play" },
       { BT_SINK_BIN_MODE_RECORD,          "BT_SINK_BIN_MODE_RECORD",          "record" },
       { BT_SINK_BIN_MODE_PLAY_AND_RECORD, "BT_SINK_BIN_MODE_PLAY_AND_RECORD", "play-and-record" },
+      { BT_SINK_BIN_MODE_PASS_THRU,       "BT_SINK_BIN_MODE_PASS_THRU",       "pass thru" },
       { 0, NULL, NULL},
     };
     type = g_enum_register_static("BtSinkBinMode", values);
@@ -246,6 +247,12 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
       else
         GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
       gst_bin_remove (bin, elem);
+    }
+    
+    if(self->priv->src) {
+      gst_pad_set_active(self->priv->src,FALSE);
+      gst_element_remove_pad(GST_ELEMENT(self),self->priv->src);
+      self->priv->src=NULL;
     }
   }
   GST_DEBUG("done");
@@ -535,7 +542,8 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
         GST_WARNING("Can't get playback element list");
         return(FALSE);
       }
-      break;}
+      break;
+    }
     case BT_SINK_BIN_MODE_RECORD:{
       GList * const list=bt_sink_bin_get_recorder_elements(self);
       if(list) {
@@ -547,7 +555,8 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
         GST_WARNING("Can't get record element list");
         return(FALSE);
       }
-      break;}
+      break;
+    }
     case BT_SINK_BIN_MODE_PLAY_AND_RECORD:{
       GstElement *tee;
       // add a tee element
@@ -578,7 +587,17 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
         GST_WARNING("Can't get record element list");
         return(FALSE);
       }
-      break;}
+      break;
+    }
+    case BT_SINK_BIN_MODE_PASS_THRU:{
+      GstPad *target_pad=gst_element_get_static_pad(first_elem,"src");
+      
+      self->priv->src=gst_ghost_pad_new("src",target_pad);
+      gst_pad_set_active(self->priv->src,TRUE);
+      gst_element_add_pad(GST_ELEMENT(self),self->priv->src);
+      gst_object_unref(target_pad);
+      break;
+    }
     default:
       g_assert_not_reached();
   }
@@ -832,7 +851,7 @@ static void bt_sink_bin_set_property(GObject * const object, const guint propert
   switch (property_id) {
     case SINK_BIN_MODE: {
       self->priv->mode=g_value_get_enum(value);
-      if(self->priv->mode==BT_SINK_BIN_MODE_PLAY) {
+      if((self->priv->mode==BT_SINK_BIN_MODE_PLAY) || (self->priv->mode==BT_SINK_BIN_MODE_PASS_THRU)) {
         if(self->priv->record_file_name) {
           g_free(self->priv->record_file_name);
           self->priv->record_file_name=NULL;
@@ -919,7 +938,6 @@ static void bt_sink_bin_dispose(GObject * const object) {
 
   GST_INFO("self->sink=%p, refct=%d",self->priv->sink,G_OBJECT_REF_COUNT(self->priv->sink));
   gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
-  //gst_object_unref(self->priv->sink);
   
   GST_INFO("sink-bin : children=%d",GST_BIN_NUMCHILDREN(self));
   if((audio_sink=gst_bin_get_by_name(GST_BIN(self),"player"))) {
@@ -1069,7 +1087,7 @@ GType bt_sink_bin_get_type(void) {
 #if !GST_CHECK_VERSION(0,10,16)
 static
 #endif
-gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin) {
+gboolean bt_sink_bin_plugin_init(GstPlugin * const plugin) {
   gst_element_register(plugin,"bt-sink-bin",GST_RANK_NONE,BT_TYPE_SINK_BIN);
   return TRUE;
 }
