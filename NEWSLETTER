@@ -2,15 +2,34 @@ svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
 2010/07 ========================================================================
 
-- apply audio sink settings to wavetable players too
-- add man-pages
-- testing
-  - wildcards in BT_CHECKS
-  - xsd schema validation for songs
-- undo/redo more tests, now working well in patter editor for simple operations
-- initial boilerplace and refactorings for bt-bin
+Lintian complained about missing man-pages for buzztard binaries. I also had a
+pending bug for gtk-doc to clarify how one can do man-pages. Last month I wrong
+some does about how to document binaries in docbook as well, so that the 
+information is in the api-docs, but one can also generate man pages from the
+same source. The new guides are not yet on library.gnome.org, but it can be
+found in git [1].
+
+I continued with more undo/redo hacking. I have again more tests that all pass
+and working undo/redo in pattern editor for trivial operations. Need to do 
+edit-groups next and work more on the journal replay part. The testing work
+resulted in some local check improvements - the BT_CHECKS env-var supports
+globbing to select tests. Also patched that for gstreamers GST_CHECKS env-var.
+
+While showing buzztard to a colleague I noticed that the audio settings where
+not used for the sample players. Fixed in svn.
+
+In the early days I made some mistakes in the xml design of the song format.
+Some tags had different attributes depending on their parent. This makes it 
+impossible to do xsd schema validation. I have changed the song xml slightly
+(with backwards compatibility of old songs) and now xsd validation works.
+
+Finally I have started buzztard-bin. This is supposed to be a gstreamer plugin
+that plugs a whole buzztard song, so that one can play that in e.g. totem. The
+basics are there, should be working quite soon.
 
 83 files changed, 2452 insertions(+), 624 deletions(-)
+
+[1] http://git.gnome.org/browse/gtk-doc/tree/help/manual/C/gtk-doc-manual.xml#n1594
 
 2010/06 ========================================================================
 
