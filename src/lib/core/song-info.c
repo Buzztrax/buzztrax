@@ -378,7 +378,7 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
       gulong val=g_value_get_ulong(value);
       if(self->priv->beats_per_minute!=val) {
         self->priv->beats_per_minute = g_value_get_ulong(value);
-#if (GST_VERSION_MAJOR>=0 && GST_VERSION_MINOR>=10 && GST_VERSION_MICRO>=12) || (GST_VERSION_MAJOR>=0 && GST_VERSION_MINOR>=10 && GST_VERSION_MICRO>=11 && GST_VERSION_NANO>0 )
+#if GST_CHECK_VERSION(0,10,12)
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_BEATS_PER_MINUTE, (gdouble)self->priv->beats_per_minute,NULL);
 #endif
         bt_song_info_tempo_changed(self);
@@ -494,6 +494,7 @@ static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_cl
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
   self->priv->taglist=gst_tag_list_new();
+  
 
   self->priv->name=g_strdup(DEFAULT_SONG_NAME);
   self->priv->author=g_strdup(g_get_real_name());
@@ -517,7 +518,11 @@ static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_cl
 #endif
   gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,
     GST_TAG_TITLE, self->priv->name,
+    GST_TAG_ARTIST, self->priv->author,
     GST_TAG_DATE, self->priv->tag_date,
+#if GST_CHECK_VERSION(0,10,12)
+    GST_TAG_BEATS_PER_MINUTE, (gdouble)self->priv->beats_per_minute,
+#endif
     NULL);
 }
 

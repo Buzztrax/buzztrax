@@ -24,6 +24,7 @@
 
 #include <gst/gst.h>
 #include <gst/base/gstadapter.h>
+#include <gst/audio/audio.h>
 #include <libbuzztard-core/core.h>
 
 G_BEGIN_DECLS
@@ -47,7 +48,7 @@ typedef struct _BtBinClass BtBinClass;
 struct _BtBin {
   GstBin parent;
   
-  GstPad *sinkpad, *srcpad;
+  GstPad *sinkpad, *srcpad, *binpad;
 
   /* raw song data */
   GstAdapter *adapter;

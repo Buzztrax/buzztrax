@@ -19,8 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 /* TODO:
- * - gst_bin_add(self,self->bin);
- * - need to flush thinks in sync with stae_change
+ * - using bt_song_play() and _stop() is not good
+ *   - we don't get proper state_change messages on our song-bin
+ *     - we don't connect anything to the bus, as we don't have one
+ *   - therefore we don't realize that we are playing
+ *   - therefore we don't seek etc.
+ * - can we update the song from bt_bin_change_state()
  *
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! bt-bin ! fakesink
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! bt-bin ! fakesink
@@ -45,18 +49,102 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 static GstStaticPadTemplate bt_bin_sink_template =
 GST_STATIC_PAD_TEMPLATE ("sink",
-    GST_PAD_SINK,
-    GST_PAD_ALWAYS,
-    GST_STATIC_CAPS_ANY);
+  GST_PAD_SINK,
+  GST_PAD_ALWAYS,
+  GST_STATIC_CAPS_ANY
+);
 
 static GstStaticPadTemplate bt_bin_src_template =
 GST_STATIC_PAD_TEMPLATE ("src",
-    GST_PAD_SRC,
-    GST_PAD_SOMETIMES,
-    GST_STATIC_CAPS_ANY);
+  GST_PAD_SRC,
+  GST_PAD_SOMETIMES,
+  GST_STATIC_CAPS_ANY
+);
 
 
 static GstBinClass *parent_class = NULL;
+
+static gboolean
+bt_bin_src_query (GstPad * pad, GstQuery * query)
+{
+  gboolean res = TRUE;
+  BtBin *self = BT_BIN (gst_pad_get_parent (pad));
+
+  if (!self->song) {
+    gst_object_unref (self);
+    return FALSE;
+  }
+
+  switch (GST_QUERY_TYPE (query)) {
+    case GST_QUERY_DURATION: {
+      BtSequence *sequence;
+      
+      g_object_get (self->song, "sequence", &sequence, NULL);
+      gst_query_set_duration (query, GST_FORMAT_TIME,
+          bt_sequence_get_loop_time (sequence));
+      g_object_unref (sequence);
+      break;
+    }
+    default:
+      res = FALSE;
+      break;
+  }
+  
+  g_object_unref (self);
+  return res;
+}
+
+static gboolean
+bt_bin_do_seek (BtBin *self, GstEvent * event)
+{
+  gdouble rate;
+  GstFormat src_format;
+  GstSeekFlags flags;
+  GstSeekType start_type, stop_type;
+  gint64 start, stop;
+
+  if (!self->song)
+    return FALSE;
+
+  gst_event_parse_seek (event, &rate, &src_format, &flags,
+      &start_type, &start, &stop_type, &stop);
+  
+  if ((start_type == GST_SEEK_TYPE_SET) && (src_format == GST_FORMAT_TIME)) {
+    BtSequence *sequence;
+    glong row;
+    
+    g_object_get (self->song, "sequence", &sequence, NULL);
+    row = start / bt_sequence_get_bar_time (sequence);
+    g_object_set (self->song,"play-pos",row,NULL);
+    g_object_unref (sequence);
+    
+    GST_INFO_OBJECT (self, "seeking to sequence row %ul", row);
+    return TRUE;
+  } else {
+    GST_INFO_OBJECT (self, "not seeking seeking, wrong type %d or format %d", start_type, src_format);
+  }
+  return FALSE;
+}
+
+static gboolean
+bt_bin_src_event (GstPad * pad, GstEvent * event)
+{
+  gboolean res = FALSE;
+  BtBin *self = BT_BIN (gst_pad_get_parent (pad));
+
+  GST_DEBUG_OBJECT (pad, "%s event received", GST_EVENT_TYPE_NAME (event));
+
+  switch (GST_EVENT_TYPE (event)) {
+    case GST_EVENT_SEEK:
+      res = bt_bin_do_seek (self, event);
+      break;
+    default:
+      break;
+  }
+
+  g_object_unref (self);
+  return res;
+}
 
 static gboolean
 bt_bin_load_song (BtBin *self)
@@ -92,7 +180,7 @@ bt_bin_load_song (BtBin *self)
     g_object_get (self->song,"setup",&setup,NULL);
     if((machine = bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE))) {
       BtSinkBin *sink_bin;
-      GstPad *target_pad, *machine_pad, *bin_pad;
+      GstPad *target_pad, *machine_pad;
 
       g_object_get (machine,"machine",&sink_bin,NULL);
       g_object_set (sink_bin, "mode", BT_SINK_BIN_MODE_PASS_THRU, NULL);
@@ -103,17 +191,17 @@ bt_bin_load_song (BtBin *self)
       gst_element_add_pad (GST_ELEMENT (machine), machine_pad);
       gst_object_unref (target_pad);
       
-      bin_pad = gst_ghost_pad_new ("src", machine_pad);
-      gst_pad_set_active (bin_pad, TRUE);
-      gst_element_add_pad (GST_ELEMENT (self->bin), bin_pad);
+      gst_ghost_pad_set_target (GST_GHOST_PAD (self->binpad), machine_pad);
 
-      self->srcpad = gst_ghost_pad_new ("src", bin_pad);
+      self->srcpad = gst_ghost_pad_new ("src", self->binpad);
+      gst_pad_set_query_function (self->srcpad, bt_bin_src_query);
+      gst_pad_set_event_function (self->srcpad, bt_bin_src_event);
       gst_pad_set_active (self->srcpad, TRUE);
       gst_element_add_pad (GST_ELEMENT (self), self->srcpad);
       
       gst_element_no_more_pads (GST_ELEMENT (self));
       
-      GST_INFO_OBJECT (self, "ghost pads connected");
+      GST_INFO_OBJECT (self, "ghost pad connected");
       
       gst_object_unref (sink_bin);
       g_object_unref (machine);
@@ -129,7 +217,6 @@ Error:
   }
   return res;
 }
-
 
 static gboolean
 bt_bin_sink_event (GstPad * pad, GstEvent * event)
@@ -253,23 +340,15 @@ bt_bin_activatepull (GstPad * pad, gboolean active)
 static void
 bt_bin_reset (BtBin *self)
 {
-  GstPad *bin_pad;
-
+  GST_INFO_OBJECT (self, "reset");
+  
   self->offset = 0;
   //self->discont = FALSE;
-  /*
   GST_OBJECT_LOCK (self);
-  if (self->song)
-    xxx_close (self->song);
+  g_object_try_unref (self->song);
   self->song = NULL;
   GST_OBJECT_UNLOCK (self);
-  */
   gst_adapter_clear (self->adapter);
-  
-  bin_pad = gst_element_get_pad (GST_ELEMENT (self->bin), "src");
-  gst_pad_set_active (bin_pad, FALSE);
-  gst_element_remove_pad (GST_ELEMENT (self->bin), bin_pad);
-  gst_object_unref (bin_pad);
   
   gst_pad_set_active (self->srcpad, FALSE);
   gst_element_remove_pad (GST_ELEMENT (self), self->srcpad);
@@ -303,12 +382,12 @@ bt_bin_change_state (GstElement * element, GstStateChange transition)
 
   switch (transition) {
     case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
-      //bt_song_stop (self->song);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
-      bt_bin_reset (self);
+      bt_song_stop (self->song);
       break;
     case GST_STATE_CHANGE_READY_TO_NULL:
+      bt_bin_reset (self);
       break;
     default:
       break;
@@ -365,12 +444,11 @@ bt_bin_init (BtBin * self, BtBinClass * g_class)
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
 
   self->adapter = gst_adapter_new ();
-  self->bin = GST_BIN (gst_bin_new ("song"));
+  self->bin = GST_BIN (gst_bin_new (PACKAGE_NAME));
   gst_bin_add (GST_BIN (self), GST_ELEMENT (self->bin));
 
   self->app = g_object_new (BT_TYPE_APPLICATION,"bin",self->bin,NULL);
   self->song = bt_song_new (self->app);
-  
   
   self->sinkpad =
       gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
@@ -380,6 +458,9 @@ bt_bin_init (BtBin * self, BtBinClass * g_class)
   gst_pad_set_event_function (self->sinkpad, bt_bin_sink_event);
   gst_pad_set_chain_function (self->sinkpad, bt_bin_chain);
   gst_element_add_pad (GST_ELEMENT (self), self->sinkpad);
+
+  self->binpad = gst_ghost_pad_new_no_target ("src", GST_PAD_SRC);
+  gst_element_add_pad (GST_ELEMENT (self->bin), self->binpad);
 
   /* we add the src-pad dynamically */
 }

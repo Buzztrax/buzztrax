@@ -1,3 +1,18 @@
+2010-07-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Whitespace.
+
+	* src/lib/core/song-info.c:
+	  Init taglist more and use better version cehck.
+
+	* src/lib/core/song.c:
+	  Send tags. Some attempts to sync things with bt-bin.
+
+	* src/ui/bin/bt-bin.c:
+	* src/ui/bin/bt-bin.h:
+	  Keep bin-pad. Add basic src-pad event and query.
+
 2010-07-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbuzztard-core/sink-bin.h:

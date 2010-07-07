@@ -3165,7 +3165,7 @@ static GstPad* bt_machine_request_new_pad(GstElement *element, GstPadTemplate *t
   else {
     GST_WARNING_OBJECT(element,"failed to create ghostpad %s to target %s:%s",name,GST_DEBUG_PAD_NAME(target));
   }
-  gst_object_unref (target);
+  gst_object_unref(target);
   g_free(name);
 
   return(pad);

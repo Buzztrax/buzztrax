@@ -214,7 +214,10 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
   gboolean loop;
   glong loop_end,length;
 
-  if(!self->priv->is_playing) return;
+  if(!self->priv->is_playing) {
+    GST_WARNING ("not playing");
+    return;
+  }
 
   g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
   const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
@@ -371,10 +374,10 @@ static void bt_song_send_tags(const BtSong * const self) {
         break;
     }
   }
-  gst_iterator_free (it);
+  gst_iterator_free(it);
   gst_event_unref(tag_event);
 #endif
-  gst_tag_list_free(taglist);
+  gst_element_found_tags(GST_ELEMENT(self->priv->bin),taglist);
 }
 
 
@@ -485,7 +488,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
   //  self->priv->bin,GST_MESSAGE_SRC(message),G_OBJECT_TYPE_NAME(GST_MESSAGE_SRC(message)));
   
   if(self->priv->is_idle_active) return;
-  
+
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GstState oldstate,newstate,pending;
 
@@ -515,6 +518,8 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         break;
 #endif
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+      // FIXME: hack for bt-bin
+      //case GST_STATE_TRANSITION(GST_STATE_PLAYING,GST_STATE_PLAYING):
         if(!self->priv->is_playing) {
           GST_INFO("playback started");
           self->priv->is_playing=TRUE;
@@ -1379,6 +1384,7 @@ static void bt_song_constructed(GObject *object) {
   */
   
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
+  //GstBus * const bus=gst_element_get_bus(pipeline);
   if (bus) {
     GST_DEBUG("listen to bus messages (%p)",bus);
     gst_bus_add_signal_watch_full(bus, G_PRIORITY_HIGH);
