@@ -29,13 +29,28 @@
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! bt-bin ! fakesink
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! bt-bin ! fakesink
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztard/share/buzztard/songs/303.bzt
+ * GST_DEBUG="*:2,play*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztard/share/buzztard/songs/303.bzt
+ * ~/projects/gstreamer/gst-plugins-base/tests/examples/seek/.libs/seek 16 file:///home/ensonic/buzztard/share/buzztard/songs/lac2010_01a.bzt
  *
  * GST_DEBUG="*:3,bt*:4,*type*:4" gst-launch-0.10 -v -m filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! fakesink
  * GST_DEBUG="*:2,bt*:4,*type*:5,default:5" gst-launch-0.10 filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! fakesink
  *
  * gst-typefind $HOME/buzztard/share/buzztard/songs/303.bzt
- *
  */
+ 
+/* - alternative idea:
+ *   - we could use an appsink in sink-bin (small queue-size)
+ *   - we would take the buffers from it and push them on our src pad
+ *   - this way we can keep the song-as a top-level pipeline.
+ * - todo
+ *   - check for stopped and send eos?
+ * - issues
+ *   - lots of:
+ *     gstbin.c:2329:gst_bin_do_latency_func:<player> failed to query latency
+ *   - endless of the at the end:
+ *     Got message #4011 from element "playbin20" (async-done): no message details
+ */
+#define SEP_PIPE 1
  
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -58,7 +73,17 @@ static GstStaticPadTemplate bt_bin_src_template =
 GST_STATIC_PAD_TEMPLATE ("src",
   GST_PAD_SRC,
   GST_PAD_SOMETIMES,
+#ifndef SEP_PIPE
   GST_STATIC_CAPS_ANY
+#else
+  GST_STATIC_CAPS (
+    "audio/x-raw-float, "
+    "width = (int) 32, "
+    "rate = (int) [ 1, MAX ], "
+    "channels = (int) [1, 2], "
+    "endianness = (int) BYTE_ORDER"
+  )
+#endif
 );
 
 
@@ -146,6 +171,30 @@ bt_bin_src_event (GstPad * pad, GstEvent * event)
   return res;
 }
 
+#ifdef SEP_PIPE
+static gboolean
+bt_bin_move_buffer (GstPad *pad, GstMiniObject *mini_obj, gpointer user_data)
+{
+  BtBin *self = BT_BIN (user_data);
+
+  gst_pad_push (self->srcpad, gst_buffer_ref ((GstBuffer *)mini_obj));
+
+  /* don't push further */
+  return FALSE;
+}
+
+static gboolean
+bt_bin_move_event (GstPad *pad, GstMiniObject *mini_obj, gpointer user_data)
+{
+  BtBin *self = BT_BIN (user_data);
+
+  gst_pad_push_event (self->srcpad, gst_event_ref ((GstEvent *)mini_obj));
+
+  /* don't push further */
+  return FALSE;
+}
+#endif
+
 static gboolean
 bt_bin_load_song (BtBin *self)
 {
@@ -180,20 +229,40 @@ bt_bin_load_song (BtBin *self)
     g_object_get (self->song,"setup",&setup,NULL);
     if((machine = bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE))) {
       BtSinkBin *sink_bin;
-      GstPad *target_pad, *machine_pad;
+      GstPad *target_pad;
+#ifndef SEP_PIPE
+      GstPad *machine_pad;
+#else
+      GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
+      GstElement *fakesink;
+#endif
 
       g_object_get (machine,"machine",&sink_bin,NULL);
       g_object_set (sink_bin, "mode", BT_SINK_BIN_MODE_PASS_THRU, NULL);
       
       target_pad = gst_element_get_pad (GST_ELEMENT (sink_bin), "src");
+#ifndef SEP_PIPE
       machine_pad = gst_ghost_pad_new ("src", target_pad);
       gst_pad_set_active (machine_pad, TRUE);
       gst_element_add_pad (GST_ELEMENT (machine), machine_pad);
+#else
+      /* bahh, dirty ! */
+      fakesink = gst_element_factory_make ("fakesink", NULL);
+      gst_bin_add (GST_BIN (machine), fakesink);
+      gst_element_link_pads (GST_ELEMENT (sink_bin), "src", fakesink, "sink");
+      gst_pad_add_buffer_probe (target_pad, (GCallback)bt_bin_move_buffer, (gpointer)self);
+      gst_pad_add_event_probe (target_pad, (GCallback)bt_bin_move_event, (gpointer)self);
+#endif
       gst_object_unref (target_pad);
       
+#ifndef SEP_PIPE
       gst_ghost_pad_set_target (GST_GHOST_PAD (self->binpad), machine_pad);
 
       self->srcpad = gst_ghost_pad_new ("src", self->binpad);
+#else
+      self->srcpad = gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
+          "src"), "src");
+#endif
       gst_pad_set_query_function (self->srcpad, bt_bin_src_query);
       gst_pad_set_event_function (self->srcpad, bt_bin_src_event);
       gst_pad_set_active (self->srcpad, TRUE);
@@ -382,6 +451,7 @@ bt_bin_change_state (GstElement * element, GstStateChange transition)
 
   switch (transition) {
     case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+      bt_song_stop (self->song);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
       bt_song_stop (self->song);
@@ -444,7 +514,11 @@ bt_bin_init (BtBin * self, BtBinClass * g_class)
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
 
   self->adapter = gst_adapter_new ();
+#ifndef SEP_PIPE
   self->bin = GST_BIN (gst_bin_new (PACKAGE_NAME));
+#else
+  self->bin = GST_BIN (gst_pipeline_new (PACKAGE_NAME));
+#endif
   gst_bin_add (GST_BIN (self), GST_ELEMENT (self->bin));
 
   self->app = g_object_new (BT_TYPE_APPLICATION,"bin",self->bin,NULL);
@@ -459,8 +533,10 @@ bt_bin_init (BtBin * self, BtBinClass * g_class)
   gst_pad_set_chain_function (self->sinkpad, bt_bin_chain);
   gst_element_add_pad (GST_ELEMENT (self), self->sinkpad);
 
+#ifndef SEP_PIPE
   self->binpad = gst_ghost_pad_new_no_target ("src", GST_PAD_SRC);
   gst_element_add_pad (GST_ELEMENT (self->bin), self->binpad);
+#endif
 
   /* we add the src-pad dynamically */
 }
