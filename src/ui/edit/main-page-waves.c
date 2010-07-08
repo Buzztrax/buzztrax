@@ -538,9 +538,9 @@ static void on_preview_error(const GstBus * const bus, GstMessage *message, gcon
   gchar *dbg = NULL;
   
   gst_message_parse_error(message, &err, &dbg);
-  GST_WARNING ("ERROR: %s (%s)", err->message, (dbg) ? dbg : "no details");
-  g_error_free (err);
-  g_free (dbg);
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
+  g_error_free(err);
+  g_free(dbg);
   preview_stop(self);
 }
 
@@ -550,9 +550,9 @@ static void on_preview_warning(const GstBus * const bus, GstMessage * message, g
   gchar *dbg = NULL;
   
   gst_message_parse_warning(message, &err, &dbg);
-  GST_WARNING ("WARNING: %s (%s)", err->message, (dbg) ? dbg : "no details");
-  g_error_free (err);
-  g_free (dbg);
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s)", err->message, (dbg ? dbg : "no details"));
+  g_error_free(err);
+  g_free(dbg);
   preview_stop(self);
 }
 

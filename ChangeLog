@@ -1,5 +1,12 @@
 2010-07-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wave.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-toolbar.c:
+	  Improved error logging.
+
+2010-07-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Whitespace.
 

@@ -374,7 +374,7 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
 
   // @todo: check domain and code
   gst_message_parse_error(message, &err, &dbg);
-  GST_WARNING ("ERROR: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
 
   if(!self->priv->has_error) {
     BtSong *song;
@@ -392,8 +392,8 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
     g_object_unref(song);
     g_object_unref(main_window);
   }
-  g_error_free (err);
-  g_free (dbg);
+  g_error_free(err);
+  g_free(dbg);
 
   self->priv->has_error = TRUE;
 }
@@ -408,7 +408,7 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
 
   // @todo: check domain and code
   gst_message_parse_warning(message, &err, &dbg);
-  GST_WARNING ("WARNING: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s)", err->message, (dbg ? dbg : "no details"));
 
   if(!self->priv->has_error) {
     BtSong *song;
@@ -424,8 +424,8 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
     g_object_unref(song);
     g_object_unref(main_window);
   }
-  g_error_free (err);
-  g_free (dbg);
+  g_error_free(err);
+  g_free(dbg);
 }
 
 static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
