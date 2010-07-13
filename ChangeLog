@@ -1,5 +1,10 @@
 2010-07-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/bin/bt-bin.c:
+	  Handle queries better and update todo.
+
+2010-07-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-bin.c:
 	  Fix enum value. 
 

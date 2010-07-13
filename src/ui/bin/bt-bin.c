@@ -19,12 +19,6 @@
  * Boston, MA 02111-1307, USA.
  */
 /* TODO:
- * - using bt_song_play() and _stop() is not good
- *   - we don't get proper state_change messages on our song-bin
- *     - we don't connect anything to the bus, as we don't have one
- *   - therefore we don't realize that we are playing
- *   - therefore we don't seek etc.
- * - can we update the song from bt_bin_change_state()
  *
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! bt-bin ! fakesink
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! bt-bin ! fakesink
@@ -45,11 +39,7 @@
  * - todo
  *   - check for stopped and send eos?
  * - issues
- *   - lots of:
- *     gstbin.c:2329:gst_bin_do_latency_func:<player> failed to query latency
- *   - endless of the at the end:
- *     Got message #4011 from element "playbin20" (async-done): no message details
- *   - we don't get any newsegment events back in playbin pipeline
+ *   - it does not stop by itself
  */
 #define SEP_PIPE 1
  
@@ -103,16 +93,11 @@ bt_bin_src_query (GstPad * pad, GstQuery * query)
 
   switch (GST_QUERY_TYPE (query)) {
     case GST_QUERY_DURATION: {
-      BtSequence *sequence;
-      
-      g_object_get (self->song, "sequence", &sequence, NULL);
-      gst_query_set_duration (query, GST_FORMAT_TIME,
-          bt_sequence_get_loop_time (sequence));
-      g_object_unref (sequence);
+      gst_query_set_duration (query, self->segment.format, self->segment.duration);
       break;
     }
     default:
-      res = FALSE;
+      res = gst_element_query (GST_ELEMENT (self->bin), query);
       break;
   }
   
@@ -195,6 +180,7 @@ bt_bin_do_seek (BtBin *self, GstEvent * event)
           seeksegment.start, seeksegment.last_stop, seeksegment.time);
     }
     gst_event_set_seqnum (self->newsegment_event, seqnum);
+    GST_INFO_OBJECT (self, "newsegment event prepared %" GST_PTR_FORMAT, self->newsegment_event);
     
     return TRUE;
   } else {
@@ -329,6 +315,10 @@ bt_bin_load_song (BtBin *self)
     g_object_get (self->song,"setup",&setup,"sequence",&sequence,NULL);
     /* turn off lopps in any case */
     g_object_set (sequence, "loop", FALSE, NULL);
+    GST_OBJECT_LOCK (self);
+    gst_segment_set_duration (&self->segment, GST_FORMAT_TIME, 
+        bt_sequence_get_loop_time (sequence));
+    GST_OBJECT_UNLOCK (self);
 
     if((machine = bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE))) {
       BtSinkBin *sink_bin;
