@@ -57,6 +57,9 @@ struct _BtBin {
   BtApplication *app;
   BtSong *song;
   GstBin *bin;
+  
+  GstEvent *newsegment_event;
+  GstSegment segment;
 };
 
 struct _BtBinClass {

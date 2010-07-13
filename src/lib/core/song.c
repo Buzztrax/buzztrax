@@ -458,7 +458,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
 static void on_song_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
-  GST_INFO("received EOS bus message from: %s", 
+  GST_INFO("received EOS bus message from: %s",
     GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
 
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
@@ -493,7 +493,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     GstState oldstate,newstate,pending;
 
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
-    GST_INFO("state change on the bin: %s -> %s", 
+    GST_INFO("state change on the bin: %s -> %s",
       gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
 #ifndef USE_READY_FOR_STOPPED
@@ -518,8 +518,6 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         break;
 #endif
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-      // FIXME: hack for bt-bin
-      //case GST_STATE_TRANSITION(GST_STATE_PLAYING,GST_STATE_PLAYING):
         if(!self->priv->is_playing) {
           GST_INFO("playback started");
           self->priv->is_playing=TRUE;

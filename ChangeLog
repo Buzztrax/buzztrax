@@ -1,3 +1,16 @@
+2010-07-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Fix enum value. 
+
+	* src/lib/core/song.c:
+	  Whitespace and logging.
+
+	* src/ui/bin/bt-bin.c:
+	* src/ui/bin/bt-bin.h:
+	  Now seeking and rate changes work. Also pausing, stopiing and playing
+	  several times works. Seeking still needs detail fixes.
+
 2010-07-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

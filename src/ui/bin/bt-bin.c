@@ -49,6 +49,7 @@
  *     gstbin.c:2329:gst_bin_do_latency_func:<player> failed to query latency
  *   - endless of the at the end:
  *     Got message #4011 from element "playbin20" (async-done): no message details
+ *   - we don't get any newsegment events back in playbin pipeline
  */
 #define SEP_PIPE 1
  
@@ -127,6 +128,8 @@ bt_bin_do_seek (BtBin *self, GstEvent * event)
   GstSeekFlags flags;
   GstSeekType start_type, stop_type;
   gint64 start, stop;
+  GstEvent *tevent;
+  guint32 seqnum;
 
   if (!self->song)
     return FALSE;
@@ -136,14 +139,63 @@ bt_bin_do_seek (BtBin *self, GstEvent * event)
   
   if ((start_type == GST_SEEK_TYPE_SET) && (src_format == GST_FORMAT_TIME)) {
     BtSequence *sequence;
-    glong row;
+    gulong row;
+    gboolean flush;
+    GstClockTime bar_time;
+    GstSegment seeksegment;
+    gboolean update;
     
+    flush = ((flags & GST_SEEK_FLAG_FLUSH) == GST_SEEK_FLAG_FLUSH);
+    seqnum = gst_event_get_seqnum (event);
+    
+    memcpy (&seeksegment, &self->segment, sizeof (GstSegment));
+    
+    if (flush) {
+      GST_DEBUG_OBJECT (self, "flush start");
+      tevent = gst_event_new_flush_start ();
+      gst_event_set_seqnum (tevent, seqnum);
+      gst_pad_push_event (self->srcpad, tevent);
+    }
+    
+    /* seek */
     g_object_get (self->song, "sequence", &sequence, NULL);
-    row = start / bt_sequence_get_bar_time (sequence);
-    g_object_set (self->song,"play-pos",row,NULL);
+    bar_time = bt_sequence_get_bar_time (sequence);
+    row = (gulong) (start / bar_time);
+    g_object_set (self->song,"play-pos",row,"play-rate",rate,NULL);
     g_object_unref (sequence);
     
-    GST_INFO_OBJECT (self, "seeking to sequence row %ul", row);
+    GST_INFO_OBJECT (self, "seeked to sequence row %lu", row);
+    start = row * bar_time;
+
+    if (flush) {
+      GST_DEBUG_OBJECT (self, "flush stop");
+      tevent = gst_event_new_flush_stop ();
+      gst_event_set_seqnum (tevent, seqnum);
+      gst_pad_push_event (self->srcpad, tevent);
+    }
+
+    /* update our real segment */
+    GST_OBJECT_LOCK (self);
+    memcpy (&self->segment, &seeksegment, sizeof (GstSegment));
+    GST_OBJECT_UNLOCK (self);
+    
+    /* prepare newsegment event */
+    gst_segment_set_seek (&seeksegment, rate, src_format, flags, start_type,
+        start, stop_type, stop, &update);
+   
+    if (self->newsegment_event)
+      gst_event_unref (self->newsegment_event);
+    if (seeksegment.rate >= 0.0) {
+      self->newsegment_event = gst_event_new_new_segment_full (FALSE,
+          seeksegment.rate, seeksegment.applied_rate, seeksegment.format,
+          seeksegment.last_stop, stop, seeksegment.time);
+    } else {
+      self->newsegment_event = gst_event_new_new_segment_full (FALSE,
+          seeksegment.rate, seeksegment.applied_rate, seeksegment.format,
+          seeksegment.start, seeksegment.last_stop, seeksegment.time);
+    }
+    gst_event_set_seqnum (self->newsegment_event, seqnum);
+    
     return TRUE;
   } else {
     GST_INFO_OBJECT (self, "not seeking seeking, wrong type %d or format %d", start_type, src_format);
@@ -157,13 +209,14 @@ bt_bin_src_event (GstPad * pad, GstEvent * event)
   gboolean res = FALSE;
   BtBin *self = BT_BIN (gst_pad_get_parent (pad));
 
-  GST_DEBUG_OBJECT (pad, "%s event received", GST_EVENT_TYPE_NAME (event));
+  GST_INFO_OBJECT (pad, "event received %" GST_PTR_FORMAT, event);
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_SEEK:
       res = bt_bin_do_seek (self, event);
       break;
     default:
+      res = gst_pad_push_event (self->sinkpad, event);
       break;
   }
 
@@ -171,13 +224,56 @@ bt_bin_src_event (GstPad * pad, GstEvent * event)
   return res;
 }
 
+static void
+on_song_is_playing_notify (const BtSong *song, GParamSpec *arg, gpointer user_data)
+{
+  BtBin *self = BT_BIN (user_data);
+  gboolean is_playing;
+
+  g_object_get ((gpointer)song, "is-playing", &is_playing,NULL);
+  if(!is_playing) {
+    GST_INFO_OBJECT (self, "sending eos");
+    gst_pad_push_event (self->srcpad, gst_event_new_eos ());
+  }
+}
+
 #ifdef SEP_PIPE
 static gboolean
 bt_bin_move_buffer (GstPad *pad, GstMiniObject *mini_obj, gpointer user_data)
 {
   BtBin *self = BT_BIN (user_data);
+  GstBuffer *buf = (GstBuffer *)mini_obj;
+  GstClockTime start, duration;
+  gint64 position;
+  
+  if (G_UNLIKELY (self->newsegment_event)) {
+    gst_pad_push_event (self->srcpad, self->newsegment_event);
+    self->newsegment_event = NULL;
+  }
+  
+  /* update segment */
+  start = GST_BUFFER_TIMESTAMP (buf);
+  duration = GST_BUFFER_DURATION (buf);
 
-  gst_pad_push (self->srcpad, gst_buffer_ref ((GstBuffer *)mini_obj));
+  if (GST_CLOCK_TIME_IS_VALID (start))
+    position = start;
+  else
+    position = self->segment.last_stop;
+
+  if (GST_CLOCK_TIME_IS_VALID (duration)) {
+    if (self->segment.rate >= 0.0)
+      position += duration;
+    else if (position > duration)
+      position -= duration;
+    else
+      position = 0;
+  }
+
+  GST_OBJECT_LOCK (self);
+  gst_segment_set_last_stop (&self->segment, self->segment.format, position);
+  GST_OBJECT_UNLOCK (self);
+
+  gst_pad_push (self->srcpad, gst_buffer_ref (buf));
 
   /* don't push further */
   return FALSE;
@@ -187,11 +283,14 @@ static gboolean
 bt_bin_move_event (GstPad *pad, GstMiniObject *mini_obj, gpointer user_data)
 {
   BtBin *self = BT_BIN (user_data);
-
-  gst_pad_push_event (self->srcpad, gst_event_ref ((GstEvent *)mini_obj));
-
-  /* don't push further */
-  return FALSE;
+  GstEvent *event = (GstEvent *)mini_obj;
+  
+  GST_INFO_OBJECT (pad, "forwarding event %" GST_PTR_FORMAT, mini_obj);
+  
+  if (GST_EVENT_IS_DOWNSTREAM (event)) {
+    gst_pad_push_event (self->srcpad, gst_event_ref (event));
+  }
+  return TRUE;
 }
 #endif
 
@@ -224,15 +323,20 @@ bt_bin_load_song (BtBin *self)
   
   if (bt_song_io_load (loader, self->song)) {
     BtSetup *setup;
+    BtSequence *sequence;
     BtMachine *machine;
 
-    g_object_get (self->song,"setup",&setup,NULL);
+    g_object_get (self->song,"setup",&setup,"sequence",&sequence,NULL);
+    /* turn off lopps in any case */
+    g_object_set (sequence, "loop", FALSE, NULL);
+
     if((machine = bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE))) {
       BtSinkBin *sink_bin;
       GstPad *target_pad;
 #ifndef SEP_PIPE
       GstPad *machine_pad;
 #else
+      GstPad *probe_pad;
       GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
       GstElement *fakesink;
 #endif
@@ -248,10 +352,14 @@ bt_bin_load_song (BtBin *self)
 #else
       /* bahh, dirty ! */
       fakesink = gst_element_factory_make ("fakesink", NULL);
+      /* otherwise the song is not starting .. */
+      g_object_set (fakesink, "async", FALSE, NULL);
       gst_bin_add (GST_BIN (machine), fakesink);
-      gst_element_link_pads (GST_ELEMENT (sink_bin), "src", fakesink, "sink");
-      gst_pad_add_buffer_probe (target_pad, (GCallback)bt_bin_move_buffer, (gpointer)self);
-      gst_pad_add_event_probe (target_pad, (GCallback)bt_bin_move_event, (gpointer)self);
+      probe_pad = gst_element_get_pad (fakesink, "sink");
+      gst_pad_link (target_pad, probe_pad);
+      gst_pad_add_buffer_probe (probe_pad, (GCallback)bt_bin_move_buffer, (gpointer)self);
+      gst_pad_add_event_probe (probe_pad, (GCallback)bt_bin_move_event, (gpointer)self);
+      gst_object_unref (probe_pad);
 #endif
       gst_object_unref (target_pad);
       
@@ -276,6 +384,9 @@ bt_bin_load_song (BtBin *self)
       g_object_unref (machine);
       res = TRUE;
     }
+    
+    g_object_unref (sequence);
+    g_object_unref (setup);
   }
   
   g_free (data);
@@ -293,7 +404,7 @@ bt_bin_sink_event (GstPad * pad, GstEvent * event)
   gboolean res = FALSE;
   BtBin *self = BT_BIN (gst_pad_get_parent (pad));
 
-  GST_DEBUG_OBJECT (pad, "%s event received", GST_EVENT_TYPE_NAME (event));
+  GST_INFO_OBJECT (pad, "event received %" GST_PTR_FORMAT, event);
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_EOS:
@@ -413,16 +524,23 @@ bt_bin_reset (BtBin *self)
   
   self->offset = 0;
   //self->discont = FALSE;
-  GST_OBJECT_LOCK (self);
-  g_object_try_unref (self->song);
-  self->song = NULL;
-  GST_OBJECT_UNLOCK (self);
-  gst_adapter_clear (self->adapter);
-  
-  gst_pad_set_active (self->srcpad, FALSE);
-  gst_element_remove_pad (GST_ELEMENT (self), self->srcpad);
-  self->srcpad = NULL;
 
+  GST_OBJECT_LOCK (self);
+  if (self->song) {
+    g_signal_handlers_disconnect_matched (self->song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
+    g_object_unref (self->song);
+    self->song = NULL;
+  }
+  GST_OBJECT_UNLOCK (self);
+  
+  gst_adapter_clear (self->adapter);
+  gst_event_replace (&self->newsegment_event, NULL);
+  
+  if (self->srcpad) {
+    gst_pad_set_active (self->srcpad, FALSE);
+    gst_element_remove_pad (GST_ELEMENT (self), self->srcpad);
+    self->srcpad = NULL;
+  }
 }
 
 static GstStateChangeReturn
@@ -451,10 +569,14 @@ bt_bin_change_state (GstElement * element, GstStateChange transition)
 
   switch (transition) {
     case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
-      bt_song_stop (self->song);
+      bt_song_pause (self->song);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
+      /* this causes a deadlock if called in PAUSED_TO_PLAYING */
       bt_song_stop (self->song);
+      if((gst_element_set_state (GST_ELEMENT (self->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
+        GST_WARNING("can't go to null state");
+      }
       break;
     case GST_STATE_CHANGE_READY_TO_NULL:
       bt_bin_reset (self);
@@ -472,7 +594,7 @@ bt_bin_dispose (GObject * object)
 {
   BtBin *self = BT_BIN (object);
 
-  g_object_unref (self->song);
+  bt_bin_reset (self);
   g_object_unref (self->app);
   g_object_unref (self->adapter);
 
@@ -514,15 +636,19 @@ bt_bin_init (BtBin * self, BtBinClass * g_class)
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
 
   self->adapter = gst_adapter_new ();
+  gst_segment_init (&self->segment, GST_FORMAT_TIME);
+  
 #ifndef SEP_PIPE
   self->bin = GST_BIN (gst_bin_new (PACKAGE_NAME));
+  gst_bin_add (GST_BIN (self), GST_ELEMENT (self->bin));
 #else
   self->bin = GST_BIN (gst_pipeline_new (PACKAGE_NAME));
 #endif
-  gst_bin_add (GST_BIN (self), GST_ELEMENT (self->bin));
 
   self->app = g_object_new (BT_TYPE_APPLICATION,"bin",self->bin,NULL);
   self->song = bt_song_new (self->app);
+  g_signal_connect (self->song, "notify::is-playing",
+      G_CALLBACK (on_song_is_playing_notify), (gpointer)self);
   
   self->sinkpad =
       gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
@@ -609,7 +735,10 @@ plugin_init (GstPlugin * plugin)
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-bin", GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "buzztard song player");
   
-  bt_init (NULL,NULL);
+  if (!bt_init_check (NULL,NULL, NULL)) {
+    GST_WARNING ("failed to init buzztard library");
+    return FALSE;
+  }
   
   plugins = bt_song_io_get_module_info_list ();
   exts = (gchar **)g_new (gpointer, l);
