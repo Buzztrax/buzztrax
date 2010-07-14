@@ -194,13 +194,18 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   g_object_unref(settings);
 
   // check for missing elements
-  if((res=bt_edit_application_check_missing(self))) {
-    GST_INFO("before running the UI");
-    gtk_main();
-    GST_INFO("after running the UI");
-    res=TRUE;
-  }
+  if(!(res=bt_edit_application_check_missing(self)))
+    goto Error;
 
+  // check for recoverable songs
+  bt_change_log_crash_check(self->priv->change_log);
+
+  GST_INFO("before running the UI");
+  gtk_main();
+  GST_INFO("after running the UI");
+  res=TRUE;
+
+Error:
   GST_INFO("application.run_ui finished : %d",res);
   return(res);
 }

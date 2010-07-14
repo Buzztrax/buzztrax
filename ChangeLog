@@ -1,3 +1,14 @@
+2010-07-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-io.c:
+	  Fix comment typo.
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/edit-application.c:
+	  Run crash log scan on app launch. Make it build and skip current active
+	  log.
+
 2010-07-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/bin/bt-bin.c:

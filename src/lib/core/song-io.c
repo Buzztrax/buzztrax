@@ -109,7 +109,7 @@ static void bt_song_io_register_plugins(void) {
       g_sprintf(plugin_name,LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio"G_DIR_SEPARATOR_S"%s",dire->d_name);
       // skip symlinks
       if(readlink((const char *)plugin_name,link_target,FILENAME_MAX-1)!=-1) continue;
-      // skip files other then shared librares
+      // skip files other than shared librares
       if(!g_str_has_suffix(plugin_name,"."G_MODULE_SUFFIX)) continue;
       GST_INFO("    found file '%s'",plugin_name);
 

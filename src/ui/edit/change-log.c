@@ -97,6 +97,8 @@ Otherwise it becomes a graph and then redo would need to know the direction.
 
 #include "bt-edit.h"
 
+#include <dirent.h>
+
 //-- signal ids
 
 //-- property ids
@@ -226,44 +228,43 @@ BtChangeLog *bt_change_log_new(void) {
 //-- methods
 
 GList *bt_change_log_crash_check(BtChangeLog *self) {
- /*
- - can be done at any time, even if we create a new _unnamed_, it will have a
-   different dts
- - should list found logs, except the current (loaded song) one
- - run a pre-check over the logs
-   - auto-clean logs that only consis of the header
-   - the log would need to point to the actual filename
-     - only offer recover if the original file is available or
-       if file-anem is empty
- - should we have a way to delete logs?
-   - song not there anymore
-   - log was replayed, song saved, but then it crashed (before resetting the log)
- */
-#if 0
+  /*
+   * - can be done at any time, even if we create a new _unnamed_, it will have a
+   *   different dts
+   * - run a pre-check over the logs
+   *   - auto-clean logs that only consist of the header (2 lines)
+   *   - the log would need to point to the actual filename
+   *     - only offer recover if the original file is available or
+   *       if file-anem is empty
+   * - should we have a way to delete logs?
+   *   - song not there anymore
+   *   - log was replayed, song saved, but then it crashed (before resetting the log)
+   */
   gchar *path=g_build_filename(self->priv->cache_dir,PACKAGE,NULL);
   DIR * const dirp=opendir(path);
- 
+  
   if(dirp) {
     const struct dirent *dire;
     gchar link_target[FILENAME_MAX],log_name[FILENAME_MAX];
- 
+  
+    GST_INFO("looking for crash left-overs in %s",self->priv->cache_dir);
     while((dire=readdir(dirp))!=NULL) {
       // skip names starting with a dot
       if((!dire->d_name) || (*dire->d_name=='.')) continue;
       g_sprintf(log_name,"%s"G_DIR_SEPARATOR_S"%s",path,dire->d_name);
       // skip symlinks
       if(readlink((const char *)log_name,link_target,FILENAME_MAX-1)!=-1) continue;
-      // skip files other then shared librares
+      // skip files other than logs and our current log
       if(!g_str_has_suffix(log_name,".log")) continue;
+      if(g_str_has_suffix(log_name,self->priv->log_file_name)) continue;
       GST_INFO("    found file '%s'",log_name);
       
-      // ...
+      // add to list ...
     }
     closedir(dirp);
   }
   g_free(path);
-#endif
- return(NULL);
+  return(NULL);
 }
 
 gboolean bt_change_log_recover(BtChangeLog *self,const gchar *entry) {
