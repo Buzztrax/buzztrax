@@ -214,10 +214,8 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
   gboolean loop;
   glong loop_end,length;
 
-  if(!self->priv->is_playing) {
-    GST_WARNING ("not playing");
+  if(!self->priv->is_playing)
     return;
-  }
 
   g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
   const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
@@ -511,7 +509,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         // this should be sequence->play_start
         self->priv->play_pos=0;
         // seek to start time
-        GST_DEBUG("seek event");
+        GST_DEBUG_OBJECT(self->priv->master_bin,"seek event: %"GST_PTR_FORMAT,self->priv->play_seek_event);
         if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->play_seek_event)))) {
           GST_WARNING("bin failed to handle seek event");
         }

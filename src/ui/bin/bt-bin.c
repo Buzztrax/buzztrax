@@ -32,16 +32,18 @@
  * gst-typefind $HOME/buzztard/share/buzztard/songs/303.bzt
  */
  
-/* - alternative idea:
- *   - we could use an appsink in sink-bin (small queue-size)
+/* - SEP_PIPE:
+ *   - we could use a fakesink in sink-bin
  *   - we would take the buffers from it and push them on our src pad
  *   - this way we can keep the song-as a top-level pipeline.
  * - todo
  *   - check for stopped and send eos?
+ *   - change bt-bin to be a normal GstElement (no need to be a bin)
  * - issues
  *   - it does not stop by itself
  */
 #define SEP_PIPE 1
+
  
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -168,6 +170,11 @@ bt_bin_do_seek (BtBin *self, GstEvent * event)
     gst_segment_set_seek (&seeksegment, rate, src_format, flags, start_type,
         start, stop_type, stop, &update);
    
+    /* for deriving a stop position for the playback segment from the seek
+     * segment, we must take the duration when the stop is not set */
+    if ((stop = seeksegment.stop) == -1)
+      stop = seeksegment.duration;
+
     if (self->newsegment_event)
       gst_event_unref (self->newsegment_event);
     if (seeksegment.rate >= 0.0) {
@@ -217,6 +224,7 @@ on_song_is_playing_notify (const BtSong *song, GParamSpec *arg, gpointer user_da
   gboolean is_playing;
 
   g_object_get ((gpointer)song, "is-playing", &is_playing,NULL);
+  GST_INFO_OBJECT (self, "is_playing: %d", is_playing);
   if(!is_playing) {
     GST_INFO_OBJECT (self, "sending eos");
     gst_pad_push_event (self->srcpad, gst_event_new_eos ());
@@ -343,7 +351,12 @@ bt_bin_load_song (BtBin *self)
       /* bahh, dirty ! */
       fakesink = gst_element_factory_make ("fakesink", NULL);
       /* otherwise the song is not starting .. */
-      g_object_set (fakesink, "async", FALSE, NULL);
+      g_object_set (fakesink, 
+          "async", FALSE, 
+          "enable-last-buffer", FALSE,
+          "silent", TRUE,
+          /*"sync", TRUE, */
+          NULL);
       gst_bin_add (GST_BIN (machine), fakesink);
       probe_pad = gst_element_get_pad (fakesink, "sink");
       gst_pad_link (target_pad, probe_pad);
@@ -369,6 +382,12 @@ bt_bin_load_song (BtBin *self)
       gst_element_no_more_pads (GST_ELEMENT (self));
       
       GST_INFO_OBJECT (self, "ghost pad connected");
+      
+      self->newsegment_event = gst_event_new_new_segment_full (FALSE,
+          self->segment.rate, self->segment.applied_rate, self->segment.format,
+          G_GUINT64_CONSTANT(0), self->segment.duration, G_GUINT64_CONSTANT(0));
+      
+      GST_INFO_OBJECT (self, "prepared initial new segment");
       
       gst_object_unref (sink_bin);
       g_object_unref (machine);

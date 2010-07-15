@@ -1,5 +1,13 @@
 2010-07-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Revert some temp logging and log more seek details elsewhere.
+
+	* src/ui/bin/bt-bin.c:
+	  Update comments. Improve seek handling, but still no stopping :/
+
+2010-07-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song-io.c:
 	  Fix comment typo.
 
