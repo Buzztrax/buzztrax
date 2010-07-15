@@ -1,5 +1,10 @@
 2010-07-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/bin/bt-bin.c:
+	  Send EOS in fakesink callback now.
+
+2010-07-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
 	  Revert some temp logging and log more seek details elsewhere.
 

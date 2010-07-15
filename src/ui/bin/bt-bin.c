@@ -40,7 +40,6 @@
  *   - check for stopped and send eos?
  *   - change bt-bin to be a normal GstElement (no need to be a bin)
  * - issues
- *   - it does not stop by itself
  */
 #define SEP_PIPE 1
 
@@ -262,12 +261,16 @@ bt_bin_move_buffer (GstPad *pad, GstMiniObject *mini_obj, gpointer user_data)
     else
       position = 0;
   }
-
-  GST_OBJECT_LOCK (self);
-  gst_segment_set_last_stop (&self->segment, self->segment.format, position);
-  GST_OBJECT_UNLOCK (self);
-
-  gst_pad_push (self->srcpad, gst_buffer_ref (buf));
+  
+  if (G_LIKELY (position < self->segment.duration)) {
+    GST_OBJECT_LOCK (self);
+    gst_segment_set_last_stop (&self->segment, self->segment.format, position);
+    GST_OBJECT_UNLOCK (self);
+  
+    gst_pad_push (self->srcpad, gst_buffer_ref (buf));
+  } else {
+    gst_pad_push_event (self->srcpad, gst_event_new_eos ());
+  }
 
   /* don't push further */
   return FALSE;
