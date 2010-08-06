@@ -90,7 +90,7 @@ static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer u
 
 static gint gst_caps_get_channels(GstCaps *caps) {
   GstStructure *structure;
-  gint channels=0,size,i;
+  gint channels=0;
 
   g_assert(caps);
 
@@ -101,6 +101,7 @@ static gint gst_caps_get_channels(GstCaps *caps) {
     }
   }
   else {
+    gint size,i;
     size=gst_caps_get_size(caps);
     for(i=0;i<size;i++) {
       if((structure=gst_caps_get_structure(caps,i))) {

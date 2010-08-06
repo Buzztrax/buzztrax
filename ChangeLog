@@ -1,3 +1,13 @@
+2010-08-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-toolbar.c:
+	  Reduce variable scope.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Use cairo to paint the graphs. Add log mapping for the spectrum (needs 
+	  work for the ruler). Make spectrum graph look nicer. Fix scaling of the
+	  volume level bars.
+
 2010-07-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/bin/bt-bin.c:

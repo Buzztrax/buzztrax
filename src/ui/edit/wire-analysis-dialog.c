@@ -34,7 +34,8 @@
  * - volume to the right of the spectrum
  * - panorama below the spectrum
  *
- * @todo: we might need a lock for the resize and redraw
+ * @idea: use own ruler widget or patch up the existing one
+ * http://live.gnome.org/GTK%2B/GtkRuler
  */
 #define BT_EDIT
 #define BT_WIRE_ANALYSIS_DIALOG_C
@@ -63,20 +64,17 @@ typedef enum {
   ANALYZER_COUNT
 } BtWireAnalyzer;
 
+typedef enum {
+  MAP_LIN=0,
+  MAP_LOG=1
+} BtWireAnalyzerMapping;
+
 //#define SPECT_BANDS 256
 //#define SPECT_WIDTH (SPECT_BANDS)
 //#define SPECT_HEIGHT 64
 //#define LEVEL_WIDTH (SPECT_BANDS)
 #define LEVEL_HEIGHT 16
 #define LOW_VUMETER_VAL -90.0
-
-#if 0
-// not used right now
-static const GtkRulerMetric ruler_metrics[] =
-{
-  {"Frequency", "Hz", 1.0, { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 }, { 1, 2, 4, 8, 16 }},
-};
-#endif
 
 struct _BtWireAnalysisDialogPrivate {
   /* used to validate if dispose has run */
@@ -90,8 +88,9 @@ struct _BtWireAnalysisDialogPrivate {
 
   /* the analyzer-graphs */
   GtkWidget *spectrum_drawingarea, *level_drawingarea;
-  GdkGC *peak_gc;
-  GdkGC *grid_gc;
+  GtkWidget *spectrum_ruler;
+  GdkColor *peak_color,*grid_color;
+  cairo_pattern_t *spect_grad;
 
   /* the gstreamer elements that is used */
   GstElement *analyzers[ANALYZER_COUNT];
@@ -104,6 +103,9 @@ struct _BtWireAnalysisDialogPrivate {
   guint spect_height;
   guint spect_bands;
   gfloat height_scale;
+  /* sampling rate from spectrum.sink caps */
+  gint srate;
+  BtWireAnalyzerMapping frq_map;
   
   GstClock *clock;
 
@@ -117,9 +119,7 @@ static GtkDialogClass *parent_class=NULL;
 static GQuark bus_msg_level_quark=0;
 static GQuark bus_msg_spectrum_quark=0;
 
-static gint8 grid_dash_list[]= {1};
-
-//-- event handler
+//-- event handler helper
 
 /*
  * on_wire_analyzer_redraw:
@@ -132,18 +132,24 @@ static gboolean redraw_level(gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
 
   if(!gtk_widget_get_realized(GTK_WIDGET(self))) return(TRUE);
-  if(!GDK_IS_GC(self->priv->peak_gc)) return(TRUE);
 
   //GST_DEBUG("redraw analyzers");
   // draw levels
   if (self->priv->level_drawingarea) {
     GdkRectangle rect = { 0, 0, self->priv->spect_bands, LEVEL_HEIGHT };
     GtkWidget *da=self->priv->level_drawingarea;
+    GdkWindow *window = gtk_widget_get_window(da);
     gint middle=self->priv->spect_bands>>1;
+    gdouble scl=middle/(-LOW_VUMETER_VAL);
+    gdouble rms0,rms1,peak0,peak1;
+    cairo_t *cr;
 
-    gdk_window_begin_paint_rect (da->window, &rect);
-    gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, self->priv->spect_bands, LEVEL_HEIGHT);
-    //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms[i]*10.0), (gint)(peak[i]*10.0));
+    gdk_window_begin_paint_rect(window, &rect);
+    cr=gdk_cairo_create(window);
+    
+    cairo_set_source_rgb(cr,0.0,0.0,0.0);
+    cairo_rectangle(cr,0,0,self->priv->spect_bands, LEVEL_HEIGHT);
+    cairo_fill(cr);
     /* DEBUG
       if((self->priv->rms[0]<self->priv->min_rms) && !isinf(self->priv->rms[0])) {
         GST_DEBUG("levels: rms=%7.4lf",self->priv->rms[0]);
@@ -162,12 +168,23 @@ static gboolean redraw_level(gpointer user_data) {
         self->priv->max_peak=self->priv->peak[0];
       }
     // DEBUG */
+
     // use RMS or peak or both?
-    gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, middle    -self->priv->rms[0], 0, self->priv->rms[0]+self->priv->rms[1], LEVEL_HEIGHT);
-    gdk_draw_rectangle (da->window, self->priv->peak_gc, TRUE, middle    -self->priv->peak[0], 0, 2, LEVEL_HEIGHT);
-    gdk_draw_rectangle (da->window, self->priv->peak_gc, TRUE, (middle-1)+self->priv->peak[1], 0, 2, LEVEL_HEIGHT);
-    gdk_window_end_paint (da->window);
+    rms0=self->priv->rms[0]*scl;
+    rms1=self->priv->rms[1]*scl;
+    peak0=self->priv->peak[0]*scl;
+    peak1=self->priv->peak[1]*scl;
+    cairo_set_source_rgb(cr,1.0,1.0,1.0);
+    cairo_rectangle(cr, middle    -rms0, 0, rms0+rms1, LEVEL_HEIGHT);
+    cairo_fill(cr);
+    cairo_set_source_rgb(cr,self->priv->peak_color->red/65535.0,self->priv->peak_color->green/65535.0,self->priv->peak_color->blue/65535.0);
+    cairo_rectangle(cr, middle    -peak0, 0, 2, LEVEL_HEIGHT);
+    cairo_fill(cr);
+    cairo_rectangle(cr, (middle-1)+peak1, 0, 2, LEVEL_HEIGHT);
+    cairo_fill(cr);
+    
     /* @todo: if stereo draw pan-meter (L-R, R-L) */
+    gdk_window_end_paint(window);
   }
   return(TRUE);
 }
@@ -176,54 +193,120 @@ static gboolean redraw_spectrum(gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
 
   if(!gtk_widget_get_realized(GTK_WIDGET(self))) return(TRUE);
-  if(!GDK_IS_GC(self->priv->peak_gc)) return(TRUE);
 
   // draw spectrum
-  if (self->priv->spectrum_drawingarea) {
-    guint i,x,y;
+  if(self->priv->spectrum_drawingarea) {
+    guint i;
+    gdouble x,y,v,f;
+    gdouble inc,end,srat2;
     guint spect_bands=self->priv->spect_bands;
     guint spect_height=self->priv->spect_height;
     GdkRectangle rect = { 0, 0, spect_bands, self->priv->spect_height };
     GtkWidget *da=self->priv->spectrum_drawingarea;
+    GdkWindow *window = gtk_widget_get_window(da);
+    gdouble grid_dash_pattern[]={1.0};
+    cairo_t *cr;
 
-    gdk_window_begin_paint_rect (da->window, &rect);
-    gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, spect_bands, spect_height);
-    // draw grid lines
-    y=spect_height/2;
-    gdk_draw_line(da->window,self->priv->grid_gc,0,y,spect_bands,y);
-    x=spect_bands/4;
-    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,spect_height);
-    x=spect_bands/2;
-    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,spect_height);
-    x=spect_bands/4+spect_bands/2;
-    gdk_draw_line(da->window,self->priv->grid_gc,x,0,x,spect_height);
-    // draw frequencies
-    if(self->priv->spect) {
-      /* @todo: draw grid under spectrum
-       * 0... <srat>
-       * the bin center frequencies are f(i)=i*srat/spect_bands
-       */
-      for (i = 0; i < spect_bands; i++) {
-        //db_value=20.0*log10(self->priv->spect[i]);
-        gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, i, -self->priv->spect[i], 1, spect_height + self->priv->spect[i]);
+    gdk_window_begin_paint_rect(window,&rect);
+    cr=gdk_cairo_create(window);
+    
+    cairo_set_source_rgb(cr,0.0,0.0,0.0);
+    cairo_rectangle(cr,0,0,spect_bands,spect_height);
+    cairo_fill(cr);
+    /* draw grid lines
+     * the bin center frequencies are f(i)=i*srat/spect_bands
+     */
+    cairo_set_source_rgb(cr,self->priv->grid_color->red/65535.0,self->priv->grid_color->green/65535.0,self->priv->grid_color->blue/65535.0);
+    cairo_set_line_width(cr, 1.0);
+    cairo_set_dash(cr,grid_dash_pattern,1,0.0);
+    y=0.5+spect_height/2.0;
+    cairo_move_to(cr,0,y);cairo_line_to(cr,spect_bands,y);
+    if(self->priv->frq_map==MAP_LIN) {
+      for(f=0.05;f<1.0;f+=0.05) {
+        x=0.5+spect_bands*f;
+        cairo_move_to(cr,x,0);cairo_line_to(cr,x,spect_height);
       }
     }
-    gdk_window_end_paint (da->window);
+    else {
+      srat2=self->priv->srate/2.0;
+      v=spect_bands/log10(srat2);
+      f=1.0;inc=1.0;end=10.0;
+      while(f<srat2) {
+        x=0.5+v*log10(1.0+f); // FIXME: precalc!
+        cairo_move_to(cr,x,0);cairo_line_to(cr,x,spect_height);
+        f+=inc;
+        if(f>=end) {
+          f=inc=end;
+          end*=10.0;
+        }
+      }
+    }
+    cairo_stroke(cr);
+    // draw frequencies
+    if(self->priv->spect) {
+      gfloat *spect=self->priv->spect;
+
+      cairo_set_source_rgb(cr,1.0,1.0,1.0);
+      cairo_set_line_width(cr, 2.0);
+      cairo_set_dash(cr,NULL,0,0.0);
+      cairo_move_to(cr,0,spect_height);
+      if(self->priv->frq_map==MAP_LIN) {
+        for(i=0;i<spect_bands;i++) {
+          cairo_line_to(cr,i,-spect[i]);
+        }
+      }
+      else {
+        srat2=self->priv->srate/2.0;
+        v=spect_bands/log10(srat2);
+        for(i=0;i<spect_bands;i++) {
+          y=spect[i];
+          // db value
+          //y=-20.0*log10(-spect[i]);
+          // db pos
+          x=0.5+v*log10(1.0+i*srat2/spect_bands); // FIXME: precalc!
+          cairo_line_to(cr,x,-y);
+        }
+      }
+      cairo_line_to(cr,spect_bands-1,spect_height);
+      cairo_line_to(cr,0,spect_height);
+      cairo_stroke_preserve(cr);
+      cairo_set_source(cr,self->priv->spect_grad);
+      cairo_fill(cr);
+    }
+    gdk_window_end_paint(window);
   }
   return(TRUE);
 }
 
+static void update_spectrum_ruler(const BtWireAnalysisDialog *self) {
+  GtkRuler *ruler=GTK_RULER(self->priv->spectrum_ruler);
+
+  gtk_ruler_set_range(ruler,0.0,self->priv->srate/20.0,-10.0,200.0);
+
+#if 0
+  // gtk_ruler_set_metric needs an enum value :/
+  // we can't register own types and there is no setter for custome metrics either
+  if(self->priv->frq_map==MAP_LIN) {
+    //gtk_ruler_set_metric(ruler,&ruler_metrics[0]);
+  }
+  else {
+    static const GtkRulerMetric ruler_metrics[] =
+    {
+      {"Frequency", "Hz", 1.0, { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 }, { 1, 2, 4, 8, 16 }},
+    };
+    //gtk_ruler_set_metric(ruler,&ruler_metrics[0]);
+  }
+#endif
+}
+
+//-- event handler
+
 static void bt_wire_analysis_dialog_realize(GtkWidget *widget,gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
-  GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(self));
 
   GST_DEBUG("dialog realize");
-  self->priv->peak_gc=gdk_gc_new(window);
-  gdk_gc_set_rgb_fg_color(self->priv->peak_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_ANALYZER_PEAK));
-  self->priv->grid_gc=gdk_gc_new(window);
-  gdk_gc_set_rgb_fg_color(self->priv->grid_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_GRID_LINES));
-  gdk_gc_set_line_attributes(self->priv->grid_gc,1,GDK_LINE_ON_OFF_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
-  gdk_gc_set_dashes(self->priv->grid_gc,0,grid_dash_list,1);
+  self->priv->peak_color=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_ANALYZER_PEAK);
+  self->priv->grid_color=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_GRID_LINES);
 }
 
 static gboolean bt_wire_analysis_dialog_level_expose(GtkWidget *widget,GdkEventExpose *event,gpointer user_data) {
@@ -380,6 +463,7 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
 static void on_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
   guint i;
+  guint old_heigth=self->priv->spect_height;
 
   /*GST_INFO ("%d x %d", allocation->width, allocation->height); */
   self->priv->spect_height = allocation->height;
@@ -389,9 +473,45 @@ static void on_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointe
   for(i=0;i<self->priv->spect_bands;i++)
     self->priv->spect[i]=(gfloat)(-allocation->height);
 
+  if (old_heigth!=self->priv->spect_height) {
+    if(self->priv->spect_grad)
+      cairo_pattern_destroy(self->priv->spect_grad);
+    // FIXME: this looks nice, but seems to be expensive, maybe precalc
+    self->priv->spect_grad=cairo_pattern_create_linear(0.0, self->priv->spect_height, 0.0, 0.0);
+    cairo_pattern_add_color_stop_rgba(self->priv->spect_grad, 0.00,  0.8, 0.8, 0.8, 0.7);
+    cairo_pattern_add_color_stop_rgba(self->priv->spect_grad, 1.00,  0.8, 0.8, 0.8, 0.0);
+  }
+  
   g_object_set (G_OBJECT (self->priv->analyzers[ANALYZER_SPECTRUM]),
     "bands", self->priv->spect_bands, NULL);
 }
+
+static void on_caps_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+  GstCaps *caps;
+
+  if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
+    if(GST_CAPS_IS_SIMPLE(caps)) {
+      GstStructure *structure;
+      if((structure=gst_caps_get_structure(caps,0))) {
+        gint old_srate=self->priv->srate;
+        gst_structure_get_int(structure,"rate",&self->priv->srate);
+        if(self->priv->srate!=old_srate)
+          update_spectrum_ruler(self);
+      }
+    }
+    gst_caps_unref(caps);
+  }
+}
+
+static void on_spectrum_frequency_mapping_changed(GtkComboBox *combo, gpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+  
+  self->priv->frq_map=gtk_combo_box_get_active(combo);
+  redraw_spectrum((gpointer)self);
+  update_spectrum_ruler(self);
+}
+
 
 //-- helper methods
 
@@ -423,11 +543,12 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   BtMachine *src_machine,*dst_machine;
   BtSong *song;
   GstBin *bin;
+  GstPad *pad;
   GstBus *bus;
   gchar *src_id,*dst_id,*title;
   //GdkPixbuf *window_icon=NULL;
   GtkWidget *vbox, *hbox;
-  GtkWidget *ruler;
+  GtkWidget *ruler,*combo;
   gboolean res=TRUE;
 
   gtk_widget_set_name(GTK_WIDGET(self),"wire analysis");
@@ -465,10 +586,11 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   /* add scales for spectrum analyzer drawable */
   /* @todo: we need to use a gtk_table() and also add a vruler with levels */
   ruler=gtk_hruler_new();
-  gtk_ruler_set_range(GTK_RULER(ruler),0.0,/*srat/20.0*/2205.0,-10.0,200.0);
   GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
-  gtk_widget_set_size_request(GTK_WIDGET(ruler),-1,30);
+  gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(vbox), ruler, FALSE, FALSE,0);
+  self->priv->spectrum_ruler=ruler;
+  update_spectrum_ruler(self);
 
   /* add spectrum canvas */
   self->priv->spectrum_drawingarea=gtk_drawing_area_new();
@@ -478,7 +600,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   gtk_box_pack_start(GTK_BOX(vbox), self->priv->spectrum_drawingarea, TRUE, TRUE, 0);
 
   /* spacer */
-  gtk_box_pack_start(GTK_BOX (vbox), gtk_label_new(" "), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), gtk_label_new(" "), FALSE, FALSE, 0);
 
   /* add scales for level meter */
   hbox = gtk_hbox_new(FALSE, 0);
@@ -486,13 +608,13 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   gtk_ruler_set_range(GTK_RULER(ruler),100.0,0.0,-10.0,30.0);
   //gtk_ruler_set_metric(GTK_RULER(ruler),&ruler_metrics[0]);
   GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
-  gtk_widget_set_size_request(GTK_WIDGET(ruler),-1,30);
+  gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
   ruler=gtk_hruler_new();
   gtk_ruler_set_range(GTK_RULER(ruler),0.0,100.5,-10.0,30.0);
   //gtk_ruler_set_metric(GTK_RULER(ruler),&ruler_metrics[0]);
   GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
-  gtk_widget_set_size_request(GTK_WIDGET(ruler),-1,30);
+  gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
@@ -501,10 +623,24 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   gtk_widget_set_size_request(self->priv->level_drawingarea, self->priv->spect_bands, LEVEL_HEIGHT);
   gtk_box_pack_start(GTK_BOX(vbox), self->priv->level_drawingarea, FALSE, FALSE, 0);
 
+  /* spacer */
+  gtk_box_pack_start(GTK_BOX(vbox), gtk_label_new(" "), FALSE, FALSE, 0);
+
+  /* settings */
+  hbox=gtk_hbox_new(FALSE, 0);
+  combo=gtk_combo_box_new_text();
+  gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("lin."));
+  gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("log."));
+  gtk_combo_box_set_active(GTK_COMBO_BOX(combo),0);
+  g_signal_connect(combo, "changed", G_CALLBACK(on_spectrum_frequency_mapping_changed), (gpointer)self);
+  gtk_box_pack_start(GTK_BOX (hbox), gtk_label_new(_("spectrum frequency")), TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (hbox), combo, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+
   gtk_container_set_border_width(GTK_CONTAINER (self), 6);
   gtk_container_add(GTK_CONTAINER(self), vbox);
 
-  /* @todo: 
+  /* @todo: better error handling
    * - don't fail if we miss only spectrum or level
    * - also don't return false, but instead add a label with the error message
    */
@@ -526,6 +662,11 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
       "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
       "bands", self->priv->spect_bands, "threshold", -80,
       NULL);
+  if((pad=gst_element_get_static_pad(self->priv->analyzers[ANALYZER_SPECTRUM],"sink"))) {
+    g_signal_connect(pad,"notify::caps",G_CALLBACK(on_caps_negotiated),(gpointer)self);
+    gst_object_unref(pad);
+  }
+  
   // create level meter
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_LEVEL,"level")) {
     res=FALSE;
@@ -625,10 +766,11 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   GST_DEBUG("levels: peak=%7.4lf .. %7.4lf",self->priv->min_peak,self->priv->max_peak);
   // DEBUG */
   
-  if(self->priv->clock) gst_object_unref(self->priv->clock);
+  if(self->priv->clock)
+    gst_object_unref(self->priv->clock);
 
-  g_object_try_unref(self->priv->peak_gc);
-  g_object_try_unref(self->priv->grid_gc);
+  if(self->priv->spect_grad)
+    cairo_pattern_destroy(self->priv->spect_grad);
 
   GST_DEBUG("!!!! removing signal handler");
 
@@ -680,6 +822,8 @@ static void bt_wire_analysis_dialog_init(GTypeInstance *instance, gpointer g_cla
   self->priv->spect_height = 64;
   self->priv->spect_bands = 256;
   self->priv->height_scale = 1.0;
+  
+  self->priv->srate = GST_AUDIO_DEF_RATE;
 }
 
 static void bt_wire_analysis_dialog_class_init(BtWireAnalysisDialogClass *klass) {
