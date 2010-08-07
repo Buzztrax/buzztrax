@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
   test_argvptr=test_argv;
 
   //GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
-  ///gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+  //gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   check_setup_test_server();

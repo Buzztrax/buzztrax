@@ -129,7 +129,7 @@ static void check_print_handler(const gchar * const message) {
     else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
 
     if((logfile=fopen(__log_file_name, "a")) || (logfile=fopen(__log_file_name, "w"))) {
-      written=fwrite(message,strlen(message),1,logfile);
+      written=fwrite(message,sl,1,logfile);
       if(add_nl) written=fwrite("\n",1,1,logfile);
       fclose(logfile);
     }
@@ -168,6 +168,16 @@ static void check_log_handler(const gchar * const log_domain, const GLogLevelFla
     check_print_handler(msg);
 }
 
+static void check_gst_log_handler(GstDebugCategory *category, GstDebugLevel level, const gchar *file,const gchar *function,gint line,GObject *object,GstDebugMessage *_message,gpointer data) G_GNUC_NO_INSTRUMENT;
+static void check_gst_log_handler(GstDebugCategory *category, GstDebugLevel level, const gchar *file,const gchar *function,gint line,GObject *object,GstDebugMessage *_message,gpointer data) {
+  const gchar *message=gst_debug_message_get(_message);
+
+  //-- check message contents
+  if(__check_method  && (strstr(message,__check_method)!=NULL) && __check_test && (strstr(message,__check_test)!=NULL)) __check_error_trapped=TRUE;
+  else if(__check_method && (strstr(message,__check_method)!=NULL) && !__check_test) __check_error_trapped=TRUE;
+  else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
+}
+
 /*
  * setup_log:
  * @argc: command line argument count received in main()
@@ -202,6 +212,7 @@ void setup_log(int argc, char **argv) {
   }
   // reset logfile
   g_unlink(__log_file_name);
+  g_setenv("GST_DEBUG_FILE", __log_file_name, TRUE);
 }
 
 /*
@@ -219,6 +230,8 @@ void setup_log_capture(void) {
   (void)g_log_set_handler("GLib-GObject",G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
   (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
   (void)g_set_printerr_handler(check_print_handler);
+  
+  gst_debug_add_log_function(check_gst_log_handler, NULL);
 }
 
 

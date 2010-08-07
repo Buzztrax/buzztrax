@@ -31,18 +31,15 @@
  * gst-typefind $HOME/buzztard/share/buzztard/songs/303.bzt
  */
  
-/* - SEP_PIPE:
- *   - we could use a fakesink in sink-bin
- *   - we would take the buffers from it and push them on our src pad
+/* - description:
+ *   - we use a fakesink in sink-bin
+ *   - we take the buffers from it and push them on our src pad
  *   - this way we can keep the song-as a top-level pipeline.
  * - todo
  *   - check for stopped and send eos?
  *   - change bt-bin to be a normal GstElement (no need to be a bin)
- *   - rename to bt-dec/buzztard-dec
  * - issues
  */
-#define SEP_PIPE 1
-
  
 #ifdef HAVE_CONFIG_H
 #include "config.h"
