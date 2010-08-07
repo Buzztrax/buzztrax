@@ -1,5 +1,18 @@
 2010-08-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/ui/dec (added):
+	* src/ui/bin (deleted):
+	* src/ui/bin/bt-dec.c (deleted):
+	* src/ui/bin/bt-dec.h (deleted):
+	* src/ui/bin/Makefile.am (deleted):
+	* src/ui/dec/bt-dec.h (added):
+	* src/ui/dec/bt-dec.c (added):
+	* src/ui/dec/Makefile.am (added):
+	  And also rename the dir.
+
+2010-08-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/application.c:
 	* src/ui/bin/Makefile.am:
 	* src/ui/bin/bt-dec.c:

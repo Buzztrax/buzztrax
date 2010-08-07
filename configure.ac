@@ -525,8 +525,8 @@ AC_CONFIG_FILES(Makefile \
         src/lib/ic/libbuzztard-ic/Makefile \
 		src/lib/ic/libbuzztard-ic/version.h \
     src/ui/Makefile \
-      src/ui/bin/Makefile \
       src/ui/cmd/Makefile \
+      src/ui/dec/Makefile \
       src/ui/edit/Makefile \
       src/ui/edit/buzztard-edit.desktop.in \
   tests/Makefile \
