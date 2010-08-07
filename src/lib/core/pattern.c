@@ -160,7 +160,7 @@ static void bt_pattern_resize_data_length(const BtPattern * const self, const gu
         gulong i;
 
         for(i=new_data_count;i<old_data_count;i++) {
-          if(G_IS_VALUE(&data[i]))
+          if(BT_IS_GVALUE(&data[i]))
             g_value_unset(&data[i]);
         }
       }
@@ -190,8 +190,9 @@ static void bt_pattern_resize_data_length(const BtPattern * const self, const gu
  * Resizes the event data grid to the new number of voices. Keeps previous values.
  */
 static void bt_pattern_resize_data_voices(const BtPattern * const self, const gulong voices) {
-  //gulong old_data_count=self->priv->length*(internal_params+self->priv->global_params+          voices*self->priv->voice_params);
-  const gulong new_data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  const gulong length=self->priv->length;
+  //gulong old_data_count=length*(internal_params+self->priv->global_params+          voices*self->priv->voice_params);
+  const gulong new_data_count=length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
   GValue * const data=self->priv->data;
 
   // allocate new space
@@ -210,12 +211,12 @@ static void bt_pattern_resize_data_voices(const BtPattern * const self, const gu
       GST_DEBUG("keeping data count=%lu, src_ct=%lu, dst_ct=%lu",count,src_count,dst_count);
 
       // copy old values over
-      for(i=0;i<self->priv->length;i++) {
+      for(i=0;i<length;i++) {
         memcpy(dst,src,count);
         if(src_count>dst_count) {
           // free gvalues
           for(j=dst_count;j<src_count;j++) {
-            if(G_IS_VALUE(&src[j]))
+            if(BT_IS_GVALUE(&src[j]))
               g_value_unset(&src[j]);
           }
         }
@@ -387,11 +388,11 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
   data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
   // deep copy data
   for(i=0;i<data_count;i++) {
-    if(G_IS_VALUE(&self->priv->data[i])) {
+    if(BT_IS_GVALUE(&self->priv->data[i])) {
       g_value_init(&pattern->priv->data[i],G_VALUE_TYPE(&self->priv->data[i]));
       g_value_copy(&self->priv->data[i],&pattern->priv->data[i]);
     }
-  }  
+  }
   GST_INFO("  data copied");
   
   // we also need to copy the wire patterns
@@ -483,7 +484,7 @@ gulong bt_pattern_get_voice_param_index(const BtPattern * const self, const gcha
  * @param: the number of the global parameter starting with 0
  *
  * Fetches a cell from the given location in the pattern. If there is no event
- * there, then the %GValue is uninitialized. Test with G_IS_VALUE(event).
+ * there, then the %GValue is uninitialized. Test with BT_IS_GVALUE(event).
  *
  * Returns: the GValue or %NULL if out of the pattern range
  */
@@ -511,7 +512,7 @@ GValue *bt_pattern_get_global_event_data(const BtPattern * const self, const gul
  * @param: the number of the voice parameter starting with 0
  *
  * Fetches a cell from the given location in the pattern. If there is no event
- * there, then the %GValue is uninitialized. Test with G_IS_VALUE(event).
+ * there, then the %GValue is uninitialized. Test with BT_IS_GVALUE(event).
  *
  * Returns: the GValue or %NULL if out of the pattern range
  */
@@ -551,7 +552,7 @@ gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong 
 
   if((event=bt_pattern_get_global_event_data(self,tick,param))) {
     if(BT_IS_STRING(value)) {
-      if(!G_IS_VALUE(event)) {
+      if(!BT_IS_GVALUE(event)) {
         bt_pattern_init_global_event(self,event,param);
       }
       if(bt_persistence_set_value(event,value)) {
@@ -565,7 +566,7 @@ gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong 
       }
     }
     else {
-      if(G_IS_VALUE(event)) {
+      if(BT_IS_GVALUE(event)) {
         g_value_unset(event);
       }
       res=TRUE;
@@ -603,7 +604,7 @@ gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong t
 
   if((event=bt_pattern_get_voice_event_data(self,tick,voice,param))) {
     if(BT_IS_STRING(value)) {
-      if(!G_IS_VALUE(event)) {
+      if(!BT_IS_GVALUE(event)) {
         bt_pattern_init_voice_event(self,event,param);
       }
       if(bt_persistence_set_value(event,value)) {
@@ -617,7 +618,7 @@ gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong t
       }
     }
     else {
-      if(G_IS_VALUE(event)) {
+      if(BT_IS_GVALUE(event)) {
         g_value_unset(event);
       }
       res=TRUE;
@@ -650,7 +651,7 @@ gchar *bt_pattern_get_global_event(const BtPattern * const self, const gulong ti
 
   GValue * const event=bt_pattern_get_global_event_data(self,tick,param);
 
-  if(event && G_IS_VALUE(event)) {
+  if(event && BT_IS_GVALUE(event)) {
     return(bt_persistence_get_value(event));
   }
   return(NULL);
@@ -673,7 +674,7 @@ gchar *bt_pattern_get_voice_event(const BtPattern * const self, const gulong tic
 
   GValue * const event=bt_pattern_get_voice_event_data(self,tick,voice,param);
 
-  if(event && G_IS_VALUE(event)) {
+  if(event && BT_IS_GVALUE(event)) {
     return(bt_persistence_get_value(event));
   }
   return(NULL);
@@ -695,7 +696,7 @@ gboolean bt_pattern_test_global_event(const BtPattern * const self, const gulong
 
   const GValue * const event=bt_pattern_get_global_event_data(self,tick,param);
 
-  if(event && G_IS_VALUE(event)) {
+  if(event && BT_IS_GVALUE(event)) {
     return(TRUE);
   }
   return(FALSE);
@@ -718,7 +719,7 @@ gboolean bt_pattern_test_voice_event(const BtPattern * const self, const gulong 
 
   const GValue * const event=bt_pattern_get_voice_event_data(self,tick,voice,param);
 
-  if(event && G_IS_VALUE(event)) {
+  if(event && BT_IS_GVALUE(event)) {
     return(TRUE);
   }
   return(FALSE);
@@ -739,7 +740,7 @@ BtPatternCmd bt_pattern_get_cmd(const BtPattern * const self, const gulong tick)
 
   const GValue * const event=bt_pattern_get_internal_event_data(self,tick,0);
 
-  if(event && G_IS_VALUE(event)) {
+  if(event && BT_IS_GVALUE(event)) {
     return(g_value_get_enum(event));
   }
   return(BT_PATTERN_CMD_NORMAL);
@@ -755,22 +756,25 @@ BtPatternCmd bt_pattern_get_cmd(const BtPattern * const self, const gulong tick)
  * Returns: %TRUE is there are events, %FALSE otherwise
  */
 gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tick) {
+  const gulong voices=self->priv->voices;
+  const gulong global_params=self->priv->global_params;
+  const gulong voice_params=self->priv->voice_params;
   gulong j,k;
   GValue *data;
 
   g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
   g_return_val_if_fail(tick<self->priv->length,FALSE);
 
-  data=&self->priv->data[internal_params+tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params)];
-  for(k=0;k<self->priv->global_params;k++) {
-    if(G_IS_VALUE(data)) {
+  data=&self->priv->data[internal_params+tick*(internal_params+global_params+voices*voice_params)];
+  for(k=0;k<global_params;k++) {
+    if(BT_IS_GVALUE(data)) {
       return(TRUE);
     }
     data++;
   }
-  for(j=0;j<self->priv->voices;j++) {
-    for(k=0;k<self->priv->voice_params;k++) {
-      if(G_IS_VALUE(data)) {
+  for(j=0;j<voices;j++) {
+    for(k=0;k<voice_params;k++) {
+      if(BT_IS_GVALUE(data)) {
         return(TRUE);
       }
       data++;
@@ -781,23 +785,23 @@ gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tic
 
 
 static void _insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
+  gulong i,length=self->priv->length;
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
-  GValue *src=&self->priv->data[internal_params+param+params*(self->priv->length-2)];
-  GValue *dst=&self->priv->data[internal_params+param+params*(self->priv->length-1)];
-  gulong i;
+  GValue *src=&self->priv->data[internal_params+param+params*(length-2)];
+  GValue *dst=&self->priv->data[internal_params+param+params*(length-1)];
   
   GST_INFO("insert row at %lu,%lu", tick, param);
 
-  for(i=tick;i<self->priv->length-1;i++) {
-    if(G_IS_VALUE(src)) {
-      if(!G_IS_VALUE(dst))
+  for(i=tick;i<length-1;i++) {
+    if(BT_IS_GVALUE(src)) {
+      if(!BT_IS_GVALUE(dst))
         g_value_init(dst,G_VALUE_TYPE(src));
       g_value_copy(src,dst);
       g_value_unset(src);
     }
     else {
-      if(G_IS_VALUE(dst))
-        g_value_unset(dst);      
+      if(BT_IS_GVALUE(dst))
+        g_value_unset(dst);
     }
     src-=params;
     dst-=params;
@@ -848,23 +852,23 @@ void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick)
 
 
 static void _delete_row(const BtPattern * const self, const gulong tick, const gulong param) {
+  gulong i,length=self->priv->length;
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *src=&self->priv->data[internal_params+param+params*(tick+1)];
   GValue *dst=&self->priv->data[internal_params+param+params*tick];
-  gulong i;
   
   GST_INFO("insert row at %lu,%lu", tick, param);
 
-  for(i=tick;i<self->priv->length-1;i++) {
-    if(G_IS_VALUE(src)) {
-      if(!G_IS_VALUE(dst))
+  for(i=tick;i<length-1;i++) {
+    if(BT_IS_GVALUE(src)) {
+      if(!BT_IS_GVALUE(dst))
         g_value_init(dst,G_VALUE_TYPE(src));
       g_value_copy(src,dst);
       g_value_unset(src);
     }
     else {
-      if(G_IS_VALUE(dst))
-        g_value_unset(dst);      
+      if(BT_IS_GVALUE(dst))
+        g_value_unset(dst);
     }
     src+=params;
     dst+=params;
@@ -920,7 +924,7 @@ static void _delete_column(const BtPattern * const self, const gulong start_tick
   gulong i,ticks=(end_tick+1)-start_tick;
   
   for(i=0;i<ticks;i++) {
-    if(G_IS_VALUE(beg))
+    if(BT_IS_GVALUE(beg))
       g_value_unset(beg);
     beg+=params;
   }
@@ -979,7 +983,7 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
   GValue *end=&self->priv->data[internal_params+param+params*end_tick];
   gulong i,ticks=end_tick-start_tick;
 
-  if(!G_IS_VALUE(beg) || !G_IS_VALUE(end)) {
+  if(!BT_IS_GVALUE(beg) || !BT_IS_GVALUE(end)) {
     GST_INFO("Can't blend, beg or end is empty");
     return;
   }
@@ -993,7 +997,7 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
       gint val=g_value_get_int(beg);
       gdouble step=(gdouble)(g_value_get_int(end)-val)/(gdouble)ticks;
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_INT);
         g_value_set_int(beg,val+(gint)(step*i));
         beg+=params;
@@ -1003,7 +1007,7 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
       gint val=g_value_get_uint(beg);
       gdouble step=((gdouble)g_value_get_uint(end)-val)/(gdouble)ticks;
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_UINT);
         g_value_set_uint(beg,val+(gint)(step*i));
         beg+=params;
@@ -1013,7 +1017,7 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
       gfloat val=g_value_get_float(beg);
       gdouble step=(gdouble)(g_value_get_float(end)-val)/(gdouble)ticks;
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_FLOAT);
         g_value_set_float(beg,val+(gfloat)(step*i));
         beg+=params;
@@ -1023,7 +1027,7 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
       gdouble val=g_value_get_double(beg);
       gdouble step=(gdouble)(g_value_get_double(end)-val)/(gdouble)ticks;
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_DOUBLE);
         g_value_set_double(beg,val+(step*i));
         beg+=params;
@@ -1109,7 +1113,7 @@ static void _randomize_column(const BtPattern * const self, const gulong start_t
     case G_TYPE_INT: {
       const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_INT);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_int(beg, (gint) (int_property->minimum +
@@ -1120,7 +1124,7 @@ static void _randomize_column(const BtPattern * const self, const gulong start_t
     case G_TYPE_UINT: {
       const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_UINT);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_uint(beg, (guint) (uint_property->minimum +
@@ -1131,7 +1135,7 @@ static void _randomize_column(const BtPattern * const self, const gulong start_t
     case G_TYPE_FLOAT: {
       const GParamSpecFloat *float_property = G_PARAM_SPEC_FLOAT (property);
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_FLOAT);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_float(beg, (gfloat) (float_property->minimum +
@@ -1142,7 +1146,7 @@ static void _randomize_column(const BtPattern * const self, const gulong start_t
     case G_TYPE_DOUBLE: {
       const GParamSpecDouble *double_property = G_PARAM_SPEC_DOUBLE (property);
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_DOUBLE);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_double(beg, (gdouble) (double_property->minimum +
@@ -1154,7 +1158,7 @@ static void _randomize_column(const BtPattern * const self, const gulong start_t
       const GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
       const GEnumClass *enum_class = enum_property->enum_class;
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,property->value_type);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_enum (beg, (gulong) (enum_class->minimum +
@@ -1230,7 +1234,7 @@ static void _serialize_column(const BtPattern * const self, const gulong start_t
     g_string_append(data,g_type_name(bt_machine_get_voice_param_type(self->priv->machine,p)));
   }
   for(i=0;i<ticks;i++) {
-    if(G_IS_VALUE(beg)) {
+    if(BT_IS_GVALUE(beg)) {
       if((val=bt_persistence_get_value(beg))) {
         g_string_append_c(data,',');
         g_string_append(data,val);
@@ -1343,12 +1347,12 @@ gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulon
     
     while(fields[i] && *fields[i] && (beg<=end)) {
       if(*fields[i]!=' ') {
-        if(!G_IS_VALUE(beg)) {
+        if(!BT_IS_GVALUE(beg)) {
           g_value_init(beg,dtype);
         }
         bt_persistence_set_value(beg, fields[i]);
       } else {
-        if(G_IS_VALUE(beg)) {
+        if(BT_IS_GVALUE(beg)) {
           g_value_unset(beg);
         }
       }
@@ -1378,30 +1382,34 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
   if(self->priv->name[0]==' ') return((xmlNodePtr)1);
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("pattern"),NULL))) {
+    const gulong length=self->priv->length;
+    const gulong voices=self->priv->voices;
+    const gulong global_params=self->priv->global_params;
+    const gulong voice_params=self->priv->voice_params;
     gulong i,j,k;
     gchar *value;
 
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
-    xmlNewProp(node,XML_CHAR_PTR("length"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->length)));
+    xmlNewProp(node,XML_CHAR_PTR("length"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(length)));
     
     // save pattern data
-    for(i=0;i<self->priv->length;i++) {
+    for(i=0;i<length;i++) {
       // check if there are any GValues stored ?
       if(bt_pattern_tick_has_data(self,i)) {
         child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tick"),NULL);
         xmlNewProp(child_node,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
         // save tick data
-        for(k=0;k<self->priv->global_params;k++) {
+        for(k=0;k<global_params;k++) {
           if((value=bt_pattern_get_global_event(self,i,k))) {
             child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("globaldata"),NULL);
             xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_machine_get_global_param_name(self->priv->machine,k)));
             xmlNewProp(child_node2,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));g_free(value);
           }
         }
-        for(j=0;j<self->priv->voices;j++) {
+        for(j=0;j<voices;j++) {
           const gchar * const voice_str=bt_persistence_strfmt_ulong(j);
-          for(k=0;k<self->priv->voice_params;k++) {
+          for(k=0;k<voice_params;k++) {
             if((value=bt_pattern_get_voice_event(self,i,j,k))) {
               child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("voicedata"),NULL);
               xmlNewProp(child_node2,XML_CHAR_PTR("voice"),XML_CHAR_PTR(voice_str));
@@ -1648,6 +1656,7 @@ static void bt_pattern_dispose(GObject * const object) {
 static void bt_pattern_finalize(GObject * const object) {
   const BtPattern * const self = BT_PATTERN(object);
   const gulong data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  GValue *v;
   gulong i;
 
   GST_DEBUG("!!!! self=%p",self);
@@ -1658,8 +1667,9 @@ static void bt_pattern_finalize(GObject * const object) {
   if(self->priv->data) {
     // free gvalues in self->priv->data
     for(i=0;i<data_count;i++) {
-      if(G_IS_VALUE(&self->priv->data[i]))
-        g_value_unset(&self->priv->data[i]);
+      v=&self->priv->data[i];
+      if(BT_IS_GVALUE(v))
+        g_value_unset(v);
     }
     g_free(self->priv->data);
   }

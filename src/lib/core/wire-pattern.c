@@ -120,7 +120,7 @@ static void bt_wire_pattern_resize_data_length(const BtWirePattern * const self,
         gulong i;
 
         for(i=new_data_count;i<old_data_count;i++) {
-          if(G_IS_VALUE(&data[i]))
+          if(BT_IS_GVALUE(&data[i]))
             g_value_unset(&data[i]);
         }
       }
@@ -208,7 +208,7 @@ BtWirePattern *bt_wire_pattern_copy(const BtWirePattern * const self, const BtPa
   data_count=self->priv->length*self->priv->num_params;
   // deep copy data
   for(i=0;i<data_count;i++) {
-    if(G_IS_VALUE(&self->priv->data[i])) {
+    if(BT_IS_GVALUE(&self->priv->data[i])) {
       g_value_init(&wire_pattern->priv->data[i],G_VALUE_TYPE(&self->priv->data[i]));
       g_value_copy(&self->priv->data[i],&wire_pattern->priv->data[i]);
     }
@@ -227,7 +227,7 @@ BtWirePattern *bt_wire_pattern_copy(const BtWirePattern * const self, const BtPa
  * @param: the number of the parameter starting with 0
  *
  * Fetches a cell from the given location in the pattern. If there is no event
- * there, then the %GValue is uninitialized. Test with G_IS_VALUE(event).
+ * there, then the %GValue is uninitialized. Test with BT_IS_GVALUE(event).
  *
  * Returns: the GValue or %NULL if out of the pattern range
  */
@@ -264,7 +264,7 @@ gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulon
 
   if((event=bt_wire_pattern_get_event_data(self,tick,param))) {
     if(BT_IS_STRING(value)) {
-      if(!G_IS_VALUE(event)) {
+      if(!BT_IS_GVALUE(event)) {
         bt_wire_pattern_init_event(self,event,param);
       }
       if(bt_persistence_set_value(event,value)) {
@@ -275,7 +275,7 @@ gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulon
       }
     }
     else {
-      if(G_IS_VALUE(event)) {
+      if(BT_IS_GVALUE(event)) {
         g_value_unset(event);
       }
       res=TRUE;
@@ -308,7 +308,7 @@ gchar *bt_wire_pattern_get_event(const BtWirePattern * const self, const gulong 
 
   GValue * const event=bt_wire_pattern_get_event_data(self,tick,param);
 
-  if(event && G_IS_VALUE(event)) {
+  if(event && BT_IS_GVALUE(event)) {
     return(bt_persistence_get_value(event));
   }
   return(NULL);
@@ -331,7 +331,7 @@ gboolean bt_wire_pattern_test_event(const BtWirePattern * const self, const gulo
 
   const GValue * const event=bt_wire_pattern_get_event_data(self,tick,param);
 
-  if(event && G_IS_VALUE(event)) {
+  if(event && BT_IS_GVALUE(event)) {
     return(TRUE);
   }
   return(FALSE);
@@ -347,15 +347,16 @@ gboolean bt_wire_pattern_test_event(const BtWirePattern * const self, const gulo
  * Returns: %TRUE is there are events, %FALSE otherwise
  */
 gboolean bt_wire_pattern_tick_has_data(const BtWirePattern * const self, const gulong tick) {
+  const gulong num_params=self->priv->num_params;
   gulong k;
   GValue *data;
 
   g_return_val_if_fail(BT_IS_WIRE_PATTERN(self),FALSE);
   g_return_val_if_fail(tick<self->priv->length,FALSE);
 
-  data=&self->priv->data[tick*self->priv->num_params];
-  for(k=0;k<self->priv->num_params;k++) {
-    if(G_IS_VALUE(data)) {
+  data=&self->priv->data[tick*num_params];
+  for(k=0;k<num_params;k++) {
+    if(BT_IS_GVALUE(data)) {
       return(TRUE);
     }
     data++;
@@ -365,26 +366,28 @@ gboolean bt_wire_pattern_tick_has_data(const BtWirePattern * const self, const g
 
 
 static void _insert_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
-  GValue *src=&self->priv->data[param+self->priv->num_params*(self->priv->length-2)];
-  GValue *dst=&self->priv->data[param+self->priv->num_params*(self->priv->length-1)];
+  const gulong length=self->priv->length;
+  const gulong num_params=self->priv->num_params;
+  GValue *src=&self->priv->data[param+num_params*(length-2)];
+  GValue *dst=&self->priv->data[param+num_params*(length-1)];
   gulong i;
   
   GST_INFO("insert row at %lu,%lu", tick, param);
 
-  for(i=tick;i<self->priv->length-1;i++) {
-    if(G_IS_VALUE(src)) {
-      if(!G_IS_VALUE(dst))
+  for(i=tick;i<length-1;i++) {
+    if(BT_IS_GVALUE(src)) {
+      if(!BT_IS_GVALUE(dst))
         g_value_init(dst,G_VALUE_TYPE(src));
       g_value_copy(src,dst);
       g_value_unset(src);
     }
     else {
-      if(G_IS_VALUE(dst))
-        g_value_unset(dst);      
+      if(BT_IS_GVALUE(dst))
+        g_value_unset(dst);
     }
 
-    src-=self->priv->num_params;
-    dst-=self->priv->num_params;
+    src-=num_params;
+    dst-=num_params;
   }
 }
 
@@ -419,11 +422,12 @@ void bt_wire_pattern_insert_row(const BtWirePattern * const self, const gulong t
 void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gulong tick) {
   g_return_if_fail(BT_IS_WIRE_PATTERN(self));
 
+  const gulong num_params=self->priv->num_params;
   gulong j;
 
   GST_DEBUG("insert full-row at %lu", tick);
 
-  for(j=0;j<self->priv->num_params;j++) {
+  for(j=0;j<num_params;j++) {
     _insert_row(self,tick,j);
   }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
@@ -431,26 +435,27 @@ void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gul
 
 
 static void _delete_row(const BtWirePattern * const self, const gulong tick, const gulong param) {
-  GValue *src=&self->priv->data[param+self->priv->num_params*(tick+1)];
-  GValue *dst=&self->priv->data[param+self->priv->num_params*tick];
+  const gulong length=self->priv->length;
+  const gulong num_params=self->priv->num_params;
+  GValue *src=&self->priv->data[param+num_params*(tick+1)];
+  GValue *dst=&self->priv->data[param+num_params*tick];
   gulong i;
   
   GST_INFO("insert row at %lu,%lu", tick, param);
-  //GST_INFO("one full row has %d params", self->priv->num_params);
 
-  for(i=tick;i<self->priv->length-1;i++) {
-    if(G_IS_VALUE(src)) {
-      if(!G_IS_VALUE(dst))
+  for(i=tick;i<length-1;i++) {
+    if(BT_IS_GVALUE(src)) {
+      if(!BT_IS_GVALUE(dst))
         g_value_init(dst,G_VALUE_TYPE(src));
       g_value_copy(src,dst);
       g_value_unset(src);
     }
     else {
-      if(G_IS_VALUE(dst))
-        g_value_unset(dst);      
+      if(BT_IS_GVALUE(dst))
+        g_value_unset(dst);
     }
-    src+=self->priv->num_params;
-    dst+=self->priv->num_params;
+    src+=num_params;
+    dst+=num_params;
   }
 }
 
@@ -485,11 +490,12 @@ void bt_wire_pattern_delete_row(const BtWirePattern * const self, const gulong t
 void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gulong tick) {
   g_return_if_fail(BT_IS_WIRE_PATTERN(self));
 
+  const gulong num_params=self->priv->num_params;
   gulong j;
 
   GST_DEBUG("insert full-row at %lu", tick);
 
-  for(j=0;j<self->priv->num_params;j++) {
+  for(j=0;j<num_params;j++) {
     _delete_row(self,tick,j);
   }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
@@ -502,7 +508,7 @@ static void _delete_column(const BtWirePattern * const self, const gulong start_
   gulong i,ticks=(end_tick+1)-start_tick;
   
   for(i=0;i<ticks;i++) {
-    if(G_IS_VALUE(beg))
+    if(BT_IS_GVALUE(beg))
       g_value_unset(beg);
     beg+=self->priv->num_params;
   }
@@ -545,9 +551,10 @@ void bt_wire_pattern_delete_columns(const BtWirePattern * const self, const gulo
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
+  const gulong num_params=self->priv->num_params;
   gulong j;
 
-  for(j=0;j<self->priv->num_params;j++) {
+  for(j=0;j<num_params;j++) {
     _delete_column(self,start_tick,end_tick,j);
   }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
@@ -559,7 +566,7 @@ static void _blend_column(const BtWirePattern * const self, const gulong start_t
   GValue *end=&self->priv->data[param+self->priv->num_params*end_tick];
   gulong i,ticks=end_tick-start_tick;
 
-  if(!G_IS_VALUE(beg) || !G_IS_VALUE(end)) {
+  if(!BT_IS_GVALUE(beg) || !BT_IS_GVALUE(end)) {
     GST_INFO("Can't blend, beg or end is empty");
     return;
   }
@@ -573,7 +580,7 @@ static void _blend_column(const BtWirePattern * const self, const gulong start_t
       gint val=g_value_get_int(beg);
       gdouble step=(gdouble)(g_value_get_int(end)-val)/(gdouble)ticks;
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_INT);
         g_value_set_int(beg,val+(gint)(step*i));
         beg+=self->priv->num_params;
@@ -583,7 +590,7 @@ static void _blend_column(const BtWirePattern * const self, const gulong start_t
       gint val=g_value_get_uint(beg);
       gdouble step=(gdouble)(g_value_get_uint(end)-val)/(gdouble)ticks;
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_UINT);
         g_value_set_uint(beg,val+(guint)(step*i));
         beg+=self->priv->num_params;
@@ -593,7 +600,7 @@ static void _blend_column(const BtWirePattern * const self, const gulong start_t
       gfloat val=g_value_get_float(beg);
       gdouble step=(gdouble)(g_value_get_float(end)-val)/(gdouble)ticks;
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_FLOAT);
         g_value_set_float(beg,val+(gfloat)(step*i));
         beg+=self->priv->num_params;
@@ -603,7 +610,7 @@ static void _blend_column(const BtWirePattern * const self, const gulong start_t
       gdouble val=g_value_get_double(beg);
       gdouble step=(gdouble)(g_value_get_double(end)-val)/(gdouble)ticks;
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_DOUBLE);
         g_value_set_double(beg,val+(step*i));
         beg+=self->priv->num_params;
@@ -652,9 +659,10 @@ void bt_wire_pattern_blend_columns(const BtWirePattern * const self, const gulon
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
+  const gulong num_params=self->priv->num_params;
   gulong j;
   
-  for(j=0;j<self->priv->num_params;j++) {
+  for(j=0;j<num_params;j++) {
     _blend_column(self,start_tick,end_tick,j);
   }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
@@ -681,7 +689,7 @@ static void _randomize_column(const BtWirePattern * const self, const gulong sta
     case G_TYPE_INT: {
       const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_INT);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_int(beg, (gint) (int_property->minimum +
@@ -692,7 +700,7 @@ static void _randomize_column(const BtWirePattern * const self, const gulong sta
     case G_TYPE_UINT: {
       const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_UINT);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_uint(beg, (guint) (uint_property->minimum +
@@ -703,7 +711,7 @@ static void _randomize_column(const BtWirePattern * const self, const gulong sta
     case G_TYPE_FLOAT: {
       const GParamSpecFloat *float_property = G_PARAM_SPEC_FLOAT (property);
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_FLOAT);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_float(beg, (gfloat) (float_property->minimum +
@@ -714,7 +722,7 @@ static void _randomize_column(const BtWirePattern * const self, const gulong sta
     case G_TYPE_DOUBLE: {
       const GParamSpecDouble *double_property = G_PARAM_SPEC_DOUBLE (property);
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,G_TYPE_DOUBLE);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_double(beg, (gdouble) (double_property->minimum +
@@ -726,7 +734,7 @@ static void _randomize_column(const BtWirePattern * const self, const gulong sta
       const GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
       const GEnumClass *enum_class = enum_property->enum_class;
       for(i=0;i<ticks;i++) {
-        if(!G_IS_VALUE(beg))
+        if(!BT_IS_GVALUE(beg))
           g_value_init(beg,property->value_type);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_enum (beg, (gulong) (enum_class->minimum +
@@ -777,10 +785,10 @@ void bt_wire_pattern_randomize_columns(const BtWirePattern * const self, const g
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
-  // don't add internal_params here, bt_pattern_insert_row does already
+  const gulong num_params=self->priv->num_params;
   gulong j;
 
-  for(j=0;j<self->priv->num_params;j++) {
+  for(j=0;j<num_params;j++) {
     _randomize_column(self,start_tick,end_tick,j);
   }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
@@ -795,7 +803,7 @@ static void _serialize_column(const BtWirePattern * const self, const gulong sta
   g_string_append(data,g_type_name(bt_wire_get_param_type(self->priv->wire,param)));
 
   for(i=0;i<ticks;i++) {
-    if(G_IS_VALUE(beg)) {
+    if(BT_IS_GVALUE(beg)) {
       if((val=bt_persistence_get_value(beg))) {
         g_string_append_c(data,',');
         g_string_append(data,val);
@@ -851,9 +859,10 @@ void bt_wire_pattern_serialize_columns(const BtWirePattern * const self, const g
   g_return_if_fail(self->priv->data);
   g_return_if_fail(data);
 
+  const gulong num_params=self->priv->num_params;
   gulong j;
 
-  for(j=0;j<self->priv->num_params;j++) {
+  for(j=0;j<num_params;j++) {
     _serialize_column(self,start_tick,end_tick,j,data);
   }
 }
@@ -880,6 +889,7 @@ gboolean bt_wire_pattern_deserialize_column(const BtWirePattern * const self, co
   g_return_val_if_fail(self->priv->data,FALSE);
   g_return_val_if_fail(data,FALSE);
   
+  const gulong num_params=self->priv->num_params;
   gboolean ret=TRUE;
   GType stype,dtype;
   gchar **fields;
@@ -892,22 +902,22 @@ gboolean bt_wire_pattern_deserialize_column(const BtWirePattern * const self, co
   stype=g_type_from_name(fields[0]);
   if(dtype==stype) {
     gint i=1;
-    GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
+    GValue *beg=&self->priv->data[param+num_params*start_tick];
 
     GST_INFO("types match %s <-> %s",fields[0],g_type_name(dtype));
     
     while(fields[i] && *fields[i]) {
       if(*fields[i]!=' ') {
-        if(!G_IS_VALUE(beg)) {
+        if(!BT_IS_GVALUE(beg)) {
           g_value_init(beg,dtype);
         }
         bt_persistence_set_value(beg, fields[i]);
       } else {
-        if(G_IS_VALUE(beg)) {
+        if(BT_IS_GVALUE(beg)) {
           g_value_unset(beg);
         }
       }
-      beg+=self->priv->num_params;
+      beg+=num_params;
       i++;
     }
   }
@@ -934,6 +944,8 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
     gulong i,k;
     gchar *value;
     BtWire *wire;
+    const gulong length=self->priv->length;
+    const gulong num_params=self->priv->num_params;
     
     g_object_get((gpointer)(self->priv->pattern),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("pattern-id"),XML_CHAR_PTR(id));
@@ -942,13 +954,13 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
     g_object_get((gpointer)self,"wire",&wire,NULL);
 
     // save pattern data
-    for(i=0;i<self->priv->length;i++) {
+    for(i=0;i<length;i++) {
       // check if there are any GValues stored ?
       if(bt_wire_pattern_tick_has_data(self,i)) {
         child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tick"),NULL);
         xmlNewProp(child_node,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
         // save tick data
-        for(k=0;k<self->priv->num_params;k++) {
+        for(k=0;k<num_params;k++) {
           if((value=bt_wire_pattern_get_event(self,i,k))) {
             child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("wiredata"),NULL);
             xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_wire_get_param_name(wire,k)));

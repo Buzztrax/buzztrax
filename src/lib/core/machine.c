@@ -252,7 +252,7 @@ static gchar *sink_pn[]={
   "sink"    /* tee */
 };
 
-// macros
+//-- macros
 
 #define GLOBAL_PARAM_NAME(ix) self->priv->global_props[ix]->name
 #define GLOBAL_PARAM_TYPE(ix) self->priv->global_props[ix]->value_type
@@ -572,8 +572,10 @@ static void bt_machine_resize_pattern_voices(const BtMachine * const self) {
  *
  * Adjust the private data structure after a change in the number of voices.
  */
-static void bt_machine_resize_voices(const BtMachine * const self, const gulong voices) {
-  GST_INFO("changing machine %s:%p voices from %ld to %ld",self->priv->id,self->priv->machines[PART_MACHINE],voices,self->priv->voices);
+static void bt_machine_resize_voices(const BtMachine * const self, const gulong old_voices) {
+  const gulong new_voices=self->priv->voices;
+  const gulong voice_params=self->priv->voice_params;
+  GST_INFO("changing machine %s:%p voices from %ld to %ld",self->priv->id,self->priv->machines[PART_MACHINE],old_voices,new_voices);
 
   // @todo GSTBT_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
   if((!self->priv->machines[PART_MACHINE]) || (!GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]))) {
@@ -581,26 +583,26 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
     return;
   }
 
-  g_object_set(self->priv->machines[PART_MACHINE],"children",self->priv->voices,NULL);
+  g_object_set(self->priv->machines[PART_MACHINE],"children",new_voices,NULL);
 
-  if(voices>self->priv->voices) {
+  if(old_voices>new_voices) {
     gulong j;
 
     // release params for old voices
-    for(j=self->priv->voices;j<voices;j++) {
+    for(j=new_voices;j<old_voices;j++) {
       g_object_try_unref(self->priv->voice_controllers[j]);
     }
   }
 
-  self->priv->voice_controllers=(GstController **)g_renew(gpointer,self->priv->voice_controllers,self->priv->voices);
-  self->priv->voice_control_sources=(GstInterpolationControlSource **)g_renew(gpointer,self->priv->voice_control_sources,self->priv->voices*self->priv->voice_params);
-  if(voices<self->priv->voices) {
+  self->priv->voice_controllers=(GstController **)g_renew(gpointer,self->priv->voice_controllers,new_voices);
+  self->priv->voice_control_sources=(GstInterpolationControlSource **)g_renew(gpointer,self->priv->voice_control_sources,new_voices*voice_params);
+  if(old_voices<new_voices) {
     guint j;
 
-    for(j=voices;j<self->priv->voices;j++) {
+    for(j=old_voices;j<new_voices;j++) {
       self->priv->voice_controllers[j]=NULL;
     }
-    for(j=voices*self->priv->voice_params;j<self->priv->voices*self->priv->voice_params;j++) {
+    for(j=old_voices*voice_params;j<new_voices*voice_params;j++) {
       self->priv->voice_control_sources[j]=NULL;
     }
   }
@@ -1021,7 +1023,7 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
           }
         }
         // use the properties default value for triggers as a no_value
-        if(!G_IS_VALUE(&self->priv->global_no_val[j]) && !(property->flags&G_PARAM_READABLE)) {
+        if(!BT_IS_GVALUE(&self->priv->global_no_val[j]) && !(property->flags&G_PARAM_READABLE)) {
           g_value_init(&self->priv->global_no_val[j], property->value_type);
           g_param_value_set_default(property, &self->priv->global_no_val[j]);
         }
@@ -1087,7 +1089,7 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
               }
             }
             // use the properties default value for triggers as a no_value
-            if(!G_IS_VALUE(&self->priv->voice_no_val[j]) && !(property->flags&G_PARAM_READABLE)) {
+            if(!BT_IS_GVALUE(&self->priv->voice_no_val[j]) && !(property->flags&G_PARAM_READABLE)) {
               g_value_init(&self->priv->voice_no_val[j], property->value_type);
               g_param_value_set_default(property, &self->priv->voice_no_val[j]);
             }
@@ -1618,7 +1620,7 @@ gboolean bt_machine_is_global_param_no_value(const BtMachine * const self, const
   g_return_val_if_fail(index<self->priv->global_params,FALSE);
   g_return_val_if_fail(G_IS_VALUE(value),FALSE);
 
-  if(!G_IS_VALUE(&self->priv->global_no_val[index])) return(FALSE);
+  if(!BT_IS_GVALUE(&self->priv->global_no_val[index])) return(FALSE);
 
   if(gst_value_compare(&self->priv->global_no_val[index],value)==GST_VALUE_EQUAL) return(TRUE);
   return(FALSE);
@@ -1639,7 +1641,7 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine * const self, const 
   g_return_val_if_fail(index<self->priv->voice_params,FALSE);
   g_return_val_if_fail(G_IS_VALUE(value),FALSE);
 
-  if(!G_IS_VALUE(&self->priv->voice_no_val[index])) return(FALSE);
+  if(!BT_IS_GVALUE(&self->priv->voice_no_val[index])) return(FALSE);
 
   if(gst_value_compare(&self->priv->voice_no_val[index],value)==GST_VALUE_EQUAL) {
     return(TRUE);
@@ -1657,11 +1659,13 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine * const self, const 
  * Returns: the index of the wave-table parameter or -1 if none.
  */
 glong bt_machine_get_global_wave_param_index(const BtMachine * const self) {
+  const gulong global_params=self->priv->global_params;
+  guint *global_flags=self->priv->global_flags;
   glong i;
   g_return_val_if_fail(BT_IS_MACHINE(self),-1);
   
-  for(i=0;i<self->priv->global_params;i++) {
-    if(self->priv->global_flags[i]&GSTBT_PROPERTY_META_WAVE) return(i);
+  for(i=0;i<global_params;i++) {
+    if(global_flags[i]&GSTBT_PROPERTY_META_WAVE) return(i);
   }
   return(-1);
 }
@@ -1676,11 +1680,13 @@ glong bt_machine_get_global_wave_param_index(const BtMachine * const self) {
  * Returns: the index of the wave-table parameter or -1 if none.
  */
 glong bt_machine_get_voice_wave_param_index(const BtMachine * const self) {
+  const gulong voice_params=self->priv->voice_params;
+  guint *voice_flags=self->priv->voice_flags;
   glong i;
   g_return_val_if_fail(BT_IS_MACHINE(self),-1);
   
-  for(i=0;i<self->priv->voice_params;i++) {
-    if(self->priv->voice_flags[i]&GSTBT_PROPERTY_META_WAVE) return(i);
+  for(i=0;i<voice_params;i++) {
+    if(voice_flags[i]&GSTBT_PROPERTY_META_WAVE) return(i);
   }
   
   return(-1);
@@ -1767,20 +1773,23 @@ void bt_machine_set_voice_param_default(const BtMachine * const self,const gulon
  * presets).
  */
 void bt_machine_set_param_defaults(const BtMachine *const self) {
+  const gulong voices=self->priv->voices;
+  const gulong global_params=self->priv->global_params;
+  const gulong voice_params=self->priv->voice_params;
   GstElement *machine=self->priv->machines[PART_MACHINE];
   GstObject *voice;
   GstController *ctrl;
   gulong i,j;
   
   if((ctrl=gst_object_get_controller(G_OBJECT(machine)))) {
-    for(i=0;i<self->priv->global_params;i++) {
+    for(i=0;i<global_params;i++) {
       bt_machine_set_global_param_default(self,i);
     }
   }
-  for(j=0;j<self->priv->voices;j++) {
+  for(j=0;j<voices;j++) {
     voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
     if((ctrl=gst_object_get_controller(G_OBJECT(voice)))) {
-      for(i=0;i<self->priv->voice_params;i++) {
+      for(i=0;i<voice_params;i++) {
         bt_machine_set_voice_param_default(self,j,i);
       }
     }
@@ -1801,6 +1810,7 @@ void bt_machine_set_param_defaults(const BtMachine *const self) {
  * Returns: the index or sets error if it is not found and returns -1.
  */
 glong bt_machine_get_global_param_index(const BtMachine *const self, const gchar * const name, GError **error) {
+  const gulong global_params=self->priv->global_params;
   glong ret=-1,i;
   gboolean found=FALSE;
 
@@ -1808,7 +1818,7 @@ glong bt_machine_get_global_param_index(const BtMachine *const self, const gchar
   g_return_val_if_fail(BT_IS_STRING(name),-1);
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
 
-  for(i=0;i<self->priv->global_params;i++) {
+  for(i=0;i<global_params;i++) {
     if(!strcmp(GLOBAL_PARAM_NAME(i),name)) {
       ret=i;
       found=TRUE;
@@ -1839,6 +1849,7 @@ glong bt_machine_get_global_param_index(const BtMachine *const self, const gchar
  * Returns: the index or sets error if it is not found and returns -1.
  */
 glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar * const name, GError **error) {
+  const gulong voice_params=self->priv->voice_params;
   gulong ret=-1,i;
   gboolean found=FALSE;
 
@@ -1846,7 +1857,7 @@ glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar
   g_return_val_if_fail(BT_IS_STRING(name),-1);
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
 
-  for(i=0;i<self->priv->voice_params;i++) {
+  for(i=0;i<voice_params;i++) {
     if(!strcmp(VOICE_PARAM_NAME(i),name)) {
       ret=i;
       found=TRUE;
@@ -2656,15 +2667,18 @@ bt_g_object_randomize_parameter(GObject *self, GParamSpec *property) {
  * Randomizes machine parameters.
  */
 void bt_machine_randomize_parameters(const BtMachine * const self) {
+  const gulong voices=self->priv->voices;
+  const gulong global_params=self->priv->global_params;
+  const gulong voice_params=self->priv->voice_params;
   GObject *machine=G_OBJECT(self->priv->machines[PART_MACHINE]),*voice;
   gulong i,j;
 
-  for(i=0;i<self->priv->global_params;i++) {
+  for(i=0;i<global_params;i++) {
     bt_g_object_randomize_parameter(machine,self->priv->global_props[i]);
   }
-  for(j=0;j<self->priv->voices;j++) {
+  for(j=0;j<voices;j++) {
     voice=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j));
-    for(i=0;i<self->priv->voice_params;i++) {
+    for(i=0;i<voice_params;i++) {
       bt_g_object_randomize_parameter(voice,self->priv->voice_props[i]);
     }
   }
@@ -2678,19 +2692,22 @@ void bt_machine_randomize_parameters(const BtMachine * const self) {
  * Resets machine parameters back to defaults.
  */
 void bt_machine_reset_parameters(const BtMachine * const self) {
+  const gulong voices=self->priv->voices;
+  const gulong global_params=self->priv->global_params;
+  const gulong voice_params=self->priv->voice_params;
   GObject *machine=G_OBJECT(self->priv->machines[PART_MACHINE]),*voice;
   GValue gvalue={0,};
   gulong i,j;
 
-  for(i=0;i<self->priv->global_params;i++) {
+  for(i=0;i<global_params;i++) {
     g_value_init(&gvalue, GLOBAL_PARAM_TYPE(i));
     g_param_value_set_default(self->priv->global_props[i], &gvalue);
     g_object_set_property (machine, GLOBAL_PARAM_NAME(i), &gvalue);
     g_value_unset(&gvalue);
   }
-  for(j=0;j<self->priv->voices;j++) {
+  for(j=0;j<voices;j++) {
     voice=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j));
-    for(i=0;i<self->priv->voice_params;i++) {
+    for(i=0;i<voice_params;i++) {
       g_value_init(&gvalue, VOICE_PARAM_TYPE(i));
       g_param_value_set_default(self->priv->voice_props[i], &gvalue);
       g_object_set_property(voice, VOICE_PARAM_NAME(i), &gvalue);
@@ -2858,12 +2875,16 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
   GST_DEBUG("PERSISTENCE::machine");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("machine"),NULL))) {
+    const gulong voices=self->priv->voices;
+    const gulong global_params=self->priv->global_params;
+    const gulong voice_params=self->priv->voice_params;
+
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
 
     // @todo: also store non-controllable parameters (preferences) <prefsdata name="" value="">
     // @todo: skip parameters which are default values (is that really a good idea?)
     machine=GST_OBJECT(self->priv->machines[PART_MACHINE]);
-    for(i=0;i<self->priv->global_params;i++) {
+    for(i=0;i<global_params;i++) {
       // skip trigger parameters and parameters that are also used as voice params
       if(bt_machine_is_global_param_trigger(self,i)) continue;
       if(self->priv->voice_params && bt_machine_get_voice_param_index(self,GLOBAL_PARAM_NAME(i),NULL)>-1) continue;
@@ -2878,10 +2899,10 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
         g_value_unset(&value);
       }
     }
-    for(j=0;j<self->priv->voices;j++) {
+    for(j=0;j<voices;j++) {
       machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
 
-      for(i=0;i<self->priv->voice_params;i++) {
+      for(i=0;i<voice_params;i++) {
         if(bt_machine_is_voice_param_trigger(self,i)) continue;
         if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("voicedata"),NULL))) {
           g_value_init(&value,VOICE_PARAM_TYPE(i));
@@ -2937,7 +2958,7 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
               gulong i;
               gboolean found=FALSE;
 
-              for(i=0;i<self->priv->voices;i++) {
+              for(i=0;i<voices;i++) {
                 if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),i))) {
                   if(data->object==voice_child) {
                     xmlNewProp(sub_node,XML_CHAR_PTR("voice"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
@@ -3394,6 +3415,9 @@ static void bt_machine_set_property(GObject * const object, const guint property
 
 static void bt_machine_dispose(GObject * const object) {
   const BtMachine * const self = BT_MACHINE(object);
+  const gulong voices=self->priv->voices;
+  const gulong global_params=self->priv->global_params;
+  const gulong voice_params=self->priv->voice_params;
   GObject *param_parent;
   guint i,j;
 
@@ -3422,16 +3446,16 @@ static void bt_machine_dispose(GObject * const object) {
     (self->priv->global_controller?G_OBJECT_REF_COUNT(self->priv->global_controller):-1),
     self->priv->voices);
   param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
-  for(j=0;j<self->priv->global_params;j++) {
+  for(j=0;j<global_params;j++) {
     g_object_try_unref(self->priv->global_control_sources[j]);
     //bt_gst_object_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(j));
   }
   //self->priv->global_controller=NULL; // <- this is wrong, controllers have a refcount on the gstelement
   g_object_try_unref(self->priv->global_controller);
   if(self->priv->voice_controllers) {
-    for(i=0;i<self->priv->voices;i++) {
+    for(i=0;i<voices;i++) {
       param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),i));
-      for(j=0;j<self->priv->voice_params;j++) {
+      for(j=0;j<voice_params;j++) {
         g_object_try_unref(self->priv->voice_control_sources[i*self->priv->voice_params+j]);
         //bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(j));
       }
@@ -3470,6 +3494,9 @@ static void bt_machine_dispose(GObject * const object) {
 
 static void bt_machine_finalize(GObject * const object) {
   const BtMachine * const self = BT_MACHINE(object);
+  const gulong global_params=self->priv->global_params;
+  const gulong voice_params=self->priv->voice_params;
+  GValue *v;
   guint i;
 
   GST_DEBUG_OBJECT(self,"!!!! self=%p",self);
@@ -3479,13 +3506,15 @@ static void bt_machine_finalize(GObject * const object) {
   g_free(self->priv->plugin_name);
 
   // unset no_values
-  for(i=0;i<self->priv->global_params;i++) {
-    if(G_IS_VALUE(&self->priv->global_no_val[i]))
-      g_value_unset(&self->priv->global_no_val[i]);
+  for(i=0;i<global_params;i++) {
+    v=&self->priv->global_no_val[i];
+    if(BT_IS_GVALUE(v))
+      g_value_unset(v);
   }
-  for(i=0;i<self->priv->voice_params;i++) {
-    if(G_IS_VALUE(&self->priv->voice_no_val[i]))
-      g_value_unset(&self->priv->voice_no_val[i]);
+  for(i=0;i<voice_params;i++) {
+    v=&self->priv->voice_no_val[i];
+    if(BT_IS_GVALUE(v))
+      g_value_unset(v);
   }
 
   g_free(self->priv->voice_quarks);

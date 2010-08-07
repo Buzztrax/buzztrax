@@ -902,6 +902,7 @@ BtWirePattern *bt_wire_get_pattern(const BtWire * const self, const BtPattern * 
  * Returns: the index or sets error if it is not found and returns -1.
  */
 glong bt_wire_get_param_index(const BtWire *const self, const gchar * const name, GError **error) {
+  const gulong num_params=self->priv->num_params;
   glong ret=-1,i;
   gboolean found=FALSE;
 
@@ -909,7 +910,7 @@ glong bt_wire_get_param_index(const BtWire *const self, const gchar * const name
   g_return_val_if_fail(BT_IS_STRING(name),-1);
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
 
-  for(i=0;i<self->priv->num_params;i++) {
+  for(i=0;i<num_params;i++) {
     if(!strcmp(WIRE_PARAM_NAME(i),name)) {
       ret=i;
       found=TRUE;

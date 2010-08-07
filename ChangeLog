@@ -1,5 +1,22 @@
 2010-08-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/tools.h:
+	  Add a new macro to check for empty gvalues. Fixes the checking that
+	  otherwise could be disabled with compiler flags. Also this variant is
+	  cheaper.
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	  Use new BT_IS_GVALUE macro. Move lots of self->priv->.. dereferences out
+	  of loops. This allows the compiler to avoid refetching e.g. the loop end
+	  condition for each cycle. Strangely this makes the code a bit bigger.
+
+2010-08-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-machine.c:
 	  Whitespace and get rid of obsolete prototype.
 

@@ -643,6 +643,7 @@ BtWirePatternPrivate
 <SECTION>
 <FILE>libbtcore</FILE>
 <TITLE>libbtcore</TITLE>
+BT_IS_GVALUE
 BT_IS_STRING
 safe_string
 return_if_disposed

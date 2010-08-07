@@ -75,6 +75,15 @@ extern guint bt_cpu_load_get_current(void);
  */
 #define return_val_if_disposed(a) if(self->priv->dispose_has_run) return(a)
 
+
+/**
+ * BT_IS_GVALUE:
+ * @a: pointer to a GValue
+ *
+ * checks if the supplied gvalue is initialized (not all fields zero).
+ */
+#define BT_IS_GVALUE(v) (G_VALUE_TYPE(v)!=G_TYPE_INVALID)
+
 /**
  * BT_IS_STRING:
  * @a: string pointer
