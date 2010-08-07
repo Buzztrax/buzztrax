@@ -1,5 +1,11 @@
 2010-08-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/bt-check.c:
+	  Check function in in separate field in new log handler. Now the core test
+	  pass again.
+
+2010-08-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/dec/bt-dec.c:
 	  Update comments.
 

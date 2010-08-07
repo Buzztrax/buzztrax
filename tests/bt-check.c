@@ -173,8 +173,8 @@ static void check_gst_log_handler(GstDebugCategory *category, GstDebugLevel leve
   const gchar *message=gst_debug_message_get(_message);
 
   //-- check message contents
-  if(__check_method  && (strstr(message,__check_method)!=NULL) && __check_test && (strstr(message,__check_test)!=NULL)) __check_error_trapped=TRUE;
-  else if(__check_method && (strstr(message,__check_method)!=NULL) && !__check_test) __check_error_trapped=TRUE;
+  if(__check_method  && (strstr(function,__check_method)!=NULL) && __check_test && (strstr(message,__check_test)!=NULL)) __check_error_trapped=TRUE;
+  else if(__check_method && (strstr(function,__check_method)!=NULL) && !__check_test) __check_error_trapped=TRUE;
   else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
 }
 
