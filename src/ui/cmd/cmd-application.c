@@ -82,12 +82,18 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   gulong cmsec,csec,cmin,tmsec,tsec,tmin;
   gulong length,pos=0;
   GstClockTime bar_time;
+  GstBin *bin;
 
   // DEBUG
   //bt_song_write_to_highlevel_dot_file(song);
+  //bt_song_write_to_lowlevel_dot_file(song);
   // DEBUG
 
-  g_object_get((gpointer)song,"sequence",&sequence,NULL);
+  g_object_get((gpointer)song,"sequence",&sequence,"bin",&bin,NULL);
+  if(!GST_BIN_NUMCHILDREN(bin)) {
+    GST_INFO("song is empty");
+    goto Error;
+  }
   g_object_get(sequence,"length",&length,NULL);
 
   bar_time=bt_sequence_get_bar_time(sequence);
@@ -133,6 +139,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   is_playing=FALSE;
 Error:
   g_object_unref(sequence);
+  g_object_unref(bin);
   return(res);
 }
 

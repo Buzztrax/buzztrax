@@ -28,14 +28,17 @@ libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --output-file=$TESTRESULTDI
 
 # do something real
 echo "testing scenarios"
+echo "... play"
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --command=play --input-file=$TESTSONGDIR/test-simple1.xml
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --command=play -q --input-file=$TESTSONGDIR/simple1.xml
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --command=play -q --input-file=$TESTSONGDIR/simple6.xml
 
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --command=convert -q --input-file=$TESTSONGDIR/test-simple1.xml --output-file=$TESTRESULTDIR/test-simple1.out.xml
+echo "... convert"
 if [ ! -r $TESTRESULTDIR/test-simple1.out.xml ]; then exit 1; fi
 rm -f $TESTRESULTDIR/test-simple1.out.xml
 
+echo "... encode"
 libtool --mode=execute $BUZZTARD_CMD >/dev/null 2>&1 --command=encode -q --input-file=$TESTSONGDIR/test-simple1.xml --output-file=$TESTRESULTDIR/test-simple1.ogg
 if [ ! -r $TESTRESULTDIR/test-simple1.ogg ]; then exit 1; fi
 rm -f $TESTRESULTDIR/test-simple1.ogg

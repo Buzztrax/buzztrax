@@ -69,41 +69,6 @@ BtSinkMachine *bt_sink_machine_new(const BtSong * const song, const gchar * cons
   return(BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"construction-error",err,"song",song,"id",id,"plugin-name","bt-sink-bin",NULL)));
 }
 
-#if 0
-/* @todo: bt_sink_machine_new_dummy:
- * @song: the song the new instance belongs to
- * @id: the id, we can use to lookup the machine
- *
- * Create a new instance.
- * The machine is automaticly added to the setup from the given song object. You
- * don't need to add the machine with
- * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
- * The element used for this machine is identity. This sink-machine can be used
- * to play multiple songs simultaneously.
- *
- * Returns: the new instance or %NULL in case of an error
- */
-BtSinkMachine *bt_sink_machine_new_dummy(const BtSong * const song, const gchar * const id) {
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  g_return_val_if_fail(BT_IS_STRING(id),NULL);
-
-  BtSinkMachine * const self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name","identity",NULL));
-
-  if(!self) {
-    goto Error;
-  }
-  if(!bt_machine_new(BT_MACHINE(self))) {
-    goto Error;
-  }
-  bt_sink_machine_post_init(self);
-  
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
-}
-#endif
-
 //-- methods
 
 //-- io interface
@@ -207,21 +172,21 @@ static void bt_sink_machine_constructed(GObject *object) {
     GstElement * const gain;
     BtSetup *setup;
     BtMachine *machine=(BtMachine *)self;
-    
+
     bt_machine_activate_adder(machine);
     bt_machine_enable_input_gain(machine);
-    
-    g_object_get(self,"machine",&element,"song",&song,"input-gain",&gain, NULL);
+
+    g_object_get(self,"machine",&element,"song",&song,"input-gain",&gain,NULL);
     g_object_set(element,"input-gain",gain,NULL);
     g_object_set(song,"master",self,NULL);
     gst_object_unref(element);
     gst_object_unref(gain);
-    
+
     // add the machine to the setup of the song
     g_object_get(song,"setup",&setup,NULL);
     bt_setup_add_machine(setup,machine);
     g_object_unref(setup);
-    
+
     g_object_unref(song);
   }
 }

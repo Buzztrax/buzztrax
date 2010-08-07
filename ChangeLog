@@ -1,3 +1,14 @@
+2010-08-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-machine.c:
+	  Whitespace and get rid of obsolete prototype.
+
+	* src/ui/cmd/cmd-application.c:
+	  Check for empty songs befor playing.
+
+	* tests/bt-cmd-cli.sh:
+	  Add more echo cmds to get better feedback.
+
 2010-08-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/dec/bt-dec.c:
