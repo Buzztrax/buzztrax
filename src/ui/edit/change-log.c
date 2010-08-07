@@ -67,24 +67,28 @@
  *               pattern.set(0,0,0.0)   pattern.set(0,0,1.0)
  *              >pattern.set(0,0,1.0)   pattern.set(0,0,2.0)
 
-new:  []         u[]     r[]
-                  ^        ^     -1,0
+new:  []         u[]     r[]     next_undo,next_redo,item_ct
+                  ^        ^     -1,0,0
 add:  [a]        u[ ]    r[a]
-                   ^        ^     0,1
+                   ^        ^     0,1,1
 add:  [ab]       u[  ]   r[ab]
-                    ^ 1      ^    1,2
+                    ^ 1      ^    1,2,2
 add:  [abc]      u[   ]  r[abc]
-                     ^        ^   2,3
+                     ^        ^   2,3,3
 undo: [ab]       u[   ]  r[abc]    \
-                    ^        ^    1,2
+                    ^        ^    1,2,3
 redo: [abc]      u[   ]  r[abc]    /
-                     ^        ^   2,3
+                     ^        ^   2,3,3
 undo: [ab]       u[   ]  r[abc]    \
-                    ^        ^    1,2
+                    ^        ^    1,2,3
 add:  [abd]      u[   ]  r[abd]    /    { this looses the 'c' }
-                     ^        ^   2,3
+                     ^        ^   2,3,3
 undo: [ab]       u[   ]  r[abd]    \
-                    ^        ^    1,2
+                    ^        ^    1,2,3
+undo: [a]        u[   ]  r[abd]    \
+                   ^        ^     0,1,3
+add:  [ae]       u[   ]  r[ae]     /    { this looses the 'bd' }
+                    ^        ^    1,2,2
 
 -- can we get the 'c' back - no
 when adding a new action, we will always truncate the undo/redo stack.
@@ -310,11 +314,11 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
   
   // if we have redo data, we have to cut the trail here otherwise the history
   // becomes a graph
-  if(self->priv->next_redo<(self->priv->item_ct-1)) {
+  if(self->priv->next_redo<self->priv->item_ct) {
     gint i;
     
-    GST_WARNING("trunc %d<%d",self->priv->next_redo,(self->priv->item_ct-1));
-    for(i=self->priv->item_ct-1;i>self->priv->next_redo;i--) {
+    GST_WARNING("trunc %d<%d",self->priv->next_redo,self->priv->item_ct);
+    for(i=self->priv->item_ct-1;i>=self->priv->next_redo;i--) {
       cle=g_ptr_array_remove_index(self->priv->changes,i);
       g_free(cle->undo_data);
       g_free(cle->redo_data);
@@ -322,6 +326,9 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
       self->priv->item_ct--;
     }
   }
+  /*else {
+    GST_INFO("don't trunc %d>=%d",self->priv->next_redo,self->priv->item_ct);
+  }*/
   // make new BtChangeLogEntry from the parameters
   cle=g_slice_new(BtChangeLogEntry);
   cle->owner=owner;

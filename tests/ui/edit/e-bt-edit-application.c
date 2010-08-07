@@ -233,6 +233,9 @@ BT_START_TEST(test_load2) {
   g_object_unref(song2);
   GST_INFO("song 2 loaded");
 
+  // do events (normaly done by check_make_widget_screenshot())
+  while(gtk_events_pending()) gtk_main_iteration();
+  
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
@@ -286,6 +289,9 @@ BT_START_TEST(test_load3) {
   GST_INFO("song loaded again");
   GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));
   fail_unless(num == GST_BIN_NUMCHILDREN(bin), NULL);
+
+  // do events (normaly done by check_make_widget_screenshot())
+  while(gtk_events_pending()) gtk_main_iteration();
 
   // get window
   g_object_get(app,"main-window",&main_window,NULL);

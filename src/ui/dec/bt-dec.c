@@ -20,7 +20,7 @@
  */
 /*
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! bt-bin ! fakesink
- * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! bt-bin ! fakesink
+ * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! buzztard-dec ! fakesink
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztard/share/buzztard/songs/303.bzt
  * GST_DEBUG="*:2,play*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztard/share/buzztard/songs/303.bzt
  * ~/projects/gstreamer/gst-plugins-base/tests/examples/seek/.libs/seek 16 file:///home/ensonic/buzztard/share/buzztard/songs/lac2010_01a.bzt

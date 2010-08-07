@@ -1,5 +1,16 @@
 2010-08-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/dec/bt-dec.c:
+	  Fix new name in comments.
+
+	* src/ui/edit/change-log.c:
+	  Fix off by one in stack truncation.
+
+	* tests/ui/edit/e-bt-edit-application.c:
+	  Do the event loop before closing the window to fix late signal handlers.
+
+2010-08-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/bt-check.c:
 	  Check function in in separate field in new log handler. Now the core test
 	  pass again.
