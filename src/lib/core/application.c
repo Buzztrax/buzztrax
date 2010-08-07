@@ -91,20 +91,6 @@ static void bt_application_get_property(GObject * const object, const guint prop
   }
 }
 
-/* sets the given properties for this object */
-static void bt_application_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtApplication * const self = BT_APPLICATION(object);
-  return_if_disposed();
-  switch (property_id) {
-    case APPLICATION_BIN: {
-      self->priv->bin = g_value_get_object(value);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
 static void bt_application_dispose(GObject * const object) {
   const BtApplication * const self = BT_APPLICATION(object);
 
@@ -116,7 +102,9 @@ static void bt_application_dispose(GObject * const object) {
   GST_INFO("bin->numchildren=%d",GST_BIN(self->priv->bin)->numchildren);
   GST_INFO("settings->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->settings));
 
-  gst_object_unref(self->priv->bin);
+  if(self->priv->bin) {
+    gst_object_unref(self->priv->bin);
+  }
   g_object_try_unref(self->priv->settings);
 
   GST_DEBUG("  chaining up");
@@ -141,7 +129,6 @@ static void bt_application_init(const GTypeInstance * const instance, gconstpoin
 
   GST_DEBUG("!!!! self=%p",self);
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_APPLICATION, BtApplicationPrivate);
-  // @todo: we could add a construct only property for the bin, so that e.g. bt-bin can pass a bin 
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_ELEMENT(self->priv->bin));
   GST_DEBUG("bin->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->bin));
@@ -163,7 +150,6 @@ static void bt_application_class_init(BtApplicationClass * const klass) {
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtApplicationPrivate));
 
-  gobject_class->set_property = bt_application_set_property;
   gobject_class->get_property = bt_application_get_property;
   gobject_class->dispose      = bt_application_dispose;
   gobject_class->finalize     = bt_application_finalize;
@@ -172,14 +158,14 @@ static void bt_application_class_init(BtApplicationClass * const klass) {
    * BtApplication:bin
    *
    * The top-level gstreamer element for the song, e.g. a #GstPipeline or
-   * #GstBin. The application object takes ownership of the element.
+   * #GstBin.
    */
   g_object_class_install_property(gobject_class,APPLICATION_BIN,
                                   g_param_spec_object("bin",
-                                     "bin prop",
+                                     "bin ro prop",
                                      "applications top-level GstElement container",
                                      GST_TYPE_BIN, /* object type */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,APPLICATION_SETTINGS,
                                   g_param_spec_object("settings",

@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BT_BIN_H__
-#define BT_BIN_H__
+#ifndef BT_DEC_H__
+#define BT_DEC_H__
 
 #include <gst/gst.h>
 #include <gst/base/gstadapter.h>
@@ -30,23 +30,23 @@
 G_BEGIN_DECLS
 
 
-#define BT_TYPE_BIN            (bt_bin_get_type())
-#define BT_BIN(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj),BT_TYPE_BIN,BtBin))
-#define BT_IS_BIN(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj),BT_TYPE_BIN))
-#define BT_BIN_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass) ,BT_TYPE_BIN,BtBinClass))
-#define BT_IS_BIN_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass) ,BT_TYPE_BIN))
-#define BT_BIN_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj) ,BT_TYPE_BIN,BtBinClass))
+#define BT_TYPE_DEC            (bt_dec_get_type())
+#define BT_DEC(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj),BT_TYPE_DEC,BtDec))
+#define BT_IS_BIN(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj),BT_TYPE_DEC))
+#define BT_DEC_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass) ,BT_TYPE_DEC,BtDecClass))
+#define BT_IS_BIN_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass) ,BT_TYPE_DEC))
+#define BT_DEC_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj) ,BT_TYPE_DEC,BtDecClass))
 
-typedef struct _BtBin BtBin;
-typedef struct _BtBinClass BtBinClass;
+typedef struct _BtDec BtDec;
+typedef struct _BtDecClass BtDecClass;
 
 /**
- * BtBin:
+ * BtDec:
  *
  * Class instance data.
  */
-struct _BtBin {
-  GstBin parent;
+struct _BtDec {
+  GstElement parent;
   
   GstPad *sinkpad, *srcpad, *binpad;
 
@@ -62,12 +62,12 @@ struct _BtBin {
   GstSegment segment;
 };
 
-struct _BtBinClass {
-  GstBinClass parent_class;
+struct _BtDecClass {
+  GstElementClass parent_class;
 };
 
-GType bt_bin_get_type(void);
+GType bt_dec_get_type(void);
 
 G_END_DECLS
 
-#endif /*BT_BIN_H__ */
+#endif /*BT_DEC_H__ */

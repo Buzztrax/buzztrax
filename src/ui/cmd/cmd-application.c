@@ -212,7 +212,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
  * Returns: the new instance or %NULL in case of an error
  */
 BtCmdApplication *bt_cmd_application_new(gboolean quiet) {
-  return(BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,"bin",gst_pipeline_new("song"),"quiet",quiet,NULL)));
+  return(BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,"quiet",quiet,NULL)));
 }
 
 //-- methods

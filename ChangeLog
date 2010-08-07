@@ -1,3 +1,18 @@
+2010-08-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/application.c:
+	* src/ui/bin/Makefile.am:
+	* src/ui/bin/bt-dec.c:
+	* src/ui/bin/bt-dec.h:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/bin/bt-dec.c (added):
+	* src/ui/bin/bt-dec.h (added):
+	* src/ui/bin/bt-bin.h (deleted):
+	* src/ui/bin/bt-bin.c (deleted):
+	  Rename bt-bin to bt-dec and go for the separate pipeline approach. Thus we
+	  can also revert the change to appliation to make the bin setable.
+
 2010-08-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-toolbar.c:
