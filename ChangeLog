@@ -1,5 +1,11 @@
 2010-08-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Remove comemnted out code and fixed todo comments.
+
+2010-08-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wire.c:
 	  Set "max-size-buffer" to 2 to avoid disconts. Add some test code for
 	  threadbarrier patch.

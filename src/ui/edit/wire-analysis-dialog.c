@@ -37,9 +37,7 @@
  * @idea: use own ruler widget or patch up the existing one
  * http://live.gnome.org/GTK%2B/GtkRuler
  *
- * @todo: when frequency bands are getting high, we don't seem to get very
- * frequent spectrum updates (check if spectrum uses a rolling data window in
- * timedomain)
+ * @idea: it would be nice to use this on the sink-machine as well.
  */
 #define BT_EDIT
 #define BT_WIRE_ANALYSIS_DIALOG_C
@@ -73,10 +71,6 @@ typedef enum {
   MAP_LOG=1
 } BtWireAnalyzerMapping;
 
-//#define SPECT_BANDS 256
-//#define SPECT_WIDTH (SPECT_BANDS)
-//#define SPECT_HEIGHT 64
-//#define LEVEL_WIDTH (SPECT_BANDS)
 #define LEVEL_HEIGHT 16
 #define LOW_VUMETER_VAL -90.0
 
