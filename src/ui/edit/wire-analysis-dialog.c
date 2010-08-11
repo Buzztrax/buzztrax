@@ -80,7 +80,7 @@ typedef enum {
 #define LEVEL_HEIGHT 16
 #define LOW_VUMETER_VAL -90.0
 
-#define SPECTRUM_FLOOR -80
+#define SPECTRUM_FLOOR -70
 
 #define UPDATE_INTERVAL ((GstClockTime)(0.2*GST_SECOND))
 
@@ -427,8 +427,6 @@ static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
     gfloat height_scale=self->priv->height_scale;
     gfloat *spect;
 
-    GST_WARNING("queuing redraw spectrum");
-
     g_mutex_lock(self->priv->lock);
     spect=self->priv->spect;
     spect_bands=self->priv->spect_bands*self->priv->frq_precision;
@@ -528,7 +526,7 @@ static void on_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointe
   self->priv->height_scale = (gdouble)allocation->height / (gdouble)SPECTRUM_FLOOR;
   self->priv->spect_bands = allocation->width;
 
-  if (old_heigth!=self->priv->spect_height) {
+  if (old_heigth!=self->priv->spect_height || !self->priv->spect_grad) {
     if(self->priv->spect_grad)
       cairo_pattern_destroy(self->priv->spect_grad);
     // this looks nice, but seems to be expensive
@@ -757,8 +755,9 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     res=FALSE;
     goto Error;
   }
+  // leave "max-size-buffer >> 1, if 1 every buffer gets marked as discont!
   g_object_set(self->priv->analyzers[ANALYZER_QUEUE],
-      "max-size-buffers",1,"max-size-bytes",0,"max-size-time",G_GUINT64_CONSTANT(0),
+      "max-size-buffers",10,"max-size-bytes",0,"max-size-time",G_GUINT64_CONSTANT(0),
       "leaky",2,NULL);
 
   g_object_set(self->priv->wire,"analyzers",self->priv->analyzers_list,NULL);

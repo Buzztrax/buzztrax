@@ -1,5 +1,16 @@
 2010-08-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wire.c:
+	  Set "max-size-buffer" to 2 to avoid disconts. Add some test code for
+	  threadbarrier patch.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Init the gardient. Set "max-size-buffer" to 10 to fix spectrum resets
+	  due to disconts. Raise the floor a bit.
+	  
+
+2010-08-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/wire-analysis-dialog.c:
 	  Add precission parameter. Cache log10 values. Fix the height scaling
 	  and invert data so that we can memset the empty spectrum (floor=0).
