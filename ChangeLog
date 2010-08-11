@@ -1,3 +1,9 @@
+2010-08-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Add precission parameter. Cache log10 values. Fix the height scaling
+	  and invert data so that we can memset the empty spectrum (floor=0).
+
 2010-08-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/buzztard-core-sections.txt:
