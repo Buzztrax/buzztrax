@@ -231,25 +231,27 @@ BtChangeLog *bt_change_log_new(void) {
 
 //-- methods
 
+/*
+ * bt_change_log_crash_check:
+ * @self: the changelog
+ *
+ * Looks for changelog-journals in the cache dir. Finding those would indicate
+ * that a song has not been saved (e.g the app crashed). This check can be done
+ * at any time, but application startup would make most sense.
+ * Currently open songs (which have a open journal) are filtered.
+ *
+ * Returns: a list with journals, free when done.
+ */
 GList *bt_change_log_crash_check(BtChangeLog *self) {
-  /*
-   * - can be done at any time, even if we create a new _unnamed_, it will have a
-   *   different dts
-   * - run a pre-check over the logs
-   *   - auto-clean logs that only consist of the header (2 lines)
-   *   - the log would need to point to the actual filename
-   *     - only offer recover if the original file is available or
-   *       if file-anem is empty
-   * - should we have a way to delete logs?
-   *   - song not there anymore
-   *   - log was replayed, song saved, but then it crashed (before resetting the log)
-   */
   gchar *path=g_build_filename(self->priv->cache_dir,PACKAGE,NULL);
   DIR * const dirp=opendir(path);
+  GList *crash_entries=NULL;
   
   if(dirp) {
     const struct dirent *dire;
     gchar link_target[FILENAME_MAX],log_name[FILENAME_MAX];
+    FILE *log_file;
+    gboolean valid_log,auto_clean;
   
     GST_INFO("looking for crash left-overs in %s",self->priv->cache_dir);
     while((dire=readdir(dirp))!=NULL) {
@@ -262,13 +264,65 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
       if(!g_str_has_suffix(log_name,".log")) continue;
       if(g_str_has_suffix(log_name,self->priv->log_file_name)) continue;
       GST_INFO("    found file '%s'",log_name);
-      
-      // add to list ...
+
+      /* run a pre-check over the logs
+       * - auto-clean logs that only consist of the header (2 lines)
+       * - the log would need to point to the actual filename
+       *   - only offer recover if the original file is available or
+       *     if file-name is empty
+       *   - otherwise auto-clean
+       */
+      valid_log=auto_clean=FALSE;
+      if((log_file=fopen(log_name,"rt"))) {
+        gchar linebuf[200];
+        gchar *res;
+        
+        if(!(res=fgets(linebuf, 200, log_file))) {
+          GST_INFO("    '%s' is not a change log, eof too early",log_name);
+          goto done;
+        }
+        if(!g_str_has_prefix(linebuf, PACKAGE" edit journal : ")) {
+          GST_INFO("    '%s' is not a change log, wrong header",log_name);
+          goto done;
+        }
+        // from now one, we know its a log, if its useless we can kill it
+        if(!(res=fgets(linebuf, 200, log_file))) {
+          GST_INFO("    '%s' is not a change log, eof too early",log_name);
+          auto_clean=TRUE;
+          goto done;
+        }
+        g_strchomp(linebuf);
+        if(*linebuf && !g_file_test (linebuf, G_FILE_TEST_IS_REGULAR|G_FILE_TEST_EXISTS)) {
+          GST_INFO("    '%s' a change log for '%s' but that file does not exists",log_name,linebuf);
+          auto_clean=TRUE;
+          goto done;
+        }
+        if(!(res=fgets(linebuf, 200, log_file))) {
+          GST_INFO("    '%s' is an empty change log",log_name);
+          auto_clean=TRUE;
+          goto done;
+        }
+        valid_log=TRUE;
+        // add to list ...
+      done:
+        fclose(log_file);
+      }
+      if(!valid_log) {
+        /* be careful with removing invalid log-files
+         * - if g_get_user_cache_dir() returns non-sense due to some bug,
+         *   we eventualy walk some random dir and remove files
+         * - we can remove files that *are* log files, but invalid
+         */
+        if(auto_clean) {
+          GST_WARNING("auto removing '%s'",log_name);
+          //g_remove(log_name);
+        }
+      }
     }
     closedir(dirp);
   }
   g_free(path);
-  return(NULL);
+  return(crash_entries);
 }
 
 gboolean bt_change_log_recover(BtChangeLog *self,const gchar *entry) {

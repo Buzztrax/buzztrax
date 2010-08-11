@@ -172,6 +172,7 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   BtSettings *settings;
   guint version;
   gboolean res,show_tips;
+  GList *crash_entries;
 
   g_assert(self);
   g_assert(self->priv->main_window);
@@ -198,7 +199,14 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
     goto Error;
 
   // check for recoverable songs
-  bt_change_log_crash_check(self->priv->change_log);
+  if((crash_entries=bt_change_log_crash_check(self->priv->change_log))) {
+    GST_INFO("have found crash logs");
+    // @todo: show UI
+    // bt_edit_application_recover_files(self,crash_entries);
+    
+    // @todo: also free entries
+    g_list_free(crash_entries);
+  }
 
   GST_INFO("before running the UI");
   gtk_main();

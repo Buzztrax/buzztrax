@@ -1,5 +1,11 @@
 2010-08-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/edit-application.c:
+	  Implement sanity checks in the crash log scan.
+
+2010-08-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
 	* src/ui/edit/wire-analysis-dialog.c:
 	  Remove comemnted out code and fixed todo comments.
