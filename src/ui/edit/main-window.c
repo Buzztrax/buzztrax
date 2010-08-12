@@ -383,16 +383,30 @@ BtMainWindow *bt_main_window_new(void) {
  */
 gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   gboolean res=TRUE;
-  gboolean unsaved=FALSE;
   BtSong *song;
 
   g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
+    gboolean unsaved;
+
     g_object_get(song,"unsaved",&unsaved,NULL);
+    if(unsaved) {
+      BtSongInfo *song_info;
+      gchar *dts,*msg;
+
+      g_object_get(song,"song-info",&song_info,NULL);
+      g_object_get(song_info,"change-dts",&dts,NULL);
+
+      // @todo: convert timestamp to human readable format (and local timezone)
+      
+      msg=g_strdup_printf(_("All unsaved changes will be lost. The song was last saved on: %s"), dts);
+      res=bt_dialog_question(self,_("Really quit?"),_("Really quit?"),msg);
+      
+      g_free(msg);
+      g_free(dts);
+      g_object_unref(song_info);
+    }
     g_object_unref(song);
-  }
-  if(unsaved) {
-    res=bt_dialog_question(self,_("Really quit?"),_("Really quit?"),_("All unsaved changes will be lost then."));
   }
 
   return(res);

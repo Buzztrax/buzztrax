@@ -28,10 +28,6 @@
 /* @todo: reset change-log on new/open-song (app.notify::song)
  * - flush old entries
  *
- * @todo: rename change-log on save-as (notify on song:name)
- *
- * @todo: check for logs on startup -> bt_change_log_crash_check()
- *
  * @todo: need change grouping
  * - when clearing a selection, we can represent this as a group of edits
  * - bt_change_log_{start,end}_group
@@ -129,7 +125,7 @@ struct _BtChangeLogPrivate {
 
   FILE *log_file;
   gchar *log_file_name;
-  const gchar *cache_dir;
+  gchar *cache_dir;
   
   /* each entry pointing to a BtChangeLogEntry */
   GPtrArray *changes;
@@ -157,44 +153,28 @@ static void free_log_file(BtChangeLog *self) {
   }
 }
 
-//-- event handler
+static gchar *make_log_file_name(BtChangeLog *self, BtSongInfo *song_info) {
+  gchar *file_name,*name,*dts,*log_file_name;
 
-static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
-  BtChangeLog *self = BT_CHANGE_LOG(user_data);
-  BtSong *song;
-  BtSongInfo *song_info;
-  gchar *file_name,*name,*dts;
-
-  GST_INFO("song has changed : app=%p, self=%p",app,self);
-  // get song from app
-  g_object_get(self->priv->app,"song",&song,NULL);
-  if(!song) {
-    GST_INFO("song (null) has changed done");
-    return;
-  }
-
-  // remove old log file
-  free_log_file(self);
-  
-  // ensure cachedir
-  file_name=g_build_filename(self->priv->cache_dir,PACKAGE,NULL);
-  g_mkdir_with_parents(file_name,S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
-  g_free(file_name);
-  
-  // create new log file
-  g_object_get(song,"song-info",&song_info,NULL);
   g_object_get(song_info,"name",&name,"create-dts",&dts,NULL);
   file_name=g_strdup_printf("%s_%s.log",dts,name);
   g_free(name);
   g_free(dts);
-  self->priv->log_file_name=g_build_filename(self->priv->cache_dir,PACKAGE,file_name,NULL);
+  
+  log_file_name=g_build_filename(self->priv->cache_dir,file_name,NULL);
   g_free(file_name);
+  return(log_file_name);
+}
+
+static void open_and_init_log(BtChangeLog *self, BtSongInfo *song_info) {
   if(!(self->priv->log_file=fopen(self->priv->log_file_name,"wt"))) {
     GST_WARNING("can't open log file '%s' : %d : %s",self->priv->log_file_name,errno,g_strerror(errno));
     g_free(self->priv->log_file_name);
     self->priv->log_file_name=NULL;
   }
   else {
+    gchar *file_name;
+
     g_object_get(song_info,"file-name",&file_name,NULL);
     fputs(PACKAGE" edit journal : "PACKAGE_VERSION"\n",self->priv->log_file);
     if(file_name) {
@@ -204,14 +184,72 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     fputs("\n",self->priv->log_file);
     fflush(self->priv->log_file);
   }
+}
+
+//-- event handler
+
+static void on_song_file_name_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  BtChangeLog *self = BT_CHANGE_LOG(user_data);
+  BtSongInfo *song_info;
+  gchar *log_file_name;
+
+  // move the log
+  g_object_get((GObject*)song,"song-info",&song_info,NULL);
+  log_file_name=make_log_file_name(self,song_info);
+  g_rename(self->priv->log_file_name,log_file_name);
+  g_free(self->priv->log_file_name);
+  self->priv->log_file_name=log_file_name;
+  g_object_unref(song_info);
+}
+
+static void on_song_file_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  BtChangeLog *self = BT_CHANGE_LOG(user_data);
+  BtSongInfo *song_info;
+  gboolean unsaved;
+
+  g_object_get((GObject*)song,"unsaved",&unsaved,"song-info",&song_info,NULL);
+  if(!unsaved) {
+    GST_WARNING("reset log file");
+    // truncate the log
+    fclose(self->priv->log_file);
+    open_and_init_log(self,song_info);
+  }
+  g_object_unref(song_info);
+}
+
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
+  BtChangeLog *self = BT_CHANGE_LOG(user_data);
+  BtSong *song;
+  BtSongInfo *song_info;
   
-  // @todo: notify on name changes to move the log?
-  // g_signal_connect(song, "notify::name", G_CALLBACK(on_song_file_name_changed), (gpointer)self);
+  if(!self->priv->cache_dir)
+    return;
+
+  GST_INFO("song has changed : app=%p, self=%p",app,self);
+  // get song from app
+  g_object_get(self->priv->app,"song",&song,NULL);
+  if(!song) {
+    GST_INFO("song (null) has changed: done");
+    return;
+  }
+
+  // remove old log file
+  free_log_file(self);
+ 
+  // create new log file
+  g_object_get(song,"song-info",&song_info,NULL);
+  self->priv->log_file_name=make_log_file_name(self,song_info);
+  open_and_init_log(self,song_info);
+  
+  // notify on name changes to move the log
+  g_signal_connect(song, "notify::name", G_CALLBACK(on_song_file_name_changed), (gpointer)self);
+  // notify on unsaved changed to truncate the log when unsaved==FALSE
+  g_signal_connect(song, "notify::unsaved", G_CALLBACK(on_song_file_unsaved_changed), (gpointer)self);
 
   // release the reference
   g_object_unref(song_info);
   g_object_unref(song);
-  GST_INFO("song has changed done");
+  GST_INFO("song has changed: done");
 }
 
 
@@ -243,11 +281,13 @@ BtChangeLog *bt_change_log_new(void) {
  * Returns: a list with journals, free when done.
  */
 GList *bt_change_log_crash_check(BtChangeLog *self) {
-  gchar *path=g_build_filename(self->priv->cache_dir,PACKAGE,NULL);
-  DIR * const dirp=opendir(path);
+  DIR *dirp;
   GList *crash_entries=NULL;
   
-  if(dirp) {
+  if(!self->priv->cache_dir)
+    return(NULL);
+  
+  if((dirp=opendir(self->priv->cache_dir))) {
     const struct dirent *dire;
     gchar link_target[FILENAME_MAX],log_name[FILENAME_MAX];
     FILE *log_file;
@@ -257,7 +297,7 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
     while((dire=readdir(dirp))!=NULL) {
       // skip names starting with a dot
       if((!dire->d_name) || (*dire->d_name=='.')) continue;
-      g_sprintf(log_name,"%s"G_DIR_SEPARATOR_S"%s",path,dire->d_name);
+      g_sprintf(log_name,"%s"G_DIR_SEPARATOR_S"%s",self->priv->cache_dir,dire->d_name);
       // skip symlinks
       if(readlink((const char *)log_name,link_target,FILENAME_MAX-1)!=-1) continue;
       // skip files other than logs and our current log
@@ -321,7 +361,6 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
     }
     closedir(dirp);
   }
-  g_free(path);
   return(crash_entries);
 }
 
@@ -342,15 +381,6 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *entry) {
 #if 0
 #endif
   return(FALSE);
-}
-
-void bt_change_log_reset(BtChangeLog *self) {
-  /*
-  - call after a song has been saved
-  - reset the on-disk log
-    - seek to start and rewrite the header
-  - update pointer last_saved pointer in change stack
-  */
 }
 
 /**
@@ -473,6 +503,7 @@ static void bt_change_log_finalize(GObject *object) {
   BtChangeLog *self = BT_CHANGE_LOG(object);
   
   GST_DEBUG("!!!! self=%p",self);
+  g_free(self->priv->cache_dir);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
   singleton=NULL;
@@ -516,7 +547,14 @@ static void bt_change_log_init(GTypeInstance *instance, gpointer g_class) {
   g_object_try_weak_ref(self->priv->app);
   g_object_unref(self->priv->app);
 
-  self->priv->cache_dir=g_get_user_cache_dir();
+  self->priv->cache_dir=g_build_filename(g_get_user_cache_dir(),PACKAGE,NULL);
+  /* ensure cachedir, set to NULL if we can't make it to deactivate the change logger */
+  if(g_mkdir_with_parents(self->priv->cache_dir,S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
+    GST_WARNING("Can't create change-log dir: '%s': %s",self->priv->cache_dir, g_strerror(errno));
+    g_free(self->priv->cache_dir);
+    self->priv->cache_dir=NULL;
+  }
+  
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   
   self->priv->changes=g_ptr_array_new();
