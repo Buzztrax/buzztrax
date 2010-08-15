@@ -148,7 +148,7 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
     case BT_SETTINGS_FOLDER_SAMPLE:
     {
       if(!prop) {
-        self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
+        self->priv->settings[property_id]=prop=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_STRING);
       }
       g_value_set_string(prop, g_value_get_string(value));
@@ -158,7 +158,7 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
     case BT_SETTINGS_MENU_TABS_HIDE:
     {
       if(!prop) {
-        self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
+        self->priv->settings[property_id]=prop=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_BOOLEAN);
       }
       g_value_set_boolean(prop, g_value_get_boolean(value));
@@ -169,7 +169,7 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
     {
       if(!prop) {
-        self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
+        self->priv->settings[property_id]=prop=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_UINT);
       }
       g_value_set_uint(prop, g_value_get_uint(value));
@@ -180,7 +180,7 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
     case BT_SETTINGS_WINDOW_HEIGHT:
     {
       if(!prop) {
-        self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
+        self->priv->settings[property_id]=prop=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_INT);
       }
       g_value_set_int(prop, g_value_get_int(value));
@@ -252,7 +252,7 @@ void bt_test_settings_set(BtTestSettings * const self, gchar *property_name, gpo
       GValue *prop=self->priv->settings[property_id];
 
       if(!prop) {
-        self->priv->settings[property_id]=prop=self->priv->settings[property_id]=g_new0(GValue,1);
+        self->priv->settings[property_id]=prop=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_STRING);
       }
       g_value_set_string(prop, val);
