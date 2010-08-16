@@ -1,3 +1,10 @@
+2010-08-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/LINGUAS:
+	* po/fi.po:
+	* po/fi.po (added):
+	  Add finish translation.
+
 2010-08-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/bt-test-settings.c:
