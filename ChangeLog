@@ -1,5 +1,10 @@
 2010-08-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Add idea and go back from 5fps to 10fps.
+
+2010-08-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/LINGUAS:
 	* po/fi.po:
 	* po/fi.po (added):

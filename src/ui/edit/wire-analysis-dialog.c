@@ -38,6 +38,12 @@
  * http://live.gnome.org/GTK%2B/GtkRuler
  *
  * @idea: it would be nice to use this on the sink-machine as well.
+ * - need to change it to "analysis-dialog"
+ * - the constructor needs variants for machines and wires.
+ * - machines need a pre/post hook (idealy we just need it for the sink)
+ *
+ * @idea: multichannel mode
+ * https://bugzilla.gnome.org/show_bug.cgi?id=593482
  */
 #define BT_EDIT
 #define BT_WIRE_ANALYSIS_DIALOG_C
@@ -76,7 +82,7 @@ typedef enum {
 
 #define SPECTRUM_FLOOR -70
 
-#define UPDATE_INTERVAL ((GstClockTime)(0.2*GST_SECOND))
+#define UPDATE_INTERVAL ((GstClockTime)(0.1*GST_SECOND))
 
 struct _BtWireAnalysisDialogPrivate {
   /* used to validate if dispose has run */
