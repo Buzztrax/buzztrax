@@ -505,7 +505,6 @@ bt_pattern_editor_realize (GtkWidget *widget)
   g_return_if_fail (BT_IS_PATTERN_EDITOR (widget));
   
   gtk_widget_set_realized(widget, TRUE);
-  gtk_widget_set_can_focus(widget, TRUE);
   attributes.x = widget->allocation.x;
   attributes.y = widget->allocation.y;
   attributes.width = widget->allocation.width;
@@ -524,7 +523,9 @@ bt_pattern_editor_realize (GtkWidget *widget)
   widget->style = gtk_style_attach (widget->style, widget->window);
   gdk_window_set_user_data (widget->window, widget);
   gtk_style_set_background (widget->style, widget->window, GTK_STATE_NORMAL);
-  
+
+  gtk_widget_set_can_focus(widget, TRUE);
+
   // allocation graphical contexts for drawing the overlay lines
   self->play_pos_gc=gdk_gc_new(widget->window);
   gdk_gc_set_rgb_fg_color(self->play_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));

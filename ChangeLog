@@ -1,5 +1,10 @@
 2010-08-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-editor.c:
+	  Fix assertion - this needs the gdk-window first.
+
+2010-08-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/wire-analysis-dialog.c:
 	  Add idea and go back from 5fps to 10fps.
 
