@@ -229,8 +229,12 @@ static void update_machine_graphics(BtMachineCanvasItem *self) {
     alpha_pixbuf(pixbuf);
   }
   gnome_canvas_item_set(self->priv->box,
-    "width",self->priv->zoom*84.0,
-    "height",self->priv->zoom*84.0,
+    "width",(gdouble)gdk_pixbuf_get_width(pixbuf),
+    "height",(gdouble)gdk_pixbuf_get_height(pixbuf),
+    /* this would make the icons blurred
+    "width-set",TRUE,
+    "height-set",TRUE,
+    */
     "pixbuf",pixbuf,
     NULL);
   g_object_unref(pixbuf);

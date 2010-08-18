@@ -1,3 +1,16 @@
+2010-08-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/pixbufs.c:
+	* design/gui/svgcanvas2.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/ui-resources.c:
+	* design/gui/pixbufs.c (svn:keywords, svn:eol-style):
+	* design/gui/pixbufs.c (added):
+	  Experiemnt with the svg icon failure on suse-11.3. Add a new pixbuf tester.
+	  File a bug to suse with the fix. Make our icons for now blurry, but
+	  correctly sized in all cases.
+
 2010-08-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gui/rulers.c:

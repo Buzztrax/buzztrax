@@ -473,7 +473,7 @@ int main(int argc, char **argv) {
      NULL);
   g_signal_connect(G_OBJECT(ci),"event",G_CALLBACK(on_canvas_item_event),NULL);
 
-  // add another svg again as a pixbuf, but using pixbu api
+  // add another svg again as a pixbuf, but using pixbuf api
   ci=gnome_canvas_item_new (gnome_canvas_root (canvas),
      GNOME_TYPE_CANVAS_PIXBUF,
      "pixbuf", gdk_pixbuf_new_from_file ("master.svg", NULL),

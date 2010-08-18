@@ -266,6 +266,9 @@ static void bt_ui_resources_free_graphics(BtUIResources *self) {
 static void bt_ui_resources_init_graphics(BtUIResources *self) {
   // 12*6=72, 14*6=84
   const gint size=(gint)(self->priv->zoom*(gdouble)(GTK_ICON_SIZE_DIALOG*14));
+  //const gint size=(gint)(self->priv->zoom*(gdouble)(6*14));
+
+  GST_WARNING("regenerating machine graphics at %d pixels",size);
   
   //self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL] = bt_ui_resources_load_svg ("generator.svg");
   
