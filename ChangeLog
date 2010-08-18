@@ -1,6 +1,11 @@
 2010-08-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gui/rulers.c:
+	  Add Comments and use a define for a constant.
+
+2010-08-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/rulers.c:
 	* design/gui/rulers.c (added):
 	  Add new test toy.
 

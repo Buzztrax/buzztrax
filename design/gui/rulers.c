@@ -8,6 +8,9 @@
  *
  * gtk_ruler_set_range:
  * improve api-docs, position and max_size parameters are not understandable
+ * - position is overridden by motion-notify anyway right now
+ *   meant for manual ruler-mark placement
+ *  
  */
 
 #include <stdio.h>
@@ -22,6 +25,8 @@ static GtkWidget *rel_h_ruler;
 static GtkWidget *rel_v_ruler;
 static GtkWidget *info_label;
 
+#define MAX_HEIGHT 30.0
+
 static void destroy (GtkWidget *widget,gpointer data) {
   gtk_main_quit ();
 }
@@ -30,10 +35,10 @@ static void on_size_changed (GtkWidget *widget, GtkAllocation *allocation, gpoin
   static gint w = 0, h = 0;
 
   if (w != allocation->width) {
-    gtk_ruler_set_range (GTK_RULER (rel_h_ruler), 0.0, allocation->width, 0.0, 40.0);
+    gtk_ruler_set_range (GTK_RULER (rel_h_ruler), 0.0, allocation->width, 0.0, MAX_HEIGHT);
   }
   if (h != allocation->height) {
-    gtk_ruler_set_range (GTK_RULER (rel_v_ruler), 0.0, allocation->height, 0.0, 40.0);
+    gtk_ruler_set_range (GTK_RULER (rel_v_ruler), 0.0, allocation->height, 0.0, MAX_HEIGHT);
   }
   if (w != allocation->width || h != allocation->height) {
     gchar info[100];
@@ -82,10 +87,10 @@ gint main (gint argc, gchar **argv) {
   
   // add rulers
   ruler = gtk_hruler_new ();
-  gtk_ruler_set_range (GTK_RULER (ruler), 0.0, 100.0, 0.0, 40.0);
+  gtk_ruler_set_range (GTK_RULER (ruler), 0.0, 100.0, 0.0, MAX_HEIGHT);
   gtk_table_attach (table, ruler , 2, 3, 1, 2, GTK_SHRINK|GTK_FILL, GTK_SHRINK|GTK_FILL, 0, 0);
   ruler = gtk_vruler_new ();
-  gtk_ruler_set_range (GTK_RULER (ruler), 0.0, 100.0, 0.0, 40.0);
+  gtk_ruler_set_range (GTK_RULER (ruler), 0.0, 100.0, 0.0, MAX_HEIGHT);
   gtk_table_attach (table, ruler , 1, 2, 2, 3, GTK_SHRINK|GTK_FILL, GTK_SHRINK|GTK_FILL, 0, 0);
 
   ruler = rel_h_ruler = gtk_hruler_new ();
