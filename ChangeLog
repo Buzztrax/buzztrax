@@ -1,3 +1,13 @@
+2010-08-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/rulers.c:
+	* design/gui/rulers.c (added):
+	  Add new test toy.
+
+	* design/gui/stylecolors.c:
+	  Small style cleanups.
+
+
 2010-08-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:

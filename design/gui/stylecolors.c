@@ -14,13 +14,13 @@
 #include <gdk/gdk.h>
 #include <glib.h>
 
-static void destroy(GtkWidget *widget,gpointer data) {
+static void destroy (GtkWidget *widget,gpointer data) {
   gtk_main_quit ();
 }
 
 static gboolean set_colors (gpointer data) {
   GtkTable *table = GTK_TABLE (data);
-  GtkWidget *widget = GTK_WIDGET(table);
+  GtkWidget *widget = GTK_WIDGET (table);
   guint i,j;
   GdkColor *colors[]={
     widget->style->fg,
@@ -36,7 +36,7 @@ static gboolean set_colors (gpointer data) {
   for(j=0;j<5;j++) {
     for(i=0;i<8;i++) {
       gtk_table_attach_defaults (table, 
-        gtk_color_button_new_with_color(&colors[i][j]),
+        gtk_color_button_new_with_color (&colors[i][j]),
         j+1, j+2, i+1, i+2);
     }
   }
@@ -44,20 +44,20 @@ static gboolean set_colors (gpointer data) {
   return FALSE;
 }
 
-int main(int argc, char **argv) {
+gint main (gint argc, gchar **argv) {
   GtkWidget *window;
   GtkTable *table;
 
   gtk_init (&argc,&argv);
   
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW(window), "Style colors");
-  g_signal_connect(G_OBJECT(window), "destroy",	G_CALLBACK (destroy), NULL);
+  gtk_window_set_title (GTK_WINDOW (window), "Style colors");
+  g_signal_connect (G_OBJECT (window), "destroy",	G_CALLBACK (destroy), NULL);
 
   // add a table
   table = GTK_TABLE (gtk_table_new (/*colors*/8+1,/*states*/5+1, FALSE));
   gtk_container_add (GTK_CONTAINER (window), GTK_WIDGET (table));
-  
+
   // colors
   gtk_table_attach_defaults (table, gtk_label_new ("fg")     , 0, 1, 1, 2);
   gtk_table_attach_defaults (table, gtk_label_new ("bg")     , 0, 1, 2, 3);
@@ -67,18 +67,18 @@ int main(int argc, char **argv) {
   gtk_table_attach_defaults (table, gtk_label_new ("text")   , 0, 1, 6, 7);
   gtk_table_attach_defaults (table, gtk_label_new ("text aa"), 0, 1, 7, 8);
   gtk_table_attach_defaults (table, gtk_label_new ("base")   , 0, 1, 8, 9);
-  
+
   // states
   gtk_table_attach_defaults (table, gtk_label_new ("normal")      , 1, 2, 0, 1);
   gtk_table_attach_defaults (table, gtk_label_new ("active")      , 2, 3, 0, 1);
   gtk_table_attach_defaults (table, gtk_label_new ("prelight")    , 3, 4, 0, 1);
   gtk_table_attach_defaults (table, gtk_label_new ("selected")    , 4, 5, 0, 1);
   gtk_table_attach_defaults (table, gtk_label_new ("insensitive") , 5, 6, 0, 1);
-  
+
   g_idle_add (set_colors, (gpointer)table);
  
   gtk_widget_show_all (window);
   gtk_main ();
 
-  return(0);
+  return 0;
 }
