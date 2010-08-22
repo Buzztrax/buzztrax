@@ -191,8 +191,15 @@ GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name) {
  * Grab focus only if widget has been realized and is mapped.
  */
 void gtk_widget_grab_focus_savely(GtkWidget *widget) {
-  if(gtk_widget_get_realized(widget) && gtk_widget_get_mapped(widget)) {
+  gboolean realized=gtk_widget_get_realized(widget);
+  gboolean mapped=gtk_widget_get_mapped(widget);
+
+  if(realized && mapped) {
     gtk_widget_grab_focus(widget);
+  }
+  else {
+    GST_WARNING("not grabbing widget '%s', realized: %d, mapped %d",
+      gtk_widget_get_name(widget),realized,mapped);
   }
 }
 

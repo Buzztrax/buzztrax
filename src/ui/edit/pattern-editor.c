@@ -42,6 +42,8 @@
  * - drawing
  *   - having some 1 pixel padding left/right of groups would look better
  *     the group gap is one whole character anyway
+ *
+ * @idea: use gtk_widget_error_bell (widget); when hitting borders with cursor
  */
 
 #include <ctype.h>

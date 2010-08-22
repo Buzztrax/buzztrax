@@ -46,7 +46,7 @@
  *   - show tick-length in pattern list
  *
  * @todo: we should have a track-changed signal
- *  - allowd patternd to sync with selected machine and not passively syncing
+ *  - allows pattern to sync with selected machine and not passively syncing
  *    (bt_main_page_patterns_show_machine())
  * @idea: add a follow playback checkbox to toolbar to en/disable sequence scrolling
  *   - the scrolling causes quite some repaints and thus slowness
@@ -686,9 +686,12 @@ static gboolean on_page_switched_idle(gpointer user_data) {
   return(FALSE);
 }
 
-static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  guint page_num;
   static gint prev_page_num=-1;
+
+  g_object_get(notebook,"page",&page_num,NULL);
 
   if(page_num==BT_MAIN_PAGES_SEQUENCE_PAGE) {
     // only do this if the page really has changed
@@ -1009,6 +1012,7 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
   gtk_box_pack_start(GTK_BOX(self->priv->pos_header),label,TRUE,FALSE,0);
 
   self->priv->pos_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
+  gtk_combo_box_set_focus_on_click(self->priv->pos_menu,FALSE);
   gtk_combo_box_append_text(self->priv->pos_menu,_("Ticks"));
   gtk_combo_box_append_text(self->priv->pos_menu,_("Time"));
   gtk_combo_box_set_active(self->priv->pos_menu,0);
@@ -3119,13 +3123,10 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(scrolled_window),TRUE,TRUE,0);
   //gtk_paned_pack2(GTK_PANED(split_box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
 
-  // set default widget
-  //g_signal_connect_after(GTK_WIDGET(self->priv->sequence_table),"realize",G_CALLBACK(on_sequence_view_realized),(gpointer)self);
-  gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_table));
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   // listen to page changes
-  g_signal_connect((gpointer)pages, "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+  g_signal_connect((gpointer)pages, "notify::page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   // let settings control toolbar style
   g_object_get(self->priv->app,"settings",&settings,NULL);
@@ -3477,6 +3478,14 @@ void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self) {
 
 //-- class internals
 
+static gboolean bt_main_page_sequence_focus(GtkWidget *widget, GtkDirectionType direction) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(widget);
+  
+  GST_DEBUG("focusing default widget");
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
+  return FALSE;
+}
+
 static void bt_main_page_sequence_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(object);
   return_if_disposed();
@@ -3498,9 +3507,6 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-
-  // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
-  gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
 
   g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
@@ -3580,6 +3586,7 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
 
   column_index_quark=g_quark_from_static_string("BtMainPageSequence::column-index");
   bus_msg_level_quark=g_quark_from_static_string("level");
@@ -3590,6 +3597,8 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   gobject_class->get_property = bt_main_page_sequence_get_property;
   gobject_class->dispose      = bt_main_page_sequence_dispose;
   gobject_class->finalize     = bt_main_page_sequence_finalize;
+  
+  gtkwidget_class->focus      = bt_main_page_sequence_focus;
   
   g_object_class_install_property(gobject_class,MAIN_PAGE_SEQUENCE_CURSOR_ROW,
                                   g_param_spec_long("cursor-row",

@@ -65,13 +65,17 @@ static GtkVBoxClass *parent_class=NULL;
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
 
+  GST_DEBUG("focusing default widget");
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->info));
   return(FALSE);
 }
 
-static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
   //BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+  guint page_num;
   static gint prev_page_num=-1;
+  
+  g_object_get(notebook,"page",&page_num,NULL);
 
   if(page_num==BT_MAIN_PAGES_INFO_PAGE) {
     // only do this if the page really has changed
@@ -452,12 +456,10 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->priv->info));
   g_signal_connect(gtk_text_view_get_buffer(self->priv->info), "changed", G_CALLBACK(on_info_changed), (gpointer)self);
 
-  // set default widget
-  gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info));
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   // listen to page changes
-  g_signal_connect((gpointer)pages, "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+  g_signal_connect((gpointer)pages, "notify::page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   GST_DEBUG("  done");
 }
@@ -486,15 +488,20 @@ BtMainPageInfo *bt_main_page_info_new(const BtMainPages *pages) {
 
 //-- class internals
 
+static gboolean bt_main_page_info_focus(GtkWidget *widget, GtkDirectionType direction) {
+  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(widget);
+  
+  GST_DEBUG("focusing default widget");
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->info));
+  return FALSE;
+}
+
 static void bt_main_page_info_dispose(GObject *object) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
   
   GST_DEBUG("!!!! self=%p",self);
-
-  // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
-  gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
 
   g_object_unref(self->priv->app);
 
@@ -512,11 +519,14 @@ static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageInfoPrivate));
 
   gobject_class->dispose      = bt_main_page_info_dispose;
+  
+  gtkwidget_class->focus      = bt_main_page_info_focus;
 }
 
 GType bt_main_page_info_get_type(void) {

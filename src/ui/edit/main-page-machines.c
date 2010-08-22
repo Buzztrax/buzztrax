@@ -710,7 +710,7 @@ static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtMainWindow *main_window;
 
-  //GST_DEBUG("grabing focus");
+  GST_DEBUG("focusing default widget");
   // hmm, when it comes from any but pattern page it works
   // when it comes from pattern page main-pages::on_page_switched comes after this
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
@@ -727,9 +727,12 @@ static gboolean on_page_switched_idle(gpointer user_data) {
   return(FALSE);
 }
 
-static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  guint page_num;
   static gint prev_page_num=-1;
+
+  g_object_get(notebook,"page",&page_num,NULL);
 
   if(page_num==BT_MAIN_PAGES_MACHINES_PAGE) {
     // only do this if the page really has changed
@@ -1128,13 +1131,11 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   self->priv->pan_popup=BT_PANORAMA_POPUP(bt_panorama_popup_new(GTK_ADJUSTMENT(self->priv->pan_popup_adj)));
   g_signal_connect(self->priv->pan_popup_adj,"value-changed",G_CALLBACK(on_panorama_popup_changed),(gpointer)self);
   
-  // set default widget
-  gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->canvas));
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect(self->priv->canvas,"event",G_CALLBACK(on_canvas_event),(gpointer)self);
   // listen to page changes
-  g_signal_connect((gpointer)pages, "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+  g_signal_connect((gpointer)pages, "notify::page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   // let settings control toolbar style
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
@@ -1238,6 +1239,14 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
 
 //-- class internals
 
+static gboolean bt_main_page_machines_focus(GtkWidget *widget, GtkDirectionType direction) {
+  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(widget);
+  
+  GST_DEBUG("focusing default widget");
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
+  return FALSE;
+}
+
 static void bt_main_page_machines_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(object);
   return_if_disposed();
@@ -1257,9 +1266,6 @@ static void bt_main_page_machines_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-
-  // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
-  gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
 
   GST_DEBUG("  unrefing popups");
 
@@ -1320,6 +1326,7 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageMachinesPrivate));
@@ -1327,6 +1334,8 @@ static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
   gobject_class->get_property = bt_main_page_machines_get_property;
   gobject_class->dispose      = bt_main_page_machines_dispose;
   gobject_class->finalize     = bt_main_page_machines_finalize;
+  
+  gtkwidget_class->focus      = bt_main_page_machines_focus;
 
   g_object_class_install_property(gobject_class,MAIN_PAGE_MACHINES_CANVAS,
                                   g_param_spec_object("canvas",

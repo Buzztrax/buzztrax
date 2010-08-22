@@ -1748,16 +1748,21 @@ static void switch_machine_and_pattern(const BtMainPagePatterns *self,BtMachine 
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
+  GST_DEBUG("focusing default widget");
+  // hmm, when it comes from any but sequence page it works
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
   // only set new text
   pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);
   return(FALSE);
 }
 
-static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMainWindow *main_window;
+  guint page_num;
   static gint prev_page_num=-1;
+  
+  g_object_get(notebook,"page",&page_num,NULL);
 
   if(page_num==BT_MAIN_PAGES_PATTERNS_PAGE) {
     // only do this if the page really has changed
@@ -2520,12 +2525,10 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   // --
   // @todo cut, copy, paste
 
-  // set default widget
-  gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->pattern_table));
   // register event handlers
   g_signal_connect((gpointer)(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   // listen to page changes
-  g_signal_connect((gpointer)pages,"switch-page",G_CALLBACK(on_page_switched),(gpointer)self);
+  g_signal_connect((gpointer)pages,"notify::page",G_CALLBACK(on_page_switched),(gpointer)self);
 
   // let settings control toolbar style
   g_object_get(self->priv->app,"settings",&settings,NULL);
@@ -3047,6 +3050,14 @@ static void bt_main_page_patterns_change_logger_interface_init(gpointer const g_
 
 //-- class internals
 
+static gboolean bt_main_page_patterns_focus(GtkWidget *widget, GtkDirectionType direction) {
+  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(widget);
+  
+  GST_DEBUG("focusing default widget");
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
+  return FALSE;
+}
+
 static void bt_main_page_patterns_dispose(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
 
@@ -3054,9 +3065,6 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-
-  // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
-  gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
   
   g_object_unref(self->priv->change_log);
   g_object_unref(self->priv->app);
@@ -3107,6 +3115,7 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
 
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
 
   column_index_quark=g_quark_from_static_string("BtMainPagePattern::column-index");
   voice_index_quark=g_quark_from_static_string("BtMainPagePattern::voice-index");
@@ -3116,6 +3125,8 @@ static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
 
   gobject_class->dispose      = bt_main_page_patterns_dispose;
   gobject_class->finalize     = bt_main_page_patterns_finalize;
+  
+  gtkwidget_class->focus      = bt_main_page_patterns_focus;
 }
 
 GType bt_main_page_patterns_get_type(void) {

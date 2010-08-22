@@ -95,19 +95,22 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed done");
 }
 
-static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
   BtMainPages *self=BT_MAIN_PAGES(user_data);
   BtSong *song;
   BtSetup *setup;
   GHashTable *properties;
   gchar *prop;
+  guint page_num;
 
-  GST_INFO("page has switched : self=%p, page=%d",self,page_num);
   // get objects
   g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) {
     return;
   }
+  
+  g_object_get(notebook,"page",&page_num,NULL);
+  GST_INFO("page has switched : self=%p, page=%d",self,page_num);
   
   // remember page
   g_object_get(song,"setup",&setup,NULL);
@@ -154,40 +157,24 @@ static void bt_main_pages_add_tab(const BtMainPages *self,GtkWidget *content,gch
   gtk_notebook_insert_page(GTK_NOTEBOOK(self),content,event_box,-1);
 }
 
-#if 0
-static void on_page_switched_dbg(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
-  GST_WARNING("page has switched : self=%p, page=%d",BT_MAIN_PAGES(user_data),page_num);
-  G_BREAKPOINT();
-}
-#endif
-
 static void bt_main_pages_init_ui(const BtMainPages *self) {
   gtk_widget_set_name(GTK_WIDGET(self),"song views");
 
   GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->app));
-
-  /* block "switch-page" signal, adding pages emits that signal unnecesarily
-   * for some reason it is not emitted in simple test applications
-   * see design/gui/notebook.c
-   */
-#if 0
-  g_signal_connect((gpointer)self, "switch-page", G_CALLBACK(on_page_switched_dbg), (gpointer)self);
-#endif
-  // guint sid=g_signal_lookup("switch-page",GTK_TYPE_NOTEBOOK);
   
+  // don't emit notify::page for each add
+  g_object_freeze_notify((GObject *)self);
+ 
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(self);
-  //g_signal_handlers_block_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->machines_page);
   bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->machines_page),_("machines"),"buzztard_tab_machines",_("machines used in the song and their wires"));
 
   // add wigets for pattern view
   self->priv->patterns_page=bt_main_page_patterns_new(self);
-  //g_signal_handlers_block_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->patterns_page);
   bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->patterns_page),_("patterns"),"buzztard_tab_patterns",_("event pattern editor"));
 
   // add wigets for sequence view
   self->priv->sequence_page=bt_main_page_sequence_new(self);
-  //g_signal_handlers_block_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->sequence_page);
   bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->sequence_page),_("sequence"),"buzztard_tab_sequence",_("song sequence editor"));
 
   // add wigets for waves view
@@ -202,15 +189,11 @@ static void bt_main_pages_init_ui(const BtMainPages *self) {
   // GTK_STOCK_HELP icon
   // embed mozilla/gtk-html/webkit-gtk
   
-  /*
-  g_signal_handlers_unblock_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->sequence_page);
-  g_signal_handlers_unblock_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->sequence_page);
-  g_signal_handlers_unblock_matched((gpointer)self,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,sid,0,NULL,NULL,(gpointer)self->priv->sequence_page);
-  */
+  g_object_thaw_notify((GObject *)self);
   
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
-  g_signal_connect((gpointer)self, "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+  g_signal_connect((gpointer)self, "notify::page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   GST_DEBUG("  done");
 }

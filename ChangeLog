@@ -1,3 +1,26 @@
+2010-08-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/tools.c:
+	  Focus grab improvements. Override the container focus() method as we
+	  have a good idea what we'd like to focus on instead.
+
+	* src/ui/edit/pattern-editor.c:
+	  Add idea.
+
+2010-08-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Get rid of _docus_child hacks. Now sometimes the grab on pattern page
+	  fails.
+
 2010-08-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gui/pixbufs.c:
