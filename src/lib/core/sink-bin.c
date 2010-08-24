@@ -356,8 +356,16 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
       break;
     case BT_SINK_BIN_RECORD_FORMAT_MP3:
       // lame ! id3mux ! filesink location="song.mp3"
-      if(!(element=gst_element_factory_make("lame","lame"))) {
-        GST_INFO("Can't instantiate 'lame' element");goto Error;
+      if(!(element=gst_element_factory_make("lamemp3enc","lame"))) {
+        if(!(element=gst_element_factory_make("lame","lame"))) {
+          GstCaps *caps=gst_caps_from_string("audio/mpeg, mpegversion=1, layer=3");
+
+          GST_INFO("Can't instantiate 'lamemp3enc'/'lame' element");
+          gst_element_post_message(GST_ELEMENT(self),
+            gst_missing_encoder_message_new(GST_ELEMENT(self), caps));
+          gst_caps_unref(caps);
+          goto Error;
+        }
       }
       list=g_list_append(list,element);
       if(!(element=gst_element_factory_make("id3mux","id3mux"))) {

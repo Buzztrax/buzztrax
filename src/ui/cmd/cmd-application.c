@@ -82,7 +82,9 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   gulong cmsec,csec,cmin,tmsec,tsec,tmin;
   gulong length,pos=0;
   GstClockTime bar_time;
+  GstMessage *msg;
   GstBin *bin;
+  GstBus *bus=NULL;
 
   // DEBUG
   //bt_song_write_to_highlevel_dot_file(song);
@@ -101,6 +103,8 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   tmin=(gulong)(tmsec/60000);tmsec-=(tmin*60000);
   tsec=(gulong)(tmsec/ 1000);tmsec-=(tsec* 1000);
   
+  bus=gst_element_get_bus(GST_ELEMENT(bin));
+  
   // connection play and stop signals
   g_signal_connect((gpointer)song, "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   if(bt_song_play(song)) {
@@ -115,6 +119,17 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
         bt_song_stop(song);
       }
       g_object_get((gpointer)song,"play-pos",&pos,NULL);
+      if ((msg=gst_bus_pop_filtered(bus,GST_MESSAGE_ERROR|GST_MESSAGE_WARNING|GST_MESSAGE_ELEMENT))) {
+        GST_INFO("received %s bus message from %s",
+            GST_MESSAGE_TYPE_NAME(msg), GST_OBJECT_NAME(GST_MESSAGE_SRC(msg)));
+        switch(GST_MESSAGE_TYPE(msg)) {
+          case GST_MESSAGE_ERROR:
+            break;
+          default:
+            break;
+        }
+        gst_message_unref(msg);
+      }
 
       if(!self->priv->quiet) {
         // get song->play-pos and print progress
@@ -138,6 +153,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   }
   is_playing=FALSE;
 Error:
+  gst_object_unref(bus);
   g_object_unref(sequence);
   g_object_unref(bin);
   return(res);
@@ -196,6 +212,10 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
       NULL);
     /* see comments in edit/render-progress.c */
     g_object_set(convert,"dithering",2,"noise-shaping",3,NULL);
+    
+    /* @todo: we get no feedback wheter the needed elements are available
+     * we should listen to bus-messages
+     */
 
     ret=TRUE;
 
@@ -568,7 +588,7 @@ static void bt_cmd_application_set_property(GObject *object, guint property_id, 
 }
 
 #if 0
-static GObject* bt_cmd_application_construct (GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
+static GObject* bt_cmd_application_construct(GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
   GObject *self;
 
   //GST_DEBUG("<<<");

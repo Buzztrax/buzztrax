@@ -87,6 +87,7 @@ static gboolean bt_init_post (void) {
   //-- initialize dynamic parameter control module
   //gst_controller_init(argc,argv);
   gst_controller_init(NULL,NULL);
+  gst_pb_utils_init();
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 
@@ -160,7 +161,7 @@ _mm_setcsr(_mm_getcsr() | 0x8040);
   return(res);
 }
 
-static gboolean parse_goption_arg (const gchar * opt, const gchar * arg, gpointer data, GError ** err)
+static gboolean parse_goption_arg(const gchar * opt, const gchar * arg, gpointer data, GError ** err)
 {
   gboolean ret=TRUE;
   
