@@ -1,3 +1,9 @@
+2010-08-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	* src/ui/cmd/cmd-application.c:
+	  Now we're catching the error and stopping.
+
 2010-08-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/Makefile.am:

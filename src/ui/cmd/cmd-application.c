@@ -71,6 +71,33 @@ static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpoin
     (is_playing?"started":"stopped"),song,user_data);
 }
 
+static gboolean check_bus_error(GstBus *bus) {
+  GstMessage *msg;
+  gboolean res=FALSE;
+
+  if ((msg=gst_bus_pop_filtered(bus,GST_MESSAGE_ERROR|GST_MESSAGE_WARNING|GST_MESSAGE_ELEMENT))) {
+    GST_WARNING("received %s bus message from %s",
+        GST_MESSAGE_TYPE_NAME(msg), GST_OBJECT_NAME(GST_MESSAGE_SRC(msg)));
+    switch(GST_MESSAGE_TYPE(msg)) {
+      case GST_MESSAGE_ERROR: {
+        GError *err = NULL;
+        gchar *dbg = NULL;
+        
+        gst_message_parse_error(msg, &err, &dbg);
+        GST_WARNING_OBJECT(GST_MESSAGE_SRC(msg),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
+        g_error_free(err);
+        g_free(dbg);
+        res=TRUE;
+        break;
+      }
+      default:
+        break;
+    }
+    gst_message_unref(msg);
+  }
+  return(res);
+}
+
 /*
  * bt_cmd_application_play_song:
  *
@@ -82,7 +109,6 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   gulong cmsec,csec,cmin,tmsec,tsec,tmin;
   gulong length,pos=0;
   GstClockTime bar_time;
-  GstMessage *msg;
   GstBin *bin;
   GstBus *bus=NULL;
 
@@ -104,6 +130,8 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   tsec=(gulong)(tmsec/ 1000);tmsec-=(tsec* 1000);
   
   bus=gst_element_get_bus(GST_ELEMENT(bin));
+  if (check_bus_error(bus))
+    goto Error;
   
   // connection play and stop signals
   g_signal_connect((gpointer)song, "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
@@ -115,21 +143,10 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
     }
     GST_INFO("playing has started, is_playing=%d",is_playing);
     while(is_playing && (pos<length)) {
-      if (!bt_song_update_playback_position(song)) {
+      if (!bt_song_update_playback_position(song) || check_bus_error(bus)) {
         bt_song_stop(song);
       }
       g_object_get((gpointer)song,"play-pos",&pos,NULL);
-      if ((msg=gst_bus_pop_filtered(bus,GST_MESSAGE_ERROR|GST_MESSAGE_WARNING|GST_MESSAGE_ELEMENT))) {
-        GST_INFO("received %s bus message from %s",
-            GST_MESSAGE_TYPE_NAME(msg), GST_OBJECT_NAME(GST_MESSAGE_SRC(msg)));
-        switch(GST_MESSAGE_TYPE(msg)) {
-          case GST_MESSAGE_ERROR:
-            break;
-          default:
-            break;
-        }
-        gst_message_unref(msg);
-      }
 
       if(!self->priv->quiet) {
         // get song->play-pos and print progress
@@ -154,8 +171,8 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   is_playing=FALSE;
 Error:
   gst_object_unref(bus);
+  gst_object_unref(bin);
   g_object_unref(sequence);
-  g_object_unref(bin);
   return(res);
 }
 
@@ -174,8 +191,9 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   GEnumValue *enum_value;
   guint i;
   gboolean matched=FALSE;
+  GstBin *bin;
 
-  g_object_get((gpointer)song,"setup",&setup,NULL);
+  g_object_get((gpointer)song,"setup",&setup,"bin",&bin,NULL);
 
   lc_file_name=g_ascii_strdown(output_file_name,-1);
 
@@ -198,6 +216,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
     GstElement *convert;
     BtSinkBin *sink_bin;
+    GstBus *bus;
 
     g_object_get(machine,"machine",&sink_bin,"adder-convert",&convert,NULL);
 
@@ -213,17 +232,19 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
     /* see comments in edit/render-progress.c */
     g_object_set(convert,"dithering",2,"noise-shaping",3,NULL);
     
-    /* @todo: we get no feedback wheter the needed elements are available
-     * we should listen to bus-messages
+    /* we get no feedback wheter the needed elements are available,
+     * lets check the bus for error messages
      */
-
-    ret=TRUE;
+    bus=gst_element_get_bus(GST_ELEMENT(bin));
+    ret=!check_bus_error(bus);
+    gst_object_unref(bus);
 
     g_free(file_name);
     gst_object_unref(convert);
     gst_object_unref(sink_bin);
     g_object_unref(machine);
   }
+  gst_object_unref(bin);
   g_object_unref(setup);
   return(ret);
 }

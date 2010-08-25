@@ -358,12 +358,18 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
       // lame ! id3mux ! filesink location="song.mp3"
       if(!(element=gst_element_factory_make("lamemp3enc","lame"))) {
         if(!(element=gst_element_factory_make("lame","lame"))) {
-          GstCaps *caps=gst_caps_from_string("audio/mpeg, mpegversion=1, layer=3");
+          // FIXME: for some reason this does not show up on the bus
+          /*GstCaps *caps=gst_caps_from_string("audio/mpeg, mpegversion=1, layer=3");
 
-          GST_INFO("Can't instantiate 'lamemp3enc'/'lame' element");
           gst_element_post_message(GST_ELEMENT(self),
             gst_missing_encoder_message_new(GST_ELEMENT(self), caps));
           gst_caps_unref(caps);
+          */
+          gst_element_message_full(GST_ELEMENT(self),GST_MESSAGE_ERROR,
+            GST_CORE_ERROR, GST_CORE_ERROR_MISSING_PLUGIN,
+            g_strdup("Can't instantiate 'lamemp3enc'/'lame' element"),
+            g_strdup("Can't instantiate 'lamemp3enc'/'lame' element"),
+            __FILE__, GST_FUNCTION, __LINE__);
           goto Error;
         }
       }
