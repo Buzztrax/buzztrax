@@ -50,8 +50,15 @@ struct _BtCmdApplicationPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
-  /* do no output on stdout */
+  /* no output on stdout */
   gboolean quiet;
+  
+  /* error flag from bus handler */
+  gboolean has_error;
+  
+  /* main loop */
+  GMainLoop *loop;
+  GThread *loop_thread;
 };
 
 static BtApplicationClass *parent_class=NULL;
@@ -71,31 +78,62 @@ static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpoin
     (is_playing?"started":"stopped"),song,user_data);
 }
 
-static gboolean check_bus_error(GstBus *bus) {
-  GstMessage *msg;
-  gboolean res=FALSE;
 
-  if ((msg=gst_bus_pop_filtered(bus,GST_MESSAGE_ERROR|GST_MESSAGE_WARNING|GST_MESSAGE_ELEMENT))) {
-    GST_WARNING("received %s bus message from %s",
-        GST_MESSAGE_TYPE_NAME(msg), GST_OBJECT_NAME(GST_MESSAGE_SRC(msg)));
-    switch(GST_MESSAGE_TYPE(msg)) {
-      case GST_MESSAGE_ERROR: {
-        GError *err = NULL;
-        gchar *dbg = NULL;
-        
-        gst_message_parse_error(msg, &err, &dbg);
-        GST_WARNING_OBJECT(GST_MESSAGE_SRC(msg),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
-        g_error_free(err);
-        g_free(dbg);
-        res=TRUE;
-        break;
-      }
-      default:
-        break;
-    }
-    gst_message_unref(msg);
-  }
-  return(res);
+static void on_song_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  const BtCmdApplication *self=BT_CMD_APPLICATION(user_data);
+  GError *err = NULL;
+  gchar *dbg = NULL;
+
+  GST_INFO("received %s bus message from %s",
+    GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
+
+  // @todo: check domain and code
+  gst_message_parse_error(message, &err, &dbg);
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
+
+  g_error_free(err);
+  g_free(dbg);
+
+  self->priv->has_error = TRUE;
+}
+
+static void on_song_warning(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  //const BtCmdApplication *self=BT_CMD_APPLICATION(user_data);
+  GError *err = NULL;
+  gchar *dbg = NULL;
+
+  GST_INFO("received %s bus message from %s",
+    GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
+
+  // @todo: check domain and code
+  gst_message_parse_warning(message, &err, &dbg);
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s)", err->message, (dbg ? dbg : "no details"));
+
+  g_error_free(err);
+  g_free(dbg);
+}
+
+/*
+ * bt_cmd_application_song_init:
+ *
+ * Create the song an attach error handlers to the bus.
+ */
+static BtSong *bt_cmd_application_song_init(const BtCmdApplication *self) {
+  BtSong *song;
+  GstBin *bin;
+  GstBus *bus;
+  
+  song=bt_song_new(BT_APPLICATION(self));
+  
+  g_object_get((gpointer)song,"bin",&bin,NULL);
+  bus=gst_element_get_bus(GST_ELEMENT(bin));
+  g_signal_connect(bus, "message::error", G_CALLBACK(on_song_error), (gpointer)self);
+  g_signal_connect(bus, "message::warning", G_CALLBACK(on_song_warning), (gpointer)self);
+  //g_signal_connect(bus, "message::element", G_CALLBACK(on_song_element_msg), (gpointer)self);
+  
+  gst_object_unref(bus);
+  gst_object_unref(bin);
+  return(song);
 }
 
 /*
@@ -110,7 +148,6 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   gulong length,pos=0;
   GstClockTime bar_time;
   GstBin *bin;
-  GstBus *bus=NULL;
 
   // DEBUG
   //bt_song_write_to_highlevel_dot_file(song);
@@ -129,10 +166,6 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   tmin=(gulong)(tmsec/60000);tmsec-=(tmin*60000);
   tsec=(gulong)(tmsec/ 1000);tmsec-=(tsec* 1000);
   
-  bus=gst_element_get_bus(GST_ELEMENT(bin));
-  if (check_bus_error(bus))
-    goto Error;
-  
   // connection play and stop signals
   g_signal_connect((gpointer)song, "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   if(bt_song_play(song)) {
@@ -142,8 +175,8 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
       g_usleep(G_USEC_PER_SEC/10);
     }
     GST_INFO("playing has started, is_playing=%d",is_playing);
-    while(is_playing && (pos<length)) {
-      if (!bt_song_update_playback_position(song) || check_bus_error(bus)) {
+    while(is_playing && (pos<length) && !self->priv->has_error) {
+      if (!bt_song_update_playback_position(song)) {
         bt_song_stop(song);
       }
       g_object_get((gpointer)song,"play-pos",&pos,NULL);
@@ -170,7 +203,6 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   }
   is_playing=FALSE;
 Error:
-  gst_object_unref(bus);
   gst_object_unref(bin);
   g_object_unref(sequence);
   return(res);
@@ -191,9 +223,8 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   GEnumValue *enum_value;
   guint i;
   gboolean matched=FALSE;
-  GstBin *bin;
 
-  g_object_get((gpointer)song,"setup",&setup,"bin",&bin,NULL);
+  g_object_get((gpointer)song,"setup",&setup,NULL);
 
   lc_file_name=g_ascii_strdown(output_file_name,-1);
 
@@ -216,7 +247,6 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
     GstElement *convert;
     BtSinkBin *sink_bin;
-    GstBus *bus;
 
     g_object_get(machine,"machine",&sink_bin,"adder-convert",&convert,NULL);
 
@@ -231,20 +261,14 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
       NULL);
     /* see comments in edit/render-progress.c */
     g_object_set(convert,"dithering",2,"noise-shaping",3,NULL);
-    
-    /* we get no feedback wheter the needed elements are available,
-     * lets check the bus for error messages
-     */
-    bus=gst_element_get_bus(GST_ELEMENT(bin));
-    ret=!check_bus_error(bus);
-    gst_object_unref(bus);
 
+    ret=!self->priv->has_error;
+    
     g_free(file_name);
     gst_object_unref(convert);
     gst_object_unref(sink_bin);
     g_object_unref(machine);
   }
-  gst_object_unref(bin);
   g_object_unref(setup);
   return(ret);
 }
@@ -285,7 +309,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   GST_INFO("application.play(%s) launched",input_file_name);
 
   // prepare song and song-io
-  song=bt_song_new(BT_APPLICATION(self));
+  song=bt_cmd_application_song_init(self);
   if(!(loader=bt_song_io_from_file(input_file_name))) {
     goto Error;
   }
@@ -368,7 +392,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     output_file = fopen(output_file_name,"wb");
   }
   // prepare song and song-io
-  song=bt_song_new(BT_APPLICATION(self));
+  song=bt_cmd_application_song_init(self);
   if(!(loader=bt_song_io_from_file(input_file_name))) {
     goto Error;
   }
@@ -505,7 +529,7 @@ gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *i
   g_return_val_if_fail(BT_IS_STRING(output_file_name),FALSE);
 
   // prepare song and song-io
-  song=bt_song_new(BT_APPLICATION(self));
+  song=bt_cmd_application_song_init(self);
   if(!(loader=bt_song_io_from_file(input_file_name))) {
     goto Error;
   }
@@ -557,7 +581,7 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
   GST_INFO("application.play launched");
 
   // prepare song and song-io
-  song=bt_song_new(BT_APPLICATION(self));
+  song=bt_cmd_application_song_init(self);
   if(!(loader=bt_song_io_from_file(input_file_name))) {
     goto Error;
   }
@@ -637,6 +661,10 @@ static void bt_cmd_application_finalize(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  g_main_loop_quit(self->priv->loop);
+  g_main_loop_unref(self->priv->loop);
+  // no need for g_thread_join(); I think
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
@@ -646,6 +674,9 @@ static void bt_cmd_application_init(GTypeInstance *instance, gpointer g_class) {
 
   GST_DEBUG("!!!! self=%p",self);
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_CMD_APPLICATION, BtCmdApplicationPrivate);
+
+  self->priv->loop=g_main_loop_new(NULL,FALSE);
+  self->priv->loop_thread=g_thread_create((GThreadFunc)g_main_loop_run,self,FALSE,NULL);
 }
 
 static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
