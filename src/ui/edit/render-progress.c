@@ -49,6 +49,8 @@ struct _BtRenderProgressPrivate {
   /* dialog widgets */
   GtkProgressBar *track_progress;
   GtkLabel *info;
+  
+  gboolean has_error;
 };
 
 static GtkProgressClass *parent_class=NULL;
@@ -70,7 +72,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   bar_time=bt_sequence_get_bar_time(sequence);
 
   progress=(gdouble)pos/(gdouble)length;
-  if(progress>=1.0) {
+  if((progress>=1.0) || self->priv->has_error) {
     progress=1.0;
     bt_song_stop(song);
     gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_REJECT);
@@ -91,11 +93,21 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   g_object_unref(sequence);
 }
 
+static void on_song_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  BtRenderProgress *self=BT_RENDER_PROGRESS(user_data);
+
+  GST_WARNING("received %s bus message from %s",
+    GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
+
+  self->priv->has_error = TRUE;
+}
+
+
 //-- helper methods
 
 static gboolean bt_render_progress_record(const BtRenderProgress *self, BtSong *song, BtSinkBin *sink_bin, gchar *file_name) {
   gchar *info;
-  gboolean is_playing;
+  gboolean is_playing, res=FALSE;
 
   g_object_set(sink_bin,"record-file-name",file_name,NULL);
 
@@ -105,15 +117,21 @@ static gboolean bt_render_progress_record(const BtRenderProgress *self, BtSong *
   g_free(info);
 
   bt_song_play(song);
-  gtk_dialog_run(GTK_DIALOG(self));
-  g_object_get(song,"is-playing",&is_playing,NULL);
-  if(!is_playing) {
-    return(TRUE);
+
+  // ugly, but we need to make sure we check the eror before running the dialog 
+  while(gtk_events_pending()) gtk_main_iteration();
+
+  if(!self->priv->has_error) {
+    gtk_dialog_run(GTK_DIALOG(self));
+    g_object_get(song,"is-playing",&is_playing,NULL);
+    if(!is_playing) {
+      res=TRUE;
+    }
+    else {
+      bt_song_stop(song);
+    }
   }
-  else {
-    bt_song_stop(song);
-    return FALSE;
-  }
+  return(res);
 }
 
 
@@ -174,11 +192,12 @@ void bt_render_progress_run(const BtRenderProgress *self) {
   BtSong *song;
   BtSetup *setup;
   BtSongInfo *song_info;
+  GstBin *bin;
   BtMachine *machine;
   gboolean unsaved;
 
   g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,"song-info",&song_info,"unsaved",&unsaved,NULL);
+  g_object_get(song,"setup",&setup,"song-info",&song_info,"unsaved",&unsaved,"bin",&bin,NULL);
 
   // lookup the audio-sink machine and change mode
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
@@ -187,9 +206,14 @@ void bt_render_progress_run(const BtRenderProgress *self) {
     BtRenderMode mode;
     BtSinkBin *sink_bin;
     GstElement *convert;
+    GstBus *bus;
 
     g_object_get(machine,"machine",&sink_bin,"adder-convert",&convert,NULL);
     g_object_get(self->priv->settings,"format",&format,"mode",&mode,"file-name",&file_name,NULL);
+
+    // connect bus signals
+    bus=gst_element_get_bus(GST_ELEMENT(bin));
+    g_signal_connect(bus, "message::error", G_CALLBACK(on_song_error), (gpointer)self);
 
     g_signal_connect(song, "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
 
@@ -244,6 +268,7 @@ void bt_render_progress_run(const BtRenderProgress *self) {
       bt_song_set_unsaved(song,unsaved);
     }
 
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_error,NULL);
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);
 
     g_object_set(sink_bin,
@@ -254,10 +279,12 @@ void bt_render_progress_run(const BtRenderProgress *self) {
     g_object_set(convert,"dithering",0,"noise-shaping",0,NULL);
 
     g_free(file_name);
+    gst_object_unref(bus);
     gst_object_unref(convert);
     gst_object_unref(sink_bin);
     g_object_unref(machine);
   }
+  gst_object_unref(bin);
   g_object_unref(song_info);
   g_object_unref(setup);
   g_object_unref(song);

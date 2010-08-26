@@ -709,7 +709,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   // get the audio_sink (song->master is a bt_sink_machine) if there is one already
   g_object_try_weak_unref(self->priv->master);
-  g_object_get(song,"master",&self->priv->master,"sequence",&sequence,"bin", &bin,NULL);
+  g_object_get(song,"master",&self->priv->master,"sequence",&sequence,"bin",&bin,NULL);
 
   if(self->priv->master) {
     GstPad *pad;

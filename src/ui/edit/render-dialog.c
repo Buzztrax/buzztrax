@@ -208,7 +208,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
   guint i;
   BtSong *song;
   BtSongInfo *song_info;
-  gchar *file_name=NULL,*ext;
+  gchar *full_file_name=NULL;
   
   GST_DEBUG("read settings");
   
@@ -254,12 +254,19 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
   // set deault name
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"song-info",&song_info,NULL);
-  g_object_get(song_info,"file-name",&file_name,NULL);
-  if(file_name) {
+  g_object_get(song_info,"file-name",&full_file_name,NULL);
+  if(full_file_name) {
+    gchar *file_name,*ext;
+
     // cut off extension from file_name
-    if((ext=strchr(file_name,'.'))) *ext='\0';
+    if((ext=strrchr(full_file_name,'.')))
+      *ext='\0';
+    if((file_name=strrchr(full_file_name,G_DIR_SEPARATOR)))
+      file_name=&file_name[1];
+    else
+      file_name=full_file_name;
     self->priv->filename=g_strdup_printf("%s.ogg",file_name);
-    g_free(file_name);
+    g_free(full_file_name);
   }
   else {
     self->priv->filename=g_strdup_printf(".ogg");
@@ -308,7 +315,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
 
   /* @todo: add more widgets
     o write project file
-      o none, jokosher, ...
+      o none, jokosher, ardour, ...
   */
 
   GST_DEBUG("done");

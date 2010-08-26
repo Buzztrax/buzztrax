@@ -286,6 +286,16 @@ static void bt_sink_bin_link_many(const BtSinkBin * const self, GstElement *last
   }
 }
 
+#define BT_SINK_BIN_MISSING_ELEMENT(elem_name) bt_sink_bin_missing_element(self,elem_name,__FILE__,GST_FUNCTION,__LINE__)
+
+static void bt_sink_bin_missing_element(const BtSinkBin * const self, const gchar *elem_name, const gchar *file, const gchar *func, const gint line) {
+  gchar *msg=g_strdup_printf("Can't instantiate %s element", elem_name);
+
+  gst_element_message_full(GST_ELEMENT(self),GST_MESSAGE_ERROR,
+    GST_CORE_ERROR,GST_CORE_ERROR_MISSING_PLUGIN,
+    msg,g_strdup (msg),file,func,line);
+}
+
 static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   GList *list=NULL;
   gchar *plugin_name;
@@ -346,11 +356,13 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
       list=g_list_append(list,element);
       */
       if(!(element=gst_element_factory_make("vorbisenc","vorbisenc"))) {
-        GST_INFO("Can't instantiate 'vorbisenc' element");goto Error;
+        BT_SINK_BIN_MISSING_ELEMENT("'vorbisenc'");
+        goto Error;
       }
       list=g_list_append(list,element);
       if(!(element=gst_element_factory_make("oggmux","oggmux"))) {
-        GST_INFO("Can't instantiate 'oggmux' element");goto Error;
+        BT_SINK_BIN_MISSING_ELEMENT("'oggmux'");
+        goto Error;
       }
       list=g_list_append(list,element);
       break;
@@ -365,46 +377,48 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
             gst_missing_encoder_message_new(GST_ELEMENT(self), caps));
           gst_caps_unref(caps);
           */
-          gst_element_message_full(GST_ELEMENT(self),GST_MESSAGE_ERROR,
-            GST_CORE_ERROR, GST_CORE_ERROR_MISSING_PLUGIN,
-            g_strdup("Can't instantiate 'lamemp3enc'/'lame' element"),
-            g_strdup("Can't instantiate 'lamemp3enc'/'lame' element"),
-            __FILE__, GST_FUNCTION, __LINE__);
+          BT_SINK_BIN_MISSING_ELEMENT("'lamemp3enc'/'lame'");
           goto Error;
         }
       }
       list=g_list_append(list,element);
       if(!(element=gst_element_factory_make("id3mux","id3mux"))) {
-        GST_INFO("Can't instantiate 'id3mux' element");goto Error;
+        BT_SINK_BIN_MISSING_ELEMENT("'id3mux'");
+        goto Error;
       }
       list=g_list_append(list,element);
       break;
     case BT_SINK_BIN_RECORD_FORMAT_WAV:
       // wavenc ! filesink location="song.wav"
       if(!(element=gst_element_factory_make("wavenc","wavenc"))) {
-        GST_INFO("Can't instantiate 'wavenc' element");goto Error;
+        BT_SINK_BIN_MISSING_ELEMENT("'wavenc'");
+        goto Error;
       }
       list=g_list_append(list,element);
       break;
     case BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC:
       // flacenc ! oggmux ! filesink location="song.flac"
       if(!(element=gst_element_factory_make("flacenc","flacenc"))) {
-        GST_INFO("Can't instantiate 'flacenc' element");goto Error;
+        BT_SINK_BIN_MISSING_ELEMENT("'flacenc'");
+        goto Error;
       }
       list=g_list_append(list,element);
       if(!(element=gst_element_factory_make("oggmux","oggmux"))) {
-        GST_INFO("Can't instantiate 'oggmux' element");goto Error;
+        BT_SINK_BIN_MISSING_ELEMENT("'oggmux'");
+        goto Error;
       }
       list=g_list_append(list,element);
       break;
     case BT_SINK_BIN_RECORD_FORMAT_MP4_AAC:
       // faac ! mp4mux ! filesink location="song.m4a"
       if(!(element=gst_element_factory_make("faac","faac"))) {
-        GST_INFO("Can't instantiate 'faac' element");goto Error;
+        BT_SINK_BIN_MISSING_ELEMENT("'faac'");
+        goto Error;
       }
       list=g_list_append(list,element);
       if(!(element=gst_element_factory_make("mp4mux","mp4mux"))) {
-        GST_INFO("Can't instantiate 'mp4mux' element");goto Error;
+        BT_SINK_BIN_MISSING_ELEMENT("'mp4mux'");
+        goto Error;
       }
       list=g_list_append(list,element);
       break;

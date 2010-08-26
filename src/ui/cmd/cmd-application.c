@@ -171,6 +171,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   if(bt_song_play(song)) {
     GST_INFO("playing is starting, is_playing=%d",is_playing);
     while(!is_playing) {
+      // FIXME: is this a bad idea, now that we have a main loop?
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
       g_usleep(G_USEC_PER_SEC/10);
     }
@@ -676,7 +677,7 @@ static void bt_cmd_application_init(GTypeInstance *instance, gpointer g_class) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_CMD_APPLICATION, BtCmdApplicationPrivate);
 
   self->priv->loop=g_main_loop_new(NULL,FALSE);
-  self->priv->loop_thread=g_thread_create((GThreadFunc)g_main_loop_run,self,FALSE,NULL);
+  self->priv->loop_thread=g_thread_create((GThreadFunc)g_main_loop_run,self->priv->loop,FALSE,NULL);
 }
 
 static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {

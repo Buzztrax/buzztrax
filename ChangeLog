@@ -1,5 +1,21 @@
 2010-08-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	  Emit errors for all missing eleemnts.
+
+	* src/ui/cmd/cmd-application.c:
+	  Start the main loop arctually for real.
+
+	* src/ui/edit/main-toolbar.c:
+	  Whitespace.
+
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	  Catch missing element errors here too. Cut the path part from the
+	  file-name, as we will use that with recording dir.
+
+2010-08-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wire.c:
 	  Comment out the threadbarrier test. We're going to do this
 	  differently.
