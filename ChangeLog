@@ -1,3 +1,12 @@
+2010-08-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	  Start using G_DEFINE_TYPE and co.
+
 2010-08-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:

@@ -88,9 +88,16 @@ struct _BtWirePatternPrivate {
 
 static GQuark error_domain=0;
 
-static GObjectClass *parent_class=NULL;
-
 static guint signals[LAST_SIGNAL]={0,};
+
+//-- the class
+
+static void bt_wire_pattern_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtWirePattern, bt_wire_pattern, G_TYPE_OBJECT,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+    bt_wire_pattern_persistence_interface_init));
+
 
 //-- enums
 
@@ -1086,8 +1093,8 @@ static void bt_wire_pattern_persistence_interface_init(gpointer g_iface, gpointe
 static void bt_wire_pattern_constructed(GObject *object) {
   BtWirePattern *self=BT_WIRE_PATTERN(object);
   
-  if(G_OBJECT_CLASS(parent_class)->constructed)
-    G_OBJECT_CLASS(parent_class)->constructed(object);
+  if(G_OBJECT_CLASS(bt_wire_pattern_parent_class)->constructed)
+    G_OBJECT_CLASS(bt_wire_pattern_parent_class)->constructed(object);
 
   g_return_if_fail(BT_IS_SONG(self->priv->song));
   g_return_if_fail(BT_IS_WIRE(self->priv->wire));
@@ -1169,7 +1176,7 @@ static void bt_wire_pattern_dispose(GObject * const object) {
     g_object_try_weak_unref(self->priv->pattern);
   }
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_wire_pattern_parent_class)->dispose(object);
 }
 
 static void bt_wire_pattern_finalize(GObject * const object) {
@@ -1179,14 +1186,12 @@ static void bt_wire_pattern_finalize(GObject * const object) {
 
   g_free(self->priv->data);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_wire_pattern_parent_class)->finalize(object);
 }
 
 //-- class internals
 
-static void bt_wire_pattern_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtWirePattern * const self = BT_WIRE_PATTERN(instance);
-
+static void bt_wire_pattern_init(BtWirePattern *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE_PATTERN, BtWirePatternPrivate);
 }
 
@@ -1194,7 +1199,6 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
   error_domain=g_type_qname(BT_TYPE_WIRE_PATTERN);
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWirePatternPrivate));
 
   gobject_class->constructed  = bt_wire_pattern_constructed;
@@ -1263,28 +1267,3 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_wire_pattern_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtWirePatternClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_wire_pattern_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtWirePattern),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_wire_pattern_init, // instance_init
-      NULL // value_table
-    };
-    const GInterfaceInfo persistence_interface_info = {
-      (GInterfaceInitFunc) bt_wire_pattern_persistence_interface_init,  // interface_init
-      NULL, // interface_finalize
-      NULL  // interface_data
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtWirePattern",&info,0);
-    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
-  }
-  return type;
-}
