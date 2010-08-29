@@ -35,7 +35,7 @@
   at init the whole document is loaded and
   get/set methods use xpath expr to get the nodes.
  
-  idea2: is to use ini-files via glibs gkeyfile
+  idea2: is to use ini-files via glibs gkeyfile in g_get_user_config_dir()
 */
 
 #define BT_CORE
@@ -53,7 +53,9 @@ struct _BtPlainfileSettingsPrivate {
   //xmlDoc *settings;
 };
 
-static BtSettingsClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtPlainfileSettings, bt_plainfile_settings, BT_TYPE_SETTINGS);
 
 //-- constructor methods
 
@@ -116,7 +118,7 @@ static void bt_plainfile_settings_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
   
   GST_DEBUG("!!!! self=%p",self);
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_plainfile_settings_parent_class)->dispose(object);
 }
 
 static void bt_plainfile_settings_finalize(GObject * const object) {
@@ -126,10 +128,10 @@ static void bt_plainfile_settings_finalize(GObject * const object) {
 
   //g_hash_table_destroy(self->priv->settings);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_plainfile_settings_parent_class)->finalize(object);
 }
 
-static void bt_plainfile_settings_init(GTypeInstance * const instance, gconstpointer g_class) {
+static void bt_plainfile_settings_init(BtPlainfileSettings *self) {
   BtPlainfileSettings * const self = BT_PLAINFILE_SETTINGS(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PLAINFILE_SETTINGS, BtPlainfileSettingsPrivate);
@@ -148,22 +150,3 @@ static void bt_plainfile_settings_class_init(BtPlainfileSettingsClass * const kl
   gobject_class->finalize     = bt_plainfile_settings_finalize;
 }
 
-GType bt_plainfile_settings_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtPlainfileSettingsClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_plainfile_settings_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtPlainfileSettings),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_plainfile_settings_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(BT_TYPE_SETTINGS,"BtPlainfileSettings",&info,0);
-  }
-  return type;
-}

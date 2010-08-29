@@ -221,8 +221,6 @@ typedef struct {
 
 static GQuark error_domain=0;
 
-static GObjectClass *parent_class=NULL;
-
 static guint signals[LAST_SIGNAL]={0,};
 
 static gchar *src_pn[]={
@@ -251,6 +249,15 @@ static gchar *sink_pn[]={
   "sink",   /* output post level */
   "sink"    /* tee */
 };
+
+
+//-- the class
+
+static void bt_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BtMachine, bt_machine, GST_TYPE_BIN,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+    bt_machine_persistence_interface_init));
 
 //-- macros
 
@@ -3140,7 +3147,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
   return(BT_PERSISTENCE(persistence));
 }
 
-static void bt_machine_persistence_interface_init(gpointer const g_iface, gconstpointer const iface_data) {
+static void bt_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
   BtPersistenceInterface * const iface = g_iface;
 
   iface->load = bt_machine_persistence_load;
@@ -3224,8 +3231,8 @@ static void bt_machine_constructed(GObject *object) {
   
   GST_INFO("machine constructed ...");
 
-  if(G_OBJECT_CLASS(parent_class)->constructed)
-    G_OBJECT_CLASS(parent_class)->constructed(object);
+  if(G_OBJECT_CLASS(bt_machine_parent_class)->constructed)
+    G_OBJECT_CLASS(bt_machine_parent_class)->constructed(object);
 
   g_return_if_fail(BT_IS_SONG(self->priv->song));
   g_return_if_fail(BT_IS_STRING(self->priv->id));
@@ -3488,7 +3495,7 @@ static void bt_machine_dispose(GObject * const object) {
   }
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_machine_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -3542,15 +3549,13 @@ static void bt_machine_finalize(GObject * const object) {
   }
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_machine_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
 //-- class internals
 
-static void bt_machine_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtMachine * const self = BT_MACHINE(instance);
-
+static void bt_machine_init(BtMachine *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE, BtMachinePrivate);
   // default is no voice, only global params
   //self->priv->voices=1;
@@ -3566,7 +3571,6 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   GstElementClass * const gstelement_class = GST_ELEMENT_CLASS(klass);
 
   error_domain=g_type_qname(BT_TYPE_MACHINE);
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePrivate));
 
   gobject_class->constructed  = bt_machine_constructed;
@@ -3747,28 +3751,3 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_machine_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtMachineClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_machine_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtMachine),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_machine_init, // instance_init
-      NULL // value_table
-    };
-    const GInterfaceInfo persistence_interface_info = {
-      (GInterfaceInitFunc) bt_machine_persistence_interface_init,  // interface_init
-      NULL, // interface_finalize
-      NULL  // interface_data
-    };
-    type = g_type_register_static(GST_TYPE_BIN,"BtMachine",&info,G_TYPE_FLAG_ABSTRACT);
-    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
-  }
-  return type;
-}

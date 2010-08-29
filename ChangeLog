@@ -1,5 +1,15 @@
 2010-08-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/application.c:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/plainfile-settings.c:
+	* src/lib/core/settings.c:
+	  More G_DEFINE_TYPE usage. libbuzztardcore is done.
+
+2010-08-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core/processor-machine.h:
 	* src/lib/core/libbuzztard-core/sink-machine.h:
 	* src/lib/core/libbuzztard-core/source-machine.h:

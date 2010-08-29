@@ -222,7 +222,6 @@ static void bt_settings_set_property(GObject * const object, const guint propert
 //-- class internals
 
 static void bt_settings_init(BtSettings * self) {
-  //self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS, BtSettingsPrivate);
 }
 
 static void bt_settings_class_init(BtSettingsClass * const klass) {

@@ -44,11 +44,13 @@ struct _BtGConfSettingsPrivate {
   gboolean dirty;
 };
 
-static BtSettingsClass *parent_class=NULL;
-
 #define BT_GCONF_PATH_GSTREAMER "/system/gstreamer/default"
 #define BT_GCONF_PATH_GNOME "/desktop/gnome/interface"
 #define BT_GCONF_PATH_BUZZTARD "/apps/"PACKAGE
+
+//-- the class
+
+G_DEFINE_TYPE (BtGConfSettings, bt_gconf_settings, BT_TYPE_SETTINGS);
 
 //-- event handler
 
@@ -351,21 +353,12 @@ static void bt_gconf_settings_dispose(GObject * const object) {
   g_object_unref(self->priv->client);
 
   GST_DEBUG("!!!! self=%p",self);
-  G_OBJECT_CLASS(parent_class)->dispose(object);
-}
-
-static void bt_gconf_settings_finalize(GObject * const object) {
-  const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
-
-  GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_gconf_settings_parent_class)->dispose(object);
 }
 
 //-- class internals
 
-static void bt_gconf_settings_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtGConfSettings * const self = BT_GCONF_SETTINGS(instance);
+static void bt_gconf_settings_init(BtGConfSettings * self) {
   GError *error=NULL;
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_GCONF_SETTINGS, BtGConfSettingsPrivate);
@@ -395,31 +388,10 @@ static void bt_gconf_settings_init(GTypeInstance * const instance, gconstpointer
 static void bt_gconf_settings_class_init(BtGConfSettingsClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtGConfSettingsPrivate));
 
   gobject_class->set_property = bt_gconf_settings_set_property;
   gobject_class->get_property = bt_gconf_settings_get_property;
   gobject_class->dispose      = bt_gconf_settings_dispose;
-  gobject_class->finalize     = bt_gconf_settings_finalize;
 }
 
-GType bt_gconf_settings_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      (guint16)(sizeof(BtGConfSettingsClass)),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_gconf_settings_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      (guint16)(sizeof(BtGConfSettings)),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_gconf_settings_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(BT_TYPE_SETTINGS,"BtGConfSettings",&info,0);
-  }
-  return type;
-}

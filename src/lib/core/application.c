@@ -60,7 +60,12 @@ struct _BtApplicationPrivate {
   BtSettings *settings;
 };
 
-static GObjectClass *parent_class=NULL;
+//-- the class
+
+/* not abstract because of unit tests,
+* @todo: we probably should rather have a BtTestApp subclass
+*/
+G_DEFINE_TYPE (BtApplication, bt_application, G_TYPE_OBJECT);
 
 //-- helper
 
@@ -107,26 +112,13 @@ static void bt_application_dispose(GObject * const object) {
   }
   g_object_try_unref(self->priv->settings);
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
-  GST_DEBUG("  done");
-}
-
-static void bt_application_finalize(GObject * const object) {
-  const BtApplication * const self = BT_APPLICATION(object);
-
-  GST_DEBUG("!!!! self=%p",self);
-
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_application_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
 //-- class internals
 
-static void bt_application_init(const GTypeInstance * const instance, gconstpointer const g_class) {
-  BtApplication * const self = BT_APPLICATION(instance);
-
+static void bt_application_init(BtApplication *self) {
   GST_DEBUG("!!!! self=%p",self);
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_APPLICATION, BtApplicationPrivate);
   self->priv->bin = gst_pipeline_new("song");
@@ -147,12 +139,10 @@ static void bt_application_class_init(BtApplicationClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
   GST_DEBUG("!!!!");
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtApplicationPrivate));
 
   gobject_class->get_property = bt_application_get_property;
   gobject_class->dispose      = bt_application_dispose;
-  gobject_class->finalize     = bt_application_finalize;
 
   /**
    * BtApplication:bin
@@ -175,22 +165,3 @@ static void bt_application_class_init(BtApplicationClass * const klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_application_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      (guint16)(sizeof(BtApplicationClass)),
-      /*(GBaseInitFunc)bt_application_base_init,*/ NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_application_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      (guint16)(sizeof(BtApplication)),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_application_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtApplication",&info,0);
-  }
-  return type;
-}
