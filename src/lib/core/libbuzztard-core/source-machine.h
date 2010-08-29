@@ -36,7 +36,6 @@
 
 typedef struct _BtSourceMachine BtSourceMachine;
 typedef struct _BtSourceMachineClass BtSourceMachineClass;
-typedef struct _BtSourceMachinePrivate BtSourceMachinePrivate;
 
 /**
  * BtSourceMachine:
@@ -46,9 +45,6 @@ typedef struct _BtSourceMachinePrivate BtSourceMachinePrivate;
  */
 struct _BtSourceMachine {
   const BtMachine parent;
-  
-  /*< private >*/
-  BtSourceMachinePrivate *priv;
 };
 /* structure of the source_machine class */
 struct _BtSourceMachineClass {

@@ -86,7 +86,6 @@ static gboolean bt_song_io_init(void) {
 //-- class internals
 
 static void bt_song_io_native_init(BtSongIONative *self) {
-  //self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO_NATIVE, BtSongIONativePrivate);
 }
 
 static void bt_song_io_native_class_init(BtSongIONativeClass * const klass) {

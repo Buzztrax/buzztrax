@@ -31,11 +31,6 @@
 #include "core_private.h"
 #include <libbuzztard-core/source-machine.h>
 
-struct _BtSourceMachinePrivate {
-  /* used to validate if dispose has run */
-  gboolean dispose_has_run;
-};
-
 //-- the class
 
 static void bt_source_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
@@ -212,50 +207,9 @@ static void bt_source_machine_constructed(GObject *object) {
   }
 }
 
-/* returns a property for the given property_id for this object */
-static void bt_source_machine_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtSourceMachine * const self = BT_SOURCE_MACHINE(object);
-  return_if_disposed();
-  switch (property_id) {
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-/* sets the given properties for this object */
-static void bt_source_machine_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtSourceMachine * const self = BT_SOURCE_MACHINE(object);
-  return_if_disposed();
-  switch (property_id) {
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-static void bt_source_machine_dispose(GObject * const object) {
-  const BtSourceMachine * const self = BT_SOURCE_MACHINE(object);
-
-  return_if_disposed();
-  self->priv->dispose_has_run = TRUE;
-
-  GST_DEBUG("!!!! self=%p",self);
-  G_OBJECT_CLASS(bt_source_machine_parent_class)->dispose(object);
-}
-
-static void bt_source_machine_finalize(GObject * const object) {
-  const BtSourceMachine * const self = BT_SOURCE_MACHINE(object);
-
-  GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(bt_source_machine_parent_class)->finalize(object);
-}
-
 //-- class internals
 
 static void bt_source_machine_init(BtSourceMachine *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SOURCE_MACHINE, BtSourceMachinePrivate);
 }
 
 static void bt_source_machine_class_init(BtSourceMachineClass * const klass) {
@@ -263,13 +217,7 @@ static void bt_source_machine_class_init(BtSourceMachineClass * const klass) {
   GstElementClass * const gstelement_klass = GST_ELEMENT_CLASS(klass);
   BtMachineClass * const machine_class = BT_MACHINE_CLASS(klass);
 
-  g_type_class_add_private(klass,sizeof(BtSourceMachinePrivate));
-
   gobject_class->constructed  = bt_source_machine_constructed;
-  gobject_class->set_property = bt_source_machine_set_property;
-  gobject_class->get_property = bt_source_machine_get_property;
-  gobject_class->dispose      = bt_source_machine_dispose;
-  gobject_class->finalize     = bt_source_machine_finalize;
 
   machine_class->check_type   = bt_source_machine_check_type;
   

@@ -36,7 +36,6 @@
 
 typedef struct _BtSinkMachine BtSinkMachine;
 typedef struct _BtSinkMachineClass BtSinkMachineClass;
-typedef struct _BtSinkMachinePrivate BtSinkMachinePrivate;
 
 /**
  * BtSinkMachine:
@@ -46,9 +45,6 @@ typedef struct _BtSinkMachinePrivate BtSinkMachinePrivate;
  */
 struct _BtSinkMachine {
   const BtMachine parent;
-  
-  /*< private >*/
-  BtSinkMachinePrivate *priv;
 };
 /* structure of the sink_machine class */
 struct _BtSinkMachineClass {

@@ -1,5 +1,18 @@
 2010-08-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbuzztard-core/processor-machine.h:
+	* src/lib/core/libbuzztard-core/sink-machine.h:
+	* src/lib/core/libbuzztard-core/source-machine.h:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/source-machine.c:
+	  Kill more dummy implementations (dispose/finalize and properties).
+	  Lets add those when we actualy need them.
+
+2010-08-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core/settings.h:
 	* src/lib/core/libbuzztard-core/song-io-native-xml.h:
 	* src/lib/core/libbuzztard-core/song-io-native.h:

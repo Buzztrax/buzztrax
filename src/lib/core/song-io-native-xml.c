@@ -150,7 +150,6 @@ static gboolean bt_song_io_native_xml_save(gconstpointer const _self, const BtSo
 //-- class internals
 
 static void bt_song_io_native_xml_init(BtSongIONativeXML *self) {
-  //self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO_NATIVE_XML, BtSongIONativeXMLPrivate);
 }
 
 static void bt_song_io_native_xml_class_init(BtSongIONativeXMLClass * klass) {
