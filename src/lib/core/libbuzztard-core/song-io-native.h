@@ -36,7 +36,6 @@
 
 typedef struct _BtSongIONative BtSongIONative;
 typedef struct _BtSongIONativeClass BtSongIONativeClass;
-typedef struct _BtSongIONativePrivate BtSongIONativePrivate;
 
 /**
  * BtSongIONative:
@@ -45,9 +44,6 @@ typedef struct _BtSongIONativePrivate BtSongIONativePrivate;
  */
 struct _BtSongIONative {
   const BtSongIO parent;
-  
-  /*< private >*/
-  BtSongIONativePrivate *priv;
 };
 /**
  * BtSongIONativeClass:

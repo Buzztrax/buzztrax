@@ -103,9 +103,16 @@ struct _BtSequencePrivate {
   GHashTable *damage;
 };
 
-static GObjectClass *parent_class=NULL;
-
 //static guint signals[LAST_SIGNAL]={0,};
+
+//-- the class
+
+static void bt_sequence_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtSequence, bt_sequence, G_TYPE_OBJECT,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+    bt_sequence_persistence_interface_init));
+
 
 //-- helper methods
 
@@ -1989,8 +1996,8 @@ static void bt_sequence_constructed(GObject *object) {
   BtSequence *self=BT_SEQUENCE(object);
   BtSetup *setup;
   
-  if(G_OBJECT_CLASS(parent_class)->constructed)
-    G_OBJECT_CLASS(parent_class)->constructed(object);
+  if(G_OBJECT_CLASS(bt_sequence_parent_class)->constructed)
+    G_OBJECT_CLASS(bt_sequence_parent_class)->constructed(object);
 
   g_return_if_fail(BT_IS_SONG(self->priv->song));
 
@@ -2181,7 +2188,7 @@ static void bt_sequence_dispose(GObject * const object) {
   }
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_sequence_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -2196,15 +2203,13 @@ static void bt_sequence_finalize(GObject * const object) {
   g_hash_table_destroy(self->priv->damage);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_sequence_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
 //-- class internals
 
-static void bt_sequence_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtSequence * const self = BT_SEQUENCE(instance);
-
+static void bt_sequence_init(BtSequence * self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SEQUENCE, BtSequencePrivate);
   self->priv->loop_start=-1;
   self->priv->loop_end=-1;
@@ -2215,7 +2220,6 @@ static void bt_sequence_init(GTypeInstance * const instance, gconstpointer g_cla
 static void bt_sequence_class_init(BtSequenceClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSequencePrivate));
 
   gobject_class->constructed  = bt_sequence_constructed;
@@ -2276,28 +2280,3 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
 
 }
 
-GType bt_sequence_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSequenceClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_sequence_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSequence),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_sequence_init, // instance_init
-      NULL // value_table
-    };
-    const GInterfaceInfo persistence_interface_info = {
-      (GInterfaceInitFunc) bt_sequence_persistence_interface_init,  // interface_init
-      NULL, // interface_finalize
-      NULL  // interface_data
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtSequence",&info,0);
-    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
-  }
-  return type;
-}

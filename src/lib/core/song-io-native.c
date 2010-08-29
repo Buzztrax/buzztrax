@@ -33,12 +33,9 @@
 
 #include "core_private.h"
 
-struct _BtSongIONativePrivate {
-  /* used to validate if dispose has run */
-  gboolean dispose_has_run;
-};
+//-- the class
 
-static BtSongIOClass *parent_class=NULL;
+G_DEFINE_ABSTRACT_TYPE (BtSongIONative, bt_song_io_native, BT_TYPE_SONG_IO);
 
 //-- plugin detect
 
@@ -88,48 +85,11 @@ static gboolean bt_song_io_init(void) {
 
 //-- class internals
 
-static void bt_song_io_native_dispose(GObject * const object) {
-  const BtSongIONative * const self = BT_SONG_IO_NATIVE(object);
-
-  return_if_disposed();
-  self->priv->dispose_has_run = TRUE;
-
-  GST_DEBUG("!!!! self=%p",self);
-  G_OBJECT_CLASS(parent_class)->dispose(object);
-}
-
-static void bt_song_io_native_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtSongIONative * const self = BT_SONG_IO_NATIVE(instance);
-  
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO_NATIVE, BtSongIONativePrivate);
+static void bt_song_io_native_init(BtSongIONative *self) {
+  //self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO_NATIVE, BtSongIONativePrivate);
 }
 
 static void bt_song_io_native_class_init(BtSongIONativeClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
-
-  parent_class=g_type_class_peek_parent(klass);
-  g_type_class_add_private(klass,sizeof(BtSongIONativePrivate));
-
-  gobject_class->dispose      = bt_song_io_native_dispose; 
+  //g_type_class_add_private(klass,sizeof(BtSongIONativePrivate));
 }
 
-GType bt_song_io_native_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSongIONativeClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_song_io_native_class_init, // class_init
-      NULL, // class_finalize
-      //(GClassFinalizeFunc)bt_song_io_native_class_finalize,
-      NULL, // class_data
-      sizeof(BtSongIONative),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_song_io_native_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(BT_TYPE_SONG_IO,"BtSongIONative",&info,G_TYPE_FLAG_ABSTRACT);
-  }
-  return type;
-}

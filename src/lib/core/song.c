@@ -149,9 +149,14 @@ struct _BtSongPrivate {
   BtSongIO *song_io;
 };
 
-static GObjectClass *parent_class=NULL;
+//-- the class
 
-//static guint signals[LAST_SIGNAL]={0,};
+static void bt_song_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtSong, bt_song, G_TYPE_OBJECT,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+    bt_song_persistence_interface_init));
+
 
 //-- helper
 
@@ -1361,8 +1366,8 @@ static void bt_song_persistence_interface_init(gpointer const g_iface, gpointer 
 static void bt_song_constructed(GObject *object) {
   BtSong *self=BT_SONG(object);
   
-  if(G_OBJECT_CLASS(parent_class)->constructed)
-    G_OBJECT_CLASS(parent_class)->constructed(object);
+  if(G_OBJECT_CLASS(bt_song_parent_class)->constructed)
+    G_OBJECT_CLASS(bt_song_parent_class)->constructed(object);
 
   g_return_if_fail(BT_IS_APPLICATION(self->priv->app));
   
@@ -1585,7 +1590,7 @@ static void bt_song_dispose(GObject * const object) {
   g_object_try_weak_unref(self->priv->app);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_song_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -1595,15 +1600,13 @@ static void bt_song_finalize(GObject * const object) {
   GST_DEBUG("!!!! self=%p",self);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_song_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
 //-- class internals
 
-static void bt_song_init(const GTypeInstance * const instance, gconstpointer const g_class) {
-  BtSong * const self = BT_SONG(instance);
-
+static void bt_song_init(BtSong *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG, BtSongPrivate);
 
   self->priv->position_query=gst_query_new_position(GST_FORMAT_TIME);
@@ -1633,7 +1636,6 @@ static void bt_song_init(const GTypeInstance * const instance, gconstpointer con
 static void bt_song_class_init(BtSongClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongPrivate));
 
   gobject_class->constructed  = bt_song_constructed;
@@ -1738,39 +1740,3 @@ static void bt_song_class_init(BtSongClass * const klass) {
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_song_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSongClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_song_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSong),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_song_init, // instance_init
-      NULL // value_table
-    };
-    const GInterfaceInfo persistence_interface_info = {
-      (GInterfaceInitFunc) bt_song_persistence_interface_init,  // interface_init
-      NULL, // interface_finalize
-      NULL  // interface_data
-    };
-#if 0
-    static const GInterfaceInfo child_proxy_info = {
-      (GInterfaceInitFunc) bt_song_child_proxy_init,
-      NULL,
-      NULL
-    };
-#endif
-
-    type = g_type_register_static(G_TYPE_OBJECT,"BtSong",&info,0);
-    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
-#if 0
-    g_type_add_interface_static(type, GST_TYPE_CHILD_PROXY, &child_proxy_info);
-#endif
-  }
-  return type;
-}

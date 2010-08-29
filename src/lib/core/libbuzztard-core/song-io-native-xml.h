@@ -36,7 +36,6 @@
 
 typedef struct _BtSongIONativeXML BtSongIONativeXML;
 typedef struct _BtSongIONativeXMLClass BtSongIONativeXMLClass;
-typedef struct _BtSongIONativeXMLPrivate BtSongIONativeXMLPrivate;
 
 /**
  * BtSongIONativeXML:
@@ -45,9 +44,6 @@ typedef struct _BtSongIONativeXMLPrivate BtSongIONativeXMLPrivate;
  */
 struct _BtSongIONativeXML {
   const BtSongIONative parent;
-  
-  /*< private >*/
-  BtSongIONativeXMLPrivate *priv;
 };
 /**
  * BtSongIONativeXMLClass:

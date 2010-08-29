@@ -37,7 +37,14 @@ struct _BtProcessorMachinePrivate {
   gboolean dispose_has_run;
 };
 
-static BtMachineClass *parent_class=NULL;
+//-- the class
+
+static void bt_processor_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtProcessorMachine, bt_processor_machine, BT_TYPE_MACHINE,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+    bt_processor_machine_persistence_interface_init));
+
 
 //-- pad templates
 static GstStaticPadTemplate machine_src_template =
@@ -154,7 +161,7 @@ static BtPersistence *bt_processor_machine_persistence_load(const GType type, co
   return(result);
 }
 
-static void bt_processor_machine_persistence_interface_init(gpointer const g_iface, gconstpointer const iface_data) {
+static void bt_processor_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
   BtPersistenceInterface * const iface = g_iface;
   
   iface->load = bt_processor_machine_persistence_load;
@@ -182,7 +189,7 @@ static void bt_processor_machine_constructed(GObject *object) {
 
   GST_INFO("processor-machine constructed");
 
-  G_OBJECT_CLASS(parent_class)->constructed(object);
+  G_OBJECT_CLASS(bt_processor_machine_parent_class)->constructed(object);
 
   g_object_get(self,"construction-error",&err,NULL);
   if(err==NULL || *err==NULL) {
@@ -242,7 +249,7 @@ static void bt_processor_machine_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_processor_machine_parent_class)->dispose(object);
 }
 
 static void bt_processor_machine_finalize(GObject * const object) {
@@ -250,14 +257,12 @@ static void bt_processor_machine_finalize(GObject * const object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_processor_machine_parent_class)->finalize(object);
 }
 
 //-- class internals
 
-static void bt_processor_machine_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtProcessorMachine * const self = BT_PROCESSOR_MACHINE(instance);
-  
+static void bt_processor_machine_init(BtProcessorMachine *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachinePrivate);
 }
 
@@ -266,7 +271,6 @@ static void bt_processor_machine_class_init(BtProcessorMachineClass * const klas
   GstElementClass * const gstelement_klass = GST_ELEMENT_CLASS(klass);
   BtMachineClass * const machine_class = BT_MACHINE_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtProcessorMachinePrivate));
   
   gobject_class->constructed  = bt_processor_machine_constructed;
@@ -281,28 +285,3 @@ static void bt_processor_machine_class_init(BtProcessorMachineClass * const klas
   gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&machine_sink_template));
 }
 
-GType bt_processor_machine_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtProcessorMachineClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_processor_machine_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtProcessorMachine),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_processor_machine_init, // instance_init
-      NULL // value_table
-    };
-    const GInterfaceInfo persistence_interface_info = {
-      (GInterfaceInitFunc) bt_processor_machine_persistence_interface_init,  // interface_init
-      NULL, // interface_finalize
-      NULL  // interface_data
-    };
-    type = g_type_register_static(BT_TYPE_MACHINE,"BtProcessorMachine",&info,0);
-    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
-  }
-  return type;
-}

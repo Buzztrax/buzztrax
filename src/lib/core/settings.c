@@ -40,14 +40,12 @@
 #include <libbuzztard-core/settings-private.h>
 #include <gst/audio/multichannel.h>
 
-struct _BtSettingsPrivate {
-  /* used to validate if dispose has run */
-  gboolean dispose_has_run;
-};
-
-static GObjectClass *parent_class=NULL;
 static BtSettingsFactory bt_settings_factory=NULL;
 static gpointer singleton=NULL;
+
+//-- the class
+
+G_DEFINE_ABSTRACT_TYPE (BtSettings, bt_settings, G_TYPE_OBJECT);
 
 //-- constructor methods
 
@@ -207,9 +205,7 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
 
 /* returns a property for the given property_id for this object */
 static void bt_settings_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtSettings * const self = BT_SETTINGS(object);
   const GObjectClass * const gobject_class = G_OBJECT_GET_CLASS(object);
-  return_if_disposed();
 
   // call implementation
   gobject_class->get_property(object,property_id,value,pspec);
@@ -217,42 +213,23 @@ static void bt_settings_get_property(GObject * const object, const guint propert
 
 /* sets the given properties for this object */
 static void bt_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtSettings * const self = BT_SETTINGS(object);
   GObjectClass * const gobject_class = G_OBJECT_GET_CLASS(object);
-  return_if_disposed();
 
   // call implementation
   gobject_class->set_property(object,property_id,value,pspec);
 }
 
-static void bt_settings_dispose(GObject * const object) {
-  const BtSettings * const self = BT_SETTINGS(object);
-
-  return_if_disposed();
-  self->priv->dispose_has_run = TRUE;
-
-  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
-
-  G_OBJECT_CLASS(parent_class)->dispose(object);
-}
-
 //-- class internals
 
-static void bt_settings_init(GTypeInstance * const instance, gpointer g_class) {
-  BtSettings * const self = BT_SETTINGS(instance);
-
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS, BtSettingsPrivate);
+static void bt_settings_init(BtSettings * self) {
+  //self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS, BtSettingsPrivate);
 }
 
 static void bt_settings_class_init(BtSettingsClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
-  g_type_class_add_private(klass,sizeof(BtSettingsPrivate));
-
   gobject_class->set_property = bt_settings_set_property;
   gobject_class->get_property = bt_settings_get_property;
-  gobject_class->dispose      = bt_settings_dispose;
 
   // ui
   g_object_class_install_property(gobject_class,BT_SETTINGS_NEWS_SEEN,
@@ -422,22 +399,3 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_settings_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSettingsClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_settings_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSettings),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_settings_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtSettings",&info,G_TYPE_FLAG_ABSTRACT);
-  }
-  return type;
-}

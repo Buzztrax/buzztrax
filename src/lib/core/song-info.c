@@ -94,13 +94,19 @@ struct _BtSongInfoPrivate {
   gchar *create_dts,*change_dts;
 };
 
-static GObjectClass *parent_class=NULL;
-
 // date time stamp format YYYY-MM-DDThh:mm:ssZ
 #define DTS_LEN 20
 
 /* default name for new songs */
 #define DEFAULT_SONG_NAME _("untitled song")
+
+//-- the class
+
+static void bt_song_info_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtSongInfo, bt_song_info, G_TYPE_OBJECT,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+    bt_song_info_persistence_interface_init));
 
 //-- helper methods
 
@@ -236,17 +242,6 @@ static void bt_song_info_persistence_interface_init(gpointer const g_iface, gpoi
 //-- wrapper
 
 //-- g_object overrides
-
-#if 0
-static void bt_song_info_constructed(GObject *object) {
-  BtSongInfo *self=BT_SONG_INFO(object);
-  
-  if(G_OBJECT_CLASS(parent_class)->constructed)
-    G_OBJECT_CLASS(parent_class)->constructed(object);
-
-  g_return_val_if_fail(BT_IS_SONG(self->priv->song));
-}
-#endif
 
 /* returns a property for the given property_id for this object */
 static void bt_song_info_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
@@ -464,7 +459,7 @@ static void bt_song_info_dispose(GObject * const object) {
   GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->song);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_song_info_parent_class)->dispose(object);
 }
 
 static void bt_song_info_finalize(GObject * const object) {
@@ -483,13 +478,12 @@ static void bt_song_info_finalize(GObject * const object) {
   g_free(self->priv->create_dts);
   g_free(self->priv->change_dts);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_song_info_parent_class)->finalize(object);
 }
 
 //-- class internals
 
-static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtSongInfo * const self = BT_SONG_INFO(instance);
+static void bt_song_info_init(BtSongInfo * self) {
   time_t now=time(NULL);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
@@ -529,7 +523,6 @@ static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_cl
 static void bt_song_info_class_init(BtSongInfoClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongInfoPrivate));
 
   gobject_class->set_property = bt_song_info_set_property;
@@ -627,28 +620,3 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_song_info_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSongInfoClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_song_info_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSongInfo),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_song_info_init, // instance_init
-      NULL // value_table
-    };
-    const GInterfaceInfo persistence_interface_info = {
-      (GInterfaceInitFunc) bt_song_info_persistence_interface_init,  // interface_init
-      NULL, // interface_finalize
-      NULL  // interface_data
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtSongInfo",&info,0);
-    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
-  }
-  return type;
-}

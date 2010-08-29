@@ -58,7 +58,9 @@ struct _BtSongIONativeBZTPrivate {
 
 static GQuark error_domain=0;
 
-static BtSongIONativeClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtSongIONativeBZT, bt_song_io_native_bzt, BT_TYPE_SONG_IO_NATIVE);
 
 //-- public methods
 
@@ -439,12 +441,10 @@ static void bt_song_io_native_bzt_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_song_io_native_bzt_parent_class)->dispose(object);
 }
 
-static void bt_song_io_native_bzt_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtSongIONativeBZT * const self = BT_SONG_IO_NATIVE_BZT(instance);
-  
+static void bt_song_io_native_bzt_init(BtSongIONativeBZT *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO_NATIVE_BZT, BtSongIONativeBZTPrivate);
 }
 
@@ -453,7 +453,6 @@ static void bt_song_io_native_bzt_class_init(BtSongIONativeBZTClass * const klas
   BtSongIOClass * const btsongio_class = BT_SONG_IO_CLASS(klass);
 
   error_domain=g_type_qname(BT_TYPE_SONG_IO_NATIVE_BZT);
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongIONativeBZTPrivate));
 
   gobject_class->dispose      = bt_song_io_native_bzt_dispose;
@@ -462,23 +461,3 @@ static void bt_song_io_native_bzt_class_init(BtSongIONativeBZTClass * const klas
   btsongio_class->save        = bt_song_io_native_bzt_save;
 }
 
-GType bt_song_io_native_bzt_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSongIONativeBZTClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_song_io_native_bzt_class_init, // class_init
-      NULL, // class_finalize
-      //(GClassFinalizeFunc)bt_song_io_native_bzt_class_finalize,
-      NULL, // class_data
-      sizeof(BtSongIONativeBZT),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_song_io_native_bzt_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(BT_TYPE_SONG_IO_NATIVE,"BtSongIONativeBZT",&info,0);
-  }
-  return type;
-}

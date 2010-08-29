@@ -31,14 +31,12 @@
 
 #include "core_private.h"
 
-struct _BtSongIONativeXMLPrivate {
-  /* used to validate if dispose has run */
-  gboolean dispose_has_run;
-};
-
 static GQuark error_domain=0;
 
-static BtSongIONativeClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtSongIONativeXML, bt_song_io_native_xml, BT_TYPE_SONG_IO_NATIVE);
+
 
 //-- methods
 
@@ -151,53 +149,17 @@ static gboolean bt_song_io_native_xml_save(gconstpointer const _self, const BtSo
 
 //-- class internals
 
-static void bt_song_io_native_xml_dispose(GObject * const object) {
-  const BtSongIONativeXML * const self = BT_SONG_IO_NATIVE_XML(object);
-
-  return_if_disposed();
-  self->priv->dispose_has_run = TRUE;
-
-  GST_DEBUG("!!!! self=%p",self);
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+static void bt_song_io_native_xml_init(BtSongIONativeXML *self) {
+  //self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO_NATIVE_XML, BtSongIONativeXMLPrivate);
 }
 
-static void bt_song_io_native_xml_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtSongIONativeXML * const self = BT_SONG_IO_NATIVE_XML(instance);
-  
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO_NATIVE_XML, BtSongIONativeXMLPrivate);
-}
-
-static void bt_song_io_native_xml_class_init(BtSongIONativeClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+static void bt_song_io_native_xml_class_init(BtSongIONativeXMLClass * klass) {
   BtSongIOClass * const btsongio_class = BT_SONG_IO_CLASS(klass);
 
   error_domain=g_type_qname(BT_TYPE_SONG_IO_NATIVE_XML);
-  parent_class=g_type_class_peek_parent(klass);
-  g_type_class_add_private(klass,sizeof(BtSongIONativeXMLPrivate));
-
-  gobject_class->dispose      = bt_song_io_native_xml_dispose;
+  //g_type_class_add_private(klass,sizeof(BtSongIONativeXMLPrivate));
   
   btsongio_class->load        = bt_song_io_native_xml_load;
   btsongio_class->save        = bt_song_io_native_xml_save;
 }
 
-GType bt_song_io_native_xml_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSongIONativeXMLClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_song_io_native_xml_class_init, // class_init
-      NULL, // class_finalize
-      //(GClassFinalizeFunc)bt_song_io_native_class_finalize,
-      NULL, // class_data
-      sizeof(BtSongIONativeXML),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_song_io_native_xml_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(BT_TYPE_SONG_IO_NATIVE,"BtSongIONativeXML",&info,0);
-  }
-  return type;
-}

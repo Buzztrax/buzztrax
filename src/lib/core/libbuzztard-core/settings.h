@@ -45,7 +45,6 @@ typedef gpointer (*BtSettingsFactory)(void);
 
 typedef struct _BtSettings BtSettings;
 typedef struct _BtSettingsClass BtSettingsClass;
-typedef struct _BtSettingsPrivate BtSettingsPrivate;
 
 /**
  * BtSettings:
@@ -54,9 +53,6 @@ typedef struct _BtSettingsPrivate BtSettingsPrivate;
  */
 struct _BtSettings {
   const GObject parent;
-  
-  /*< private >*/
-  BtSettingsPrivate *priv;
 };
 /* structure of the settings class */
 struct _BtSettingsClass {

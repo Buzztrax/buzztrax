@@ -322,9 +322,16 @@ struct _BtSetupPrivate {
   GstEvent *play_seek_event;
 };
 
-static GObjectClass *parent_class=NULL;
-
 static guint signals[LAST_SIGNAL]={0,};
+
+//-- the class
+
+static void bt_setup_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtSetup, bt_setup, G_TYPE_OBJECT,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+    bt_setup_persistence_interface_init));
+
 
 //-- constructor methods
 
@@ -1507,17 +1514,6 @@ static void bt_setup_persistence_interface_init(gpointer const g_iface, gpointer
 
 //-- g_object overrides
 
-#if 0
-static void bt_setup_constructed(GObject *object) {
-  BtSetup *self=BT_SETUP(object);
-  
-  if(G_OBJECT_CLASS(parent_class)->constructed)
-    G_OBJECT_CLASS(parent_class)->constructed(object);
-
-  g_return_if_fail(BT_IS_SONG(self->priv->song));
-}
-#endif
-
 /* returns a property for the given property_id for this object */
 static void bt_setup_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSetup * const self = BT_SETUP(object);
@@ -1629,7 +1625,7 @@ static void bt_setup_dispose(GObject * const object) {
   g_object_try_weak_unref(self->priv->song);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_setup_parent_class)->dispose(object);
 }
 
 static void bt_setup_finalize(GObject * const object) {
@@ -1662,14 +1658,12 @@ static void bt_setup_finalize(GObject * const object) {
   g_hash_table_destroy(self->priv->graph_depth);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_setup_parent_class)->finalize(object);
 }
 
 //-- class internals
 
-static void bt_setup_init(const GTypeInstance * const instance, gconstpointer g_class) {
-  BtSetup * const self = BT_SETUP(instance);
-
+static void bt_setup_init(BtSetup * self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETUP, BtSetupPrivate);
 
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
@@ -1680,7 +1674,6 @@ static void bt_setup_init(const GTypeInstance * const instance, gconstpointer g_
 static void bt_setup_class_init(BtSetupClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSetupPrivate));
 
   gobject_class->set_property = bt_setup_set_property;
@@ -1796,28 +1789,3 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_setup_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSetupClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_setup_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSetup),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_setup_init, // instance_init
-      NULL // value_table
-    };
-    const GInterfaceInfo persistence_interface_info = {
-      (GInterfaceInitFunc) bt_setup_persistence_interface_init,  // interface_init
-      NULL, // interface_finalize
-      NULL  // interface_data
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtSetup",&info,0);
-    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
-  }
-  return type;
-}

@@ -115,9 +115,16 @@ struct _BtSinkBinPrivate {
   gulong subticks_per_tick;
 };
 
-static GstBinClass *parent_class=NULL;
+//-- the class
 
 static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElement *sink);
+
+static void bt_sink_bin_tempo_interface_init(gpointer const g_iface, gpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtSinkBin, bt_sink_bin, GST_TYPE_BIN,
+  G_IMPLEMENT_INTERFACE (GSTBT_TYPE_TEMPO,
+    bt_sink_bin_tempo_interface_init));
+
 
 //-- tempo interface implementations
 
@@ -800,7 +807,7 @@ static GstStateChangeReturn bt_sink_bin_change_state(GstElement * element, GstSt
     gst_element_state_get_name(GST_STATE_TRANSITION_CURRENT (transition)),
     gst_element_state_get_name(GST_STATE_TRANSITION_NEXT (transition)));
 
-  res = GST_ELEMENT_CLASS(parent_class)->change_state(element,transition);
+  res = GST_ELEMENT_CLASS(bt_sink_bin_parent_class)->change_state(element,transition);
 
   switch(transition) {
     case GST_STATE_CHANGE_PAUSED_TO_READY:
@@ -975,7 +982,7 @@ static void bt_sink_bin_dispose(GObject * const object) {
   }
 
   GST_INFO("chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_sink_bin_parent_class)->dispose(object);
   GST_INFO("done");
 }
 
@@ -987,20 +994,10 @@ static void bt_sink_bin_finalize(GObject * const object) {
 
   g_free(self->priv->record_file_name);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_sink_bin_parent_class)->finalize(object);
 }
 
-static void bt_sink_bin_base_init(gpointer klass) {
-  gst_element_class_set_details_simple (GST_ELEMENT_CLASS (klass),
-    "Master AudioSink",
-    "Audio/Bin",
-    "Play/Record audio",
-    "Stefan Kost <ensonic@users.sf.net>");
-}
-
-static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtSinkBin * const self = BT_SINK_BIN(instance);
-
+static void bt_sink_bin_init(BtSinkBin *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_BIN, BtSinkBinPrivate);
 
   // watch settings changes
@@ -1024,11 +1021,10 @@ static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_cla
   GST_INFO("done");
 }
 
-static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
+static void bt_sink_bin_class_init(BtSinkBinClass * klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
   GstElementClass * const element_class = GST_ELEMENT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSinkBinPrivate));
 
   gobject_class->set_property = bt_sink_bin_set_property;
@@ -1081,32 +1077,12 @@ static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
                                      10.0,
                                      1.0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS|GST_PARAM_CONTROLLABLE));
-}
 
-GType bt_sink_bin_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GInterfaceInfo tempo_interface_info = {
-      (GInterfaceInitFunc) bt_sink_bin_tempo_interface_init,          /* interface_init */
-      NULL,               /* interface_finalize */
-      NULL                /* interface_data */
-    };
-    const GTypeInfo info = {
-      sizeof(BtSinkBinClass),
-      (GBaseInitFunc)bt_sink_bin_base_init, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_sink_bin_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSinkBin),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_sink_bin_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GST_TYPE_BIN,"BtSinkBin",&info,0);
-    g_type_add_interface_static(type, GSTBT_TYPE_TEMPO, &tempo_interface_info);
-  }
-  return type;
+  gst_element_class_set_details_simple (element_class,
+    "Master AudioSink",
+    "Audio/Bin",
+    "Play/Record audio",
+    "Stefan Kost <ensonic@users.sf.net>");
 }
 
 //-- plugin handling

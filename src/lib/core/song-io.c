@@ -66,13 +66,14 @@ struct _BtSongIOPrivate {
   gchar *status;
 };
 
-static GObjectClass *parent_class=NULL;
-
-/* list of registered io-classes, each entry points to a detect function
- * @todo: we should gather a BtSongIOModuleInfo structure for each plugin
- * This would help with code in main-window.c
+/* list of registered io-classes, each entry points to a BtSongIOModuleInfo
+ * structure for each plugin
  */
 static GList *plugins=NULL;
+
+//-- the class
+
+G_DEFINE_ABSTRACT_TYPE (BtSongIO, bt_song_io, G_TYPE_OBJECT);
 
 
 //-- helper methods
@@ -472,7 +473,7 @@ static void bt_song_io_dispose(GObject * const object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_song_io_parent_class)->dispose(object);
 }
 
 static void bt_song_io_finalize(GObject * const object) {
@@ -482,19 +483,16 @@ static void bt_song_io_finalize(GObject * const object) {
   
   g_free(self->priv->file_name);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_song_io_parent_class)->finalize(object);
 }
 
-static void bt_song_io_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtSongIO * const self = BT_SONG_IO(instance);
-
+static void bt_song_io_init(BtSongIO *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO, BtSongIOPrivate);
 }
 
 static void bt_song_io_class_init(BtSongIOClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongIOPrivate));
 
   gobject_class->set_property = bt_song_io_set_property;
@@ -533,22 +531,3 @@ static void bt_song_io_class_init(BtSongIOClass * const klass) {
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_song_io_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSongIOClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_song_io_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSongIO),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_song_io_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtSongIO",&info,0);
-  }
-  return type;
-}

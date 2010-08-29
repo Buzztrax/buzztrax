@@ -1,3 +1,23 @@
+2010-08-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/settings.h:
+	* src/lib/core/libbuzztard-core/song-io-native-xml.h:
+	* src/lib/core/libbuzztard-core/song-io-native.h:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/settings.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	  More G_DEFINE_TYPE usage. Also kill PrivateData where we don't needed.
+
 2010-08-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wave.c:
