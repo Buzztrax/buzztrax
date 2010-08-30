@@ -48,6 +48,11 @@
 
 #include "core_private.h"
 
+//-- the iface
+
+G_DEFINE_INTERFACE (BtPersistence, bt_persistence, 0);
+
+
 //-- string formatting helper
 
 /**
@@ -431,22 +436,5 @@ BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const
 
 //-- interface internals
 
-GType bt_persistence_get_type(void) {
-  static GType type = 0;
-
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof (BtPersistenceInterface),
-      NULL,   /* base_init */
-      NULL,   /* base_finalize */
-      NULL,   /* class_init */
-      NULL,   /* class_finalize */
-      NULL,   /* class_data */
-      0,
-      0,      /* n_preallocs */
-      NULL    /* instance_init */
-    };
-    type=g_type_register_static(G_TYPE_INTERFACE,"BtPersistence",&info,0);
-  }
-  return type;
+static void bt_persistence_default_init(BtPersistenceInterface *klass) {
 }

@@ -1,5 +1,13 @@
 2010-08-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/childproxy.c:
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/persistence.c:
+	  Use G_DEFINE_INTERFACE and conditioaly add glib defines for people
+	  with older glibs.
+
+2010-08-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wire.c:
 	  Remove threadbarrier experiemnt and use "silent" property on queue
 	  if available.

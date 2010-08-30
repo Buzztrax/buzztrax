@@ -43,6 +43,11 @@
 #include "core_private.h"
 #include <gobject/gvaluecollector.h>
 
+//-- the iface
+
+G_DEFINE_INTERFACE (BtChildProxy, bt_child_proxy, 0);
+
+
 /* interface vmethods */
 
 /**
@@ -344,27 +349,7 @@ void bt_child_proxy_set(gpointer object,const gchar *first_property_name, ...) {
   va_end(var_args);
 }
 
-/* gobject methods */
+//-- interface internals
 
-GType bt_child_proxy_get_type(void) {
-  static volatile gsize type=0;
-
-  if(g_once_init_enter(&type)) {
-    GType _type;
-    static const GTypeInfo info = {
-      sizeof (BtChildProxyInterface),
-      NULL,                     /* base_init */
-      NULL,                     /* base_finalize */
-      NULL,                     /* class_init */
-      NULL,                     /* class_finalize */
-      NULL,                     /* class_data */
-      0,
-      0,                        /* n_preallocs */
-      NULL                      /* instance_init */
-    };
-
-    _type=g_type_register_static(G_TYPE_INTERFACE,"BtChildProxy",&info,0);
-    g_once_init_leave(&type,(gsize)_type);
-  }
-  return type;
+static void bt_child_proxy_default_init(BtChildProxyInterface *klass) {
 }
