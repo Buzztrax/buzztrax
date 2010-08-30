@@ -440,12 +440,24 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
      * problem:
      *   we need to relink all outgoing wires for this src when adding/removing a wire
      */
-    //if(!bt_wire_make_internal_element(self,PART_QUEUE,"threadbarrier","queue")) {
-      if(!bt_wire_make_internal_element(self,PART_QUEUE,"queue","queue")) return(FALSE);
-      // configure the queue
-      // @idea: if machine on source side is a live-source, should be keep the queue larger?
-      g_object_set(G_OBJECT (machines[PART_QUEUE]),"max-size-buffers",2,"max-size-bytes",0,"max-size-time",G_GUINT64_CONSTANT(0),NULL);
-    //}
+    if(!bt_wire_make_internal_element(self,PART_QUEUE,"queue","queue")) return(FALSE);
+    // configure the queue
+    // @idea: if machine on source side is a live-source, should be keep the queue larger?
+    // @todo: if we have/require gstreamer-0.10.31 ret rid of the check
+    if(g_object_class_find_property(G_OBJECT_GET_CLASS(machines[PART_QUEUE]),"silent")) {
+      g_object_set(G_OBJECT(machines[PART_QUEUE]),
+        "max-size-buffers",2,
+        "max-size-bytes",0,
+        "max-size-time",G_GUINT64_CONSTANT(0),
+        "silent",TRUE,
+        NULL);
+    } else {
+      g_object_set(G_OBJECT(machines[PART_QUEUE]),
+        "max-size-buffers",2,
+        "max-size-bytes",0,
+        "max-size-time",G_GUINT64_CONSTANT(0),
+        NULL);
+    }
     GST_DEBUG("created queue element for wire : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
   }
   if(!machines[PART_TEE]) {
