@@ -84,14 +84,14 @@ static void bt_test_tempo_interface_init(gpointer g_iface, gpointer iface_data) 
 
 //-- child proxy interface implementation
 
-static GstObject *bt_test_child_proxy_get_child_by_index (GstChildProxy *child_proxy, guint index) {
+static GstObject *bt_test_child_proxy_get_child_by_index(GstChildProxy *child_proxy, guint index) {
   GST_INFO("machine %p, getting child %u of %lu",child_proxy,index,BT_TEST_POLY_SOURCE(child_proxy)->num_voices);
   g_return_val_if_fail(index<BT_TEST_POLY_SOURCE(child_proxy)->num_voices,NULL);
   
   return(g_object_ref(g_list_nth_data(BT_TEST_POLY_SOURCE(child_proxy)->voices,index)));
 }
 
-static guint bt_test_child_proxy_get_children_count (GstChildProxy *child_proxy) {
+static guint bt_test_child_proxy_get_children_count(GstChildProxy *child_proxy) {
   return(BT_TEST_POLY_SOURCE(child_proxy)->num_voices);
 }
 
@@ -423,7 +423,7 @@ GType bt_test_poly_source_get_type(void) {
 #if !GST_CHECK_VERSION(0,10,16)
 static
 #endif
-gboolean bt_test_plugin_init (GstPlugin * plugin) {
+gboolean bt_test_plugin_init(GstPlugin * plugin) {
   //GST_INFO("registering unit test plugin");
 
   gst_element_register(plugin,"buzztard-test-mono-source",GST_RANK_NONE,BT_TYPE_TEST_MONO_SOURCE);

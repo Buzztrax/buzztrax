@@ -37,14 +37,13 @@ static void test_teardown(void) {
 //-- tests
 
 BT_START_TEST(test_btmachine_obj1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
+  BtApplication *app;
+  BtSong *song;
   BtMachine *machine;
   GError *err=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create a machine */
@@ -71,9 +70,8 @@ BT_START_TEST(test_btmachine_enable_input_level1) {
   GError *err=NULL;
   gboolean res;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create a machine */
@@ -94,16 +92,15 @@ BT_END_TEST
  * activate the input level meter in a connected machine
  */
 BT_START_TEST(test_btmachine_enable_input_level2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
+  BtApplication *app;
+  BtSong *song;
   BtMachine *machine1,*machine2;
   BtWire *wire;
   GError *err=NULL;
   gboolean res;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create two machines */
@@ -134,15 +131,14 @@ BT_END_TEST
  * activate the input gain control in an unconnected machine
  */
 BT_START_TEST(test_btmachine_enable_input_gain1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
+  BtApplication *app;
+  BtSong *song;
   BtMachine *machine;
   GError *err=NULL;
   gboolean res;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create a machine */
@@ -163,15 +159,14 @@ BT_END_TEST
  * activate the output gain control in an unconnected machine
  */
 BT_START_TEST(test_btmachine_enable_output_gain1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
+  BtApplication *app;
+  BtSong *song;
   BtMachine *machine;
   GError *err=NULL;
   gboolean res;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create a machine */

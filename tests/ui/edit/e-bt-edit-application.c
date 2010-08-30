@@ -98,7 +98,7 @@ static gboolean finish_main_loops(gpointer user_data) {
 BT_START_TEST(test_run) {
   BtEditApplication *app;
   BtMainWindow *main_window;
-  BtSettings *settings=NULL;
+  BtSettings *settings=bt_settings_make();
 
   app=bt_edit_application_new();
   fail_unless(app != NULL, NULL);
@@ -109,7 +109,6 @@ BT_START_TEST(test_run) {
   GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
 
   // avoid the about dialog
-  settings=bt_settings_make();
   g_object_set(settings,"news-seen",PACKAGE_VERSION_NUMBER,NULL);
 
   // run and quit

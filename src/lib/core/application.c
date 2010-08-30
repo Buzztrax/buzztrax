@@ -62,10 +62,7 @@ struct _BtApplicationPrivate {
 
 //-- the class
 
-/* not abstract because of unit tests,
-* @todo: we probably should rather have a BtTestApp subclass
-*/
-G_DEFINE_TYPE (BtApplication, bt_application, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE (BtApplication, bt_application, G_TYPE_OBJECT);
 
 //-- helper
 

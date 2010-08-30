@@ -54,10 +54,8 @@ BT_START_TEST(test_btsong_obj1) {
   BtSong *song;
   gboolean unsaved;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   /* song should be unchanged */
@@ -78,8 +76,8 @@ BT_START_TEST(test_btsong_load1) {
   gboolean load_ret = FALSE;
   gboolean unsaved;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
@@ -110,8 +108,8 @@ BT_START_TEST(test_btsong_load2) {
   BtSongIO *loader;
   gboolean load_ret = FALSE;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
@@ -142,8 +140,8 @@ BT_START_TEST(test_btsong_load3) {
   gboolean load_ret = FALSE;
   BtSinkMachine *master;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
@@ -177,8 +175,8 @@ BT_START_TEST(test_btsong_play1) {
   gboolean res;
   gboolean is_playing;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
@@ -222,8 +220,8 @@ BT_START_TEST(test_btsong_play2) {
   gboolean res;
   gint i;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
@@ -260,8 +258,8 @@ BT_START_TEST(test_btsong_play3) {
   gboolean res;
   BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
@@ -302,8 +300,8 @@ BT_START_TEST(test_btsong_play4) {
   // change audiosink
   g_object_set(settings,"audiosink",NULL,"system-audiosink",NULL,NULL);
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
@@ -338,10 +336,8 @@ BT_START_TEST(test_btsong_new1){
   BtSongInfo *songinfo=NULL;
   BtWavetable *wavetable=NULL;
 
-  // create a dummy application
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  // create a new, empty song
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   g_object_get(song,"app",&app2,NULL);
@@ -394,8 +390,8 @@ BT_START_TEST(test_btsong_idle1) {
   BtSongIO *loader=NULL;
   gboolean load_ret = FALSE;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
@@ -427,8 +423,8 @@ BT_START_TEST(test_btsong_idle2) {
   gboolean res;
   gboolean is_idle,is_playing;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));

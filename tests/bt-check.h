@@ -44,6 +44,7 @@
 #include <gst/gst.h>
 //-- buzztard
 #include <libbuzztard-core/core.h>
+#include "bt-test-application.h"
 #include "bt-test-plugin.h"
 #include "bt-test-settings.h"
 

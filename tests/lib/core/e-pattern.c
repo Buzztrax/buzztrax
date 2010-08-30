@@ -44,9 +44,8 @@ BT_START_TEST(test_btpattern_obj_mono1) {
   BtPattern *pattern=NULL;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
 
@@ -98,9 +97,8 @@ BT_START_TEST(test_btpattern_obj_poly1) {
   GstElement *element;
   gulong voices;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
 
@@ -139,9 +137,8 @@ BT_START_TEST(test_btpattern_obj_poly2) {
   GstElement *element;
   gulong voices;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -191,9 +188,8 @@ BT_START_TEST(test_btpattern_copy) {
   BtPattern *pattern1=NULL,*pattern2=NULL;
   gulong length1,length2,voices1,voices2;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
 
@@ -237,9 +233,8 @@ BT_START_TEST(test_btpattern_has_data) {
   gchar *data;
   gboolean res;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,&err));
@@ -293,9 +288,8 @@ BT_START_TEST(test_btpattern_enlarge_length) {
   gulong length;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   /* try to create a source machine */
   // @todo try "bml-ErsKick" before and fall back to "buzztard-test-mono-source" as long as we don't have multi-voice machine in gst
@@ -350,9 +344,8 @@ BT_START_TEST(test_btpattern_shrink_length) {
   gulong length;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
@@ -399,9 +392,8 @@ BT_START_TEST(test_btpattern_enlarge_voices) {
   gulong voices;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,&err));
@@ -455,9 +447,8 @@ BT_START_TEST(test_btpattern_shrink_voices) {
   gulong voices;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,&err));
@@ -507,9 +498,8 @@ BT_START_TEST(test_btpattern_insert_row) {
   BtPattern *pattern=NULL;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
@@ -557,9 +547,8 @@ BT_START_TEST(test_btpattern_delete_row) {
   BtPattern *pattern=NULL;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));

@@ -43,13 +43,12 @@ BT_START_TEST(test_btsinkmachine_settings1) {
   GError *err=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
-  BtSettings *settings=NULL;
   //gchar *saved_audiosink_name;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  /* create a dummy app, song and get settings */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create  app, song and get settings */
+  app=bt_test_application_new();
   song=bt_song_new(app);
-  settings=bt_settings_make();
   mark_point();
 
   //g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
@@ -81,13 +80,11 @@ BT_START_TEST(test_btsinkmachine_settings2) {
   GError *err=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
-  BtSettings *settings=NULL;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  /* create a dummy app, song and get settings */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create  app, song and get settings */
+  app=bt_test_application_new();
   song=bt_song_new(app);
-  settings=bt_settings_make();
   mark_point();
 
   g_object_set(settings,"audiosink","audioconvert ! osssink sync=false",NULL);
@@ -110,12 +107,11 @@ BT_START_TEST(test_btsinkmachine_settings3) {
   GError *err=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
-  BtSettings *settings=NULL;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  /* create a dummy app, song and get settings */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create  app, song and get settings */
+  app=bt_test_application_new();
   song=bt_song_new(app);
-  settings=bt_settings_make();
   mark_point();
 
   g_object_set(settings,"audiosink","xvimagsink",NULL);
@@ -138,12 +134,11 @@ BT_START_TEST(test_btsinkmachine_settings4) {
   GError *err=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
-  BtSettings *settings=NULL;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  /* create a dummy app, song and get settings */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create  app, song and get settings */
+  app=bt_test_application_new();
   song=bt_song_new(app);
-  settings=bt_settings_make();
   mark_point();
 
   g_object_set(settings,"audiosink","alsasink device=invalid:666",NULL);
@@ -165,15 +160,14 @@ BT_START_TEST(test_btsinkmachine_play1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSongIO *loader=NULL;
-  BtSettings *settings=NULL;
   gboolean load_ret = FALSE;
   gboolean res;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  settings=bt_settings_make();
   g_object_set(settings,"audiosink","fakesink",NULL);
 
+  /* create  app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
@@ -198,15 +192,14 @@ BT_START_TEST(test_btsinkmachine_play2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSongIO *loader=NULL;
-  BtSettings *settings=NULL;
   gboolean load_ret = FALSE;
   gboolean res;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  settings=bt_settings_make();
   g_object_set(settings,"audiosink","alsasink device=invalid:666",NULL);
 
+  /* create  app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));

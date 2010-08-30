@@ -45,9 +45,8 @@ BT_START_TEST(test_btwirepattern_obj1) {
   BtPattern *pattern=NULL;
   BtWirePattern *wire_pattern=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
 
@@ -94,9 +93,8 @@ BT_START_TEST(test_btwirepattern_obj2) {
   BtPattern *pattern=NULL;
   BtWirePattern *wire_pattern=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
   g_object_get(song,"sequence",&sequence,NULL);
@@ -157,9 +155,8 @@ BT_START_TEST(test_btwirepattern_copy) {
   BtPattern *pattern1=NULL,*pattern2=NULL;
   BtWirePattern *wire_pattern1=NULL,*wire_pattern2=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
 
@@ -223,9 +220,8 @@ BT_START_TEST(test_btwirepattern_enlarge_length) {
   gulong length;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
 
@@ -291,9 +287,8 @@ BT_START_TEST(test_btwirepattern_shrink_length) {
   gulong length;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
 
@@ -359,9 +354,8 @@ BT_START_TEST(test_btwirepattern_insert_row) {
   BtWirePattern *wire_pattern=NULL;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
 
@@ -424,9 +418,8 @@ BT_START_TEST(test_btwirepattern_delete_row) {
   BtWirePattern *wire_pattern=NULL;
   gchar *data;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
 

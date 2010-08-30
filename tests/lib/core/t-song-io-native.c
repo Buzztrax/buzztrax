@@ -44,10 +44,8 @@ BT_START_TEST(test_btsong_io_native_obj1) {
   BtSongIO *song_io;
   gboolean res;
   
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   
   song_io=bt_song_io_from_file(check_get_test_song_path("broken1.xml"));

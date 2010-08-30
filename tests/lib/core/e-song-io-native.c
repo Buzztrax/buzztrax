@@ -88,10 +88,8 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   BtSongInfo *songinfo;
   BtWavetable *wavetable;
  
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   
   /* load the song */
@@ -148,7 +146,6 @@ BT_END_TEST
 /* for testing we use autoaudiosink and that slows down loging files here :/ */
 BT_START_TEST(test_btsong_io_native_song_refcounts) {
   BtApplication *app=NULL;
-  BtSettings *settings;
   BtSong *song=NULL;
   BtSongIO *song_io;
   gboolean res;
@@ -162,13 +159,13 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
     "test-simple5.xml",
     NULL
   };
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
  
   /* tweak the config */
-  settings=bt_settings_make();
   g_object_set(settings,"audiosink","fakesink",NULL);
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create app */
+  app=bt_test_application_new();
   g_object_get(app,"bin",&bin,NULL);
   GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));
   fail_unless(GST_BIN_NUMCHILDREN(bin) == 0, NULL);
@@ -204,19 +201,18 @@ BT_END_TEST
 
 BT_START_TEST(test_btsong_io_write_song1) {
   BtApplication *app=NULL;
-  BtSettings *settings;
   BtSong *song=NULL;
   BtSongIO *song_io;
   gboolean res;
   gchar *song_path,*song_name;
   gchar **format,*formats[]={"xml","bzt",NULL};
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
   /* tweak the config */
-  settings=bt_settings_make();
   g_object_set(settings,"audiosink","fakesink",NULL);
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create app */
+  app=bt_test_application_new();
 
   /* test the formats */
   format=formats;
@@ -258,7 +254,6 @@ BT_END_TEST
 
 BT_START_TEST(test_btsong_io_write_song2) {
   BtApplication *app=NULL;
-  BtSettings *settings;
   BtSong *song=NULL;
   BtMachine *gen,*sink;
   BtWire *wire;
@@ -267,13 +262,13 @@ BT_START_TEST(test_btsong_io_write_song2) {
   gboolean res;
   gchar *song_path,*song_name;
   gchar **format,*formats[]={"xml","bzt",NULL};
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
   /* tweak the config */
-  settings=bt_settings_make();
   g_object_set(settings,"audiosink","fakesink",NULL);
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create app */
+  app=bt_test_application_new();
 
   /* test the formats */
   format=formats;
@@ -321,7 +316,6 @@ BT_END_TEST
 
 BT_START_TEST(test_btsong_io_write_song3) {
   BtApplication *app=NULL;
-  BtSettings *settings;
   BtSong *song=NULL;
   BtMachine *gen,*sink;
   BtWire *wire;
@@ -333,6 +327,7 @@ BT_START_TEST(test_btsong_io_write_song3) {
   gchar **format,*formats[]={"xml","bzt",NULL};
   gchar *ext_data_path,*ext_data_cmd,*ext_data_uri;
   gint sys_res;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
   /* make external data */
   ext_data_path=g_build_filename(g_get_tmp_dir(),"bt-test-sample1.wav",NULL);
@@ -342,11 +337,10 @@ BT_START_TEST(test_btsong_io_write_song3) {
   fail_unless(sys_res == 0, NULL);
 
   /* tweak the config */
-  settings=bt_settings_make();
   g_object_set(settings,"audiosink","fakesink",NULL);
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create app */
+  app=bt_test_application_new();
 
   /* test the formats */
   format=formats;

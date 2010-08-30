@@ -42,7 +42,9 @@ struct _BtTestSettingsPrivate {
   GValue *settings[BT_SETTINGS_COUNT];
 };
 
-static BtSettingsClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtTestSettings, bt_test_settings, BT_TYPE_SETTINGS);
 
 //-- constructor methods
 
@@ -51,14 +53,14 @@ static BtSettingsClass *parent_class=NULL;
  *
  * Create a new instance.
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance
  */
 const BtTestSettings *bt_test_settings_new(void) {
   const BtTestSettings *self;
   self=BT_TEST_SETTINGS(g_object_new(BT_TYPE_TEST_SETTINGS,NULL));
   
   GST_INFO("created new settings object from factory %p",self);
-  return(self);  
+  return(self);
 }
 
 //-- methods
@@ -198,7 +200,7 @@ static void bt_test_settings_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
   
   GST_DEBUG("!!!! self=%p",self);
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_test_settings_parent_class)->dispose(object);
 }
 
 static void bt_test_settings_finalize(GObject * const object) {
@@ -215,12 +217,10 @@ static void bt_test_settings_finalize(GObject * const object) {
     }
   }
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_test_settings_parent_class)->finalize(object);
 }
 
-static void bt_test_settings_init(GTypeInstance * const instance, gconstpointer g_class) {
-  BtTestSettings * const self = BT_TEST_SETTINGS(instance);
-  
+static void bt_test_settings_init(BtTestSettings *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_TEST_SETTINGS, BtTestSettingsPrivate);
   memset(self->priv->settings,0,BT_SETTINGS_COUNT*sizeof(gpointer));
 }
@@ -228,7 +228,6 @@ static void bt_test_settings_init(GTypeInstance * const instance, gconstpointer 
 static void bt_test_settings_class_init(BtTestSettingsClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtTestSettingsPrivate));
 
   gobject_class->set_property = bt_test_settings_set_property;
@@ -260,22 +259,3 @@ void bt_test_settings_set(BtTestSettings * const self, gchar *property_name, gpo
   }
 }
 
-GType bt_test_settings_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtTestSettingsClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_test_settings_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtTestSettings),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_test_settings_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(BT_TYPE_SETTINGS,"BtTestSettings",&info,0);
-  }
-  return type;
-}

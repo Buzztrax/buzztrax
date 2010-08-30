@@ -44,8 +44,8 @@ BT_START_TEST(test_btsequence_properties) {
   BtSequence *sequence=NULL;
   gboolean check_prop_ret=FALSE;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
 
@@ -79,8 +79,8 @@ BT_START_TEST(test_btsequence_add_track1) {
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
   fail_unless(sequence!=NULL,NULL);
@@ -103,10 +103,8 @@ BT_START_TEST(test_btsequence_add_track2) {
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* try to create a source machine */
@@ -131,8 +129,8 @@ BT_START_TEST(test_btsequence_rem_track1) {
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
   fail_unless(sequence!=NULL,NULL);
@@ -156,8 +154,8 @@ BT_START_TEST(test_btsequence_rem_track2) {
   BtSequence *sequence=NULL;
   BtSourceMachine *machine=NULL;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
   fail_unless(sequence!=NULL,NULL);
@@ -183,8 +181,8 @@ BT_START_TEST(test_btsequence_length1) {
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
   fail_unless(sequence!=NULL,NULL);
@@ -211,9 +209,8 @@ BT_START_TEST(test_btsequence_pattern1) {
   BtMachine *machine;
   BtPattern *pattern;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
   /* create a source machine */
@@ -249,9 +246,8 @@ BT_START_TEST(test_btsequence_pattern2) {
   BtMachine *machine1,*machine2;
   BtPattern *pattern1,*pattern2,*pattern3;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
    /* create two source machines */

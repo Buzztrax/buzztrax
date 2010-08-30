@@ -53,10 +53,8 @@ BT_START_TEST(test_btsetup_obj1){
   BtMachine *ref_machine=NULL;
   GList *list,*node;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
 
@@ -107,10 +105,8 @@ BT_START_TEST(test_btsetup_obj2) {
   BtWire *ref_wire=NULL;
   GList *list;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -182,10 +178,8 @@ BT_START_TEST(test_btsetup_obj3) {
   BtSourceMachine *source=NULL;
   BtMachine *ref_machine=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -231,10 +225,8 @@ BT_START_TEST(test_btsetup_obj4) {
   BtWire *wire=NULL;
   BtWire *ref_wire=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -293,10 +285,8 @@ BT_START_TEST(test_btsetup_wire1) {
   /* wire list */
   GList* wire_list=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -352,10 +342,8 @@ BT_START_TEST(test_btsetup_wire2) {
   /* wire list */
   GList* wire_list=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -408,10 +396,8 @@ BT_START_TEST(test_btsetup_machine1) {
   // Gtype of the machine
   GType machine_type;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -449,10 +435,8 @@ BT_START_TEST(test_btsetup_unique_id1){
   BtMachine *ref_machine=NULL;
   gchar *id;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
 

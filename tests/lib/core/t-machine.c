@@ -69,10 +69,8 @@ BT_START_TEST(test_btmachine_state1) {
   // machine states
   BtMachineState state_ref;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
 
@@ -137,10 +135,8 @@ BT_START_TEST(test_btmachine_state2) {
   // machine states
   BtMachineState state_ref;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
 

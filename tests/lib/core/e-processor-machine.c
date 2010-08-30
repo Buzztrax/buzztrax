@@ -42,9 +42,8 @@ BT_START_TEST(test_btprocessormachine_obj1) {
   BtProcessorMachine *machine;
   GError *err=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create a machine */
@@ -68,9 +67,8 @@ BT_START_TEST(test_btprocessormachine_obj2) {
   GList *list,*node;
   gulong voices;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create a machine */

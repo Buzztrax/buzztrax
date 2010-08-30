@@ -43,6 +43,7 @@ noinst_LTLIBRARIES = libbt-check.la
 libbt_check_la_LIBADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
 libbt_check_la_SOURCES = \
 	bt-check.c bt-check.h \
+	bt-test-application.c bt-test-application.h \
 	bt-test-plugin.c bt-test-plugin.h \
 	bt-test-settings.c bt-test-settings.h
 libbt_check_la_DEPENDENCIES = /tmp/test.wav

@@ -48,10 +48,8 @@ BT_START_TEST(test_btcore_net1) {
   BtSetup *setup=NULL;
   gboolean song_ret;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
 

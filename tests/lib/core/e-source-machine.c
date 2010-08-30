@@ -51,10 +51,8 @@ BT_START_TEST(test_btsourcemachine_obj1){
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* try to create a source machine */
@@ -86,10 +84,8 @@ BT_START_TEST(test_btsourcemachine_obj2){
   GList *list,*node;
   gulong voices;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* try to create a source machine */
@@ -146,10 +142,8 @@ BT_START_TEST(test_btsourcemachine_obj3){
   GstElement *element;
   gulong voices;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* try to create a source machine */

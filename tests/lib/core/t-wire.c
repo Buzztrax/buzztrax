@@ -48,10 +48,8 @@ BT_START_TEST(test_btwire_obj1){
   // machine
   BtProcessorMachine *machine=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL,NULL);
 
@@ -82,10 +80,8 @@ BT_START_TEST(test_btwire_obj2){
   BtProcessorMachine *sink1=NULL;
   BtProcessorMachine *sink2=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song!=NULL,NULL);
   g_object_get(song,"setup",&setup,NULL);

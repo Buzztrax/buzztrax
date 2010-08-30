@@ -42,10 +42,8 @@ BT_START_TEST(test_btsequence_enlarge_length) {
   BtSong *song;
   BtSequence *sequence;
   gulong length;
-
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
 
@@ -69,9 +67,8 @@ BT_START_TEST(test_btsequence_enlarge_length_vals) {
   gchar label1[]="test",*label2;
   gulong i,length;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
 
@@ -122,10 +119,8 @@ BT_START_TEST(test_btsequence_shrink_length) {
   BtSong *song;
   BtSequence *sequence;
   gulong length;
-
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
 
@@ -154,9 +149,8 @@ BT_START_TEST(test_btsequence_enlarge_track) {
   BtMachine *machine;
   gulong tracks;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
   /* create a source machine */
@@ -191,9 +185,8 @@ BT_START_TEST(test_btsequence_enlarge_track_vals) {
   BtMachine *machine1,*machine2;
   gulong tracks;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
    /* create a source machine */
@@ -249,9 +242,8 @@ BT_START_TEST(test_btsequence_shrink_track) {
   BtMachine *machine;
   gulong tracks;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
    /* create a source machine */
@@ -293,9 +285,8 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
   BtPattern *pattern1,*pattern2;
   gulong i,j,length,tracks;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
    /* create a source machine */
@@ -380,9 +371,8 @@ BT_START_TEST(test_btsequence_update) {
   BtMachine *machine;
   BtPattern *pattern1,*pattern2;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
    /* create a source machine */
@@ -429,9 +419,8 @@ BT_START_TEST(test_btsequence_change_pattern) {
   GstObject *element;
   gulong val;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
    /* create a source machine and get the gstreamer element */
@@ -488,9 +477,8 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
   gulong val;
   GstClockTime tick_time;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
    /* create a source machine and get the gstreamer element */
@@ -565,9 +553,8 @@ BT_START_TEST(test_btsequence_validate_loop) {
   gulong loop_start,loop_end;
   gboolean loop;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
   g_object_set(sequence,"length",16L,NULL);

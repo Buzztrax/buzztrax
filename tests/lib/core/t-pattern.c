@@ -45,9 +45,8 @@ BT_START_TEST(test_btpattern_obj1) {
   BtSong *song=NULL;
   BtPattern *pattern=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   check_init_error_trapp("bt_pattern_","BT_IS_MACHINE(self->priv->machine)");

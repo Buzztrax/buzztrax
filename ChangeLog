@@ -1,3 +1,44 @@
+2010-08-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/application.c:
+	* tests/Makefile.am:
+	* tests/bt-check.h:
+	* tests/bt-test-application.c:
+	* tests/bt-test-application.h:
+	* tests/bt-test-plugin.c:
+	* tests/bt-test-settings.c:
+	* tests/lib/core/e-machine.c:
+	* tests/lib/core/e-network.c:
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/e-processor-machine.c:
+	* tests/lib/core/e-sequence.c:
+	* tests/lib/core/e-setup.c:
+	* tests/lib/core/e-sink-machine.c:
+	* tests/lib/core/e-song-info.c:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/e-source-machine.c:
+	* tests/lib/core/e-wire-pattern.c:
+	* tests/lib/core/t-machine.c:
+	* tests/lib/core/t-network.c:
+	* tests/lib/core/t-pattern.c:
+	* tests/lib/core/t-sequence.c:
+	* tests/lib/core/t-setup.c:
+	* tests/lib/core/t-sink-machine.c:
+	* tests/lib/core/t-song-io-native.c:
+	* tests/lib/core/t-song-io.c:
+	* tests/lib/core/t-song.c:
+	* tests/lib/core/t-source-machine.c:
+	* tests/lib/core/t-wire.c:
+	* tests/ui/edit/e-bt-edit-application.c:
+	* tests/bt-test-application.h (svn:keywords, svn:eol-style):
+	* tests/bt-test-application.c (svn:keywords, svn:eol-style):
+	* tests/bt-test-application.c (added):
+	* tests/bt-test-application.h (added):
+	  Big test cleanup. Use a test application to be able to make
+	  application an abstract base class. Simplify some of the test settings
+	  use.
+
 2010-08-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/childproxy.c:

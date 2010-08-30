@@ -46,12 +46,10 @@ BT_START_TEST(test_btsonginfo_createdate) {
   BtSongInfo *song_info=NULL;
   gchar *create_dts=NULL;
 
-  // creating new empty app
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  mark_point();
-  // creating new song
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
-  mark_point();
+
   // loading a song xml file
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
   mark_point();
@@ -84,12 +82,10 @@ BT_START_TEST(test_btsonginfo_tempo) {
   BtSequence *sequence;
   GstClockTime t1, t2;
 
-  // creating new empty app
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  mark_point();
-  // creating new song
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
-  mark_point();
+
   // loading a song xml file
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
   mark_point();

@@ -53,10 +53,8 @@ BT_START_TEST(test_btcore_net_static1) {
   // wires
   BtWire *wire, *wire1=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* get the song setup and sequence */
@@ -138,10 +136,8 @@ BT_START_TEST(test_btcore_net_static2) {
   // wires
   BtWire *wire1=NULL, *wire2=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* get the song setup and sequence */
@@ -221,10 +217,8 @@ BT_START_TEST(test_btcore_net_static3) {
   // wires
   BtWire *wire1=NULL, *wire2=NULL, *wire3=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* get the song setup and sequence */
@@ -319,10 +313,8 @@ BT_START_TEST(test_btcore_net_static4) {
   BtWire *wire1=NULL, *wire2=NULL;
   gboolean res;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* get the song setup and sequence */
@@ -420,10 +412,8 @@ BT_START_TEST(test_btcore_net_dynamic1) {
   // wires
   BtWire *wire1=NULL, *wire2=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* get the song setup and sequence */
@@ -508,10 +498,8 @@ BT_START_TEST(test_btcore_net_dynamic2) {
   // wires
   BtWire *wire1=NULL, *wire2=NULL, *wire3=NULL;
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
-  /* create a new song */
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* get the song setup and sequence */

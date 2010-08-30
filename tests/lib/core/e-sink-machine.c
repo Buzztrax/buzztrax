@@ -40,15 +40,14 @@ BT_START_TEST(test_btsinkmachine_obj1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine;
-  BtSettings *settings=NULL;
   GError *err=NULL;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
   /* configure a sink for testing */
-  settings=bt_settings_make();
   g_object_set(settings,"audiosink","fakesink",NULL);
-  /* create a new song */
+
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create a machine */
@@ -68,18 +67,17 @@ BT_START_TEST(test_btsinkmachine_obj2) {
   GError *err=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine;
-  BtSettings *settings=NULL;
   BtPattern *pattern=NULL;
   BtPattern *ref_pattern=NULL;
   GList *list,*node;
   gulong voices;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
   /* configure a sink for testing */
-  settings=bt_settings_make();
   g_object_set(settings,"audiosink","fakesink",NULL);
-  /* create a new song */
+
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create a machine */
@@ -126,15 +124,14 @@ BT_START_TEST(test_btsinkmachine_default) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine;
-  BtSettings *settings=NULL;
   GError *err=NULL;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
   /* configure a sink for testing */
-  settings=bt_settings_make();
   g_object_set(settings,"audiosink",NULL,NULL);
-  /* create a new song */
+
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create a machine */
@@ -153,17 +150,16 @@ BT_START_TEST(test_btsinkmachine_fallback) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine;
-  BtSettings *settings=NULL;
   GError *err=NULL;
   gchar *settings_str=NULL;
+  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
-  /* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
   /* configure a sink for testing */
-  settings=bt_settings_make();
   g_object_set(settings,"audiosink",NULL,NULL);
   bt_test_settings_set(BT_TEST_SETTINGS(settings),"system-audiosink",&settings_str);
-  /* create a new song */
+
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
 
   /* create a machine */

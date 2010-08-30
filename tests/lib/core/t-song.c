@@ -53,8 +53,8 @@ BT_START_TEST(test_btsong_properties) {
   BtSong *song=NULL;
   gboolean check_prop_ret=FALSE;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   check_prop_ret=check_gobject_properties(G_OBJECT(song));
@@ -85,8 +85,8 @@ BT_START_TEST(test_btsong_play1) {
   BtSong *song=NULL;
   gboolean res;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
 
@@ -110,8 +110,8 @@ BT_START_TEST(test_btsong_play2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   /* check if a correct error message is thrown */
@@ -132,8 +132,8 @@ BT_START_TEST(test_btsong_play3) {
   gboolean load_ret = FALSE;
   gboolean res;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
@@ -171,8 +171,8 @@ BT_START_TEST(test_btsong_setup1) {
   BtSong *song=NULL;
   BtSetup *setup=NULL;
 
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-
+  /* create app and song */
+  app=bt_test_application_new();
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
 
