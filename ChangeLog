@@ -1,5 +1,11 @@
 2010-08-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/dec/bt-dec.c:
+	  More G_DEFINE_TYPE and co. use.
+
+2010-08-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-info.c:
 	* src/ui/edit/main-page-machines.c:
 	* src/ui/edit/main-page-patterns.c:

@@ -61,9 +61,11 @@ struct _BtCmdApplicationPrivate {
   GThread *loop_thread;
 };
 
-static BtApplicationClass *parent_class=NULL;
-
 static gboolean is_playing=FALSE;
+
+//-- the class
+
+G_DEFINE_TYPE (BtCmdApplication, bt_cmd_application, BT_TYPE_APPLICATION);
 
 //-- helper methods
 
@@ -633,20 +635,6 @@ static void bt_cmd_application_set_property(GObject *object, guint property_id, 
   }
 }
 
-#if 0
-static GObject* bt_cmd_application_construct(GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
-  GObject *self;
-
-  //GST_DEBUG("<<<");
-  self = G_OBJECT_CLASS (parent_class)->constructor (type, n_construct_params, construct_params);
-  GST_INFO("new cmd app instantiated");
-  // do post construct here
-  //GST_DEBUG(">>>");
-  return(self);
-}
-#endif
-
-
 static void bt_cmd_application_dispose(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
 
@@ -655,7 +643,7 @@ static void bt_cmd_application_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_cmd_application_parent_class)->dispose(object);
 }
 
 static void bt_cmd_application_finalize(GObject *object) {
@@ -667,12 +655,10 @@ static void bt_cmd_application_finalize(GObject *object) {
   g_main_loop_unref(self->priv->loop);
   // no need for g_thread_join(); I think
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_cmd_application_parent_class)->finalize(object);
 }
 
-static void bt_cmd_application_init(GTypeInstance *instance, gpointer g_class) {
-  BtCmdApplication *self = BT_CMD_APPLICATION(instance);
-
+static void bt_cmd_application_init(BtCmdApplication *self) {
   GST_DEBUG("!!!! self=%p",self);
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_CMD_APPLICATION, BtCmdApplicationPrivate);
 
@@ -684,12 +670,8 @@ static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   GST_DEBUG("!!!!");
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtCmdApplicationPrivate));
 
-#if 0
-  gobject_class->constructor  = bt_cmd_application_construct;
-#endif
   gobject_class->set_property = bt_cmd_application_set_property;
   gobject_class->dispose      = bt_cmd_application_dispose;
   gobject_class->finalize     = bt_cmd_application_finalize;
@@ -703,22 +685,3 @@ static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
 
 }
 
-GType bt_cmd_application_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtCmdApplicationClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_cmd_application_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtCmdApplication),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_cmd_application_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(BT_TYPE_APPLICATION,"BtCmdApplication",&info,0);
-  }
-  return type;
-}

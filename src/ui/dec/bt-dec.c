@@ -93,7 +93,7 @@ static void bt_dec_application_class_init(BtDecApplicationClass *klass) {
 
 //-- the element class
 
-static GstElementClass *parent_class = NULL;
+GST_BOILERPLATE (BtDec, bt_dec, GstElement, GST_TYPE_ELEMENT);
 
 static gboolean
 bt_dec_src_query (GstPad * pad, GstQuery * query)
@@ -635,8 +635,6 @@ bt_dec_class_init (BtDecClass * klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GstElementClass *gstelement_class = (GstElementClass *) klass;
 
-  parent_class = (GstElementClass *) g_type_class_peek_parent (klass);
-
   gobject_class->dispose  = bt_dec_dispose;
 
   gstelement_class->change_state = bt_dec_change_state;
@@ -716,29 +714,6 @@ bt_dec_type_find (GstTypeFind * tf, gpointer ignore)
   if (found_match) {
     gst_type_find_suggest_simple (tf, GST_TYPE_FIND_LIKELY, mimetype, NULL);
   }
-}
-
-
-GType bt_dec_get_type (void)
-{
-  static GType type = 0;
-
-  if (G_UNLIKELY (!type)) {
-    const GTypeInfo type_info = {
-      sizeof (BtDecClass),
-      (GBaseInitFunc)bt_dec_base_init,
-      NULL,		          /* base_finalize */
-      (GClassInitFunc)bt_dec_class_init,
-      NULL,		          /* class_finalize */
-      NULL,               /* class_data */
-      sizeof (BtDec),
-      0,                  /* n_preallocs */
-      (GInstanceInitFunc) bt_dec_init
-    };
-
-    type = g_type_register_static (GST_TYPE_ELEMENT, "BtDec", &type_info, (GTypeFlags) 0);
-  }
-  return type;
 }
 
 
