@@ -1,5 +1,11 @@
 2010-08-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	  Fix build without gtk-doc.
+
+2010-08-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/cmd/cmd-application.c:
 	* src/ui/dec/bt-dec.c:
 	  More G_DEFINE_TYPE and co. use.

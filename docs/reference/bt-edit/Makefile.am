@@ -89,10 +89,10 @@ if ENABLE_MAN
 %.1 : %.xml
 	 @XSLTPROC@ -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
 
-endif
-endif
-
 BUILT_EXTRA_DIST = $(man_MANS)
+
+endif
+endif
 
 # Other files to distribute
 # e.g. EXTRA_DIST += version.xml.in
