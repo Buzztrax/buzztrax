@@ -673,19 +673,6 @@ static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat b
 
 //-- event handlers
 
-static gboolean on_page_switched_idle(gpointer user_data) {
-  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-
-  if(!self->priv->main_window)
-    return(FALSE);
-
-  // do we need to set the cursor here?
-  sequence_view_set_cursor_pos(self);
-  /* use status bar */
-  bt_child_proxy_set(self->priv->main_window,"statusbar::status",_("Add new tracks from right click context menu."),NULL);
-  return(FALSE);
-}
-
 static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   guint page_num;
@@ -707,8 +694,6 @@ static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer us
         // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
         g_signal_emit_by_name(self->priv->main_window, "keys-changed", 0);
 #endif
-        // delay the sequence_table grab
-        g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
       }
     }
   }
@@ -3483,6 +3468,11 @@ static gboolean bt_main_page_sequence_focus(GtkWidget *widget, GtkDirectionType 
   
   GST_DEBUG("focusing default widget");
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
+
+  // do we need to set the cursor here?
+  sequence_view_set_cursor_pos(self);
+  /* use status bar */
+  bt_child_proxy_set(self->priv->main_window,"statusbar::status",_("Add new tracks from right click context menu."),NULL);
   return FALSE;
 }
 

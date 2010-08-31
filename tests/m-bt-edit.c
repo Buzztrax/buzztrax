@@ -66,7 +66,7 @@ void bt_edit_setup(void) {
   BtSettings *settings;
 
   //g_type_init();
-#if 1
+
   gtk_init(&test_argc,&test_argvptr);
   bt_init(&test_argc,&test_argvptr);
   btic_init(&test_argc,&test_argvptr);
@@ -78,11 +78,6 @@ void bt_edit_setup(void) {
   theme=gtk_icon_theme_get_default()
   gtk_icon_theme_append_search_path(theme,....);
   */
-#endif
-
-  ///setup_log_capture();
-  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
-  //g_log_set_always_fatal(G_LOG_LEVEL_ERROR);
 
   GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
    // set this to e.g. DEBUG to see more from gst in the log
@@ -131,13 +126,6 @@ int main(int argc, char **argv) {
   g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   check_setup_test_server();
-#if 0
-  gtk_init(&test_argc,&test_argvptr);
-  bt_init(&test_argc,&test_argvptr);
-  btic_init(&test_argc,&test_argvptr);
-  add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
-  bt_check_init();
-#endif
 
   sr=srunner_create(bt_about_dialog_suite());
   srunner_add_suite(sr, bt_change_log_suite());

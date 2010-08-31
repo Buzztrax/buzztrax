@@ -1,5 +1,21 @@
 2010-08-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Removed the delayed focus grabs as we have overridden the vmethods.
+	  The idle ones where breaking the tests.
+	  
+	* tests/bt-check.c:
+	  Try to kill those [Xlib: extension "RANDR" missing on display ":1.0".]
+	  messages once more, to no avail.
+
+	* tests/m-bt-edit.c:
+	  Cleanup some commented out stuff.
+
+2010-08-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/Makefile.am:
 	* src/ui/dec/bt-dec.c:
 	  Enable bt-dec now. Add a built-in app subclass to fix gobject warnings

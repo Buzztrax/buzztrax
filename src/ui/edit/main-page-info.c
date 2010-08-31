@@ -62,14 +62,6 @@ static GtkVBoxClass *parent_class=NULL;
 
 //-- event handler
 
-static gboolean on_page_switched_idle(gpointer user_data) {
-  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-
-  GST_DEBUG("focusing default widget");
-  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->info));
-  return(FALSE);
-}
-
 static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
   //BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   guint page_num;
@@ -81,8 +73,6 @@ static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer us
     // only do this if the page really has changed
     if(prev_page_num != BT_MAIN_PAGES_INFO_PAGE) {
       GST_DEBUG("enter info page");
-      // delay the sequence_table grab
-      g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
     }
   }
   else {

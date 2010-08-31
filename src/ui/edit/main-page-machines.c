@@ -706,27 +706,6 @@ static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
   }
 }
 
-static gboolean on_page_switched_idle(gpointer user_data) {
-  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  BtMainWindow *main_window;
-
-  GST_DEBUG("focusing default widget");
-  // hmm, when it comes from any but pattern page it works
-  // when it comes from pattern page main-pages::on_page_switched comes after this
-  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
-  
-  /* use status bar */
-  g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  if(main_window) {
-    /* it would be nice if we could just do:
-     * bt_child_proxy_set(self->priv->app,"main-window::statusbar::status",_(".."),NULL);
-     */
-    bt_child_proxy_set(main_window,"statusbar::status",_("Add new machines from right click context menu. Connect machines with shift+drag from source to target."),NULL);
-    g_object_unref(main_window);
-  }
-  return(FALSE);
-}
-
 static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   guint page_num;
@@ -738,8 +717,6 @@ static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer us
     // only do this if the page really has changed
     if(prev_page_num != BT_MAIN_PAGES_MACHINES_PAGE) {
       GST_DEBUG("enter machine page");
-      // delay the sequence_table grab
-      g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
     }
   }
   else {
@@ -1241,9 +1218,20 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
 
 static gboolean bt_main_page_machines_focus(GtkWidget *widget, GtkDirectionType direction) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(widget);
+  BtMainWindow *main_window;
   
   GST_DEBUG("focusing default widget");
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
+
+  /* use status bar */
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  if(main_window) {
+    /* it would be nice if we could just do:
+     * bt_child_proxy_set(self->priv->app,"main-window::statusbar::status",_(".."),NULL);
+     */
+    bt_child_proxy_set(main_window,"statusbar::status",_("Add new machines from right click context menu. Connect machines with shift+drag from source to target."),NULL);
+    g_object_unref(main_window);
+  }
   return FALSE;
 }
 

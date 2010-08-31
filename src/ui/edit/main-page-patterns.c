@@ -1745,17 +1745,6 @@ static void switch_machine_and_pattern(const BtMainPagePatterns *self,BtMachine 
 }
 //-- event handler
 
-static gboolean on_page_switched_idle(gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-
-  GST_DEBUG("focusing default widget");
-  // hmm, when it comes from any but sequence page it works
-  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
-  // only set new text
-  pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);
-  return(FALSE);
-}
-
 static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMainWindow *main_window;
@@ -1790,8 +1779,6 @@ static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer us
         g_object_set(song,"is-idle",self->priv->play_live,NULL);
         g_object_unref(song);
       }
-      // delay the pattern_table grab
-      g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
     }
   }
   else {
@@ -3055,6 +3042,8 @@ static gboolean bt_main_page_patterns_focus(GtkWidget *widget, GtkDirectionType 
   
   GST_DEBUG("focusing default widget");
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
+  // only set new text
+  pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);
   return FALSE;
 }
 

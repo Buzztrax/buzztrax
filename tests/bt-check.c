@@ -775,6 +775,8 @@ void check_setup_test_server(void) {
     /* 32 bit does not work */
     "-screen","0","1024x786x24",
     "-render",/*"color",*/
+    // seems whatever we do, Xvfb won't get xrandr support
+    //"+extension", "RANDR",
     NULL
   };
   gboolean found=FALSE,launched=FALSE,trying=TRUE;
