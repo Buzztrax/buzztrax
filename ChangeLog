@@ -1,5 +1,13 @@
 2010-08-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/Makefile.am:
+	* src/ui/dec/bt-dec.c:
+	  Enable bt-dec now. Add a built-in app subclass to fix gobject warnings
+	  (btapp is now abstract). Fix typefinder to match only known mimetypes.
+	  Remove left-over parameter on the app-constructor.
+
+2010-08-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core/settings-private.h:
 	* tests/bt-test-settings.c:
 	* tests/bt-test-settings.h:

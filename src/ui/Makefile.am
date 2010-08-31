@@ -1,4 +1,4 @@
-SUBDIRS = cmd edit
+SUBDIRS = cmd dec edit
 
 .PHONY: help todo stats splint
 
