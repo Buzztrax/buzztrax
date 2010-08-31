@@ -63,6 +63,8 @@ gchar **test_argvptr;
 
 /* common setup and teardown code */
 void bt_edit_setup(void) {
+  BtSettings *settings;
+
   //g_type_init();
 #if 1
   gtk_init(&test_argc,&test_argvptr);
@@ -92,6 +94,13 @@ void bt_edit_setup(void) {
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 
   check_setup_test_display();
+
+  /* set some good setttings for the test */
+  settings=bt_settings_make();
+  //BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  g_object_set(settings,"show-tips",FALSE,NULL);
+  //g_object_unref(settings);
+  
   GST_INFO("================================================================================");
 }
 

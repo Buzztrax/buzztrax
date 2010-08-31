@@ -56,7 +56,7 @@ struct _BtTestSettingsClass {
   
 };
 
-const BtTestSettings *bt_test_settings_new(void);
+BtTestSettings *bt_test_settings_new(void);
 
 extern void bt_test_settings_set(BtTestSettings * const self, gchar *property_name, gpointer value);
 

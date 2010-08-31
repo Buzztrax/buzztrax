@@ -59,7 +59,7 @@ BT_START_TEST(test_create_dialog) {
   g_list_free(list);
   g_object_unref(ic_registry);
 
-  if(BTIC_IS_LEARN(device)) {
+  if(device && BTIC_IS_LEARN(device)) {
     // get window
     g_object_get(app,"main-window",&main_window,NULL);
     fail_unless(main_window != NULL, NULL);

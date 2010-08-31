@@ -1,5 +1,18 @@
 2010-08-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbuzztard-core/settings-private.h:
+	* tests/bt-test-settings.c:
+	* tests/bt-test-settings.h:
+	  Add missing entries to test settings.
+
+	* tests/m-bt-edit.c:
+	* tests/ui/edit/e-bt-controller-learn-dialog.c:
+	* tests/ui/edit/e-bt-edit-application.c:
+	  WIP of getting some sane default settings. Tests fails as the tips
+	  dialog is comming up by default.
+
+2010-08-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/application.c:
 	* tests/Makefile.am:
 	* tests/bt-check.h:

@@ -55,8 +55,8 @@ G_DEFINE_TYPE (BtTestSettings, bt_test_settings, BT_TYPE_SETTINGS);
  *
  * Returns: the new instance
  */
-const BtTestSettings *bt_test_settings_new(void) {
-  const BtTestSettings *self;
+BtTestSettings *bt_test_settings_new(void) {
+  BtTestSettings *self;
   self=BT_TEST_SETTINGS(g_object_new(BT_TYPE_TEST_SETTINGS,NULL));
   
   GST_INFO("created new settings object from factory %p",self);
@@ -84,6 +84,7 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
     case BT_SETTINGS_FOLDER_SONG:
     case BT_SETTINGS_FOLDER_RECORD:
     case BT_SETTINGS_FOLDER_SAMPLE:
+    case BT_SETTINGS_PRESENTED_TIPS:
     {
       if(prop) {
         g_value_set_string(value, g_value_get_string(prop));
@@ -96,6 +97,7 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
     case BT_SETTINGS_MENU_STATUSBAR_HIDE:
     case BT_SETTINGS_MENU_TABS_HIDE:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:
+    case BT_SETTINGS_SHOW_TIPS:
     {
       if(prop) {
         g_value_set_boolean(value, g_value_get_boolean(prop));
@@ -148,6 +150,7 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
     case BT_SETTINGS_FOLDER_SONG:
     case BT_SETTINGS_FOLDER_RECORD:
     case BT_SETTINGS_FOLDER_SAMPLE:
+    case BT_SETTINGS_PRESENTED_TIPS:
     {
       if(!prop) {
         self->priv->settings[property_id]=prop=g_new0(GValue,1);
@@ -158,6 +161,7 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
     case BT_SETTINGS_MENU_STATUSBAR_HIDE:
     case BT_SETTINGS_MENU_TABS_HIDE:
+    case BT_SETTINGS_SHOW_TIPS:
     {
       if(!prop) {
         self->priv->settings[property_id]=prop=g_new0(GValue,1);

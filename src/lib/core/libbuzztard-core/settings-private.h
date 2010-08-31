@@ -24,6 +24,7 @@
 
 #include "settings.h"
 
+/* don't forget to add entries to tests/bt-test-settings.c */
 enum {
   /* ui */
   BT_SETTINGS_NEWS_SEEN=1,

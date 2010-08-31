@@ -99,6 +99,7 @@ BT_START_TEST(test_run) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSettings *settings=bt_settings_make();
+  //BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
 
   app=bt_edit_application_new();
   fail_unless(app != NULL, NULL);
@@ -110,6 +111,7 @@ BT_START_TEST(test_run) {
 
   // avoid the about dialog
   g_object_set(settings,"news-seen",PACKAGE_VERSION_NUMBER,NULL);
+  g_object_unref(settings);
 
   // run and quit
   g_idle_add(finish_main_loops,NULL);
