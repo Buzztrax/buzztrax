@@ -392,18 +392,35 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
     g_object_get(song,"unsaved",&unsaved,NULL);
     if(unsaved) {
       BtSongInfo *song_info;
-      gchar *dts,*msg;
+      gchar *dts,*msg,*file_name;
+      gchar hdts[200];
+      struct tm tm={0,};
+      time_t t;
+      gdouble td;
 
       g_object_get(song,"song-info",&song_info,NULL);
-      g_object_get(song_info,"change-dts",&dts,NULL);
+      g_object_get(song_info,"change-dts",&dts,"file-name",&file_name,NULL);
 
-      // @todo: convert timestamp to human readable format (and local timezone)
+      // figure UTC local tz offset
+      t=time(NULL);
+      td=difftime(mktime(localtime(&t)),mktime(gmtime(&t)));
       
-      msg=g_strdup_printf(_("All unsaved changes will be lost. The song was last saved on: %s"), dts);
+      // convert timestamp to human readable format (and local timezone)
+      strptime(dts, "%FT%TZ", &tm);
+      // need to apply td for UTC->localtime
+      t=mktime(&tm)+(int)td;
+      strftime(hdts,199,"%c",localtime(&t));
+      GST_LOG("'%s', td=%lf",dts,td);
+      
+      if(file_name)
+        msg=g_strdup_printf(_("All unsaved changes will be lost. The song was last saved on: %s"), hdts);
+      else
+        msg=g_strdup_printf(_("All unsaved changes will be lost. The song was created on: %s"), hdts);
       res=bt_dialog_question(self,_("Really quit?"),_("Really quit?"),msg);
       
       g_free(msg);
       g_free(dts);
+      g_free(file_name);
       g_object_unref(song_info);
     }
     g_object_unref(song);

@@ -32,6 +32,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+//#define _XOPEN_SOURCE /* glibc2 needs this */
+#define __USE_XOPEN
+#include <time.h>
 #include <unistd.h>
 //-- locale
 #ifdef HAVE_X11_XLOCALE_H

@@ -488,7 +488,6 @@ static void bt_song_info_init(BtSongInfo * self) {
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
   self->priv->taglist=gst_tag_list_new();
-  
 
   self->priv->name=g_strdup(DEFAULT_SONG_NAME);
   self->priv->author=g_strdup(g_get_real_name());
