@@ -1,3 +1,15 @@
+2010-09-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/settings.c:
+	* tests/lib/core/e-sink-machine.c:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/t-sink-machine.c:
+	* tests/m-bt-edit.c:
+	* tests/ui/edit/e-bt-edit-application.c:
+	  More test cleanup and extra logging for test settings. We definitely
+	  have to use the factory method to get the singleton.
+
 2010-08-31  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-cmd/Makefile.am:

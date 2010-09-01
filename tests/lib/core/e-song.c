@@ -256,7 +256,7 @@ BT_START_TEST(test_btsong_play3) {
   BtSongIO *loader=NULL;
   gboolean load_ret = FALSE;
   gboolean res;
-  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  BtSettings *settings=bt_settings_make();
 
   /* create app and song */
   app=bt_test_application_new();
@@ -295,7 +295,7 @@ BT_START_TEST(test_btsong_play4) {
   BtSongIO *loader=NULL;
   gboolean load_ret = FALSE;
   gboolean res;
-  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  BtSettings *settings=bt_settings_make();
 
   // change audiosink
   g_object_set(settings,"audiosink",NULL,"system-audiosink",NULL,NULL);

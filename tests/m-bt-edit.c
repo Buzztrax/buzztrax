@@ -61,9 +61,10 @@ gchar test_arg1[]="--sync";
 gchar *test_argv[2];
 gchar **test_argvptr;
 
+static BtSettings *settings;
+
 /* common setup and teardown code */
 void bt_edit_setup(void) {
-  BtSettings *settings;
 
   //g_type_init();
 
@@ -71,13 +72,14 @@ void bt_edit_setup(void) {
   bt_init(&test_argc,&test_argvptr);
   btic_init(&test_argc,&test_argvptr);
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
-  bt_check_init();
   /* @todo: we need to ensure icons are found when running uninstalled
    * one problem is that we have them under "pixmaps" and not "icons"
    * maybe we should rename in svn
   theme=gtk_icon_theme_get_default()
   gtk_icon_theme_append_search_path(theme,....);
   */
+  bt_check_init();
+  GST_INFO("................................................................................");
 
   GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
    // set this to e.g. DEBUG to see more from gst in the log
@@ -88,18 +90,22 @@ void bt_edit_setup(void) {
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 
+  GST_INFO("................................................................................");
   check_setup_test_display();
+  GST_INFO("................................................................................");
 
-  /* set some good setttings for the test */
+  /* set some good settings for the tests */
   settings=bt_settings_make();
-  //BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
   g_object_set(settings,"show-tips",FALSE,NULL);
-  //g_object_unref(settings);
   
   GST_INFO("================================================================================");
 }
 
 void bt_edit_teardown(void) {
+  if (settings) {
+    g_object_unref(settings);
+    settings=NULL;
+  }
   GST_INFO("................................................................................");
   check_shutdown_test_display();
   GST_INFO("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
@@ -124,7 +130,7 @@ int main(int argc, char **argv) {
   //GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   //gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
-
+ 
   check_setup_test_server();
 
   sr=srunner_create(bt_about_dialog_suite());

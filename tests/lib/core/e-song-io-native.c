@@ -159,7 +159,7 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
     "test-simple5.xml",
     NULL
   };
-  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  BtSettings *settings=bt_settings_make();
  
   /* tweak the config */
   g_object_set(settings,"audiosink","fakesink",NULL);
@@ -206,7 +206,7 @@ BT_START_TEST(test_btsong_io_write_song1) {
   gboolean res;
   gchar *song_path,*song_name;
   gchar **format,*formats[]={"xml","bzt",NULL};
-  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  BtSettings *settings=bt_settings_make();
 
   /* tweak the config */
   g_object_set(settings,"audiosink","fakesink",NULL);
@@ -262,7 +262,7 @@ BT_START_TEST(test_btsong_io_write_song2) {
   gboolean res;
   gchar *song_path,*song_name;
   gchar **format,*formats[]={"xml","bzt",NULL};
-  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  BtSettings *settings=bt_settings_make();
 
   /* tweak the config */
   g_object_set(settings,"audiosink","fakesink",NULL);
@@ -327,7 +327,7 @@ BT_START_TEST(test_btsong_io_write_song3) {
   gchar **format,*formats[]={"xml","bzt",NULL};
   gchar *ext_data_path,*ext_data_cmd,*ext_data_uri;
   gint sys_res;
-  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  BtSettings *settings=bt_settings_make();
 
   /* make external data */
   ext_data_path=g_build_filename(g_get_tmp_dir(),"bt-test-sample1.wav",NULL);

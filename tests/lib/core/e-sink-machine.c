@@ -41,7 +41,7 @@ BT_START_TEST(test_btsinkmachine_obj1) {
   BtSong *song=NULL;
   BtSinkMachine *machine;
   GError *err=NULL;
-  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  BtSettings *settings=bt_settings_make();
 
   /* configure a sink for testing */
   g_object_set(settings,"audiosink","fakesink",NULL);
@@ -71,7 +71,7 @@ BT_START_TEST(test_btsinkmachine_obj2) {
   BtPattern *ref_pattern=NULL;
   GList *list,*node;
   gulong voices;
-  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  BtSettings *settings=bt_settings_make();
 
   /* configure a sink for testing */
   g_object_set(settings,"audiosink","fakesink",NULL);
@@ -125,7 +125,7 @@ BT_START_TEST(test_btsinkmachine_default) {
   BtSong *song=NULL;
   BtSinkMachine *machine;
   GError *err=NULL;
-  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  BtSettings *settings=bt_settings_make();
 
   /* configure a sink for testing */
   g_object_set(settings,"audiosink",NULL,NULL);
@@ -152,7 +152,7 @@ BT_START_TEST(test_btsinkmachine_fallback) {
   BtSinkMachine *machine;
   GError *err=NULL;
   gchar *settings_str=NULL;
-  BtSettings *settings=BT_SETTINGS(bt_test_settings_new());
+  BtSettings *settings=bt_settings_make();
 
   /* configure a sink for testing */
   g_object_set(settings,"audiosink",NULL,NULL);
