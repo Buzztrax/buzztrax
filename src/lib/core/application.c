@@ -130,6 +130,7 @@ static void bt_application_init(BtApplication *self) {
 
   self->priv->settings=bt_settings_make();
   g_assert(BT_IS_SETTINGS(self->priv->settings));
+  GST_INFO("app has settings %p",self->priv->settings);
 }
 
 static void bt_application_class_init(BtApplicationClass * const klass) {

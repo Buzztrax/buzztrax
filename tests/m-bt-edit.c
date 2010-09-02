@@ -96,6 +96,7 @@ void bt_edit_setup(void) {
 
   /* set some good settings for the tests */
   settings=bt_settings_make();
+  GST_INFO("tests have settings %p",settings);
   g_object_set(settings,"show-tips",FALSE,NULL);
   
   GST_INFO("================================================================================");

@@ -1,5 +1,14 @@
 2010-09-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/application.c:
+	* tests/m-bt-edit.c:
+	  More logging.
+
+	* tests/ui/edit/e-bt-controller-learn-dialog.c:
+	  In any case destroy the main window. Fixes the test.
+
+2010-09-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song-info.c:
 	  Whitespace.
 

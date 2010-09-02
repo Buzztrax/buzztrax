@@ -59,10 +59,11 @@ BT_START_TEST(test_create_dialog) {
   g_list_free(list);
   g_object_unref(ic_registry);
 
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
   if(device && BTIC_IS_LEARN(device)) {
-    // get window
-    g_object_get(app,"main-window",&main_window,NULL);
-    fail_unless(main_window != NULL, NULL);
   
     // create, show and destroy dialog
     dialog=GTK_WIDGET(bt_interaction_controller_learn_dialog_new(device));
@@ -76,11 +77,10 @@ BT_START_TEST(test_create_dialog) {
     check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
   
     gtk_widget_destroy(dialog);
-  
-    // close window
-    gtk_widget_destroy(GTK_WIDGET(main_window));
-    while(gtk_events_pending()) gtk_main_iteration();
   }
+  // close window
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
 
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
