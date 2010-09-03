@@ -1,5 +1,11 @@
 2010-09-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/ic/control.c:
+	* src/lib/ic/device.c:
+	  This got fixed at some point in time.
+
+2010-09-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Collect NEWS.
 

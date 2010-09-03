@@ -56,9 +56,7 @@ struct _BtIcControlPrivate {
 
 //-- the class
 
-// @bug: http://bugzilla.gnome.org/show_bug.cgi?id=417047
-// G_DEFINE_ABSTRACT_TYPE (BtIcControl, btic_control, G_TYPE_OBJECT);
-G_DEFINE_TYPE (BtIcControl, btic_control, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE (BtIcControl, btic_control, G_TYPE_OBJECT);
 
 //-- helper
 

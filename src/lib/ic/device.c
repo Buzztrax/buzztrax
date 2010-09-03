@@ -61,9 +61,7 @@ struct _BtIcDevicePrivate {
 
 //-- the class
 
-// @bug: http://bugzilla.gnome.org/show_bug.cgi?id=417047
-// G_DEFINE_ABSTRACT_TYPE (BtIcDevice, btic_device, G_TYPE_OBJECT);
-G_DEFINE_TYPE (BtIcDevice, btic_device, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE (BtIcDevice, btic_device, G_TYPE_OBJECT);
 
 //-- helper
 
