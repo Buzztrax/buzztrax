@@ -1,5 +1,10 @@
 2010-09-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Collect NEWS.
+
+2010-09-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/abs-range-control.c:
 	* src/lib/ic/control.c:
 	* src/lib/ic/device.c:

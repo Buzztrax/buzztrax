@@ -1,8 +1,27 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
-2010/08 ========================================================================
+2010/09 ========================================================================
 
-* bt-bin plays (still quite a hack)
+* bt-dec plays (still a bit hackish, issues with seeking)
+* gtk patches for 2 bugs accepted
+* tab-page focus handling cleanups
+* unit test cleanups
+* use G_DEFINE_TYPE and do a bit of GObject cleanup (remove dummy vmethod
+  implementations)
+* better error handling in bt-cmd
+* UI shows last save-date (is there a better way to convert UTC -> localtime)
+* add work-around for suse 11.3 icon theme bug [1]
+* nicer spectrum analyzer [2] with more features (log frq. scaling and
+  precission)
+* play with gcc autovectorizer. at least the reporting is usefuly to optimize
+  loops. still its hard to make it actually vectorize something meaningfull.
+  Most of the time it found places, where I should just use memset anyway.
+* implement startup check for exiting change logs and sanity changes on them
+
+78 files changed, 4300 insertions(+), 1832 deletions(-)
+
+[1] https://bugzilla.novell.com/show_bug.cgi?id=632602
+[2] http://www.buzztard.org/index.php/File:Bt-edit-0.6.0-01.png
 
 2010/07 ========================================================================
 
