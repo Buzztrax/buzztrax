@@ -50,8 +50,11 @@ struct _BtIcRegistryPrivate {
 #endif
 };
 
-static GObjectClass *parent_class=NULL;
 static BtIcRegistry *singleton=NULL;
+
+//-- the class
+
+G_DEFINE_TYPE (BtIcRegistry, btic_registry, G_TYPE_OBJECT);
 
 //-- helper
 
@@ -248,7 +251,7 @@ static void btic_registry_dispose(GObject * const object) {
   }
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(btic_registry_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -263,7 +266,7 @@ static void btic_registry_finalize(GObject * const object) {
   }
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(btic_registry_parent_class)->finalize(object);
   GST_DEBUG("  done");
   singleton=NULL;
 }
@@ -276,7 +279,7 @@ static GObject *btic_registry_constructor(GType type,guint n_construct_params,GO
     gchar **devices;
     gint i,num_devices;
 #endif
-    object=G_OBJECT_CLASS(parent_class)->constructor(type,n_construct_params,construct_params);
+    object=G_OBJECT_CLASS(btic_registry_parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BTIC_REGISTRY(object);
 
 #ifdef USE_HAL
@@ -345,16 +348,13 @@ static GObject *btic_registry_constructor(GType type,guint n_construct_params,GO
 }
 
 
-static void btic_registry_init(const GTypeInstance * const instance, gconstpointer const g_class) {
-  BtIcRegistry * const self = BTIC_REGISTRY(instance);
-
+static void btic_registry_init(BtIcRegistry *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_REGISTRY, BtIcRegistryPrivate);
 }
 
 static void btic_registry_class_init(BtIcRegistryClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtIcRegistryPrivate));
 
   gobject_class->constructor  = btic_registry_constructor;
@@ -370,22 +370,3 @@ static void btic_registry_class_init(BtIcRegistryClass * const klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType btic_registry_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      (guint16)(sizeof(BtIcRegistryClass)),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)btic_registry_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      (guint16)(sizeof(BtIcRegistry)),
-      0,   // n_preallocs
-      (GInstanceInitFunc)btic_registry_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtIcRegistry",&info,0);
-  }
-  return type;
-}

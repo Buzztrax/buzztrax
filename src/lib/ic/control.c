@@ -54,7 +54,11 @@ struct _BtIcControlPrivate {
   gchar *name;
 };
 
-static GObjectClass *parent_class=NULL;
+//-- the class
+
+// @bug: http://bugzilla.gnome.org/show_bug.cgi?id=417047
+// G_DEFINE_ABSTRACT_TYPE (BtIcControl, btic_control, G_TYPE_OBJECT);
+G_DEFINE_TYPE (BtIcControl, btic_control, G_TYPE_OBJECT);
 
 //-- helper
 
@@ -114,7 +118,7 @@ static void btic_control_dispose(GObject * const object) {
   g_object_try_weak_unref(self->priv->device);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(btic_control_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -126,20 +130,17 @@ static void btic_control_finalize(GObject * const object) {
   g_free(self->priv->name);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(btic_control_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
-static void btic_control_init(const GTypeInstance * const instance, gconstpointer const g_class) {
-  BtIcControl * const self = BTIC_CONTROL(instance);
-
+static void btic_control_init(BtIcControl *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_CONTROL, BtIcControlPrivate);
 }
 
 static void btic_control_class_init(BtIcControlClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtIcControlPrivate));
 
   gobject_class->set_property = btic_control_set_property;
@@ -162,24 +163,3 @@ static void btic_control_class_init(BtIcControlClass * const klass) {
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType btic_control_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      (guint16)(sizeof(BtIcControlClass)),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)btic_control_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      (guint16)(sizeof(BtIcControl)),
-      0,   // n_preallocs
-      (GInstanceInitFunc)btic_control_init, // instance_init
-      NULL // value_table
-    };
-    // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=417047
-    //type = g_type_register_static(G_TYPE_OBJECT,"BtIcControl",&info,G_TYPE_FLAG_VALUE_ABSTRACT);
-    type = g_type_register_static(G_TYPE_OBJECT,"BtIcControl",&info,0);
-  }
-  return type;
-}

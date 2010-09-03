@@ -59,7 +59,11 @@ struct _BtIcDevicePrivate {
   gulong run_ct;
 };
 
-static GObjectClass *parent_class=NULL;
+//-- the class
+
+// @bug: http://bugzilla.gnome.org/show_bug.cgi?id=417047
+// G_DEFINE_ABSTRACT_TYPE (BtIcDevice, btic_device, G_TYPE_OBJECT);
+G_DEFINE_TYPE (BtIcDevice, btic_device, G_TYPE_OBJECT);
 
 //-- helper
 
@@ -185,7 +189,7 @@ static void btic_device_dispose(GObject * const object) {
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(btic_device_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -203,20 +207,17 @@ static void btic_device_finalize(GObject * const object) {
   }
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(btic_device_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
-static void btic_device_init(const GTypeInstance * const instance, gconstpointer const g_class) {
-  BtIcDevice * const self = BTIC_DEVICE(instance);
-
+static void btic_device_init(BtIcDevice *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_DEVICE, BtIcDevicePrivate);
 }
 
 static void btic_device_class_init(BtIcDeviceClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtIcDevicePrivate));
 
   gobject_class->set_property = btic_device_set_property;
@@ -248,24 +249,3 @@ static void btic_device_class_init(BtIcDeviceClass * const klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType btic_device_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      (guint16)(sizeof(BtIcDeviceClass)),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)btic_device_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      (guint16)(sizeof(BtIcDevice)),
-      0,   // n_preallocs
-      (GInstanceInitFunc)btic_device_init, // instance_init
-      NULL // value_table
-    };
-    // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=417047
-    //type = g_type_register_static(G_TYPE_OBJECT,"BtIcDevice",&info,G_TYPE_FLAG_VALUE_ABSTRACT);
-    type = g_type_register_static(G_TYPE_OBJECT,"BtIcDevice",&info,0);
-  }
-  return type;
-}

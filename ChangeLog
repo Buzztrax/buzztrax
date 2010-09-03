@@ -1,3 +1,15 @@
+2010-09-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/abs-range-control.c:
+	* src/lib/ic/control.c:
+	* src/lib/ic/device.c:
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/learn.c:
+	* src/lib/ic/midi-device.c:
+	* src/lib/ic/registry.c:
+	* src/lib/ic/trigger-control.c:
+	  Use G_DEFINE_TYPE and co.
+
 2010-09-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/application.c:
@@ -276,7 +288,6 @@
 	* design/gui/stylecolors.c:
 	  Small style cleanups.
 
-
 2010-08-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:
@@ -327,9 +338,8 @@
 	  threadbarrier patch.
 
 	* src/ui/edit/wire-analysis-dialog.c:
-	  Init the gardient. Set "max-size-buffer" to 10 to fix spectrum resets
+	  Init the gradient. Set "max-size-buffer" to 10 to fix spectrum resets
 	  due to disconts. Raise the floor a bit.
-	  
 
 2010-08-11  Stefan Kost  <ensonic@users.sf.net>
 
@@ -461,7 +471,7 @@
 2010-07-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:
-	  Fix enum value. 
+	  Fix enum value.
 
 	* src/lib/core/song.c:
 	  Whitespace and logging.

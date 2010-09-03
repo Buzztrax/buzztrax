@@ -64,7 +64,9 @@ struct _BtIcInputDevicePrivate {
   GHashTable *controls;
 };
 
-static GObjectClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtIcInputDevice, btic_input_device, BTIC_TYPE_DEVICE);
 
 //-- helper
 #define test_bit(bit, array)    (array[bit>>3] & (1<<(bit&0x7)))
@@ -439,7 +441,7 @@ static void btic_input_device_dispose(GObject * const object) {
   btic_input_device_stop(self);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(btic_input_device_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -452,13 +454,11 @@ static void btic_input_device_finalize(GObject * const object) {
   g_hash_table_destroy(self->priv->controls);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(btic_input_device_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
-static void btic_input_device_init(const GTypeInstance * const instance, gconstpointer const g_class) {
-  BtIcInputDevice * const self = BTIC_INPUT_DEVICE(instance);
-
+static void btic_input_device_init(BtIcInputDevice *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_INPUT_DEVICE, BtIcInputDevicePrivate);
 
   self->priv->controls=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
@@ -468,7 +468,6 @@ static void btic_input_device_class_init(BtIcInputDeviceClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
   BtIcDeviceClass * const bticdevice_class = BTIC_DEVICE_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtIcInputDevicePrivate));
 
   gobject_class->set_property = btic_input_device_set_property;
@@ -487,22 +486,3 @@ static void btic_input_device_class_init(BtIcInputDeviceClass * const klass) {
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType btic_input_device_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      (guint16)(sizeof(BtIcInputDeviceClass)),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)btic_input_device_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      (guint16)(sizeof(BtIcInputDevice)),
-      0,   // n_preallocs
-      (GInstanceInitFunc)btic_input_device_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(BTIC_TYPE_DEVICE,"BtIcInputDevice",&info,0);
-  }
-  return type;
-}

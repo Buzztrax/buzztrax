@@ -30,6 +30,10 @@
 
 #include "ic_private.h"
 
+//-- the iface
+
+G_DEFINE_INTERFACE (BtIcLearn, btic_learn, 0);
+
 //-- helper
 
 //-- wrapper
@@ -94,18 +98,15 @@ BtIcControl* btic_learn_register_learned_control(const BtIcLearn *self, const gc
 
 //-- interface internals
 
-static void btic_learn_base_init(gpointer g_iface) {
+static void btic_learn_default_init(BtIcLearnInterface *iface) {
   static gboolean initialized = FALSE;
 
   if (!initialized) {
-    /* create interface signals and properties here. */
-    
-    BtIcLearnInterface *iface = (BtIcLearnInterface *)g_iface;
-    iface->learn_start=btic_learn_default_start;    
-    iface->learn_stop=btic_learn_default_stop;    
-    iface->register_learned_control=btic_learn_default_register_learned_control;    
+    iface->learn_start=btic_learn_default_start;
+    iface->learn_stop=btic_learn_default_stop;
+    iface->register_learned_control=btic_learn_default_register_learned_control;
 
-    g_object_interface_install_property (g_iface,
+    g_object_interface_install_property (iface,
       g_param_spec_string ("device-controlchange",
       "the last control detected by learn",
       "get the last detected control",
@@ -116,22 +117,3 @@ static void btic_learn_base_init(gpointer g_iface) {
   }
 }
 
-GType btic_learn_get_type (void) {
-  static GType type = 0;
-
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof (BtIcLearnInterface),
-      btic_learn_base_init,   /* base_init */
-      NULL,   /* base_finalize */
-      NULL,   /* class_init */
-      NULL,   /* class_finalize */
-      NULL,   /* class_data */
-      0,
-      0,      /* n_preallocs */
-      NULL    /* instance_init */
-    };
-    type = g_type_register_static (G_TYPE_INTERFACE,"BtIcLearn",&info,0);
-  }
-  return type;
-}

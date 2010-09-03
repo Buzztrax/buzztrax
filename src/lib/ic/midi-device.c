@@ -62,15 +62,13 @@ struct _BtIcMidiDevicePrivate {
   GHashTable *controls;
 };
 
-static GObjectClass *parent_class=NULL;
+//-- the class
 
-// forward declarations
-static gboolean btic_midi_device_start(gconstpointer _self);
-static gboolean btic_midi_device_stop(gconstpointer _self);
-static void btic_midi_device_set_property(GObject      * const object,
-					  const guint          property_id,
-					  const GValue * const value,
-					  GParamSpec   * const pspec);
+static void btic_midi_device_interface_init(gpointer const g_iface, gpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtIcMidiDevice, btic_midi_device, BTIC_TYPE_DEVICE,
+  G_IMPLEMENT_INTERFACE (BTIC_TYPE_LEARN, btic_midi_device_interface_init));
+
 //-- helper
 
 //-- handler
@@ -159,42 +157,6 @@ Error:
 
 //-- methods
 
-static gboolean btic_midi_device_learn_start(gconstpointer _self) {
-  BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
-
-  self->priv->learn_mode=TRUE;
-  btic_device_start(BTIC_DEVICE(self));
-
-  return(TRUE);
-}
-
-static gboolean btic_midi_device_learn_stop(gconstpointer _self) {
-  BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
-
-  self->priv->learn_mode=FALSE;
-  btic_device_stop(BTIC_DEVICE(self));
-
-  return(TRUE);
-}
-
-static BtIcControl* btic_midi_device_register_learned_control(gconstpointer _self,
-							      const gchar *name)
-{
-  BtIcAbsRangeControl *control=NULL;
-  BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
-
-  GST_INFO("registering midi control as %s", name);
-
-  if( g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key)) == NULL )
-  {
-    control = btic_abs_range_control_new(BTIC_DEVICE(self),name,
-					 0, 127, 0);
-    g_hash_table_insert(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key),(gpointer)control);
-  }
-
-  return(BTIC_CONTROL(control));
-}
-
 static gboolean btic_midi_device_start(gconstpointer _self) {
   BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
   GError *error=NULL;
@@ -251,6 +213,48 @@ static gboolean btic_midi_device_stop(gconstpointer _self) {
   return(TRUE);
 }
 
+//-- learn interface
+
+static gboolean btic_midi_device_learn_start(gconstpointer _self) {
+  BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
+
+  self->priv->learn_mode=TRUE;
+  btic_device_start(BTIC_DEVICE(self));
+
+  return(TRUE);
+}
+
+static gboolean btic_midi_device_learn_stop(gconstpointer _self) {
+  BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
+
+  self->priv->learn_mode=FALSE;
+  btic_device_stop(BTIC_DEVICE(self));
+
+  return(TRUE);
+}
+
+static BtIcControl* btic_midi_device_register_learned_control(gconstpointer _self, const gchar *name) {
+  BtIcAbsRangeControl *control=NULL;
+  BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
+
+  GST_INFO("registering midi control as %s", name);
+
+  if(!g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key))) {
+    control = btic_abs_range_control_new(BTIC_DEVICE(self),name, 0, 127, 0);
+    g_hash_table_insert(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key),(gpointer)control);
+  }
+
+  return(BTIC_CONTROL(control));
+}
+
+static void btic_midi_device_interface_init(gpointer const g_iface, gpointer const iface_data) {
+  BtIcLearnInterface *iface = (BtIcLearnInterface *)g_iface;
+
+  iface->learn_start = btic_midi_device_learn_start;
+  iface->learn_stop  = btic_midi_device_learn_stop;
+  iface->register_learned_control = btic_midi_device_register_learned_control;
+}
+
 //-- wrapper
 
 //-- class internals
@@ -299,7 +303,7 @@ static void btic_midi_device_dispose(GObject * const object) {
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(btic_midi_device_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -312,13 +316,11 @@ static void btic_midi_device_finalize(GObject * const object) {
   g_hash_table_destroy(self->priv->controls);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(btic_midi_device_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
-static void btic_midi_device_init(const GTypeInstance * const instance, gconstpointer const g_class) {
-  BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(instance);
-
+static void btic_midi_device_init(BtIcMidiDevice *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_MIDI_DEVICE, BtIcMidiDevicePrivate);
 
   self->priv->controls=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
@@ -328,7 +330,6 @@ static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
   BtIcDeviceClass * const bticdevice_class = BTIC_DEVICE_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtIcMidiDevicePrivate));
 
   gobject_class->set_property = btic_midi_device_set_property;
@@ -350,39 +351,3 @@ static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {
   g_object_class_override_property(gobject_class,DEVICE_CONTROLCHANGE,"device-controlchange");
 }
 
-static void btic_midi_device_interface_init (gpointer g_iface, gpointer iface_data) {
-  BtIcLearnInterface *klass = (BtIcLearnInterface *)g_iface;
-  klass->learn_start = btic_midi_device_learn_start;
-  klass->learn_stop  = btic_midi_device_learn_stop;
-  klass->register_learned_control = btic_midi_device_register_learned_control;
-}
-
-GType btic_midi_device_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      (guint16)(sizeof(BtIcMidiDeviceClass)),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)btic_midi_device_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      (guint16)(sizeof(BtIcMidiDevice)),
-      0,   // n_preallocs
-      (GInstanceInitFunc)btic_midi_device_init, // instance_init
-      NULL // value_table
-    };
-
-    static const GInterfaceInfo learn_info = {
-      (GInterfaceInitFunc) btic_midi_device_interface_init,    /* interface_init */
-      NULL,               /* interface_finalize */
-      NULL                /* interface_data */
-    };
-
-    type = g_type_register_static(BTIC_TYPE_DEVICE,"BtIcMidiDevice",&info,0);
-    g_type_add_interface_static (type,
-                                 BTIC_TYPE_LEARN,
-                                 &learn_info);
-  }
-  return type;
-}

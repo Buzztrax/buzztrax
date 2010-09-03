@@ -45,7 +45,9 @@ struct _BtIcAbsRangeControlPrivate {
   gint32 min,max,def;
 };
 
-static GObjectClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtIcAbsRangeControl, btic_abs_range_control, BTIC_TYPE_CONTROL);
 
 //-- helper
 
@@ -140,36 +142,22 @@ static void btic_abs_range_control_dispose(GObject * const object) {
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(btic_abs_range_control_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
-static void btic_abs_range_control_finalize(GObject * const object) {
-  const BtIcAbsRangeControl * const self = BTIC_ABS_RANGE_CONTROL(object);
-
-  GST_DEBUG("!!!! self=%p",self);
-
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->finalize(object);
-  GST_DEBUG("  done");
-}
-
-static void btic_abs_range_control_init(const GTypeInstance * const instance, gconstpointer const g_class) {
-  BtIcAbsRangeControl * const self = BTIC_ABS_RANGE_CONTROL(instance);
-
+static void btic_abs_range_control_init(BtIcAbsRangeControl *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_ABS_RANGE_CONTROL, BtIcAbsRangeControlPrivate);
 }
 
 static void btic_abs_range_control_class_init(BtIcAbsRangeControlClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtIcAbsRangeControlPrivate));
 
   gobject_class->set_property = btic_abs_range_control_set_property;
   gobject_class->get_property = btic_abs_range_control_get_property;
   gobject_class->dispose      = btic_abs_range_control_dispose;
-  gobject_class->finalize     = btic_abs_range_control_finalize;
 
   g_object_class_install_property(gobject_class,ABS_RANGE_CONTROL_VALUE,
                                   g_param_spec_long("value",
@@ -208,22 +196,3 @@ static void btic_abs_range_control_class_init(BtIcAbsRangeControlClass * const k
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType btic_abs_range_control_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      (guint16)(sizeof(BtIcAbsRangeControlClass)),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)btic_abs_range_control_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      (guint16)(sizeof(BtIcAbsRangeControl)),
-      0,   // n_preallocs
-      (GInstanceInitFunc)btic_abs_range_control_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(BTIC_TYPE_CONTROL,"BtIcAbsRangeControl",&info,0);
-  }
-  return type;
-}
