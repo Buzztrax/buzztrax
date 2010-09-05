@@ -99,21 +99,15 @@ BtIcControl* btic_learn_register_learned_control(const BtIcLearn *self, const gc
 //-- interface internals
 
 static void btic_learn_default_init(BtIcLearnInterface *iface) {
-  static gboolean initialized = FALSE;
+  iface->learn_start=btic_learn_default_start;
+  iface->learn_stop=btic_learn_default_stop;
+  iface->register_learned_control=btic_learn_default_register_learned_control;
 
-  if (!initialized) {
-    iface->learn_start=btic_learn_default_start;
-    iface->learn_stop=btic_learn_default_stop;
-    iface->register_learned_control=btic_learn_default_register_learned_control;
-
-    g_object_interface_install_property (iface,
-      g_param_spec_string ("device-controlchange",
-        "the last control detected by learn",
-        "get the last detected control",
-        NULL,
-        G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-
-    initialized = TRUE;
-  }
+  g_object_interface_install_property (iface,
+    g_param_spec_string ("device-controlchange",
+      "the last control detected by learn",
+      "get the last detected control",
+      NULL,
+      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 

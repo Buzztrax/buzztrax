@@ -1,6 +1,11 @@
 2010-09-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/learn.c:
+	  No need for the one time init check.
+
+2010-09-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/learn.c:
 	  Small paramspec flag update.
 
 2010-09-03  Stefan Kost  <ensonic@users.sf.net>
