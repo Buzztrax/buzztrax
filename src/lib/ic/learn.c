@@ -108,10 +108,10 @@ static void btic_learn_default_init(BtIcLearnInterface *iface) {
 
     g_object_interface_install_property (iface,
       g_param_spec_string ("device-controlchange",
-      "the last control detected by learn",
-      "get the last detected control",
-      NULL,
-      G_PARAM_READABLE|G_PARAM_WRITABLE));
+        "the last control detected by learn",
+        "get the last detected control",
+        NULL,
+        G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
     initialized = TRUE;
   }
