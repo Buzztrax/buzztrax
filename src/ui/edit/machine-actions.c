@@ -31,41 +31,6 @@
 #include "bt-edit.h"
 
 /**
- * bt_machine_action_help:
- * @machine: the machine
- * @widget: widget that triggered the action
- * 
- * Show help for the given @machine. Uses same screen as @widget (default if
- * @widget is NULL).
- */
-void bt_machine_action_help(BtMachine *machine, GtkWidget *widget) {
-  gchar *uri;
-  GstElement *element;
-#if GTK_CHECK_VERSION(2,14,0)
-  GError *error=NULL;
-  GdkScreen *screen=NULL;
-#endif
-
-  // show help for machine
-  g_object_get(machine,"machine",&element,NULL);
-  g_object_get(element,"documentation-uri",&uri,NULL);
-  gst_object_unref(element);
-  GST_INFO("context_menu help event occurred : %s",uri);
-
-#if GTK_CHECK_VERSION(2,14,0)
-  if(widget)
-    screen=gtk_widget_get_screen(widget);
-
-  if(!gtk_show_uri(screen,uri,gtk_get_current_event_time(),&error)) {
-    GST_WARNING("Failed to display help: %s\n",error->message);
-    g_error_free(error);
-  }
-#else
-  gnome_vfs_url_show(uri);
-#endif
-}
-
-/**
  * bt_machine_action_about:
  * @machine: the machine
  * @main_window: the main window to use as parent

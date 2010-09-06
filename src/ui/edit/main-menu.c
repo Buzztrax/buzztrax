@@ -491,21 +491,10 @@ static void on_menu_stop_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
 static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
   //BtMainMenu *self=BT_MAIN_MENU(user_data);
-#if GTK_CHECK_VERSION(2,14,0)
-  GError *error=NULL;
-#endif
-
   GST_INFO("menu help event occurred");
   
   // use "ghelp:buzztard-edit?topic" for context specific help
-#if GTK_CHECK_VERSION(2,14,0)
-  if(!gtk_show_uri(gtk_widget_get_screen(GTK_WIDGET(menuitem)),"ghelp:buzztard-edit",gtk_get_current_event_time(),&error)) {
-    GST_WARNING("Failed to display help: %s\n",error->message);
-    g_error_free(error);
-  }
-#else
-  gnome_vfs_url_show("ghelp:buzztard-edit");
-#endif
+  gtk_show_uri_simple(GTK_WIDGET(menuitem),"ghelp:buzztard-edit");
 }
 
 static void on_menu_help_show_tip(GtkMenuItem *menuitem,gpointer user_data) {
@@ -603,15 +592,7 @@ static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpo
       gchar *png_uri;
       
       png_uri=g_strdup_printf("file://%s"G_DIR_SEPARATOR_S""PACKAGE_NAME".%s",path,self->priv->debug_graph_format);
-      // show image
-#if GTK_CHECK_VERSION(2,14,0)
-      if(!gtk_show_uri(gtk_widget_get_screen(GTK_WIDGET(menuitem)),png_uri,gtk_get_current_event_time(),&error)) {
-        GST_WARNING("Failed to display dot-graph: %s\n",error->message);
-        g_error_free(error);
-      }
-#else
-      gnome_vfs_url_show(png_uri);
-#endif
+      gtk_show_uri_simple(GTK_WIDGET(menuitem),png_uri);
       g_free(png_uri);
     }
     g_free(cmd);

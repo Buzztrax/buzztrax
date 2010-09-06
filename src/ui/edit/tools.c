@@ -203,6 +203,7 @@ void gtk_widget_grab_focus_savely(GtkWidget *widget) {
   }
 }
 
+
 // gtk clipboard helper
 
 /**
@@ -232,4 +233,31 @@ GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets) {
   gtk_target_list_unref (list);
   
   return(targets);
+}
+
+
+// gtk help helper
+
+/**
+ * gtk_show_uri_simple:
+ * @widget: widget that triggered the action
+ * @uri: the uri
+ * 
+ * Show the given @uri. Uses same screen as @widget (default if @widget is NULL).
+ */
+void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri) {
+#if GTK_CHECK_VERSION(2,14,0)
+  GError *error=NULL;
+  GdkScreen *screen=NULL;
+
+  if(widget)
+    screen=gtk_widget_get_screen(widget);
+
+  if(!gtk_show_uri(screen,uri,gtk_get_current_event_time(),&error)) {
+    GST_WARNING("Failed to display help: %s\n",error->message);
+    g_error_free(error);
+  }
+#else
+  gnome_vfs_url_show(uri);
+#endif
 }

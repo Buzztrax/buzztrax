@@ -110,8 +110,8 @@ struct _BtMachineCanvasItemPrivate {
 
   /* the underlying machine */
   BtMachine *machine;
-  /* and its properties */
   GHashTable *properties;
+  const gchar *help_uri;
 
   /* machine context_menu */
   GtkMenu *context_menu;
@@ -638,7 +638,7 @@ static void on_context_menu_help_activate(GtkMenuItem *menuitem,gpointer user_da
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
   // show help for machine
-  bt_machine_action_help(self->priv->machine,GTK_WIDGET(self->priv->main_page_machines));
+  gtk_show_uri_simple(GTK_WIDGET(self->priv->main_page_machines),self->priv->help_uri);
 }
 
 static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -678,7 +678,6 @@ static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanva
 
 static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasItem *self) {
   GtkWidget *menu_item,*label;
-  GstElement *machine;
 
   self->priv->menu_item_mute=menu_item=gtk_check_menu_item_new_with_label(_("Mute"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -747,13 +746,12 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
 
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  g_object_get(self->priv->machine,"machine",&machine,NULL);
-  if(!GSTBT_IS_HELP(machine)) {
+  if(!self->priv->help_uri) {
     gtk_widget_set_sensitive(menu_item,FALSE);
+  } else {
+    g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_help_activate),(gpointer)self);
   }
-  gst_object_unref(machine);
   gtk_widget_show(menu_item);
-  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_help_activate),(gpointer)self);
 
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT,NULL);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -864,12 +862,25 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
       self->priv->machine = BT_MACHINE(g_value_dup_object(value));
       if(self->priv->machine) {
         BtSong *song;
+        GstElement *element;
         GstBin *bin;
         GstBus *bus;
 
         GST_INFO("set the  machine %p,machine->ref_ct=%d for new canvas item",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
         g_object_set_qdata((GObject *)self->priv->machine,machine_canvas_item_quark,(gpointer)self);
-        g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
+        g_object_get(self->priv->machine,"properties",&self->priv->properties,"machine",&element,NULL);
+        
+#if GST_CHECK_VERSION(0,10,31)
+        self->priv->help_uri=gst_element_factory_get_documentation_uri(gst_element_get_factory(element));
+#else
+        if(GSTBT_IS_HELP(element))
+          g_object_get(element,"documentation-uri",&self->priv->help_uri,NULL);
+        else
+          self->priv->help_uri=NULL;
+#endif
+        gst_object_unref(element);
+        
+        
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
         g_signal_connect(self->priv->machine, "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);

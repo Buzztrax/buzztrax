@@ -1,3 +1,19 @@
+2010-09-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/dec/bt-dec.c:
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/machine-actions.c:
+	* src/ui/edit/machine-actions.h:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	  Refactor for upcomming help iface removal. Use a common 
+	  gtk_show_uri_simple(), not that we don't need the machine_help action
+	  anymore.
+
 2010-09-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/learn.c:

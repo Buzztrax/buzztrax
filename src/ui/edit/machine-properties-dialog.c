@@ -59,6 +59,7 @@ struct _BtMachinePropertiesDialogPrivate {
   /* the underlying machine */
   BtMachine *machine;
   gulong voices;
+  const gchar *help_uri;
 
   GtkWidget *main_toolbar,*preset_toolbar;
   GtkWidget *preset_box;
@@ -1130,7 +1131,7 @@ static void on_toolbar_help_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
 
   // show help for machine
-  bt_machine_action_help(self->priv->machine, GTK_WIDGET(self));
+  gtk_show_uri_simple(GTK_WIDGET(self),self->priv->help_uri);
 }
 
 static void on_toolbar_about_clicked(GtkButton *button,gpointer user_data) {
@@ -2101,7 +2102,7 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_HELP));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Help for this machine"));
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  if(!GSTBT_IS_HELP(machine)) {
+  if(!self->priv->help_uri) {
     gtk_widget_set_sensitive(tool_item,FALSE);
   }
   else {
@@ -2227,6 +2228,21 @@ static void bt_machine_properties_dialog_set_property(GObject *object, guint pro
     case MACHINE_PROPERTIES_DIALOG_MACHINE: {
       g_object_try_unref(self->priv->machine);
       self->priv->machine = g_object_try_ref(g_value_get_object(value));
+      if(self->priv->machine) {
+        GstElement *element;
+
+        g_object_get(self->priv->machine,"machine",&element,NULL);
+        
+#if GST_CHECK_VERSION(0,10,31)
+        self->priv->help_uri=gst_element_factory_get_documentation_uri(gst_element_get_factory(element));
+#else
+        if(GSTBT_IS_HELP(element))
+          g_object_get(element,"documentation-uri",&self->priv->help_uri,NULL);
+        else
+          self->priv->help_uri=NULL;
+#endif
+        gst_object_unref(element);        
+      }
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

@@ -24,7 +24,6 @@
 
 #include "main-window.h"
 
-void bt_machine_action_help(BtMachine *machine,GtkWidget *widget);
 void bt_machine_action_about(BtMachine *machine,BtMainWindow *main_window);
 
 #endif // BT_MACHINE_ACTIONS_H

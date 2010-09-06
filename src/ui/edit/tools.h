@@ -39,6 +39,9 @@ extern void gtk_widget_grab_focus_savely(GtkWidget *widget);
 /* gtk clipboard helper */
 extern GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets);
 
+/* gtk help helper */
+extern void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri);
+
 /* gtk+ compatibillity */
 
 #if !GTK_CHECK_VERSION(2,12,0)

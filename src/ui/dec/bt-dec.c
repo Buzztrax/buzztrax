@@ -298,7 +298,17 @@ bt_dec_move_event (GstPad *pad, GstMiniObject *mini_obj, gpointer user_data)
   GST_INFO_OBJECT (pad, "forwarding event %" GST_PTR_FORMAT, mini_obj);
   
   if (GST_EVENT_IS_DOWNSTREAM (event)) {
-    gst_pad_push_event (self->srcpad, gst_event_ref (event));
+    switch (GST_EVENT_TYPE (event)) {
+      /*
+      case GST_EVENT_FLUSH_START:
+      case GST_EVENT_FLUSH_STOP:
+        // eat flush events to avoid duplicates ?
+        break;
+      */
+      default:
+        gst_pad_push_event (self->srcpad, gst_event_ref (event));
+        break;
+    }
   }
   return TRUE;
 }

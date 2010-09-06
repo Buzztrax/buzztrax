@@ -135,7 +135,6 @@ BtInteractionControllerLearnDialogPrivate
 <FILE>btmachineactions</FILE>
 <TITLE>BtMachineActions</TITLE>
 bt_machine_action_about
-bt_machine_action_help
 <SUBSECTION Standard>
 </SECTION>
 
@@ -892,6 +891,7 @@ gdk_pixbuf_new_from_filename
 gdk_pixbuf_new_from_theme
 gtk_toolbar_get_style_from_string
 gtk_target_table_make
+gtk_show_uri_simple
 GNOME_CANVAS_BROKEN_PROPERTIES
 <SUBSECTION Standard>
 GST_CAT_DEFAULT
