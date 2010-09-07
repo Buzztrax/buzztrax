@@ -308,15 +308,13 @@ static void bt_wavetable_dispose(GObject * const object) {
   g_object_try_weak_unref(self->priv->song);
   // unref list of waves
   if(self->priv->waves) {
-    node=self->priv->waves;
-    while(node) {
+    for(node=self->priv->waves;node;node=g_list_next(node)) {
       {
         GObject * const obj=node->data;
         GST_DEBUG("  free wave : %p (%d)",obj,obj->ref_count);
       }
       g_object_try_unref(node->data);
       node->data=NULL;
-      node=g_list_next(node);
     }
   }
 

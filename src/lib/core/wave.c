@@ -836,7 +836,7 @@ static void bt_wave_set_property(GObject * const object, const guint property_id
     } break;
     case WAVE_LOOP_MODE: {
       self->priv->loop_mode = g_value_get_enum(value);
-    } break;    
+    } break;
     case WAVE_CHANNELS: {
       self->priv->channels = g_value_get_uint(value);
       GST_DEBUG("set the channels for wave: %d",self->priv->channels);

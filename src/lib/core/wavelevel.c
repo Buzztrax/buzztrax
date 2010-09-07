@@ -293,6 +293,7 @@ static void bt_wavelevel_dispose(GObject * const object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_object_try_weak_unref(self->priv->song);
+  g_object_try_weak_unref(self->priv->wave);
 
   G_OBJECT_CLASS(bt_wavelevel_parent_class)->dispose(object);
 }

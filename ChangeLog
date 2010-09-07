@@ -1,5 +1,17 @@
 2010-09-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/core.c:
+	* src/lib/core/wave.c:
+	  Whitespace.
+
+	* src/lib/core/wavelevel.c:
+	  Add missing weak_unref, fixes valgrind warning.
+
+	* src/lib/core/wavetable.c:
+	  Reflow.
+
+2010-09-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Whitespaces.
 
