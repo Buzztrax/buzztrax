@@ -1,3 +1,11 @@
+2010-09-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Whitespaces.
+
+	* src/lib/core/wire.c:
+	  Fix leaked pads.
+
 2010-09-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:

@@ -3199,7 +3199,7 @@ static GstPad* bt_machine_request_new_pad(GstElement *element, GstPadTemplate *t
   return(pad);
 }
 
-static void	bt_machine_release_pad(GstElement *element, GstPad *pad) {
+static void bt_machine_release_pad(GstElement *element, GstPad *pad) {
   BtMachine * const self=BT_MACHINE(element);
   GstPad *target;
   
@@ -3219,7 +3219,7 @@ static void	bt_machine_release_pad(GstElement *element, GstPad *pad) {
     GST_INFO_OBJECT(element,"release sink pad: %s:%s", GST_DEBUG_PAD_NAME(target));
     gst_element_release_request_pad(self->priv->machines[PART_ADDER],target);
   }
-  gst_object_unref (target);
+  gst_object_unref(target);
 }
 
 

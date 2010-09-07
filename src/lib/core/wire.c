@@ -227,7 +227,6 @@ Error:
 //-- helper methods
 
 static void bt_wire_init_params(const BtWire * const self) {
-
   self->priv->wire_props[0]=g_object_class_find_property(
     G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_GAIN])),
     "volume");
@@ -1451,6 +1450,11 @@ static void bt_wire_dispose(GObject * const object) {
     self->priv->wire_controller[1]=NULL;
   }
   
+  // remove the GstElements from the bin
+  // @todo: is this actually needed?
+  bt_wire_unlink_machines(self); // removes helper elements if in use
+  bt_wire_deactivate_analyzers(self);
+
   // unref the pads
   for(i=0;i<PART_COUNT;i++) {
     if(self->priv->src_pads[i]) {
@@ -1458,17 +1462,12 @@ static void bt_wire_dispose(GObject * const object) {
         gst_object_unref(self->priv->src_pads[i]);
       } else {
         gst_element_release_request_pad(self->priv->machines[i],self->priv->src_pads[i]);
+        gst_object_unref(self->priv->src_pads[i]);
       }
     }
     if(self->priv->sink_pads[i])
       gst_object_unref(self->priv->sink_pads[i]);
   }
-
-
-  // remove the GstElements from the bin
-  // @todo: is this actually needed?
-  bt_wire_unlink_machines(self); // removes helper elements if in use
-  bt_wire_deactivate_analyzers(self);
 
   // remove ghost pads
   gst_element_remove_pad(GST_ELEMENT(self),self->priv->src_pad);
