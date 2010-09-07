@@ -760,6 +760,8 @@ plugin_init (GstPlugin * plugin)
   
   gst_type_find_register (plugin, "audio/x-buzztard", GST_RANK_SECONDARY,
       bt_dec_type_find, exts, GST_CAPS_ANY, NULL, NULL);
+  
+  g_free (exts);
 
   return gst_element_register (plugin, "buzztard-dec", GST_RANK_MARGINAL, BT_TYPE_DEC);
 }

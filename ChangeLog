@@ -1,3 +1,8 @@
+2010-09-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/dec/bt-dec.c:
+	  Don't leak file extension array.
+
 2010-09-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/core.c:
