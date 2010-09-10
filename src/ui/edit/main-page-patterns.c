@@ -962,7 +962,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
   GdkPixbuf *pixbuf=bt_ui_resources_get_icon_pixbuf_by_machine(machine);
 
   g_object_get(machine,"id",&str,NULL);
-  GST_INFO("  adding %p, \"%s\"  (machine-refs: %d)",machine,str,G_OBJECT_REF_COUNT(machine));
+  GST_INFO_OBJECT(machine,"  adding %p, \"%s\"  (machine-refs: %d)",machine,str,G_OBJECT_REF_COUNT(machine));
 
   gtk_list_store_append(store,&menu_iter);
   gtk_list_store_set(store,&menu_iter,
@@ -972,7 +972,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
     -1);
   g_signal_connect(machine,"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)self);
 
-  GST_DEBUG("  (machine-refs: %d)",G_OBJECT_REF_COUNT(machine));
+  GST_DEBUG_OBJECT(machine,"  (machine-refs: %d)",G_OBJECT_REF_COUNT(machine));
   g_free(str);
   g_object_unref(pixbuf);
 }

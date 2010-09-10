@@ -1,3 +1,11 @@
+2010-09-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Gather NEWS.
+	
+	* src/ui/edit/main-page-patterns.c:
+	  Log object name too.
+
 2010-09-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/dec/bt-dec.c:

@@ -2,21 +2,57 @@ svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
 2010/09 ========================================================================
 
-* bt-dec plays (still a bit hackish, issues with seeking)
-* gtk patches for 2 bugs accepted
-* tab-page focus handling cleanups
-* unit test cleanups
-* use G_DEFINE_TYPE and do a bit of GObject cleanup (remove dummy vmethod
-  implementations)
-* better error handling in bt-cmd
-* UI shows last save-date (is there a better way to convert UTC -> localtime)
-* add work-around for suse 11.3 icon theme bug [1]
-* nicer spectrum analyzer [2] with more features (log frq. scaling and
-  precission)
-* play with gcc autovectorizer. at least the reporting is usefuly to optimize
-  loops. still its hard to make it actually vectorize something meaningfull.
-  Most of the time it found places, where I should just use memset anyway.
-* implement startup check for exiting change logs and sanity changes on them
+After some more work bt-dec starts to works better. I can now play buzztard
+songs in totem, banshee and co. I still see some issues with seeking though.
+
+I have be going through my pending gtk bugs and patches. I can see a lot of
+activity in gtk+ these days. People have been helpful reviewing and commenting
+the changes. I could close two of my bugs with patches to code and docs
+committed. At the same time I also understand a few things better and reworked
+the focus handling on the tabs. Instead of listening to focus notifies and then
+grabbing the primary widget on the page, I am now overriding the focus vmethod
+and grab there. The disadvantage of the previous method was that the widget has
+to be realized and mapped, but when you receive the notify for the tab switch,
+it is not necessarily the case yet.
+
+There were some changes on the logging in gstreamer. I had to adjust some parts
+of my tests that where intercepting log messages.
+
+I've started to migrate all modules to use G_DEFINE_TYPE, G_DEFINE_INTERFACE and
+GST_BOILERPLATE macros to shorten the code. I hope I can finish it next month.
+At the same time I have cleaned-up my gobject use:
+ * remove dummy vmethod implementations (empty property setters/getter)
+ * no need to check for dispose/finalize in parent class (just chain up, they
+   always exist)
+
+I improved the error handling in the commandline client and also in the ui (when
+rendering to disk). It catches and handles missing element messages now. Before
+the processing could hang if that happened :/
+
+While doing more work on the changelog I noticed that I could also use that to
+show last save date when warning about unsaved changes. The change log uses UTC
+timestamps, so I had to convert them. I haven't found any nice API for this
+(like give a date and tell what tz it is and ask to convert to local or any
+other tz). The startup check for old change logs does now some auto cleanup and
+sanity checks. Next I'll add some ui for picking one for recovery.
+
+I recently upgraded on machine to suse 11.3. After that all machine icons where
+in the wrong size. After some digging I noticed that the gnome/index.theme
+misses all the 'scalable' entries and that seems to break my svg icons. I have
+added a workaround, but with that I get 48x48 png scaled up. Readding the
+missing entries works. I filed a bug [1], but nobody feels responsible so far :/
+
+Bored from all the refactoring and bug fixing I hacked a bit on the spectrum
+analyser. Its now using cairo (no more gdk_draw_*) and thus is ready for gtk3
+and looks much nicer [2]. In addition is can do log plots and one can increase
+the resolution.
+
+While playing with orc for gstreamer and googling for simd information, I can
+across some info about the gcc autovectorizer. One can ask for quite verbose
+reports of gcc attempting to use simd for loops. I could improve the performance
+in a few place based on the reports. Unfortunately the only places where the
+vectorization finally succeeded where those where I just should have used
+memset() :/
 
 78 files changed, 4300 insertions(+), 1832 deletions(-)
 
