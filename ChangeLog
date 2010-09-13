@@ -1,3 +1,11 @@
+2010-09-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/ic/ic.c:
+	* src/lib/ic/ic_private.h:
+	* src/lib/ic/registry.c:
+	  Initial port for hal->gudev.
+
 2010-09-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/registry.c:

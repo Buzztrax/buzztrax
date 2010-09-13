@@ -43,8 +43,10 @@
 #else
   #include <locale.h>
 #endif
-//-- hal/dbus
-#ifdef USE_HAL
+//-- gudev / hal/dbus
+#if USE_GUDEV
+#include <gudev/gudev.h>
+#elif USE_HAL
 #include <glib.h>
 #include <libhal.h>
 #include <dbus/dbus.h>

@@ -82,13 +82,11 @@ static gboolean btic_init_post (void) {
   return(res);
 }
 
-static gboolean
-parse_goption_arg (const gchar * opt,
-    const gchar * arg, gpointer data, GError ** err)
+static gboolean parse_goption_arg(const gchar *opt, const gchar * arg, gpointer data, GError ** err)
 {
   gboolean ret=TRUE;
   
-  if (!strcmp (opt, "--btic-version")) {
+  if(!strcmp (opt, "--btic-version")) {
     g_printf("libbtic-%d.%d.%d from "PACKAGE_STRING"\n",BTIC_MAJOR_VERSION,BTIC_MINOR_VERSION,BTIC_MICRO_VERSION);
   }
   else ret=FALSE;

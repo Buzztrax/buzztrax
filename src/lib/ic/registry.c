@@ -43,7 +43,9 @@ struct _BtIcRegistryPrivate {
   /* list of BtIcDevice objects */
   GList *devices;
 
-#ifdef USE_HAL
+#if USE_GUDEV
+  GUdevClient *client;
+#elif USE_HAL
   LibHalContext *ctx;
   DBusError dbus_error;
   DBusConnection *dbus_conn;
@@ -58,9 +60,129 @@ G_DEFINE_TYPE (BtIcRegistry, btic_registry, G_TYPE_OBJECT);
 
 //-- helper
 
+static void remove_device_by_udi(BtIcRegistry *self, const gchar *udi) {
+  GList *node;
+  BtIcDevice *device;
+  gchar *device_udi;
+
+  // search for device by udi
+  for(node=self->priv->devices;node;node=g_list_next(node)) {
+    device=BTIC_DEVICE(node->data);
+    g_object_get(device,"udi",&device_udi,NULL);
+    if(!strcmp(udi,device_udi)) {
+      // remove devices from our list and trigger notify
+      self->priv->devices=g_list_delete_link(self->priv->devices,node);
+      g_object_unref(device);
+      g_object_notify(G_OBJECT(self),"devices");
+      break;
+    }
+    g_free(device_udi);
+  }
+}
+
+static void add_device(BtIcRegistry *self, BtIcDevice *device) {
+  // add devices to our list and trigger notify
+  self->priv->devices=g_list_prepend(self->priv->devices,(gpointer)device);
+  g_object_notify(G_OBJECT(self),"devices");
+}
+
 //-- handler
 
-#ifdef USE_HAL
+#if USE_GUDEV
+
+/*
+
+remove: subsys=   input, devtype=       (null), name=    event1, number= 1, devnode=/dev/input/event1
+remove: subsys=   input, devtype=       (null), name=       js0, number= 0, devnode=/dev/input/js0
+remove: subsys=   input, devtype=       (null), name=   input11, number=11, devnode=(null)
+remove: subsys=  hidraw, devtype=       (null), name=   hidraw0, number= 0, devnode=/dev/hidraw0
+remove: subsys=     hid, devtype=       (null), name=0003:06A3:0502.0008, number=0008, devnode=(null)
+remove: subsys=     usb, devtype=usb_interface, name=   5-5:1.0, number= 0, devnode=(null)
+remove: subsys=     usb, devtype=usb_device,    name=       5-5, number= 5, devnode=/dev/bus/usb/005/014
+   add: subsys=     usb, devtype=usb_device,    name=       5-5, number= 5, devnode=/dev/bus/usb/005/015
+   add: subsys=     usb, devtype=usb_interface, name=   5-5:1.0, number= 0, devnode=(null)
+   add: subsys=     hid, devtype=       (null), name=0003:06A3:0502.0009, number=0009, path=(null)
+   add: subsys=  hidraw, devtype=       (null), name=   hidraw0, number= 0, devnode=/dev/hidraw0
+   add: subsys=   input, devtype=       (null), name=   input12, number=12, devnode=(null)
+   add: subsys=   input, devtype=       (null), name=       js0, number= 0, devnode=/dev/input/js0
+   add: subsys=   input, devtype=       (null), name=    event1, number= 1, devnode=/dev/input/event1
+
+*/
+
+static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *device,gpointer user_data) {
+  BtIcRegistry *self=BTIC_REGISTRY(user_data);
+  const gchar *udi=g_udev_device_get_sysfs_path(device);
+  const gchar *devnode=g_udev_device_get_device_file(device);
+  const gchar *name=g_udev_device_get_name(device);
+  const gchar *subsystem=g_udev_device_get_subsystem(device);
+  
+  GST_WARNING("action=%6s: subsys=%8s, devtype=%15s, name=%15s, number=%2s, devnode=%s",
+    action,subsystem,g_udev_device_get_devtype(device),
+    name,g_udev_device_get_number(device),devnode);
+  
+  if(!devnode)
+    return;
+  
+  if(!strcmp(action,"add")) {
+    BtIcDevice *device=NULL;
+    
+    if(!strcmp(subsystem,"input")) {
+      device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
+    }
+
+    if(device) {
+      add_device(self,device);
+    }
+    else {
+      GST_INFO("unknown device found, not added: name=%s",name);
+    }
+  } else if(!strcmp(action,"remove")) {
+    remove_device_by_udi(self,udi);
+  }
+    
+}
+
+static void gudev_scan(BtIcRegistry *self, const gchar *subsystem) {
+  GList *list,*node;
+  GUdevDevice *device;
+
+  if((list=g_udev_client_query_by_subsystem(self->priv->client,subsystem))) {
+    for(node=list;node;node=g_list_next(node)) {
+      device=(GUdevDevice *)node->data;
+      on_uevent(self->priv->client,"add",device,(gpointer)self);
+      g_object_unref(device);
+    }
+    g_list_free(list);
+  }
+}
+  
+static gboolean gudev_setup(BtIcRegistry *self) {
+  const gchar * const subsystems[]={
+    /*
+    "input",
+    "alsa",
+    "oss",*/
+    NULL
+  };
+
+  // get a gudev client
+  if(!(self->priv->client=g_udev_client_new(subsystems))) {
+    GST_WARNING("Could not create gudev client context");
+    return(FALSE);
+  }
+  // register notifications
+  g_signal_connect(self->priv->client,"uevent",G_CALLBACK(on_uevent),(gpointer)self);
+  
+  // check already known devices
+  gudev_scan(self,"input");
+  gudev_scan(self,"alsa");
+  gudev_scan(self,"oss");
+
+  return(TRUE);
+}
+
+#elif USE_HAL
+
 static void on_device_added(LibHalContext *ctx, const gchar *udi) {
   BtIcRegistry *self=BTIC_REGISTRY(singleton);
   gchar **cap;
@@ -112,17 +234,6 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       }
       libhal_free_string(type);
     }
-#if 0
-    else if(!strcmp(cap[n],"input.joystick")) {
-      devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
-
-      GST_INFO("input device added: product=%s, devnode=%s",
-        name,devnode);
-      // create device
-      device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
-      libhal_free_string(devnode);
-    }
-#endif
 #ifdef HAVE_LINUX_INPUT_H
     else if(!strcmp(cap[n],"input")) {
       devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
@@ -151,13 +262,11 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
   }
 
   if(device) {
-    // add devices to our list and trigger notify
-    self->priv->devices=g_list_append(self->priv->devices,(gpointer)device);
-    g_object_notify(G_OBJECT(self),"devices");
-    device=NULL;
+    add_device(self,device);
   }
-  else
+  else {
     GST_INFO("unknown device found, not added: name=%s",name);
+  }
 
   libhal_free_string(hal_category);
   libhal_free_string(name);
@@ -165,23 +274,63 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
 
 static void on_device_removed(LibHalContext *ctx, const gchar *udi) {
   BtIcRegistry *self=BTIC_REGISTRY(singleton);
-  GList *node;
-  BtIcDevice *device;
-  gchar *device_udi;
+  
+  remove_device_by_udi(self,udi);
+}
 
-  // search for device by udi
-  for(node=self->priv->devices;node;node=g_list_next(node)) {
-    device=BTIC_DEVICE(node->data);
-    g_object_get(device,"udi",&device_udi,NULL);
-    if(!strcmp(udi,device_udi)) {
-      // remove devices from our list and trigger notify
-      self->priv->devices=g_list_delete_link(self->priv->devices,node);
-      g_object_unref(device);
-      g_object_notify(G_OBJECT(self),"devices");
-      break;
+static void hal_scan(BtIcRegistry *self, const gchar *subsystem) {
+  gchar **devices;
+  gint i,num_devices;
+
+  if((devices=libhal_find_device_by_capability(self->priv->ctx,subsystem,&num_devices,&self->priv->dbus_error))) {
+    GST_INFO("%d %s devices found, trying add..",num_devices,subsystem);
+    for(i=0;i<num_devices;i++) {
+      on_device_added(self->priv->ctx,devices[i]);
     }
-    g_free(device_udi);
+    libhal_free_string_array(devices);
   }
+}
+
+static gboolean hal_setup(BtIcRegistry *self) {
+  // init dbus
+  dbus_error_init(&self->priv->dbus_error);
+  self->priv->dbus_conn=dbus_bus_get(DBUS_BUS_SYSTEM,&self->priv->dbus_error);
+  if(dbus_error_is_set(&self->priv->dbus_error)) {
+    GST_WARNING("Could not connect to system bus %s", self->priv->dbus_error.message);
+    return(FALSE);
+  }
+  dbus_connection_setup_with_g_main(self->priv->dbus_conn,NULL);
+  dbus_connection_set_exit_on_disconnect(self->priv->dbus_conn,FALSE);
+  
+  GST_DEBUG("dbus init okay");
+
+  // init hal
+  if(!(self->priv->ctx=libhal_ctx_new())) {
+    GST_WARNING("Could not create hal context");
+    return(FALSE);
+  }
+  if(!libhal_ctx_set_dbus_connection(self->priv->ctx,self->priv->dbus_conn)) {
+    GST_WARNING("Failed to set dbus connection to hal ctx");
+    return(FALSE);
+  }
+  
+  GST_DEBUG("hal init okay");
+  
+  // register notify handler for add/remove
+  libhal_ctx_set_device_added(self->priv->ctx,on_device_added);
+  libhal_ctx_set_device_removed(self->priv->ctx,on_device_removed);
+  if(!(libhal_ctx_init(self->priv->ctx,&self->priv->dbus_error))) {
+    if(dbus_error_is_set(&self->priv->dbus_error)) {
+      GST_WARNING("Could not init hal %s", singleton->priv->dbus_error.message);
+    }
+    return(FALSE);
+  }
+  // scan already plugged devices via hal
+  hal_scan(self,"input");
+  hal_scan(self,"alsa");
+  hal_scan(self,"alsa.sequencer");
+  hal_scan(self,"oss");
+  return(TRUE);
 }
 #endif
 
@@ -236,8 +385,9 @@ static void btic_registry_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
-
-#ifdef USE_HAL
+#if USE_GUDEV
+  g_object_try_unref(self->priv->client);
+#elif USE_HAL
   libhal_ctx_free(self->priv->ctx);
   dbus_error_free(&self->priv->dbus_error);
 #endif
@@ -275,82 +425,24 @@ static GObject *btic_registry_constructor(GType type,guint n_construct_params,GO
   GObject *object;
 
   if(G_UNLIKELY(!singleton)) {
-#ifdef USE_HAL
-    gchar **devices;
-    gint i,num_devices;
-#endif
     object=G_OBJECT_CLASS(btic_registry_parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BTIC_REGISTRY(object);
     
     GST_INFO("new device registry created");
-
-#ifdef USE_HAL
-    /* init dbus */
-    dbus_error_init(&singleton->priv->dbus_error);
-    singleton->priv->dbus_conn=dbus_bus_get(DBUS_BUS_SYSTEM,&singleton->priv->dbus_error);
-    if(dbus_error_is_set(&singleton->priv->dbus_error)) {
-      GST_WARNING("Could not connect to system bus %s", singleton->priv->dbus_error.message);
-      dbus_error_free(&singleton->priv->dbus_error);dbus_error_init(&singleton->priv->dbus_error);
-      return object;
+#if USE_HAL
+    if(gudev_setup(singleton)) {
+      GST_INFO("gudev device registry initialized");
+    } else {
+      GST_INFO("gudev device registry setup failed");
     }
-    dbus_connection_setup_with_g_main(singleton->priv->dbus_conn,NULL);
-    dbus_connection_set_exit_on_disconnect(singleton->priv->dbus_conn,FALSE);
-    
-    GST_DEBUG("dbus init okay");
-  
-    /* init hal */
-    if(!(singleton->priv->ctx=libhal_ctx_new())) {
-      GST_WARNING("Could not create hal context");
-      return object;
+#elif USE_HAL
+    if(hal_setup(singleton)) {
+      GST_INFO("hal device registry initialized");
+    } else {
+      GST_INFO("hal device registry setup failed");
     }
-    if(!libhal_ctx_set_dbus_connection(singleton->priv->ctx,singleton->priv->dbus_conn)) {
-      GST_WARNING("Failed to set dbus connection to hal ctx");
-      return object;
-    }
-    
-    GST_DEBUG("hal init okay");
-    
-    // register notify handler for add/remove
-    libhal_ctx_set_device_added(singleton->priv->ctx,on_device_added);
-    libhal_ctx_set_device_removed(singleton->priv->ctx,on_device_removed);
-    if(!(libhal_ctx_init(singleton->priv->ctx,&singleton->priv->dbus_error))) {
-      GST_WARNING("Could not init hal %s", singleton->priv->dbus_error.message);
-      dbus_error_free(&singleton->priv->dbus_error);dbus_error_init(&singleton->priv->dbus_error);
-      return object;
-    }
-    // scan already plugged devices via hal
-    if((devices=libhal_find_device_by_capability(singleton->priv->ctx,"input",&num_devices,&singleton->priv->dbus_error))) {
-      GST_INFO("%d input devices found, trying add..",num_devices);
-      for(i=0;i<num_devices;i++) {
-        on_device_added(singleton->priv->ctx,devices[i]);
-      }
-      libhal_free_string_array(devices);
-    }
-    if((devices=libhal_find_device_by_capability(singleton->priv->ctx,"alsa",&num_devices,&singleton->priv->dbus_error))) {
-      GST_INFO("%d alsa devices found, trying to add..",num_devices);
-      for(i=0;i<num_devices;i++) {
-        on_device_added(singleton->priv->ctx,devices[i]);
-      }
-      libhal_free_string_array(devices);
-    }
-    if((devices=libhal_find_device_by_capability(singleton->priv->ctx,"alsa.sequencer",&num_devices,&singleton->priv->dbus_error))) {
-      GST_INFO("%d alsa.sequencer devices found, trying to add..",num_devices);
-      for(i=0;i<num_devices;i++) {
-        on_device_added(singleton->priv->ctx,devices[i]);
-      }
-      libhal_free_string_array(devices);
-    }
-    if((devices=libhal_find_device_by_capability(singleton->priv->ctx,"oss",&num_devices,&singleton->priv->dbus_error))) {
-      GST_INFO("%d oss devices found, trying to add..",num_devices);
-      for(i=0;i<num_devices;i++) {
-        on_device_added(singleton->priv->ctx,devices[i]);
-      }
-      libhal_free_string_array(devices);
-    }
-  
-    GST_INFO("device registry initialized");
 #else
-    GST_INFO("no HAL support, not creating device registry");
+    GST_INFO("no GUDev/HAL support, not creating device registry");
 #endif
   }
   else {

@@ -311,6 +311,16 @@ PKG_CHECK_MODULES(HILDON_DEPS, hildon-1 libosso, [
   ]
 )
 
+PKG_CHECK_MODULES(GUDEV_DEPS, gudev-1.0, [
+  AC_DEFINE(USE_GUDEV, [1], [Define to 1 if we can use gudev libraries])
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GUDEV_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GUDEV_DEPS_LIBS"
+    use_gudev=yes
+  ],[
+    use_gudev=no
+  ]
+)
+
 PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
   AC_DEFINE(USE_HAL, [1], [Define to 1 if we can use hal libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HAL_DEPS_CFLAGS"
@@ -556,6 +566,7 @@ Configuration
 	Documentation (Man)             : ${enable_man}
 	Documentation (User)            : ${have_scrollkeeper}
 	Bindings Metadata (GIR)         : ${enable_gir}
+	GUdev for interaction ctrl.     : ${use_gudev}
 	HAL for interaction ctrl.       : ${use_hal}
 	Linux HID for interaction ctrl. : ${have_linux_input_h}
 	Buzzmachine Host support        : ${use_bml}
