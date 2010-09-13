@@ -408,7 +408,9 @@ AC_SUBST(GST_PLUGIN_LDFLAGS)
 
 
 dnl Check for gtk-doc.
+m4_ifdef([GTK_DOC_CHECK], [
 GTK_DOC_CHECK([1.10],[--flavour no-tmpl])
+])
 
 AC_ARG_ENABLE(man,
               [AC_HELP_STRING([--enable-man],
