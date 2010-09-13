@@ -741,6 +741,10 @@ plugin_init (GstPlugin * plugin)
     GST_WARNING ("failed to init buzztard library");
     return FALSE;
   }
+  if (!btic_init_check (NULL,NULL, NULL)) {
+    GST_WARNING ("failed to init buzztard interaction controller library");
+    return FALSE;
+  }
   
   plugins = bt_song_io_get_module_info_list ();
   exts = (gchar **)g_new (gpointer, l);

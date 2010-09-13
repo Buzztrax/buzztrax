@@ -281,6 +281,8 @@ static GObject *btic_registry_constructor(GType type,guint n_construct_params,GO
 #endif
     object=G_OBJECT_CLASS(btic_registry_parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BTIC_REGISTRY(object);
+    
+    GST_INFO("new device registry created");
 
 #ifdef USE_HAL
     /* init dbus */
@@ -288,22 +290,32 @@ static GObject *btic_registry_constructor(GType type,guint n_construct_params,GO
     singleton->priv->dbus_conn=dbus_bus_get(DBUS_BUS_SYSTEM,&singleton->priv->dbus_error);
     if(dbus_error_is_set(&singleton->priv->dbus_error)) {
       GST_WARNING("Could not connect to system bus %s", singleton->priv->dbus_error.message);
+      dbus_error_free(&singleton->priv->dbus_error);dbus_error_init(&singleton->priv->dbus_error);
       return object;
     }
     dbus_connection_setup_with_g_main(singleton->priv->dbus_conn,NULL);
     dbus_connection_set_exit_on_disconnect(singleton->priv->dbus_conn,FALSE);
+    
+    GST_DEBUG("dbus init okay");
   
     /* init hal */
     if(!(singleton->priv->ctx=libhal_ctx_new())) {
       GST_WARNING("Could not create hal context");
       return object;
     }
-    libhal_ctx_set_dbus_connection(singleton->priv->ctx,singleton->priv->dbus_conn);
+    if(!libhal_ctx_set_dbus_connection(singleton->priv->ctx,singleton->priv->dbus_conn)) {
+      GST_WARNING("Failed to set dbus connection to hal ctx");
+      return object;
+    }
+    
+    GST_DEBUG("hal init okay");
+    
     // register notify handler for add/remove
     libhal_ctx_set_device_added(singleton->priv->ctx,on_device_added);
     libhal_ctx_set_device_removed(singleton->priv->ctx,on_device_removed);
     if(!(libhal_ctx_init(singleton->priv->ctx,&singleton->priv->dbus_error))) {
       GST_WARNING("Could not init hal %s", singleton->priv->dbus_error.message);
+      dbus_error_free(&singleton->priv->dbus_error);dbus_error_init(&singleton->priv->dbus_error);
       return object;
     }
     // scan already plugged devices via hal

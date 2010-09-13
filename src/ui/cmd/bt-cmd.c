@@ -97,6 +97,8 @@ int main(int argc, char **argv) {
   g_option_context_set_main_group(ctx, group);
 
   bt_init_add_option_groups(ctx);
+  g_option_context_add_group(ctx, btic_init_get_option_group());
+
   if(!g_option_context_parse(ctx, &argc, &argv, &err)) {
     g_print("Error initializing: %s\n", safe_string(err->message));
     g_option_context_free(ctx);

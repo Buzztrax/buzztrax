@@ -1,5 +1,14 @@
 2010-09-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/ic/registry.c:
+	  Check more errors and add more logging.
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/dec/bt-dec.c:
+	  Also init btic here (as we might load songs with ic-assignments.
+
+2010-09-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Remove commented out liboil code.
 
