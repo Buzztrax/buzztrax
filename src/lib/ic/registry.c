@@ -141,7 +141,10 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     if(!strcmp(subsystem,"input")) {
       device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
     } else if(!strcmp(subsystem,"sound")) {
-      //device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
+      /* http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3509 */
+      if(!strncmp (name, "midiC", 5)) {
+        device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
+      }
     }
 
     if(device) {

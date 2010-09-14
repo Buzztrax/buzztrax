@@ -1,5 +1,10 @@
 2010-09-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/ic/registry.c:
+	  Add basic midi device filtering and pointer to how it was done in hal.
+
+2010-09-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWS:
 	* docs/reference/bt-ic/buzztard-ic-sections.txt:
 	* src/lib/ic/device.c:
