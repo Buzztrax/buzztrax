@@ -1,5 +1,11 @@
 2010-09-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/midi-device.c:
+	  Remove crap from _new() functions.
+
+2010-09-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/ic/ic.c:
 	* src/lib/ic/ic_private.h:

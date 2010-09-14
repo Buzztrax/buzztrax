@@ -343,14 +343,7 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
  * Returns: the new instance or %NULL in case of an error
  */
 BtIcInputDevice *btic_input_device_new(const gchar *udi,const gchar *name,const gchar *devnode) {
-  BtIcInputDevice *self=BTIC_INPUT_DEVICE(g_object_new(BTIC_TYPE_INPUT_DEVICE,"udi",udi,"name",name,"devnode",devnode,NULL));
-  if(!self) {
-    goto Error;
-  }
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BTIC_INPUT_DEVICE(g_object_new(BTIC_TYPE_INPUT_DEVICE,"udi",udi,"name",name,"devnode",devnode,NULL)));
 }
 
 //-- methods

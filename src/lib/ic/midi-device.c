@@ -145,14 +145,7 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
  * Returns: the new instance or %NULL in case of an error
  */
 BtIcMidiDevice *btic_midi_device_new(const gchar *udi,const gchar *name,const gchar *devnode) {
-  BtIcMidiDevice *self=BTIC_MIDI_DEVICE(g_object_new(BTIC_TYPE_MIDI_DEVICE,"udi",udi,"name",name,"devnode",devnode,NULL));
-  if(!self) {
-    goto Error;
-  }
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BTIC_MIDI_DEVICE(g_object_new(BTIC_TYPE_MIDI_DEVICE,"udi",udi,"name",name,"devnode",devnode,NULL)));
 }
 
 //-- methods
