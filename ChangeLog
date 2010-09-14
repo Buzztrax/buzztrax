@@ -1,5 +1,15 @@
 2010-09-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWS:
+	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	* src/lib/ic/device.c:
+	* src/lib/ic/libbuzztard-ic/device-methods.h:
+	* src/lib/ic/registry.c:
+	  Use "sound" as subsytem for "alsa/oss". Dump device properties. Hide
+	  devices with no controls.
+
+2010-09-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/input-device.c:
 	* src/lib/ic/midi-device.c:
 	  Remove crap from _new() functions.

@@ -79,10 +79,27 @@ G_DEFINE_ABSTRACT_TYPE (BtIcDevice, btic_device, G_TYPE_OBJECT);
  * Add the given @control to the list that the device manages.
  */
 void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control) {
+  g_return_if_fail(BTIC_DEVICE(self));
   g_return_if_fail(BTIC_CONTROL(control));
 
   // @todo: should we ref?
   self->priv->controls=g_list_append(self->priv->controls,(gpointer)control);
+}
+
+/**
+ * btic_device_has_controls:
+ * @self: the device
+ *
+ * Check if the device has controls. This is useful to check after device
+ * creation. One reason for not having any controls could also be missing
+ * read-permissions on the device node.
+ *
+ * Since: 0.6
+ */
+gboolean btic_device_has_controls(const BtIcDevice *self) {
+  g_return_val_if_fail(BTIC_DEVICE(self),FALSE);
+
+  return(self->priv->controls!=NULL);
 }
 
 static gboolean btic_device_default_start(gconstpointer self) {

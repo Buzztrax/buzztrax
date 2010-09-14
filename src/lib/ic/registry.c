@@ -81,9 +81,15 @@ static void remove_device_by_udi(BtIcRegistry *self, const gchar *udi) {
 }
 
 static void add_device(BtIcRegistry *self, BtIcDevice *device) {
-  // add devices to our list and trigger notify
-  self->priv->devices=g_list_prepend(self->priv->devices,(gpointer)device);
-  g_object_notify(G_OBJECT(self),"devices");
+  if(btic_device_has_controls(device)) {
+    // add devices to our list and trigger notify
+    self->priv->devices=g_list_prepend(self->priv->devices,(gpointer)device);
+    g_object_notify(G_OBJECT(self),"devices");
+  }
+  else {
+    GST_DEBUG("device has no controls, not adding");
+    g_object_unref(device);
+  }
 }
 
 //-- handler
@@ -109,32 +115,40 @@ remove: subsys=     usb, devtype=usb_device,    name=       5-5, number= 5, devn
 
 */
 
-static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *device,gpointer user_data) {
+static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpointer user_data) {
   BtIcRegistry *self=BTIC_REGISTRY(user_data);
-  const gchar *udi=g_udev_device_get_sysfs_path(device);
-  const gchar *devnode=g_udev_device_get_device_file(device);
-  const gchar *name=g_udev_device_get_name(device);
-  const gchar *subsystem=g_udev_device_get_subsystem(device);
+  const gchar *udi=g_udev_device_get_sysfs_path(udevice);
+  const gchar *devnode=g_udev_device_get_device_file(udevice);
+  const gchar *name=g_udev_device_get_name(udevice);
+  const gchar *subsystem=g_udev_device_get_subsystem(udevice);
   
-  GST_WARNING("action=%6s: subsys=%8s, devtype=%15s, name=%15s, number=%2s, devnode=%s",
-    action,subsystem,g_udev_device_get_devtype(device),
-    name,g_udev_device_get_number(device),devnode);
+  GST_WARNING("action=%6s: subsys=%8s, devtype=%15s, name=%10s, number=%2s, devnode=%s, driver=%s",
+    action,subsystem,g_udev_device_get_devtype(udevice),name,
+    g_udev_device_get_number(udevice),devnode,g_udev_device_get_driver(udevice));
   
   if(!devnode)
     return;
   
   if(!strcmp(action,"add")) {
     BtIcDevice *device=NULL;
+    const gchar* const *props=g_udev_device_get_property_keys(udevice);
+    
+    while(*props) {
+      GST_INFO("  %s: %s", *props, g_udev_device_get_property(udevice,*props));
+      props++;
+    }
     
     if(!strcmp(subsystem,"input")) {
       device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
+    } else if(!strcmp(subsystem,"sound")) {
+      //device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
     }
 
     if(device) {
       add_device(self,device);
     }
     else {
-      GST_INFO("unknown device found, not added: name=%s",name);
+      GST_DEBUG("unknown device found, not added: name=%s",name);
     }
   } else if(!strcmp(action,"remove")) {
     remove_device_by_udi(self,udi);
@@ -157,11 +171,11 @@ static void gudev_scan(BtIcRegistry *self, const gchar *subsystem) {
 }
   
 static gboolean gudev_setup(BtIcRegistry *self) {
+  /* check with 'udevadm monitor' */
   const gchar * const subsystems[]={
     /*
     "input",
-    "alsa",
-    "oss",*/
+    "sound",*/
     NULL
   };
 
@@ -175,8 +189,7 @@ static gboolean gudev_setup(BtIcRegistry *self) {
   
   // check already known devices
   gudev_scan(self,"input");
-  gudev_scan(self,"alsa");
-  gudev_scan(self,"oss");
+  gudev_scan(self,"sound");
 
   return(TRUE);
 }
@@ -265,7 +278,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
     add_device(self,device);
   }
   else {
-    GST_INFO("unknown device found, not added: name=%s",name);
+    GST_DEBUG("unknown device found, not added: name=%s",name);
   }
 
   libhal_free_string(hal_category);
