@@ -269,7 +269,7 @@ BtChangeLog *bt_change_log_new(void) {
 
 //-- methods
 
-/*
+/**
  * bt_change_log_crash_check:
  * @self: the changelog
  *
@@ -343,7 +343,8 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
           goto done;
         }
         valid_log=TRUE;
-        // add to list ...
+        // add to crash_entries list ...
+        // crash_entries = g_list_prepend(crash_entries, ...);
       done:
         fclose(log_file);
       }
@@ -364,9 +365,19 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
   return(crash_entries);
 }
 
+/**
+ * bt_change_log_recover:
+ * @self: -
+ * @entry: -
+ *
+ * Recover the given song.
+ *
+ * Return: %TRUE for successful recovery.
+ */
 gboolean bt_change_log_recover(BtChangeLog *self,const gchar *entry) {
   /*
   - we should not have any unsaved work at this momement
+    - changelog is empty
   - load the song pointed to by entry or replay the new song
     (no filename = never saved)
   - replay the log
@@ -435,6 +446,12 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
   }
 }
 
+/**
+ * bt_change_log_undo:
+ * @self: the change log
+ *
+ * Undo the last action.
+ */
 void bt_change_log_undo(BtChangeLog *self)
 {
   if(self->priv->next_undo!=-1) {
@@ -452,6 +469,13 @@ void bt_change_log_undo(BtChangeLog *self)
     }
   }
 }
+
+/**
+ * bt_change_log_redo:
+ * @self: the change log
+ *
+ * Redo the last action.
+ */
 
 void bt_change_log_redo(BtChangeLog *self)
 {

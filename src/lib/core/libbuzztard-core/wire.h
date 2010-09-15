@@ -57,7 +57,7 @@ struct _BtWireClass {
 
 /**
  * BT_WIRE_MAX_NUM_PARAMS:
- * 
+ *
  * Maximum number of parameters per wire.
  */
 #define BT_WIRE_MAX_NUM_PARAMS 2

@@ -36,6 +36,8 @@ bt_change_log_new
 bt_change_log_add
 bt_change_log_redo
 bt_change_log_undo
+bt_change_log_crash_check
+bt_change_log_recover
 <SUBSECTION Standard>
 BtChangeLogClass
 BT_CHANGE_LOG
@@ -52,9 +54,9 @@ BtChangeLogPrivate
 <SECTION>
 <FILE>btchangelogger</FILE>
 <TITLE>BtChangeLogger</TITLE>
-BtChangeLogger
 bt_change_logger_change
 <SUBSECTION Standard>
+BtChangeLogger
 BtChangeLoggerInterface
 BT_CHANGE_LOGGER
 BT_IS_CHANGE_LOGGER
@@ -541,7 +543,10 @@ bt_panorama_popup_get_type
 BtPatternEditor
 BtPatternEditorCallbacks
 BtPatternEditorColumn
+BtPatternEditorColumnType
 BtPatternEditorColumnGroup
+BtPatternEditorColumnGroupType
+BtPatternEditorSelectionMode
 bt_pattern_editor_new
 bt_pattern_editor_set_pattern
 bt_pattern_editor_get_selection
@@ -894,6 +899,39 @@ gtk_target_table_make
 gtk_show_uri_simple
 GNOME_CANVAS_BROKEN_PROPERTIES
 <SUBSECTION Standard>
+# gtk extras
+GTK_CHECK_CAST
+GTK_CHECK_CLASS_CAST
+GTK_CHECK_CLASS_TYPE
+GTK_CHECK_GET_CLASS
+GTK_CHECK_TYPE
+gtk_dialog_get_action_area
+gtk_dialog_get_content_area
+gtk_menu_tool_button_set_arrow_tooltip_text
+gtk_selection_data_get_data
+gtk_selection_data_get_target
+gtk_tool_item_set_tooltip_text
+gtk_vumeter_set_peaks_falloff
+gtk_widget_get_allocation
+gtk_widget_get_mapped
+gtk_widget_get_realized
+gtk_widget_get_window
+gtk_widget_grab_focus_savely
+gtk_widget_is_toplevel
+gtk_widget_set_can_focus
+gtk_widget_set_has_window
+gtk_widget_set_realized
+gtk_widget_set_tooltip_text
+# gstreamer extras
 GST_CAT_DEFAULT
+# gettext extras
+_
+N_
+bindtextdomain
+dgettext
+gettext
+textdomain
+# marshallers
+bt_marshal_VOID__OBJECT_OBJECT
 </SECTION>
 

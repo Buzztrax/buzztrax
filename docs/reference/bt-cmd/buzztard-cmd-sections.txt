@@ -36,5 +36,12 @@ BtCmdApplicationPrivate
 <TITLE>btcmd</TITLE>
 <SUBSECTION Standard>
 GST_CAT_DEFAULT
+# gettext extras
+_
+N_
+bindtextdomain
+dgettext
+gettext
+textdomain
 </SECTION>
 

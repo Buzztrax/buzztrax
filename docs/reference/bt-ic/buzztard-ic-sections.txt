@@ -158,7 +158,14 @@ btic_trigger_control_get_type
 btic_init_get_option_group
 btic_init_check
 btic_init
+btic_major_version
+btic_micro_version
+btic_minor_version
 <SUBSECTION Standard>
+BTIC_MAJOR_VERSION
+BTIC_MICRO_VERSION
+BTIC_MINOR_VERSION
+# gstreamer extras
 GST_CAT_DEFAULT
 # gettext extras
 _

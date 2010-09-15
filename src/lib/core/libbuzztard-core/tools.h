@@ -78,7 +78,7 @@ extern guint bt_cpu_load_get_current(void);
 
 /**
  * BT_IS_GVALUE:
- * @a: pointer to a GValue
+ * @v: pointer to a GValue
  *
  * checks if the supplied gvalue is initialized (not all fields zero).
  */

@@ -44,6 +44,7 @@ bt_child_proxy_set
 <SUBSECTION Standard>
 BtChildProxyInterface
 BT_CHILD_PROXY
+BT_IS_CHILD_PROXY
 BT_TYPE_CHILD_PROXY
 BT_CHILD_PROXY_GET_INTERFACE
 bt_child_proxy_get_type
@@ -187,7 +188,6 @@ BtPatternPrivate
 <SECTION>
 <FILE>btpersistence</FILE>
 <TITLE>BtPersistence</TITLE>
-BtPersistence
 bt_persistence_strfmt_uchar
 bt_persistence_strfmt_long
 bt_persistence_strfmt_ulong
@@ -203,6 +203,7 @@ bt_persistence_get_value
 bt_persistence_save
 bt_persistence_load
 <SUBSECTION Standard>
+BtPersistence
 BtPersistenceInterface
 BT_TYPE_PERSISTENCE
 BT_PERSISTENCE
@@ -211,22 +212,22 @@ BT_PERSISTENCE_GET_INTERFACE
 bt_persistence_get_type
 </SECTION>
 
-#<SECTION>
-#<FILE>btplainfilesettings</FILE>
-#<TITLE>BtPlainfileSettings</TITLE>
-#BtPlainfileSettings
-#bt_plainfile_settings_new
-#<SUBSECTION Standard>
-#BtPlainfileSettingsClass
-#BT_PLAINFILE_SETTINGS
-#BT_IS_PLAINFILE_SETTINGS
-#BT_PLAINFILE_SETTINGS_CLASS
-#BT_IS_PLAINFILE_SETTINGS_CLASS
-#BT_TYPE_PLAINFILE_SETTINGS
-#BT_PLAINFILE_SETTINGS_GET_CLASS
-#bt_plainfile_settings_get_type
-#BtPlainfileSettingsPrivate
-#</SECTION>
+<SECTION>
+<FILE>btplainfilesettings</FILE>
+<TITLE>BtPlainfileSettings</TITLE>
+BtPlainfileSettings
+bt_plainfile_settings_new
+<SUBSECTION Standard>
+BtPlainfileSettingsClass
+BT_PLAINFILE_SETTINGS
+BT_IS_PLAINFILE_SETTINGS
+BT_PLAINFILE_SETTINGS_CLASS
+BT_IS_PLAINFILE_SETTINGS_CLASS
+BT_TYPE_PLAINFILE_SETTINGS
+BT_PLAINFILE_SETTINGS_GET_CLASS
+bt_plainfile_settings_get_type
+BtPlainfileSettingsPrivate
+</SECTION>
 
 <SECTION>
 <FILE>btprocessormachine</FILE>
@@ -428,7 +429,7 @@ bt_song_io_from_data
 bt_song_io_load
 bt_song_io_save
 bt_song_io_get_module_info_list
-BtSongIODetect
+BtSongIOInit
 BtSongIOFormatInfo
 BtSongIOModuleInfo
 BT_SONG_IO_MODULE_INFO_MAX_FORMATS
@@ -590,6 +591,7 @@ bt_wire_get_param_type
 bt_wire_get_param_name
 bt_wire_get_param_details
 bt_wire_controller_change_value
+BT_WIRE_MAX_NUM_PARAMS
 <SUBSECTION Standard>
 BtWireClass
 BT_WIRE
@@ -648,28 +650,39 @@ BT_IS_STRING
 safe_string
 return_if_disposed
 return_val_if_disposed
-G_POINTER_ALIAS
-XML_CHAR_PTR
-g_object_try_ref
-g_object_try_unref
-g_object_try_weak_ref
-g_object_try_weak_unref
-G_OBJECT_REF_COUNT
-bt_gst_registry_get_element_names_matching_all_categories
-bt_gst_check_elements
-bt_gst_check_core_elements
-bt_gst_element_factory_can_sink_media_type
-bt_g_type_get_base_type
 bt_cpu_load_get_current
 bt_default_caps
 bt_init_get_option_group
 bt_init_add_option_groups
 bt_init_check
 bt_init
+bt_major_version
+bt_micro_version
+bt_minor_version
+# glib extras
+G_POINTER_ALIAS
+G_OBJECT_REF_COUNT
+XML_CHAR_PTR
+g_object_try_ref
+g_object_try_unref
+g_object_try_weak_ref
+g_object_try_weak_unref
+bt_g_type_get_base_type
+# gstreamer extras
+bt_gst_registry_get_element_names_matching_all_categories
+bt_gst_check_elements
+bt_gst_check_core_elements
+bt_gst_element_factory_can_sink_media_type
+bt_gst_debug_pad_link_return
 <SUBSECTION Standard>
+BT_MAJOR_VERSION
+BT_MICRO_VERSION
+BT_MINOR_VERSION
 # glib extras
 G_OPTION_FLAG_NO_ARG
 G_PARAM_STATIC_STRINGS
+G_DEFINE_INTERFACE
+G_DEFINE_INTERFACE_WITH_CODE
 # gstreamer extras
 GST_CAT_DEFAULT
 GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS

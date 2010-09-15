@@ -111,6 +111,7 @@ typedef gboolean (*BtSongIOInit)(void);
 
 /**
  * BtSongIOFormatInfo:
+ * @type: the io module #GType
  * @name: format name
  * @mime_type: mime type
  * @extension: file extension

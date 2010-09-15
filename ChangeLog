@@ -1,3 +1,24 @@
+2010-09-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:
+	* docs/reference/bt-cmd/buzztard-cmd-sections.txt:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-core/buzztard-core-docs.sgml:
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-ic/Makefile.am:
+	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
+	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	* src/lib/core/libbuzztard-core/song-io.h:
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/libbuzztard-core/wire.h:
+	* src/lib/core/tools.c:
+	* src/ui/edit/change-log.c:
+	  Documentation cleanup.
+
 2010-09-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/registry.c:

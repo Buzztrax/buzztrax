@@ -175,6 +175,17 @@ GList *bt_gst_check_core_elements(void) {
 
 //-- gst debugging
 
+/**
+ * bt_gst_debug_pad_link_return:
+ * @link_res: pad link result
+ * @src_pad: the source pad
+ * @sink_pad: the sink pad
+ *
+ * Format a nice debug message from failed pad links.
+ *
+ * Returns: the message. The returned string has to be used before the can be
+ * called again, otherwise the previous reult will be overwritten.
+ */
 const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res, GstPad *src_pad, GstPad *sink_pad) {
   static gchar msg1[5000];
   gchar msg2[4000];
