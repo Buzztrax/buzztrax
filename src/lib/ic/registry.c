@@ -81,7 +81,7 @@ static void remove_device_by_udi(BtIcRegistry *self, const gchar *udi) {
 }
 
 static void add_device(BtIcRegistry *self, BtIcDevice *device) {
-  if(btic_device_has_controls(device)) {
+  if(btic_device_has_controls(device) || BTIC_IS_LEARN(device)) {
     // add devices to our list and trigger notify
     self->priv->devices=g_list_prepend(self->priv->devices,(gpointer)device);
     g_object_notify(G_OBJECT(self),"devices");
@@ -131,18 +131,21 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
   
   if(!strcmp(action,"add")) {
     BtIcDevice *device=NULL;
+    
+    /*
     const gchar* const *props=g_udev_device_get_property_keys(udevice);
     
     while(*props) {
       GST_INFO("  %s: %s", *props, g_udev_device_get_property(udevice,*props));
       props++;
     }
+    */
     
     if(!strcmp(subsystem,"input")) {
       device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
     } else if(!strcmp(subsystem,"sound")) {
       /* http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3509 */
-      if(!strncmp (name, "midiC", 5)) {
+      if(!strncmp(name, "midiC", 5)) {
         device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
       }
     }

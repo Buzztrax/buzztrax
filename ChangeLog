@@ -1,5 +1,13 @@
 2010-09-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/gconf-settings.c:
+	  Debug logging.
+
+	* src/lib/ic/registry.c:
+	  Don't hide devices without controls, if the implement learn iface.
+
+2010-09-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:
 	* docs/reference/bt-cmd/buzztard-cmd-sections.txt:

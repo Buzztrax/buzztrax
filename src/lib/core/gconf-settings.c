@@ -340,6 +340,8 @@ static void bt_gconf_settings_dispose(GObject * const object) {
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
+  
+  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
 
   // unregister directories to watch
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,NULL);
