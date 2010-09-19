@@ -66,9 +66,11 @@ struct _BtEditApplicationPrivate {
   BtIcRegistry *ic_registry;
 };
 
-static BtApplicationClass *parent_class=NULL;
-
 static BtEditApplication *singleton=NULL;
+
+//-- the class
+
+G_DEFINE_TYPE (BtEditApplication, bt_edit_application, BT_TYPE_APPLICATION);
 
 //-- event handler
 
@@ -717,7 +719,7 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
   GObject *object;
 
   if(G_UNLIKELY(!singleton)) {
-    object=G_OBJECT_CLASS(parent_class)->constructor(type,n_construct_params,construct_params);
+    object=G_OBJECT_CLASS(bt_edit_application_parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BT_EDIT_APPLICATION(object);
 
     //GST_DEBUG("<<<");
@@ -785,7 +787,7 @@ static void bt_edit_application_dispose(GObject *object) {
   g_object_try_unref(self->priv->change_log);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_edit_application_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -794,21 +796,18 @@ static void bt_edit_application_finalize(GObject *object) {
 
   //GST_DEBUG("!!!! self=%p",self);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_edit_application_parent_class)->finalize(object);
   GST_DEBUG("  done");
   singleton=NULL;
 }
 
-static void bt_edit_application_init(GTypeInstance *instance, gpointer g_class) {
-  BtEditApplication *self = BT_EDIT_APPLICATION(instance);
-
+static void bt_edit_application_init(BtEditApplication *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_EDIT_APPLICATION, BtEditApplicationPrivate);
 }
 
 static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtEditApplicationPrivate));
 
   gobject_class->constructor  = bt_edit_application_constructor;
@@ -841,22 +840,3 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_edit_application_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtEditApplicationClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_edit_application_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtEditApplication),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_edit_application_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(BT_TYPE_APPLICATION,"BtEditApplication",&info,0);
-  }
-  return type;
-}

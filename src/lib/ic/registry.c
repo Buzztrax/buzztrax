@@ -154,6 +154,8 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     /* FIXME: we got better names with HAL:
     * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3400
     * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3363
+    *
+    * we save those in songs :/
     */
     
     if(!strcmp(subsystem,"input")) {

@@ -99,8 +99,6 @@ Otherwise it becomes a graph and then redo would need to know the direction.
 
 #include <dirent.h>
 
-//-- signal ids
-
 //-- property ids
 
 enum {
@@ -135,9 +133,11 @@ struct _BtChangeLogPrivate {
   gint item_ct;
 };
 
-static GObjectClass *parent_class=NULL;
-
 static BtChangeLog *singleton=NULL;
+
+//-- the class
+
+G_DEFINE_TYPE (BtChangeLog, bt_change_log, G_TYPE_OBJECT);
 
 //-- helper
 
@@ -520,7 +520,7 @@ static void bt_change_log_dispose(GObject *object) {
   free_log_file(self);
   g_object_try_weak_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_change_log_parent_class)->dispose(object);
 }
 
 static void bt_change_log_finalize(GObject *object) {
@@ -529,7 +529,7 @@ static void bt_change_log_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   g_free(self->priv->cache_dir);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_change_log_parent_class)->finalize(object);
   singleton=NULL;
 }
 
@@ -537,7 +537,7 @@ static GObject *bt_change_log_constructor(GType type,guint n_construct_params,GO
   GObject *object;
 
   if(G_UNLIKELY(!singleton)) {
-    object=G_OBJECT_CLASS(parent_class)->constructor(type,n_construct_params,construct_params);
+    object=G_OBJECT_CLASS(bt_change_log_parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BT_CHANGE_LOG(object);
   }
   else {
@@ -562,9 +562,7 @@ static void bt_change_log_get_property(GObject *object, guint property_id, GValu
   }
 }
 
-static void bt_change_log_init(GTypeInstance *instance, gpointer g_class) {
-  BtChangeLog *self = BT_CHANGE_LOG(instance);
-  
+static void bt_change_log_init(BtChangeLog *self) {  
   self->priv=G_TYPE_INSTANCE_GET_PRIVATE(self,BT_TYPE_CHANGE_LOG,BtChangeLogPrivate);
   /* this is created from the app, we need to avoid a ref-cycle */
   self->priv->app = bt_edit_application_new();
@@ -589,7 +587,6 @@ static void bt_change_log_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_change_log_class_init(BtChangeLogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtChangeLogPrivate));
 
   gobject_class->get_property = bt_change_log_get_property;
@@ -612,22 +609,3 @@ static void bt_change_log_class_init(BtChangeLogClass *klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_change_log_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtChangeLogClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_change_log_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtChangeLog),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_change_log_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtChangeLog",&info,0);
-  }
-  return type;
-}

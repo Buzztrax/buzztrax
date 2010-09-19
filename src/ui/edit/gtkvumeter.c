@@ -52,33 +52,16 @@
 #define VERTICAL_VUMETER_WIDTH     6
 #define MIN_VERTICAL_VUMETER_HEIGHT    400
 
-static void gtk_vumeter_init (GtkVUMeter *vumeter);
-static void gtk_vumeter_class_init (GtkVUMeterClass *class);
 static void gtk_vumeter_finalize (GObject * object);
 static void gtk_vumeter_realize (GtkWidget *widget);
 static void gtk_vumeter_size_request (GtkWidget *widget, GtkRequisition *requisition);
 static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocation);
 static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event);
 
-static GtkWidgetClass *parent_class = NULL;
+//-- the class
 
-GType gtk_vumeter_get_type (void)
-{
-    static GType vumeter_type = 0;
+G_DEFINE_TYPE (GtkVUMeter, gtk_vumeter, GTK_TYPE_WIDGET);
 
-    if (G_UNLIKELY(!vumeter_type)) {
-        const GTypeInfo vumeter_info = {
-            sizeof (GtkVUMeterClass),
-            NULL, NULL,
-            (GClassInitFunc) gtk_vumeter_class_init,
-            NULL, NULL, sizeof (GtkVUMeter), 0,
-            (GInstanceInitFunc) gtk_vumeter_init,
-        };
-        vumeter_type = g_type_register_static (GTK_TYPE_WIDGET, "GtkVUMeter", &vumeter_info, 0);
-    }
-
-    return vumeter_type;
-}
 
 /**
  * gtk_vumeter_new:
@@ -112,8 +95,6 @@ static void gtk_vumeter_class_init (GtkVUMeterClass *klass)
     GObjectClass *gobject_class = (GObjectClass *) klass;
     GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
-    parent_class = g_type_class_peek_parent (klass);
-
     gobject_class->finalize = gtk_vumeter_finalize;
 
     widget_class->realize = gtk_vumeter_realize;
@@ -135,7 +116,7 @@ static void gtk_vumeter_finalize (GObject * object)
     if (vumeter->gradient_bg)
         cairo_pattern_destroy (vumeter->gradient_bg);
 
-    G_OBJECT_CLASS(parent_class)->finalize (object);
+    G_OBJECT_CLASS (gtk_vumeter_parent_class)->finalize (object);
 }
 
 static void gtk_vumeter_allocate_colors (GtkVUMeter *vumeter)
@@ -245,7 +226,7 @@ static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocat
     g_return_if_fail (GTK_IS_VUMETER (widget));
     g_return_if_fail (allocation != NULL);
 
-    GTK_WIDGET_CLASS (parent_class)->size_allocate (widget, allocation);
+    GTK_WIDGET_CLASS (gtk_vumeter_parent_class)->size_allocate (widget, allocation);
 
     vumeter = GTK_VUMETER (widget);
 

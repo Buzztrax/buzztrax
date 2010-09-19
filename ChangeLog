@@ -1,6 +1,18 @@
 2010-09-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/registry.c:
+	  Add one extra comment.
+
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/change-logger.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/gtkvumeter.c:
+	  Start using G_DEFINE_TYPE in ui.
+
+2010-09-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/registry.c:
 	  Add oss midi devices. Add info about how to get better names.
 	  Fix the build when using HAL.
 

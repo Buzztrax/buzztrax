@@ -30,6 +30,9 @@
 
 #include "bt-edit.h"
 
+//-- the iface
+
+G_DEFINE_INTERFACE (BtChangeLogger, bt_change_logger, 0);
 
 //-- wrapper
 
@@ -50,22 +53,6 @@ gboolean bt_change_logger_change(const BtChangeLogger *self,const gchar *data) {
 
 //-- interface internals
 
-GType bt_change_logger_get_type(void) {
-  static GType type = 0;
-
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof (BtChangeLoggerInterface),
-      NULL,   /* base_init */
-      NULL,   /* base_finalize */
-      NULL,   /* class_init */
-      NULL,   /* class_finalize */
-      NULL,   /* class_data */
-      0,
-      0,      /* n_preallocs */
-      NULL    /* instance_init */
-    };
-    type=g_type_register_static(G_TYPE_INTERFACE,"BtChangeLogger",&info,0);
-  }
-  return type;
+static void bt_change_logger_default_init(BtChangeLoggerInterface *klass) {
 }
+
