@@ -113,6 +113,16 @@ remove: subsys=     usb, devtype=usb_device,    name=       5-5, number= 5, devn
    add: subsys=   input, devtype=       (null), name=       js0, number= 0, devnode=/dev/input/js0
    add: subsys=   input, devtype=       (null), name=    event1, number= 1, devnode=/dev/input/event1
 
+ 
+old HAL output:
+registry.c:305:hal_scan: 20 alsa devices found, trying add..
+registry.c:275:on_device_added: midi device added: product=Hoontech SoundTrack Audio DSP24 ALSA MIDI Device, devnode=/dev/snd/midiC2D1
+registry.c:275:on_device_added: midi device added: product=Hoontech SoundTrack Audio DSP24 ALSA MIDI Device, devnode=/dev/snd/midiC2D0
+registry.c:305:hal_scan: 0 alsa.sequencer devices found, trying add..
+registry.c:305:hal_scan: 14 oss devices found, trying add..
+registry.c:249:on_device_added: midi device added: product=ICE1712 multi OSS MIDI Device, devnode=/dev/midi2
+registry.c:249:on_device_added: midi device added: product=ICE1712 multi OSS MIDI Device, devnode=/dev/amidi2
+
 */
 
 static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpointer user_data) {
@@ -141,13 +151,23 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     }
     */
     
+    /* FIXME: we got better names with HAL:
+    * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3400
+    * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3363
+    */
+    
     if(!strcmp(subsystem,"input")) {
       device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
     } else if(!strcmp(subsystem,"sound")) {
       /* http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3509 */
       if(!strncmp(name, "midiC", 5)) {
+        /* alsa */
+        device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
+      } else if(!strcmp(name, "midi2") || !strcmp(name, "amidi2")) {
+        /* oss */
         device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
       }
+
     }
 
     if(device) {
@@ -448,7 +468,7 @@ static GObject *btic_registry_constructor(GType type,guint n_construct_params,GO
     singleton=BTIC_REGISTRY(object);
     
     GST_INFO("new device registry created");
-#if USE_HAL
+#if USE_GUDEV
     if(gudev_setup(singleton)) {
       GST_INFO("gudev device registry initialized");
     } else {

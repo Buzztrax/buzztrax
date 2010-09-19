@@ -1,3 +1,9 @@
+2010-09-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/registry.c:
+	  Add oss midi devices. Add info about how to get better names.
+	  Fix the build when using HAL.
+
 2010-09-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/gconf-settings.c:
