@@ -1,5 +1,15 @@
 2010-09-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/playback-controller-socket.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/tip-dialog.c:
+	  More use of G_DEFINE_TYPE in ui.
+
+2010-09-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Fix assertion in focus() vmethod impl.
 

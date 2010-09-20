@@ -53,7 +53,10 @@ struct _BtRenderProgressPrivate {
   gboolean has_error;
 };
 
-static GtkProgressClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtRenderProgress, bt_render_progress, GTK_TYPE_DIALOG);
+
 
 //-- event handler
 
@@ -327,12 +330,10 @@ static void bt_render_progress_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->settings);
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_render_progress_parent_class)->dispose(object);
 }
 
-static void bt_render_progress_init(GTypeInstance *instance, gpointer g_class) {
-  BtRenderProgress *self = BT_RENDER_PROGRESS(instance);
-
+static void bt_render_progress_init(BtRenderProgress *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_RENDER_PROGRESS, BtRenderProgressPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -341,7 +342,6 @@ static void bt_render_progress_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_render_progress_class_init(BtRenderProgressClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtRenderProgressPrivate));
 
   gobject_class->set_property = bt_render_progress_set_property;
@@ -356,22 +356,3 @@ static void bt_render_progress_class_init(BtRenderProgressClass *klass) {
 
 }
 
-GType bt_render_progress_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtRenderProgressClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_render_progress_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtRenderProgress),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_render_progress_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_DIALOG,"BtRenderProgress",&info,0);
-  }
-  return type;
-}

@@ -61,11 +61,14 @@ struct _BtSequenceViewPrivate {
   GdkGC *play_pos_gc,*loop_pos_gc,*end_pos_gc;
 };
 
-static GtkTreeViewClass *parent_class=NULL;
-
 static gint8 loop_pos_dash_list[]= {4};
 
 #define AREA_REDRAW 1
+
+//-- the class
+
+G_DEFINE_TYPE (BtSequenceView, bt_sequence_view, GTK_TYPE_TREE_VIEW);
+
 
 //-- event handler
 
@@ -110,9 +113,7 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
 
   // first let the parent realize itslf
-  if(GTK_WIDGET_CLASS(parent_class)->realize) {
-    (GTK_WIDGET_CLASS(parent_class)->realize)(widget);
-  }
+  GTK_WIDGET_CLASS(bt_sequence_view_parent_class)->realize(widget);
   self->priv->window=gtk_tree_view_get_bin_window(GTK_TREE_VIEW(self));
 
   // allocation graphical contexts for drawing the overlay lines
@@ -134,9 +135,7 @@ static void bt_sequence_view_unrealize(GtkWidget *widget) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
 
   // first let the parent unrealize itslf
-  if(GTK_WIDGET_CLASS(parent_class)->unrealize) {
-    (GTK_WIDGET_CLASS(parent_class)->unrealize)(widget);
-  }
+  GTK_WIDGET_CLASS(bt_sequence_view_parent_class)->unrealize(widget);
 
   g_object_unref(self->priv->play_pos_gc);
   self->priv->play_pos_gc=NULL;
@@ -151,9 +150,7 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
   //GST_INFO("!!!! self=%p",self);
 
   // let the parent handle its expose
-  if(GTK_WIDGET_CLASS(parent_class)->expose_event) {
-    (GTK_WIDGET_CLASS(parent_class)->expose_event)(widget,event);
-  }
+  GTK_WIDGET_CLASS(bt_sequence_view_parent_class)->expose_event(widget,event);
 
   /* We need to check to make sure that the expose event is actually occuring on
    * the window where the table data is being drawn.  If we don't do this check,
@@ -268,12 +265,10 @@ static void bt_sequence_view_dispose(GObject *object) {
   g_object_try_unref(self->priv->end_pos_gc);
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_sequence_view_parent_class)->dispose(object);
 }
 
-static void bt_sequence_view_init(GTypeInstance *instance, gpointer g_class) {
-  BtSequenceView *self = BT_SEQUENCE_VIEW(instance);
-
+static void bt_sequence_view_init(BtSequenceView *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SEQUENCE_VIEW, BtSequenceViewPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -283,7 +278,6 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSequenceViewPrivate));
 
   gobject_class->set_property = bt_sequence_view_set_property;
@@ -331,22 +325,3 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
                                      G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_sequence_view_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSequenceViewClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_sequence_view_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSequenceView),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_sequence_view_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_TREE_VIEW,"BtSequenceView",&info,0);
-  }
-  return type;
-}

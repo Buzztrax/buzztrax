@@ -71,7 +71,10 @@ struct _BtTipDialogPrivate {
   BtEditApplication *app;
 };
 
-static GtkDialogClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtTipDialog, bt_tip_dialog, GTK_TYPE_DIALOG);
+
 
 //-- event handler
 
@@ -253,12 +256,10 @@ static void bt_tip_dialog_dispose(GObject *object) {
   g_object_unref(self->priv->app);
   g_object_unref(self->priv->settings);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_tip_dialog_parent_class)->dispose(object);
 }
 
-static void bt_tip_dialog_init(GTypeInstance *instance, gpointer g_class) {
-  BtTipDialog *self = BT_TIP_DIALOG(instance);
-
+static void bt_tip_dialog_init(BtTipDialog *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_TIP_DIALOG, BtTipDialogPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -267,28 +268,8 @@ static void bt_tip_dialog_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_tip_dialog_class_init(BtTipDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtTipDialogPrivate));
 
   gobject_class->dispose      = bt_tip_dialog_dispose;
 }
 
-GType bt_tip_dialog_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtTipDialogClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_tip_dialog_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtTipDialog),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_tip_dialog_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_DIALOG,"BtTipDialog",&info,0);
-  }
-  return type;
-}

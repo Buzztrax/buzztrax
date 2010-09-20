@@ -65,9 +65,12 @@ struct _BtPlaybackControllerSocketPrivate {
   GIOChannel *client_channel;
 };
 
-static GObjectClass *parent_class=NULL;
-
 #define DEFAULT_LABEL "start"
+
+//-- the class
+
+G_DEFINE_TYPE (BtPlaybackControllerSocket, bt_playback_controller_socket, G_TYPE_OBJECT);
+
 
 //-- helper methods
 
@@ -580,7 +583,7 @@ static void bt_playback_controller_socket_dispose(GObject *object) {
 
   master_connection_close(self);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_playback_controller_socket_parent_class)->dispose(object);
 }
 
 static void bt_playback_controller_socket_finalize(GObject *object) {
@@ -596,12 +599,10 @@ static void bt_playback_controller_socket_finalize(GObject *object) {
   g_free(self->priv->length_str);
   g_free(self->priv->cur_label);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_playback_controller_socket_parent_class)->finalize(object);
 }
 
-static void bt_playback_controller_socket_init(GTypeInstance *instance, gpointer g_class) {
-  BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(instance);
-
+static void bt_playback_controller_socket_init(BtPlaybackControllerSocket *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PLAYBACK_CONTROLLER_SOCKET, BtPlaybackControllerSocketPrivate);
   GST_DEBUG("!!!! self=%p",self);
   /* this is created from the app, we need to avoid a ref-cycle */
@@ -619,29 +620,9 @@ static void bt_playback_controller_socket_init(GTypeInstance *instance, gpointer
 static void bt_playback_controller_socket_class_init(BtPlaybackControllerSocketClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtPlaybackControllerSocketPrivate));
 
   gobject_class->dispose      = bt_playback_controller_socket_dispose;
   gobject_class->finalize     = bt_playback_controller_socket_finalize;
 }
 
-GType bt_playback_controller_socket_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtPlaybackControllerSocketClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_playback_controller_socket_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtPlaybackControllerSocket),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_playback_controller_socket_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtPlaybackControllerSocket",&info,0);
-  }
-  return type;
-}

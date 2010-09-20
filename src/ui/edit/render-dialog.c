@@ -61,10 +61,11 @@ struct _BtRenderDialogPrivate {
   BtRenderMode mode;
 };
 
-static GtkDialogClass *parent_class=NULL;
-
-
 static void on_format_menu_changed(GtkComboBox *menu, gpointer user_data);
+
+//-- the class
+
+G_DEFINE_TYPE (BtRenderDialog, bt_render_dialog, GTK_TYPE_DIALOG);
 
 
 //-- enums
@@ -373,7 +374,7 @@ static void bt_render_dialog_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_render_dialog_parent_class)->dispose(object);
 }
 
 static void bt_render_dialog_finalize(GObject *object) {
@@ -383,12 +384,10 @@ static void bt_render_dialog_finalize(GObject *object) {
   g_free(self->priv->folder);
   g_free(self->priv->filename);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_render_dialog_parent_class)->finalize(object);
 }
 
-static void bt_render_dialog_init(GTypeInstance *instance, gpointer g_class) {
-  BtRenderDialog *self = BT_RENDER_DIALOG(instance);
-
+static void bt_render_dialog_init(BtRenderDialog *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_RENDER_DIALOG, BtRenderDialogPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -397,7 +396,6 @@ static void bt_render_dialog_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_render_dialog_class_init(BtRenderDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtRenderDialogPrivate));
 
   gobject_class->get_property = bt_render_dialog_get_property;
@@ -428,22 +426,3 @@ static void bt_render_dialog_class_init(BtRenderDialogClass *klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_render_dialog_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtRenderDialogClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_render_dialog_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtRenderDialog),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_render_dialog_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_DIALOG,"BtRenderDialog",&info,0);
-  }
-  return type;
-}
