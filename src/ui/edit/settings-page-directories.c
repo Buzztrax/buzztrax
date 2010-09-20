@@ -41,7 +41,10 @@ struct _BtSettingsPageDirectoriesPrivate {
   GList *audiosink_names;
 };
 
-static GtkDialogClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtSettingsPageDirectories, bt_settings_page_directories, GTK_TYPE_TABLE);
+
 
 
 //-- event handler
@@ -164,7 +167,7 @@ static void bt_settings_page_directories_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_settings_page_directories_parent_class)->dispose(object);
 }
 
 static void bt_settings_page_directories_finalize(GObject *object) {
@@ -173,12 +176,10 @@ static void bt_settings_page_directories_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   g_list_free(self->priv->audiosink_names);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_settings_page_directories_parent_class)->finalize(object);
 }
 
-static void bt_settings_page_directories_init(GTypeInstance *instance, gpointer g_class) {
-  BtSettingsPageDirectories *self = BT_SETTINGS_PAGE_DIRECTORIES(instance);
-
+static void bt_settings_page_directories_init(BtSettingsPageDirectories *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_DIRECTORIES, BtSettingsPageDirectoriesPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -187,29 +188,9 @@ static void bt_settings_page_directories_init(GTypeInstance *instance, gpointer 
 static void bt_settings_page_directories_class_init(BtSettingsPageDirectoriesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSettingsPageDirectoriesPrivate));
 
   gobject_class->dispose      = bt_settings_page_directories_dispose;
   gobject_class->finalize     = bt_settings_page_directories_finalize;
 }
 
-GType bt_settings_page_directories_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSettingsPageDirectoriesClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_settings_page_directories_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSettingsPageDirectories),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_settings_page_directories_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_TABLE,"BtSettingsPageDirectories",&info,0);
-  }
-  return type;
-}

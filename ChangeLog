@@ -1,5 +1,14 @@
 2010-09-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-directories.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	* src/ui/edit/settings-page-playback-controller.c:
+	  More use of G_DEFINE_TYPE in ui.
+
+2010-09-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-properties-dialog.c:
 	* src/ui/edit/playback-controller-socket.c:
 	* src/ui/edit/render-dialog.c:

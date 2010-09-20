@@ -46,7 +46,10 @@ struct _BtSettingsPagePlaybackControllerPrivate {
   GtkWidget *port_entry;
 };
 
-static GtkDialogClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtSettingsPagePlaybackController, bt_settings_page_playback_controller, GTK_TYPE_TABLE);
+
 
 //-- event handler
 
@@ -170,12 +173,10 @@ static void bt_settings_page_playback_controller_dispose(GObject *object) {
 
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_settings_page_playback_controller_parent_class)->dispose(object);
 }
 
-static void bt_settings_page_playback_controller_init(GTypeInstance *instance, gpointer g_class) {
-  BtSettingsPagePlaybackController *self = BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER(instance);
-
+static void bt_settings_page_playback_controller_init(BtSettingsPagePlaybackController *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER, BtSettingsPagePlaybackControllerPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -184,28 +185,8 @@ static void bt_settings_page_playback_controller_init(GTypeInstance *instance, g
 static void bt_settings_page_playback_controller_class_init(BtSettingsPagePlaybackControllerClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSettingsPagePlaybackControllerPrivate));
 
   gobject_class->dispose      = bt_settings_page_playback_controller_dispose;
 }
 
-GType bt_settings_page_playback_controller_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSettingsPagePlaybackControllerClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_settings_page_playback_controller_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSettingsPagePlaybackController),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_settings_page_playback_controller_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_TABLE,"BtSettingsPagePlaybackController",&info,0);
-  }
-  return type;
-}

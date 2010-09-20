@@ -65,7 +65,10 @@ struct _BtSettingsDialogPrivate {
   BtSettingsPageDirectories *directories_page;
 };
 
-static GtkDialogClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtSettingsDialog, bt_settings_dialog, GTK_TYPE_DIALOG);
+
 
 //-- enums
 
@@ -352,12 +355,10 @@ static void bt_settings_dialog_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_settings_dialog_parent_class)->dispose(object);
 }
 
-static void bt_settings_dialog_init(GTypeInstance *instance, gpointer g_class) {
-  BtSettingsDialog *self = BT_SETTINGS_DIALOG(instance);
-
+static void bt_settings_dialog_init(BtSettingsDialog *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_DIALOG, BtSettingsDialogPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -366,7 +367,6 @@ static void bt_settings_dialog_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSettingsDialogPrivate));
 
   gobject_class->set_property = bt_settings_dialog_set_property;
@@ -382,22 +382,3 @@ static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_settings_dialog_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtSettingsDialogClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_settings_dialog_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtSettingsDialog),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_settings_dialog_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_DIALOG,"BtSettingsDialog",&info,0);
-  }
-  return type;
-}
