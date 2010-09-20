@@ -141,7 +141,6 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
   
   if(!strcmp(action,"add")) {
     BtIcDevice *device=NULL;
-    
     /*
     const gchar* const *props=g_udev_device_get_property_keys(udevice);
     

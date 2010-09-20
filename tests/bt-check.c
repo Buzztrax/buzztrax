@@ -1000,6 +1000,13 @@ void check_shutdown_test_server(void) {
 
 // gtk+ gui screenshooter
 
+#if !GTK_CHECK_VERSION(2,18,0)
+
+#define gtk_widget_get_visible(widget) GTK_WIDGET_VISIBLE(widget)
+
+#endif
+
+
 /*
  * check_make_widget_screenshot:
  * @widget: a #GtkWidget to screenshoot
@@ -1018,7 +1025,7 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   g_return_if_fail(GTK_IS_WIDGET(widget));
 
   // make sure the window gets drawn
-  if(!GTK_WIDGET_VISIBLE(widget)) {
+  if(!gtk_widget_get_visible(widget)) {
     gtk_widget_show_all(widget);
   }
   if(GTK_IS_WINDOW(widget)) {

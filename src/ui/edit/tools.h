@@ -22,7 +22,7 @@
 #ifndef BT_EDIT_TOOLS_H
 #define BT_EDIT_TOOLS_H
 
-#include "main-window.h"
+#include <gtk/gtk.h>
 
 /* pixmap/buf helpers */
 extern void add_pixmap_directory(const gchar *directory);

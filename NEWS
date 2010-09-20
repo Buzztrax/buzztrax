@@ -1,5 +1,9 @@
-0.6.0 ...
+0.6.0 black beats blue
 ================================================================================
+- UI improvements (tip of day, spectrum analyzer, clipboard support)
+- gstreamer decoder
+- performance
+- code cleanups and porting (gnomevfs->gio, hal->gudev)
 
 0.5.0 crown of thorns (06.Sep.2009)
 ================================================================================
