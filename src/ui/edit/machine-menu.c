@@ -41,7 +41,9 @@ struct _BtMachineMenuPrivate {
   //GtkWidget *save_item;
 };
 
-static GtkMenuClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtMachineMenu, bt_machine_menu, GTK_TYPE_MENU);
 
 //-- event handler
 
@@ -343,12 +345,10 @@ static void bt_machine_menu_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_machine_menu_parent_class)->dispose(object);
 }
 
-static void bt_machine_menu_init(GTypeInstance *instance, gpointer g_class) {
-  BtMachineMenu *self = BT_MACHINE_MENU(instance);
-
+static void bt_machine_menu_init(BtMachineMenu *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_MENU, BtMachineMenuPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -357,28 +357,8 @@ static void bt_machine_menu_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachineMenuPrivate));
 
   gobject_class->dispose      = bt_machine_menu_dispose;
 }
 
-GType bt_machine_menu_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtMachineMenuClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_machine_menu_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtMachineMenu),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_machine_menu_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_MENU,"BtMachineMenu",&info,0);
-  }
-  return type;
-}

@@ -51,9 +51,12 @@ struct _BtMachinePreferencesDialogPrivate {
   BtMachine *machine;
 };
 
-static GtkDialogClass *parent_class=NULL;
-
 static GQuark widget_parent_quark=0;
+
+//-- the class
+
+G_DEFINE_TYPE (BtMachinePreferencesDialog, bt_machine_preferences_dialog, GTK_TYPE_WINDOW);
+
 
 //-- event handler helper
 
@@ -573,12 +576,10 @@ static void bt_machine_preferences_dialog_dispose(GObject *object) {
   g_object_try_unref(self->priv->machine);
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_machine_preferences_dialog_parent_class)->dispose(object);
 }
 
-static void bt_machine_preferences_dialog_init(GTypeInstance *instance, gpointer g_class) {
-  BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG(instance);
-
+static void bt_machine_preferences_dialog_init(BtMachinePreferencesDialog *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PREFERENCES_DIALOG, BtMachinePreferencesDialogPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -589,7 +590,6 @@ static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogC
   
   widget_parent_quark=g_quark_from_static_string("BtMachinePreferencesDialog::widget-parent");
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePreferencesDialogPrivate));
 
   gobject_class->set_property = bt_machine_preferences_dialog_set_property;
@@ -604,21 +604,3 @@ static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogC
 
 }
 
-GType bt_machine_preferences_dialog_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof (BtMachinePreferencesDialogClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_machine_preferences_dialog_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof (BtMachinePreferencesDialog),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_machine_preferences_dialog_init, // instance_init
-    };
-    type = g_type_register_static(GTK_TYPE_WINDOW,"BtMachinePreferencesDialog",&info,0);
-  }
-  return type;
-}

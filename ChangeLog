@@ -1,5 +1,28 @@
 2010-09-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/interaction-controller-menu.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  More use of G_DEFINE_TYPE in ui.
+
+2010-09-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWS:
 	  Allow running make distcheck.
 

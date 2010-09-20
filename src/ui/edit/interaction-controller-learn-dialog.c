@@ -46,7 +46,9 @@ struct _BtInteractionControllerLearnDialogPrivate {
   GtkWidget *label_output, *entry_name;
 };
 
-static GtkDialogClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtInteractionControllerLearnDialog, bt_interaction_controller_learn_dialog, GTK_TYPE_DIALOG);
 
 //-- event handler
 
@@ -195,36 +197,20 @@ static void bt_interaction_controller_learn_dialog_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->device);
   g_signal_handlers_disconnect_matched(self->priv->device,G_SIGNAL_MATCH_FUNC,0,0,NULL,notify_device_controlchange,NULL);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(bt_interaction_controller_learn_dialog_parent_class)->dispose(object);
 }
 
-static void bt_interaction_controller_learn_dialog_finalize(GObject *object) {
-  BtInteractionControllerLearnDialog *self = BT_INTERACTION_CONTROLLER_LEARN_DIALOG(object);
-
-  GST_DEBUG("!!!! self=%p",self);
-
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
-}
-
-static void bt_interaction_controller_learn_dialog_init(GTypeInstance *instance, gpointer g_class) {
-  BtInteractionControllerLearnDialog *self = BT_INTERACTION_CONTROLLER_LEARN_DIALOG(instance);
-
+static void bt_interaction_controller_learn_dialog_init(BtInteractionControllerLearnDialog *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_INTERACTION_CONTROLLER_LEARN_DIALOG, BtInteractionControllerLearnDialogPrivate);
 }
 
 static void bt_interaction_controller_learn_dialog_class_init(BtInteractionControllerLearnDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtInteractionControllerLearnDialogPrivate));
 
   gobject_class->set_property = bt_interaction_controller_learn_dialog_set_property;
   gobject_class->dispose      = bt_interaction_controller_learn_dialog_dispose;
-  gobject_class->finalize     = bt_interaction_controller_learn_dialog_finalize;
 
   g_object_class_install_property(gobject_class,LEARN_DIALOG_DEVICE,
                                   g_param_spec_object("device",
@@ -234,21 +220,3 @@ static void bt_interaction_controller_learn_dialog_class_init(BtInteractionContr
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_interaction_controller_learn_dialog_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof (BtInteractionControllerLearnDialogClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_interaction_controller_learn_dialog_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof (BtInteractionControllerLearnDialog),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_interaction_controller_learn_dialog_init, // instance_init
-    };
-    type = g_type_register_static(GTK_TYPE_DIALOG,"BtInteractionControllerLearnDialog",&info,0);
-  }
-  return type;
-}

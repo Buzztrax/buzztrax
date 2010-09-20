@@ -56,9 +56,11 @@ struct _BtInteractionControllerMenuPrivate {
   GtkWidget *item_unbind,*item_unbind_all;
 };
 
-static GtkMenuClass *parent_class=NULL;
-
 static GQuark widget_parent_quark=0;
+
+//-- the class
+
+G_DEFINE_TYPE (BtInteractionControllerMenu, bt_interaction_controller_menu, GTK_TYPE_MENU);
 
 //-- enums
 
@@ -302,12 +304,10 @@ static void bt_interaction_controller_menu_dispose(GObject *object) {
   g_object_try_unref(self->priv->selected_control);
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_interaction_controller_menu_parent_class)->dispose(object);
 }
 
-static void bt_interaction_controller_menu_init(GTypeInstance *instance, gpointer g_class) {
-  BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU(instance);
-
+static void bt_interaction_controller_menu_init(BtInteractionControllerMenu *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_INTERACTION_CONTROLLER_MENU, BtInteractionControllerMenuPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -318,7 +318,6 @@ static void bt_interaction_controller_menu_class_init(BtInteractionControllerMen
 
   widget_parent_quark=g_quark_from_static_string("BtInteractionControllerMenu::widget-parent");
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtInteractionControllerMenuPrivate));
 
   gobject_class->set_property = bt_interaction_controller_menu_set_property;
@@ -355,22 +354,3 @@ static void bt_interaction_controller_menu_class_init(BtInteractionControllerMen
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_interaction_controller_menu_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtInteractionControllerMenuClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_interaction_controller_menu_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtInteractionControllerMenu),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_interaction_controller_menu_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_MENU,"BtInteractionControllerMenu",&info,0);
-  }
-  return type;
-}

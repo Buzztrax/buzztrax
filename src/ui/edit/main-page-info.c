@@ -58,7 +58,10 @@ struct _BtMainPageInfoPrivate {
   GtkTextView *info;
 };
 
-static GtkVBoxClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtMainPageInfo, bt_main_page_info, GTK_TYPE_VBOX);
+
 
 //-- event handler
 
@@ -496,12 +499,10 @@ static void bt_main_page_info_dispose(GObject *object) {
   g_object_unref(self->priv->app);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_main_page_info_parent_class)->dispose(object);
 }
 
-static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {
-  BtMainPageInfo *self = BT_MAIN_PAGE_INFO(instance);
-
+static void bt_main_page_info_init(BtMainPageInfo *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_INFO, BtMainPageInfoPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -511,7 +512,6 @@ static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageInfoPrivate));
 
   gobject_class->dispose      = bt_main_page_info_dispose;
@@ -519,22 +519,3 @@ static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
   gtkwidget_class->focus      = bt_main_page_info_focus;
 }
 
-GType bt_main_page_info_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtMainPageInfoClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_main_page_info_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtMainPageInfo),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_main_page_info_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPageInfo",&info,0);
-  }
-  return type;
-}

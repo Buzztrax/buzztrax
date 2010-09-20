@@ -78,8 +78,6 @@ struct _BtMachinePropertiesDialogPrivate {
   GHashTable *param_groups;
 };
 
-static GtkDialogClass *parent_class=NULL;
-
 static GQuark widget_label_quark=0;
 static GQuark widget_parent_quark=0;
 static GQuark control_object_quark=0;
@@ -93,6 +91,11 @@ enum {
   PRESET_LIST_COMMENT
 };
 
+//-- the class
+
+G_DEFINE_TYPE (BtMachinePropertiesDialog, bt_machine_properties_dialog, GTK_TYPE_WINDOW);
+
+//-- idle update helper
 
 typedef struct {
   const GstElement *machine;
@@ -112,7 +115,7 @@ typedef struct {
   g_slice_free(BtNotifyIdleData,data)
 
 
-/* wire, global or voice params */
+//-- wire, global or voice params groups
 typedef struct {
   gint num_params;
   GstObject **parent;
@@ -2323,7 +2326,7 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   g_object_try_unref(self->priv->machine);
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_machine_properties_dialog_parent_class)->dispose(object);
 }
 
 static void bt_machine_properties_dialog_finalize(GObject *object) {
@@ -2334,12 +2337,10 @@ static void bt_machine_properties_dialog_finalize(GObject *object) {
   g_hash_table_destroy(self->priv->group_to_object);
   g_hash_table_destroy(self->priv->param_groups);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_machine_properties_dialog_parent_class)->finalize(object);
 }
 
-static void bt_machine_properties_dialog_init(GTypeInstance *instance, gpointer g_class) {
-  BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(instance);
-
+static void bt_machine_properties_dialog_init(BtMachinePropertiesDialog *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PROPERTIES_DIALOG, BtMachinePropertiesDialogPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -2359,7 +2360,6 @@ static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogCla
   widget_param_group_quark=g_quark_from_static_string("BtMachinePropertiesDialog::widget-param-group");
   widget_param_num_quark=g_quark_from_static_string("BtMachinePropertiesDialog::widget-param-num");
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePropertiesDialogPrivate));
 
   gobject_class->set_property = bt_machine_properties_dialog_set_property;
@@ -2375,21 +2375,3 @@ static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogCla
 
 }
 
-GType bt_machine_properties_dialog_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof (BtMachinePropertiesDialogClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_machine_properties_dialog_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof (BtMachinePropertiesDialog),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_machine_properties_dialog_init, // instance_init
-    };
-    type = g_type_register_static(GTK_TYPE_WINDOW,"BtMachinePropertiesDialog",&info,0);
-  }
-  return type;
-}

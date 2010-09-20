@@ -88,8 +88,6 @@ struct _BtMainPageWavesPrivate {
   BtSettings *settings;
 };
 
-static GtkVBoxClass *parent_class=NULL;
-
 enum {
   WAVE_TABLE_ID=0,
   WAVE_TABLE_HEX_ID,
@@ -106,6 +104,11 @@ enum {
   WAVELEVEL_TABLE_LOOP_END,
   WAVELEVEL_TABLE_CT
 };
+
+//-- the class
+
+G_DEFINE_TYPE (BtMainPageWaves, bt_main_page_waves, GTK_TYPE_VBOX);
+
 
 //-- event handler helper
 
@@ -1389,12 +1392,10 @@ static void bt_main_page_waves_dispose(GObject *object) {
   }
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_main_page_waves_parent_class)->dispose(object);
 }
 
-static void bt_main_page_waves_init(GTypeInstance *instance, gpointer g_class) {
-  BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(instance);
-
+static void bt_main_page_waves_init(BtMainPageWaves *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_WAVES, BtMainPageWavesPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -1404,28 +1405,8 @@ static void bt_main_page_waves_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageWavesPrivate));
 
   gobject_class->dispose      = bt_main_page_waves_dispose;
 }
 
-GType bt_main_page_waves_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof (BtMainPageWavesClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_main_page_waves_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof (BtMainPageWaves),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_main_page_waves_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPageWaves",&info,0);
-  }
-  return type;
-}

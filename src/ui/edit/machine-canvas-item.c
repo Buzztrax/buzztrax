@@ -150,10 +150,13 @@ struct _BtMachineCanvasItemPrivate {
 
 static guint signals[LAST_SIGNAL]={0,};
 
-static GnomeCanvasGroupClass *parent_class=NULL;
-
 static GQuark bus_msg_level_quark=0;
 static GQuark machine_canvas_item_quark=0;
+
+//-- the class
+
+G_DEFINE_TYPE (BtMachineCanvasItem, bt_machine_canvas_item, GNOME_TYPE_CANVAS_GROUP);
+
 
 //-- prototypes
 
@@ -988,7 +991,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   GST_DEBUG("  destroying done, machine: %p,ref_count %d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_machine_canvas_item_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -996,9 +999,9 @@ static void bt_machine_canvas_item_finalize(GObject *object) {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  g_mutex_free (self->priv->lock);
+  g_mutex_free(self->priv->lock);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_machine_canvas_item_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
@@ -1013,8 +1016,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   gdouble fh=MACHINE_VIEW_FONT_SIZE;
   gchar *id,*prop;
 
-  if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
-    (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
+  GNOME_CANVAS_ITEM_CLASS(bt_machine_canvas_item_parent_class)->realize(citem);
 
   //GST_DEBUG("realize for machine occurred, machine=%p",self->priv->machine);
 
@@ -1216,17 +1218,15 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   /* we don't want the click falling through to the parent canvas item, if we have handled it */
   //if(res) g_signal_stop_emission_by_name(citem->canvas,"event-after");
   if(!res) {
-    if(GNOME_CANVAS_ITEM_CLASS(parent_class)->event) {
-      res=(GNOME_CANVAS_ITEM_CLASS(parent_class)->event)(citem,event);
+    if(GNOME_CANVAS_ITEM_CLASS(bt_machine_canvas_item_parent_class)->event) {
+      res=GNOME_CANVAS_ITEM_CLASS(bt_machine_canvas_item_parent_class)->event(citem,event);
     }
   }
   //GST_INFO("event for machine occurred : %d",res);
   return res;
 }
 
-static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_class) {
-  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(instance);
-
+static void bt_machine_canvas_item_init(BtMachineCanvasItem *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_CANVAS_ITEM, BtMachineCanvasItemPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -1250,7 +1250,6 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
   bus_msg_level_quark=g_quark_from_static_string("level");
   machine_canvas_item_quark=g_quark_from_static_string("machine-canvas-item");
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachineCanvasItemPrivate));
 
   gobject_class->set_property = bt_machine_canvas_item_set_property;
@@ -1308,22 +1307,3 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_machine_canvas_item_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtMachineCanvasItemClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_machine_canvas_item_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtMachineCanvasItem),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_machine_canvas_item_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GNOME_TYPE_CANVAS_GROUP,"BtMachineCanvasItem",&info,0);
-  }
-  return type;
-}

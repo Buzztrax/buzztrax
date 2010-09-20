@@ -78,13 +78,16 @@ struct _BtMainToolbarPrivate {
   GMutex        *lock;
 };
 
-static GtkHandleBoxClass *parent_class=NULL;
-
 static GQuark bus_msg_level_quark=0;
 static GQuark bus_msg_level_caps_changed_quark=0;
 
 static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data);
 static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data);
+
+//-- the class
+
+G_DEFINE_TYPE (BtMainToolbar, bt_main_toolbar, GTK_TYPE_TOOLBAR);
+
 
 //-- helper
 
@@ -982,25 +985,23 @@ static void bt_main_toolbar_dispose(GObject *object) {
   if(self->priv->clock) gst_object_unref(self->priv->clock);
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_main_toolbar_parent_class)->dispose(object);
 }
 
 static void bt_main_toolbar_finalize(GObject *object) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  g_mutex_free (self->priv->lock);
+  g_mutex_free(self->priv->lock);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_main_toolbar_parent_class)->finalize(object);
 }
 
-static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {
-  BtMainToolbar *self = BT_MAIN_TOOLBAR(instance);
-
+static void bt_main_toolbar_init(BtMainToolbar *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_TOOLBAR, BtMainToolbarPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
-  self->priv->lock=g_mutex_new ();
+  self->priv->lock=g_mutex_new();
   self->priv->playback_rate=1.0;
 }
 
@@ -1010,7 +1011,6 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
   bus_msg_level_quark=g_quark_from_static_string("level");
   bus_msg_level_caps_changed_quark=g_quark_from_static_string("level-caps-changed");
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainToolbarPrivate));
 
   gobject_class->dispose      = bt_main_toolbar_dispose;
@@ -1018,22 +1018,3 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
 
 }
 
-GType bt_main_toolbar_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtMainToolbarClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_main_toolbar_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtMainToolbar),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_main_toolbar_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_TOOLBAR,"BtMainToolbar",&info,0);
-  }
-  return type;
-}

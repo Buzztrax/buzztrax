@@ -95,7 +95,10 @@ struct _BtWireCanvasItemPrivate {
   gdouble offx,offy,dragx,dragy;
 };
 
-static GnomeCanvasGroupClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtWireCanvasItem, bt_wire_canvas_item, GNOME_TYPE_CANVAS_GROUP);
+
 
 //-- helper
 
@@ -545,7 +548,7 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   g_object_unref(self->priv->context_menu);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_wire_canvas_item_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -560,8 +563,7 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
   GnomeCanvasPoints *points;
   gdouble s=MACHINE_VIEW_WIRE_PAD_SIZE,oy=0.25*s,ox=2.5*s,px;
 
-  if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
-    (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
+  GNOME_CANVAS_ITEM_CLASS(bt_wire_canvas_item_parent_class)->realize(citem);
 
   GST_DEBUG("realize for wire occurred, wire=%p : w=%f,h=%f",self->priv->wire,self->priv->w,self->priv->h);
 
@@ -746,15 +748,14 @@ static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *even
   }
   /* we don't want the click falling through to the parent canvas item, if we have handled it */
   if(!res) {
-    if(GNOME_CANVAS_ITEM_CLASS(parent_class)->event) {
-      res=(GNOME_CANVAS_ITEM_CLASS(parent_class)->event)(citem,event);
+    if(GNOME_CANVAS_ITEM_CLASS(bt_wire_canvas_item_parent_class)->event) {
+      res=(GNOME_CANVAS_ITEM_CLASS(bt_wire_canvas_item_parent_class)->event)(citem,event);
     }
   }
   return res;
 }
 
-static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) {
-  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(instance);
+static void bt_wire_canvas_item_init(BtWireCanvasItem *self) {
   GtkWidget *menu_item;
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE_CANVAS_ITEM, BtWireCanvasItemPrivate);
@@ -784,7 +785,6 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GnomeCanvasItemClass *citem_class=GNOME_CANVAS_ITEM_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWireCanvasItemPrivate));
 
   gobject_class->set_property = bt_wire_canvas_item_set_property;
@@ -853,22 +853,3 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_wire_canvas_item_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtWireCanvasItemClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_wire_canvas_item_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtWireCanvasItem),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_wire_canvas_item_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GNOME_TYPE_CANVAS_GROUP,"BtWireCanvasItem",&info,0);
-  }
-  return type;
-}

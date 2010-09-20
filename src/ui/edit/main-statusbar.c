@@ -75,7 +75,10 @@ struct _BtMainStatusbarPrivate {
   gulong last_pos, play_start;
 };
 
-static GtkHBoxClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtMainStatusbar, bt_main_statusbar, GTK_TYPE_HBOX);
+
 
 //-- helper
 
@@ -382,12 +385,10 @@ static void bt_main_statusbar_dispose(GObject *object) {
 
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_main_statusbar_parent_class)->dispose(object);
 }
 
-static void bt_main_statusbar_init(GTypeInstance *instance, gpointer g_class) {
-  BtMainStatusbar *self = BT_MAIN_STATUSBAR(instance);
-
+static void bt_main_statusbar_init(BtMainStatusbar *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_STATUSBAR, BtMainStatusbarPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -396,7 +397,6 @@ static void bt_main_statusbar_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainStatusbarPrivate));
 
   gobject_class->set_property = bt_main_statusbar_set_property;
@@ -410,22 +410,3 @@ static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
                                      G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_main_statusbar_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtMainStatusbarClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_main_statusbar_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtMainStatusbar),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_main_statusbar_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(GTK_TYPE_HBOX,"BtMainStatusbar",&info,0);
-  }
-  return type;
-}

@@ -63,13 +63,24 @@ struct _BtMainWindowPrivate {
   gchar *last_folder;
 };
 
-static GtkWindowClass *parent_class=NULL;
-
 enum { TARGET_URI_LIST };
 static GtkTargetEntry drop_types[] = {
    { "text/uri-list", 0, TARGET_URI_LIST }
 };
 static gint n_drop_types = sizeof(drop_types) / sizeof(GtkTargetEntry);
+
+//-- the class
+
+static void bt_main_window_child_proxy_init(gpointer const g_iface, gconstpointer const iface_data);
+
+#ifndef USE_HILDON
+G_DEFINE_TYPE_WITH_CODE (BtMainWindow, bt_main_window, GTK_TYPE_WINDOW,
+#else
+G_DEFINE_TYPE_WITH_CODE (BtMainWindow, bt_main_window, HILDON_TYPE_WINDOW,
+#endif
+  G_IMPLEMENT_INTERFACE (BT_TYPE_CHILD_PROXY,
+    bt_main_window_child_proxy_init));
+
 
 //-- helper methods
 
@@ -1031,7 +1042,7 @@ static guint bt_main_window_child_proxy_get_children_count(BtChildProxy *child_p
   return 3;
 }
 
-static void bt_main_window_child_proxy_init(gpointer g_iface,gpointer iface_data) {
+static void bt_main_window_child_proxy_init(gpointer const g_iface,gconstpointer const iface_data) {
   BtChildProxyInterface *iface=g_iface;
 
   iface->get_child_by_name=bt_main_window_child_proxy_get_child_by_name;
@@ -1077,7 +1088,7 @@ static void bt_main_window_dispose(GObject *object) {
   g_object_unref(self->priv->app);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_main_window_parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -1088,13 +1099,11 @@ static void bt_main_window_finalize(GObject *object) {
 
   g_free(self->priv->last_folder);
   
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_main_window_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
-static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
-  BtMainWindow *self = BT_MAIN_WINDOW(instance);
-
+static void bt_main_window_init(BtMainWindow *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_WINDOW, BtMainWindowPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -1103,7 +1112,6 @@ static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_window_class_init(BtMainWindowClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainWindowPrivate));
 
   gobject_class->get_property = bt_main_window_get_property;
@@ -1139,32 +1147,3 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_main_window_get_type(void) {
-  static GType type=0;
-  if(G_UNLIKELY(type==0)) {
-    const GTypeInfo info = {
-      sizeof(BtMainWindowClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_main_window_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtMainWindow),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_main_window_init, // instance_init
-      NULL // value_table
-    };
-    static const GInterfaceInfo iface_info = {
-      bt_main_window_child_proxy_init,
-      NULL,
-      NULL
-    };
-#ifndef USE_HILDON
-    type=g_type_register_static(GTK_TYPE_WINDOW,"BtMainWindow",&info,0);
-#else
-    type=g_type_register_static(HILDON_TYPE_WINDOW,"BtMainWindow",&info,0);
-#endif
-    g_type_add_interface_static(type,BT_TYPE_CHILD_PROXY,&iface_info);
-  }
-  return type;
-}

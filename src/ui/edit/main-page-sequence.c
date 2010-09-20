@@ -164,11 +164,14 @@ struct _BtMainPageSequencePrivate {
   GMutex        *lock;
 };
 
-static GtkVBoxClass *parent_class=NULL;
-
 static GQuark bus_msg_level_quark=0;
 
 static GdkAtom sequence_atom;
+
+//-- the class
+
+G_DEFINE_TYPE (BtMainPageSequence, bt_main_page_sequence, GTK_TYPE_VBOX);
+
 
 /* internal data model fields */
 enum {
@@ -3541,7 +3544,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   if(self->priv->clock) gst_object_unref(self->priv->clock);
 
   GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_main_page_sequence_parent_class)->dispose(object);
 }
 
 static void bt_main_page_sequence_finalize(GObject *object) {
@@ -3551,12 +3554,10 @@ static void bt_main_page_sequence_finalize(GObject *object) {
   g_mutex_free(self->priv->lock);
   g_hash_table_destroy(self->priv->level_to_vumeter);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_main_page_sequence_parent_class)->finalize(object);
 }
 
-static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class) {
-  BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(instance);
-
+static void bt_main_page_sequence_init(BtMainPageSequence *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequencePrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -3578,10 +3579,11 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
 
+  sequence_atom=gdk_atom_intern_static_string("application/buzztard::sequence");
+
   column_index_quark=g_quark_from_static_string("BtMainPageSequence::column-index");
   bus_msg_level_quark=g_quark_from_static_string("level");
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageSequencePrivate));
 
   gobject_class->get_property = bt_main_page_sequence_get_property;
@@ -3600,25 +3602,3 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_main_page_sequence_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtMainPageSequenceClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_main_page_sequence_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtMainPageSequence),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_main_page_sequence_init, // instance_init
-      NULL // value_table
-    };
-    
-    sequence_atom=gdk_atom_intern_static_string ("application/buzztard::sequence");
-    
-    type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPageSequence",&info,0);
-  }
-  return type;
-}
