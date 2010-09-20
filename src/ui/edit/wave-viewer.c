@@ -38,7 +38,9 @@ enum {
   WAVE_VIEWER_PLAYBACK_CURSOR
 };
 
-static GtkWidgetClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtWaveformViewer, bt_waveform_viewer, GTK_TYPE_WIDGET);
 
 
 static gboolean
@@ -141,15 +143,6 @@ bt_waveform_viewer_expose(GtkWidget *widget, GdkEventExpose *event)
   return TRUE;
 }
 
-/*
-static void
-bt_waveform_viewer_size_request(GtkWidget *widget,
-                           GtkRequisition *requisition)
-{
-    g_assert(BT_IS_WAVEFORM_VIEWER(widget));
-}
-*/
-
 static void
 bt_waveform_viewer_size_allocate(GtkWidget *widget,
                            GtkAllocation *allocation)
@@ -157,10 +150,9 @@ bt_waveform_viewer_size_allocate(GtkWidget *widget,
     g_assert(BT_IS_WAVEFORM_VIEWER(widget));
     g_return_if_fail (allocation != NULL);
     
-    GTK_WIDGET_CLASS (parent_class)->size_allocate (widget, allocation);
+    GTK_WIDGET_CLASS(bt_waveform_viewer_parent_class)->size_allocate(widget, allocation);
     
     widget->allocation = *allocation;
-    // printf("allocation %d x %d\n", allocation->width, allocation->height);
 }
 
 static void
@@ -168,9 +160,9 @@ bt_waveform_viewer_finalize(GObject * object)
 {
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER(object);
   
-  g_free (self->peaks);
+  g_free(self->peaks);
   
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_waveform_viewer_parent_class)->finalize(object);
 }
 
 static void
@@ -235,15 +227,12 @@ bt_waveform_viewer_set_property(GObject      *object,
 }
 
 static void
-bt_waveform_viewer_class_init(BtWaveformViewer *klass)
+bt_waveform_viewer_class_init(BtWaveformViewerClass *klass)
 {
   GObjectClass * gobject_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
-
   widget_class->expose_event = bt_waveform_viewer_expose;
-  //widget_class->size_request = bt_waveform_viewer_size_request;
   widget_class->size_allocate = bt_waveform_viewer_size_allocate;
   
   gobject_class->set_property = bt_waveform_viewer_set_property;
@@ -370,30 +359,5 @@ GtkWidget *
 bt_waveform_viewer_new()
 {
   return GTK_WIDGET( g_object_new (BT_TYPE_WAVEFORM_VIEWER, NULL ));
-}
-
-GType
-bt_waveform_viewer_get_type(void)
-{
-  static GType type = 0;
-  if (!type) {
-    static const GTypeInfo type_info = {
-      sizeof(BtWaveformViewerClass),
-      NULL, /* base_init */
-      NULL, /* base_finalize */
-      (GClassInitFunc)bt_waveform_viewer_class_init,
-      NULL, /* class_finalize */
-      NULL, /* class_data */
-      sizeof(BtWaveformViewer),
-      0,    /* n_preallocs */
-      (GInstanceInitFunc)bt_waveform_viewer_init
-    };
-
-    type = g_type_register_static( GTK_TYPE_WIDGET,
-                                   "BtWaveformViewer",
-                                   &type_info,
-                                   (GTypeFlags)0);
-  }
-  return type;
 }
 

@@ -65,7 +65,10 @@ struct _BtMissingFrameworkElementsDialogPrivate {
   GtkWidget *ignore_button;
 };
 
-static GtkDialogClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtMissingFrameworkElementsDialog, bt_missing_framework_elements_dialog, GTK_TYPE_DIALOG);
+
 
 //-- event handler
 
@@ -313,12 +316,10 @@ static void bt_missing_framework_elements_dialog_dispose(GObject *object) {
 
   g_object_unref(self->priv->app);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_missing_framework_elements_dialog_parent_class)->dispose(object);
 }
 
-static void bt_missing_framework_elements_dialog_init(GTypeInstance *instance, gpointer g_class) {
-  BtMissingFrameworkElementsDialog *self = BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(instance);
-
+static void bt_missing_framework_elements_dialog_init(BtMissingFrameworkElementsDialog *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG, BtMissingFrameworkElementsDialogPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
@@ -327,7 +328,6 @@ static void bt_missing_framework_elements_dialog_init(GTypeInstance *instance, g
 static void bt_missing_framework_elements_dialog_class_init(BtMissingFrameworkElementsDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMissingFrameworkElementsDialogPrivate));
 
   gobject_class->set_property = bt_missing_framework_elements_dialog_set_property;
@@ -346,21 +346,3 @@ static void bt_missing_framework_elements_dialog_class_init(BtMissingFrameworkEl
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
-GType bt_missing_framework_elements_dialog_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof (BtMissingFrameworkElementsDialogClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_missing_framework_elements_dialog_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof (BtMissingFrameworkElementsDialog),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_missing_framework_elements_dialog_init, // instance_init
-    };
-    type = g_type_register_static(GTK_TYPE_DIALOG,"BtMissingFrameworkElementsDialog",&info,0);
-  }
-  return type;
-}

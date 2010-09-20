@@ -128,10 +128,13 @@ struct _BtWireAnalysisDialogPrivate {
   // DEBUG
 };
 
-static GtkDialogClass *parent_class=NULL;
-
 static GQuark bus_msg_level_quark=0;
 static GQuark bus_msg_spectrum_quark=0;
+
+//-- the class
+
+G_DEFINE_TYPE (BtWireAnalysisDialog, bt_wire_analysis_dialog, GTK_TYPE_WINDOW);
+
 
 //-- event handler helper
 
@@ -872,7 +875,7 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
 
   GST_DEBUG("!!!! done");
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_wire_analysis_dialog_parent_class)->dispose(object);
 }
 
 static void bt_wire_analysis_dialog_finalize(GObject *object) {
@@ -887,11 +890,10 @@ static void bt_wire_analysis_dialog_finalize(GObject *object) {
 
   GST_DEBUG("!!!! done");
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_wire_analysis_dialog_parent_class)->finalize(object);
 }
 
-static void bt_wire_analysis_dialog_init(GTypeInstance *instance, gpointer g_class) {
-  BtWireAnalysisDialog *self = BT_WIRE_ANALYSIS_DIALOG(instance);
+static void bt_wire_analysis_dialog_init(BtWireAnalysisDialog *self) {
   gdouble *grid_log10;
   guint i;
   gdouble f,inc,end;
@@ -932,7 +934,6 @@ static void bt_wire_analysis_dialog_class_init(BtWireAnalysisDialogClass *klass)
   bus_msg_level_quark=g_quark_from_static_string("level");
   bus_msg_spectrum_quark=g_quark_from_static_string("spectrum");
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWireAnalysisDialogPrivate));
 
   gobject_class->set_property = bt_wire_analysis_dialog_set_property;
@@ -948,21 +949,3 @@ static void bt_wire_analysis_dialog_class_init(BtWireAnalysisDialogClass *klass)
 
 }
 
-GType bt_wire_analysis_dialog_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof (BtWireAnalysisDialogClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_wire_analysis_dialog_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof (BtWireAnalysisDialog),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_wire_analysis_dialog_init, // instance_init
-    };
-    type = g_type_register_static(GTK_TYPE_WINDOW,"BtWireAnalysisDialog",&info,0);
-  }
-  return type;
-}

@@ -66,7 +66,9 @@ enum {
   PATTERN_EDITOR_CURSOR_ROW
 };
 
-static GtkWidgetClass *parent_class=NULL;
+//-- the class
+
+G_DEFINE_TYPE (BtPatternEditor, bt_pattern_editor, GTK_TYPE_WIDGET);
 
 struct ParamType
 {
@@ -738,7 +740,7 @@ bt_pattern_editor_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
   g_return_if_fail (allocation != NULL);
   
-  GTK_WIDGET_CLASS(parent_class)->size_allocate(widget,allocation);
+  GTK_WIDGET_CLASS(bt_pattern_editor_parent_class)->size_allocate(widget,allocation);
   
   widget->allocation = *allocation;
   GST_INFO("size_allocate: %d,%d %d,%d",allocation->x, allocation->y,
@@ -1265,16 +1267,14 @@ bt_pattern_editor_dispose(GObject *object) {
     self->vadj = NULL;
   }
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_pattern_editor_parent_class)->dispose(object);
 }
 
 static void
-bt_pattern_editor_class_init (BtPatternEditorClass *klass)
+bt_pattern_editor_class_init(BtPatternEditorClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-
-  parent_class=g_type_class_peek_parent(klass);
 
   gobject_class->set_property = bt_pattern_editor_set_property;
   gobject_class->get_property = bt_pattern_editor_get_property;
@@ -1348,7 +1348,7 @@ bt_pattern_editor_class_init (BtPatternEditorClass *klass)
 }
 
 static void
-bt_pattern_editor_init (BtPatternEditor *self)
+bt_pattern_editor_init(BtPatternEditor *self)
 {
   self->row = self->parameter = self->digit = 0;
   self->group = 0;
@@ -1379,7 +1379,7 @@ bt_pattern_editor_init (BtPatternEditor *self)
  * Set pattern data to show in the widget.
  */
 void
-bt_pattern_editor_set_pattern (BtPatternEditor *self, gpointer pattern_data,
+bt_pattern_editor_set_pattern(BtPatternEditor *self, gpointer pattern_data,
     guint num_rows, guint num_groups,
     BtPatternEditorColumnGroup *groups,
     BtPatternEditorCallbacks *cb)
@@ -1414,7 +1414,7 @@ bt_pattern_editor_set_pattern (BtPatternEditor *self, gpointer pattern_data,
  *
  * Returns: %TRUE if there was a selection.
  */
-gboolean bt_pattern_editor_get_selection (BtPatternEditor *self,
+gboolean bt_pattern_editor_get_selection(BtPatternEditor *self,
                                           gint *start, gint *end,
                                           gint *group, gint *param)
 {
@@ -1425,30 +1425,5 @@ gboolean bt_pattern_editor_get_selection (BtPatternEditor *self,
   *group = self->selection_mode == PESM_ALL ? -1 : self->selection_group;
   *param = self->selection_mode != PESM_COLUMN ? -1 : self->selection_param;
   return TRUE;
-}
-
-GType
-bt_pattern_editor_get_type (void)
-{
-  static GType type = 0;
-  if (!type) {
-    static const GTypeInfo type_info = {
-      sizeof(BtPatternEditorClass),
-      NULL, /* base_init */
-      NULL, /* base_finalize */
-      (GClassInitFunc)bt_pattern_editor_class_init,
-      NULL, /* class_finalize */
-      NULL, /* class_data */
-      sizeof(BtPatternEditor),
-      0,    /* n_preallocs */
-      (GInstanceInitFunc)bt_pattern_editor_init
-    };
-    
-    type = g_type_register_static(GTK_TYPE_WIDGET,
-                                  "BtPatternEditor",
-                                  &type_info,
-                                  0);
-  }
-  return type;
 }
 

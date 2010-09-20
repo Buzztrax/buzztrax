@@ -1,5 +1,17 @@
 2010-09-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/ui-resources.c:
+	* src/ui/edit/volume-popup.c:
+	* src/ui/edit/wave-viewer.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  More use of G_DEFINE_TYPE in ui.
+
+2010-09-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/interaction-controller-learn-dialog.c:
 	* src/ui/edit/interaction-controller-menu.c:
 	* src/ui/edit/machine-canvas-item.c:

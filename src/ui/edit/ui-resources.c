@@ -56,9 +56,11 @@ struct _BtUIResourcesPrivate {
   GdkPixbuf *sink_machine_pixbufs[BT_MACHINE_STATE_COUNT];
 };
 
-static GObjectClass *parent_class=NULL;
-
 static BtUIResources *singleton=NULL;
+
+//-- the class
+
+G_DEFINE_TYPE (BtUIResources, bt_ui_resources, G_TYPE_OBJECT);
 
 //-- event handler
 
@@ -491,7 +493,7 @@ static void bt_ui_resources_dispose(GObject *object) {
   
   g_object_try_unref(self->priv->accel_group);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_ui_resources_parent_class)->dispose(object);
 }
 
 static void bt_ui_resources_finalize(GObject *object) {
@@ -499,7 +501,7 @@ static void bt_ui_resources_finalize(GObject *object) {
   
   GST_DEBUG("!!!! self=%p",self);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_ui_resources_parent_class)->finalize(object);
   singleton=NULL;
 }
 
@@ -507,7 +509,7 @@ static GObject *bt_ui_resources_constructor(GType type,guint n_construct_params,
   GObject *object;
 
   if(G_UNLIKELY(!singleton)) {
-    object=G_OBJECT_CLASS(parent_class)->constructor(type,n_construct_params,construct_params);
+    object=G_OBJECT_CLASS(bt_ui_resources_parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BT_UI_RESOURCES(object);
 
     // initialise ressources
@@ -521,16 +523,13 @@ static GObject *bt_ui_resources_constructor(GType type,guint n_construct_params,
   return object;
 }
 
-static void bt_ui_resources_init(GTypeInstance *instance, gpointer g_class) {
-  BtUIResources *self = BT_UI_RESOURCES(instance);
-  
+static void bt_ui_resources_init(BtUIResources *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_UI_RESOURCES, BtUIResourcesPrivate);
 }
 
 static void bt_ui_resources_class_init(BtUIResourcesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtUIResourcesPrivate));
 
   gobject_class->constructor  = bt_ui_resources_constructor;
@@ -538,22 +537,3 @@ static void bt_ui_resources_class_init(BtUIResourcesClass *klass) {
   gobject_class->finalize     = bt_ui_resources_finalize;
 }
 
-GType bt_ui_resources_get_type(void) {
-  static GType type = 0;
-  if (G_UNLIKELY(type == 0)) {
-    const GTypeInfo info = {
-      sizeof(BtUIResourcesClass),
-      NULL, // base_init
-      NULL, // base_finalize
-      (GClassInitFunc)bt_ui_resources_class_init, // class_init
-      NULL, // class_finalize
-      NULL, // class_data
-      sizeof(BtUIResources),
-      0,   // n_preallocs
-      (GInstanceInitFunc)bt_ui_resources_init, // instance_init
-      NULL // value_table
-    };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtUIResources",&info,0);
-  }
-  return type;
-}

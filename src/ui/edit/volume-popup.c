@@ -32,7 +32,10 @@
 
 #include "bt-edit.h"
 
-static GtkWindowClass *parent_class = NULL;
+
+//-- the class
+
+G_DEFINE_TYPE (BtVolumePopup, bt_volume_popup, GTK_TYPE_WINDOW);
 
 //-- event handler
 
@@ -50,7 +53,7 @@ cb_scale_changed(GtkRange *range, gpointer  user_data)
  * hide popup when clicking outside
  */
 static gboolean
-cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
+cb_dock_press(GtkWidget * widget, GdkEventButton * event, gpointer data)
 {
   BtVolumePopup *self = BT_VOLUME_POPUP(data);
 
@@ -209,22 +212,18 @@ bt_volume_popup_dispose(GObject *object)
 {
   BtVolumePopup *popup = BT_VOLUME_POPUP(object);
 
-  //bt_volume_popup_change (popup, NULL);
-
   if (popup->timeout) {
     g_source_remove(popup->timeout);
     popup->timeout = 0;
   }
 
-  G_OBJECT_CLASS(parent_class)->dispose (object);
+  G_OBJECT_CLASS(bt_volume_popup_parent_class)->dispose (object);
 }
 
 static void
 bt_volume_popup_class_init(BtVolumePopupClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-
-  parent_class = g_type_class_peek_parent(klass);
 
   gobject_class->dispose = bt_volume_popup_dispose;
 }
@@ -235,25 +234,3 @@ bt_volume_popup_init(BtVolumePopup *popup)
   popup->timeout = 0;
 }
 
-GType
-bt_volume_popup_get_type(void)
-{
-  static GType type = 0;
-
-  if (!type) {
-    const GTypeInfo info = {
-      sizeof (BtVolumePopupClass),
-      NULL,
-      NULL,
-      (GClassInitFunc) bt_volume_popup_class_init,
-      NULL,
-      NULL,
-      sizeof (BtVolumePopup),
-      0,
-      (GInstanceInitFunc) bt_volume_popup_init,
-      NULL
-    };
-    type = g_type_register_static(GTK_TYPE_WINDOW, "BtVolumePopup", &info, 0);
-  }
-  return type;
-}
