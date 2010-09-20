@@ -1,5 +1,10 @@
 2010-09-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Fix assertion in focus() vmethod impl.
+
+2010-09-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/missing-framework-elements-dialog.c:
 	* src/ui/edit/missing-song-elements-dialog.c:
 	* src/ui/edit/panorama-popup.c:

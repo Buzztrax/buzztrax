@@ -3469,6 +3469,9 @@ void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self) {
 static gboolean bt_main_page_sequence_focus(GtkWidget *widget, GtkDirectionType direction) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(widget);
   
+  if(!self->priv->main_window)
+    grab_main_window(self);
+
   GST_DEBUG("focusing default widget");
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
 
