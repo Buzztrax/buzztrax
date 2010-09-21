@@ -96,9 +96,9 @@ EXTRA_DIST += \
 
 # Comment this out if you want your docs-status tested during 'make check'
 if ENABLE_GTK_DOC
-TESTS_ENVIRONMENT = \
+TESTS_ENVIRONMENT = cd $(srcdir) && \
 	DOC_MODULE=$(DOC_MODULE) DOC_MAIN_SGML_FILE=$(DOC_MAIN_SGML_FILE) \
-	cd $(srcdir) &&
+	SRCDIR=$(abs_srcdir) BUILDDIR=$(abs_builddir)
 TESTS = $(GTKDOC_CHECK)
 endif
 

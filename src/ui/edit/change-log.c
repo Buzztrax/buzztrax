@@ -530,7 +530,6 @@ static void bt_change_log_finalize(GObject *object) {
   g_free(self->priv->cache_dir);
 
   G_OBJECT_CLASS(bt_change_log_parent_class)->finalize(object);
-  singleton=NULL;
 }
 
 static GObject *bt_change_log_constructor(GType type,guint n_construct_params,GObjectConstructParam *construct_params) {
@@ -539,6 +538,7 @@ static GObject *bt_change_log_constructor(GType type,guint n_construct_params,GO
   if(G_UNLIKELY(!singleton)) {
     object=G_OBJECT_CLASS(bt_change_log_parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BT_CHANGE_LOG(object);
+    g_object_add_weak_pointer(object,(gpointer*)(gpointer)&singleton);
   }
   else {
     object=g_object_ref(singleton);

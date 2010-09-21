@@ -316,16 +316,14 @@ BtUIResources *bt_ui_resources_new(void) {
  * Returns: a #GdkPixbuf image
  */
 GdkPixbuf *bt_ui_resources_get_icon_pixbuf_by_machine(const BtMachine *machine) {
-  BtUIResources *ui_resources=BT_UI_RESOURCES(singleton);
-
   if(BT_IS_SOURCE_MACHINE(machine)) {
-    return(g_object_ref(ui_resources->priv->source_machine_pixbuf));
+    return(g_object_ref(singleton->priv->source_machine_pixbuf));
   }
   else if(BT_IS_PROCESSOR_MACHINE(machine)) {
-    return(g_object_ref(ui_resources->priv->processor_machine_pixbuf));
+    return(g_object_ref(singleton->priv->processor_machine_pixbuf));
   }
   else if(BT_IS_SINK_MACHINE(machine)) {
-    return(g_object_ref(ui_resources->priv->sink_machine_pixbuf));
+    return(g_object_ref(singleton->priv->sink_machine_pixbuf));
   }
   return(NULL);
 }
@@ -341,26 +339,25 @@ GdkPixbuf *bt_ui_resources_get_icon_pixbuf_by_machine(const BtMachine *machine) 
  * Returns: a #GdkPixbuf image
  */
 GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine, gdouble zoom) {
-  BtUIResources *ui_resources=BT_UI_RESOURCES(singleton);
   BtMachineState state;
   
-  if(zoom!=ui_resources->priv->zoom) {
-    GST_DEBUG("change zoom %f -> %f",ui_resources->priv->zoom,zoom);
-    bt_ui_resources_free_graphics(ui_resources);
-    ui_resources->priv->zoom=zoom;
-    bt_ui_resources_init_graphics(ui_resources);
+  if(zoom!=singleton->priv->zoom) {
+    GST_DEBUG("change zoom %f -> %f",singleton->priv->zoom,zoom);
+    bt_ui_resources_free_graphics(singleton);
+    singleton->priv->zoom=zoom;
+    bt_ui_resources_init_graphics(singleton);
   }
   
   g_object_get((gpointer)machine,"state",&state,NULL);
 
   if(BT_IS_SOURCE_MACHINE(machine)) {
-    return(g_object_ref(ui_resources->priv->source_machine_pixbufs[state]));
+    return(g_object_ref(singleton->priv->source_machine_pixbufs[state]));
   }
   else if(BT_IS_PROCESSOR_MACHINE(machine)) {
-    return(g_object_ref(ui_resources->priv->processor_machine_pixbufs[state]));
+    return(g_object_ref(singleton->priv->processor_machine_pixbufs[state]));
   }
   else if(BT_IS_SINK_MACHINE(machine)) {
-    return(g_object_ref(ui_resources->priv->sink_machine_pixbufs[state]));
+    return(g_object_ref(singleton->priv->sink_machine_pixbufs[state]));
   }
   return(NULL);
 }
@@ -374,16 +371,14 @@ GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachin
  * Returns: a #GtkImage widget
  */
 GtkWidget *bt_ui_resources_get_icon_image_by_machine(const BtMachine *machine) {
-  BtUIResources *ui_resources=BT_UI_RESOURCES(singleton);
-
   if(BT_IS_SOURCE_MACHINE(machine)) {
-    return(gtk_image_new_from_pixbuf(ui_resources->priv->source_machine_pixbuf));
+    return(gtk_image_new_from_pixbuf(singleton->priv->source_machine_pixbuf));
   }
   else if(BT_IS_PROCESSOR_MACHINE(machine)) {
-    return(gtk_image_new_from_pixbuf(ui_resources->priv->processor_machine_pixbuf));
+    return(gtk_image_new_from_pixbuf(singleton->priv->processor_machine_pixbuf));
   }
   else if(BT_IS_SINK_MACHINE(machine)) {
-    return(gtk_image_new_from_pixbuf(ui_resources->priv->sink_machine_pixbuf));
+    return(gtk_image_new_from_pixbuf(singleton->priv->sink_machine_pixbuf));
   }
   return(NULL);
 }
@@ -397,16 +392,14 @@ GtkWidget *bt_ui_resources_get_icon_image_by_machine(const BtMachine *machine) {
  * Returns: a #GtkImage widget
  */
 GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type) {
-  BtUIResources *ui_resources=BT_UI_RESOURCES(singleton);
-
   if(machine_type==BT_TYPE_SOURCE_MACHINE) {
-    return(gtk_image_new_from_pixbuf(ui_resources->priv->source_machine_pixbuf));
+    return(gtk_image_new_from_pixbuf(singleton->priv->source_machine_pixbuf));
   }
   else if(machine_type==BT_TYPE_PROCESSOR_MACHINE) {
-    return(gtk_image_new_from_pixbuf(ui_resources->priv->processor_machine_pixbuf));
+    return(gtk_image_new_from_pixbuf(singleton->priv->processor_machine_pixbuf));
   }
   else if(machine_type==BT_TYPE_SINK_MACHINE) {
-    return(gtk_image_new_from_pixbuf(ui_resources->priv->sink_machine_pixbuf));
+    return(gtk_image_new_from_pixbuf(singleton->priv->sink_machine_pixbuf));
   }
   return(NULL);
 }
@@ -420,8 +413,7 @@ GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type) {
  * Returns: the requested #GdkColor.
  */
 GdkColor *bt_ui_resources_get_gdk_color(BtUIResourcesColors color_type) {
-  BtUIResources *ui_resources=BT_UI_RESOURCES(singleton);
-  return(&ui_resources->priv->colors[color_type]);
+  return(&singleton->priv->colors[color_type]);
 }
 
 /**
@@ -434,7 +426,6 @@ GdkColor *bt_ui_resources_get_gdk_color(BtUIResourcesColors color_type) {
  * Returns: a color depending on machine class and color_type
  */
 guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine,BtUIResourcesMachineColors color_type) {
-  BtUIResources *ui_resources=BT_UI_RESOURCES(singleton);
   gulong ix=0;
   guint32 color=0;
   
@@ -447,9 +438,9 @@ guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine,BtUIResour
   else if(BT_IS_SINK_MACHINE(machine)) {
     ix=BT_UI_RES_COLOR_SINK_MACHINE_BASE+color_type;
   }
-  color=(((guint32)(ui_resources->priv->colors[ix].red&0xFF00))<<16)|
-    (((guint32)(ui_resources->priv->colors[ix].green&0xFF00))<<8)|
-    ((guint32)(ui_resources->priv->colors[ix].blue&0xFF00))|
+  color=(((guint32)(singleton->priv->colors[ix].red&0xFF00))<<16)|
+    (((guint32)(singleton->priv->colors[ix].green&0xFF00))<<8)|
+    ((guint32)(singleton->priv->colors[ix].blue&0xFF00))|
     0x000000FF;
   //GST_INFO("color[%2d/%1d] : 0x%08lx : %04x,%04x,%04x",ix,color_type,color,
   //  ui_resources->priv->colors[ix].red,ui_resources->priv->colors[ix].green,ui_resources->priv->colors[ix].blue);
@@ -464,9 +455,7 @@ guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine,BtUIResour
  * Returns: the shared keyboard accelerator map
  */
 GtkAccelGroup *bt_ui_resources_get_accel_group(void) {
-  BtUIResources *ui_resources=BT_UI_RESOURCES(singleton);
-  
-  return(ui_resources->priv->accel_group);
+  return(singleton->priv->accel_group);
 }
 
 //-- wrapper
@@ -496,21 +485,13 @@ static void bt_ui_resources_dispose(GObject *object) {
   G_OBJECT_CLASS(bt_ui_resources_parent_class)->dispose(object);
 }
 
-static void bt_ui_resources_finalize(GObject *object) {
-  BtUIResources *self = BT_UI_RESOURCES(object);
-  
-  GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(bt_ui_resources_parent_class)->finalize(object);
-  singleton=NULL;
-}
-
 static GObject *bt_ui_resources_constructor(GType type,guint n_construct_params,GObjectConstructParam *construct_params) {
   GObject *object;
 
   if(G_UNLIKELY(!singleton)) {
     object=G_OBJECT_CLASS(bt_ui_resources_parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BT_UI_RESOURCES(object);
+    g_object_add_weak_pointer(object,(gpointer*)(gpointer)&singleton);
 
     // initialise ressources
     bt_ui_resources_init_colors(singleton);
@@ -534,6 +515,5 @@ static void bt_ui_resources_class_init(BtUIResourcesClass *klass) {
 
   gobject_class->constructor  = bt_ui_resources_constructor;
   gobject_class->dispose      = bt_ui_resources_dispose;
-  gobject_class->finalize     = bt_ui_resources_finalize;
 }
 

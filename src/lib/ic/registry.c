@@ -458,7 +458,6 @@ static void btic_registry_finalize(GObject * const object) {
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(btic_registry_parent_class)->finalize(object);
   GST_DEBUG("  done");
-  singleton=NULL;
 }
 
 static GObject *btic_registry_constructor(GType type,guint n_construct_params,GObjectConstructParam *construct_params) {
@@ -467,6 +466,7 @@ static GObject *btic_registry_constructor(GType type,guint n_construct_params,GO
   if(G_UNLIKELY(!singleton)) {
     object=G_OBJECT_CLASS(btic_registry_parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BTIC_REGISTRY(object);
+    g_object_add_weak_pointer(object,(gpointer*)(gpointer)&singleton);
     
     GST_INFO("new device registry created");
 #if USE_GUDEV

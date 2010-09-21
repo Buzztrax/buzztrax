@@ -41,7 +41,7 @@
 #include <gst/audio/multichannel.h>
 
 static BtSettingsFactory bt_settings_factory=NULL;
-static gpointer singleton=NULL;
+static BtSettings *singleton=NULL;
 
 //-- the class
 
@@ -66,9 +66,9 @@ BtSettings *bt_settings_make(void) {
     GST_INFO("create a new settings object");
     if(G_LIKELY(!bt_settings_factory)) {
 #ifdef USE_GCONF
-      singleton=(gpointer)bt_gconf_settings_new();
+      singleton=(BtSettings *)bt_gconf_settings_new();
 #else
-      singleton=(gpointer)bt_plainfile_settings_new();
+      singleton=(BtSettings *)bt_plainfile_settings_new();
 #endif
       GST_INFO("settings created %p",singleton);
     }
@@ -76,7 +76,7 @@ BtSettings *bt_settings_make(void) {
       singleton=bt_settings_factory();
       GST_INFO("created new settings object from factory %p",singleton);
     }
-    g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
+    g_object_add_weak_pointer((GObject *)singleton,(gpointer*)(gpointer)&singleton);
   }
   else {
     GST_INFO("return cached settings object %p (refct=%d)",singleton,G_OBJECT_REF_COUNT(singleton),g_thread_self());

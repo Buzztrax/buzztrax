@@ -721,6 +721,7 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
   if(G_UNLIKELY(!singleton)) {
     object=G_OBJECT_CLASS(bt_edit_application_parent_class)->constructor(type,n_construct_params,construct_params);
     singleton=BT_EDIT_APPLICATION(object);
+    g_object_add_weak_pointer(object,(gpointer*)(gpointer)&singleton);
 
     //GST_DEBUG("<<<");
     GST_INFO("new edit app instantiated");
@@ -791,16 +792,6 @@ static void bt_edit_application_dispose(GObject *object) {
   GST_DEBUG("  done");
 }
 
-static void bt_edit_application_finalize(GObject *object) {
-  //BtEditApplication *self = BT_EDIT_APPLICATION(object);
-
-  //GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(bt_edit_application_parent_class)->finalize(object);
-  GST_DEBUG("  done");
-  singleton=NULL;
-}
-
 static void bt_edit_application_init(BtEditApplication *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_EDIT_APPLICATION, BtEditApplicationPrivate);
 }
@@ -814,7 +805,6 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   gobject_class->set_property = bt_edit_application_set_property;
   gobject_class->get_property = bt_edit_application_get_property;
   gobject_class->dispose      = bt_edit_application_dispose;
-  gobject_class->finalize     = bt_edit_application_finalize;
 
   klass->song_changed = NULL;
 
