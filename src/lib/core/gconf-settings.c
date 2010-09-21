@@ -345,20 +345,39 @@ static void bt_gconf_settings_dispose(GObject * const object) {
   
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
 
-  // unregister directories to watch
-  gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,NULL);
-  gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,NULL);
-  gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,NULL);
-  // disconnect notifies
-  gconf_client_notify_remove(self->priv->client,self->priv->gnome_toolbar_style_notify);
+  if(self->priv->client) {
+    GError *error=NULL;
 
-  // shutdown gconf client
-  if(self->priv->dirty) {
-    GST_DEBUG("syncing gconf settings");
-    // only do this if we have written something
-    gconf_client_suggest_sync(self->priv->client,NULL);
+    GST_DEBUG("!!!! client=%p, client->ref_ct=%d",self->priv->client,G_OBJECT_REF_COUNT(self->priv->client));
+    // unregister directories to watch
+    gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,&error);
+    if(error) {
+      GST_WARNING("can't disconnect dir %s: %s",BT_GCONF_PATH_GSTREAMER,error->message);
+      g_error_free(error);error=NULL;
+    }
+    gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,&error);
+    if(error) {
+      GST_WARNING("can't disconnect dir %s: %s",BT_GCONF_PATH_GNOME,error->message);
+      g_error_free(error);error=NULL;
+    }
+    gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,&error);
+    if(error) {
+      GST_WARNING("can't disconnect dir %s: %s",BT_GCONF_PATH_BUZZTARD,error->message);
+      g_error_free(error);error=NULL;
+    }
+    GST_DEBUG("dirs unwatched");
+    // disconnect notifies
+    gconf_client_notify_remove(self->priv->client,self->priv->gnome_toolbar_style_notify);
+    GST_DEBUG("notifies disconnected");
+  
+    // shutdown gconf client
+    if(self->priv->dirty) {
+      GST_DEBUG("syncing gconf settings");
+      // only do this if we have written something
+      gconf_client_suggest_sync(self->priv->client,NULL);
+    }
+    g_object_unref(self->priv->client);
   }
-  g_object_unref(self->priv->client);
 
   GST_DEBUG("!!!! self=%p",self);
   G_OBJECT_CLASS(bt_gconf_settings_parent_class)->dispose(object);
@@ -373,24 +392,41 @@ static void bt_gconf_settings_init(BtGConfSettings * self) {
   GST_DEBUG("!!!! self=%p",self);
 
   self->priv->client=gconf_client_get_default();
-  gconf_client_set_error_handling(self->priv->client,GCONF_CLIENT_HANDLE_UNRETURNED);
-  // register the config cache
-  GST_DEBUG("listening to settings");
-  gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
-  gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
-  gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);
-  
-  GST_DEBUG("about to register gconf notify handler");
-  // register notify handlers for some properties
-  self->priv->gnome_toolbar_style_notify=gconf_client_notify_add(self->priv->client,
-         BT_GCONF_PATH_GNOME"/toolbar_style",
-         bt_gconf_settings_notify_toolbar_style,
-         (gpointer)self, NULL, &error);
-  if(error) {
-    GST_WARNING("can't listen to notifies on %s: %s",BT_GCONF_PATH_GNOME"/toolbar_style",error->message);
-    g_error_free(error);
+  if(self->priv->client) {
+    gconf_client_set_error_handling(self->priv->client,GCONF_CLIENT_HANDLE_UNRETURNED);
+    // register the config cache
+    GST_DEBUG("listening to settings");
+    gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_ONELEVEL,&error);
+    if(error) {
+      GST_WARNING("can't connect to dir %s: %s",BT_GCONF_PATH_GSTREAMER,error->message);
+      g_error_free(error);error=NULL;
+    }
+    gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_ONELEVEL,&error);
+    if(error) {
+      GST_WARNING("can't connect to dir %s: %s",BT_GCONF_PATH_GNOME,error->message);
+      g_error_free(error);error=NULL;
+    }
+    gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,&error);
+    if(error) {
+      GST_WARNING("can't connect to dir %s: %s",BT_GCONF_PATH_BUZZTARD,error->message);
+      g_error_free(error);error=NULL;
+    }
+    
+    GST_DEBUG("about to register gconf notify handler");
+    // register notify handlers for some properties
+    self->priv->gnome_toolbar_style_notify=gconf_client_notify_add(self->priv->client,
+           BT_GCONF_PATH_GNOME"/toolbar_style",
+           bt_gconf_settings_notify_toolbar_style,
+           (gpointer)self, NULL, &error);
+    if(error) {
+      GST_WARNING("can't listen to notifies on %s: %s",BT_GCONF_PATH_GNOME"/toolbar_style",error->message);
+      g_error_free(error);error=NULL;
+    }
+    /* @todo: also listen to BT_GCONF_PATH_GSTREAMER"/audiosink" */
   }
-  /* @todo: also listen to BT_GCONF_PATH_GSTREAMER"/audiosink" */
+  else {
+    GST_WARNING("can't get default gconf client");
+  }
 }
 
 static void bt_gconf_settings_class_init(BtGConfSettingsClass * const klass) {

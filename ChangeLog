@@ -1,3 +1,14 @@
+2010-09-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/settings/gconftest.c:
+	* design/settings/gconftest.c (svn:keywords, svn:eol-style):
+	* design/settings (added):
+	* design/settings/gconftest.c (added):
+	  Add a simple gconf test.
+
+	* src/lib/core/gconf-settings.c:
+	  Handle more errors and add more logging.
+
 2010-09-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gobject/gobjectlife.c:
