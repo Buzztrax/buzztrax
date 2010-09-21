@@ -1,3 +1,15 @@
+2010-09-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	  Remove some more shave leftovers.
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  Fix distcheck for generated pc file.
+
+	* src/lib/core/gconf-settings.c:
+	  Also disconnect the signal watch.
+
 2010-09-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/settings-dialog.c:

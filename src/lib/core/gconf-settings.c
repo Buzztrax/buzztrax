@@ -42,6 +42,8 @@ struct _BtGConfSettingsPrivate {
   
   /* flags if there was a write */
   gboolean dirty;
+  
+  guint gnome_toolbar_style_notify;
 };
 
 #define BT_GCONF_PATH_GSTREAMER "/system/gstreamer/default"
@@ -347,6 +349,8 @@ static void bt_gconf_settings_dispose(GObject * const object) {
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,NULL);
+  // disconnect notifies
+  gconf_client_notify_remove(self->priv->client,self->priv->gnome_toolbar_style_notify);
   // shutdown gconf client
   if(self->priv->dirty) {
     // only do this if we have written something
@@ -376,7 +380,7 @@ static void bt_gconf_settings_init(BtGConfSettings * self) {
   
   GST_DEBUG("about to register gconf notify handler");
   // register notify handlers for some properties
-  gconf_client_notify_add(self->priv->client,
+  self->priv->gnome_toolbar_style_notify=gconf_client_notify_add(self->priv->client,
          BT_GCONF_PATH_GNOME"/toolbar_style",
          bt_gconf_settings_notify_toolbar_style,
          (gpointer)self, NULL, &error);
