@@ -113,20 +113,20 @@ static void read_uint_def(const BtGConfSettings * const self, const gchar *path,
 static void read_string(const BtGConfSettings * const self, const gchar *path, GValue * const value) {
   gchar * const prop=gconf_client_get_string(self->priv->client,path,NULL);
   GST_DEBUG("application reads '%s' : '%s'",path,prop);
-  g_value_set_string(value,prop);
-  g_free(prop);
+  g_value_take_string(value,prop);
 }
 
 static void read_string_def(const BtGConfSettings * const self, const gchar *path, GValue * const value, GParamSpecString * const pspec) {
   gchar * const prop=gconf_client_get_string(self->priv->client,path,NULL);
   if(prop) {
     GST_DEBUG("application reads '%s' : '%s'",path,prop);
-    g_value_set_string(value,prop);
-    g_free(prop);
+    g_value_take_string(value,prop);
+    //g_value_set_string(value,prop);
+    //g_free(prop);
   }
   else {
     GST_DEBUG("application reads [def] '%s' : '%s'",path,pspec->default_value);
-    g_value_set_string(value,pspec->default_value);
+    g_value_set_static_string(value,pspec->default_value);
   }
 }
 
@@ -351,8 +351,10 @@ static void bt_gconf_settings_dispose(GObject * const object) {
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,NULL);
   // disconnect notifies
   gconf_client_notify_remove(self->priv->client,self->priv->gnome_toolbar_style_notify);
+
   // shutdown gconf client
   if(self->priv->dirty) {
+    GST_DEBUG("syncing gconf settings");
     // only do this if we have written something
     gconf_client_suggest_sync(self->priv->client,NULL);
   }

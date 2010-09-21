@@ -1,5 +1,12 @@
 2010-09-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/plainfile-settings.c:
+	* tests/bt-test-settings.c:
+	  Small string gvalue optimization.
+
+2010-09-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-core/Makefile.am:
 	* docs/reference/bt-edit/Makefile.am:

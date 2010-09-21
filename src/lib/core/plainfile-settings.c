@@ -83,10 +83,10 @@ static void bt_plainfile_settings_get_property(GObject * const object, const gui
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK:
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
-      g_value_set_string(value, "esdsink");
+      g_value_set_static_string(value, "autoaudiosink");
     } break;
     case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
-      g_value_set_string(value, "both");
+      g_value_set_static_string(value, "both");
       } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

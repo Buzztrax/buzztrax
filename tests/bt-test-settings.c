@@ -90,7 +90,7 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
         g_value_set_string(value, g_value_get_string(prop));
       }
       else {
-        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
+        g_value_set_static_string(value, ((GParamSpecString *)pspec)->default_value);
       }
     } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
