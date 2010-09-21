@@ -1,5 +1,21 @@
 2010-09-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gobject/gobjectlife.c:
+	* design/gobject/gobjectnotify.c:
+	* design/gobject/gobjectpropflags.c:
+	* design/gobject/gobjectprops.c:
+	* design/gobject/gobjectprops.c (svn:keywords, svn:eol-style):
+	* design/gobject/gobjectnotify.c (svn:keywords, svn:eol-style):
+	* design/gobject/gobjectlife.c (svn:keywords, svn:eol-style):
+	* design/gobject/gobjectpropflags.c (svn:keywords, svn:eol-style):
+	* design/gobject/gobjectprops.c (added):
+	* design/gobject/gobjectnotify.c (added):
+	* design/gobject/gobjectpropflags.c (added):
+	* design/gobject/gobjectlife.c (added):
+	  Add gobject tests.
+
+2010-09-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wave.c:
 	  Set loader pipeline state to NULL before freeing.
 
