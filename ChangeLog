@@ -1,6 +1,11 @@
 2010-09-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/settings/gconftest.c:
+	  Add gconf tracing var.
+
+2010-09-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/settings/gconftest.c:
 	* design/settings/gconftest.c (svn:keywords, svn:eol-style):
 	* design/settings (added):
 	* design/settings/gconftest.c (added):

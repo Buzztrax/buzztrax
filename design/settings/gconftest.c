@@ -5,7 +5,7 @@
  * gcc -Wall -g `pkg-config glib-2.0 gconf-2.0 --cflags --libs` gconftest.c -o gconftest
  *
  * running:
- * ./gconftest
+ * GCONF_DEBUG_TRACE_CLIENT=1 ./gconftest
  */
 
 #include <stdio.h>
