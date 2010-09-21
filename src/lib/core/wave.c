@@ -161,6 +161,7 @@ static void wave_loader_free(const BtWave *self) {
     gst_bus_remove_signal_watch(bus);
     gst_object_unref(bus);
 
+    gst_element_set_state(self->priv->pipeline,GST_STATE_NULL);
     gst_object_unref(self->priv->pipeline);
     self->priv->pipeline=NULL;
     self->priv->fmt=NULL;

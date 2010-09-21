@@ -1,5 +1,10 @@
 2010-09-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wave.c:
+	  Set loader pipeline state to NULL before freeing.
+
+2010-09-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/gconf-settings.c:
 	* src/lib/core/plainfile-settings.c:
 	* tests/bt-test-settings.c:
