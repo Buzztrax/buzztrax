@@ -202,11 +202,29 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
 
   // check for recoverable songs
   if((crash_entries=bt_change_log_crash_check(self->priv->change_log))) {
+    GtkWidget *dialog;
+    BtChangeLogFile *crash_entry;
+    GList *node;
+
     GST_INFO("have found crash logs");
-    // @todo: show UI
-    // bt_edit_application_recover_files(self,crash_entries);
+    if((dialog=GTK_WIDGET(bt_crash_recover_dialog_new(crash_entries)))) {
+      // set parent relationship
+      gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
+      gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+      gtk_widget_show_all(dialog);
     
-    // @todo: also free entries
+      gtk_dialog_run(GTK_DIALOG(dialog));
+      gtk_widget_destroy(dialog);
+    }
+    
+    // free list and entries
+    for(node=crash_entries;node;node=g_list_next(node)) {
+      crash_entry=(BtChangeLogFile *)node->data;
+      g_free(crash_entry->log_name);
+      g_free(crash_entry->song_file_name);
+      g_free(crash_entry->change_ts);
+      g_slice_free(BtChangeLogFile,crash_entry);
+    }
     g_list_free(crash_entries);
   }
 
@@ -613,7 +631,6 @@ void bt_edit_application_show_tip(const BtEditApplication *self) {
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
   }
-
 }
 
 

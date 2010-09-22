@@ -33,7 +33,7 @@
  * - bt_change_log_{start,end}_group
  * - groups should be hierarchical
  *
- * @todo: need a way to log object identifiers and a mechanism to llok then up
+ * @todo: need a way to log object identifiers and a mechanism to look then up
  * when replaying a log
  * 1.)
  * - each class that implement change_logger registers a get_child_by_name to the change log
@@ -315,7 +315,10 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
       valid_log=auto_clean=FALSE;
       if((log_file=fopen(log_name,"rt"))) {
         gchar linebuf[200];
+        gchar song_file_name[200];
         gchar *res;
+        BtChangeLogFile *crash_entry;
+        struct stat fileinfo;
         
         if(!(res=fgets(linebuf, 200, log_file))) {
           GST_INFO("    '%s' is not a change log, eof too early",log_name);
@@ -326,14 +329,14 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
           goto done;
         }
         // from now one, we know its a log, if its useless we can kill it
-        if(!(res=fgets(linebuf, 200, log_file))) {
+        if(!(res=fgets(song_file_name, 200, log_file))) {
           GST_INFO("    '%s' is not a change log, eof too early",log_name);
           auto_clean=TRUE;
           goto done;
         }
-        g_strchomp(linebuf);
-        if(*linebuf && !g_file_test (linebuf, G_FILE_TEST_IS_REGULAR|G_FILE_TEST_EXISTS)) {
-          GST_INFO("    '%s' a change log for '%s' but that file does not exists",log_name,linebuf);
+        g_strchomp(song_file_name);
+        if(*song_file_name && !g_file_test (song_file_name, G_FILE_TEST_IS_REGULAR|G_FILE_TEST_EXISTS)) {
+          GST_INFO("    '%s' a change log for '%s' but that file does not exists",log_name,song_file_name);
           auto_clean=TRUE;
           goto done;
         }
@@ -343,8 +346,14 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
           goto done;
         }
         valid_log=TRUE;
-        // add to crash_entries list ...
-        // crash_entries = g_list_prepend(crash_entries, ...);
+        // add to crash_entries list
+        crash_entry=g_slice_new(BtChangeLogFile);
+        crash_entry->log_name=g_strdup(log_name);
+        crash_entry->song_file_name=*song_file_name?g_strdup(song_file_name):g_strdup(_("unsaved song"));
+        stat(log_name,&fileinfo);
+        strftime(linebuf,199,"%c",localtime(&fileinfo.st_mtime));
+        crash_entry->change_ts=g_strdup(linebuf);
+        crash_entries=g_list_prepend(crash_entries,crash_entry);
       done:
         fclose(log_file);
       }
@@ -356,7 +365,7 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
          */
         if(auto_clean) {
           GST_WARNING("auto removing '%s'",log_name);
-          //g_remove(log_name);
+          g_remove(log_name);
         }
       }
     }
@@ -367,29 +376,48 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
 
 /**
  * bt_change_log_recover:
- * @self: -
- * @entry: -
+ * @self: the changelog
+ * @log_name: the log file to replay
  *
  * Recover the given song.
  *
  * Return: %TRUE for successful recovery.
  */
-gboolean bt_change_log_recover(BtChangeLog *self,const gchar *entry) {
-  /*
-  - we should not have any unsaved work at this momement
-    - changelog is empty
-  - load the song pointed to by entry or replay the new song
-    (no filename = never saved)
-  - replay the log
-    - read the header
-    - foreach line
-      - determine owner
-      - parse redo_data (there is only redo data)
-      - bt_change_logger_change(owner,redo_data);
-  - message box, asking the user to check it and save if happy
-  - saving and proper closing the song will remove the log
-  */
+gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
 #if 0
+  FILE *log_file;
+  
+  if((log_file=fopen(log_name,"rt"))) {
+    gchar linebuf[200];
+    
+    if(!(res=fgets(linebuf, 200, log_file))) {
+      GST_INFO("    '%s' is not a change log, eof too early",log_name);
+      goto done;
+    }
+    if(!(res=fgets(linebuf, 200, log_file))) {
+      GST_INFO("    '%s' is not a change log, eof too early",log_name);
+      goto done;
+    }
+    g_strchomp(linebuf);
+    /*
+    - load the song pointed to by entry or replay the new song
+      - no filename = never saved -> new file
+      - loading a song will create a new change log, not good?
+    */
+    if(*linebuf) {
+      // load song
+    }
+    /*
+    - replay the log
+      - foreach line
+        - determine owner (see above)
+        - parse redo_data (there is only redo data)
+        - bt_change_logger_change(owner,redo_data);
+    - message box, asking the user to check it and save if happy
+    - saving and proper closing the song will remove the log
+    */
+    fclose(log_file);
+  }
 #endif
   return(FALSE);
 }

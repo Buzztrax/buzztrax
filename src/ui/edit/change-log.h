@@ -54,6 +54,13 @@ struct _BtChangeLogClass {
   GObjectClass parent;
 };
 
+typedef struct _BtChangeLogFile BtChangeLogFile;
+struct _BtChangeLogFile {
+  gchar *log_name;
+  gchar *song_file_name;
+  gchar *change_ts;
+};
+
 /* used by CHANGE_LOG_TYPE */
 GType bt_change_log_get_type(void) G_GNUC_CONST;
 

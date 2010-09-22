@@ -49,13 +49,11 @@ struct _BtTipDialog {
   /*< private >*/
   BtTipDialogPrivate *priv;
 };
-/* structure of the about-dialog class */
 struct _BtTipDialogClass {
   GtkDialogClass parent;
   
 };
 
-/* used by ABOUT_DIALOG_TYPE */
 GType bt_tip_dialog_get_type(void) G_GNUC_CONST;
 
 #endif // BT_TIP_DIALOG_H

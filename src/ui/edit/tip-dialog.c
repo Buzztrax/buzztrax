@@ -155,9 +155,9 @@ static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
 
   GST_DEBUG("prepare tips dialog");
 
-  gtk_widget_set_name(GTK_WIDGET(self),"tip of the day");
+  gtk_widget_set_name(GTK_WIDGET(self),"Tip of the day");
 
-  gtk_window_set_title(GTK_WINDOW(self),_("tip of the day"));
+  gtk_window_set_title(GTK_WINDOW(self),_("Tip of the day"));
 
   // add dialog commision widgets (okay)
   gtk_dialog_add_buttons(GTK_DIALOG(self),
@@ -171,7 +171,7 @@ static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
   gtk_box_pack_start(GTK_BOX(hbox),icon,FALSE,FALSE,0);
   
   vbox=gtk_vbox_new(FALSE,6);
-  str=g_strdup_printf("<big><b>%s</b></big>\n",_("tip of the day"));
+  str=g_strdup_printf("<big><b>%s</b></big>\n",_("Tip of the day"));
   label=g_object_new(GTK_TYPE_LABEL,"use-markup",TRUE,"label",str,NULL);
   g_free(str);
   gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,FALSE,0);

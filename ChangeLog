@@ -1,5 +1,34 @@
 2010-09-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/cmd/bt-cmd.c:
+	  Remove testing left-over.
+
+	* src/ui/edit/about-dialog-methods.h:
+	* src/ui/edit/tip-dialog-methods.h:
+	* src/ui/edit/tip-dialog.c:
+	* src/ui/edit/tip-dialog.h:
+	  Clean up copy and paste comments.
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/change-log.h:
+	* src/ui/edit/crash-recover-dialog-methods.h:
+	* src/ui/edit/crash-recover-dialog.c:
+	* src/ui/edit/crash-recover-dialog.h:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/crash-recover-dialog-methods.h (svn:keywords, svn:eol-
+	  style):
+	* src/ui/edit/crash-recover-dialog.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/crash-recover-dialog.c (svn:keywords, svn:eol-style):
+	* src/ui/edit/crash-recover-dialog.c (added):
+	* src/ui/edit/crash-recover-dialog.h (added):
+	* src/ui/edit/crash-recover-dialog-methods.h (added):
+	  Add basic crash recover dialog. Gather more info in the crash log 
+	  checker. Setup most of the workflow for replay.
+
+2010-09-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/settings/gconftest.c:
 	  Add gconf tracing var.
 

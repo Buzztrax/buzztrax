@@ -23,7 +23,6 @@
 #define BT_TIP_DIALOG_METHODS_H
 
 #include "tip-dialog.h"
-#include "edit-application.h"
 
 extern BtTipDialog *bt_tip_dialog_new(void);
 

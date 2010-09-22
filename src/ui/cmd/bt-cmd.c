@@ -114,11 +114,8 @@ int main(int argc, char **argv) {
     goto Done;
   }
   
-  g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-cmd", 0, "music production environment / command ui");
-
-  GST_INFO("starting: thread=%p, command=\"%s\" input=\"%s\" output=\"%s\"",
-    g_thread_self(),command, input_file_name, output_file_name);
+  GST_INFO("starting: command=\"%s\" input=\"%s\" output=\"%s\"", command, input_file_name, output_file_name);
 
   // give some global context info
   g_set_application_name("Buzztard");

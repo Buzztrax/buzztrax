@@ -1,7 +1,7 @@
 /* $Id$
  *
  * Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2010 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,11 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BT_ABOUT_DIALOG_METHODS_H
-#define BT_ABOUT_DIALOG_METHODS_H
+#ifndef BT_CRASH_RECOVER_DIALOG_METHODS_H
+#define BT_CRASH_RECOVER_DIALOG_METHODS_H
 
-#include "about-dialog.h"
+#include "crash-recover-dialog.h"
 
-extern BtAboutDialog *bt_about_dialog_new(void);
+extern BtCrashRecoverDialog *bt_crash_recover_dialog_new(GList *crash_entries);
 
-#endif // BT_ABOUT_DIALOG_METHDOS_H
+#endif // BT_CRASH_RECOVER_DIALOG_METHDOS_H
