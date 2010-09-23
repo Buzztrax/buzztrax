@@ -35,6 +35,7 @@
  *
  * @todo: need a way to log object identifiers and a mechanism to look then up
  * when replaying a log
+ *
  * 1.)
  * - each class that implement change_logger registers a get_child_by_name to the change log
  * - all vmethods are store in a hastable with the type name as the key
@@ -124,6 +125,9 @@ struct _BtChangeLogPrivate {
   FILE *log_file;
   gchar *log_file_name;
   gchar *cache_dir;
+  
+  /* known ChangeLoggers */
+  GHashTable *loggers;
   
   /* each entry pointing to a BtChangeLogEntry */
   GPtrArray *changes;
@@ -390,6 +394,8 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
   
   if((log_file=fopen(log_name,"rt"))) {
     gchar linebuf[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
+    gchar *redo_data;
+    BtChangeLogger *logger;
     
     if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
       GST_INFO("    '%s' is not a change log, eof too early",log_name);
@@ -403,7 +409,6 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
     /*
     - load the song pointed to by entry or replay the new song
       - no filename = never saved -> new file
-      - loading a song will create a new change log, not good?
     */
     if(*linebuf) {
       if(!bt_edit_application_load_song(self->priv->app,linebuf)) {
@@ -411,15 +416,26 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
         goto done;
       }
     }
-    /* replay the log */
+    // replay the log
     while(!feof(log_file)) {
       if(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file)) {
-        GST_LOG("changelog-event: '%s'", linebuf);
-        /*
-          - determine owner (see above)
-          - parse redo_data (there is only redo data)
-          - bt_change_logger_change(owner,redo_data);
-        */
+        g_strchomp(linebuf);
+        GST_DEBUG("changelog-event: '%s'", linebuf);
+        // log event: BtMainPagePatterns::set_global_event "simsyn","simsyn 00",8,0,c-4
+        if((redo_data=strstr(linebuf,"::"))) {
+          redo_data[0]='\0';
+          redo_data=&redo_data[2];
+          // determine owner (BtMainPagePatterns)
+          if((logger=g_hash_table_lookup(self->priv->loggers,linebuf))) {
+            bt_change_logger_change(logger,redo_data);
+          }
+          else {
+            GST_WARNING("no changelogger for '%s'",linebuf);
+          }
+        }
+        else {
+          GST_WARNING("missing :: separator in '%s'",linebuf);
+        }
       }
     }
   done:
@@ -431,6 +447,20 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
   }
   return(res);
 }
+
+/**
+ * bt_change_log_register:
+ * @self: the change log
+ * @logger: a change logger
+ *
+ * Register a change-logger for use in change log replay.
+ */
+void bt_change_log_register(BtChangeLog *self,BtChangeLogger *logger) {
+  GST_DEBUG("registering: '%s'",G_OBJECT_TYPE_NAME(logger));
+  
+  g_hash_table_insert(self->priv->loggers,(gpointer)G_OBJECT_TYPE_NAME(logger),(gpointer)logger);
+}
+
 
 /**
  * bt_change_log_add:
@@ -490,8 +520,7 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
  *
  * Undo the last action.
  */
-void bt_change_log_undo(BtChangeLog *self)
-{
+void bt_change_log_undo(BtChangeLog *self) {
   if(self->priv->next_undo!=-1) {
     BtChangeLogEntry *cle=g_ptr_array_index(self->priv->changes,self->priv->next_undo);
     bt_change_logger_change(cle->owner,cle->undo_data);
@@ -515,8 +544,7 @@ void bt_change_log_undo(BtChangeLog *self)
  * Redo the last action.
  */
 
-void bt_change_log_redo(BtChangeLog *self)
-{
+void bt_change_log_redo(BtChangeLog *self) {
   if(self->priv->next_redo!=-1) {
     BtChangeLogEntry *cle=g_ptr_array_index(self->priv->changes,self->priv->next_redo);
     bt_change_logger_change(cle->owner,cle->redo_data);
@@ -566,6 +594,8 @@ static void bt_change_log_finalize(GObject *object) {
   
   GST_DEBUG("!!!! self=%p",self);
   g_free(self->priv->cache_dir);
+  
+  g_hash_table_destroy(self->priv->loggers);
 
   G_OBJECT_CLASS(bt_change_log_parent_class)->finalize(object);
 }
@@ -614,12 +644,14 @@ static void bt_change_log_init(BtChangeLog *self) {
     g_free(self->priv->cache_dir);
     self->priv->cache_dir=NULL;
   }
-  
-  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+
+  self->priv->loggers=g_hash_table_new(g_str_hash,g_str_equal);
   
   self->priv->changes=g_ptr_array_new();
   self->priv->next_undo=-1;
   self->priv->next_redo=0;
+
+  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 }
 
 static void bt_change_log_class_init(BtChangeLogClass *klass) {

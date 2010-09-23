@@ -96,6 +96,9 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
   gtk_window_set_title(GTK_WINDOW(self),_("Previous unfinished sessions found"));
 
   // add dialog commision widgets (okay)
+  // FIXME: add Okay, Cancel, Delete
+  // select song + okay -> recover
+  // select song + delete -> remove log
   gtk_dialog_add_buttons(GTK_DIALOG(self),
                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                           NULL);

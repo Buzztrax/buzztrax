@@ -3106,6 +3106,7 @@ static void bt_main_page_patterns_init(BtMainPagePatterns *self) {
     self->priv->wave_to_combopos[i] = self->priv->combopos_to_wave[i] = -1;
   
   self->priv->change_log=bt_change_log_new();
+  bt_change_log_register(self->priv->change_log,BT_CHANGE_LOGGER(self));
 }
 
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
