@@ -135,6 +135,8 @@ struct _BtChangeLogPrivate {
 
 static BtChangeLog *singleton=NULL;
 
+#define BT_CHANGE_LOG_MAX_HEADER_LINE_LEN 200
+
 //-- the class
 
 G_DEFINE_TYPE (BtChangeLog, bt_change_log, G_TYPE_OBJECT);
@@ -314,13 +316,12 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
        */
       valid_log=auto_clean=FALSE;
       if((log_file=fopen(log_name,"rt"))) {
-        gchar linebuf[200];
-        gchar song_file_name[200];
-        gchar *res;
+        gchar linebuf[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
+        gchar song_file_name[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
         BtChangeLogFile *crash_entry;
         struct stat fileinfo;
         
-        if(!(res=fgets(linebuf, 200, log_file))) {
+        if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
           GST_INFO("    '%s' is not a change log, eof too early",log_name);
           goto done;
         }
@@ -329,7 +330,7 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
           goto done;
         }
         // from now one, we know its a log, if its useless we can kill it
-        if(!(res=fgets(song_file_name, 200, log_file))) {
+        if(!(fgets(song_file_name, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
           GST_INFO("    '%s' is not a change log, eof too early",log_name);
           auto_clean=TRUE;
           goto done;
@@ -340,7 +341,7 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
           auto_clean=TRUE;
           goto done;
         }
-        if(!(res=fgets(linebuf, 200, log_file))) {
+        if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
           GST_INFO("    '%s' is an empty change log",log_name);
           auto_clean=TRUE;
           goto done;
@@ -351,7 +352,7 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
         crash_entry->log_name=g_strdup(log_name);
         crash_entry->song_file_name=*song_file_name?g_strdup(song_file_name):g_strdup(_("unsaved song"));
         stat(log_name,&fileinfo);
-        strftime(linebuf,199,"%c",localtime(&fileinfo.st_mtime));
+        strftime(linebuf,BT_CHANGE_LOG_MAX_HEADER_LINE_LEN-1,"%c",localtime(&fileinfo.st_mtime));
         crash_entry->change_ts=g_strdup(linebuf);
         crash_entries=g_list_prepend(crash_entries,crash_entry);
       done:
@@ -384,17 +385,17 @@ GList *bt_change_log_crash_check(BtChangeLog *self) {
  * Return: %TRUE for successful recovery.
  */
 gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
-#if 0
   FILE *log_file;
+  gboolean res=FALSE;
   
   if((log_file=fopen(log_name,"rt"))) {
-    gchar linebuf[200];
+    gchar linebuf[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
     
-    if(!(res=fgets(linebuf, 200, log_file))) {
+    if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
       GST_INFO("    '%s' is not a change log, eof too early",log_name);
       goto done;
     }
-    if(!(res=fgets(linebuf, 200, log_file))) {
+    if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
       GST_INFO("    '%s' is not a change log, eof too early",log_name);
       goto done;
     }
@@ -405,21 +406,30 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
       - loading a song will create a new change log, not good?
     */
     if(*linebuf) {
-      // load song
+      if(!bt_edit_application_load_song(self->priv->app,linebuf)) {
+        GST_INFO("    song '%s' failed to load",linebuf);
+        goto done;
+      }
     }
+    /* replay the log */
+    while(!feof(log_file)) {
+      if(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file)) {
+        GST_LOG("changelog-event: '%s'", linebuf);
+        /*
+          - determine owner (see above)
+          - parse redo_data (there is only redo data)
+          - bt_change_logger_change(owner,redo_data);
+        */
+      }
+    }
+  done:
     /*
-    - replay the log
-      - foreach line
-        - determine owner (see above)
-        - parse redo_data (there is only redo data)
-        - bt_change_logger_change(owner,redo_data);
-    - message box, asking the user to check it and save if happy
-    - saving and proper closing the song will remove the log
+      - message box, asking the user to check it and save if happy
+      - saving and proper closing the song will remove the log
     */
     fclose(log_file);
   }
-#endif
-  return(FALSE);
+  return(res);
 }
 
 /**

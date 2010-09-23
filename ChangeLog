@@ -1,5 +1,11 @@
 2010-09-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-log.c:
+	  Flesh out recovery a bit more.
+	  
+
+2010-09-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/gconf-settings.c:
 	  Defer loading gconf keys until we need them.
 
