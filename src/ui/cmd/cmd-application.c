@@ -55,10 +55,13 @@ struct _BtCmdApplicationPrivate {
   
   /* error flag from bus handler */
   gboolean has_error;
+
+  /* runtime data */
+  const BtSong *song;
+  gboolean res;
   
   /* main loop */
   GMainLoop *loop;
-  GThread *loop_thread;
 };
 
 static gboolean is_playing=FALSE;
@@ -143,8 +146,9 @@ static BtSong *bt_cmd_application_song_init(const BtCmdApplication *self) {
  *
  * start playback, used by play and record
  */
-static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const BtSong *song) {
+static void bt_cmd_application_idle_play_song(const BtCmdApplication *self) {
   gboolean res=FALSE;
+  const BtSong *song=self->priv->song;
   BtSequence *sequence=NULL;
   gulong cmsec,csec,cmin,tmsec,tsec,tmin;
   gulong length,pos=0;
@@ -172,8 +176,11 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   g_signal_connect((gpointer)song, "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   if(bt_song_play(song)) {
     GST_INFO("playing is starting, is_playing=%d",is_playing);
+    /* FIXME: this is a bad idea, now that we have a main loop
+     * we should start a g_timeout_add() from on_song_is_playing_notify()
+     * and quit the main-loop there on eos
+     */
     while(!is_playing) {
-      // FIXME: is this a bad idea, now that we have a main loop?
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
       g_usleep(G_USEC_PER_SEC/10);
     }
@@ -208,7 +215,18 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
 Error:
   gst_object_unref(bin);
   g_object_unref(sequence);
-  return(res);
+  self->priv->res=res;
+  g_main_loop_quit(self->priv->loop);
+}
+
+static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const BtSong *song) {
+  
+  self->priv->song=song;
+
+  g_idle_add((GSourceFunc)bt_cmd_application_idle_play_song,(gpointer)self);
+  g_main_loop_run(self->priv->loop);
+
+  return(self->priv->res);
 }
 
 /*
@@ -651,9 +669,9 @@ static void bt_cmd_application_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   
-  g_main_loop_quit(self->priv->loop);
+  // this would exit the mainloop from a different thread :/
+  //g_main_loop_quit(self->priv->loop);
   g_main_loop_unref(self->priv->loop);
-  // no need for g_thread_join(); I think
 
   G_OBJECT_CLASS(bt_cmd_application_parent_class)->finalize(object);
 }
@@ -663,7 +681,7 @@ static void bt_cmd_application_init(BtCmdApplication *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_CMD_APPLICATION, BtCmdApplicationPrivate);
 
   self->priv->loop=g_main_loop_new(NULL,FALSE);
-  self->priv->loop_thread=g_thread_create((GThreadFunc)g_main_loop_run,self->priv->loop,FALSE,NULL);
+  //self->priv->loop_thread=g_thread_create((GThreadFunc)g_main_loop_run,self->priv->loop,FALSE,NULL);
 }
 
 static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {

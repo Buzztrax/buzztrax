@@ -43,6 +43,10 @@ struct _BtGConfSettingsPrivate {
   /* flags if there was a write */
   gboolean dirty;
   
+  /* flkags for watched dirs */
+  gboolean watch_gstreamer, watch_gnome, watch_buzztard;
+  
+  /* signal watch id */
   guint gnome_toolbar_style_notify;
 };
 
@@ -65,6 +69,68 @@ static void bt_gconf_settings_notify_toolbar_style(GConfClient * const client, g
 }
 
 //-- helper
+
+static gboolean watch_gstreamer(const BtGConfSettings * const self) {
+  gboolean res=TRUE;
+  GError *error=NULL;
+
+  gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_NONE,&error);
+  if(error) {
+    GST_WARNING("can't connect to dir %s: %s",BT_GCONF_PATH_GSTREAMER,error->message);
+    g_error_free(error);error=NULL;
+    res=FALSE;
+  }
+  else {
+    self->priv->watch_gstreamer=TRUE;
+
+    /* @todo: also listen to BT_GCONF_PATH_GSTREAMER"/audiosink" */
+  }
+  return res;
+}
+
+static gboolean watch_gnome(const BtGConfSettings * const self) {
+  gboolean res=TRUE;
+  GError *error=NULL;
+
+  gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_NONE,&error);
+  if(error) {
+    GST_WARNING("can't connect to dir %s: %s",BT_GCONF_PATH_GNOME,error->message);
+    g_error_free(error);error=NULL;
+    res=FALSE;
+  }
+  else {
+    self->priv->watch_gnome=TRUE;
+
+    self->priv->gnome_toolbar_style_notify=gconf_client_notify_add(self->priv->client,
+           BT_GCONF_PATH_GNOME"/toolbar_style",
+           bt_gconf_settings_notify_toolbar_style,
+           (gpointer)self, NULL, &error);
+    if(error) {
+      GST_WARNING("can't listen to notifies on %s: %s",BT_GCONF_PATH_GNOME"/toolbar_style",error->message);
+      g_error_free(error);error=NULL;
+      res=FALSE;
+    }
+  }
+  return res;
+}
+
+static gboolean watch_buzztard(const BtGConfSettings * const self) {
+  gboolean res=TRUE;
+  GError *error=NULL;
+
+  //gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_ONELEVEL,&error);
+  gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_NONE,&error);
+  if(error) {
+    GST_WARNING("can't connect to dir %s: %s",BT_GCONF_PATH_BUZZTARD,error->message);
+    g_error_free(error);error=NULL;
+    res=FALSE;
+  }
+  else {
+    self->priv->watch_buzztard=TRUE;
+  }
+  return res;
+}
+
 
 static void read_boolean(const BtGConfSettings * const self, const gchar *path, GValue * const value) {
   gboolean prop=gconf_client_get_bool(self->priv->client,path,NULL);
@@ -182,73 +248,117 @@ static void bt_gconf_settings_get_property(GObject * const object, const guint p
   switch (property_id) {
     /* ui */
     case BT_SETTINGS_NEWS_SEEN: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_uint(self,BT_GCONF_PATH_BUZZTARD"/news-seen",value);
     } break;
     case BT_SETTINGS_MISSING_MACHINES: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_string(self,BT_GCONF_PATH_BUZZTARD"/missing-machines",value);
     } break;
     case BT_SETTINGS_PRESENTED_TIPS: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_string(self,BT_GCONF_PATH_BUZZTARD"/presented-tips",value);
     } break;
     case BT_SETTINGS_SHOW_TIPS: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_boolean(self,BT_GCONF_PATH_BUZZTARD"/show-tips",value);
     } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_boolean(self,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",value);
     } break;
     case BT_SETTINGS_MENU_STATUSBAR_HIDE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_boolean(self,BT_GCONF_PATH_BUZZTARD"/statusbar-hide",value);
     } break;
     case BT_SETTINGS_MENU_TABS_HIDE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_boolean(self,BT_GCONF_PATH_BUZZTARD"/tabs-hide",value);
     } break;
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_string_def(self,BT_GCONF_PATH_BUZZTARD"/grid-density",value,(GParamSpecString *)pspec);
     } break;
     case BT_SETTINGS_WINDOW_XPOS: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_int_def(self,BT_GCONF_PATH_BUZZTARD"/window/x-pos",value,(GParamSpecInt *)pspec);
     } break;
     case BT_SETTINGS_WINDOW_YPOS: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_int_def(self,BT_GCONF_PATH_BUZZTARD"/window/y-pos",value,(GParamSpecInt *)pspec);
     } break;
     case BT_SETTINGS_WINDOW_WIDTH: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_int_def(self,BT_GCONF_PATH_BUZZTARD"/window/width",value,(GParamSpecInt *)pspec);
     } break;
     case BT_SETTINGS_WINDOW_HEIGHT: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_int_def(self,BT_GCONF_PATH_BUZZTARD"/window/height",value,(GParamSpecInt *)pspec);
     } break;
     /* audio settings */
     case BT_SETTINGS_AUDIOSINK: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_string_def(self,BT_GCONF_PATH_BUZZTARD"/audiosink",value,(GParamSpecString *)pspec);
     } break;
     case BT_SETTINGS_SAMPLE_RATE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_uint_def(self,BT_GCONF_PATH_BUZZTARD"/sample-rate",value,(GParamSpecUInt *)pspec);
     } break;
     case BT_SETTINGS_CHANNELS: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_uint_def(self,BT_GCONF_PATH_BUZZTARD"/channels",value,(GParamSpecUInt *)pspec);
     } break;
     /* playback controller */
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_boolean(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-active",value);
     } break;
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_uint(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",value);
     } break;
     /* directory settings */
     case BT_SETTINGS_FOLDER_SONG: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_string_def(self,BT_GCONF_PATH_BUZZTARD"/song-folder",value,(GParamSpecString *)pspec);
     } break;
     case BT_SETTINGS_FOLDER_RECORD: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_string_def(self,BT_GCONF_PATH_BUZZTARD"/record-folder",value,(GParamSpecString *)pspec);
     } break;
     case BT_SETTINGS_FOLDER_SAMPLE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       read_string_def(self,BT_GCONF_PATH_BUZZTARD"/sample-folder",value,(GParamSpecString *)pspec);
     } break;
     /* system settings */
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
+      if (!G_UNLIKELY(self->priv->watch_gstreamer))
+        watch_gstreamer(self);
       read_string(self,BT_GCONF_PATH_GSTREAMER"/audiosink",value);
     } break;
     case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
+      if (!G_UNLIKELY(self->priv->watch_gnome))
+        watch_gnome(self);
       read_string(self,BT_GCONF_PATH_GNOME"/toolbar_style",value);
     } break;
     default: {
@@ -268,66 +378,106 @@ static void bt_gconf_settings_set_property(GObject * const object, const guint p
   switch (property_id) {
     /* ui */
     case BT_SETTINGS_NEWS_SEEN: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_uint(self,BT_GCONF_PATH_BUZZTARD"/news-seen",value);
     } break;
     case BT_SETTINGS_MISSING_MACHINES: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_string(self,BT_GCONF_PATH_BUZZTARD"/missing-machines",value);
     } break;
     case BT_SETTINGS_PRESENTED_TIPS: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_string(self,BT_GCONF_PATH_BUZZTARD"/presented-tips",value);
     } break;
     case BT_SETTINGS_SHOW_TIPS: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_boolean(self,BT_GCONF_PATH_BUZZTARD"/show-tips",value);
     } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_boolean(self,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",value);
     } break;
     case BT_SETTINGS_MENU_STATUSBAR_HIDE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_boolean(self,BT_GCONF_PATH_BUZZTARD"/statusbar-hide",value);
     } break;
     case BT_SETTINGS_MENU_TABS_HIDE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_boolean(self,BT_GCONF_PATH_BUZZTARD"/tabs-hide",value);
     } break;
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_string(self,BT_GCONF_PATH_BUZZTARD"/grid-density",value);
     } break;
     case BT_SETTINGS_WINDOW_XPOS: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_int(self,BT_GCONF_PATH_BUZZTARD"/window/x-pos",value);
     } break;
     case BT_SETTINGS_WINDOW_YPOS: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_int(self,BT_GCONF_PATH_BUZZTARD"/window/y-pos",value);
     } break;
     case BT_SETTINGS_WINDOW_WIDTH: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_int(self,BT_GCONF_PATH_BUZZTARD"/window/width",value);
     } break;
     case BT_SETTINGS_WINDOW_HEIGHT: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_int(self,BT_GCONF_PATH_BUZZTARD"/window/height",value);
     } break;
     /* audio settings */
     case BT_SETTINGS_AUDIOSINK: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_string(self,BT_GCONF_PATH_BUZZTARD"/audiosink",value);
     } break;
     case BT_SETTINGS_SAMPLE_RATE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_uint(self,BT_GCONF_PATH_BUZZTARD"/sample-rate",value);
     } break;
     case BT_SETTINGS_CHANNELS: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_uint(self,BT_GCONF_PATH_BUZZTARD"/channels",value);
     } break;
     /* playback controller */
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_boolean(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-active",value);
     } break;
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_uint(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",value);
     } break;
     /* directory settings */
     case BT_SETTINGS_FOLDER_SONG: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_string(self,BT_GCONF_PATH_BUZZTARD"/song-folder",value);
     } break;
     case BT_SETTINGS_FOLDER_RECORD: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_string(self,BT_GCONF_PATH_BUZZTARD"/record-folder",value);
     } break;
     case BT_SETTINGS_FOLDER_SAMPLE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
       write_string(self,BT_GCONF_PATH_BUZZTARD"/sample-folder",value);
     } break;
     /* system settings */
@@ -349,26 +499,30 @@ static void bt_gconf_settings_dispose(GObject * const object) {
     GError *error=NULL;
 
     GST_DEBUG("!!!! client=%p, client->ref_ct=%d",self->priv->client,G_OBJECT_REF_COUNT(self->priv->client));
-    // unregister directories to watch
-    gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,&error);
-    if(error) {
-      GST_WARNING("can't disconnect dir %s: %s",BT_GCONF_PATH_GSTREAMER,error->message);
-      g_error_free(error);error=NULL;
+    // unregister directories to watch and notifies
+    if(self->priv->watch_gstreamer) {
+      gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,&error);
+      if(error) {
+        GST_WARNING("can't disconnect dir %s: %s",BT_GCONF_PATH_GSTREAMER,error->message);
+        g_error_free(error);error=NULL;
+      }
     }
-    gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,&error);
-    if(error) {
-      GST_WARNING("can't disconnect dir %s: %s",BT_GCONF_PATH_GNOME,error->message);
-      g_error_free(error);error=NULL;
+    if(self->priv->watch_gnome) {
+      gconf_client_notify_remove(self->priv->client,self->priv->gnome_toolbar_style_notify);
+      gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,&error);
+      if(error) {
+        GST_WARNING("can't disconnect dir %s: %s",BT_GCONF_PATH_GNOME,error->message);
+        g_error_free(error);error=NULL;
+      }
     }
-    gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,&error);
-    if(error) {
-      GST_WARNING("can't disconnect dir %s: %s",BT_GCONF_PATH_BUZZTARD,error->message);
-      g_error_free(error);error=NULL;
+    if(self->priv->watch_buzztard) {
+      gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,&error);
+      if(error) {
+        GST_WARNING("can't disconnect dir %s: %s",BT_GCONF_PATH_BUZZTARD,error->message);
+        g_error_free(error);error=NULL;
+      }
     }
     GST_DEBUG("dirs unwatched");
-    // disconnect notifies
-    gconf_client_notify_remove(self->priv->client,self->priv->gnome_toolbar_style_notify);
-    GST_DEBUG("notifies disconnected");
   
     // shutdown gconf client
     if(self->priv->dirty) {
@@ -386,43 +540,12 @@ static void bt_gconf_settings_dispose(GObject * const object) {
 //-- class internals
 
 static void bt_gconf_settings_init(BtGConfSettings * self) {
-  GError *error=NULL;
-
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_GCONF_SETTINGS, BtGConfSettingsPrivate);
   GST_DEBUG("!!!! self=%p",self);
 
   self->priv->client=gconf_client_get_default();
   if(self->priv->client) {
     gconf_client_set_error_handling(self->priv->client,GCONF_CLIENT_HANDLE_UNRETURNED);
-    // register the config cache
-    GST_DEBUG("listening to settings");
-    gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_ONELEVEL,&error);
-    if(error) {
-      GST_WARNING("can't connect to dir %s: %s",BT_GCONF_PATH_GSTREAMER,error->message);
-      g_error_free(error);error=NULL;
-    }
-    gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_ONELEVEL,&error);
-    if(error) {
-      GST_WARNING("can't connect to dir %s: %s",BT_GCONF_PATH_GNOME,error->message);
-      g_error_free(error);error=NULL;
-    }
-    gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,&error);
-    if(error) {
-      GST_WARNING("can't connect to dir %s: %s",BT_GCONF_PATH_BUZZTARD,error->message);
-      g_error_free(error);error=NULL;
-    }
-    
-    GST_DEBUG("about to register gconf notify handler");
-    // register notify handlers for some properties
-    self->priv->gnome_toolbar_style_notify=gconf_client_notify_add(self->priv->client,
-           BT_GCONF_PATH_GNOME"/toolbar_style",
-           bt_gconf_settings_notify_toolbar_style,
-           (gpointer)self, NULL, &error);
-    if(error) {
-      GST_WARNING("can't listen to notifies on %s: %s",BT_GCONF_PATH_GNOME"/toolbar_style",error->message);
-      g_error_free(error);error=NULL;
-    }
-    /* @todo: also listen to BT_GCONF_PATH_GSTREAMER"/audiosink" */
   }
   else {
     GST_WARNING("can't get default gconf client");
