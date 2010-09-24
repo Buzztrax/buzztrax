@@ -2931,8 +2931,14 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
   GMatchInfo *match_info;
   gchar *s;
   
-  g_object_get(pattern,"machine",&machine,"id",&c_pid,NULL);
-  g_object_get(machine,"id",&c_mid,NULL);
+  if(pattern) {
+    g_object_get(pattern,"machine",&machine,"id",&c_pid,NULL);
+    g_object_get(machine,"id",&c_mid,NULL);
+  } else {
+    machine=NULL;
+    c_pid=NULL;
+    c_mid=NULL;
+  }
 
   GST_INFO("undo/redo: [%s]",data);
   // parse data and apply action
@@ -2949,17 +2955,17 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_match_info_free(match_info);
 
       GST_DEBUG("-> [%s|%s|%u|%u|%s]",mid,pid,row,param,str);
-      if(strcmp(mid,c_mid)) {
+      if(!c_mid || strcmp(mid,c_mid)) {
         // change machine and pattern
         g_object_get(self->priv->app,"song",&song,NULL);
         g_object_get(song,"setup",&setup,NULL);
-        g_object_unref(machine);
+        g_object_try_unref(machine);
         machine=bt_setup_get_machine_by_id(setup, mid);
         pattern=bt_machine_get_pattern_by_id(machine,pid);
         switch_machine_and_pattern(self,machine,pattern);
         g_object_unref(setup);
         g_object_unref(song);
-      } else if(strcmp(pid,c_pid)) {
+      } else if(!c_pid || strcmp(pid,c_pid)) {
         // change pattern
         pattern=bt_machine_get_pattern_by_id(machine,pid);
         switch_machine_and_pattern(self,NULL,pattern);
@@ -2992,18 +2998,18 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_match_info_free(match_info);
 
       GST_DEBUG("-> [%s|%s|%u|%u|%u|%s]",mid,pid,row,voice,param,str);
-      if(strcmp(mid,c_mid)) {
+      if(!c_mid || strcmp(mid,c_mid)) {
         // change machine and pattern
         g_object_get(self->priv->app,"song",&song,NULL);
         g_object_get(song,"setup",&setup,NULL);
-        g_object_unref(machine);
+        g_object_try_unref(machine);
         machine=bt_setup_get_machine_by_id(setup, mid);
         pattern=bt_machine_get_pattern_by_id(machine,pid);
         switch_machine_and_pattern(self,machine,pattern);
         g_object_unref(setup);
         g_object_unref(song);
       }
-      if(strcmp(pid,c_pid)) {
+      if(!c_pid || strcmp(pid,c_pid)) {
         // change pattern
         pattern=bt_machine_get_pattern_by_id(machine,pid);
         switch_machine_and_pattern(self,NULL,pattern);
@@ -3029,7 +3035,7 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
     pattern_table_refresh(self);
   }
 
-  g_object_unref(machine);
+  g_object_try_unref(machine);
   g_free(c_mid);g_free(c_pid);
   return res;
 }

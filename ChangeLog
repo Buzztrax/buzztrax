@@ -1,5 +1,14 @@
 2010-09-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/crash-recover-dialog.c:
+	  Move planning.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Don't crash when having no pattern.
+
+2010-09-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/registry.c:
 	  Add a comment with udevadm example.
 

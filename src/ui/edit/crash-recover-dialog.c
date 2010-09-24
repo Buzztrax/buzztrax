@@ -38,8 +38,7 @@
  *
  * whats the work flow if there are multiple entries found?
  * - right now one would need to exit the app
- *
- * we should also check for pending logs when opening a file!
+ * 
  */
 
 #define BT_EDIT

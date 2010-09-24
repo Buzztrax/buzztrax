@@ -28,6 +28,10 @@
 /* @todo: reset change-log on new/open-song (app.notify::song)
  * - flush old entries
  *
+ * @todo: we should also check for pending logs when opening a file!
+ * - need to keep the change-log entries as a hash-table and offer api to check
+ *   for it and if wanted replay
+ *
  * @todo: need change grouping
  * - when clearing a selection, we can represent this as a group of edits
  * - bt_change_log_{start,end}_group
