@@ -1,5 +1,11 @@
 2010-09-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/crash-recover-dialog.c:
+	* src/ui/edit/settings-dialog.c:
+	  Improve dialog layouts. 
+
+2010-09-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/registry.c:
 	  Get human readable names from gudev.
 
