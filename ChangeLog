@@ -1,5 +1,10 @@
 2010-09-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/ic/registry.c:
+	  Get human readable names from gudev.
+
+2010-09-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* src/ui/edit/change-log-methods.h:
 	* src/ui/edit/change-log.c:

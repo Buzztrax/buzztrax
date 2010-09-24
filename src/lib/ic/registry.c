@@ -141,34 +141,69 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
   
   if(!strcmp(action,"add")) {
     BtIcDevice *device=NULL;
+    GUdevDevice *uparent;
+    const gchar *full_name=NULL;
+    const gchar *vendor_name, *model_name;
+    gboolean free_full_name=FALSE;
+    gchar *cat_full_name;
+
     /*
     const gchar* const *props=g_udev_device_get_property_keys(udevice);
-    
     while(*props) {
       GST_INFO("  %s: %s", *props, g_udev_device_get_property(udevice,*props));
       props++;
     }
     */
+
+    /* get human readable device name */
+    uparent=udevice;
+    vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR_FROM_DATABASE");
+    if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR");
+    model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
+    if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL");
+    GST_INFO("  v m:  '%s' '%s'",vendor_name,model_name);
+    while(uparent && !(vendor_name && model_name)) {
+      if((uparent=g_udev_device_get_parent(uparent))) {
+        if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR_FROM_DATABASE");
+        if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR");
+        if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
+        if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL");
+        GST_INFO("  v m:  '%s' '%s'",vendor_name,model_name);
+      }
+    }
+    if(vendor_name && model_name) {
+      full_name=g_strconcat(vendor_name," ",model_name,NULL);
+      free_full_name=TRUE;
+    } else {
+      full_name=name;
+    }
     
-    /* FIXME: we got better names with HAL:
+    /* FIXME: we got different names with HAL (we save those in songs :/):
     * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3400
     * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3363
-    *
-    * we save those in songs :/
     */
     
     if(!strcmp(subsystem,"input")) {
-      device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
+      cat_full_name=g_strconcat("input: ",full_name,NULL);
+      device=BTIC_DEVICE(btic_input_device_new(udi,cat_full_name,devnode));
+      g_free(cat_full_name);
     } else if(!strcmp(subsystem,"sound")) {
       /* http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3509 */
       if(!strncmp(name, "midiC", 5)) {
         /* alsa */
-        device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
+        cat_full_name=g_strconcat("alsa midi: ",full_name,NULL);
+        device=BTIC_DEVICE(btic_midi_device_new(udi,cat_full_name,devnode));
+        g_free(cat_full_name);
       } else if(!strcmp(name, "midi2") || !strcmp(name, "amidi2")) {
         /* oss */
-        device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
+        cat_full_name=g_strconcat("oss midi: ",full_name,NULL);
+        device=BTIC_DEVICE(btic_midi_device_new(udi,cat_full_name,devnode));
+        g_free(cat_full_name);
       }
-
+    }
+    
+    if(free_full_name) {
+      g_free((gchar *)full_name);
     }
 
     if(device) {
