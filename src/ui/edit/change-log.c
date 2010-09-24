@@ -33,9 +33,6 @@
  * - bt_change_log_{start,end}_group
  * - groups should be hierarchical
  *
- * @todo: need a way to log object identifiers and a mechanism to look then up
- * when replaying a log
- *
  * 1.)
  * - each class that implement change_logger registers a get_child_by_name to the change log
  * - all vmethods are store in a hastable with the type name as the key
@@ -140,6 +137,8 @@ struct _BtChangeLogPrivate {
 static BtChangeLog *singleton=NULL;
 
 #define BT_CHANGE_LOG_MAX_HEADER_LINE_LEN 200
+// date time stamp format YYYY-MM-DDThh:mm:ssZ
+#define DTS_LEN 20
 
 //-- the class
 
@@ -160,12 +159,16 @@ static void free_log_file(BtChangeLog *self) {
 }
 
 static gchar *make_log_file_name(BtChangeLog *self, BtSongInfo *song_info) {
-  gchar *file_name,*name,*dts,*log_file_name;
+  gchar *file_name,*name,*log_file_name;
+  time_t now=time(NULL);
+  gchar dts[DTS_LEN+1];
 
-  g_object_get(song_info,"name",&name,"create-dts",&dts,NULL);
+  /* we need unique filenames (see bt_change_log_recover() */
+  g_object_get(song_info,"name",&name,/*"change-dts",&dts,*/NULL);
+  strftime(dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
   file_name=g_strdup_printf("%s_%s.log",dts,name);
   g_free(name);
-  g_free(dts);
+  //g_free(dts);
   
   log_file_name=g_build_filename(self->priv->cache_dir,file_name,NULL);
   g_free(file_name);
@@ -428,6 +431,10 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
           // determine owner (BtMainPagePatterns)
           if((logger=g_hash_table_lookup(self->priv->loggers,linebuf))) {
             bt_change_logger_change(logger,redo_data);
+            /* FIXME: shall we add those to the new log?
+             * then it would be fine to overwrite the log
+             * as we have no undo-data we cannot restore the change-stack though
+             */
           }
           else {
             GST_WARNING("no changelogger for '%s'",linebuf);
@@ -441,7 +448,7 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
   done:
     /*
       - message box, asking the user to check it and save if happy
-      - saving and proper closing the song will remove the log
+      - remove the old log
     */
     fclose(log_file);
   }

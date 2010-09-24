@@ -147,7 +147,9 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     gboolean free_full_name=FALSE;
     gchar *cat_full_name;
 
-    /*
+    /* dump properties, also available as:
+     * /sbin/udevadm info -qall -p /sys/class/sound/card0
+     *
     const gchar* const *props=g_udev_device_get_property_keys(udevice);
     while(*props) {
       GST_INFO("  %s: %s", *props, g_udev_device_get_property(udevice,*props));

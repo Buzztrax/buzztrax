@@ -1,5 +1,19 @@
 2010-09-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/ic/registry.c:
+	  Add a comment with udevadm example.
+
+	* src/ui/edit/change-log.c:
+	  Create unique change-log names. Add some more thoughts.
+
+	* src/ui/edit/crash-recover-dialog.c:
+	  Update doc-blob. Add more thoughts.
+
+	* src/ui/edit/settings-dialog.c:
+	  Remove commented out line.
+
+2010-09-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/crash-recover-dialog.c:
 	* src/ui/edit/settings-dialog.c:
 	  Improve dialog layouts. 

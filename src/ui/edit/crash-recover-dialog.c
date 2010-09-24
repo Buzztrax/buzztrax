@@ -20,9 +20,26 @@
  */
 /**
  * SECTION:bttipdialog
- * @short_description: class for the editor tip-of-the-day dialog
+ * @short_description: class for the song recovery dialog
  *
- * Show a tip, that has not yet been shown to the user.
+ * Show a dialog listing found unsaved songs. Allows to delete or restore them.
+ */
+
+/* what info do we want to show in the list
+ * - songs names (ev. try to shorten $HOME or even songdir)
+ * - last saved data
+ * - number of changes?
+ *
+ * what actions do we wan to offer
+ * - close dialog
+ * - delete log (ask for confirmation)
+ * - recover log 
+ *   - show message afterwards and ask to check and save?
+ *
+ * whats the work flow if there are multiple entries found?
+ * - right now one would need to exit the app
+ *
+ * we should also check for pending logs when opening a file!
  */
 
 #define BT_EDIT
