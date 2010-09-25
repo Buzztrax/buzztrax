@@ -1,3 +1,16 @@
+2010-09-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect things I did.
+
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/crash-recover-dialog.c:
+	  More planning. Handle return code more. Allow deleting left over
+	  crash logs.
+
+	* src/ui/edit/edit-application.c:
+	  Comment and disable a sanity check in releases.
+
 2010-09-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/change-log.c:
@@ -25,7 +38,7 @@
 
 	* src/ui/edit/crash-recover-dialog.c:
 	* src/ui/edit/settings-dialog.c:
-	  Improve dialog layouts. 
+	  Improve dialog layouts.
 
 2010-09-24  Stefan Kost  <ensonic@users.sf.net>
 

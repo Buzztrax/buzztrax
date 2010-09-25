@@ -25,12 +25,13 @@
  * Tracks edits actions since last save. Logs those to disk for crash recovery.
  * Provides undo/redo.
  */
-/* @todo: reset change-log on new/open-song (app.notify::song)
- * - flush old entries
- *
- * @todo: we should also check for pending logs when opening a file!
+/* @todo: we should also check for pending logs when opening a file!
  * - need to keep the change-log entries as a hash-table and offer api to check
  *   for it and if wanted replay
+ * - bt_change_log_recover calls bt_edit_application_load_song
+ *   - maybe we need to refactor this a bit
+ * - we could make bt_change_log_crash_check() static and run this in _init()
+ *   - the list of crash-log entries would be available as a property
  *
  * @todo: need change grouping
  * - when clearing a selection, we can represent this as a group of edits
@@ -403,6 +404,7 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
     gchar linebuf[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
     gchar *redo_data;
     BtChangeLogger *logger;
+    guint lines=0,lines_ok=0;
     
     if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
       GST_INFO("    '%s' is not a change log, eof too early",log_name);
@@ -426,7 +428,7 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
     // replay the log
     while(!feof(log_file)) {
       if(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file)) {
-        g_strchomp(linebuf);
+        g_strchomp(linebuf);lines++;
         GST_DEBUG("changelog-event: '%s'", linebuf);
         // log event: BtMainPagePatterns::set_global_event "simsyn","simsyn 00",8,0,c-4
         if((redo_data=strstr(linebuf,"::"))) {
@@ -434,7 +436,9 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
           redo_data=&redo_data[2];
           // determine owner (BtMainPagePatterns)
           if((logger=g_hash_table_lookup(self->priv->loggers,linebuf))) {
-            bt_change_logger_change(logger,redo_data);
+            if(bt_change_logger_change(logger,redo_data)) {
+              lines_ok++;
+            }
             /* FIXME: shall we add those to the new log?
              * then it would be fine to overwrite the log
              * as we have no undo-data we cannot restore the change-stack though
@@ -449,11 +453,14 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
         }
       }
     }
-  done:
+    GST_INFO("%u of %u lines replayed okay", lines_ok, lines);
     /*
       - message box, asking the user to check it and save if happy
-      - remove the old log
+      - defer removing the old log to saving the song
+        -> on_song_file_unsaved_changed()
     */
+    res=(lines_ok==lines);
+  done:
     fclose(log_file);
   }
   return(res);

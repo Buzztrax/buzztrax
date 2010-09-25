@@ -33,8 +33,14 @@
  * what actions do we wan to offer
  * - close dialog
  * - delete log (ask for confirmation)
- * - recover log 
+ * - recover log
  *   - show message afterwards and ask to check and save?
+ *
+ * - other implementations:
+ *   - jokosher:
+ *     http://blog.mikeasoft.com/2008/08/10/improved-crash-protection-for-jokosher/
+ *     - list of entries with restore and delete buttons
+ *     - menu entry in file-menu
  *
  * whats the work flow if there are multiple entries found?
  * - right now one would need to exit the app
@@ -73,25 +79,58 @@ struct _BtCrashRecoverDialogPrivate {
 
 G_DEFINE_TYPE (BtCrashRecoverDialog, bt_crash_recover_dialog, GTK_TYPE_DIALOG);
 
-//-- event handler
+//-- helper
 
-static void on_recover_clicked(GtkButton *button, gpointer user_data) {
-  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
+static gchar *get_selected(BtCrashRecoverDialog *self) {
+  GtkTreeSelection *selection;
+  GtkTreeModel     *model;
+  GtkTreeIter       iter;
+  gchar *log_name=NULL;
+
+  selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->entries_list));
+  if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+    gtk_tree_model_get(model,&iter,COL_LOG_NAME,&log_name,-1);
+  }
+  return(log_name);
+}
+
+static void remove_selected(BtCrashRecoverDialog *self) {
   GtkTreeSelection *selection;
   GtkTreeModel     *model;
   GtkTreeIter       iter;
 
-  GST_INFO("entries list cursor changed");
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->entries_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-    BtChangeLog *change_log=bt_change_log_new();
-    gchar *log_name;
+    gtk_list_store_remove(GTK_LIST_STORE(model),&iter);
+  }
+}
 
-    gtk_tree_model_get(model,&iter,COL_LOG_NAME,&log_name,-1);
+//-- event handler
+
+static void on_recover_clicked(GtkButton *button, gpointer user_data) {
+  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
+  gchar *log_name=get_selected(self);
+    
+  if(log_name) {
+    BtChangeLog *change_log=bt_change_log_new();
+
     GST_INFO("recovering: %s",log_name);
-    bt_change_log_recover(change_log,log_name);
+    if(bt_change_log_recover(change_log,log_name)) {
+      remove_selected(self);
+    }
     g_free(log_name);
     g_object_try_unref(change_log);
+  }
+}
+
+static void on_delete_clicked(GtkButton *button, gpointer user_data) {
+  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
+  gchar *log_name=get_selected(self);
+    
+  if(log_name) {
+    g_remove(log_name);
+    remove_selected(self);
+    g_free(log_name);
   }
 }
 
@@ -116,7 +155,7 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
   // select song + okay -> recover
   // select song + delete -> remove log
   gtk_dialog_add_buttons(GTK_DIALOG(self),
-                          GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                          GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
                           NULL);
 
   // content area
@@ -168,8 +207,13 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(self))),hbox,TRUE,TRUE,0);
   
   // add "undelete" button to action area
+  // GTK_STOCK_REVERT_TO_SAVED
   btn=gtk_button_new_from_stock(GTK_STOCK_UNDELETE);
   g_signal_connect(btn, "clicked", G_CALLBACK(on_recover_clicked), (gpointer)self);
+  gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(self))),btn,FALSE,FALSE,0);
+
+  btn=gtk_button_new_from_stock(GTK_STOCK_DELETE);
+  g_signal_connect(btn, "clicked", G_CALLBACK(on_delete_clicked), (gpointer)self);
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(self))),btn,FALSE,FALSE,0);
 
   gtk_dialog_set_has_separator(GTK_DIALOG(self),TRUE);

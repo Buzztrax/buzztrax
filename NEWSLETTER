@@ -1,5 +1,13 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2010/10 ========================================================================
+
+- simple journals now replay fine
+- buzztard-ui converted to G_DEFINE_TYPE too
+- migration from hal to GUdev
+- faster startup
+- make help-iface conditional as we have the needed code in gstreamer
+
 2010/09 ========================================================================
 
 After some more work bt-dec starts to works better. I can now play buzztard

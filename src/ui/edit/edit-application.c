@@ -344,16 +344,17 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     bt_edit_application_ui_lock(self);
     g_signal_connect(loader,"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
 
-    // create new song
+    // create new song and release the previous one
     song=bt_song_new(BT_APPLICATION(self));
     g_object_set((gpointer)self,"song",NULL,NULL);
     
+#ifdef USE_DEBUG
     // do sanity check that bin is empty
     {
       GstBin *bin;
       g_object_get((gpointer)self,"bin",&bin,NULL);
 
-      if(GST_BIN_NUMCHILDREN(bin)) {  
+      if(GST_BIN_NUMCHILDREN(bin)) {
         GST_WARNING("bin.num_children=%d has left-overs",GST_BIN_NUMCHILDREN(bin));
         GList *node=GST_BIN_CHILDREN(bin);
 
@@ -365,6 +366,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       }
       gst_object_unref(bin);
     }
+#endif
 
     if(bt_song_io_load(loader,song)) {
       BtMachine *machine;
