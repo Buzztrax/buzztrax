@@ -1,3 +1,8 @@
+2010-10-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/input/jstest.c:
+	  Fix a leak in a test.
+
 2010-09-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
