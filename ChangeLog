@@ -1,5 +1,15 @@
 2010-10-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/wire-pattern.c:
+	  Do a two pass update we insert/delete wos/columns so that we
+	  invalidate what was there before and what is after the change. This
+	  fixes not updating e.g. the cell on the cursor when inserting.
+	  Fixes #3086450.
+
+2010-10-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  News sent.
 

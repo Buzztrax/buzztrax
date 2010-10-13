@@ -828,8 +828,9 @@ void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, cons
   g_return_if_fail(tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   _insert_row(self,tick,param);
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 /**
@@ -849,10 +850,11 @@ void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick)
 
   GST_DEBUG("insert full-row at %lu", tick);
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   for(j=0;j<params;j++) {
     _insert_row(self,tick,j);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 
@@ -895,8 +897,9 @@ void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, cons
   g_return_if_fail(tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   _delete_row(self,tick,param);
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 /**
@@ -916,10 +919,11 @@ void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick)
 
   GST_DEBUG("insert full-row at %lu", tick);
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   for(j=0;j<params;j++) {
     _delete_row(self,tick,j);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 
@@ -952,8 +956,9 @@ void bt_pattern_delete_column(const BtPattern * const self, const gulong start_t
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   _delete_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 /**
@@ -975,10 +980,11 @@ void bt_pattern_delete_columns(const BtPattern * const self, const gulong start_
   // don't add internal_params here, bt_pattern_delete_column does already
   gulong j,params=self->priv->global_params+self->priv->voices*self->priv->voice_params;
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   for(j=0;j<params;j++) {
     _delete_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 
@@ -1062,7 +1068,7 @@ void bt_pattern_blend_column(const BtPattern * const self, const gulong start_ti
   g_return_if_fail(self->priv->data);
 
   _blend_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 /**
@@ -1087,7 +1093,7 @@ void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_t
   for(j=0;j<params;j++) {
     _blend_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 
@@ -1195,7 +1201,7 @@ void bt_pattern_randomize_column(const BtPattern * const self, const gulong star
   g_return_if_fail(self->priv->data);
 
   _randomize_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 /**
@@ -1220,7 +1226,7 @@ void bt_pattern_randomize_columns(const BtPattern * const self, const gulong sta
   for(j=0;j<params;j++) {
     _randomize_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 
@@ -1742,8 +1748,12 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
   /**
    * BtPattern::pattern-changed:
    * @self: the pattern object that emitted the signal
+   * @intermediate: boolean flag that is %TRUE to signal that more change are comming
    *
-   * signals that this pattern has been changed (more than in one place)
+   * Signals that this pattern has been changed (more than in one place).
+   * When doing e.g. lin inserts, one will receive two updtes, one before and one
+   * after. The first will have @intermediate=TRUE. Applications can use that to
+   * defer change-consolidation.
    */
   signals[PATTERN_CHANGED_EVENT] = g_signal_new("pattern-changed",
                                         G_TYPE_FROM_CLASS(klass),
@@ -1751,9 +1761,10 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
                                         0,
                                         NULL, // accumulator
                                         NULL, // acc data
-                                        g_cclosure_marshal_VOID__VOID,
+                                        g_cclosure_marshal_VOID__BOOLEAN,
                                         G_TYPE_NONE, // return type
-                                        0 // n_params
+                                        1, // n_params
+                                        G_TYPE_BOOLEAN
                                         );
 
   g_object_class_install_property(gobject_class,PATTERN_SONG,

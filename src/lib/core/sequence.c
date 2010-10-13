@@ -445,11 +445,6 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
    * list of incoming wires (and its pattern) again and again.
    *
    * It also involves a lot of creating and destoying of hashtables
-   *
-   * @todo: couldn't we just invalidate the regio where we have a event
-   * bt_wire_pattern_test_event(wire_pattern,i,j);
-   * bt_pattern_test_global_event(pattern,i,j);
-   * bt_pattern_test_voice_event(pattern,i,k,j);
    */
 
   // determine region of change
@@ -839,7 +834,7 @@ static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern *
   bt_sequence_repair_damage(self);
 }
 
-static void bt_sequence_on_pattern_changed(const BtPattern * const pattern, gconstpointer user_data) {
+static void bt_sequence_on_pattern_changed(const BtPattern * const pattern, const gboolean intermediate, gconstpointer user_data) {
   const BtSequence * const self=BT_SEQUENCE(user_data);
   const gulong tracks=self->priv->tracks;
   const gulong length=self->priv->length;
@@ -865,12 +860,14 @@ static void bt_sequence_on_pattern_changed(const BtPattern * const pattern, gcon
     }
   }
   g_object_unref(machine);
-  // repair damage
-  bt_sequence_repair_damage(self);
+  if(!intermediate) {
+    // repair damage
+    bt_sequence_repair_damage(self);
+  }
   GST_DEBUG("Done");
 }
 
-static void bt_sequence_on_wire_pattern_changed(const BtWirePattern * const wire_pattern, gconstpointer user_data) {
+static void bt_sequence_on_wire_pattern_changed(const BtWirePattern * const wire_pattern, const gboolean intermediate, gconstpointer user_data) {
   const BtSequence * const self=BT_SEQUENCE(user_data);
   const gulong tracks=self->priv->tracks;
   const gulong length=self->priv->length;
@@ -899,8 +896,10 @@ static void bt_sequence_on_wire_pattern_changed(const BtWirePattern * const wire
   }
   g_object_unref(machine);
   g_object_unref(pattern);
-  // repair damage
-  bt_sequence_repair_damage(self);
+  if(!intermediate) {
+    // repair damage
+    bt_sequence_repair_damage(self);
+  }
   GST_DEBUG("Done");
 }
 

@@ -413,8 +413,9 @@ void bt_wire_pattern_insert_row(const BtWirePattern * const self, const gulong t
   g_return_if_fail(tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   _insert_row(self,tick,param);
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 /**
@@ -434,10 +435,11 @@ void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gul
 
   GST_DEBUG("insert full-row at %lu", tick);
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   for(j=0;j<num_params;j++) {
     _insert_row(self,tick,j);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 
@@ -481,8 +483,9 @@ void bt_wire_pattern_delete_row(const BtWirePattern * const self, const gulong t
   g_return_if_fail(tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   _delete_row(self,tick,param);
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 /**
@@ -502,10 +505,11 @@ void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gul
 
   GST_DEBUG("insert full-row at %lu", tick);
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   for(j=0;j<num_params;j++) {
     _delete_row(self,tick,j);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 
@@ -538,8 +542,9 @@ void bt_wire_pattern_delete_column(const BtWirePattern * const self, const gulon
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   _delete_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 /**
@@ -561,10 +566,11 @@ void bt_wire_pattern_delete_columns(const BtWirePattern * const self, const gulo
   const gulong num_params=self->priv->num_params;
   gulong j;
 
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   for(j=0;j<num_params;j++) {
     _delete_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
 
@@ -1240,9 +1246,10 @@ static void bt_wire_pattern_class_init(BtWirePatternClass * const klass) {
                                     0,
                                     NULL, // accumulator
                                     NULL, // acc data
-                                    g_cclosure_marshal_VOID__VOID,
+                                    g_cclosure_marshal_VOID__BOOLEAN,
                                     G_TYPE_NONE, // return type
-                                    0 // n_params
+                                    0, // n_params
+                                    G_TYPE_BOOLEAN
                                     );
 
   g_object_class_install_property(gobject_class,WIRE_PATTERN_SONG,
