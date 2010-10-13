@@ -2,11 +2,49 @@ svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
 2010/10 ========================================================================
 
-- simple journals now replay fine
-- buzztard-ui converted to G_DEFINE_TYPE too
-- migration from hal to GUdev
-- faster startup
-- make help-iface conditional as we have the needed code in gstreamer
+After all the initial work for journaling of edit events in the editor, I wanted
+to get a first proof of concept that everything fits together. And that I just
+got. The pattern editor implements a change-logger interfaces. It grabs the
+changelog singleton instance and logs all changes together with the undo action.
+The redo-action gets serialized and written to the changelog. The ui can 
+undo/redo activities by using the change-logger interface. Upon startup the ui 
+checks for leftover change logs, auto-cleans a few of them and offers a dialog
+for deleting/replaying them. I can now load a song, make changes in the pattern
+editor, ctrl-c/kill the app and replay the log when starting it again. There are
+a couple of details that need to be cleanup and some things need a bit more 
+thinking: Next I will implement this in larger scale also.
+
+As a continuation from last month I changed the whole editor UI to use 
+G_DEFINE_TYPE and co. Boring work, but good to have it done now.
+
+I had some strange crashes in the test suite - all pointing to gconf and only
+happening with the commandline client. After adding lots of extra logging there
+I still could see nothing wrong. Then I remember the hack I added to get a
+eventloop into the app - I run it as a new thread. By doing that I was doing
+gconf bits from different threads too and it does not seem to like it. I have
+now done the mainloop stuff more properly and get no more crashers. While
+looking into this problem, I cleaned the settings classes and the gconf backend
+a bit. It now does more stuff only as needed, improving the startup time of
+buzztard app a little further.
+
+In GStreamer next core release will have extra metadata on element factories.
+This mechanism allows me to kill the one-property help interface. I rewrote all
+the code to use that conditionally and will remove it in a year or so.
+
+As a last bigger task I migrated from deprecated HAL to GUdev. I have still 
+conditional support for both, but will kill the HAL code once everything works 
+nicely. I was using hal to discover input devices (joysticks, wiimotes,..) and
+midi-devices that can be used to control effects. Most of the conversion was
+straight forward. I spent a bit more time on getting nice names of the found
+devices for the UI and to classify midi-devices. For the midi-device 
+classification I copied the matching rules from HAL - after all they seemed to
+do the trick there. For the ui names HAL was actually grepping through various
+files (e.g. /proc/asound/cards) for soundcard names. That I did not really
+wanted to copy. I got some great help from the udev people and learned that udev
+devices have properties like ID_VENDOR. One just needs to walk the device tree
+to get to the root device and grab the names there.
+
+119 files changed, 3377 insertions(+), 1953 deletions(-)
 
 2010/09 ========================================================================
 

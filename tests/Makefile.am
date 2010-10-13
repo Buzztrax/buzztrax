@@ -37,7 +37,7 @@ if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
 
 /tmp/test.wav:
-	gst-launch-0.10 -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=/tmp/test.wav
+	gst-launch-0.10 -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=$@
 
 noinst_LTLIBRARIES = libbt-check.la
 libbt_check_la_LIBADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck

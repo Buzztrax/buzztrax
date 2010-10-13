@@ -1725,7 +1725,7 @@ static gboolean bt_machine_has_global_param_default_set(const BtMachine * const 
  * Tests if the voice param uses the default at timestamp=0. Parameters have a
  * default if there is no control-point at that timestamp. When interactively
  * changing the parameter, the default needs to be updated by calling
- * bt_machine_global_controller_change_value().
+ * bt_machine_voice_controller_change_value().
  *
  * Returns: %TRUE if it has a default there
  */

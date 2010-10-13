@@ -1,3 +1,17 @@
+2010-10-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  News sent.
+
+	* src/lib/core/machine.c:
+	  Small  comment fix.
+
+	* src/lib/core/sequence.c:
+	  Whitespace fix.
+
+	* tests/Makefile.am:
+	  Use target in rule.
+
 2010-10-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/input/jstest.c:

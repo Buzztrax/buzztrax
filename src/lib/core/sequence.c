@@ -690,7 +690,7 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
    *   for 4/4 bars it is 16 (standart dance rhythm)
    *   for 3/4 bars it is 12 (walz)
    * correlation of values:
-   *   bpm    60     60  
+   *   bpm    60     60
    *   tpb     4      8
    *   tpm   240    480 bpm*tpb
    *   wpp  0.25  0.125 60/tpm
