@@ -1,3 +1,11 @@
+2010-10-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/change-log-methods.h:
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/edit-application.c:
+	  Add a "crash-logs" property to change log to get acccess to the found
+	  crash logs. Make bt_change_log_crash_check private.
+
 2010-10-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/pattern.c:

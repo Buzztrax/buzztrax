@@ -106,7 +106,8 @@ Otherwise it becomes a graph and then redo would need to know the direction.
 
 enum {
   CHANGE_LOG_CAN_UNDO=1,
-  CHANGE_LOG_CAN_REDO
+  CHANGE_LOG_CAN_REDO,
+  CHANGE_LOG_CRASH_LOGS
 };
 
 //-- structs
@@ -137,6 +138,9 @@ struct _BtChangeLogPrivate {
   gint next_redo;  // -1 for none, or just have pointers?
   gint next_undo;  // -1 for none, or just have pointers?
   gint item_ct;
+
+  /* crash log entries */
+  GList *crash_logs;
 };
 
 static BtChangeLog *singleton=NULL;
@@ -199,6 +203,110 @@ static void open_and_init_log(BtChangeLog *self, BtSongInfo *song_info) {
     fflush(self->priv->log_file);
   }
 }
+
+/*
+ * bt_change_log_crash_check:
+ * @self: the changelog
+ *
+ * Looks for changelog-journals in the cache dir. Finding those would indicate
+ * that a song has not been saved (e.g the app crashed). This check can be done
+ * at any time, but application startup would make most sense.
+ * Currently open songs (which have a open journal) are filtered.
+ *
+ * Returns: a list with journals, free when done.
+ */
+static void bt_change_log_crash_check(BtChangeLog *self) {
+  DIR *dirp;
+  GList *crash_logs=NULL;
+  
+  if(!self->priv->cache_dir)
+    return;
+  
+  if((dirp=opendir(self->priv->cache_dir))) {
+    const struct dirent *dire;
+    gchar link_target[FILENAME_MAX],log_name[FILENAME_MAX];
+    FILE *log_file;
+    gboolean valid_log,auto_clean;
+  
+    GST_INFO("looking for crash left-overs in %s",self->priv->cache_dir);
+    while((dire=readdir(dirp))!=NULL) {
+      // skip names starting with a dot
+      if((!dire->d_name) || (*dire->d_name=='.')) continue;
+      g_sprintf(log_name,"%s"G_DIR_SEPARATOR_S"%s",self->priv->cache_dir,dire->d_name);
+      // skip symlinks
+      if(readlink((const char *)log_name,link_target,FILENAME_MAX-1)!=-1) continue;
+      // skip files other than logs and our current log
+      if(!g_str_has_suffix(log_name,".log")) continue;
+      GST_INFO("    found file '%s'",log_name);
+
+      /* run a pre-check over the logs
+       * - auto-clean logs that only consist of the header (2 lines)
+       * - the log would need to point to the actual filename
+       *   - only offer recover if the original file is available or
+       *     if file-name is empty
+       *   - otherwise auto-clean
+       */
+      valid_log=auto_clean=FALSE;
+      if((log_file=fopen(log_name,"rt"))) {
+        gchar linebuf[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
+        gchar song_file_name[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
+        BtChangeLogFile *crash_log;
+        struct stat fileinfo;
+        
+        if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
+          GST_INFO("    '%s' is not a change log, eof too early",log_name);
+          goto done;
+        }
+        if(!g_str_has_prefix(linebuf, PACKAGE" edit journal : ")) {
+          GST_INFO("    '%s' is not a change log, wrong header",log_name);
+          goto done;
+        }
+        // from now one, we know its a log, if its useless we can kill it
+        if(!(fgets(song_file_name, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
+          GST_INFO("    '%s' is not a change log, eof too early",log_name);
+          auto_clean=TRUE;
+          goto done;
+        }
+        g_strchomp(song_file_name);
+        if(*song_file_name && !g_file_test (song_file_name, G_FILE_TEST_IS_REGULAR|G_FILE_TEST_EXISTS)) {
+          GST_INFO("    '%s' a change log for '%s' but that file does not exists",log_name,song_file_name);
+          auto_clean=TRUE;
+          goto done;
+        }
+        if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
+          GST_INFO("    '%s' is an empty change log",log_name);
+          auto_clean=TRUE;
+          goto done;
+        }
+        valid_log=TRUE;
+        // add to crash_entries list
+        crash_log=g_slice_new(BtChangeLogFile);
+        crash_log->log_name=g_strdup(log_name);
+        crash_log->song_file_name=*song_file_name?g_strdup(song_file_name):g_strdup(_("unsaved song"));
+        stat(log_name,&fileinfo);
+        strftime(linebuf,BT_CHANGE_LOG_MAX_HEADER_LINE_LEN-1,"%c",localtime(&fileinfo.st_mtime));
+        crash_log->change_ts=g_strdup(linebuf);
+        crash_logs=g_list_prepend(crash_logs,crash_log);
+      done:
+        fclose(log_file);
+      }
+      if(!valid_log) {
+        /* be careful with removing invalid log-files
+         * - if g_get_user_cache_dir() returns non-sense due to some bug,
+         *   we eventualy walk some random dir and remove files
+         * - we can remove files that *are* log files, but invalid
+         */
+        if(auto_clean) {
+          GST_WARNING("auto removing '%s'",log_name);
+          g_remove(log_name);
+        }
+      }
+    }
+    closedir(dirp);
+  }
+  self->priv->crash_logs = crash_logs;
+}
+
 
 //-- event handler
 
@@ -282,110 +390,6 @@ BtChangeLog *bt_change_log_new(void) {
 
 
 //-- methods
-
-/**
- * bt_change_log_crash_check:
- * @self: the changelog
- *
- * Looks for changelog-journals in the cache dir. Finding those would indicate
- * that a song has not been saved (e.g the app crashed). This check can be done
- * at any time, but application startup would make most sense.
- * Currently open songs (which have a open journal) are filtered.
- *
- * Returns: a list with journals, free when done.
- */
-GList *bt_change_log_crash_check(BtChangeLog *self) {
-  DIR *dirp;
-  GList *crash_entries=NULL;
-  
-  if(!self->priv->cache_dir)
-    return(NULL);
-  
-  if((dirp=opendir(self->priv->cache_dir))) {
-    const struct dirent *dire;
-    gchar link_target[FILENAME_MAX],log_name[FILENAME_MAX];
-    FILE *log_file;
-    gboolean valid_log,auto_clean;
-  
-    GST_INFO("looking for crash left-overs in %s",self->priv->cache_dir);
-    while((dire=readdir(dirp))!=NULL) {
-      // skip names starting with a dot
-      if((!dire->d_name) || (*dire->d_name=='.')) continue;
-      g_sprintf(log_name,"%s"G_DIR_SEPARATOR_S"%s",self->priv->cache_dir,dire->d_name);
-      // skip symlinks
-      if(readlink((const char *)log_name,link_target,FILENAME_MAX-1)!=-1) continue;
-      // skip files other than logs and our current log
-      if(!g_str_has_suffix(log_name,".log")) continue;
-      if(g_str_has_suffix(log_name,self->priv->log_file_name)) continue;
-      GST_INFO("    found file '%s'",log_name);
-
-      /* run a pre-check over the logs
-       * - auto-clean logs that only consist of the header (2 lines)
-       * - the log would need to point to the actual filename
-       *   - only offer recover if the original file is available or
-       *     if file-name is empty
-       *   - otherwise auto-clean
-       */
-      valid_log=auto_clean=FALSE;
-      if((log_file=fopen(log_name,"rt"))) {
-        gchar linebuf[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
-        gchar song_file_name[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
-        BtChangeLogFile *crash_entry;
-        struct stat fileinfo;
-        
-        if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
-          GST_INFO("    '%s' is not a change log, eof too early",log_name);
-          goto done;
-        }
-        if(!g_str_has_prefix(linebuf, PACKAGE" edit journal : ")) {
-          GST_INFO("    '%s' is not a change log, wrong header",log_name);
-          goto done;
-        }
-        // from now one, we know its a log, if its useless we can kill it
-        if(!(fgets(song_file_name, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
-          GST_INFO("    '%s' is not a change log, eof too early",log_name);
-          auto_clean=TRUE;
-          goto done;
-        }
-        g_strchomp(song_file_name);
-        if(*song_file_name && !g_file_test (song_file_name, G_FILE_TEST_IS_REGULAR|G_FILE_TEST_EXISTS)) {
-          GST_INFO("    '%s' a change log for '%s' but that file does not exists",log_name,song_file_name);
-          auto_clean=TRUE;
-          goto done;
-        }
-        if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
-          GST_INFO("    '%s' is an empty change log",log_name);
-          auto_clean=TRUE;
-          goto done;
-        }
-        valid_log=TRUE;
-        // add to crash_entries list
-        crash_entry=g_slice_new(BtChangeLogFile);
-        crash_entry->log_name=g_strdup(log_name);
-        crash_entry->song_file_name=*song_file_name?g_strdup(song_file_name):g_strdup(_("unsaved song"));
-        stat(log_name,&fileinfo);
-        strftime(linebuf,BT_CHANGE_LOG_MAX_HEADER_LINE_LEN-1,"%c",localtime(&fileinfo.st_mtime));
-        crash_entry->change_ts=g_strdup(linebuf);
-        crash_entries=g_list_prepend(crash_entries,crash_entry);
-      done:
-        fclose(log_file);
-      }
-      if(!valid_log) {
-        /* be careful with removing invalid log-files
-         * - if g_get_user_cache_dir() returns non-sense due to some bug,
-         *   we eventualy walk some random dir and remove files
-         * - we can remove files that *are* log files, but invalid
-         */
-        if(auto_clean) {
-          GST_WARNING("auto removing '%s'",log_name);
-          g_remove(log_name);
-        }
-      }
-    }
-    closedir(dirp);
-  }
-  return(crash_entries);
-}
 
 /**
  * bt_change_log_recover:
@@ -609,11 +613,23 @@ static void bt_change_log_dispose(GObject *object) {
 
 static void bt_change_log_finalize(GObject *object) {
   BtChangeLog *self = BT_CHANGE_LOG(object);
+  BtChangeLogFile *crash_log;
+  GList *node;
   
   GST_DEBUG("!!!! self=%p",self);
   g_free(self->priv->cache_dir);
-  
+
   g_hash_table_destroy(self->priv->loggers);
+  
+  // free cgrash-logs list and entries
+  for(node=self->priv->crash_logs;node;node=g_list_next(node)) {
+    crash_log=(BtChangeLogFile *)node->data;
+    g_free(crash_log->log_name);
+    g_free(crash_log->song_file_name);
+    g_free(crash_log->change_ts);
+    g_slice_free(BtChangeLogFile,crash_log);
+  }
+  g_list_free(self->priv->crash_logs);
 
   G_OBJECT_CLASS(bt_change_log_parent_class)->finalize(object);
 }
@@ -642,6 +658,9 @@ static void bt_change_log_get_property(GObject *object, guint property_id, GValu
     case CHANGE_LOG_CAN_REDO: {
       g_value_set_boolean(value,(self->priv->next_redo!=self->priv->item_ct));
     } break;
+    case CHANGE_LOG_CRASH_LOGS: {
+      g_value_set_pointer(value,self->priv->crash_logs);
+    } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -668,6 +687,8 @@ static void bt_change_log_init(BtChangeLog *self) {
   self->priv->changes=g_ptr_array_new();
   self->priv->next_undo=-1;
   self->priv->next_redo=0;
+  
+  bt_change_log_crash_check(self);
 
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 }
@@ -694,6 +715,12 @@ static void bt_change_log_class_init(BtChangeLogClass *klass) {
                                      "can-redo prop",
                                      "Where there are action to redo",
                                      FALSE,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,CHANGE_LOG_CRASH_LOGS,
+                                  g_param_spec_pointer("crash-logs",
+                                     "crash logs prop",
+                                     "A list of found crash logs",
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
