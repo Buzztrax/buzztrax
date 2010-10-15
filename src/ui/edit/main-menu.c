@@ -124,6 +124,23 @@ static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
   bt_main_window_save_song_as(self->priv->main_window);
 }
 
+static void on_menu_recover_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  GST_INFO("menu crash-log recoder event occurred");
+  bt_edit_application_crash_log_recover(self->priv->app);
+}
+
+static void on_menu_recover_changed(const BtChangeLog *change_log,GParamSpec *arg,gpointer user_data) {
+  GtkWidget *menuitem = GTK_WIDGET(user_data);
+  GList *crash_logs;
+  
+  g_object_get((GObject *)change_log,"crash-logs",&crash_logs,NULL);
+  if(!crash_logs) {
+    gtk_widget_set_sensitive(GTK_WIDGET(menuitem), FALSE);
+  }
+}
+
 static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   GtkWidget *settings,*progress;
@@ -459,7 +476,7 @@ static void on_menu_play_activate(GtkMenuItem *menuitem,gpointer user_data) {
   g_object_unref(song);
 }
 
-static void  on_menu_play_from_cursor_activate(GtkMenuItem *menuitem,gpointer user_data) {
+static void on_menu_play_from_cursor_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtSong *song;
   BtMainPages *pages;
@@ -737,6 +754,14 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE_AS,accel_group);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_saveas_activate),(gpointer)self);
+
+  gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDELETE,accel_group);
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_recover_activate),(gpointer)self);
+  on_menu_recover_changed(self->priv->change_log, NULL, subitem);
+  g_signal_connect(self->priv->change_log,"notify::crash-logs",G_CALLBACK(on_menu_recover_changed),(gpointer)subitem);
 
   gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 

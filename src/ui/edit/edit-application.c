@@ -174,7 +174,6 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   BtSettings *settings;
   guint version;
   gboolean res,show_tips;
-  GList *crash_logs;
 
   g_assert(self);
   g_assert(self->priv->main_window);
@@ -201,21 +200,7 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
     goto Error;
 
   // check for recoverable songs
-  g_object_get(self->priv->change_log,"crash-logs",&crash_logs, NULL);
-  if(crash_logs) {
-    GtkWidget *dialog;
-
-    GST_INFO("have found crash logs");
-    if((dialog=GTK_WIDGET(bt_crash_recover_dialog_new(crash_logs)))) {
-      // set parent relationship
-      gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
-      gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-      gtk_widget_show_all(dialog);
-    
-      gtk_dialog_run(GTK_DIALOG(dialog));
-      gtk_widget_destroy(dialog);
-    }
-  }
+  bt_edit_application_crash_log_recover(self);
 
   GST_INFO("before running the UI");
   gtk_main();
@@ -621,6 +606,32 @@ void bt_edit_application_show_tip(const BtEditApplication *self) {
   
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
+  }
+}
+
+/**
+ * bt_edit_application_crash_log_recover:
+ * @self: the application instance
+ *
+ * Shows the crash-log recover window if we have pending crash logs.
+ */
+void bt_edit_application_crash_log_recover(const BtEditApplication *self) {
+  GList *crash_logs;
+
+  g_object_get(self->priv->change_log,"crash-logs",&crash_logs, NULL);
+  if(crash_logs) {
+    GtkWidget *dialog;
+
+    GST_INFO("have found crash logs");
+    if((dialog=GTK_WIDGET(bt_crash_recover_dialog_new(crash_logs)))) {
+      // set parent relationship
+      gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
+      gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+      gtk_widget_show_all(dialog);
+    
+      gtk_dialog_run(GTK_DIALOG(dialog));
+      gtk_widget_destroy(dialog);
+    }
   }
 }
 

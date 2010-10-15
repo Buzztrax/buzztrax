@@ -37,6 +37,8 @@ extern gboolean bt_edit_application_quit(const BtEditApplication *self);
 extern void bt_edit_application_show_about(const BtEditApplication *self);
 extern void bt_edit_application_show_tip(const BtEditApplication *self);
 
+extern void bt_edit_application_crash_log_recover(const BtEditApplication *self);
+
 extern void bt_edit_application_ui_lock(const BtEditApplication *self);
 extern void bt_edit_application_ui_unlock(const BtEditApplication *self);
 

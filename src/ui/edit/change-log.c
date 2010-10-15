@@ -462,6 +462,7 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
       - message box, asking the user to check it and save if happy
       - defer removing the old log to saving the song
         -> on_song_file_unsaved_changed()
+        - remove the change log from self->priv-crash_logs then also
     */
     res=(lines_ok==lines);
   done:

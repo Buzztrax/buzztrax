@@ -1,5 +1,15 @@
 2010-10-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/edit-application-methods.h:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-menu.c:
+	  Add a menu item for recovering change-log entries. Refactor code in 
+	  edit application to expose running the dialog as publci method.
+
+2010-10-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/change-log-methods.h:
 	* src/ui/edit/change-log.c:
 	* src/ui/edit/edit-application.c:
