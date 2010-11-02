@@ -39,6 +39,7 @@
  *   - check for stopped and send eos?
  *   - change bt-bin to be a normal GstElement (no need to be a bin)
  * - issues
+ *   - we depend on a running main-loop (for notify::is-playing)
  */
  
 #ifdef HAVE_CONFIG_H
@@ -594,7 +595,7 @@ bt_dec_change_state (GstElement * element, GstStateChange transition)
       bt_song_pause (self->song);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
-      /* this causes a deadlock if called in PAUSED_TO_PLAYING */
+      /* this causes a deadlock if called in PLAYING_TO_PAUSED */
       bt_song_stop (self->song);
       if((gst_element_set_state (GST_ELEMENT (self->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
         GST_WARNING("can't go to null state");
