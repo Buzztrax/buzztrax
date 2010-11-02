@@ -1732,7 +1732,6 @@ static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *ne
   }
 }
 
-
 static void switch_machine_and_pattern(const BtMainPagePatterns *self,BtMachine *machine, BtPattern *pattern) {
   GtkTreeIter iter;
   GtkTreeModel *store;
@@ -1747,9 +1746,30 @@ static void switch_machine_and_pattern(const BtMainPagePatterns *self,BtMachine 
     // update pattern menu
     store=gtk_combo_box_get_model(self->priv->pattern_menu);
     pattern_model_get_iter_by_pattern(store,&iter,pattern);
-    gtk_combo_box_set_active_iter(self->priv->pattern_menu,&iter);  
+    gtk_combo_box_set_active_iter(self->priv->pattern_menu,&iter);
   }
 }
+
+static void lookup_machine_and_pattern(const BtMainPagePatterns *self,BtMachine **machine, BtPattern **pattern,gchar *mid, gchar *c_mid,gchar *pid, gchar *c_pid) {
+  if(!c_mid || strcmp(mid,c_mid)) {
+    BtSong *song;
+    BtSetup *setup;
+    // change machine and pattern
+    g_object_get(self->priv->app,"song",&song,NULL);
+    g_object_get(song,"setup",&setup,NULL);
+    g_object_try_unref(*machine);
+    *machine=bt_setup_get_machine_by_id(setup, mid);
+    *pattern=bt_machine_get_pattern_by_id(*machine,pid);
+    switch_machine_and_pattern(self,*machine,*pattern);
+    g_object_unref(setup);
+    g_object_unref(song);
+  } else if(!c_pid || strcmp(pid,c_pid)) {
+    // change pattern
+    *pattern=bt_machine_get_pattern_by_id(*machine,pid);
+    switch_machine_and_pattern(self,NULL,*pattern);
+  }
+}
+
 //-- event handler
 
 static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
@@ -2921,8 +2941,6 @@ void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self) {
 static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger *owner,const gchar *data) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(owner);
   gboolean res=FALSE;
-  BtSong *song;
-  BtSetup *setup;
   BtMachine *machine;
   BtPattern *pattern=self->priv->pattern;
   guint row=0,group=0,param=0;
@@ -2955,23 +2973,11 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_match_info_free(match_info);
 
       GST_DEBUG("-> [%s|%s|%u|%u|%s]",mid,pid,row,param,str);
-      if(!c_mid || strcmp(mid,c_mid)) {
-        // change machine and pattern
-        g_object_get(self->priv->app,"song",&song,NULL);
-        g_object_get(song,"setup",&setup,NULL);
-        g_object_try_unref(machine);
-        machine=bt_setup_get_machine_by_id(setup, mid);
-        pattern=bt_machine_get_pattern_by_id(machine,pid);
-        switch_machine_and_pattern(self,machine,pattern);
-        g_object_unref(setup);
-        g_object_unref(song);
-      } else if(!c_pid || strcmp(pid,c_pid)) {
-        // change pattern
-        pattern=bt_machine_get_pattern_by_id(machine,pid);
-        switch_machine_and_pattern(self,NULL,pattern);
-      }
+      lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
       res=bt_pattern_set_global_event(pattern,row,param,str);
       g_free(str);
+      g_free(mid);
+      g_free(pid);
   
       // move cursor
       for(group=0;group<self->priv->number_of_groups;group++) {
@@ -2998,23 +3004,11 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_match_info_free(match_info);
 
       GST_DEBUG("-> [%s|%s|%u|%u|%u|%s]",mid,pid,row,voice,param,str);
-      if(!c_mid || strcmp(mid,c_mid)) {
-        // change machine and pattern
-        g_object_get(self->priv->app,"song",&song,NULL);
-        g_object_get(song,"setup",&setup,NULL);
-        g_object_try_unref(machine);
-        machine=bt_setup_get_machine_by_id(setup, mid);
-        pattern=bt_machine_get_pattern_by_id(machine,pid);
-        switch_machine_and_pattern(self,machine,pattern);
-        g_object_unref(setup);
-        g_object_unref(song);
-      }
-      if(!c_pid || strcmp(pid,c_pid)) {
-        // change pattern
-        pattern=bt_machine_get_pattern_by_id(machine,pid);
-        switch_machine_and_pattern(self,NULL,pattern);
-      }
+      lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
       res=bt_pattern_set_voice_event(pattern,row,voice,param,str);
+      g_free(str);
+      g_free(mid);
+      g_free(pid);
   
       // move cursor
       for(group=0;group<self->priv->number_of_groups;group++) {
@@ -3026,6 +3020,36 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
     }
     g_regex_unref(regex);
   }
+  else if(!strncmp(data,"set_property ",13)) {
+    gchar *mid,*pid,*param,*value;
+    regex=g_regex_new("\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$",0,0,NULL);
+    if(g_regex_match_full(regex,data,-1,13,0,&match_info,NULL)) {
+      mid=g_match_info_fetch(match_info,1);
+      pid=g_match_info_fetch(match_info,2);
+      param=g_match_info_fetch(match_info,3);
+      value=g_match_info_fetch(match_info,4);
+      g_match_info_free(match_info);
+
+      lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
+      /* only used from pattern_properties_dialog
+      // string "name"
+      // ulong "length"
+      // ulong "voices"
+      */
+      
+      g_free(mid);
+      g_free(pid);
+      g_free(param);
+      g_free(value);
+    }
+    else {
+      GST_WARNING("no match in pattern \"%s\"",g_regex_get_pattern(regex));
+    }
+    g_regex_unref(regex);
+  }
+  /* TODO:
+  - new/delete pattern
+  */
   else {
     GST_WARNING("unhandled undo/redo: [%s]",data);
   }
@@ -3111,6 +3135,7 @@ static void bt_main_page_patterns_init(BtMainPagePatterns *self) {
   for (i = 0; i < MAX_WAVETABLE_ITEMS + 2; i++)
     self->priv->wave_to_combopos[i] = self->priv->combopos_to_wave[i] = -1;
   
+  // the undo/redo changelogger
   self->priv->change_log=bt_change_log_new();
   bt_change_log_register(self->priv->change_log,BT_CHANGE_LOGGER(self));
 }

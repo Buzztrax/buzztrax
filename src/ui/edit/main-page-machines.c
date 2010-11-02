@@ -124,11 +124,18 @@ struct _BtMainPageMachinesPrivate {
   
   /* relative scrollbar position */
   gdouble scroll_x,scroll_y;
+
+  /* editor change log */
+  BtChangeLog *change_log;
 };
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainPageMachines, bt_main_page_machines, GTK_TYPE_VBOX);
+static void bt_main_page_machines_change_logger_interface_init(gpointer const g_iface, gconstpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtMainPageMachines, bt_main_page_machines, GTK_TYPE_VBOX,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_CHANGE_LOGGER,
+    bt_main_page_machines_change_logger_interface_init));
 
 
 //-- data helper
@@ -1215,6 +1222,33 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
   return(TRUE);
 }
 
+//-- change logger interface
+
+static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger *owner,const gchar *data) {
+  //BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(owner);
+  gboolean res=FALSE;
+  
+  GST_INFO("undo/redo: [%s]",data);
+  // parse data and apply action
+  
+  /* TODO:
+  - add/remove machine
+  - link/unlink machines
+  - move machines
+  - mute/solo/bypass
+  - volume/panorama
+  - open/close machine,wire windows
+  */
+
+  return res;
+}
+
+static void bt_main_page_machines_change_logger_interface_init(gpointer const g_iface, gconstpointer const iface_data) {
+  BtChangeLoggerInterface * const iface = g_iface;
+
+  iface->change = bt_main_page_machines_change_logger_change;
+}
+
 //-- wrapper
 
 //-- class internals
@@ -1311,6 +1345,10 @@ static void bt_main_page_machines_init(BtMainPageMachines *self) {
   self->priv->drag_cursor=gdk_cursor_new(GDK_FLEUR);
   
   self->priv->scroll_x=self->priv->scroll_y=0.5;
+
+  // the undo/redo changelogger
+  self->priv->change_log=bt_change_log_new();
+  bt_change_log_register(self->priv->change_log,BT_CHANGE_LOGGER(self));
 }
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {

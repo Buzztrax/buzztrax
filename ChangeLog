@@ -1,5 +1,14 @@
 2010-11-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Add change-logger iface and add todo comments.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fix string leak and add more comments. Factor out code to update
+	  machien and pattern.
+
+2010-11-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWS:
 	  Prepare NEWS
 
