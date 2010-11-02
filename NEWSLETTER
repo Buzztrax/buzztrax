@@ -1,5 +1,12 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2010/11 ========================================================================
+
+- bug fixes
+- change log recoverey from menu
+
+14 files changed, 325 insertions(+), 166 deletions(-)
+
 2010/10 ========================================================================
 
 After all the initial work for journaling of edit events in the editor, I wanted
