@@ -1,3 +1,9 @@
+2010-11-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Allow disabling the gobject introspection to get thisng building if
+	  gi got changed. Should Fix #3102744.
+
 2010-11-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/dec/bt-dec.c:

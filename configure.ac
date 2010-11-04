@@ -344,24 +344,38 @@ PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
 )
 
 # GObject Introspection
-PKG_CHECK_MODULES(GOBJECT_INTROSPECTION, [gobject-introspection-1.0],[
-    AM_CONDITIONAL(USE_GIR, true)
-    G_IR_SCANNER=`$PKG_CONFIG --variable=g_ir_scanner gobject-introspection-1.0`
-    AC_SUBST(G_IR_SCANNER)
-    G_IR_COMPILER=`$PKG_CONFIG --variable=g_ir_compiler gobject-introspection-1.0`
-    AC_SUBST(G_IR_COMPILER)
-    G_IR_GENERATE=`$PKG_CONFIG --variable=g_ir_generate gobject-introspection-1.0`
-    AC_SUBST(G_IR_GENERATE)
-    GIRDIR=`$PKG_CONFIG --variable=girdir gobject-introspection-1.0`
-    AC_SUBST(GIRDIR)
-    TYPELIBDIR=`$PKG_CONFIG --variable=typelibdir gobject-introspection-1.0`
-    AC_SUBST(TYPELIBDIR)
-    enable_gir="yes"
-  ],[
+AC_ARG_ENABLE([introspection],
+  AS_HELP_STRING([--enable-introspection],
+     [enable introspection for this build (default=auto)]),
+     , 
+     [enable_introspection=auto])
+
+case "x${enable_introspection}" in
+  xyes|xauto)
+    PKG_CHECK_MODULES(GOBJECT_INTROSPECTION, [gobject-introspection-1.0],[
+        AM_CONDITIONAL(USE_GIR, true)
+        G_IR_SCANNER=`$PKG_CONFIG --variable=g_ir_scanner gobject-introspection-1.0`
+        AC_SUBST(G_IR_SCANNER)
+        G_IR_COMPILER=`$PKG_CONFIG --variable=g_ir_compiler gobject-introspection-1.0`
+        AC_SUBST(G_IR_COMPILER)
+        G_IR_GENERATE=`$PKG_CONFIG --variable=g_ir_generate gobject-introspection-1.0`
+        AC_SUBST(G_IR_GENERATE)
+        GIRDIR=`$PKG_CONFIG --variable=girdir gobject-introspection-1.0`
+        AC_SUBST(GIRDIR)
+        TYPELIBDIR=`$PKG_CONFIG --variable=typelibdir gobject-introspection-1.0`
+        AC_SUBST(TYPELIBDIR)
+        enable_gir="yes"
+      ],[
+        AM_CONDITIONAL(USE_GIR, false)
+        enable_gir="no"
+      ]
+    )
+    ;;
+  *)
     AM_CONDITIONAL(USE_GIR, false)
     enable_gir="no"
-  ]
-)
+    ;;
+esac
 
 GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
 GTK_PREFIX="`$PKG_CONFIG --variable=prefix gtk+-2.0`"
