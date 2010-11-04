@@ -1,6 +1,12 @@
 2010-11-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
+	  If one does not have gtk-doc, still define the automake variable
+	  accordingly.
+
+2010-11-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
 	  Allow disabling the gobject introspection to get thisng building if
 	  gi got changed. Should Fix #3102744.
 
