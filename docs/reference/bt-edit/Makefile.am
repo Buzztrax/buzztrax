@@ -80,11 +80,11 @@ GTKDOC_LIBS = \
 # include generic part
 include $(top_srcdir)/gtk-doc.make
 
-man_MANS = \
-	buzztard-edit.1
-
 if ENABLE_GTK_DOC
 if ENABLE_MAN
+
+man_MANS = \
+	buzztard-edit.1
 
 %.1 : %.xml
 	 @XSLTPROC@ -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<

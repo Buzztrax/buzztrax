@@ -1,3 +1,9 @@
+2010-11-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	  Also move the man-page rules into the conditional section.
+
 2010-11-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
