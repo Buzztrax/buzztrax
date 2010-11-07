@@ -1339,7 +1339,7 @@ GList *bt_setup_get_wires_by_dst_machine(const BtSetup * const self, const BtMac
  *
  * Returns: the newly allocated unique name
  */
-gchar *bt_setup_get_unique_machine_id(const BtSetup * const self, gchar * const base_name) {
+gchar *bt_setup_get_unique_machine_id(const BtSetup * const self, const gchar * const base_name) {
   BtMachine *machine;
   guint8 i=0;
 

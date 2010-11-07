@@ -24,6 +24,9 @@
 
 #include "change-logger.h"
 
+// common helper
+extern gint bt_change_logger_match_method(BtChangeLoggerMethods *change_logger_methods,const gchar *data, GMatchInfo **match_info);
+
 // wrapper
 extern gboolean bt_change_logger_change(const BtChangeLogger *self,const gchar *data);
 

@@ -35,5 +35,8 @@ extern void machine_view_get_machine_position(GHashTable *properties, gdouble *p
 extern gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
 extern gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
 
+extern gboolean bt_main_page_machines_add_source_machine(const BtMainPageMachines *self, const gchar *id, const gchar *plugin_name);
+extern gboolean bt_main_page_machines_add_processor_machine(const BtMainPageMachines *self, const gchar *id, const gchar *plugin_name);
+extern void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMachine *machine);
 
 #endif // BT_MAIN_PAGE_MACHINES_METHDOS_H

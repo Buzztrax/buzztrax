@@ -34,6 +34,30 @@
 
 G_DEFINE_INTERFACE (BtChangeLogger, bt_change_logger, 0);
 
+//-- common helper
+
+gint bt_change_logger_match_method(BtChangeLoggerMethods *change_logger_methods,const gchar *data, GMatchInfo **match_info) {
+  gint i=0,res=-1;
+  BtChangeLoggerMethods *clm=change_logger_methods;
+
+  while (clm->name) {
+    if(!strncmp(data,clm->name,clm->name_len)) {
+      if(!clm->regex) {
+        clm->regex=g_regex_new(clm->regex_str,0,0,NULL);
+      }
+      if(g_regex_match_full(clm->regex,data,-1,clm->name_len,0,match_info,NULL)) {
+        res=i;
+      }
+      else {
+        GST_WARNING("no match for command %s in pattern \"%s\"",clm->name,g_regex_get_pattern(clm->regex));
+      }
+      break;
+    }
+    i++;clm++;
+  }
+  return(res);
+}
+
 //-- wrapper
 
 /**

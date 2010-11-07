@@ -50,8 +50,12 @@
  * @todo: click in the background to pan canvas around
  *
  * @todo: undo/redo/journaling:
- * - main_page_machines.add_machine(machine_id,...)
- * - main_page_machines.add_wire(src_machine_id,dst_machine_id)
+ * - methods
+ *   - main_page_machines.add_machine(machine_id,...)
+ *   - main_page_machines.add_wire(src_machine_id,dst_machine_id)
+ * - we should have methods to add/rem machines here and call:
+ *   - _add() from machine-menu.c::on_{source,processor}_machine_add_activated()
+ *   - _rem() from machine-canvas-item.c::on_context_menu_delete_activate()
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
@@ -116,7 +120,7 @@ struct _BtMainPageMachinesPrivate {
   /* mouse coodinates on context menu invokation (used for placing machines there */
   gdouble mouse_x,mouse_y;
 
-  /* volume popup slider */
+  /* volume/panorama popup slider */
   BtVolumePopup *vol_popup;
   BtPanoramaPopup *pan_popup;
   GtkObject *vol_popup_adj, *pan_popup_adj;
@@ -137,6 +141,16 @@ G_DEFINE_TYPE_WITH_CODE (BtMainPageMachines, bt_main_page_machines, GTK_TYPE_VBO
   G_IMPLEMENT_INTERFACE (BT_TYPE_CHANGE_LOGGER,
     bt_main_page_machines_change_logger_interface_init));
 
+enum {
+  METHOD_ADD_MACHINE=0,
+  METHOD_REM_MACHINE
+};
+
+static BtChangeLoggerMethods change_logger_methods[] = {
+  BT_CHANGE_LOGGER_METHOD("add_machine",12,"([0-9]),\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("rem_machine",12,"\"([a-zA-Z0-9 ]+)\"$"),
+  { NULL, }
+};
 
 //-- data helper
 
@@ -944,7 +958,7 @@ static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachine
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   // add machine selection sub-menu
-  menu=GTK_WIDGET(bt_machine_menu_new());
+  menu=GTK_WIDGET(bt_machine_menu_new(self));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),menu);
 
   menu_item=gtk_separator_menu_item_new();
@@ -1222,23 +1236,192 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
   return(TRUE);
 }
 
+static gboolean bt_main_page_machines_add_machine(const BtMainPageMachines *self, guint type, const gchar *id, const gchar *plugin_name) {
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine=NULL;
+  gchar *uid;
+  GError *err=NULL;
+
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+
+  uid=bt_setup_get_unique_machine_id(setup,id);
+  // try with 1 voice, if monophonic, voices will be reset to 0 in
+  // bt_machine_init_voice_params()
+  switch(type) {
+    case 0:
+      machine=BT_MACHINE(bt_source_machine_new(song,uid,plugin_name,/*voices=*/1,&err));
+      break;
+    case 1:
+      machine=BT_MACHINE(bt_processor_machine_new(song,uid,plugin_name,/*voices=*/1,&err));
+      break;
+  }
+  if(err==NULL) {
+    gchar *undo_str,*redo_str;
+    GST_INFO_OBJECT(machine,"created machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+
+    undo_str = g_strdup_printf("rem_machine \"%s\"",uid);
+    redo_str = g_strdup_printf("add_machine %u,\"%s\",\"%s\"",type,uid,plugin_name);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+  }
+  else {
+    GST_WARNING("Can't create machine %s: %s",plugin_name,err->message);
+    g_error_free(err);
+  }
+  g_object_unref(machine);
+  g_free(uid);
+  
+  g_object_unref(setup);
+  g_object_unref(song);
+  
+  return(err==NULL);
+}
+
+/**
+ * bt_main_page_machines_add_source_machine:
+ * @self: the machines page
+ * @id: the id for the new machine
+ * @plugin_name: the plugin-name for the new machine
+ *
+ * Add a new machine to the machine-page.
+ */
+gboolean bt_main_page_machines_add_source_machine(const BtMainPageMachines *self, const gchar *id, const gchar *plugin_name) {
+  return(bt_main_page_machines_add_machine(self,0,id,plugin_name));
+}
+
+/**
+ * bt_main_page_machines_add_processor_machine:
+ * @self: the machines page
+ * @id: the id for the new machine
+ * @plugin_name: the plugin-name for the new machine
+ *
+ * Add a new machine to the machine-page.
+ */
+gboolean bt_main_page_machines_add_processor_machine(const BtMainPageMachines *self, const gchar *id, const gchar *plugin_name) {
+  return(bt_main_page_machines_add_machine(self,1,id,plugin_name));
+}
+
+/**
+ * bt_main_page_machines_delete_machine:
+ * @self: the machines page
+ * @machine: the machine to remove
+ *
+ * Remove a machine from the machine-page.
+ */
+void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMachine *machine) {
+  BtSong *song;
+  BtSetup *setup;
+  gchar *undo_str,*redo_str;
+  gchar *mid,*pname;
+  guint type=0;
+
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+  
+  if(BT_IS_SOURCE_MACHINE(machine))
+    type=0;
+  else if(BT_IS_PROCESSOR_MACHINE(machine))
+    type=1;
+  g_object_get(machine,"id",&mid,"plugin-name",&pname,NULL);
+
+  undo_str = g_strdup_printf("add_machine %u,\"%s\",\"%s\"",type,mid,pname);
+  redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+  /* FIXME: we need to turn that into a group and also:
+   * - serialize all patterns
+   * - serialize all wires
+   * - machine position ?
+   */
+  g_free(mid);
+
+  bt_setup_remove_machine(setup,machine);
+  // this segfaults if the machine is finalized
+  //GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
+
+  g_object_unref(setup);
+  g_object_unref(song);
+}
+
 //-- change logger interface
 
 static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger *owner,const gchar *data) {
-  //BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(owner);
+  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(owner);
   gboolean res=FALSE;
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine=NULL;
+  GMatchInfo *match_info;
+  gchar *s;
   
   GST_INFO("undo/redo: [%s]",data);
   // parse data and apply action
-  
-  /* TODO:
-  - add/remove machine
-  - link/unlink machines
-  - move machines
-  - mute/solo/bypass
-  - volume/panorama
-  - open/close machine,wire windows
-  */
+  switch (bt_change_logger_match_method(change_logger_methods, data, &match_info)) {
+    case METHOD_ADD_MACHINE: {
+      gchar *mid,*pname;
+      guint type;
+      
+      s=g_match_info_fetch(match_info,1);type=atoi(s);g_free(s);
+      mid=g_match_info_fetch(match_info,2);
+      pname=g_match_info_fetch(match_info,3);
+      g_match_info_free(match_info);
+      
+      GST_DEBUG("-> [%d|%s|%s]",type,mid,pname);
+      
+      g_object_get(self->priv->app,"song",&song,NULL);
+      switch (type) {
+        case 0:
+          machine=BT_MACHINE(bt_source_machine_new(song,mid,pname,/*voices=*/1,NULL));
+          break;
+        case 1:
+          machine=BT_MACHINE(bt_processor_machine_new(song,mid,pname,/*voices=*/1,NULL));
+          break;
+        default:
+          GST_WARNING("unhandled machine type: %d",type);
+          break;
+      }
+      if(machine) {
+        res=TRUE;
+        g_object_unref(machine);
+      }
+      g_object_unref(song);
+      
+      g_free(mid);
+      g_free(pname);
+      break;
+    }
+    case METHOD_REM_MACHINE: {
+      gchar *mid;
+      
+      mid=g_match_info_fetch(match_info,1);
+      g_match_info_free(match_info);
+      
+      GST_DEBUG("-> [%s]",mid);
+
+      g_object_get(self->priv->app,"song",&song,NULL);
+      g_object_get(song,"setup",&setup,NULL);
+      if((machine=bt_setup_get_machine_by_id(setup, mid))) {
+        bt_setup_remove_machine(setup,machine);
+        g_object_unref(machine);
+        res=TRUE;
+      }
+      g_object_unref(setup);
+      g_object_unref(song);
+      
+      g_free(mid);
+      break;
+    }
+    /* TODO:
+    - add/remove machine
+    - link/unlink machines
+    - move machines
+    - mute/solo/bypass
+    - volume/panorama
+    - open/close machine,wire windows
+    */
+    default:
+      GST_WARNING("unhandled undo/redo method: [%s]",data);
+  }
 
   return res;
 }

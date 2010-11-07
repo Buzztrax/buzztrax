@@ -46,7 +46,7 @@ extern BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const B
 extern GList *bt_setup_get_wires_by_src_machine(const BtSetup * const self, const BtMachine * const src);
 extern GList *bt_setup_get_wires_by_dst_machine(const BtSetup * const self, const BtMachine * const dst);
 
-extern gchar *bt_setup_get_unique_machine_id(const BtSetup * const self, gchar * const base_name);
+extern gchar *bt_setup_get_unique_machine_id(const BtSetup * const self, const gchar * const base_name);
 
 extern void bt_setup_remember_missing_machine(const BtSetup * const self, const gchar * const str);
 

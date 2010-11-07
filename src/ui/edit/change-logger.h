@@ -41,6 +41,18 @@ struct _BtChangeLoggerInterface {
   gboolean (*change)(const BtChangeLogger *owner,const gchar *data);
 };
 
+typedef struct _BtChangeLoggerMethods BtChangeLoggerMethods;
+
+struct _BtChangeLoggerMethods {
+  const gchar *name;
+  const gchar *regex_str;
+  GRegex *regex;
+  guint name_len;
+};
+
+#define BT_CHANGE_LOGGER_METHOD(name,name_len,regexp) \
+{ name " ", regexp, NULL, name_len }
+
 GType bt_change_logger_get_type(void) G_GNUC_CONST;
 
 #endif // BT_PERSISTENCE_H

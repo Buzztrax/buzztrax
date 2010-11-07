@@ -30,6 +30,12 @@
 
 #include "bt-edit.h"
 
+//-- property ids
+
+enum {
+  MACHINE_MENU_MACHINES_PAGE=1
+};
+
 struct _BtMachineMenuPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
@@ -37,8 +43,8 @@ struct _BtMachineMenuPrivate {
   /* the application */
   BtEditApplication *app;
 
-  /* MenuItems */
-  //GtkWidget *save_item;
+  /* the machine page we belong to */
+  G_POINTER_ALIAS(BtMainPageMachines *,main_page_machines);
 };
 
 //-- the class
@@ -49,68 +55,24 @@ G_DEFINE_TYPE (BtMachineMenu, bt_machine_menu, GTK_TYPE_MENU);
 
 static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMachineMenu *self=BT_MACHINE_MENU(user_data);
-  BtSong *song;
-  BtSetup *setup;
-  BtMachine *machine;
   gchar *name,*id;
-  GError *err=NULL;
 
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
   id=(gchar*)gtk_label_get_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(menuitem))));
+
   GST_DEBUG("adding source machine \"%s\" : \"%s\"",name,id);
-
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-
-  id=bt_setup_get_unique_machine_id(setup,id);
-  // try with 1 voice, if monophonic, voices will be reset to 0 in
-  // bt_machine_init_voice_params()
-  machine=BT_MACHINE(bt_source_machine_new(song,id,name,/*voices=*/1,&err));
-  if(err==NULL) {
-    GST_INFO("created source machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
-  }
-  else {
-    GST_WARNING("Can't create source machine: %s",err->message);
-    g_error_free(err);
-  }
-  g_object_unref(machine);
-  g_free(id);
-  
-  g_object_unref(setup);
-  g_object_unref(song);
+  bt_main_page_machines_add_source_machine(self->priv->main_page_machines, id, name);
 }
 
 static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMachineMenu *self=BT_MACHINE_MENU(user_data);
-  BtSong *song;
-  BtSetup *setup;
-  BtMachine *machine;
   gchar *name,*id;
-  GError *err=NULL;
 
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
   id=(gchar*)gtk_label_get_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(menuitem))));
+
   GST_DEBUG("adding processor machine \"%s\"",name);
-
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-
-  id=bt_setup_get_unique_machine_id(setup,id);
-  // try with 1 voice, if monophonic, voices will be reset to 0 in
-  // bt_machine_init_voice_params()
-  machine=BT_MACHINE(bt_processor_machine_new(song,id,name,/*voices=*/1,&err));
-  if(err==NULL) {
-    GST_INFO("created processor machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
-  }
-  else {
-    GST_WARNING("Can't create processor machine: %s",err->message);
-    g_error_free(err);
-  }
-  g_object_unref(machine);
-  g_free(id);
-
-  g_object_unref(setup);
-  g_object_unref(song);
+  bt_main_page_machines_add_processor_machine(self->priv->main_page_machines, id, name);
 }
 
 //-- helper methods
@@ -324,10 +286,10 @@ static void bt_machine_menu_init_ui(const BtMachineMenu *self) {
  *
  * Returns: the new instance
  */
-BtMachineMenu *bt_machine_menu_new(void) {
+BtMachineMenu *bt_machine_menu_new(const BtMainPageMachines *main_page_machines) {
   BtMachineMenu *self;
 
-  self=BT_MACHINE_MENU(g_object_new(BT_TYPE_MACHINE_MENU,NULL));
+  self=BT_MACHINE_MENU(g_object_new(BT_TYPE_MACHINE_MENU,"machines-page",main_page_machines,NULL));
   bt_machine_menu_init_ui(self);
   return(self);
 }
@@ -337,12 +299,29 @@ BtMachineMenu *bt_machine_menu_new(void) {
 
 //-- class internals
 
+static void bt_machine_menu_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
+  BtMachineMenu *self = BT_MACHINE_MENU(object);
+  return_if_disposed();
+  switch (property_id) {
+    case MACHINE_MENU_MACHINES_PAGE: {
+      g_object_try_weak_unref(self->priv->main_page_machines);
+      self->priv->main_page_machines = BT_MAIN_PAGE_MACHINES(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->main_page_machines);
+      //GST_DEBUG("set the main_page_machines for machine_menu: %p",self->priv->main_page_machines);
+    } break;
+    default: {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
+  }
+}
+
 static void bt_machine_menu_dispose(GObject *object) {
   BtMachineMenu *self = BT_MACHINE_MENU(object);
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  g_object_try_weak_unref(self->priv->main_page_machines);
   g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(bt_machine_menu_parent_class)->dispose(object);
@@ -359,6 +338,14 @@ static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
 
   g_type_class_add_private(klass,sizeof(BtMachineMenuPrivate));
 
+  gobject_class->set_property = bt_machine_menu_set_property;
   gobject_class->dispose      = bt_machine_menu_dispose;
+
+  g_object_class_install_property(gobject_class,MACHINE_MENU_MACHINES_PAGE,
+                                  g_param_spec_object("machines-page",
+                                     "machines-page contruct prop",
+                                     "Set application object, the window belongs to",
+                                     BT_TYPE_MAIN_PAGE_MACHINES, /* object type */
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 

@@ -579,26 +579,25 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   BtMainWindow *main_window;
   BtSong *song;
-  BtSetup *setup;
   BtSequence *sequence;
   gchar *msg=NULL,*id;
   gboolean has_patterns,is_connected,remove=FALSE;
   //BtWire *wire1,*wire2;
-
+  
   GST_INFO("context_menu delete event occurred for machine : %p",self->priv->machine);
 
   g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
+  g_object_get(song,"sequence",&sequence,NULL);
 
   // don't ask if machine has no patterns and is not connected
   has_patterns=bt_machine_has_patterns(self->priv->machine);
-  is_connected=self->priv->machine->src_wires || self->priv->machine->dst_wires; 
+  is_connected=self->priv->machine->src_wires || self->priv->machine->dst_wires;
   if(has_patterns) {
     BtPattern *pattern;
     gulong ix=0;
     gboolean is_unused=TRUE;
 
-    // @todo: bah, freshly created generators always have one empty pattern called "00"
+    // bah, freshly created generators always have one empty pattern called "00"
     // enough if the pattern is not used?
     do {
       pattern=bt_machine_get_pattern_by_index(self->priv->machine,ix++);
@@ -624,13 +623,10 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
     remove=TRUE;
   }
   
-  if(remove || bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no undo for this."))) {
+  if(remove || bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no complete undo for this yet."))) {
     GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
-    bt_setup_remove_machine(setup,self->priv->machine);
-    // this segfaults if the machine is finalized
-    //GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
+    bt_main_page_machines_delete_machine(self->priv->main_page_machines, self->priv->machine);
   }
-  g_object_unref(setup);
   g_object_unref(sequence);
   g_object_unref(song);
   g_object_unref(main_window);
@@ -858,7 +854,7 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
       g_object_try_weak_unref(self->priv->main_page_machines);
       self->priv->main_page_machines = BT_MAIN_PAGE_MACHINES(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->main_page_machines);
-      //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
+      //GST_DEBUG("set the main_page_machines for machine_canvas_item: %p",self->priv->main_page_machines);
     } break;
     case MACHINE_CANVAS_ITEM_MACHINE: {
       g_object_try_unref(self->priv->machine);
@@ -970,7 +966,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->output_level);
   g_object_try_weak_unref(self->priv->input_level);
   g_object_try_unref(self->priv->machine);
-  g_object_try_weak_unref(self->priv->main_page_machines);  
+  g_object_try_weak_unref(self->priv->main_page_machines);
   if(self->priv->clock) gst_object_unref(self->priv->clock);
   g_object_unref(self->priv->app);
 

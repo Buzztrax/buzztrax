@@ -184,6 +184,20 @@ typedef enum {
 static GQuark column_index_quark=0;
 static GQuark voice_index_quark=0;
 
+enum {
+  METHOD_SET_GLOBAL_EVENT=0,
+  METHOD_SET_VOICE_EVENT,
+  METHOD_SET_PROPERTY
+};
+
+static BtChangeLoggerMethods change_logger_methods[] = {
+  BT_CHANGE_LOGGER_METHOD("set_global_event",17,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),(.*)$"),
+  BT_CHANGE_LOGGER_METHOD("set_voice_event",16,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
+  BT_CHANGE_LOGGER_METHOD("set_property",13,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
+  { NULL, }
+};
+
+
 static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data);
 static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpointer user_data);
 
@@ -2943,10 +2957,10 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
   gboolean res=FALSE;
   BtMachine *machine;
   BtPattern *pattern=self->priv->pattern;
-  guint row=0,group=0,param=0;
   gchar *c_mid,*c_pid;
-  GRegex *regex;
   GMatchInfo *match_info;
+  gboolean cursor_moved=FALSE;
+  guint row=0,group=0,param=0;
   gchar *s;
   
   if(pattern) {
@@ -2960,11 +2974,10 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
 
   GST_INFO("undo/redo: [%s]",data);
   // parse data and apply action
-  if(!strncmp(data,"set_global_event ",17)) {
-    gchar *str,*mid,*pid;
+  switch (bt_change_logger_match_method(change_logger_methods, data, &match_info)) {
+    case METHOD_SET_GLOBAL_EVENT: {
+      gchar *str,*mid,*pid;
 
-    regex=g_regex_new("\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),(.*)$",0,0,NULL);
-    if(g_regex_match_full(regex,data,-1,17,0,&match_info,NULL)) {
       mid=g_match_info_fetch(match_info,1);
       pid=g_match_info_fetch(match_info,2);
       s=g_match_info_fetch(match_info,3);row=atoi(s);g_free(s);
@@ -2983,18 +2996,13 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       for(group=0;group<self->priv->number_of_groups;group++) {
         if(self->priv->param_groups[group].type==PGT_GLOBAL) break;
       }
+      cursor_moved=TRUE;
+      break;
     }
-    else {
-      GST_WARNING("no match in pattern \"%s\"",g_regex_get_pattern(regex));
-    }
-    g_regex_unref(regex);
-  }
-  else if(!strncmp(data,"set_voice_event ",16)) {
-    guint voice;
-    gchar *str,*mid,*pid;
-
-    regex=g_regex_new("\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$",0,0,NULL);
-    if(g_regex_match_full(regex,data,-1,16,0,&match_info,NULL)) {
+    case METHOD_SET_VOICE_EVENT: {
+      guint voice;
+      gchar *str,*mid,*pid;
+        
       mid=g_match_info_fetch(match_info,1);
       pid=g_match_info_fetch(match_info,2);
       s=g_match_info_fetch(match_info,3);row=atoi(s);g_free(s);
@@ -3014,16 +3022,12 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       for(group=0;group<self->priv->number_of_groups;group++) {
         if((self->priv->param_groups[group].type==PGT_VOICE) && (GPOINTER_TO_UINT(self->priv->param_groups[group].user_data)==voice)) break;
       }
+      cursor_moved=TRUE;
+      break;
     }
-    else {
-      GST_WARNING("no match in pattern \"%s\"",g_regex_get_pattern(regex));
-    }
-    g_regex_unref(regex);
-  }
-  else if(!strncmp(data,"set_property ",13)) {
-    gchar *mid,*pid,*param,*value;
-    regex=g_regex_new("\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$",0,0,NULL);
-    if(g_regex_match_full(regex,data,-1,13,0,&match_info,NULL)) {
+    case METHOD_SET_PROPERTY: {
+      gchar *mid,*pid,*param,*value;
+
       mid=g_match_info_fetch(match_info,1);
       pid=g_match_info_fetch(match_info,2);
       param=g_match_info_fetch(match_info,3);
@@ -3041,21 +3045,19 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_free(pid);
       g_free(param);
       g_free(value);
+      break;
     }
-    else {
-      GST_WARNING("no match in pattern \"%s\"",g_regex_get_pattern(regex));
-    }
-    g_regex_unref(regex);
-  }
-  /* TODO:
-  - new/delete pattern
-  */
-  else {
-    GST_WARNING("unhandled undo/redo: [%s]",data);
+    /* TODO:
+    - new/delete pattern
+    */
+    default:
+      GST_WARNING("unhandled undo/redo method: [%s]",data);
   }
 
   if(res) {
-    g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
+    if(cursor_moved) {
+      g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
+    }
     pattern_table_refresh(self);
   }
 
