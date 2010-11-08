@@ -82,6 +82,7 @@ static GQuark bus_msg_level_quark=0;
 static GQuark bus_msg_level_caps_changed_quark=0;
 
 static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data);
+static void reset_playback_rate(BtMainToolbar *self);
 static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data);
 
 //-- the class
@@ -132,12 +133,9 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     gint i;
 
     GST_INFO("song stop event occurred: %p",g_thread_self());
-    // stop update timer
+    // stop update timer and reset trick playback
     bt_song_update_playback_position(song);
-    if(self->priv->playback_update_id) {
-      g_source_remove(self->priv->playback_update_id);
-      self->priv->playback_update_id=0;
-    }
+    reset_playback_rate(self);
     // disable stop button
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
     // switch off play button
@@ -230,6 +228,8 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   // get song from app
   g_object_get(self->priv->app,"song",&song,NULL);
   bt_song_stop(song);
+  reset_playback_rate(self);
+  
   GST_INFO("  song stopped");
   // release the reference
   g_object_unref(song);
@@ -252,12 +252,22 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   g_object_unref(song);
 }
 
-static void set_new_playback_rate(BtMainToolbar *self) {
+static void set_new_playback_rate(BtMainToolbar *self,gdouble playback_rate) {
   BtSong *song;
 
+  self->priv->playback_rate=playback_rate;
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_set(song,"play-rate",self->priv->playback_rate,NULL);
   g_object_unref(song);
+}
+
+static void reset_playback_rate(BtMainToolbar *self) {
+  set_new_playback_rate(self,1.0);
+
+  if(self->priv->playback_rate_id) {
+    g_source_remove(self->priv->playback_rate_id);
+    self->priv->playback_rate_id=0;
+  }
 }
 
 #define SEEK_FACTOR 1.25
@@ -267,11 +277,10 @@ static gboolean on_song_playback_rate_rewind(gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gdouble playback_rate = self->priv->playback_rate * SEEK_FACTOR;
   
-  GST_WARNING(" << speedup");
+  GST_DEBUG(" << speedup");
 
   if (playback_rate > -5.0) {
-    self->priv->playback_rate = playback_rate;
-    set_new_playback_rate(self);
+    set_new_playback_rate(self, playback_rate);
     return(TRUE);
   } else {
     self->priv->playback_rate_id=0;
@@ -285,14 +294,12 @@ static gboolean on_toolbar_rewind_pressed(GtkWidget *widget,GdkEventButton *even
   if(event->button!=1)
     return(FALSE);
   
-  GST_WARNING(" << pressed");
+  GST_DEBUG(" << pressed");
 
-  self->priv->playback_rate=-1.0;
-  set_new_playback_rate(self);
-  
+  set_new_playback_rate(self,-1.0);
   self->priv->playback_rate_id=g_timeout_add(SEEK_TIMEOUT,on_song_playback_rate_rewind,(gpointer)self);
   
-  GST_WARNING(" << <<");
+  GST_DEBUG(" << <<");
 
   return(FALSE);
 }
@@ -303,15 +310,8 @@ static gboolean on_toolbar_rewind_released(GtkWidget *widget,GdkEventButton *eve
   if(event->button!=1)
     return(FALSE);
   
-  GST_WARNING(" << released");
-
-  self->priv->playback_rate=1.0;
-  set_new_playback_rate(self);
-
-  if(self->priv->playback_rate_id) {
-    g_source_remove(self->priv->playback_rate_id);
-    self->priv->playback_rate_id=0;
-  }
+  GST_DEBUG(" << released");
+  reset_playback_rate(self);
 
   return(FALSE);
 }
@@ -323,8 +323,7 @@ static gboolean on_song_playback_rate_forward(gpointer user_data) {
   GST_WARNING(" >> speedup");
 
   if (playback_rate < 5.0) {
-    self->priv->playback_rate = playback_rate;
-    set_new_playback_rate(self);
+    set_new_playback_rate(self,playback_rate);
     return(TRUE);
   } else {
     self->priv->playback_rate_id=0;
@@ -338,14 +337,13 @@ static gboolean on_toolbar_forward_pressed(GtkWidget *widget,GdkEventButton *eve
   if(event->button!=1)
     return(FALSE);
   
-  GST_WARNING(" >> pressed");
+  GST_DEBUG(" >> pressed");
   
-  self->priv->playback_rate=SEEK_FACTOR;
-  set_new_playback_rate(self);
+  set_new_playback_rate(self,SEEK_FACTOR);
   
   self->priv->playback_rate_id=g_timeout_add(SEEK_TIMEOUT,on_song_playback_rate_forward,(gpointer)self);
   
-  GST_WARNING(" >> >>");
+  GST_DEBUG(" >> >>");
   return(FALSE);
 }
 
@@ -355,15 +353,8 @@ static gboolean on_toolbar_forward_released(GtkWidget *widget,GdkEventButton *ev
   if(event->button!=1)
     return(FALSE);
 
-  GST_WARNING(" >> released");
-
-  self->priv->playback_rate=1.0;
-  set_new_playback_rate(self);
-  
-  if(self->priv->playback_rate_id) {
-    g_source_remove(self->priv->playback_rate_id);
-    self->priv->playback_rate_id=0;
-  }
+  GST_DEBUG(" >> released");
+  reset_playback_rate(self);
 
   return(FALSE);
 }

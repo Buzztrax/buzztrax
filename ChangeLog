@@ -1,3 +1,8 @@
+2010-11-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-toolbar.c:
+	  Properly reset trickplay modes. Spotted by Joe Pea.
+
 2010-11-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
