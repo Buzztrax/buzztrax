@@ -1,5 +1,11 @@
 2010-11-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Basic undo/redo of adding/removing wires. Removing needs to serialize
+	  the action still.
+
+2010-11-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-toolbar.c:
 	  Properly reset trickplay modes. Spotted by Joe Pea.
 

@@ -143,12 +143,16 @@ G_DEFINE_TYPE_WITH_CODE (BtMainPageMachines, bt_main_page_machines, GTK_TYPE_VBO
 
 enum {
   METHOD_ADD_MACHINE=0,
-  METHOD_REM_MACHINE
+  METHOD_REM_MACHINE,
+  METHOD_ADD_WIRE,
+  METHOD_REM_WIRE
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("add_machine",12,"([0-9]),\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("rem_machine",12,"\"([a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("add_wire",9,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("rem_wire",9,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   { NULL, }
 };
 
@@ -372,13 +376,21 @@ static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
   // try to establish a new connection
   wire=bt_wire_new(song,src_machine,dst_machine,&err);
   if(err==NULL) {
-    g_object_get(src_machine,"properties",&properties,NULL);
+    gchar *undo_str,*redo_str;
+    gchar *smid,*dmid;
+
+    g_object_get(src_machine,"properties",&properties,"id",&smid,NULL);
     machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
-    g_object_get(dst_machine,"properties",&properties,NULL);
+    g_object_get(dst_machine,"properties",&properties,"id",&dmid,NULL);
     machine_view_get_machine_position(properties,&pos_xe,&pos_ye);
     // draw wire
     wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,self->priv->new_wire_src,self->priv->new_wire_dst);
     gnome_canvas_item_lower_to_bottom(self->priv->grid);
+
+    undo_str = g_strdup_printf("rem_wire \"%s\",\"%s\"",smid,dmid);
+    redo_str = g_strdup_printf("add_wire \"%s\",\"%s\"",smid,dmid);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+    g_free(smid);g_free(dmid);
   }
   else {
     GST_WARNING("failed to make wire: %s",err->message);
@@ -1330,8 +1342,8 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
   bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
   /* FIXME: we need to turn that into a group and also:
    * - serialize all patterns
-   * - serialize all wires
-   * - machine position ?
+   * - if(connected) serialize all wires
+   * - machine position (like the move command)
    */
   g_free(mid);
 
@@ -1350,7 +1362,8 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
   gboolean res=FALSE;
   BtSong *song;
   BtSetup *setup;
-  BtMachine *machine=NULL;
+  BtMachine *machine,*smachine,*dmachine;
+  BtWire *wire;
   GMatchInfo *match_info;
   gchar *s;
   
@@ -1377,6 +1390,7 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
           machine=BT_MACHINE(bt_processor_machine_new(song,mid,pname,/*voices=*/1,NULL));
           break;
         default:
+          machine=NULL;
           GST_WARNING("unhandled machine type: %d",type);
           break;
       }
@@ -1411,8 +1425,80 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       g_free(mid);
       break;
     }
+    case METHOD_ADD_WIRE: {
+      gchar *smid,*dmid;
+      
+      smid=g_match_info_fetch(match_info,1);
+      dmid=g_match_info_fetch(match_info,2);
+      g_match_info_free(match_info);
+      
+      GST_DEBUG("-> [%s|%s]",smid,dmid);
+      
+      g_object_get(self->priv->app,"song",&song,NULL);
+      g_object_get(song,"setup",&setup,NULL);
+      smachine=bt_setup_get_machine_by_id(setup, smid);
+      dmachine=bt_setup_get_machine_by_id(setup, dmid);
+      
+      if(smachine && dmachine) {
+        GHashTable *properties;
+        gdouble pos_xs,pos_ys,pos_xe,pos_ye;
+        BtMachineCanvasItem *src_machine_item,*dst_machine_item;
+
+        wire=bt_wire_new(song,smachine,dmachine,NULL);
+        g_object_unref(wire);
+
+        g_object_get(smachine,"properties",&properties,NULL);
+        machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
+        g_object_get(dmachine,"properties",&properties,NULL);
+        machine_view_get_machine_position(properties,&pos_xe,&pos_ye);
+        // draw wire
+        src_machine_item=g_hash_table_lookup(self->priv->machines,smachine);
+        dst_machine_item=g_hash_table_lookup(self->priv->machines,dmachine);
+        wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,src_machine_item,dst_machine_item);
+        gnome_canvas_item_lower_to_bottom(self->priv->grid);
+
+        res=TRUE;
+      }
+      g_object_try_unref(smachine);
+      g_object_try_unref(dmachine);
+      g_object_unref(setup);
+      g_object_unref(song);
+      
+      g_free(smid);
+      g_free(dmid);
+      break;
+    }
+    case METHOD_REM_WIRE: {
+      gchar *smid,*dmid;
+      
+      smid=g_match_info_fetch(match_info,1);
+      dmid=g_match_info_fetch(match_info,2);
+      g_match_info_free(match_info);
+      
+      GST_DEBUG("-> [%s|%s]",smid,dmid);
+      
+      g_object_get(self->priv->app,"song",&song,NULL);
+      g_object_get(song,"setup",&setup,NULL);
+      smachine=bt_setup_get_machine_by_id(setup, smid);
+      dmachine=bt_setup_get_machine_by_id(setup, dmid);
+      
+      if(smachine && dmachine) {
+        if((wire=bt_setup_get_wire_by_machines(setup,smachine,dmachine))) {
+          bt_setup_remove_wire(setup,wire);
+          g_object_unref(wire);
+          res=TRUE;
+        }
+      }
+      g_object_try_unref(smachine);
+      g_object_try_unref(dmachine);
+      g_object_unref(setup);
+      g_object_unref(song);
+      
+      g_free(smid);
+      g_free(dmid);
+      break;
+    }
     /* TODO:
-    - add/remove machine
     - link/unlink machines
     - move machines
     - mute/solo/bypass
