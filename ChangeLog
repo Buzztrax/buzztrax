@@ -1,3 +1,8 @@
+2010-11-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Small doc clarification for using the wave-table.
+
 2010-11-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:

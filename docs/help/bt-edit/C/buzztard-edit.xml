@@ -451,7 +451,9 @@
         Pattern names in gray color indicated that the pattern is not used in the
         sequence (thus save to be removed or changed). One can also select the
         base octave for entering notes via keyboard and the sample that should
-        be used for wave-table based machines.
+        be used for wave-table based machines. Those combo boxes work when
+        entering new notes, for existing notes one can just edit the respective
+        columns in the pattern.
       </para>
       <para>
         A context menu in the pattern area allows to create new patterns and
@@ -536,7 +538,7 @@
       <title id="bt-edit-main-view-waves.title">The wavetable view of a song</title>
       <para>
         The wavetable hold sampled audio snippet that can be used e.g. from
-        tracker sources.
+        special sound generators (tracker sources).
       </para>
       <figure id="bt-edit-page-wavetable-view-fig">
         <title>Wave-table view</title>
