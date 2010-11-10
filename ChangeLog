@@ -1,3 +1,11 @@
+2010-11-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Add small tracker tutorial and improve wavetable section.
+
+	* omf.make:
+	  Fix srcdir!=builddir
+
 2010-11-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/buzztard-edit.xml:
@@ -40,13 +48,7 @@
 2010-11-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
-	  If one does not have gtk-doc, still define the automake variable
-	  accordingly.
-
-2010-11-04  Stefan Kost  <ensonic@users.sf.net>
-
-	* configure.ac:
-	  Allow disabling the gobject introspection to get thisng building if
+	  Allow disabling the gobject introspection to get things building if
 	  gi got changed. Should Fix #3102744.
 
 2010-11-02  Stefan Kost  <ensonic@users.sf.net>

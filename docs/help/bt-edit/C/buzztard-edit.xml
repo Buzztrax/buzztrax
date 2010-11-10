@@ -273,7 +273,6 @@
       x %rrar; d, d &rrar; d#, c &rrar; e, f unused, v &rrar; f and so on.
       Press Ctrl-2 to set cursor stepping to go down 2 rows on each edit and enter "yqy3ywyr".
       If you press play now, you should hear a simple melody.
-      (FIXME: patterns + sequence view)
     </para>
   </sect2>
   
@@ -283,7 +282,22 @@
       This tutorial explains how to work with sampled sound.
     </para>
     <para>
-      (FIXME: wave-table view)
+      The <link linkend="bt-edit-main-view-waves">wave-table view</link> contains
+      a list that one can load audio clips into. Pick some samples from the
+      file-chooser. If you don't have any sample collections, you can still find
+      some samples for testing on your computer. Linux systems usually have some
+      under <filename>/usr/share/sounds</filename>.
+    </para>
+    <para>
+      Now switch to the <link linkend="bt-edit-main-view-machines">machine view</link>.
+      In oder to use samples we need to add a special generator that supports the
+      wavetable functionality. Lets use "Generators/BML/Mathilde-Tracker". This
+      machine is part of the ported buzzmachine package. Link the machine to the
+      master as usual. Now switch to the <link linkend="bt-edit-main-view-patterns">pattern editor</link>.
+      There you can select the "default waveform" from the combo box in the toolbar.
+      This waveform will be used when entering new notes. You will see the waveform
+      number in the pattern as well, where you can edit it like all the other
+      fields.
     </para>
   </sect2>
 </sect1>
@@ -538,7 +552,8 @@
       <title id="bt-edit-main-view-waves.title">The wavetable view of a song</title>
       <para>
         The wavetable hold sampled audio snippet that can be used e.g. from
-        special sound generators (tracker sources).
+        special sound generators (tracker sources). Those can be short
+        instrument samples, but also full length songs. 
       </para>
       <figure id="bt-edit-page-wavetable-view-fig">
         <title>Wave-table view</title>
@@ -564,6 +579,10 @@
         the wavetable for the selected wave. Some of the details are editable.
         Right to the wave level list is a waveform preview widget. It shows loop
         markers and a playback position indicator.
+      </para>
+      <para>
+        Samples can be found on the internet, brought from companies offering
+        sample collections or self-recorded.
       </para>
     </sect3>
 
