@@ -1613,6 +1613,8 @@ static void bt_main_page_machines_dispose(GObject *object) {
   //g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
   //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
+  
+  g_object_unref(self->priv->change_log);
   g_object_unref(self->priv->app);
 
   gtk_widget_destroy(GTK_WIDGET(self->priv->context_menu));

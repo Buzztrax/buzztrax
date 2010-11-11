@@ -789,6 +789,7 @@ static void bt_edit_application_dispose(GObject *object) {
     GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->song));
     bt_song_stop(self->priv->song);
     g_object_unref(self->priv->song);
+    self->priv->song=NULL;
   }
 
   if(self->priv->main_window) {

@@ -354,15 +354,16 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     return;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
+
+  // remove old log file
+  free_log_file(self);
+
   // get song from app
   g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) {
     GST_INFO("song (null) has changed: done");
     return;
   }
-
-  // remove old log file
-  free_log_file(self);
  
   // create new log file
   g_object_get(song,"song-info",&song_info,NULL);

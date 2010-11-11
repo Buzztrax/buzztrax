@@ -1,6 +1,18 @@
 2010-11-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/change-log.c:
+	  Free the logfile also if there is no new song.
+
+	* src/ui/edit/edit-application.c:
+	  Set song to NULL to be sure that noone reds it afterwards.
+
+	* src/ui/edit/main-page-machines.c:
+	  Unref the change-log to ensure that the log is removed at exit.
+	  
+
+2010-11-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/change-log.c:
 	* src/ui/edit/change-log.h:
 	  Sort the log entries by mtime.
 
