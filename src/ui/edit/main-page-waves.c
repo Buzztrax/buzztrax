@@ -1165,7 +1165,8 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   g_signal_connect(self->priv->waves_list,"row-activated",G_CALLBACK(on_waves_list_row_activated),(gpointer)self);
 
   renderer=gtk_cell_renderer_text_new();
-  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
+  // this seems to cause clipping on some theme+font combinations
+  //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(renderer,"xalign",1.0,"width-chars",2,NULL);
   /* Ix: index in wavetable */
