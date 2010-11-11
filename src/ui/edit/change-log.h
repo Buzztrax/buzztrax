@@ -59,6 +59,7 @@ struct _BtChangeLogFile {
   gchar *log_name;
   gchar *song_file_name;
   gchar *change_ts;
+  time_t mtime;
 };
 
 /* used by CHANGE_LOG_TYPE */

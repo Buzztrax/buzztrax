@@ -107,6 +107,16 @@ static void remove_selected(BtCrashRecoverDialog *self) {
 
 //-- event handler
 
+static void on_list_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
+  //BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
+  GtkWidget *parent=gtk_widget_get_parent(gtk_widget_get_parent(widget));
+  gint max_height=gdk_screen_get_height(gdk_screen_get_default()) / 2;
+  gint height=MIN(requisition->height,max_height);
+  
+  gtk_widget_set_size_request(parent,-1,height);
+}
+
+
 static void on_recover_clicked(GtkButton *button, gpointer user_data) {
   BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
   gchar *log_name=get_selected(self);
@@ -173,6 +183,7 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
 
   self->priv->entries_list=GTK_TREE_VIEW(gtk_tree_view_new());
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->entries_list),GTK_SELECTION_BROWSE);
+  g_signal_connect(self->priv->entries_list,"size-request",G_CALLBACK(on_list_size_request),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   /* column listing song file names to recover */

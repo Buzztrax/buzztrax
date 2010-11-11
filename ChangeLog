@@ -1,5 +1,14 @@
 2010-11-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/change-log.h:
+	  Sort the log entries by mtime.
+
+	* src/ui/edit/crash-recover-dialog.c:
+	  Set a better initial size.
+
+2010-11-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-waves.c:
 	  Disable a minimal size hack, as it was still causing clipping on some
 	  font+theme combos.

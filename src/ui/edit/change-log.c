@@ -204,6 +204,10 @@ static void open_and_init_log(BtChangeLog *self, BtSongInfo *song_info) {
   }
 }
 
+static gint sort_by_mtime(gconstpointer a,gconstpointer b) {
+  return(((BtChangeLogFile *)b)->mtime - ((BtChangeLogFile *)a)->mtime);
+}
+
 /*
  * bt_change_log_crash_check:
  * @self: the changelog
@@ -286,6 +290,7 @@ static void bt_change_log_crash_check(BtChangeLog *self) {
         stat(log_name,&fileinfo);
         strftime(linebuf,BT_CHANGE_LOG_MAX_HEADER_LINE_LEN-1,"%c",localtime(&fileinfo.st_mtime));
         crash_log->change_ts=g_strdup(linebuf);
+        crash_log->mtime=fileinfo.st_mtime;
         crash_logs=g_list_prepend(crash_logs,crash_log);
       done:
         fclose(log_file);
@@ -304,7 +309,8 @@ static void bt_change_log_crash_check(BtChangeLog *self) {
     }
     closedir(dirp);
   }
-  self->priv->crash_logs = crash_logs;
+  // sort list by time
+  self->priv->crash_logs=g_list_sort(crash_logs,sort_by_mtime);
 }
 
 
