@@ -1349,7 +1349,43 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
 
   bt_setup_remove_machine(setup,machine);
   // this segfaults if the machine is finalized
-  //GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
+  //GST_INFO("... machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+
+  g_object_unref(setup);
+  g_object_unref(song);
+}
+
+/**
+ * bt_main_page_machines_delete_wire:
+ * @self: the machines page
+ * @wire: the wire to remove
+ *
+ * Remove a wire from the machine-page (unlink the machines).
+ */
+void bt_main_page_machines_delete_wire(const BtMainPageMachines *self, BtWire *wire) {
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *src_machine,*dst_machine;
+  gchar *undo_str,*redo_str;
+  gchar *smid,*dmid;
+
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+
+  g_object_get(wire,"src",&src_machine,"dst",&dst_machine,NULL);
+  g_object_get(src_machine,"id",&smid,NULL);
+  g_object_get(dst_machine,"id",&dmid,NULL);
+  undo_str = g_strdup_printf("add_wire \"%s\",\"%s\"",smid,dmid);
+  redo_str = g_strdup_printf("rem_wire \"%s\",\"%s\"",smid,dmid);
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+  g_free(smid);g_free(dmid);
+  g_object_unref(dst_machine);
+  g_object_unref(src_machine);
+
+  GST_INFO("now removing wire : %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
+  bt_setup_remove_wire(setup,wire);
+  // this segfaults if the wire is finalized
+  //GST_INFO("... wire : %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
 
   g_object_unref(setup);
   g_object_unref(song);

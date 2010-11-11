@@ -1,5 +1,13 @@
 2010-11-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/main-page-machines-methods.h:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Implement serializing wire removal.
+
+2010-11-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-waves.c:
 	  Set the fixed chars width of index column in wavetable list.
 	  Whitespace fixes.

@@ -290,20 +290,8 @@ static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer
 
 static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
-  BtSong *song;
-  BtSetup *setup;
-
-  GST_INFO("context_menu disconnect item selected");
-
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-
-  GST_INFO("now removing wire : %p,ref_count=%d",self->priv->wire,G_OBJECT_REF_COUNT(self->priv->wire));
-  bt_setup_remove_wire(setup,self->priv->wire);
-  //GST_INFO("... wire : %p,ref_count=%d",self->priv->wire,G_OBJECT_REF_COUNT(self->priv->wire));
-
-  g_object_unref(setup);
-  g_object_unref(song);
+  
+  bt_main_page_machines_delete_wire(self->priv->main_page_machines,self->priv->wire);
 }
 
 static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer user_data) {
