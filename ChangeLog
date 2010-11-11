@@ -1,3 +1,9 @@
+2010-11-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-waves.c:
+	  Set the fixed chars width of index column in wavetable list.
+	  Whitespace fixes.
+
 2010-11-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/buzztard-edit.xml:
