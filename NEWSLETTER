@@ -1,11 +1,36 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2010/12 ========================================================================
+
+- user help additions
+- more undo/redo
+
 2010/11 ========================================================================
 
-- bug fixes
-- change log recoverey from menu
+In October I had not much time for buzztard. I went to the GStreamer conference
+and the CELF Europe. There I gave a talk about the "MeeGo multimedia stack" [1].
+I also hacked on two GStreamer tool projects; gst-tracelib [2] and 
+gst-mediainfo [3]. In tracelib I worked on a UI to monitor gstreamer pipelines
+on the fly. My approach to use libgvc (graphviz) for the layout seems to
+challenge it a bit though - I get very mysterious failures. At some point
+realloc is failing to e.g. allocate 96 bytes and the lib calls abort().
+mallinfo() from libc is telling that the process uses 200 mb and valgind has
+nothing serious to complain about. That's weired as I was suspecting a corrupted
+memory list. I have to put that aside for a while until I get some new ideas for
+tackling it.
+
+gst-mediainfo is the UI for the new discoverer API in GStreamer. I'll make a
+first release when the current gstreamer core and base is out as it depends on
+them.
+
+In buzztard I mostly worked a bit on the crash recovery and did some bug fixing.
+Hopefully will have more time in November.
 
 14 files changed, 325 insertions(+), 166 deletions(-)
+
+[1] http://elinux.org/ELC_Europe_2010_Presentations
+[2] http://cgit.freedesktop.org/~ensonic/gst-tracelib/
+[3] http://cgit.freedesktop.org/~ensonic/gst-mediainfo/
 
 2010/10 ========================================================================
 
