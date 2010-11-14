@@ -36,6 +36,8 @@ bt_change_log_new
 bt_change_log_add
 bt_change_log_redo
 bt_change_log_undo
+bt_change_log_start_group
+bt_change_log_end_group
 bt_change_log_crash_check
 bt_change_log_recover
 bt_change_log_register

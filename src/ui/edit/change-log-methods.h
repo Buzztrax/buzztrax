@@ -35,5 +35,7 @@ extern void bt_change_log_register(BtChangeLog *self,BtChangeLogger *logger);
 extern void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data);
 extern void bt_change_log_undo(BtChangeLog *self);
 extern void bt_change_log_redo(BtChangeLog *self);
+extern void bt_change_log_start_group(BtChangeLog *self);
+extern void bt_change_log_end_group(BtChangeLog *self);
 
 #endif // BT_CHANGE_LOG_METHDOS_H

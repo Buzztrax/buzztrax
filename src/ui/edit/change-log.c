@@ -23,7 +23,7 @@
  * @short_description: class for the editor action journaling
  *
  * Tracks edits actions since last save. Logs those to disk for crash recovery.
- * Provides undo/redo.
+ * Provides undo/redo. Supports grouping of edits into single undo/redo items.
  */
 /* @todo: we should also check for pending logs when opening a file!
  * - need to keep the change-log entries as a hash-table and offer api to check
@@ -32,8 +32,8 @@
  *   - maybe we need to refactor this a bit
  * - we could make bt_change_log_crash_check() static and run this in _init()
  *   - the list of crash-log entries would be available as a property
- *
- * @todo: need change grouping
+ */
+/* @todo: need change grouping
  * - some action are a sequence of undo/redo actions
  *   - when clearing a selection, we can represent this as a group of edits
  *   - undo it the remove of a machine (and its patterns)
@@ -47,15 +47,8 @@
  * - bt_change_log_undo/redo would need to check for groups and in that case loop
  *   over the group
  * - the log-file serialisation can ignore the groups
- *
- * 1.)
- * - each class that implement change_logger registers a get_child_by_name to the change log
- * - all vmethods are store in a hastable with the type name as the key
- * - all new object are added in a class local hashtable and removed on dispose
- * - then log format is: type::name
- * - to lock up one object we get the type, pick the get_child_by_name and call
- *   instance = get_child_by_name(name);
- *
+ */
+/* design:
  * check http://github.com/herzi/gundo more
  *
  * empty stack: undo: -1               redo: 0
@@ -75,35 +68,35 @@
  * redo:        undo: 1                redo: 2
  *               pattern.set(0,0,0.0)   pattern.set(0,0,1.0)
  *              >pattern.set(0,0,1.0)   pattern.set(0,0,2.0)
-
-new:  []         u[]     r[]     next_undo,next_redo,item_ct
-                  ^        ^     -1,0,0
-add:  [a]        u[ ]    r[a]
-                   ^        ^     0,1,1
-add:  [ab]       u[  ]   r[ab]
-                    ^ 1      ^    1,2,2
-add:  [abc]      u[   ]  r[abc]
-                     ^        ^   2,3,3
-undo: [ab]       u[   ]  r[abc]    \
-                    ^        ^    1,2,3
-redo: [abc]      u[   ]  r[abc]    /
-                     ^        ^   2,3,3
-undo: [ab]       u[   ]  r[abc]    \
-                    ^        ^    1,2,3
-add:  [abd]      u[   ]  r[abd]    /    { this looses the 'c' }
-                     ^        ^   2,3,3
-undo: [ab]       u[   ]  r[abd]    \
-                    ^        ^    1,2,3
-undo: [a]        u[   ]  r[abd]    \
-                   ^        ^     0,1,3
-add:  [ae]       u[   ]  r[ae]     /    { this looses the 'bd' }
-                    ^        ^    1,2,2
-
--- can we get the 'c' back - no
-when adding a new action, we will always truncate the undo/redo stack.
-Otherwise it becomes a graph and then redo would need to know the direction.
-
-*/
+ *
+ * new:  []         u[]     r[]     next_undo,next_redo,item_ct
+ *                   ^        ^     -1,0,0
+ * add:  [a]        u[ ]    r[a]
+ *                    ^        ^     0,1,1
+ * add:  [ab]       u[  ]   r[ab]
+ *                     ^ 1      ^    1,2,2
+ * add:  [abc]      u[   ]  r[abc]
+ *                      ^        ^   2,3,3
+ * undo: [ab]       u[   ]  r[abc]    \
+ *                     ^        ^    1,2,3
+ * redo: [abc]      u[   ]  r[abc]    /
+ *                      ^        ^   2,3,3
+ * undo: [ab]       u[   ]  r[abc]    \
+ *                     ^        ^    1,2,3
+ * add:  [abd]      u[   ]  r[abd]    /    { this looses the 'c' }
+ *                      ^        ^   2,3,3
+ * undo: [ab]       u[   ]  r[abd]    \
+ *                     ^        ^    1,2,3
+ * undo: [a]        u[   ]  r[abd]    \
+ *                    ^        ^     0,1,3
+ * add:  [ae]       u[   ]  r[ae]     /    { this looses the 'bd' }
+ *                     ^        ^    1,2,2
+ *
+ * -- can we get the 'c' back - no
+ * when adding a new action, we will always truncate the undo/redo stack.
+ * Otherwise it becomes a graph and then redo would need to know the direction.
+ *
+ */
 
 #define BT_EDIT
 #define BT_CHANGE_LOG_C
@@ -122,11 +115,29 @@ enum {
 
 //-- structs
 
+typedef enum {
+  CHANGE_LOG_ENTRY_SINGLE=0,
+  CHANGE_LOG_ENTRY_GROUP
+} BtChangeLogEntryType;
+
 typedef struct {
+  BtChangeLogEntryType type;
+} BtChangeLogEntry;
+
+typedef struct {
+  BtChangeLogEntryType type;
   BtChangeLogger *owner;
   gchar *undo_data;
   gchar *redo_data;
-} BtChangeLogEntry;
+} BtChangeLogEntrySingle;
+
+typedef struct _BtChangeLogEntryGroup BtChangeLogEntryGroup;
+struct _BtChangeLogEntryGroup {
+  BtChangeLogEntryType type;
+  GPtrArray *changes;
+  BtChangeLogEntryGroup *old_group;
+};
+
 
 struct _BtChangeLogPrivate {
   /* used to validate if dispose has run */
@@ -142,12 +153,13 @@ struct _BtChangeLogPrivate {
   /* known ChangeLoggers */
   GHashTable *loggers;
   
-  /* each entry pointing to a BtChangeLogEntry */
+  /* each entry pointing to a BtChangeLogEntry{Single,Group} */
   GPtrArray *changes;
   guint last_saved;
   gint next_redo;  // -1 for none, or just have pointers?
   gint next_undo;  // -1 for none, or just have pointers?
   gint item_ct;
+  BtChangeLogEntryGroup *cur_group;
 
   /* crash log entries */
   GList *crash_logs;
@@ -324,6 +336,104 @@ static void bt_change_log_crash_check(BtChangeLog *self) {
   self->priv->crash_logs=g_list_sort(crash_logs,sort_by_mtime);
 }
 
+static void free_change_log_entry(BtChangeLogEntry *cle) {
+  switch(cle->type) {
+    case CHANGE_LOG_ENTRY_SINGLE: {
+      BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
+      g_free(cles->undo_data);
+      g_free(cles->redo_data);
+      g_slice_free(BtChangeLogEntrySingle,cles);
+      break;
+    }
+    case CHANGE_LOG_ENTRY_GROUP: {
+      BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
+      guint i;
+      
+      // recurse
+      for(i=0;i<cleg->changes->len;i++) {
+        free_change_log_entry(g_ptr_array_index(cleg->changes,i));
+      }
+      g_ptr_array_free(cleg->changes,TRUE);
+      g_slice_free(BtChangeLogEntryGroup,cleg);
+      break;
+    }
+  }
+}
+
+static void add_change_log_entry(BtChangeLog *self,BtChangeLogEntry *cle) {
+  // only on top-level group
+  if(self->priv->cur_group==NULL) {
+    // if we have redo data, we have to cut the trail here otherwise the history
+    // becomes a graph
+    if(self->priv->next_redo<self->priv->item_ct) {
+      gint i;
+      
+      GST_WARNING("trunc %d<%d",self->priv->next_redo,self->priv->item_ct);
+      for(i=self->priv->item_ct-1;i>=self->priv->next_redo;i--) {
+        free_change_log_entry(g_ptr_array_remove_index(self->priv->changes,i));
+        self->priv->item_ct--;
+      }
+    }
+    /*else {
+      GST_INFO("don't trunc %d>=%d",self->priv->next_redo,self->priv->item_ct);
+    }*/
+    // append and update undo undo/redo pointers
+    g_ptr_array_add(self->priv->changes,cle);
+
+    self->priv->item_ct++;
+    // update undo undo/redo pointers
+    self->priv->next_undo++;
+    self->priv->next_redo++;
+    GST_INFO("add %d[%s], %d[%s]",self->priv->next_undo,self->priv->next_redo);
+    //GST_INFO("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);
+    if(self->priv->next_undo==0) {
+      g_object_notify((GObject *)self,"can-undo");
+    }
+  } else {
+    // append and update undo undo/redo pointers
+    g_ptr_array_add(self->priv->cur_group->changes,cle);
+  }
+}
+
+static void undo_change_log_entry(BtChangeLogEntry *cle) {
+  switch(cle->type) {
+    case CHANGE_LOG_ENTRY_SINGLE: {
+      BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
+      bt_change_logger_change(cles->owner,cles->undo_data);
+      break;
+    }
+    case CHANGE_LOG_ENTRY_GROUP: {
+      BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
+      guint i;
+      
+      // recurse
+      for(i=0;i<cleg->changes->len;i++) {
+        undo_change_log_entry(g_ptr_array_index(cleg->changes,i));
+      }
+      break;
+    }
+  }
+}
+
+static void redo_change_log_entry(BtChangeLogEntry *cle) {
+  switch(cle->type) {
+    case CHANGE_LOG_ENTRY_SINGLE: {
+      BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
+      bt_change_logger_change(cles->owner,cles->redo_data);
+      break;
+    }
+    case CHANGE_LOG_ENTRY_GROUP: {
+      BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
+      guint i;
+      
+      // recurse
+      for(i=0;i<cleg->changes->len;i++) {
+        redo_change_log_entry(g_ptr_array_index(cleg->changes,i));
+      }
+      break;
+    }
+  }
+}
 
 //-- event handler
 
@@ -514,44 +624,57 @@ void bt_change_log_register(BtChangeLog *self,BtChangeLogger *logger) {
  * The change-log takes ownership of  @undo_data and @redo_data.
  */
 void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data) {
-  BtChangeLogEntry *cle;
+  BtChangeLogEntrySingle *cle;
   
-  // if we have redo data, we have to cut the trail here otherwise the history
-  // becomes a graph
-  if(self->priv->next_redo<self->priv->item_ct) {
-    gint i;
-    
-    GST_WARNING("trunc %d<%d",self->priv->next_redo,self->priv->item_ct);
-    for(i=self->priv->item_ct-1;i>=self->priv->next_redo;i--) {
-      cle=g_ptr_array_remove_index(self->priv->changes,i);
-      g_free(cle->undo_data);
-      g_free(cle->redo_data);
-      g_slice_free(BtChangeLogEntry,cle);
-      self->priv->item_ct--;
-    }
-  }
-  /*else {
-    GST_INFO("don't trunc %d>=%d",self->priv->next_redo,self->priv->item_ct);
-  }*/
   // make new BtChangeLogEntry from the parameters
-  cle=g_slice_new(BtChangeLogEntry);
+  cle=g_slice_new(BtChangeLogEntrySingle);
+  cle->type=CHANGE_LOG_ENTRY_SINGLE;
   cle->owner=owner;
   cle->undo_data=undo_data;
   cle->redo_data=redo_data;
-  // append and update undo undo/redo pointers
-  g_ptr_array_add(self->priv->changes,cle);
-  self->priv->item_ct++;
   // owners are the editor objects where the change was made
   if(self->priv->log_file) {
     fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
     // @idea: should we fdatasync(fileno(self->priv->log_file)); from time to time
   }
-  // update undo undo/redo pointers
-  self->priv->next_undo++;
-  self->priv->next_redo++;
-  GST_INFO("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);
-  if(self->priv->next_undo==0) {
-    g_object_notify((GObject *)self,"can-undo");
+  add_change_log_entry(self,(BtChangeLogEntry*)cle);
+}
+
+/**
+ * bt_change_log_start_group:
+ * @self: the change log
+ *
+ * Open a new group. All further bt_change_log_add() calls will add to the
+ * active group. The group needs to be closed using bt_change_log_end_group().
+ * Groups can be nested.
+ *
+ * A top-level group is undone or redone with a single bt_change_log_undo() or
+ * bt_change_log_redo() call.
+ */
+void bt_change_log_start_group(BtChangeLog *self) {
+  BtChangeLogEntryGroup *cle;
+
+  cle=g_slice_new(BtChangeLogEntryGroup);
+  cle->type=CHANGE_LOG_ENTRY_GROUP;
+  cle->changes=g_ptr_array_new();
+  cle->old_group=self->priv->cur_group;
+  add_change_log_entry(self,(BtChangeLogEntry*)cle);
+  
+  // make this the current group;
+  self->priv->cur_group=cle;
+}
+
+/**
+ * bt_change_log_end_group:
+ * @self: the change log
+ *
+ * Closed the last group opened with bt_change_log_start_group().
+ */
+void bt_change_log_end_group(BtChangeLog *self) {
+  BtChangeLogEntryGroup *cle=self->priv->cur_group;
+
+  if(cle) {
+    self->priv->cur_group=cle->old_group;
   }
 }
 
@@ -563,8 +686,7 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
  */
 void bt_change_log_undo(BtChangeLog *self) {
   if(self->priv->next_undo!=-1) {
-    BtChangeLogEntry *cle=g_ptr_array_index(self->priv->changes,self->priv->next_undo);
-    bt_change_logger_change(cle->owner,cle->undo_data);
+    undo_change_log_entry(g_ptr_array_index(self->priv->changes,self->priv->next_undo));
     // update undo undo/redo pointers
     self->priv->next_redo=self->priv->next_undo;
     self->priv->next_undo--;
@@ -587,8 +709,7 @@ void bt_change_log_undo(BtChangeLog *self) {
 
 void bt_change_log_redo(BtChangeLog *self) {
   if(self->priv->next_redo!=-1) {
-    BtChangeLogEntry *cle=g_ptr_array_index(self->priv->changes,self->priv->next_redo);
-    bt_change_logger_change(cle->owner,cle->redo_data);
+    redo_change_log_entry(g_ptr_array_index(self->priv->changes,self->priv->next_redo));
     // update undo undo/redo pointers
     self->priv->next_undo=self->priv->next_redo;
     self->priv->next_redo++;
@@ -606,7 +727,6 @@ void bt_change_log_redo(BtChangeLog *self) {
 
 static void bt_change_log_dispose(GObject *object) {
   BtChangeLog *self = BT_CHANGE_LOG(object);
-  BtChangeLogEntry *cle;
   guint i;
   
   return_if_disposed();
@@ -615,10 +735,7 @@ static void bt_change_log_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   
   for(i=0;i<self->priv->item_ct;i++) {
-    cle=g_ptr_array_index(self->priv->changes,i);
-    g_free(cle->undo_data);
-    g_free(cle->redo_data);
-    g_slice_free(BtChangeLogEntry,cle);
+    free_change_log_entry(g_ptr_array_index(self->priv->changes,i));
   }
   g_ptr_array_free(self->priv->changes,TRUE);
   
@@ -706,6 +823,7 @@ static void bt_change_log_init(BtChangeLog *self) {
   self->priv->changes=g_ptr_array_new();
   self->priv->next_undo=-1;
   self->priv->next_redo=0;
+  self->priv->cur_group=NULL;
   
   bt_change_log_crash_check(self);
 

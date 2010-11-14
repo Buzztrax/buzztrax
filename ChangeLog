@@ -1,5 +1,12 @@
 2010-11-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/change-log-methods.h:
+	* src/ui/edit/change-log.c:
+	  Implement change grouping into signle undo/redo-able items.
+
+2010-11-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/change-log.c:
 	  Set log to be line-buffered so that we don't need to call fflush().
 	  Add more planning comments.
