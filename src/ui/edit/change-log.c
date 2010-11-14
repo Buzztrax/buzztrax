@@ -34,9 +34,19 @@
  *   - the list of crash-log entries would be available as a property
  *
  * @todo: need change grouping
- * - when clearing a selection, we can represent this as a group of edits
- * - bt_change_log_{start,end}_group
- * - groups should be hierarchical
+ * - some action are a sequence of undo/redo actions
+ *   - when clearing a selection, we can represent this as a group of edits
+ *   - undo it the remove of a machine (and its patterns)
+ * - self->priv->changes is a array of BtChangeLogEntry
+ * - we need to have a special entry, that again contains a array of
+ *   BtChangeLogEntry
+ *   - we could make BtChangeLogEntry a union and add a 'type' field first
+ *   - one would call bt_change_log_{start,end}_group to brace grouped changes
+ *   - bt_change_log_add would add to the active group (default = top_level)
+ * - groups could be hierarchical, but are applied only as a whole
+ * - bt_change_log_undo/redo would need to check for groups and in that case loop
+ *   over the group
+ * - the log-file serialisation can ignore the groups
  *
  * 1.)
  * - each class that implement change_logger registers a get_child_by_name to the change log
@@ -192,6 +202,8 @@ static void open_and_init_log(BtChangeLog *self, BtSongInfo *song_info) {
   }
   else {
     gchar *file_name;
+    
+    setvbuf(self->priv->log_file, (char *) NULL, _IOLBF, 0);
 
     g_object_get(song_info,"file-name",&file_name,NULL);
     fputs(PACKAGE" edit journal : "PACKAGE_VERSION"\n",self->priv->log_file);
@@ -200,7 +212,6 @@ static void open_and_init_log(BtChangeLog *self, BtSongInfo *song_info) {
       g_free(file_name);
     }
     fputs("\n",self->priv->log_file);
-    fflush(self->priv->log_file);
   }
 }
 
@@ -533,7 +544,7 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
   // owners are the editor objects where the change was made
   if(self->priv->log_file) {
     fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
-    fflush(self->priv->log_file);
+    // @idea: should we fdatasync(fileno(self->priv->log_file)); from time to time
   }
   // update undo undo/redo pointers
   self->priv->next_undo++;
