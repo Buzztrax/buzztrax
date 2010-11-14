@@ -187,13 +187,17 @@ static GQuark voice_index_quark=0;
 enum {
   METHOD_SET_GLOBAL_EVENT=0,
   METHOD_SET_VOICE_EVENT,
-  METHOD_SET_PROPERTY
+  METHOD_SET_PROPERTY,
+  METHOD_ADD_PATTERN,
+  METHOD_REM_PATTERN,
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_global_event",17,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),(.*)$"),
   BT_CHANGE_LOGGER_METHOD("set_voice_event",16,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
   BT_CHANGE_LOGGER_METHOD("set_property",13,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("add_pattern",12,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+)$"),
+  BT_CHANGE_LOGGER_METHOD("rem_pattern",12,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   { NULL, }
 };
 
@@ -1773,11 +1777,13 @@ static void lookup_machine_and_pattern(const BtMainPagePatterns *self,BtMachine 
     g_object_get(song,"setup",&setup,NULL);
     g_object_try_unref(*machine);
     *machine=bt_setup_get_machine_by_id(setup, mid);
-    *pattern=bt_machine_get_pattern_by_id(*machine,pid);
-    switch_machine_and_pattern(self,*machine,*pattern);
+    if (pid) {
+      *pattern=bt_machine_get_pattern_by_id(*machine,pid);
+      switch_machine_and_pattern(self,*machine,*pattern);
+    }
     g_object_unref(setup);
     g_object_unref(song);
-  } else if(!c_pid || strcmp(pid,c_pid)) {
+  } else if(pid && (!c_pid || strcmp(pid,c_pid))) {
     // change pattern
     *pattern=bt_machine_get_pattern_by_id(*machine,pid);
     switch_machine_and_pattern(self,NULL,*pattern);
@@ -2121,9 +2127,22 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
   gtk_widget_show_all(dialog);
 
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+    gchar *undo_str,*redo_str;
+    gchar *mid,*pid,*pname;
+    gulong length;
+
     bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
 
     GST_INFO("new pattern added : %p",pattern);
+    
+    g_object_get(machine,"id",&mid,NULL);
+    g_object_get(pattern,"id",&pid,"name",&pname,"length",&length,NULL);
+    
+    undo_str = g_strdup_printf("rem_pattern \"%s\",\"%s\"",mid,pid);
+    redo_str = g_strdup_printf("add_pattern \"%s\",\"%s\",\"%s\",%lu",mid,pid,pname,length);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+    g_free(mid);g_free(pid);g_free(pname);
+    
     change_current_pattern(self,pattern);
     pattern_menu_refresh(self,machine);
     context_menu_refresh(self,machine);
@@ -2193,8 +2212,20 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 
   if(remove || bt_dialog_question(main_window,_("Delete pattern..."),msg,_("There is no undo for this."))) {
     BtMachine *machine;
+    gchar *undo_str,*redo_str;
+    gchar *mid,*pid,*pname;
+    gulong length;
 
     machine=bt_main_page_patterns_get_current_machine(self);
+    
+    g_object_get(machine,"id",&mid,NULL);
+    g_object_get(pattern,"id",&pid,"name",&pname,"length",&length,NULL);
+    
+    undo_str = g_strdup_printf("add_pattern \"%s\",\"%s\",\"%s\",%lu",mid,pid,pname,length);
+    redo_str = g_strdup_printf("rem_pattern \"%s\",\"%s\"",mid,pid);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+    g_free(mid);g_free(pid);
+    
     bt_machine_remove_pattern(machine,pattern);
     change_current_pattern(self,NULL);
     pattern_menu_refresh(self,machine);
@@ -2959,7 +2990,6 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
   BtPattern *pattern=self->priv->pattern;
   gchar *c_mid,*c_pid;
   GMatchInfo *match_info;
-  gboolean cursor_moved=FALSE;
   guint row=0,group=0,param=0;
   gchar *s;
   
@@ -2992,11 +3022,14 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_free(mid);
       g_free(pid);
   
-      // move cursor
-      for(group=0;group<self->priv->number_of_groups;group++) {
-        if(self->priv->param_groups[group].type==PGT_GLOBAL) break;
+      if(res) {
+        // move cursor
+        for(group=0;group<self->priv->number_of_groups;group++) {
+          if(self->priv->param_groups[group].type==PGT_GLOBAL) break;
+        }
+        g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
+        pattern_table_refresh(self);
       }
-      cursor_moved=TRUE;
       break;
     }
     case METHOD_SET_VOICE_EVENT: {
@@ -3018,11 +3051,14 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_free(mid);
       g_free(pid);
   
-      // move cursor
-      for(group=0;group<self->priv->number_of_groups;group++) {
-        if((self->priv->param_groups[group].type==PGT_VOICE) && (GPOINTER_TO_UINT(self->priv->param_groups[group].user_data)==voice)) break;
+      if(res) {
+        // move cursor
+        for(group=0;group<self->priv->number_of_groups;group++) {
+          if((self->priv->param_groups[group].type==PGT_VOICE) && (GPOINTER_TO_UINT(self->priv->param_groups[group].user_data)==voice)) break;
+        }
+        g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
+        pattern_table_refresh(self);
       }
-      cursor_moved=TRUE;
       break;
     }
     case METHOD_SET_PROPERTY: {
@@ -3036,6 +3072,8 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
 
       lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
       /* only used from pattern_properties_dialog
+         a) add method here and set it this way
+         b) catch g_object_set?
       // string "name"
       // ulong "length"
       // ulong "voices"
@@ -3047,18 +3085,47 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_free(value);
       break;
     }
-    /* TODO:
-    - new/delete pattern
-    */
+    case METHOD_ADD_PATTERN: {
+      gchar *mid,*pid,*pname;
+      gulong length;
+      BtSong *song;
+
+      mid=g_match_info_fetch(match_info,1);
+      pid=g_match_info_fetch(match_info,2);
+      pname=g_match_info_fetch(match_info,3);
+      s=g_match_info_fetch(match_info,4);length=atol(s);g_free(s);
+      
+      GST_DEBUG("-> [%s|%s|%s|%lu]",mid,pid,pname,length);
+      lookup_machine_and_pattern(self,&machine,NULL,mid,c_mid,NULL,NULL);
+      g_object_get(self->priv->app,"song",&song,NULL);
+      pattern=bt_pattern_new(song, pid, pname, length, machine);
+      g_object_unref(song);
+      res=TRUE;
+      g_free(pname);
+      g_free(mid);
+      g_free(pid);
+
+      change_current_pattern(self,pattern);
+      pattern_menu_refresh(self,machine);
+      context_menu_refresh(self,machine);
+      break;
+    }
+    case METHOD_REM_PATTERN: {
+      gchar *mid,*pid;
+
+      mid=g_match_info_fetch(match_info,1);
+      pid=g_match_info_fetch(match_info,2);
+
+      GST_DEBUG("-> [%s|%s]",mid,pid);
+      lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
+      bt_machine_remove_pattern(machine,pattern);
+      change_current_pattern(self,NULL);
+      pattern_menu_refresh(self,machine);
+      context_menu_refresh(self,machine);
+      break;
+    }
     default:
       GST_WARNING("unhandled undo/redo method: [%s]",data);
-  }
-
-  if(res) {
-    if(cursor_moved) {
-      g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
-    }
-    pattern_table_refresh(self);
   }
 
   g_object_try_unref(machine);
