@@ -1342,8 +1342,16 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
   bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
   /* FIXME: we need to turn that into a group and also:
    * - serialize all patterns
-   * - if(connected) serialize all wires
+   *   g_object_get(machine,"patterns",&pattern_list,NULL);
+   *   -> need to refactor main-page-patterns: on_context_menu_pattern_remove_activate()
+   * - if(connected) serialize all wires (after the patterns)
+   *   wire_list=bt_setup_get_wires_by_{src|sink}_machine
+   *   machine->{src|dst}_wires;
+   *   -> bt_main_page_machines_delete_wire
    * - machine position (like the move command)
+   *
+   * Problems:
+   * - we just need the unod/redo strings as the removal happens elsewhere :/
    */
   g_free(mid);
 
