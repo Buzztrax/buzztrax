@@ -424,10 +424,10 @@ static void redo_change_log_entry(BtChangeLogEntry *cle) {
     }
     case CHANGE_LOG_ENTRY_GROUP: {
       BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
-      guint i;
+      gint i;
       
       // recurse
-      for(i=0;i<cleg->changes->len;i++) {
+      for(i=cleg->changes->len-1;i>=0;i--) {
         redo_change_log_entry(g_ptr_array_index(cleg->changes,i));
       }
       break;

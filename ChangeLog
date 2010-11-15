@@ -1,3 +1,8 @@
+2010-11-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/change-log.c:
+	  Redo groups in reverse order.
+
 2010-11-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
