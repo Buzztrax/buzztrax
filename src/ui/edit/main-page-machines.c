@@ -1337,24 +1337,28 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
     type=1;
   g_object_get(machine,"id",&mid,"plugin-name",&pname,NULL);
 
+  bt_change_log_start_group(self->priv->change_log);
   undo_str = g_strdup_printf("add_machine %u,\"%s\",\"%s\"",type,mid,pname);
   redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
   bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-  /* FIXME: we need to turn that into a group and also:
-   * - serialize all patterns
+  /* FIXME: serialize all patterns
    *   g_object_get(machine,"patterns",&pattern_list,NULL);
    *   -> need to refactor main-page-patterns: on_context_menu_pattern_remove_activate()
-   * - if(connected) serialize all wires (after the patterns)
-   *   wire_list=bt_setup_get_wires_by_{src|sink}_machine
-   *   machine->{src|dst}_wires;
-   *   -> bt_main_page_machines_delete_wire
+   */
+  // serialize all wires (after the patterns)
+  while(machine->src_wires)
+     bt_main_page_machines_delete_wire(self,machine->src_wires->data);
+  while(machine->dst_wires)
+     bt_main_page_machines_delete_wire(self,machine->dst_wires->data);
+  /* FIXME: serialize more
    * - machine position (like the move command)
    *
    * Problems:
    * - we just need the unod/redo strings as the removal happens elsewhere :/
    */
-  g_free(mid);
+  bt_change_log_end_group(self->priv->change_log);
 
+  g_free(mid);
   bt_setup_remove_machine(setup,machine);
   // this segfaults if the machine is finalized
   //GST_INFO("... machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
