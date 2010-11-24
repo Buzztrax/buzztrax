@@ -1,3 +1,8 @@
+2010-11-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Handle gconf-less build better.
+
 2010-11-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:
