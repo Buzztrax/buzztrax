@@ -42,7 +42,7 @@ BT_START_TEST(test_machine_ref) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
-  BtMainPageMachines *machine_page;
+  BtMainPageMachines *machines_page;
   BtSong *song;
   BtSetup *setup;
   BtMachine *src_machine;
@@ -64,14 +64,15 @@ BT_START_TEST(test_machine_ref) {
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-  g_object_get(G_OBJECT(pages),"machine-page",&machine_page,NULL);
-  fail_unless(machine_page != NULL, NULL);
+  fail_unless(pages != NULL, NULL);
+  g_object_get(G_OBJECT(pages),"machines-page",&machines_page,NULL);
+  fail_unless(machines_page != NULL, NULL);
   // show page
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_MACHINES_PAGE);
   g_object_unref(pages);
 
   // add and get a source machine
-  bt_main_page_machines_add_source_machine(machine_page,"beep1","simsyn");
+  bt_main_page_machines_add_source_machine(machines_page,"beep1","simsyn");
   src_machine=bt_setup_get_machine_by_id(setup,"beep1");
   fail_unless(src_machine != NULL, NULL);
   g_object_unref(setup);
@@ -79,10 +80,10 @@ BT_START_TEST(test_machine_ref) {
   while(gtk_events_pending()) gtk_main_iteration();
   
   // remove the machine and check that it is disposed
-  bt_main_page_machines_delete_machine(machine_page,src_machine);
+  bt_main_page_machines_delete_machine(machines_page,src_machine);
   g_object_checked_unref(src_machine);
 
-  g_object_unref(machine_page);
+  g_object_unref(machines_page);
 
   // close window
   gtk_widget_destroy(GTK_WIDGET(main_window));

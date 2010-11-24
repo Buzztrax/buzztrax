@@ -1,5 +1,10 @@
 2010-11-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/ui/edit/e-bt-machine-page.c:
+	  Fix some silly typos in the new test.
+
+2010-11-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/ui/edit/e-bt-change-log.c:
 	  Make change-log test work again.
 
