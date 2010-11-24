@@ -1,5 +1,24 @@
 2010-11-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/m-bt-edit.c:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-change-log.c:
+	* tests/ui/edit/e-bt-machine-page.c:
+	* tests/ui/edit/s-bt-machine-page.c:
+	* tests/ui/edit/s-bt-pattern-page.c:
+	* tests/ui/edit/e-bt-machine-page.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/s-bt-machine-page.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/e-bt-machine-page.c (added):
+	* tests/ui/edit/s-bt-machine-page.c (added):
+	  Add a new test for machine page.
+
+2010-11-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/ui/edit/e-bt-change-log.c:
+	  A few updates for API changes. We seem to still have a ref-leak.
+
+2010-11-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Handle gconf-less build better.
 

@@ -93,7 +93,7 @@ static void test_teardown(void) {
 //-- tests
 
 // test lifecycle/refcounts
-BT_START_TEST(test_create_and_destroy) {
+BT_START_TEST(test_create_and_destroy1) {
   BtChangeLog *cl;
 
   cl=bt_change_log_new();
@@ -103,11 +103,34 @@ BT_START_TEST(test_create_and_destroy) {
 }
 BT_END_TEST
 
+BT_START_TEST(test_create_and_destroy2) {
+  BtEditApplication *app;
+  BtChangeLog *cl;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+
+  cl=bt_change_log_new();
+  fail_unless(cl != NULL, NULL);
+
+  g_object_checked_unref(app);
+  g_object_checked_unref(cl);
+}
+BT_END_TEST
+
 // test single undo/redo actions
 BT_START_TEST(test_undo_redo_1) {
+  BtEditApplication *app;
   BtChangeLog *cl;
   BtTestChangeLogger *tcl;
   gboolean can_undo,can_redo;
+
+  // testing the change log needs a active song as a context
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+  bt_edit_application_new_song(app);
 
   cl=bt_change_log_new();
   fail_unless(cl != NULL, NULL);
@@ -144,15 +167,23 @@ BT_START_TEST(test_undo_redo_1) {
   fail_unless(!can_redo, NULL);
 
   g_object_unref(tcl);
+  g_object_checked_unref(app);
   g_object_checked_unref(cl);
 }
 BT_END_TEST
 
 // test double undo/redo actions
 BT_START_TEST(test_undo_redo_2) {
+  BtEditApplication *app;
   BtChangeLog *cl;
   BtTestChangeLogger *tcl;
   gboolean can_undo,can_redo;
+
+  // testing the change log needs a active song as a context
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+  bt_edit_application_new_song(app);
 
   cl=bt_change_log_new();
   fail_unless(cl != NULL, NULL);
@@ -209,15 +240,23 @@ BT_START_TEST(test_undo_redo_2) {
   fail_unless(!can_redo, NULL);
 
   g_object_unref(tcl);
+  g_object_checked_unref(app);
   g_object_checked_unref(cl);
 }
 BT_END_TEST
 
 // test single and then double undo/redo actions
 BT_START_TEST(test_undo_redo_3) {
+  BtEditApplication *app;
   BtChangeLog *cl;
   BtTestChangeLogger *tcl;
   gboolean can_undo,can_redo;
+
+  // testing the change log needs a active song as a context
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+  bt_edit_application_new_song(app);
 
   cl=bt_change_log_new();
   fail_unless(cl != NULL, NULL);
@@ -297,15 +336,23 @@ BT_START_TEST(test_undo_redo_3) {
   fail_unless(!can_redo, NULL);
 
   g_object_unref(tcl);
+  g_object_checked_unref(app);
   g_object_checked_unref(cl);
 }
 BT_END_TEST
 
 // test truncating the undo/redo stack
 BT_START_TEST(test_stack_trunc) {
+  BtEditApplication *app;
   BtChangeLog *cl;
   BtTestChangeLogger *tcl;
   gboolean can_undo,can_redo;
+
+  // testing the change log needs a active song as a context
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+  bt_edit_application_new_song(app);
 
   cl=bt_change_log_new();
   fail_unless(cl != NULL, NULL);
@@ -341,6 +388,7 @@ BT_START_TEST(test_stack_trunc) {
   fail_unless(!can_redo, NULL);
   
   g_object_unref(tcl);
+  g_object_checked_unref(app);
   g_object_checked_unref(cl);
 }
 BT_END_TEST
@@ -348,7 +396,8 @@ BT_END_TEST
 TCase *bt_change_log_example_case(void) {
   TCase *tc = tcase_create("BtChangeLogExamples");
 
-  tcase_add_test(tc,test_create_and_destroy);
+  tcase_add_test(tc,test_create_and_destroy1);
+  tcase_add_test(tc,test_create_and_destroy2);
   tcase_add_test(tc,test_undo_redo_1);
   tcase_add_test(tc,test_undo_redo_2);
   tcase_add_test(tc,test_undo_redo_3);

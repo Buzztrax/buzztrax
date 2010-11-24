@@ -11,6 +11,7 @@ libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-edit-application.c e-bt-edit-application.c \
 	s-bt-interaction-controller-menu.c e-bt-interaction-controller-menu.c \
 	s-bt-machine-actions.c e-bt-machine-actions.c \
+	s-bt-machine-page.c e-bt-machine-page.c \	
 	s-bt-machine-preset-properties-dialog.c e-bt-machine-preset-properties-dialog.c \
 	s-bt-machine-preferences-dialog.c e-bt-machine-preferences-dialog.c \
 	s-bt-machine-properties-dialog.c e-bt-machine-properties-dialog.c \
