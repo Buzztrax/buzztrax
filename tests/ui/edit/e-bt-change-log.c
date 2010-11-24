@@ -105,23 +105,31 @@ BT_END_TEST
 
 BT_START_TEST(test_create_and_destroy2) {
   BtEditApplication *app;
+  BtMainWindow *main_window;
   BtChangeLog *cl;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
 
   cl=bt_change_log_new();
+  GST_INFO("cl=%p, cl->ref_ct=%d",cl,G_OBJECT(cl)->ref_count);
   fail_unless(cl != NULL, NULL);
+  
+  // close window
+  g_object_get(app,"main-window",&main_window,NULL);
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
 
+  g_object_unref(cl);
   g_object_checked_unref(app);
-  g_object_checked_unref(cl);
 }
 BT_END_TEST
 
 // test single undo/redo actions
 BT_START_TEST(test_undo_redo_1) {
   BtEditApplication *app;
+  BtMainWindow *main_window;
   BtChangeLog *cl;
   BtTestChangeLogger *tcl;
   gboolean can_undo,can_redo;
@@ -166,15 +174,21 @@ BT_START_TEST(test_undo_redo_1) {
   fail_unless(can_undo, NULL);
   fail_unless(!can_redo, NULL);
 
+  // close window
+  g_object_get(app,"main-window",&main_window,NULL);
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
   g_object_unref(tcl);
+  g_object_unref(cl);
   g_object_checked_unref(app);
-  g_object_checked_unref(cl);
 }
 BT_END_TEST
 
 // test double undo/redo actions
 BT_START_TEST(test_undo_redo_2) {
   BtEditApplication *app;
+  BtMainWindow *main_window;
   BtChangeLog *cl;
   BtTestChangeLogger *tcl;
   gboolean can_undo,can_redo;
@@ -239,15 +253,21 @@ BT_START_TEST(test_undo_redo_2) {
   fail_unless(can_undo, NULL);
   fail_unless(!can_redo, NULL);
 
+  // close window
+  g_object_get(app,"main-window",&main_window,NULL);
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
   g_object_unref(tcl);
+  g_object_unref(cl);
   g_object_checked_unref(app);
-  g_object_checked_unref(cl);
 }
 BT_END_TEST
 
 // test single and then double undo/redo actions
 BT_START_TEST(test_undo_redo_3) {
   BtEditApplication *app;
+  BtMainWindow *main_window;
   BtChangeLog *cl;
   BtTestChangeLogger *tcl;
   gboolean can_undo,can_redo;
@@ -335,15 +355,21 @@ BT_START_TEST(test_undo_redo_3) {
   fail_unless(can_undo, NULL);
   fail_unless(!can_redo, NULL);
 
+  // close window
+  g_object_get(app,"main-window",&main_window,NULL);
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
   g_object_unref(tcl);
+  g_object_unref(cl);
   g_object_checked_unref(app);
-  g_object_checked_unref(cl);
 }
 BT_END_TEST
 
 // test truncating the undo/redo stack
 BT_START_TEST(test_stack_trunc) {
   BtEditApplication *app;
+  BtMainWindow *main_window;
   BtChangeLog *cl;
   BtTestChangeLogger *tcl;
   gboolean can_undo,can_redo;
@@ -387,9 +413,14 @@ BT_START_TEST(test_stack_trunc) {
   fail_unless(can_undo, NULL);
   fail_unless(!can_redo, NULL);
   
+  // close window
+  g_object_get(app,"main-window",&main_window,NULL);
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
   g_object_unref(tcl);
+  g_object_unref(cl);
   g_object_checked_unref(app);
-  g_object_checked_unref(cl);
 }
 BT_END_TEST
 
