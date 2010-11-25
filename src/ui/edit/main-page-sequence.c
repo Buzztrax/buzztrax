@@ -3506,15 +3506,18 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 
   g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
+    BtSetup *setup;
     BtSongInfo *song_info;
     GstBin *bin;
     GstBus *bus;
 
     GST_DEBUG("disconnect handlers from song=%p, song->ref_ct=%d",song,G_OBJECT_REF_COUNT(song));
-    g_object_get(song,"song-info",&song_info,"bin", &bin,NULL);
+    g_object_get(song,"setup",&setup,"song-info",&song_info,"bin", &bin,NULL);
 
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_added,NULL);
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_removed,NULL);
     g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_info_bars_changed,NULL);
 
     bus=gst_element_get_bus(GST_ELEMENT(bin));
@@ -3522,6 +3525,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
     gst_object_unref(bus);
 
     gst_object_unref(bin);
+    g_object_unref(setup);
     g_object_unref(song_info);
     g_object_unref(song);
   }
