@@ -1,3 +1,8 @@
+2010-11-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/POTFILES.in:
+	  Add new source files.
+
 2010-11-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/ui/edit/e-bt-machine-page.c:
