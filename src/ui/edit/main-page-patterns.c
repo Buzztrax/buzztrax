@@ -1778,6 +1778,7 @@ static void lookup_machine_and_pattern(const BtMainPagePatterns *self,BtMachine 
     g_object_try_unref(*machine);
     *machine=bt_setup_get_machine_by_id(setup, mid);
     if (pid) {
+      g_object_try_unref(*pattern);
       *pattern=bt_machine_get_pattern_by_id(*machine,pid);
       switch_machine_and_pattern(self,*machine,*pattern);
     }
@@ -1785,6 +1786,7 @@ static void lookup_machine_and_pattern(const BtMainPagePatterns *self,BtMachine 
     g_object_unref(song);
   } else if(pid && (!c_pid || strcmp(pid,c_pid))) {
     // change pattern
+    g_object_try_unref(*pattern);
     *pattern=bt_machine_get_pattern_by_id(*machine,pid);
     switch_machine_and_pattern(self,NULL,*pattern);
   }
