@@ -2,11 +2,12 @@
 
 bin_PROGRAMS=buzztard-edit
 
-buzztard_edit_LDADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBINTL) \
+buzztard_edit_LDADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
-	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
-	-lgstinterfaces-0.10 \
-	libbtedit.la
+    $(top_builddir)/src/lib/ic/libbuzztard-ic.la \
+	libbtedit.la \
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
+	-lgstinterfaces-0.10
 buzztard_edit_SOURCES= \
 	bt-edit.c bt-edit.h
 
@@ -18,7 +19,7 @@ noinst_HEADERS			= marshal.h
 libbtedit_la_LIBADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
-	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBINTL) \
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
 	-lgstinterfaces-0.10
 libbtedit_la_SOURCES	= \
 	about-dialog.c about-dialog.h about-dialog-methods.h \

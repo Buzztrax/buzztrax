@@ -19,7 +19,7 @@ BUILT_SOURCES = marshal.h marshal.c
 lib_LTLIBRARIES = libbuzztard-core.la
 libbuzztard_core_la_LIBADD = \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
-    $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL) \
+    $(BASE_DEPS_LIBS) $(BT_LIBS) \
 	-lgstaudio-0.10 -lgstpbutils-0.10
 libbuzztard_core_la_LDFLAGS = \
 	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \

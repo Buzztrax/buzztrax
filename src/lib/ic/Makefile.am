@@ -9,7 +9,7 @@ LINUX_INPUT_SOURCES=
 endif
 
 lib_LTLIBRARIES = libbuzztard-ic.la
-libbuzztard_ic_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL)
+libbuzztard_ic_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS)
 libbuzztard_ic_la_LDFLAGS = \
 	-export-symbols-regex ^_?\(btic_\|BtIc\|BTIC_\).* \
 	-version-info @BT_VERSION_INFO@
