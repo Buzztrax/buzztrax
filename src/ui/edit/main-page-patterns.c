@@ -63,6 +63,9 @@
  *     bt_main_page_machines_show_properties_dialog(page,machine);
  *     bt_main_page_machines_show_preferences_dialog(page,machine);
  *     .. rename/about/help
+ *
+ * - store current machine to have less lookups
+ *   - see use of bt_main_page_patterns_get_current_machine()
  */
 
 #define BT_EDIT
@@ -1895,7 +1898,7 @@ static void on_toolbar_menu_clicked(GtkButton *button, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   
   gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,1,gtk_get_current_event_time());
-} 
+}
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
@@ -1917,6 +1920,7 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),TRUE);
   }
   gtk_combo_box_set_active(self->priv->machine_menu,index-1);
+  GST_INFO("... machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 }
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {

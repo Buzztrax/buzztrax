@@ -1,6 +1,12 @@
 2010-11-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Comment and logging changes.
+
+2010-11-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
 	  Fix a few ref count leaks.
 
 2010-11-25  Stefan Kost  <ensonic@users.sf.net>

@@ -2686,12 +2686,12 @@ static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScrol
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
-  GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
+  GST_INFO("machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
   machine_menu_refresh(self,setup);
   if(BT_IS_SOURCE_MACHINE(machine)) {
     sequence_add_track(self,machine);
   }
-  GST_INFO("... new machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
+  GST_INFO("... machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 }
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
@@ -2714,7 +2714,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   sequence_model_recolorize(self);
 
   g_object_unref(song);
-  //GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
+  GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 }
 
 static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
