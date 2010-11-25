@@ -181,9 +181,6 @@ typedef enum {
 #define PATTERN_CELL_WIDTH 70
 #define PATTERN_CELL_HEIGHT 28
 
-static GQuark column_index_quark=0;
-static GQuark voice_index_quark=0;
-
 enum {
   METHOD_SET_GLOBAL_EVENT=0,
   METHOD_SET_VOICE_EVENT,
@@ -3235,9 +3232,6 @@ static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
   GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
 
   pattern_atom=gdk_atom_intern_static_string("application/buzztard::pattern");
-
-  column_index_quark=g_quark_from_static_string("BtMainPagePattern::column-index");
-  voice_index_quark=g_quark_from_static_string("BtMainPagePattern::voice-index");
 
   g_type_class_add_private(klass,sizeof(BtMainPagePatternsPrivate));
 
