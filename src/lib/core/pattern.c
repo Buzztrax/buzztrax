@@ -1553,7 +1553,7 @@ static void bt_pattern_constructed(GObject *object) {
 
   
   // add the pattern to the machine
-  bt_machine_add_pattern(self->priv->machine,self);  
+  bt_machine_add_pattern(self->priv->machine,self);
 }
 
 /* returns a property for the given property_id for this object */

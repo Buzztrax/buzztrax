@@ -3277,7 +3277,7 @@ static void bt_machine_constructed(GObject *object) {
   pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE);
   g_object_unref(pattern);
 
-  GST_INFO("machine constructed");
+  GST_INFO_OBJECT(self,"machine %p,ref_count=%d has been constructed",self,G_OBJECT_REF_COUNT(self));
   return;
 Error:
   GST_WARNING_OBJECT(self,"failed to create machine: %s",self->priv->plugin_name);
