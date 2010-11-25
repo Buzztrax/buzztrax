@@ -3510,7 +3510,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
     GstBin *bin;
     GstBus *bus;
 
-    GST_DEBUG("disconnect handlers from song=%p",song);
+    GST_DEBUG("disconnect handlers from song=%p, song->ref_ct=%d",song,G_OBJECT_REF_COUNT(song));
     g_object_get(song,"song-info",&song_info,"bin", &bin,NULL);
 
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);

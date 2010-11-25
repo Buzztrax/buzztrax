@@ -3162,14 +3162,12 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   
-  // get song from app and then setup from song
   g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
     BtSetup *setup;
     BtWavetable *wavetable;
 
-    GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
-
+    GST_DEBUG("disconnect handlers from song=%p, song->ref_ct=%d",song,G_OBJECT_REF_COUNT(song));
     g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
 
     g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_added,NULL);
