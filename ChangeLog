@@ -1,5 +1,10 @@
 2010-11-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  Tell wheter we build check based unit test in final sumary.
+
+2010-11-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	* tests/ui/edit/e-bt-machine-page.c:
 	  Try to remove other pages to narrow down ref-leak.
