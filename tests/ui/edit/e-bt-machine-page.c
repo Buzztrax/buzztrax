@@ -67,6 +67,12 @@ BT_START_TEST(test_machine_ref) {
   fail_unless(pages != NULL, NULL);
   g_object_get(G_OBJECT(pages),"machines-page",&machines_page,NULL);
   fail_unless(machines_page != NULL, NULL);
+  // remove some other pages
+  // (ev. run for all combinations - if a test using all pages fails?)
+  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
+  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
+  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
+  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
   // show page
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_MACHINES_PAGE);
   g_object_unref(pages);

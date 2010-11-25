@@ -1,5 +1,11 @@
 2010-11-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	* tests/ui/edit/e-bt-machine-page.c:
+	  Try to remove other pages to narrow down ref-leak.
+
+2010-11-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/POTFILES.in:
 	  Add new source files.
 

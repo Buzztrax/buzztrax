@@ -3155,12 +3155,35 @@ static gboolean bt_main_page_patterns_focus(GtkWidget *widget, GtkDirectionType 
 
 static void bt_main_page_patterns_dispose(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
+  BtSong *song;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
   
+  // get song from app and then setup from song
+  g_object_get(self->priv->app,"song",&song,NULL);
+  if(song) {
+    BtSetup *setup;
+    BtWavetable *wavetable;
+
+    GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
+
+    g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
+
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_added,NULL);
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_removed,NULL);
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_added_or_removed,NULL);
+    g_signal_handlers_disconnect_matched(wavetable,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wave_added_or_removed,NULL);
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_sequence_tick,NULL);
+    
+    // release the references
+    g_object_unref(wavetable);
+    g_object_unref(setup);
+    g_object_unref(song);
+  }
+
   g_object_unref(self->priv->change_log);
   g_object_unref(self->priv->app);
   GST_DEBUG("unref pattern: %p,refs=%d",
