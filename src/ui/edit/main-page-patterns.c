@@ -2289,6 +2289,7 @@ static void on_context_menu_machine_properties_activate(GtkMenuItem *menuitem,gp
   g_return_if_fail(machine);
   
   bt_machine_show_properties_dialog(machine);
+  g_object_unref(machine);
 }
 
 static void on_context_menu_machine_preferences_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -2299,6 +2300,7 @@ static void on_context_menu_machine_preferences_activate(GtkMenuItem *menuitem,g
   g_return_if_fail(machine);
   
   bt_machine_show_preferences_dialog(machine);
+  g_object_unref(machine);
 }
 
 static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
@@ -2984,7 +2986,7 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(owner);
   gboolean res=FALSE;
   BtMachine *machine;
-  BtPattern *pattern=self->priv->pattern;
+  BtPattern *pattern=g_object_ref(self->priv->pattern);
   gchar *c_mid,*c_pid;
   GMatchInfo *match_info;
   guint row=0,group=0,param=0;
@@ -3126,6 +3128,7 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
   }
 
   g_object_try_unref(machine);
+  g_object_try_unref(pattern);
   g_free(c_mid);g_free(c_pid);
   return res;
 }
