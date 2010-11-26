@@ -206,6 +206,13 @@ static gboolean bt_wire_make_internal_element(const BtWire * const self, const B
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_WARNING_OBJECT(self,"failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
+  
+  // disable deep notify
+  {
+    GObjectClass *gobject_class=G_OBJECT_GET_CLASS(self->priv->machines[part]);
+    GObjectClass *parent_class=g_type_class_peek_static(G_TYPE_OBJECT);
+    gobject_class->dispatch_properties_changed=parent_class->dispatch_properties_changed;
+  }
 
   // get the pads
   if(src_pn[part]) {
@@ -1518,7 +1525,7 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   GstElementClass * const gstelement_klass = GST_ELEMENT_CLASS(klass);
 
   // g_type_qname() is ((TypeNode *)type)->qname;
-  // seems to be save to call in _class_init  
+  // seems to be save to call in _class_init
   //error_domain=g_quark_from_static_string("BtWire");
   error_domain=g_type_qname(BT_TYPE_WIRE);
   g_type_class_add_private(klass,sizeof(BtWirePrivate));
@@ -1528,6 +1535,12 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   gobject_class->get_property = bt_wire_get_property;
   gobject_class->dispose      = bt_wire_dispose;
   gobject_class->finalize     = bt_wire_finalize;
+  
+  // disable deep notify
+  {
+    GObjectClass *parent_class=g_type_class_peek_static(G_TYPE_OBJECT);
+    gobject_class->dispatch_properties_changed=parent_class->dispatch_properties_changed;
+  }
 
   gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&wire_src_template));
   gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&wire_sink_template));

@@ -699,6 +699,13 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_WARNING_OBJECT(self,"failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
+  
+  // disable deep notify
+  {
+    GObjectClass *gobject_class=G_OBJECT_GET_CLASS(self->priv->machines[part]);
+    GObjectClass *parent_class=g_type_class_peek_static(G_TYPE_OBJECT);
+    gobject_class->dispatch_properties_changed=parent_class->dispatch_properties_changed;
+  }
 
   // get the pads
   if(src_pn[part])
@@ -3578,6 +3585,12 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   gobject_class->get_property = bt_machine_get_property;
   gobject_class->dispose      = bt_machine_dispose;
   gobject_class->finalize     = bt_machine_finalize;
+
+  // disable deep notify
+  {
+    GObjectClass *parent_class=g_type_class_peek_static(G_TYPE_OBJECT);
+    gobject_class->dispatch_properties_changed=parent_class->dispatch_properties_changed;
+  }
   
   gstelement_class->request_new_pad = bt_machine_request_new_pad;
   gstelement_class->release_pad     = bt_machine_release_pad;
