@@ -315,7 +315,7 @@ static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
       g_object_unref(page);
     } break;
     case BT_MAIN_PAGES_SEQUENCE_PAGE: {
-      BtMainPageSequence *sequence_page;
+      BtMainPageSequence *page;
       GST_INFO("menu delete event occurred for sequence page");
       g_object_get(pages,"sequence-page",&page,NULL);
       bt_main_page_sequence_delete_selection(page);

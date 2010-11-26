@@ -1,5 +1,10 @@
 2010-11-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-menu.c:
+	  Fix the build.
+
+2010-11-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  More logging and code cleanup.
 	  
