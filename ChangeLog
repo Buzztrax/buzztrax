@@ -1,5 +1,16 @@
 2010-11-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  More logging and code cleanup.
+	  
+	* src/lib/core/setup.c:
+	  More logging.
+
+	* src/ui/edit/main-menu.c:
+	  Small name cleanup.
+
+2010-11-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/bt-check.h:
 	* tests/bt-test-plugin.c:
 	* tests/lib/core/e-song-io-native.c:

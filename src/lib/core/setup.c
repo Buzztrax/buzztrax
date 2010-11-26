@@ -915,6 +915,8 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
 
   g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
+  
+  GST_DEBUG("added machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
 
   if(!g_list_find(self->priv->machines,machine)) {
     ret=TRUE;
