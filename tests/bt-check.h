@@ -120,15 +120,16 @@ __bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal,
 
 //-- testing helper methods
 
-extern void bt_check_init(void); 
+extern void bt_check_init(void);
 
 #define g_object_checked_unref(obj) \
 {\
-  gpointer __objref;\
+  gpointer __objref=obj;\
   g_assert(obj);\
   GST_INFO("object %p ->ref_count: %d",obj,G_OBJECT(obj)->ref_count);\
   g_object_add_weak_pointer((gpointer)obj,&__objref);\
   g_object_unref((gpointer)obj);\
+  if (__objref) bt_gobject_check_refs(__objref);\
   fail_unless(__objref == NULL, NULL);\
 }
 

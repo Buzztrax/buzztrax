@@ -44,13 +44,13 @@ BT_START_TEST(test_create_menu) {
   GtkWidget *menu;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
-  GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
+  GST_INFO("main_window->ref_ct=%d",G_OBJECT_REF_COUNT(main_window));
 
   // make menus
   menu=(GtkWidget *)bt_interaction_controller_menu_new(BT_INTERACTION_CONTROLLER_RANGE_MENU);
@@ -64,7 +64,7 @@ BT_START_TEST(test_create_menu) {
   gtk_widget_destroy(GTK_WIDGET(main_window));
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }

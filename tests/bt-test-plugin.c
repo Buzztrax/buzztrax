@@ -266,9 +266,9 @@ static void bt_test_poly_source_set_property(GObject *object,guint property_id,c
         for(i=num_voices;i<self->num_voices;i++) {
           voice=g_object_new(BT_TYPE_TEST_MONO_SOURCE,NULL);
           self->voices=g_list_append(self->voices,voice);
-          GST_DEBUG(" adding voice %p, ref_ct=%d",voice, G_OBJECT(voice)->ref_count);
+          GST_DEBUG(" adding voice %p, ref_ct=%d",voice, G_OBJECT_REF_COUNT(voice));
           gst_object_set_parent(GST_OBJECT(voice), GST_OBJECT(self));
-          GST_DEBUG(" parented voice %p, ref_ct=%d",voice, G_OBJECT(voice)->ref_count);
+          GST_DEBUG(" parented voice %p, ref_ct=%d",voice, G_OBJECT_REF_COUNT(voice));
         }
       }
       else if(self->num_voices<num_voices) {
@@ -302,7 +302,7 @@ static void bt_test_poly_source_finalize(GObject *object) {
   if(self->voices) {
     GList* node;
     for(node=self->voices;node;node=g_list_next(node)) {
-      GST_DEBUG(" free voice %p, ref_ct=%d",node->data, G_OBJECT(node->data)->ref_count);
+      GST_DEBUG(" free voice %p, ref_ct=%d",node->data, G_OBJECT_REF_COUNT(node->data));
       gst_object_unparent(node->data);
       node->data=NULL;
     }

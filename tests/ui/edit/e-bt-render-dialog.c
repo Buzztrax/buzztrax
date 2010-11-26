@@ -42,7 +42,7 @@ BT_START_TEST(test_create_dialog) {
   GtkWidget *dialog;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   // create a new song
@@ -69,7 +69,7 @@ BT_START_TEST(test_create_dialog) {
   while(gtk_events_pending()) gtk_main_iteration();
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 }
 BT_END_TEST

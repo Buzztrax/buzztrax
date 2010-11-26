@@ -49,7 +49,7 @@ BT_START_TEST(test_editing) {
   GdkEventKey *e;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
   
   // load a song
@@ -102,7 +102,7 @@ BT_START_TEST(test_editing) {
   //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }

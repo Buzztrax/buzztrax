@@ -47,7 +47,7 @@ BT_START_TEST(test_machine_preferences_dialog) {
   GtkWidget *dialog;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   bt_edit_application_load_song(app, check_get_test_song_path("melo3.xml"));
@@ -83,7 +83,7 @@ BT_START_TEST(test_machine_preferences_dialog) {
   g_object_unref(setup);
   g_object_unref(song);
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }

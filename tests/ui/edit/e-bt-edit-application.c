@@ -52,19 +52,19 @@ BT_START_TEST(test_create) {
   BtMainWindow *main_window;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
-  GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
+  GST_INFO("main_window->ref_ct=%d",G_OBJECT_REF_COUNT(main_window));
 
   // make screenshot
   check_make_widget_screenshot(GTK_WIDGET(main_window),NULL);
 
   // close window
-  GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
+  GST_INFO("main_window->ref_ct=%d",G_OBJECT_REF_COUNT(main_window));
   // needs a main-loop (version 1,2)
   gtk_widget_destroy(GTK_WIDGET(main_window));
   // version 1
@@ -83,7 +83,7 @@ BT_START_TEST(test_create) {
   */
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 }
 BT_END_TEST
@@ -106,7 +106,7 @@ BT_START_TEST(test_run) {
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
-  GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
+  GST_INFO("main_window->ref_ct=%d",G_OBJECT_REF_COUNT(main_window));
 
   // avoid the about dialog
   g_object_set(settings,"news-seen",PACKAGE_VERSION_NUMBER,NULL);
@@ -132,7 +132,7 @@ BT_START_TEST(test_new1) {
   gboolean unsaved;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   // create a new song
@@ -156,7 +156,7 @@ BT_START_TEST(test_new1) {
   //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 }
 BT_END_TEST
@@ -169,7 +169,7 @@ BT_START_TEST(test_load1) {
   gboolean unsaved;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   bt_edit_application_load_song(app, check_get_test_song_path("melo3.xml"));
@@ -195,7 +195,7 @@ BT_START_TEST(test_load1) {
   //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }
@@ -209,7 +209,7 @@ BT_START_TEST(test_load2) {
   gboolean unsaved;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   // load first song
@@ -245,7 +245,7 @@ BT_START_TEST(test_load2) {
   while(gtk_events_pending()) gtk_main_iteration();
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }
@@ -261,7 +261,7 @@ BT_START_TEST(test_load3) {
   guint num;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
   g_object_get(app,"bin",&bin,NULL);
   GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));
@@ -303,7 +303,7 @@ BT_START_TEST(test_load3) {
 
   // free application
   gst_object_unref(bin);
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }
@@ -318,7 +318,7 @@ BT_START_TEST(test_load_and_play1) {
   gboolean playing;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   bt_edit_application_load_song(app, check_get_test_song_path("test-simple1.xml"));
@@ -347,7 +347,7 @@ BT_START_TEST(test_load_and_play1) {
 
   g_object_unref(song);
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }
@@ -362,7 +362,7 @@ BT_START_TEST(test_load_and_play2) {
   gboolean playing;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   // load first song
@@ -403,7 +403,7 @@ BT_START_TEST(test_load_and_play2) {
 
   g_object_unref(song2);
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }
@@ -424,7 +424,7 @@ BT_START_TEST(test_tabs1) {
   guint i,num_pages;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
   
   // load a song and a sample
@@ -479,7 +479,7 @@ BT_START_TEST(test_tabs1) {
   //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }
@@ -500,7 +500,7 @@ BT_START_TEST(test_tabs_playing) {
   guint i,num_pages;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
   
   // load a song and a sample
@@ -558,7 +558,7 @@ BT_START_TEST(test_tabs_playing) {
   //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }
@@ -573,7 +573,7 @@ BT_START_TEST(test_machine_view_edit) {
   BtMachine *machine;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   bt_edit_application_load_song(app, check_get_test_song_path("test-simple3.xml"));
@@ -585,17 +585,17 @@ BT_START_TEST(test_machine_view_edit) {
   // remove a source
   machine=bt_setup_get_machine_by_id(setup,"sine2");
   bt_setup_remove_machine(setup,machine);
-  GST_INFO("setup.machine[sine2].ref-count=%d",G_OBJECT(machine)->ref_count);
+  GST_INFO("setup.machine[sine2].ref-count=%d",G_OBJECT_REF_COUNT(machine));
   // ref count should be 1 now
-  fail_unless(G_OBJECT(machine)->ref_count==1,NULL);
+  fail_unless(G_OBJECT_REF_COUNT(machine)==1,NULL);
   g_object_unref(machine);
 
   // remove an effect
   machine=bt_setup_get_machine_by_id(setup,"amp1");
   bt_setup_remove_machine(setup,machine);
-  GST_INFO("setup.machine[amp1].ref-count=%d",G_OBJECT(machine)->ref_count);
+  GST_INFO("setup.machine[amp1].ref-count=%d",G_OBJECT_REF_COUNT(machine));
   // ref count should be 1 now
-  fail_unless(G_OBJECT(machine)->ref_count==1,NULL);
+  fail_unless(G_OBJECT_REF_COUNT(machine)==1,NULL);
   g_object_unref(machine);
 
   g_object_unref(setup);
@@ -610,7 +610,7 @@ BT_START_TEST(test_machine_view_edit) {
   while(gtk_events_pending()) gtk_main_iteration();
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 }
 BT_END_TEST

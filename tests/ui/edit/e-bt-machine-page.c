@@ -48,7 +48,7 @@ BT_START_TEST(test_machine_ref) {
   BtMachine *src_machine;
 
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
   
   // create a new song
@@ -67,12 +67,14 @@ BT_START_TEST(test_machine_ref) {
   fail_unless(pages != NULL, NULL);
   g_object_get(G_OBJECT(pages),"machines-page",&machines_page,NULL);
   fail_unless(machines_page != NULL, NULL);
-  // remove some other pages
+  /* remove some other pages
   // (ev. run for all combinations - if a test using all pages fails?)
   gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
   gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
   gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
   gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+  */
+  // we have a ref-leak on sequence page right now
   // show page
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_MACHINES_PAGE);
   g_object_unref(pages);
@@ -84,6 +86,8 @@ BT_START_TEST(test_machine_ref) {
   g_object_unref(setup);
 
   while(gtk_events_pending()) gtk_main_iteration();
+  
+  GST_INFO("machine %p,ref_count=%d has been created",src_machine,G_OBJECT_REF_COUNT(src_machine));
   
   // remove the machine and check that it is disposed
   bt_main_page_machines_delete_machine(machines_page,src_machine);
@@ -98,7 +102,7 @@ BT_START_TEST(test_machine_ref) {
   //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_checked_unref(app);
 
 }

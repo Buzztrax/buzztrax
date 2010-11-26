@@ -109,11 +109,11 @@ BT_START_TEST(test_create_and_destroy2) {
   BtChangeLog *cl;
 
   app=bt_edit_application_new();
-  GST_INFO("app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
   cl=bt_change_log_new();
-  GST_INFO("cl=%p, cl->ref_ct=%d",cl,G_OBJECT(cl)->ref_count);
+  GST_INFO("cl=%p, cl->ref_ct=%d",cl,G_OBJECT_REF_COUNT(cl));
   fail_unless(cl != NULL, NULL);
   
   // close window
@@ -136,7 +136,7 @@ BT_START_TEST(test_undo_redo_1) {
 
   // testing the change log needs a active song as a context
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
   bt_edit_application_new_song(app);
 
@@ -195,7 +195,7 @@ BT_START_TEST(test_undo_redo_2) {
 
   // testing the change log needs a active song as a context
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
   bt_edit_application_new_song(app);
 
@@ -274,7 +274,7 @@ BT_START_TEST(test_undo_redo_3) {
 
   // testing the change log needs a active song as a context
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
   bt_edit_application_new_song(app);
 
@@ -376,7 +376,7 @@ BT_START_TEST(test_stack_trunc) {
 
   // testing the change log needs a active song as a context
   app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
   bt_edit_application_new_song(app);
 

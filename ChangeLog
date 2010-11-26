@@ -1,5 +1,35 @@
 2010-11-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/bt-check.h:
+	* tests/bt-test-plugin.c:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/ui/cmd/e-bt-cmd-application.c:
+	* tests/ui/cmd/t-bt-cmd-application.c:
+	* tests/ui/edit/e-bt-about-dialog.c:
+	* tests/ui/edit/e-bt-change-log.c:
+	* tests/ui/edit/e-bt-controller-learn-dialog.c:
+	* tests/ui/edit/e-bt-edit-application.c:
+	* tests/ui/edit/e-bt-interaction-controller-menu.c:
+	* tests/ui/edit/e-bt-machine-actions.c:
+	* tests/ui/edit/e-bt-machine-page.c:
+	* tests/ui/edit/e-bt-machine-preferences-dialog.c:
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	* tests/ui/edit/e-bt-machine-properties-dialog.c:
+	* tests/ui/edit/e-bt-machine-rename-dialog.c:
+	* tests/ui/edit/e-bt-missing-framework-elements-dialog.c:
+	* tests/ui/edit/e-bt-missing-song-elements-dialog.c:
+	* tests/ui/edit/e-bt-pattern-page.c:
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c:
+	* tests/ui/edit/e-bt-render-dialog.c:
+	* tests/ui/edit/e-bt-render-progress-dialog.c:
+	* tests/ui/edit/e-bt-settings-dialog.c:
+	* tests/ui/edit/e-bt-tip-dialog.c:
+	* tests/ui/edit/e-bt-wire-analysis-dialog.c:
+	* tests/ui/edit/t-bt-pattern-page.c:
+	  Use out gobject-ref count accessor macro.
+
+2010-11-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/wire.c:
 	  Deactivate deep-notifies.

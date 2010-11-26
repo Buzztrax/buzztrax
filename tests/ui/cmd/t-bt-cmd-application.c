@@ -45,7 +45,7 @@ BT_START_TEST(test_play1) {
   BtSettings *settings=NULL;
   
   app=bt_cmd_application_new(TRUE);
-  fail_unless(G_OBJECT(app)->ref_count == 1, NULL);
+  fail_unless(G_OBJECT_REF_COUNT(app) == 1, NULL);
   
   check_init_error_trapp("bt_cmd_application_play","BT_IS_STRING(input_file_name)");
   ret = bt_cmd_application_play(app, NULL);

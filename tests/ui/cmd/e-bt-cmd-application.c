@@ -41,7 +41,7 @@ BT_START_TEST(test_create_app) {
 
   app=bt_cmd_application_new(TRUE);
   fail_unless(app != NULL, NULL);
-  fail_unless(G_OBJECT(app)->ref_count == 1, NULL);
+  fail_unless(G_OBJECT_REF_COUNT(app) == 1, NULL);
   // free application
   g_object_checked_unref(app);
 }
