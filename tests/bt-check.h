@@ -125,11 +125,10 @@ extern void bt_check_init(void);
 #define g_object_checked_unref(obj) \
 {\
   gpointer __objref=obj;\
-  g_assert(obj);\
-  GST_INFO("object %p ->ref_count: %d",obj,G_OBJECT(obj)->ref_count);\
-  g_object_add_weak_pointer((gpointer)obj,&__objref);\
-  g_object_unref((gpointer)obj);\
-  if (__objref) bt_gobject_check_refs(__objref);\
+  g_assert(__objref);\
+  GST_INFO("object %p ->ref_count: %d",__objref,G_OBJECT(__objref)->ref_count);\
+  g_object_add_weak_pointer(__objref,&__objref);\
+  g_object_unref(__objref);\
   fail_unless(__objref == NULL, NULL);\
 }
 
