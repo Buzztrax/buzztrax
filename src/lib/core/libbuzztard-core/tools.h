@@ -102,25 +102,56 @@ extern guint bt_cpu_load_get_current(void);
  */
 #define safe_string(a) ((gchar *)(a)?(gchar *)(a):"")
 
-/**
- * g_object_try_ref:
- * @obj: the object to reference
- *
- * If the supplied object is not %NULL then reference it via
- * g_object_ref().
- *
- * Returns: the referenced object or %NULL
- */
-#define g_object_try_ref(obj) (obj)?g_object_ref(obj):NULL
+/*
+@idea g_alloca_printf
 
-/**
- * g_object_try_unref:
- * @obj: the object to release the reference
- *
- * If the supplied object is not %NULL then release the reference via
- * g_object_unref().
- */
-#define g_object_try_unref(obj) if(obj) g_object_unref(obj)
+#define g_alloca_printf(str,format,...) \
+sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
+*/
+
+// since glib 2.13.0
+#ifndef G_PARAM_STATIC_STRINGS
+#define	G_PARAM_STATIC_STRINGS (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
+#endif
+
+// since glib 2.24.0
+#ifndef G_DEFINE_INTERFACE
+#define G_DEFINE_INTERFACE(TN, t_n, T_P)		    G_DEFINE_INTERFACE_WITH_CODE(TN, t_n, T_P, ;)
+#define G_DEFINE_INTERFACE_WITH_CODE(TN, t_n, T_P, _C_)     _G_DEFINE_INTERFACE_EXTENDED_BEGIN(TN, t_n, T_P) {_C_;} _G_DEFINE_INTERFACE_EXTENDED_END()
+
+#define _G_DEFINE_INTERFACE_EXTENDED_BEGIN(TypeName, type_name, TYPE_PREREQ) \
+\
+static void     type_name##_default_init        (TypeName##Interface *klass); \
+\
+GType \
+type_name##_get_type (void) \
+{ \
+  static volatile gsize g_define_type_id__volatile = 0; \
+  if (g_once_init_enter (&g_define_type_id__volatile))  \
+    { \
+      GType g_define_type_id = \
+        g_type_register_static_simple (G_TYPE_INTERFACE, \
+                                       g_intern_static_string (#TypeName), \
+                                       sizeof (TypeName##Interface), \
+                                       (GClassInitFunc)type_name##_default_init, \
+                                       0, \
+                                       (GInstanceInitFunc)NULL, \
+                                       (GTypeFlags) 0); \
+      if (TYPE_PREREQ) \
+        g_type_interface_add_prerequisite (g_define_type_id, TYPE_PREREQ); \
+      { /* custom code follows */
+#define _G_DEFINE_INTERFACE_EXTENDED_END()	\
+        /* following custom code */		\
+      }						\
+      g_once_init_leave (&g_define_type_id__volatile, g_define_type_id); \
+    }						\
+  return g_define_type_id__volatile;			\
+} /* closes type_name##_get_type() */
+
+#endif
+
+
+//-- gobject ref-count debugging & helpers
 
 /*
 GCC 4.1 introduced this crazy warning that complains about casting between
@@ -179,62 +210,50 @@ union { \
   gconstpointer var##_ptr; \
 }
 
-/*
-@idea g_alloca_printf
-
-#define g_alloca_printf(str,format,...) \
-sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
-*/
-
-// since glib 2.13.0
-#ifndef G_PARAM_STATIC_STRINGS
-#define	G_PARAM_STATIC_STRINGS (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
-#endif
-
-// since glib 2.24.0
-#ifndef G_DEFINE_INTERFACE
-#define G_DEFINE_INTERFACE(TN, t_n, T_P)		    G_DEFINE_INTERFACE_WITH_CODE(TN, t_n, T_P, ;)
-#define G_DEFINE_INTERFACE_WITH_CODE(TN, t_n, T_P, _C_)     _G_DEFINE_INTERFACE_EXTENDED_BEGIN(TN, t_n, T_P) {_C_;} _G_DEFINE_INTERFACE_EXTENDED_END()
-
-#define _G_DEFINE_INTERFACE_EXTENDED_BEGIN(TypeName, type_name, TYPE_PREREQ) \
-\
-static void     type_name##_default_init        (TypeName##Interface *klass); \
-\
-GType \
-type_name##_get_type (void) \
-{ \
-  static volatile gsize g_define_type_id__volatile = 0; \
-  if (g_once_init_enter (&g_define_type_id__volatile))  \
-    { \
-      GType g_define_type_id = \
-        g_type_register_static_simple (G_TYPE_INTERFACE, \
-                                       g_intern_static_string (#TypeName), \
-                                       sizeof (TypeName##Interface), \
-                                       (GClassInitFunc)type_name##_default_init, \
-                                       0, \
-                                       (GInstanceInitFunc)NULL, \
-                                       (GTypeFlags) 0); \
-      if (TYPE_PREREQ) \
-        g_type_interface_add_prerequisite (g_define_type_id, TYPE_PREREQ); \
-      { /* custom code follows */
-#define _G_DEFINE_INTERFACE_EXTENDED_END()	\
-        /* following custom code */		\
-      }						\
-      g_once_init_leave (&g_define_type_id__volatile, g_define_type_id); \
-    }						\
-  return g_define_type_id__volatile;			\
-} /* closes type_name##_get_type() */
-
-#endif
-
 /**
  * G_OBJECT_REF_COUNT:
- * @obj: the object
+ * @obj: the object (may be %NULL)
  *
- * Read the objects reference counter.
+ * Read the objects reference counter. Implemented as a macro, so don't use
+ * expressions for @obj.
  *
  * Returns: the reference counter.
  */
-#define G_OBJECT_REF_COUNT(obj) ((G_OBJECT(obj))->ref_count)
+#define G_OBJECT_REF_COUNT(obj) ((obj)?((G_OBJECT(obj))->ref_count):0)
+
+/**
+ * g_object_try_ref:
+ * @obj: the object to reference
+ *
+ * If the supplied object is not %NULL then reference it via
+ * g_object_ref().
+ *
+ * Returns: the referenced object or %NULL
+ */
+#define g_object_try_ref(obj) (obj)?g_object_ref(obj):NULL
+
+/**
+ * g_object_try_unref:
+ * @obj: the object to release the reference
+ *
+ * If the supplied object is not %NULL then release the reference via
+ * g_object_unref().
+ */
+#define g_object_try_unref(obj) if(obj) g_object_unref(obj)
+
+#if 0
+#define g_object_try_tagged_ref(obj,tag) (obj)?g_object_tagged_ref((obj),(tag)):NULL
+#define g_object_try_tagged_unref(obj,tag) if(obj) g_object_tagged_unref((obj),(tag))
+
+extern gpointer bt_gobject_tag_ref(gpointer object,const gchar *tag);
+extern void bt_gobject_tagged_unref(gpointer object,const gchar *tag);
+#define g_object_tag_ref(obj,tag) bt_gobject_tag_ref((obj),(tag))
+#define g_object_tagged_unref(obj,tag) bt_gobject_tagged_unref((obj),(tag))
+
+#define g_object_try_tag_ref(obj,tag) (obj)?g_object_tag_ref((obj),(tag)):NULL
+#define g_object_tagged_ref(obj,tag) g_object_tag_ref(g_object_ref(obj),(tag));
+
+extern void bt_gobject_check_refs(gpointer object);
+#endif
 
 #endif // !BT_TOOLS_H

@@ -1,3 +1,10 @@
+2010-11-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/tools.c:
+	  Some attempt for tagging ref-counts to aid debugging. Unused as of
+	  side effects.
+
 2010-11-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:
