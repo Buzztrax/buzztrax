@@ -1,5 +1,10 @@
 2010-11-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/ui/edit/e-bt-machine-page.c:
+	  Reshuffle refs.
+
+2010-11-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/bt-check.h:
 	  Make macros free of side effects by using the temp var.
 

@@ -91,9 +91,11 @@ BT_START_TEST(test_machine_ref) {
   
   // remove the machine and check that it is disposed
   bt_main_page_machines_delete_machine(machines_page,src_machine);
-  g_object_checked_unref(src_machine);
-
   g_object_unref(machines_page);
+  
+  while(gtk_events_pending()) gtk_main_iteration();
+  
+  g_object_checked_unref(src_machine);
 
   // close window
   gtk_widget_destroy(GTK_WIDGET(main_window));
