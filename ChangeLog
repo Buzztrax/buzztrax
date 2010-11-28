@@ -1,5 +1,13 @@
 2010-11-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Fix format string.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Add a lot more ref count logging. Whitespace and comment cleanups.
+
+2010-11-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/ui/edit/e-bt-machine-page.c:
 	  Reshuffle refs.
 

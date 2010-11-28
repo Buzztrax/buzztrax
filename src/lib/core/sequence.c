@@ -1099,7 +1099,7 @@ BtMachine *bt_sequence_get_machine(const BtSequence * const self,const gulong tr
 
   if(track>=self->priv->tracks) return(NULL);
 
-  GST_DEBUG("getting machine : %p,ref_count=%d",self->priv->machines[track],(self->priv->machines[track]?G_OBJECT_REF_COUNT(self->priv->machines[track]):-1));
+  GST_DEBUG("getting machine : %p,ref_count=%d for track %lu",self->priv->machines[track],G_OBJECT_REF_COUNT(self->priv->machines[track]),track);
   return(g_object_try_ref(bt_sequence_get_machine_unchecked(self,track)));
 }
 
