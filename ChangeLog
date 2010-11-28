@@ -1,5 +1,10 @@
 2010-11-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Avoid some re-fetching of data. Code cleanups.
+
+2010-11-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  Fix format string.
 

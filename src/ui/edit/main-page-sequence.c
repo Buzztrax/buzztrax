@@ -1069,7 +1069,8 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
         g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
         g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
         // need to disconnect the label updates for the seq headers, unfortunately we don#t know the label
-        // so we use a waek_ref and on_sequence_header_label_destroy()
+        // so we use a weak_ref and on_sequence_header_label_destroy()
+        GST_INFO("machine %p,ref_count=%d cleaning sequence table",machine,G_OBJECT_REF_COUNT(machine));
         g_object_unref(machine);
       }
     }
@@ -1225,7 +1226,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
   g_object_get((gpointer)song,"setup",&setup,NULL);
   g_object_get(self->priv->sequence,"length",&timeline_ct,"tracks",&track_ct,NULL);
-  GST_DEBUG("  size is %2lu,%2lu",timeline_ct,track_ct);
+  GST_DEBUG("  size is lines=%2lu,tracks=%2lu",timeline_ct,track_ct);
 
   // reset columns
   sequence_table_clear(self);
@@ -1307,6 +1308,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   machine_usage=g_hash_table_new(NULL,NULL);
   for(j=0;j<track_ct;j++) {
     machine=bt_sequence_get_machine(self->priv->sequence,j);
+    GST_INFO("machine %p,ref_count=%d refresh sequence table track %lu",machine,G_OBJECT_REF_COUNT(machine),j);
     renderer=gtk_cell_renderer_text_new();
     g_object_set(renderer,
       "mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
@@ -1329,6 +1331,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       GtkVUMeter *vumeter;
       GstElement *level;
       gchar *level_name="output-post-level";
+      
+      GST_DEBUG("  %3lu build column header",j);
 
       // enable level meters
       if(!BT_IS_SINK_MACHINE(machine)) {
@@ -1446,6 +1450,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     g_object_try_unref(machine);
   }
   g_hash_table_destroy(machine_usage);
+  
+  GST_INFO("finish sequence table");
 
   // add a final column that eats remaining space
   renderer=gtk_cell_renderer_text_new();
@@ -1476,8 +1482,6 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   GtkTreeIter tree_iter;
   
   // refresh the pattern list
-  GST_INFO("refresh pattern list for machine : %p",self->priv->machine);
-
   store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
 
   if(self->priv->machine) {
@@ -1486,7 +1490,9 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     GList *node,*list;
     gboolean is_internal,is_used;
     gchar *str,key[2]={0,};
-  
+
+    GST_INFO("refresh pattern list for machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
+
     //-- append default rows
     self->priv->pattern_keys=sink_pattern_keys;
     index=2;
@@ -1544,6 +1550,8 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
       bt_main_page_patterns_show_machine(patterns_page,self->priv->machine);
       g_object_unref(patterns_page);
     }
+
+    GST_INFO("refreshed pattern list for machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
   }
   else {
     GST_INFO("no machine for cursor_column: %ld",self->priv->cursor_column);
@@ -1569,29 +1577,35 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
   GST_INFO("change active track");
 
   machine=bt_main_page_sequence_get_current_machine(self);
-  if(machine!=self->priv->machine) {
-    if(self->priv->machine) {
-      GST_INFO("unref old cur-machine %p,refs=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
-      g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_added_handler);
-      g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_removed_handler);
-      // unref the old machine
-      g_object_unref(self->priv->machine);
-      self->priv->machine=NULL;
-      self->priv->pattern_added_handler=0;
-      self->priv->pattern_removed_handler=0;
-    }
-    if(machine) {
-      GST_INFO("ref new cur-machine: refs: %d",G_OBJECT_REF_COUNT(machine));
-      self->priv->pattern_added_handler=g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
-      self->priv->pattern_removed_handler=g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
-      // remember the new machine
-      self->priv->machine=machine;
-    }
-    pattern_list_refresh(self);
-  }
-  else {
+  if(machine==self->priv->machine) {
+    // nothing changed
     g_object_try_unref(machine);
+    return;
   }
+  
+  GST_INFO("changing machine %p,ref_count=%d to %p,ref_count=%d",
+    self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine),
+    machine,G_OBJECT_REF_COUNT(machine)
+  );
+
+  if(self->priv->machine) {
+    GST_INFO("unref old cur-machine %p,refs=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
+    g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_added_handler);
+    g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_removed_handler);
+    // unref the old machine
+    g_object_try_unref(self->priv->machine);
+    self->priv->machine=NULL;
+    self->priv->pattern_added_handler=0;
+    self->priv->pattern_removed_handler=0;
+  }
+  if(machine) {
+    GST_INFO("ref new cur-machine: refs: %d",G_OBJECT_REF_COUNT(machine));
+    self->priv->pattern_added_handler=g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
+    self->priv->pattern_removed_handler=g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
+    // remember the new machine
+    self->priv->machine=machine;
+  }
+  pattern_list_refresh(self);
 }
 
 /*
@@ -1599,7 +1613,7 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
  * add all machines from setup to self->priv->context_menu_add
  */
 static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *setup) {
-  BtMachine *machine=NULL;
+  BtMachine *machine;
   GList *node,*list,*widgets;
   GtkWidget *menu_item,*submenu,*label;
   gchar *str;
@@ -1734,6 +1748,7 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   g_object_get(self->priv->app,"song",&song,NULL);
 
   bt_sequence_add_track(self->priv->sequence,machine);
+  GST_INFO("machine %p,ref_count=%d track added",machine,G_OBJECT_REF_COUNT(machine));
 
   // reset selection
   self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
@@ -1741,6 +1756,8 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   // reinit the view
   sequence_table_refresh(self,song);
   sequence_model_recolorize(self);
+  
+  GST_INFO("machine %p,ref_count=%d sequence table update",machine,G_OBJECT_REF_COUNT(machine));
 
   // update cursor_column and focus cell
   // (-2 because last column is empty and first is label)
@@ -1748,9 +1765,13 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   self->priv->cursor_column=g_list_length(columns)-2;
   GST_INFO("new cursor column: %ld",self->priv->cursor_column);
   g_list_free(columns);
-
   sequence_view_set_cursor_pos(self);
+  
+  GST_INFO("machine %p,ref_count=%d cursor moved",machine,G_OBJECT_REF_COUNT(machine));
+  
   update_after_track_changed(self);
+  
+  GST_INFO("machine %p,ref_count=%d adding track and updates done",machine,G_OBJECT_REF_COUNT(machine));
 
   g_object_unref(song);
 }
@@ -1824,26 +1845,28 @@ static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
 
 static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtSong *song;
   gulong number_of_tracks;
-
-  // get song from app and then setup from song
-  g_object_get(self->priv->app,"song",&song,NULL);
 
   // change number of tracks
   g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
   if(number_of_tracks>0) {
+    BtSong *song;
     BtMachine *machine;
 
-    machine=bt_sequence_get_machine(self->priv->sequence,number_of_tracks-1);
-    // even though we can have multiple tracks per machine, we can disconnect them all, as we rebuild the treeview anyway
-    g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
-    g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
-    g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
-    g_object_unref(machine);
+    if((machine=bt_sequence_get_machine(self->priv->sequence,number_of_tracks-1))) {
+      // even though we can have multiple tracks per machine, we can disconnect them all, as we rebuild the treeview anyway
+      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
+      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
+      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
+      GST_INFO("machine %p,ref_count=%d removing track",machine,G_OBJECT_REF_COUNT(machine));
+      g_object_unref(machine);
+    }
+
+    // get song from app
+    g_object_get(self->priv->app,"song",&song,NULL);
 
     GST_DEBUG("old cursor column: %ld, tracks: %lu",self->priv->cursor_column,number_of_tracks);
-    // remove the track where the cursor is 
+    // remove the track where the cursor is
     bt_sequence_remove_track_by_ix(self->priv->sequence,self->priv->cursor_column-1);
 
     // reset selection
@@ -1861,9 +1884,9 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
     }
 
     update_after_track_changed(self);
-  }
 
-  g_object_unref(song);
+    g_object_unref(song);
+  }
 }
 
 static void on_track_move_left_activated(GtkMenuItem *menuitem, gpointer user_data) {
@@ -2159,7 +2182,6 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       if(track>0) {
         BtMainPagePatterns *patterns_page;
         BtPattern *pattern;
-        BtMachine *machine;
 
         bt_child_proxy_get(self->priv->main_window,"pages::patterns-page",&patterns_page,NULL);
         bt_child_proxy_set(self->priv->main_window,"pages::page",BT_MAIN_PAGES_PATTERNS_PAGE,NULL);
@@ -2168,10 +2190,9 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
           bt_main_page_patterns_show_pattern(patterns_page,pattern);
           g_object_unref(pattern);
         }
-        else if((machine=bt_main_page_sequence_get_current_machine(self))) {
+        else {
           GST_INFO("show machine");
-          bt_main_page_patterns_show_machine(patterns_page,machine);
-          g_object_unref(machine);
+          bt_main_page_patterns_show_machine(patterns_page,self->priv->machine);
         }
         g_object_unref(patterns_page);
 
@@ -2398,39 +2419,34 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     if((!res) && (event->keyval<='z') && (modifier==0)) {
       // first column is label
       if((track>0) && (row<length)) {
-        BtMachine *machine;
+        gchar *pos=strchr(self->priv->pattern_keys,(gchar)(event->keyval&0xff));
 
-        if((machine=bt_sequence_get_machine(self->priv->sequence,track-1))) {
-          gchar *pos=strchr(self->priv->pattern_keys,(gchar)(event->keyval&0xff));
+        // reset selection
+        self->priv->selection_start_column=-1;
+        self->priv->selection_start_row=-1;
+        self->priv->selection_end_column=-1;
+        self->priv->selection_end_row=-1;
 
-          // reset selection
-          self->priv->selection_start_column=-1;
-          self->priv->selection_start_row=-1;
-          self->priv->selection_end_column=-1;
-          self->priv->selection_end_row=-1;
+        if(pos) {
+          BtPattern *pattern;
+          gulong index=(gulong)pos-(gulong)self->priv->pattern_keys;
 
-          if(pos) {
-            BtPattern *pattern;
-            gulong index=(gulong)pos-(gulong)self->priv->pattern_keys;
+          GST_INFO("pattern key pressed: '%c' > index: %lu",*pos,index);
 
-            GST_INFO("pattern key pressed: '%c' > index: %lu",*pos,index);
-
-            if((pattern=bt_machine_get_pattern_by_index(machine,index))) {
-              pattern_usage_changed=!bt_sequence_is_pattern_used(self->priv->sequence,pattern);
-              bt_sequence_set_pattern(self->priv->sequence,row,track-1,pattern);
-              g_object_get(pattern,"name",&str,NULL);
-              g_object_unref(pattern);
-              free_str=TRUE;
-              change=TRUE;
-              res=TRUE;
-            } else {
-              GST_WARNING("no pattern for index %d",index);
-            }
+          if((pattern=bt_machine_get_pattern_by_index(self->priv->machine,index))) {
+            pattern_usage_changed=!bt_sequence_is_pattern_used(self->priv->sequence,pattern);
+            bt_sequence_set_pattern(self->priv->sequence,row,track-1,pattern);
+            g_object_get(pattern,"name",&str,NULL);
+            g_object_unref(pattern);
+            free_str=TRUE;
+            change=TRUE;
+            res=TRUE;
+          } else {
+            GST_WARNING_OBJECT(self->priv->machine,"no pattern for index %d",index);
           }
-          else {
-            GST_WARNING("keyval %c not used by machine",(gchar)(event->keyval&0xff));
-          }
-          g_object_unref(machine);
+        }
+        else {
+          GST_WARNING_OBJECT(self->priv->machine,"keyval %c not used by machine",(gchar)(event->keyval&0xff));
         }
       }
     }
@@ -2688,6 +2704,7 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 
   GST_INFO("machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
   machine_menu_refresh(self,setup);
+  GST_INFO("machine %p,ref_count=%d chk1",machine,G_OBJECT_REF_COUNT(machine));
   if(BT_IS_SOURCE_MACHINE(machine)) {
     sequence_add_track(self,machine);
   }
@@ -2697,6 +2714,7 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
+  gulong number_of_tracks;
 
   g_return_if_fail(BT_IS_MACHINE(machine));
 
@@ -3155,6 +3173,7 @@ BtMainPageSequence *bt_main_page_sequence_new(const BtMainPages *pages) {
  *
  * Returns: the #BtMachine instance or %NULL in case of an error
  */
+// @todo: only used locally
 BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self) {
   return(bt_sequence_get_machine(self->priv->sequence,self->priv->cursor_column-1));
 }
@@ -3443,7 +3462,7 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
       GST_WARNING("  can't get tree-model");
     }
   }
-  g_strfreev(lines); 
+  g_strfreev(lines);
 }
 
 
