@@ -1,6 +1,11 @@
 2010-11-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
+	  Fix a temporary ref-leak. This fixes the test_machine_ref test.
+
+2010-11-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
 	  Avoid some re-fetching of data. Code cleanups.
 
 2010-11-28  Stefan Kost  <ensonic@users.sf.net>

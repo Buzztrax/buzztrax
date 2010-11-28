@@ -2721,15 +2721,30 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 
   // reinit the menu
+  GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+  //g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_menu,NULL);
   machine_menu_refresh(self,setup);
 
   // get song from app and then setup from song
   g_object_get(self->priv->app,"song",&song,NULL);
 
   bt_sequence_remove_track_by_machine(self->priv->sequence,machine);
+
+  // reset selection
+  self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
+
   // reinit the view
   sequence_table_refresh(self,song);
   sequence_model_recolorize(self);
+
+  g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
+  if(self->priv->cursor_column>=number_of_tracks) {
+    // update cursor_column and focus cell
+    self->priv->cursor_column--;
+    sequence_view_set_cursor_pos(self);
+    GST_DEBUG("new cursor column: %ld",self->priv->cursor_column);
+  }
+  update_after_track_changed(self);
 
   g_object_unref(song);
   GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
