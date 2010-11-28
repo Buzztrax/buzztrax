@@ -482,6 +482,48 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   g_free(str);
 }
 
+static void on_pattern_added(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
+  //BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+/* this would be too early, the pattern properties are not set :/
+  // add undo/redo details
+  if(bt_change_log_is_active(self->priv->change_log)) {
+    gchar *undo_str,*redo_str;
+    gchar *mid,*pid,*pname;
+    gulong length;
+    
+    g_object_get(machine,"id",&mid,NULL);
+    g_object_get(pattern,"id",&pid,"name",&pname,"length",&length,NULL);
+    
+    undo_str = g_strdup_printf("rem_pattern \"%s\",\"%s\"",mid,pid);
+    redo_str = g_strdup_printf("add_pattern \"%s\",\"%s\",\"%s\",%lu",mid,pid,pname,length);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+    g_free(mid);g_free(pid);g_free(pname);
+  }
+*/
+}
+
+static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  
+  // add undo/redo details
+  if(bt_change_log_is_active(self->priv->change_log)) {
+    gchar *undo_str,*redo_str;
+    gchar *mid,*pid,*pname;
+    gulong length;
+  
+    g_object_get(pattern,"id",&pid,"name",&pname,"length",&length,NULL);
+    g_object_get(machine,"id",&mid,NULL);
+    
+    undo_str = g_strdup_printf("add_pattern \"%s\",\"%s\",\"%s\",%lu",mid,pid,pname,length);
+    redo_str = g_strdup_printf("rem_pattern \"%s\",\"%s\"",mid,pid);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+    g_free(mid);g_free(pid);
+  }
+  
+  GST_INFO("removed pattern: %p,pattern->ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+}
+
 static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   gboolean res=FALSE;
@@ -996,8 +1038,10 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
     MACHINE_MENU_MACHINE,machine,
     -1);
   g_signal_connect(machine,"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)self);
+  g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
+  g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
 
-  GST_DEBUG_OBJECT(machine,"  (machine-refs: %d)",G_OBJECT_REF_COUNT(machine));
+  GST_DEBUG_OBJECT(machine,"  added %p (machine-refs: %d)",machine,G_OBJECT_REF_COUNT(machine));
   g_free(str);
   g_object_unref(pixbuf);
 }
@@ -2023,7 +2067,7 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
               found=TRUE;
             }
             g_object_unref(pattern);
-            /* if there was a different pattern, don't look further */ 
+            /* if there was a different pattern, don't look further */
             break;
           }
         }
@@ -2165,14 +2209,12 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMainWindow *main_window;
-  BtPattern *pattern;
   GtkWidget *dialog;
 
-  pattern=bt_main_page_patterns_get_current_pattern(self);
-  g_return_if_fail(pattern);
+  g_return_if_fail(self->priv->pattern);
 
   // pattern_properties
-  dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(pattern));
+  dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->pattern));
 
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
@@ -2183,19 +2225,17 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
     bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
   }
   gtk_widget_destroy(dialog);
-  g_object_unref(pattern);
 }
 
 static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMainWindow *main_window;
-  BtPattern *pattern;
+  BtPattern *pattern=self->priv->pattern;
   BtSong *song;
   BtSequence *sequence;
   gchar *msg=NULL,*id;
   gboolean is_used,remove=FALSE;
 
-  pattern=bt_main_page_patterns_get_current_pattern(self);
   g_return_if_fail(pattern);
 
   g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
@@ -2215,21 +2255,14 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 
   if(remove || bt_dialog_question(main_window,_("Delete pattern..."),msg,_("There is no undo for this."))) {
     BtMachine *machine;
-    gchar *undo_str,*redo_str;
-    gchar *mid,*pid,*pname;
-    gulong length;
+    
+    g_object_get(pattern,"machine",&machine,NULL);
 
-    machine=bt_main_page_patterns_get_current_machine(self);
-    
-    g_object_get(machine,"id",&mid,NULL);
-    g_object_get(pattern,"id",&pid,"name",&pname,"length",&length,NULL);
-    
-    undo_str = g_strdup_printf("add_pattern \"%s\",\"%s\",\"%s\",%lu",mid,pid,pname,length);
-    redo_str = g_strdup_printf("rem_pattern \"%s\",\"%s\"",mid,pid);
-    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-    g_free(mid);g_free(pid);
-    
+    bt_change_log_start_group(self->priv->change_log);
+    /* @todo: serialize pattern data */
     bt_machine_remove_pattern(machine,pattern);
+    bt_change_log_end_group(self->priv->change_log);
+
     change_current_pattern(self,NULL);
     pattern_menu_refresh(self,machine);
     context_menu_refresh(self,machine);
@@ -2239,7 +2272,6 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
   g_object_unref(sequence);
   g_object_unref(song);
   g_object_unref(main_window);
-  g_object_unref(pattern);  // should finalize the pattern
   g_free(msg);
 }
 
@@ -2247,20 +2279,15 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMainWindow *main_window;
   BtMachine *machine;
-  BtPattern *pattern,*pattern_new;
+  BtPattern *pattern;
   GtkWidget *dialog;
 
-  machine=bt_main_page_patterns_get_current_machine(self);
-  g_return_if_fail(machine);
-
-  pattern=bt_main_page_patterns_get_current_pattern(self);
-  g_return_if_fail(pattern);
+  g_return_if_fail(self->priv->pattern);
 
   // copy pattern
-  pattern_new=bt_pattern_copy(pattern);
-  g_object_unref(pattern);
-  pattern=pattern_new;
+  pattern=bt_pattern_copy(self->priv->pattern);
   g_return_if_fail(pattern);
+  g_object_get(pattern,"machine",&machine,NULL);
 
   // pattern_properties
   dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(pattern));
@@ -2271,9 +2298,22 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
   gtk_widget_show_all(dialog);
 
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+    gchar *undo_str,*redo_str;
+    gchar *mid,*pid,*pname;
+    gulong length;
+
     bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
 
     GST_INFO("new pattern added : %p",pattern);
+    
+    g_object_get(machine,"id",&mid,NULL);
+    g_object_get(pattern,"id",&pid,"name",&pname,"length",&length,NULL);
+    
+    undo_str = g_strdup_printf("rem_pattern \"%s\",\"%s\"",mid,pid);
+    redo_str = g_strdup_printf("add_pattern \"%s\",\"%s\",\"%s\",%lu",mid,pid,pname,length);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+    g_free(mid);g_free(pid);g_free(pname);
+
     change_current_pattern(self,pattern);
     pattern_menu_refresh(self,machine);
     context_menu_refresh(self,machine);
@@ -2633,6 +2673,7 @@ BtMainPagePatterns *bt_main_page_patterns_new(const BtMainPages *pages) {
  *
  * Returns: the #BtMachine instance or %NULL in case of an error
  */
+// @todo: only used locally
 BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *self) {
   BtMachine *machine;
   GtkTreeIter iter;
@@ -2663,6 +2704,7 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
  *
  * Returns: the #BtPattern instance or %NULL in case of an error
  */
+// @todo: only used locally
 BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *self) {
   BtMachine *machine;
   BtPattern *pattern;

@@ -33,6 +33,7 @@ BtAboutDialogPrivate
 <TITLE>BtChangeLog</TITLE>
 BtChangeLog
 bt_change_log_new
+bt_change_log_is_active
 bt_change_log_add
 bt_change_log_redo
 bt_change_log_undo

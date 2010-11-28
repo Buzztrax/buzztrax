@@ -475,28 +475,78 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 
   // draw machine
   machine_item_new(self,machine,self->priv->mouse_x,self->priv->mouse_y);
+
+  GST_INFO("... machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 }
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  BtMachineCanvasItem *item=g_hash_table_lookup(self->priv->machines,machine);
+  BtMachineCanvasItem *item;
+
+  if(!machine) return;
   
+  GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
+  
+  // add undo/redo details
+  if(bt_change_log_is_active(self->priv->change_log)) {
+    gchar *undo_str,*redo_str;
+    gchar *mid,*pname;
+    guint type=0;
+
+    if(BT_IS_SOURCE_MACHINE(machine))
+      type=0;
+    else if(BT_IS_PROCESSOR_MACHINE(machine))
+      type=1;
+    g_object_get(machine,"id",&mid,"plugin-name",&pname,NULL);
+
+    undo_str = g_strdup_printf("add_machine %u,\"%s\",\"%s\"",type,mid,pname);
+    redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+    g_free(mid);g_free(pname);
+  }
+
+  item=g_hash_table_lookup(self->priv->machines,machine);
   GST_INFO("now removing machine-item : %p",item);
   g_hash_table_remove(self->priv->machines,machine);
   gtk_object_destroy(GTK_OBJECT(item));
 
-  if(machine) GST_INFO("removed canvas item: %p,machine->ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
+  GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 }
 
 static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  BtWireCanvasItem *item=g_hash_table_lookup(self->priv->wires,wire);
+  BtWireCanvasItem *item;
+
+  if(!wire) return;
   
+  GST_INFO("wire %p,ref_count=%d has been removed",wire,G_OBJECT_REF_COUNT(wire));
+  
+  // add undo/redo details
+  if(bt_change_log_is_active(self->priv->change_log)) {
+    gchar *undo_str,*redo_str;
+    BtMachine *src_machine,*dst_machine;
+    gchar *smid,*dmid;
+  
+    g_object_get(wire,"src",&src_machine,"dst",&dst_machine,NULL);
+    g_object_get(src_machine,"id",&smid,NULL);
+    g_object_get(dst_machine,"id",&dmid,NULL);
+
+    undo_str = g_strdup_printf("add_wire \"%s\",\"%s\"",smid,dmid);
+    redo_str = g_strdup_printf("rem_wire \"%s\",\"%s\"",smid,dmid);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+    g_free(smid);g_free(dmid);
+    g_object_unref(dst_machine);
+    g_object_unref(src_machine);
+  }
+
+  item=g_hash_table_lookup(self->priv->wires,wire);
   GST_INFO("now removing wire-item : %p",item);
   g_hash_table_remove(self->priv->wires,wire);
   gtk_object_destroy(GTK_OBJECT(item));
 
-  if(wire) GST_INFO("removed canvas item: %p,wire->ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
+  GST_INFO("... wire %p,ref_count=%d has been removed",wire,G_OBJECT_REF_COUNT(wire));
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -1324,44 +1374,21 @@ gboolean bt_main_page_machines_add_processor_machine(const BtMainPageMachines *s
 void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMachine *machine) {
   BtSong *song;
   BtSetup *setup;
-  gchar *undo_str,*redo_str;
-  gchar *mid,*pname;
-  guint type=0;
 
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"setup",&setup,NULL);
-  
-  if(BT_IS_SOURCE_MACHINE(machine))
-    type=0;
-  else if(BT_IS_PROCESSOR_MACHINE(machine))
-    type=1;
-  g_object_get(machine,"id",&mid,"plugin-name",&pname,NULL);
 
+  GST_INFO("now removing machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
   bt_change_log_start_group(self->priv->change_log);
-  undo_str = g_strdup_printf("add_machine %u,\"%s\",\"%s\"",type,mid,pname);
-  redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
-  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-  /* FIXME: serialize all patterns
-   *   g_object_get(machine,"patterns",&pattern_list,NULL);
-   *   -> need to refactor main-page-patterns: on_context_menu_pattern_remove_activate()
+  /* @todo: serialize all sequence tracks
+   * @todo: serialize all patterns
+   * @todo: serialize machine position (like the move command)
    */
-  // serialize all wires (after the patterns)
-  while(machine->src_wires)
-     bt_main_page_machines_delete_wire(self,machine->src_wires->data);
-  while(machine->dst_wires)
-     bt_main_page_machines_delete_wire(self,machine->dst_wires->data);
-  /* FIXME: serialize more
-   * - machine position (like the move command)
-   *
-   * Problems:
-   * - we just need the unod/redo strings as the removal happens elsewhere :/
-   */
-  bt_change_log_end_group(self->priv->change_log);
 
-  g_free(mid);
   bt_setup_remove_machine(setup,machine);
   // this segfaults if the machine is finalized
   //GST_INFO("... machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+  bt_change_log_end_group(self->priv->change_log);
 
   g_object_unref(setup);
   g_object_unref(song);
@@ -1377,27 +1404,16 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
 void bt_main_page_machines_delete_wire(const BtMainPageMachines *self, BtWire *wire) {
   BtSong *song;
   BtSetup *setup;
-  BtMachine *src_machine,*dst_machine;
-  gchar *undo_str,*redo_str;
-  gchar *smid,*dmid;
 
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"setup",&setup,NULL);
 
-  g_object_get(wire,"src",&src_machine,"dst",&dst_machine,NULL);
-  g_object_get(src_machine,"id",&smid,NULL);
-  g_object_get(dst_machine,"id",&dmid,NULL);
-  undo_str = g_strdup_printf("add_wire \"%s\",\"%s\"",smid,dmid);
-  redo_str = g_strdup_printf("rem_wire \"%s\",\"%s\"",smid,dmid);
-  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-  g_free(smid);g_free(dmid);
-  g_object_unref(dst_machine);
-  g_object_unref(src_machine);
-
   GST_INFO("now removing wire : %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
+  bt_change_log_start_group(self->priv->change_log);
   bt_setup_remove_wire(setup,wire);
   // this segfaults if the wire is finalized
   //GST_INFO("... wire : %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
+  bt_change_log_end_group(self->priv->change_log);
 
   g_object_unref(setup);
   g_object_unref(song);

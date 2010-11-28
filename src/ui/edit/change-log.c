@@ -33,22 +33,34 @@
  * - we could make bt_change_log_crash_check() static and run this in _init()
  *   - the list of crash-log entries would be available as a property
  */
-/* @todo: need change grouping
- * - some action are a sequence of undo/redo actions
- *   - when clearing a selection, we can represent this as a group of edits
- *   - undo it the remove of a machine (and its patterns)
- * - self->priv->changes is a array of BtChangeLogEntry
- * - we need to have a special entry, that again contains a array of
- *   BtChangeLogEntry
- *   - we could make BtChangeLogEntry a union and add a 'type' field first
- *   - one would call bt_change_log_{start,end}_group to brace grouped changes
- *   - bt_change_log_add would add to the active group (default = top_level)
- * - groups could be hierarchical, but are applied only as a whole
- * - bt_change_log_undo/redo would need to check for groups and in that case loop
- *   over the group
- * - the log-file serialisation can ignore the groups
+/* @todo: using groups
+ * - start and stop the group in the UI-callback that causes e.g. deleting an
+ *   item
+ * - make sure all on_xxx_remove handler are called before closing the group
+ * - in the on_xxx_handlers can we unconditionally add to the log?
+ *   - we want to avoid that stuff gets logged:
+ *     - when loading a song
+ *     - when disposing a song
+ *     - when undo/redo-ing actions
+ *   - when loading we set the song to the application, when it is done
+ *   - when disposing we unset the song from the application and then dispose
+ *   - we catch the case of app->song==NULL already here
+ *   - ideally we want a cheap way of checking wheter the change-log is active
+ *     to avoid builing the undo/redo strings if they are not needed
+ *     (in undo/redo already or construction/destructiuon)
+ *     -> add gboolean bt_change_log_is_active(BtChangeLog *self)
+ * - log example (remove effect machine with two wires conencted)
+ *   bt_main_page_machines_delete_machine: undo/redo: remove machine beg
+ *   on_machine_removed: undo/redo: beg
+ *   on_machine_removed: undo/redo: end
+ *   on_wire_removed: undo/redo: beg
+ *   on_wire_removed: undo/redo: end
+ *   on_wire_removed: undo/redo: beg
+ *   on_wire_removed: undo/redo: end
+ *   bt_main_page_machines_delete_machine: undo/redo: remove machine end
  */
-/* design:
+
+/* design: the undo/redo stack
  * check http://github.com/herzi/gundo more
  *
  * empty stack: undo: -1               redo: 0
@@ -97,6 +109,21 @@
  * Otherwise it becomes a graph and then redo would need to know the direction.
  *
  */
+/* design: change grouping
+ * - some action are a sequence of undo/redo actions
+ *   - when clearing a selection, we can represent this as a group of edits
+ *   - undo it the remove of a machine (and its patterns)
+ * - self->priv->changes is a array of BtChangeLogEntry
+ * - we need to have a special entry, that again contains a array of
+ *   BtChangeLogEntry
+ *   - we could make BtChangeLogEntry a union and add a 'type' field first
+ *   - one would call bt_change_log_{start,end}_group to brace grouped changes
+ *   - bt_change_log_add would add to the active group (default = top_level)
+ * - groups could be hierarchical, but are applied only as a whole
+ * - bt_change_log_undo/redo would need to check for groups and in that case loop
+ *   over the group
+ * - the log-file serialisation can ignore the groups
+ */
 
 #define BT_EDIT
 #define BT_CHANGE_LOG_C
@@ -138,7 +165,6 @@ struct _BtChangeLogEntryGroup {
   BtChangeLogEntryGroup *old_group;
 };
 
-
 struct _BtChangeLogPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
@@ -146,6 +172,11 @@ struct _BtChangeLogPrivate {
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
 
+  /* logging is inactive during song-construction/desctruction and when
+   * replaying and undo/redo action */
+  gboolean is_active;
+
+  /* log file */
   FILE *log_file;
   gchar *log_file_name;
   gchar *cache_dir;
@@ -158,7 +189,7 @@ struct _BtChangeLogPrivate {
   guint last_saved;
   gint next_redo;  // -1 for none, or just have pointers?
   gint next_undo;  // -1 for none, or just have pointers?
-  gint item_ct;
+  gint item_ct;    // same as changed->len, but also accesible when changes=NULL
   BtChangeLogEntryGroup *cur_group;
 
   /* crash log entries */
@@ -177,7 +208,112 @@ G_DEFINE_TYPE (BtChangeLog, bt_change_log, G_TYPE_OBJECT);
 
 //-- helper
 
-static void free_log_file(BtChangeLog *self) {
+static void free_change_log_entry(BtChangeLogEntry *cle) {
+  switch(cle->type) {
+    case CHANGE_LOG_ENTRY_SINGLE: {
+      BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
+      g_free(cles->undo_data);
+      g_free(cles->redo_data);
+      g_slice_free(BtChangeLogEntrySingle,cles);
+      break;
+    }
+    case CHANGE_LOG_ENTRY_GROUP: {
+      BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
+      guint i;
+      
+      // recurse
+      for(i=0;i<cleg->changes->len;i++) {
+        free_change_log_entry(g_ptr_array_index(cleg->changes,i));
+      }
+      g_ptr_array_free(cleg->changes,TRUE);
+      g_slice_free(BtChangeLogEntryGroup,cleg);
+      break;
+    }
+  }
+}
+
+static void add_change_log_entry(BtChangeLog *self,BtChangeLogEntry *cle) {
+  // only on top-level group
+  if(self->priv->cur_group==NULL) {
+    // if we have redo data, we have to cut the trail here otherwise the history
+    // becomes a graph
+    if(self->priv->item_ct && (self->priv->next_redo<self->priv->item_ct)) {
+      gint i;
+      
+      GST_WARNING("trunc %d<%d",self->priv->next_redo,self->priv->item_ct);
+      for(i=self->priv->item_ct-1;i>=self->priv->next_redo;i--) {
+        free_change_log_entry(g_ptr_array_remove_index(self->priv->changes,i));
+        self->priv->item_ct--;
+      }
+    }
+    /*else {
+      GST_INFO("don't trunc %d>=%d",self->priv->next_redo,self->priv->item_ct);
+    }*/
+    // append and update undo undo/redo pointers
+    g_ptr_array_add(self->priv->changes,cle);
+
+    self->priv->item_ct++;
+    // update undo undo/redo pointers
+    self->priv->next_undo++;
+    self->priv->next_redo++;
+    GST_INFO("add %d, %d",self->priv->next_undo,self->priv->next_redo);
+    //GST_INFO("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);
+    if(self->priv->next_undo==0) {
+      g_object_notify((GObject *)self,"can-undo");
+    }
+  } else {
+    // append and update undo undo/redo pointers
+    g_ptr_array_add(self->priv->cur_group->changes,cle);
+  }
+}
+
+static void undo_change_log_entry(BtChangeLogEntry *cle) {
+  switch(cle->type) {
+    case CHANGE_LOG_ENTRY_SINGLE: {
+      BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
+      bt_change_logger_change(cles->owner,cles->undo_data);
+      break;
+    }
+    case CHANGE_LOG_ENTRY_GROUP: {
+      BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
+      guint i;
+      
+      // recurse
+      for(i=0;i<cleg->changes->len;i++) {
+        undo_change_log_entry(g_ptr_array_index(cleg->changes,i));
+      }
+      break;
+    }
+    default:
+      g_assert_not_reached();
+  }
+}
+
+static void redo_change_log_entry(BtChangeLogEntry *cle) {
+  switch(cle->type) {
+    case CHANGE_LOG_ENTRY_SINGLE: {
+      BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
+      bt_change_logger_change(cles->owner,cles->redo_data);
+      break;
+    }
+    case CHANGE_LOG_ENTRY_GROUP: {
+      BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
+      gint i;
+      
+      // recurse
+      for(i=cleg->changes->len-1;i>=0;i--) {
+        redo_change_log_entry(g_ptr_array_index(cleg->changes,i));
+      }
+      break;
+    }
+    default:
+      g_assert_not_reached();
+  }
+}
+
+static void close_and_free_log(BtChangeLog *self) {
+  self->priv->is_active=FALSE;
+
   if(self->priv->log_file) {
     fclose(self->priv->log_file);
     self->priv->log_file=NULL;
@@ -186,6 +322,17 @@ static void free_log_file(BtChangeLog *self) {
     g_unlink(self->priv->log_file_name);
     g_free(self->priv->log_file_name);
     self->priv->log_file_name=NULL;
+  }
+  if(self->priv->changes) {
+    guint i,l=self->priv->changes->len;
+    
+    for(i=0;i<l;i++)
+      free_change_log_entry(g_ptr_array_index(self->priv->changes,i));
+    g_ptr_array_free(self->priv->changes,TRUE);
+    self->priv->changes=NULL;
+    self->priv->next_undo=-1;
+    self->priv->next_redo=0;
+    self->priv->item_ct=0;
   }
 }
 
@@ -215,6 +362,12 @@ static void open_and_init_log(BtChangeLog *self, BtSongInfo *song_info) {
   else {
     gchar *file_name;
     
+    self->priv->changes=g_ptr_array_new();
+    self->priv->next_undo=-1;
+    self->priv->next_redo=0;
+    self->priv->cur_group=NULL;
+    self->priv->item_ct=0;
+    
     setvbuf(self->priv->log_file, (char *) NULL, _IOLBF, 0);
 
     g_object_get(song_info,"file-name",&file_name,NULL);
@@ -224,6 +377,8 @@ static void open_and_init_log(BtChangeLog *self, BtSongInfo *song_info) {
       g_free(file_name);
     }
     fputs("\n",self->priv->log_file);
+    
+    self->priv->is_active=TRUE;
   }
 }
 
@@ -336,105 +491,6 @@ static void bt_change_log_crash_check(BtChangeLog *self) {
   self->priv->crash_logs=g_list_sort(crash_logs,sort_by_mtime);
 }
 
-static void free_change_log_entry(BtChangeLogEntry *cle) {
-  switch(cle->type) {
-    case CHANGE_LOG_ENTRY_SINGLE: {
-      BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
-      g_free(cles->undo_data);
-      g_free(cles->redo_data);
-      g_slice_free(BtChangeLogEntrySingle,cles);
-      break;
-    }
-    case CHANGE_LOG_ENTRY_GROUP: {
-      BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
-      guint i;
-      
-      // recurse
-      for(i=0;i<cleg->changes->len;i++) {
-        free_change_log_entry(g_ptr_array_index(cleg->changes,i));
-      }
-      g_ptr_array_free(cleg->changes,TRUE);
-      g_slice_free(BtChangeLogEntryGroup,cleg);
-      break;
-    }
-  }
-}
-
-static void add_change_log_entry(BtChangeLog *self,BtChangeLogEntry *cle) {
-  // only on top-level group
-  if(self->priv->cur_group==NULL) {
-    // if we have redo data, we have to cut the trail here otherwise the history
-    // becomes a graph
-    if(self->priv->next_redo<self->priv->item_ct) {
-      gint i;
-      
-      GST_WARNING("trunc %d<%d",self->priv->next_redo,self->priv->item_ct);
-      for(i=self->priv->item_ct-1;i>=self->priv->next_redo;i--) {
-        free_change_log_entry(g_ptr_array_remove_index(self->priv->changes,i));
-        self->priv->item_ct--;
-      }
-    }
-    /*else {
-      GST_INFO("don't trunc %d>=%d",self->priv->next_redo,self->priv->item_ct);
-    }*/
-    // append and update undo undo/redo pointers
-    g_ptr_array_add(self->priv->changes,cle);
-
-    self->priv->item_ct++;
-    // update undo undo/redo pointers
-    self->priv->next_undo++;
-    self->priv->next_redo++;
-    GST_INFO("add %d[%s], %d[%s]",self->priv->next_undo,self->priv->next_redo);
-    //GST_INFO("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);
-    if(self->priv->next_undo==0) {
-      g_object_notify((GObject *)self,"can-undo");
-    }
-  } else {
-    // append and update undo undo/redo pointers
-    g_ptr_array_add(self->priv->cur_group->changes,cle);
-  }
-}
-
-static void undo_change_log_entry(BtChangeLogEntry *cle) {
-  switch(cle->type) {
-    case CHANGE_LOG_ENTRY_SINGLE: {
-      BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
-      bt_change_logger_change(cles->owner,cles->undo_data);
-      break;
-    }
-    case CHANGE_LOG_ENTRY_GROUP: {
-      BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
-      guint i;
-      
-      // recurse
-      for(i=0;i<cleg->changes->len;i++) {
-        undo_change_log_entry(g_ptr_array_index(cleg->changes,i));
-      }
-      break;
-    }
-  }
-}
-
-static void redo_change_log_entry(BtChangeLogEntry *cle) {
-  switch(cle->type) {
-    case CHANGE_LOG_ENTRY_SINGLE: {
-      BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
-      bt_change_logger_change(cles->owner,cles->redo_data);
-      break;
-    }
-    case CHANGE_LOG_ENTRY_GROUP: {
-      BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
-      gint i;
-      
-      // recurse
-      for(i=cleg->changes->len-1;i>=0;i--) {
-        redo_change_log_entry(g_ptr_array_index(cleg->changes,i));
-      }
-      break;
-    }
-  }
-}
-
 //-- event handler
 
 static void on_song_file_name_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
@@ -477,7 +533,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
 
   // remove old log file
-  free_log_file(self);
+  close_and_free_log(self);
 
   // get song from app
   g_object_get(self->priv->app,"song",&song,NULL);
@@ -518,6 +574,10 @@ BtChangeLog *bt_change_log_new(void) {
 
 
 //-- methods
+
+gboolean bt_change_log_is_active(BtChangeLog *self) {
+  return(self->priv->is_active);
+}
 
 /**
  * bt_change_log_recover:
@@ -624,20 +684,23 @@ void bt_change_log_register(BtChangeLog *self,BtChangeLogger *logger) {
  * The change-log takes ownership of  @undo_data and @redo_data.
  */
 void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data) {
-  BtChangeLogEntrySingle *cle;
-  
-  // make new BtChangeLogEntry from the parameters
-  cle=g_slice_new(BtChangeLogEntrySingle);
-  cle->type=CHANGE_LOG_ENTRY_SINGLE;
-  cle->owner=owner;
-  cle->undo_data=undo_data;
-  cle->redo_data=redo_data;
   // owners are the editor objects where the change was made
   if(self->priv->log_file) {
     fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
     // @idea: should we fdatasync(fileno(self->priv->log_file)); from time to time
   }
-  add_change_log_entry(self,(BtChangeLogEntry*)cle);
+  if(self->priv->changes) {
+    BtChangeLogEntrySingle *cle;
+    
+    // make new BtChangeLogEntry from the parameters
+    cle=g_slice_new(BtChangeLogEntrySingle);
+    cle->type=CHANGE_LOG_ENTRY_SINGLE;
+    cle->owner=owner;
+    cle->undo_data=undo_data;
+    cle->redo_data=redo_data;
+    GST_INFO("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);
+    add_change_log_entry(self,(BtChangeLogEntry*)cle);
+  }
 }
 
 /**
@@ -652,16 +715,18 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
  * bt_change_log_redo() call.
  */
 void bt_change_log_start_group(BtChangeLog *self) {
-  BtChangeLogEntryGroup *cle;
-
-  cle=g_slice_new(BtChangeLogEntryGroup);
-  cle->type=CHANGE_LOG_ENTRY_GROUP;
-  cle->changes=g_ptr_array_new();
-  cle->old_group=self->priv->cur_group;
-  add_change_log_entry(self,(BtChangeLogEntry*)cle);
+  if(self->priv->changes) {
+    BtChangeLogEntryGroup *cle;
   
-  // make this the current group;
-  self->priv->cur_group=cle;
+    cle=g_slice_new(BtChangeLogEntryGroup);
+    cle->type=CHANGE_LOG_ENTRY_GROUP;
+    cle->changes=g_ptr_array_new();
+    cle->old_group=self->priv->cur_group;
+    add_change_log_entry(self,(BtChangeLogEntry*)cle);
+    
+    // make this the current group;
+    self->priv->cur_group=cle;
+  }
 }
 
 /**
@@ -671,10 +736,12 @@ void bt_change_log_start_group(BtChangeLog *self) {
  * Closed the last group opened with bt_change_log_start_group().
  */
 void bt_change_log_end_group(BtChangeLog *self) {
-  BtChangeLogEntryGroup *cle=self->priv->cur_group;
-
-  if(cle) {
-    self->priv->cur_group=cle->old_group;
+  if(self->priv->changes) {
+    BtChangeLogEntryGroup *cle=self->priv->cur_group;
+  
+    if(cle) {
+      self->priv->cur_group=cle->old_group;
+    }
   }
 }
 
@@ -686,17 +753,26 @@ void bt_change_log_end_group(BtChangeLog *self) {
  */
 void bt_change_log_undo(BtChangeLog *self) {
   if(self->priv->next_undo!=-1) {
+    gboolean is_active=self->priv->is_active;
+    self->priv->is_active=FALSE;
+    
+    GST_INFO("before undo %d, %d",self->priv->next_undo,self->priv->next_redo);
     undo_change_log_entry(g_ptr_array_index(self->priv->changes,self->priv->next_undo));
     // update undo undo/redo pointers
     self->priv->next_redo=self->priv->next_undo;
     self->priv->next_undo--;
-    GST_INFO("undo %d, %d",self->priv->next_undo,self->priv->next_redo);
+    GST_INFO("after undo %d, %d",self->priv->next_undo,self->priv->next_redo);
     if(self->priv->next_undo==-1) {
       g_object_notify((GObject *)self,"can-undo");
     }
     if(self->priv->next_redo==(self->priv->item_ct-1)) {
       g_object_notify((GObject *)self,"can-redo");
     }
+
+    self->priv->is_active=is_active;
+  }
+  else {
+    GST_INFO("no undo at: %d, %d",self->priv->next_undo,self->priv->next_redo);
   }
 }
 
@@ -708,18 +784,27 @@ void bt_change_log_undo(BtChangeLog *self) {
  */
 
 void bt_change_log_redo(BtChangeLog *self) {
-  if(self->priv->next_redo!=-1) {
+  if(self->priv->next_redo!=self->priv->item_ct) {
+    gboolean is_active=self->priv->is_active;
+    self->priv->is_active=FALSE;
+
+    GST_INFO("before redo %d, %d",self->priv->next_undo,self->priv->next_redo);
     redo_change_log_entry(g_ptr_array_index(self->priv->changes,self->priv->next_redo));
     // update undo undo/redo pointers
     self->priv->next_undo=self->priv->next_redo;
     self->priv->next_redo++;
-    GST_INFO("redo %d, %d",self->priv->next_undo,self->priv->next_redo);
+    GST_INFO("after redo %d, %d",self->priv->next_undo,self->priv->next_redo);
     if(self->priv->next_redo==self->priv->item_ct) {
       g_object_notify((GObject *)self,"can-redo");
     }
     if(self->priv->next_undo==0) {
       g_object_notify((GObject *)self,"can-undo");
     }
+
+    self->priv->is_active=is_active;
+  }
+  else {
+    GST_INFO("no redo at: %d, %d",self->priv->next_undo,self->priv->next_redo);
   }
 }
 
@@ -727,21 +812,15 @@ void bt_change_log_redo(BtChangeLog *self) {
 
 static void bt_change_log_dispose(GObject *object) {
   BtChangeLog *self = BT_CHANGE_LOG(object);
-  guint i;
   
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
   
-  for(i=0;i<self->priv->item_ct;i++) {
-    free_change_log_entry(g_ptr_array_index(self->priv->changes,i));
-  }
-  g_ptr_array_free(self->priv->changes,TRUE);
-  
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
   
-  free_log_file(self);
+  close_and_free_log(self);
   g_object_try_weak_unref(self->priv->app);
 
   G_OBJECT_CLASS(bt_change_log_parent_class)->dispose(object);
@@ -803,7 +882,7 @@ static void bt_change_log_get_property(GObject *object, guint property_id, GValu
   }
 }
 
-static void bt_change_log_init(BtChangeLog *self) {  
+static void bt_change_log_init(BtChangeLog *self) {
   self->priv=G_TYPE_INSTANCE_GET_PRIVATE(self,BT_TYPE_CHANGE_LOG,BtChangeLogPrivate);
   /* this is created from the app, we need to avoid a ref-cycle */
   self->priv->app = bt_edit_application_new();
@@ -819,11 +898,7 @@ static void bt_change_log_init(BtChangeLog *self) {
   }
 
   self->priv->loggers=g_hash_table_new(g_str_hash,g_str_equal);
-  
-  self->priv->changes=g_ptr_array_new();
-  self->priv->next_undo=-1;
-  self->priv->next_redo=0;
-  self->priv->cur_group=NULL;
+  on_song_changed(self->priv->app,NULL,self);
   
   bt_change_log_crash_check(self);
 
