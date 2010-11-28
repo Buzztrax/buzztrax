@@ -1,5 +1,11 @@
 2010-11-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/.cvsignore:
+	* docs/reference/bt-edit/.cvsignore:
+	  Ignore more.
+
+2010-11-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* src/ui/edit/change-log-methods.h:
 	* src/ui/edit/change-log.c:
