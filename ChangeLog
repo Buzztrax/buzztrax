@@ -1,5 +1,13 @@
 2010-11-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/refcount.gdb:
+	* tests/refcountfilter.pl:
+	* tests/refcount.gdb (added):
+	* tests/refcountfilter.pl (added):
+	  Add scripts for ref-count debugging.
+
+2010-11-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/.cvsignore:
 	* docs/reference/bt-edit/.cvsignore:
 	  Ignore more.
