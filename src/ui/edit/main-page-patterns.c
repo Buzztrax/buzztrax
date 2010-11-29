@@ -1727,7 +1727,7 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
     }
   }
   else {
-    GST_WARNING("no machine, huh?");
+    GST_INFO("no machine");
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),FALSE);
@@ -1845,14 +1845,16 @@ static void change_current_machine(const BtMainPagePatterns *self, BtMachine *ne
     return;
   }
 
+  g_object_try_unref(self->priv->machine);
+
   self->priv->machine=new_machine;
-   // show new list of pattern in pattern menu
+  // show new list of pattern in pattern menu
   pattern_menu_refresh(self,new_machine);
   GST_INFO("1st done for  machine %p,ref_count=%d",new_machine,G_OBJECT_REF_COUNT(new_machine));
   // refresh context menu
   context_menu_refresh(self,new_machine);
   GST_INFO("2nd done for  machine %p,ref_count=%d",new_machine,G_OBJECT_REF_COUNT(new_machine));
-} 
+}
 
 static void switch_machine_and_pattern(const BtMainPagePatterns *self,BtMachine *machine, BtPattern *pattern) {
   GtkTreeIter iter;

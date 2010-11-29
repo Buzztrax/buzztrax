@@ -1,5 +1,10 @@
 2010-11-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Unref previous pattern before setting new active pattern.
+
+2010-11-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* src/ui/edit/change-log-methods.h:
 	* src/ui/edit/machine-menu.c:
