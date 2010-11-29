@@ -28,8 +28,6 @@
 
 extern BtMainPageSequence *bt_main_page_sequence_new(const BtMainPages *pages);
 
-extern BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self);
-
 extern void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self);
 extern void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self);
 extern void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self);
