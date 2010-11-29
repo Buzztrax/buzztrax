@@ -376,7 +376,6 @@ BtMainPagePatternsPrivate
 <TITLE>BtMainPageSequence</TITLE>
 BtMainPageSequence
 bt_main_page_sequence_new
-bt_main_page_sequence_get_current_machine
 bt_main_page_sequence_delete_selection
 bt_main_page_sequence_copy_selection
 bt_main_page_sequence_cut_selection

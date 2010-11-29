@@ -1576,7 +1576,7 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
 
   GST_INFO("change active track");
 
-  machine=bt_main_page_sequence_get_current_machine(self);
+  machine=bt_sequence_get_machine(self->priv->sequence,self->priv->cursor_column-1);
   if(machine==self->priv->machine) {
     // nothing changed
     g_object_try_unref(machine);
@@ -3177,21 +3177,6 @@ BtMainPageSequence *bt_main_page_sequence_new(const BtMainPages *pages) {
 }
 
 //-- methods
-
-/**
- * bt_main_page_sequence_get_current_machine:
- * @self: the sequence subpage
- *
- * Get the currently active #BtMachine as determined by the cursor position in
- * the sequence table.
- * Unref the machine, when done with it.
- *
- * Returns: the #BtMachine instance or %NULL in case of an error
- */
-// @todo: only used locally
-BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self) {
-  return(bt_sequence_get_machine(self->priv->sequence,self->priv->cursor_column-1));
-}
 
 //-- cut/copy/paste
 
