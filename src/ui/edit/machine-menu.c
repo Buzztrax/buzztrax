@@ -281,6 +281,7 @@ static void bt_machine_menu_init_ui(const BtMachineMenu *self) {
 
 /**
  * bt_machine_menu_new:
+ * @main_page_machines: the machine page for the menu
  *
  * Create a new instance
  *

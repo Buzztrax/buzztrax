@@ -28,7 +28,7 @@
 
 extern BtChangeLog *bt_change_log_new(void);
 
-extern gboolean bt_change_log_recover(BtChangeLog *self,const gchar *entry);
+extern gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name);
 
 extern void bt_change_log_register(BtChangeLog *self,BtChangeLogger *logger);
 
