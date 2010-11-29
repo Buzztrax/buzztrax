@@ -28,9 +28,6 @@
 
 extern BtMainPagePatterns *bt_main_page_patterns_new(const BtMainPages *pages);
 
-extern BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *self);
-extern BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *self);
-
 extern void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern *pattern);
 extern void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine *machine);
 

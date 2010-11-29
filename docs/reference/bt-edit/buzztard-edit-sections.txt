@@ -350,8 +350,6 @@ machine_view_get_machine_position
 <TITLE>BtMainPagePatterns</TITLE>
 BtMainPagePatterns
 bt_main_page_patterns_new
-bt_main_page_patterns_get_current_machine
-bt_main_page_patterns_get_current_pattern
 bt_main_page_patterns_show_pattern
 bt_main_page_patterns_show_machine
 bt_main_page_patterns_delete_selection
