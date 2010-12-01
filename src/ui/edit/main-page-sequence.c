@@ -1206,7 +1206,6 @@ static void sequence_table_refresh_labels(const BtMainPageSequence *self) {
  * rebuild the sequence table after a structural change
  */
 static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *song) {
-  BtSetup *setup;
   BtMachine *machine;
   BtPattern *pattern;
   GtkWidget *header;
@@ -1224,7 +1223,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
   GST_INFO("refresh sequence table");
 
-  g_object_get((gpointer)song,"setup",&setup,NULL);
   g_object_get(self->priv->sequence,"length",&timeline_ct,"tracks",&track_ct,NULL);
   GST_DEBUG("  size is lines=%2lu,tracks=%2lu",timeline_ct,track_ct);
 
@@ -1472,9 +1470,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     GST_DEBUG("    number of columns : %d",col_index);
   }
   else GST_WARNING("can't create treeview column");
-
-  // release the references
-  g_object_unref(setup);
 }
 
 static void pattern_list_refresh(const BtMainPageSequence *self) {
