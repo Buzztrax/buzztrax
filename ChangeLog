@@ -1,3 +1,8 @@
+2010-12-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/crash-recover-dialog.c:
+	  Reselect an entry after removing one.
+
 2010-12-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
