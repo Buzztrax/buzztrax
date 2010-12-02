@@ -1,6 +1,14 @@
 2010-12-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/crash-recover-dialog.c:
+	  Try tuning listview a bit.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Indenting.
+
+2010-12-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/crash-recover-dialog.c:
 	  First get next entry and then delete and reselect.
 
 2010-12-02  Stefan Kost  <ensonic@users.sf.net>

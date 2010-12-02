@@ -119,6 +119,8 @@ static void on_list_size_request(GtkWidget *widget,GtkRequisition *requisition,g
   gint max_height=gdk_screen_get_height(gdk_screen_get_default()) / 2;
   gint height=MIN(requisition->height,max_height);
   
+  /* @todo: we need to take the treeview header into account */
+  height=MAX(50,height);
   gtk_widget_set_size_request(parent,-1,height);
 }
 
@@ -188,6 +190,11 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
   gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,FALSE,0);
 
   self->priv->entries_list=GTK_TREE_VIEW(gtk_tree_view_new());
+  g_object_set(self->priv->entries_list,
+    "enable-search",FALSE,
+    "rules-hint",TRUE,
+    /*"fixed-height-mode",TRUE,*/
+    NULL);
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->entries_list),GTK_SELECTION_BROWSE);
   g_signal_connect(self->priv->entries_list,"size-request",G_CALLBACK(on_list_size_request),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
