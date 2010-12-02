@@ -1452,13 +1452,16 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
  * Remove the given pattern from the machine.
  */
 void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * const pattern) {
+  GList *node;
   g_return_if_fail(BT_IS_MACHINE(self));
   g_return_if_fail(BT_IS_PATTERN(pattern));
 
-  if(g_list_find(self->priv->patterns,pattern)) {
-    self->priv->patterns=g_list_remove(self->priv->patterns,pattern);
+  if((node=g_list_find(self->priv->patterns,pattern))) {
+    self->priv->patterns=g_list_delete_link(self->priv->patterns,node);
+ 
+    GST_DEBUG("removing pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
     g_signal_emit((gpointer)self,signals[PATTERN_REMOVED_EVENT], 0, pattern);
-    GST_DEBUG("removing pattern: ref_count=%d",G_OBJECT_REF_COUNT(pattern));
+    GST_DEBUG("removed pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
     g_object_unref((gpointer)pattern);
     bt_song_set_unsaved(self->priv->song,TRUE);
   }

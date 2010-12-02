@@ -1,5 +1,11 @@
 2010-12-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	  Avoid scanning the lists twice when removing entries.
+
+2010-12-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/crash-recover-dialog.c:
 	  Try tuning listview a bit.
 

@@ -990,13 +990,14 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
  * Let the setup know that the suplied machine is removed from the song.
  */
 void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const machine) {
+  GList *node;
   g_return_if_fail(BT_IS_SETUP(self));
   g_return_if_fail(BT_IS_MACHINE(machine));
 
   GST_DEBUG("trying to remove machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
 
-  if(g_list_find(self->priv->machines,machine)) {
-    self->priv->machines=g_list_remove(self->priv->machines,machine);
+  if((node=g_list_find(self->priv->machines,machine))) {
+    self->priv->machines=g_list_delete_link(self->priv->machines,node);
     g_hash_table_remove(self->priv->connection_state,(gpointer)machine);
     g_hash_table_remove(self->priv->graph_depth,(gpointer)machine);
 
@@ -1027,15 +1028,16 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
  * Let the setup know that the suplied wire is removed from the song.
  */
 void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire) {
+  GList *node;
   g_return_if_fail(BT_IS_SETUP(self));
   g_return_if_fail(BT_IS_WIRE(wire));
 
   GST_DEBUG("trying to remove wire: %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
 
-  if(g_list_find(self->priv->wires,wire)) {
+  if((node=g_list_find(self->priv->wires,wire))) {
     BtMachine *src,*dst;
 
-    self->priv->wires=g_list_remove(self->priv->wires,wire);
+    self->priv->wires=g_list_delete_link(self->priv->wires,node);
 
     // also remove from the convinience lists
     g_object_get((gpointer)wire,"src",&src,"dst",&dst,NULL);
