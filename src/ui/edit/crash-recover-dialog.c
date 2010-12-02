@@ -98,13 +98,14 @@ static void remove_selected(BtCrashRecoverDialog *self) {
   GtkTreeSelection *selection;
   GtkTreeModel     *model;
   GtkTreeIter       iter;
-  GtkTreeIter       next_iter;
 
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->entries_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-    next_iter=iter;
+    GtkTreeIter next_iter=iter;
+    gboolean have_next=(gtk_tree_model_iter_next(model,&next_iter) || gtk_tree_model_get_iter_first(model,&next_iter));
+
     gtk_list_store_remove(GTK_LIST_STORE(model),&iter);
-    if(gtk_tree_model_iter_next(model,&next_iter) || gtk_tree_model_get_iter_first(model,&next_iter)) {
+    if(have_next) {
       gtk_tree_selection_select_iter(selection,&next_iter);
     }
   }
