@@ -258,6 +258,40 @@ static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer us
 }
 */
 
+static gchar* bt_main_window_make_unsaved_changes_message(const BtSong *song) {
+  BtSongInfo *song_info;
+  gchar *msg,*dts,*file_name;
+  gchar hdts[200];
+  struct tm tm={0,};
+  time_t t;
+  gdouble td;
+      
+  g_object_get((GObject *)song,"song-info",&song_info,NULL);
+  g_object_get(song_info,"change-dts",&dts,"file-name",&file_name,NULL);
+      
+  // figure UTC local tz offset
+  t=time(NULL);
+  td=difftime(mktime(localtime(&t)),mktime(gmtime(&t)));
+     
+  // convert timestamp to human readable format (and local timezone)
+  strptime(dts, "%FT%TZ", &tm);
+  // need to apply td for UTC->localtime
+  t=mktime(&tm)+(int)td;
+  strftime(hdts,199,"%c",localtime(&t));
+  GST_LOG("'%s', td=%lf",dts,td);
+      
+  if(file_name)
+    msg=g_strdup_printf(_("All unsaved changes will be lost. The song was last saved on: %s"), hdts);
+  else
+    msg=g_strdup_printf(_("All unsaved changes will be lost. The song was created on: %s"), hdts);
+
+  g_free(dts);
+  g_free(file_name);
+  g_object_unref(song_info);
+
+  return(msg);
+}
+
 //-- helper methods
 
 static void bt_main_window_init_ui(const BtMainWindow *self) {
@@ -402,37 +436,11 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
 
     g_object_get(song,"unsaved",&unsaved,NULL);
     if(unsaved) {
-      BtSongInfo *song_info;
-      gchar *dts,*msg,*file_name;
-      gchar hdts[200];
-      struct tm tm={0,};
-      time_t t;
-      gdouble td;
-
-      g_object_get(song,"song-info",&song_info,NULL);
-      g_object_get(song_info,"change-dts",&dts,"file-name",&file_name,NULL);
-
-      // figure UTC local tz offset
-      t=time(NULL);
-      td=difftime(mktime(localtime(&t)),mktime(gmtime(&t)));
+      gchar *msg;
       
-      // convert timestamp to human readable format (and local timezone)
-      strptime(dts, "%FT%TZ", &tm);
-      // need to apply td for UTC->localtime
-      t=mktime(&tm)+(int)td;
-      strftime(hdts,199,"%c",localtime(&t));
-      GST_LOG("'%s', td=%lf",dts,td);
-      
-      if(file_name)
-        msg=g_strdup_printf(_("All unsaved changes will be lost. The song was last saved on: %s"), hdts);
-      else
-        msg=g_strdup_printf(_("All unsaved changes will be lost. The song was created on: %s"), hdts);
+      msg=bt_main_window_make_unsaved_changes_message(song);
       res=bt_dialog_question(self,_("Really quit?"),_("Really quit?"),msg);
-      
       g_free(msg);
-      g_free(dts);
-      g_free(file_name);
-      g_object_unref(song_info);
     }
     g_object_unref(song);
   }
@@ -454,11 +462,15 @@ void bt_main_window_new_song(const BtMainWindow *self) {
   g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
     g_object_get(song,"unsaved",&unsaved,NULL);
+    if(unsaved) {
+      gchar *msg;
+      // @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
+    
+      msg=bt_main_window_make_unsaved_changes_message(song);
+      res=bt_dialog_question(self,_("New song?"),_("New song?"),msg);
+      g_free(msg);
+    }
     g_object_unref(song);
-  }
-  if(unsaved) {
-    // @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
-    res=bt_dialog_question(self,_("New song?"),_("New song?"),_("All unsaved changes will be lost then."));
   }
   if(res) {
     if(!bt_edit_application_new_song(self->priv->app)) {
