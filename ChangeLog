@@ -1,5 +1,11 @@
 2010-12-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-menu.c:
+	  Use a toggle menu for fullscreen like anyone else. Gtk is not showing the
+	  icons in the menu anymore anyway (by default).
+
+2010-12-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Ensure that we set a (empty) model on pattern-list to show the columns.
 

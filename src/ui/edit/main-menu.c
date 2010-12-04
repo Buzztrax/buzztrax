@@ -47,9 +47,6 @@ struct _BtMainMenuPrivate {
   /* MenuItems */
   GtkWidget *save_item;
   
-  /* state */
-  gboolean fullscreen;
-  
   /* editor change log */
   BtChangeLog *change_log;
 
@@ -399,21 +396,23 @@ static void on_menu_view_tabs_toggled(GtkMenuItem *menuitem,gpointer user_data) 
 }
 
 #if GTK_CHECK_VERSION(2,8,0)
-static void on_menu_fullscreen_activate(GtkMenuItem *menuitem,gpointer user_data) {
+static void on_menu_fullscreen_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
+  gboolean fullscreen;
 
   /* @idea: reflow things a bit for full-screen:
    * - hide menu bar and have a menu-button on toolbar
+   *   - we are a menu-bar, for this we would need to be a menu
    * - have a right justified label on toolbar to show window title
    *   - this both causes problems if toolbar is hidden!
+   *   - so we have to check for it
    */
-  if(!self->priv->fullscreen) {
+  fullscreen=gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)); 
+  if(fullscreen) {
     gtk_window_fullscreen(GTK_WINDOW(self->priv->main_window));
-    self->priv->fullscreen=TRUE;
   }
   else {
     gtk_window_unfullscreen(GTK_WINDOW(self->priv->main_window));
-    self->priv->fullscreen=FALSE;
   }
 }
 #endif
@@ -855,11 +854,11 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   /* @todo 'Analyzer windows' show/hide toggle */
   
 #if GTK_CHECK_VERSION(2,8,0)
-  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_FULLSCREEN,accel_group);
+  subitem=gtk_check_menu_item_new_with_mnemonic(_("Fullscreen"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/FullScreen");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/FullScreen", GDK_F11, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
-  g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_fullscreen_activate),(gpointer)self);
+  g_signal_connect(subitem,"toggled",G_CALLBACK(on_menu_fullscreen_toggled),(gpointer)self);
 #endif
   
   gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
