@@ -193,18 +193,22 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
   g_object_set(self->priv->entries_list,
     "enable-search",FALSE,
     "rules-hint",TRUE,
-    /*"fixed-height-mode",TRUE,*/
+    /*"fixed-height-mode",TRUE,*/ // causes the first column to be not shown (or getting width=0)
     NULL);
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->entries_list),GTK_SELECTION_BROWSE);
   g_signal_connect(self->priv->entries_list,"size-request",G_CALLBACK(on_list_size_request),(gpointer)self);
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   /* column listing song file names to recover */
-  gtk_tree_view_insert_column_with_attributes(self->priv->entries_list,-1,_("Song file"),renderer,"text",COL_SONG_FILE_NAME,NULL);
+  gtk_tree_view_insert_column_with_attributes(self->priv->entries_list,-1,_("Song file"),renderer,
+    "text",COL_SONG_FILE_NAME,
+    NULL);
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   /* column listing song file names to recover */
-  gtk_tree_view_insert_column_with_attributes(self->priv->entries_list,-1,_("Last changed"),renderer,"text",COL_CHANGE_TS,NULL);
+  gtk_tree_view_insert_column_with_attributes(self->priv->entries_list,-1,_("Last changed"),renderer,
+    "text",COL_CHANGE_TS,
+    NULL);
 
   // fill model from self->priv->entries
   store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_STRING);

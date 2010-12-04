@@ -1,3 +1,8 @@
+2010-12-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/crash-recover-dialog.c:
+	  Formatting and comment.
+
 2010-12-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
