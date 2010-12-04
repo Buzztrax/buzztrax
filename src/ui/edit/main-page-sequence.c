@@ -3142,6 +3142,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_list));
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(scrolled_window),TRUE,TRUE,0);
   //gtk_paned_pack2(GTK_PANED(split_box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
+  pattern_list_refresh(self); // this is needed for the initial model creation
 
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);

@@ -1,5 +1,10 @@
 2010-12-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Ensure that we set a (empty) model on pattern-list to show the columns.
+
+2010-12-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	  Use same detailed warning when losing unsaved changed due to "new" like we
 	  do for "Load".
