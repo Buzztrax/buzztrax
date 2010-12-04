@@ -1,5 +1,10 @@
 2010-12-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* TODO:
+	  Brooming.
+
+2010-12-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/bt-edit.gtkrc:
 	* src/ui/edit/main-page-waves.c:
 	  Use slim treeviews on the waves pages as well.

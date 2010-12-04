@@ -34,32 +34,6 @@ $Id$
    http://freshmeat.net/projects/wt2db/
    http://wiki.blender.org/index.php/Meta/DocBook_to_Wiki
 
-
-* gobject private members
-  * we need guidelines for use of ->priv,
-    when make members private, when public
-  * we need some convention how to shorten all the
-    object->priv->member statements
-    * do once object_p=object->priv;
-    * #define G_SELF self->priv
-
-* song-io refactoring
-  * problem
-    * plugins support format variants:
-      * native : "audio/x-bzt", "audio/x-bzt-xml"
-      * bsl    : "audio/x-bmw", "audio/x-bmx"
-    * when saving, we'd don't want to reparse the file-name to know what format
-      has been selected.
-    * simplify code in wave.c
-  * done
-    * BtSongIOFormatInfo
-    * use sub-classes:
-      BtSongIONative -> BtSongIONativeXML, BtSongIONativeBZT
-  * todo
-    * use sub-classes:
-      BtSongIOBuzz   -> BtSongIONativeBMW, BtSongIONativeBMX
-      (does it make sense here?)
-
 * controller api
   * allow to modify interpolation control sequence inplace (scale time or value range)
     - we need a gst_interpolation_control_foreach(cs, callback, user_data)
@@ -67,12 +41,8 @@ $Id$
       timestamp and/or value
     - need a way to do it without exposing GstControlPoint internals
       - void callback(GstClockTime *timestamp, GValue *value, gpointer user_data);
-
-* migrate from libhal to libgudev
-  udevadm info --export-db | grep -i input
-  udevadm info --export-db | grep -i midi
-  udevadm monitor --property 
-  + attach detach devices to see if there is some property that uniquely identifies audio and midi ones
+  * or have a BtPatternControlSource
+    - then we never need to update the timeline controller
 
 * undo/redo/journaling
   - links
