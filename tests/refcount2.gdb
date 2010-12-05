@@ -1,6 +1,6 @@
 # dump backtraces for ref count changes
 # run as
-# BT_CHECKS="test_machine_ref" CK_FORK=no gdb -x refcount.gdb .libs/bt_edit
+# gdb -x refcount2.gdb ~/buzztard/bin/buzztard-edit
 # result will be in refount.log
 
 # configure
@@ -10,16 +10,27 @@ set logging redirect on
 set pagination off
 set breakpoint pending on
 
-# here we want to stop
-break bt_source_machine_constructed
-run
-
-# break point reached
-watch ((GObject *)object)->ref_count
-commands
-bt
-c
+define watch_cmd
+  # break point reached
+  watch ((GObject *)object)->ref_count
+  commands
+    bt
+    c
+  end
 end
+
+# here we want to stop
+tbreak bt_pattern_constructed
+run
+break +6
+condition 2 self->priv->is_interal==0
+commands
+  watch_cmd
+  c
+end
+
+# bahhh!
+# Can't use the "commands" command among a breakpoint's commands.
 
 # now log all refcount changes
 set logging on

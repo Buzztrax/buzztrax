@@ -1,3 +1,12 @@
+2010-12-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/refcount.gdb:
+	  Small fixups (tops and removed testing left-overs).
+	  
+	* tests/refcount2.gdb:
+	* tests/refcount2.gdb (added):
+	  Try to catch traces for more objects.
+
 2010-12-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* TODO:
