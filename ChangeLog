@@ -1,3 +1,13 @@
+2010-12-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Use g_value_dup_object() instead of get & ref.
+
 2010-12-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/refcount.gdb:

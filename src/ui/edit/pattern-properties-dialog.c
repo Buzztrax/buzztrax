@@ -239,7 +239,7 @@ static void bt_pattern_properties_dialog_set_property(GObject *object, guint pro
   switch (property_id) {
     case PATTERN_PROPERTIES_DIALOG_PATTERN: {
       g_object_try_unref(self->priv->pattern);
-      self->priv->pattern = g_object_try_ref(g_value_get_object(value));
+      self->priv->pattern = g_value_dup_object(value);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

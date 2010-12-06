@@ -192,7 +192,7 @@ static void bt_machine_rename_dialog_set_property(GObject *object, guint propert
   switch (property_id) {
     case MACHINE_RENAME_DIALOG_MACHINE: {
       g_object_try_unref(self->priv->machine);
-      self->priv->machine = g_object_try_ref(g_value_get_object(value));
+      self->priv->machine = g_value_dup_object(value);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

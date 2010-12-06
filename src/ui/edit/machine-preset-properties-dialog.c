@@ -239,7 +239,7 @@ static void bt_machine_preset_properties_dialog_set_property(GObject *object, gu
   switch (property_id) {
     case MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE: {
       g_object_try_unref(self->priv->machine);
-      self->priv->machine = g_object_try_ref(g_value_get_object(value));
+      self->priv->machine = g_value_dup_object(value);
       GST_DEBUG("set the machine for preset_dialog: %p",self->priv->machine);
       self->priv->presets=self->priv->machine?gst_preset_get_preset_names(GST_PRESET(self->priv->machine)):NULL;
     } break;

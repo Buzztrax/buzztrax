@@ -822,7 +822,7 @@ static void bt_wire_analysis_dialog_set_property(GObject *object, guint property
   switch (property_id) {
     case WIRE_ANALYSIS_DIALOG_WIRE: {
       g_object_try_unref(self->priv->wire);
-      self->priv->wire = g_object_try_ref(g_value_get_object(value));
+      self->priv->wire = g_value_dup_object(value);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
