@@ -2235,7 +2235,7 @@ static void bt_machine_properties_dialog_set_property(GObject *object, guint pro
         GstElement *element;
 
         g_object_get(self->priv->machine,"machine",&element,NULL);
-        
+
 #if GST_CHECK_VERSION(0,10,31)
         self->priv->help_uri=gst_element_factory_get_documentation_uri(gst_element_get_factory(element));
 #else

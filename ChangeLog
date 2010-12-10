@@ -1,3 +1,11 @@
+2010-12-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	  Make string and checkbox preferences work. Add todos.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Whitespace.
+
 2010-12-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c:

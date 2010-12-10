@@ -27,6 +27,14 @@
  */
 
 /* @todo: filter certain properties (tempo iface, ...)
+ *
+ * @todo: we have a few notifies, but not for all types
+ * - do we need them at all? who else could change things?
+ *
+ * @todo: we should only be able to have one preferences for each machien type
+ *
+ * @todo: save the chosen settings somewhere
+ * - gconf would need some sort of schema
  */
 
 #define BT_EDIT
@@ -112,6 +120,26 @@ static void on_combobox_property_notify(const GstElement *machine,GParamSpec *pr
   } while(gtk_tree_model_iter_next(store,&iter));
 
   gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
+}
+
+static void on_entry_property_changed(GtkEditable *editable,gpointer user_data) {
+  GstElement *machine=GST_ELEMENT(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(editable));
+  BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(g_object_get_qdata(G_OBJECT(editable),widget_parent_quark));
+
+  //GST_INFO("preferences value change received for: '%s'",name);
+  g_object_set(machine,name,gtk_entry_get_text(GTK_ENTRY(editable)),NULL);
+  mark_song_as_changed(self);
+}
+
+static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer user_data) {
+  GstElement *machine=GST_ELEMENT(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(togglebutton));
+  BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(g_object_get_qdata(G_OBJECT(togglebutton),widget_parent_quark));
+
+  //GST_INFO("preferences value change received for: '%s'",name);
+  g_object_set(machine,name,gtk_toggle_button_get_active(togglebutton),NULL);
+  mark_song_as_changed(self);
 }
 
 static void on_range_property_changed(GtkRange *range,gpointer user_data) {
@@ -294,16 +322,24 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
 
             g_object_get(machine,property->name,&value,NULL);
             widget1=gtk_entry_new();
+            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_entry_set_text(GTK_ENTRY(widget1),safe_string(value));g_free(value);
             widget2=NULL;
+            // connect handlers
+            g_signal_connect(widget1, "changed", G_CALLBACK(on_entry_property_changed), (gpointer)machine);
           } break;
           case G_TYPE_BOOLEAN: {
             gboolean value;
 
             g_object_get(machine,property->name,&value,NULL);
             widget1=gtk_check_button_new();
+            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget1),value);
             widget2=NULL;
+            // connect handlers
+            g_signal_connect(widget1, "toggled", G_CALLBACK(on_checkbox_property_toggled), (gpointer)machine);
           } break;
           case G_TYPE_INT: {
             GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
@@ -471,11 +507,11 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
               gtk_tree_model_get((GTK_TREE_MODEL(store)),&iter,0,&ivalue,-1);
               if(ivalue==value) break;
             } while(gtk_tree_model_iter_next(GTK_TREE_MODEL(store),&iter));
-            
+
             gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget1),&iter);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
             g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
-            
+
             signal_name=g_strdup_printf("notify::%s",property->name);
             g_signal_connect(machine, signal_name, G_CALLBACK(on_combobox_property_notify), (gpointer)widget1);
             g_signal_connect(widget1, "changed", G_CALLBACK(on_combobox_property_changed), (gpointer)machine);
