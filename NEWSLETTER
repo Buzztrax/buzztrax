@@ -1,9 +1,45 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2011/01 ========================================================================
+
+* make preferences in machines work (fluidsynth patches)
+* code cleanups
+
 2010/12 ========================================================================
 
-- user help additions
-- more undo/redo
+Last month I made good progress on the undo/redo. I am now running the undo/redo
+in sync with the object lifecycle. The downside of this is that undo/redo fails
+when you have ref-count leaks. This now makes them more apparent. When trying to
+debug them I noticed that refdbg [1] is not working anymore since quite a while.
+I was googling what other people use for such problems. Well, apparently
+everybody hates ref-count issues. Also most of the info you find is how to get
+traces for refcount activity. That is what refdbg does also. As this did not work
+for me anymore I've tried systemtap. Unfortunately right now its not useful for
+user-space work on most distros (except fedora) - bugs filed. Next step: gdb
+scripting. I managed to get a gdb script running [2]. Now even for simple cases
+you quickly end up with a log of 150 backtraces. That is a lot to manually
+review. I went one step further and wrote a script [3] to filter the traces.
+Over time I got the trace-log down to 20 entries. This is practical.
+Unfortunately the gdb script only work for tracing the lifecycle of one
+particular object. If I extend it to work for all refcounting activity I hit a
+gdb limitation to not allow nested commands :/. Back to refdbg :) I finally
+figured why it does not work and have started to fix it up [4]. Lets see how far
+I get next month.
+
+Naturally this used most of my hacking time. Still I managed to make some
+progress there as well. The buzztard irc channel was much more active this
+month. People reported small things here and there and most of it got fixed
+right away. The manual got some more love too to help people to get started and
+improve the description of several concepts. Finally all the refcount-debugging
+leads to a lot of code reviews. I found several areas with lots of needless
+refcount activity - fixes are in the repository.
+
+81 files changed, 2682 insertions(+), 817 deletions(-)
+ 
+[1] http://refdbg.sf.net
+[2] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/tests/refcount.gdb?revision=3080&view=markup#l1
+[3] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/tests/refcountfilter.pl?revision=3080&view=markup#l1
+[4] http://www.gitorious.org/refdbg
 
 2010/11 ========================================================================
 
