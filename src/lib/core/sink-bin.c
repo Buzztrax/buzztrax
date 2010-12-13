@@ -47,6 +47,14 @@
  *   - sampling rate could be used there too 
  *   - both should be sink-bin properties, so that we can configure them
  *     externaly
+ *
+ * @todo: add a metronome
+ *   - add a (controlable) gboolean "metronome-beat", "metronome-tick" properties
+ *   - add controller pattern to make them emit notifies
+ *     - need to update on length changes and bpm/tpb changes
+ *   - use a pad-probe like master_volume_sync_handler (consider reusing) to sync them
+ *   - the gtk-ui can have two on-screen leds
+ *   - sink-bin could use the keyboard leds to indicate them (with #ifdef LINUX)
  */
 
 #define BT_CORE
