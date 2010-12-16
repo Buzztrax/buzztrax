@@ -1179,7 +1179,7 @@ static void _randomize_column(const BtPattern * const self, const gulong start_t
     } break;
     // @todo: need this for more types
     default:
-      GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(end));
+      GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(base_type));
   }
 }
 
