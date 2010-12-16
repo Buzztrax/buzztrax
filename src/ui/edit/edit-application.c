@@ -694,39 +694,28 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
+      BtSong *song=self->priv->song;
+      
 #ifdef USE_DEBUG
       GstElement *bin;
       g_object_get(self,"bin",&bin,NULL);
       GST_INFO("bin->num_children=%d",GST_BIN_NUMCHILDREN(bin));
+      gst_object_unref(bin);
 
-      if(self->priv->song) {
-        if(G_OBJECT_REF_COUNT(self->priv->song)>1) {
-          GST_WARNING("old song->ref_ct=%d!",G_OBJECT_REF_COUNT(self->priv->song));
+      if(song) {
+        if(G_OBJECT_REF_COUNT(song)>1) {
+          GST_WARNING("old song->ref_ct=%d!",G_OBJECT_REF_COUNT(song));
         }
         else {
-          GST_INFO("old song->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->song));
+          GST_INFO("old song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
         }
-        g_object_unref(self->priv->song);
-        // if new song is NULL, it should be empty now
-#if 0
-        {
-          gint num=GST_BIN_NUMCHILDREN(bin);
-          GList *node=GST_BIN_CHILDREN(bin);
-
-          GST_INFO("bin->num_children=%d",num);
-          for(;node;node=g_list_next(node)) {
-            GST_INFO("  %p, ref_ct=%d, '%s'",node->data,G_OBJECT_REF_COUNT(node->data),GST_ELEMENT_NAME(node->data));
-          }
-        }
-#endif
+        g_object_unref(song);
       }
-      gst_object_unref(bin);
 #else
-      g_object_try_unref(self->priv->song);
+      g_object_try_unref(song);
 #endif
-
       self->priv->song=BT_SONG(g_value_dup_object(value));
-      if(self->priv->song) GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT_REF_COUNT(self->priv->song));
+      GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT_REF_COUNT(self->priv->song));
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
