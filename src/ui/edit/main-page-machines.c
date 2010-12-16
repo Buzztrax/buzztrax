@@ -506,10 +506,11 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
     g_free(mid);g_free(pname);
   }
 
-  item=g_hash_table_lookup(self->priv->machines,machine);
-  GST_INFO("now removing machine-item : %p",item);
-  g_hash_table_remove(self->priv->machines,machine);
-  gtk_object_destroy(GTK_OBJECT(item));
+  if((item=g_hash_table_lookup(self->priv->machines,machine))) {
+    GST_INFO("now removing machine-item : %p",item);
+    g_hash_table_remove(self->priv->machines,machine);
+    gtk_object_destroy(GTK_OBJECT(item));
+  }
 
   GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 }
@@ -541,10 +542,11 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
     g_object_unref(src_machine);
   }
 
-  item=g_hash_table_lookup(self->priv->wires,wire);
-  GST_INFO("now removing wire-item : %p",item);
-  g_hash_table_remove(self->priv->wires,wire);
-  gtk_object_destroy(GTK_OBJECT(item));
+  if((item=g_hash_table_lookup(self->priv->wires,wire))) {
+    GST_INFO("now removing wire-item : %p",item);
+    g_hash_table_remove(self->priv->wires,wire);
+    gtk_object_destroy(GTK_OBJECT(item));
+  }
 
   GST_INFO("... wire %p,ref_count=%d has been removed",wire,G_OBJECT_REF_COUNT(wire));
 }
