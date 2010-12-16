@@ -168,6 +168,7 @@ static void check_log_handler(const gchar * const log_domain, const GLogLevelFla
     check_print_handler(msg);
 }
 
+#ifndef GST_DISABLE_GST_DEBUG
 static void check_gst_log_handler(GstDebugCategory *category, GstDebugLevel level, const gchar *file,const gchar *function,gint line,GObject *object,GstDebugMessage *_message,gpointer data) G_GNUC_NO_INSTRUMENT;
 static void check_gst_log_handler(GstDebugCategory *category, GstDebugLevel level, const gchar *file,const gchar *function,gint line,GObject *object,GstDebugMessage *_message,gpointer data) {
   const gchar *message=gst_debug_message_get(_message);
@@ -177,6 +178,7 @@ static void check_gst_log_handler(GstDebugCategory *category, GstDebugLevel leve
   else if(__check_method && (strstr(function,__check_method)!=NULL) && !__check_test) __check_error_trapped=TRUE;
   else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
 }
+#endif
 
 /*
  * setup_log:
@@ -231,7 +233,9 @@ void setup_log_capture(void) {
   (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
   (void)g_set_printerr_handler(check_print_handler);
   
+#ifndef GST_DISABLE_GST_DEBUG
   gst_debug_add_log_function(check_gst_log_handler, NULL);
+#endif
 }
 
 

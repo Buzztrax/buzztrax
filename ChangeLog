@@ -1,3 +1,16 @@
+2010-12-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/song.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* tests/bt-check.c:
+	  Fixes for a build with debug disabled.
+
 2010-12-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

@@ -779,10 +779,10 @@ static void del_machine_in_pipeline(gpointer key,gpointer value,gpointer user_da
 static void update_connection_states(gpointer key,gpointer value,gpointer user_data) {
   const BtSetup * const self=BT_SETUP(user_data);
   
-  // debug
+#ifndef GST_DISABLE_GST_DEBUG
   gchar *states[]={"-","disconnected","disconnecting","connecting","connected"};
   GST_INFO_OBJECT(key,"%s",states[GPOINTER_TO_INT(value)]);
-  // debug
+#endif
 
   if(GPOINTER_TO_INT(value)==CS_CONNECTING) {
     set_connected(self,GST_BIN(key));

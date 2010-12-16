@@ -861,10 +861,7 @@ static void bt_wave_dispose(GObject * const object) {
   // unref list of wavelevels
   if(self->priv->wavelevels) {
     for(node=self->priv->wavelevels;node;node=g_list_next(node)) {
-      {
-        const GObject * const obj=node->data;
-        GST_DEBUG("  free wavelevels : %p (%d)",obj,obj->ref_count);
-      }
+      GST_DEBUG("  free wavelevels : %p (%d)",node->data,G_OBJECT_REF_COUNT(node->data));
       g_object_try_unref(node->data);
       node->data=NULL;
     }

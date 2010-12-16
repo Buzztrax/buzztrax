@@ -1594,6 +1594,7 @@ static void bt_song_dispose(GObject * const object) {
   GST_DEBUG("  done");
 }
 
+#ifndef GST_DISABLE_GST_DEBUG
 static void bt_song_finalize(GObject * const object) {
   const BtSong * const self = BT_SONG(object);
 
@@ -1603,6 +1604,7 @@ static void bt_song_finalize(GObject * const object) {
   G_OBJECT_CLASS(bt_song_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
+#endif
 
 //-- class internals
 
@@ -1642,7 +1644,9 @@ static void bt_song_class_init(BtSongClass * const klass) {
   gobject_class->set_property = bt_song_set_property;
   gobject_class->get_property = bt_song_get_property;
   gobject_class->dispose      = bt_song_dispose;
+#ifndef GST_DISABLE_GST_DEBUG
   gobject_class->finalize     = bt_song_finalize;
+#endif
 
   g_object_class_install_property(gobject_class,SONG_APP,
                                   g_param_spec_object("app",

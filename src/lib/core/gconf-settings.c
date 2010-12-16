@@ -199,25 +199,37 @@ static void read_string_def(const BtGConfSettings * const self, const gchar *pat
 
 static void write_boolean(const BtGConfSettings * const self, const gchar *path, const GValue * const value) {
   gboolean prop=g_value_get_boolean(value);
-  gboolean res=gconf_client_set_bool(self->priv->client,path,prop,NULL);
+#ifndef GST_DISABLE_GST_DEBUG
+  gboolean res=
+#endif
+    gconf_client_set_bool(self->priv->client,path,prop,NULL);
   GST_DEBUG("application wrote '%s' : '%d' (%s)",path,prop,(res?"okay":"fail"));
 }
 
 static void write_int(const BtGConfSettings * const self, const gchar *path, const GValue * const value) {
   gint prop=g_value_get_int(value);
-  gboolean res=gconf_client_set_int(self->priv->client,path,prop,NULL);
+#ifndef GST_DISABLE_GST_DEBUG
+  gboolean res=
+#endif
+    gconf_client_set_int(self->priv->client,path,prop,NULL);
   GST_DEBUG("application wrote '%s' : '%i' (%s)",path,prop,(res?"okay":"fail"));
 }
 
 static void write_uint(const BtGConfSettings * const self, const gchar *path, const GValue * const value) {
   guint prop=g_value_get_uint(value);
-  gboolean res=gconf_client_set_int(self->priv->client,path,prop,NULL);
+#ifndef GST_DISABLE_GST_DEBUG
+  gboolean res=
+#endif
+    gconf_client_set_int(self->priv->client,path,prop,NULL);
   GST_DEBUG("application wrote '%s' : '%u' (%s)",path,prop,(res?"okay":"fail"));
 }
 
 static void write_string(const BtGConfSettings * const self, const gchar *path, const GValue * const value) {
   const gchar *prop=g_value_get_string(value);
-  gboolean res=gconf_client_set_string(self->priv->client,path,prop,NULL);
+#ifndef GST_DISABLE_GST_DEBUG
+  gboolean res=
+#endif
+    gconf_client_set_string(self->priv->client,path,prop,NULL);
   GST_DEBUG("application wrote '%s' : '%s' (%s)",path,prop,(res?"okay":"fail"));
 }
 

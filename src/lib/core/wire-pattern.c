@@ -684,7 +684,7 @@ void bt_wire_pattern_blend_columns(const BtWirePattern * const self, const gulon
 
 static void _randomize_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
-  GValue *end=&self->priv->data[param+self->priv->num_params*end_tick];
+  //GValue *end=&self->priv->data[param+self->priv->num_params*end_tick];
   gulong i,ticks=(end_tick+1)-start_tick;
   GParamSpec *property;
   GType base_type;

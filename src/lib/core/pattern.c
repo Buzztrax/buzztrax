@@ -1100,7 +1100,7 @@ void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_t
 static void _randomize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
-  GValue *end=&self->priv->data[internal_params+param+params*end_tick];
+  //GValue *end=&self->priv->data[internal_params+param+params*end_tick];
   gulong i,ticks=(end_tick+1)-start_tick;
   GParamSpec *property;
   GType base_type;

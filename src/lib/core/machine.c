@@ -3460,8 +3460,7 @@ static void bt_machine_dispose(GObject * const object) {
   
   // unref controllers
   GST_DEBUG("  releasing controllers, global.ref_ct=%d, voices=%lu",
-    (self->priv->global_controller?G_OBJECT_REF_COUNT(self->priv->global_controller):-1),
-    self->priv->voices);
+    G_OBJECT_REF_COUNT(self->priv->global_controller),self->priv->voices);
   param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
   for(j=0;j<global_params;j++) {
     g_object_try_unref(self->priv->global_control_sources[j]);
