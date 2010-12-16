@@ -250,8 +250,8 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
     GST_INFO("... machine %p,ref_count=%d has been removed, src %p,ref=%d, dst %p,ref=%d",
       machine,G_OBJECT_REF_COUNT(machine),
-      src,(src?G_OBJECT_REF_COUNT(src):0),
-      dst,(dst?G_OBJECT_REF_COUNT(dst):0)
+      src,G_OBJECT_REF_COUNT(src),
+      dst,G_OBJECT_REF_COUNT(dst)
     );
   }
   g_object_try_unref(src);

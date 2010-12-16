@@ -1,5 +1,11 @@
 2010-12-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/ui-resources.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  G_OBJECT_REF_COUNT() checks for obj!=NULL now.
+
+2010-12-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/sequence.c:
 	* src/ui/cmd/cmd-application.c:
