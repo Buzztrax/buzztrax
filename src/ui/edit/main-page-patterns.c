@@ -518,7 +518,7 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
     undo_str = g_strdup_printf("add_pattern \"%s\",\"%s\",\"%s\",%lu",mid,pid,pname,length);
     redo_str = g_strdup_printf("rem_pattern \"%s\",\"%s\"",mid,pid);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-    g_free(mid);g_free(pid);
+    g_free(mid);g_free(pid);g_free(pname);
   }
   
   GST_INFO("removed pattern: %p,pattern->ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));

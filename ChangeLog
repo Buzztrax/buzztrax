@@ -1,5 +1,10 @@
 2010-12-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Fix a leak.
+
+2010-12-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-machines.c:
 	  Handle item==NULL.
 
