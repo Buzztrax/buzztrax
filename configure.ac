@@ -507,12 +507,31 @@ AC_CHECK_FUNCS(clock_gettime, [], [
   ])
 ])
 
+dnl Check for -Bsymbolic-functions linker flag used to avoid
+dnl intra-library PLT jumps, if available.
+AC_ARG_ENABLE(Bsymbolic,
+              [AC_HELP_STRING([--disable-Bsymbolic],
+                              [avoid linking with -Bsymbolic])],,
+              [SAVED_LDFLAGS="${LDFLAGS}"
+               AC_MSG_CHECKING([for -Bsymbolic-functions linker flag])
+               LDFLAGS=-Wl,-Bsymbolic-functions
+               AC_TRY_LINK([], [int main (void) { return 0; }],
+                           AC_MSG_RESULT(yes)
+                           enable_Bsymbolic=yes,
+                           AC_MSG_RESULT(no)
+                           enable_Bsymbolic=no)
+               LDFLAGS="${SAVED_LDFLAGS}"])
+
+
 dnl Extra vars
 BT_INCLUDEDIR='-I${includedir}'
 dnl -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
 BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
 BT_LIBS="$DEBUG_LDFLAGS $FEATURE_LIBS $COVERAGE_LIBS"
+if test "x${enable_Bsymbolic}" == "xyes"; then
+  BT_LIBS="$BT_LIBS -Wl,-Bsymbolic-functions"
+fi
 
 dnl check for desktop and mimetype utilities
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)

@@ -1,5 +1,10 @@
 2010-12-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  Use -Bsymbolic linker flag where supported.
+
+2010-12-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/gconf-settings.c:
 	* src/lib/core/machine.c:
 	* src/lib/core/pattern.c:
