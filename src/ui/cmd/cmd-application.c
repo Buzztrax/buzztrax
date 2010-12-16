@@ -480,6 +480,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
       g_object_get(node->data,"patterns",&patterns,NULL);
       // @todo: this include internal ones
       n_patterns+=g_list_length(patterns);
+      g_list_foreach(patterns,(GFunc)g_object_unref,NULL);
       g_list_free(patterns);
     }
     g_fprintf(output_file,"song.setup.number_of_patterns: %lu\n",n_patterns);

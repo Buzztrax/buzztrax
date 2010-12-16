@@ -960,6 +960,7 @@ static void on_wire_added(BtSetup *setup,BtWire *wire,gpointer user_data) {
       // we need to wait for the first wire-pattern
       g_signal_connect(wire,"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
     }
+    g_object_unref(pattern);
   }
   g_list_free(patterns);
   g_object_unref(machine);
@@ -983,6 +984,7 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
         g_object_unref(wire_pattern);
       }
     }
+    g_object_unref(pattern);
   }
   g_list_free(patterns);
   g_object_unref(machine);

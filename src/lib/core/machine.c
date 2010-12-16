@@ -1411,6 +1411,20 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self) {
 
 // pattern handling
 
+// DEBUG
+#ifdef USE_DEBUG
+static void check_pattern_ownership (gpointer data, GObject *obj) {
+  BtMachine *self=BT_MACHINE(data);
+
+  GST_DEBUG("destroyed pattern: %p",obj);
+  if(g_list_find(self->priv->patterns,obj)) {
+    GST_WARNING_OBJECT(self, "pattern %p destroyed, but still in machines pattern list", obj);
+    //g_assert_not_reached();
+  }
+}
+#endif
+// DEBUG
+
 /**
  * bt_machine_add_pattern:
  * @self: the machine to add the pattern to
@@ -1427,14 +1441,21 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
     gboolean is_internal;
 
     self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref((gpointer)pattern));
+    
+    // DEBUG
+#ifdef USE_DEBUG
+    g_object_weak_ref((GObject *)pattern,check_pattern_ownership,(gpointer)self);
+#endif
+    // DEBUG
 
     // check if its a internal pattern and if it is update count of those
     g_object_get((gpointer)pattern,"is-internal",&is_internal,NULL);
     if(is_internal) {
       self->priv->private_patterns++;
-      GST_DEBUG("adding internal pattern, nr=%u",self->priv->private_patterns);
+      GST_DEBUG("adding internal pattern %p,ref_count=%d, nr=%u",pattern,G_OBJECT_REF_COUNT(pattern),self->priv->private_patterns);
     }
     else {
+      GST_DEBUG("adding pattern %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
       g_signal_emit((gpointer)self,signals[PATTERN_ADDED_EVENT], 0, pattern);
       bt_song_set_unsaved(self->priv->song,TRUE);
     }
@@ -1457,6 +1478,12 @@ void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * c
   g_return_if_fail(BT_IS_PATTERN(pattern));
 
   if((node=g_list_find(self->priv->patterns,pattern))) {
+    // DEBUG
+#ifdef USE_DEBUG
+    g_object_weak_unref((GObject *)pattern,check_pattern_ownership,(gpointer)self);
+#endif
+    // DEBUG
+    
     self->priv->patterns=g_list_delete_link(self->priv->patterns,node);
  
     GST_DEBUG("removing pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
@@ -3352,7 +3379,14 @@ static void bt_machine_get_property(GObject * const object, const guint property
       g_value_set_object(value, self->priv->machines[PART_OUTPUT_POST_LEVEL]);
     } break;
     case MACHINE_PATTERNS: {
-      g_value_set_pointer(value,g_list_copy(self->priv->patterns));
+      if(self->priv->patterns) {
+        GList *list=g_list_copy(self->priv->patterns);
+        g_list_foreach(list,(GFunc)g_object_ref,NULL);
+        g_value_set_pointer(value,list);
+      }
+      else {
+        g_value_set_pointer(value,NULL);
+      }
     } break;
     case MACHINE_STATE: {
       g_value_set_enum(value, self->priv->state);
@@ -3498,7 +3532,13 @@ static void bt_machine_dispose(GObject * const object) {
   if(self->priv->patterns) {
     GList* node;
     for(node=self->priv->patterns;node;node=g_list_next(node)) {
-      g_object_try_unref(node->data);
+      GST_DEBUG("removing pattern: %p,ref_count=%d",node->data,G_OBJECT_REF_COUNT(node->data));
+      // DEBUG
+#ifdef USE_DEBUG
+      g_object_weak_unref((GObject *)node->data,check_pattern_ownership,(gpointer)self);
+#endif
+      // DEBUG
+      g_object_unref(node->data);
       node->data=NULL;
     }
   }

@@ -1106,6 +1106,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
         }
       }
       g_free(str);
+      g_object_unref(pattern);
     }
     if(active==-1) {
       // use the last one, if there is no active one
@@ -1786,38 +1787,37 @@ static BtPattern *get_current_pattern(const BtMainPagePatterns *self) {
 }
 
 static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *new_pattern) {
-  if(new_pattern==self->priv->pattern) {
-    g_object_try_unref(new_pattern);
+  BtPattern *old_pattern=self->priv->pattern;
+
+  if(new_pattern==old_pattern) {
     return;
   }
 
-  if(self->priv->pattern) {
+  self->priv->pattern=g_object_try_ref(new_pattern);
+  if(old_pattern) {
     if(self->priv->pattern_length_changed) {
-      g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_length_changed);
+      g_signal_handler_disconnect(old_pattern,self->priv->pattern_length_changed);
       self->priv->pattern_length_changed=0;
     }
     if(self->priv->pattern_voices_changed) {
-      g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_voices_changed);
+      g_signal_handler_disconnect(old_pattern,self->priv->pattern_voices_changed);
       self->priv->pattern_voices_changed=0;
     }
-    GST_INFO("unref old pattern: %p,refs=%d", self->priv->pattern,G_OBJECT_REF_COUNT(self->priv->pattern));
-    g_object_unref(self->priv->pattern);
-    self->priv->pattern_length_changed=self->priv->pattern_voices_changed=0;
+    GST_INFO("unref old pattern: %p,ref_count=%d",old_pattern,G_OBJECT_REF_COUNT(old_pattern));
+    g_object_unref(old_pattern);
   }
 
   // refresh pattern view
-  self->priv->pattern=new_pattern;
-  GST_INFO("new pattern selected : %p",self->priv->pattern);
+  GST_INFO("store new pattern : %p,ref_count=%d",new_pattern,G_OBJECT_REF_COUNT(new_pattern));
   pattern_table_refresh(self);
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
-  if(self->priv->pattern) {
+  if(new_pattern) {
     // watch the pattern
     self->priv->pattern_length_changed=g_signal_connect(new_pattern,"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
     self->priv->pattern_voices_changed=g_signal_connect(new_pattern,"notify::voices",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
   }
 }
-
 
 static BtMachine *get_current_machine(const BtMainPagePatterns *self) {
   BtMachine *machine;
@@ -1840,14 +1840,18 @@ static BtMachine *get_current_machine(const BtMainPagePatterns *self) {
 }
 
 static void change_current_machine(const BtMainPagePatterns *self, BtMachine *new_machine) {
-  if(new_machine==self->priv->machine) {
-    g_object_try_unref(new_machine);
+  BtMachine *old_machine=self->priv->machine;
+
+  if(new_machine==old_machine) {
     return;
   }
 
-  g_object_try_unref(self->priv->machine);
+  GST_INFO("store new machine %p,ref_count=%d",new_machine,G_OBJECT_REF_COUNT(new_machine));
+  self->priv->machine=g_object_try_ref(new_machine);
 
-  self->priv->machine=new_machine;
+  GST_INFO("unref old machine %p,ref_count=%d",old_machine,G_OBJECT_REF_COUNT(old_machine));
+  g_object_try_unref(old_machine);
+
   // show new list of pattern in pattern menu
   pattern_menu_refresh(self,new_machine);
   GST_INFO("1st done for  machine %p,ref_count=%d",new_machine,G_OBJECT_REF_COUNT(new_machine));
@@ -1966,11 +1970,16 @@ static void on_pattern_size_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
 
 static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtPattern *pattern;
 
   // refresh pattern view
-  change_current_pattern(self,get_current_pattern(self));
+  GST_INFO("unref'ed old pattern: %p,refs=%d",
+    self->priv->pattern,G_OBJECT_REF_COUNT(self->priv->pattern));
+  pattern=get_current_pattern(self);
+  change_current_pattern(self,pattern);
+  g_object_try_unref(pattern);
   GST_INFO("ref'ed new pattern: %p,refs=%d",
-    self->priv->pattern,(self->priv->pattern?G_OBJECT_REF_COUNT(self->priv->pattern):-1));
+    self->priv->pattern,G_OBJECT_REF_COUNT(self->priv->pattern));
 }
 
 /*
@@ -2013,9 +2022,11 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 
   GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
   
-  if(BT_IS_SOURCE_MACHINE(machine)) {
-    BtPattern *pattern=add_new_pattern(self, machine);
-    g_object_unref(pattern);
+  if(bt_change_log_is_active(self->priv->change_log)) {
+    if(BT_IS_SOURCE_MACHINE(machine)) {
+      BtPattern *pattern=add_new_pattern(self, machine);
+      g_object_unref(pattern);
+    }
   }
   
   store=gtk_combo_box_get_model(self->priv->machine_menu);
@@ -2034,9 +2045,12 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   GtkTreeModel *store;
   GtkTreeIter iter;
   gint index;
+  BtPattern *pattern=NULL;
+  GList *node,*list;
+  gboolean is_internal;
 
   g_return_if_fail(BT_IS_MACHINE(machine));
-
+  
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
   store=gtk_combo_box_get_model(self->priv->machine_menu);
   // get the row where row.machine==machine
@@ -2048,6 +2062,22 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   }
   gtk_combo_box_set_active(self->priv->machine_menu,index-1);
   GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
+
+  // remove all patterns to ensure we emit "pattern-removed" signals
+  g_object_get(machine,"patterns",&list,NULL);
+  for(node=list;node;node=g_list_next(node)) {
+    pattern=BT_PATTERN(node->data);
+    g_object_get(pattern,"is-internal",&is_internal,NULL);
+    if(!is_internal) {
+      GST_DEBUG("removing pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+      bt_machine_remove_pattern(machine,pattern);
+      GST_DEBUG("removed pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+    } else {
+      GST_DEBUG("keeping pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+    }
+    g_object_unref(pattern);
+  }
+  g_list_free(list);
 }
 
 static void on_wire_added_or_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
@@ -2074,9 +2104,12 @@ static void on_wave_added_or_removed(BtWavetable *wavetable,BtWave *wave,gpointe
 
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMachine *machine;
 
   GST_INFO("machine_menu changed");
-  change_current_machine(self,get_current_machine(self));
+  machine=get_current_machine(self);
+  change_current_machine(self,machine);
+  g_object_try_unref(machine);
 }
 
 static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_data) {
@@ -2212,7 +2245,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 
     bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
 
-    GST_INFO("new pattern added : %p",pattern);
+    GST_INFO("new pattern added : %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
     
     g_object_get(self->priv->machine,"id",&mid,NULL);
     g_object_get(pattern,"id",&pid,"name",&pname,"length",&length,NULL);
@@ -2984,12 +3017,12 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(owner);
   gboolean res=FALSE;
   BtMachine *machine;
-  BtPattern *pattern=g_object_ref(self->priv->pattern);
+  BtPattern *pattern=g_object_try_ref(self->priv->pattern);
   gchar *c_mid,*c_pid;
   GMatchInfo *match_info;
   guint row=0,group=0,param=0;
   gchar *s;
-  
+
   if(pattern) {
     g_object_get(pattern,"machine",&machine,"id",&c_pid,NULL);
     g_object_get(machine,"id",&c_mid,NULL);

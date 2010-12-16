@@ -119,6 +119,7 @@ BT_START_TEST(test_btsourcemachine_obj2){
   fail_unless(ref_pattern==pattern, NULL);
 
   /* cleanup */
+  g_list_foreach(list,(GFunc)g_object_unref,NULL);
   g_list_free(list);
 
   g_object_unref(pattern);

@@ -1515,6 +1515,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     g_object_get(self->priv->machine,"patterns",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
+      GST_DEBUG("adding pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
       g_object_get(pattern,"name",&str,"is-internal",&is_internal,NULL);
       if(!is_internal) {
         //GST_DEBUG("  adding \"%s\" at index %d -> '%c'",str,index,self->priv->pattern_keys[index]);
@@ -1534,6 +1535,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
         index++;
       }
       g_free(str);
+      g_object_unref(pattern);
     }
     g_list_free(list);
     
@@ -2749,13 +2751,13 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
 
-  GST_INFO("pattern has been added/removed");
+  GST_INFO("pattern has been added/removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
   // reinit the list
   pattern_list_refresh(self);
 
-  // get song from app and then setup from song
+  // get song from app
   g_object_get(self->priv->app,"song",&song,NULL);
-  // reinit the sequence view
+  // reinit the sequence view (why?)
   sequence_table_refresh(self,song);
   sequence_model_recolorize(self);
   g_object_unref(song);

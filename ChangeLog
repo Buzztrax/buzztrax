@@ -1,5 +1,19 @@
 2010-12-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/sequence.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* tests/lib/core/e-processor-machine.c:
+	* tests/lib/core/e-sink-machine.c:
+	* tests/lib/core/e-source-machine.c:
+	  When returning pattern-lists in machine ref them. Change the code to
+	  unref the machines when using the lists. Add a trickt in debug mode to
+	  catch unexpected pattern finalization.
+
+2010-12-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Fix a leak.
 
