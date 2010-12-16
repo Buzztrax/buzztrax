@@ -1555,9 +1555,7 @@ static void bt_song_dispose(GObject * const object) {
     g_signal_handlers_disconnect_matched(self->priv->song_info,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_tempo_changed,(gpointer)self);
   }
 
-  if(self->priv->master) {
-    GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(self->priv->master));
-  }
+  GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(self->priv->master));
   if(self->priv->master_bin) gst_object_unref(self->priv->master_bin);
   g_object_try_weak_unref(self->priv->master);
   

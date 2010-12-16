@@ -1,5 +1,10 @@
 2010-12-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  G_OBJECT_REF_COUNT() checks for obj!=NULL now.
+
+2010-12-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/pattern.c:
 	* src/lib/core/wire-pattern.c:
 	  Use the right variable in warning.
