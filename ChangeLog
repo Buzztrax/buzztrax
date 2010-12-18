@@ -1,3 +1,8 @@
+2010-12-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/crash-recover-dialog.c:
+	  Better default size.
+
 2010-12-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/ui-resources.c:

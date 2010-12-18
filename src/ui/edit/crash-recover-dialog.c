@@ -114,14 +114,13 @@ static void remove_selected(BtCrashRecoverDialog *self) {
 //-- event handler
 
 static void on_list_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
-  //BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
-  GtkWidget *parent=gtk_widget_get_parent(gtk_widget_get_parent(widget));
-  gint max_height=gdk_screen_get_height(gdk_screen_get_default()) / 2;
-  gint height=MIN(requisition->height,max_height);
-  
-  /* @todo: we need to take the treeview header into account */
-  height=MAX(50,height);
-  gtk_widget_set_size_request(parent,-1,height);
+  gint max_height=gdk_screen_get_height(gdk_screen_get_default())/2;
+  gint height=2+MIN(requisition->height,max_height);
+
+  /* make sure the dialog resize without scrollbar until it would reach half
+   * screen height */
+  GST_DEBUG(" height=%d",height);
+  gtk_widget_set_size_request(gtk_widget_get_parent(widget),-1,height);
 }
 
 
