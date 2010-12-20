@@ -125,6 +125,11 @@ static void on_menu_recover_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 
   GST_INFO("menu crash-log recoder event occurred");
+  if(!bt_main_window_check_unsaved_song(self->priv->main_window,_("Recover a song?"),_("Recover a song?")))
+    return;
+
+  /* replay expects an empty song */
+  bt_edit_application_new_song(self->priv->app);
   bt_edit_application_crash_log_recover(self->priv->app);
 }
 

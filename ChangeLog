@@ -1,5 +1,11 @@
 2010-12-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-menu.c:
+	  Check for unsaved changes before invoking the song recovery from the 
+	  menu. Ensure we have an empty song if we proceed.
+
+2010-12-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* src/ui/edit/main-window-methods.h:
 	* src/ui/edit/main-window.c:
