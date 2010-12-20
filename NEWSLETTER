@@ -2,8 +2,34 @@ svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
 2011/01 ========================================================================
 
+* improve the song-recovery workflow
 * make preferences in machines work (fluidsynth patches)
 * code cleanups
+
+Quite several times already I had to deal with a dialog containing a treeview
+showing a list of items. Giving such a dialog a nice good initial size is tricky.
+The treeview usually goes into a scrolled window. By default one can see the
+headers and maybe one line. Of course one can resize the dialog a bit, but as
+the line height is not easy to figure it is still not easy. One approach I came
+up with is to grow the dialog to show all lines until it would exceed a certain
+limit. The limit would be e.g. half of screen or window height. The code for
+that is quite simple:
+
+  list=gtk_tree_view_new();
+  g_signal_connect(list,"size-request",G_CALLBACK(on_list_size_request),NULL);
+  ...
+  static void
+  on_list_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data)
+  {
+    gint max_height=gdk_screen_get_height(gdk_screen_get_default())/2;
+    gint height=2+MIN(requisition->height,max_height);
+
+    /* make sure the dialog resize without showing a scrollbar until it would
+     * reach half screen height */
+    gtk_widget_set_size_request(gtk_widget_get_parent(widget),-1,height);
+  }
+
+
 
 2010/12 ========================================================================
 

@@ -66,6 +66,9 @@
  *
  * - undo/redo
  *  - need to implement it for complex edits
+ *    (see on_pattern_table_key_release_event())
+ *  - we can have a series of single edits
+ *  - we can have extra edit commands
  */
 
 #define BT_EDIT

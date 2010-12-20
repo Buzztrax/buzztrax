@@ -1,8 +1,18 @@
 2010-12-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Collect news.
+
+	* src/ui/edit/change-log.c:
+	  Update status.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Planning.
+
+2010-12-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/crash-recover-dialog.c:
 	  Close the dialog after a good recovery. Inform the user.
-
 
 2010-12-20  Stefan Kost  <ensonic@users.sf.net>
 
