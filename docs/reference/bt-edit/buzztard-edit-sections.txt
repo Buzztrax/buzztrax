@@ -451,6 +451,7 @@ BtMainToolbarPrivate
 <TITLE>BtMainWindow</TITLE>
 BtMainWindow
 bt_main_window_new
+bt_main_window_check_unsaved_song
 bt_main_window_check_quit
 bt_main_window_new_song
 bt_main_window_open_song

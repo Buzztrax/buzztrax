@@ -27,6 +27,7 @@
 
 extern BtMainWindow *bt_main_window_new(void);
 
+extern gboolean bt_main_window_check_unsaved_song(const BtMainWindow *self,const gchar *title,const gchar *headline);
 extern gboolean bt_main_window_check_quit(const BtMainWindow *self);
 extern void bt_main_window_new_song(const BtMainWindow *self);
 extern void bt_main_window_open_song(const BtMainWindow *self);

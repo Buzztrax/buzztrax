@@ -1,5 +1,13 @@
 2010-12-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/main-window-methods.h:
+	* src/ui/edit/main-window.c:
+	  Add a new methods to check if current song is unsaved and if so ask
+	  the user to confirm loosing the changes.
+
+2010-12-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/change-log.c:
 	  For new songs we need to copy the events to the new log.
 

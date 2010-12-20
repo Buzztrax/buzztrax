@@ -265,25 +265,25 @@ static gchar* bt_main_window_make_unsaved_changes_message(const BtSong *song) {
   struct tm tm={0,};
   time_t t;
   gdouble td;
-      
+
   g_object_get((GObject *)song,"song-info",&song_info,NULL);
   g_object_get(song_info,"change-dts",&dts,"file-name",&file_name,NULL);
-      
+
   // figure UTC local tz offset
   t=time(NULL);
   td=difftime(mktime(localtime(&t)),mktime(gmtime(&t)));
-     
+
   // convert timestamp to human readable format (and local timezone)
   strptime(dts, "%FT%TZ", &tm);
   // need to apply td for UTC->localtime
   t=mktime(&tm)+(int)td;
   strftime(hdts,199,"%c",localtime(&t));
   GST_LOG("'%s', td=%lf",dts,td);
-      
+
   if(file_name)
-    msg=g_strdup_printf(_("All unsaved changes will be lost. The song was last saved on: %s"), hdts);
+    msg=g_strdup_printf(_("All unsaved changes will be lost. This song was last saved on: %s"), hdts);
   else
-    msg=g_strdup_printf(_("All unsaved changes will be lost. The song was created on: %s"), hdts);
+    msg=g_strdup_printf(_("All unsaved changes will be lost. This song was created on: %s"), hdts);
 
   g_free(dts);
   g_free(file_name);
@@ -419,14 +419,17 @@ BtMainWindow *bt_main_window_new(void) {
 //-- methods
 
 /**
- * bt_main_window_check_quit:
+ * bt_main_window_check_unsaved_song:
  * @self: the main window instance
+ * @title: the title of the message
+ * @headline: the bold headline of the message
  *
- * Displays a dialog box, that asks the user to confirm exiting the application.
+ * Checks if there is an unsaved song and asks for confirmation to continue and
+ * loose the changes.
  *
- * Returns: %TRUE if the user has confirmed to exit
+ * Returns: %TRUE if the user has confirmed to continue
  */
-gboolean bt_main_window_check_quit(const BtMainWindow *self) {
+gboolean bt_main_window_check_unsaved_song(const BtMainWindow *self,const gchar *title,const gchar *headline) {
   gboolean res=TRUE;
   BtSong *song;
 
@@ -437,15 +440,28 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
     g_object_get(song,"unsaved",&unsaved,NULL);
     if(unsaved) {
       gchar *msg;
-      
+
       msg=bt_main_window_make_unsaved_changes_message(song);
-      res=bt_dialog_question(self,_("Really quit?"),_("Really quit?"),msg);
+      res=bt_dialog_question(self,title,headline,msg);
       g_free(msg);
     }
     g_object_unref(song);
   }
 
   return(res);
+}
+
+
+/**
+ * bt_main_window_check_quit:
+ * @self: the main window instance
+ *
+ * Displays a dialog box, that asks the user to confirm exiting the application.
+ *
+ * Returns: %TRUE if the user has confirmed to exit
+ */
+gboolean bt_main_window_check_quit(const BtMainWindow *self) {
+  return(bt_main_window_check_unsaved_song(self,_("Really quit?"),_("Really quit?")));
 }
 
 /**
@@ -455,27 +471,11 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
  * Prepares a new song. Triggers cleaning up the old song and refreshes the ui.
  */
 void bt_main_window_new_song(const BtMainWindow *self) {
-  gboolean res=TRUE;
-  gboolean unsaved=FALSE;
-  BtSong *song;
+  if(!bt_main_window_check_unsaved_song(self,_("New song?"),_("New song?")))
+    return;
 
-  g_object_get(self->priv->app,"song",&song,NULL);
-  if(song) {
-    g_object_get(song,"unsaved",&unsaved,NULL);
-    if(unsaved) {
-      gchar *msg;
-      // @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
-    
-      msg=bt_main_window_make_unsaved_changes_message(song);
-      res=bt_dialog_question(self,_("New song?"),_("New song?"),msg);
-      g_free(msg);
-    }
-    g_object_unref(song);
-  }
-  if(res) {
-    if(!bt_edit_application_new_song(self->priv->app)) {
-      // @todo show error message (from where? and which error?)
-    }
+  if(!bt_edit_application_new_song(self->priv->app)) {
+    // @todo show error message (from where? and which error?)
   }
 }
 
@@ -495,6 +495,9 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
   guint ix;
+
+  if(!bt_main_window_check_unsaved_song(self,_("Load new song?"),_("Load new song?")))
+    return;
 
   self->priv->dialog=GTK_DIALOG(gtk_file_chooser_dialog_new(_("Open a song"),
     GTK_WINDOW(self),
