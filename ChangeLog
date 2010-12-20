@@ -1,5 +1,10 @@
 2010-12-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-log.c:
+	  For new songs we need to copy the events to the new log.
+
+2010-12-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/setup.c:
 	  Log machine id.
 

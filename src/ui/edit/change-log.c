@@ -591,6 +591,7 @@ gboolean bt_change_log_is_active(BtChangeLog *self) {
 gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
   FILE *log_file;
   gboolean res=FALSE;
+  gboolean copy=FALSE;
   
   if((log_file=fopen(log_name,"rt"))) {
     gchar linebuf[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
@@ -612,14 +613,24 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
       - no filename = never saved -> new file
     */
     if(*linebuf) {
+      /* this creates a new song object and thus triggers
+       * on_song_changed() where we setup a new logfile */
       if(!bt_edit_application_load_song(self->priv->app,linebuf)) {
         GST_INFO("    song '%s' failed to load",linebuf);
         goto done;
       }
     }
+    else {
+      /* @todo: we need to either copy the log data to the new log or use the
+       * previous log as the current one, otherwise we loose the changes */
+      copy=TRUE;
+    }
     // replay the log
     while(!feof(log_file)) {
       if(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file)) {
+        if(copy) {
+          fputs(linebuf,self->priv->log_file);
+        }
         g_strchomp(linebuf);lines++;
         GST_DEBUG("changelog-event: '%s'", linebuf);
         // log event: BtMainPagePatterns::set_global_event "simsyn","simsyn 00",8,0,c-4
