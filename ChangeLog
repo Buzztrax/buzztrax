@@ -1,5 +1,13 @@
 2010-12-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/setup.c:
+	  Log machine id.
+
+	* src/ui/edit/main-page-patterns.c:
+	  We need to create wire-patterns as needed.
+
+2010-12-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Add unod/redo for wire-columns.
 

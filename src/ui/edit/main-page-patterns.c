@@ -1907,7 +1907,7 @@ static void lookup_machine_and_pattern(const BtMainPagePatterns *self,BtMachine 
     g_object_get(self->priv->app,"song",&song,NULL);
     g_object_get(song,"setup",&setup,NULL);
     g_object_try_unref(*machine);
-    *machine=bt_setup_get_machine_by_id(setup, mid);
+    *machine=bt_setup_get_machine_by_id(setup,mid);
     if (pid) {
       g_object_try_unref(*pattern);
       *pattern=bt_machine_get_pattern_by_id(*machine,pid);
@@ -3134,9 +3134,10 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_object_get(self->priv->app,"song",&song,NULL);
       g_object_get(song,"setup",&setup,NULL);
       smachine=bt_setup_get_machine_by_id(setup,smid);
-      // or check machine->dst_wires
       wire=bt_setup_get_wire_by_machines(setup,smachine,machine);
-      wire_pattern=bt_wire_get_pattern(wire,pattern);
+      if(!(wire_pattern=bt_wire_get_pattern(wire,pattern))) {
+        wire_pattern=bt_wire_pattern_new(song,wire,pattern);
+      }
       res=bt_wire_pattern_set_event(wire_pattern,row,param,str);
       g_free(str);
       g_free(smid);

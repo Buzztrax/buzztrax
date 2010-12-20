@@ -1123,7 +1123,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
     if(!strcmp(machine_id,id)) found=TRUE;
     g_free(machine_id);
     if(found) {
-      GST_DEBUG("  getting machine: %p,ref_count %d",machine,G_OBJECT_REF_COUNT(machine));
+      GST_DEBUG("  getting machine (%s): %p,ref_count %d",id,machine,G_OBJECT_REF_COUNT(machine));
       return(g_object_ref(machine));
     }
   }
