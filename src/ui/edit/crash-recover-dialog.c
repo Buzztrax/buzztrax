@@ -42,9 +42,11 @@
  *     - list of entries with restore and delete buttons
  *     - menu entry in file-menu
  *
- * whats the work flow if there are multiple entries found?
- * - right now one would need to exit the app
- * 
+ * whats the work flow if there are multiple entries found? right now:
+ * - we close this dialog after one got restored
+ * - one would save or close the file
+ * - one would invoke this dialog from the menu again.
+ *
  */
 
 #define BT_EDIT
@@ -127,16 +129,28 @@ static void on_list_size_request(GtkWidget *widget,GtkRequisition *requisition,g
 static void on_recover_clicked(GtkButton *button, gpointer user_data) {
   BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
   gchar *log_name=get_selected(self);
-    
+  gboolean res=FALSE;
+
   if(log_name) {
     BtChangeLog *change_log=bt_change_log_new();
 
     GST_INFO("recovering: %s",log_name);
     if(bt_change_log_recover(change_log,log_name)) {
       remove_selected(self);
+      res=TRUE;
     }
     g_free(log_name);
     g_object_try_unref(change_log);
+  }
+  if(res) {
+    BtMainWindow *main_window;
+    gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_CLOSE);
+    g_object_get(self->priv->app,"main-window",&main_window,NULL);
+    bt_dialog_message(main_window,_("Recovery finished"),
+      _("Song has been recovered sucessful."),
+      _("Please check the song and save if everything is alright.")
+    );
+    g_object_unref(main_window);
   }
 }
 

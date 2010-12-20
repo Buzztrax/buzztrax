@@ -1,5 +1,11 @@
 2010-12-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/crash-recover-dialog.c:
+	  Close the dialog after a good recovery. Inform the user.
+
+
+2010-12-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-menu.c:
 	  Check for unsaved changes before invoking the song recovery from the 
 	  menu. Ensure we have an empty song if we proceed.
