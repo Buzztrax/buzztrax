@@ -63,6 +63,9 @@
  *     bt_main_page_machines_show_properties_dialog(page,machine);
  *     bt_main_page_machines_show_preferences_dialog(page,machine);
  *     .. rename/about/help
+ *
+ * - undo/redo
+ *  - need to implement it for complex edits
  */
 
 #define BT_EDIT
@@ -187,6 +190,7 @@ typedef enum {
 enum {
   METHOD_SET_GLOBAL_EVENT=0,
   METHOD_SET_VOICE_EVENT,
+  METHOD_SET_WIRE_EVENT,
   METHOD_SET_PROPERTY,
   METHOD_ADD_PATTERN,
   METHOD_REM_PATTERN,
@@ -195,6 +199,7 @@ enum {
 static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_global_event",17,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),(.*)$"),
   BT_CHANGE_LOGGER_METHOD("set_voice_event",16,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
+  BT_CHANGE_LOGGER_METHOD("set_wire_event",15,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),(.*)$"),
   BT_CHANGE_LOGGER_METHOD("set_property",13,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_pattern",12,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+)$"),
   BT_CHANGE_LOGGER_METHOD("rem_pattern",12,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
@@ -1359,16 +1364,32 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
 
   switch (group->type) {
     case PGT_WIRE: {
-      BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
+      BtWire *wire = group->user_data;
+      BtWirePattern *wire_pattern = bt_wire_get_pattern(wire,self->priv->pattern);
+      BtMachine *smachine;
+      gchar *old_str;
+      gchar *undo_str,*redo_str;
+      gchar *smid,*dmid,*pid;
+
       if(!wire_pattern) {
         BtSong *song;
-        
+
         g_object_get(self->priv->app,"song",&song,NULL);
-        wire_pattern=bt_wire_pattern_new(song,group->user_data,self->priv->pattern);
+        wire_pattern=bt_wire_pattern_new(song,wire,self->priv->pattern);
         g_object_unref(song);
       }
-      /* set_wire_event wire,wire_pattern,...
-       */
+
+      g_object_get(wire,"src",&smachine,NULL);
+      old_str=bt_wire_pattern_get_event(wire_pattern,row,param);
+      g_object_get(smachine,"id",&smid,NULL);
+      g_object_get(machine,"id",&dmid,NULL);
+      g_object_get(self->priv->pattern,"id",&pid,NULL);
+      undo_str = g_strdup_printf("set_wire_event \"%s\",\"%s\",\"%s\",%u,%u,%s",smid,dmid,pid,row,param,safe_string(old_str));
+      redo_str = g_strdup_printf("set_wire_event \"%s\",\"%s\",\"%s\",%u,%u,%s",smid,dmid,pid,row,param,safe_string(str));
+      bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+      g_free(old_str);g_free(smid);g_free(dmid);g_free(pid);
+      g_object_unref(smachine);
+
       bt_wire_pattern_set_event(wire_pattern,row,param,str);
       g_object_unref(wire_pattern);
     } break;
@@ -3080,11 +3101,57 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_free(str);
       g_free(mid);
       g_free(pid);
-  
+
       if(res) {
         // move cursor
         for(group=0;group<self->priv->number_of_groups;group++) {
           if((self->priv->param_groups[group].type==PGT_VOICE) && (GPOINTER_TO_UINT(self->priv->param_groups[group].user_data)==voice)) break;
+        }
+        g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
+        pattern_table_refresh(self);
+      }
+      break;
+    }
+    case METHOD_SET_WIRE_EVENT: {
+      gchar *str,*smid,*dmid,*pid;
+      BtSong *song;
+      BtSetup *setup;
+      BtMachine *smachine;
+      BtWire *wire;
+      BtWirePattern *wire_pattern;
+
+      smid=g_match_info_fetch(match_info,1);
+      dmid=g_match_info_fetch(match_info,2);
+      pid=g_match_info_fetch(match_info,3);
+      s=g_match_info_fetch(match_info,4);row=atoi(s);g_free(s);
+      s=g_match_info_fetch(match_info,5);param=atoi(s);g_free(s);
+      str=g_match_info_fetch(match_info,6);
+      g_match_info_free(match_info);
+
+      GST_DEBUG("-> [%s|%s|%s|%u|%u|%s]",smid,dmid,pid,row,param,str);
+      lookup_machine_and_pattern(self,&machine,&pattern,dmid,c_mid,pid,c_pid);
+
+      g_object_get(self->priv->app,"song",&song,NULL);
+      g_object_get(song,"setup",&setup,NULL);
+      smachine=bt_setup_get_machine_by_id(setup,smid);
+      // or check machine->dst_wires
+      wire=bt_setup_get_wire_by_machines(setup,smachine,machine);
+      wire_pattern=bt_wire_get_pattern(wire,pattern);
+      res=bt_wire_pattern_set_event(wire_pattern,row,param,str);
+      g_free(str);
+      g_free(smid);
+      g_free(dmid);
+      g_free(pid);
+      g_object_unref(wire_pattern);
+      g_object_unref(wire);
+      g_object_unref(smachine);
+      g_object_unref(setup);
+      g_object_unref(song);
+
+      if(res) {
+        // move cursor
+        for(group=0;group<self->priv->number_of_groups;group++) {
+          if((self->priv->param_groups[group].type==PGT_WIRE) && (self->priv->param_groups[group].user_data==wire_pattern)) break;
         }
         g_object_set(self->priv->pattern_table,"cursor-row",row,"cursor-group",group,"cursor-param",param,NULL);
         pattern_table_refresh(self);

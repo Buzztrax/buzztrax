@@ -1,3 +1,8 @@
+2010-12-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add unod/redo for wire-columns.
+
 2010-12-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/crash-recover-dialog.c:
