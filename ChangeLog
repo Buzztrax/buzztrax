@@ -1,3 +1,11 @@
+2011-01-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/buzzcallbacks.c:
+	  Whitespace cleanup.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Remove old ifdef'ed code. TODO comment.
+
 2010-12-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

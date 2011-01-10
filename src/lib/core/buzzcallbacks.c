@@ -18,7 +18,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
+
 #define BT_CORE
 #define BT_BUZZCALLBACKS_C
 
@@ -59,11 +59,11 @@ static void const *GetWave(CHostCallbacks *self, int const i) {
   BtWaveLoopMode loop_mode;
   gdouble volume;
   guint channels;
-  
+
   GST_DEBUG("(%p,%d)",self,i);
   if(G_UNLIKELY(!song)) return(NULL);
-  
-  
+
+
   g_object_get(song,"wavetable",&wavetable,NULL);
   if(G_UNLIKELY(!wavetable)) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
@@ -103,10 +103,10 @@ static void const *GetWaveLevel(CHostCallbacks *self, int const i, int const lev
   BtWavetable *wavetable;
   BtWave *wave;
   BtWavelevel *wavelevel;
-  
+
   GST_DEBUG("(%p,%d,%d)",self,i,level);
   if(G_UNLIKELY(!song)) return(NULL);
-  
+
   g_object_get(song,"wavetable",&wavetable,NULL);
   if(G_UNLIKELY(!wavetable)) return(NULL);
   if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
@@ -114,11 +114,11 @@ static void const *GetWaveLevel(CHostCallbacks *self, int const i, int const lev
       gulong length,rate;
       glong ls, le;
       guchar root_note;
-      
+
       // fill BuzzWaveLevel
       g_object_get(wavelevel,"length",&length, "rate",&rate,
         "loop-start",&ls, "loop-end",&le,
-        "root-note",&root_note, "data",&res[i].pSamples,        
+        "root-note",&root_note, "data",&res[i].pSamples,
         NULL);
       res[i].numSamples=length;
       res[i].SamplesPerSec=rate;
@@ -146,7 +146,7 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
   BtSong *song=BT_SONG(self->user_data);
   BtWavetable *wavetable;
   BtWave *wave;
-  
+
   GST_DEBUG("(%p,%d,%d)",self,i,note);
   if(G_UNLIKELY(!song)) return(NULL);
 
@@ -173,13 +173,13 @@ static void const *GetNearestWaveLevel(CHostCallbacks *self, int const i, int co
     if(best) {
       gulong length,rate;
       glong ls, le;
-      
+
       GST_DEBUG("  wavelevel found");
-      
+
       // fill BuzzWaveLevel
       g_object_get(best,"length",&length, "rate",&rate,
         "loop-start",&ls, "loop-end",&le,
-        "root-note",&root_note, "data",&res[i].pSamples,        
+        "root-note",&root_note, "data",&res[i].pSamples,
         NULL);
       res[i].numSamples=length;
       res[i].SamplesPerSec=rate;
