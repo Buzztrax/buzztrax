@@ -366,6 +366,15 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
 
   if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
     BtPatternEditorColumnGroup *pc_group;
+
+    /* @todo: collect undo strings
+     * - this is tedious, creates lots of commands and is slow to replay
+     * - what if we introduce a command: set_events mid, pid, events ...
+     *   - this would contain the whole pattern (see bt_main_page_patterns_copy_selection())
+     *   - this has newlines for each column
+     * - or three new commands: set_{wire,global,voice}_events mid, pid, events ...
+     *   - that would be repeated per column in the selection
+     */
     GST_INFO("applying : %d %d , %d %d",beg,end,group,param);
     if(group==-1 && param==-1) {
       // process full pattern
@@ -450,6 +459,8 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
+    /* @todo: collect redo strings */
+    /* @todo: log them */
   }
   return res;
 }
@@ -2137,7 +2148,7 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
     bt_change_log_start_group(self->priv->change_log);
     /* @todo: serialize pattern data
      * - need to save all fields that are non empty to undo data
-     * - no redo data needed
+     * - no redo data needed really, but the API requires it
      */
     bt_machine_remove_pattern(machine,pattern);
     bt_change_log_end_group(self->priv->change_log);
@@ -2656,7 +2667,7 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
       // process whole group
       pc_group=&self->priv->param_groups[group];
       switch(pc_group->type) {
-        case 0: {
+        case PGT_WIRE: {
           BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
           if(wire_pattern) {
             guint i;
@@ -2667,14 +2678,14 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
             g_object_unref(wire_pattern);
           }
         } break;
-        case 1: {
+        case PGT_GLOBAL: {
           guint i;
 
           for(i=0;i<pc_group->num_columns;i++) {
             bt_pattern_serialize_column(self->priv->pattern,beg,end,i,data);
           }
         } break;
-        case 2: {
+        case PGT_VOICE: {
           BtMachine *machine;
           gulong global_params, voice_params, params;
           guint i;
@@ -2693,17 +2704,17 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
       // process one param in one group
       pc_group=&self->priv->param_groups[group];
       switch(pc_group->type) {
-        case 0: {
+        case PGT_WIRE: {
           BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
           if(wire_pattern) {
             bt_wire_pattern_serialize_column(wire_pattern,beg,end,param,data);
             g_object_unref(wire_pattern);
           }
         } break;
-        case 1:
+        case PGT_GLOBAL:
           bt_pattern_serialize_column(self->priv->pattern,beg,end,param,data);
           break;
-        case 2: {
+        case PGT_VOICE: {
           BtMachine *machine;
           gulong global_params, voice_params, params;
 
@@ -2772,17 +2783,17 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     while(lines[i] && *lines[i] && res) {
       if(*lines[i]!='\n') {
         switch (pc_group->type) {
-          case 0: {
+          case PGT_WIRE: {
             BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
             if(wire_pattern) {
               res=bt_wire_pattern_deserialize_column(wire_pattern,beg,end,p,lines[i]);
               g_object_unref(wire_pattern);
             }
           } break;
-          case 1:
+          case PGT_GLOBAL:
             res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,p,lines[i]);
             break;
-          case 2: {
+          case PGT_VOICE: {
             gulong global_params, voice_params, params;
 
             g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
