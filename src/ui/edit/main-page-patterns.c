@@ -366,6 +366,11 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
 
   if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
     BtPatternEditorColumnGroup *pc_group;
+    BtMachine *machine;
+    gchar *mid,*pid;
+
+    g_object_get(self->priv->pattern,"id",&pid,"machine",&machine,NULL);
+    g_object_get(machine,"id",&mid,NULL);
 
     /* @todo: collect undo strings
      * - this is tedious, creates lots of commands and is slow to replay
@@ -433,28 +438,61 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
       res=TRUE;
     }
     if(group!=-1 && param!=-1) {
+      GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
+      gchar *undo_str=NULL,*redo_str=NULL;
+
       // process one param in one group
       pc_group=&self->priv->param_groups[group];
       switch(pc_group->type) {
         case PGT_WIRE: {
           BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
           if(wire_pattern) {
+            BtWire *wire = pc_group->user_data;
+            BtMachine *smachine;
+            gchar *smid;
+
+            g_object_get(wire,"src",&smachine,NULL);
+            g_object_get(smachine,"id",&smid,NULL);
+
+            bt_wire_pattern_serialize_column(wire_pattern,beg,end,param,old_data);
+            undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,mid,pid,beg,end,param,g_strchomp(g_string_free(old_data,FALSE)));
+
             do_wire_pattern_column(wire_pattern,beg,end,param);
+
+            bt_wire_pattern_serialize_column(wire_pattern,beg,end,param,new_data);
+            redo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,mid,pid,beg,end,param,g_strchomp(g_string_free(new_data,FALSE)));
+            bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+            g_free(smid);
+            g_object_unref(smachine);
             g_object_unref(wire_pattern);
           }
         } break;
         case PGT_GLOBAL:
+          bt_pattern_serialize_column(self->priv->pattern,beg,end,param,old_data);
+          undo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,beg,end,param,g_strchomp(g_string_free(old_data,FALSE)));
+
           do_pattern_column(self->priv->pattern,beg,end,param);
+
+          bt_pattern_serialize_column(self->priv->pattern,beg,end,param,new_data);
+          redo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,beg,end,param,g_strchomp(g_string_free(new_data,FALSE)));
+          bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
           break;
         case PGT_VOICE: {
-          BtMachine *machine;
           gulong global_params, voice_params, params;
+          guint voice = GPOINTER_TO_UINT(pc_group->user_data);
 
-          g_object_get(self->priv->pattern,"machine",&machine,NULL);
           g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
-          params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
+          params=global_params+(voice*voice_params);
+
+          bt_pattern_serialize_column(self->priv->pattern,beg,end,param,old_data);
+          undo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,beg,end,voice,param,g_strchomp(g_string_free(old_data,FALSE)));
+
           do_pattern_column(self->priv->pattern,beg,end,params+param);
-          g_object_unref(machine);
+
+          bt_pattern_serialize_column(self->priv->pattern,beg,end,param,old_data);
+          redo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,beg,end,voice,param,g_strchomp(g_string_free(new_data,FALSE)));
+          bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
         } break;
       }
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
@@ -462,6 +500,8 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
     }
     /* @todo: collect redo strings */
     /* @todo: log them */
+    g_free(mid);g_free(pid);
+    g_object_unref(machine);
   }
   return res;
 }
