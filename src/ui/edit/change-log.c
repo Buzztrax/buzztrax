@@ -180,10 +180,10 @@ struct _BtChangeLogPrivate {
   FILE *log_file;
   gchar *log_file_name;
   gchar *cache_dir;
-  
+
   /* known ChangeLoggers */
   GHashTable *loggers;
-  
+
   /* each entry pointing to a BtChangeLogEntry{Single,Group} */
   GPtrArray *changes;
   guint last_saved;
@@ -220,7 +220,7 @@ static void free_change_log_entry(BtChangeLogEntry *cle) {
     case CHANGE_LOG_ENTRY_GROUP: {
       BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
       guint i;
-      
+
       // recurse
       for(i=0;i<cleg->changes->len;i++) {
         free_change_log_entry(g_ptr_array_index(cleg->changes,i));
@@ -239,7 +239,7 @@ static void add_change_log_entry(BtChangeLog *self,BtChangeLogEntry *cle) {
     // becomes a graph
     if(self->priv->item_ct && (self->priv->next_redo<self->priv->item_ct)) {
       gint i;
-      
+
       GST_WARNING("trunc %d<%d",self->priv->next_redo,self->priv->item_ct);
       for(i=self->priv->item_ct-1;i>=self->priv->next_redo;i--) {
         free_change_log_entry(g_ptr_array_remove_index(self->priv->changes,i));
@@ -277,7 +277,7 @@ static void undo_change_log_entry(BtChangeLogEntry *cle) {
     case CHANGE_LOG_ENTRY_GROUP: {
       BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
       guint i;
-      
+
       // recurse
       for(i=0;i<cleg->changes->len;i++) {
         undo_change_log_entry(g_ptr_array_index(cleg->changes,i));
@@ -299,7 +299,7 @@ static void redo_change_log_entry(BtChangeLogEntry *cle) {
     case CHANGE_LOG_ENTRY_GROUP: {
       BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
       gint i;
-      
+
       // recurse
       for(i=cleg->changes->len-1;i>=0;i--) {
         redo_change_log_entry(g_ptr_array_index(cleg->changes,i));
@@ -325,7 +325,7 @@ static void close_and_free_log(BtChangeLog *self) {
   }
   if(self->priv->changes) {
     guint i,l=self->priv->changes->len;
-    
+
     for(i=0;i<l;i++)
       free_change_log_entry(g_ptr_array_index(self->priv->changes,i));
     g_ptr_array_free(self->priv->changes,TRUE);
@@ -347,7 +347,7 @@ static gchar *make_log_file_name(BtChangeLog *self, BtSongInfo *song_info) {
   file_name=g_strdup_printf("%s_%s.log",dts,name);
   g_free(name);
   //g_free(dts);
-  
+
   log_file_name=g_build_filename(self->priv->cache_dir,file_name,NULL);
   g_free(file_name);
   return(log_file_name);
@@ -361,13 +361,13 @@ static void open_and_init_log(BtChangeLog *self, BtSongInfo *song_info) {
   }
   else {
     gchar *file_name;
-    
+
     self->priv->changes=g_ptr_array_new();
     self->priv->next_undo=-1;
     self->priv->next_redo=0;
     self->priv->cur_group=NULL;
     self->priv->item_ct=0;
-    
+
     setvbuf(self->priv->log_file, (char *) NULL, _IOLBF, 0);
 
     g_object_get(song_info,"file-name",&file_name,NULL);
@@ -377,7 +377,7 @@ static void open_and_init_log(BtChangeLog *self, BtSongInfo *song_info) {
       g_free(file_name);
     }
     fputs("\n",self->priv->log_file);
-    
+
     self->priv->is_active=TRUE;
   }
 }
@@ -400,16 +400,16 @@ static gint sort_by_mtime(gconstpointer a,gconstpointer b) {
 static void bt_change_log_crash_check(BtChangeLog *self) {
   DIR *dirp;
   GList *crash_logs=NULL;
-  
+
   if(!self->priv->cache_dir)
     return;
-  
+
   if((dirp=opendir(self->priv->cache_dir))) {
     const struct dirent *dire;
     gchar link_target[FILENAME_MAX],log_name[FILENAME_MAX];
     FILE *log_file;
     gboolean valid_log,auto_clean;
-  
+
     GST_INFO("looking for crash left-overs in %s",self->priv->cache_dir);
     while((dire=readdir(dirp))!=NULL) {
       // skip names starting with a dot
@@ -434,7 +434,7 @@ static void bt_change_log_crash_check(BtChangeLog *self) {
         gchar song_file_name[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
         BtChangeLogFile *crash_log;
         struct stat fileinfo;
-        
+
         if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
           GST_INFO("    '%s' is not a change log, eof too early",log_name);
           goto done;
@@ -526,7 +526,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtChangeLog *self = BT_CHANGE_LOG(user_data);
   BtSong *song;
   BtSongInfo *song_info;
-  
+
   if(!self->priv->cache_dir)
     return;
 
@@ -541,12 +541,12 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     GST_INFO("song (null) has changed: done");
     return;
   }
- 
+
   // create new log file
   g_object_get(song,"song-info",&song_info,NULL);
   self->priv->log_file_name=make_log_file_name(self,song_info);
   open_and_init_log(self,song_info);
-  
+
   // notify on name changes to move the log
   g_signal_connect(song, "notify::name", G_CALLBACK(on_song_file_name_changed), (gpointer)self);
   // notify on unsaved changed to truncate the log when unsaved==FALSE
@@ -592,13 +592,13 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
   FILE *log_file;
   gboolean res=FALSE;
   gboolean copy=FALSE;
-  
+
   if((log_file=fopen(log_name,"rt"))) {
-    gchar linebuf[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
+    gchar linebuf[10000]; /* @todo: a line can be a full column */
     gchar *redo_data;
     BtChangeLogger *logger;
     guint lines=0,lines_ok=0;
-    
+
     if(!(fgets(linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN, log_file))) {
       GST_INFO("    '%s' is not a change log, eof too early",log_name);
       goto done;
@@ -678,7 +678,7 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
  */
 void bt_change_log_register(BtChangeLog *self,BtChangeLogger *logger) {
   GST_DEBUG("registering: '%s'",G_OBJECT_TYPE_NAME(logger));
-  
+
   g_hash_table_insert(self->priv->loggers,(gpointer)G_OBJECT_TYPE_NAME(logger),(gpointer)logger);
 }
 
@@ -701,7 +701,7 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
   }
   if(self->priv->changes) {
     BtChangeLogEntrySingle *cle;
-    
+
     // make new BtChangeLogEntry from the parameters
     cle=g_slice_new(BtChangeLogEntrySingle);
     cle->type=CHANGE_LOG_ENTRY_SINGLE;
@@ -727,13 +727,13 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
 void bt_change_log_start_group(BtChangeLog *self) {
   if(self->priv->changes) {
     BtChangeLogEntryGroup *cle;
-  
+
     cle=g_slice_new(BtChangeLogEntryGroup);
     cle->type=CHANGE_LOG_ENTRY_GROUP;
     cle->changes=g_ptr_array_new();
     cle->old_group=self->priv->cur_group;
     add_change_log_entry(self,(BtChangeLogEntry*)cle);
-    
+
     // make this the current group;
     self->priv->cur_group=cle;
   }
@@ -748,7 +748,7 @@ void bt_change_log_start_group(BtChangeLog *self) {
 void bt_change_log_end_group(BtChangeLog *self) {
   if(self->priv->changes) {
     BtChangeLogEntryGroup *cle=self->priv->cur_group;
-  
+
     if(cle) {
       self->priv->cur_group=cle->old_group;
     }
@@ -765,7 +765,7 @@ void bt_change_log_undo(BtChangeLog *self) {
   if(self->priv->next_undo!=-1) {
     gboolean is_active=self->priv->is_active;
     self->priv->is_active=FALSE;
-    
+
     GST_INFO("before undo %d, %d",self->priv->next_undo,self->priv->next_redo);
     undo_change_log_entry(g_ptr_array_index(self->priv->changes,self->priv->next_undo));
     // update undo undo/redo pointers
@@ -822,14 +822,14 @@ void bt_change_log_redo(BtChangeLog *self) {
 
 static void bt_change_log_dispose(GObject *object) {
   BtChangeLog *self = BT_CHANGE_LOG(object);
-  
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
-  
+
   close_and_free_log(self);
   g_object_try_weak_unref(self->priv->app);
 
@@ -840,12 +840,12 @@ static void bt_change_log_finalize(GObject *object) {
   BtChangeLog *self = BT_CHANGE_LOG(object);
   BtChangeLogFile *crash_log;
   GList *node;
-  
+
   GST_DEBUG("!!!! self=%p",self);
   g_free(self->priv->cache_dir);
 
   g_hash_table_destroy(self->priv->loggers);
-  
+
   // free cgrash-logs list and entries
   for(node=self->priv->crash_logs;node;node=g_list_next(node)) {
     crash_log=(BtChangeLogFile *)node->data;
@@ -909,7 +909,7 @@ static void bt_change_log_init(BtChangeLog *self) {
 
   self->priv->loggers=g_hash_table_new(g_str_hash,g_str_equal);
   on_song_changed(self->priv->app,NULL,self);
-  
+
   bt_change_log_crash_check(self);
 
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
@@ -931,7 +931,7 @@ static void bt_change_log_class_init(BtChangeLogClass *klass) {
                                      "Where there are action to undo",
                                      FALSE,
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
-  
+
   g_object_class_install_property(gobject_class,CHANGE_LOG_CAN_REDO,
                                   g_param_spec_boolean("can-redo",
                                      "can-redo prop",

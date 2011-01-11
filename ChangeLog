@@ -1,5 +1,10 @@
 2011-01-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-log.c:
+	  Use a much bigger buffer for reading the actual changelog data lines.
+
+2011-01-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Have undo/redo for blend/randomize/.. (single dolumns only).
 
