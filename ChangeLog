@@ -1,3 +1,9 @@
+2011-01-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Change pattern data serialisation to use columns with n-ticks. Update
+	  deserialisation in the same way. We can reuse this for other edits.
+
 2011-01-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
