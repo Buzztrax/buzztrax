@@ -717,7 +717,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
       g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, NULL);
       GST_INFO("ctrl-shift-insert pressed, row %lu",self->priv->cursor_row);
-      while(self->priv->param_groups[i].type==PGT_WIRE) {
+      while(i<self->priv->number_of_groups && self->priv->param_groups[i].type==PGT_WIRE) {
         if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
           bt_wire_pattern_insert_full_row(wire_pattern,self->priv->cursor_row);
           g_object_unref(wire_pattern);
@@ -802,7 +802,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
       g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, NULL);
       GST_INFO("ctrl-shift-delete pressed, row %lu",self->priv->cursor_row);
-      while(self->priv->param_groups[i].type==PGT_WIRE) {
+      while(i<self->priv->number_of_groups && self->priv->param_groups[i].type==PGT_WIRE) {
         if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
           bt_wire_pattern_delete_full_row(wire_pattern,self->priv->cursor_row);
           g_object_unref(wire_pattern);

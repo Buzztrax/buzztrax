@@ -1,6 +1,11 @@
 2011-01-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
+	  Don't iterate over PatternGroup array size.
+
+2011-01-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
 	  Have full undo/redo for blend/randomize/..
 
 2011-01-11  Stefan Kost  <ensonic@users.sf.net>
