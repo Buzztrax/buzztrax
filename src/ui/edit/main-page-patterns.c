@@ -659,7 +659,6 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
         pc_group=&self->priv->param_groups[i];
       }
       do_pattern_columns(self->priv->pattern,beg,end);
-      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
     // process whole group
@@ -693,9 +692,6 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
           g_object_unref(machine);
         } break;
       }
-      bt_change_log_end_group(self->priv->change_log);
-
-      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
     // process one param in one group
@@ -724,11 +720,11 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
           g_object_unref(machine);
         } break;
       }
-      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
 
     if(res) {
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       pattern_selection_copy(self,beg,end,group,param,new_data);
       pattern_selection_log_undo_redo(self,beg,end,group,param,old_data->str,new_data->str);
     }
@@ -848,12 +844,33 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     res=TRUE;
   }
   else if (event->keyval == GDK_Insert) {
+    GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
+    gulong number_of_ticks;
+    gint beg,end,group,param;
+
+    g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
+    g_object_get(self->priv->pattern,"length",&number_of_ticks,NULL);
+    beg=self->priv->cursor_row;
+    end=number_of_ticks-1;
+    if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+      group=-1;
+      param=-1;
+    }
+    else if(modifier&GDK_SHIFT_MASK) {
+      group=self->priv->cursor_group;
+      param=-1;
+    }
+    else {
+      group=self->priv->cursor_group;
+      param=self->priv->cursor_param;
+    }
+    pattern_selection_copy(self,beg,end,group,param,old_data);
+
     if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
       // insert full row
       BtWirePattern *wire_pattern;
       guint i=0;
 
-      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, NULL);
       GST_INFO("ctrl-shift-insert pressed, row %lu",self->priv->cursor_row);
       while(i<self->priv->number_of_groups && self->priv->param_groups[i].type==PGT_WIRE) {
         if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
@@ -863,12 +880,10 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
         i++;
       }
       bt_pattern_insert_full_row(self->priv->pattern,self->priv->cursor_row);
-      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
     else if(modifier&GDK_SHIFT_MASK) {
       // insert group
-      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, NULL);
       GST_INFO("shift-insert pressed, row %ld, group %u",self->priv->cursor_row,self->priv->cursor_group);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case PGT_WIRE: {
@@ -899,12 +914,10 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           g_object_unref(machine);
         } break;
       }
-      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
     else {
       // insert column
-      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
       GST_INFO("insert pressed, row %ld, group %u, param %u",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
         case PGT_WIRE: {
@@ -928,11 +941,41 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           g_object_unref(machine);
         } break;
       }
-      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
+
+    if(res) {
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      pattern_selection_copy(self,beg,end,group,param,new_data);
+      pattern_selection_log_undo_redo(self,beg,end,group,param,old_data->str,new_data->str);
+    }
+    g_string_free(old_data,TRUE);
+    g_string_free(new_data,TRUE);
   }
   else if(event->keyval == GDK_Delete) {
+    GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
+    gulong number_of_ticks;
+    gint beg,end,group,param;
+
+    g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
+    g_object_get(self->priv->pattern,"length",&number_of_ticks,NULL);
+    beg=self->priv->cursor_row;
+    end=number_of_ticks-1;
+    if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+      group=-1;
+      param=-1;
+    }
+    else if(modifier&GDK_SHIFT_MASK) {
+      group=self->priv->cursor_group;
+      param=-1;
+    }
+    else {
+      group=self->priv->cursor_group;
+      param=self->priv->cursor_param;
+    }
+
+    pattern_selection_copy(self,beg,end,group,param,old_data);
+
     if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
       // delete full row
       BtWirePattern *wire_pattern;
@@ -948,7 +991,6 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
         i++;
       }
       bt_pattern_delete_full_row(self->priv->pattern,self->priv->cursor_row);
-      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
     else if(modifier&GDK_SHIFT_MASK) {
@@ -984,11 +1026,10 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           g_object_unref(machine);
         } break;
       }
-      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
     else {
-      // delete group
+      // delete column
       g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group, "cursor-param", &self->priv->cursor_param, NULL);
       GST_INFO("delete pressed, row %ld, group %u, param %u",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(self->priv->param_groups[self->priv->cursor_group].type) {
@@ -1013,9 +1054,16 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           g_object_unref(machine);
         } break;
       }
-      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
       res=TRUE;
     }
+
+    if(res) {
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      pattern_selection_copy(self,beg,end,group,param,new_data);
+      pattern_selection_log_undo_redo(self,beg,end,group,param,old_data->str,new_data->str);
+    }
+    g_string_free(old_data,TRUE);
+    g_string_free(new_data,TRUE);
   }
   else if(event->keyval == GDK_i) {
     if(modifier&GDK_CONTROL_MASK) {

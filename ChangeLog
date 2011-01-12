@@ -1,3 +1,8 @@
+2011-01-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add undo/redo for insert/delete.
+
 2011-01-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
