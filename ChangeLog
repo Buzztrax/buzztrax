@@ -1,6 +1,12 @@
 2011-01-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
+	  Refactor undo/redo code. We can now take snapshots before and after
+	  changes and then log the respective undo/redo.
+
+2011-01-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
 	  Don't iterate over PatternGroup array size.
 
 2011-01-12  Stefan Kost  <ensonic@users.sf.net>
