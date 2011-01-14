@@ -264,7 +264,7 @@ PKG_CHECK_MODULES(GTK_DEPS, gtk+-2.0 >= 2.14.0, [
     )
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GNOMEVFS_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GNOMEVFS_DEPS_LIBS"
-    AC_DEFINE(USE_GNOMEVFS, [1], [Define to 1 if we need to use gnomevfs libraries])    
+    AC_DEFINE(USE_GNOMEVFS, [1], [Define to 1 if we need to use gnomevfs libraries])
   ]
 )
 
@@ -348,7 +348,7 @@ PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
 AC_ARG_ENABLE([introspection],
   AS_HELP_STRING([--enable-introspection],
      [enable introspection for this build (default=auto)]),
-     , 
+     ,
      [enable_introspection=auto])
 
 case "x${enable_introspection}" in
@@ -581,7 +581,6 @@ AC_CONFIG_FILES(Makefile \
       src/ui/cmd/Makefile \
       src/ui/dec/Makefile \
       src/ui/edit/Makefile \
-      src/ui/edit/buzztard-edit.desktop.in \
   tests/Makefile \
   tests/bt-cfg.sh \
     tests/lib/Makefile \
@@ -613,7 +612,7 @@ Configuration
 	Buzzmachine Host support        : ${use_bml}
 	Zipped Song file support (bzt)  : ${use_gsf}
 	Hildon Desktop Integration      : ${use_hildon}
-        
+
 	Debug                           : ${enable_debug}
 	Coverage profiling              : ${enable_coverage} ${using_coverage_tool}
 	Use of deprecated API           : ${enable_deprecated}

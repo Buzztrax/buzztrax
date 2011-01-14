@@ -88,10 +88,8 @@ AM_CPPFLAGS = \
 	$(BT_CFLAGS)
 
 desktopdir = ${with_desktop_dir}/applications
-desktop_in_files = buzztard-edit.desktop.in
-desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+desktop_DATA = buzztard-edit.desktop
 @INTLTOOL_DESKTOP_RULE@
-buzztard-edit.desktop: buzztard-edit.desktop.in
 
 # FIXME: don't install bt-edit.hildon.gtkrc on non hildon
 gtkrcdir = $(datadir)/$(PACKAGE)

@@ -1,3 +1,11 @@
+2011-01-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/buzztard-edit.desktop.in.in (deleted):
+	  Fix desktop-file. The version field in there is the spec version. Also
+	  finally fix double .in resolving.
+
 2011-01-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
