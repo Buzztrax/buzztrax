@@ -335,16 +335,16 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
 
 //-- undo/redo helpers
 
-/* undo/redo
- * - there is a lot of copied code
- * - we know the changed area (gint beg,end,group,param)
- * - we could have some helpers to serialize data before, after and add to change_log
+/* pattern_range_copy:
+ *
+ * Serialize the content of the range into @data.
  */
-static void pattern_selection_copy(const BtMainPagePatterns *self,gint beg,gint end,gint group,gint param,GString *data) {
+static void pattern_range_copy(const BtMainPagePatterns *self,gint beg,gint end,gint group,gint param,GString *data) {
   BtPatternEditorColumnGroup *pc_group;
   guint i;
 
   GST_INFO("copying : %d %d , %d %d",beg,end,group,param);
+
   // process full pattern
   if(group==-1 && param==-1) {
     BtWirePattern *wire_pattern;
@@ -425,7 +425,11 @@ static void pattern_selection_copy(const BtMainPagePatterns *self,gint beg,gint 
   }
 }
 
-static void pattern_selection_log_undo_redo(const BtMainPagePatterns *self,gint beg,gint end,gint group,gint param,gchar *old_str,gchar *new_str) {
+/* pattern_range_log_undo_redo:
+ *
+ * Add undo/redo events for the given data to the log.
+ */
+static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,gint end,gint group,gint param,gchar *old_str,gchar *new_str) {
   BtPatternEditorColumnGroup *pc_group;
   BtMachine *machine;
   gchar *mid,*pid;
@@ -638,7 +642,7 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
     BtPatternEditorColumnGroup *pc_group;
     guint i;
 
-    pattern_selection_copy(self,beg,end,group,param,old_data);
+    pattern_range_copy(self,beg,end,group,param,old_data);
 
     GST_INFO("applying : %d %d , %d %d",beg,end,group,param);
     // process full pattern
@@ -725,8 +729,8 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
 
     if(res) {
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
-      pattern_selection_copy(self,beg,end,group,param,new_data);
-      pattern_selection_log_undo_redo(self,beg,end,group,param,old_data->str,new_data->str);
+      pattern_range_copy(self,beg,end,group,param,new_data);
+      pattern_range_log_undo_redo(self,beg,end,group,param,old_data->str,new_data->str);
     }
     g_string_free(old_data,TRUE);
     g_string_free(new_data,TRUE);
@@ -796,19 +800,84 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
 
   // add undo/redo details
   if(bt_change_log_is_active(self->priv->change_log)) {
+    BtWire *wire;
+    BtWirePattern *wire_pattern;
     gchar *undo_str,*redo_str;
     gchar *mid,*pid,*pname;
     gulong length;
+    gulong wire_params,global_params,voice_params,voices;
+    guint end;
+    GList *node;
+    GString *data=g_string_new(NULL);
+    gchar *str,*p;
+    guint i,v;
 
     g_object_get(pattern,"id",&pid,"name",&pname,"length",&length,NULL);
-    g_object_get(machine,"id",&mid,NULL);
+    g_object_get(machine,"id",&mid,"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
 
     undo_str = g_strdup_printf("add_pattern \"%s\",\"%s\",\"%s\",%lu",mid,pid,pname,length);
     redo_str = g_strdup_printf("rem_pattern \"%s\",\"%s\"",mid,pid);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+    /* we can't use the usual helpers here
+     * - we don't need redo data
+     * - we don't have the BtPatternEditorColumnGroup
+     */
+    end=length-1;
+    for(node=machine->dst_wires;node;node=g_list_next(node)) {
+      wire_pattern=bt_wire_get_pattern((BtWire *)node->data,pattern);
+      bt_wire_pattern_serialize_columns(wire_pattern,0,end,data);
+      g_object_unref(wire_pattern);
+    }
+    bt_pattern_serialize_columns(pattern,0,end,data);
+    str=data->str;
+    bt_change_log_start_group(self->priv->change_log);
+    // log events
+    for(node=machine->dst_wires;node;node=g_list_next(node)) {
+      wire=(BtWire *)node->data;
+      wire_pattern=bt_wire_get_pattern(wire,pattern);
+      if(wire_pattern) {
+        BtMachine *smachine;
+        gchar *smid;
+
+        g_object_get(wire,"src",&smachine,"num-params",&wire_params,NULL);
+        g_object_get(smachine,"id",&smid,NULL);
+
+        for(i=0;i<wire_params;i++) {
+          p=strchr(str,'\n');*p='\0';
+          undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",0,%u,%u,%s",smid,mid,pid,end,i,str);
+          str=&p[1];
+          bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+        }
+
+        g_free(smid);
+        g_object_unref(smachine);
+        g_object_unref(wire_pattern);
+      }
+    }
+    if(global_params) {
+      for(i=0;i<global_params;i++) {
+        p=strchr(str,'\n');*p='\0';
+        undo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",0,%u,%u,%s",mid,pid,end,i,str);
+        str=&p[1];
+        bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+      }
+    }
+    if(voices) {
+      for(v=0;v<voices;v++) {
+        for(i=0;i<voice_params;i++) {
+          p=strchr(str,'\n');*p='\0';
+          undo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",0,%u,%u,%u,%s",mid,pid,end,v,i,str);
+          str=&p[1];
+          bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+        }
+      }
+    }
+    bt_change_log_end_group(self->priv->change_log);
+    g_string_free(data,TRUE);
+
     g_free(mid);g_free(pid);g_free(pname);
   }
-
   GST_INFO("removed pattern: %p,pattern->ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 }
 
@@ -864,7 +933,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       group=self->priv->cursor_group;
       param=self->priv->cursor_param;
     }
-    pattern_selection_copy(self,beg,end,group,param,old_data);
+    pattern_range_copy(self,beg,end,group,param,old_data);
 
     if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
       // insert full row
@@ -946,8 +1015,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
     if(res) {
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
-      pattern_selection_copy(self,beg,end,group,param,new_data);
-      pattern_selection_log_undo_redo(self,beg,end,group,param,old_data->str,new_data->str);
+      pattern_range_copy(self,beg,end,group,param,new_data);
+      pattern_range_log_undo_redo(self,beg,end,group,param,old_data->str,new_data->str);
     }
     g_string_free(old_data,TRUE);
     g_string_free(new_data,TRUE);
@@ -974,7 +1043,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       param=self->priv->cursor_param;
     }
 
-    pattern_selection_copy(self,beg,end,group,param,old_data);
+    pattern_range_copy(self,beg,end,group,param,old_data);
 
     if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
       // delete full row
@@ -1059,8 +1128,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
     if(res) {
       gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
-      pattern_selection_copy(self,beg,end,group,param,new_data);
-      pattern_selection_log_undo_redo(self,beg,end,group,param,old_data->str,new_data->str);
+      pattern_range_copy(self,beg,end,group,param,new_data);
+      pattern_range_log_undo_redo(self,beg,end,group,param,old_data->str,new_data->str);
     }
     g_string_free(old_data,TRUE);
     g_string_free(new_data,TRUE);
@@ -2472,10 +2541,6 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
     g_object_get(pattern,"machine",&machine,NULL);
 
     bt_change_log_start_group(self->priv->change_log);
-    /* @todo: serialize pattern data
-     * - need to save all fields that are non empty to undo data
-     * - no redo data needed really, but the API requires it
-     */
     bt_machine_remove_pattern(machine,pattern);
     bt_change_log_end_group(self->priv->change_log);
 
@@ -2970,7 +3035,7 @@ void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self) {
 
     /* the number of ticks */
     g_string_append_printf(data,"%d\n",end-beg);
-    pattern_selection_copy(self,beg,end,group,param,data);
+    pattern_range_copy(self,beg,end,group,param,data);
 
     GST_INFO("copying : [%s]",data->str);
 
