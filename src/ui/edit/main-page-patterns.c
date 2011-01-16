@@ -190,7 +190,7 @@ enum {
   METHOD_SET_WIRE_EVENTS,
   METHOD_SET_PROPERTY,
   METHOD_ADD_PATTERN,
-  METHOD_REM_PATTERN,
+  METHOD_REM_PATTERN
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
@@ -825,9 +825,10 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
      */
     end=length-1;
     for(node=machine->dst_wires;node;node=g_list_next(node)) {
-      wire_pattern=bt_wire_get_pattern((BtWire *)node->data,pattern);
-      bt_wire_pattern_serialize_columns(wire_pattern,0,end,data);
-      g_object_unref(wire_pattern);
+      if((wire_pattern=bt_wire_get_pattern((BtWire *)node->data,pattern))) {
+        bt_wire_pattern_serialize_columns(wire_pattern,0,end,data);
+        g_object_unref(wire_pattern);
+      }
     }
     bt_pattern_serialize_columns(pattern,0,end,data);
     str=data->str;

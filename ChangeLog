@@ -1,6 +1,11 @@
 2011-01-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
+	  Fix null-ptr deref in pattern-data serialisation.
+
+2011-01-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
 	  Implement undo/redo pattern data on pattern/machine removal.
 
 2011-01-16  Stefan Kost  <ensonic@users.sf.net>
