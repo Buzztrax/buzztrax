@@ -1,5 +1,11 @@
 2011-01-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/dec/bt-dec.c:
+	  Improve typefinding and caps. We're now putting the mimefype into a
+	  format field of the container caps.
+
+2011-01-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	  Fix make distcheck.
 
