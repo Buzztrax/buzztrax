@@ -1,5 +1,10 @@
 2011-01-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Add set_machine_property command to store/restore machine pos.
+
+2011-01-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Fix null-ptr deref in pattern-data serialisation.
 

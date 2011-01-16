@@ -125,7 +125,7 @@ struct _BtMainPageMachinesPrivate {
   BtPanoramaPopup *pan_popup;
   GtkObject *vol_popup_adj, *pan_popup_adj;
   GstElement *wire_gain,*wire_pan;
-  
+
   /* relative scrollbar position */
   gdouble scroll_x,scroll_y;
 
@@ -144,13 +144,15 @@ G_DEFINE_TYPE_WITH_CODE (BtMainPageMachines, bt_main_page_machines, GTK_TYPE_VBO
 enum {
   METHOD_ADD_MACHINE=0,
   METHOD_REM_MACHINE,
+  METHOD_SET_MACHINE_PROPERTY,
   METHOD_ADD_WIRE,
-  METHOD_REM_WIRE
+  METHOD_REM_WIRE,
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("add_machine",12,"([0-9]),\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("rem_machine",12,"\"([a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("set_machine_property",21,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_wire",9,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("rem_wire",9,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   { NULL, }
@@ -484,11 +486,12 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   BtMachineCanvasItem *item;
 
   if(!machine) return;
-  
+
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
-  
+
   // add undo/redo details
   if(bt_change_log_is_active(self->priv->change_log)) {
+    GHashTable *properties;
     gchar *undo_str,*redo_str;
     gchar *mid,*pname;
     guint type=0;
@@ -497,11 +500,17 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
       type=0;
     else if(BT_IS_PROCESSOR_MACHINE(machine))
       type=1;
-    g_object_get(machine,"id",&mid,"plugin-name",&pname,NULL);
+    g_object_get(machine,"id",&mid,"plugin-name",&pname,"properties",&properties,NULL);
 
     undo_str = g_strdup_printf("add_machine %u,\"%s\",\"%s\"",type,mid,pname);
     redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+    undo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"xpos"));
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+    undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"ypos"));
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+    // TODO: more status (mute,solo,bypass)
 
     g_free(mid);g_free(pname);
   }
@@ -520,15 +529,15 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
   BtWireCanvasItem *item;
 
   if(!wire) return;
-  
+
   GST_INFO("wire %p,ref_count=%d has been removed",wire,G_OBJECT_REF_COUNT(wire));
-  
+
   // add undo/redo details
   if(bt_change_log_is_active(self->priv->change_log)) {
     gchar *undo_str,*redo_str;
     BtMachine *src_machine,*dst_machine;
     gchar *smid,*dmid;
-  
+
     g_object_get(wire,"src",&src_machine,"dst",&dst_machine,NULL);
     g_object_get(src_machine,"id",&smid,NULL);
     g_object_get(dst_machine,"id",&dmid,NULL);
@@ -655,7 +664,7 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
     update_machines_zoom(self);
     gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   }
-  
+
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
 
 }
@@ -665,10 +674,10 @@ static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
 
   self->priv->zoom*=1.5;
   GST_INFO("toolbar zoom_in event occurred : %lf",self->priv->zoom);
-  
+
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   update_machines_zoom(self);
-  
+
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
 }
 
@@ -677,10 +686,10 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
 
   self->priv->zoom/=1.5;
   GST_INFO("toolbar zoom_out event occurred : %lf",self->priv->zoom);
-  
+
   update_machines_zoom(self);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
-  
+
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
 }
 
@@ -754,14 +763,14 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
 
 static void on_toolbar_menu_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  
+
   gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,1,gtk_get_current_event_time());
-} 
+}
 
 static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gdouble vs,ve,vp,val,v;
-  
+
   g_object_get(self->priv->vadjustment,"value",&val,"lower",&vs,"upper",&ve,"page-size",&vp,NULL);
   v=(ve-vs-vp);
   if(v) {
@@ -770,7 +779,7 @@ static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 
   if(self->priv->properties) {
     gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-  
+
     //GST_INFO("ypos: %lf",val);
     g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
   }
@@ -779,7 +788,7 @@ static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gdouble vs,ve,vp,val,v;
-  
+
   g_object_get(self->priv->hadjustment,"value",&val,"lower",&vs,"upper",&ve,"page-size",&vp,NULL);
   v=(ve-vs-vp);
   if(v) {
@@ -788,7 +797,7 @@ static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 
   if(self->priv->properties) {
     gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-  
+
     //GST_INFO("xpos: %lf",val);
     g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
   }
@@ -943,7 +952,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         //GST_INFO("motion: x=%6.3lf, y=%6.3lf",event->motion.x,event->motion.y);
         //GST_INFO("motion: x=%6d, y=%6d",pointer_x,pointer_y);
       }
-      
+
       if(!gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y)) {
         GST_DEBUG("GDK_KEY_RELEASE: %d",event->key.keyval);
         switch(event->key.keyval) {
@@ -1145,7 +1154,7 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
 #ifndef USE_HILDON
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
 #endif
-  
+
   // popup menu button
   image=gtk_image_new_from_filename("popup-menu.png");
   tool_item=GTK_WIDGET(gtk_tool_button_new(image,_("Machine view menu")));
@@ -1195,7 +1204,7 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   self->priv->pan_popup_adj=gtk_adjustment_new(0.0, -1.0, 1.0, 0.05, 0.1, 0.0);
   self->priv->pan_popup=BT_PANORAMA_POPUP(bt_panorama_popup_new(GTK_ADJUSTMENT(self->priv->pan_popup_adj)));
   g_signal_connect(self->priv->pan_popup_adj,"value-changed",G_CALLBACK(on_panorama_popup_changed),(gpointer)self);
-  
+
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect(self->priv->canvas,"event",G_CALLBACK(on_canvas_event),(gpointer)self);
@@ -1206,7 +1215,7 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
   g_signal_connect(settings, "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
   g_object_unref(settings);
-  
+
   GST_DEBUG("  done");
 }
 
@@ -1291,7 +1300,7 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
     /* set initial value */
     g_object_get(self->priv->wire_pan,"panorama",&pan,NULL);
     gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->pan_popup_adj),(gdouble)pan);
-  
+
     /* show directly over mouse-pos */
     /* @todo: move it so that the knob is under the mouse */
     gtk_window_move(GTK_WINDOW(self->priv->pan_popup),xpos,ypos);
@@ -1335,10 +1344,10 @@ static gboolean bt_main_page_machines_add_machine(const BtMainPageMachines *self
   }
   g_object_unref(machine);
   g_free(uid);
-  
+
   g_object_unref(setup);
   g_object_unref(song);
-  
+
   return(err==NULL);
 }
 
@@ -1432,21 +1441,21 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
   BtWire *wire;
   GMatchInfo *match_info;
   gchar *s;
-  
+
   GST_INFO("undo/redo: [%s]",data);
   // parse data and apply action
   switch (bt_change_logger_match_method(change_logger_methods, data, &match_info)) {
     case METHOD_ADD_MACHINE: {
       gchar *mid,*pname;
       guint type;
-      
+
       s=g_match_info_fetch(match_info,1);type=atoi(s);g_free(s);
       mid=g_match_info_fetch(match_info,2);
       pname=g_match_info_fetch(match_info,3);
       g_match_info_free(match_info);
-      
+
       GST_DEBUG("-> [%d|%s|%s]",type,mid,pname);
-      
+
       g_object_get(self->priv->app,"song",&song,NULL);
       switch (type) {
         case 0:
@@ -1465,17 +1474,17 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
         g_object_unref(machine);
       }
       g_object_unref(song);
-      
+
       g_free(mid);
       g_free(pname);
       break;
     }
     case METHOD_REM_MACHINE: {
       gchar *mid;
-      
+
       mid=g_match_info_fetch(match_info,1);
       g_match_info_free(match_info);
-      
+
       GST_DEBUG("-> [%s]",mid);
 
       g_object_get(self->priv->app,"song",&song,NULL);
@@ -1487,24 +1496,57 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       }
       g_object_unref(setup);
       g_object_unref(song);
-      
+
       g_free(mid);
+      break;
+    }
+    case METHOD_SET_MACHINE_PROPERTY: {
+      gchar *mid,*key,*val;
+      GHashTable *properties;
+
+      mid=g_match_info_fetch(match_info,1);
+      key=g_match_info_fetch(match_info,2);
+      val=g_match_info_fetch(match_info,3);
+      g_match_info_free(match_info);
+
+      GST_DEBUG("-> [%s|%s|%s]",mid,key,val);
+
+      g_object_get(self->priv->app,"song",&song,NULL);
+      g_object_get(song,"setup",&setup,NULL);
+      if((machine=bt_setup_get_machine_by_id(setup, mid))) {
+        g_object_get(machine,"properties",&properties,NULL);
+        if(properties) {
+          // take ownership of the strings
+          g_hash_table_insert(properties,key,val);
+          /*
+          if(strncmp(key,"xpos",4)) {
+            self->priv->mouse_x=g_ascii_strtod(val,NULL)*MACHINE_VIEW_ZOOM_X;
+          } else if(strncmp(key,"ypos",4)) {
+            self->priv->mouse_y=g_ascii_strtod(val,NULL)*MACHINE_VIEW_ZOOM_Y;
+          }
+          */
+          key=val=NULL;
+          res=TRUE;
+        }
+        g_object_unref(machine);
+      }
+      g_free(mid);g_free(key);g_free(val);
       break;
     }
     case METHOD_ADD_WIRE: {
       gchar *smid,*dmid;
-      
+
       smid=g_match_info_fetch(match_info,1);
       dmid=g_match_info_fetch(match_info,2);
       g_match_info_free(match_info);
-      
+
       GST_DEBUG("-> [%s|%s]",smid,dmid);
-      
+
       g_object_get(self->priv->app,"song",&song,NULL);
       g_object_get(song,"setup",&setup,NULL);
       smachine=bt_setup_get_machine_by_id(setup, smid);
       dmachine=bt_setup_get_machine_by_id(setup, dmid);
-      
+
       if(smachine && dmachine) {
         GHashTable *properties;
         gdouble pos_xs,pos_ys,pos_xe,pos_ye;
@@ -1529,25 +1571,25 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       g_object_try_unref(dmachine);
       g_object_unref(setup);
       g_object_unref(song);
-      
+
       g_free(smid);
       g_free(dmid);
       break;
     }
     case METHOD_REM_WIRE: {
       gchar *smid,*dmid;
-      
+
       smid=g_match_info_fetch(match_info,1);
       dmid=g_match_info_fetch(match_info,2);
       g_match_info_free(match_info);
-      
+
       GST_DEBUG("-> [%s|%s]",smid,dmid);
-      
+
       g_object_get(self->priv->app,"song",&song,NULL);
       g_object_get(song,"setup",&setup,NULL);
       smachine=bt_setup_get_machine_by_id(setup, smid);
       dmachine=bt_setup_get_machine_by_id(setup, dmid);
-      
+
       if(smachine && dmachine) {
         if((wire=bt_setup_get_wire_by_machines(setup,smachine,dmachine))) {
           bt_setup_remove_wire(setup,wire);
@@ -1559,17 +1601,16 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       g_object_try_unref(dmachine);
       g_object_unref(setup);
       g_object_unref(song);
-      
+
       g_free(smid);
       g_free(dmid);
       break;
     }
     /* TODO:
-    - link/unlink machines
     - move machines
     - mute/solo/bypass
     - volume/panorama
-    - open/close machine,wire windows
+    - open/close machine/wire windows
     */
     default:
       GST_WARNING("unhandled undo/redo method: [%s]",data);
@@ -1591,7 +1632,7 @@ static void bt_main_page_machines_change_logger_interface_init(gpointer const g_
 static gboolean bt_main_page_machines_focus(GtkWidget *widget, GtkDirectionType direction) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(widget);
   BtMainWindow *main_window;
-  
+
   GST_DEBUG("focusing default widget");
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->canvas));
 
@@ -1643,7 +1684,7 @@ static void bt_main_page_machines_dispose(GObject *object) {
   //g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
   //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
-  
+
   g_object_unref(self->priv->change_log);
   g_object_unref(self->priv->app);
 
@@ -1680,7 +1721,7 @@ static void bt_main_page_machines_init(BtMainPageMachines *self) {
 
   // the cursor for dragging
   self->priv->drag_cursor=gdk_cursor_new(GDK_FLEUR);
-  
+
   self->priv->scroll_x=self->priv->scroll_y=0.5;
 
   // the undo/redo changelogger
@@ -1697,7 +1738,7 @@ static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
   gobject_class->get_property = bt_main_page_machines_get_property;
   gobject_class->dispose      = bt_main_page_machines_dispose;
   gobject_class->finalize     = bt_main_page_machines_finalize;
-  
+
   gtkwidget_class->focus      = bt_main_page_machines_focus;
 
   g_object_class_install_property(gobject_class,MAIN_PAGE_MACHINES_CANVAS,
