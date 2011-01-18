@@ -1,5 +1,13 @@
 2011-01-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-canvas-item.c:
+	  Whitespaces.
+
+	* src/ui/edit/main-page-machines.c:
+	  Make undo/redo for machine pos work.
+
+2011-01-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-machines-methods.h:
 	* src/ui/edit/main-page-machines.c:
 	* src/ui/edit/main-page-patterns.c:

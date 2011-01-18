@@ -487,7 +487,7 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
     pos_y=self->priv->mouse_y;
   }
 
-  GST_WARNING_OBJECT(machine,"adding machine at %lf x %lf, mouse is at %lf x %lf",
+  GST_DEBUG_OBJECT(machine,"adding machine at %lf x %lf, mouse is at %lf x %lf",
     pos_x,pos_y,self->priv->mouse_x,self->priv->mouse_y);
 
   // draw machine
@@ -523,8 +523,10 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
     redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 
-    /* FIXME: this need to be applied before on_machine_added() is called :/
-     * or we need to update things when the properties change
+    /* TODO: this need to be applied before on_machine_added() is called :/
+     * or we need to update things when the properties change (which we do now)
+     * - can we block the signals until a group is done?
+     *   - tricky, the group would need a list of {object,handler-id}
      */
     undo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"xpos"));
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
@@ -1531,20 +1533,33 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       val=g_match_info_fetch(match_info,3);
       g_match_info_free(match_info);
 
-      GST_WARNING("-> [%s|%s|%s]",mid,key,val);
+      GST_DEBUG("-> [%s|%s|%s]",mid,key,val);
 
       g_object_get(self->priv->app,"song",&song,NULL);
       g_object_get(song,"setup",&setup,NULL);
       if((machine=bt_setup_get_machine_by_id(setup, mid))) {
         g_object_get(machine,"properties",&properties,NULL);
         if(properties) {
+          BtMachineCanvasItem *item;
+          gdouble p;
+
           // take ownership of the strings
           g_hash_table_replace(properties,key,val);
-          GST_WARNING_OBJECT(machine,"properties[%s]=%s",key,val);
+          if(!strcmp(key,"xpos")) {
+            if((item=g_hash_table_lookup(self->priv->machines,machine))) {
+              p=(gdouble)(MACHINE_VIEW_ZOOM_X*g_ascii_strtod(val,NULL));
+              g_object_set(item,"x",p,NULL);
+            }
+          } else if(!strcmp(key,"ypos")) {
+            if((item=g_hash_table_lookup(self->priv->machines,machine))) {
+              p=(gdouble)(MACHINE_VIEW_ZOOM_Y*g_ascii_strtod(val,NULL));
+              g_object_set(item,"y",p,NULL);
+            }
+          }
           key=val=NULL;
           res=TRUE;
         } else {
-          GST_WARNING_OBJECT(machine,"no properties hashtable (yet)");
+          GST_WARNING_OBJECT(machine,"no properties hashtable");
         }
         g_object_unref(machine);
       }

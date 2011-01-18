@@ -128,7 +128,7 @@ struct _BtMachineCanvasItemPrivate {
   GnomeCanvasItem *output_meter, *input_meter;
   G_POINTER_ALIAS(GstElement *,output_level);
   G_POINTER_ALIAS(GstElement *,input_level);
-  
+
   GstClock *clock;
 
   /* cursor for moving */
@@ -143,7 +143,7 @@ struct _BtMachineCanvasItemPrivate {
 
   /* playback state */
   gboolean is_playing;
-  
+
   /* lock for multithreaded access */
   GMutex        *lock;
 };
@@ -351,11 +351,11 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
     GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
 
     // check if its our level-meter
-    if((level==self->priv->output_level) || 
+    if((level==self->priv->output_level) ||
       (level==self->priv->input_level)) {
       GstClockTime timestamp, duration;
       GstClockTime waittime=GST_CLOCK_TIME_NONE;
-  
+
       if(gst_structure_get_clock_time (structure, "running-time", &timestamp) &&
         gst_structure_get_clock_time (structure, "duration", &duration)) {
         /* wait for middle of buffer */
@@ -372,10 +372,10 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
         gconstpointer *params=g_new(gconstpointer,2);
         GstClockID clock_id;
         GstClockTime basetime=gst_element_get_base_time(level);
-  
+
         //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
         //  GST_TIME_ARGS(endtime),GST_TIME_ARGS(waittime));
-      
+
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
         g_mutex_lock(self->priv->lock);
@@ -408,12 +408,12 @@ static void on_machine_parent_changed(GstObject *object, GstObject *parent, gpoi
 static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   BtMachineState state;
-  
+
   g_object_get(machine,"state",&state,NULL);
   GST_INFO(" new state is %d",state);
-  
+
   update_machine_graphics(self);
-  
+
   switch(state) {
     case BT_MACHINE_STATE_NORMAL:
       if(self->priv->menu_item_mute && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute))) {
@@ -583,7 +583,7 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   gchar *msg=NULL,*id;
   gboolean has_patterns,is_connected,remove=FALSE;
   //BtWire *wire1,*wire2;
-  
+
   GST_INFO("context_menu delete event occurred for machine : %p",self->priv->machine);
 
   g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
@@ -612,7 +612,7 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
     }
   }
   //GST_DEBUG("is-connected %d, has-patterns %d",is_connected,has_patterns);
-  
+
   if((has_patterns || is_connected)) {
     g_object_get(self->priv->machine,"id",&id,NULL);
     msg=g_strdup_printf(_("Delete machine '%s'"),id);
@@ -622,7 +622,7 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
     // do not ask
     remove=TRUE;
   }
-  
+
   if(remove || bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no complete undo for this yet."))) {
     GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
     bt_main_page_machines_delete_machine(self->priv->main_page_machines, self->priv->machine);
@@ -868,7 +868,7 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
         GST_INFO("set the  machine %p,machine->ref_ct=%d for new canvas item",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
         g_object_set_qdata((GObject *)self->priv->machine,machine_canvas_item_quark,(gpointer)self);
         g_object_get(self->priv->machine,"properties",&self->priv->properties,"machine",&element,NULL);
-        
+
 #if GST_CHECK_VERSION(0,10,31)
         self->priv->help_uri=gst_element_factory_get_documentation_uri(gst_element_get_factory(element));
 #else
@@ -878,8 +878,8 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
           self->priv->help_uri=NULL;
 #endif
         gst_object_unref(element);
-        
-        
+
+
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
         g_signal_connect(self->priv->machine, "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);
@@ -948,7 +948,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   GST_DEBUG("machine: %p,ref_count %d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
-  
+
   g_signal_handlers_disconnect_matched(self->priv->machine,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
 
   g_object_get(self->priv->app,"song",&song,"bin",&bin,NULL);
@@ -962,7 +962,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   gst_object_unref(bin);
 
   GST_DEBUG("  signal disconected");
-  
+
   g_object_try_weak_unref(self->priv->output_level);
   g_object_try_weak_unref(self->priv->input_level);
   g_object_try_unref(self->priv->machine);
@@ -1080,7 +1080,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            NULL);
   //}
   g_free(id);
- 
+
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"properties-shown");
   if(prop && prop[0]=='1' && prop[1]=='\0') {
     self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->machine));
@@ -1233,9 +1233,9 @@ static void bt_machine_canvas_item_init(BtMachineCanvasItem *self) {
 
   // the cursor for dragging
   self->priv->drag_cursor=gdk_cursor_new(GDK_FLEUR);
-  
+
   self->priv->zoom=1.0;
-  
+
   self->priv->lock=g_mutex_new ();
 }
 
