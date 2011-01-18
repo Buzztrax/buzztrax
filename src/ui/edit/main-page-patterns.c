@@ -815,6 +815,8 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
     g_object_get(pattern,"id",&pid,"name",&pname,"length",&length,NULL);
     g_object_get(machine,"id",&mid,"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
 
+    bt_change_log_start_group(self->priv->change_log);
+
     undo_str = g_strdup_printf("add_pattern \"%s\",\"%s\",\"%s\",%lu",mid,pid,pname,length);
     redo_str = g_strdup_printf("rem_pattern \"%s\",\"%s\"",mid,pid);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
@@ -832,7 +834,6 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
     }
     bt_pattern_serialize_columns(pattern,0,end,data);
     str=data->str;
-    bt_change_log_start_group(self->priv->change_log);
     // log events
     for(node=machine->dst_wires;node;node=g_list_next(node)) {
       wire=(BtWire *)node->data;
@@ -874,8 +875,9 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
         }
       }
     }
-    bt_change_log_end_group(self->priv->change_log);
     g_string_free(data,TRUE);
+
+    bt_change_log_end_group(self->priv->change_log);
 
     g_free(mid);g_free(pid);g_free(pname);
   }

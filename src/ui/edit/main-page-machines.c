@@ -152,7 +152,7 @@ enum {
 static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("add_machine",12,"([0-9]),\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("rem_machine",12,"\"([a-zA-Z0-9 ]+)\"$"),
-  BT_CHANGE_LOGGER_METHOD("set_machine_property",21,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("set_machine_property",21,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9]+)\",\"(.+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_wire",9,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("rem_wire",9,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
   { NULL, }
@@ -168,7 +168,8 @@ static gboolean canvas_item_destroy(gpointer key,gpointer value,gpointer user_da
 //-- event handler helper
 
 // @todo: this method probably should go to BtMachine, but on the other hand it is GUI related
-void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
+gboolean machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
+  gboolean res=FALSE;
   gchar *prop;
 
   *pos_x=*pos_y=0.0;
@@ -178,6 +179,7 @@ void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gd
       *pos_x=MACHINE_VIEW_ZOOM_X*g_ascii_strtod(prop,NULL);
       // do not g_free(prop);
       //GST_DEBUG("  xpos: %+5.1f  %p=\"%s\"",*pos_x,prop,prop);
+      res=TRUE;
     }
     else GST_WARNING("no xpos property found");
     prop=(gchar *)g_hash_table_lookup(properties,"ypos");
@@ -185,10 +187,12 @@ void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gd
       *pos_y=MACHINE_VIEW_ZOOM_Y*g_ascii_strtod(prop,NULL);
       // do not g_free(prop);
       //GST_DEBUG("  ypos: %+5.1f  %p=\"%s\"",*pos_y,prop,prop);
+      res&=TRUE;
     }
     else GST_WARNING("no ypos property found");
   }
   else GST_WARNING("no properties supplied");
+  return(res);
 }
 
 /*
@@ -465,18 +469,29 @@ static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self)
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   GHashTable *properties;
+  gdouble pos_x,pos_y;
 
   GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 
   g_object_get(machine,"properties",&properties,NULL);
   if(properties) {
-    gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-    g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_x/MACHINE_VIEW_ZOOM_X))));
-    g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_y/MACHINE_VIEW_ZOOM_Y))));
+    if(!machine_view_get_machine_position(properties,&pos_x,&pos_y)) {
+      gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+      pos_x=self->priv->mouse_x;
+      pos_y=self->priv->mouse_y;
+      g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(pos_x/MACHINE_VIEW_ZOOM_X))));
+      g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(pos_y/MACHINE_VIEW_ZOOM_Y))));
+    }
+  } else {
+    pos_x=self->priv->mouse_x;
+    pos_y=self->priv->mouse_y;
   }
 
+  GST_WARNING_OBJECT(machine,"adding machine at %lf x %lf, mouse is at %lf x %lf",
+    pos_x,pos_y,self->priv->mouse_x,self->priv->mouse_y);
+
   // draw machine
-  machine_item_new(self,machine,self->priv->mouse_x,self->priv->mouse_y);
+  machine_item_new(self,machine,pos_x,pos_y);
 
   GST_INFO("... machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 }
@@ -502,15 +517,22 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
       type=1;
     g_object_get(machine,"id",&mid,"plugin-name",&pname,"properties",&properties,NULL);
 
+    bt_change_log_start_group(self->priv->change_log);
+
     undo_str = g_strdup_printf("add_machine %u,\"%s\",\"%s\"",type,mid,pname);
     redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 
+    /* FIXME: this need to be applied before on_machine_added() is called :/
+     * or we need to update things when the properties change
+     */
     undo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"xpos"));
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
     undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"ypos"));
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
     // TODO: more status (mute,solo,bypass)
+
+    bt_change_log_end_group(self->priv->change_log);
 
     g_free(mid);g_free(pname);
   }
@@ -1509,7 +1531,7 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       val=g_match_info_fetch(match_info,3);
       g_match_info_free(match_info);
 
-      GST_DEBUG("-> [%s|%s|%s]",mid,key,val);
+      GST_WARNING("-> [%s|%s|%s]",mid,key,val);
 
       g_object_get(self->priv->app,"song",&song,NULL);
       g_object_get(song,"setup",&setup,NULL);
@@ -1517,16 +1539,12 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
         g_object_get(machine,"properties",&properties,NULL);
         if(properties) {
           // take ownership of the strings
-          g_hash_table_insert(properties,key,val);
-          /*
-          if(strncmp(key,"xpos",4)) {
-            self->priv->mouse_x=g_ascii_strtod(val,NULL)*MACHINE_VIEW_ZOOM_X;
-          } else if(strncmp(key,"ypos",4)) {
-            self->priv->mouse_y=g_ascii_strtod(val,NULL)*MACHINE_VIEW_ZOOM_Y;
-          }
-          */
+          g_hash_table_replace(properties,key,val);
+          GST_WARNING_OBJECT(machine,"properties[%s]=%s",key,val);
           key=val=NULL;
           res=TRUE;
+        } else {
+          GST_WARNING_OBJECT(machine,"no properties hashtable (yet)");
         }
         g_object_unref(machine);
       }
