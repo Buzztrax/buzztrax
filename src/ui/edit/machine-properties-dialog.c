@@ -1948,6 +1948,13 @@ static void on_wire_removed(const BtSetup *setup,BtWire *wire,gpointer user_data
 
   // determine the right expander
   if((expander=g_hash_table_lookup(self->priv->group_to_object,wire))) {
+    GstObject *src;
+
+    // disconnect signal handlers
+    g_object_get(wire,"src",&src,NULL);
+    g_signal_handlers_disconnect_matched(src,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_machine_id_changed,expander);
+    g_object_unref(src);
+
     gtk_container_remove(GTK_CONTAINER(self->priv->param_group_box),GTK_WIDGET(expander));
     g_hash_table_remove(self->priv->group_to_object,wire);
     g_hash_table_remove(self->priv->param_groups,expander);
@@ -2318,12 +2325,12 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   // disconnect wire parameters
   if((wires=self->priv->machine->dst_wires)) {
     BtWire *wire;
-    GstObject *gain,*pan;
+    GstObject *src,*gain,*pan;
     GList *node;
 
     for(node=wires;node;node=g_list_next(node)) {
       wire=BT_WIRE(node->data);
-      g_object_get(wire,"gain",&gain,"pan",&pan,NULL);
+      g_object_get(wire,"src",&src,"gain",&gain,"pan",&pan,NULL);
       if(gain) {
         g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_float_range_property_notify,NULL);
         g_signal_handlers_disconnect_matched(gain,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
@@ -2334,6 +2341,8 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
         g_signal_handlers_disconnect_matched(pan,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
         gst_object_unref(pan);
       }
+      g_signal_handlers_disconnect_matched(src,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_machine_id_changed,g_hash_table_lookup(self->priv->group_to_object,wire));
+      g_object_unref(src);
     }
   }
   g_object_unref(machine);

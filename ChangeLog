@@ -1,6 +1,15 @@
 2011-01-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c:
+	  Disconnect the machine-id-changed handler.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Disconnect the wire-src-id-changed handler when the wire is removed
+	  or window is closed.
+
+2011-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
 	* src/ui/edit/machine-properties-dialog.c:
 	  Update titles and labels and machine name changes.
 
