@@ -70,7 +70,7 @@ G_DEFINE_TYPE (BtMachinePreferencesDialog, bt_machine_preferences_dialog, GTK_TY
 
 static void mark_song_as_changed(const BtMachinePreferencesDialog *self) {
   BtSong *song;
-  
+
   g_object_get(self->priv->app,"song",&song,NULL);
   bt_song_set_unsaved(song,TRUE);
   g_object_unref(song);
@@ -220,6 +220,16 @@ static void on_table_size_request(GtkWidget *widget,GtkRequisition *requisition,
   gtk_widget_set_size_request(parent,width,height + 2);
 }
 
+static void on_machine_id_changed(const BtMachine *machine,GParamSpec *arg,gpointer user_data) {
+  BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(user_data);
+  gchar *id,*title;
+
+  g_object_get((GObject *)machine,"id",&id,NULL);
+  title=g_strdup_printf(_("%s preferences"),id);
+  gtk_window_set_title(GTK_WINDOW(self),title);
+  g_free(id);g_free(title);
+}
+
 //-- helper methods
 
 static gboolean skip_property(GstElement *element,GParamSpec *pspec) {
@@ -237,9 +247,9 @@ static gboolean skip_property(GstElement *element,GParamSpec *pspec) {
   else if(pspec->owner_type==GSTBT_TYPE_CHILD_BIN) return(TRUE);
   else if(pspec->owner_type==GSTBT_TYPE_HELP) return(TRUE);
   else if(pspec->owner_type==GSTBT_TYPE_TEMPO) return(TRUE);
-  
+
   GST_INFO("property: %s, owner-type: %s",pspec->name,g_type_name(pspec->owner_type));
-  
+
   return(FALSE);
 }
 
@@ -247,7 +257,6 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
   BtMainWindow *main_window;
   GtkWidget *label,*widget1,*widget2,*table,*scrolled_window;
   GtkAdjustment *spin_adjustment;
-  gchar *id,*title;
   GdkPixbuf *window_icon=NULL;
   GstElement *machine;
   GParamSpec **properties,*property;
@@ -272,11 +281,9 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
   ////gtk_widget_set_size_request(GTK_WIDGET(self),300,200);
   //gtk_window_set_default_size(GTK_WINDOW(self),300,-1);
 
-  g_object_get(self->priv->machine,"id",&id,"machine",&machine,NULL);
+  g_object_get(self->priv->machine,"machine",&machine,NULL);
   // set dialog title
-  title=g_strdup_printf(_("%s preferences"),id);
-  gtk_window_set_title(GTK_WINDOW(self),title);
-  g_free(id);g_free(title);
+  on_machine_id_changed(self->priv->machine,NULL,(gpointer)self);
 
   // get machine properties
   if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machine)),&number_of_properties))) {
@@ -551,6 +558,9 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
     gtk_container_add(GTK_CONTAINER(self),gtk_label_new(_("machine has no preferences")));
   }
 
+  // track machine name (keep window title up-to-date)
+  g_signal_connect(self->priv->machine,"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)self);
+
   g_object_unref(machine);
   g_object_unref(main_window);
 }
@@ -623,7 +633,7 @@ static void bt_machine_preferences_dialog_init(BtMachinePreferencesDialog *self)
 
 static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  
+
   widget_parent_quark=g_quark_from_static_string("BtMachinePreferencesDialog::widget-parent");
 
   g_type_class_add_private(klass,sizeof(BtMachinePreferencesDialogPrivate));
