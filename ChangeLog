@@ -1,3 +1,9 @@
+2011-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/midi-device.c:
+	  Improve midi command parsing. Add defines. Remove testing leftovers.
+	  Add support for pitch-wheel and continous control events.
+
 2011-01-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c:

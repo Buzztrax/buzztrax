@@ -56,6 +56,7 @@ struct _BtIcMidiDevicePrivate {
   /* learn-mode members */
   gboolean learn_mode;
   gulong learn_key;
+  guint learn_bits;
   gchar *control_change;
 
   /* type|code -> control lookup */
@@ -69,7 +70,23 @@ static void btic_midi_device_interface_init(gpointer const g_iface, gpointer con
 G_DEFINE_TYPE_WITH_CODE (BtIcMidiDevice, btic_midi_device, BTIC_TYPE_DEVICE,
   G_IMPLEMENT_INTERFACE (BTIC_TYPE_LEARN, btic_midi_device_interface_init));
 
+//-- defines
+
+#define MIDI_CMD_MASK           0xf0
+#define MIDI_CH_MASK            0x0f
+#define MIDI_CONTROL_CHANGE     0xb0
+#define MIDI_PITCH_WHEEL_CHANGE 0xe0
+
 //-- helper
+
+static void update_learn_info(BtIcMidiDevice *self,gchar *name,gulong key,guint bits) {
+
+  if(self->priv->learn_key!=key) {
+    self->priv->learn_key=key;
+    self->priv->learn_bits=bits;
+    g_object_set(self,"device-controlchange",name,NULL);
+  }
+}
 
 //-- handler
 
@@ -78,7 +95,8 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
   BtIcControl *control;
   GError *error=NULL;
   gsize bytes_read;
-  guchar midi_event[3];
+  guchar midi_event[3],cmd;
+  static guchar prev_cmd=0;
   gulong key;
   gboolean res=TRUE;
 
@@ -90,34 +108,68 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
       //res=FALSE;
     }
     else {
-      //GST_DEBUG( "midi event: %2x %2x %2x", midi_event[0], midi_event[1], midi_event[2] );
-      if( midi_event[0] == 0xb0 ) { // control event
-        g_io_channel_read_chars(self->priv->io_channel, (gchar *)&midi_event[1], 2, &bytes_read, &error);
-        if(error) {
-          GST_WARNING("iochannel error when reading: %s",error->message);
-          g_error_free(error);
-          //res=FALSE;
-        }
-        else {
-          GST_DEBUG( "midi event: %02x %02x %02x", midi_event[0], midi_event[1], midi_event[2] );
+      gint have_read=0;
+      guchar *midi_data=&midi_event[1];
 
-          key=(gulong)midi_event[1];
+      GST_LOG("command: %02x",midi_event[0]);
+      cmd=midi_event[0]&MIDI_CMD_MASK;
+      if (cmd<0x80 && prev_cmd) {
+        have_read=1;
+        midi_event[1]=midi_event[0];
+        midi_event[0]=prev_cmd;
+        midi_data=&midi_event[2];
+        cmd=prev_cmd&MIDI_CMD_MASK;
+      }
+      // http://www.midi.org/techspecs/midimessages.php
+      // http://www.cs.cf.ac.uk/Dave/Multimedia/node158.html
+      switch(cmd) {
+        case MIDI_CONTROL_CHANGE:
+          g_io_channel_read_chars(self->priv->io_channel,(gchar *) midi_data, 2-have_read, &bytes_read, &error);
+          if(error) {
+            GST_WARNING("iochannel error when reading: %s",error->message);
+            g_error_free(error);
+          }
+          else {
+            GST_DEBUG("control-change: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
 
-          if( self->priv->learn_mode == TRUE ) {
-            if(self->priv->learn_key!=key) {
-              gchar control_change_string[18];
+            key=(gulong)midi_event[1]; // 0-119 (normal controls), 120-127 (channel mode message)
+            if(G_UNLIKELY(self->priv->learn_mode)) {
+              static gchar name[20];
 
-              sprintf( control_change_string, "midi-control %ld", key );
-              self->priv->learn_key=key;
-              g_object_set(self,"device-controlchange",control_change_string,NULL);
+              sprintf(name,"control-change %lu",key);
+              update_learn_info(self,name,key,7);
             }
+            if((control=(BtIcControl *)g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(key)))) {
+              g_object_set(control,"value",(gint32)(midi_event[2]),NULL);
+            }
+            prev_cmd=midi_event[0];
           }
-
-          if((control=(BtIcControl *)g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(key)))) {
-            g_object_set(control,"value",midi_event[2],NULL);
-
+          break;
+        case MIDI_PITCH_WHEEL_CHANGE:
+          g_io_channel_read_chars(self->priv->io_channel, (gchar *)midi_data, 2-have_read, &bytes_read, &error);
+          if(error) {
+            GST_WARNING("iochannel error when reading: %s",error->message);
+            g_error_free(error);
           }
-        }
+          else {
+            GST_DEBUG("pitch-wheel-change: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
+
+            key=128;
+            if(G_UNLIKELY(self->priv->learn_mode)) {
+              update_learn_info(self,"pitch-wheel-change",key,14);
+            }
+            if((control=(BtIcControl *)g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(key)))) {
+              gint32 v=(((gint32)midi_event[2])<<7)|(midi_event[1]);
+
+              GST_WARNING("pitch-wheel-change: %lu, 0x%lx",v,v);
+              g_object_set(control,"value",v,NULL);
+            }
+            prev_cmd=midi_event[0];
+          }
+          break;
+        default:
+          GST_LOG("unhandled message: %02x",midi_event[0]);
+          break;
       }
     }
   }
@@ -171,16 +223,6 @@ static gboolean btic_midi_device_start(gconstpointer _self) {
     self->priv->io_channel=NULL;
     return(FALSE);
   }
-/*  g_io_channel_set_flags(self->priv->io_channel,
-			 g_io_channel_get_flags(self->priv->io_channel)|G_IO_FLAG_NONBLOCK,
-			 &error);
-  if(error) {
-    GST_WARNING("iochannel error for settin to non-blocking read: %s",error->message);
-    g_error_free(error);
-    g_io_channel_unref(self->priv->io_channel);
-    self->priv->io_channel=NULL;
-    return(FALSE);
-    }*/
   self->priv->io_source=g_io_add_watch_full(self->priv->io_channel,
         G_PRIORITY_LOW,
         G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,
@@ -233,7 +275,7 @@ static BtIcControl* btic_midi_device_register_learned_control(gconstpointer _sel
   GST_INFO("registering midi control as %s", name);
 
   if(!g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key))) {
-    control = btic_abs_range_control_new(BTIC_DEVICE(self),name, 0, 127, 0);
+    control = btic_abs_range_control_new(BTIC_DEVICE(self),name, 0, (1<<self->priv->learn_bits)-1, 0);
     g_hash_table_insert(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key),(gpointer)control);
   }
 
