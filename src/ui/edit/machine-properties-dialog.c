@@ -76,6 +76,10 @@ struct _BtMachinePropertiesDialogPrivate {
 
   /* expander to param group */
   GHashTable *param_groups;
+
+  /* context menus */
+  GtkMenu *group_menu;
+  GtkMenu *param_menu[2]; // we have two controller types
 };
 
 static GQuark widget_label_quark=0;
@@ -684,8 +688,47 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       pi=GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(widget),widget_param_num_quark));
 
       // create context menu
-      // @todo: do we leak that menu here?
-      menu=GTK_MENU(bt_interaction_controller_menu_new(type));
+      if(!self->priv->param_menu[type]) {
+        self->priv->param_menu[type]=menu=GTK_MENU(g_object_ref_sink(bt_interaction_controller_menu_new(type)));
+
+        // add extra items
+        menu_item=gtk_separator_menu_item_new();
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+        gtk_widget_show(menu_item);
+
+        menu_item=gtk_image_menu_item_new_with_label(_("Reset parameter"));
+        g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_reset),(gpointer)self);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+        gtk_widget_show(menu_item);
+
+        menu_item=gtk_image_menu_item_new_with_label(_("Reset all parameters"));
+        g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_reset_all),(gpointer)self);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+        gtk_widget_show(menu_item);
+
+        // add copy/paste item
+        menu_item=gtk_separator_menu_item_new();
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+        gtk_widget_show(menu_item);
+
+        // @todo: copy parameter/group/all?
+        menu_item=gtk_image_menu_item_new_with_label(_("Copy parameter"));
+        image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
+        gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+        g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_copy_single),(gpointer)self);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+        gtk_widget_show(menu_item);
+
+        menu_item=gtk_image_menu_item_new_with_label(_("Paste"));
+        image=gtk_image_new_from_stock(GTK_STOCK_PASTE,GTK_ICON_SIZE_MENU);
+        gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+        g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_paste),(gpointer)self);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+        gtk_widget_show(menu_item);
+      }
+      else {
+        menu=self->priv->param_menu[type];
+      }
       g_object_get(menu,"item-unbind",&item_unbind,"item-unbind-all",&item_unbind_all,NULL);
       g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
       g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
@@ -695,41 +738,6 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       g_signal_connect(menu,"notify::selected-control",G_CALLBACK(on_control_bind),(gpointer)self);
       g_signal_connect(item_unbind,"activate",G_CALLBACK(on_control_unbind),(gpointer)self);
       g_signal_connect(item_unbind_all,"activate",G_CALLBACK(on_control_unbind_all),(gpointer)self);
-
-      // add extra items
-      menu_item=gtk_separator_menu_item_new();
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);
-
-      menu_item=gtk_image_menu_item_new_with_label(_("Reset parameter"));
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_reset),(gpointer)self);
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);
-
-      menu_item=gtk_image_menu_item_new_with_label(_("Reset all parameters"));
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameter_reset_all),(gpointer)self);
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);
-
-      // add copy/paste item
-      menu_item=gtk_separator_menu_item_new();
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);
-
-      // @todo: copy parameter/group/all?
-      menu_item=gtk_image_menu_item_new_with_label(_("Copy parameter"));
-      image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
-      gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_copy_single),(gpointer)self);
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);
-
-      menu_item=gtk_image_menu_item_new_with_label(_("Paste"));
-      image=gtk_image_new_from_stock(GTK_STOCK_PASTE,GTK_ICON_SIZE_MENU);
-      gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_paste),(gpointer)self);
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);
 
       gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
       res=TRUE;
@@ -774,25 +782,29 @@ static gboolean on_group_button_press_event(GtkWidget *widget, GdkEventButton *e
 
       // create context menu
       // @todo: do we leak that menu here? - gtk_widget_destroy() afterwards?
-      menu=GTK_MENU(gtk_menu_new());
+      if(!self->priv->group_menu) {
+        self->priv->group_menu=menu=GTK_MENU(g_object_ref_sink(gtk_menu_new()));
+
+        // add copy/paste item
+        menu_item=gtk_image_menu_item_new_with_label(_("Copy group"));
+        image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
+        gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+        g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_copy_group),(gpointer)self);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+        gtk_widget_show(menu_item);
+
+        menu_item=gtk_image_menu_item_new_with_label(_("Paste"));
+        image=gtk_image_new_from_stock(GTK_STOCK_PASTE,GTK_ICON_SIZE_MENU);
+        gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+        g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_paste),(gpointer)self);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+        gtk_widget_show(menu_item);
+      }
+      else {
+        menu=self->priv->group_menu;
+      }
       g_object_set_qdata(G_OBJECT(menu),widget_param_group_quark,(gpointer)pg);
       g_object_set_qdata(G_OBJECT(menu),widget_param_num_quark,GINT_TO_POINTER(-1));
-
-      // add copy/paste item
-      menu_item=gtk_image_menu_item_new_with_label(_("Copy group"));
-      image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
-      gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_copy_group),(gpointer)self);
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);
-
-      menu_item=gtk_image_menu_item_new_with_label(_("Paste"));
-      image=gtk_image_new_from_stock(GTK_STOCK_PASTE,GTK_ICON_SIZE_MENU);
-      gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-      g_signal_connect(menu_item,"activate",G_CALLBACK(on_parameters_paste),(gpointer)self);
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);
-
       gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
       res=TRUE;
     }
@@ -2348,6 +2360,18 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   g_object_unref(machine);
   g_object_try_unref(setup);
   g_object_try_unref(song);
+
+  // get rid of context menus
+  if(self->priv->group_menu) {
+    gtk_widget_destroy(GTK_WIDGET(self->priv->group_menu));
+    g_object_unref(self->priv->group_menu);
+  }
+  for(j=0;j<2;j++) {
+    if(self->priv->param_menu[j]) {
+      gtk_widget_destroy(GTK_WIDGET(self->priv->param_menu[j]));
+      g_object_unref(self->priv->param_menu[j]);
+    }
+  }
 
   g_object_try_unref(self->priv->machine);
   g_object_unref(self->priv->app);
