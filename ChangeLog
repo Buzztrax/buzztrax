@@ -1,5 +1,10 @@
 2011-01-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-window.c:
+	  Tell how much time has passed since last save or creation time.
+
+2011-01-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/buzztard.xml.in:
 	  Remove the glob, as with this we steal the xml extension. The issue is that most
 	  cases don't do proper matching. As a result calling help from some apps, would

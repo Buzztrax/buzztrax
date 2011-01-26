@@ -260,30 +260,50 @@ static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer us
 
 static gchar* bt_main_window_make_unsaved_changes_message(const BtSong *song) {
   BtSongInfo *song_info;
-  gchar *msg,*dts,*file_name;
+  gchar *msg,*dts,*file_name,*since;
   gchar hdts[200];
   struct tm tm={0,};
-  time_t t;
+  time_t t,tn;
   gdouble td;
+  gint tds,tdm,tdh;
 
   g_object_get((GObject *)song,"song-info",&song_info,NULL);
   g_object_get(song_info,"change-dts",&dts,"file-name",&file_name,NULL);
 
   // figure UTC local tz offset
   t=time(NULL);
-  td=difftime(mktime(localtime(&t)),mktime(gmtime(&t)));
+  tn=mktime(localtime(&t));
+  td=difftime(tn,mktime(gmtime(&t)));
 
   // convert timestamp to human readable format (and local timezone)
   strptime(dts, "%FT%TZ", &tm);
   // need to apply td for UTC->localtime
   t=mktime(&tm)+(int)td;
   strftime(hdts,199,"%c",localtime(&t));
-  GST_LOG("'%s', td=%lf",dts,td);
-
+  GST_LOG("timezone delta: '%s', td=%lf",dts,td);
+  
+  // pretty print how much time passed since saved/created and now
+  td=difftime(tn,t);
+  GST_LOG("time passed since saved/created: td=%lf",td);
+  tdh=td/(60*60);
+  td-=tdh*(60*60);
+  tdm=td/60;
+  td-=tdm*60;
+  tds=(gint)td;
+  // unfortunately ngettext does not support multiple plural words in one sentence
+  if(tdh!=0) {
+    since=g_strdup_printf(_("%d %s and %d %s"),tdh,(tdh==1)?_("hour"):_("hours"),tdm,(tdm==1)?_("minute"):_("minutes"));
+  } else if(tdm!=0) {
+    since=g_strdup_printf(_("%d %s and %d %s"),tdm,(tdm==1)?_("minute"):_("minutes"),tds,(tds==1)?_("second"):_("seconds"));
+  } else {
+    since=g_strdup_printf(_("%d %s"),tds,(tds==1)?_("second"):_("seconds"));
+  }
+  
+  // arguments are the time passed as e.g. in " 5 seconds" and the last saved, created time
   if(file_name)
-    msg=g_strdup_printf(_("All unsaved changes will be lost. This song was last saved on: %s"), hdts);
+    msg=g_strdup_printf(_("All unsaved changes since %s will be lost. This song was last saved on: %s"),since,hdts);
   else
-    msg=g_strdup_printf(_("All unsaved changes will be lost. This song was created on: %s"), hdts);
+    msg=g_strdup_printf(_("All unsaved changes since %s will be lost. This song was created on: %s"),since,hdts);
 
   g_free(dts);
   g_free(file_name);
