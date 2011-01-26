@@ -25,7 +25,9 @@
  * Event handling for midi devices.
  */
 /*
- * use sysex to get device ids
+ * Linux MIDI-HOWTO: http://www.midi-howto.com/
+ *
+ * use sysex to get device ids (see _constructed)
  * http://www.borg.com/~jglatt/tech/midispec/identity.htm
  * http://en.wikipedia.org/wiki/MIDI_Machine_Control#Identity_Request
  *
@@ -76,6 +78,9 @@ G_DEFINE_TYPE_WITH_CODE (BtIcMidiDevice, btic_midi_device, BTIC_TYPE_DEVICE,
 #define MIDI_CH_MASK            0x0f
 #define MIDI_CONTROL_CHANGE     0xb0
 #define MIDI_PITCH_WHEEL_CHANGE 0xe0
+#define MIDI_SYS_EX_START       0xf0
+#define MIDI_SYS_EX_END         0xf7
+#define MIDI_NON_REALTIME       0x7e
 
 //-- helper
 
@@ -294,6 +299,49 @@ static void btic_midi_device_interface_init(gpointer const g_iface, gpointer con
 
 //-- class internals
 
+static void btic_midi_device_constructed(GObject *object) {
+  const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
+#if 0
+  gint io;
+#endif
+
+  if(G_OBJECT_CLASS(btic_midi_device_parent_class)->constructed)
+    G_OBJECT_CLASS(btic_midi_device_parent_class)->constructed(object);
+
+#if 0
+// we never receive anything back :/
+  if((io=open(self->priv->devnode,O_NONBLOCK|O_RDWR|O_SYNC))>0) {
+    gchar data[17]={0,};
+    gsize ct;
+
+    data[0]=MIDI_SYS_EX_START;
+    data[1]=MIDI_NON_REALTIME;
+    data[2]=0x7f; // SysEx channel, set to "disregard"
+    data[3]=0x06; // General Information
+    data[4]=0x01; // Identity Request
+    data[5]=MIDI_SYS_EX_END;
+    GST_INFO("send identity request to: %s",self->priv->devnode);
+    /*
+    for(ct=0;ct<6;ct++) {
+      write(io,&data[ct],1);
+      usleep(5000);
+    }
+    */
+    if((ct=write(io,data,6))<6)
+      goto done;
+    if((ct=read(io,data,17))<15)
+      goto done;
+    GST_MEMDUMP("reply",(guint8 *)data,15);
+    // 5:   manufacturer id (if 0, then id is next two bytes)
+    // 6,7: family code
+    // 8,9: model code
+    // 10,11,12,13: version number
+done:
+    close(io);
+  }
+#endif
+}
+
 /* returns a property for the given property_id for this object */
 static void btic_midi_device_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
@@ -367,6 +415,7 @@ static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {
 
   g_type_class_add_private(klass,sizeof(BtIcMidiDevicePrivate));
 
+  gobject_class->constructed  = btic_midi_device_constructed;
   gobject_class->set_property = btic_midi_device_set_property;
   gobject_class->get_property = btic_midi_device_get_property;
   gobject_class->dispose      = btic_midi_device_dispose;

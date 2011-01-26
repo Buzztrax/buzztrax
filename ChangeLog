@@ -1,5 +1,11 @@
 2011-01-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/ic/ic_private.h:
+	* src/lib/ic/midi-device.c:
+	  Add an attempt to send a midi identity request.
+
+2011-01-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Collect news.
 

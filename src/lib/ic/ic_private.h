@@ -34,6 +34,7 @@
 #include <string.h>
 //#define _XOPEN_SOURCE /* glibc2 needs this */
 #define __USE_XOPEN
+#include <fcntl.h>
 #include <time.h>
 #include <unistd.h>
 //-- locale
