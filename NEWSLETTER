@@ -3,8 +3,11 @@ svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 2011/01 ========================================================================
 
 * improve the song-recovery workflow
+* almost 100% undo/redo/journaling in machine and pattern view
 * make preferences in machines work (fluidsynth patches)
-* code cleanups
+* code cleanups (enums)
+* midi controller improvements (pitchwheel, continous controllers)
+* better unsaved changes warnings (time passed since last saved/created)
 
 Quite several times already I had to deal with a dialog containing a treeview
 showing a list of items. Giving such a dialog a nice good initial size is tricky.
@@ -29,7 +32,11 @@ that is quite simple:
     gtk_widget_set_size_request(gtk_widget_get_parent(widget),-1,height);
   }
 
-
+Another thing in gtk that I wonder if it has a better solution is the diposal of
+popup-menus. The problem is that gtk_menu_popup is not taking ownership of the
+menu, but there seems to be now event when the menu is done, so that one can
+unref it. The only solution I can see is the pre-create the menu and ref-sink
+it. When the entity that owns it is disposed it can destroy and unref it. 
 
 2010/12 ========================================================================
 

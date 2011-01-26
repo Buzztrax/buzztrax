@@ -1,5 +1,10 @@
 2011-01-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Collect news.
+
+2011-01-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	  Tell how much time has passed since last save or creation time.
 
@@ -70,7 +75,7 @@
 2011-01-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/dec/bt-dec.c:
-	  Improve typefinding and caps. We're now putting the mimefype into a
+	  Improve typefinding and caps. We're now putting the mimetype into a
 	  format field of the container caps.
 
 2011-01-16  Stefan Kost  <ensonic@users.sf.net>
