@@ -28,13 +28,14 @@
 /* @todo: multiselect
  * - when clicking on the background
  *   - remove old selection if any
- *   - start new selection (transparent rect)
+ *   - start new selection (semi-transparent rect)
  * - have context menu on the selection
  *   - delete
  *   - mute/solo/bypass ?
  * - move machines when moving the selection
- *
- * @todo: move functions in context menu
+ * - selected machines have a glowing border (would need another set of images)
+ */
+/* @todo: move functions in context menu
  * - machines
  *   - clone machine (no patterns)
  *   - remove & relink (remove machine and relink wires)
@@ -46,16 +47,8 @@
  * - wires
  *   - insert machine (like menu on canvas)
  *     - what to do with wire-patterns?
- *
- * @todo: click in the background to pan canvas around
- *
- * @todo: undo/redo/journaling:
- * - methods
- *   - main_page_machines.add_machine(machine_id,...)
- *   - main_page_machines.add_wire(src_machine_id,dst_machine_id)
- * - we should have methods to add/rem machines here and call:
- *   - _add() from machine-menu.c::on_{source,processor}_machine_add_activated()
- *   - _rem() from machine-canvas-item.c::on_context_menu_delete_activate()
+ */
+/* @todo: click in the background to pan canvas around
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
@@ -510,6 +503,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
     gchar *undo_str,*redo_str;
     gchar *mid,*pname;
     guint type=0;
+    BtMachineState machine_state;
 
     if(BT_IS_SOURCE_MACHINE(machine))
       type=0;
@@ -532,7 +526,15 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
     undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"ypos"));
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
-    // TODO: more status (mute,solo,bypass)
+
+    g_object_get(machine,"state",&machine_state,NULL);
+    if(machine_state!=BT_MACHINE_STATE_NORMAL) {
+      GEnumClass *enum_class=g_type_class_peek_static(BT_TYPE_MACHINE_STATE);
+      GEnumValue *enum_value=g_enum_get_value(enum_class,machine_state);
+      undo_str = g_strdup_printf("set_machine_property \"%s\",\"state\",\"%s\"",mid,enum_value->value_nick);
+      bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+    }
+    // TODO: more status (open/close machine windows, machine parameters)
 
     bt_change_log_end_group(self->priv->change_log);
 
@@ -1538,29 +1540,37 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       g_object_get(self->priv->app,"song",&song,NULL);
       g_object_get(song,"setup",&setup,NULL);
       if((machine=bt_setup_get_machine_by_id(setup, mid))) {
-        g_object_get(machine,"properties",&properties,NULL);
-        if(properties) {
-          BtMachineCanvasItem *item;
-          gdouble p;
+        BtMachineCanvasItem *item;
+        gdouble p;
+        gboolean is_prop=FALSE;
 
+        g_object_get(machine,"properties",&properties,NULL);
+
+        if(!strcmp(key,"xpos")) {
+          if((item=g_hash_table_lookup(self->priv->machines,machine))) {
+            p=(gdouble)(MACHINE_VIEW_ZOOM_X*g_ascii_strtod(val,NULL));
+            g_object_set(item,"x",p,NULL);
+          }
+          is_prop=TRUE;
+        } else if(!strcmp(key,"ypos")) {
+          if((item=g_hash_table_lookup(self->priv->machines,machine))) {
+            p=(gdouble)(MACHINE_VIEW_ZOOM_Y*g_ascii_strtod(val,NULL));
+            g_object_set(item,"y",p,NULL);
+          }
+          is_prop=TRUE;
+        } else if(!strcmp(key,"state")) {
+          GEnumClass *enum_class=g_type_class_peek_static(BT_TYPE_MACHINE_STATE);
+          GEnumValue *enum_value=g_enum_get_value_by_nick(enum_class,val);
+          if(enum_value) {
+            g_object_set(machine,"state",enum_value->value,NULL);
+          }
+        }
+        if(is_prop && properties) {
           // take ownership of the strings
           g_hash_table_replace(properties,key,val);
-          if(!strcmp(key,"xpos")) {
-            if((item=g_hash_table_lookup(self->priv->machines,machine))) {
-              p=(gdouble)(MACHINE_VIEW_ZOOM_X*g_ascii_strtod(val,NULL));
-              g_object_set(item,"x",p,NULL);
-            }
-          } else if(!strcmp(key,"ypos")) {
-            if((item=g_hash_table_lookup(self->priv->machines,machine))) {
-              p=(gdouble)(MACHINE_VIEW_ZOOM_Y*g_ascii_strtod(val,NULL));
-              g_object_set(item,"y",p,NULL);
-            }
-          }
           key=val=NULL;
-          res=TRUE;
-        } else {
-          GST_WARNING_OBJECT(machine,"no properties hashtable");
         }
+        res=TRUE;
         g_object_unref(machine);
       }
       g_free(mid);g_free(key);g_free(val);
@@ -1640,8 +1650,7 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       break;
     }
     /* TODO:
-    - move machines
-    - mute/solo/bypass
+    - machine parameters
     - volume/panorama
     - open/close machine/wire windows
     */

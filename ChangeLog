@@ -1,5 +1,10 @@
 2011-01-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Implement undo/redo for machine:state. Update TODOs.
+
+2011-01-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/midi-device.c:
 	  Fix leftover unused var.
 
