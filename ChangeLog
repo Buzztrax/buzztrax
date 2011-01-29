@@ -1,3 +1,8 @@
+2011-01-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/midi-device.c:
+	  Fix leftover unused var.
+
 2011-01-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/ic_private.h:

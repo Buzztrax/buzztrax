@@ -300,8 +300,8 @@ static void btic_midi_device_interface_init(gpointer const g_iface, gpointer con
 //-- class internals
 
 static void btic_midi_device_constructed(GObject *object) {
-  const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
 #if 0
+  const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
   gint io;
 #endif
 
