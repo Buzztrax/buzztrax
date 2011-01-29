@@ -278,7 +278,7 @@ static void undo_change_log_entry(BtChangeLogEntry *cle) {
       BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
       guint i;
 
-      // recurse
+      // recurse, apply from start to end of group
       for(i=0;i<cleg->changes->len;i++) {
         undo_change_log_entry(g_ptr_array_index(cleg->changes,i));
       }
@@ -300,7 +300,7 @@ static void redo_change_log_entry(BtChangeLogEntry *cle) {
       BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
       gint i;
 
-      // recurse
+      // recurse, apply from end to start of group
       for(i=cleg->changes->len-1;i>=0;i--) {
         redo_change_log_entry(g_ptr_array_index(cleg->changes,i));
       }
@@ -696,6 +696,11 @@ void bt_change_log_register(BtChangeLog *self,BtChangeLogger *logger) {
 void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data) {
   // owners are the editor objects where the change was made
   if(self->priv->log_file) {
+    /* FIXME: if we are in a group we need flip the group order
+     * - writing to separate files and folding them in is tricky
+     * - a partal group might not be restoreable
+     *   - this we would log the whole group when closing it
+     */
     fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
     // @idea: should we fdatasync(fileno(self->priv->log_file)); from time to time
   }

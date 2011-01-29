@@ -517,11 +517,6 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
     redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 
-    /* TODO: this need to be applied before on_machine_added() is called :/
-     * or we need to update things when the properties change (which we do now)
-     * - can we block the signals until a group is done?
-     *   - tricky, the group would need a list of {object,handler-id}
-     */
     undo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"xpos"));
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
     undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"ypos"));
