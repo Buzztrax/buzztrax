@@ -1,5 +1,10 @@
 2011-01-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/crash-recover-dialog.c:
+	  Also show a dialog when recovery failed.
+
+2011-01-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-machines.c:
 	  Add more TODO comments.
 

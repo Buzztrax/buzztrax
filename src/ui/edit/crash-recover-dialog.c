@@ -69,7 +69,7 @@ enum {
 struct _BtCrashRecoverDialogPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   GList *entries;
   GtkTreeView *entries_list;
 
@@ -125,11 +125,11 @@ static void on_list_size_request(GtkWidget *widget,GtkRequisition *requisition,g
   gtk_widget_set_size_request(gtk_widget_get_parent(widget),-1,height);
 }
 
-
 static void on_recover_clicked(GtkButton *button, gpointer user_data) {
   BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
   gchar *log_name=get_selected(self);
   gboolean res=FALSE;
+  BtMainWindow *main_window;
 
   if(log_name) {
     BtChangeLog *change_log=bt_change_log_new();
@@ -142,22 +142,31 @@ static void on_recover_clicked(GtkButton *button, gpointer user_data) {
     g_free(log_name);
     g_object_try_unref(change_log);
   }
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  /* close the recovery dialog */
+  gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_CLOSE);
   if(res) {
-    BtMainWindow *main_window;
-    gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_CLOSE);
-    g_object_get(self->priv->app,"main-window",&main_window,NULL);
     bt_dialog_message(main_window,_("Recovery finished"),
-      _("Song has been recovered sucessful."),
-      _("Please check the song and save if everything is alright.")
+      _("The selected song has been recovered sucessful."),
+      _("Please check the song and save it if everything is alright.")
     );
-    g_object_unref(main_window);
+  } else {
+    /* FIXME: the log is still there
+     * - this dialog should be a warning
+     * - ev. we want to suggest to ask for support
+     */
+    bt_dialog_message(main_window,_("Recovery failed"),
+      _("Sorry, the selected song could not be fully recovered."),
+      _("Please check the song and save it if still looks good.")
+    );
   }
+  g_object_unref(main_window);
 }
 
 static void on_delete_clicked(GtkButton *button, gpointer user_data) {
   BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
   gchar *log_name=get_selected(self);
-    
+
   if(log_name) {
     g_remove(log_name);
     remove_selected(self);
@@ -192,10 +201,10 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
   // content area
   hbox=gtk_hbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(hbox),6);
-  
+
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
   gtk_box_pack_start(GTK_BOX(hbox),icon,FALSE,FALSE,0);
-  
+
   vbox=gtk_vbox_new(FALSE,6);
   str=g_strdup_printf("<big><b>%s</b></big>\n",_("Previous unfinished sessions found"));
   label=g_object_new(GTK_TYPE_LABEL,"use-markup",TRUE,"label",str,NULL);
@@ -236,17 +245,17 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
   }
   gtk_tree_view_set_model(self->priv->entries_list,GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
- 
+
   entries_view = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(entries_view), GTK_SHADOW_IN);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(entries_view), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_container_add(GTK_CONTAINER(entries_view),GTK_WIDGET(self->priv->entries_list));
-  
+
   gtk_box_pack_start(GTK_BOX(vbox),entries_view,TRUE,TRUE,0);
 
   gtk_box_pack_start(GTK_BOX(hbox),vbox,TRUE,TRUE,0);
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(self))),hbox,TRUE,TRUE,0);
-  
+
   // add "undelete" button to action area
   // GTK_STOCK_REVERT_TO_SAVED
   btn=gtk_button_new_from_stock(GTK_STOCK_UNDELETE);
@@ -302,7 +311,7 @@ static void bt_crash_recover_dialog_dispose(GObject *object) {
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
-  
+
   GST_DEBUG("!!!! self=%p",self);
   g_object_unref(self->priv->app);
 
