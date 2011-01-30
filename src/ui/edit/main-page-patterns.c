@@ -3342,6 +3342,8 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       GST_DEBUG("-> [%s|%s]",mid,pid);
       lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
       bt_machine_remove_pattern(machine,pattern);
+      res=TRUE;
+
       change_current_pattern(self,NULL);
       pattern_menu_refresh(self,machine);
       context_menu_refresh(self,machine);

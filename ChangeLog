@@ -1,5 +1,10 @@
 2011-01-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Add a missing return value.
+
+2011-01-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/change-log.c:
 	  Write the groups in reverse order to journal.
 
