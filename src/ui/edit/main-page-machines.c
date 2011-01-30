@@ -50,6 +50,10 @@
  */
 /* @todo: click in the background to pan canvas around
  */
+/* @todo: undo/redo
+ * - we need to log changes in xpos/ypos or status all the time to be able to recover
+ *   after a crash, this way we don't need to save these when removing a machine
+ */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
 
