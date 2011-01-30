@@ -232,6 +232,36 @@ static void free_change_log_entry(BtChangeLogEntry *cle) {
   }
 }
 
+static void log_change_log_entry(BtChangeLog *self,BtChangeLogEntry *cle) {
+  if(!self->priv->log_file)
+    return;
+
+  switch(cle->type) {
+    case CHANGE_LOG_ENTRY_SINGLE: {
+      BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
+
+      GST_DEBUG("logging change %p",cle);
+      // owners are the editor objects where the change was made
+      fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(cles->owner),cles->redo_data);
+      // @idea: should we fdatasync(fileno(self->priv->log_file)); from time to time
+      break;
+    }
+    case CHANGE_LOG_ENTRY_GROUP: {
+      BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
+      gint i;
+
+      GST_DEBUG("logging group %p",cle);
+      // recurse, apply from end to start of group
+      for(i=cleg->changes->len-1;i>=0;i--) {
+        log_change_log_entry(self,g_ptr_array_index(cleg->changes,i));
+      }
+      break;
+    }
+    default:
+      g_assert_not_reached();
+  }
+}
+
 static void add_change_log_entry(BtChangeLog *self,BtChangeLogEntry *cle) {
   // only on top-level group
   if(self->priv->cur_group==NULL) {
@@ -276,7 +306,7 @@ static void undo_change_log_entry(BtChangeLogEntry *cle) {
     }
     case CHANGE_LOG_ENTRY_GROUP: {
       BtChangeLogEntryGroup *cleg=(BtChangeLogEntryGroup*)cle;
-      guint i;
+      gint i;
 
       // recurse, apply from start to end of group
       for(i=0;i<cleg->changes->len;i++) {
@@ -694,16 +724,6 @@ void bt_change_log_register(BtChangeLog *self,BtChangeLogger *logger) {
  * The change-log takes ownership of  @undo_data and @redo_data.
  */
 void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data) {
-  // owners are the editor objects where the change was made
-  if(self->priv->log_file) {
-    /* FIXME: if we are in a group we need flip the group order
-     * - writing to separate files and folding them in is tricky
-     * - a partal group might not be restoreable
-     *   - this we would log the whole group when closing it
-     */
-    fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(owner),redo_data);
-    // @idea: should we fdatasync(fileno(self->priv->log_file)); from time to time
-  }
   if(self->priv->changes) {
     BtChangeLogEntrySingle *cle;
 
@@ -715,6 +735,10 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
     cle->redo_data=redo_data;
     GST_INFO("add %d[%s], %d[%s]",self->priv->next_undo,undo_data,self->priv->next_redo,redo_data);
     add_change_log_entry(self,(BtChangeLogEntry*)cle);
+    if(self->priv->cur_group==NULL) {
+      // log ungrouped changes immediately
+      log_change_log_entry(self,(BtChangeLogEntry*)cle);
+    }
   }
 }
 
@@ -755,6 +779,11 @@ void bt_change_log_end_group(BtChangeLog *self) {
     BtChangeLogEntryGroup *cle=self->priv->cur_group;
 
     if(cle) {
+      // when we finished a top-level group, log the content to the journal
+      if(cle->old_group==NULL) {
+        GST_DEBUG("closing a top-level group %p, logging changes",cle);
+        log_change_log_entry(self,(BtChangeLogEntry*)cle);
+      }
       self->priv->cur_group=cle->old_group;
     }
   }
