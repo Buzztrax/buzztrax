@@ -1,5 +1,13 @@
 2011-01-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Simplify the handling of the machine position updates. It now updates
+	  according to the machine position while moving and only updates the
+	  machine properties hash when releasing the mouse.
+
+2011-01-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/change-log.c:
 	  Improve the API docs. Update TODO comments. Cleanup on sucessful
 	  recovery.

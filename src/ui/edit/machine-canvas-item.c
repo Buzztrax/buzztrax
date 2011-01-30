@@ -1144,14 +1144,6 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         dx=event->button.x-self->priv->dragx;
         dy=event->button.y-self->priv->dragy;
         gnome_canvas_item_move(citem, dx, dy);
-        // change position properties of the machines
-        g_object_get(citem,"x",&px,"y",&py,NULL);
-        //GST_DEBUG("GDK_MOTION_NOTIFY: pre  %+5.1f,%+5.1f",px,py);
-        px/=MACHINE_VIEW_ZOOM_X;
-        py/=MACHINE_VIEW_ZOOM_Y;
-        //GST_DEBUG("GDK_MOTION_NOTIFY: %+5.1f,%+5.1f -> %+5.1f,%+5.1f",event->button.x,event->button.y,px,py);
-        g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,px)));
-        g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,py)));
         g_signal_emit(citem,signals[POSITION_CHANGED],0);
         self->priv->dragx=event->button.x;
         self->priv->dragy=event->button.y;
@@ -1164,6 +1156,13 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       if(self->priv->dragging) {
         self->priv->dragging=FALSE;
         if(self->priv->moved) {
+          // change position properties of the machines
+          g_object_get(citem,"x",&px,"y",&py,NULL);
+          px/=MACHINE_VIEW_ZOOM_X;
+          py/=MACHINE_VIEW_ZOOM_Y;
+          g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,px)));
+          g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,py)));
+          g_signal_emit(citem,signals[POSITION_CHANGED],0);
           gnome_canvas_item_ungrab(citem,event->button.time);
           update_machine_graphics(self);
         }
@@ -1260,7 +1259,8 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
    * BtMachineCanvasItem::position-changed
    * @self: the machine-canvas-item object that emitted the signal
    *
-   * signals that item has been moved around.
+   * Signals that item has been moved around. The new position can be read from
+   * the canvas item.
    */
   signals[POSITION_CHANGED] = g_signal_new("position-changed",
                                         G_TYPE_FROM_CLASS(klass),

@@ -104,7 +104,7 @@ G_DEFINE_TYPE (BtWireCanvasItem, bt_wire_canvas_item, GNOME_TYPE_CANVAS_GROUP);
 
 static void wire_set_line_points(BtWireCanvasItem *self) {
   GnomeCanvasPoints *points;
- 
+
   points=gnome_canvas_points_new(2);
   points->coords[0]=0.0;
   points->coords[1]=0.0;
@@ -151,7 +151,7 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
     dx=dy=0.0;
     //df=0.0;
   }
-  
+
   // first triangle
   part_x=mid_x+(s2*dx);
   part_y=mid_y+(s2*dy);
@@ -169,7 +169,7 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
   // point over the line
   base12_x=base_x+(sb*dy);
   base12_y=base_y-(sb*dx);
-  
+
   // second triangle
   part_x=mid_x-(s2*dx);
   part_y=mid_y-(s2*dy);
@@ -184,7 +184,7 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
   // point over the line
   base22_x=base_x+(sb*dy);
   base22_y=base_y-(sb*dx);
-  
+
   /* // debug
   GST_DEBUG(" delta=%f,%f, s=%f, sa=%f sb=%f",dx,dy,s,sa,sb);
   GST_DEBUG(" w/h=%f,%f",w,h);
@@ -201,14 +201,14 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
   points->coords[3]=tip1_y;
   points->coords[4]=base12_x;
   points->coords[5]=base12_y;
-  
+
   points->coords[6]=base22_x;
   points->coords[7]=base22_y;
   points->coords[8]=base21_x;
   points->coords[9]=base21_y;
   gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->triangle),"points",points,NULL);
   gnome_canvas_points_free(points);
-  
+
   gdouble ang=-M_PI_2+atan2(dx,dy);
   gdouble affine[]={cos(ang),-sin(ang),sin(ang),cos(ang),0.0,0.0};
   gnome_canvas_item_affine_absolute(GNOME_CANVAS_ITEM(self->priv->vol_item),affine);
@@ -258,31 +258,32 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_object_try_unref(dst);
 }
 
-static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {
+static void on_wire_src_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
-  BtMachine *machine;
-  GHashTable *properties;
-  gdouble pos_xs,pos_ys,pos_xe,pos_ye;
+  gdouble px,py;
+  gdouble wx,wy,ww,wh;
+  gdouble dx,dy;
 
-  //GST_INFO("wire pos has changed : machine_item=%p, user_data=%p",machine_item,user_data);
+  g_object_get(machine_item,"x",&px,"y",&py,NULL);
+  g_object_get(self,"x",&wx,"y",&wy,"w",&ww,"h",&wh,NULL);
+  dx=wx-px;
+  dy=wy-py;
+  g_object_set(self,"x",px,"y",py,"w",ww+dx,"h",wh+dy,NULL);
 
-  g_object_get(self->priv->src,"machine",&machine,NULL);
-  g_object_get(machine,"properties",&properties,NULL);
-  machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
-  g_object_unref(machine);
-  g_object_get(self->priv->dst,"machine",&machine,NULL);
-  g_object_get(machine,"properties",&properties,NULL);
-  machine_view_get_machine_position(properties,&pos_xe,&pos_ye);
-  g_object_unref(machine);
+  // we need to reset all the coords for our wire items now
+  wire_set_line_points(self);
+  wire_set_triangle_points(self);
+}
 
-  //GST_INFO("  set new coords: %+5.1f,%+5.1f %+5.1f,%+5.1f",pos_xs,pos_ys,pos_xe,pos_ye);
+static void on_wire_dst_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {
+  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
+  gdouble px,py;
+  gdouble wx,wy;
 
-  gnome_canvas_item_set(GNOME_CANVAS_ITEM(self),
-                      "x", pos_xs,
-                      "y", pos_ys,
-                      "w", (pos_xe-pos_xs),
-                      "h", (pos_ye-pos_ys),
-                      NULL);
+  g_object_get(machine_item,"x",&px,"y",&py,NULL);
+  g_object_get(self,"x",&wx,"y",&wy,NULL);
+  g_object_set(self,"x",wx,"y",wy,"w",px-wx,"h",py-wy,NULL);
+
   // we need to reset all the coords for our wire items now
   wire_set_line_points(self);
   wire_set_triangle_points(self);
@@ -290,7 +291,7 @@ static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer
 
 static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
-  
+
   bt_main_page_machines_delete_wire(self->priv->main_page_machines,self->priv->wire);
 }
 
@@ -314,10 +315,10 @@ static void on_gain_changed(GstElement *element, GParamSpec *arg, gpointer user_
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   gdouble s=MACHINE_VIEW_WIRE_PAD_SIZE,ox=2.5*s,px=-ox+(1.3*s);
   gdouble gain;
-  
+
   g_object_get(self->priv->wire_gain,"volume",&gain,NULL);
   // do some sensible clamping
-  if(gain>4.0) gain=4.0;  
+  if(gain>4.0) gain=4.0;
   gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->vol_level_item),"x2", px+(gain*0.55*s),NULL);
 }
 
@@ -325,7 +326,7 @@ static void on_pan_changed(GstElement *element, GParamSpec *arg, gpointer user_d
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   gdouble s=MACHINE_VIEW_WIRE_PAD_SIZE,ox=2.5*s,px=-ox+(1.3*s);
   gfloat pan;
-  
+
   g_object_get(self->priv->wire_pan,"panorama",&pan,NULL);
   if(pan<0.0) {
     gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->pan_pos_item),
@@ -397,7 +398,7 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"setup",&setup,NULL);
   g_signal_connect(setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
-  
+
   //GST_INFO("wire canvas item added");
 
   g_object_unref(setup);
@@ -468,7 +469,7 @@ static void bt_wire_canvas_item_set_property(GObject *object, guint property_id,
       g_object_try_unref(self->priv->src);
       self->priv->src=BT_MACHINE_CANVAS_ITEM(g_value_dup_object(value));
       if(self->priv->src) {
-        g_signal_connect(self->priv->src,"position-changed",G_CALLBACK(on_wire_position_changed),(gpointer)self);
+        g_signal_connect(self->priv->src,"position-changed",G_CALLBACK(on_wire_src_position_changed),(gpointer)self);
         GST_DEBUG("set the src for wire_canvas_item: %p",self->priv->src);
       }
     } break;
@@ -476,7 +477,7 @@ static void bt_wire_canvas_item_set_property(GObject *object, guint property_id,
       g_object_try_unref(self->priv->dst);
       self->priv->dst=BT_MACHINE_CANVAS_ITEM(g_value_dup_object(value));
       if(self->priv->dst) {
-        g_signal_connect(self->priv->dst,"position-changed",G_CALLBACK(on_wire_position_changed),(gpointer)self);
+        g_signal_connect(self->priv->dst,"position-changed",G_CALLBACK(on_wire_dst_position_changed),(gpointer)self);
         GST_DEBUG("set the dst for wire_canvas_item: %p",self->priv->dst);
       }
     } break;
@@ -495,10 +496,10 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   if(self->priv->src) {
-    g_signal_handlers_disconnect_matched(self->priv->src,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_position_changed,(gpointer)self);
+    g_signal_handlers_disconnect_matched(self->priv->src,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_src_position_changed,(gpointer)self);
   }
   if(self->priv->dst) {
-    g_signal_handlers_disconnect_matched(self->priv->dst,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_position_changed,(gpointer)self);
+    g_signal_handlers_disconnect_matched(self->priv->dst,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_dst_position_changed,(gpointer)self);
   }
   g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
@@ -519,7 +520,7 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   }
   g_signal_handlers_disconnect_matched(self->priv->wire,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_pan_changed,(gpointer)self);
   GST_DEBUG("  signal disconected");
-  
+
   g_object_try_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);
   g_object_try_unref(self->priv->dst);
@@ -564,7 +565,7 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
     g_signal_connect(self->priv->wire,"notify::pan",G_CALLBACK(on_wire_pan_changed),(gpointer)self);
   }
 
-  
+
   self->priv->line=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_LINE,
                            "fill-color", "black",
