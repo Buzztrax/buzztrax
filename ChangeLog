@@ -1,5 +1,12 @@
 2011-01-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-log.c:
+	  Improve the API docs. Update TODO comments. Cleanup on sucessful
+	  recovery.
+	  
+
+2011-01-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/crash-recover-dialog.c:
 	  Also show a dialog when recovery failed.
 

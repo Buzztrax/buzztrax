@@ -21,17 +21,24 @@
 /**
  * SECTION:btchangelog
  * @short_description: class for the editor action journaling
+ * @see_also: #BtCrashRecoverDialog
  *
- * Tracks edits actions since last save. Logs those to disk for crash recovery.
- * Provides undo/redo. Supports grouping of edits into single undo/redo items.
+ * Tracks edits actions since last save. Provides undo/redo. Supports grouping
+ * of edits into single undo/redo items.
+ *
+ * Edit actions are logged to disk for crash recovery. Groups are logged
+ * atomically, when they are closed (to have a recoverable log).
+ *
+ * Logs are reset when saving a song. The log is removed when a song is closed.
+ *
+ * #BtEditApplication checks for left-over logs at startup and uses
+ * #BtCrashRecoverDialog to offer a list of recoverable songs to the user.
  */
 /* @todo: we should also check for pending logs when opening a file!
  * - need to keep the change-log entries as a hash-table and offer api to check
  *   for it and if wanted replay
  * - bt_change_log_recover calls bt_edit_application_load_song
  *   - maybe we need to refactor this a bit
- * - we could make bt_change_log_crash_check() static and run this in _init()
- *   - the list of crash-log entries would be available as a property
  */
 /* @todo: using groups
  * - start and stop the group in the UI-callback that causes e.g. deleting an
@@ -416,6 +423,13 @@ static gint sort_by_mtime(gconstpointer a,gconstpointer b) {
   return(((BtChangeLogFile *)b)->mtime - ((BtChangeLogFile *)a)->mtime);
 }
 
+static void free_crash_log_file(BtChangeLogFile *crash_entry) {
+  g_free(crash_entry->log_name);
+  g_free(crash_entry->song_file_name);
+  g_free(crash_entry->change_ts);
+  g_slice_free(BtChangeLogFile,crash_entry);
+}
+
 /*
  * bt_change_log_crash_check:
  * @self: the changelog
@@ -560,7 +574,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   if(!self->priv->cache_dir)
     return;
 
-  GST_INFO("song has changed : app=%p, self=%p",app,self);
+  GST_WARNING("song has changed : app=%p, self=%p",app,self);
 
   // remove old log file
   close_and_free_log(self);
@@ -671,11 +685,13 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
           if((logger=g_hash_table_lookup(self->priv->loggers,linebuf))) {
             if(bt_change_logger_change(logger,redo_data)) {
               lines_ok++;
+              /* we don't add those to the new log, as we have no undo-data. Thus
+               * we cannot restore the change-stack fully.
+               */
             }
-            /* FIXME: shall we add those to the new log?
-             * then it would be fine to overwrite the log
-             * as we have no undo-data we cannot restore the change-stack though
-             */
+            else {
+              GST_WARNING("failed to replay line: '%s::%s'",linebuf,redo_data);
+            }
           }
           else {
             GST_WARNING("no changelogger for '%s'",linebuf);
@@ -687,14 +703,26 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
       }
     }
     GST_INFO("%u of %u lines replayed okay", lines_ok, lines);
-    /*
-      - defer removing the old log to saving the song
-        -> on_song_file_unsaved_changed()
-        - remove the change log from self->priv-crash_logs then also
-    */
     res=(lines_ok==lines);
   done:
     fclose(log_file);
+    if(res) {
+      GList *node;
+      /* @todo: defer removing the old log to saving the song
+       *   -> on_song_file_unsaved_changed()
+       *   - ev. need to store recovered_log_name in self, so that we can check
+       *     it om _unsaved_changed()
+       */
+      g_unlink(log_name);
+      for(node=self->priv->crash_logs;node;node=g_list_next(node)) {
+        BtChangeLogFile *crash_entry=(BtChangeLogFile *)node->data;
+        if(!strcmp(log_name,crash_entry->log_name)) {
+          self->priv->crash_logs=g_list_delete_link(self->priv->crash_logs,node);
+          free_crash_log_file(crash_entry);
+          break;
+        }
+      }
+    }
   }
   return(res);
 }
@@ -872,7 +900,6 @@ static void bt_change_log_dispose(GObject *object) {
 
 static void bt_change_log_finalize(GObject *object) {
   BtChangeLog *self = BT_CHANGE_LOG(object);
-  BtChangeLogFile *crash_log;
   GList *node;
 
   GST_DEBUG("!!!! self=%p",self);
@@ -882,11 +909,7 @@ static void bt_change_log_finalize(GObject *object) {
 
   // free cgrash-logs list and entries
   for(node=self->priv->crash_logs;node;node=g_list_next(node)) {
-    crash_log=(BtChangeLogFile *)node->data;
-    g_free(crash_log->log_name);
-    g_free(crash_log->song_file_name);
-    g_free(crash_log->change_ts);
-    g_slice_free(BtChangeLogFile,crash_log);
+    free_crash_log_file((BtChangeLogFile *)node->data);
   }
   g_list_free(self->priv->crash_logs);
 
