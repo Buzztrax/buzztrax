@@ -1,5 +1,10 @@
 2011-01-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Planning.
+
+2011-01-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/main-page-sequence.c:
 	  Make key-repeat work by listening for key-press-event and not

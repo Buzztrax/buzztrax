@@ -48,11 +48,26 @@
  *   - insert machine (like menu on canvas)
  *     - what to do with wire-patterns?
  */
+/* @todo: easier machine manipulation
+ * linking the machines with "shift" pressed comes from buzz and is hard to
+ * discover. What about these:
+ * 1.) on the toolbar I could have a button that toggles between "move" and
+ *     "link". In "move" mode one can move machines with the mouse and in "link"
+ *     mode one can link. Would need to have a keyboard shortcut for toggling.
+ * 2.) click-zones on the icons. Link the machine when click+drag the title bar.
+ *     Make the 'leds' clickable and move the machines outside of title and led.
+ *     Eventualy change the mouse-cursor when hovering over the zones.
+ * Option '2' looks nice and would also help on touch-screens.
+ */
 /* @todo: click in the background to pan canvas around
  */
 /* @todo: undo/redo
- * - we need to log changes in xpos/ypos or status all the time to be able to recover
- *   after a crash, this way we don't need to save these when removing a machine
+ * - we need to log changes in xpos/ypos or status all the time to be able to
+ *   recover after a crash, this way we don't need to save these when removing a
+ *   machine
+ *   - this also leads to a lot of undo/redo entries
+ *   - we can't flatten those as we don't know the intent of the user and we
+ *     have logged the changes already
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
