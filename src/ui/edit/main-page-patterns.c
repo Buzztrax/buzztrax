@@ -884,7 +884,8 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
   GST_INFO("removed pattern: %p,pattern->ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 }
 
-static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
+// use key-press-event, as then we get key repeats
+static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   gboolean res=FALSE;
   gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
@@ -2806,7 +2807,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   self->priv->pattern_table=BT_PATTERN_EDITOR(bt_pattern_editor_new());
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,"play-position",-1.0,NULL);
   //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
-  g_signal_connect(self->priv->pattern_table, "key-release-event", G_CALLBACK(on_pattern_table_key_release_event), (gpointer)self);
+  g_signal_connect(self->priv->pattern_table, "key-press-event", G_CALLBACK(on_pattern_table_key_press_event), (gpointer)self);
   g_signal_connect(self->priv->pattern_table, "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
   g_signal_connect(self->priv->pattern_table, "notify::cursor-group", G_CALLBACK(on_pattern_table_cursor_group_changed), (gpointer)self);
   g_signal_connect(self->priv->pattern_table, "notify::cursor-param", G_CALLBACK(on_pattern_table_cursor_param_changed), (gpointer)self);

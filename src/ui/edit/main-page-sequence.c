@@ -38,7 +38,7 @@
  *   - add the same context menu as the machines have in machine view when
  *     clicking on track headers
  *     - e.g. allow to open machine settings/preferences
- *       see also comments on pattern page 
+ *       see also comments on pattern page
  *   - allow to switch meters (off, level, scope, spectrum)
  * - when we move between tracks, switch the current-machine in pattern-view
  * - pattern list
@@ -159,7 +159,7 @@ struct _BtMainPageSequencePrivate {
 
   /* playback state */
   gboolean is_playing;
-  
+
   /* lock for multithreaded access */
   GMutex        *lock;
 };
@@ -447,7 +447,7 @@ static gboolean sequence_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath 
 static gboolean sequence_view_set_cursor_pos(const BtMainPageSequence *self) {
   GtkTreePath *path;
   gboolean res=FALSE;
-  
+
   // @todo: http://bugzilla.gnome.org/show_bug.cgi?id=498010, fixed in 2008
   if(!GTK_IS_TREE_VIEW(self->priv->sequence_table) || !gtk_tree_view_get_model(self->priv->sequence_table)) return(FALSE);
 
@@ -587,7 +587,7 @@ static void sequence_calculate_visible_lines(const BtMainPageSequence *self) {
   gdouble loop_start,loop_end;
 
   g_object_get(self->priv->sequence,"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
-  
+
   if(self->priv->sequence_length<sequence_length) {
     self->priv->sequence_length=sequence_length;
   }
@@ -749,7 +749,7 @@ static void on_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,
 /* DEBUG
 static void on_sequence_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
   GtkRequisition requisition;
-  
+
   gtk_widget_size_request(widget,&requisition);
   GST_WARNING("#### header %s alloc:  %d x %d, req: %d x %d",
     (gchar *)user_data,
@@ -820,7 +820,7 @@ static gboolean on_delayed_idle_track_level_change(gpointer user_data) {
   gconstpointer * const params=(gconstpointer *)user_data;
   BtMainPageSequence *self=(BtMainPageSequence *)params[0];
   GstMessage *message=(GstMessage *)params[1];
-  
+
   if(self) {
     GtkVUMeter *vumeter;
 
@@ -836,7 +836,7 @@ static gboolean on_delayed_idle_track_level_change(gpointer user_data) {
       const GValue *l_cur,*l_peak;
       gdouble cur=0.0, peak=0.0;
       guint i,size;
-  
+
       l_cur=(GValue *)gst_structure_get_value(structure, "decay");
       l_peak=(GValue *)gst_structure_get_value(structure, "peak");
       size=gst_value_list_get_size(l_cur);
@@ -847,8 +847,8 @@ static gboolean on_delayed_idle_track_level_change(gpointer user_data) {
       if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
       else cur/=size;
       if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-      else peak/=size;  
-  
+      else peak/=size;
+
       //GST_INFO("level:  %.3f %.3f", peak, cur);
       //gtk_vumeter_set_levels(vumeter, (gint)cur, (gint)peak);
       gtk_vumeter_set_levels(vumeter, (gint)peak, (gint)cur);
@@ -876,12 +876,12 @@ static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer u
   if(name_id==bus_msg_level_quark) {
     BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
     GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
-    
+
     // check if its our element (we can have multiple level meters)
     if((g_hash_table_lookup(self->priv->level_to_vumeter,level))) {
       GstClockTime timestamp, duration;
       GstClockTime waittime=GST_CLOCK_TIME_NONE;
-  
+
       if(gst_structure_get_clock_time (structure, "running-time", &timestamp) &&
         gst_structure_get_clock_time (structure, "duration", &duration)) {
         /* wait for middle of buffer */
@@ -895,9 +895,9 @@ static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer u
         gconstpointer *params=g_new(gconstpointer,2);
         GstClockID clock_id;
         GstClockTime basetime=gst_element_get_base_time(level);
-  
+
         //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT, GST_TIME_ARGS(timestamp),GST_TIME_ARGS(waittime));
-      
+
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
         g_mutex_lock(self->priv->lock);
@@ -1112,11 +1112,11 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   vbox=gtk_vbox_new(FALSE,0);
   gtk_box_pack_start(GTK_BOX(header),vbox,TRUE,TRUE,0);
   gtk_box_pack_start(GTK_BOX(header),gtk_vseparator_new(),FALSE,FALSE,0);
-  
+
   label=gtk_label_new(_("Labels"));
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
   gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
-  
+
   gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(self->priv->label_menu),TRUE,TRUE,0);
 
   /* FIXME: specifying 0, instead of -1, should yield 'as small as possible'
@@ -1329,7 +1329,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       GtkVUMeter *vumeter;
       GstElement *level;
       gchar *level_name="output-post-level";
-      
+
       GST_DEBUG("  %3lu build column header",j);
 
       // enable level meters
@@ -1371,7 +1371,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
       box=gtk_hbox_new(FALSE,0);
       gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(box),TRUE,TRUE,0);
-      
+
       /* only do this for first track of a machine
        * - multiple level-meter views for same machine don't work
        * - MSB buttons would need to be synced
@@ -1380,7 +1380,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         BtMachineState state;
 
         g_object_get(machine,"state",&state,NULL);
-        
+
         g_hash_table_insert(machine_usage,machine,machine);
         // add M/S/B butons and connect signal handlers
         // @todo: use colors from ui-resources
@@ -1409,7 +1409,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         //gtk_vumeter_set_peaks_falloff(vumeter, GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
         gtk_vumeter_set_scale(vumeter, GTK_VUMETER_SCALE_LINEAR);
         gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(vumeter),TRUE,TRUE,0);
-  
+
         // add level meters to hashtable
         if(level) {
           g_hash_table_insert(self->priv->level_to_vumeter,level,vumeter);
@@ -1448,7 +1448,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     g_object_try_unref(machine);
   }
   g_hash_table_destroy(machine_usage);
-  
+
   GST_INFO("finish sequence table");
 
   // add a final column that eats remaining space
@@ -1475,7 +1475,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 static void pattern_list_refresh(const BtMainPageSequence *self) {
   GtkListStore *store;
   GtkTreeIter tree_iter;
-  
+
   // refresh the pattern list
   store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
 
@@ -1510,7 +1510,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
       self->priv->pattern_keys=source_pattern_keys;
       index++;
     }
-  
+
     //-- append pattern rows
     g_object_get(self->priv->machine,"patterns",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
@@ -1538,7 +1538,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
       g_object_unref(pattern);
     }
     g_list_free(list);
-    
+
     // sync machine in pattern page
     if(self->priv->main_window) {
       BtMainPagePatterns *patterns_page;
@@ -1554,7 +1554,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     GST_INFO("no machine for cursor_column: %ld",self->priv->cursor_column);
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
-  
+
   g_object_unref(store); // drop with treeview
 }
 
@@ -1579,7 +1579,7 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
     g_object_try_unref(machine);
     return;
   }
-  
+
   GST_INFO("changing machine %p,ref_count=%d to %p,ref_count=%d",
     self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine),
     machine,G_OBJECT_REF_COUNT(machine)
@@ -1675,7 +1675,7 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
       g_object_set(self->priv->sequence,"loop-start",row,NULL);
       g_object_get(self->priv->sequence,"loop-start",&row,NULL);
       loop_start=row;
-      
+
       pos=(gdouble)row/(gdouble)sequence_length;
       g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
       g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
@@ -1686,7 +1686,7 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
       if((loop_end!=-1) && (loop_end<=row)) {
         loop_end=loop_start+self->priv->bars;
         g_object_set(self->priv->sequence,"loop-end",loop_end,NULL);
-        
+
         GST_INFO("and adjusted loop-end = %ld",loop_end);
 
         pos=(gdouble)loop_end/(gdouble)sequence_length;
@@ -1721,7 +1721,7 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
           loop_start=loop_end-self->priv->bars;
           if(loop_start<0) loop_start=0;
           g_object_set(self->priv->sequence,"loop-start",loop_start,NULL);
-          
+
           GST_INFO("and adjusted loop-start = %ld",loop_start);
         }
       }
@@ -1753,7 +1753,7 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   // reinit the view
   sequence_table_refresh(self,song);
   sequence_model_recolorize(self);
-  
+
   GST_INFO("machine %p,ref_count=%d sequence table update",machine,G_OBJECT_REF_COUNT(machine));
 
   // update cursor_column and focus cell
@@ -1763,11 +1763,11 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   GST_INFO("new cursor column: %ld",self->priv->cursor_column);
   g_list_free(columns);
   sequence_view_set_cursor_pos(self);
-  
+
   GST_INFO("machine %p,ref_count=%d cursor moved",machine,G_OBJECT_REF_COUNT(machine));
-  
+
   update_after_track_changed(self);
-  
+
   GST_INFO("machine %p,ref_count=%d adding track and updates done",machine,G_OBJECT_REF_COUNT(machine));
 
   g_object_unref(song);
@@ -1827,7 +1827,7 @@ static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
     // get song from app and then setup from song
     g_object_get(self->priv->app,"song",&song,NULL);
     g_object_get(song,"setup",&setup,NULL);
-  
+
     id=gtk_label_get_text(GTK_LABEL(label));
     GST_INFO("adding track for machine \"%s\"",id);
     if((machine=bt_setup_get_machine_by_id(setup,id))) {
@@ -1890,13 +1890,13 @@ static void on_track_move_left_activated(GtkMenuItem *menuitem, gpointer user_da
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
   gulong track=self->priv->cursor_column-1;
-  
+
   GST_INFO("move track %ld to left",self->priv->cursor_column);
 
   if(track>0) {
     // get song from app and then setup from song
     g_object_get(self->priv->app,"song",&song,NULL);
-    
+
     if(bt_sequence_move_track_left(self->priv->sequence,track)) {
       self->priv->cursor_column--;
       // reinit the view
@@ -1934,13 +1934,13 @@ static void on_track_move_right_activated(GtkMenuItem *menuitem, gpointer user_d
 
 static void on_context_menu_machine_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  
+
   bt_machine_show_properties_dialog(self->priv->machine);
 }
 
 static void on_context_menu_machine_preferences_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  
+
   bt_machine_show_preferences_dialog(self->priv->machine);
 }
 
@@ -2022,9 +2022,9 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
 
 static void on_toolbar_menu_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  
+
   gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,1,gtk_get_current_event_time());
-} 
+}
 
 static void on_label_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -2073,12 +2073,12 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
 
       GST_INFO("new row = %3lu <-> old row = %3ld",cursor_row,self->priv->cursor_row);
       self->priv->cursor_row=cursor_row;
-      
+
       if(cursor_column>lastcolumn) {
         cursor_column=lastcolumn;
         sequence_view_set_cursor_pos(self);
       }
-        
+
       GST_INFO("new col = %3lu <-> old col = %3ld",cursor_column,self->priv->cursor_column);
       if(cursor_column!=self->priv->cursor_column) {
         self->priv->cursor_column=cursor_column;
@@ -2131,7 +2131,8 @@ static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer use
   g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_sequence_table_cursor_changed_idle,user_data,NULL);
 }
 
-static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
+// use key-press-event, as then we get key repeats
+static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   gboolean res=FALSE;
   gulong row,track;
@@ -2152,7 +2153,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
 
     g_object_get(self->priv->sequence,"length",&length,"tracks",&tracks,NULL);
-    
+
     GST_DEBUG("cursor pos : %lu/%lu, %lu/%lu",row,length,track,tracks);
     if(track>tracks) return(FALSE);
 
@@ -2608,7 +2609,7 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
           // handle selection
           glong cursor_column=self->priv->cursor_column;
           glong cursor_row=self->priv->cursor_row;
-  
+
           if(self->priv->selection_start_column==-1) {
             self->priv->selection_column=self->priv->cursor_column;
             self->priv->selection_row=self->priv->cursor_row;
@@ -2674,19 +2675,11 @@ static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScrol
     keyevent.window = event->window;
     keyevent.state = event->state;
     keyevent.time = GDK_CURRENT_TIME;
-    /*
-    keyevent.send_event = 0;
-    keyevent.length = 0;
-    keyevent.string = 0;
-    keyevent.group =  0;
-    */
-    
+
     keyevent.type = GDK_KEY_PRESS;
-    //g_signal_emit_by_name(self->priv->sequence_table, "key-press-event", &keyevent );
     gtk_main_do_event((GdkEvent *)&keyevent);
-    
+
     keyevent.type = GDK_KEY_RELEASE;
-    //g_signal_emit_by_name(self->priv->sequence_table, "key-release-event", &keyevent );
     gtk_main_do_event((GdkEvent *)&keyevent);
 
     return TRUE;
@@ -2801,7 +2794,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // reset cursor pos
   self->priv->cursor_column=1;
   self->priv->cursor_row=0;
-  
+
   // update page
   // update sequence and pattern list
   sequence_table_refresh(self,song);
@@ -2898,7 +2891,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
 #ifndef USE_HILDON
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 #endif
-  
+
   // popup menu button
   image=gtk_image_new_from_filename("popup-menu.png");
   tool_item=GTK_WIDGET(gtk_tool_button_new(image,_("Sequence view menu")));
@@ -3038,7 +3031,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
 
   vbox=gtk_vbox_new(FALSE,0);
   gtk_box_pack_start(GTK_BOX(box), vbox, TRUE, TRUE, 0);
-  
+
   // add sequence header list-view
   scrolled_hsync_window=gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_hsync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
@@ -3053,7 +3046,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   g_signal_connect(self->priv->sequence_table_header,"size-allocate",G_CALLBACK(on_sequence_header_size_allocate),(gpointer)"box");
   g_signal_connect(self->priv->sequence_table_header,"size-allocate",G_CALLBACK(on_sequence_header_size_allocate),(gpointer)"vport");
   // DEBUG */
-  
+
   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_hsync_window), FALSE, FALSE, 0);
   g_signal_connect(scrolled_hsync_window, "button-press-event", G_CALLBACK(on_sequence_header_button_press_event), (gpointer)self);
 
@@ -3076,7 +3069,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
   g_signal_connect_after(self->priv->sequence_table, "cursor-changed", G_CALLBACK(on_sequence_table_cursor_changed), (gpointer)self);
-  g_signal_connect(self->priv->sequence_table, "key-release-event", G_CALLBACK(on_sequence_table_key_release_event), (gpointer)self);
+  g_signal_connect(self->priv->sequence_table, "key-press-event", G_CALLBACK(on_sequence_table_key_press_event), (gpointer)self);
   g_signal_connect(self->priv->sequence_table, "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
   g_signal_connect(self->priv->sequence_table, "motion-notify-event", G_CALLBACK(on_sequence_table_motion_notify_event), (gpointer)self);
   g_signal_connect(self->priv->sequence_table, "scroll-event", G_CALLBACK(on_sequence_table_scroll_event), (gpointer)self);
@@ -3300,14 +3293,14 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
     BtMachine *machine;
     BtPattern *pattern;
     GString *data=g_string_new(NULL);
-    
+
     GST_INFO("copying : %ld,%ld - %d,%ld", self->priv->selection_start_column, self->priv->selection_start_row, self->priv->selection_end_column, self->priv->selection_end_row);
 
     targets = gtk_target_table_make(sequence_atom, &n_targets);
 
     /* the number of ticks */
     g_string_append_printf(data,"%ld\n",(self->priv->selection_end_row+1)-self->priv->selection_start_row);
-    
+
     for(i=self->priv->selection_start_column;i<=self->priv->selection_end_column;i++) {
       // store machine id
       machine=bt_sequence_get_machine(self->priv->sequence,i-1);
@@ -3331,7 +3324,7 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
       g_string_append_c(data,'\n');
       g_object_unref(machine);
     }
-    
+
     GST_INFO("copying : [%s]",data->str);
 
     /* put to clipboard */
@@ -3355,12 +3348,12 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
   gchar **lines;
   guint ticks;
   gchar *data;
-  
+
   GST_INFO("receiving clipboard data");
-  
+
   data=(gchar *)gtk_selection_data_get_data(selection_data);
   GST_INFO("pasting : [%s]",data);
-  
+
   if(!data)
     return;
 
@@ -3378,7 +3371,7 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
     gboolean res=TRUE;
 
     g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
-    
+
     ticks=atol(lines[0]);
     sequence_length--;
     // paste from self->priv->cursor_row to MIN(self->priv->cursor_row+ticks,sequence_length)
@@ -3386,23 +3379,23 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
     end=beg+ticks;
     end=MIN(end,sequence_length);
     GST_INFO("pasting from row %d to %d",beg,end);
-    
+
     if((store=sequence_model_get_store(self))) {
       GtkTreePath *path;
-  
+
       if((path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1))) {
         GtkTreeIter iter;
-  
+
         // process each line (= pattern column)
         while(lines[i] && *lines[i] && (self->priv->cursor_row+(i-1)<=end) && res) {
           fields=g_strsplit_set(lines[i],",",0);
           track=self->priv->cursor_column+i-2;
-          
+
           GST_INFO("get machine for col %d",track);
           machine=bt_sequence_get_machine(self->priv->sequence,track);
           if(machine) {
             g_object_get(machine,"id",&id,NULL);
-      
+
             if (!strcmp(id,fields[0])) {
               if(gtk_tree_model_get_iter(store,&iter,path)) {
                 j=1;
@@ -3439,7 +3432,7 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
               GST_INFO("machines don't match in %s <-> %s",fields[0],id);
               res=FALSE;
             }
-            
+
             g_free(id);
             g_object_unref(machine);
           }
@@ -3489,7 +3482,7 @@ void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self) {
 
 static gboolean bt_main_page_sequence_focus(GtkWidget *widget, GtkDirectionType direction) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(widget);
-  
+
   if(!self->priv->main_window)
     grab_main_window(self);
 
@@ -3599,7 +3592,7 @@ static void bt_main_page_sequence_init(BtMainPageSequence *self) {
   self->priv->selection_end_row=-1;
   self->priv->row_filter_pos=SEQUENCE_ROW_ADDITION_INTERVAL;
   self->priv->sequence_length=SEQUENCE_ROW_ADDITION_INTERVAL;
-  
+
   self->priv->lock=g_mutex_new();
 }
 
@@ -3617,9 +3610,9 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   gobject_class->get_property = bt_main_page_sequence_get_property;
   gobject_class->dispose      = bt_main_page_sequence_dispose;
   gobject_class->finalize     = bt_main_page_sequence_finalize;
-  
+
   gtkwidget_class->focus      = bt_main_page_sequence_focus;
-  
+
   g_object_class_install_property(gobject_class,MAIN_PAGE_SEQUENCE_CURSOR_ROW,
                                   g_param_spec_long("cursor-row",
                                      "cursor-row prop",
