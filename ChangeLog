@@ -1,3 +1,10 @@
+2011-02-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-machines.c:
+	  Add a "connect machines" context menu entry. This is easier to
+	  discover than the shft-drag.
+
 2011-01-31  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:

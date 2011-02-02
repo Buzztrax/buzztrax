@@ -86,6 +86,7 @@
 
 enum {
   POSITION_CHANGED,
+  START_CONNECT,
   LAST_SIGNAL
 };
 
@@ -633,6 +634,12 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   g_free(msg);
 }
 
+static void on_context_menu_connect_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+  g_signal_emit(self,signals[START_CONNECT],0);
+}
+
 static void on_context_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
@@ -737,6 +744,15 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
     gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_delete_activate),(gpointer)self);
+
+    menu_item=gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+    gtk_widget_show(menu_item);
+
+    menu_item=gtk_menu_item_new_with_label(_("Connect machines"));
+    gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+    gtk_widget_show(menu_item);
+    g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_connect_activate),(gpointer)self);
   }
 
   menu_item=gtk_separator_menu_item_new();
@@ -1263,6 +1279,22 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
    * the canvas item.
    */
   signals[POSITION_CHANGED] = g_signal_new("position-changed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        0,
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__VOID,
+                                        G_TYPE_NONE, // return type
+                                        0 // n_params
+                                        );
+  /**
+   * BtMachineCanvasItem::start-connect
+   * @self: the machine-canvas-item object that emitted the signal
+   *
+   * Signals that a connect should be made starting from this machine.
+   */
+  signals[START_CONNECT] = g_signal_new("start-connect",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
                                         0,

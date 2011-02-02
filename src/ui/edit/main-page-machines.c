@@ -50,7 +50,8 @@
  */
 /* @todo: easier machine manipulation
  * linking the machines with "shift" pressed comes from buzz and is hard to
- * discover. What about these:
+ * discover. We now have a "connect machines" item in the conect menut, but
+ * what about these:
  * 1.) on the toolbar I could have a button that toggles between "move" and
  *     "link". In "move" mode one can move machines with the mouse and in "link"
  *     mode one can link. Would need to have a keyboard shortcut for toggling.
@@ -177,6 +178,35 @@ static gboolean canvas_item_destroy(gpointer key,gpointer value,gpointer user_da
   return(TRUE);
 }
 
+//-- linking signal handler & helper
+
+static void start_connect(BtMainPageMachines *self) {
+  // handle drawing a new wire
+  self->priv->new_wire_points=gnome_canvas_points_new(2);
+  self->priv->new_wire_points->coords[0]=self->priv->mouse_x;
+  self->priv->new_wire_points->coords[1]=self->priv->mouse_y;
+  self->priv->new_wire_points->coords[2]=self->priv->mouse_x;
+  self->priv->new_wire_points->coords[3]=self->priv->mouse_y;
+  self->priv->new_wire=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+               GNOME_TYPE_CANVAS_LINE,
+               "points", self->priv->new_wire_points,
+               "fill-color", "red",
+               "width-pixels", 1,
+               NULL);
+  gnome_canvas_item_lower_to_bottom(self->priv->new_wire);
+  gnome_canvas_item_lower_to_bottom(self->priv->grid);
+  self->priv->connecting=TRUE;
+  self->priv->moved=FALSE;
+}
+
+static void on_machine_item_start_connect(BtMachineCanvasItem *machine_item, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+  self->priv->new_wire_src=g_object_ref(machine_item);
+  g_object_get(machine_item,"x",&self->priv->mouse_x,"y",&self->priv->mouse_y,NULL);
+  start_connect(self);
+}
+
 //-- event handler helper
 
 // @todo: this method probably should go to BtMachine, but on the other hand it is GUI related
@@ -231,6 +261,7 @@ static void machine_item_new(const BtMainPageMachines *self,BtMachine *machine,g
 
   item=bt_machine_canvas_item_new(self,machine,xpos,ypos,self->priv->zoom);
   g_hash_table_insert(self->priv->machines,machine,item);
+  g_signal_connect(item,"start-connect",G_CALLBACK(on_machine_item_start_connect),(gpointer)self);
 }
 
 static void wire_item_new(const BtMainPageMachines *self,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item) {
@@ -911,22 +942,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
             g_object_get(pci,"machine",&machine,NULL);
             // if the citem->machine is a source/processor-machine
             if(BT_IS_SOURCE_MACHINE(machine) || BT_IS_PROCESSOR_MACHINE(machine)) {
-              // handle drawing a new wire
-              self->priv->new_wire_points=gnome_canvas_points_new(2);
-              self->priv->new_wire_points->coords[0]=self->priv->mouse_x;
-              self->priv->new_wire_points->coords[1]=self->priv->mouse_y;
-              self->priv->new_wire_points->coords[2]=self->priv->mouse_x;
-              self->priv->new_wire_points->coords[3]=self->priv->mouse_y;
-              self->priv->new_wire=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
-                           GNOME_TYPE_CANVAS_LINE,
-                           "points", self->priv->new_wire_points,
-                           "fill-color", "red",
-                           "width-pixels", 1,
-                           NULL);
-              gnome_canvas_item_lower_to_bottom(self->priv->new_wire);
-              gnome_canvas_item_lower_to_bottom(self->priv->grid);
-              self->priv->connecting=TRUE;
-              self->priv->moved=FALSE;
+              start_connect(self);
               res=TRUE;
             }
             g_object_unref(machine);
