@@ -1,3 +1,8 @@
+2011-02-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect NEWS.
+
 2011-02-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-canvas-item.c:

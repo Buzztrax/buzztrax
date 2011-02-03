@@ -2,21 +2,28 @@ svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
 2011/01 ========================================================================
 
-* improve the song-recovery workflow
-* almost 100% undo/redo/journaling in machine and pattern view
-* make preferences in machines work (fluidsynth patches)
-* code cleanups (enums)
-* midi controller improvements (pitchwheel, continous controllers)
-* better unsaved changes warnings (time passed since last saved/created)
+As there was no project news over x-mas, I have a slightly longer one this time.
+Before I dive into the usual code changes, something else - tadaa - we have a
+new webpage. The previous page was a mediawiki with a few customizations. Now we
+use a combo of wordpress-3 and mediawiki. Both use a simillar theme (based on
+the arch linux one). Wordpres gives as news, forum, social-network features and
+much more. The first days I was suffering a lot from wordpress account creation
+spam. Luckily this seems to be under control now. The concept and a lot of the
+work was done by Joe Pea. We both have quite a few more things on the todo list.
+One of the next items is single sign in for wordpress and mediawiki. Stay tuned.
+
+In the last two month I improved the song-recovery workflow. The recovery is now
+giving better feedback to the user and we're properly cleaning up afterwards.
+The machine machine and pattern view do now have almost full undo/redo.
 
 Quite several times already I had to deal with a dialog containing a treeview
-showing a list of items. Giving such a dialog a nice good initial size is tricky.
-The treeview usually goes into a scrolled window. By default one can see the
-headers and maybe one line. Of course one can resize the dialog a bit, but as
-the line height is not easy to figure it is still not easy. One approach I came
-up with is to grow the dialog to show all lines until it would exceed a certain
-limit. The limit would be e.g. half of screen or window height. The code for
-that is quite simple:
+showing a list of items. The latest example is the song-recovery dialog. Giving
+such a dialog a nice good initial size is tricky. The treeview usually goes into
+a scrolled window. By default one can see the headers and maybe one line. Of
+course one can resize the dialog a bit, but as the line height is not easy to
+figure it is still not easy. One approach I came up with is to grow the dialog
+to show all lines until it would exceed a certain limit. The limit would be e.g.
+half of screen or window height. The code for that is quite simple:
 
   list=gtk_tree_view_new();
   g_signal_connect(list,"size-request",G_CALLBACK(on_list_size_request),NULL);
@@ -32,11 +39,22 @@ that is quite simple:
     gtk_widget_set_size_request(gtk_widget_get_parent(widget),-1,height);
   }
 
-Another thing in gtk that I wonder if it has a better solution is the diposal of
-popup-menus. The problem is that gtk_menu_popup is not taking ownership of the
-menu, but there seems to be now event when the menu is done, so that one can
+Another thing in gtk that I wonder if it has a better solution is the disposal
+of popup-menus. The problem is that gtk_menu_popup is not taking ownership of
+the menu, but there seems to be now event when the menu is done, so that one can
 unref it. The only solution I can see is the pre-create the menu and ref-sink
 it. When the entity that owns it is disposed it can destroy and unref it. 
+
+As we're quite gtk related in this time anyway one more discovery. Listening for
+key-press-event instead of key-release-event and widgets makes key-repeat work.
+Have added that to the gtk api docs.
+
+Beside all the things above a couple of bug-fixes went in (make preferences in
+machines work (e.g. choosing fluidsynth instruments). I did some refactoring on
+midi controller handling; one can use the pitchwheel now and continuous
+controllers work better. Finally the dialogs warning about unsaved changes are
+more user-friendly; they now show the time passed since last saved/created in
+addition to the timestamp.
 
 2010/12 ========================================================================
 
