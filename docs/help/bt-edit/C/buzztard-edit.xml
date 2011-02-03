@@ -84,7 +84,7 @@
     <application>&app;</application> is a music composer for the GNOME desktop.
     It partly follows the concepts of programs like SoundTracker, FastTracker
     and the like, but is based on a modern media engine (<ulink url="http://gstreamer.freedesktop.org">gstreamer</ulink>).
-    This engine supports virtual sound generator and effects in the form of
+    This engine supports virtual sound generators and effects in the form of
     numerous plugins.
   </para>
   <para>

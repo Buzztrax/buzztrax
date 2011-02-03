@@ -1,6 +1,17 @@
 2011-02-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
+	  Sent NEWS.
+
+	* docs/help/bt-edit/C/Makefile.am:
+	  Use dblatex to make the pdf.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Fix a typo.
+
+2011-02-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
 	  Collect NEWS.
 
 2011-02-02  Stefan Kost  <ensonic@users.sf.net>

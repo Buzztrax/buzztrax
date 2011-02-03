@@ -1,11 +1,13 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2011/02 ========================================================================
+
 2011/01 ========================================================================
 
 As there was no project news over x-mas, I have a slightly longer one this time.
 Before I dive into the usual code changes, something else - tadaa - we have a
 new webpage. The previous page was a mediawiki with a few customizations. Now we
-use a combo of wordpress-3 and mediawiki. Both use a simillar theme (based on
+use a combo of wordpress-3 and mediawiki. Both use a similar theme (based on
 the arch linux one). Wordpres gives as news, forum, social-network features and
 much more. The first days I was suffering a lot from wordpress account creation
 spam. Luckily this seems to be under control now. The concept and a lot of the
@@ -55,6 +57,8 @@ midi controller handling; one can use the pitchwheel now and continuous
 controllers work better. Finally the dialogs warning about unsaved changes are
 more user-friendly; they now show the time passed since last saved/created in
 addition to the timestamp.
+
+50 files changed, 2402 insertions(+), 1183 deletions(-)
 
 2010/12 ========================================================================
 

@@ -17,12 +17,15 @@ dist-hook: app-dist-hook
 
 #	db2pdf buzztard-edit.xml buzztard-edit.pdf
 buzztard-edit.pdf: buzztard-edit.xml
+	dblatex 2>&1 -o buzztard-edit.pdf -Iigures buzztard-edit.xml
+
+buzztard-edit2.pdf: buzztard-edit.xml
 	xsltproc \
 	  --stringparam paper.type A4 \
 	  --stringparam fop.extentions 1 \
 	  --stringparam fop1.extentions 1 \
 	  --stringparam admon.graphics 1 \
-		/usr/share/xml/docbook/stylesheet/nwalsh/1.73.2/fo/docbook.xsl \
+		http://docbook.sourceforge.net/release/xsl/current/fo/fo.xsl \
 		buzztard-edit.xml >buzztard-edit.fo; \
 	fop -fo buzztard-edit.fo -pdf buzztard-edit.pdf
 
