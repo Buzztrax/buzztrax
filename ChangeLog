@@ -1,5 +1,12 @@
 2011-02-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* pixmaps/hicolor/16x16/buzztard.png:
+	* pixmaps/hicolor/48x48/buzztard.png:
+	* pixmaps/hicolor/scalable/buzztard.svg:
+	  Get rid of the old logo.
+
+2011-02-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Sent NEWS.
 
