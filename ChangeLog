@@ -1,5 +1,11 @@
 2011-02-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/Makefile.am:
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Small doc fixes and better pdf creation.
+
+2011-02-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/ic/Makefile.am:
 	* src/lib/ic/gudev-discoverer.c:

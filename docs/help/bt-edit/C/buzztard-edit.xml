@@ -139,11 +139,11 @@
     <title id="bt-edit-intro-buzz.title">Comparison to <application>Buzz</application></title>
     <para>
       &app; is inspired of lot by Buzz. Some features are still missing and some
-      things already work better.  
+      things already work better.
       The UI in is not a 1-to-1 copy, for Buzz users the UI will still look familiar.
     </para>
     <para>
-      &app;:
+      Highlights in &app;:
       <itemizedlist>
         <listitem><para>can render songs to wav/mp3,ogg-vorbis/... including song-meta-data (tags) and multi track exports</para></listitem>
         <listitem><para>uses color-codes for machine-types through its ui</para></listitem>
@@ -157,6 +157,7 @@
         <listitem><para>can be remote controlled with UPnP A/V software</para></listitem>
         <listitem><para>supports HID input devices for effect control (e.g. joysticks)</para></listitem>
       </itemizedlist>
+      current shortcomings in &app;:
       <itemizedlist>
         <listitem><para>has only marginal MIDI support</para></listitem>
         <listitem><para>has no pattern recording yet</para></listitem>
@@ -186,7 +187,7 @@
     The below tutorials will introduce <application>&app;</application> by going though a few
 	examples. Each example will introduce new features.
   </para>
-  
+
   <sect2 id="bt-edit-tutorial-lifefx">
     <title id="bt-edit-tutorial-lifefx.title">Live Effects</title>
     <para>
@@ -275,7 +276,7 @@
       If you press play now, you should hear a simple melody.
     </para>
   </sect2>
-  
+
   <sect2 id="bt-edit-tutorial-tracker">
     <title id="bt-edit-tutorial-tracker.title">Sampled Sounds</title>
     <para>
@@ -362,7 +363,7 @@
     </para>
     <para>
       The <menuchoice><guimenu>Edit</guimenu></menuchoice> menu contains
-      clipboard functions and invocation of 
+      clipboard functions and invocation of
       <link linkend="bt-edit-prefs" endterm="bt-edit-prefs.title"/>.
     </para>
     <para>
@@ -374,11 +375,13 @@
 
   <sect2 id="bt-edit-main-toolbar">
     <title id="bt-edit-main-toolbar.title">The tool bar</title>
+    <indexterm><primary>main toolbar</primary></indexterm>
+    <indexterm><primary>changing the volume</primary></indexterm>
     <para>
       In contrast to <link linkend="bt-edit-main">the menu bar</link> the tool
       bar only shows common operations as shortcuts.
       On the right end the toolbar shows a volume-meter for each audio-channel
-      and a volume control.
+      and a volume control for the whole song.
     </para>
   </sect2>
 
@@ -393,16 +396,20 @@
 
     <sect3 id="bt-edit-main-view-machines">
       <title id="bt-edit-main-view-machines.title">The machine view of a song</title>
+      <indexterm><primary>creating machines</primary></indexterm>
+      <indexterm><primary>linking machines</primary></indexterm>
       <para>
         A song utilizes sound generators, effects and sinks - all called machines.
         A new machine can be added from the context menu that appear on a right
-        click over the page area.
+        click in the page area.
         Machines can be moved around by grabbing them with the mouse and dragging
         them around.
         To connect machines, move pointer over the source, press shift+left mouse-button
         and drag the wire to the target machine. The wire turns green, if the
         connect can be made. Connected machines are shown in bright color and
-        disconnected one in a desaturated style.
+        disconnected one in a desaturated style. Alternatively you can select
+        "connect machines" from the right-click context menu of a machine. Again
+        you need to move the mouse to the target machine and click it.
       </para>
       <figure id="bt-edit-page-machine-view-fig">
         <title>Machine view</title>
@@ -423,10 +430,15 @@
         Ctrl+Win keys sets the machine to mute, solo or bypass.
         Not all machines support all these states.
       </para-->
+      <indexterm><primary>changing the volume</primary></indexterm>
+      <indexterm><primary>changing the stereo panorama</primary></indexterm>
       <para>
         Wires have volume and panorama control support. A left-click on the
         pointer-shape in the middle of the wire open a volume popup. A click
-        outside closes it again. Shift+left-click opens the panorama control. 
+        outside closes it again. Shift+left-click opens the panorama control.
+        Only stereo links have a panorama control. For mono-to-stereo links it
+        acts as a panorama for strereo-to-stereo link it acts as a
+        stereo-balance.
       </para>
       <para>
         Machines and wires have context menus. The menu for the wire can be
@@ -536,9 +548,9 @@
       </para>
       <para>
         It is also possible to insert and delete full rows or just entries in a
-        track. The shortcuts for this are 
+        track. The shortcuts for this are
         <keycombo><keycap>Ctrl</keycap><keycap>i</keycap></keycombo> to
-        insert a full row and 
+        insert a full row and
         <keycombo><keycap>Ctrl</keycap><keycap>d</keycap></keycombo> to
         remove a full row. To only insert or remove inside the current track
         hold the <keycap>Shift</keycap> key in addition.
@@ -553,7 +565,7 @@
       <para>
         The wavetable hold sampled audio snippet that can be used e.g. from
         special sound generators (tracker sources). Those can be short
-        instrument samples, but also full length songs. 
+        instrument samples, but also full length songs.
       </para>
       <figure id="bt-edit-page-wavetable-view-fig">
         <title>Wave-table view</title>
@@ -569,10 +581,10 @@
         </screenshot>
       </figure>
       <para>
-        The left column is the wavetable. Samples are loaded by double clicking them 
+        The left column is the wavetable. Samples are loaded by double clicking them
         in the right side file-browser. The toolbar above the browser allows to
         pre-listen before loading. Waves in the table can also be played, renamed
-        and removed. 
+        and removed.
       </para>
       <para>
         Each wavetable entry can have multiple wave levels, which are shown below
@@ -640,7 +652,7 @@
       application. All settings are grouped into categories that can be chosen from
       the list on the left side.
     </para>
-  
+
     <figure id="bt-edit-settings-fig">
       <title>Settings dialog</title>
       <screenshot>
@@ -651,10 +663,10 @@
         </mediaobject>
       </screenshot>
     </figure>
-  
+
     <sect3 id="bt-edit-prefs-audio">
       <title id="bt-edit-prefs-audio.title">Audio device settings</title>
-  
+
       <para>
         Select the audiosink to use. It will be changed immediately, except when a
         song is playing (will be switched after stopping).
@@ -682,10 +694,10 @@
         (FIXME: write more)
       </para>
     </sect3>
-  
+
     <sect3 id="bt-edit-prefs-playback-controller">
       <title id="bt-edit-prefs-playback-controller.title">Playback controller settings</title>
-  
+
       <para>
         UPnP A/V remote control via Coherence.
         (FIXME: explain)
@@ -701,10 +713,10 @@
         </screenshot>
       </figure>
     </sect3>
-  
+
     <sect3 id="bt-edit-prefs-interaction-controller">
       <title id="bt-edit-prefs-interaction-controller.title">Interaction controller settings</title>
-  
+
       <para>
         Interactive controller for machine parameters.
         (FIXME: no settings yet)
@@ -720,10 +732,10 @@
         </screenshot>
       </figure>
     </sect3>
-  
+
     <sect3 id="bt-edit-prefs-colors">
       <title id="bt-edit-prefs-colors.title">Color settings</title>
-  
+
       <para>
         (FIXME:)
       </para>
@@ -738,10 +750,10 @@
         </screenshot>
       </figure>
     </sect3>
-  
+
     <sect3 id="bt-edit-prefs-shortcuts">
       <title id="bt-edit-prefs-shortcuts.title">Shortcut settings</title>
-  
+
       <para>
         (FIXME:)
       </para>
@@ -756,10 +768,10 @@
         </screenshot>
       </figure>
     </sect3>
-  
+
     <sect3 id="bt-edit-prefs-directories">
       <title id="bt-edit-prefs-directories.title">Directory settings</title>
-  
+
       <para>
         Configure default directories used for various file types.
       </para>
@@ -789,7 +801,7 @@
   <sect2 id="bt-edit-dialog-machine-properties">
     <title id="bt-edit-dialog-machine-properties.title">Machine properties dialog</title>
     <para>
-      The main area of the dialog is covered by the parameters of the machine.   
+      The main area of the dialog is covered by the parameters of the machine.
       These parameter control the generated audio or the effects. If parameters
       are controlled by <link linkend="bt-edit-main-view-patterns">patterns</link>,
       the ui will reflect the changes as the music plays.
@@ -852,7 +864,7 @@
         </mediaobject>
       </screenshot>
     </figure>
-  </sect2>    
+  </sect2>
 </sect1>
 
 <sect1 id="bt-edit-reference">

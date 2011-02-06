@@ -15,9 +15,17 @@ clean-local:
 include $(top_srcdir)/xmldocs.make
 dist-hook: app-dist-hook
 
-#	db2pdf buzztard-edit.xml buzztard-edit.pdf
-buzztard-edit.pdf: buzztard-edit.xml
-	dblatex 2>&1 -o buzztard-edit.pdf -Iigures buzztard-edit.xml
+# make a pdf using dblatex
+# - it seems unneccesarily hard to get our logo onto the titlepage
+# - we tried all sort of customizations (	 -p dblatex_pdf.xsl )
+buzztard-edit.pdf: buzztard-edit.xml dblatex_pdf.xsl
+	dblatex \
+	  -o buzztard-edit.pdf \
+	  -I figures \
+	  buzztard-edit.xml
+
+buzztard-edit.txt: buzztard-edit.xml
+	xmlto txt buzztard-edit.xml
 
 buzztard-edit2.pdf: buzztard-edit.xml
 	xsltproc \
@@ -28,6 +36,10 @@ buzztard-edit2.pdf: buzztard-edit.xml
 		http://docbook.sourceforge.net/release/xsl/current/fo/fo.xsl \
 		buzztard-edit.xml >buzztard-edit.fo; \
 	fop -fo buzztard-edit.fo -pdf buzztard-edit.pdf
+
+# statistics for index building:
+# sed -e 's/[[:space:]]\+/\n/g' buzztard-edit.txt | sed 's/[,.\(\)"]//g' | egrep -v '^ *$' | sort -f | uniq -ic | sort -n
+# sed -e 's/[[:space:]]\+/\n/g' buzztard-edit.txt | sed 's/[,.\(\)"]//g' | egrep -v '^ *$' | egrep -v '^..?$' | sort -f | uniq -ic | sort -n
 
 
 # here we should
