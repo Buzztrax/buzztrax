@@ -316,8 +316,10 @@ PKG_CHECK_MODULES(GUDEV_DEPS, gudev-1.0, [
   AC_DEFINE(USE_GUDEV, [1], [Define to 1 if we can use gudev libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GUDEV_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GUDEV_DEPS_LIBS"
+    AM_CONDITIONAL(USE_GUDEV, true)
     use_gudev=yes
   ],[
+    AM_CONDITIONAL(USE_GUDEV, false)
     use_gudev=no
   ]
 )
@@ -326,8 +328,15 @@ PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
   AC_DEFINE(USE_HAL, [1], [Define to 1 if we can use hal libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HAL_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HAL_DEPS_LIBS"
-    use_hal=yes
+    if test x$use_gudev = xno; then
+      AM_CONDITIONAL(USE_HAL, true)
+      use_hal=yes
+    else
+      AM_CONDITIONAL(USE_HAL, false)
+      use_hal=no
+    fi
   ],[
+    AM_CONDITIONAL(USE_HAL, false)
     use_hal=no
   ]
 )

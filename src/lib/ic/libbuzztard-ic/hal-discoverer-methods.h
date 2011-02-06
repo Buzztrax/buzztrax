@@ -1,7 +1,7 @@
 /* $Id$
  *
  * Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2011 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,14 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BTIC_REGISTRY_METHODS_H
-#define BTIC_REGISTRY_METHODS_H
+#ifndef BTIC_HAL_DISCOVERER_METHODS_H
+#define BTIC_HAL_DISCOVERER_METHODS_H
 
-#include "registry.h"
+#include "hal-discoverer.h"
 
-extern BtIcRegistry *btic_registry_new(void);
+extern BtIcHalDiscoverer *btic_hal_discoverer_new(void);
 
-extern void btic_registry_remove_device_by_udi(const gchar *udi);
-extern void btic_registry_add_device(BtIcDevice *device);
-
-#endif // BTIC_REGISTRY_METHDOS_H
+#endif // BTIC_HAL_DISCOVERER_METHDOS_H

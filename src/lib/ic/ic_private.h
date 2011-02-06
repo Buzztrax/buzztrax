@@ -86,6 +86,12 @@
 #include <libbuzztard-core/tools.h>
 
 #include <libbuzztard-ic/ic.h>
+#include "libbuzztard-ic/registry-methods.h"
+#if USE_GUDEV
+#include "libbuzztard-ic/gudev-discoverer-methods.h"
+#elif USE_HAL
+#include "libbuzztard-ic/hal-discoverer-methods.h"
+#endif
 #ifdef HAVE_LINUX_INPUT_H
 #include "libbuzztard-ic/input-device-methods.h"
 #endif

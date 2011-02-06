@@ -36,10 +36,6 @@
 #include "abs-range-control-methods.h"
 #include "trigger-control-methods.h"
 #include "device-methods.h"
-//#ifdef HAVE_LINUX_INPUT_H
-//#include "input-device-methods.h"
-//#endif
-//#include "midi-device-methods.h"
 #include "registry-methods.h"
 #include "learn-methods.h"
 

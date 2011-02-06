@@ -6,14 +6,28 @@ else
 LINUX_INPUT_SOURCES=
 endif
 
+if USE_GUDEV
+GUDEV_SOURCES=gudev-discoverer.h gudev-discoverer-methods.h
+else
+GUDEV_SOURCES=
+endif
+
+if USE_HAL
+HAL_SOURCES=hal-discoverer.h hal-discoverer-methods.h
+else
+HAL_SOURCES=
+endif
+
+
 libbtcoredir = $(includedir)/libbuzztard-ic
 libbtcore_HEADERS = \
 	ic.h \
 	version.h \
 	registry.h registry-methods.h \
-        learn.h learn-methods.h \
+	$(GUDEV_SOURCES) $(HAL_SOURCES) \
 	\
 	device.h device-methods.h \
+	learn.h learn-methods.h \
 	$(LINUX_INPUT_SOURCES) \
 	midi-device.h midi-device-methods.h \
 	\

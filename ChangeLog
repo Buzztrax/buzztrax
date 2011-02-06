@@ -1,3 +1,38 @@
+2011-02-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/gudev-discoverer.c:
+	* src/lib/ic/hal-discoverer.c:
+	* src/lib/ic/ic_private.h:
+	* src/lib/ic/libbuzztard-ic/Makefile.am:
+	* src/lib/ic/libbuzztard-ic/gudev-discoverer-methods.h:
+	* src/lib/ic/libbuzztard-ic/gudev-discoverer.h:
+	* src/lib/ic/libbuzztard-ic/hal-discoverer-methods.h:
+	* src/lib/ic/libbuzztard-ic/hal-discoverer.h:
+	* src/lib/ic/libbuzztard-ic/ic.h:
+	* src/lib/ic/libbuzztard-ic/registry-methods.h:
+	* src/lib/ic/registry.c:
+	* src/lib/ic/libbuzztard-ic/hal-discoverer.h (svn:keywords, svn:eol-
+	  style):
+	* src/lib/ic/gudev-discoverer.c (svn:keywords, svn:eol-style):
+	* src/lib/ic/hal-discoverer.c (svn:keywords, svn:eol-style):
+	* src/lib/ic/libbuzztard-ic/gudev-discoverer.h (svn:keywords, svn:eol-
+	  style):
+	* src/lib/ic/libbuzztard-ic/hal-discoverer-methods.h (svn:keywords, svn
+	  :eol-style):
+	* src/lib/ic/libbuzztard-ic/gudev-discoverer-methods.h (svn:keywords,
+	  svn:eol-style):
+	* src/lib/ic/libbuzztard-ic/hal-discoverer.h (added):
+	* src/lib/ic/libbuzztard-ic/hal-discoverer-methods.h (added):
+	* src/lib/ic/libbuzztard-ic/gudev-discoverer.h (added):
+	* src/lib/ic/libbuzztard-ic/gudev-discoverer-methods.h (added):
+	* src/lib/ic/hal-discoverer.c (added):
+	* src/lib/ic/gudev-discoverer.c (added):
+	  Refactor the device discovery. We now have separate discoverer
+	  objects. This way we have less ifdefs in the registry and we have pre-
+	  pared to add more discoverers in the future (jack-midi, alsa-seq).
+
 2011-02-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* pixmaps/hicolor/16x16/buzztard.png:

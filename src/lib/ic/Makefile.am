@@ -8,6 +8,18 @@ else
 LINUX_INPUT_SOURCES=
 endif
 
+if USE_GUDEV
+GUDEV_SOURCES=gudev-discoverer.c libbuzztard-ic/gudev-discoverer.h libbuzztard-ic/gudev-discoverer-methods.h
+else
+GUDEV_SOURCES=
+endif
+
+if USE_HAL
+HAL_SOURCES=hal-discoverer.c libbuzztard-ic/hal-discoverer.h libbuzztard-ic/hal-discoverer-methods.h
+else
+HAL_SOURCES=
+endif
+
 lib_LTLIBRARIES = libbuzztard-ic.la
 libbuzztard_ic_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS)
 libbuzztard_ic_la_LDFLAGS = \
@@ -16,6 +28,7 @@ libbuzztard_ic_la_LDFLAGS = \
 libbuzztard_ic_la_SOURCES = \
 	ic.c libbuzztard-ic/ic.h \
 	registry.c libbuzztard-ic/registry.h libbuzztard-ic/registry-methods.h \
+	$(GUDEV_SOURCES) $(HAL_SOURCES) \
 	\
 	device.c libbuzztard-ic/device.h libbuzztard-ic/device-methods.h \
 	learn.c libbuzztard-ic/learn.h libbuzztard-ic/learn-methods.h \
