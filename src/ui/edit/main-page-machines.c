@@ -130,8 +130,11 @@ struct _BtMainPageMachinesPrivate {
   /* cached setup properties */
   GHashTable *properties;
 
-  /* mouse coodinates on context menu invokation (used for placing machines there */
+  /* mouse coodinates on context menu invokation (used for placing new machines) */
   gdouble mouse_x,mouse_y;
+  /* machine coordinates before draging (needed for undo) */
+  gdouble machine_x,machine_y;
+  BtMachineCanvasItem *moving_machine_item;
 
   /* volume/panorama popup slider */
   BtVolumePopup *vol_popup;
@@ -208,6 +211,31 @@ static void on_machine_item_start_connect(BtMachineCanvasItem *machine_item, gpo
 }
 
 //-- event handler helper
+
+static void machine_item_moved(BtMainPageMachines *self, BtMachineCanvasItem *machine_item) {
+  BtMachine *machine;
+  GHashTable *properties;
+  gchar *undo_str,*redo_str;
+  gchar *mid;
+  gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+
+  g_object_get(machine_item,"machine",&machine,NULL);
+  g_object_get(machine,"id",&mid,"properties",&properties,NULL);
+
+  bt_change_log_start_group(self->priv->change_log);
+
+  undo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->machine_x));
+  redo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"xpos"));
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+  undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->machine_y));
+  redo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"ypos"));
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+  bt_change_log_end_group(self->priv->change_log);
+
+  g_free(mid);
+  g_object_unref(machine);
+}
 
 // @todo: this method probably should go to BtMachine, but on the other hand it is GUI related
 gboolean machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
@@ -559,7 +587,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
       type=0;
     else if(BT_IS_PROCESSOR_MACHINE(machine))
       type=1;
-    g_object_get(machine,"id",&mid,"plugin-name",&pname,"properties",&properties,NULL);
+    g_object_get(machine,"id",&mid,"plugin-name",&pname,"properties",&properties,"state",&machine_state,NULL);
 
     bt_change_log_start_group(self->priv->change_log);
 
@@ -572,7 +600,6 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
     undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"ypos"));
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
 
-    g_object_get(machine,"state",&machine_state,NULL);
     if(machine_state!=BT_MACHINE_STATE_NORMAL) {
       GEnumClass *enum_class=g_type_class_peek_static(BT_TYPE_MACHINE_STATE);
       GEnumValue *enum_value=g_enum_get_value(enum_class,machine_state);
@@ -935,17 +962,26 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         }
       }
       else {
-        if((event->button.button==1) && (event->button.state&GDK_SHIFT_MASK)) {
+        if(event->button.button==1) {
           g_object_get(ci,"parent",&pci,NULL);
           if(BT_IS_MACHINE_CANVAS_ITEM(pci)) {
-            self->priv->new_wire_src=BT_MACHINE_CANVAS_ITEM(pci);
-            g_object_get(pci,"machine",&machine,NULL);
-            // if the citem->machine is a source/processor-machine
-            if(BT_IS_SOURCE_MACHINE(machine) || BT_IS_PROCESSOR_MACHINE(machine)) {
-              start_connect(self);
-              res=TRUE;
+            if(event->button.state&GDK_SHIFT_MASK) {
+              self->priv->new_wire_src=BT_MACHINE_CANVAS_ITEM(pci);
+              g_object_get(pci,"machine",&machine,NULL);
+              // if the citem->machine is a source/processor-machine
+              if(BT_IS_SOURCE_MACHINE(machine) || BT_IS_PROCESSOR_MACHINE(machine)) {
+                start_connect(self);
+                res=TRUE;
+              }
+              g_object_unref(machine);
+            } else {
+              gdouble px, py;
+              // store pos for later undo
+              g_object_get(pci,"x",&px,"y",&py,NULL);
+              self->priv->machine_x=px/MACHINE_VIEW_ZOOM_X;
+              self->priv->machine_y=py/MACHINE_VIEW_ZOOM_Y;
+              self->priv->moving_machine_item=BT_MACHINE_CANVAS_ITEM(pci);
             }
-            g_object_unref(machine);
           }
           else g_object_unref(pci);
         }
@@ -996,6 +1032,10 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         gtk_object_destroy(GTK_OBJECT(self->priv->new_wire));self->priv->new_wire=NULL;
         gnome_canvas_points_free(self->priv->new_wire_points);self->priv->new_wire_points=NULL;
         self->priv->connecting=FALSE;
+      }
+      if(self->priv->moving_machine_item) {
+        machine_item_moved(self,self->priv->moving_machine_item);
+        self->priv->moving_machine_item=NULL;
       }
       break;
     case GDK_KEY_RELEASE:
@@ -1571,21 +1611,25 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       g_object_get(song,"setup",&setup,NULL);
       if((machine=bt_setup_get_machine_by_id(setup, mid))) {
         BtMachineCanvasItem *item;
-        gdouble p;
+        gdouble pn,po;
         gboolean is_prop=FALSE;
 
         g_object_get(machine,"properties",&properties,NULL);
 
         if(!strcmp(key,"xpos")) {
           if((item=g_hash_table_lookup(self->priv->machines,machine))) {
-            p=(gdouble)(MACHINE_VIEW_ZOOM_X*g_ascii_strtod(val,NULL));
-            g_object_set(item,"x",p,NULL);
+            g_object_get(item,"x",&po,NULL);
+            pn=(gdouble)(MACHINE_VIEW_ZOOM_X*g_ascii_strtod(val,NULL));
+            gnome_canvas_item_move((GnomeCanvasItem *)item,(pn-po),0.0);
+            // for some reason a plain g_object_set(item,"x",pn,NULL); would not fully redraw
           }
           is_prop=TRUE;
         } else if(!strcmp(key,"ypos")) {
           if((item=g_hash_table_lookup(self->priv->machines,machine))) {
-            p=(gdouble)(MACHINE_VIEW_ZOOM_Y*g_ascii_strtod(val,NULL));
-            g_object_set(item,"y",p,NULL);
+            g_object_get(item,"y",&po,NULL);
+            pn=(gdouble)(MACHINE_VIEW_ZOOM_Y*g_ascii_strtod(val,NULL));
+            gnome_canvas_item_move((GnomeCanvasItem *)item,0.0,(pn-po));
+            // for some reason a plain g_object_set(item,"y",pn,NULL); would not fully redraw
           }
           is_prop=TRUE;
         } else if(!strcmp(key,"state")) {

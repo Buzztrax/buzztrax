@@ -895,7 +895,6 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
 #endif
         gst_object_unref(element);
 
-
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
         g_signal_connect(self->priv->machine, "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);

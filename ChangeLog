@@ -1,3 +1,9 @@
+2011-02-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-machines.c:
+	  Update machine pos for every move and make it undo/redoable.
+
 2011-02-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/Makefile.am:
