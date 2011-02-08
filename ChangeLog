@@ -1,5 +1,12 @@
 2011-02-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-editor.c:
+	  Improve variable naming for readablility. Keep max_y an int in 
+	  bt_pattern_editor_draw_column() to fix the comparission and with that
+	  the disappearing pattern when scrolling down (y get negative).
+
+2011-02-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-machines.c:
 	  Also take new position from machine and not from properties to avoid
 	  race in event handling.
