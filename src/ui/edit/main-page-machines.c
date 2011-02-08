@@ -132,8 +132,9 @@ struct _BtMainPageMachinesPrivate {
 
   /* mouse coodinates on context menu invokation (used for placing new machines) */
   gdouble mouse_x,mouse_y;
-  /* machine coordinates before draging (needed for undo) */
-  gdouble machine_x,machine_y;
+  /* machine coordinates before/after draging (needed for undo) */
+  gdouble machine_xo,machine_yo;
+  gdouble machine_xn,machine_yn;
   BtMachineCanvasItem *moving_machine_item;
 
   /* volume/panorama popup slider */
@@ -214,21 +215,20 @@ static void on_machine_item_start_connect(BtMachineCanvasItem *machine_item, gpo
 
 static void machine_item_moved(BtMainPageMachines *self, BtMachineCanvasItem *machine_item) {
   BtMachine *machine;
-  GHashTable *properties;
   gchar *undo_str,*redo_str;
   gchar *mid;
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
 
   g_object_get(machine_item,"machine",&machine,NULL);
-  g_object_get(machine,"id",&mid,"properties",&properties,NULL);
+  g_object_get(machine,"id",&mid,NULL);
 
   bt_change_log_start_group(self->priv->change_log);
 
-  undo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->machine_x));
-  redo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"xpos"));
+  undo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->machine_xo));
+  redo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->machine_xn));
   bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-  undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->machine_y));
-  redo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"ypos"));
+  undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->machine_yo));
+  redo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->machine_yn));
   bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 
   bt_change_log_end_group(self->priv->change_log);
@@ -978,8 +978,8 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
               gdouble px, py;
               // store pos for later undo
               g_object_get(pci,"x",&px,"y",&py,NULL);
-              self->priv->machine_x=px/MACHINE_VIEW_ZOOM_X;
-              self->priv->machine_y=py/MACHINE_VIEW_ZOOM_Y;
+              self->priv->machine_xo=px/MACHINE_VIEW_ZOOM_X;
+              self->priv->machine_yo=py/MACHINE_VIEW_ZOOM_Y;
               self->priv->moving_machine_item=BT_MACHINE_CANVAS_ITEM(pci);
             }
           }
@@ -1034,6 +1034,11 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         self->priv->connecting=FALSE;
       }
       if(self->priv->moving_machine_item) {
+        gdouble px, py;
+
+        g_object_get((GnomeCanvasItem *)self->priv->moving_machine_item,"x",&px,"y",&py,NULL);
+        self->priv->machine_xn=px/MACHINE_VIEW_ZOOM_X;
+        self->priv->machine_yn=py/MACHINE_VIEW_ZOOM_Y;
         machine_item_moved(self,self->priv->moving_machine_item);
         self->priv->moving_machine_item=NULL;
       }

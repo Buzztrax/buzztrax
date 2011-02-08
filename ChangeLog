@@ -1,5 +1,11 @@
 2011-02-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Also take new position from machine and not from properties to avoid
+	  race in event handling.
+
+2011-02-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/led/setled.c:
 	  Cleanups on the log messages and more comments.
 
