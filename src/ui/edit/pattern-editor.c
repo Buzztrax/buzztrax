@@ -162,19 +162,22 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
     gint x, gint y, gint row, gint max_y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
+  GdkWindow *win = widget->window;
+  GtkStyle *s = widget->style;
+  PangoLayout *pl = self->pl;
+  GdkGC *fg_gc = s->fg_gc[widget->state];
   gchar buf[16];
   gint col_w = bt_pattern_editor_rownum_width(self);
 
   col_w-=self->cw;
   while (y < max_y && row < self->num_rows) {
-    gdk_draw_rectangle (widget->window,
-      (row&0x1) ?self->shade_gc : widget->style->light_gc[GTK_STATE_NORMAL],
+    gdk_draw_rectangle (win,
+      (row&0x1) ? self->shade_gc : s->light_gc[GTK_STATE_NORMAL],
       TRUE, x, y, col_w, self->ch);
 
     sprintf(buf, "%04X", row);
-    pango_layout_set_text (self->pl, buf, 4);
-    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
-      &widget->style->text[GTK_STATE_NORMAL], NULL);
+    pango_layout_set_text (pl, buf, 4);
+    gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
     y += self->ch;
     row++;
   }
@@ -185,18 +188,21 @@ bt_pattern_editor_draw_colnames (BtPatternEditor *self,
     gint x, gint y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
+  GdkWindow *win = widget->window;
+  GtkStyle *s = widget->style;
+  PangoLayout *pl = self->pl;
+  GdkGC *fg_gc = s->fg_gc[widget->state];
   gint g;
 
-  gdk_draw_rectangle (widget->window,
-      widget->style->bg_gc[GTK_STATE_NORMAL],
+  // FIXME: this erases too much
+  gdk_draw_rectangle (win, s->bg_gc[GTK_STATE_NORMAL],
       TRUE, 0, 0, widget->allocation.width, self->ch);
 
   for (g = 0; g < self->num_groups; g++) {
     BtPatternEditorColumnGroup *cgrp = &self->groups[g];
 
-    pango_layout_set_text (self->pl, cgrp->name, ((cgrp->width/self->cw)-1));
-    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
-      &widget->style->text[GTK_STATE_NORMAL], NULL);
+    pango_layout_set_text (pl, cgrp->name, ((cgrp->width/self->cw)-1));
+    gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
 
     x+=cgrp->width;
   }
@@ -207,20 +213,22 @@ bt_pattern_editor_draw_rowname (BtPatternEditor *self,
     gint x, gint y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
+  GdkWindow *win = widget->window;
+  GtkStyle *s = widget->style;
+  PangoLayout *pl = self->pl;
   gint col_w = bt_pattern_editor_rownum_width(self);
 
-  gdk_draw_rectangle (widget->window,
-      widget->style->bg_gc[GTK_STATE_NORMAL],
+  gdk_draw_rectangle (win, s->bg_gc[GTK_STATE_NORMAL],
       TRUE, 0, 0, col_w, self->ch);
 
   if (self->num_groups) {
-    pango_layout_set_text (self->pl, "Tick", 4);
-    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
-      &widget->style->text[GTK_STATE_NORMAL], NULL);
+    pango_layout_set_text (pl, "Tick", 4);
+    gdk_draw_layout_with_colors (win, s->fg_gc[widget->state], x, y, pl,
+      &s->text[GTK_STATE_NORMAL], NULL);
   }
 }
 
-static gboolean
+static gboolean inline
 in_selection (BtPatternEditor *self,
     guint group, guint param, guint row)
 {
@@ -251,43 +259,46 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
     guint group, guint param, guint row, gint max_y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
+  GdkWindow *win = widget->window;
+  GtkStyle *s = widget->style;
+  PangoLayout *pl = self->pl;
+  GdkGC *bg_gc, *fg_gc = s->fg_gc[widget->state];
   struct ParamType *pt = &param_types[col->type];
   gchar buf[16];
   gint cw = self->cw, ch = self->ch;
   gint col_w = cw * (pt->chars + 1);
 
   while (y < max_y && row < self->num_rows) {
-    GdkGC *gc = (row&0x1) ?self->shade_gc : widget->style->light_gc[GTK_STATE_NORMAL];
     gint col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
 
+    /* draw background */
+    bg_gc = (row&0x1) ? self->shade_gc : s->light_gc[GTK_STATE_NORMAL];
     if (self->selection_enabled && in_selection(self, group, param, row)) {
       /* the last space should be selected if it's a within-group "glue"
          in multiple column selection, row colour otherwise */
-      if (self->selection_mode == PESM_COLUMN)
-      {
+      if (self->selection_mode == PESM_COLUMN) {
         /* draw row-coloured "continuation" after column, unless last column in
            a group */
         col_w2 = col_w - cw;
         if (param != self->groups[group].num_columns - 1)
-          gdk_draw_rectangle (widget->window, gc, TRUE, x + col_w2, y, cw, ch);
+          gdk_draw_rectangle (win, bg_gc, TRUE, x + col_w2, y, cw, ch);
       }
       /* draw selected column+continuation (unless last column, then don't draw
          continuation) */
-      gc = widget->style->base_gc[GTK_STATE_SELECTED];
+      bg_gc = s->base_gc[GTK_STATE_SELECTED];
     }
-    gdk_draw_rectangle (widget->window, gc, TRUE, x, y, col_w2, ch);
+    gdk_draw_rectangle (win, bg_gc, TRUE, x, y, col_w2, ch);
 
     pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
-    pango_layout_set_text (self->pl, buf, pt->chars);
-    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, self->pl,
-      &widget->style->text[GTK_STATE_NORMAL], NULL);
+    pango_layout_set_text (pl, buf, pt->chars);
+    gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
     // draw cursor
     if (row == self->row && param == self->parameter && group == self->group) {
       gint cp = pt->column_pos[self->digit];
-      pango_layout_set_text (self->pl, buf + cp, 1);
+      pango_layout_set_text (pl, buf + cp, 1);
       // we could also use text_aa[GTK_STATE_SELECTED] for the cursor
-      gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x + cw * cp, y, self->pl,
-        &widget->style->text[GTK_STATE_NORMAL], &widget->style->text_aa[GTK_STATE_ACTIVE]);
+      gdk_draw_layout_with_colors (win, fg_gc, x + cw * cp, y, pl,
+        &s->text[GTK_STATE_NORMAL], &s->text_aa[GTK_STATE_ACTIVE]);
     }
     y += ch;
     row++;

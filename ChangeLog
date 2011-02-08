@@ -1,3 +1,9 @@
+2011-02-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Use more local variables to avoid pointer derefs and make calls
+	  shorter. More comemnts and formatting cleanups.
+
 2011-02-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:
