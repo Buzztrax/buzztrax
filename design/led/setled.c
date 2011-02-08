@@ -4,7 +4,11 @@
  * building:
  * gcc -Wall -g `pkg-config glib-2.0 --cflags --libs` setled.c -o setled
  *
- * damn, this needs root priviledges to run
+ * damn, access to the devices needs root privileges to run
+ */
+/* based on:
+ * http://sampo.kapsi.fi/ledcontrol/
+ * http://www.netzmafia.de/skripten/hardware/keyboard/tastatur-leds.html
  */
 
 #include <errno.h>
@@ -20,6 +24,7 @@
 #include <glib.h>
 
 #define TTY_NAME "/dev/console"
+//#define TTY_NAME "/dev/tty7"
 
 /* Graphics tty (X) */
 #define TYPE_GRAPHICS 0
@@ -35,21 +40,25 @@ static gboolean led_init() {
 
   fd=open(TTY_NAME,O_RDONLY);
   if (fd==-1) {
-      fprintf(stderr,"cannot open tty %s (%s)",TTY_NAME,g_strerror(errno));
-      return FALSE;
+    fprintf(stderr,"cannot open tty %s (%s)\n",TTY_NAME,g_strerror(errno));
+    return FALSE;
   }
 
   /* Get text/graphics mode */
   if (ioctl(fd,KDGETMODE,&i)) {
-      fprintf(stderr,"KDGETMODE on tty %s failed (%s)",TTY_NAME,g_strerror(errno));
-      close(fd);
-      fd=-1;
-      return FALSE;
+    fprintf(stderr,"KDGETMODE on tty %s failed (%s)\n",TTY_NAME,g_strerror(errno));
+    close(fd);
+    fd=-1;
+    return FALSE;
   }
-  if (i==KD_GRAPHICS)
-      type=TYPE_GRAPHICS;
-  else
-      type=TYPE_TEXT;
+  if (i==KD_GRAPHICS) {
+    printf("graphic mode\n");
+    type=TYPE_GRAPHICS;
+  }
+  else {
+    printf("text mode\n");
+    type=TYPE_TEXT;
+  }
 
   return TRUE;
 }
@@ -75,13 +84,13 @@ static gint led_set(gint and, gint or) {
   if (type==TYPE_GRAPHICS) {
     /* In X we assume LEDs to be in "correct" state */
     if (ioctl(fd,KDGETLED,&current)) {
-      fprintf(stderr,"KDGETLED on tty %s failed (%s)",TTY_NAME,g_strerror(errno));
+      fprintf(stderr,"KDGETLED on tty %s failed (%s)\n",TTY_NAME,g_strerror(errno));
       return -1;
     }
     ref=current;
   } else {
     if (ioctl(fd,KDGETLED,&current)) {
-      fprintf(stderr,"KDGETLED on tty %s failed (%s)",TTY_NAME,g_strerror(errno));
+      fprintf(stderr,"KDGETLED on tty %s failed (%s)\n",TTY_NAME,g_strerror(errno));
       return -1;
     }
     if (ioctl(fd,KDGKBLED,&ref)) {
@@ -94,7 +103,7 @@ static gint led_set(gint and, gint or) {
 
   if (new!=current) {
     if (ioctl(fd,KDSETLED,new)) {
-      fprintf(stderr,"KDSETLED on tty %s failed (%s)",TTY_NAME,g_strerror(errno));
+      fprintf(stderr,"KDSETLED on tty %s failed (%s)\n",TTY_NAME,g_strerror(errno));
       return -1;
     }
   }
