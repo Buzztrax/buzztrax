@@ -18,7 +18,7 @@ TESTS = \
 
 # prevent endless loops, this requires bash, see idea in bt-check.c
 #   ulimit -St20;
-# 
+#
 # adding this can help debug gconfd
 #    GCONF_DEBUG_TRACE_CLIENT=1
 #
@@ -31,6 +31,7 @@ TESTS = \
 TESTS_ENVIRONMENT = \
 	CK_DEFAULT_TIMEOUT=20 \
 	LANG=C \
+	BT_TEST_RUN=1 \
 	$(LIBTOOL) --mode=execute
 
 if BUILD_CHECK_TESTS

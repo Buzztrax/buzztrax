@@ -962,12 +962,12 @@ static void bt_change_log_init(BtChangeLog *self) {
     GST_WARNING("Can't create change-log dir: '%s': %s",self->priv->cache_dir, g_strerror(errno));
     g_free(self->priv->cache_dir);
     self->priv->cache_dir=NULL;
+  } else {
+    bt_change_log_crash_check(self);
   }
 
   self->priv->loggers=g_hash_table_new(g_str_hash,g_str_equal);
   on_song_changed(self->priv->app,NULL,self);
-
-  bt_change_log_crash_check(self);
 
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 }

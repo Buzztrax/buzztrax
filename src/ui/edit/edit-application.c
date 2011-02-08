@@ -55,7 +55,7 @@ struct _BtEditApplicationPrivate {
   BtUIResources *ui_resources;
   /* the top-level window of our app */
   BtMainWindow *main_window;
-  
+
   /* editor change log */
   BtChangeLog *change_log;
 
@@ -321,7 +321,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     // create new song and release the previous one
     song=bt_song_new(BT_APPLICATION(self));
     g_object_set((gpointer)self,"song",NULL,NULL);
-    
+
 #ifdef USE_DEBUG
     // do sanity check that bin is empty
     {
@@ -442,7 +442,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
      *     - move to <existing>.bak
      *       - save newfile
      *       - if saving failed, move <existing>.bak back
-     * save-as 
+     * save-as
      *   new file (!old_file_name)
      *     like save of a new-file
      *   existing file
@@ -603,7 +603,7 @@ void bt_edit_application_show_tip(const BtEditApplication *self) {
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
     gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
     gtk_widget_show_all(dialog);
-  
+
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
   }
@@ -619,16 +619,17 @@ void bt_edit_application_crash_log_recover(const BtEditApplication *self) {
   GList *crash_logs;
 
   g_object_get(self->priv->change_log,"crash-logs",&crash_logs, NULL);
-  if(crash_logs) {
+  /* we don't want the dialog to show during a test */
+  if(crash_logs && !g_getenv("BT_TEST_RUN")) {
     GtkWidget *dialog;
 
     GST_INFO("have found crash logs");
     if((dialog=GTK_WIDGET(bt_crash_recover_dialog_new(crash_logs)))) {
       // set parent relationship
-      gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
-      gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+      gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
+      gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog),TRUE);
       gtk_widget_show_all(dialog);
-    
+
       gtk_dialog_run(GTK_DIALOG(dialog));
       gtk_widget_destroy(dialog);
     }
@@ -695,7 +696,7 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
       BtSong *song=self->priv->song;
-      
+
 #ifdef USE_DEBUG
       GstElement *bin;
       g_object_get(self,"bin",&bin,NULL);
@@ -744,7 +745,7 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     // create main window
     GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
     singleton->priv->main_window=bt_main_window_new();
-  
+
     // warning: dereferencing type-punned pointer will break strict-aliasing rules
     g_object_add_weak_pointer(G_OBJECT(singleton->priv->main_window),(gpointer*)(gpointer)&singleton->priv->main_window);
 #ifdef USE_HILDON

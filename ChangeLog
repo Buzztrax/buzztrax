@@ -1,28 +1,19 @@
 2011-02-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-log.c:
+	  Move the crashlog check to else branch.
+
+	* src/ui/edit/edit-application.c:
+	* tests/Makefile.am:
+	  Use an envvar to disable the crashlog check during tests.
+
+2011-02-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/led/setled.c:
 	* design/led/setled.c (svn:keywords, svn:eol-style):
 	* design/led (added):
 	* design/led/setled.c (added):
 	  Add a keyboard led hack.
-
-2011-02-08  Stefan Kost  <ensonic@users.sf.net>
-
-	reviewed by: <delete if not using a buddy>
-	patch by: <delete if not someone else's patch>
-
-	* po/cs.po:
-	* po/da.po:
-	* po/de.po:
-	* po/fi.po:
-	* po/id.po:
-	* po/nl.po:
-	* po/nn.po:
-	* po/vi.po:
-	* src/ui/edit/change-log.c:
-	* src/ui/edit/edit-application.c:
-	* src/ui/edit/main-page-machines.c:
-	* tests/Makefile.am:
 
 2011-02-07  Stefan Kost  <ensonic@users.sf.net>
 
