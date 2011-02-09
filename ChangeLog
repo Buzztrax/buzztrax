@@ -1,5 +1,12 @@
 2011-02-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/core/e-song-io-native.c:
+	* tests/ui/edit/e-bt-edit-application.c:
+	  Add more tests and unify the ref-count logging. Apparently we unref
+	  a machine somewhere too much (looks like pattern-view).
+
+2011-02-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-editor.c:
 	  Use more local variables to avoid pointer derefs and make calls
 	  shorter. More comemnts and formatting cleanups.

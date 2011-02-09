@@ -39,9 +39,9 @@ static void test_teardown(void) {
 
 static void assert_machine_refcount(BtSetup *setup, const gchar *id, guint refs) {
   BtMachine *machine=bt_setup_get_machine_by_id(setup,id);
-  
+
   fail_unless(machine!=NULL,NULL);
-  GST_INFO("setup.machine[%s].ref-count=%d",id,G_OBJECT_REF_COUNT(machine));
+  GST_INFO("setup.machine[%s].ref_count=%d",id,G_OBJECT_REF_COUNT(machine));
   fail_unless(G_OBJECT_REF_COUNT(machine)==(1+refs),NULL);
   g_object_unref(machine);
 }
@@ -55,25 +55,25 @@ static void assert_song_part_refcounts(BtSong *song) {
   g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&songinfo,"wavetable",&wavetable,NULL);
 
   fail_unless(setup!=NULL,NULL);
-  GST_INFO("setup.ref-count=%d",G_OBJECT_REF_COUNT(setup));
+  GST_INFO("setup.ref_count=%d",G_OBJECT_REF_COUNT(setup));
   fail_unless(G_OBJECT_REF_COUNT(setup)==2,NULL);
-  
+
   fail_unless(sequence!=NULL,NULL);
-  GST_INFO("sequence.ref-count=%d",G_OBJECT_REF_COUNT(sequence));
+  GST_INFO("sequence.ref_count=%d",G_OBJECT_REF_COUNT(sequence));
   fail_unless(G_OBJECT_REF_COUNT(sequence)==2,NULL);
-  
+
   fail_unless(songinfo!=NULL,NULL);
-  GST_INFO("songinfo.ref-count=%d",G_OBJECT_REF_COUNT(songinfo));
+  GST_INFO("songinfo.ref_count=%d",G_OBJECT_REF_COUNT(songinfo));
   fail_unless(G_OBJECT_REF_COUNT(songinfo)==2,NULL);
-  
+
   fail_unless(wavetable!=NULL,NULL);
-  GST_INFO("wavetable.ref-count=%d",G_OBJECT_REF_COUNT(wavetable));
+  GST_INFO("wavetable.ref_count=%d",G_OBJECT_REF_COUNT(wavetable));
   fail_unless(G_OBJECT_REF_COUNT(wavetable)==2,NULL);
 
   g_object_unref(setup);
   g_object_unref(sequence);
   g_object_unref(songinfo);
-  g_object_unref(wavetable);  
+  g_object_unref(wavetable);
 }
 
 //-- tests
@@ -87,39 +87,39 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   BtSequence *sequence;
   BtSongInfo *songinfo;
   BtWavetable *wavetable;
- 
+
   /* create app and song */
   app=bt_test_application_new();
   song=bt_song_new(app);
-  
+
   /* load the song */
   song_io=bt_song_io_from_file(check_get_test_song_path("example.xml"));
   fail_unless(song_io != NULL, NULL);
-  
+
   res=bt_song_io_load(song_io,song);
   fail_unless(res == TRUE, NULL);
-  GST_INFO("song.ref-count=%d",G_OBJECT_REF_COUNT(song));
+  GST_INFO("song.ref_count=%d",G_OBJECT_REF_COUNT(song));
   fail_unless(G_OBJECT_REF_COUNT(song)==1,NULL);
-  
+
   /* assert main song part refcounts */
   g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&songinfo,"wavetable",&wavetable,NULL);
 
   fail_unless(setup!=NULL,NULL);
-  GST_INFO("setup.ref-count=%d",G_OBJECT_REF_COUNT(setup));
+  GST_INFO("setup.ref_count=%d",G_OBJECT_REF_COUNT(setup));
   fail_unless(G_OBJECT_REF_COUNT(setup)==2,NULL);
-  
+
   fail_unless(sequence!=NULL,NULL);
-  GST_INFO("sequence.ref-count=%d",G_OBJECT_REF_COUNT(sequence));
+  GST_INFO("sequence.ref_count=%d",G_OBJECT_REF_COUNT(sequence));
   fail_unless(G_OBJECT_REF_COUNT(sequence)==2,NULL);
-  
+
   fail_unless(songinfo!=NULL,NULL);
-  GST_INFO("songinfo.ref-count=%d",G_OBJECT_REF_COUNT(songinfo));
+  GST_INFO("songinfo.ref_count=%d",G_OBJECT_REF_COUNT(songinfo));
   fail_unless(G_OBJECT_REF_COUNT(songinfo)==2,NULL);
-  
+
   fail_unless(wavetable!=NULL,NULL);
-  GST_INFO("wavetable.ref-count=%d",G_OBJECT_REF_COUNT(wavetable));
+  GST_INFO("wavetable.ref_count=%d",G_OBJECT_REF_COUNT(wavetable));
   fail_unless(G_OBJECT_REF_COUNT(wavetable)==2,NULL);
-  
+
   /* assert machine refcounts */
   // 1 x setup, 1 x wire
   assert_machine_refcount(setup,"audio_sink",2);
@@ -160,7 +160,7 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
     NULL
   };
   BtSettings *settings=bt_settings_make();
- 
+
   /* tweak the config */
   g_object_set(settings,"audiosink","fakesink",NULL);
 
@@ -178,13 +178,13 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
     song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);
     fail_unless(res == TRUE, NULL);
-    GST_INFO("song.ref-count=%d",G_OBJECT_REF_COUNT(song));
+    GST_INFO("song.ref_count=%d",G_OBJECT_REF_COUNT(song));
     fail_unless(G_OBJECT_REF_COUNT(song)==1,NULL);
     GST_INFO("song[%s].elements=%d",*song_name,GST_BIN_NUMCHILDREN(bin));
-  
+
     /* assert main song part refcounts */
     assert_song_part_refcounts(song);
-  
+
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
     GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));

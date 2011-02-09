@@ -115,9 +115,9 @@ BT_START_TEST(test_run) {
   // run and quit
   g_idle_add(finish_main_loops,NULL);
   bt_edit_application_run(app);
-  
+
   gtk_widget_destroy(GTK_WIDGET(main_window));
-  
+
   // free application
   g_object_checked_unref(app);
 }
@@ -235,7 +235,7 @@ BT_START_TEST(test_load2) {
 
   // do events (normaly done by check_make_widget_screenshot())
   while(gtk_events_pending()) gtk_main_iteration();
-  
+
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
@@ -426,7 +426,7 @@ BT_START_TEST(test_tabs1) {
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
-  
+
   // load a song and a sample
   bt_edit_application_load_song(app,check_get_test_song_path("melo3.xml"));
   g_object_get(app,"song",&song,NULL);
@@ -457,7 +457,7 @@ BT_START_TEST(test_tabs1) {
   g_object_unref(pattern_page);
   g_object_unref(src_machine);
   g_object_unref(setup);
-  
+
   children=gtk_container_get_children(GTK_CONTAINER(pages));
   //num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));
   num_pages=g_list_length(children);
@@ -502,7 +502,7 @@ BT_START_TEST(test_tabs_playing) {
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
-  
+
   // load a song and a sample
   bt_edit_application_load_song(app,check_get_test_song_path("melo3.xml"));
   g_object_get(app,"song",&song,NULL);
@@ -533,7 +533,7 @@ BT_START_TEST(test_tabs_playing) {
   g_object_unref(pattern_page);
   g_object_unref(src_machine);
   g_object_unref(setup);
-  
+
   children=gtk_container_get_children(GTK_CONTAINER(pages));
   //num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));
   num_pages=g_list_length(children);
@@ -565,7 +565,52 @@ BT_START_TEST(test_tabs_playing) {
 BT_END_TEST
 
 // load a song and remove a machine
-BT_START_TEST(test_machine_view_edit) {
+BT_START_TEST(test_machine_view_edit0) {
+  BtEditApplication *app;
+  BtMainWindow *main_window;
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
+  fail_unless(app != NULL, NULL);
+
+  bt_edit_application_load_song(app, check_get_test_song_path("test-simple1.xml"));
+  g_object_get(app,"song",&song,NULL);
+  fail_unless(song != NULL, NULL);
+  GST_INFO("song loaded");
+  g_object_get(song,"setup",&setup,NULL);
+
+  // remove a source
+  machine=bt_setup_get_machine_by_id(setup,"sine1");
+  GST_INFO("setup.machine[sine2].ref_count=%d",G_OBJECT_REF_COUNT(machine));
+  bt_setup_remove_machine(setup,machine);
+  while(gtk_events_pending()) gtk_main_iteration();
+  GST_INFO("setup.machine[sine2].ref_count=%d",G_OBJECT_REF_COUNT(machine));
+  // ref count should be 1 now
+  fail_unless(G_OBJECT_REF_COUNT(machine)==1,NULL);
+  g_object_unref(machine);
+
+  g_object_unref(setup);
+  g_object_unref(song);
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
+  // close window
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
+  // free application
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+// load a song and remove machines
+BT_START_TEST(test_machine_view_edit1) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
@@ -581,19 +626,79 @@ BT_START_TEST(test_machine_view_edit) {
   fail_unless(song != NULL, NULL);
   GST_INFO("song loaded");
   g_object_get(song,"setup",&setup,NULL);
-  
+
   // remove a source
   machine=bt_setup_get_machine_by_id(setup,"sine2");
+  GST_INFO("setup.machine[sine2].ref_count=%d",G_OBJECT_REF_COUNT(machine));
   bt_setup_remove_machine(setup,machine);
-  GST_INFO("setup.machine[sine2].ref-count=%d",G_OBJECT_REF_COUNT(machine));
+  while(gtk_events_pending()) gtk_main_iteration();
+  GST_INFO("setup.machine[sine2].ref_count=%d",G_OBJECT_REF_COUNT(machine));
   // ref count should be 1 now
   fail_unless(G_OBJECT_REF_COUNT(machine)==1,NULL);
   g_object_unref(machine);
 
   // remove an effect
   machine=bt_setup_get_machine_by_id(setup,"amp1");
+  GST_INFO("setup.machine[amp1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
   bt_setup_remove_machine(setup,machine);
-  GST_INFO("setup.machine[amp1].ref-count=%d",G_OBJECT_REF_COUNT(machine));
+  while(gtk_events_pending()) gtk_main_iteration();
+  GST_INFO("setup.machine[amp1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
+  // ref count should be 1 now
+  fail_unless(G_OBJECT_REF_COUNT(machine)==1,NULL);
+  g_object_unref(machine);
+
+  g_object_unref(setup);
+  g_object_unref(song);
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
+  // close window
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
+  // free application
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+// load a song and remove machines
+// (same as above with order in which we remove the machines swapped)
+BT_START_TEST(test_machine_view_edit2) {
+  BtEditApplication *app;
+  BtMainWindow *main_window;
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
+  fail_unless(app != NULL, NULL);
+
+  bt_edit_application_load_song(app, check_get_test_song_path("test-simple3.xml"));
+  g_object_get(app,"song",&song,NULL);
+  fail_unless(song != NULL, NULL);
+  GST_INFO("song loaded");
+  g_object_get(song,"setup",&setup,NULL);
+
+  // remove an effect
+  machine=bt_setup_get_machine_by_id(setup,"amp1");
+  GST_INFO("setup.machine[amp1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
+  bt_setup_remove_machine(setup,machine);
+  while(gtk_events_pending()) gtk_main_iteration();
+  GST_INFO("setup.machine[amp1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
+  // ref count should be 1 now
+  fail_unless(G_OBJECT_REF_COUNT(machine)==1,NULL);
+  g_object_unref(machine);
+
+  // remove a source
+  machine=bt_setup_get_machine_by_id(setup,"sine2");
+  GST_INFO("setup.machine[sine2].ref_count=%d",G_OBJECT_REF_COUNT(machine));
+  bt_setup_remove_machine(setup,machine);
+  while(gtk_events_pending()) gtk_main_iteration();
+  GST_INFO("setup.machine[sine2].ref_count=%d",G_OBJECT_REF_COUNT(machine));
   // ref count should be 1 now
   fail_unless(G_OBJECT_REF_COUNT(machine)==1,NULL);
   g_object_unref(machine);
@@ -628,7 +733,9 @@ TCase *bt_edit_application_example_case(void) {
   tcase_add_test(tc,test_load_and_play2);
   tcase_add_test(tc,test_tabs1);
   tcase_add_test(tc,test_tabs_playing);
-  tcase_add_test(tc,test_machine_view_edit);
+  tcase_add_test(tc,test_machine_view_edit0);
+  tcase_add_test(tc,test_machine_view_edit1);
+  tcase_add_test(tc,test_machine_view_edit2);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   return(tc);
