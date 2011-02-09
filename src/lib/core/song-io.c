@@ -84,9 +84,9 @@ G_DEFINE_ABSTRACT_TYPE (BtSongIO, bt_song_io, G_TYPE_OBJECT);
  * Registers all song-io plugins for later use by bt_song_io_from_file().
  */
 static void bt_song_io_register_plugins(void) {
-  DIR * const dirp=opendir(LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
+  GDir *dir;
 
-  /* @todo the plugin list now has structures
+  /* @idea: the plugin list now has structures
    * so that we could keep the modules handle.
    * we need this to close the plugins at sometime ... (do we?)
    */
@@ -98,20 +98,20 @@ static void bt_song_io_register_plugins(void) {
 
   // registering external song-io plugins
   GST_INFO("  scanning external song-io plugins in "LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
-  if(dirp) {
-    const struct dirent *dire;
+  if((dir=g_dir_open(LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio",0,NULL))) {
+    const gchar *entry_name;
     gpointer bt_song_io_module_info=NULL;
-    gchar link_target[FILENAME_MAX],plugin_name[FILENAME_MAX];
+    gchar plugin_name[FILENAME_MAX];
 
     // 1.) scan plugin-folder (LIBDIR/songio)
-    while((dire=readdir(dirp))!=NULL) {
+    while((entry_name=g_dir_read_name(dir))) {
       // skip names starting with a dot
-      if((!dire->d_name) || (*dire->d_name=='.')) continue;
-      g_sprintf(plugin_name,LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio"G_DIR_SEPARATOR_S"%s",dire->d_name);
+      if(*entry_name=='.') continue;
+      g_sprintf(plugin_name,LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio"G_DIR_SEPARATOR_S"%s",entry_name);
       // skip symlinks
-      if(readlink((const char *)plugin_name,link_target,FILENAME_MAX-1)!=-1) continue;
+      if(g_file_test(plugin_name,G_FILE_TEST_IS_SYMLINK)) continue;
       // skip files other than shared librares
-      if(!g_str_has_suffix(plugin_name,"."G_MODULE_SUFFIX)) continue;
+      if(!g_str_has_suffix(entry_name,"."G_MODULE_SUFFIX)) continue;
       GST_INFO("    found file '%s'",plugin_name);
 
       // 2.) try to open each as g_module
@@ -123,7 +123,6 @@ static void bt_song_io_register_plugins(void) {
           if(!g_list_find(plugins,bt_song_io_module_info)) {
             BtSongIOModuleInfo *info=(BtSongIOModuleInfo *)bt_song_io_module_info;
             // 4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
-            
             if(info->init && info->init()) {
               plugins=g_list_append(plugins,bt_song_io_module_info);
             }
@@ -139,10 +138,10 @@ static void bt_song_io_register_plugins(void) {
         }
       }
       else {
-        GST_WARNING("%s is not a shared object",plugin_name); 
+        GST_WARNING("%s is not a shared object",plugin_name);
       }
     }
-    closedir(dirp);
+    g_dir_close(dir);
   }
 }
 
@@ -151,12 +150,12 @@ static void bt_song_io_register_plugins(void) {
 #if 0
   GFile *file;
   GFileInfo *info;
-  
+
   file=g_file_new_for_path(file_name);
-  
+
   if((info=g_file_query_info(file,G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,G_FILE_QUERY_INFO_NONE,NULL,NULL))) {
     const gchar *mime_type=g_file_info_get_content_type(info);
-  
+
     g_object_unref (info);
   }
   g_object_unref (file);
@@ -189,7 +188,7 @@ static GType bt_song_io_detect(const gchar *file_name, const gchar *media_type) 
   for(node=plugins;node;node=g_list_next(node)) {
     info=(BtSongIOModuleInfo *)node->data;
     GST_INFO("  trying...");
-    
+
     i=0;
     while(info->formats[i].type) {
       if (media_type && info->formats[i].mime_type) {
@@ -264,7 +263,7 @@ BtSongIO *bt_song_io_from_file(const gchar * const file_name) {
   BtSongIO *self=NULL;
   GType type = 0;
 
-  
+
   if(!BT_IS_STRING(file_name)) {
     GST_WARNING("filename should not be empty");
     return NULL;
@@ -355,7 +354,7 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
 
   g_return_val_if_fail(BT_IS_SONG_IO(self),FALSE);
   g_return_val_if_fail(BT_IS_SONG(song),FALSE);
-  
+
   GST_INFO("loading song [%s]",self->priv->file_name?self->priv->file_name:"data");
 
   g_object_set((gpointer)song,"song-io",self,NULL);
@@ -385,7 +384,7 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
     //DEBUG
   }
   g_object_set((gpointer)song,"song-io",NULL,NULL);
-  
+
   GST_INFO("loaded song [%s] = %d",self->priv->file_name?self->priv->file_name:"data",result);
   return(result);
 }
@@ -405,7 +404,7 @@ gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
 
   g_return_val_if_fail(BT_IS_SONG_IO(self),FALSE);
   g_return_val_if_fail(BT_IS_SONG(song),FALSE);
-  
+
   GST_INFO("saving song [%s]",self->priv->file_name);
 
   // this updates the time-stamp
@@ -419,7 +418,7 @@ gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
     bt_song_set_unsaved(song,FALSE);
   }
   g_object_set((gpointer)song,"song-io",NULL,NULL);
-  
+
   GST_INFO("saved song [%s] = %d",self->priv->file_name,result);
   return(result);
 }
@@ -480,7 +479,7 @@ static void bt_song_io_finalize(GObject * const object) {
   const BtSongIO * const self = BT_SONG_IO(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   g_free(self->priv->file_name);
 
   G_OBJECT_CLASS(bt_song_io_parent_class)->finalize(object);

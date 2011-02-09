@@ -442,28 +442,28 @@ static void free_crash_log_file(BtChangeLogFile *crash_entry) {
  * Returns: a list with journals, free when done.
  */
 static void bt_change_log_crash_check(BtChangeLog *self) {
-  DIR *dirp;
+  GDir *dir;
   GList *crash_logs=NULL;
 
   if(!self->priv->cache_dir)
     return;
 
-  if((dirp=opendir(self->priv->cache_dir))) {
-    const struct dirent *dire;
-    gchar link_target[FILENAME_MAX],log_name[FILENAME_MAX];
+  if((dir=g_dir_open(self->priv->cache_dir,0,NULL))) {
+    const gchar *log_name;
+    gchar log_path[FILENAME_MAX];
     FILE *log_file;
     gboolean valid_log,auto_clean;
 
     GST_INFO("looking for crash left-overs in %s",self->priv->cache_dir);
-    while((dire=readdir(dirp))!=NULL) {
+    while((log_name=g_dir_read_name(dir))) {
       // skip names starting with a dot
-      if((!dire->d_name) || (*dire->d_name=='.')) continue;
-      g_sprintf(log_name,"%s"G_DIR_SEPARATOR_S"%s",self->priv->cache_dir,dire->d_name);
+      if(*log_name=='.') continue;
+      g_sprintf(log_path,"%s"G_DIR_SEPARATOR_S"%s",self->priv->cache_dir,log_name);
       // skip symlinks
-      if(readlink((const char *)log_name,link_target,FILENAME_MAX-1)!=-1) continue;
+      if(g_file_test(log_path,G_FILE_TEST_IS_SYMLINK)) continue;
       // skip files other than logs and our current log
       if(!g_str_has_suffix(log_name,".log")) continue;
-      GST_INFO("    found file '%s'",log_name);
+      GST_INFO("    found file '%s'",log_path);
 
       /* run a pre-check over the logs
        * - auto-clean logs that only consist of the header (2 lines)
@@ -473,7 +473,7 @@ static void bt_change_log_crash_check(BtChangeLog *self) {
        *   - otherwise auto-clean
        */
       valid_log=auto_clean=FALSE;
-      if((log_file=fopen(log_name,"rt"))) {
+      if((log_file=fopen(log_path,"rt"))) {
         gchar linebuf[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
         gchar song_file_name[BT_CHANGE_LOG_MAX_HEADER_LINE_LEN];
         BtChangeLogFile *crash_log;
@@ -494,7 +494,7 @@ static void bt_change_log_crash_check(BtChangeLog *self) {
           goto done;
         }
         g_strchomp(song_file_name);
-        if(*song_file_name && !g_file_test (song_file_name, G_FILE_TEST_IS_REGULAR|G_FILE_TEST_EXISTS)) {
+        if(*song_file_name && !g_file_test(song_file_name, G_FILE_TEST_IS_REGULAR|G_FILE_TEST_EXISTS)) {
           GST_INFO("    '%s' a change log for '%s' but that file does not exists",log_name,song_file_name);
           auto_clean=TRUE;
           goto done;
@@ -507,9 +507,9 @@ static void bt_change_log_crash_check(BtChangeLog *self) {
         valid_log=TRUE;
         // add to crash_entries list
         crash_log=g_slice_new(BtChangeLogFile);
-        crash_log->log_name=g_strdup(log_name);
+        crash_log->log_name=g_strdup(log_path);
         crash_log->song_file_name=*song_file_name?g_strdup(song_file_name):g_strdup(_("unsaved song"));
-        stat(log_name,&fileinfo);
+        stat(log_path,&fileinfo);
         strftime(linebuf,BT_CHANGE_LOG_MAX_HEADER_LINE_LEN-1,"%c",localtime(&fileinfo.st_mtime));
         crash_log->change_ts=g_strdup(linebuf);
         crash_log->mtime=fileinfo.st_mtime;
@@ -525,11 +525,11 @@ static void bt_change_log_crash_check(BtChangeLog *self) {
          */
         if(auto_clean) {
           GST_WARNING("auto removing '%s'",log_name);
-          g_remove(log_name);
+          g_remove(log_path);
         }
       }
     }
-    closedir(dirp);
+    g_dir_close(dir);
   }
   // sort list by time
   self->priv->crash_logs=g_list_sort(crash_logs,sort_by_mtime);
