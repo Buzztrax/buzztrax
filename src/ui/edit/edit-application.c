@@ -619,8 +619,7 @@ void bt_edit_application_crash_log_recover(const BtEditApplication *self) {
   GList *crash_logs;
 
   g_object_get(self->priv->change_log,"crash-logs",&crash_logs, NULL);
-  /* we don't want the dialog to show during a test */
-  if(crash_logs && !g_getenv("BT_TEST_RUN")) {
+  if(crash_logs) {
     GtkWidget *dialog;
 
     GST_INFO("have found crash logs");

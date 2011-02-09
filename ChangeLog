@@ -1,5 +1,13 @@
 2011-02-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/edit-application.c:
+	* tests/Makefile.am:
+	* tests/m-bt-edit.c:
+	  Use XDG_CACHE_HOME dir instead of suppressing the crash check. Remove
+	  all eventual left-overs in tear-down.
+
+2011-02-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/lib/core/e-song-io-native.c:
 	* tests/ui/edit/e-bt-edit-application.c:
 	  Add more tests and unify the ref-count logging. Apparently we unref

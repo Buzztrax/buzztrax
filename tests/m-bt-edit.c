@@ -99,7 +99,7 @@ void bt_edit_setup(void) {
   settings=bt_settings_make();
   GST_INFO("tests have settings %p",settings);
   g_object_set(settings,"show-tips",FALSE,NULL);
-  
+
   GST_INFO("================================================================================");
 }
 
@@ -107,6 +107,25 @@ void bt_edit_teardown(void) {
   if (settings) {
     g_object_unref(settings);
     settings=NULL;
+  }
+  /* cleanup cache dir after test run */
+  if(g_file_test("buzztard",G_FILE_TEST_IS_DIR)) {
+    GDir *dir;
+    const gchar *log_name;
+    gchar log_path[FILENAME_MAX];
+
+    if((dir=g_dir_open("buzztard",0,NULL))) {
+      while((log_name=g_dir_read_name(dir))) {
+        if(!g_str_has_suffix(log_name,".log")) {
+          GST_WARNING("unexpected file %s found in temp log dir",log_name);
+          continue;
+        }
+        g_sprintf(log_path,"buzztard"G_DIR_SEPARATOR_S"%s",log_name);
+        g_remove(log_path);
+      }
+      g_dir_close(dir);
+      g_rmdir("buzztard");
+    }
   }
   GST_INFO("................................................................................");
   check_shutdown_test_display();
@@ -132,7 +151,7 @@ int main(int argc, char **argv) {
   //GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   //gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
- 
+
   check_setup_test_server();
 
   sr=srunner_create(bt_about_dialog_suite());

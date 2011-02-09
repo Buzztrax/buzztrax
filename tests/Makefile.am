@@ -31,7 +31,7 @@ TESTS = \
 TESTS_ENVIRONMENT = \
 	CK_DEFAULT_TIMEOUT=20 \
 	LANG=C \
-	BT_TEST_RUN=1 \
+	XDG_CACHE_HOME=$(abs_builddir) \
 	$(LIBTOOL) --mode=execute
 
 if BUILD_CHECK_TESTS
@@ -144,7 +144,9 @@ clean-local:
 	rm -f \
 	  $(top_builddir)/tests/songs/*.txt \
 	  $(top_builddir)/tests/songs/*.ogg \
+	  $(abs_builddir)/buzztard/*.log \
 	  /tmp/test.wav
+	rmdir $(abs_builddir)/buzztard
 
 # run any given test by running make <test>.check
 %.check: %
