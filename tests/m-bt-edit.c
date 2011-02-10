@@ -65,6 +65,29 @@ gchar **test_argvptr;
 static BtSettings *settings;
 
 /* common setup and teardown code */
+
+static void cleanup_cache_dir(void) {
+  /* clean up cache dir */
+  if(g_file_test("buzztard",G_FILE_TEST_IS_DIR)) {
+    GDir *dir;
+    const gchar *log_name;
+    gchar log_path[FILENAME_MAX];
+
+    if((dir=g_dir_open("buzztard",0,NULL))) {
+      while((log_name=g_dir_read_name(dir))) {
+        if(!g_str_has_suffix(log_name,".log")) {
+          GST_WARNING("unexpected file %s found in temp log dir",log_name);
+          continue;
+        }
+        g_sprintf(log_path,"buzztard"G_DIR_SEPARATOR_S"%s",log_name);
+        g_remove(log_path);
+      }
+      g_dir_close(dir);
+      g_rmdir("buzztard");
+    }
+  }
+}
+
 void bt_edit_setup(void) {
 
   //g_type_init();
@@ -95,6 +118,9 @@ void bt_edit_setup(void) {
   check_setup_test_display();
   GST_INFO("................................................................................");
 
+  /* cleanup cache dir before (first) test run */
+  cleanup_cache_dir();
+  GST_INFO("................................................................................");
   /* set some good settings for the tests */
   settings=bt_settings_make();
   GST_INFO("tests have settings %p",settings);
@@ -108,25 +134,9 @@ void bt_edit_teardown(void) {
     g_object_unref(settings);
     settings=NULL;
   }
+  GST_INFO("................................................................................");
   /* cleanup cache dir after test run */
-  if(g_file_test("buzztard",G_FILE_TEST_IS_DIR)) {
-    GDir *dir;
-    const gchar *log_name;
-    gchar log_path[FILENAME_MAX];
-
-    if((dir=g_dir_open("buzztard",0,NULL))) {
-      while((log_name=g_dir_read_name(dir))) {
-        if(!g_str_has_suffix(log_name,".log")) {
-          GST_WARNING("unexpected file %s found in temp log dir",log_name);
-          continue;
-        }
-        g_sprintf(log_path,"buzztard"G_DIR_SEPARATOR_S"%s",log_name);
-        g_remove(log_path);
-      }
-      g_dir_close(dir);
-      g_rmdir("buzztard");
-    }
-  }
+  cleanup_cache_dir();
   GST_INFO("................................................................................");
   check_shutdown_test_display();
   GST_INFO("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");

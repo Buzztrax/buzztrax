@@ -1,5 +1,11 @@
 2011-02-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/m-bt-edit.c:
+	  Cleanup before and after the tests to be paranoid (when test dies the
+	  cleanup could be skipped).
+
+2011-02-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song-io.c:
 	* src/ui/edit/change-log.c:
 	  Use glib dir reading functions.
