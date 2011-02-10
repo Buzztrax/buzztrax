@@ -1029,6 +1029,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
           g_object_unref(self->priv->new_wire_dst);
         }
         g_object_unref(self->priv->new_wire_src);
+        self->priv->new_wire_src=NULL;
         gtk_object_destroy(GTK_OBJECT(self->priv->new_wire));self->priv->new_wire=NULL;
         gnome_canvas_points_free(self->priv->new_wire_points);self->priv->new_wire_points=NULL;
         self->priv->connecting=FALSE;
@@ -1040,6 +1041,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         self->priv->machine_xn=px/MACHINE_VIEW_ZOOM_X;
         self->priv->machine_yn=py/MACHINE_VIEW_ZOOM_Y;
         machine_item_moved(self,self->priv->moving_machine_item);
+        g_object_unref(self->priv->moving_machine_item);
         self->priv->moving_machine_item=NULL;
       }
       break;
