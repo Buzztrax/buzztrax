@@ -40,6 +40,8 @@ foreach $line (<LOGFILE>) {
 }
 close(LOGFILE);
 
+print "Read $ix backtraces\n";
+
 # filter known patterns
 for($i=0;$i<=$ix;$i++) {
 pattern_filter_loop:
@@ -197,30 +199,35 @@ localref_filter_loop:
         $ix-=2;
         $fix+=2;
         goto localref_filter_loop;
-        
+
     }
 }
 
 # look for pairs that we can't easily match, but unequal counts could indicate problems
 # gtk_list_store_set & gtk_list_store_remove
 
+print "Filtering done\n";
 
 #truncate traces
+if($ix>1) {
 truncate_loop:
-$last=$blocks[0][scalar(@{$blocks[0]})-1];
-$truncate=1;
-for($i=1;$i<=$ix;$i++) {
-    $frame=$blocks[$i][scalar(@{$blocks[$i]})-1];
-    if($frame ne $last) {
-      $truncate=0;
-      last;
+    $last=$blocks[0][scalar(@{$blocks[0]})-1];
+    if(defined($last)) {
+        $truncate=1;
+        for($i=1;$i<=$ix;$i++) {
+            $frame=$blocks[$i][scalar(@{$blocks[$i]})-1];
+            if($frame ne $last) {
+                $truncate=0;
+                last;
+            }
+        }
+        if($truncate==1) {
+            for($i=0;$i<=$ix;$i++) {
+                pop @{$blocks[$i]};
+            }
+            goto truncate_loop;
+        }
     }
-}
-if($truncate==1) {
-    for($i=0;$i<=$ix;$i++) {
-        pop @{$blocks[$i]};
-    }
-    goto truncate_loop;
 }
 
 # dump reformatted

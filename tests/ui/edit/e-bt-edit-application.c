@@ -621,18 +621,18 @@ BT_START_TEST(test_machine_view_edit1) {
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
-  bt_edit_application_load_song(app, check_get_test_song_path("test-simple3.xml"));
+  bt_edit_application_load_song(app, check_get_test_song_path("test-simple2.xml"));
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   GST_INFO("song loaded");
   g_object_get(song,"setup",&setup,NULL);
 
   // remove a source
-  machine=bt_setup_get_machine_by_id(setup,"sine2");
-  GST_INFO("setup.machine[sine2].ref_count=%d",G_OBJECT_REF_COUNT(machine));
+  machine=bt_setup_get_machine_by_id(setup,"sine1");
+  GST_INFO("setup.machine[sine1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
   bt_setup_remove_machine(setup,machine);
   while(gtk_events_pending()) gtk_main_iteration();
-  GST_INFO("setup.machine[sine2].ref_count=%d",G_OBJECT_REF_COUNT(machine));
+  GST_INFO("setup.machine[sine1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
   // ref count should be 1 now
   fail_unless(G_OBJECT_REF_COUNT(machine)==1,NULL);
   g_object_unref(machine);
@@ -683,7 +683,7 @@ BT_START_TEST(test_machine_view_edit2) {
   GST_INFO("song loaded");
   g_object_get(song,"setup",&setup,NULL);
 
-  // remove an effect
+  // remove an effect (this remes the wires)
   machine=bt_setup_get_machine_by_id(setup,"amp1");
   GST_INFO("setup.machine[amp1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
   bt_setup_remove_machine(setup,machine);
@@ -691,6 +691,11 @@ BT_START_TEST(test_machine_view_edit2) {
   GST_INFO("setup.machine[amp1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
   // ref count should be 1 now
   fail_unless(G_OBJECT_REF_COUNT(machine)==1,NULL);
+  g_object_unref(machine);
+
+  // check a source
+  machine=bt_setup_get_machine_by_id(setup,"sine1");
+  GST_INFO("setup.machine[sine1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
   g_object_unref(machine);
 
   // remove a source
@@ -720,6 +725,75 @@ BT_START_TEST(test_machine_view_edit2) {
 }
 BT_END_TEST
 
+// load a song and remove machines
+BT_START_TEST(test_machine_view_edit3) {
+  BtEditApplication *app;
+  BtMainWindow *main_window;
+  BtSong *song;
+  BtSetup *setup;
+  BtWire *wire;
+  BtMachine *machine1,*machine2;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
+  fail_unless(app != NULL, NULL);
+
+  bt_edit_application_load_song(app, check_get_test_song_path("test-simple3.xml"));
+  g_object_get(app,"song",&song,NULL);
+  fail_unless(song != NULL, NULL);
+  GST_INFO("song loaded");
+  g_object_get(song,"setup",&setup,NULL);
+
+  // remove wire
+  machine1=bt_setup_get_machine_by_id(setup,"sine1");
+  GST_INFO("setup.machine[sine1].ref_count=%d",G_OBJECT_REF_COUNT(machine1));
+  machine2=bt_setup_get_machine_by_id(setup,"amp1");
+  GST_INFO("setup.machine[amp1].ref_count=%d",G_OBJECT_REF_COUNT(machine2));
+  wire=bt_setup_get_wire_by_machines(setup,machine1,machine2);
+  GST_INFO("setup.wire[sine1->amp1].ref_count=%d",G_OBJECT_REF_COUNT(wire));
+  bt_setup_remove_wire(setup,wire);
+  while(gtk_events_pending()) gtk_main_iteration();
+  GST_INFO("setup.wire[sine1->amp1].ref_count=%d",G_OBJECT_REF_COUNT(wire));
+  // ref count should be 1 now
+  fail_unless(G_OBJECT_REF_COUNT(wire)==1,NULL);
+  g_object_unref(wire);
+
+  // remove a source
+  GST_INFO("setup.machine[sine1].ref_count=%d",G_OBJECT_REF_COUNT(machine1));
+  bt_setup_remove_machine(setup,machine1);
+  while(gtk_events_pending()) gtk_main_iteration();
+  GST_INFO("setup.machine[sine1].ref_count=%d",G_OBJECT_REF_COUNT(machine1));
+  // ref count should be 1 now
+  fail_unless(G_OBJECT_REF_COUNT(machine1)==1,NULL);
+  g_object_unref(machine1);
+
+  // remove an effect
+  GST_INFO("setup.machine[amp1].ref_count=%d",G_OBJECT_REF_COUNT(machine2));
+  bt_setup_remove_machine(setup,machine2);
+  while(gtk_events_pending()) gtk_main_iteration();
+  GST_INFO("setup.machine[amp1].ref_count=%d",G_OBJECT_REF_COUNT(machine2));
+  // ref count should be 1 now
+  fail_unless(G_OBJECT_REF_COUNT(machine2)==1,NULL);
+  g_object_unref(machine2);
+
+  g_object_unref(setup);
+  g_object_unref(song);
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
+  // close window
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
+  // free application
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+
 TCase *bt_edit_application_example_case(void) {
   TCase *tc = tcase_create("BtEditApplicationExamples");
 
@@ -736,6 +810,7 @@ TCase *bt_edit_application_example_case(void) {
   tcase_add_test(tc,test_machine_view_edit0);
   tcase_add_test(tc,test_machine_view_edit1);
   tcase_add_test(tc,test_machine_view_edit2);
+  tcase_add_test(tc,test_machine_view_edit3);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   return(tc);
