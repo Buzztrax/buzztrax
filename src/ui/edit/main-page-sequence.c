@@ -1590,7 +1590,7 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
     g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_added_handler);
     g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_removed_handler);
     // unref the old machine
-    g_object_try_unref(self->priv->machine);
+    g_object_unref(self->priv->machine);
     self->priv->machine=NULL;
     self->priv->pattern_added_handler=0;
     self->priv->pattern_removed_handler=0;
@@ -2730,7 +2730,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
   if(self->priv->cursor_column>=number_of_tracks) {
     // update cursor_column and focus cell
-    self->priv->cursor_column--;
+    self->priv->cursor_column=number_of_tracks-1;
     sequence_view_set_cursor_pos(self);
     GST_DEBUG("new cursor column: %ld",self->priv->cursor_column);
   }
