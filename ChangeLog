@@ -1,5 +1,11 @@
 2011-02-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Cache a few more lookups.
+
+2011-02-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-waves.c:
 	  Ideas.
 

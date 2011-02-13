@@ -166,13 +166,13 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
   GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
   GdkGC *fg_gc = s->fg_gc[widget->state];
+  GdkGC *bg_gc[2] = {self->shade_gc, s->light_gc[GTK_STATE_NORMAL]};
   gchar buf[16];
   gint col_w = bt_pattern_editor_rownum_width(self);
 
   col_w-=self->cw;
   while (y < max_y && row < self->num_rows) {
-    gdk_draw_rectangle (win,
-      (row&0x1) ? self->shade_gc : s->light_gc[GTK_STATE_NORMAL],
+    gdk_draw_rectangle (win, bg_gc[row&0x1],
       TRUE, x, y, col_w, self->ch);
 
     sprintf(buf, "%04X", row);
@@ -263,31 +263,33 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
   GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
   GdkGC *bg_gc, *fg_gc = s->fg_gc[widget->state];
+  GdkGC *bg_gcs[2] = {self->shade_gc, s->light_gc[GTK_STATE_NORMAL]};
   struct ParamType *pt = &param_types[col->type];
   gchar buf[16];
   gint cw = self->cw, ch = self->ch;
   gint col_w = cw * (pt->chars + 1);
+  gint col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
 
   while (y < max_y && row < self->num_rows) {
-    gint col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
+    gint col_w3 = col_w2;
 
     /* draw background */
-    bg_gc = (row&0x1) ? self->shade_gc : s->light_gc[GTK_STATE_NORMAL];
+    bg_gc = bg_gcs[row&0x1];
     if (self->selection_enabled && in_selection(self, group, param, row)) {
       /* the last space should be selected if it's a within-group "glue"
          in multiple column selection, row colour otherwise */
       if (self->selection_mode == PESM_COLUMN) {
         /* draw row-coloured "continuation" after column, unless last column in
            a group */
-        col_w2 = col_w - cw;
+        col_w3 = col_w - cw;
         if (param != self->groups[group].num_columns - 1)
-          gdk_draw_rectangle (win, bg_gc, TRUE, x + col_w2, y, cw, ch);
+          gdk_draw_rectangle (win, bg_gc, TRUE, x + col_w3, y, cw, ch);
       }
       /* draw selected column+continuation (unless last column, then don't draw
          continuation) */
       bg_gc = s->base_gc[GTK_STATE_SELECTED];
     }
-    gdk_draw_rectangle (win, bg_gc, TRUE, x, y, col_w2, ch);
+    gdk_draw_rectangle (win, bg_gc, TRUE, x, y, col_w3, ch);
 
     pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
     pango_layout_set_text (pl, buf, pt->chars);

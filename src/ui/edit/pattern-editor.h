@@ -139,14 +139,14 @@ struct _BtPatternEditor {
   gboolean selection_enabled;
   BtPatternEditorSelectionMode selection_mode;
   gint selection_start, selection_end, selection_group, selection_param;
-  
+
   /* font metrics */
   PangoLayout *pl;
   guint cw, ch;
   guint rowhdr_width, colhdr_height;
 
   gboolean size_changed;
-  
+
   /* current octave number */
   guint octave;
 
@@ -154,7 +154,7 @@ struct _BtPatternEditor {
   gdouble play_pos;
   /* own colors */
   GdkGC *play_pos_gc, *shade_gc;
-  
+
   /* scroll adjustments */
   GtkAdjustment *hadj,*vadj;
 };
