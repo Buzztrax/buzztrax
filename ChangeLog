@@ -1,5 +1,10 @@
 2011-02-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	  Add new API to docs.
+
+2011-02-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-editor.c:
 	  Fix y character positioning by adding height.
 
