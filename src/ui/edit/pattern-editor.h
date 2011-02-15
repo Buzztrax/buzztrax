@@ -152,8 +152,7 @@ struct _BtPatternEditor {
 
   /* position of playing pointer from 0.0 ... 1.0 */
   gdouble play_pos;
-  /* own colors (@todo: remove gc when we fully moved to cairo) */
-  GdkGC *play_pos_gc, *bg_shade_gc[2];
+  /* own colors */
   gdouble play_pos_color[3], text_color[3], bg_color[3], sel_color[3], cursor_color[3];
   gdouble bg_shade_color[2][3];
 

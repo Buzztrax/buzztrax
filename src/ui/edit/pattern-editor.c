@@ -46,18 +46,6 @@
  * @idea: use gtk_widget_error_bell (widget); when hitting borders with cursor
  */
 
-//#define USE_CAIRO
-/* @todo: speedup drawing in bt_pattern_editor_expose()
- * - we use a lot of
- *   pango_layout_set_text (pl, str, str_len);
- *   gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, color, NULL);
- *   - pango_layout_set_text() does a lot of checks (e.g. utf8 validation) and
- *     copies the text
- *   - gdk_draw_layout_with_colors() sets colors, x,y pos and call
- *     pango_renderer_draw_layout() and that is expensive
- *   - we should use cairo_show_text()
- */
-
 #include <ctype.h>
 #include <math.h>
 #include <stdlib.h>
@@ -84,227 +72,186 @@ G_DEFINE_TYPE (BtPatternEditor, bt_pattern_editor, GTK_TYPE_WIDGET);
 
 struct ParamType
 {
-  int chars, columns;
-  void (*to_string_func)(gchar *dest, gfloat value, gint def);
-  void (*from_key_func)(gfloat *value_ptr, gint key, gint modifiers);
+  gint chars, columns;
+  gchar *(*to_string_func)(gchar *dest, gfloat value, gint def);
   guint column_pos[4];
 };
 
 //-- helper methods
 
-static void
+static gchar *
 to_string_note (gchar *buf, gfloat value, gint def)
 {
   static gchar note_names[] = "C-C#D-D#E-F-F#G-G#A-A#B-????????";
   gint note = ((gint)value)&255, octave;
-  if (note == def || note == 0) {
-    strcpy(buf, "...");
-    return;
-  }
-  if (note == 255) {
-    strcpy(buf, "off");
-    return;
-  }
+
+  if (note == def || note == 0)
+    return("...");
+  if (note == 255)
+    return("off");
+
   note--;
   octave = note >> 4;
   buf[0] = note_names[2 * (note & 15)];
   buf[1] = note_names[1 + 2 * (note & 15)];
   buf[2] = '0' + octave;
   buf[3] = '\0';
+  return(buf);
 }
 
-static void
+static gchar *
 to_string_trigger (gchar *buf, gfloat value, gint def)
 {
   gint v = (gint)value;
+
   if (v == def)
-    strcpy(buf, ".");
-  else
-    sprintf(buf, "%01X", v != 0 ? 1 : 0);
+    return(".");
+
+  sprintf(buf, "%01X", v != 0 ? 1 : 0);
+  return(buf);
 }
 
-static void
+static gchar *
 to_string_byte (gchar *buf, gfloat value, gint def)
 {
   gint v = (gint)(value+0.5);
+
   if (v == def)
-    strcpy(buf, "..");
-  else
-    sprintf(buf, "%02X", v & 255);
+    return("..");
+
+  sprintf(buf, "%02X", v & 255);
+  return(buf);
 }
 
-static void
+static gchar *
 to_string_word (gchar *buf, gfloat value, gint def)
 {
   gint v = (gint)(value+0.5);
+
   if (v == def)
-    strcpy(buf, "....");
-  else
-    sprintf(buf, "%04X", v & 65535);
+    return("....");
+
+  sprintf(buf, "%04X", v & 65535);
+  return(buf);
 }
 
-static void
+static gchar *
 to_string_float (gchar *buf, gfloat value, gint def)
 {
   gint v = (gint)value;
   if (fabs(v - def) < 0.00001)
-    strcpy(buf, "........");
-  else
-    sprintf(buf, "%-8f", value);
+    return("........");
 
+  sprintf(buf, "%-8f", value);
+  return(buf);
 }
 
 static struct ParamType param_types[] = {
-  { 3, 2, to_string_note, NULL, {0, 2}},
-  { 1, 1, to_string_trigger, NULL, {0}},
-  { 2, 2, to_string_byte, NULL, {0, 1}},
-  { 4, 4, to_string_word, NULL, {0, 1, 2, 3}},
-  { 8, 1, to_string_float, NULL, {0}},
+  { 3, 2, to_string_note, {0, 2}},
+  { 1, 1, to_string_trigger, {0}},
+  { 2, 2, to_string_byte, {0, 1}},
+  { 4, 4, to_string_word, {0, 1, 2, 3}},
+  { 8, 1, to_string_float, {0}},
 };
 
-
-static gint
+static gint inline
 bt_pattern_editor_rownum_width (BtPatternEditor *self)
 {
   return self->cw * 5;
 }
 
 static void
-bt_pattern_editor_draw_rownum (BtPatternEditor *self,
+bt_pattern_editor_draw_rownum (BtPatternEditor *self, cairo_t *cr,
     gint x, gint y, gint row, gint max_y)
 {
-  GtkWidget *widget = GTK_WIDGET(self);
-#ifdef USE_CAIRO
-  cairo_t *cr = gdk_cairo_create (widget->window);
-#else
-  GdkWindow *win = widget->window;
-  GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
-  GdkGC *fg_gc = s->fg_gc[widget->state];
-  GdkGC **bg_shade_gc = self->bg_shade_gc;
-#endif
   gchar buf[16];
-  gint cw = bt_pattern_editor_rownum_width(self);
-  gint ch = self->ch;
+  gint ch = self->ch, cw = self->cw;
+  gint colw = bt_pattern_editor_rownum_width(self) - cw;
 
-  cw-=self->cw;
   while (y < max_y && row < self->num_rows) {
-#ifdef USE_CAIRO
     gdouble *bg_shade_color=self->bg_shade_color[row&0x1];
     cairo_set_source_rgb(cr,bg_shade_color[0],bg_shade_color[1],bg_shade_color[2]);
-    cairo_rectangle(cr,x,y,cw,ch);
+    cairo_rectangle(cr,x,y,colw,ch);
     cairo_fill(cr);
 
     cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
-    cairo_move_to(cr,x,y+ch);
     sprintf(buf, "%04X", row);
-    cairo_show_text(cr, buf);
-#else
-    gdk_draw_rectangle (win, bg_shade_gc[row&0x1], TRUE, x, y, cw, ch);
+    cairo_move_to(cr,x,y);
+    pango_layout_set_text(pl, buf, 4);
+    pango_cairo_show_layout(cr,pl);
 
-    sprintf(buf, "%04X", row);
-    pango_layout_set_text (pl, buf, 4);
-    gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
-#endif
     y += ch;
     row++;
   }
 }
 
 static void
-bt_pattern_editor_draw_colnames (BtPatternEditor *self,
-    gint x, gint y)
+bt_pattern_editor_draw_colnames (BtPatternEditor *self, cairo_t *cr,
+    gint x, gint y, gint w)
 {
-  GtkWidget *widget = GTK_WIDGET(self);
-#ifdef USE_CAIRO
-  cairo_t *cr = gdk_cairo_create (widget->window);
-#else
-  GdkWindow *win = widget->window;
-  GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
-  GdkGC *fg_gc = s->fg_gc[widget->state];
-#endif
   gint g;
-  gint ch = self->ch;
+  gint ch = self->ch, cw = self->cw;
 
-  // FIXME: this erases too much
-#ifdef USE_CAIRO
   cairo_set_source_rgb(cr,self->bg_color[0],self->bg_color[1],self->bg_color[2]);
-  cairo_rectangle(cr,0,0,widget->allocation.width, ch);
+  cairo_rectangle(cr,x,0,w-x,ch);
   cairo_fill(cr);
-#else
-  gdk_draw_rectangle (win, s->bg_gc[GTK_STATE_NORMAL],
-      TRUE, 0, 0, widget->allocation.width,ch);
-#endif
+  cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
 
   for (g = 0; g < self->num_groups; g++) {
     BtPatternEditorColumnGroup *cgrp = &self->groups[g];
+    gint max_chars=((cgrp->width/cw)-1);
 
-#ifdef USE_CAIRO
-    cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
-    cairo_move_to(cr,x,y+ch);
-    cairo_show_text(cr, cgrp->name); // @todo: check if we need to truncate
-#else
-    pango_layout_set_text (pl, cgrp->name, ((cgrp->width/self->cw)-1));
-    gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
-#endif
+    max_chars=MIN(strlen(cgrp->name),max_chars);
+    cairo_move_to(cr,x,y);
+    pango_layout_set_text(pl,cgrp->name,max_chars);
+    pango_cairo_show_layout(cr,pl);
+
     x+=cgrp->width;
   }
 }
 
 static void
-bt_pattern_editor_draw_rowname (BtPatternEditor *self,
+bt_pattern_editor_draw_rowname (BtPatternEditor *self, cairo_t *cr,
     gint x, gint y)
 {
-  GtkWidget *widget = GTK_WIDGET(self);
-#ifdef USE_CAIRO
-  cairo_t *cr = gdk_cairo_create (widget->window);
-#else
-  GdkWindow *win = widget->window;
-  GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
-#endif
-  gint cw = bt_pattern_editor_rownum_width(self);
   gint ch = self->ch;
+  gint colw = bt_pattern_editor_rownum_width(self);
 
-#ifdef USE_CAIRO
   cairo_set_source_rgb(cr,self->bg_color[0],self->bg_color[1],self->bg_color[2]);
-  cairo_rectangle(cr,0,0,cw,ch);
+  cairo_rectangle(cr,0,0,colw,ch);
   cairo_fill(cr);
-#else
-  gdk_draw_rectangle (win, s->bg_gc[GTK_STATE_NORMAL],
-      TRUE, 0, 0, cw, ch);
-#endif
 
   if (self->num_groups) {
-#ifdef USE_CAIRO
     cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
-    cairo_move_to(cr,x,y+ch);
-    cairo_show_text(cr, "Tick");
-#else
-    pango_layout_set_text (pl, "Tick", 4);
-    gdk_draw_layout_with_colors (win, s->fg_gc[widget->state], x, y, pl,
-      &s->text[GTK_STATE_NORMAL], NULL);
-#endif
+    cairo_move_to(cr,x,y);
+    pango_layout_set_text(pl, "Tick", 4);
+    pango_cairo_show_layout(cr,pl);
   }
 }
 
 static gboolean inline
-in_selection (BtPatternEditor *self,
-    guint group, guint param, guint row)
+in_selection_column (BtPatternEditor *self, guint group, guint param)
 {
-  // check rows
-  if (row < self->selection_start)
-    return FALSE;
-  if (row > self->selection_end)
-    return FALSE;
-
   // check columns
   if (self->selection_mode == PESM_COLUMN)
     return (group == self->selection_group) && (param == self->selection_param);
   if (self->selection_mode == PESM_GROUP)
     return (group == self->selection_group);
   return TRUE; /* PESM_ALL */
+}
+
+static gboolean inline
+in_selection_row (BtPatternEditor *self, guint row)
+{
+  // check rows
+  if (row < self->selection_start)
+    return FALSE;
+  if (row > self->selection_end)
+    return FALSE;
+  return TRUE;
 }
 
 /*
@@ -315,38 +262,28 @@ in_selection (BtPatternEditor *self,
  * @max_y: max-y for clipping
  */
 static void
-bt_pattern_editor_draw_column (BtPatternEditor *self,
+bt_pattern_editor_draw_column (BtPatternEditor *self, cairo_t *cr,
     gint x, gint y, BtPatternEditorColumn *col,
     guint group, guint param, guint row, gint max_y)
 {
-  GtkWidget *widget = GTK_WIDGET(self);
-#ifdef USE_CAIRO
-  cairo_t *cr = gdk_cairo_create (widget->window);
-#else
-  GdkWindow *win = widget->window;
-  GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
-  GdkGC *bg_gc, *fg_gc = s->fg_gc[widget->state];
-  GdkGC **bg_shade_gc = self->bg_shade_gc;
-#endif
   struct ParamType *pt = &param_types[col->type];
-  gchar buf[16];
+  gchar buf[16], *str;
   gint cw = self->cw, ch = self->ch;
   gint col_w = cw * (pt->chars + 1);
   gint col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
   gfloat (*get_data_func)(gpointer pattern_data, gpointer column_data, guint row, guint group, guint param) = self->callbacks->get_data_func;
 
+  gboolean is_cursor_column = (param == self->parameter && group == self->group);
+  gboolean is_selection_column = (self->selection_enabled && in_selection_column(self, group, param));
+
   while (y < max_y && row < self->num_rows) {
     gint col_w3 = col_w2;
 
     /* draw background */
-#ifdef USE_CAIRO
     gdouble *bg_shade_color=self->bg_shade_color[row&0x1];
     cairo_set_source_rgb(cr,bg_shade_color[0],bg_shade_color[1],bg_shade_color[2]);
-#else
-    bg_gc = bg_shade_gc[row&0x1];
-#endif
-    if (self->selection_enabled && in_selection(self, group, param, row)) {
+    if (is_selection_column && in_selection_row(self, row)) {
       /* the last space should be selected if it's a within-group "glue"
          in multiple column selection, row colour otherwise */
       if (self->selection_mode == PESM_COLUMN) {
@@ -354,57 +291,30 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
            a group */
         col_w3 = col_w - cw;
         if (param != self->groups[group].num_columns - 1) {
-#ifdef USE_CAIRO
           cairo_rectangle(cr,x+col_w3,y,cw,ch);
           cairo_fill(cr);
-#else
-          gdk_draw_rectangle (win, bg_gc, TRUE, x + col_w3, y, cw, ch);
-#endif
         }
       }
       /* draw selected column+continuation (unless last column, then don't draw
          continuation) */
-#ifdef USE_CAIRO
       cairo_set_source_rgb(cr,self->sel_color[0],self->sel_color[1],self->sel_color[2]);
-#else
-      bg_gc = s->base_gc[GTK_STATE_SELECTED];
-#endif
     }
-#ifdef USE_CAIRO
     cairo_rectangle(cr,x,y,col_w3,ch);
     cairo_fill(cr);
-#else
-    gdk_draw_rectangle (win, bg_gc, TRUE, x, y, col_w3, ch);
-#endif
 
-#ifdef USE_CAIRO
     // draw cursor
-    if (row == self->row && param == self->parameter && group == self->group) {
+    if (row == self->row && is_cursor_column) {
       gint cp = pt->column_pos[self->digit];
       cairo_set_source_rgb(cr,self->cursor_color[0],self->cursor_color[1],self->cursor_color[2]);
       cairo_rectangle(cr,x+cw*cp,y,cw,ch);
       cairo_fill(cr);
     }
-#endif
-    pt->to_string_func(buf, get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
-#ifdef USE_CAIRO
+    str = pt->to_string_func(buf, get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
     cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
-    cairo_move_to(cr,x,y+ch);
-    cairo_show_text(cr, buf);
-#else
-    pango_layout_set_text (pl, buf, pt->chars);
-    gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
-#endif
-#ifndef USE_CAIRO
-    // draw cursor
-    if (row == self->row && param == self->parameter && group == self->group) {
-      gint cp = pt->column_pos[self->digit];
-      pango_layout_set_text (pl, &buf[cp], 1);
-      // we could also use text_aa[GTK_STATE_SELECTED] for the cursor
-      gdk_draw_layout_with_colors (win, fg_gc, x + cw * cp, y, pl,
-        &s->text[GTK_STATE_NORMAL], &s->text_aa[GTK_STATE_ACTIVE]);
-    }
-#endif
+    cairo_move_to(cr,x,y);
+    pango_layout_set_text(pl,str,pt->chars);
+    pango_cairo_show_layout(cr,pl);
+
     y += ch;
     row++;
   }
@@ -612,16 +522,10 @@ bt_pattern_editor_realize (GtkWidget *widget)
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
   GdkWindowAttr attributes;
   gint attributes_mask;
-#ifdef USE_CAIRO
-  cairo_t *cr;
-  cairo_font_extents_t extents;
-  GdkColor *c;
-#else
   PangoContext *pc;
   PangoFontDescription *pfd;
   PangoFontMetrics *pfm;
-  GdkColor alt_row_color={0,};
-#endif
+  GdkColor *c;
 
   g_return_if_fail (BT_IS_PATTERN_EDITOR (widget));
 
@@ -648,8 +552,10 @@ bt_pattern_editor_realize (GtkWidget *widget)
   gtk_widget_set_can_focus(widget, TRUE);
 
   // setup graphic styles
-#ifdef USE_CAIRO
   bt_ui_resources_get_rgb_color(BT_UI_RES_COLOR_PLAYLINE,&self->play_pos_color[0],&self->play_pos_color[1],&self->play_pos_color[2]);
+
+  // does not work (?), see bt-edit.gtkrc
+  // gtk_style_lookup_color(widget->style,"alternative-row",&alt_row_color);
   c=&widget->style->light[GTK_STATE_NORMAL];
   self->bg_shade_color[0][0]=((gdouble)c->red*0.9)/65535.0;
   self->bg_shade_color[0][1]=((gdouble)c->green*0.9)/65535.0;
@@ -673,22 +579,6 @@ bt_pattern_editor_realize (GtkWidget *widget)
   self->cursor_color[0]=(gdouble)c->red/65535.0;
   self->cursor_color[1]=(gdouble)c->green/65535.0;
   self->cursor_color[2]=(gdouble)c->blue/65535.0;
-#else
-  self->play_pos_gc=gdk_gc_new(widget->window);
-  gdk_gc_set_rgb_fg_color(self->play_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
-  gdk_gc_set_line_attributes(self->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-  self->bg_shade_gc[0]=gdk_gc_new(widget->window);
-// does not work yet, see bt-edit.gtkrc
-//#if GTK_CHECK_VERSION(2, 10, 0)
-//  gtk_style_lookup_color(widget->style,"alternative-row",&alt_row_color);
-//#else
-   alt_row_color.red=(guint16)(widget->style->light[GTK_STATE_NORMAL].red*0.9);
-   alt_row_color.green=(guint16)(widget->style->light[GTK_STATE_NORMAL].green*0.9);
-   alt_row_color.blue=(guint16)(widget->style->light[GTK_STATE_NORMAL].blue*0.9);
-//#endif
-  gdk_gc_set_rgb_fg_color(self->bg_shade_gc[0],&alt_row_color);
-  self->bg_shade_gc[1]=widget->style->light_gc[GTK_STATE_NORMAL];
-#endif
 
   /* copy size from default font and use default monospace font */
   GST_WARNING(" default font %p, size %d (is_absolute %d?), scl=%lf",
@@ -696,14 +586,7 @@ bt_pattern_editor_realize (GtkWidget *widget)
     pango_font_description_get_size(widget->style->font_desc),
     pango_font_description_get_size_is_absolute(widget->style->font_desc),
     (gdouble)PANGO_SCALE);
-#ifdef USE_CAIRO
-  cr = gdk_cairo_create (widget->window);
-  cairo_select_font_face (cr, "monospace", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size (cr, pango_font_description_get_size (widget->style->font_desc) / PANGO_SCALE);
-  cairo_font_extents (cr, &extents);
-  self->cw = 1+extents.max_x_advance;
-  self->ch = 1+extents.ascent+extents.descent; // height
-#else
+
   /* calculate font-metrics */
   pc = gtk_widget_get_pango_context (widget);
   pfd = pango_font_description_new();
@@ -729,7 +612,6 @@ bt_pattern_editor_realize (GtkWidget *widget)
   self->pl = pango_layout_new (pc);
   pango_layout_set_font_description (self->pl, pfd);
   pango_font_description_free (pfd);
-#endif
 
   GST_WARNING("char size: %d x %d", self->cw, self->ch);
 }
@@ -738,15 +620,8 @@ static void bt_pattern_editor_unrealize(GtkWidget *widget)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
 
-#ifdef USE_CAIRO
-#else
-  g_object_unref (self->play_pos_gc);
-  self->play_pos_gc=NULL;
-  g_object_unref (self->bg_shade_gc[0]);
-  self->bg_shade_gc[0]=NULL;
   g_object_unref (self->pl);
   self->pl = NULL;
-#endif
 
   if(self->hadj) {
     g_object_unref (self->hadj);
@@ -758,10 +633,11 @@ static void bt_pattern_editor_unrealize(GtkWidget *widget)
   }
 }
 
-/* @todo:
+/* @todo: speedup
  * - refactor layout and redrawing
- *   - calculate layout in bt_pattern_editor_size_allocate() and cache
+ *   - calculate layout in bt_pattern_editor_size_allocate() and cache (what exactly)
  *   - only redraw in expose
+ * - do columns in two passes to avoid changing the color for the text
  */
 static gboolean
 bt_pattern_editor_expose (GtkWidget *widget,
@@ -772,9 +648,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   gint y, x, i, row, g, max_y;
   gint grp_x;
   gint rowhdr_x, ch;
-#ifdef USE_CAIRO
   cairo_t *cr;
-#endif
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
@@ -785,9 +659,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   /* this is the dirty region */
   GST_INFO("Refresh Area: %d,%d -> %d,%d",rect.x, rect.y, rect.width, rect.height);
 
-#ifdef USE_CAIRO
   cr = gdk_cairo_create (widget->window);
-#endif
 
   if (self->hadj) {
     self->ofs_x = (gint)gtk_adjustment_get_value(self->hadj);
@@ -824,7 +696,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
       // check intersection
       if((xs>=rect.x && xs<=rect.x+rect.width) || (xe>=rect.x && xe<=rect.x+rect.width) || (xs<=rect.x && xe>=rect.x+rect.width)) {
         GST_DEBUG("Draw Group/Column: %d,%d : %3d-%3d",g,i,xs,xe);
-        bt_pattern_editor_draw_column(self, x-self->ofs_x, y-self->ofs_y, col, g, i, row, max_y);
+        bt_pattern_editor_draw_column(self, cr, x-self->ofs_x, y-self->ofs_y, col, g, i, row, max_y);
       }
       else {
         GST_DEBUG("Skip Group/Column: %d,%d : %3d-%3d",g,i,xs,xe);
@@ -837,11 +709,11 @@ bt_pattern_editor_expose (GtkWidget *widget,
 
   /* draw left and top headers */
   if(rect.x<self->rowhdr_width) {
-    bt_pattern_editor_draw_rownum(self, rowhdr_x, y-self->ofs_y, row, max_y);
+    bt_pattern_editor_draw_rownum(self, cr, rowhdr_x, y-self->ofs_y, row, max_y);
   }
   if(rect.y<self->ch) {
-    bt_pattern_editor_draw_colnames(self, (rowhdr_x+self->rowhdr_width)-self->ofs_x, 0);
-    bt_pattern_editor_draw_rowname(self, rowhdr_x, 0);
+    bt_pattern_editor_draw_colnames(self, cr, (rowhdr_x+self->rowhdr_width)-self->ofs_x, 0, widget->allocation.width);
+    bt_pattern_editor_draw_rowname(self, cr, rowhdr_x, 0);
   }
 
   /* draw play-pos */
@@ -849,15 +721,11 @@ bt_pattern_editor_expose (GtkWidget *widget,
     gdouble h=(gdouble)(bt_pattern_editor_get_col_height(self)-self->colhdr_height);
     y=self->colhdr_height+(gint)(self->play_pos*h) - self->ofs_y;
     // @todo: check rect.y, rect.height
-#ifdef USE_CAIRO
     cairo_set_source_rgb(cr,self->play_pos_color[0],self->play_pos_color[1],self->play_pos_color[2]);
     cairo_set_line_width(cr, 2.0);
     cairo_move_to(cr,0,y);
     cairo_line_to(cr,widget->allocation.width,y);
     cairo_stroke(cr);
-#else
-    gdk_draw_line(widget->window,self->play_pos_gc, 0,y,widget->allocation.width,y);
-#endif
     //GST_INFO("Draw playline: %d,%d -> %d,%d",0, y);
   }
 
@@ -1540,7 +1408,7 @@ bt_pattern_editor_init(BtPatternEditor *self)
 /**
  * bt_pattern_editor_set_pattern:
  * @self: the widget
- * @pattern_data: memory block of values
+ * @pattern_data: memory block of values (passed to the callbacks)
  * @num_rows: number of tick rows (y axis)
  * @num_groups: number of groups (x axis)
  * @groups: group parameters
