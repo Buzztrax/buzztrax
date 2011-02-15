@@ -1364,9 +1364,12 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
   g_object_unref(store); // drop with comboxbox
 }
 
-
+/* - we are using GValue directly for reading out the patterns
+ * - @todo: for changes from the pattern editor we still convert the float
+ *   values to strings and then to GValues.
+ */
 typedef struct {
-  gfloat (*str_to_float)(gchar *in, gpointer user_data);
+  gfloat (*val_to_float)(GValue *in, gpointer user_data);
   const gchar *(*float_to_str)(gfloat in, gpointer user_data);
 } BtPatternEditorColumnConvertersCallbacks;
 
@@ -1384,36 +1387,29 @@ typedef struct {
 
 static gfloat pattern_edit_get_data_at(gpointer pattern_data, gpointer column_data, guint row, guint track, guint param) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
-  gchar *str = NULL;
+  GValue *val = NULL;
   BtPatternEditorColumnGroup *group = &self->priv->param_groups[track];
 
   switch (group->type) {
     case PGT_WIRE: {
       BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
       if(wire_pattern) {
-        str=bt_wire_pattern_get_event(wire_pattern,row,param);
+        val=bt_wire_pattern_get_event_data(wire_pattern,row,param);
         g_object_unref(wire_pattern);
       }
     } break;
     case PGT_GLOBAL:
-      str=bt_pattern_get_global_event(self->priv->pattern,row,param);
-      //if(param==0 && row<2) GST_WARNING("get global event: %s",str);
+      val=bt_pattern_get_global_event_data(self->priv->pattern,row,param);
       break;
     case PGT_VOICE:
-      str=bt_pattern_get_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),param);
+      val=bt_pattern_get_voice_event_data(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),param);
       break;
     default:
       GST_WARNING("invalid column group type");
   }
 
-  if(str) {
-    float res;
-    if(column_data)
-      res=((BtPatternEditorColumnConvertersCallbacks *)column_data)->str_to_float(str,column_data);
-    else
-      res=g_ascii_strtod(str,NULL);
-    g_free(str);
-    return(res);
+  if(val &&  BT_IS_GVALUE(val) && column_data) {
+    return ((BtPatternEditorColumnConvertersCallbacks *)column_data)->val_to_float(val,column_data);
   }
   return group->columns[param].def;
 }
@@ -1633,21 +1629,39 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   g_object_unref(machine);
 }
 
-static gfloat note_str_to_float(gchar *note, gpointer user_data) {
-  return (gfloat)gstbt_tone_conversion_note_string_2_number(note);
+static const gchar * any_float_to_str(gfloat in, gpointer user_data) {
+  return(bt_persistence_strfmt_double(in));
+}
+
+static gfloat note_val_to_float(GValue *v, gpointer user_data) {
+  const gchar *note=g_value_get_string(v);
+  if(note)
+    return (gfloat)gstbt_tone_conversion_note_string_2_number(note);
+  return 0.0;
 }
 
 static const gchar * note_float_to_str(gfloat in, gpointer user_data) {
   return(gstbt_tone_conversion_note_number_2_string((guint)in));
 }
 
-static gfloat float_str_to_float(gchar *str, gpointer user_data) {
+static gfloat float_val_to_float(GValue *v, gpointer user_data) {
   // scale value into 0...65535 range
   BtPatternEditorColumnConvertersFloatCallbacks *pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)user_data;
-  gdouble val=g_ascii_strtod(str,NULL);
+  gdouble val=g_value_get_float(v);
   gdouble factor=65535.0/(pcc->max-pcc->min);
 
-  //GST_DEBUG("> val %lf(%s), factor %lf, result %lf",val,str,factor,(val-pcc->min)*factor);
+  //GST_DEBUG("> val %lf, factor %lf, result %lf",val,factor,(val-pcc->min)*factor);
+
+  return (val-pcc->min)*factor;
+}
+
+static gfloat double_val_to_float(GValue *v, gpointer user_data) {
+  // scale value into 0...65535 range
+  BtPatternEditorColumnConvertersFloatCallbacks *pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)user_data;
+  gdouble val=g_value_get_double(v);
+  gdouble factor=65535.0/(pcc->max-pcc->min);
+
+  //GST_DEBUG("> val %lf, factor %lf, result %lf",val,factor,(val-pcc->min)*factor);
 
   return (val-pcc->min)*factor;
 }
@@ -1662,6 +1676,23 @@ static const gchar * float_float_to_str(gfloat in, gpointer user_data) {
 
   return bt_persistence_strfmt_double(val);
 }
+
+static gfloat boolean_val_to_float(GValue *v, gpointer user_data) {
+  return (gfloat)g_value_get_boolean(v);
+}
+
+static gfloat enum_val_to_float(GValue *v, gpointer user_data) {
+  return (gfloat)g_value_get_enum(v);
+}
+
+static gfloat int_val_to_float(GValue *v, gpointer user_data) {
+  return (gfloat)g_value_get_int(v);
+}
+
+static gfloat uint_val_to_float(GValue *v, gpointer user_data) {
+  return (gfloat)g_value_get_uint(v);
+}
+
 
 static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val) {
   GType type=bt_g_type_get_base_type(property->value_type);
@@ -1680,17 +1711,24 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->def=0;
       col->user_data=g_new(BtPatternEditorColumnConverters,1);
       pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
-      pcc->str_to_float=note_str_to_float;
+      pcc->val_to_float=note_val_to_float;
       pcc->float_to_str=note_float_to_str;
     } break;
-    case G_TYPE_BOOLEAN:
+    case G_TYPE_BOOLEAN: {
+      BtPatternEditorColumnConvertersCallbacks *pcc;
+
       col->type=PCT_SWITCH;
       col->min=0;
       col->max=1;
       col->def=col->max+1;
-      col->user_data=NULL;
-      break;
-    case G_TYPE_ENUM:
+      col->user_data=g_new(BtPatternEditorColumnConverters,1);
+      pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
+      pcc->val_to_float=boolean_val_to_float;
+      pcc->float_to_str=any_float_to_str;
+    } break;
+    case G_TYPE_ENUM: {
+      BtPatternEditorColumnConvertersCallbacks *pcc;
+
       if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH) {
         col->type=PCT_SWITCH;
         col->min=0;
@@ -1702,9 +1740,14 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
         col->max=g_value_get_enum(max_val);
       }
       col->def=col->max+1;
-      col->user_data=NULL;
-      break;
-    case G_TYPE_INT:
+      col->user_data=g_new(BtPatternEditorColumnConverters,1);
+      pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
+      pcc->val_to_float=enum_val_to_float;
+      pcc->float_to_str=any_float_to_str;
+    } break;
+    case G_TYPE_INT: {
+      BtPatternEditorColumnConvertersCallbacks *pcc;
+
       col->type=PCT_WORD;
       col->min=g_value_get_int(min_val);
       col->max=g_value_get_int(max_val);
@@ -1712,9 +1755,14 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
-      col->user_data=NULL;
-      break;
-    case G_TYPE_UINT:
+      col->user_data=g_new(BtPatternEditorColumnConverters,1);
+      pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
+      pcc->val_to_float=int_val_to_float;
+      pcc->float_to_str=any_float_to_str;
+    } break;
+    case G_TYPE_UINT: {
+      BtPatternEditorColumnConvertersCallbacks *pcc;
+
       col->type=PCT_WORD;
       col->min=g_value_get_uint(min_val);
       col->max=g_value_get_uint(max_val);
@@ -1722,8 +1770,11 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
-      col->user_data=NULL;
-      break;
+      col->user_data=g_new(BtPatternEditorColumnConverters,1);
+      pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
+      pcc->val_to_float=uint_val_to_float;
+      pcc->float_to_str=any_float_to_str;
+    } break;
     case G_TYPE_FLOAT: {
       BtPatternEditorColumnConvertersFloatCallbacks *pcc;
 
@@ -1733,7 +1784,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->def=col->max+1;
       col->user_data=g_new(BtPatternEditorColumnConverters,1);
       pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)col->user_data;
-      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->str_to_float=float_str_to_float;
+      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->val_to_float=float_val_to_float;
       ((BtPatternEditorColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
       pcc->min=g_value_get_float(min_val);
       pcc->max=g_value_get_float(max_val);
@@ -1760,7 +1811,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->def=col->max+1;
       col->user_data=g_new(BtPatternEditorColumnConverters,1);
       pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)col->user_data;
-      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->str_to_float=float_str_to_float;
+      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->val_to_float=double_val_to_float;
       ((BtPatternEditorColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
       // identify wire-elements
       // this is not the best way to identify a volume element
