@@ -1,3 +1,8 @@
+2011-02-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/led/setled.c:
+	  Add another link.
+
 2011-02-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:

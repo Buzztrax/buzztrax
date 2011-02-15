@@ -9,6 +9,8 @@
 /* based on:
  * http://sampo.kapsi.fi/ledcontrol/
  * http://www.netzmafia.de/skripten/hardware/keyboard/tastatur-leds.html
+ *
+ * http://www.net-security.org/article.php?id=83
  */
 
 #include <errno.h>
