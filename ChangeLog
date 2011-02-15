@@ -1,6 +1,11 @@
 2011-02-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:
+	  Fix y character positioning by adding height.
+
+2011-02-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
 	* src/ui/edit/pattern-editor.h:
 	  Start porting to use cairo.
 

@@ -184,29 +184,29 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
   GdkGC **bg_shade_gc = self->bg_shade_gc;
 #endif
   gchar buf[16];
-  gint col_w = bt_pattern_editor_rownum_width(self);
-  gint col_h = self->ch;
+  gint cw = bt_pattern_editor_rownum_width(self);
+  gint ch = self->ch;
 
-  col_w-=self->cw;
+  cw-=self->cw;
   while (y < max_y && row < self->num_rows) {
 #ifdef USE_CAIRO
     gdouble *bg_shade_color=self->bg_shade_color[row&0x1];
     cairo_set_source_rgb(cr,bg_shade_color[0],bg_shade_color[1],bg_shade_color[2]);
-    cairo_rectangle(cr,x,y,col_w,col_h);
+    cairo_rectangle(cr,x,y,cw,ch);
     cairo_fill(cr);
 
     cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
-    cairo_move_to(cr,x,y);
+    cairo_move_to(cr,x,y+ch);
     sprintf(buf, "%04X", row);
     cairo_show_text(cr, buf);
 #else
-    gdk_draw_rectangle (win, bg_shade_gc[row&0x1], TRUE, x, y, col_w, col_h);
+    gdk_draw_rectangle (win, bg_shade_gc[row&0x1], TRUE, x, y, cw, ch);
 
     sprintf(buf, "%04X", row);
     pango_layout_set_text (pl, buf, 4);
     gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
 #endif
-    y += col_h;
+    y += ch;
     row++;
   }
 }
@@ -225,15 +225,16 @@ bt_pattern_editor_draw_colnames (BtPatternEditor *self,
   GdkGC *fg_gc = s->fg_gc[widget->state];
 #endif
   gint g;
+  gint ch = self->ch;
 
   // FIXME: this erases too much
 #ifdef USE_CAIRO
   cairo_set_source_rgb(cr,self->bg_color[0],self->bg_color[1],self->bg_color[2]);
-  cairo_rectangle(cr,0,0,widget->allocation.width, self->ch);
+  cairo_rectangle(cr,0,0,widget->allocation.width, ch);
   cairo_fill(cr);
 #else
   gdk_draw_rectangle (win, s->bg_gc[GTK_STATE_NORMAL],
-      TRUE, 0, 0, widget->allocation.width,self->ch);
+      TRUE, 0, 0, widget->allocation.width,ch);
 #endif
 
   for (g = 0; g < self->num_groups; g++) {
@@ -241,7 +242,7 @@ bt_pattern_editor_draw_colnames (BtPatternEditor *self,
 
 #ifdef USE_CAIRO
     cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
-    cairo_move_to(cr,x,y);
+    cairo_move_to(cr,x,y+ch);
     cairo_show_text(cr, cgrp->name); // @todo: check if we need to truncate
 #else
     pango_layout_set_text (pl, cgrp->name, ((cgrp->width/self->cw)-1));
@@ -263,21 +264,22 @@ bt_pattern_editor_draw_rowname (BtPatternEditor *self,
   GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
 #endif
-  gint col_w = bt_pattern_editor_rownum_width(self);
+  gint cw = bt_pattern_editor_rownum_width(self);
+  gint ch = self->ch;
 
 #ifdef USE_CAIRO
   cairo_set_source_rgb(cr,self->bg_color[0],self->bg_color[1],self->bg_color[2]);
-  cairo_rectangle(cr,0,0,col_w,self->ch);
+  cairo_rectangle(cr,0,0,cw,ch);
   cairo_fill(cr);
 #else
   gdk_draw_rectangle (win, s->bg_gc[GTK_STATE_NORMAL],
-      TRUE, 0, 0, col_w, self->ch);
+      TRUE, 0, 0, cw, ch);
 #endif
 
   if (self->num_groups) {
 #ifdef USE_CAIRO
     cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
-    cairo_move_to(cr,x,y);
+    cairo_move_to(cr,x,y+ch);
     cairo_show_text(cr, "Tick");
 #else
     pango_layout_set_text (pl, "Tick", 4);
@@ -387,7 +389,7 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
     pt->to_string_func(buf, get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
 #ifdef USE_CAIRO
     cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
-    cairo_move_to(cr,x,y);
+    cairo_move_to(cr,x,y+ch);
     cairo_show_text(cr, buf);
 #else
     pango_layout_set_text (pl, buf, pt->chars);
