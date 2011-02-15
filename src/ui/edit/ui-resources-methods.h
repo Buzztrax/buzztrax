@@ -33,6 +33,7 @@ extern GtkWidget *bt_ui_resources_get_icon_image_by_machine(const BtMachine *mac
 extern GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type);
 
 extern GdkColor *bt_ui_resources_get_gdk_color(BtUIResourcesColors color_type);
+extern void bt_ui_resources_get_rgb_color(BtUIResourcesColors color_type, gdouble *r, gdouble *g, gdouble *b);
 extern guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine,BtUIResourcesMachineColors color_type);
 
 extern GtkAccelGroup *bt_ui_resources_get_accel_group(void);

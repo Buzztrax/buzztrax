@@ -25,7 +25,7 @@
  * This class serves as a central storage for colors and icons.
  * It is implemented as a singleton.
  */
- 
+
 /* @todo: manage GdkColor entries and guint colors (via gdk_color.pixel)
  */
 
@@ -45,7 +45,7 @@ struct _BtUIResourcesPrivate {
 
   /* colors */
   GdkColor colors[BT_UI_RES_COLOR_COUNT];
-  
+
   /* the keyboard shortcut table for the window */
   GtkAccelGroup *accel_group;
 
@@ -88,7 +88,7 @@ static void bt_ui_resources_init_colors(BtUIResources *self) {
   gint res;
   gchar *icon_theme_name;
   gboolean use_tango_colors=FALSE;
-  
+
   settings=gtk_settings_get_default();
   /* get the theme name - we need different machine colors for tango
    * http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
@@ -96,29 +96,29 @@ static void bt_ui_resources_init_colors(BtUIResources *self) {
    */
   g_object_get(settings, "gtk-icon-theme-name", &icon_theme_name, NULL);
   GST_INFO("Icon Theme: %s",icon_theme_name);
-  
+
   /* @todo: can we get some colors from the theme ?
    * gtk_widget_style_get(widget,
    *   "cursor-color",&self->priv->colors[ix],
    *   "secondary-cursor-color",&self->priv->colors[ix],
    *   NULL);
    */
-   
+
   if(!strcasecmp(icon_theme_name,"tango") || !strcasecmp(icon_theme_name,"gnome"))
     use_tango_colors=TRUE;
-  
+
   // cursor
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_CURSOR,                    0.85,0.85,0.20);
-  
+
   // selection background
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SELECTION1,                1.00,1.00,0.60);
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SELECTION2,                0.95,0.95,0.55);
-  
+
   // tree view lines
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_PLAYLINE,                  0.00,0.00,1.00);
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_LOOPLINE,                  1.00,0.75,0.00);
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_ENDLINE,                   1.00,0.30,0.20);
-  
+
   // source machine
   if(use_tango_colors) {
     /* (#ffd699) #fcaf3e / #f57900 / #ce5c00
@@ -141,7 +141,7 @@ static void bt_ui_resources_init_colors(BtUIResources *self) {
     MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1,      0.60,0.40,0.40);
     MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2,      0.50,0.20,0.20);
   }
-  
+
   // processor machine
   if(use_tango_colors) {
     /* (#cbff99) #8ae234 / #73d216 / #4e9a06
@@ -187,13 +187,13 @@ static void bt_ui_resources_init_colors(BtUIResources *self) {
     MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        0.40,0.40,0.60);
     MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        0.20,0.20,0.50);
   }
-  
+
   // analyzer window
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_ANALYZER_PEAK,             1.00,0.75,0.00);
   MAKE_COLOR_FROM_FLOATS(BT_UI_RES_COLOR_GRID_LINES,                0.5,0.5,0.5);
-  
+
   g_free(icon_theme_name);
-   
+
   // now allocate colors
   colormap=gdk_colormap_get_system();
   if((res=gdk_colormap_alloc_colors(colormap,self->priv->colors,BT_UI_RES_COLOR_COUNT,FALSE,TRUE,color_res))) {
@@ -212,14 +212,14 @@ static void bt_ui_resources_init_icons(BtUIResources *self) {
   GtkSettings *settings;
   gchar *icon_theme_name,*fallback_icon_theme_name;
   gint w,h;
-  
+
   settings=gtk_settings_get_default();
-  g_object_get(settings, 
+  g_object_get(settings,
     "gtk-icon-theme-name", &icon_theme_name,
     "gtk-fallback-icon-theme", &fallback_icon_theme_name,
     NULL);
   GST_INFO("Icon Theme: %s, Fallback Icon Theme: %s",icon_theme_name,fallback_icon_theme_name);
-  
+
   if(strcasecmp(icon_theme_name,"gnome")) {
     if(fallback_icon_theme_name && strcasecmp(fallback_icon_theme_name,"gnome")) {
       g_object_set(settings,"gtk-fallback-icon-theme","gnome",NULL);
@@ -245,7 +245,7 @@ static void bt_ui_resources_init_icons(BtUIResources *self) {
 static GdkPixbuf *bt_ui_resources_load_svg(const gchar *file_name) {
   GError *error = NULL;
   GdkPixbuf *pixbuf;
-  
+
   pixbuf = rsvg_pixbuf_from_file_at_size (file_name, 96, 96, &error);
   if(error) {
     GST_WARNING ("loading svg %s failed : %s", file_name, error->message);
@@ -264,16 +264,16 @@ static void bt_ui_resources_free_graphics(BtUIResources *self) {
     g_object_try_unref(self->priv->sink_machine_pixbufs[state]);
   }
 }
-  
+
 static void bt_ui_resources_init_graphics(BtUIResources *self) {
   // 12*6=72, 14*6=84
   const gint size=(gint)(self->priv->zoom*(gdouble)(GTK_ICON_SIZE_DIALOG*14));
   //const gint size=(gint)(self->priv->zoom*(gdouble)(6*14));
 
-  GST_WARNING("regenerating machine graphics at %d pixels",size);
-  
+  GST_INFO("regenerating machine graphics at %d pixels",size);
+
   //self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL] = bt_ui_resources_load_svg ("generator.svg");
-  
+
   self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("buzztard_generator",size);
   self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("buzztard_generator_mute",size);
   self->priv->source_machine_pixbufs   [BT_MACHINE_STATE_SOLO  ]=gdk_pixbuf_new_from_theme("buzztard_generator_solo",size);
@@ -284,11 +284,11 @@ static void bt_ui_resources_init_graphics(BtUIResources *self) {
 
   self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_NORMAL]=gdk_pixbuf_new_from_theme("buzztard_master",size);
   self->priv->sink_machine_pixbufs     [BT_MACHINE_STATE_MUTE  ]=gdk_pixbuf_new_from_theme("buzztard_master_mute",size);
-   
+
   /* DEBUG
   gint w,h;
   g_object_get(self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL],"width",&w,"height",&h,NULL);
-  GST_DEBUG("svg: w,h = %d, %d",w,h);  
+  GST_DEBUG("svg: w,h = %d, %d",w,h);
   */
 }
 
@@ -340,14 +340,14 @@ GdkPixbuf *bt_ui_resources_get_icon_pixbuf_by_machine(const BtMachine *machine) 
  */
 GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine, gdouble zoom) {
   BtMachineState state;
-  
+
   if(zoom!=singleton->priv->zoom) {
     GST_DEBUG("change zoom %f -> %f",singleton->priv->zoom,zoom);
     bt_ui_resources_free_graphics(singleton);
     singleton->priv->zoom=zoom;
     bt_ui_resources_init_graphics(singleton);
   }
-  
+
   g_object_get((gpointer)machine,"state",&state,NULL);
 
   if(BT_IS_SOURCE_MACHINE(machine)) {
@@ -417,6 +417,24 @@ GdkColor *bt_ui_resources_get_gdk_color(BtUIResourcesColors color_type) {
 }
 
 /**
+ * bt_ui_resources_get_rgb_color:
+ * @color_type: the color id
+ * @r: target for red color part
+ * @g: target for green color part
+ * @b: target for blue color part
+ *
+ * Gets a prealocated color by id. Sets the given parts to values from 0.0 to
+ * 1.0.
+ */
+void bt_ui_resources_get_rgb_color(BtUIResourcesColors color_type, gdouble *r, gdouble *g, gdouble *b) {
+  GdkColor *c=&singleton->priv->colors[color_type];
+
+  *r=c->red/65535.0;
+  *g=c->green/65535.0;
+  *b=c->blue/65535.0;
+}
+
+/**
  * bt_ui_resources_get_color_by_machine:
  * @machine: the machine to get the color for
  * @color_type: a color shade
@@ -428,7 +446,8 @@ GdkColor *bt_ui_resources_get_gdk_color(BtUIResourcesColors color_type) {
 guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine,BtUIResourcesMachineColors color_type) {
   gulong ix=0;
   guint32 color=0;
-  
+  GdkColor *c;
+
   if(BT_IS_SOURCE_MACHINE(machine)) {
     ix=BT_UI_RES_COLOR_SOURCE_MACHINE_BASE+color_type;
   }
@@ -438,9 +457,10 @@ guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine,BtUIResour
   else if(BT_IS_SINK_MACHINE(machine)) {
     ix=BT_UI_RES_COLOR_SINK_MACHINE_BASE+color_type;
   }
-  color=(((guint32)(singleton->priv->colors[ix].red&0xFF00))<<16)|
-    (((guint32)(singleton->priv->colors[ix].green&0xFF00))<<8)|
-    ((guint32)(singleton->priv->colors[ix].blue&0xFF00))|
+  c=&singleton->priv->colors[ix];
+  color=(((guint32)(c->red&0xFF00))<<16)|
+    (((guint32)(c->green&0xFF00))<<8)|
+    ((guint32)(c->blue&0xFF00))|
     0x000000FF;
   //GST_INFO("color[%2d/%1d] : 0x%08lx : %04x,%04x,%04x",ix,color_type,color,
   //  ui_resources->priv->colors[ix].red,ui_resources->priv->colors[ix].green,ui_resources->priv->colors[ix].blue);
@@ -464,22 +484,22 @@ GtkAccelGroup *bt_ui_resources_get_accel_group(void) {
 
 static void bt_ui_resources_dispose(GObject *object) {
   BtUIResources *self = BT_UI_RESOURCES(object);
-  
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  
-  GST_DEBUG("  pb->ref_counts: %d, %d, %d", 
+
+  GST_DEBUG("  pb->ref_counts: %d, %d, %d",
     G_OBJECT_REF_COUNT(self->priv->source_machine_pixbuf),
     G_OBJECT_REF_COUNT(self->priv->processor_machine_pixbuf),
     G_OBJECT_REF_COUNT(self->priv->sink_machine_pixbuf));
   g_object_try_unref(self->priv->source_machine_pixbuf);
   g_object_try_unref(self->priv->processor_machine_pixbuf);
   g_object_try_unref(self->priv->sink_machine_pixbuf);
-  
+
   bt_ui_resources_free_graphics(self);
-  
+
   g_object_try_unref(self->priv->accel_group);
 
   G_OBJECT_CLASS(bt_ui_resources_parent_class)->dispose(object);

@@ -1,5 +1,15 @@
 2011-02-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Start porting to use cairo.
+
+	* src/ui/edit/ui-resources-methods.h:
+	* src/ui/edit/ui-resources.c:
+	  Add new methods to get rgb colors directly.
+
+2011-02-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/led/setled.c:
 	  Add another link.
 

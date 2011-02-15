@@ -46,6 +46,18 @@
  * @idea: use gtk_widget_error_bell (widget); when hitting borders with cursor
  */
 
+//#define USE_CAIRO
+/* @todo: speedup drawing in bt_pattern_editor_expose()
+ * - we use a lot of
+ *   pango_layout_set_text (pl, str, str_len);
+ *   gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, color, NULL);
+ *   - pango_layout_set_text() does a lot of checks (e.g. utf8 validation) and
+ *     copies the text
+ *   - gdk_draw_layout_with_colors() sets colors, x,y pos and call
+ *     pango_renderer_draw_layout() and that is expensive
+ *   - we should use cairo_show_text()
+ */
+
 #include <ctype.h>
 #include <math.h>
 #include <stdlib.h>
@@ -162,23 +174,39 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
     gint x, gint y, gint row, gint max_y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
+#ifdef USE_CAIRO
+  cairo_t *cr = gdk_cairo_create (widget->window);
+#else
   GdkWindow *win = widget->window;
   GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
   GdkGC *fg_gc = s->fg_gc[widget->state];
-  GdkGC *bg_gc[2] = {self->shade_gc, s->light_gc[GTK_STATE_NORMAL]};
+  GdkGC **bg_shade_gc = self->bg_shade_gc;
+#endif
   gchar buf[16];
   gint col_w = bt_pattern_editor_rownum_width(self);
+  gint col_h = self->ch;
 
   col_w-=self->cw;
   while (y < max_y && row < self->num_rows) {
-    gdk_draw_rectangle (win, bg_gc[row&0x1],
-      TRUE, x, y, col_w, self->ch);
+#ifdef USE_CAIRO
+    gdouble *bg_shade_color=self->bg_shade_color[row&0x1];
+    cairo_set_source_rgb(cr,bg_shade_color[0],bg_shade_color[1],bg_shade_color[2]);
+    cairo_rectangle(cr,x,y,col_w,col_h);
+    cairo_fill(cr);
+
+    cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
+    cairo_move_to(cr,x,y);
+    sprintf(buf, "%04X", row);
+    cairo_show_text(cr, buf);
+#else
+    gdk_draw_rectangle (win, bg_shade_gc[row&0x1], TRUE, x, y, col_w, col_h);
 
     sprintf(buf, "%04X", row);
     pango_layout_set_text (pl, buf, 4);
     gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
-    y += self->ch;
+#endif
+    y += col_h;
     row++;
   }
 }
@@ -188,22 +216,37 @@ bt_pattern_editor_draw_colnames (BtPatternEditor *self,
     gint x, gint y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
+#ifdef USE_CAIRO
+  cairo_t *cr = gdk_cairo_create (widget->window);
+#else
   GdkWindow *win = widget->window;
   GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
   GdkGC *fg_gc = s->fg_gc[widget->state];
+#endif
   gint g;
 
   // FIXME: this erases too much
+#ifdef USE_CAIRO
+  cairo_set_source_rgb(cr,self->bg_color[0],self->bg_color[1],self->bg_color[2]);
+  cairo_rectangle(cr,0,0,widget->allocation.width, self->ch);
+  cairo_fill(cr);
+#else
   gdk_draw_rectangle (win, s->bg_gc[GTK_STATE_NORMAL],
-      TRUE, 0, 0, widget->allocation.width, self->ch);
+      TRUE, 0, 0, widget->allocation.width,self->ch);
+#endif
 
   for (g = 0; g < self->num_groups; g++) {
     BtPatternEditorColumnGroup *cgrp = &self->groups[g];
 
+#ifdef USE_CAIRO
+    cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
+    cairo_move_to(cr,x,y);
+    cairo_show_text(cr, cgrp->name); // @todo: check if we need to truncate
+#else
     pango_layout_set_text (pl, cgrp->name, ((cgrp->width/self->cw)-1));
     gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
-
+#endif
     x+=cgrp->width;
   }
 }
@@ -213,18 +256,34 @@ bt_pattern_editor_draw_rowname (BtPatternEditor *self,
     gint x, gint y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
+#ifdef USE_CAIRO
+  cairo_t *cr = gdk_cairo_create (widget->window);
+#else
   GdkWindow *win = widget->window;
   GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
+#endif
   gint col_w = bt_pattern_editor_rownum_width(self);
 
+#ifdef USE_CAIRO
+  cairo_set_source_rgb(cr,self->bg_color[0],self->bg_color[1],self->bg_color[2]);
+  cairo_rectangle(cr,0,0,col_w,self->ch);
+  cairo_fill(cr);
+#else
   gdk_draw_rectangle (win, s->bg_gc[GTK_STATE_NORMAL],
       TRUE, 0, 0, col_w, self->ch);
+#endif
 
   if (self->num_groups) {
+#ifdef USE_CAIRO
+    cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
+    cairo_move_to(cr,x,y);
+    cairo_show_text(cr, "Tick");
+#else
     pango_layout_set_text (pl, "Tick", 4);
     gdk_draw_layout_with_colors (win, s->fg_gc[widget->state], x, y, pl,
       &s->text[GTK_STATE_NORMAL], NULL);
+#endif
   }
 }
 
@@ -259,22 +318,32 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
     guint group, guint param, guint row, gint max_y)
 {
   GtkWidget *widget = GTK_WIDGET(self);
+#ifdef USE_CAIRO
+  cairo_t *cr = gdk_cairo_create (widget->window);
+#else
   GdkWindow *win = widget->window;
   GtkStyle *s = widget->style;
   PangoLayout *pl = self->pl;
   GdkGC *bg_gc, *fg_gc = s->fg_gc[widget->state];
-  GdkGC *bg_gcs[2] = {self->shade_gc, s->light_gc[GTK_STATE_NORMAL]};
+  GdkGC **bg_shade_gc = self->bg_shade_gc;
+#endif
   struct ParamType *pt = &param_types[col->type];
   gchar buf[16];
   gint cw = self->cw, ch = self->ch;
   gint col_w = cw * (pt->chars + 1);
   gint col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
+  gfloat (*get_data_func)(gpointer pattern_data, gpointer column_data, guint row, guint group, guint param) = self->callbacks->get_data_func;
 
   while (y < max_y && row < self->num_rows) {
     gint col_w3 = col_w2;
 
     /* draw background */
-    bg_gc = bg_gcs[row&0x1];
+#ifdef USE_CAIRO
+    gdouble *bg_shade_color=self->bg_shade_color[row&0x1];
+    cairo_set_source_rgb(cr,bg_shade_color[0],bg_shade_color[1],bg_shade_color[2]);
+#else
+    bg_gc = bg_shade_gc[row&0x1];
+#endif
     if (self->selection_enabled && in_selection(self, group, param, row)) {
       /* the last space should be selected if it's a within-group "glue"
          in multiple column selection, row colour otherwise */
@@ -282,26 +351,58 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
         /* draw row-coloured "continuation" after column, unless last column in
            a group */
         col_w3 = col_w - cw;
-        if (param != self->groups[group].num_columns - 1)
+        if (param != self->groups[group].num_columns - 1) {
+#ifdef USE_CAIRO
+          cairo_rectangle(cr,x+col_w3,y,cw,ch);
+          cairo_fill(cr);
+#else
           gdk_draw_rectangle (win, bg_gc, TRUE, x + col_w3, y, cw, ch);
+#endif
+        }
       }
       /* draw selected column+continuation (unless last column, then don't draw
          continuation) */
+#ifdef USE_CAIRO
+      cairo_set_source_rgb(cr,self->sel_color[0],self->sel_color[1],self->sel_color[2]);
+#else
       bg_gc = s->base_gc[GTK_STATE_SELECTED];
+#endif
     }
+#ifdef USE_CAIRO
+    cairo_rectangle(cr,x,y,col_w3,ch);
+    cairo_fill(cr);
+#else
     gdk_draw_rectangle (win, bg_gc, TRUE, x, y, col_w3, ch);
+#endif
 
-    pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
-    pango_layout_set_text (pl, buf, pt->chars);
-    gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
+#ifdef USE_CAIRO
     // draw cursor
     if (row == self->row && param == self->parameter && group == self->group) {
       gint cp = pt->column_pos[self->digit];
-      pango_layout_set_text (pl, buf + cp, 1);
+      cairo_set_source_rgb(cr,self->cursor_color[0],self->cursor_color[1],self->cursor_color[2]);
+      cairo_rectangle(cr,x+cw*cp,y,cw,ch);
+      cairo_fill(cr);
+    }
+#endif
+    pt->to_string_func(buf, get_data_func(self->pattern_data, col->user_data, row, group, param), col->def);
+#ifdef USE_CAIRO
+    cairo_set_source_rgb(cr,self->text_color[0],self->text_color[1],self->text_color[2]);
+    cairo_move_to(cr,x,y);
+    cairo_show_text(cr, buf);
+#else
+    pango_layout_set_text (pl, buf, pt->chars);
+    gdk_draw_layout_with_colors (win, fg_gc, x, y, pl, &s->text[GTK_STATE_NORMAL], NULL);
+#endif
+#ifndef USE_CAIRO
+    // draw cursor
+    if (row == self->row && param == self->parameter && group == self->group) {
+      gint cp = pt->column_pos[self->digit];
+      pango_layout_set_text (pl, &buf[cp], 1);
       // we could also use text_aa[GTK_STATE_SELECTED] for the cursor
       gdk_draw_layout_with_colors (win, fg_gc, x + cw * cp, y, pl,
         &s->text[GTK_STATE_NORMAL], &s->text_aa[GTK_STATE_ACTIVE]);
     }
+#endif
     y += ch;
     row++;
   }
@@ -509,10 +610,16 @@ bt_pattern_editor_realize (GtkWidget *widget)
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
   GdkWindowAttr attributes;
   gint attributes_mask;
+#ifdef USE_CAIRO
+  cairo_t *cr;
+  cairo_font_extents_t extents;
+  GdkColor *c;
+#else
   PangoContext *pc;
   PangoFontDescription *pfd;
   PangoFontMetrics *pfm;
   GdkColor alt_row_color={0,};
+#endif
 
   g_return_if_fail (BT_IS_PATTERN_EDITOR (widget));
 
@@ -538,12 +645,37 @@ bt_pattern_editor_realize (GtkWidget *widget)
 
   gtk_widget_set_can_focus(widget, TRUE);
 
-  // allocation graphical contexts for drawing the overlay lines
+  // setup graphic styles
+#ifdef USE_CAIRO
+  bt_ui_resources_get_rgb_color(BT_UI_RES_COLOR_PLAYLINE,&self->play_pos_color[0],&self->play_pos_color[1],&self->play_pos_color[2]);
+  c=&widget->style->light[GTK_STATE_NORMAL];
+  self->bg_shade_color[0][0]=((gdouble)c->red*0.9)/65535.0;
+  self->bg_shade_color[0][1]=((gdouble)c->green*0.9)/65535.0;
+  self->bg_shade_color[0][2]=((gdouble)c->blue*0.9)/65535.0;
+  self->bg_shade_color[1][0]=(gdouble)c->red/65535.0;
+  self->bg_shade_color[1][1]=(gdouble)c->green/65535.0;
+  self->bg_shade_color[1][2]=(gdouble)c->blue/65535.0;
+  c=&widget->style->text[GTK_STATE_NORMAL];
+  self->text_color[0]=(gdouble)c->red/65535.0;
+  self->text_color[1]=(gdouble)c->green/65535.0;
+  self->text_color[2]=(gdouble)c->blue/65535.0;
+  c=&widget->style->bg[GTK_STATE_NORMAL];
+  self->bg_color[0]=(gdouble)c->red/65535.0;
+  self->bg_color[1]=(gdouble)c->green/65535.0;
+  self->bg_color[2]=(gdouble)c->blue/65535.0;
+  c=&widget->style->base[GTK_STATE_SELECTED];
+  self->sel_color[0]=(gdouble)c->red/65535.0;
+  self->sel_color[1]=(gdouble)c->green/65535.0;
+  self->sel_color[2]=(gdouble)c->blue/65535.0;
+  c=&widget->style->text_aa[GTK_STATE_ACTIVE];
+  self->cursor_color[0]=(gdouble)c->red/65535.0;
+  self->cursor_color[1]=(gdouble)c->green/65535.0;
+  self->cursor_color[2]=(gdouble)c->blue/65535.0;
+#else
   self->play_pos_gc=gdk_gc_new(widget->window);
   gdk_gc_set_rgb_fg_color(self->play_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
   gdk_gc_set_line_attributes(self->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-  self->shade_gc=gdk_gc_new(widget->window);
-
+  self->bg_shade_gc[0]=gdk_gc_new(widget->window);
 // does not work yet, see bt-edit.gtkrc
 //#if GTK_CHECK_VERSION(2, 10, 0)
 //  gtk_style_lookup_color(widget->style,"alternative-row",&alt_row_color);
@@ -552,20 +684,30 @@ bt_pattern_editor_realize (GtkWidget *widget)
    alt_row_color.green=(guint16)(widget->style->light[GTK_STATE_NORMAL].green*0.9);
    alt_row_color.blue=(guint16)(widget->style->light[GTK_STATE_NORMAL].blue*0.9);
 //#endif
-  gdk_gc_set_rgb_fg_color(self->shade_gc,&alt_row_color);
+  gdk_gc_set_rgb_fg_color(self->bg_shade_gc[0],&alt_row_color);
+  self->bg_shade_gc[1]=widget->style->light_gc[GTK_STATE_NORMAL];
+#endif
 
+  /* copy size from default font and use default monospace font */
+  GST_WARNING(" default font %p, size %d (is_absolute %d?), scl=%lf",
+    widget->style->font_desc,
+    pango_font_description_get_size(widget->style->font_desc),
+    pango_font_description_get_size_is_absolute(widget->style->font_desc),
+    (gdouble)PANGO_SCALE);
+#ifdef USE_CAIRO
+  cr = gdk_cairo_create (widget->window);
+  cairo_select_font_face (cr, "monospace", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size (cr, pango_font_description_get_size (widget->style->font_desc) / PANGO_SCALE);
+  cairo_font_extents (cr, &extents);
+  self->cw = 1+extents.max_x_advance;
+  self->ch = 1+extents.ascent+extents.descent; // height
+#else
   /* calculate font-metrics */
   pc = gtk_widget_get_pango_context (widget);
   pfd = pango_font_description_new();
 
   //pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono");
   //pango_font_description_set_absolute_size (pfd, 12 * PANGO_SCALE);
-  /* copy size from default font and use default monospace font */
-  GST_DEBUG(" default font %p, size %d (is_absolute %d?), scl=%lf",
-    widget->style->font_desc,
-    pango_font_description_get_size(widget->style->font_desc),
-    pango_font_description_get_size_is_absolute(widget->style->font_desc),
-    (gdouble)PANGO_SCALE);
   pango_font_description_set_family_static (pfd, "monospace");
   if(pango_font_description_get_size_is_absolute(widget->style->font_desc)) {
     pango_font_description_set_absolute_size (pfd,
@@ -582,21 +724,27 @@ bt_pattern_editor_realize (GtkWidget *widget)
   self->ch = (pango_font_metrics_get_ascent (pfm) + pango_font_metrics_get_descent (pfm)) / PANGO_SCALE;
   pango_font_metrics_unref (pfm);
 
-  GST_INFO ("char size: %d x %d", self->cw, self->ch);
-
   self->pl = pango_layout_new (pc);
   pango_layout_set_font_description (self->pl, pfd);
   pango_font_description_free (pfd);
+#endif
+
+  GST_WARNING("char size: %d x %d", self->cw, self->ch);
 }
 
 static void bt_pattern_editor_unrealize(GtkWidget *widget)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
 
+#ifdef USE_CAIRO
+#else
   g_object_unref (self->play_pos_gc);
   self->play_pos_gc=NULL;
-  g_object_unref (self->shade_gc);
-  self->shade_gc=NULL;
+  g_object_unref (self->bg_shade_gc[0]);
+  self->bg_shade_gc[0]=NULL;
+  g_object_unref (self->pl);
+  self->pl = NULL;
+#endif
 
   if(self->hadj) {
     g_object_unref (self->hadj);
@@ -606,9 +754,6 @@ static void bt_pattern_editor_unrealize(GtkWidget *widget)
     g_object_unref (self->vadj);
     self->vadj=NULL;
   }
-
-  g_object_unref (self->pl);
-  self->pl = NULL;
 }
 
 /* @todo:
@@ -625,6 +770,9 @@ bt_pattern_editor_expose (GtkWidget *widget,
   gint y, x, i, row, g, max_y;
   gint grp_x;
   gint rowhdr_x, ch;
+#ifdef USE_CAIRO
+  cairo_t *cr;
+#endif
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
@@ -632,8 +780,12 @@ bt_pattern_editor_expose (GtkWidget *widget,
   if (event->count > 0)
     return FALSE;
 
-  // this is the dirty region
+  /* this is the dirty region */
   GST_INFO("Refresh Area: %d,%d -> %d,%d",rect.x, rect.y, rect.width, rect.height);
+
+#ifdef USE_CAIRO
+  cr = gdk_cairo_create (widget->window);
+#endif
 
   if (self->hadj) {
     self->ofs_x = (gint)gtk_adjustment_get_value(self->hadj);
@@ -695,7 +847,15 @@ bt_pattern_editor_expose (GtkWidget *widget,
     gdouble h=(gdouble)(bt_pattern_editor_get_col_height(self)-self->colhdr_height);
     y=self->colhdr_height+(gint)(self->play_pos*h) - self->ofs_y;
     // @todo: check rect.y, rect.height
+#ifdef USE_CAIRO
+    cairo_set_source_rgb(cr,self->play_pos_color[0],self->play_pos_color[1],self->play_pos_color[2]);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr,0,y);
+    cairo_line_to(cr,widget->allocation.width,y);
+    cairo_stroke(cr);
+#else
     gdk_draw_line(widget->window,self->play_pos_gc, 0,y,widget->allocation.width,y);
+#endif
     //GST_INFO("Draw playline: %d,%d -> %d,%d",0, y);
   }
 
