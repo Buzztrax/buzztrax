@@ -26,8 +26,7 @@
  * Provides an editor widget for #BtPattern instances.
  */
 
-/*
- * @todo:
+/* @todo:
  * - block operations
  *       o copy
  *       o paste
@@ -44,6 +43,14 @@
  *     the group gap is one whole character anyway
  *
  * @idea: use gtk_widget_error_bell (widget); when hitting borders with cursor
+ */
+/* for more performance, we need to render to memory surfaces and blit them when
+ * scolling
+ * rendering to memory surfaces:
+ * blitting:
+ * todo:
+ * - we need to update the memory surfaces when layout or data changes
+ * - do we want to handle the cursor like data changes?
  */
 
 #include <ctype.h>
@@ -980,9 +987,12 @@ bt_pattern_editor_key_press (GtkWidget *widget,
               /* @todo: should we tell pattern editor about the meassure
                * g_object_get(song_info,"bars",&bars,NULL); for 4/4 => 16
                */
-              self->row = control ? 0 : (self->row - 16);
-              if (self->row < 0)
+              if (control)
                 self->row = 0;
+              else {
+                gint p=(gint)self->row - 16;
+                self->row = p < 0 ? 0 : p;
+              }
               g_object_notify((gpointer)self,"cursor-row");
               bt_pattern_editor_refresh_cursor_or_scroll(self);
             }
