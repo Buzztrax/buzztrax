@@ -50,7 +50,7 @@ BT_START_TEST(test_machine_ref) {
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
-  
+
   // create a new song
   bt_edit_application_new_song(app);
 
@@ -74,7 +74,6 @@ BT_START_TEST(test_machine_ref) {
   gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
   gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
   */
-  // we have a ref-leak on sequence page right now
   // show page
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_MACHINES_PAGE);
   g_object_unref(pages);
@@ -86,15 +85,15 @@ BT_START_TEST(test_machine_ref) {
   g_object_unref(setup);
 
   while(gtk_events_pending()) gtk_main_iteration();
-  
+
   GST_INFO("machine %p,ref_count=%d has been created",src_machine,G_OBJECT_REF_COUNT(src_machine));
-  
+
   // remove the machine and check that it is disposed
   bt_main_page_machines_delete_machine(machines_page,src_machine);
   g_object_unref(machines_page);
-  
+
   while(gtk_events_pending()) gtk_main_iteration();
-  
+
   g_object_checked_unref(src_machine);
 
   // close window

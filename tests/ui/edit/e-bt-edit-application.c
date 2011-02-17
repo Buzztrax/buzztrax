@@ -582,6 +582,10 @@ BT_START_TEST(test_machine_view_edit0) {
   GST_INFO("song loaded");
   g_object_get(song,"setup",&setup,NULL);
 
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
   // remove a source
   machine=bt_setup_get_machine_by_id(setup,"sine1");
   GST_INFO("setup.machine[sine2].ref_count=%d",G_OBJECT_REF_COUNT(machine));
@@ -594,10 +598,6 @@ BT_START_TEST(test_machine_view_edit0) {
 
   g_object_unref(setup);
   g_object_unref(song);
-
-  // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
 
   // close window
   gtk_widget_destroy(GTK_WIDGET(main_window));
@@ -627,6 +627,10 @@ BT_START_TEST(test_machine_view_edit1) {
   GST_INFO("song loaded");
   g_object_get(song,"setup",&setup,NULL);
 
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
   // remove a source
   machine=bt_setup_get_machine_by_id(setup,"sine1");
   GST_INFO("setup.machine[sine1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
@@ -649,10 +653,6 @@ BT_START_TEST(test_machine_view_edit1) {
 
   g_object_unref(setup);
   g_object_unref(song);
-
-  // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
 
   // close window
   gtk_widget_destroy(GTK_WIDGET(main_window));
@@ -683,6 +683,10 @@ BT_START_TEST(test_machine_view_edit2) {
   GST_INFO("song loaded");
   g_object_get(song,"setup",&setup,NULL);
 
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
   // remove an effect (this remes the wires)
   machine=bt_setup_get_machine_by_id(setup,"amp1");
   GST_INFO("setup.machine[amp1].ref_count=%d",G_OBJECT_REF_COUNT(machine));
@@ -711,10 +715,6 @@ BT_START_TEST(test_machine_view_edit2) {
   g_object_unref(setup);
   g_object_unref(song);
 
-  // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
-
   // close window
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
@@ -729,6 +729,7 @@ BT_END_TEST
 BT_START_TEST(test_machine_view_edit3) {
   BtEditApplication *app;
   BtMainWindow *main_window;
+  BtMainPages *pages;
   BtSong *song;
   BtSetup *setup;
   BtWire *wire;
@@ -743,6 +744,21 @@ BT_START_TEST(test_machine_view_edit3) {
   fail_unless(song != NULL, NULL);
   GST_INFO("song loaded");
   g_object_get(song,"setup",&setup,NULL);
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  fail_unless(pages != NULL, NULL);
+  // remove some other pages
+  // (ev. run for all combinations - if a test using all pages fails?)
+  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
+  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
+  // FIXME: having the machine page enabled/disabled makes a difference
+  //  between ref-leak and too many unrefs
+  //gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
+  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+  g_object_unref(pages);
 
   // remove wire
   machine1=bt_setup_get_machine_by_id(setup,"sine1");
@@ -778,10 +794,6 @@ BT_START_TEST(test_machine_view_edit3) {
 
   g_object_unref(setup);
   g_object_unref(song);
-
-  // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
 
   // close window
   gtk_widget_destroy(GTK_WIDGET(main_window));
