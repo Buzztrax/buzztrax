@@ -1,3 +1,8 @@
+2011-02-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/Makefile.am:
+	  Add a refdbg makefile rule.
+
 2011-02-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/ui/edit/e-bt-edit-application.c:

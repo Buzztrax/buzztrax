@@ -155,9 +155,15 @@ clean-local:
 
 # gdb any given test by running make <test>.gdb
 %.gdb: %
-	CK_FORK=no				\
-	CK_DEFAULT_TIMEOUT=20	\
-	$(LIBTOOL) --mode=execute	\
+	@CK_FORK=no		\
+	$(TESTS_ENVIRONMENT)	\
+	gdb ./$*
+
+# refdbg any given test by running make <test>.refdbg
+%.refdbg: %
+	@CK_FORK=no		\
+	$(TESTS_ENVIRONMENT)	\
+	refdbg -c "btnum=20 ; logobjs=0 ; $(REFDBG_RULE)" \
 	gdb ./$*
 
 ## todo: check if code has been compiled using --enable-debug
