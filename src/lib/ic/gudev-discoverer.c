@@ -83,12 +83,12 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     action,subsystem,g_udev_device_get_devtype(udevice),name,
     g_udev_device_get_number(udevice),devnode,g_udev_device_get_driver(udevice));
 
-  if(!devnode)
+  if(!devnode || !udi)
     return;
 
   if(!strcmp(action,"add")) {
     BtIcDevice *device=NULL;
-    GUdevDevice *uparent;
+    GUdevDevice *uparent,*t;
     const gchar *full_name=NULL;
     const gchar *vendor_name, *model_name;
     gboolean free_full_name=FALSE;
@@ -112,13 +112,20 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL");
     GST_INFO("  v m:  '%s' '%s'",vendor_name,model_name);
     while(uparent && !(vendor_name && model_name)) {
-      if((uparent=g_udev_device_get_parent(uparent))) {
+      t=uparent;
+      if((uparent=g_udev_device_get_parent(t))) {
         if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR_FROM_DATABASE");
         if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR");
         if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
         if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL");
         GST_INFO("  v m:  '%s' '%s'",vendor_name,model_name);
       }
+      if(t!=udevice) {
+        g_object_unref(t);
+      }
+    }
+    if(uparent && uparent!=udevice) {
+      g_object_unref(uparent);
     }
     if(vendor_name && model_name) {
       full_name=g_strconcat(vendor_name," ",model_name,NULL);
