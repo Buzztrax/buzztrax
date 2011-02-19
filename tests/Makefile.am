@@ -164,7 +164,7 @@ clean-local:
 	@CK_FORK=no		\
 	$(TESTS_ENVIRONMENT)	\
 	refdbg -c "btnum=20 ; logobjs=0 ; $(REFDBG_RULE)" \
-	gdb ./$*
+	./$*
 
 ## todo: check if code has been compiled using --enable-debug
 ##
@@ -198,7 +198,9 @@ endif
 if USE_VALGRIND
 VALPREFIX = \
 	CK_FORK=no CK_DEFAULT_TIMEOUT=360 \
-	G_SLICE=always-malloc GLIBCPP_FORCE_NEW=
+	LANG=C XDG_CACHE_HOME=$(abs_builddir) \
+	G_SLICE=always-malloc G_DEBUG=gc-friendly \
+	GLIBCPP_FORCE_NEW=1 GLIBCXX_FORCE_NEW=1
 VALDEFAULT = @VALGRIND@/bin/valgrind
 VALSUPP = @VALGRIND@/lib/valgrind
 VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp
@@ -206,7 +208,7 @@ VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztard.supp \
 	--suppressions=$(top_builddir)/gst.supp
 VALSUPPRESSION = $(VALSUPPRESSIONDEF) $(VALSUPPRESSIONOWN)
 VALOPTIONS = -q --trace-children=yes --num-callers=20 \
-  --tool=memcheck --leak-check=full --leak-resolution=high
+  --tool=memcheck --leak-check=full --leak-resolution=high --track-origins=yes
 VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS) $(VALSUPPRESSION)
 
 valgrind:: $(TESTS_BIN)
