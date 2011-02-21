@@ -1,5 +1,16 @@
 2011-02-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/ic/Makefile.am:
+	* tests/lib/ic/e-registry.c:
+	* tests/lib/ic/s-registry.c:
+	* tests/lib/ic/s-registry.c (svn:keywords, svn:eol-style):
+	* tests/lib/ic/e-registry.c (svn:keywords, svn:eol-style):
+	* tests/lib/ic/s-registry.c (added):
+	* tests/lib/ic/e-registry.c (added):
+	  Add a simple check for the registry.
+
+2011-02-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* tests/Makefile.am:
 	* tests/lib/Makefile.am:
