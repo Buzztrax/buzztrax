@@ -2,7 +2,7 @@
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
-  TESTS_BIN = bt_core bt_cmd bt_edit
+  TESTS_BIN = bt_core bt_ic bt_cmd bt_edit
   ##TESTS_BIN = bt_core
 else
   TESTS_BIN =
@@ -56,6 +56,15 @@ bt_core_LDADD = \
 bt_core_LDFLAGS = -Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
 bt_core_SOURCES= \
 	m-bt-core.c
+
+bt_ic_LDADD = \
+	$(top_builddir)/tests/lib/ic/libbtic-check.la \
+	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
+	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
+bt_ic_LDFLAGS = -Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/ic/.libs
+bt_ic_SOURCES= \
+	m-bt-ic.c
 
 bt_cmd_LDADD = \
 	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la \

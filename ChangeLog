@@ -1,3 +1,23 @@
+2011-02-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* tests/Makefile.am:
+	* tests/lib/Makefile.am:
+	* tests/lib/ic/Makefile.am:
+	* tests/lib/ic/m-bt-ic.h:
+	* tests/lib/ic/s-ic.c:
+	* tests/lib/ic/t-ic.c:
+	* tests/lib/ic/s-ic.c (svn:keywords, svn:eol-style):
+	* tests/lib/ic/t-ic.c (svn:keywords, svn:eol-style):
+	* tests/lib/ic/Makefile.am (svn:keywords, svn:eol-style):
+	* tests/lib/ic/m-bt-ic.h (svn:keywords, svn:eol-style):
+	* tests/lib/ic (added):
+	* tests/lib/ic/Makefile.am (added):
+	* tests/lib/ic/s-ic.c (added):
+	* tests/lib/ic/t-ic.c (added):
+	* tests/lib/ic/m-bt-ic.h (added):
+	  Add boilerplate for btic test suite.
+
 2011-02-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/Makefile.am:

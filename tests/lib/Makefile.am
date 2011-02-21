@@ -1,6 +1,6 @@
 ## $Id$
 
-SUBDIRS = core
+SUBDIRS = core ic
 
 .PHONY: splint 
 

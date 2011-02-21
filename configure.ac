@@ -594,6 +594,7 @@ AC_CONFIG_FILES(Makefile \
   tests/bt-cfg.sh \
     tests/lib/Makefile \
       tests/lib/core/Makefile \
+      tests/lib/ic/Makefile \
     tests/ui/Makefile \
       tests/ui/cmd/Makefile \
       tests/ui/edit/Makefile \
