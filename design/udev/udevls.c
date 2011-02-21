@@ -3,6 +3,13 @@
  *
  * building:
  * gcc -Wall -g `pkg-config glib-2.0 gudev-1.0 --cflags --libs` udevls.c -o udevls
+ *
+ * running:
+ * ./udevls
+ * ./udevls input
+ *
+ * G_SLICE=always-malloc G_DEBUG=gc-friendly GLIBCPP_FORCE_NEW=1 GLIBCXX_FORCE_NEW=1 \
+ * valgrind --tool=memcheck --leak-check=full --leak-resolution=high --trace-children=yes --num-callers=20 --log-file=./valgrind.log ./udevls
  */
 
 #include <stdio.h>

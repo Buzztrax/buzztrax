@@ -1,6 +1,11 @@
 2011-02-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/udev/udevls.c:
+	  Add invocation example.
+
+2011-02-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/udev/udevls.c:
 	* design/udev/udevls.c (svn:keywords, svn:eol-style):
 	* design/udev (added):
 	* design/udev/udevls.c (added):
