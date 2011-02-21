@@ -1,7 +1,7 @@
 /* $Id$
  *
  * Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2011 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -37,15 +37,16 @@ static void test_teardown(void) {
 
 //-- tests
 
-// test some key presses
-BT_START_TEST(test_editing) {
+// activate tracks
+BT_START_TEST(test_active_machine) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
-  BtMainPagePatterns *pattern_page;
+  BtMainPageSequence *sequence_page;
   BtSong *song;
   BtSetup *setup;
-  BtMachine *src_machine;
+  BtMachine *src_machine1;
+  BtMachine *src_machine2;
   GdkEventKey *e;
 
   app=bt_edit_application_new();
@@ -53,45 +54,58 @@ BT_START_TEST(test_editing) {
   fail_unless(app != NULL, NULL);
 
   // load a song
-  bt_edit_application_load_song(app,check_get_test_song_path("melo3.xml"));
+  bt_edit_application_load_song(app,check_get_test_song_path("test-simple3.xml"));
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   g_object_get(song,"setup",&setup,NULL);
   g_object_unref(song);
   GST_INFO("song loaded");
 
-  // get window
+  // get window and page
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
-
-  // make sure the pattern view shows something
-  src_machine=bt_setup_get_machine_by_id(setup,"beep1");
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-  g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
-  bt_main_page_patterns_show_machine(pattern_page,src_machine);
+  g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
+
+  src_machine1=bt_setup_get_machine_by_id(setup,"sine1");
+  GST_INFO("sine1 %p,ref_count=%d",src_machine1,G_OBJECT_REF_COUNT(src_machine1));
+  src_machine2=bt_setup_get_machine_by_id(setup,"sine2");
+  GST_INFO("sine2 %p,ref_count=%d",src_machine2,G_OBJECT_REF_COUNT(src_machine2));
 
   // show page
-  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
   while(gtk_events_pending()) gtk_main_iteration();
 
-  // send a '.' key-press
+  GST_INFO("sine1 %p,ref_count=%d",src_machine1,G_OBJECT_REF_COUNT(src_machine1));
+  GST_INFO("sine2 %p,ref_count=%d",src_machine2,G_OBJECT_REF_COUNT(src_machine2));
+
+  // emit key presses to go though the tracks
+  // send a '->' key-press
   e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
-  e->window=((GtkWidget *)pattern_page)->window;
-  e->keyval='.';
+  e->window=((GtkWidget *)sequence_page)->window;
+  e->keyval=GDK_Right;
   gtk_main_do_event((GdkEvent *)e);
   gdk_event_free((GdkEvent *)e);
   while(gtk_events_pending()) gtk_main_iteration();
 
-  // send a '0' key-press
+  GST_INFO("sine1 %p,ref_count=%d",src_machine1,G_OBJECT_REF_COUNT(src_machine1));
+  GST_INFO("sine2 %p,ref_count=%d",src_machine2,G_OBJECT_REF_COUNT(src_machine2));
+
+  // send a '<-' key-press twice
   e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
-  e->window=((GtkWidget *)pattern_page)->window;
-  e->keyval='0';
+  e->window=((GtkWidget *)sequence_page)->window;
+  e->keyval=GDK_Left;
+  gtk_main_do_event((GdkEvent *)e);
   gtk_main_do_event((GdkEvent *)e);
   gdk_event_free((GdkEvent *)e);
   while(gtk_events_pending()) gtk_main_iteration();
 
-  g_object_unref(pattern_page);
-  g_object_unref(src_machine);
+  GST_INFO("sine1 %p,ref_count=%d",src_machine1,G_OBJECT_REF_COUNT(src_machine1));
+  GST_INFO("sine2 %p,ref_count=%d",src_machine2,G_OBJECT_REF_COUNT(src_machine2));
+
+  g_object_unref(src_machine1);
+  g_object_unref(src_machine2);
+  g_object_unref(sequence_page);
   g_object_unref(setup);
   g_object_unref(pages);
 
@@ -108,10 +122,10 @@ BT_START_TEST(test_editing) {
 }
 BT_END_TEST
 
-TCase *bt_pattern_page_example_case(void) {
-  TCase *tc = tcase_create("BtPatternPageExamples");
+TCase *bt_sequence_page_example_case(void) {
+  TCase *tc = tcase_create("BtSequencePageExamples");
 
-  tcase_add_test(tc,test_editing);
+  tcase_add_test(tc,test_active_machine);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   return(tc);

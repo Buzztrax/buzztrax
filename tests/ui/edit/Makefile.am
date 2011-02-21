@@ -23,6 +23,7 @@ libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-pattern-properties-dialog.c e-bt-pattern-properties-dialog.c \
 	s-bt-render-dialog.c e-bt-render-dialog.c \
 	s-bt-render-progress-dialog.c e-bt-render-progress-dialog.c \
+	s-bt-sequence-page.c e-bt-sequence-page.c \
 	s-bt-settings-dialog.c e-bt-settings-dialog.c \
 	s-bt-tip-dialog.c e-bt-tip-dialog.c \
 	s-bt-wire-analysis-dialog.c e-bt-wire-analysis-dialog.c

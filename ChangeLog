@@ -1,5 +1,18 @@
 2011-02-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/m-bt-edit.c:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-pattern-page.c:
+	* tests/ui/edit/e-bt-sequence-page.c:
+	* tests/ui/edit/s-bt-sequence-page.c:
+	* tests/ui/edit/e-bt-sequence-page.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/s-bt-sequence-page.c (svn:keywords, svn:eol-style):
+	* tests/ui/edit/e-bt-sequence-page.c (added):
+	* tests/ui/edit/s-bt-sequence-page.c (added):
+	  Add a test suite for the sequence page.
+
+2011-02-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/udev/udevls.c:
 	  Add invocation example.
 
