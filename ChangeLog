@@ -1,5 +1,10 @@
 2011-02-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/ic/gudev-discoverer.c:
+	  Add a hack to work-around a libudev bug.
+
+2011-02-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/lib/ic/Makefile.am:
 	* tests/lib/ic/e-registry.c:
 	* tests/lib/ic/s-registry.c:

@@ -74,14 +74,14 @@ registry.c:249:on_device_added: midi device added: product=ICE1712 multi OSS MID
 
 static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpointer user_data) {
   //BtIcGudevDiscoverer *self=BTIC_GUDEV_DISCOVERER(user_data);
-  const gchar *udi=g_udev_device_get_sysfs_path(udevice);
-  const gchar *devnode=g_udev_device_get_device_file(udevice);
   const gchar *name=g_udev_device_get_name(udevice);
   const gchar *subsystem=g_udev_device_get_subsystem(udevice);
+  const gchar *udi=g_udev_device_get_sysfs_path(udevice);
+  const gchar *devnode=g_udev_device_get_device_file(udevice);
 
   GST_WARNING("action=%6s: subsys=%8s, devtype=%15s, name=%10s, number=%2s, devnode=%s, driver=%s",
-    action,subsystem,g_udev_device_get_devtype(udevice),name,
-    g_udev_device_get_number(udevice),devnode,g_udev_device_get_driver(udevice));
+    action, subsystem, g_udev_device_get_devtype(udevice), name,
+    g_udev_device_get_number(udevice), devnode, g_udev_device_get_driver(udevice));
 
   if(!devnode || !udi)
     return;
@@ -93,6 +93,11 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     const gchar *vendor_name, *model_name;
     gboolean free_full_name=FALSE;
     gchar *cat_full_name;
+
+    /* FIXME: this is a udev bug, the address changes and this causes valgrind
+     * warnings: http://www.pastie.org/1589552
+     * we copy it for now */
+    if (devnode) devnode=g_strdup(devnode);
 
     /* dump properties, also available as:
      * /sbin/udevadm info -qall -p /sys/class/sound/card0
@@ -110,6 +115,7 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR");
     model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
     if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL");
+
     GST_INFO("  v m:  '%s' '%s'",vendor_name,model_name);
     while(uparent && !(vendor_name && model_name)) {
       t=uparent;
@@ -118,7 +124,7 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
         if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR");
         if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
         if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL");
-        GST_INFO("  v m:  '%s' '%s'",vendor_name,model_name);
+
       }
       if(t!=udevice) {
         g_object_unref(t);
@@ -127,6 +133,7 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     if(uparent && uparent!=udevice) {
       g_object_unref(uparent);
     }
+    GST_INFO("  v m:  '%s' '%s'",vendor_name,model_name);
     if(vendor_name && model_name) {
       full_name=g_strconcat(vendor_name," ",model_name,NULL);
       free_full_name=TRUE;
@@ -168,6 +175,9 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     else {
       GST_DEBUG("unknown device found, not added: name=%s",name);
     }
+
+    /* FIXME: see above */
+    g_free((gchar *)devnode);
   } else if(!strcmp(action,"remove")) {
     btic_registry_remove_device_by_udi(udi);
   }
