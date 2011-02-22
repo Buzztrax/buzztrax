@@ -1,6 +1,11 @@
 2011-02-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/bt-check.c:
+	  Remove a assert.
+
+2011-02-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-check.c:
 	* tests/bt-check.h:
 	* tests/ui/edit/e-bt-pattern-page.c:
 	* tests/ui/edit/e-bt-sequence-page.c:

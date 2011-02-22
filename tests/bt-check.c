@@ -802,7 +802,7 @@ void check_setup_test_server(void) {
       guint pid;
       gchar proc_file[15];
 
-      // read pid
+      // read pid, normal X11 is owned by root
       if((pid_file=fopen(lock_file,"rt"))) {
         gchar *pid_str_res=fgets(pid_str,20,pid_file);
         fclose(pid_file);
@@ -1102,7 +1102,6 @@ void check_send_key(GtkWidget *widget, guint keyval) {
   GdkWindow *w;
 
   w=gtk_widget_get_window(widget);
-  g_assert(w);
 
   e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
   e->window=g_object_ref(w);
