@@ -1,5 +1,12 @@
 2011-02-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/lib/core/core.c:
+	  Check for mmx/sse intrinsics and configure the FPU to DAZ|FZ mode.
+	  This allows us to drop denormal checks.
+
+2011-02-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/bt-check.c:
 	  Remove a assert.
 

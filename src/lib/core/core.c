@@ -24,7 +24,7 @@
  *
  * The library offers base objects such as #BtApplication and #BtSong.
  */
- 
+
 /* @todo add check_version stuff like in gstreamer */
 
 #define BT_CORE
@@ -36,6 +36,10 @@
 #if HAVE_MLOCKALL
 #include <sys/mman.h>
 #endif
+#endif
+
+#if HAVE_XMMINTRIN_H
+#include <xmmintrin.h>
 #endif
 
 /**
@@ -81,7 +85,7 @@ static gboolean bt_init_pre (void) {
 
 static gboolean bt_init_post (void) {
   gboolean res=FALSE;
-  
+
   //-- initialize gstreamer
   //gst_init(argc,argv);
   //-- initialize dynamic parameter control module
@@ -121,7 +125,7 @@ static gboolean bt_init_post (void) {
   xmlSubstituteEntitiesDefault(0);
   xmlLoadExtDtdDefaultValue=FALSE;          // do not always load DTD default values
   xmlDoValidityCheckingDefaultValue=FALSE;  // do not validate files
-  
+
 #if 0
 // I just got
 // switching scheduler failed: Die Operation ist nicht erlaubt
@@ -148,15 +152,14 @@ static gboolean bt_init_post (void) {
 #endif
 #endif
 
-#if 0
-#include <xmmintrin.h>
-#if HAVE_XMMINTRIN
-// @todo: denormal handling, needs configure check and testing
-_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-_mm_setcsr(_mm_getcsr() | 0x8040);
+#if HAVE_XMMINTRIN_H
+  // @todo: we need to probe the CPU capabilities
+  // see http://www.mail-archive.com/linux-audio-dev@music.columbia.edu/msg19520.html
+  //   [linux-audio-dev] Channels and best practice
+  // _MM_FLUSH_ZERO_ON = FZ
+  _mm_setcsr(_mm_getcsr() | 0x8040); // set DAZ and FZ bits
 #endif
-#endif
-  
+
   res=TRUE;
   return(res);
 }
@@ -164,7 +167,7 @@ _mm_setcsr(_mm_getcsr() | 0x8040);
 static gboolean parse_goption_arg(const gchar * opt, const gchar * arg, gpointer data, GError ** err)
 {
   gboolean ret=TRUE;
-  
+
   if (!strcmp (opt, "--bt-version")) {
     g_printf("libbtcore-%d.%d.%d from "PACKAGE_STRING"\n",BT_MAJOR_VERSION,BT_MINOR_VERSION,BT_MICRO_VERSION);
   }
@@ -172,7 +175,7 @@ static gboolean parse_goption_arg(const gchar * opt, const gchar * arg, gpointer
     // @todo: need to set error here
     ret=FALSE;
   }
-    
+
   return(ret);
 }
 
@@ -197,7 +200,7 @@ GOptionGroup *bt_init_get_option_group(void) {
     {"bt-version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg, N_("Print the buzztard core version"), NULL},
     {NULL}
   };
-  
+
   group = g_option_group_new("bt-core", _("Buzztard core options"),_("Show buzztard core options"), NULL, NULL);
   g_option_group_set_parse_hooks(group, (GOptionParseFunc)bt_init_pre, (GOptionParseFunc)bt_init_post);
 

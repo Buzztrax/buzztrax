@@ -496,6 +496,15 @@ AC_CHECK_HEADERS([linux/input.h],
 AC_SUBST(LINUX_INPUT_DOC_TYPES)
 AM_CONDITIONAL(USE_LINUX_INPUT, test x$have_linux_input_h = xyes)
 
+dnl check for SSE intrisics
+case "x${host_cpu}" in
+  xi?86|k?|xx86_64|xamd64)
+    CFLAGS="$CFLAGS -march=native"
+    CPPFLAGS="$CPPFLAGS -D__SSE__ -D__MMX__"
+    AC_CHECK_HEADERS([xmmintrin.h])
+    ;;
+esac
+
 dnl Checks for typedefs, structures, and compiler characteristics.
 AM_C_PROTOTYPES
 test "x$U" != "x" && AC_MSG_ERROR(Compiler not ANSI compliant)
