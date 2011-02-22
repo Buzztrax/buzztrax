@@ -1,3 +1,10 @@
+2011-02-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/m-bt-ic.c:
+	* tests/m-bt-ic.c (svn:keywords, svn:eol-style):
+	* tests/m-bt-ic.c (added):
+	  Add missing test suite main source.
+
 2011-02-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/m-bt-edit.c:
