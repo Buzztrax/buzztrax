@@ -232,7 +232,7 @@ void setup_log_capture(void) {
   (void)g_log_set_handler("GLib-GObject",G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
   (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
   (void)g_set_printerr_handler(check_print_handler);
-  
+
 #ifndef GST_DISABLE_GST_DEBUG
   gst_debug_add_log_function(check_gst_log_handler, NULL);
 #endif
@@ -1056,7 +1056,7 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   pixbuf = gdk_pixbuf_get_from_drawable(NULL,window,colormap,0,0,0,0,ww,wh);
   scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf,ww*0.75, wh*0.75, GDK_INTERP_HYPER);
   gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
-  
+
   /* @todo: create diff images
    * - check if we have a ref image, skip otherwise
    * - should we have ref images in repo?
@@ -1088,4 +1088,34 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   g_object_unref(scaled_pixbuf);
   g_object_unref(colormap);
   g_free(filename);
+}
+
+/*
+ * check_send_key:
+ * @widget: a #GtkWidget to send the key even to
+ * @keyval: the key code
+ *
+ * Send a key-press and a key-release of the given key to the @widget.
+ */
+void check_send_key(GtkWidget *widget, guint keyval) {
+  GdkEventKey *e;
+  GdkWindow *w;
+
+  w=gtk_widget_get_window(widget);
+  g_assert(w);
+
+  e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
+  e->window=g_object_ref(w);
+  e->keyval=keyval;
+  gtk_main_do_event((GdkEvent *)e);
+  while(gtk_events_pending()) gtk_main_iteration();
+  gdk_event_free((GdkEvent *)e);
+
+  e=(GdkEventKey *)gdk_event_new(GDK_KEY_RELEASE);
+  e->window=g_object_ref(w);
+  e->keyval=keyval;
+  e->state|=GDK_RELEASE_MASK;
+  gtk_main_do_event((GdkEvent *)e);
+  while(gtk_events_pending()) gtk_main_iteration();
+  gdk_event_free((GdkEvent *)e);
 }

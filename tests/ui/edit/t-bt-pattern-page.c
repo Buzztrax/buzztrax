@@ -46,22 +46,21 @@ BT_START_TEST(test_editing1) {
   BtSong *song;
   BtSetup *setup;
   BtMachine *src_machine;
-  GdkEventKey *e;
   GError *err=NULL;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
-  
+
   // create a new song
   bt_edit_application_new_song(app);
-  
+
   // get window && song
   g_object_get(app,"song",&song,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
   fail_unless(song != NULL, NULL);
   g_object_get(song,"setup",&setup,NULL);
-  
+
   // create a source machine
   src_machine=BT_MACHINE(bt_source_machine_new(song,"gen","fakesrc",0,&err));
   fail_unless(src_machine!=NULL, NULL);
@@ -75,25 +74,15 @@ BT_START_TEST(test_editing1) {
   // show page
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
   while(gtk_events_pending()) gtk_main_iteration();
-  
+
   GST_INFO("sending events");
 
   // send a '.' key-press
-  e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
-  e->window=((GtkWidget *)pattern_page)->window;
-  e->keyval='.';
-  gtk_main_do_event((GdkEvent *)e);
-  gdk_event_free((GdkEvent *)e);
-  while(gtk_events_pending()) gtk_main_iteration();
+  check_send_key((GtkWidget *)pattern_page,'.');
 
   // send a '0' key-press
-  e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
-  e->window=((GtkWidget *)pattern_page)->window;
-  e->keyval='0';
-  gtk_main_do_event((GdkEvent *)e);
-  gdk_event_free((GdkEvent *)e);
-  while(gtk_events_pending()) gtk_main_iteration();
-  
+  check_send_key((GtkWidget *)pattern_page,'0');
+
   GST_INFO("test done");
 
   g_object_unref(pattern_page);
@@ -132,16 +121,16 @@ BT_START_TEST(test_editing2) {
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
-  
+
   // create a new song
   bt_edit_application_new_song(app);
-  
+
   // get window && song
   g_object_get(app,"song",&song,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
   fail_unless(song != NULL, NULL);
   g_object_get(song,"setup",&setup,NULL);
-  
+
   // create a source machine
   src_machine=BT_MACHINE(bt_source_machine_new(song,"gen","fakesrc",0,&err));
   fail_unless(src_machine!=NULL, NULL);
@@ -151,7 +140,7 @@ BT_START_TEST(test_editing2) {
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
   g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
   bt_main_page_patterns_show_machine(pattern_page,src_machine);
-  
+
   // show page
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
   while(gtk_events_pending()) gtk_main_iteration();
@@ -162,21 +151,21 @@ BT_START_TEST(test_editing2) {
   // 1st is toolbat, 2nd is scrollable window
   pattern_editor=gtk_bin_get_child(GTK_BIN(g_list_nth_data(list,1)));
   g_list_free(list);
-  
+
   GST_INFO("object types: %s",G_OBJECT_TYPE_NAME(pattern_editor));
 
   GST_INFO("sending events");
-  
+
   // send a left mouse button press (hopefully on the tick number column)
   e=(GdkEventButton *)gdk_event_new(GDK_BUTTON_PRESS);
-  e->window=((GtkWidget *)pattern_editor)->window;
+  e->window=g_object_ref(gtk_widget_get_window((GtkWidget *)pattern_editor));
   e->button=1; // left-button
   e->x=10.0;
   e->y=100.0;
   e->state=GDK_BUTTON1_MASK;
   gtk_main_do_event((GdkEvent *)e);
-  gdk_event_free((GdkEvent *)e);
   while(gtk_events_pending()) gtk_main_iteration();
+  gdk_event_free((GdkEvent *)e);
 
   GST_INFO("test done");
 

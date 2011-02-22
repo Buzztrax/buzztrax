@@ -46,7 +46,6 @@ BT_START_TEST(test_editing) {
   BtSong *song;
   BtSetup *setup;
   BtMachine *src_machine;
-  GdkEventKey *e;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
@@ -75,20 +74,12 @@ BT_START_TEST(test_editing) {
   while(gtk_events_pending()) gtk_main_iteration();
 
   // send a '.' key-press
-  e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
-  e->window=((GtkWidget *)pattern_page)->window;
-  e->keyval='.';
-  gtk_main_do_event((GdkEvent *)e);
-  gdk_event_free((GdkEvent *)e);
-  while(gtk_events_pending()) gtk_main_iteration();
+  check_send_key((GtkWidget *)pattern_page,'.');
 
   // send a '0' key-press
-  e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
-  e->window=((GtkWidget *)pattern_page)->window;
-  e->keyval='0';
-  gtk_main_do_event((GdkEvent *)e);
-  gdk_event_free((GdkEvent *)e);
-  while(gtk_events_pending()) gtk_main_iteration();
+  check_send_key((GtkWidget *)pattern_page,'0');
+
+  // @TODO: assert some pattern changes
 
   g_object_unref(pattern_page);
   g_object_unref(src_machine);

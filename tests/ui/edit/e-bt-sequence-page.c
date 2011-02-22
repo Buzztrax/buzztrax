@@ -47,7 +47,6 @@ BT_START_TEST(test_active_machine) {
   BtSetup *setup;
   BtMachine *src_machine1;
   BtMachine *src_machine2;
-  GdkEventKey *e;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
@@ -68,9 +67,12 @@ BT_START_TEST(test_active_machine) {
   g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
 
   src_machine1=bt_setup_get_machine_by_id(setup,"sine1");
+  fail_unless(src_machine1 != NULL, NULL);
   GST_INFO("sine1 %p,ref_count=%d",src_machine1,G_OBJECT_REF_COUNT(src_machine1));
   src_machine2=bt_setup_get_machine_by_id(setup,"sine2");
+  fail_unless(src_machine2 != NULL, NULL);
   GST_INFO("sine2 %p,ref_count=%d",src_machine2,G_OBJECT_REF_COUNT(src_machine2));
+  g_object_unref(setup);
 
   // show page
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
@@ -79,34 +81,30 @@ BT_START_TEST(test_active_machine) {
   GST_INFO("sine1 %p,ref_count=%d",src_machine1,G_OBJECT_REF_COUNT(src_machine1));
   GST_INFO("sine2 %p,ref_count=%d",src_machine2,G_OBJECT_REF_COUNT(src_machine2));
 
-  // emit key presses to go though the tracks
-  // send a '->' key-press
-  e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
-  e->window=((GtkWidget *)sequence_page)->window;
-  e->keyval=GDK_Right;
-  gtk_main_do_event((GdkEvent *)e);
-  gdk_event_free((GdkEvent *)e);
-  while(gtk_events_pending()) gtk_main_iteration();
+  // make screenshot
+  check_make_widget_screenshot((GtkWidget *)sequence_page,"0");
 
+  // emit key presses to go though the tracks
+  // send a '->' key
+  check_send_key((GtkWidget *)sequence_page,GDK_Right);
+
+  // make screenshot
+  check_make_widget_screenshot((GtkWidget *)sequence_page,"1");
   GST_INFO("sine1 %p,ref_count=%d",src_machine1,G_OBJECT_REF_COUNT(src_machine1));
   GST_INFO("sine2 %p,ref_count=%d",src_machine2,G_OBJECT_REF_COUNT(src_machine2));
 
   // send a '<-' key-press twice
-  e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
-  e->window=((GtkWidget *)sequence_page)->window;
-  e->keyval=GDK_Left;
-  gtk_main_do_event((GdkEvent *)e);
-  gtk_main_do_event((GdkEvent *)e);
-  gdk_event_free((GdkEvent *)e);
-  while(gtk_events_pending()) gtk_main_iteration();
+  check_send_key((GtkWidget *)sequence_page,GDK_Left);
+  check_send_key((GtkWidget *)sequence_page,GDK_Left);
 
+  // make screenshot
+  check_make_widget_screenshot((GtkWidget *)sequence_page,"2");
   GST_INFO("sine1 %p,ref_count=%d",src_machine1,G_OBJECT_REF_COUNT(src_machine1));
   GST_INFO("sine2 %p,ref_count=%d",src_machine2,G_OBJECT_REF_COUNT(src_machine2));
 
   g_object_unref(src_machine1);
   g_object_unref(src_machine2);
   g_object_unref(sequence_page);
-  g_object_unref(setup);
   g_object_unref(pages);
 
   // close window

@@ -151,4 +151,5 @@ extern void check_shutdown_test_server(void);
 
 extern void check_make_widget_screenshot(GtkWidget *widget, const gchar *name);
 
+extern void check_send_key(GtkWidget *widget, guint keyval);
 #endif /* BT_CHECK_H */
