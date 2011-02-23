@@ -163,6 +163,8 @@ static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
   gtk_dialog_add_buttons(GTK_DIALOG(self),
                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                           NULL);
+                          
+  gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
   // content area
   hbox=gtk_hbox_new(FALSE,12);

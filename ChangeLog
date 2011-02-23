@@ -1,3 +1,11 @@
+2011-02-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Make machine windows transient to the main-window.
+
+	* src/ui/edit/tip-dialog.c:
+	  Set a default respose for the dialog.
+
 2011-02-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

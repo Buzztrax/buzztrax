@@ -246,25 +246,33 @@ static void update_machine_graphics(BtMachineCanvasItem *self) {
 
 static void show_machine_properties_dialog(BtMachineCanvasItem *self) {
   if(!self->priv->properties_dialog) {
+    BtMainWindow *main_window;
+
     self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->machine));
     GST_INFO("machine properties dialog opened");
     // remember open/closed state
     g_hash_table_insert(self->priv->properties,g_strdup("properties-shown"),g_strdup("1"));
     g_signal_connect(self->priv->properties_dialog,"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
+
+    g_object_get(self->priv->app,"main-window",&main_window,NULL);
+    gtk_window_set_transient_for(GTK_WINDOW(self->priv->properties_dialog),GTK_WINDOW(main_window));
+    g_object_unref(main_window);
   }
-  else {
-    gtk_window_present(GTK_WINDOW(self->priv->properties_dialog));
-  }
+  gtk_window_present(GTK_WINDOW(self->priv->properties_dialog));
 }
 
 static void show_machine_preferences_dialog(BtMachineCanvasItem *self) {
   if(!self->priv->preferences_dialog) {
+    BtMainWindow *main_window;
+
     self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->machine));
     g_signal_connect(self->priv->preferences_dialog,"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
+
+    g_object_get(self->priv->app,"main-window",&main_window,NULL);
+    gtk_window_set_transient_for(GTK_WINDOW(self->priv->properties_dialog),GTK_WINDOW(main_window));
+    g_object_unref(main_window);
   }
-  else {
-    gtk_window_present(GTK_WINDOW(self->priv->preferences_dialog));
-  }
+  gtk_window_present(GTK_WINDOW(self->priv->preferences_dialog));
 }
 
 
