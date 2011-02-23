@@ -210,9 +210,9 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
   BtSong *song;
   BtSongInfo *song_info;
   gchar *full_file_name=NULL;
-  
+
   GST_DEBUG("read settings");
-  
+
   g_object_get(self->priv->app,"settings",&settings,NULL);
   g_object_get(settings,"record-folder",&self->priv->folder,NULL);
   g_object_unref(settings);
@@ -228,6 +228,8 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                           GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
                           NULL);
+
+  gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
   // add widgets to the dialog content area
   box=gtk_vbox_new(FALSE,12);

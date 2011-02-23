@@ -1,5 +1,10 @@
 2011-02-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/render-dialog.c:
+	  Set default response.
+
+2011-02-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c:
 	  Make machine windows transient to the main-window.
 
