@@ -58,10 +58,10 @@ static gchar *tips[]={
 struct _BtTipDialogPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   BtSettings *settings;
   GtkTextView *tip_view;
-  
+
   /* tip history */
   gint tip_status[G_N_ELEMENTS(tips)];
   gint pending_tips[G_N_ELEMENTS(tips)];
@@ -123,7 +123,7 @@ static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
   g_object_get(self->priv->app,"settings",&self->priv->settings,NULL);
   g_object_get(self->priv->settings,"show-tips",&show_tips,"presented-tips",&str,NULL);
   GST_DEBUG("read [%s]",str);
-  
+
   // parse str to update tip status
   for(i=0;i<G_N_ELEMENTS(tips);i++) {
     self->priv->tip_status[i]=i;
@@ -131,7 +131,7 @@ static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
   if(str) {
     gint ix;
     gchar *p1,*p2;
-    
+
     p1=str;
     p2=strchr(p1,',');
     while(p2) {
@@ -163,15 +163,15 @@ static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
   gtk_dialog_add_buttons(GTK_DIALOG(self),
                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                           NULL);
-                          
+
   gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
   // content area
   hbox=gtk_hbox_new(FALSE,12);
-  
+
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
   gtk_box_pack_start(GTK_BOX(hbox),icon,FALSE,FALSE,0);
-  
+
   vbox=gtk_vbox_new(FALSE,6);
   str=g_strdup_printf("<big><b>%s</b></big>\n",_("Tip of the day"));
   label=g_object_new(GTK_TYPE_LABEL,"use-markup",TRUE,"label",str,NULL);
@@ -182,12 +182,12 @@ static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
   gtk_text_view_set_cursor_visible(self->priv->tip_view, FALSE);
   gtk_text_view_set_editable(self->priv->tip_view, FALSE);
   gtk_text_view_set_wrap_mode(self->priv->tip_view, GTK_WRAP_WORD);
-  
+
   tip_view = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tip_view), GTK_SHADOW_IN);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(tip_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_container_add(GTK_CONTAINER(tip_view),GTK_WIDGET(self->priv->tip_view));
-  
+
   gtk_box_pack_start(GTK_BOX(vbox),tip_view,TRUE,TRUE,0);
 
   chk=gtk_check_button_new_with_label(_("Show tips on startup"));
@@ -197,7 +197,7 @@ static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
 
   gtk_box_pack_start(GTK_BOX(hbox),vbox,TRUE,TRUE,0);
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(self))),hbox,TRUE,TRUE,0);
-  
+
   // add "refresh" button to action area
   btn=gtk_button_new_from_stock(GTK_STOCK_REFRESH);
   g_signal_connect(btn, "clicked", G_CALLBACK(on_refresh_clicked), (gpointer)self);
@@ -238,7 +238,7 @@ static void bt_tip_dialog_dispose(GObject *object) {
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
-  
+
   // update tip-status in settings
   shown=G_N_ELEMENTS(tips)-self->priv->n_pending_tips;
   str=g_malloc(6*shown);

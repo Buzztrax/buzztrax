@@ -246,31 +246,22 @@ static void update_machine_graphics(BtMachineCanvasItem *self) {
 
 static void show_machine_properties_dialog(BtMachineCanvasItem *self) {
   if(!self->priv->properties_dialog) {
-    BtMainWindow *main_window;
 
     self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->machine));
+    bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->properties_dialog));
     GST_INFO("machine properties dialog opened");
     // remember open/closed state
     g_hash_table_insert(self->priv->properties,g_strdup("properties-shown"),g_strdup("1"));
     g_signal_connect(self->priv->properties_dialog,"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
-
-    g_object_get(self->priv->app,"main-window",&main_window,NULL);
-    gtk_window_set_transient_for(GTK_WINDOW(self->priv->properties_dialog),GTK_WINDOW(main_window));
-    g_object_unref(main_window);
   }
   gtk_window_present(GTK_WINDOW(self->priv->properties_dialog));
 }
 
 static void show_machine_preferences_dialog(BtMachineCanvasItem *self) {
   if(!self->priv->preferences_dialog) {
-    BtMainWindow *main_window;
-
     self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->machine));
+    bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->preferences_dialog));
     g_signal_connect(self->priv->preferences_dialog,"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
-
-    g_object_get(self->priv->app,"main-window",&main_window,NULL);
-    gtk_window_set_transient_for(GTK_WINDOW(self->priv->properties_dialog),GTK_WINDOW(main_window));
-    g_object_unref(main_window);
   }
   gtk_window_present(GTK_WINDOW(self->priv->preferences_dialog));
 }
@@ -568,15 +559,11 @@ static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer 
 static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   GtkWidget *dialog;
-  BtMainWindow *main_window;
 
   GST_INFO("context_menu rename event occurred");
 
   dialog=GTK_WIDGET(bt_machine_rename_dialog_new(self->priv->machine));
-
-  g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
-  g_object_unref(main_window);
+  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(dialog));
   gtk_widget_show_all(dialog);
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
     bt_machine_rename_dialog_apply(BT_MACHINE_RENAME_DIALOG(dialog));
@@ -1107,6 +1094,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"properties-shown");
   if(prop && prop[0]=='1' && prop[1]=='\0') {
     self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->machine));
+    bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->properties_dialog));
     g_signal_connect(self->priv->properties_dialog,"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
   }
 

@@ -111,11 +111,13 @@ static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionCo
                          GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
                          NULL);
 
+  gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
+
   // add widgets to the dialog content area
   box=gtk_vbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
   gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),box);
-  
+
   table=gtk_table_new(/*rows=*/2,/*columns=*/2,/*homogenous=*/FALSE);
   gtk_container_add(GTK_CONTAINER(box),table);
 
@@ -133,7 +135,7 @@ static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionCo
 
   self->priv->entry_name=gtk_entry_new();
   gtk_table_attach(GTK_TABLE(table),self->priv->entry_name, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  
+
 
   g_signal_connect(self->priv->device, "notify::device-controlchange",
 		   G_CALLBACK(notify_device_controlchange), (gpointer)self);

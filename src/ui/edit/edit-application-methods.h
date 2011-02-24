@@ -39,6 +39,8 @@ extern void bt_edit_application_show_tip(const BtEditApplication *self);
 
 extern void bt_edit_application_crash_log_recover(const BtEditApplication *self);
 
+extern void bt_edit_application_attach_child_window(const BtEditApplication *self, GtkWindow *window);
+
 extern void bt_edit_application_ui_lock(const BtEditApplication *self);
 extern void bt_edit_application_ui_unlock(const BtEditApplication *self);
 

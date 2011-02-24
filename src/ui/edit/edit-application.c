@@ -146,7 +146,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
     GtkWidget *dialog;
 
     if((dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(missing_core_elements, missing_edit_elements)))) {
-      gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
+      bt_edit_application_attach_child_window(self,GTK_WINDOW(dialog));
       gtk_widget_show_all(dialog);
 
       gtk_dialog_run(GTK_DIALOG(dialog));
@@ -382,7 +382,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       GtkWidget *dialog;
 
       if((dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(missing_machines,missing_waves)))) {
-        gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
+        bt_edit_application_attach_child_window(self,GTK_WINDOW(dialog));
         gtk_widget_show_all(dialog);
 
         gtk_dialog_run(GTK_DIALOG(dialog));
@@ -579,9 +579,7 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
   GtkWidget *dialog;
 
   if((dialog=GTK_WIDGET(bt_about_dialog_new()))) {
-    // set parent relationship
-    gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
-    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+    bt_edit_application_attach_child_window(self,GTK_WINDOW(dialog));
     gtk_widget_show_all(dialog);
 
     gtk_dialog_run(GTK_DIALOG(dialog));
@@ -594,14 +592,14 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
  * @self: the application instance
  *
  * Shows the tip of the day window
+ *
+ * Since: 0.6
  */
 void bt_edit_application_show_tip(const BtEditApplication *self) {
   GtkWidget *dialog;
 
   if((dialog=GTK_WIDGET(bt_tip_dialog_new()))) {
-    // set parent relationship
-    gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
-    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+    bt_edit_application_attach_child_window(self,GTK_WINDOW(dialog));
     gtk_widget_show_all(dialog);
 
     gtk_dialog_run(GTK_DIALOG(dialog));
@@ -614,6 +612,8 @@ void bt_edit_application_show_tip(const BtEditApplication *self) {
  * @self: the application instance
  *
  * Shows the crash-log recover window if we have pending crash logs.
+ *
+ * Since: 0.6
  */
 void bt_edit_application_crash_log_recover(const BtEditApplication *self) {
   GList *crash_logs;
@@ -624,15 +624,28 @@ void bt_edit_application_crash_log_recover(const BtEditApplication *self) {
 
     GST_INFO("have found crash logs");
     if((dialog=GTK_WIDGET(bt_crash_recover_dialog_new(crash_logs)))) {
-      // set parent relationship
-      gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
-      gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog),TRUE);
+      bt_edit_application_attach_child_window(self,GTK_WINDOW(dialog));
       gtk_widget_show_all(dialog);
 
       gtk_dialog_run(GTK_DIALOG(dialog));
       gtk_widget_destroy(dialog);
     }
   }
+}
+
+
+/**
+ * bt_edit_application_attach_child_window:
+ * @self: the application instance
+ * @window: a child window (e.g. dialog)
+ *
+ * The parent and transient relation ship to the applications main-window.
+ *
+ * Since: 0.6
+ */
+void bt_edit_application_attach_child_window(const BtEditApplication *self, GtkWindow *window) {
+  gtk_window_set_transient_for(window, GTK_WINDOW(self->priv->main_window));
+  gtk_window_set_destroy_with_parent(window, TRUE);
 }
 
 

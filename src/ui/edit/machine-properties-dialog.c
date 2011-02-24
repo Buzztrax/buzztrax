@@ -160,8 +160,8 @@ static gboolean preset_list_edit_preset_meta(const BtMachinePropertiesDialog *se
   GST_INFO("create preset edit dialog");
 
   dialog=GTK_WIDGET(bt_machine_preset_properties_dialog_new(machine,name,comment));
+  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(dialog));
   GST_INFO("run preset edit dialog");
-  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self));
   gtk_widget_show_all(GTK_WIDGET(dialog));
 
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {

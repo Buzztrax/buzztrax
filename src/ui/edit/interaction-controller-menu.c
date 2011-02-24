@@ -106,13 +106,14 @@ static void on_control_bind_activated(GtkMenuItem *menuitem, gpointer user_data)
 }
 
 static void on_control_learn_activated(GtkMenuItem *menuitem, gpointer user_data) {
-  //BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(g_object_get_qdata(G_OBJECT(menuitem),widget_parent_quark));
+  BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(g_object_get_qdata(G_OBJECT(menuitem),widget_parent_quark));
   BtIcDevice *device=BTIC_DEVICE(user_data);
   BtInteractionControllerLearnDialog *dialog;
 
-  dialog=bt_interaction_controller_learn_dialog_new(device);
-  gtk_widget_show_all(GTK_WIDGET(dialog));
-
+  if((dialog=bt_interaction_controller_learn_dialog_new(device))) {
+    bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(dialog));
+    gtk_widget_show_all(GTK_WIDGET(dialog));
+  }
   GST_INFO( "learn function activated on device");
 }
 
@@ -169,7 +170,7 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
     g_signal_connect(menu_item,"activate",G_CALLBACK(on_control_bind_activated),(gpointer)control);
   }
   g_list_free(list);
-  
+
   return(submenu);
 }
 
@@ -189,7 +190,7 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
     // only create items for non-empty submenus
     if((parentmenu=bt_interaction_controller_menu_init_control_menu(self,device))) {
       g_object_get(device,"name",&str,NULL);
-  
+
       menu_item=gtk_image_menu_item_new_with_label(str);
       gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
       gtk_widget_show(menu_item);

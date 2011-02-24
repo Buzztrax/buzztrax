@@ -1,3 +1,23 @@
+2011-02-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/edit-application-methods.h:
+	* src/ui/edit/edit-application.c:
+	  Add one methods to set transitent window relation ship. Saves some
+	  code and avoids us to fecth the main-window ref.
+
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/interaction-controller-menu.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/tip-dialog.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Use new api for child-windows.
+
 2011-02-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/render-dialog.c:

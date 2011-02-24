@@ -301,6 +301,7 @@ static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer use
   GST_INFO("context_menu analysis item selected");
   if(!self->priv->analysis_dialog) {
     self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->wire));
+    bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
     GST_INFO("analyzer dialog opened");
     // remember open/closed state
     g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
@@ -680,6 +681,7 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"analyzer-shown");
   if(prop && prop[0]=='1' && prop[1]=='\0') {
     if((self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->wire)))) {
+      bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
       g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
     }
   }

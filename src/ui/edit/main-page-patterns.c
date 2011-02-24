@@ -2498,17 +2498,15 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
 
 static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  BtMainWindow *main_window;
   BtPattern *pattern;
   GtkWidget *dialog;
 
-  g_object_get(self->priv->app,"main-window",&main_window,NULL);
   // new_pattern
   pattern=add_new_pattern(self,self->priv->machine);
 
   // pattern_properties
   dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(pattern));
-  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
+  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(dialog));
   gtk_widget_show_all(dialog);
 
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
@@ -2539,23 +2537,18 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 
   // free ressources
   g_object_unref(pattern);
-  g_object_unref(main_window);
   GST_DEBUG("new pattern done");
 }
 
 static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  BtMainWindow *main_window;
   GtkWidget *dialog;
 
   g_return_if_fail(self->priv->pattern);
 
   // pattern_properties
   dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->pattern));
-
-  g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
-  g_object_unref(main_window);
+  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(dialog));
   gtk_widget_show_all(dialog);
 
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
@@ -2613,7 +2606,6 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 
 static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  BtMainWindow *main_window;
   BtMachine *machine;
   BtPattern *pattern;
   GtkWidget *dialog;
@@ -2627,10 +2619,7 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
 
   // pattern_properties
   dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(pattern));
-
-  g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
-  g_object_unref(main_window);
+  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(dialog));
   gtk_widget_show_all(dialog);
 
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {

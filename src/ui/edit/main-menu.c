@@ -40,13 +40,13 @@ struct _BtMainMenuPrivate {
 
   /* the application */
   BtEditApplication *app;
-  
+
   /* the main window */
   BtMainWindow *main_window;
 
   /* MenuItems */
   GtkWidget *save_item;
-  
+
   /* editor change log */
   BtChangeLog *change_log;
 
@@ -87,19 +87,19 @@ static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user
   GtkRecentInfo *info;
   gchar *file_name;
   const gchar *uri;
-  
+
   if(!(info=gtk_recent_chooser_get_current_item(chooser))) {
     GST_WARNING ("Unable to retrieve the current recent-item, aborting...");
     return;
   }
   uri=gtk_recent_info_get_uri(info);
   file_name=g_filename_from_uri(uri,NULL,NULL);
-  
+
   GST_INFO("menu open event occurred : %s",file_name);
 
   if(!bt_edit_application_load_song(self->priv->app,file_name)) {
     gchar *msg=g_strdup_printf(_("An error occurred while loading the song from file '%s'"),file_name);
-    
+
     bt_dialog_message(self->priv->main_window,_("Can't load song"),_("Can't load song"),msg);
     g_free(msg);
   }
@@ -136,7 +136,7 @@ static void on_menu_recover_activate(GtkMenuItem *menuitem,gpointer user_data) {
 static void on_menu_recover_changed(const BtChangeLog *change_log,GParamSpec *arg,gpointer user_data) {
   GtkWidget *menuitem = GTK_WIDGET(user_data);
   GList *crash_logs;
-  
+
   g_object_get((GObject *)change_log,"crash-logs",&crash_logs,NULL);
   if(!crash_logs) {
     gtk_widget_set_sensitive(GTK_WIDGET(menuitem), FALSE);
@@ -149,7 +149,7 @@ static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
   GST_INFO("menu render event occurred");
   settings=GTK_WIDGET(bt_render_dialog_new());
-  gtk_window_set_transient_for(GTK_WINDOW(settings),GTK_WINDOW(self->priv->main_window));
+  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(settings));
   gtk_widget_show_all(settings);
   if(gtk_dialog_run(GTK_DIALOG(settings))==GTK_RESPONSE_ACCEPT) {
     gtk_widget_hide_all(settings);
@@ -165,7 +165,7 @@ static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
 static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  
+
   GST_INFO("menu quit event occurred");
   if(bt_edit_application_quit(self->priv->app)) {
     gtk_widget_destroy(GTK_WIDGET(self->priv->main_window));
@@ -175,14 +175,14 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
 static void on_menu_undo_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  
+
   bt_change_log_undo(self->priv->change_log);
 }
 
 static void on_menu_can_undo_changed(const BtChangeLog *change_log,GParamSpec *arg,gpointer user_data) {
   GtkWidget *menuitem = GTK_WIDGET(user_data);
   gboolean enabled;
-  
+
   g_object_get((GObject *)change_log,"can-undo",&enabled,NULL);
   gtk_widget_set_sensitive(menuitem, enabled);
 }
@@ -196,7 +196,7 @@ static void on_menu_redo_activate(GtkMenuItem *menuitem,gpointer user_data) {
 static void on_menu_can_redo_changed(const BtChangeLog *change_log,GParamSpec *arg,gpointer user_data) {
   GtkWidget *menuitem = GTK_WIDGET(user_data);
   gboolean enabled;
-  
+
   g_object_get((GObject *)change_log,"can-redo",&enabled,NULL);
   gtk_widget_set_sensitive(menuitem, enabled);
 }
@@ -339,7 +339,7 @@ static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) 
 
   GST_INFO("menu settings event occurred");
   dialog=GTK_WIDGET(bt_settings_dialog_new());
-  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
+  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(dialog));
   gtk_widget_show_all(dialog);
 
   gtk_dialog_run(GTK_DIALOG(dialog));
@@ -412,7 +412,7 @@ static void on_menu_fullscreen_toggled(GtkMenuItem *menuitem,gpointer user_data)
    *   - this both causes problems if toolbar is hidden!
    *   - so we have to check for it
    */
-  fullscreen=gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)); 
+  fullscreen=gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem));
   if(fullscreen) {
     gtk_window_fullscreen(GTK_WINDOW(self->priv->main_window));
   }
@@ -519,7 +519,7 @@ static void on_menu_stop_activate(GtkMenuItem *menuitem,gpointer user_data) {
 static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
   //BtMainMenu *self=BT_MAIN_MENU(user_data);
   GST_INFO("menu help event occurred");
-  
+
   // use "ghelp:buzztard-edit?topic" for context specific help
   gtk_show_uri_simple(GTK_WIDGET(menuitem),"ghelp:buzztard-edit");
 }
@@ -601,7 +601,7 @@ static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpo
     g_object_get(song,"bin",&bin,NULL);
 
     GST_INFO_OBJECT(bin, "dump dot graph as %s with 0x%x details",self->priv->debug_graph_format,self->priv->debug_graph_details);
-                             
+
     GST_DEBUG_BIN_TO_DOT_FILE(bin,self->priv->debug_graph_details,PACKAGE_NAME);
 
     // release the reference
@@ -610,14 +610,14 @@ static void on_menu_debug_dump_pipeline_graph_and_show(GtkMenuItem *menuitem,gpo
 
     // convert file
     cmd=g_strdup_printf("dot -T%s -o%s"G_DIR_SEPARATOR_S""PACKAGE_NAME".%s %s"G_DIR_SEPARATOR_S""PACKAGE_NAME".dot",
-      self->priv->debug_graph_format,path,self->priv->debug_graph_format,path); 
+      self->priv->debug_graph_format,path,self->priv->debug_graph_format,path);
     if(!g_spawn_command_line_sync(cmd,NULL,NULL,NULL,&error)) {
         GST_WARNING("Failed to convert dot-graph: %s\n",error->message);
         g_error_free(error);
     }
     else {
       gchar *png_uri;
-      
+
       png_uri=g_strdup_printf("file://%s"G_DIR_SEPARATOR_S""PACKAGE_NAME".%s",path,self->priv->debug_graph_format);
       gtk_show_uri_simple(GTK_WIDGET(menuitem),png_uri);
       g_free(png_uri);
@@ -722,7 +722,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   item=gtk_recent_chooser_menu_new_for_manager(gtk_recent_manager_get_default());
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(subitem),item);
   g_signal_connect (item, "item-activated", G_CALLBACK (on_menu_open_recent_activate), (gpointer)self);
-  
+
   {
     GtkRecentFilter *filter=gtk_recent_filter_new();
     const GList *plugins, *node;
@@ -747,7 +747,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
     gtk_recent_chooser_set_filter(GTK_RECENT_CHOOSER(item),filter);
   }
 #endif
-  
+
   gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE,accel_group);
@@ -787,7 +787,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
   gtk_menu_set_accel_group(GTK_MENU(menu), accel_group);
   gtk_menu_set_accel_path(GTK_MENU(menu),"<Buzztard-Main>/MainMenu/Edit");
-  
+
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDO,accel_group);
   gtk_menu_item_set_accel_path(GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/Edit/Undo");
   gtk_accel_map_add_entry("<Buzztard-Main>/MainMenu/Edit/Undo", GDK_z, GDK_CONTROL_MASK);
@@ -803,9 +803,9 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_redo_activate),(gpointer)self);
   on_menu_can_redo_changed(self->priv->change_log, NULL, subitem);
   g_signal_connect(self->priv->change_log,"notify::can-redo",G_CALLBACK(on_menu_can_redo_changed),(gpointer)subitem);
-  
+
   gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
-  
+
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_CUT,accel_group);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_cut_activate),(gpointer)self);
@@ -857,7 +857,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
 
   /* @todo 'Machine properties' show/hide toggle */
   /* @todo 'Analyzer windows' show/hide toggle */
-  
+
 #if GTK_CHECK_VERSION(2,8,0)
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Fullscreen"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/FullScreen");
@@ -865,7 +865,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"toggled",G_CALLBACK(on_menu_fullscreen_toggled),(gpointer)self);
 #endif
-  
+
   gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_with_label(_("Go to machine view"));
@@ -907,7 +907,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
    *  machine view:  zoom-in/zoom-out/zoom-fit
    *  sequence vide: zoom-in/zoom-out
    *
-   
+
   gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_FIT,accel_group);
@@ -922,7 +922,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
   */
-  
+
   // playback menu
   item=gtk_menu_item_new_with_mnemonic(_("_Playback"));
   gtk_container_add(GTK_CONTAINER(self),item);
@@ -943,7 +943,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_accel_map_add_entry("<Buzztard-Main>/MainMenu/Playback/PlayFromCursor", GDK_F6, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_play_from_cursor_activate),(gpointer)self);
-  
+
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_MEDIA_STOP,accel_group);
   gtk_menu_item_set_accel_path(GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/Playback/Stop");
   gtk_accel_map_add_entry("<Buzztard-Main>/MainMenu/Playback/Stop", GDK_F8, 0);
@@ -955,14 +955,14 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
    *   gtk_image_menu_item_new_from_stock - not a toggle
    *   gtk_check_menu_item_new_with_mnemonic - no image
    */
-  
+
   /* @todo: tools menu
    * 'normalize song'
    * - dummy render with master->input-pre-gain, adjust master volume
    * 'cleanup'
    * - remove unsused patterns, unconnected machines with no empty/tracks
    */
-  
+
   // help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));
   gtk_container_add(GTK_CONTAINER(self),item);
@@ -981,7 +981,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_MENU));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_help_show_tip),(gpointer)self);
-  
+
   /* @todo 'translate application' -> link to translator project
    * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-translate.png
    */
@@ -1001,7 +1001,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
 
   menu=gtk_menu_new();
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
-  
+
   /* @todo: add toggle for keep image (no by default) */
   item=gtk_menu_item_new_with_mnemonic("Graph details");
   gtk_container_add(GTK_CONTAINER(menu),item);
@@ -1059,7 +1059,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_debug_update_registry),(gpointer)self);
 #endif
-  
+
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 }
@@ -1109,7 +1109,7 @@ static void bt_main_menu_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   self->priv->main_window=NULL;
-  
+
   g_object_unref(self->priv->change_log);
   g_object_unref(self->priv->app);
 
@@ -1122,7 +1122,7 @@ static void bt_main_menu_init( BtMainMenu *self) {
   self->priv->app = bt_edit_application_new();
 
   self->priv->change_log=bt_change_log_new();
-  
+
 #ifdef USE_DEBUG
   self->priv->debug_graph_details=GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS|GST_DEBUG_GRAPH_SHOW_STATES;
   self->priv->debug_graph_format="svg";
@@ -1136,7 +1136,7 @@ static void bt_main_menu_class_init(BtMainMenuClass *klass) {
   g_type_class_add_private(klass,sizeof(BtMainMenuPrivate));
 
   gobject_class->dispose      = bt_main_menu_dispose;
-  
+
   widget_class->map           = bt_main_menu_map;
 }
 

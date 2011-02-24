@@ -92,11 +92,11 @@ static gchar* update_filename_ext(const BtMainWindow *self,gchar *file_name,gint
   const GList *plugins, *pnode, *fnode;
   BtSongIOModuleInfo *info;
   guint ix;
-  
+
   plugins=bt_song_io_get_module_info_list();
   //this_filter=gtk_file_chooser_get_filter(self->priv->file_chooser);
   this_filter=g_list_nth_data(self->priv->filters,format_ix);
-  
+
   GST_WARNING("old song name = '%s', filter %p",file_name, this_filter);
 
   ext=strrchr(file_name,'.');
@@ -109,7 +109,7 @@ static gchar* update_filename_ext(const BtMainWindow *self,gchar *file_name,gint
       ix=0;
       while(info->formats[ix].name) {
         that_filter=fnode->data;
-        
+
         if((this_filter!=that_filter) && !strcmp(ext,info->formats[ix].extension)) {
           file_name[strlen(file_name)-(strlen(info->formats[ix].extension)+1)]='\0';
           GST_INFO("cut fn to: %s",file_name);
@@ -127,7 +127,7 @@ static gchar* update_filename_ext(const BtMainWindow *self,gchar *file_name,gint
     ix=0;
     while(info->formats[ix].name) {
       that_filter=fnode->data;
-  
+
       if((this_filter==that_filter) && (!ext || strcmp(ext,info->formats[ix].extension))) {
         new_file_name=g_strdup_printf("%s.%s",file_name,info->formats[ix].extension);
         pnode=NULL;
@@ -136,7 +136,7 @@ static gchar* update_filename_ext(const BtMainWindow *self,gchar *file_name,gint
       fnode=g_list_next(fnode);ix++;
     }
   }
-  
+
   if(new_file_name && strcmp(file_name,new_file_name)) {
     GST_WARNING("new song name = '%s'",new_file_name);
     return (new_file_name);
@@ -159,7 +159,7 @@ static void on_format_chooser_changed(GtkComboBox *menu, gpointer user_data) {
 
   if((new_file_name=update_filename_ext(self,file_name,format_ix))) {
     gchar *name;
-    
+
     name=strrchr(new_file_name,G_DIR_SEPARATOR);
     //gtk_file_chooser_set_filename(self->priv->file_chooser,new_file_name);
     gtk_file_chooser_set_current_name(self->priv->file_chooser,name?&name[1]:new_file_name);
@@ -281,7 +281,7 @@ static gchar* bt_main_window_make_unsaved_changes_message(const BtSong *song) {
   t=mktime(&tm)+(int)td;
   strftime(hdts,199,"%c",localtime(&t));
   GST_LOG("timezone delta: '%s', td=%lf",dts,td);
-  
+
   // pretty print how much time passed since saved/created and now
   td=difftime(tn,t);
   GST_LOG("time passed since saved/created: td=%lf",td);
@@ -298,7 +298,7 @@ static gchar* bt_main_window_make_unsaved_changes_message(const BtSong *song) {
   } else {
     since=g_strdup_printf(_("%d %s"),tds,(tds==1)?_("second"):_("seconds"));
   }
-  
+
   // arguments are the time passed as e.g. in " 5 seconds" and the last saved, created time
   if(file_name)
     msg=g_strdup_printf(_("All unsaved changes since %s will be lost. This song was last saved on: %s"),since,hdts);
@@ -525,6 +525,8 @@ void bt_main_window_open_song(const BtMainWindow *self) {
     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
     GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
     NULL));
+  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->dialog));
+  // store for format-changed signal handler
   self->priv->file_chooser=GTK_FILE_CHOOSER(self->priv->dialog);
 
   // set filters
@@ -570,10 +572,10 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   gtk_file_chooser_add_shortcut_folder(self->priv->file_chooser,folder_name,NULL);
   g_free(folder_name);
   g_object_unref(settings);
- 
+
   gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
   g_object_notify((gpointer)self, "dialog");
-  
+
   result=gtk_dialog_run(self->priv->dialog);
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
@@ -606,7 +608,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       // store recent file
       GtkRecentManager *manager=gtk_recent_manager_get_default();
       gchar *uri=g_filename_to_uri(file_name,NULL,NULL);
-      
+
       if(!gtk_recent_manager_add_item(manager, uri)) {
         GST_WARNING("Can't store recent file");
       }
@@ -672,14 +674,14 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   BtSongIOModuleInfo *info;
   guint ix;
   //gchar *glob;
-  
+
   self->priv->dialog=GTK_DIALOG(gtk_file_chooser_dialog_new(_("Save a song"),
     GTK_WINDOW(self),
     GTK_FILE_CHOOSER_ACTION_SAVE,
     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
     GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
     NULL));
-
+  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->dialog));
   // store for format-changed signal handler
   self->priv->file_chooser=GTK_FILE_CHOOSER(self->priv->dialog);
 
@@ -749,9 +751,9 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   }
   else {
     gboolean found=FALSE;
-    GtkFileFilterInfo ffi = { 
-      GTK_FILE_FILTER_FILENAME|GTK_FILE_FILTER_DISPLAY_NAME, 
-      file_name, 
+    GtkFileFilterInfo ffi = {
+      GTK_FILE_FILTER_FILENAME|GTK_FILE_FILTER_DISPLAY_NAME,
+      file_name,
       NULL, // uri
       file_name,
       NULL // mime-type
@@ -824,7 +826,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
 
   gtk_widget_show_all(GTK_WIDGET(self->priv->dialog));
   g_object_notify((gpointer)self, "dialog");
-  
+
   result=gtk_dialog_run(self->priv->dialog);
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
@@ -851,7 +853,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   if(file_name) {
     FILE *file;
     gboolean cont=TRUE;
-    
+
     GST_WARNING("song name = '%s'",file_name);
 
     if((file=fopen(file_name,"rb"))) {
@@ -892,7 +894,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
         // store recent file
         GtkRecentManager *manager=gtk_recent_manager_get_default();
         gchar *uri;
-        
+
         if(old_file_name) {
           uri=g_filename_to_uri(old_file_name,NULL,NULL);
           if(!gtk_recent_manager_remove_item(manager, uri, NULL)) {
@@ -1053,7 +1055,7 @@ static GObject *bt_main_window_child_proxy_get_child_by_name(BtChildProxy *child
 static GObject *bt_main_window_child_proxy_get_child_by_index(BtChildProxy *child_proxy,guint index) {
   BtMainWindow *self=BT_MAIN_WINDOW(child_proxy);
   GObject *res=NULL;
-  
+
   switch(index) {
     case 0:
       res=(GObject *)self->priv->toolbar;
@@ -1082,7 +1084,7 @@ static void bt_main_window_child_proxy_init(gpointer const g_iface,gconstpointer
 
   iface->get_child_by_name=bt_main_window_child_proxy_get_child_by_name;
   iface->get_child_by_index=bt_main_window_child_proxy_get_child_by_index;
-  iface->get_children_count=bt_main_window_child_proxy_get_children_count; 
+  iface->get_children_count=bt_main_window_child_proxy_get_children_count;
 }
 
 //-- wrapper
@@ -1133,7 +1135,7 @@ static void bt_main_window_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p, ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
 
   g_free(self->priv->last_folder);
-  
+
   G_OBJECT_CLASS(bt_main_window_parent_class)->finalize(object);
   GST_DEBUG("  done");
 }

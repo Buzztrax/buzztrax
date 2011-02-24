@@ -149,6 +149,8 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
                           GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
                           NULL);
 
+  gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
+
   // add widgets to the dialog content area
   box=gtk_hbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
