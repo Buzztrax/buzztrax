@@ -1,3 +1,8 @@
+2011-03-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect and draft news.
+
 2011-02-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
@@ -125,7 +130,7 @@
 2011-02-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/Makefile.am:
-	  Improve targets fro running tests under valgrind/refdbg.
+	  Improve targets for running tests under valgrind/refdbg.
 	  
 
 2011-02-19  Stefan Kost  <ensonic@users.sf.net>
@@ -204,7 +209,7 @@
 
 	* src/ui/edit/main-page-sequence.c:
 	  Just unref as we have checked for NULL already. Saver setting for
-	  ne cursor column.
+	  new cursor column.
 
 2011-02-14  Stefan Kost  <ensonic@users.sf.net>
 

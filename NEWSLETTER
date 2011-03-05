@@ -2,6 +2,46 @@ svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
 2011/02 ========================================================================
 
+I was testing buzztard a lot on my MeeGo netbook this month. As screen space is
+more precious on netbooks I was running it often in fullscreen mode and noticed
+that some windows seem to not open. When leaving full screen the windows
+appeared. Somehow they opened behind the main window. I looked over all child
+windows and dialogs and cleaned up the handling with a helper method doing:
+
+  gtk_window_set_transient_for(window, main_window);
+  gtk_window_set_destroy_with_parent(window, TRUE);
+
+On my desktop it works fine on the netbook the problem still happens :/ No idea
+right now. As a good side effect I ensured that all dialogs have a properly set
+default response.
+
+I was also running the performance tests and did some oprofiling. I knew already
+that my data-fixup code for buzzmachines caused quite some overhead. It is
+handling denormals and marking full zero buffers as empty. I now added code that
+sets the FPU on x86 machines to DAZ|FZ mode from the application and disable the
+fixup code. On my netbook my 11 min benchmark song renders in about 1 min
+instead of 1:20 min before. On my desktop most of the change are hard to
+measure as it already only takes 5 seconds :). Anyway the oprofile runs confirm
+the speedup. The code disappeared from the top 20.
+
+The pattern editor widget becomes slow when getting large. Some text drawing
+operations look expensive. For a start I ported the whole widget to use cairo,
+but that does not take care of the slowness. After more measurements it becomes
+clear that I need to rework this more. I need to render it offscreen and reply
+to expose events by copying pixels.
+
+I also worked a bit more on the interaction-controller library. udev/hal code is
+refactored into extra objects (saves me a lot of #ifdefs). It also has some 
+tests now. I still have a mysterious issue with udev. Run this stand alone 
+example as told in the header - for me valgrind complains about uninitialized
+data access. It only seems to happen when you have a /dev/input/mice which all
+my computers have. I have a workaround, but believe more testing from other
+would be great.
+
+44 files changed, 1087 insertions(+), 317 deletions(-)
+
+[1] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/design/udev/udevls.c?revision=3231&view=markup
+
 2011/01 ========================================================================
 
 As there was no project news over x-mas, I have a slightly longer one this time.
