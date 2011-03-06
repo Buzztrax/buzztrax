@@ -1,3 +1,8 @@
+2011-03-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Spell checking.
+
 2011-03-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

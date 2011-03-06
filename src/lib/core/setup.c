@@ -43,22 +43,22 @@
  * When adding/removing a bin while playing, block all src-pads that are
  * connected to existing elements when linking.
  * Once the deep scan of the graph is finished, we can unblock all remeberred
- * pads. We should probably also send a seek and a tag een to newly added
+ * pads. We should probably also send a seek and a tag event to newly added
  * sources.
  *
  * When dynamically adding/removing we ideally do not make any change to the
  * existing pipeline, but collect a list of machines and wires we want to
  * add/remove (subgraph). We also need to know if the new subgraph makes any
  * practical change (does the new wire connect to the master in the end or is
- * the wire we remove connected). 
+ * the wire we remove connected).
  *
  * Adding wires ----------------------------------------------------------------
  * - if the target of new wire is not connecting to the master or the src of the
- *     wire is not reaching a source or conneted machine, just add to setup
+ *     wire is not reaching a source or connected machine, just add to setup
  *   else -> build subgraph (we want all wires+machines that become fully
  *     connected as the result of adding this wire)
  * - for the subgraph we would study all wires that are not connected
- *   not_connected = get_list_of_unconencted_wires();
+ *   not_connected = get_list_of_unconnected_wires();
  *   sub_graph = g_list_append(NULL,this_wire);
  *   do {
  *     found_more=FALSE;
@@ -132,7 +132,7 @@
  *   A   =
  *   B
  *
- * Graph brefore:
+ * Graph before:
  *   A    B -> C
  *     => D =>
  * Graph matrix before:
@@ -156,13 +156,13 @@
  *   C
  *   D     =
  *
- * Graph brefore:
+ * Graph before:
  *   A -> B    C
  *     => D =>
  * Graph matrix before:
  *   + A B C D
  *   A   -   =
- *   B      
+ *   B
  *   C
  *   D     =
  * Add: B => C
@@ -176,17 +176,17 @@
  * Graph matrix after:
  *   + A B C D
  *   A   =   =
- *   B     = 
+ *   B     =
  *   C
  *   D     =
  *
  * Removing wires --------------------------------------------------------------
  * - if the wire is not in the pipeline (not connecting things to the master)
  *     just remove from setup
- *   else -> build subgraph (we want all wires+machines that become disconned
+ *   else -> build subgraph (we want all wires+machines that become disconnected
  *     as the result of removing this wire)
  * - for the subgraph we would study all wires that are connected
- *   - we can do this simillar as for adding
+ *   - we can do this similar as for adding
  *
  * Graph before:
  *   A => B
@@ -198,7 +198,7 @@
  * Graph after:
  *   A    B
  *
- * Graph brefore:
+ * Graph before:
  *   A => B => C
  *     => D =>
  * Remove: A => B
@@ -230,7 +230,7 @@
  *   - when this is called all elements are either disconnected or connected
  *     - exception is when we remove things
  *   - disconnected elements that should be connected will be set to CONNECTING
- *   - connected elements that should be disconnected will be set to DISCONNCTING
+ *   - connected elements that should be disconnected will be set to DISCONNECTING
  *   - we run this regardless if the song is playing or not, whenever we update/
  *     remove things (also in the future we will always play)
  * 2. update_pipeline
@@ -277,7 +277,7 @@ enum {
 
 typedef enum {
   /* start with 1, so that we can differentiate between NULL and DISCONNECTED
-   * when doing g_hash_table_lookup */ 
+   * when doing g_hash_table_lookup */
   CS_DISCONNECTED=1,
   CS_DISCONNECTING,
   CS_CONNECTING,
@@ -291,14 +291,14 @@ typedef enum {
   GPOINTER_TO_INT(g_hash_table_lookup(self->priv->graph_depth,(gpointer)bin))
 #define SET_GRAPH_DEPTH(self,bin,depth) \
   g_hash_table_insert(self->priv->graph_depth,(gpointer)bin,GINT_TO_POINTER(depth));
-  
+
 struct _BtSetupPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
   /* the song the setup belongs to */
   G_POINTER_ALIAS(BtSong *,song);
-  
+
   /* the top-level gstreamer container element */
   GstBin *bin;
 
@@ -306,18 +306,18 @@ struct _BtSetupPrivate {
   GList *wires;            // each entry points to BtWire
   GList *missing_machines; // each entry points to a gchar*
 
-  /* (ui) properties accociated with this song
+  /* (ui) properties associated with this song
    * zoom. scroll-position */
   GHashTable *properties;
-  
+
   /* state of elements (wires and machines) as BtSetupConnectionState */
   GHashTable *connection_state;
   /* depth in the graph, master=0, wires odd, machines even numbers */
   GHashTable *graph_depth;
-  /* list of blocked pads, to unnlock after updates */
+  /* list of blocked pads, to unlock after updates */
   GSList *blocked_pads;
   GList *elements_to_play,*elements_to_stop;
-  
+
   /* seek event for dynamically added elements */
   GstEvent *play_seek_event;
 };
@@ -351,7 +351,7 @@ BtSetup *bt_setup_new(const BtSong * const song) {
 
 static void set_disconnected(const BtSetup * const self, GstBin *bin) {
   BtSetupConnectionState state=GET_CONNECTION_STATE(self,bin);
-  
+
   if(state==0 || state==CS_DISCONNECTING) {
     g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(CS_DISCONNECTED));
   }
@@ -365,18 +365,18 @@ static void set_disconnected(const BtSetup * const self, GstBin *bin) {
 
 static void set_disconnecting(const BtSetup * const self, GstBin *bin) {
   BtSetupConnectionState state=GET_CONNECTION_STATE(self,bin);
-  
+
   if(state==CS_CONNECTED) {
     g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(CS_DISCONNECTING));
   }
   else if(state==CS_CONNECTING) {
-    GST_WARNING_OBJECT(bin,"disallowed state-change from connecting to disconnecteding");
+    GST_WARNING_OBJECT(bin,"disallowed state-change from connecting to disconnecting");
   }
 }
 
 static void set_connecting(const BtSetup * const self, GstBin *bin) {
   BtSetupConnectionState state=GET_CONNECTION_STATE(self,bin);
-  
+
   if(state==CS_DISCONNECTED) {
     g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(CS_CONNECTING));
   }
@@ -387,7 +387,7 @@ static void set_connecting(const BtSetup * const self, GstBin *bin) {
 
 static void set_connected(const BtSetup * const self, GstBin *bin) {
   BtSetupConnectionState state=GET_CONNECTION_STATE(self,bin);
-  
+
   if(state==CS_CONNECTING) {
     g_hash_table_insert(self->priv->connection_state,(gpointer)bin,GINT_TO_POINTER(CS_CONNECTED));
   }
@@ -464,7 +464,7 @@ static gboolean link_wire(const BtSetup * const self,GstElement *wire,GstElement
   GST_INFO_OBJECT(dst_pad,"linking start of wire");
   if(!(peer=gst_pad_get_peer(dst_pad))) {
     if((src_pad=gst_element_get_request_pad(GST_ELEMENT(src_machine),"src%d"))) {
-      if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/ 
+      if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/
         (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
         if(gst_pad_set_blocked(src_pad,TRUE)) {
           self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
@@ -522,7 +522,7 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
   dst_pad=gst_element_get_static_pad(wire,"sink");
   GST_INFO_OBJECT(dst_pad,"unlinking start of wire");
   if((src_pad=gst_pad_get_peer(dst_pad))) {
-    if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/ 
+    if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/
       (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
       //if(gst_pad_set_blocked_async(src_pad,TRUE,NULL,NULL)) {
       if(gst_pad_set_blocked(src_pad,TRUE)) {
@@ -551,7 +551,7 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
   else {
     GST_WARNING_OBJECT(src_pad, "wire is not linked to dst %s", GST_OBJECT_NAME(dst_machine));
   }
-  gst_object_unref(src_pad); 
+  gst_object_unref(src_pad);
 }
 
 /*
@@ -562,13 +562,13 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
  */
 static gboolean update_bin_in_pipeline(const BtSetup * const self,GstBin *bin,gboolean is_connected,GList **not_visited) {
   gboolean is_added=(GST_OBJECT_PARENT(bin)!=NULL);
-  
+
   if(not_visited) {
     *not_visited=g_list_remove(*not_visited,(gconstpointer)bin);
   }
-  
+
   GST_INFO_OBJECT(bin,"update object : connected=%d, added=%d",
-    is_connected,is_added);  
+    is_connected,is_added);
 
   if(is_connected) {
     if(!is_added) {
@@ -582,7 +582,7 @@ static gboolean update_bin_in_pipeline(const BtSetup * const self,GstBin *bin,gb
       gst_bin_remove(self->priv->bin,GST_ELEMENT(bin));
     }
   }
-  
+
   return(TRUE);
 }
 
@@ -596,23 +596,23 @@ static gboolean update_bin_in_pipeline(const BtSetup * const self,GstBin *bin,gb
  * Its adds connected machines and wires to the song and removed unconnected
  * ones. It links connected bins and unlinks unconnected ones.
  *
- * Returns: %TRUE if there is a conenction to a src.
+ * Returns: %TRUE if there is a connection to a src.
  */
 static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machine,GList **not_visited_machines,GList **not_visited_wires,gint depth) {
   gboolean is_connected=FALSE,wire_is_connected;
   BtWire *wire;
   BtMachine *src_machine;
   GList *node;
-  
+
   SET_GRAPH_DEPTH(self,dst_machine,depth);
-  
+
   GST_INFO_OBJECT(dst_machine,"check %d incoming wires",g_list_length(dst_machine->dst_wires));
 
   for(node=dst_machine->dst_wires;node;node=g_list_next(node)) {
     wire=BT_WIRE(node->data);
-    
+
     SET_GRAPH_DEPTH(self,dst_machine,depth+1);
-    
+
     // check if wire is marked for removal
     if(GET_CONNECTION_STATE(self,wire)!=CS_DISCONNECTING) {
       wire_is_connected=FALSE;
@@ -628,7 +628,7 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
          * but if machine is not in not_visited_machines anymore,
          * check if it is added or not and return */
         BtSetupConnectionState state=GET_CONNECTION_STATE(self,src_machine);
-  
+
         if((!g_list_find(*not_visited_machines,src_machine)) && (state==CS_CONNECTING || state==CS_CONNECTED)) {
           wire_is_connected=TRUE;
         }
@@ -667,7 +667,7 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
 static void add_machine_in_pipeline(gpointer key,gpointer value,gpointer user_data) {
   if((GPOINTER_TO_INT(value)==CS_CONNECTING) && BT_IS_MACHINE(key)) {
     const BtSetup * const self=BT_SETUP(user_data);
-    
+
     GST_INFO_OBJECT(key,"add machine");
     update_bin_in_pipeline(self,GST_BIN(key),TRUE,NULL);
   }
@@ -677,13 +677,13 @@ static void add_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data)
   if((GPOINTER_TO_INT(value)==CS_CONNECTING) && BT_IS_WIRE(key)) {
     const BtSetup * const self=BT_SETUP(user_data);
     GstElement *src,*dst;
-    
+
     GST_INFO_OBJECT(key,"add & link wire");
     update_bin_in_pipeline(self,GST_BIN(key),TRUE,NULL);
 
     g_object_get(key,"src",&src,"dst",&dst,NULL);
     link_wire(self,GST_ELEMENT(key),src,dst);
-    // @todo: what todo if it fails? We should always be able to link in theory
+    // @todo: what to do if it fails? We should always be able to link in theory
     // maybe dump extensive diagnostics to add debugging
     g_object_unref(src);
     g_object_unref(dst);
@@ -695,7 +695,7 @@ static gint sort_by_graph_depth(gconstpointer e1, gconstpointer e2,gpointer user
   gint d1=GET_GRAPH_DEPTH(self,e1);
   gint d2=GET_GRAPH_DEPTH(self,e2);
 
-  return(d1-d2);  
+  return(d1-d2);
 }
 
 static void determine_state_change_lists(gpointer key,gpointer value,gpointer user_data) {
@@ -735,7 +735,7 @@ static void deactivate_element(const BtSetup * const self,gpointer *key) {
 
 static void sync_states(const BtSetup * const self) {
   GList *node;
-  
+
   if(self->priv->elements_to_play) {
     for(node=self->priv->elements_to_play;node;node=g_list_next(node)) {
       activate_element(self,node->data);
@@ -756,13 +756,13 @@ static void del_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data)
   if((GPOINTER_TO_INT(value)==CS_DISCONNECTING) && BT_IS_WIRE(key)) {
     const BtSetup * const self=BT_SETUP(user_data);
     GstElement *src,*dst;
-    
+
     GST_INFO_OBJECT(key,"remove & unlink wire");
     g_object_get(key,"src",&src,"dst",&dst,NULL);
     unlink_wire(self,GST_ELEMENT(key),src,dst);
     g_object_unref(src);
     g_object_unref(dst);
-    
+
     update_bin_in_pipeline(self,GST_BIN(key),FALSE,NULL);
   }
 }
@@ -770,7 +770,7 @@ static void del_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data)
 static void del_machine_in_pipeline(gpointer key,gpointer value,gpointer user_data) {
   if((GPOINTER_TO_INT(value)==CS_DISCONNECTING) && BT_IS_MACHINE(key)) {
     const BtSetup * const self=BT_SETUP(user_data);
-    
+
     GST_INFO_OBJECT(key,"remove machine");
     update_bin_in_pipeline(self,GST_BIN(key),FALSE,NULL);
   }
@@ -778,7 +778,7 @@ static void del_machine_in_pipeline(gpointer key,gpointer value,gpointer user_da
 
 static void update_connection_states(gpointer key,gpointer value,gpointer user_data) {
   const BtSetup * const self=BT_SETUP(user_data);
-  
+
 #ifndef GST_DISABLE_GST_DEBUG
   gchar *states[]={"-","disconnected","disconnecting","connecting","connected"};
   GST_INFO_OBJECT(key,"%s",states[GPOINTER_TO_INT(value)]);
@@ -800,10 +800,10 @@ static void update_pipeline(const BtSetup * const self) {
   glong loop_end,length;
   gulong play_pos;
   GstClockTime bar_time;
- 
+
   GST_INFO("updating pipeline ----------------------------------------");
 
-  // query seqment and position
+  // query segment and position
   bt_song_update_playback_position(self->priv->song);
   g_object_get(self->priv->song,"sequence",&sequence,"play-pos",&play_pos,NULL);
   g_object_get(sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
@@ -822,7 +822,7 @@ static void update_pipeline(const BtSetup * const self) {
         GST_SEEK_TYPE_SET, (length+1)*bar_time);
   }
   g_object_unref(sequence);
-  
+
   GST_INFO("add machines");
   g_hash_table_foreach(self->priv->connection_state,add_machine_in_pipeline,(gpointer)self);
   GST_INFO("add and link wires");
@@ -858,13 +858,13 @@ static void update_pipeline(const BtSetup * const self) {
 static gboolean bt_setup_update_pipeline(const BtSetup * const self) {
   gboolean res=FALSE;
   BtMachine *master;
-  
+
   // get master
   if((master=bt_setup_get_machine_by_type(self,BT_TYPE_SINK_MACHINE))) {
     GList *not_visited_machines,*not_visited_wires,*node;
     BtWire *wire;
     BtMachine *machine;
-    
+
     // make a copy of lists and remove all visited items
     not_visited_machines=g_list_copy(self->priv->machines);
     not_visited_wires=g_list_copy(self->priv->wires);
@@ -886,7 +886,7 @@ static gboolean bt_setup_update_pipeline(const BtSetup * const self) {
       machine=BT_MACHINE(node->data);
       set_disconnecting(self,GST_BIN(machine));
     }
-    g_list_free(not_visited_machines);   
+    g_list_free(not_visited_machines);
 
     update_pipeline(self);
 
@@ -903,7 +903,7 @@ static gboolean bt_setup_update_pipeline(const BtSetup * const self) {
  * @self: the setup to add the machine to
  * @machine: the new machine instance
  *
- * Let the setup know that the suplied machine is now part of the song.
+ * Let the setup know that the supplied machine is now part of the song.
  *
  * Returns: return true, if the machine can be added. Returns false if the
  * machine is currently added to the setup.
@@ -915,7 +915,7 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
 
   g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
-  
+
   GST_DEBUG("added machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
 
   if(!g_list_find(self->priv->machines,machine)) {
@@ -938,7 +938,7 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
  * @self: the setup to add the wire to
  * @wire: the new wire instance
  *
- * Let the setup know that the suplied wire is now part of the song.
+ * Let the setup know that the supplied wire is now part of the song.
  *
  * Returns: returns true, if the wire is added. Returns false, if the setup
  * contains a wire witch is link between the same src and dst machines (cycle
@@ -961,7 +961,7 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
     // add to main list
     self->priv->wires=g_list_prepend(self->priv->wires,g_object_ref((gpointer)wire));
 
-    // also add to convinience lists per machine
+    // also add to convenience lists per machine
     g_object_get((gpointer)wire,"src",&src,"dst",&dst,NULL);
     src->src_wires=g_list_prepend(src->src_wires,(gpointer)wire);
     dst->dst_wires=g_list_prepend(dst->dst_wires,(gpointer)wire);
@@ -987,7 +987,7 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
  * @self: the setup to remove the machine from
  * @machine: the machine instance to remove
  *
- * Let the setup know that the suplied machine is removed from the song.
+ * Let the setup know that the supplied machine is removed from the song.
  */
 void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const machine) {
   GList *node;
@@ -1001,7 +1001,7 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
     g_hash_table_remove(self->priv->connection_state,(gpointer)machine);
     g_hash_table_remove(self->priv->graph_depth,(gpointer)machine);
 
-    GST_DEBUG("signalling removal of machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+    GST_DEBUG("signaling removal of machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
     g_signal_emit((gpointer)self,signals[MACHINE_REMOVED_EVENT], 0, machine);
 
     GST_DEBUG("removing machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
@@ -1025,7 +1025,7 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
  * @self: the setup to remove the wire from
  * @wire: the wire instance to remove
  *
- * Let the setup know that the suplied wire is removed from the song.
+ * Let the setup know that the supplied wire is removed from the song.
  */
 void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire) {
   GList *node;
@@ -1039,14 +1039,14 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
 
     self->priv->wires=g_list_delete_link(self->priv->wires,node);
 
-    // also remove from the convinience lists
+    // also remove from the convenience lists
     g_object_get((gpointer)wire,"src",&src,"dst",&dst,NULL);
     src->src_wires=g_list_remove(src->src_wires,wire);
     dst->dst_wires=g_list_remove(dst->dst_wires,wire);
     g_object_unref(src);
     g_object_unref(dst);
 
-    GST_DEBUG("signalling removal of wire: %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
+    GST_DEBUG("signaling removal of wire: %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
     g_signal_emit((gpointer)self,signals[WIRE_REMOVED_EVENT], 0, wire);
 
     set_disconnecting(self,GST_BIN(wire));
@@ -1264,10 +1264,10 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
-  
+
   // either src or dst has no wires
   if(!src->src_wires || !dst->dst_wires) return(NULL);
-  
+
   // check if src links to dst
   // ideally we would search the shorter of the lists
   // FIXME: this also does not really need the setup object ...
@@ -1490,7 +1490,7 @@ static BtPersistence *bt_setup_persistence_load(const GType type, const BtPersis
             BtWire * const wire=BT_WIRE(bt_persistence_load(BT_TYPE_WIRE,NULL,child_node,&err,"song",self->priv->song,NULL));
             if(err!=NULL) {
               failed_parts=TRUE;
-              
+
               GST_WARNING("Can't create wire: %s",err->message);
               g_error_free(err);
             }
@@ -1577,7 +1577,7 @@ static void bt_setup_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   // unref list of wires
   if(self->priv->wires) {
     for(node=self->priv->wires;node;node=g_list_next(node)) {
@@ -1610,7 +1610,7 @@ static void bt_setup_dispose(GObject * const object) {
         GObject *obj=node->data;
 
         GST_DEBUG_OBJECT(obj,"  free machine: %p, ref=%d, floating? %d",obj,G_OBJECT_REF_COUNT(obj),GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING));
-        
+
         if(GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING)) {
           gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
           gst_object_unref(obj);
