@@ -1,5 +1,11 @@
 2011-03-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Handle multi-channel spectrum if gstreamer plugin can do it.
+	  (feature https://bugzilla.gnome.org/show_bug.cgi?id=593482)
+
+2011-03-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/settings.c:
 	* src/ui/edit/settings-page-audiodevices.c:

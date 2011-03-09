@@ -41,6 +41,7 @@
  * - need to change it to "analysis-dialog"
  * - the constructor needs variants for machines and wires.
  * - machines need a pre/post hook (idealy we just need it for the sink)
+ *   - we have level there already
  *
  * @idea: multichannel mode
  * https://bugzilla.gnome.org/show_bug.cgi?id=593482
@@ -104,11 +105,12 @@ struct _BtWireAnalysisDialogPrivate {
   GstElement *analyzers[ANALYZER_COUNT];
   GList *analyzers_list;
 
-  /* the analyzer results */
+  /* the analyzer results (max stereo) */
   gdouble rms[2], peak[2];
-  gfloat *spect;
+  gfloat *spect[2];
   GMutex *lock;
-  
+
+  guint spect_channels;
   guint spect_height;
   guint spect_bands;
   gfloat height_scale;
@@ -116,9 +118,9 @@ struct _BtWireAnalysisDialogPrivate {
   gint srate;
   BtWireAnalyzerMapping frq_map;
   guint frq_precision;
-  
+
   GstClock *clock;
-  
+
   /* up to srat=900000 */
   gdouble grid_log10[6*10];
   gdouble *graph_log10;
@@ -163,7 +165,7 @@ static gboolean redraw_level(gpointer user_data) {
 
     gdk_window_begin_paint_rect(window, &rect);
     cr=gdk_cairo_create(window);
-    
+
     cairo_set_source_rgb(cr,0.0,0.0,0.0);
     cairo_rectangle(cr,0,0,self->priv->spect_bands, LEVEL_HEIGHT);
     cairo_fill(cr);
@@ -199,7 +201,7 @@ static gboolean redraw_level(gpointer user_data) {
     cairo_fill(cr);
     cairo_rectangle(cr, (middle-1)+peak1, 0, 2, LEVEL_HEIGHT);
     cairo_fill(cr);
-    
+
     /* @todo: if stereo draw pan-meter (L-R, R-L) */
     gdk_window_end_paint(window);
   }
@@ -213,7 +215,7 @@ static gboolean redraw_spectrum(gpointer user_data) {
 
   // draw spectrum
   if(self->priv->spectrum_drawingarea) {
-    guint i;
+    guint i,c;
     gdouble x,y,v,f;
     gdouble inc,end,srat2;
     guint spect_bands=self->priv->spect_bands;
@@ -227,7 +229,7 @@ static gboolean redraw_spectrum(gpointer user_data) {
 
     gdk_window_begin_paint_rect(window,&rect);
     cr=gdk_cairo_create(window);
-    
+
     cairo_set_source_rgb(cr,0.0,0.0,0.0);
     cairo_rectangle(cr,0,0,spect_bands,spect_height);
     cairo_fill(cr);
@@ -262,37 +264,49 @@ static gboolean redraw_spectrum(gpointer user_data) {
     cairo_stroke(cr);
     // draw frequencies
     g_mutex_lock(self->priv->lock);
-    if(self->priv->spect) {
-      gfloat *spect=self->priv->spect;
-      gdouble *graph_log10=self->priv->graph_log10;
-      gdouble prec=self->priv->frq_precision;
+    for(c=0;c<self->priv->spect_channels;c++) {
+      if(self->priv->spect[c]) {
+        gfloat *spect=self->priv->spect[c];
+        gdouble *graph_log10=self->priv->graph_log10;
+        gdouble prec=self->priv->frq_precision;
 
-      cairo_set_source_rgb(cr,1.0,1.0,1.0);
-      cairo_set_line_width(cr, 2.0);
-      cairo_set_dash(cr,NULL,0,0.0);
-      cairo_move_to(cr,0,spect_height);
-      if(self->priv->frq_map==MAP_LIN) {
-        for(i=0;i<(spect_bands*prec);i++) {
-          cairo_line_to(cr,(i/prec),spect_height-spect[i]);
+        // set different color for different channels
+        // maybe we also want a different gradient
+        if(self->priv->spect_channels==1) {
+          cairo_set_source_rgb(cr,1.0,1.0,1.0);
+        } else {
+          if(c==0) {
+            cairo_set_source_rgba(cr,1.0,0.0,0.7,0.7);
+          } else {
+            cairo_set_source_rgba(cr,0.6,0.6,1.0,0.7);
+          }
         }
-      }
-      else {
-        srat2=self->priv->srate/2.0;
-        v=spect_bands/log10(srat2);
-        for(i=0;i<(spect_bands*prec);i++) {
-          // db value
-          //y=-20.0*log10(-spect[i]);
-          x=0.5+v*graph_log10[i];
-          cairo_line_to(cr,x,spect_height-spect[i]);
+        cairo_set_line_width(cr, 2.0);
+        cairo_set_dash(cr,NULL,0,0.0);
+        cairo_move_to(cr,0,spect_height);
+        if(self->priv->frq_map==MAP_LIN) {
+          for(i=0;i<(spect_bands*prec);i++) {
+            cairo_line_to(cr,(i/prec),spect_height-spect[i]);
+          }
         }
+        else {
+          srat2=self->priv->srate/2.0;
+          v=spect_bands/log10(srat2);
+          for(i=0;i<(spect_bands*prec);i++) {
+            // db value
+            //y=-20.0*log10(-spect[i]);
+            x=0.5+v*graph_log10[i];
+            cairo_line_to(cr,x,spect_height-spect[i]);
+          }
+        }
+        cairo_line_to(cr,spect_bands-1,spect_height);
+        cairo_line_to(cr,0,spect_height);
+        cairo_stroke_preserve(cr);
+        // in case the gradient is too slow:
+        //cairo_set_source_rgb(cr,0.7,0.7,0.7);
+        cairo_set_source(cr,self->priv->spect_grad);
+        cairo_fill(cr);
       }
-      cairo_line_to(cr,spect_bands-1,spect_height);
-      cairo_line_to(cr,0,spect_height);
-      cairo_stroke_preserve(cr);
-      // in case the gradient is too slow:
-      //cairo_set_source_rgb(cr,0.7,0.7,0.7);
-      cairo_set_source(cr,self->priv->spect_grad);
-      cairo_fill(cr);
     }
     g_mutex_unlock(self->priv->lock);
     gdk_window_end_paint(window);
@@ -335,18 +349,20 @@ static void update_spectrum_analyzer(BtWireAnalysisDialog *self) {
   guint spect_bands;
 
   g_mutex_lock(self->priv->lock);
-  
+
   spect_bands=self->priv->spect_bands*self->priv->frq_precision;
 
-  self->priv->spect=g_renew (gfloat, self->priv->spect, spect_bands);
-  memset(self->priv->spect,0,spect_bands*sizeof(gfloat));
+  self->priv->spect[0]=g_renew (gfloat, self->priv->spect[0], spect_bands);
+  self->priv->spect[1]=g_renew (gfloat, self->priv->spect[1], spect_bands);
+  memset(self->priv->spect[0],0,spect_bands*sizeof(gfloat));
+  memset(self->priv->spect[1],0,spect_bands*sizeof(gfloat));
 
   self->priv->graph_log10=g_renew (gdouble, self->priv->graph_log10, spect_bands);
   update_spectrum_graph_log10(self);
 
   if (self->priv->analyzers[ANALYZER_SPECTRUM]) {
     g_object_set((GObject*)(self->priv->analyzers[ANALYZER_SPECTRUM]),
-      "bands", spect_bands, NULL);  
+      "bands", spect_bands, NULL);
   }
 
   g_mutex_unlock(self->priv->lock);
@@ -382,7 +398,7 @@ static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
   GstMessage *message=(GstMessage *)params[1];
   const GstStructure *structure=gst_message_get_structure(message);
   const GQuark name_id=gst_structure_get_name_id(structure);
-  
+
   if(!self)
     goto done;
 
@@ -424,31 +440,52 @@ static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
     gtk_widget_queue_draw(self->priv->level_drawingarea);
   }
   else if(name_id==bus_msg_spectrum_quark) {
-    const GValue *list;
+    const GValue *data;
     const GValue *value;
     guint i, size, spect_bands, spect_height=self->priv->spect_height;
     gfloat height_scale=self->priv->height_scale;
     gfloat *spect;
 
     g_mutex_lock(self->priv->lock);
-    spect=self->priv->spect;
     spect_bands=self->priv->spect_bands*self->priv->frq_precision;
     //GST_INFO("get spectrum data");
-    if((list = gst_structure_get_value (structure, "magnitude"))) {
-      size=gst_value_list_get_size(list);
-      if(size==spect_bands) {
-        for(i=0;i<spect_bands;i++) {
-          value=gst_value_list_get_value(list,i);
-          spect[i]=spect_height-height_scale*g_value_get_float(value);
+    if((data = gst_structure_get_value (structure, "magnitude"))) {
+      if(GST_VALUE_HOLDS_LIST(data)) {
+        size=gst_value_list_get_size(data);
+        if(size==spect_bands) {
+          spect=self->priv->spect[0];
+          for(i=0;i<spect_bands;i++) {
+            value=gst_value_list_get_value(data,i);
+            spect[i]=spect_height-height_scale*g_value_get_float(value);
+          }
+          gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
         }
-        gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
+      } else if(GST_VALUE_HOLDS_ARRAY(data)) {
+        const GValue *cdata;
+        guint c=gst_value_array_get_size(data);
+
+        self->priv->spect_channels=MIN(2,c);
+        for (c=0;c<self->priv->spect_channels;c++) {
+          cdata=gst_value_array_get_value(data,c);
+          size=gst_value_array_get_size(cdata);
+          if(size!=spect_bands)
+            break;
+          spect=self->priv->spect[c];
+          for(i=0;i<spect_bands;i++) {
+            value=gst_value_array_get_value(cdata,i);
+            spect[i]=spect_height-height_scale*g_value_get_float(value);
+          }
+        }
+        if (c==self->priv->spect_channels)
+          gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
       }
     }
-    else if((list = gst_structure_get_value (structure, "spectrum"))) {
-      size=gst_value_list_get_size(list);
+    else if((data = gst_structure_get_value (structure, "spectrum"))) {
+      size=gst_value_list_get_size(data);
       if(size==spect_bands) {
+        spect=self->priv->spect[0];
         for(i=0;i<spect_bands;i++) {
-          value=gst_value_list_get_value(list,i);
+          value=gst_value_list_get_value(data,i);
           spect[i]=spect_height-height_scale*(gfloat)g_value_get_uchar(value);
         }
         gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
@@ -456,7 +493,7 @@ static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
     }
     g_mutex_unlock(self->priv->lock);
   }
-  
+
 done:
   gst_message_unref(message);
   g_slice_free1(2*sizeof(gconstpointer),params);
@@ -479,12 +516,12 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
 
   if((name_id==bus_msg_level_quark) || (name_id==bus_msg_spectrum_quark)) {
     GstElement *meter=GST_ELEMENT(GST_MESSAGE_SRC(message));
-    
+
     if((meter==self->priv->analyzers[ANALYZER_LEVEL]) ||
       (meter==self->priv->analyzers[ANALYZER_SPECTRUM])) {
       GstClockTime timestamp, duration;
       GstClockTime waittime=GST_CLOCK_TIME_NONE;
-  
+
       if(gst_structure_get_clock_time (structure, "running-time", &timestamp) &&
         gst_structure_get_clock_time (structure, "duration", &duration)) {
         /* wait for middle of buffer */
@@ -503,10 +540,10 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
         gconstpointer *params=(gconstpointer *)g_slice_alloc(2*sizeof(gconstpointer));
         GstClockID clock_id;
         GstClockTime basetime=gst_element_get_base_time(meter);
-  
+
         //GST_WARNING("received %s update for waittime %"GST_TIME_FORMAT,
         //  g_quark_to_string(name_id),GST_TIME_ARGS(waittime));
-      
+
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
         g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
@@ -565,7 +602,7 @@ static void on_caps_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
 
 static void on_spectrum_frequency_mapping_changed(GtkComboBox *combo, gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
-  
+
   self->priv->frq_map=gtk_combo_box_get_active(combo);
   update_spectrum_ruler(self);
   gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
@@ -573,7 +610,7 @@ static void on_spectrum_frequency_mapping_changed(GtkComboBox *combo, gpointer u
 
 static void on_spectrum_frequency_precision_changed(GtkComboBox *combo, gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
-  
+
   self->priv->frq_precision=1+gtk_combo_box_get_active(combo);
   update_spectrum_analyzer(self);
 }
@@ -720,7 +757,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
    * - don't fail if we miss only spectrum or level
    * - also don't return false, but instead add a label with the error message
    */
-  
+
   // create fakesink
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_FAKESINK,"fakesink")) {
     res=FALSE;
@@ -734,16 +771,25 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     res=FALSE;
     goto Error;
   }
-  g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM],
-      "interval",UPDATE_INTERVAL,"message",TRUE,
-      "bands", self->priv->spect_bands*self->priv->frq_precision, 
-      "threshold", SPECTRUM_FLOOR,
-      NULL);
+  if(g_object_class_find_property(G_OBJECT_GET_CLASS(self->priv->analyzers[ANALYZER_SPECTRUM]),"multi-channel")) {
+    g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM],
+        "interval",UPDATE_INTERVAL,"message",TRUE,
+        "bands", self->priv->spect_bands*self->priv->frq_precision,
+        "threshold", SPECTRUM_FLOOR,
+        "multi-channel", TRUE,
+        NULL);
+  } else {
+    g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM],
+        "interval",UPDATE_INTERVAL,"message",TRUE,
+        "bands", self->priv->spect_bands*self->priv->frq_precision,
+        "threshold", SPECTRUM_FLOOR,
+        NULL);
+  }
   if((pad=gst_element_get_static_pad(self->priv->analyzers[ANALYZER_SPECTRUM],"sink"))) {
     g_signal_connect(pad,"notify::caps",G_CALLBACK(on_caps_negotiated),(gpointer)self);
     gst_object_unref(pad);
   }
-  
+
   // create level meter
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_LEVEL,"level")) {
     res=FALSE;
@@ -843,7 +889,7 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   GST_DEBUG("levels: rms =%7.4lf .. %7.4lf",self->priv->min_rms ,self->priv->max_rms);
   GST_DEBUG("levels: peak=%7.4lf .. %7.4lf",self->priv->min_peak,self->priv->max_peak);
   // DEBUG */
-  
+
   if(self->priv->clock)
     gst_object_unref(self->priv->clock);
 
@@ -883,7 +929,8 @@ static void bt_wire_analysis_dialog_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->priv->spect);
+  g_free(self->priv->spect[0]);
+  g_free(self->priv->spect[1]);
   g_free(self->priv->graph_log10);
   g_list_free(self->priv->analyzers_list);
   g_mutex_free(self->priv->lock);
@@ -901,20 +948,20 @@ static void bt_wire_analysis_dialog_init(BtWireAnalysisDialog *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE_ANALYSIS_DIALOG, BtWireAnalysisDialogPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
-  
+
   self->priv->lock = g_mutex_new();
 
   self->priv->spect_height = 64;
   self->priv->spect_bands = 256;
   self->priv->height_scale = 1.0;
-  
+
   self->priv->frq_map = MAP_LIN;
   self->priv->frq_precision = 1;
-  
+
   update_spectrum_analyzer(self);
-  
+
   self->priv->srate = GST_AUDIO_DEF_RATE;
-  
+
   /* precalc some log10 values */
   grid_log10 = self->priv->grid_log10;
   i=0;f=1.0;inc=1.0;end=10.0;
@@ -930,7 +977,7 @@ static void bt_wire_analysis_dialog_init(BtWireAnalysisDialog *self) {
 
 static void bt_wire_analysis_dialog_class_init(BtWireAnalysisDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  
+
   bus_msg_level_quark=g_quark_from_static_string("level");
   bus_msg_spectrum_quark=g_quark_from_static_string("spectrum");
 
