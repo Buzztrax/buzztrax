@@ -1,5 +1,10 @@
 2011-03-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/ui/edit/e-bt-sequence-page.c:
+	  Improve the test.
+
+2011-03-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/wire-analysis-dialog.c:
 	  Handle multi-channel spectrum if gstreamer plugin can do it.
 	  (feature https://bugzilla.gnome.org/show_bug.cgi?id=593482)

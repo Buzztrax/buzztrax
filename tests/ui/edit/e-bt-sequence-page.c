@@ -78,6 +78,10 @@ BT_START_TEST(test_active_machine) {
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
   while(gtk_events_pending()) gtk_main_iteration();
 
+  // need to focus the sequence page to make the key events work
+  gtk_widget_grab_focus((GtkWidget *)sequence_page);
+  while(gtk_events_pending()) gtk_main_iteration();
+
   GST_INFO("sine1 %p,ref_count=%d",src_machine1,G_OBJECT_REF_COUNT(src_machine1));
   GST_INFO("sine2 %p,ref_count=%d",src_machine2,G_OBJECT_REF_COUNT(src_machine2));
 
