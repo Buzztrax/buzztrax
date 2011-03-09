@@ -161,8 +161,7 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
     const GList *node;
     GList * const audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
     guint max_rank=0,cur_rank;
-    GstCaps *caps1=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
-    GstCaps *caps2=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
+    gboolean can_int_caps,can_float_caps;
 
     GST_INFO("get audiosink from gst registry by rank");
     /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=601775 */
@@ -170,11 +169,13 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
 
     for(node=audiosink_names;node;node=g_list_next(node)) {
       GstElementFactory * const factory=gst_element_factory_find(node->data);
-      
+
       GST_INFO("  probing audio sink: \"%s\"",(gchar *)node->data);
 
       // can the sink accept raw audio?
-      if(gst_element_factory_can_sink_caps(factory,caps1) || gst_element_factory_can_sink_caps(factory,caps2)) {
+      can_int_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-int");
+      can_float_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-float");
+      if(can_int_caps || can_float_caps) {
         // get element max(rank)
         cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
         GST_INFO("  trying audio sink: \"%s\" with rank: %d",(gchar *)node->data,cur_rank);
@@ -188,9 +189,7 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
       }
     }
     g_list_free(audiosink_names);
-    gst_caps_unref(caps1);
-    gst_caps_unref(caps2);
-  }
+   }
   GST_INFO("using audio sink : \"%s\"",plugin_name);
 
   g_free(system_audiosink_name);
@@ -288,7 +287,7 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      "machine view grid detail level",
                                      "low", /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-  
+
   g_object_class_install_property(gobject_class,BT_SETTINGS_WINDOW_XPOS,
                                   g_param_spec_int("window-xpos",
                                      "window-xpos prop",
@@ -374,14 +373,14 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      "default directory for recordings",
                                      g_get_home_dir(), /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-  
+
   g_object_class_install_property(gobject_class,BT_SETTINGS_FOLDER_SAMPLE,
                                   g_param_spec_string("sample-folder",
                                      "sample-folder prop",
                                      "default directory for sample-waveforms",
                                      g_get_home_dir(), /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-  
+
   // system settings
   g_object_class_install_property(gobject_class,BT_SETTINGS_SYSTEM_AUDIOSINK,
                                   g_param_spec_string("system-audiosink",

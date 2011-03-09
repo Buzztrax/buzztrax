@@ -50,7 +50,7 @@ struct _BtSettingsPageAudiodevicesPrivate {
 
   GtkComboBox *audiosink_menu;
   GList *audiosink_names;
-  
+
   GtkComboBox *samplerate_menu;
   GtkComboBox *channels_menu;
 };
@@ -164,7 +164,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
 
   audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
   // @todo: sort list alphabetically ?
-  
+
   /* @todo: use GST_IS_BIN(gst_element_factory_get_element_type(factory)) to skip bins
    * add autoaudiosink as the first and make it default
    *   but then again bins seem to be filtered out already, by below
@@ -182,7 +182,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
     // filter some known analyzer sinks
     if(strncasecmp("ladspa-",name,7)) {
       GstElementFactory * const factory=gst_element_factory_find(name);
-      
+
       // filter some known plugins
       if (!strcmp(GST_PLUGIN_FEATURE(factory)->plugin_name,"lv2")) {
         GST_INFO("  skipping audio sink: \"%s\" - its a lv2 element",name);
@@ -192,8 +192,6 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
       // can the sink accept raw audio?
       can_int_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-int");
       can_float_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-float");
-      //can_int_caps=gst_element_factory_can_sink_caps(factory,int_caps);
-      //can_float_caps=gst_element_factory_can_sink_caps(factory,float_caps);
       if(can_int_caps || can_float_caps) {
         GstElement *sink;
         gboolean works=FALSE;
@@ -210,14 +208,14 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
               GST_INFO("sink \"%s\" support property probe",name);
               if((devspec=gst_property_probe_get_property(probe,"device"))) {
                 GValueArray *array;
-        
+
                 if((array=gst_property_probe_probe_and_get_values(probe,devspec))) {
                   guint n;
-          
+
                   GST_DEBUG("there are %d available devices",array->n_values);
                   for(n=0;n<array->n_values;n++) {
                     GValue *device;
-          
+
                     /* set this device */
                     device=g_value_array_get_nth(array,n);
                     GST_DEBUG("  device[%2d] \"%s\"",n,g_value_get_string(device));
@@ -237,7 +235,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
           GST_INFO("  skipping audio sink: \"%s\" as it could be instantiated",name);
         }
 
-        
+
         if(works) {
           // compare with audiosink_name and set audiosink_index if equal
           if(!use_system_audiosink) {
@@ -268,7 +266,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   label=gtk_label_new(_("Sampling rate"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
-  
+
   self->priv->samplerate_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"8000");
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"11025");
@@ -296,7 +294,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   label=gtk_label_new(_("Channels"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 3, 4, GTK_FILL,GTK_SHRINK, 2,1);
-  
+
   self->priv->channels_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->channels_menu),_("mono"));
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->channels_menu),_("stereo"));

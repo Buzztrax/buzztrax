@@ -1,3 +1,10 @@
+2011-03-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/settings.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Prepare for soon to be deprecated API.
+
 2011-03-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:

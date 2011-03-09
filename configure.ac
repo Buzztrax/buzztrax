@@ -403,7 +403,7 @@ dnl   AC_DEFINE(HAVE_GTK_TREE_VIEW_COLUMN_PATCH, [1], [Define to 1 if we have th
 dnl )
 dnl LIBS="$ac_libs_save"
 
-#dnl check for gstreamer devel additions
+dnl check for gstreamer devel additions
 #ac_cflags_save="$CFLAGS"
 #ac_cppflags_save="$CPPFLAGS"
 #ac_libs_save="$LIBS"
@@ -411,6 +411,7 @@ dnl LIBS="$ac_libs_save"
 #CPPFLAGS="$CPPFLAGS $BASE_DEPS_CFLAGS"
 #LIBS="$LIBS $BASE_DEPS_LIBS"
 #AC_CHECK_HEADERS(gst/gstpreset.h)
+#AC_CHECK_FUNCS(gst_element_factory_can_sink_any_caps)
 #LIBS="$ac_libs_save"
 #CFLAGS="$ac_cflags_save"
 #CPPFLAGS="$ac_cppflags_save"
