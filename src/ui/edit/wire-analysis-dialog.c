@@ -771,6 +771,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
     res=FALSE;
     goto Error;
   }
+  // added in gst-plugin-good 0.10.29
   if(g_object_class_find_property(G_OBJECT_GET_CLASS(self->priv->analyzers[ANALYZER_SPECTRUM]),"multi-channel")) {
     g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM],
         "interval",UPDATE_INTERVAL,"message",TRUE,

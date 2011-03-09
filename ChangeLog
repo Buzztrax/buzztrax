@@ -1,5 +1,10 @@
 2011-03-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Point to the released version.
+
+2011-03-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/ui/edit/e-bt-sequence-page.c:
 	  Improve the test.
 
