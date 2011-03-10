@@ -203,6 +203,8 @@ static gboolean redraw_level(gpointer user_data) {
     cairo_fill(cr);
 
     /* @todo: if stereo draw pan-meter (L-R, R-L) */
+
+    cairo_destroy(cr);
     gdk_window_end_paint(window);
   }
   return(TRUE);
@@ -309,6 +311,8 @@ static gboolean redraw_spectrum(gpointer user_data) {
       }
     }
     g_mutex_unlock(self->priv->lock);
+
+    cairo_destroy(cr);
     gdk_window_end_paint(window);
   }
   return(TRUE);
@@ -477,8 +481,9 @@ static gboolean on_delayed_idle_wire_analyzer_change(gpointer user_data) {
             spect[i]=spect_height-height_scale*g_value_get_float(value);
           }
         }
-        if (c==self->priv->spect_channels)
+        if (c==self->priv->spect_channels) {
           gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
+        }
       }
     }
     else if((data = gst_structure_get_value (structure, "spectrum"))) {
