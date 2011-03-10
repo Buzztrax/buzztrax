@@ -329,16 +329,20 @@ static gboolean on_delayed_idle_machine_level_change(gpointer user_data) {
   }
 done:
   gst_message_unref(message);
-  g_free(params);
+  g_slice_free1(2*sizeof(gconstpointer),params);
   return(FALSE);
 }
 
 static gboolean on_delayed_machine_level_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
-  // the callback is called froma clock thread
+  // the callback is called from a clock thread
   if(GST_CLOCK_TIME_IS_VALID(time))
     g_idle_add(on_delayed_idle_machine_level_change,user_data);
-  else
-    g_free(user_data);
+  else {
+    gconstpointer * const params=(gconstpointer *)user_data;
+    GstMessage *message=(GstMessage *)params[1];
+    gst_message_unref(message);
+    g_slice_free1(2*sizeof(gconstpointer),user_data);
+  }
   return(TRUE);
 }
 
@@ -369,7 +373,7 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
         // @todo: should we use param=g_slice_allow(2*sizeof(gconstpointer));
         // followed by g_slice_free(2*sizeof(gconstpointer),params)
         // we already require glib-2.10
-        gconstpointer *params=g_new(gconstpointer,2);
+        gconstpointer *params=(gconstpointer *)g_slice_alloc(2*sizeof(gconstpointer));
         GstClockID clock_id;
         GstClockTime basetime=gst_element_get_base_time(level);
 
@@ -382,7 +386,10 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
         g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
         g_mutex_unlock(self->priv->lock);
         clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
-        gst_clock_id_wait_async(clock_id,on_delayed_machine_level_change,(gpointer)params);
+        if(gst_clock_id_wait_async(clock_id,on_delayed_machine_level_change,(gpointer)params)!=GST_CLOCK_OK) {
+          gst_message_unref(message);
+          g_slice_free1(2*sizeof(gconstpointer),params);
+        }
         gst_clock_id_unref(clock_id);
       }
     }

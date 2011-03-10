@@ -73,7 +73,7 @@ struct _BtMainToolbarPrivate {
   gboolean is_playing;
   gboolean has_error;
   gdouble playback_rate;
-  
+
   /* lock for multithreaded access */
   GMutex        *lock;
 };
@@ -146,7 +146,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     for(i=0;i<MAX_VUMETER;i++) {
       gtk_vumeter_set_levels(self->priv->vumeter[i], LOW_VUMETER_VAL, LOW_VUMETER_VAL);
     }
-    
+
     self->priv->has_error = FALSE;
 
     GST_INFO("song stop event handled");
@@ -229,7 +229,7 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   g_object_get(self->priv->app,"song",&song,NULL);
   bt_song_stop(song);
   reset_playback_rate(self);
-  
+
   GST_INFO("  song stopped");
   // release the reference
   g_object_unref(song);
@@ -276,7 +276,7 @@ static void reset_playback_rate(BtMainToolbar *self) {
 static gboolean on_song_playback_rate_rewind(gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gdouble playback_rate = self->priv->playback_rate * SEEK_FACTOR;
-  
+
   GST_DEBUG(" << speedup");
 
   if (playback_rate > -5.0) {
@@ -290,15 +290,15 @@ static gboolean on_song_playback_rate_rewind(gpointer user_data) {
 
 static gboolean on_toolbar_rewind_pressed(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  
+
   if(event->button!=1)
     return(FALSE);
-  
+
   GST_DEBUG(" << pressed");
 
   set_new_playback_rate(self,-1.0);
   self->priv->playback_rate_id=g_timeout_add(SEEK_TIMEOUT,on_song_playback_rate_rewind,(gpointer)self);
-  
+
   GST_DEBUG(" << <<");
 
   return(FALSE);
@@ -309,7 +309,7 @@ static gboolean on_toolbar_rewind_released(GtkWidget *widget,GdkEventButton *eve
 
   if(event->button!=1)
     return(FALSE);
-  
+
   GST_DEBUG(" << released");
   reset_playback_rate(self);
 
@@ -333,16 +333,16 @@ static gboolean on_song_playback_rate_forward(gpointer user_data) {
 
 static gboolean on_toolbar_forward_pressed(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  
+
   if(event->button!=1)
     return(FALSE);
-  
+
   GST_DEBUG(" >> pressed");
-  
+
   set_new_playback_rate(self,SEEK_FACTOR);
-  
+
   self->priv->playback_rate_id=g_timeout_add(SEEK_TIMEOUT,on_song_playback_rate_forward,(gpointer)self);
-  
+
   GST_DEBUG(" >> >>");
   return(FALSE);
 }
@@ -374,7 +374,7 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
   if(!self->priv->has_error) {
     BtSong *song;
     BtMainWindow *main_window;
-  
+
     // get song from app
     g_object_get(self->priv->app,"song",&song,"main-window",&main_window,NULL);
     // debug the state
@@ -427,7 +427,7 @@ static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
   gconstpointer * const params=(gconstpointer *)user_data;
   BtMainToolbar *self=(BtMainToolbar *)params[0];
   GstMessage *message=(GstMessage *)params[1];
-  
+
   if(self) {
     const GstStructure *structure=gst_message_get_structure(message);
     const GValue *l_cur,*l_peak;
@@ -443,7 +443,7 @@ static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
 
     l_cur=(GValue *)gst_structure_get_value(structure, "decay");
     l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-        
+
     for(i=0;i<gst_value_list_get_size(l_cur);i++) {
       cur=g_value_get_double(gst_value_list_get_value(l_cur,i));
       peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
@@ -456,16 +456,20 @@ static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
   }
 done:
   gst_message_unref(message);
-  g_free(params);
+  g_slice_free1(2*sizeof(gconstpointer),params);
   return(FALSE);
 }
 
 static gboolean on_delayed_song_level_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
-  // the callback is called froma clock thread
+  // the callback is called from a clock thread
   if(GST_CLOCK_TIME_IS_VALID(time))
     g_idle_add(on_delayed_idle_song_level_change,user_data);
-  else
-    g_free(user_data);
+  else {
+    gconstpointer * const params=(gconstpointer *)user_data;
+    GstMessage *message=(GstMessage *)params[1];
+    gst_message_unref(message);
+    g_slice_free1(2*sizeof(gconstpointer),user_data);
+  }
   return(TRUE);
 }
 
@@ -482,7 +486,7 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
     if(level==self->priv->level) {
       GstClockTime timestamp, duration;
       GstClockTime waittime=GST_CLOCK_TIME_NONE;
-  
+
       if(gst_structure_get_clock_time (structure, "running-time", &timestamp) &&
         gst_structure_get_clock_time (structure, "duration", &duration)) {
         /* wait for middle of buffer */
@@ -493,20 +497,23 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
         waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(level)->segment, GST_FORMAT_TIME, timestamp);
       }
       if(GST_CLOCK_TIME_IS_VALID(waittime)) {
-        gconstpointer *params=g_new(gconstpointer,2);
+        gconstpointer *params=(gconstpointer *)g_slice_alloc(2*sizeof(gconstpointer));
         GstClockID clock_id;
         GstClockTime basetime=gst_element_get_base_time(level);
-  
+
         //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
         //  GST_TIME_ARGS(endtime),GST_TIME_ARGS(waittime));
-      
+
         params[0]=(gpointer)self;
         params[1]=(gpointer)gst_message_ref(message);
         g_mutex_lock(self->priv->lock);
         g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
         g_mutex_unlock(self->priv->lock);
         clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
-        gst_clock_id_wait_async(clock_id,on_delayed_song_level_change,(gpointer)params);
+        if(gst_clock_id_wait_async(clock_id,on_delayed_song_level_change,(gpointer)params)!=GST_CLOCK_OK) {
+          gst_message_unref(message);
+          g_slice_free1(2*sizeof(gconstpointer),params);
+        }
         gst_clock_id_unref(clock_id);
       }
     }
@@ -566,7 +573,7 @@ static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
     g_signal_handlers_block_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
     g_object_set(self->priv->gain,"volume",nvalue,NULL);
     g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
-  
+
     g_object_get(self->priv->app,"song",&song,NULL);
     bt_song_set_unsaved(song,TRUE);
     g_object_unref(song);
@@ -726,7 +733,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_signal_connect(bus, "message::element", G_CALLBACK(on_song_level_change), (gpointer)self);
     g_signal_connect(bus, "message::application", G_CALLBACK(on_song_level_negotiated), (gpointer)self);
     gst_object_unref(bus);
-    
+
     if(self->priv->clock) gst_object_unref(self->priv->clock);
     self->priv->clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
 
@@ -744,7 +751,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // connect slider changed and volume changed events
     g_signal_connect(self->priv->volume,"value_changed",G_CALLBACK(on_song_volume_slider_change),(gpointer)self);
     g_signal_connect(self->priv->volume,"button-press-event",G_CALLBACK(on_song_volume_slider_press_event),(gpointer)self);
-    g_signal_connect(self->priv->volume,"button-release-event",G_CALLBACK(on_song_volume_slider_release_event),(gpointer)self);   
+    g_signal_connect(self->priv->volume,"button-release-event",G_CALLBACK(on_song_volume_slider_release_event),(gpointer)self);
     g_signal_connect(self->priv->gain ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
 
     gst_object_unref(self->priv->gain);
@@ -972,7 +979,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->master);
   g_object_try_weak_unref(self->priv->gain);
   g_object_try_weak_unref(self->priv->level);
-  
+
   if(self->priv->clock) gst_object_unref(self->priv->clock);
   g_object_unref(self->priv->app);
 

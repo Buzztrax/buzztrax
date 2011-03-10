@@ -1,3 +1,12 @@
+2011-03-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Improve spectrum and level message handling. Avoid leaking data in
+	  error cases.
+
 2011-03-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/wire-analysis-dialog.c:

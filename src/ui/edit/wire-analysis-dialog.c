@@ -321,7 +321,7 @@ static void update_spectrum_ruler(const BtWireAnalysisDialog *self) {
 
 #if 0
   // gtk_ruler_set_metric needs an enum value :/
-  // we can't register own types and there is no setter for custome metrics either
+  // we can't register own types and there is no setter for custom metrics either
   if(self->priv->frq_map==MAP_LIN) {
     //gtk_ruler_set_metric(ruler,&ruler_metrics[0]);
   }
@@ -352,12 +352,13 @@ static void update_spectrum_analyzer(BtWireAnalysisDialog *self) {
 
   spect_bands=self->priv->spect_bands*self->priv->frq_precision;
 
-  self->priv->spect[0]=g_renew (gfloat, self->priv->spect[0], spect_bands);
-  self->priv->spect[1]=g_renew (gfloat, self->priv->spect[1], spect_bands);
-  memset(self->priv->spect[0],0,spect_bands*sizeof(gfloat));
-  memset(self->priv->spect[1],0,spect_bands*sizeof(gfloat));
+  g_free(self->priv->spect[0]);
+  self->priv->spect[0]=g_new0(gfloat, spect_bands);
+  g_free(self->priv->spect[1]);
+  self->priv->spect[1]=g_new0(gfloat, spect_bands);
 
-  self->priv->graph_log10=g_renew (gdouble, self->priv->graph_log10, spect_bands);
+  g_free(self->priv->graph_log10);
+  self->priv->graph_log10=g_new(gdouble, spect_bands);
   update_spectrum_graph_log10(self);
 
   if (self->priv->analyzers[ANALYZER_SPECTRUM]) {
@@ -501,20 +502,24 @@ done:
 }
 
 static gboolean on_delayed_wire_analyzer_change(GstClock *clock,GstClockTime time,GstClockID id,gpointer user_data) {
-  // the callback is called froma clock thread
+  // the callback is called from a clock thread
   if(GST_CLOCK_TIME_IS_VALID(time))
     g_idle_add(on_delayed_idle_wire_analyzer_change,user_data);
-  else
+  else {
+    gconstpointer * const params=(gconstpointer *)user_data;
+    GstMessage *message=(GstMessage *)params[1];
+    gst_message_unref(message);
     g_slice_free1(2*sizeof(gconstpointer),user_data);
+  }
   return(TRUE);
 }
 
 static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer user_data) {
-  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
   const GstStructure *structure=gst_message_get_structure(message);
   const GQuark name_id=gst_structure_get_name_id(structure);
 
   if((name_id==bus_msg_level_quark) || (name_id==bus_msg_spectrum_quark)) {
+    BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
     GstElement *meter=GST_ELEMENT(GST_MESSAGE_SRC(message));
 
     if((meter==self->priv->analyzers[ANALYZER_LEVEL]) ||
@@ -549,7 +554,10 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
         g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
 
         clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
-        gst_clock_id_wait_async(clock_id,on_delayed_wire_analyzer_change,(gpointer)params);
+        if(gst_clock_id_wait_async(clock_id,on_delayed_wire_analyzer_change,(gpointer)params)!=GST_CLOCK_OK) {
+          gst_message_unref(message);
+          g_slice_free1(2*sizeof(gconstpointer),params);
+        }
         gst_clock_id_unref(clock_id);
       }
     }
