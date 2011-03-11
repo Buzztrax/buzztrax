@@ -1,5 +1,12 @@
 2011-03-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Planning and comment updates.
+
+2011-03-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-editor.c:
 	  Also free the cairo context here.
 

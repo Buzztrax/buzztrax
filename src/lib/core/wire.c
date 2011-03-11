@@ -28,14 +28,6 @@
  * Furthermore each wire has a volume and if possible panorama/balance element.
  */
 
-/*
- * @todo try to derive this from GstBin!
- *  - then put the machines into itself (and not into the songs bin,
- *    but insert the wire directly into the song->bin
- *  - when adding internal machines we need to fix the ghost pads using
- *    gst_ghost_pad_set_target()
- */
-
 #define BT_CORE
 #define BT_WIRE_C
 

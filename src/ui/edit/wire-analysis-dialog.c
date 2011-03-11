@@ -22,8 +22,9 @@
  * SECTION:btwireanalysisdialog
  * @short_description: audio analysis for this wire
  *
- * The dialog shows a mono-spectrum analyzer and level-meters for left/right
- * channel.
+ * The dialog shows a spectrum analyzer and level-meters for left/right
+ * channel. The spectrum analyzer support mono and stereo display. It has a few
+ * settings for logarithmic/linear mapping and precission.
  *
  * The dialog is not modal.
  */
@@ -39,12 +40,13 @@
  *
  * @idea: it would be nice to use this on the sink-machine as well.
  * - need to change it to "analysis-dialog"
- * - the constructor needs variants for machines and wires.
+ * - the constructor needs variants for machines and wires or we just pass it a
+ *   and require that the bin has a "ananlyzers" property
  * - machines need a pre/post hook (idealy we just need it for the sink)
- *   - we have level there already
- *
- * @idea: multichannel mode
- * https://bugzilla.gnome.org/show_bug.cgi?id=593482
+ *   - we have (pre-gain)-level there already
+ *   - we have no tee in machines (except the spreader, which we can't misuse
+ *     here)
+ *   - we could always plug a tee in sink-bin and add the analyzers there
  */
 #define BT_EDIT
 #define BT_WIRE_ANALYSIS_DIALOG_C

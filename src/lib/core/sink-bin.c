@@ -24,6 +24,9 @@
  *
  * The sink-bin provides switchable play and record facillities.
  * It also provides controlable master-volume.
+ *
+ * In play and record modes it plugs a chain of elements. In combined play and
+ * record mode it uses a tee and plugs both pipleines.
  */
 
 /* @todo: detect supported encoders
@@ -44,7 +47,7 @@
  *
  * @todo: add parameters for sampling rate and channels
  *   - channels can be used in the capsfilter
- *   - sampling rate could be used there too 
+ *   - sampling rate could be used there too
  *   - both should be sink-bin properties, so that we can configure them
  *     externaly
  *
@@ -55,6 +58,8 @@
  *   - use a pad-probe like master_volume_sync_handler (consider reusing) to sync them
  *   - the gtk-ui can have two on-screen leds
  *   - sink-bin could use the keyboard leds to indicate them (with #ifdef LINUX)
+ *
+ * @todo: always add a a tee, so that we can plug analyzers here too
  */
 
 #define BT_CORE
@@ -100,7 +105,7 @@ struct _BtSinkBinPrivate {
   guint sample_rate, channels;
 
   gchar *record_file_name;
-  
+
   /* ghost-pads of the bin */
   GstPad *sink,*src;
 
@@ -108,15 +113,15 @@ struct _BtSinkBinPrivate {
   BtSettings *settings;
 
   gulong bus_handler_id;
-  
+
   /* master volume */
   G_POINTER_ALIAS(GstElement *,gain);
   gulong mv_handler_id;
   gdouble volume;
-  
+
   /* sink format */
   G_POINTER_ALIAS(GstElement *,caps_filter);
-  
+
   /* tempo handling */
   gulong beats_per_minute;
   gulong ticks_per_beat;
@@ -165,7 +170,7 @@ static void bt_sink_bin_tempo_change_tempo(GstBtTempo *tempo, glong beats_per_mi
     GstElement *element = gst_bin_get_by_name(GST_BIN(self),"player");
 
     GST_DEBUG("changing tempo to %lu BPM  %lu TPB  %lu STPT",self->priv->beats_per_minute,self->priv->ticks_per_beat,self->priv->subticks_per_tick);
-    
+
     if(element) {
       bt_sink_bin_configure_latency(self,element);
       gst_object_unref(element);
@@ -245,7 +250,7 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
   GST_DEBUG_OBJECT(self,"clearing sink-bin : %d",GST_BIN_NUMCHILDREN(bin));
   if(bin->children) {
     GstStateChangeReturn res;
-    
+
     self->priv->caps_filter=NULL;
 
     // does not seem to be needed
@@ -263,7 +268,7 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
         GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
       gst_bin_remove (bin, elem);
     }
-    
+
     if(self->priv->src) {
       gst_pad_set_active(self->priv->src,FALSE);
       gst_element_remove_pad(GST_ELEMENT(self),self->priv->src);
@@ -292,7 +297,7 @@ static void bt_sink_bin_link_many(const BtSinkBin * const self, GstElement *last
 
   for(node=list;node;node=node->next) {
     GstElement * const cur_elem=GST_ELEMENT(node->data);
-    
+
     if(!gst_element_link(last_elem,cur_elem)) {
       GST_WARNING("can't link elements: last_elem=%s, cur_elem=%s",
         GST_OBJECT_NAME(last_elem),GST_OBJECT_NAME(cur_elem));
@@ -478,7 +483,7 @@ static gboolean sink_probe(GstPad *pad, GstMiniObject *mini_obj, gpointer user_d
 static gboolean bt_sink_bin_format_update(const BtSinkBin * const self) {
   GstStructure *sink_format_structures[2];
   GstCaps *sink_format_caps;
-  
+
   if(!self->priv->caps_filter) return(FALSE);
 
   // always add caps-filter as a first element and enforce sample rate and channels
@@ -507,12 +512,12 @@ static gboolean bt_sink_bin_format_update(const BtSinkBin * const self) {
     "channels",G_TYPE_INT,self->priv->channels,
     NULL);
   sink_format_caps=gst_caps_new_full(sink_format_structures[0],sink_format_structures[1],NULL);
-  
+
   GST_INFO("sink is using: sample-rate=%u, channels=%u",self->priv->sample_rate,self->priv->channels);
 
   g_object_set(self->priv->caps_filter,"caps",sink_format_caps,NULL);
   gst_caps_unref(sink_format_caps);
-  
+
   return(TRUE);
 }
 
@@ -547,11 +552,11 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   bt_sink_bin_clear(self);
 
   GST_INFO("initializing sink-bin");
-  
+
   self->priv->caps_filter=gst_element_factory_make("capsfilter","sink-format");
   bt_sink_bin_format_update(self);
   gst_bin_add(GST_BIN(self),self->priv->caps_filter);
-  
+
   /* add audioresample */
   first_elem=audio_resample=gst_element_factory_make("audioresample","sink-audioresample");
   gst_bin_add(GST_BIN(self),audio_resample);
@@ -634,7 +639,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     }
     case BT_SINK_BIN_MODE_PASS_THRU:{
       GstPad *target_pad=gst_element_get_static_pad(first_elem,"src");
-      
+
       self->priv->src=gst_ghost_pad_new("src",target_pad);
       gst_pad_set_active(self->priv->src,TRUE);
       gst_element_add_pad(GST_ELEMENT(self),self->priv->src);
@@ -662,8 +667,8 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     GST_INFO ("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
       self->priv->caps_filter,(G_OBJECT_REF_COUNT(self->priv->caps_filter)),GST_OBJECT_NAME(self->priv->caps_filter),
       sink_pad,(G_OBJECT_REF_COUNT(sink_pad)));
-    
-    /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=596366 
+
+    /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=596366
      * at least version 0.10.24-25 suffer from it, fixed with
      * http://cgit.freedesktop.org/gstreamer/gstreamer/commit/?id=c6f2a9477750be536924bf8e70a830ddec4c1389
      */
@@ -674,7 +679,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
         gst_pad_unlink(peer_pad,self->priv->sink);
       }
 #endif
-    
+
       if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad)) {
         GST_WARNING("failed to link internal pads");
       }
@@ -686,22 +691,22 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       }
     }
 #endif
-    
+
     GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT_REF_COUNT(sink_pad)));
     // request pads need to be released
     if(!req_sink_pad) {
       gst_object_unref(sink_pad);
     }
   }
-  
+
   if((audio_sink=gst_bin_get_by_name(GST_BIN(self),"player"))) {
 #ifdef BT_MONITOR_SINK_DATA_FLOW
     GstPad *sink_pad=gst_element_get_static_pad(audio_sink,"sink");
-    
+
     if(sink_pad) {
       sink_probe_last_ts=GST_CLOCK_TIME_NONE;
       gst_pad_add_data_probe(sink_pad,G_CALLBACK(sink_probe),(gpointer)self);
-      
+
       gst_object_unref(sink_pad);
     }
 #endif
@@ -714,7 +719,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     {
       GstPad *p=GST_PAD_PEER(GST_BASE_SINK_PAD(audio_sink));
       GstBuffer *b;
-      
+
       gst_pad_alloc_buffer_and_set_caps(p,G_GUINT64_CONSTANT(0),1,GST_PAD_CAPS(p),&b);
       gst_pad_push(p,b);
     }
@@ -795,7 +800,7 @@ static void on_channels_changed(const BtSettings * const settings, GParamSpec * 
 
 static gboolean master_volume_sync_handler(GstPad *pad,GstBuffer *buffer, gpointer user_data) {
   BtSinkBin *self = BT_SINK_BIN(user_data);
-  
+
   gst_object_sync_values(G_OBJECT(self),GST_BUFFER_TIMESTAMP(buffer));
   return(TRUE);
 }
@@ -810,7 +815,7 @@ static GstStateChangeReturn bt_sink_bin_change_state(GstElement * element, GstSt
   const BtSinkBin * const self = BT_SINK_BIN(element);
   GstElement *audio_sink;
   GstStateChangeReturn res;
-  
+
   GST_INFO_OBJECT(self,"state change on the sink-bin: %s -> %s",
     gst_element_state_get_name(GST_STATE_TRANSITION_CURRENT (transition)),
     gst_element_state_get_name(GST_STATE_TRANSITION_NEXT (transition)));
@@ -921,7 +926,7 @@ static void bt_sink_bin_set_property(GObject * const object, const guint propert
     } break;
     case SINK_BIN_INPUT_GAIN: {
       GstPad *sink_pad;
-      
+
       g_object_try_weak_unref(self->priv->gain);
       self->priv->gain = GST_ELEMENT(g_value_get_object(value));
       GST_DEBUG("Set initial master volume: %lf",self->priv->volume);
@@ -959,7 +964,7 @@ static void bt_sink_bin_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_INFO("!!!! self=%p",self);
-  
+
   if((res=gst_element_set_state(GST_ELEMENT(self),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to null state");
   }
@@ -967,10 +972,10 @@ static void bt_sink_bin_dispose(GObject * const object) {
 
   g_signal_handlers_disconnect_matched(self->priv->settings,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
   g_object_unref(self->priv->settings);
- 
+
   if(self->priv->mv_handler_id && self->priv->gain) {
     GstPad *sink_pad=gst_element_get_static_pad(self->priv->gain,"sink");
-    
+
     if(sink_pad) {
       gst_pad_remove_buffer_probe(sink_pad,self->priv->mv_handler_id);
       gst_object_unref(sink_pad);
@@ -980,7 +985,7 @@ static void bt_sink_bin_dispose(GObject * const object) {
 
   GST_INFO("self->sink=%p, refct=%d",self->priv->sink,G_OBJECT_REF_COUNT(self->priv->sink));
   gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
-  
+
   GST_INFO("sink-bin : children=%d",GST_BIN_NUMCHILDREN(self));
   if((audio_sink=gst_bin_get_by_name(GST_BIN(self),"player"))) {
     GST_DEBUG_OBJECT(self,"unlock audio sink before dispose");
@@ -1039,7 +1044,7 @@ static void bt_sink_bin_class_init(BtSinkBinClass * klass) {
   gobject_class->get_property = bt_sink_bin_get_property;
   gobject_class->dispose      = bt_sink_bin_dispose;
   gobject_class->finalize     = bt_sink_bin_finalize;
-  
+
   element_class->change_state = bt_sink_bin_change_state;
 
   // override interface properties
