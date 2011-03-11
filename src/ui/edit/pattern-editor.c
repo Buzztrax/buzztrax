@@ -736,6 +736,8 @@ bt_pattern_editor_expose (GtkWidget *widget,
     //GST_INFO("Draw playline: %d,%d -> %d,%d",0, y);
   }
 
+  cairo_destroy(cr);
+
   if (G_UNLIKELY(self->size_changed)) {
     // do this for resize the after the first redraw (see @todo above)
     self->size_changed=FALSE;
