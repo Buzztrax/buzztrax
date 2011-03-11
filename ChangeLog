@@ -1,3 +1,9 @@
+2011-03-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Fix channel negotiation and plugin of converters for stereo path away
+	  from master. We have to also look at channel-ranges.
+
 2011-03-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/wire-analysis-dialog.c:

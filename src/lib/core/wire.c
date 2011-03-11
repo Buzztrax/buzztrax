@@ -486,13 +486,28 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     if((caps=gst_pad_get_allowed_caps(pad))) {
     //if((caps=gst_pad_get_caps(pad))) {
       GstStructure *structure;
+      const GValue *cv;
       gint channels=1;
+
+      GST_INFO_OBJECT(self,"caps on sink pad %"GST_PTR_FORMAT,caps);
 
       if(GST_CAPS_IS_SIMPLE(caps)) {
         structure = gst_caps_get_structure(caps,0);
 
-        if((gst_structure_get_int(structure,"channels",&channels))) {
-          GST_DEBUG("channels on wire.dst=%d",channels);
+        if((cv=gst_structure_get_value(structure,"channels"))) {
+          if(G_VALUE_HOLDS_INT(cv)) {
+            channels=g_value_get_int(cv);
+          }
+          else if(GST_VALUE_HOLDS_INT_RANGE(cv)) {
+            channels=gst_value_get_int_range_max(cv);
+          }
+          else {
+            GST_WARNING_OBJECT(self,"type for channels on wire: %s",g_type_name(gst_structure_get_field_type(structure,"channels")));
+          }
+          GST_INFO("channels on wire.dst=%d",channels);
+        }
+        else {
+          GST_WARNING_OBJECT(self,"missing channels field in the wires sink machine sink-pad caps");
         }
       }
       else {
@@ -500,14 +515,27 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
 
         for(i=0;i<size;i++) {
           if((structure=gst_caps_get_structure(caps,i))) {
-            if(gst_structure_get_int(structure,"channels",&c)) {
+            if((cv=gst_structure_get_value(structure,"channels"))) {
+              if(G_VALUE_HOLDS_INT(cv)) {
+                c=g_value_get_int(cv);
+              }
+              else if(GST_VALUE_HOLDS_INT_RANGE(cv)) {
+                c=gst_value_get_int_range_max(cv);
+              }
+              else {
+                c=0;
+                GST_WARNING_OBJECT(self,"type for channels on wire: %s",g_type_name(gst_structure_get_field_type(structure,"channels")));
+              }
               if(c>channels) channels=c;
+            }
+            else {
+              GST_WARNING_OBJECT(self,"missing channels field in the wires sink machine sink-pad caps");
             }
           }
         }
-        GST_DEBUG("channels on wire.dst=%d, (checked %d caps)",channels, size);
+        GST_INFO("channels on wire.dst=%d, (checked %d caps)",channels, size);
       }
-      if(channels==2) {
+      if(channels>=2) {
         /* insert panorama */
         GST_DEBUG_OBJECT(self,"adding panorama/balance");
         if(!machines[PART_PAN]) {
