@@ -467,7 +467,10 @@ static void bt_wire_canvas_item_set_property(GObject *object, guint property_id,
       self->priv->h=g_value_get_double(value);
     } break;
     case WIRE_CANVAS_ITEM_SRC: {
-      g_object_try_unref(self->priv->src);
+      if(self->priv->src) {
+        g_signal_handlers_disconnect_matched(self->priv->src,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_src_position_changed,(gpointer)self);
+        g_object_unref(self->priv->src);
+      }
       self->priv->src=BT_MACHINE_CANVAS_ITEM(g_value_dup_object(value));
       if(self->priv->src) {
         g_signal_connect(self->priv->src,"position-changed",G_CALLBACK(on_wire_src_position_changed),(gpointer)self);
@@ -475,7 +478,10 @@ static void bt_wire_canvas_item_set_property(GObject *object, guint property_id,
       }
     } break;
     case WIRE_CANVAS_ITEM_DST: {
-      g_object_try_unref(self->priv->dst);
+      if(self->priv->dst) {
+        g_signal_handlers_disconnect_matched(self->priv->dst,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_dst_position_changed,(gpointer)self);
+        g_object_unref(self->priv->dst);
+      }
       self->priv->dst=BT_MACHINE_CANVAS_ITEM(g_value_dup_object(value));
       if(self->priv->dst) {
         g_signal_connect(self->priv->dst,"position-changed",G_CALLBACK(on_wire_dst_position_changed),(gpointer)self);

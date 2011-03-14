@@ -1,3 +1,8 @@
+2011-03-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-canvas-item.c:
+	  Disconnect signal handlers when changing wire-ends.
+
 2011-03-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:
