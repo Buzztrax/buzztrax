@@ -739,7 +739,10 @@ BT_START_TEST(test_machine_view_edit3) {
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
   fail_unless(app != NULL, NULL);
 
-  bt_edit_application_load_song(app, check_get_test_song_path("test-simple3.xml"));
+  // sine1 ! amp1 ! master + sine2 ! amp1
+  //bt_edit_application_load_song(app, check_get_test_song_path("test-simple3.xml"));
+  // sine1 ! amp1 ! master
+  bt_edit_application_load_song(app, check_get_test_song_path("test-simple2.xml"));
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   GST_INFO("song loaded");
@@ -754,10 +757,10 @@ BT_START_TEST(test_machine_view_edit3) {
   // (ev. run for all combinations - if a test using all pages fails?)
   gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
   gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
-  // FIXME: having the machine page enabled/disabled makes a difference
+  // FIXME: having the sequence page enabled/disabled makes a difference
   //  between ref-leak and too many unrefs
   //gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
-  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+  //gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
   g_object_unref(pages);
 
   // remove wire

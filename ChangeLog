@@ -1,5 +1,10 @@
 2011-03-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/ui/edit/e-bt-edit-application.c:
+	  COmments and tweaking of the test.
+
+2011-03-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/setup.c:
 	  First remove elements and then mark them as floating again.
 
