@@ -1,5 +1,13 @@
 2011-03-15  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/setup.c:
+	  First remove elements and then mark them as floating again.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Comment.
+
+2011-03-15  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  News have been sent.
 

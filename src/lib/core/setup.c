@@ -578,8 +578,8 @@ static gboolean update_bin_in_pipeline(const BtSetup * const self,GstBin *bin,gb
   else {
     if(is_added) {
       gst_object_ref(GST_OBJECT(bin));
-      GST_OBJECT_FLAG_SET(bin,GST_OBJECT_FLOATING);
       gst_bin_remove(self->priv->bin,GST_ELEMENT(bin));
+      GST_OBJECT_FLAG_SET(bin,GST_OBJECT_FLOATING);
     }
   }
 

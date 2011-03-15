@@ -1257,7 +1257,7 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
   store=gtk_list_store_new(3,GDK_TYPE_PIXBUF,G_TYPE_STRING,BT_TYPE_MACHINE);
   g_object_get((gpointer)setup,"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
-    machine=BT_MACHINE(node->data);
+    machine=BT_MACHINE(node->data); // we take no extra ref on the machines here
     machine_menu_add(self,machine,store);
     index++;  // count so that we can activate the last one
   }
