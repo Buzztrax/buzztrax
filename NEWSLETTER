@@ -1,6 +1,6 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
-2011/02 ========================================================================
+2011/03 ========================================================================
 
 I was testing buzztard a lot on my MeeGo netbook this month. As screen space is
 more precious on netbooks I was running it often in fullscreen mode and noticed
@@ -36,13 +36,13 @@ tests now. I still have a mysterious issue with udev. Run this stand alone
 example as told in the header - for me valgrind complains about uninitialized
 data access. It only seems to happen when you have a /dev/input/mice which all
 my computers have. I have a workaround, but believe more testing from other
-would be great.
+would be great. [1]
 
 44 files changed, 1087 insertions(+), 317 deletions(-)
 
 [1] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/design/udev/udevls.c?revision=3231&view=markup
 
-2011/01 ========================================================================
+2011/02 ========================================================================
 
 As there was no project news over x-mas, I have a slightly longer one this time.
 Before I dive into the usual code changes, something else - tadaa - we have a
