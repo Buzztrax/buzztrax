@@ -1,3 +1,8 @@
+2011-03-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/dec/bt-dec.c:
+	  Free the song only in dispose and not in reset to make it reusable.
+
 2011-03-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/signal-analysis-dialog-methods.h:

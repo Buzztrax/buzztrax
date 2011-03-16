@@ -548,14 +548,6 @@ bt_dec_reset (BtDec *self)
   self->offset = 0;
   //self->discont = FALSE;
 
-  GST_OBJECT_LOCK (self);
-  if (self->song) {
-    g_signal_handlers_disconnect_matched (self->song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
-    g_object_unref (self->song);
-    self->song = NULL;
-  }
-  GST_OBJECT_UNLOCK (self);
-
   gst_adapter_clear (self->adapter);
   gst_event_replace (&self->newsegment_event, NULL);
 
@@ -618,6 +610,13 @@ bt_dec_dispose (GObject * object)
   BtDec *self = BT_DEC (object);
 
   bt_dec_reset (self);
+
+  if (self->song) {
+    g_signal_handlers_disconnect_matched (self->song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
+    g_object_unref (self->song);
+    self->song = NULL;
+  }
+
   g_object_unref (self->app);
   g_object_unref (self->adapter);
 
