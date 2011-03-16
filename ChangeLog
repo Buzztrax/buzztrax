@@ -1,5 +1,10 @@
 2011-03-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Fix typos in log messages.
+
+2011-03-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* src/ui/edit/Makefile.am:
