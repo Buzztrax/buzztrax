@@ -58,8 +58,6 @@
  *   - use a pad-probe like master_volume_sync_handler (consider reusing) to sync them
  *   - the gtk-ui can have two on-screen leds
  *   - sink-bin could use the keyboard leds to indicate them (with #ifdef LINUX)
- *
- * @todo: always add a a tee, so that we can plug analyzers here too
  */
 
 #define BT_CORE
@@ -113,6 +111,9 @@ struct _BtSinkBinPrivate {
   BtSettings *settings;
 
   gulong bus_handler_id;
+
+  /* tee */
+  G_POINTER_ALIAS(GstElement *,tee);
 
   /* master volume */
   G_POINTER_ALIAS(GstElement *,gain);
@@ -252,6 +253,7 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
     GstStateChangeReturn res;
 
     self->priv->caps_filter=NULL;
+    self->priv->tee=NULL;
 
     // does not seem to be needed
     //gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),NULL);
@@ -365,6 +367,15 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
 
   // @todo: check extension ?
   // @todo: need to lookup encoders by caps
+
+  // start with a queue
+  element=gst_element_factory_make("queue","record-queue");
+  // @todo: if we have/require gstreamer-0.10.31 ret rid of the check
+  if(g_object_class_find_property(G_OBJECT_GET_CLASS(element),"silent")) {
+    g_object_set(element,"silent",TRUE,NULL);
+  }
+  list=g_list_append(list,element);
+
   // generate recorder elements
   switch(self->priv->record_format) {
     case BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS:
@@ -447,9 +458,9 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
       break;
   }
   // create filesink, set location property
-  GstElement * const filesink=gst_element_factory_make("filesink","filesink");
-  g_object_set(filesink,"location",self->priv->record_file_name,NULL);
-  list=g_list_append(list,filesink);
+  element=gst_element_factory_make("filesink","filesink");
+  g_object_set(element,"location",self->priv->record_file_name,NULL);
+  list=g_list_append(list,element);
   return(list);
 Error:
   for(;list;list=list->next) {
@@ -458,27 +469,6 @@ Error:
   g_list_free(g_list_first(list));
   return(NULL);
 }
-
-#ifdef BT_MONITOR_SINK_DATA_FLOW
-static GstClockTime sink_probe_last_ts=GST_CLOCK_TIME_NONE;
-static gboolean sink_probe(GstPad *pad, GstMiniObject *mini_obj, gpointer user_data) {
-  if(GST_IS_BUFFER(mini_obj)) {
-    if(sink_probe_last_ts==GST_CLOCK_TIME_NONE) {
-      GST_WARNING("got SOS at %"GST_TIME_FORMAT,GST_TIME_ARGS(GST_BUFFER_TIMESTAMP(mini_obj)));
-    }
-    sink_probe_last_ts=GST_BUFFER_TIMESTAMP(mini_obj)+GST_BUFFER_DURATION(mini_obj);
-  }
-  else if(GST_IS_EVENT(mini_obj)) {
-    GST_WARNING("got %s at %"GST_TIME_FORMAT,
-      GST_EVENT_TYPE_NAME(mini_obj),
-      GST_TIME_ARGS(sink_probe_last_ts));
-    if(GST_EVENT_TYPE(mini_obj)==GST_EVENT_EOS) {
-      sink_probe_last_ts=GST_CLOCK_TIME_NONE;
-    }
-  }
-  return(TRUE);
-}
-#endif
 
 static gboolean bt_sink_bin_format_update(const BtSinkBin * const self) {
   GstStructure *sink_format_structures[2];
@@ -531,7 +521,7 @@ static gboolean bt_sink_bin_format_update(const BtSinkBin * const self) {
  * Returns: %TRUE for success
  */
 static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
-  GstElement *audio_resample,*first_elem,*audio_sink;
+  GstElement *audio_resample,*tee,*audio_sink;
   GstState state;
   gboolean defer=FALSE;
 
@@ -555,27 +545,17 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
 
   self->priv->caps_filter=gst_element_factory_make("capsfilter","sink-format");
   bt_sink_bin_format_update(self);
-  gst_bin_add(GST_BIN(self),self->priv->caps_filter);
+  audio_resample=gst_element_factory_make("audioresample","sink-audioresample");
+  tee=self->priv->tee=gst_element_factory_make("tee","sink-tee");
 
-  /* add audioresample */
-  first_elem=audio_resample=gst_element_factory_make("audioresample","sink-audioresample");
-  gst_bin_add(GST_BIN(self),audio_resample);
+  gst_bin_add_many(GST_BIN(self),self->priv->caps_filter,tee,audio_resample,NULL);
+
   if(!gst_element_link_pads(self->priv->caps_filter,"src",audio_resample,"sink")) {
     GST_WARNING("Can't link caps-filter and audio-resample");
   }
-
-#ifdef BT_MONITOR_TIMESTAMPS
-  {
-    GstElement *identity;
-
-    first_elem=identity=gst_element_factory_make("identity","identity");
-    g_object_set(identity,"check-perfect",TRUE,NULL);
-    gst_bin_add(GST_BIN(self),identity);
-    if(!gst_element_link_pads(audio_resample,"src",identity,"sink")) {
-      GST_WARNING("Can't link caps-filter and audio-resample");
-    }
+  if(!gst_element_link_pads(audio_resample,"src",tee,"sink")) {
+    GST_WARNING("Can't link audio-resample and tee");
   }
-#endif
 
   // add new children
   switch(self->priv->mode) {
@@ -583,7 +563,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       GList * const list=bt_sink_bin_get_player_elements(self);
       if(list) {
         bt_sink_bin_add_many(self,list);
-        bt_sink_bin_link_many(self,first_elem,list);
+        bt_sink_bin_link_many(self,tee,list);
         g_list_free(list);
       }
       else {
@@ -596,7 +576,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       GList * const list=bt_sink_bin_get_recorder_elements(self);
       if(list) {
         bt_sink_bin_add_many(self,list);
-        bt_sink_bin_link_many(self,first_elem,list);
+        bt_sink_bin_link_many(self,tee,list);
         g_list_free(list);
       }
       else {
@@ -606,13 +586,6 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       break;
     }
     case BT_SINK_BIN_MODE_PLAY_AND_RECORD:{
-      GstElement *tee;
-      // add a tee element
-      gchar * const name=g_strdup_printf("tee_%p",self);
-      tee=gst_element_factory_make("tee",name);
-      g_free(name);
-      gst_bin_add(GST_BIN(self),tee);
-      gst_element_link_pads(first_elem,"src",tee,"sink");
       // add player elems
       GList * const list1=bt_sink_bin_get_player_elements(self);
       if(list1) {
@@ -638,12 +611,11 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       break;
     }
     case BT_SINK_BIN_MODE_PASS_THRU:{
-      GstPad *target_pad=gst_element_get_static_pad(first_elem,"src");
+      GstPad *target_pad=gst_element_get_request_pad(tee,"src%d");
 
       self->priv->src=gst_ghost_pad_new("src",target_pad);
       gst_pad_set_active(self->priv->src,TRUE);
       gst_element_add_pad(GST_ELEMENT(self),self->priv->src);
-      gst_object_unref(target_pad);
       break;
     }
     default:
@@ -700,16 +672,6 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   }
 
   if((audio_sink=gst_bin_get_by_name(GST_BIN(self),"player"))) {
-#ifdef BT_MONITOR_SINK_DATA_FLOW
-    GstPad *sink_pad=gst_element_get_static_pad(audio_sink,"sink");
-
-    if(sink_pad) {
-      sink_probe_last_ts=GST_CLOCK_TIME_NONE;
-      gst_pad_add_data_probe(sink_pad,G_CALLBACK(sink_probe),(gpointer)self);
-
-      gst_object_unref(sink_pad);
-    }
-#endif
     GST_INFO_OBJECT(self,"kick and lock audio sink");
 #if 0
     /* we need a way to kick start the audiosink and actualy open the device
