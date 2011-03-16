@@ -1,5 +1,14 @@
 2011-03-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/signal-analysis-dialog-methods.h:
+	* src/ui/edit/signal-analysis-dialog.c:
+	* src/ui/edit/wire-canvas-item.c:
+	* tests/ui/edit/e-bt-signal-analysis-dialog.c:
+	  Change the the wire field to a more generic bin. Add FIXME comments
+	  where we will need to make changes for the SinkMachine.
+
+2011-03-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit.types:
 	  Also renename the wire-dialog to signal-dialog here.
 

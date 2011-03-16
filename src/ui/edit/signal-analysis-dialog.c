@@ -58,7 +58,7 @@
 //-- property ids
 
 enum {
-  SIGNAL_ANALYSIS_DIALOG_WIRE=1
+  SIGNAL_ANALYSIS_DIALOG_ELEMENT=1
 };
 
 /* @todo: add more later:
@@ -96,8 +96,8 @@ struct _BtSignalAnalysisDialogPrivate {
   /* the application */
   BtEditApplication *app;
 
-  /* the wire we analyze, TODO: make this a GstBin * */
-  BtWire *wire;
+  /* the item to attach the analyzer to */
+  GstBin *element;
 
   /* the analyzer-graphs */
   GtkWidget *spectrum_drawingarea, *level_drawingarea;
@@ -647,7 +647,7 @@ static gboolean bt_signal_analysis_dialog_make_element(const BtSignalAnalysisDia
   gchar *name;
 
   // add analyzer element
-  name=g_alloca(strlen("analyzer_")+strlen(factory_name)+16);g_sprintf(name,"analyzer_%s_%p",factory_name,self->priv->wire);
+  name=g_alloca(strlen("analyzer_")+strlen(factory_name)+16);g_sprintf(name,"analyzer_%s_%p",factory_name,self->priv->element);
   if(!(self->priv->analyzers[part]=gst_element_factory_make(factory_name,name))) {
     GST_ERROR("failed to create %s",factory_name);goto Error;
   }
@@ -659,12 +659,11 @@ Error:
 
 static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *self) {
   BtMainWindow *main_window;
-  BtMachine *src_machine,*dst_machine;
   BtSong *song;
   GstBin *bin;
   GstPad *pad;
   GstBus *bus;
-  gchar *src_id,*dst_id,*title;
+  gchar *title=NULL;
   //GdkPixbuf *window_icon=NULL;
   GtkWidget *vbox, *hbox, *table;
   GtkWidget *ruler,*combo;
@@ -676,7 +675,7 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
   /* @todo: create and set *proper* window icon (analyzer, scope)
-  if((window_icon=bt_ui_resources_get_pixbuf_by_wire(self->priv->wire))) {
+  if((window_icon=bt_ui_resources_get_pixbuf_by_wire(self->priv->element))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
   */
@@ -690,17 +689,29 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
 
   // leave the choice of width to gtk
   gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
-  
+
   // TODO: different names for wire or sink machine
-  g_object_get(self->priv->wire,"src",&src_machine,"dst",&dst_machine,NULL);
-  g_object_get(src_machine,"id",&src_id,NULL);
-  g_object_get(dst_machine,"id",&dst_id,NULL);
-  // set dialog title : machine -> machine analysis
-  title=g_strdup_printf(_("%s -> %s analysis"),src_id,dst_id);
-  gtk_window_set_title(GTK_WINDOW(self),title);
-  g_free(src_id);g_free(dst_id);g_free(title);
-  g_object_unref(src_machine);
-  g_object_unref(dst_machine);
+  if(BT_IS_WIRE(self->priv->element)) {
+    BtMachine *src_machine,*dst_machine;
+    gchar *src_id,*dst_id;
+
+    g_object_get(self->priv->element,"src",&src_machine,"dst",&dst_machine,NULL);
+    g_object_get(src_machine,"id",&src_id,NULL);
+    g_object_get(dst_machine,"id",&dst_id,NULL);
+    // set dialog title : machine -> machine analysis
+    title=g_strdup_printf(_("%s -> %s analysis"),src_id,dst_id);
+    g_object_unref(src_machine);
+    g_object_unref(dst_machine);
+    g_free(src_id);g_free(dst_id);
+  } else if(BT_IS_SINK_MACHINE(self->priv->element)) {
+    title=g_strdup(_("master analysis"));
+  } else {
+    GST_WARNING("unsupported object for signal analyser: %s,%p", G_OBJECT_TYPE_NAME(self->priv->element), self->priv->element);
+  }
+  if (title) {
+    gtk_window_set_title(GTK_WINDOW(self),title);
+    g_free(title);
+  }
 
   vbox=gtk_vbox_new(FALSE, 0);
 
@@ -829,7 +840,12 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
       "max-size-buffers",10,"max-size-bytes",0,"max-size-time",G_GUINT64_CONSTANT(0),
       "leaky",2,NULL);
 
-  g_object_set(self->priv->wire,"analyzers",self->priv->analyzers_list,NULL);
+  if(BT_IS_WIRE(self->priv->element)) {
+    g_object_set(self->priv->element,"analyzers",self->priv->analyzers_list,NULL);
+  } else if(BT_IS_SINK_MACHINE(self->priv->element)) {
+    // FIXME: handle sink-bin: get machine, set analyzers there?
+    // or should sink-machine just handle that (that saves us the checking here and below)
+  }
 
   g_object_get(song,"bin", &bin, NULL);
   bus=gst_element_get_bus(GST_ELEMENT(bin));
@@ -854,16 +870,16 @@ Error:
 
 /**
  * bt_signal_analysis_dialog_new:
- * @wire: the wire to create the dialog for
+ * @element: the wire/machine object to create the dialog for
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtSignalAnalysisDialog *bt_signal_analysis_dialog_new(const BtWire *wire) {
+BtSignalAnalysisDialog *bt_signal_analysis_dialog_new(const GstBin *element) {
   BtSignalAnalysisDialog *self;
 
-  self=BT_SIGNAL_ANALYSIS_DIALOG(g_object_new(BT_TYPE_SIGNAL_ANALYSIS_DIALOG,"wire",wire,NULL));
+  self=BT_SIGNAL_ANALYSIS_DIALOG(g_object_new(BT_TYPE_SIGNAL_ANALYSIS_DIALOG,"element",element,NULL));
   // generate UI
   if(!bt_signal_analysis_dialog_init_ui(self)) {
     goto Error;
@@ -886,9 +902,9 @@ static void bt_signal_analysis_dialog_set_property(GObject *object, guint proper
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG(object);
   return_if_disposed();
   switch (property_id) {
-    case SIGNAL_ANALYSIS_DIALOG_WIRE: {
-      g_object_try_unref(self->priv->wire);
-      self->priv->wire = g_value_dup_object(value);
+    case SIGNAL_ANALYSIS_DIALOG_ELEMENT: {
+      g_object_try_unref(self->priv->element);
+      self->priv->element = g_value_dup_object(value);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -934,9 +950,13 @@ static void bt_signal_analysis_dialog_dispose(GObject *object) {
 
   // this destroys the analyzers too
   GST_DEBUG("!!!! free analyzers");
-  g_object_set(self->priv->wire,"analyzers",NULL,NULL);
+  if(BT_IS_WIRE(self->priv->element)) {
+    g_object_set(self->priv->element,"analyzers",NULL,NULL);
+  } else {
+    // FIXME: handle sink-bin
+  }
 
-  g_object_unref(self->priv->wire);
+  g_object_unref(self->priv->element);
   g_object_unref(self->priv->app);
 
   GST_DEBUG("!!!! done");
@@ -1007,11 +1027,11 @@ static void bt_signal_analysis_dialog_class_init(BtSignalAnalysisDialogClass *kl
   gobject_class->dispose      = bt_signal_analysis_dialog_dispose;
   gobject_class->finalize     = bt_signal_analysis_dialog_finalize;
 
-  g_object_class_install_property(gobject_class,SIGNAL_ANALYSIS_DIALOG_WIRE,
-                                  g_param_spec_object("wire",
-                                     "wire construct prop",
-                                     "Set wire object, the dialog handles",
-                                     BT_TYPE_WIRE, /* object type */
+  g_object_class_install_property(gobject_class,SIGNAL_ANALYSIS_DIALOG_ELEMENT,
+                                  g_param_spec_object("element",
+                                     "element construct prop",
+                                     "Set wire/machine object, the dialog handles",
+                                     GST_TYPE_BIN, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
 }

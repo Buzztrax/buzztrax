@@ -25,6 +25,6 @@
 #include "signal-analysis-dialog.h"
 #include "edit-application.h"
 
-extern BtSignalAnalysisDialog *bt_signal_analysis_dialog_new(const BtWire *wire);
+extern BtSignalAnalysisDialog *bt_signal_analysis_dialog_new(const GstBin *element);
 
 #endif // BT_SIGNAL_ANALYSIS_DIALOG_METHDOS_H
