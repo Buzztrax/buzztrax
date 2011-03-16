@@ -21,13 +21,13 @@
 
 #include "m-bt-edit.h"
 
-//extern TCase *bt_wire_analysis_dialog_test_case(void);
-extern TCase *bt_wire_analysis_dialog_example_case(void);
+//extern TCase *bt_signal_analysis_dialog_test_case(void);
+extern TCase *bt_signal_analysis_dialog_example_case(void);
 
-Suite *bt_wire_analysis_dialog_suite(void) {
-  Suite *s=suite_create("BtWireAnalysisDialog");
+Suite *bt_signal_analysis_dialog_suite(void) {
+  Suite *s=suite_create("BtSignalAnalysisDialog");
 
-  //suite_add_tcase(s,bt_wire_analysis_dialog_test_case());
-  suite_add_tcase(s,bt_wire_analysis_dialog_example_case());
+  //suite_add_tcase(s,bt_signal_analysis_dialog_test_case());
+  suite_add_tcase(s,bt_signal_analysis_dialog_example_case());
   return(s);
 }

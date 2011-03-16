@@ -19,12 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BT_WIRE_ANALYSIS_DIALOG_METHODS_H
-#define BT_WIRE_ANALYSIS_DIALOG_METHODS_H
+#ifndef BT_SIGNAL_ANALYSIS_DIALOG_METHODS_H
+#define BT_SIGNAL_ANALYSIS_DIALOG_METHODS_H
 
-#include "wire-analysis-dialog.h"
+#include "signal-analysis-dialog.h"
 #include "edit-application.h"
 
-extern BtWireAnalysisDialog *bt_wire_analysis_dialog_new(const BtWire *wire);
+extern BtSignalAnalysisDialog *bt_signal_analysis_dialog_new(const BtWire *wire);
 
-#endif // BT_WIRE_ANALYSIS_DIALOG_METHDOS_H
+#endif // BT_SIGNAL_ANALYSIS_DIALOG_METHDOS_H

@@ -225,10 +225,10 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
 
 //-- event handler
 
-static void on_wire_analysis_dialog_destroy(GtkWidget *widget, gpointer user_data) {
+static void on_signal_analysis_dialog_destroy(GtkWidget *widget, gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
 
-  GST_INFO("wire analysis dialog destroy occurred");
+  GST_INFO("signal analysis dialog destroy occurred");
   self->priv->analysis_dialog=NULL;
   // remember open/closed state
   g_hash_table_remove(self->priv->properties,"analyzer-shown");
@@ -300,12 +300,12 @@ static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer use
 
   GST_INFO("context_menu analysis item selected");
   if(!self->priv->analysis_dialog) {
-    self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->wire));
+    self->priv->analysis_dialog=GTK_WIDGET(bt_signal_analysis_dialog_new(self->priv->wire));
     bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
     GST_INFO("analyzer dialog opened");
     // remember open/closed state
     g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
-    g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
+    g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_signal_analysis_dialog_destroy),(gpointer)self);
   }
   else {
     gtk_window_present(GTK_WINDOW(self->priv->analysis_dialog));
@@ -686,9 +686,9 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
 
   prop=(gchar *)g_hash_table_lookup(self->priv->properties,"analyzer-shown");
   if(prop && prop[0]=='1' && prop[1]=='\0') {
-    if((self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->wire)))) {
+    if((self->priv->analysis_dialog=GTK_WIDGET(bt_signal_analysis_dialog_new(self->priv->wire)))) {
       bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
-      g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
+      g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_signal_analysis_dialog_destroy),(gpointer)self);
     }
   }
 

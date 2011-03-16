@@ -38,7 +38,7 @@ static void test_teardown(void) {
 //-- tests
 
 // load a song and show machine properties dialog
-BT_START_TEST(test_wire_analysis_dialog) {
+BT_START_TEST(test_signal_analysis_dialog) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
@@ -66,7 +66,7 @@ BT_START_TEST(test_wire_analysis_dialog) {
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
 
-  if((dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(wire)))) {
+  if((dialog=GTK_WIDGET(bt_signal_analysis_dialog_new(wire)))) {
     // if we miss gst-plugins like level or spectrum, we don't get the dialog
     gtk_widget_show_all(dialog);
   
@@ -94,10 +94,10 @@ BT_START_TEST(test_wire_analysis_dialog) {
 }
 BT_END_TEST
 
-TCase *bt_wire_analysis_dialog_example_case(void) {
-  TCase *tc = tcase_create("BtWireAnalysisDialogExamples");
+TCase *bt_signal_analysis_dialog_example_case(void) {
+  TCase *tc = tcase_create("BtSignalAnalysisDialogExamples");
 
-  tcase_add_test(tc,test_wire_analysis_dialog);
+  tcase_add_test(tc,test_signal_analysis_dialog);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   return(tc);

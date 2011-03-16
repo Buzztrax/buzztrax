@@ -758,6 +758,24 @@ BtSettingsPageDirectoriesPrivate
 
 
 <SECTION>
+<FILE>btsignalanalysisdialog</FILE>
+<TITLE>BtSignalAnalysisDialog</TITLE>
+BtSignalAnalysisDialog
+bt_signal_analysis_dialog_new
+<SUBSECTION Standard>
+BtSignalAnalysisDialogClass
+BT_SIGNAL_ANALYSIS_DIALOG
+BT_IS_SIGNAL_ANALYSIS_DIALOG
+BT_SIGNAL_ANALYSIS_DIALOG_CLASS
+BT_IS_SIGNAL_ANALYSIS_DIALOG_CLASS
+BT_SIGNAL_ANALYSIS_DIALOG_GET_CLASS
+BT_TYPE_SIGNAL_ANALYSIS_DIALOG
+bt_signal_analysis_dialog_get_type
+BtSignalAnalysisDialogPrivate
+</SECTION>
+
+
+<SECTION>
 <FILE>bttipdialog</FILE>
 <TITLE>BtTipDialog</TITLE>
 BtTipDialog
@@ -836,24 +854,6 @@ BT_WAVEFORM_VIEWER_CLASS
 BT_IS_WAVEFORM_VIEWER_CLASS
 BT_TYPE_WAVEFORM_VIEWER
 bt_waveform_viewer_get_type
-</SECTION>
-
-
-<SECTION>
-<FILE>btwireanalysisdialog</FILE>
-<TITLE>BtWireAnalysisDialog</TITLE>
-BtWireAnalysisDialog
-bt_wire_analysis_dialog_new
-<SUBSECTION Standard>
-BtWireAnalysisDialogClass
-BT_WIRE_ANALYSIS_DIALOG
-BT_IS_WIRE_ANALYSIS_DIALOG
-BT_WIRE_ANALYSIS_DIALOG_CLASS
-BT_IS_WIRE_ANALYSIS_DIALOG_CLASS
-BT_WIRE_ANALYSIS_DIALOG_GET_CLASS
-BT_TYPE_WIRE_ANALYSIS_DIALOG
-bt_wire_analysis_dialog_get_type
-BtWireAnalysisDialogPrivate
 </SECTION>
 
 

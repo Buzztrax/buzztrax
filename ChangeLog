@@ -1,3 +1,30 @@
+2011-03-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/signal-analysis-dialog-methods.h:
+	* src/ui/edit/signal-analysis-dialog.c:
+	* src/ui/edit/signal-analysis-dialog.h:
+	* src/ui/edit/wire-canvas-item.c:
+	* tests/m-bt-edit.c:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-signal-analysis-dialog.c:
+	* tests/ui/edit/s-bt-signal-analysis-dialog.c:
+	* src/ui/edit/signal-analysis-dialog-methods.h (added):
+	* src/ui/edit/signal-analysis-dialog.c (added):
+	* src/ui/edit/signal-analysis-dialog.h (added):
+	* tests/ui/edit/s-bt-signal-analysis-dialog.c (added):
+	* tests/ui/edit/e-bt-signal-analysis-dialog.c (added):
+	* src/ui/edit/wire-analysis-dialog-methods.h (deleted):
+	* src/ui/edit/wire-analysis-dialog.c (deleted):
+	* src/ui/edit/wire-analysis-dialog.h (deleted):
+	* tests/ui/edit/e-bt-wire-analysis-dialog.c (deleted):
+	* tests/ui/edit/s-bt-wire-analysis-dialog.c (deleted):
+	  Rename WireAnalysisDialog to SignalAnalysisDialog. This is in preparation
+	  for using the dialog also on the master.
+
 2011-03-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/ui/edit/e-bt-edit-application.c:

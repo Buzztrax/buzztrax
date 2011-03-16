@@ -151,12 +151,12 @@
 #include "settings-page-directories-methods.h"
 #include "settings-page-interaction-controller-methods.h"
 #include "settings-page-playback-controller-methods.h"
+#include "signal-analysis-dialog-methods.h"
 #include "tip-dialog-methods.h"
 #include "tools.h"
 #include "ui-resources-methods.h"
 #include "volume-popup.h"
 #include "wave-viewer.h"
-#include "wire-analysis-dialog-methods.h"
 #include "wire-canvas-item-methods.h"
 
 //-- misc
