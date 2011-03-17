@@ -1,5 +1,10 @@
 2011-03-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/signal-analysis-dialog.c:
+	  Setting the analyzers (non yet taken into use).
+
+2011-03-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-bin.c:
 	  Add analyzer property.
 

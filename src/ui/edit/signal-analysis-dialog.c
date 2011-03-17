@@ -843,8 +843,10 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   if(BT_IS_WIRE(self->priv->element)) {
     g_object_set(self->priv->element,"analyzers",self->priv->analyzers_list,NULL);
   } else if(BT_IS_SINK_MACHINE(self->priv->element)) {
-    // FIXME: handle sink-bin: get machine, set analyzers there?
-    // or should sink-machine just handle that (that saves us the checking here and below)
+    GstElement *machine;
+    g_object_set(self->priv->element,"machine",&machine,NULL);
+    g_object_set(machine,"analyzers",self->priv->analyzers_list,NULL);
+    g_object_unref(machine);
   }
 
   g_object_get(song,"bin", &bin, NULL);
@@ -953,7 +955,10 @@ static void bt_signal_analysis_dialog_dispose(GObject *object) {
   if(BT_IS_WIRE(self->priv->element)) {
     g_object_set(self->priv->element,"analyzers",NULL,NULL);
   } else {
-    // FIXME: handle sink-bin
+    GstElement *machine;
+    g_object_set(self->priv->element,"machine",&machine,NULL);
+    g_object_set(machine,"analyzers",NULL,NULL);
+    g_object_unref(machine);
   }
 
   g_object_unref(self->priv->element);
