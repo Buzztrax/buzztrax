@@ -84,6 +84,7 @@ enum {
   SINK_BIN_RECORD_FILE_NAME,
   SINK_BIN_INPUT_GAIN,
   SINK_BIN_MASTER_VOLUME,
+  SINK_BIN_ANALYZERS,
   // tempo iface
   SINK_BIN_TEMPO_BPM,
   SINK_BIN_TEMPO_TPB,
@@ -127,6 +128,9 @@ struct _BtSinkBinPrivate {
   gulong beats_per_minute;
   gulong ticks_per_beat;
   gulong subticks_per_tick;
+
+  /* master analyzers */
+  GList *analyzers;
 };
 
 //-- the class
@@ -836,6 +840,9 @@ static void bt_sink_bin_get_property(GObject * const object, const guint propert
       }
       g_value_set_double(value,self->priv->volume);
     } break;
+    case SINK_BIN_ANALYZERS: {
+      g_value_set_pointer(value, self->priv->analyzers);
+    } break;
 	// tempo iface
     case SINK_BIN_TEMPO_BPM:
       g_value_set_ulong(value, self->priv->beats_per_minute);
@@ -904,6 +911,11 @@ static void bt_sink_bin_set_property(GObject * const object, const guint propert
         g_object_set(self->priv->gain,"volume",self->priv->volume,NULL);
         GST_DEBUG("Set master volume: %lf",self->priv->volume);
       }
+    } break;
+    case SINK_BIN_ANALYZERS: {
+      //bt_wire_deactivate_analyzers(self);
+      self->priv->analyzers=g_value_get_pointer(value);
+      //bt_wire_activate_analyzers(self);
     } break;
     // tempo iface
     case SINK_BIN_TEMPO_BPM:
@@ -1052,6 +1064,12 @@ static void bt_sink_bin_class_init(BtSinkBinClass * klass) {
                                      10.0,
                                      1.0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS|GST_PARAM_CONTROLLABLE));
+
+  g_object_class_install_property(gobject_class,SINK_BIN_ANALYZERS,
+                                  g_param_spec_pointer("analyzers",
+                                     "analyzers prop",
+                                     "list of master analyzers",
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   gst_element_class_set_details_simple (element_class,
     "Master AudioSink",

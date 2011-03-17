@@ -1,6 +1,11 @@
 2011-03-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:
+	  Add analyzer property.
+
+2011-03-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
 	  Always add the tee to prepare for pluging analysers.
 
 2011-03-17  Stefan Kost  <ensonic@users.sf.net>
