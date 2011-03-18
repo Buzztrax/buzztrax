@@ -237,119 +237,18 @@ static void bt_wire_init_params(const BtWire * const self) {
 }
 
 /*
- * bt_wire_get_peer_pad:
- * @elem: a gstreamer element
- *
- * Get the peer pad connected to the first pad in the given iter.
- *
- * Returns: the pad or %NULL
- */
-static GstPad *bt_wire_get_peer_pad(GstIterator *it) {
-  gboolean done=FALSE;
-  gpointer item;
-  GstPad *pad,*peer_pad=NULL;
-
-  while (!done) {
-    switch (gst_iterator_next (it, &item)) {
-      case GST_ITERATOR_OK:
-        pad=GST_PAD(item);
-        peer_pad=gst_pad_get_peer(pad);
-        done=TRUE;
-        gst_object_unref(pad);
-        break;
-      case GST_ITERATOR_RESYNC:
-        gst_iterator_resync(it);
-        break;
-      case GST_ITERATOR_ERROR:
-        done=TRUE;
-        break;
-      case GST_ITERATOR_DONE:
-        done=TRUE;
-        break;
-    }
-  }
-  gst_iterator_free(it);
-  return(peer_pad);
-}
-
-#if 0
-/*
- * bt_wire_get_src_peer_pad:
- * @elem: a gstreamer element
- *
- * Get the peer pad connected to the given elements first source pad.
- *
- * Returns: the pad or %NULL
- */
-static GstPad *bt_wire_get_src_peer_pad(GstElement * const elem) {
-  return(bt_wire_get_peer_pad(gst_element_iterate_src_pads(elem)));
-}
-#endif
-
-/*
- * bt_wire_get_sink_peer_pad:
- * @elem: a gstreamer element
- *
- * Get the peer pad connected to the given elements first sink pad.
- *
- * Returns: the pad or %NULL
- */
-static GstPad *bt_wire_get_sink_peer_pad(GstElement * const elem) {
-  return(bt_wire_get_peer_pad(gst_element_iterate_sink_pads(elem)));
-}
-
-/*
  * bt_wire_activate_analyzers:
  * @self: the wire
  *
  * Add all analyzers to the bin and link them.
  */
 static void bt_wire_activate_analyzers(const BtWire * const self) {
-  gboolean res=TRUE;
-  const GList* node;
-  GstElement *prev=NULL,*next;
-  GstPad *tee_src,*analyzer_sink;
   gboolean is_playing;
 
   if(!self->priv->analyzers) return;
 
-  GST_INFO("add analyzers (%d elements)",g_list_length(self->priv->analyzers));
   g_object_get(self->priv->song,"is-playing",&is_playing,NULL);
-
-  // do final link afterwards
-  for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
-    next=GST_ELEMENT(node->data);
-
-    if(!(res=gst_bin_add(GST_BIN(self),next))) {
-      GST_INFO("cannot add element \"%s\" to bin",GST_OBJECT_NAME(next));
-    }
-    if(prev) {
-      if(!(res=gst_element_link(prev,next))) {
-        GST_INFO("cannot link elements \"%s\" -> \"%s\"",GST_OBJECT_NAME(prev),GST_OBJECT_NAME(next));
-      }
-    }
-    prev=next;
-  }
-  GST_INFO("blocking tee.src");
-  tee_src=gst_element_get_request_pad(self->priv->machines[PART_TEE],"src%d");
-  analyzer_sink=gst_element_get_static_pad(GST_ELEMENT(self->priv->analyzers->data),"sink");
-  if(is_playing)
-    gst_pad_set_blocked(tee_src,TRUE);
-  GST_INFO("sync state");
-  for(node=self->priv->analyzers;node;node=g_list_next(node)) {
-    next=GST_ELEMENT(node->data);
-    if(!(gst_element_sync_state_with_parent(next))) {
-      GST_INFO("cannot sync state for elements \"%s\"",GST_OBJECT_NAME(next));
-    }
-  }
-  GST_INFO("linking to tee");
-  if(GST_PAD_LINK_FAILED(gst_pad_link(tee_src,analyzer_sink))) {
-    GST_INFO("cannot link analyzers to tee");
-  }
-  if(is_playing)
-    gst_pad_set_blocked(tee_src,FALSE);
-  gst_object_unref(analyzer_sink);
-  GST_INFO("add analyzers done");
+  bt_bin_activate_tee_chain(GST_BIN(self),self->priv->machines[PART_TEE],self->priv->analyzers,is_playing);
 }
 
 /*
@@ -359,48 +258,12 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
  * Remove all analyzers to the bin and unlink them.
  */
 static void bt_wire_deactivate_analyzers(const BtWire * const self) {
-  gboolean res=TRUE;
-  const GList* node;
-  GstElement *prev,*next;
-  GstPad *src_pad=NULL;
-  GstStateChangeReturn state_ret;
   gboolean is_playing;
 
   if(!self->priv->analyzers) return;
 
-  GST_INFO("remove analyzers (%d elements)",g_list_length(self->priv->analyzers));
   g_object_get(self->priv->song,"is-playing",&is_playing,NULL);
-
-  if((src_pad=bt_wire_get_sink_peer_pad(GST_ELEMENT(self->priv->analyzers->data)))) {
-    // block src_pad (of tee)
-    if(is_playing)
-      gst_pad_set_blocked(src_pad,TRUE);
-  }
-
-  prev=self->priv->machines[PART_TEE];
-  for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
-    next=GST_ELEMENT(node->data);
-
-    if((state_ret=gst_element_set_state(next,GST_STATE_NULL))!=GST_STATE_CHANGE_SUCCESS) {
-      GST_INFO("cannot set state to NULL for element '%s', ret='%s'",GST_OBJECT_NAME(next),gst_element_state_change_return_get_name(state_ret));
-    }
-    gst_element_unlink(prev,next);
-    prev=next;
-  }
-  for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
-    next=GST_ELEMENT(node->data);
-    if(!(res=gst_bin_remove(GST_BIN(self),next))) {
-      GST_INFO("cannot remove element '%s' from bin",GST_OBJECT_NAME(next));
-    }
-  }
-  if(src_pad) {
-    if(is_playing)
-      gst_pad_set_blocked(src_pad,FALSE);
-    // remove request-pad
-    GST_INFO("releasing request pad for tee");
-    gst_element_release_request_pad(self->priv->machines[PART_TEE],src_pad);
-    gst_object_unref(src_pad);
-  }
+  bt_bin_deactivate_tee_chain(GST_BIN(self),self->priv->machines[PART_TEE],self->priv->analyzers,is_playing);
 }
 
 /*

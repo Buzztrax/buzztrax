@@ -34,6 +34,11 @@ extern gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *fa
 extern GList *bt_gst_check_elements(GList *list);
 extern GList *bt_gst_check_core_elements(void);
 
+//-- gst safe linking
+
+extern gboolean bt_bin_activate_tee_chain(GstBin *bin, GstElement *tee, GList* analyzers, gboolean is_playing);
+extern gboolean bt_bin_deactivate_tee_chain(GstBin *bin, GstElement *tee, GList* analyzers, gboolean is_playing);
+
 //-- gst debugging
 
 extern const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPad *src_pad,GstPad *sink_pad);

@@ -674,6 +674,8 @@ bt_gst_check_elements
 bt_gst_check_core_elements
 bt_gst_element_factory_can_sink_media_type
 bt_gst_debug_pad_link_return
+bt_bin_activate_tee_chain
+bt_bin_deactivate_tee_chain
 <SUBSECTION Standard>
 BT_MAJOR_VERSION
 BT_MICRO_VERSION

@@ -1,5 +1,14 @@
 2011-03-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/tools.c:
+	* src/lib/core/wire.c:
+	  Move some code from wire to tool and make it more generic so that we
+	  can use it from sink-bin too.
+
+2011-03-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/gudev-discoverer.c:
 	  Handle "change" action too.
 
