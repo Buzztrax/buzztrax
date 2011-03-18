@@ -228,6 +228,46 @@ GType bt_sink_bin_record_format_get_type(void) {
 
 //-- helper methods
 
+/*
+ * bt_sink_bin_activate_analyzers:
+ * @self: the sink-bin
+ *
+ * Add all analyzers to the bin and link them.
+ */
+static void bt_sink_bin_activate_analyzers(const BtSinkBin * const self) {
+  GstState state;
+  gboolean is_playing=TRUE;
+
+  if(!self->priv->analyzers) return;
+
+  //g_object_get(self->priv->song,"is-playing",&is_playing,NULL);
+  if((gst_element_get_state(GST_ELEMENT(self),&state,NULL,GST_MSECOND)==GST_STATE_CHANGE_SUCCESS)) {
+      if(state<GST_STATE_PAUSED) is_playing=FALSE;
+  }
+  bt_bin_activate_tee_chain(GST_BIN(self),self->priv->tee,self->priv->analyzers,is_playing);
+}
+
+/*
+ * bt_sink_bin_deactivate_analyzers:
+ * @self: the sink-bin
+ *
+ * Remove all analyzers to the bin and unlink them.
+ */
+static void bt_sink_bin_deactivate_analyzers(const BtSinkBin * const self) {
+  GstState state;
+  gboolean is_playing=TRUE;
+
+  if(!self->priv->analyzers) return;
+
+  //g_object_get(self->priv->song,"is-playing",&is_playing,NULL);
+  if((gst_element_get_state(GST_ELEMENT(self),&state,NULL,GST_MSECOND)==GST_STATE_CHANGE_SUCCESS)) {
+      if(state<GST_STATE_PAUSED) is_playing=FALSE;
+  }
+  bt_bin_deactivate_tee_chain(GST_BIN(self),self->priv->tee,self->priv->analyzers,is_playing);
+}
+
+
+
 static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElement *sink) {
   if(GST_IS_BASE_AUDIO_SINK(sink)) {
     if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
@@ -913,9 +953,9 @@ static void bt_sink_bin_set_property(GObject * const object, const guint propert
       }
     } break;
     case SINK_BIN_ANALYZERS: {
-      //bt_wire_deactivate_analyzers(self);
+      bt_sink_bin_deactivate_analyzers(self);
       self->priv->analyzers=g_value_get_pointer(value);
-      //bt_wire_activate_analyzers(self);
+      bt_sink_bin_activate_analyzers(self);
     } break;
     // tempo iface
     case SINK_BIN_TEMPO_BPM:

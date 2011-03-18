@@ -844,7 +844,7 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
     g_object_set(self->priv->element,"analyzers",self->priv->analyzers_list,NULL);
   } else if(BT_IS_SINK_MACHINE(self->priv->element)) {
     GstElement *machine;
-    g_object_set(self->priv->element,"machine",&machine,NULL);
+    g_object_get(self->priv->element,"machine",&machine,NULL);
     g_object_set(machine,"analyzers",self->priv->analyzers_list,NULL);
     g_object_unref(machine);
   }
@@ -956,7 +956,7 @@ static void bt_signal_analysis_dialog_dispose(GObject *object) {
     g_object_set(self->priv->element,"analyzers",NULL,NULL);
   } else {
     GstElement *machine;
-    g_object_set(self->priv->element,"machine",&machine,NULL);
+    g_object_get(self->priv->element,"machine",&machine,NULL);
     g_object_set(machine,"analyzers",NULL,NULL);
     g_object_unref(machine);
   }

@@ -1,5 +1,16 @@
 2011-03-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	  Use new helper to attach analyzers.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Add context menu entry to show signal analyzer on the master.
+	  
+	* src/ui/edit/signal-analysis-dialog.c:
+	  Fix setting the analzzers on the master.
+
+2011-03-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/tools.h:
 	* src/lib/core/tools.c:

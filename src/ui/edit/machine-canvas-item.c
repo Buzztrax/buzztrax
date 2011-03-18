@@ -122,6 +122,8 @@ struct _BtMachineCanvasItemPrivate {
   /* the properties and preferences dialogs */
   GtkWidget *properties_dialog;
   GtkWidget *preferences_dialog;
+  /* the analysis dialog */
+  GtkWidget *analysis_dialog;
 
   /* the graphical components */
   GnomeCanvasItem *label;
@@ -268,6 +270,16 @@ static void show_machine_preferences_dialog(BtMachineCanvasItem *self) {
 
 
 //-- event handler
+
+static void on_signal_analysis_dialog_destroy(GtkWidget *widget, gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+  GST_INFO("signal analysis dialog destroy occurred");
+  self->priv->analysis_dialog=NULL;
+  // remember open/closed state
+  g_hash_table_remove(self->priv->properties,"analyzer-shown");
+}
+
 
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
@@ -642,6 +654,24 @@ static void on_context_menu_connect_activate(GtkMenuItem *menuitem,gpointer user
   g_signal_emit(self,signals[START_CONNECT],0);
 }
 
+static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+  GST_INFO("context_menu analysis item selected");
+  if(!self->priv->analysis_dialog) {
+    self->priv->analysis_dialog=GTK_WIDGET(bt_signal_analysis_dialog_new(GST_BIN(self->priv->machine)));
+    bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
+    GST_INFO("analyzer dialog opened");
+    // remember open/closed state
+    g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
+    g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_signal_analysis_dialog_destroy),(gpointer)self);
+  }
+  else {
+    gtk_window_present(GTK_WINDOW(self->priv->analysis_dialog));
+  }
+}
+
+
 static void on_context_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
@@ -755,6 +785,11 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
     gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_connect_activate),(gpointer)self);
+  } else {
+    menu_item=gtk_menu_item_new_with_label(_("Signal Analysis..."));
+    gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+    gtk_widget_show(menu_item);
+    g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_analysis_activate),(gpointer)self);
   }
 
   menu_item=gtk_separator_menu_item_new();
@@ -1103,6 +1138,13 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
     self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->machine));
     bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->properties_dialog));
     g_signal_connect(self->priv->properties_dialog,"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
+  }
+  prop=(gchar *)g_hash_table_lookup(self->priv->properties,"analyzer-shown");
+  if(prop && prop[0]=='1' && prop[1]=='\0') {
+    if((self->priv->analysis_dialog=GTK_WIDGET(bt_signal_analysis_dialog_new(GST_BIN(self->priv->machine))))) {
+      bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
+      g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_signal_analysis_dialog_destroy),(gpointer)self);
+    }
   }
 
   //item->realized = TRUE;
