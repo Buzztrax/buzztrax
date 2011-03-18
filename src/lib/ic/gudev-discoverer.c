@@ -86,7 +86,11 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
   if(!devnode || !udi)
     return;
 
-  if(!strcmp(action,"add")) {
+  if(!strcmp(action,"remove") || !strcmp(action,"change")) {
+    btic_registry_remove_device_by_udi(udi);
+  }
+
+  if(!strcmp(action,"add") || !strcmp(action,"change")) {
     BtIcDevice *device=NULL;
     GUdevDevice *uparent,*t;
     const gchar *full_name=NULL;
@@ -178,8 +182,6 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
 
     /* FIXME: see above */
     g_free((gchar *)devnode);
-  } else if(!strcmp(action,"remove")) {
-    btic_registry_remove_device_by_udi(udi);
   }
 }
 

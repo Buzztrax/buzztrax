@@ -1,3 +1,8 @@
+2011-03-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/gudev-discoverer.c:
+	  Handle "change" action too.
+
 2011-03-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/signal-analysis-dialog.c:
