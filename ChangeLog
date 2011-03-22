@@ -1,3 +1,9 @@
+2011-03-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-waves.c:
+	  Disconnect on_song_changed on dispose. Helps the tests.
+
 2011-03-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:

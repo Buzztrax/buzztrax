@@ -3449,6 +3449,8 @@ static void bt_main_page_patterns_dispose(GObject *object) {
     g_object_unref(song);
   }
 
+  g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
+
   g_object_unref(self->priv->change_log);
   g_object_unref(self->priv->app);
   GST_DEBUG("unref pattern: %p,refs=%d",self->priv->pattern,G_OBJECT_REF_COUNT(self->priv->pattern));

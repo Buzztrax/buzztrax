@@ -1368,6 +1368,8 @@ static void bt_main_page_waves_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(self->priv->settings,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
   g_object_unref(self->priv->settings);
 
+  g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
+
   g_object_unref(self->priv->n2f);
   g_object_try_unref(self->priv->wavetable);
   g_object_unref(self->priv->app);
