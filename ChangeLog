@@ -1,5 +1,11 @@
 2011-03-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/ui/edit/e-bt-edit-application.c:
+	  Add a set of tests for loading songs while having some ui pages
+	  removed.
+
+2011-03-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/main-page-waves.c:
 	  Disconnect on_song_changed on dispose. Helps the tests.

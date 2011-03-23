@@ -309,6 +309,75 @@ BT_START_TEST(test_load3) {
 }
 BT_END_TEST
 
+
+// load a song with a ui page disabled
+static void test_load_ui_page_disabled(gint page_num) {
+  BtEditApplication *app;
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+  BtSong *song;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
+  fail_unless(app != NULL, NULL);
+
+  // get window and remove a page
+  g_object_get(app,"main-window",&main_window,NULL);
+  GST_INFO("main window win=%p, win->ref_ct=%d",main_window,G_OBJECT_REF_COUNT(main_window));
+  fail_unless(main_window != NULL, NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  fail_unless(pages != NULL, NULL);
+  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),page_num);
+  g_object_unref(pages);
+  GST_INFO("removed page number %d",page_num);
+
+  // load song
+  bt_edit_application_load_song(app, check_get_test_song_path("melo3.xml"));
+  g_object_get(app,"song",&song,NULL);
+  fail_unless(song != NULL, NULL);
+  g_object_unref(song);
+  GST_INFO("song loaded");
+
+  // close window
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+
+  // free application
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
+  g_object_checked_unref(app);
+}
+
+// load a song with machines view disabled
+BT_START_TEST(test_load_machines_view_disabled) {
+  test_load_ui_page_disabled(BT_MAIN_PAGES_MACHINES_PAGE);
+}
+BT_END_TEST
+
+// load a song with patterns view disabled
+BT_START_TEST(test_load_patterns_view_disabled) {
+  test_load_ui_page_disabled(BT_MAIN_PAGES_PATTERNS_PAGE);
+}
+BT_END_TEST
+
+// load a song with sequence view disabled
+BT_START_TEST(test_load_sequence_view_disabled) {
+  test_load_ui_page_disabled(BT_MAIN_PAGES_SEQUENCE_PAGE);
+}
+BT_END_TEST
+
+// load a song with info view disabled
+BT_START_TEST(test_load_info_view_disabled) {
+  test_load_ui_page_disabled(BT_MAIN_PAGES_INFO_PAGE);
+}
+BT_END_TEST
+
+// load a song with waves view disabled
+BT_START_TEST(test_load_waves_view_disabled) {
+  test_load_ui_page_disabled(BT_MAIN_PAGES_WAVES_PAGE);
+}
+BT_END_TEST
+
+
 // load a song and play it
 BT_START_TEST(test_load_and_play1) {
   BtEditApplication *app;
@@ -818,6 +887,11 @@ TCase *bt_edit_application_example_case(void) {
   tcase_add_test(tc,test_load1);
   tcase_add_test(tc,test_load2);
   tcase_add_test(tc,test_load3);
+  tcase_add_test(tc,test_load_machines_view_disabled);
+  tcase_add_test(tc,test_load_patterns_view_disabled);
+  tcase_add_test(tc,test_load_sequence_view_disabled);
+  tcase_add_test(tc,test_load_info_view_disabled);
+  tcase_add_test(tc,test_load_waves_view_disabled);
   tcase_add_test(tc,test_load_and_play1);
   tcase_add_test(tc,test_load_and_play2);
   tcase_add_test(tc,test_tabs1);
