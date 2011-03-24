@@ -1,3 +1,9 @@
+2011-03-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/signal-analysis-dialog.c:
+	  Disconnect only the handler for this dialog. Otherwise the fft stops in
+	  all other windows too.
+
 2011-03-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/ui/edit/e-bt-edit-application.c:

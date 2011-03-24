@@ -944,7 +944,7 @@ static void bt_signal_analysis_dialog_dispose(GObject *object) {
     g_object_get(song,"bin", &bin, NULL);
 
     bus=gst_element_get_bus(GST_ELEMENT(bin));
-    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_signal_analyser_change,NULL);
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_signal_analyser_change,self);
     gst_object_unref(bus);
     gst_object_unref(bin);
     g_object_unref(song);
