@@ -46,7 +46,7 @@
  *       calls copy and clears afterwards
  *     success = bt_pattern_paste_fragment(pattern, fragment, col1, row1);
  *       checks if column-types are compatible
- *  
+ *
  */
 #define BT_CORE
 #define BT_PATTERN_C
@@ -389,7 +389,7 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
   id=g_strdup_printf("%s %s",mid,name);
 
   pattern=bt_pattern_new(self->priv->song,id,name,self->priv->length,self->priv->machine);
- 
+
   data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
   // deep copy data
   for(i=0;i<data_count;i++) {
@@ -399,13 +399,13 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
     }
   }
   GST_INFO("  data copied");
-  
+
   // we also need to copy the wire patterns
   if(self->priv->machine->dst_wires) {
     GList *node;
     BtWire *wire;
     BtWirePattern *wp,*wp_new;
-    
+
     GST_INFO("copying wire-patterns");
 
     for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
@@ -501,7 +501,7 @@ GValue *bt_pattern_get_global_event_data(const BtPattern * const self, const gul
   if(G_UNLIKELY(!(param<self->priv->global_params))) { GST_WARNING("param=%lu beyond global_params=%lu in pattern '%s'",param,self->priv->global_params,self->priv->id);return(NULL); }
 
   //GST_DEBUG("getting gvalue pattern=%s at tick=%lu/%lu and global param %lu/%lu",self->priv->id,tick,self->priv->length,param,self->priv->global_params);
-  
+
   const gulong index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
        +       internal_params+param;
 
@@ -794,7 +794,7 @@ static void _insert_row(const BtPattern * const self, const gulong tick, const g
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *src=&self->priv->data[internal_params+param+params*(length-2)];
   GValue *dst=&self->priv->data[internal_params+param+params*(length-1)];
-  
+
   GST_INFO("insert row at %lu,%lu", tick, param);
 
   for(i=tick;i<length-1;i++) {
@@ -863,7 +863,7 @@ static void _delete_row(const BtPattern * const self, const gulong tick, const g
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *src=&self->priv->data[internal_params+param+params*(tick+1)];
   GValue *dst=&self->priv->data[internal_params+param+params*tick];
-  
+
   GST_INFO("insert row at %lu,%lu", tick, param);
 
   for(i=tick;i<length-1;i++) {
@@ -931,7 +931,7 @@ static void _delete_column(const BtPattern * const self, const gulong start_tick
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
   gulong i,ticks=(end_tick+1)-start_tick;
-  
+
   for(i=0;i<ticks;i++) {
     if(BT_IS_GVALUE(beg))
       g_value_unset(beg);
@@ -998,11 +998,11 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
     GST_INFO("Can't blend, beg or end is empty");
     return;
   }
-  
+
   GST_INFO("blending gvalue type %s",G_VALUE_TYPE_NAME(end));
-  
+
   // @todo: should this honour the cursor stepping? e.g. enter only every second value
-  
+
   switch(G_VALUE_TYPE(end)) {
     case G_TYPE_INT: {
       gint val=g_value_get_int(beg);
@@ -1105,21 +1105,21 @@ static void _randomize_column(const BtPattern * const self, const gulong start_t
   GParamSpec *property;
   GType base_type;
   gdouble rnd;
-  
+
   if(param<self->priv->global_params) {
     property=bt_machine_get_global_param_spec(self->priv->machine, param);
   }
   else {
-    property=bt_machine_get_voice_param_spec(self->priv->machine, 
+    property=bt_machine_get_voice_param_spec(self->priv->machine,
       (param-self->priv->global_params)%self->priv->voice_params);
   }
   base_type=bt_g_type_get_base_type(property->value_type);
-  
+
   GST_INFO("blending gvalue type %s",g_type_name(property->value_type));
-  
+
   // @todo: should this honour the cursor stepping? e.g. enter only every second value
   // @todo: if beg and end are not empty, shall we use them as upper and lower
-  
+
   switch(base_type) {
     case G_TYPE_INT: {
       const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
@@ -1235,13 +1235,13 @@ static void _serialize_column(const BtPattern * const self, const gulong start_t
   GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
   gulong i,ticks=(end_tick+1)-start_tick;
   gchar *val;
-  
+
   if(param<self->priv->global_params) {
     g_string_append(data,g_type_name(bt_machine_get_global_param_type(self->priv->machine,param)));
   }
   else {
     gulong p=param-self->priv->global_params;
-    while(p>self->priv->voice_params) p-=self->priv->voice_params;
+    while(p>=self->priv->voice_params) p-=self->priv->voice_params;
     g_string_append(data,g_type_name(bt_machine_get_voice_param_type(self->priv->machine,p)));
   }
   for(i=0;i<ticks;i++) {
@@ -1320,7 +1320,7 @@ void bt_pattern_serialize_columns(const BtPattern * const self, const gulong sta
  * Deserializes values to @start_tick to @end_tick for @param from @data.
  *
  * Returns: %TRUE for success, %FALSE e.g. to indicate incompative GType values
- * for the column specified by @param and the @data. 
+ * for the column specified by @param and the @data.
  *
  * Since: 0.6
  */
@@ -1330,11 +1330,11 @@ gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulon
   g_return_val_if_fail(end_tick<self->priv->length,FALSE);
   g_return_val_if_fail(self->priv->data,FALSE);
   g_return_val_if_fail(data,FALSE);
-  
+
   gboolean ret=TRUE;
   GType stype,dtype;
   gchar **fields;
-  
+
   fields=g_strsplit_set(data,",",0);
 
   // get types in pattern and clipboard data
@@ -1343,10 +1343,10 @@ gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulon
   }
   else {
     gulong p=param-self->priv->global_params;
-    while(p>self->priv->voice_params) p-=self->priv->voice_params;
+    while(p>=self->priv->voice_params) p-=self->priv->voice_params;
     dtype=bt_machine_get_voice_param_type(self->priv->machine,p);
   }
-  
+
   stype=g_type_from_name(fields[0]);
   if(dtype==stype) {
     gint i=1;
@@ -1355,7 +1355,7 @@ gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulon
     GValue *end=&self->priv->data[internal_params+param+params*end_tick];
 
     GST_INFO("types match %s <-> %s",fields[0],g_type_name(dtype));
-    
+
     while(fields[i] && *fields[i] && (beg<=end)) {
       if(*fields[i]!=' ') {
         if(!BT_IS_GVALUE(beg)) {
@@ -1403,7 +1403,7 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
     xmlNewProp(node,XML_CHAR_PTR("length"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(length)));
-    
+
     // save pattern data
     for(i=0;i<length;i++) {
       // check if there are any GValues stored ?
@@ -1443,7 +1443,7 @@ static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPers
   gulong length;
   xmlNodePtr child_node;
   GError *error=NULL;
-    
+
   GST_DEBUG("PERSISTENCE::pattern");
   g_assert(node);
 
@@ -1451,7 +1451,7 @@ static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPers
   name=xmlGetProp(node,XML_CHAR_PTR("name"));
   length_str=xmlGetProp(node,XML_CHAR_PTR("length"));
   length=length_str?atol((char *)length_str):0;
-  
+
   if(!persistence) {
     BtSong *song=NULL;
     BtMachine *machine=NULL;
@@ -1472,7 +1472,7 @@ static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPers
       }
       param_name=va_arg(var_args,gchar*);
     }
-    
+
     self=bt_pattern_new(song, (gchar*)id, (gchar*)name, length, machine);
     result=BT_PERSISTENCE(self);
   }
@@ -1483,7 +1483,7 @@ static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPers
     g_object_set(self,"id",id,"name",name,"length",length,NULL);
   }
   xmlFree(id);xmlFree(name);xmlFree(length_str);
-  
+
   // load pattern data
   for(node=node->children;node;node=node->next) {
     if((!xmlNodeIsText(node)) && (!strncmp((gchar *)node->name,"tick\0",5))) {
@@ -1542,7 +1542,7 @@ static void bt_pattern_persistence_interface_init(gpointer g_iface, gpointer ifa
 
 static void bt_pattern_constructed(GObject *object) {
   BtPattern *self=BT_PATTERN(object);
-  
+
   if(G_OBJECT_CLASS(bt_pattern_parent_class)->constructed)
     G_OBJECT_CLASS(bt_pattern_parent_class)->constructed(object);
 
@@ -1551,7 +1551,7 @@ static void bt_pattern_constructed(GObject *object) {
   g_return_if_fail(BT_IS_STRING(self->priv->name));
   g_return_if_fail(BT_IS_MACHINE(self->priv->machine));
 
-  
+
   // add the pattern to the machine
   bt_machine_add_pattern(self->priv->machine,self);
 }
@@ -1624,15 +1624,16 @@ static void bt_pattern_set_property(GObject * const object, const guint property
       const gulong voices=self->priv->voices;
       self->priv->voices = g_value_get_ulong(value);
       if(voices!=self->priv->voices) {
-        GST_DEBUG("set the voices for pattern: %lu",self->priv->voices);
+        GST_DEBUG("set the voices for pattern %s: %lu -> %lu",self->priv->id,voices,self->priv->voices);
         bt_pattern_resize_data_voices(self,voices);
+        g_object_set(self->priv->machine,"voices",self->priv->voices,NULL);
         bt_song_set_unsaved(self->priv->song,TRUE);
       }
     } break;
     case PATTERN_MACHINE: {
       if((self->priv->machine = BT_MACHINE(g_value_get_object(value)))) {
         gulong voices;
-        
+
         g_object_try_weak_ref(self->priv->machine);
         // @todo shouldn't we just listen to notify::voices too and resize patterns automatically
         g_object_get((gpointer)(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,"voices",&voices,NULL);
@@ -1660,7 +1661,7 @@ static void bt_pattern_dispose(GObject * const object) {
 
   g_object_try_weak_unref(self->priv->song);
   g_object_try_weak_unref(self->priv->machine);
-  
+
   G_OBJECT_CLASS(bt_pattern_parent_class)->dispose(object);
 }
 
@@ -1671,7 +1672,7 @@ static void bt_pattern_finalize(GObject * const object) {
   gulong i;
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   g_free(self->priv->id);
   g_free(self->priv->name);
 
@@ -1684,7 +1685,7 @@ static void bt_pattern_finalize(GObject * const object) {
     }
     g_free(self->priv->data);
   }
-  
+
   G_OBJECT_CLASS(bt_pattern_parent_class)->finalize(object);
 }
 

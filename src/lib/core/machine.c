@@ -3409,12 +3409,12 @@ static void bt_machine_set_property(GObject * const object, const guint property
     case MACHINE_SONG: {
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
-      //GST_DEBUG("set the song for machine: %p",self->priv->song);
+      //GST_DEBUG_OBJECT(self,"set the song for machine: %p",self->priv->song);
     } break;
     case MACHINE_ID: {
       g_free(self->priv->id);
       self->priv->id = g_value_dup_string(value);
-      GST_DEBUG("set the id for machine: %s",self->priv->id);
+      GST_DEBUG_OBJECT(self,"set the id for machine: %s",self->priv->id);
       if(self->priv->machines[PART_MACHINE]) {
         GstObject *parent=gst_object_get_parent(GST_OBJECT(self->priv->machines[PART_MACHINE]));
         if(!parent) {
@@ -3432,18 +3432,20 @@ static void bt_machine_set_property(GObject * const object, const guint property
     case MACHINE_PLUGIN_NAME: {
       g_free(self->priv->plugin_name);
       self->priv->plugin_name = g_value_dup_string(value);
-      GST_DEBUG("set the plugin_name for machine: %s",self->priv->plugin_name);
+      GST_DEBUG_OBJECT(self,"set the plugin_name for machine: %s",self->priv->plugin_name);
     } break;
     case MACHINE_VOICES: {
       const gulong voices=self->priv->voices;
       self->priv->voices = g_value_get_ulong(value);
       if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
         if(voices!=self->priv->voices) {
-          GST_DEBUG("set the voices for machine: %lu",self->priv->voices);
+          GST_DEBUG_OBJECT(self,"set the voices for machine: %lu -> %lu",voices,self->priv->voices);
           bt_machine_resize_voices(self,voices);
           bt_machine_resize_pattern_voices(self);
           bt_song_set_unsaved(self->priv->song,TRUE);
         }
+      } else {
+        GST_WARNING_OBJECT(self,"ignoring change in voices for monophonic machine");
       }
     } break;
     case MACHINE_GLOBAL_PARAMS: {
@@ -3454,7 +3456,7 @@ static void bt_machine_set_property(GObject * const object, const guint property
     } break;
     case MACHINE_STATE: {
       if(bt_machine_change_state(self,g_value_get_enum(value))) {
-        GST_DEBUG("set the state for machine: %d",self->priv->state);
+        GST_DEBUG_OBJECT(self,"set the state for machine: %d",self->priv->state);
         bt_song_set_unsaved(self->priv->song,TRUE);
       }
     } break;

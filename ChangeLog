@@ -1,5 +1,14 @@
 2011-03-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	  Keep voices in sync between pattern and machine. We are changing the
+	  voices from pattern view right now (maybe that should be changed).
+	  Fix voice-parameter lookup in pattern serialisation/deserialisation
+	  (off by 1).
+
+2011-03-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Don't update patterns twice when changing number of tracks. Add FIXME for
 	  missing undo/redo.
