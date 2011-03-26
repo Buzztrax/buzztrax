@@ -1635,7 +1635,10 @@ static void bt_pattern_set_property(GObject * const object, const guint property
         gulong voices;
 
         g_object_try_weak_ref(self->priv->machine);
-        // @todo shouldn't we just listen to notify::voices too and resize patterns automatically
+        /* @todo shouldn't we just listen to notify::voices too and resize patterns automatically
+         * right now we also set the voices on patterns and have to sync that back.
+         * we should make the changes on the machine and turn the pattern::voices read-only
+         */
         g_object_get((gpointer)(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,"voices",&voices,NULL);
         // need to do that so that data is reallocated
         g_object_set(self,"voices",voices,NULL);

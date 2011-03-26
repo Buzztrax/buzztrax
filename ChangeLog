@@ -1,5 +1,12 @@
 2011-03-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Planning.
+
+2011-03-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/pattern.c:
 	  Keep voices in sync between pattern and machine. We are changing the

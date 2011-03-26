@@ -62,7 +62,7 @@
  */
 /* @todo: click in the background to pan canvas around
  */
-/* @todo: undo/redo
+/* @todo: undo/redo - window pos
  * - we need to log changes in xpos/ypos or status all the time to be able to
  *   recover after a crash, this way we don't need to save these when removing a
  *   machine

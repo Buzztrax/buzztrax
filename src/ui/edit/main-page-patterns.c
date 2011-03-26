@@ -2501,6 +2501,7 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
 
   /* FIXME: undo/redo
    * undo: save voice-data for *all* patterns of this machine
+   * -> pattern_range_copy() and pattern_range_log_undo_redo()
    */
 
 }
