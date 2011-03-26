@@ -1,5 +1,10 @@
 2011-03-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-properties-dialog.c:
+	  Only apply changed values to minimize notifies.
+
+2011-03-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/pattern.c:
 	* src/ui/edit/main-page-machines.c:
 	* src/ui/edit/main-page-patterns.c:

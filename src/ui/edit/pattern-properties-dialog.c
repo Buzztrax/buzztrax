@@ -99,7 +99,6 @@ static void on_length_changed(GtkEditable *editable,gpointer user_data) {
 
   // update field
   self->priv->length=atol(gtk_entry_get_text(GTK_ENTRY(editable)));
-  //g_object_set(self->priv->pattern,"length",atol(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
 }
 
 static void on_voices_changed(GtkSpinButton *spinbutton,gpointer user_data) {
@@ -107,7 +106,6 @@ static void on_voices_changed(GtkSpinButton *spinbutton,gpointer user_data) {
 
   // update field
   self->priv->voices=gtk_spin_button_get_value_as_int(spinbutton);
-  //g_object_set(self->priv->pattern,"voices",gtk_spin_button_get_value_as_int(spinbutton),NULL);
 }
 //-- helper methods
 
@@ -224,9 +222,21 @@ BtPatternPropertiesDialog *bt_pattern_properties_dialog_new(const BtPattern *pat
  * Makes the dialog settings effective.
  */
 void bt_pattern_properties_dialog_apply(const BtPatternPropertiesDialog *self) {
-  GST_INFO("applying pattern settings");
+  gchar *name;
+  gulong length,voices;
 
-  g_object_set(self->priv->pattern,"name",self->priv->name,"length",self->priv->length,"voices",self->priv->voices,NULL);
+  GST_INFO("applying pattern settings");
+  g_object_get(self->priv->pattern,"name",&name,"length",&length,"voices",&voices,NULL);
+
+  // avoid notifies of properties that actualy have not changed
+  g_object_freeze_notify((GObject *)(self->priv->pattern));
+  if(!strcmp(self->priv->name,name))
+    g_object_set(self->priv->pattern,"name",self->priv->name,NULL);
+  if(self->priv->length!=length)
+    g_object_set(self->priv->pattern,"length",self->priv->length,NULL);
+  if(self->priv->voices!=voices)
+    g_object_set(self->priv->pattern,"voices",self->priv->voices,NULL);
+  g_object_thaw_notify((GObject *)(self->priv->pattern));
 }
 
 //-- wrapper
