@@ -64,6 +64,9 @@
  *     bt_main_page_machines_show_preferences_dialog(page,machine);
  *     .. rename/about/help
  */
+/* @todo: undo/redo - machine voices
+ * - handle undo/redo for add/rem track
+ */
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_PATTERNS_C
@@ -2239,6 +2242,8 @@ static void on_pattern_size_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
 
   GST_INFO("pattern size changed : %p",self->priv->pattern);
   pattern_table_refresh(self);
+  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
+  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
 }
 
 static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
@@ -2475,11 +2480,12 @@ static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer us
   g_object_get(self->priv->machine,"voices",&voices,NULL);
   voices++;
   g_object_set(self->priv->machine,"voices",voices,NULL);
-
-  pattern_table_refresh(self);
-  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
-  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
+  // we adjust sensitivity of add/rem track menu items
   context_menu_refresh(self,self->priv->machine);
+
+  /* FIXME: undo/redo
+   * undo: remove-track
+   */
 }
 
 static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -2490,10 +2496,13 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
   voices--;
   g_object_set(self->priv->machine,"voices",voices,NULL);
 
-  pattern_table_refresh(self);
-  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
-  gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
+  // we adjust sensitivity of add/rem track menu items
   context_menu_refresh(self,self->priv->machine);
+
+  /* FIXME: undo/redo
+   * undo: save voice-data for *all* patterns of this machine
+   */
+
 }
 
 static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -2552,6 +2561,9 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
   gtk_widget_show_all(dialog);
 
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+    /* FIXME: undo/redo
+     * here, we don't know what is going to be changed :/
+     */
     bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
   }
   gtk_widget_destroy(dialog);
