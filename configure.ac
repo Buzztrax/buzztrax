@@ -88,11 +88,12 @@ AC_PATH_PROG(xvfb_path, [Xvfb], [no])
 if test "x$xvfb_path" != "xno" ; then
   AC_DEFINE_UNQUOTED(XVFB_PATH, "$xvfb_path", [Path of Xvfb executable to be used to run gui unit tests under])
 
-  xfont_path=`xset q | grep fonts | sed 's/^\ *//'`
-  if test "x$xfont_path" != "x"; then
-    AC_DEFINE_UNQUOTED(XFONT_PATH, "$xfont_path", [X font path])
+  XFONT_PATH=`xset q | grep fonts | sed 's/^\ *//'`
+  if test "x$XFONT_PATH" != "x"; then
+    AC_DEFINE_UNQUOTED(XFONT_PATH, "$XFONT_PATH", [X font path])
   fi
 fi
+AC_SUBST(XFONT_PATH)
 
 dnl Initialise gettext
 AM_GNU_GETTEXT_VERSION(0.12.1)

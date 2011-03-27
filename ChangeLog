@@ -1,5 +1,16 @@
 2011-03-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* tests/bt-cfg.sh.in:
+	* tests/bt-edit-cli.sh:
+	  Also set xfont-path in shellscript to suppress more noise.
+
+	* tests/bt-check.c:
+	  Add a comment pointing to the bug that produces the XRANDR warning noise.
+	  
+
+2011-03-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/pattern.c:
 	* src/ui/edit/pattern-properties-dialog.c:

@@ -20,7 +20,7 @@ if [ $? -ne 1 ]; then exit 1; fi
 # other tests would launch the UI - and this is how we could terminate them
 # http://www.rekk.de/bloggy/2007/finding-child-pids-in-bash-shell-scripts/
 if [ ! -z `which 2>/dev/null Xvfb` ]; then
-  Xvfb :9 -ac -nolisten tcp -noreset -screen 0 1024x786x24 -render &
+  Xvfb :9 -ac -nolisten tcp -fp $XFONT_PATH -noreset -screen 0 1024x786x24 -render &
   xvfb_pid=$!
 
   DISPLAY=:9 libtool --mode=execute $BUZZTARD_EDIT &

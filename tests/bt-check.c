@@ -780,7 +780,7 @@ void check_setup_test_server(void) {
     "-screen","0","1024x786x24",
     "-render",/*"color",*/
     // seems whatever we do, Xvfb won't get xrandr support
-    //"+extension", "RANDR",
+    "-extension", "RANDR",
     NULL
   };
   gboolean found=FALSE,launched=FALSE,trying=TRUE;
@@ -859,6 +859,11 @@ void check_setup_test_server(void) {
     GST_WARNING("no free display number found");
   }
   else {
+    // we still get a dozen of
+    //   Xlib:  extension "RANDR" missing on display ...
+    // this is a gdk bug:
+    //   https://bugzilla.gnome.org/show_bug.cgi?id=645856
+
     //printf("####### Server started  \"%s\" is up (pid=%d)\n",display_name,server_pid);
     g_setenv("DISPLAY",display_name,TRUE);
     GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
