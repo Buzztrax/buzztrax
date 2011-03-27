@@ -1008,11 +1008,14 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
     // this triggers finalize if we don't have a ref
     if(GST_OBJECT_FLAG_IS_SET(machine,GST_OBJECT_FLOATING)) {
       gst_element_set_state(GST_ELEMENT(machine),GST_STATE_NULL);
-      gst_object_unref(GST_OBJECT(machine));
     }
     else {
+      gst_object_ref(GST_OBJECT(machine));
       gst_bin_remove(self->priv->bin,GST_ELEMENT(machine));
+      GST_OBJECT_FLAG_SET(machine,GST_OBJECT_FLOATING);
+
     }
+    gst_object_unref(GST_OBJECT(machine));
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
@@ -1059,11 +1062,13 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
     // this triggers finalize if we don't have a ref
     if(GST_OBJECT_FLAG_IS_SET(wire,GST_OBJECT_FLOATING)) {
       gst_element_set_state(GST_ELEMENT(wire),GST_STATE_NULL);
-      gst_object_unref(GST_OBJECT(wire));
     }
     else {
+      gst_object_ref(GST_OBJECT(wire));
       gst_bin_remove(self->priv->bin,GST_ELEMENT(wire));
+      GST_OBJECT_FLAG_SET(wire,GST_OBJECT_FLOATING);
     }
+    gst_object_unref(GST_OBJECT(wire));
 
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
