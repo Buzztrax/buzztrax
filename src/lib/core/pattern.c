@@ -23,7 +23,9 @@
  * @short_description: class for an event pattern of a #BtMachine instance
  *
  * A pattern contains a grid of events. Events are parameter changes in
- * #BtMachine objects. The events are stored aas #GValues.
+ * #BtMachine objects. The events are stored aas #GValues. Patterns can have
+ * individual length, but a change in the number of voices (tracks) is reflected
+ * in all patterns of a machine.
  *
  * The patterns are used in the #BtSequence to form the score of a song.
  */
@@ -304,6 +306,19 @@ static void bt_pattern_init_voice_event(const BtPattern * const self, GValue * c
   //GST_DEBUG("at %d",param);
   g_value_init(event,bt_machine_get_voice_param_type(self->priv->machine,param));
   g_assert(G_IS_VALUE(event));
+}
+
+//-- signal handler
+
+void bt_pattern_on_voices_changed(BtMachine * const machine, const GParamSpec * const arg, gconstpointer const user_data) {
+  const BtPattern * const self=BT_PATTERN(user_data);
+  gulong old_voices=self->priv->voices;
+
+  g_object_get((gpointer)machine,"voices",&self->priv->voices,NULL);
+  if(old_voices!=self->priv->voices) {
+    GST_DEBUG("set the voices for pattern %s: %lu -> %lu",self->priv->id,old_voices,self->priv->voices);
+    bt_pattern_resize_data_voices(self,old_voices);
+  }
 }
 
 //-- constructor methods
@@ -1620,28 +1635,13 @@ static void bt_pattern_set_property(GObject * const object, const guint property
         bt_song_set_unsaved(self->priv->song,TRUE);
       }
     } break;
-    case PATTERN_VOICES: {
-      const gulong voices=self->priv->voices;
-      self->priv->voices = g_value_get_ulong(value);
-      if(voices!=self->priv->voices) {
-        GST_DEBUG("set the voices for pattern %s: %lu -> %lu",self->priv->id,voices,self->priv->voices);
-        bt_pattern_resize_data_voices(self,voices);
-        g_object_set(self->priv->machine,"voices",self->priv->voices,NULL);
-        bt_song_set_unsaved(self->priv->song,TRUE);
-      }
-    } break;
     case PATTERN_MACHINE: {
       if((self->priv->machine = BT_MACHINE(g_value_get_object(value)))) {
-        gulong voices;
-
         g_object_try_weak_ref(self->priv->machine);
-        /* @todo shouldn't we just listen to notify::voices too and resize patterns automatically
-         * right now we also set the voices on patterns and have to sync that back.
-         * we should make the changes on the machine and turn the pattern::voices read-only
-         */
-        g_object_get((gpointer)(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,"voices",&voices,NULL);
+        g_object_get((gpointer)(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,NULL);
+        g_signal_connect(self->priv->machine,"notify::voices",G_CALLBACK(bt_pattern_on_voices_changed),(gpointer)self);
         // need to do that so that data is reallocated
-        g_object_set(self,"voices",voices,NULL);
+        bt_pattern_on_voices_changed(self->priv->machine,NULL,(gpointer)self);
         GST_DEBUG("set the machine for pattern: %p (machine-refs: %d)",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
       }
     } break;
@@ -1661,6 +1661,10 @@ static void bt_pattern_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+
+  if(self->priv->machine) {
+    g_signal_handlers_disconnect_matched(self->priv->machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_pattern_on_voices_changed,(gpointer)self);
+  }
 
   g_object_try_weak_unref(self->priv->song);
   g_object_try_weak_unref(self->priv->machine);
@@ -1808,14 +1812,14 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_MACHINE,
                                   g_param_spec_object("machine",
                                      "machine construct prop",
                                      "Machine object, the pattern belongs to",
                                      BT_TYPE_MACHINE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_IS_INTERNAL,
                                   g_param_spec_boolean("is-internal",

@@ -183,6 +183,49 @@ BT_START_TEST(test_btmachine_enable_output_gain1) {
 }
 BT_END_TEST
 
+/*
+ * change voices and verify that voices in machine and patetrn are in sync
+ */
+BT_START_TEST(test_btmachine_change_voices) {
+  BtApplication *app;
+  BtSong *song;
+  BtMachine *machine;
+  BtPattern *p1,*p2;
+  gulong voices;
+  GError *err=NULL;
+
+  /* create app and song */
+  app=bt_test_application_new();
+  song=bt_song_new(app);
+
+  /* create a machine */
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,&err));
+  fail_unless(machine != NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  /* create two patterns */
+  p1=bt_pattern_new(song,"pattern-id1","pattern-name1",8L,machine);
+  fail_unless(p1!=NULL, NULL);
+
+  p2=bt_pattern_new(song,"pattern-id2","pattern-name2",8L,machine);
+  fail_unless(p1!=NULL, NULL);
+
+  /* change voices and verify */
+  g_object_set(machine,"voices",2,NULL);
+  g_object_get(p1,"voices",&voices,NULL);
+  fail_unless(voices==2, NULL);
+  g_object_get(p2,"voices",&voices,NULL);
+  fail_unless(voices==2, NULL);
+
+  g_object_checked_unref(song);
+  g_object_checked_unref(machine);
+  g_object_checked_unref(p1);
+  g_object_checked_unref(p2);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+
 TCase *bt_machine_example_case(void) {
   TCase *tc = tcase_create("BtMachineExamples");
 
@@ -191,6 +234,7 @@ TCase *bt_machine_example_case(void) {
   tcase_add_test(tc,test_btmachine_enable_input_level2);
   tcase_add_test(tc,test_btmachine_enable_input_gain1);
   tcase_add_test(tc,test_btmachine_enable_output_gain1);
+  tcase_add_test(tc,test_btmachine_change_voices);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

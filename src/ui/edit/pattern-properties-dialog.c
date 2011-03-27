@@ -235,7 +235,7 @@ void bt_pattern_properties_dialog_apply(const BtPatternPropertiesDialog *self) {
   if(self->priv->length!=length)
     g_object_set(self->priv->pattern,"length",self->priv->length,NULL);
   if(self->priv->voices!=voices)
-    g_object_set(self->priv->pattern,"voices",self->priv->voices,NULL);
+    g_object_set(self->priv->machine,"voices",self->priv->voices,NULL);
   g_object_thaw_notify((GObject *)(self->priv->pattern));
 }
 

@@ -332,26 +332,32 @@ BT_START_TEST(test_btcore_net_static4) {
   gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0,&err));
   fail_unless(gen1!=NULL, NULL);
   fail_unless(err==NULL, NULL);
+  GST_DEBUG_OBJECT(gen1,"added machine: %p,ref_count=%d",gen1,G_OBJECT_REF_COUNT(gen1));
 
   /* try to create generator2 */
   gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0,&err));
   fail_unless(gen2!=NULL, NULL);
   fail_unless(err==NULL, NULL);
+  GST_DEBUG_OBJECT(gen2,"added machine: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
 
   /* try to create a wire from gen1 to proc */
   wire1=bt_wire_new(song,gen1,sink,&err);
   fail_unless(wire1!=NULL, NULL);
   fail_unless(err==NULL, NULL);
+  GST_DEBUG_OBJECT(gen1,"linked machine: %p,ref_count=%d",gen1,G_OBJECT_REF_COUNT(gen1));
 
   /* try to create a wire from gen2 to proc */
   wire2=bt_wire_new(song,gen2,sink,&err);
   fail_unless(wire2!=NULL, NULL);
   fail_unless(err==NULL, NULL);
+  GST_DEBUG_OBJECT(gen2,"linked machine: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
 
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",2L,NULL);
   bt_sequence_add_track(sequence,gen1);
+  GST_DEBUG_OBJECT(gen1,"added machine to sequence: %p,ref_count=%d",gen1,G_OBJECT_REF_COUNT(gen1));
   bt_sequence_add_track(sequence,gen2);
+  GST_DEBUG_OBJECT(gen2,"added machine to sequence: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
   mark_point();
 
   /* try to start playing the song */
@@ -367,9 +373,11 @@ BT_START_TEST(test_btcore_net_static4) {
   /* remove one machine */
   bt_setup_remove_wire(setup,wire2);
   g_object_unref(wire2);
+  GST_DEBUG_OBJECT(gen2,"unlinked machine: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
   res=bt_sequence_remove_track_by_machine(sequence,gen2);
   fail_unless(res, NULL);
   bt_setup_remove_machine(setup,gen2);
+  GST_DEBUG_OBJECT(gen2,"removed machine from sequence: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
   g_object_unref(gen2);
   mark_point();
 
@@ -443,19 +451,19 @@ BT_START_TEST(test_btcore_net_dynamic1) {
   if(bt_song_play(song)) {
     mark_point();
     sleep(1);
-    
+
     /* try to create generator1 */
     gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0,&err));
     fail_unless(gen2!=NULL, NULL);
     fail_unless(err==NULL, NULL);
-  
+
     /* try to link machines */
     wire2=bt_wire_new(song, gen2, sink,&err);
     fail_unless(wire2!=NULL, NULL);
     fail_unless(err==NULL, NULL);
 
     sleep(1);
-    
+
     /* try to unlink machines */
     bt_setup_remove_wire(setup,wire1);
 

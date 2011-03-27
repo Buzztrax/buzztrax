@@ -559,21 +559,6 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstPad * const 
 }
 
 /*
- * bt_machine_resize_pattern_voices:
- * @self: the machine which has changed its number of voices
- *
- * Iterates over the machines patterns and adjust their voices too.
- */
-static void bt_machine_resize_pattern_voices(const BtMachine * const self) {
-  GList* node;
-
-  // reallocate self->priv->patterns->priv->data
-  for(node=self->priv->patterns;node;node=g_list_next(node)) {
-    g_object_set(BT_PATTERN(node->data),"voices",self->priv->voices,NULL);
-  }
-}
-
-/*
  * bt_machine_resize_voices:
  * @self: the machine which has changed its number of voices
  *
@@ -3441,7 +3426,6 @@ static void bt_machine_set_property(GObject * const object, const guint property
         if(voices!=self->priv->voices) {
           GST_DEBUG_OBJECT(self,"set the voices for machine: %lu -> %lu",voices,self->priv->voices);
           bt_machine_resize_voices(self,voices);
-          bt_machine_resize_pattern_voices(self);
           bt_song_set_unsaved(self->priv->song,TRUE);
         }
       } else {
@@ -3488,8 +3472,8 @@ static void bt_machine_dispose(GObject * const object) {
     g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
     if(song_info) {
       GST_DEBUG("  disconnecting song-info handlers");
-      g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_bpm_changed,NULL);
-      g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_tpb_changed,NULL);
+      g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_machine_on_bpm_changed,(gpointer)self);
+      g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_machine_on_tpb_changed,(gpointer)self);
       g_object_unref(song_info);
     }
   }

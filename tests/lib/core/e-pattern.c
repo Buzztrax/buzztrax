@@ -65,7 +65,7 @@ BT_START_TEST(test_btpattern_obj_mono1) {
   bt_pattern_set_global_event(pattern,0,0,"5");
   bt_pattern_set_global_event(pattern,0,1,"2.5");
   bt_pattern_set_global_event(pattern,0,2,"1");
-  
+
   /* verify test data */
   data=bt_pattern_get_global_event(pattern,0,0);
   fail_unless(data!=NULL, NULL);
@@ -93,7 +93,6 @@ BT_START_TEST(test_btpattern_obj_poly1) {
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
-
   GstElement *element;
   gulong voices;
 
@@ -115,7 +114,7 @@ BT_START_TEST(test_btpattern_obj_poly1) {
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   fail_unless(pattern!=NULL, NULL);
-  
+
   g_object_get(pattern,"voices",&voices,NULL);
   fail_unless(voices==2, NULL);
 
@@ -156,7 +155,7 @@ BT_START_TEST(test_btpattern_obj_poly2) {
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   fail_unless(pattern!=NULL, NULL);
-  
+
    /* enlarge length */
   g_object_set(sequence,"length",4L,NULL);
 
@@ -201,7 +200,7 @@ BT_START_TEST(test_btpattern_copy) {
   /* try to create a pattern */
   pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   fail_unless(pattern1!=NULL, NULL);
-  
+
   /* set some test data */
   bt_pattern_set_global_event(pattern1,0,0,"5");
 
@@ -259,7 +258,7 @@ BT_START_TEST(test_btpattern_has_data) {
   fail_if(strncmp(data,"10",2),"data is '%s' instead of '10'",data);
   g_free(data);
 
-  data=bt_pattern_get_global_event(pattern,10,0);
+  data=bt_pattern_get_global_event(pattern,6,0);
   fail_unless(data==NULL, "data is '%s' instead of ''",data);
 
   /* test tick lines */
@@ -413,7 +412,7 @@ BT_START_TEST(test_btpattern_enlarge_voices) {
   fail_unless(voices==1, NULL);
 
   /* change and verify voices */
-  g_object_set(pattern,"voices",2L,NULL);
+  g_object_set(machine,"voices",2L,NULL);
   g_object_get(pattern,"voices",&voices,NULL);
   fail_unless(voices==2, NULL);
 
@@ -468,7 +467,7 @@ BT_START_TEST(test_btpattern_shrink_voices) {
   fail_unless(voices==2, NULL);
 
   /* change and verify voices */
-  g_object_set(pattern,"voices",1L,NULL);
+  g_object_set(machine,"voices",1L,NULL);
   g_object_get(pattern,"voices",&voices,NULL);
   fail_unless(voices==1, NULL);
 
@@ -516,7 +515,7 @@ BT_START_TEST(test_btpattern_insert_row) {
 
   /* insert row */
   bt_pattern_insert_row(pattern,0,0);
-  
+
   /* verify data */
   data=bt_pattern_get_global_event(pattern,0,0);
   fail_unless(data==NULL, "data is '%s' instead of ''",data);
@@ -565,7 +564,7 @@ BT_START_TEST(test_btpattern_delete_row) {
 
   /* insert row */
   bt_pattern_delete_row(pattern,0,0);
-  
+
   /* verify data */
   data=bt_pattern_get_global_event(pattern,0,0);
   fail_unless(data==NULL, "data is '%s' instead of ''",data);
