@@ -1,5 +1,11 @@
 2011-03-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Set last tracks field to NULL when removing a track to avoid  double
+	  unref. Optimize the priv->machines array access.
+
+2011-03-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/POTFILES.in:
 	  Also rename the wire-analysis-dialog here.
 
