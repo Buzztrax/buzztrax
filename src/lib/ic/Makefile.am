@@ -64,7 +64,8 @@ BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
 	     -I$(builddir)/libbuzztard-ic \
 	     -I$(srcdir) \
 	     -I$(srcdir)/libbuzztard-ic/ \
-	     --strip-prefix=btic \
+	     --identifier-prefix=BtIc \
+	     --symbol-prefix=btic \
 	     --c-include='libbuzztard-ic/ic.h' \
 	     --include=GLib-2.0 \
 	     --include=GObject-2.0 \
@@ -74,6 +75,8 @@ BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
 	     --pkg glib-2.0 \
 	     --pkg gobject-2.0 \
 	     --pkg gstreamer-0.10 \
+	     --pkg-export libbuzztard-ic \
+	     --add-init-section="btic_init(NULL,NULL);" \
 	     --output $@ \
 	     $(gir_sources)
 BUILT_GIRSOURCES = BuzztardIc-0.0.gir

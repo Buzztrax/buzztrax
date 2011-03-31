@@ -95,7 +95,9 @@ BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
 	     -I$(srcdir) \
 	     -I$(srcdir)/libbuzztard_core/ \
 	     -I$(top_srcdir)/src/lib/ic/libbuzztard-ic/ \
-	     --strip-prefix=bt \
+	     --add-include-path=$(top_srcdir)/src/lib/ic/ \
+	     --identifier-prefix=Bt \
+	     --symbol-prefix=bt \
 	     --c-include='libbuzztard-core/core.h' \
 	     --include=GLib-2.0 \
 	     --include=GObject-2.0 \
@@ -109,6 +111,8 @@ BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
 	     --pkg libgstbuzztard \
 	     --pkg libxml-2.0 \
 	     --pkg gstreamer-0.10 \
+	     --pkg-export libbuzztard-core \
+	     --add-init-section="bt_init(NULL,NULL);" \
 	     --output $@ \
 	     $(gir_sources)
 BUILT_GIRSOURCES = BuzztardCore-0.0.gir
