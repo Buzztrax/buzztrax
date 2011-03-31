@@ -58,18 +58,24 @@ if USE_GIR
 gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_ic_la_SOURCES))
 
 BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
-	libtool --mode=execute $(G_IR_SCANNER) -v \
-	     --namespace BuzztardIc --nsversion 0.0 \
+	-$(G_IR_SCANNER) -v \
+	     --namespace=BuzztardIc \
+	     --nsversion 0.0 \
+	     -I$(builddir)/libbuzztard-ic \
+	     -I$(srcdir) \
+	     -I$(srcdir)/libbuzztard-ic/ \
 	     --strip-prefix=btic \
+	     --c-include='libbuzztard-ic/ic.h' \
+	     --include=GLib-2.0 \
 	     --include=GObject-2.0 \
 	     --include=Gst-0.10 \
-	     --library=buzztard-ic \
-             --pkg gobject-2.0 \
-             --pkg gstreamer-0.10 \
-             --output $@ \
-	     -I$(builddir)/libbuzztard-ic \
-	     -I$(srcdir)/libbuzztard-ic/ \
-             $(gir_sources)
+	     --library=libbuzztard-ic.la \
+	     --libtool="$(top_builddir)/libtool" \
+	     --pkg glib-2.0 \
+	     --pkg gobject-2.0 \
+	     --pkg gstreamer-0.10 \
+	     --output $@ \
+	     $(gir_sources)
 BUILT_GIRSOURCES = BuzztardIc-0.0.gir
 
 girdir = $(datadir)/gir

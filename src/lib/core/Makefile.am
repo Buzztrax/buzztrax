@@ -88,23 +88,28 @@ if USE_GIR
 gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_core_la_SOURCES))
 
 BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
-	-libtool --mode=execute $(G_IR_SCANNER) -v \
-	     --namespace BuzztardCore --nsversion 0.0 \
+	-$(G_IR_SCANNER) -v \
+	     --namespace=BuzztardCore \
+	     --nsversion 0.0 \
+	     -I$(builddir)/libbuzztard-core \
+	     -I$(srcdir) \
+	     -I$(srcdir)/libbuzztard_core/ \
+	     -I$(top_srcdir)/src/lib/ic/libbuzztard-ic/ \
 	     --strip-prefix=bt \
-	     --add-include-path=$(top_builddir)/src/lib/ic/ \
+	     --c-include='libbuzztard-core/core.h' \
+	     --include=GLib-2.0 \
 	     --include=GObject-2.0 \
 	     --include=Gst-0.10 \
 	     --include=libxml2-2.0 \
 	     --include=BuzztardIc-0.0 \
-	     --library=buzztard-core \
-             --pkg gobject-2.0 \
-             --pkg libgstbuzztard \
-             --pkg libxml-2.0 \
-             --pkg gstreamer-0.10 \
-             --output $@ \
-	     -I$(builddir)/libbuzztard-core \
-	     -I$(top_srcdir)/src/lib/ic/libbuzztard-ic/ \
-	     -I$(srcdir)/libbuzztard_core/ \
+	     --library=libbuzztard-core.la \
+	     --libtool="$(top_builddir)/libtool" \
+	     --pkg glib-2.0 \
+	     --pkg gobject-2.0 \
+	     --pkg libgstbuzztard \
+	     --pkg libxml-2.0 \
+	     --pkg gstreamer-0.10 \
+	     --output $@ \
 	     $(gir_sources)
 BUILT_GIRSOURCES = BuzztardCore-0.0.gir
 

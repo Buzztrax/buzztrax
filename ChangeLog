@@ -1,3 +1,13 @@
+2011-03-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/udev/udevls.c:
+	  Add udev version in comment where the issue if fixed.
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  Cleanup gi parts in makefile and make failure non-fatal as the tools give
+	  me a hard time right now.
+
 2011-03-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

@@ -10,6 +10,8 @@
  *
  * G_SLICE=always-malloc G_DEBUG=gc-friendly GLIBCPP_FORCE_NEW=1 GLIBCXX_FORCE_NEW=1 \
  * valgrind --tool=memcheck --leak-check=full --leak-resolution=high --trace-children=yes --num-callers=20 --log-file=./valgrind.log ./udevls
+ *
+ * does not happen with udev 166-5.1 anymore
  */
 
 #include <stdio.h>
