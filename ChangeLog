@@ -1,5 +1,17 @@
 2011-04-01  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/bt-check.c:
+	  Update bug comment with status.
+	
+	* tests/lib/ic/.cvsignore:
+	* tests/lib/ic (svn:ignore):
+	* docs/reference/bt-edit (svn:ignore):
+	* docs/reference/bt-cmd (svn:ignore):
+	* tests/lib/ic/.cvsignore (added):
+	  Maintainance.
+
+2011-04-01  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c:
 	  Skip vu-meter updates if the value has not changed. Saves 166359 updates
 	  for Aenathon.bmx.
@@ -197,7 +209,7 @@
 2011-03-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/ui/edit/e-bt-edit-application.c:
-	  COmments and tweaking of the test.
+	  Comments and tweaking of the test.
 
 2011-03-15  Stefan Kost  <ensonic@users.sf.net>
 

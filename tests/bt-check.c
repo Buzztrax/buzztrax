@@ -863,6 +863,7 @@ void check_setup_test_server(void) {
     //   Xlib:  extension "RANDR" missing on display ...
     // this is a gdk bug:
     //   https://bugzilla.gnome.org/show_bug.cgi?id=645856
+    //   and it seems to be fixed in Jan.2011
 
     //printf("####### Server started  \"%s\" is up (pid=%d)\n",display_name,server_pid);
     g_setenv("DISPLAY",display_name,TRUE);
