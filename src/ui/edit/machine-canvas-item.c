@@ -131,6 +131,8 @@ struct _BtMachineCanvasItemPrivate {
   GnomeCanvasItem *output_meter, *input_meter;
   G_POINTER_ALIAS(GstElement *,output_level);
   G_POINTER_ALIAS(GstElement *,input_level);
+  gdouble last_input_level_value;
+  gdouble last_output_level_value;
 
   GstClock *clock;
 
@@ -288,9 +290,11 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   if(!self->priv->is_playing) {
     const gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
 
+    self->priv->last_output_level_value=0.0;
     gnome_canvas_item_set(self->priv->output_meter,
       "y1", h*0.6,
       NULL);
+    self->priv->last_input_level_value=0.0;
     gnome_canvas_item_set(self->priv->input_meter,
       "y1", h*0.6,
       NULL);
@@ -385,24 +389,53 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
         // @todo: should we use param=g_slice_allow(2*sizeof(gconstpointer));
         // followed by g_slice_free(2*sizeof(gconstpointer),params)
         // we already require glib-2.10
-        gconstpointer *params=(gconstpointer *)g_slice_alloc(2*sizeof(gconstpointer));
-        GstClockID clock_id;
-        GstClockTime basetime=gst_element_get_base_time(level);
+        const GstStructure *structure=gst_message_get_structure(message);
+        const GValue *l_cur;
+        gdouble cur=0.0, val;
+        guint i,size;
+        gboolean changed=FALSE;
 
         //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
         //  GST_TIME_ARGS(endtime),GST_TIME_ARGS(waittime));
 
-        params[0]=(gpointer)self;
-        params[1]=(gpointer)gst_message_ref(message);
-        g_mutex_lock(self->priv->lock);
-        g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
-        g_mutex_unlock(self->priv->lock);
-        clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
-        if(gst_clock_id_wait_async(clock_id,on_delayed_machine_level_change,(gpointer)params)!=GST_CLOCK_OK) {
-          gst_message_unref(message);
-          g_slice_free1(2*sizeof(gconstpointer),params);
+        // check the value here and skip updates if it hasn't changed
+        l_cur=(GValue *)gst_structure_get_value(structure, "peak");
+        size=gst_value_list_get_size(l_cur);
+        for(i=0;i<size;i++) {
+          cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
         }
-        gst_clock_id_unref(clock_id);
+        if(G_UNLIKELY(isinf(cur) || isnan(cur))) cur=LOW_VUMETER_VAL;
+        else cur/=size;
+        val=cur;
+        if(val>0.0) val=0.0;
+        val=val/LOW_VUMETER_VAL;
+        if(val>1.0) val=1.0;
+        if((level==self->priv->output_level) && (fabs(val-self->priv->last_output_level_value)>0.01)) {
+          self->priv->last_output_level_value=val;
+          changed=TRUE;
+        }
+        if((level==self->priv->input_level) && (fabs(val-self->priv->last_input_level_value)>0.01)) {
+          self->priv->last_input_level_value=val;
+          changed=TRUE;
+        }
+        if(changed) {
+          gconstpointer *params=(gconstpointer *)g_slice_alloc(2*sizeof(gconstpointer));
+          GstClockTime basetime=gst_element_get_base_time(level);
+          GstClockID clock_id;
+
+          // FIXME: we would rather send 'val' to avoid re-calculation (adding it to the structure would be a hack)
+          params[0]=(gpointer)self;
+          params[1]=(gpointer)gst_message_ref(message);
+          g_mutex_lock(self->priv->lock);
+          g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
+          g_mutex_unlock(self->priv->lock);
+          clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
+          if(gst_clock_id_wait_async(clock_id,on_delayed_machine_level_change,(gpointer)params)!=GST_CLOCK_OK) {
+            gst_message_unref(message);
+            g_slice_free1(2*sizeof(gconstpointer),params);
+          }
+          gst_clock_id_unref(clock_id);
+        }
       }
     }
   }
