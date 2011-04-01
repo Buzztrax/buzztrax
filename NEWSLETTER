@@ -1,5 +1,19 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2011/04 ========================================================================
+
+I have been refactoring GStreamer's spectrum analyzer. It is now working faster
+and also allows to get per-channel results. For testing I updated buzztard to
+check if one has the new version and if so show per channel graphs. While
+hacking on the analyzer graphs I have also refactored the code, so that now it
+is possible to probe the final output as well.
+
+I spend the bigger part of the month on the tests again. I had an unref too
+much somewhere. Even after all the work in refdbg this is still difficult to
+track down. Eventually I found it and now all tests are green.
+
+43 files changed, 796 insertions(+), 100 deletions(-)
+
 2011/03 ========================================================================
 
 I was testing buzztard a lot on my MeeGo netbook this month. As screen space is
@@ -31,8 +45,8 @@ clear that I need to rework this more. I need to render it offscreen and reply
 to expose events by copying pixels.
 
 I also worked a bit more on the interaction-controller library. udev/hal code is
-refactored into extra objects (saves me a lot of #ifdefs). It also has some 
-tests now. I still have a mysterious issue with udev. Run this stand alone 
+refactored into extra objects (saves me a lot of #ifdefs). It also has some
+tests now. I still have a mysterious issue with udev. Run this stand alone
 example as told in the header - for me valgrind complains about uninitialized
 data access. It only seems to happen when you have a /dev/input/mice which all
 my computers have. I have a workaround, but believe more testing from other
@@ -85,7 +99,7 @@ Another thing in gtk that I wonder if it has a better solution is the disposal
 of popup-menus. The problem is that gtk_menu_popup is not taking ownership of
 the menu, but there seems to be now event when the menu is done, so that one can
 unref it. The only solution I can see is the pre-create the menu and ref-sink
-it. When the entity that owns it is disposed it can destroy and unref it. 
+it. When the entity that owns it is disposed it can destroy and unref it.
 
 As we're quite gtk related in this time anyway one more discovery. Listening for
 key-press-event instead of key-release-event and widgets makes key-repeat work.
@@ -130,7 +144,7 @@ leads to a lot of code reviews. I found several areas with lots of needless
 refcount activity - fixes are in the repository.
 
 81 files changed, 2682 insertions(+), 817 deletions(-)
- 
+
 [1] http://refdbg.sf.net
 [2] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/tests/refcount.gdb?revision=3080&view=markup#l1
 [3] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/tests/refcountfilter.pl?revision=3080&view=markup#l1
@@ -140,7 +154,7 @@ refcount activity - fixes are in the repository.
 
 In October I had not much time for buzztard. I went to the GStreamer conference
 and the CELF Europe. There I gave a talk about the "MeeGo multimedia stack" [1].
-I also hacked on two GStreamer tool projects; gst-tracelib [2] and 
+I also hacked on two GStreamer tool projects; gst-tracelib [2] and
 gst-mediainfo [3]. In tracelib I worked on a UI to monitor gstreamer pipelines
 on the fly. My approach to use libgvc (graphviz) for the layout seems to
 challenge it a bit though - I get very mysterious failures. At some point
@@ -169,15 +183,15 @@ After all the initial work for journaling of edit events in the editor, I wanted
 to get a first proof of concept that everything fits together. And that I just
 got. The pattern editor implements a change-logger interfaces. It grabs the
 changelog singleton instance and logs all changes together with the undo action.
-The redo-action gets serialized and written to the changelog. The ui can 
-undo/redo activities by using the change-logger interface. Upon startup the ui 
+The redo-action gets serialized and written to the changelog. The ui can
+undo/redo activities by using the change-logger interface. Upon startup the ui
 checks for leftover change logs, auto-cleans a few of them and offers a dialog
 for deleting/replaying them. I can now load a song, make changes in the pattern
 editor, ctrl-c/kill the app and replay the log when starting it again. There are
-a couple of details that need to be cleanup and some things need a bit more 
+a couple of details that need to be cleanup and some things need a bit more
 thinking: Next I will implement this in larger scale also.
 
-As a continuation from last month I changed the whole editor UI to use 
+As a continuation from last month I changed the whole editor UI to use
 G_DEFINE_TYPE and co. Boring work, but good to have it done now.
 
 I had some strange crashes in the test suite - all pointing to gconf and only
@@ -194,12 +208,12 @@ In GStreamer next core release will have extra metadata on element factories.
 This mechanism allows me to kill the one-property help interface. I rewrote all
 the code to use that conditionally and will remove it in a year or so.
 
-As a last bigger task I migrated from deprecated HAL to GUdev. I have still 
-conditional support for both, but will kill the HAL code once everything works 
+As a last bigger task I migrated from deprecated HAL to GUdev. I have still
+conditional support for both, but will kill the HAL code once everything works
 nicely. I was using hal to discover input devices (joysticks, wiimotes,..) and
 midi-devices that can be used to control effects. Most of the conversion was
 straight forward. I spent a bit more time on getting nice names of the found
-devices for the UI and to classify midi-devices. For the midi-device 
+devices for the UI and to classify midi-devices. For the midi-device
 classification I copied the matching rules from HAL - after all they seemed to
 do the trick there. For the ui names HAL was actually grepping through various
 files (e.g. /proc/asound/cards) for soundcard names. That I did not really
@@ -272,13 +286,13 @@ memset() :/
 
 Lintian complained about missing man-pages for buzztard binaries. I also had a
 pending bug for gtk-doc to clarify how one can do man-pages. Last month I wrong
-some docs about how to document binaries in docbook as well, so that the 
+some docs about how to document binaries in docbook as well, so that the
 information is in the api-docs, but one can also generate man pages from the
 same source. The new guides are not yet on library.gnome.org, but it can be
 found in git [1].
 
 I continued with more undo/redo hacking. I have again more tests that all pass
-and working undo/redo in pattern editor for trivial operations. Need to do 
+and working undo/redo in pattern editor for trivial operations. Need to do
 edit-groups next and work more on the journal replay part. The testing work
 resulted in some local check improvements - the BT_CHECKS env-var supports
 globbing to select tests. Also patched that for gstreamers GST_CHECKS env-var.
@@ -287,7 +301,7 @@ While showing buzztard to a colleague I noticed that the audio settings where
 not used for the sample players. Fixed in svn.
 
 In the early days I made some mistakes in the xml design of the song format.
-Some tags had different attributes depending on their parent. This makes it 
+Some tags had different attributes depending on their parent. This makes it
 impossible to do xsd schema validation. I have changed the song xml slightly
 (with backwards compatibility of old songs) and now xsd validation works.
 
@@ -311,15 +325,15 @@ actually used are linked in. To make that work one has to put needed libraries
 behind libraries that need them. If you want to try this on your own software:
   LDFLAGS="-Wl,--as-needed" ./autoregen.sh
 
-The Debian packages that have been made recently are nice too. All packages 
+The Debian packages that have been made recently are nice too. All packages
 undergo various checks, among a spell-checker of strings in binaries.
 
 As planned I worked a bit more on undo/redo. I have it now implemented and in
 use for some case in the pattern editor. I also added unit tests to verify the
 stack logic.
 
-I also managed to finished some work I had started at the Linux Audio 
-Conference - copy and paste of machine parameters between patterns and the 
+I also managed to finished some work I had started at the Linux Audio
+Conference - copy and paste of machine parameters between patterns and the
 machine property window.
 
 54 files changed, 2174 insertions(+), 699 deletions(-)
@@ -349,7 +363,7 @@ more news on how it went soon.
 
 2010/04 ========================================================================
 
-I will give a talk about "Writing audio applications using gstreamer" at the 
+I will give a talk about "Writing audio applications using gstreamer" at the
 Linux Audio Conference 2010 [1]. Naturally quite some time went for writing the
 article. Now that it has been accepted, I need to start working on the slides
 and demos.
@@ -363,7 +377,7 @@ after the sink was in playing once. I need to confirm my theory of what wrong
 still.
 
 I recently brought a netbook (MSI L1300) and thus wanted to try buzztard on this
-machine. I have installed moblin 2.1 on it to play with moblin. As usual, 
+machine. I have installed moblin 2.1 on it to play with moblin. As usual,
 installing own software on a new linux distro/machine always brings up
 something. After a few rounds of configure maintenance and dependency trimming
 I am set and having it running. Performance seems to be okay even for complex
@@ -378,7 +392,7 @@ Besides that, I fixed a few more bugs and wrote more tests.
 2010/03 ========================================================================
 
 As if February isn't short enough already a nasty stomach infection send me to
-the couch (and bathroom) for a couple of days. 
+the couch (and bathroom) for a couple of days.
 
 Still managed to do a couple of things. Some refactoring in the editor allowed
 me to harmonize context menus. E.g. one can open machine windows also from
@@ -396,7 +410,7 @@ behaviour, that now is fixed too.
 
 As gtk+3 comes closer I did several rounds of adapting the the new style to use
 accessor functions everywhere.
-  
+
 44 files changed, 1087 insertions(+), 317 deletions(-)
 
 2010/02 ========================================================================
@@ -406,7 +420,7 @@ with lots of small changes here and there. First obvious change is that buzztard
 got an over-engineered tip-of-the-day dialog. I takes extra care to present tips
 in random order, without repeating tips before you have seen them all.
 I also played a bit with parasite [1] - the cool gtk ui introspector and noticed
-that my dialogs are inconsistently layouted. Well, fixed now. 
+that my dialogs are inconsistently layouted. Well, fixed now.
 
 Besides I did lots of small cleanups and refactorings. GStreamer pipelines load
 faster as I now link pads directly (not elements). This also gives me better
@@ -426,7 +440,7 @@ store the selection for multiple sinks.
 2010/01 ========================================================================
 
 I worked most of the December time on gtk-doc [1]. After more that a year I
-released 1.12 and 1.13 on the same day:). 
+released 1.12 and 1.13 on the same day:).
 
 On buzztard I also spent a little time, improving the docs and pushing the test
 coverage further. I will attack the bullets on the 0.6 roadmap next. Happy new
@@ -436,7 +450,7 @@ year and stay tuned.
 
 2009/12 ========================================================================
 
-I made a nice change to the pipeline graph builder - It now uses a fixed 
+I made a nice change to the pipeline graph builder - It now uses a fixed
 internal format (float 32bit). This allows us to avoid plugging audioconvert
 elements in wires and machines. Now we plug them only if the machine cannot
 support the internal format. This gives 7 -> 1 sec speedup for load & play of
@@ -477,12 +491,12 @@ regarding to initialisation and libraries.
 
 I am probably the last one to figure that one has to draw with the 0.5 px offset
 in cairo to get non blurry gfx. After Matthias post I looked at my vu-meters and
-voila, I was doing it wrong. Fixes are in svn together with some small 
+voila, I was doing it wrong. Fixes are in svn together with some small
 optimizations.
-  
+
 [1] http://bugzilla.gnome.org/show_bug.cgi?id=581873
 [2] http://bugzilla.gnome.org/show_bug.cgi?id=541236
-  
+
 2009/10 ========================================================================
 
 After a release it is always not so easy for me to pick what I will work on next.
@@ -498,7 +512,7 @@ into e.g. your editor. The mime type thing works. To debug it, I can also
 provide the data as text and then I can paste it in some text editors. What
 puzzles me is that if GDK_SELECTION_CLIPBOARD is used, gtk+ seemingly randomly
 post a GDK_SELECTION_CLEAR in gtk_widget_event_internal() and that clear my copy
-before I have a chance to paste the data. It has something to do with a 
+before I have a chance to paste the data. It has something to do with a
 "selection-clear-event", but again that's only partially documented and the
 other related events are not documented at all.
 
@@ -599,7 +613,7 @@ and querying the features. It needed two patches to get that changed. Now
 gstreamer does not ref each element class of a loaded plugin during loading and
 the registry can cache plugin specific metadata. What does it mean practically?
 A typical buzz song now loads in a quarter of the time.
-  
+
 2009/05 ========================================================================
 
 Lots of testing and small improvements again. Besides the usual valgind sessions
@@ -666,7 +680,7 @@ Yay. LJ has a nice online article about buzztard [1]. While helping the author
 to get the code up & running, I mad several improvments to the configure stuff
 to make things more obvious, especially when installing not to /usr. I also
 updated the instructions on the wiki [2] and waffel updated our jhbuild module-
-set. 
+set.
 
 The GStreamer buzzmachine plugin now supports an index.txt file in the search
 path. This is used in buzz to categorize machines. The wrapper plugin adds the
@@ -708,7 +722,7 @@ than - I will need to use g_object_newv(), but generating the GParameter array
 is painful.
 
 The second big rewrite that is now also merge to the trunk is the new GStreamer
-pipeline graph handling. In the past the graph was more or less shallow. 
+pipeline graph handling. In the past the graph was more or less shallow.
 Machines, the building blocks of a song in buzztard, are a chain of GStreamer
 elements. There are volume controls, mixing elements, level meters, converters.
 They are all plugged as needed. But they were all plugged in the main pipeline.
@@ -733,9 +747,9 @@ drafting bigger plans. There where many TODOs in the code for small improvements
 and now there are less. E.g. I now filter more internal GStreamer properties
 from ui dialogs. I added some more things to the menus (hide/show statusbar,
 toggle fullscreen). The sequence view got some fixes - some shortcuts where
-overlapping, the label column now shows cursor and selection and finally the 
+overlapping, the label column now shows cursor and selection and finally the
 cursor is clamped to now leave the editable area. I also started adding a debug
-menu in --enable-debug configuration. The only command right now make a 
+menu in --enable-debug configuration. The only command right now make a
 GStreamer pipeline dump as a dot file, converts and shows it.
 
 I received two more translations this month too. I realized that its not always
@@ -785,7 +799,7 @@ I was showing buzztard to some people at the summit and noticed that samples are
 not always imported correctly from buzz songs. This is now fixed. I've tries all
 my songs (~50) and it handles them fine for all now. Along with that, I
 implemented some missing methods in the buzz emulation layer - sample playback
-seems to be fully emulated now. 
+seems to be fully emulated now.
 
 I also looked into some ui issues. One was an obscure repaint issue with gnome-
 canvas that we use in the machine view [2]. OpenSUSE released an update recently
@@ -801,7 +815,7 @@ content.
 The last issue I worked on is the interaction between animated object properties
 and UIs. We use the GstController to apply the sequence events to the machines.
 But also users can change parameters while playing. The sequence events are
-suppressed while changing the parameter (e.g. slider), but unfortunately value 
+suppressed while changing the parameter (e.g. slider), but unfortunately value
 springs back once one releases the control, if there are sequence events. Seems
 that we need some API to keep the sequence disabled until the next
 control-point.
@@ -832,7 +846,7 @@ far level and spectrum meters in buzztard were ahead of time. The reason is that
 gstreamer tells me about the values once they are computed, but that's not when
 the actual data segment gets played. Luckily the message has a timestamp. So all
 it needs is to sync drawing with the audio sink. MikeS gave me some good
-pointers on irc. It wasn't that straight forward. I found and fixed a bug in 
+pointers on irc. It wasn't that straight forward. I found and fixed a bug in
 level meter plugin so that it now puts useful timestamps on messages when it
 play loops. It works really great now.
 
@@ -854,7 +868,7 @@ called libbtcore. Now unfortunately ktorrent did the same mistake and have a
 libbtcore (bt stands for bittorrent there). As neither of them are really
 general purpose they should be uniquely named. I analyzed all files I install
 and went thought the great pains of renaming everything - libs, binaries, docs
-includes, pkg-config files, desktop files and so on. Hope I never have to do 
+includes, pkg-config files, desktop files and so on. Hope I never have to do
 that ever again. I also filed a bug for ktorrent [1] so that they can fix it
 before its causing problems. Interesting how they dealt with the report - "I was
 first with libbtcore - RESOLVED AS WONTFIX". Interestingly I was 1.5 years
@@ -865,7 +879,7 @@ earlier, but that wasn't the point at all.
 2008/08 ========================================================================
 
 Wow, July went fast. I spend most time with my family. Still a few news from the
-development front. I worked mostly on wavetable view. It now features more 
+development front. I worked mostly on wavetable view. It now features more
 proper sample playback. I wrote a memory audio source for GStreamer. It supports
 forward and backward playback. This is needed for e.g. ping-pong loops. Also now
 changing things takes effect while a sample plays. Our waveform widget also
@@ -901,7 +915,7 @@ in the new recent menu. Still fighting with the filter not doing a precise
 detection [3].
 
 Next on my todo list is refactoring the song io plugin api a bit. Right now
-there is too much hard-coded data (like mime-types, format names, extensions). 
+there is too much hard-coded data (like mime-types, format names, extensions).
 
 [1] http://bugzilla.gnome.org/show_bug.cgi?id=540645
 [2] http://directory.fsf.org/project/libgsf/
@@ -945,7 +959,7 @@ address. Now every ref should be paired by an unref, but all the refs and unrefs
 share the same id (address of the object). So how to figure which ref is not
 having the unref? Refdbg [1] can trace object and gather backtraces for
 ref-count operations. So one has to go through the list one by one, remove pairs
-and study whats left. Its not easy, but it works. 
+and study whats left. Its not easy, but it works.
 Now why is this so important. If the refcount never reaches 0, the object is not
 disposed and occupies memory (until the application exits). Under valgrind it
 would appear under reachable memory usually. For most apps it has no immediately
@@ -1066,7 +1080,7 @@ Some improvements on the UI side also. The spectrum analyzer window is now
 re-sizable. We also have a workaround for a gtk+ bug [1], there is now an
 accelerator to start playback.
 
-Unfortunately my recent attempts to merge my preset iface [2] to gstreamer got 
+Unfortunately my recent attempts to merge my preset iface [2] to gstreamer got
 stopped again. I need to try harder poking the other developers to review it.
 
 That's it for this month - happy x-mas month to everybody.
@@ -1093,7 +1107,7 @@ and keymap independent note entering (y vs z mapping on different key layouts),
 Before its getting even later, here is the monthly update. I worked a bit more
 on the 'state persistence' - a song now tracks opened machine and analyser
 windows. There are restored when loading the song. In continuation of previous
-months efforts The machine view got some hot keys now too. 
+months efforts The machine view got some hot keys now too.
 
 Now that lcov-1.6 is released, I've added a configure check for it and use the
 new options. The new version does not need to be patched anymore to generate
@@ -1133,16 +1147,16 @@ supported rendering songs to mixdown files. Now there is UI for it too. In
 addition to render a mixdown it can also render each track to a separate file.
 This is great for postprocessing in a multi-track editor like jokosher [4].
 Ideally we could even create a project file for some editors -help is very
-welcome. 
+welcome.
 
 This month I also started to look into live song graph editing. Sounds scary?
 Its is! GStreamer requires some extra care when adding or removing elements while
 playing. I did this now for the wire-analyzer, that plugs spectrum analyzer and
 level meter into a wire. With the changes it works reliable now and doe not kill
-the playback. Next step is to do this for the song itself too. 
+the playback. Next step is to do this for the song itself too.
 
 Waffel improved out wiki a bit. We now have geshi extension [5]  installed. This
-adds syntax highlighting to sample code. Really nice. 
+adds syntax highlighting to sample code. Really nice.
 
 [1] http://bugzilla.gnome.org/show_bug.cgi?id=469374
 [2] http://bugzilla.gnome.org/show_bug.cgi?id=131177

@@ -1,5 +1,10 @@
 2011-04-01  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Wrote and send NEWS.
+
+2011-04-01  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/bt-check.c:
 	  Update bug comment with status.
 	
