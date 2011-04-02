@@ -107,16 +107,18 @@ typedef struct {
   gpointer user_data;
 } BtNotifyIdleData;
 
-#define MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data) \
+#define MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data) G_STMT_START { \
   data=g_slice_new(BtNotifyIdleData); \
   data->machine=machine; \
   data->property=property; \
   data->user_data=user_data; \
-  g_object_add_weak_pointer(data->user_data,&data->user_data)
+  g_object_add_weak_pointer(data->user_data,&data->user_data); \
+} G_STMT_END
 
-#define FREE_NOTIFY_IDLE_DATA(data) \
+#define FREE_NOTIFY_IDLE_DATA(data) G_STMT_START { \
   g_object_remove_weak_pointer(data->user_data,&data->user_data); \
-  g_slice_free(BtNotifyIdleData,data)
+  g_slice_free(BtNotifyIdleData,data); \
+} G_STMT_END
 
 
 //-- wire, global or voice params groups
