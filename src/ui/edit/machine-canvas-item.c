@@ -131,8 +131,8 @@ struct _BtMachineCanvasItemPrivate {
   GnomeCanvasItem *output_meter, *input_meter;
   G_POINTER_ALIAS(GstElement *,output_level);
   G_POINTER_ALIAS(GstElement *,input_level);
-  gdouble last_input_level_value;
-  gdouble last_output_level_value;
+  gdouble last_input_level_peak;
+  gdouble last_output_level_peak;
 
   GstClock *clock;
 
@@ -290,11 +290,11 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   if(!self->priv->is_playing) {
     const gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
 
-    self->priv->last_output_level_value=0.0;
+    self->priv->last_output_level_peak=1.0;
     gnome_canvas_item_set(self->priv->output_meter,
       "y1", h*0.6,
       NULL);
-    self->priv->last_input_level_value=0.0;
+    self->priv->last_input_level_peak=1.0;
     gnome_canvas_item_set(self->priv->input_meter,
       "y1", h*0.6,
       NULL);
@@ -302,50 +302,43 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   }
 }
 
+typedef struct {
+  BtMachineCanvasItem *self;
+  GnomeCanvasItem *meter;
+  gdouble peak;
+} BtUpdateIdleData;
+
+#define MAKE_UPDATE_IDLE_DATA(data,self,meter,peak) G_STMT_START { \
+  data=g_slice_new(BtUpdateIdleData); \
+  data->self=self; \
+  data->meter=meter; \
+  data->peak=peak; \
+  g_mutex_lock(self->priv->lock); \
+  g_object_add_weak_pointer((GObject *)self,(gpointer *)(&data->self)); \
+  g_mutex_unlock(self->priv->lock); \
+} G_STMT_END
+
+#define FREE_UPDATE_IDLE_DATA(data) G_STMT_START { \
+  if(data->self) { \
+    g_mutex_lock(data->self->priv->lock); \
+    g_object_remove_weak_pointer((gpointer)data->self,(gpointer *)(&data->self)); \
+    g_mutex_unlock(data->self->priv->lock); \
+  } \
+  g_slice_free(BtUpdateIdleData,data); \
+} G_STMT_END
+
 static gboolean on_delayed_idle_machine_level_change(gpointer user_data) {
-  gconstpointer * const params=(gconstpointer *)user_data;
-  BtMachineCanvasItem *self=(BtMachineCanvasItem *)params[0];
-  GstMessage *message=(GstMessage *)params[1];
+  BtUpdateIdleData *data=(BtUpdateIdleData *)user_data;
+  BtMachineCanvasItem *self=data->self;
 
-  if(self) {
-    const GstStructure *structure=gst_message_get_structure(message);
-    const GValue *l_cur;
+  if(self && self->priv->is_playing) {
     const gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
-    gdouble cur=0.0, val;
-    guint i,size;
 
-    g_mutex_lock(self->priv->lock);
-    g_object_remove_weak_pointer((gpointer)self,(gpointer *)&params[0]);
-    g_mutex_unlock(self->priv->lock);
-
-    if(!self->priv->is_playing)
-      goto done;
-
-    l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-    size=gst_value_list_get_size(l_cur);
-    for(i=0;i<size;i++) {
-      cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
-    }
-    if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
-    else cur/=size;
-    val=cur;
-    if(val>0.0) val=0.0;
-    val=val/LOW_VUMETER_VAL;
-    if(val>1.0) val=1.0;
-    if(GST_MESSAGE_SRC(message)==(GstObject *)(self->priv->output_level)) {
-      gnome_canvas_item_set(self->priv->output_meter,
-        "y1", h*0.05+(0.55*h*val),
-        NULL);
-    }
-    if(GST_MESSAGE_SRC(message)==(GstObject *)(self->priv->input_level)) {
-      gnome_canvas_item_set(self->priv->input_meter,
-        "y1", h*0.05+(0.55*h*val),
-        NULL);
-    }
+    gnome_canvas_item_set(data->meter,
+      "y1", h*0.05+(0.55*h*data->peak),
+      NULL);
   }
-done:
-  gst_message_unref(message);
-  g_slice_free1(2*sizeof(gconstpointer),params);
+  FREE_UPDATE_IDLE_DATA(data);
   return(FALSE);
 }
 
@@ -354,10 +347,8 @@ static gboolean on_delayed_machine_level_change(GstClock *clock,GstClockTime tim
   if(GST_CLOCK_TIME_IS_VALID(time))
     g_idle_add(on_delayed_idle_machine_level_change,user_data);
   else {
-    gconstpointer * const params=(gconstpointer *)user_data;
-    GstMessage *message=(GstMessage *)params[1];
-    gst_message_unref(message);
-    g_slice_free1(2*sizeof(gconstpointer),user_data);
+    BtUpdateIdleData *data=(BtUpdateIdleData *)user_data;
+    FREE_UPDATE_IDLE_DATA(data);
   }
   return(TRUE);
 }
@@ -386,53 +377,44 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
         waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(level)->segment, GST_FORMAT_TIME, timestamp);
       }
       if(GST_CLOCK_TIME_IS_VALID(waittime)) {
-        // @todo: should we use param=g_slice_allow(2*sizeof(gconstpointer));
-        // followed by g_slice_free(2*sizeof(gconstpointer),params)
-        // we already require glib-2.10
         const GstStructure *structure=gst_message_get_structure(message);
-        const GValue *l_cur;
-        gdouble cur=0.0, val;
+        GnomeCanvasItem *meter=NULL;
+        const GValue *l_peak;
+        gdouble peak=0.0;
         guint i,size;
         gboolean changed=FALSE;
 
-        //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
-        //  GST_TIME_ARGS(endtime),GST_TIME_ARGS(waittime));
-
-        // check the value here and skip updates if it hasn't changed
-        l_cur=(GValue *)gst_structure_get_value(structure, "peak");
-        size=gst_value_list_get_size(l_cur);
+        // check the value and calculate the average for the channels
+        l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+        size=gst_value_list_get_size(l_peak);
         for(i=0;i<size;i++) {
-          cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
+          peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
         }
-        if(G_UNLIKELY(isinf(cur) || isnan(cur))) cur=LOW_VUMETER_VAL;
-        else cur/=size;
-        val=cur;
-        if(val>0.0) val=0.0;
-        val=val/LOW_VUMETER_VAL;
-        if(val>1.0) val=1.0;
-        if((level==self->priv->output_level) && (fabs(val-self->priv->last_output_level_value)>0.01)) {
-          self->priv->last_output_level_value=val;
+        if(G_UNLIKELY(isinf(peak) || isnan(peak))) peak=LOW_VUMETER_VAL;
+        else peak/=size;
+        if(peak>0.0) peak=0.0;
+        peak=peak/LOW_VUMETER_VAL;
+        if(peak>1.0) peak=1.0;
+        // check the value here and skip updates if it hasn't changed
+        if((level==self->priv->output_level) && (fabs(peak-self->priv->last_output_level_peak)>0.01)) {
+          self->priv->last_output_level_peak=peak;
+          meter=self->priv->output_meter;
           changed=TRUE;
         }
-        if((level==self->priv->input_level) && (fabs(val-self->priv->last_input_level_value)>0.01)) {
-          self->priv->last_input_level_value=val;
+        else if((level==self->priv->input_level) && (fabs(peak-self->priv->last_input_level_peak)>0.01)) {
+          self->priv->last_input_level_peak=peak;
+          meter=self->priv->input_meter;
           changed=TRUE;
         }
         if(changed) {
-          gconstpointer *params=(gconstpointer *)g_slice_alloc(2*sizeof(gconstpointer));
+          BtUpdateIdleData *data;
           GstClockTime basetime=gst_element_get_base_time(level);
           GstClockID clock_id;
 
-          // FIXME: we would rather send 'val' to avoid re-calculation (adding it to the structure would be a hack)
-          params[0]=(gpointer)self;
-          params[1]=(gpointer)gst_message_ref(message);
-          g_mutex_lock(self->priv->lock);
-          g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
-          g_mutex_unlock(self->priv->lock);
+          MAKE_UPDATE_IDLE_DATA(data,self,meter,peak);
           clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
-          if(gst_clock_id_wait_async(clock_id,on_delayed_machine_level_change,(gpointer)params)!=GST_CLOCK_OK) {
-            gst_message_unref(message);
-            g_slice_free1(2*sizeof(gconstpointer),params);
+          if(gst_clock_id_wait_async(clock_id,on_delayed_machine_level_change,(gpointer)data)!=GST_CLOCK_OK) {
+            FREE_UPDATE_IDLE_DATA(data);
           }
           gst_clock_id_unref(clock_id);
         }
