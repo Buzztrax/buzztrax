@@ -1,5 +1,15 @@
 2011-04-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Finetune the vu-meter-update skipping. We don't compare against the last
+	  value anymore. This can cause problem if a processing the deferred meter
+	  update gets lost and we then skip. Instead activate skipping for a series
+	  of max- or min-volume. Apply the same to seqeunce view. Saves a total of
+	  213327 updates for Aenathon.bmx.
+
+2011-04-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/gtkvumeter.c:
 	  Eventually skip a redraw when setting min/max.
 

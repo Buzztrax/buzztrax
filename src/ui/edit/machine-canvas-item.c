@@ -131,8 +131,8 @@ struct _BtMachineCanvasItemPrivate {
   GnomeCanvasItem *output_meter, *input_meter;
   G_POINTER_ALIAS(GstElement *,output_level);
   G_POINTER_ALIAS(GstElement *,input_level);
-  gdouble last_input_level_peak;
-  gdouble last_output_level_peak;
+  guint skip_input_level;
+  guint skip_output_level;
 
   GstClock *clock;
 
@@ -290,11 +290,11 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   if(!self->priv->is_playing) {
     const gdouble h=MACHINE_VIEW_MACHINE_SIZE_Y;
 
-    self->priv->last_output_level_peak=1.0;
+    self->priv->skip_output_level=FALSE;
     gnome_canvas_item_set(self->priv->output_meter,
       "y1", h*0.6,
       NULL);
-    self->priv->last_input_level_peak=1.0;
+    self->priv->skip_input_level=FALSE;
     gnome_canvas_item_set(self->priv->input_meter,
       "y1", h*0.6,
       NULL);
@@ -377,12 +377,11 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
         waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(level)->segment, GST_FORMAT_TIME, timestamp);
       }
       if(GST_CLOCK_TIME_IS_VALID(waittime)) {
-        const GstStructure *structure=gst_message_get_structure(message);
         GnomeCanvasItem *meter=NULL;
         const GValue *l_peak;
         gdouble peak=0.0;
         guint i,size;
-        gboolean changed=FALSE;
+        gint new_skip=FALSE,old_skip=FALSE;
 
         // check the value and calculate the average for the channels
         l_peak=(GValue *)gst_structure_get_value(structure, "peak");
@@ -390,23 +389,34 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
         for(i=0;i<size;i++) {
           peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
         }
-        if(G_UNLIKELY(isinf(peak) || isnan(peak))) peak=LOW_VUMETER_VAL;
+        if(G_UNLIKELY(isinf(peak) || isnan(peak))) {
+          //GST_WARNING_OBJECT(level,"peak was INF or NAN, %lf",peak);
+          peak=LOW_VUMETER_VAL;
+        }
         else peak/=size;
-        if(peak>0.0) peak=0.0;
-        peak=peak/LOW_VUMETER_VAL;
-        if(peak>1.0) peak=1.0;
-        // check the value here and skip updates if it hasn't changed
-        if((level==self->priv->output_level) && (fabs(peak-self->priv->last_output_level_peak)>0.01)) {
-          self->priv->last_output_level_peak=peak;
+        // check if we are very loud
+        if(peak>0.0) {
+          new_skip=2; // beyond max level
+          peak=0.0;
+        }
+        else peak=peak/LOW_VUMETER_VAL;
+        // check if we a silent
+        if(peak>=1.0) {
+          new_skip=1; // below min level
+          peak=1.0;
+        }
+        // skip *updates* if we are still below LOW_VUMETER_VAL or beyond 0.0
+        if(level==self->priv->output_level) {
           meter=self->priv->output_meter;
-          changed=TRUE;
+          old_skip=self->priv->skip_output_level;
+          self->priv->skip_output_level=new_skip;
         }
-        else if((level==self->priv->input_level) && (fabs(peak-self->priv->last_input_level_peak)>0.01)) {
-          self->priv->last_input_level_peak=peak;
+        else if(level==self->priv->input_level) {
           meter=self->priv->input_meter;
-          changed=TRUE;
+          old_skip=self->priv->skip_input_level;
+          self->priv->skip_input_level=new_skip;
         }
-        if(changed) {
+        if(!old_skip || !new_skip || old_skip!=new_skip) {
           BtUpdateIdleData *data;
           GstClockTime basetime=gst_element_get_base_time(level);
           GstClockID clock_id;
@@ -418,6 +428,8 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
           }
           gst_clock_id_unref(clock_id);
         }
+        // just for counting
+        //else GST_WARNING_OBJECT(level,"skipping level update");
       }
     }
   }

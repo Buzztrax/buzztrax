@@ -165,12 +165,17 @@ struct _BtMainPageSequencePrivate {
 };
 
 static GQuark bus_msg_level_quark=0;
+static GQuark vu_meter_skip_update=0;
 
 static GdkAtom sequence_atom;
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainPageSequence, bt_main_page_sequence, GTK_TYPE_VBOX);
+static void bt_main_page_sequence_change_logger_interface_init(gpointer const g_iface, gconstpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtMainPageSequence, bt_main_page_sequence, GTK_TYPE_VBOX,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_CHANGE_LOGGER,
+    bt_main_page_sequence_change_logger_interface_init));
 
 
 /* internal data model fields */
@@ -233,6 +238,21 @@ enum {
 static const gchar sink_pattern_keys[]     = "-,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const gchar source_pattern_keys[]   ="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const gchar processor_pattern_keys[]="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+enum {
+  METHOD_SET_PATTERNS,
+  METHOD_ADD_TRACK,
+  METHOD_REM_TRACK
+};
+
+static BtChangeLoggerMethods change_logger_methods[] = {
+  BT_CHANGE_LOGGER_METHOD("set_patterns",13,"$"),
+  BT_CHANGE_LOGGER_METHOD("add_track",10,"\"([a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("rem_track",10,"$"),
+  { NULL, }
+};
+
+
 
 static GQuark column_index_quark=0;
 
@@ -816,47 +836,41 @@ static void on_machine_state_changed_bypass(BtMachine *machine,GParamSpec *arg,g
   gtk_toggle_button_set_active(button,(state==BT_MACHINE_STATE_BYPASS));
 }
 
+typedef struct {
+  BtMainPageSequence *self;
+  GtkVUMeter *vumeter;
+  gint peak, decay;
+} BtUpdateIdleData;
+
+#define MAKE_UPDATE_IDLE_DATA(data,self,vumeter,peak,decay) G_STMT_START { \
+  data=g_slice_new(BtUpdateIdleData); \
+  data->self=self; \
+  data->vumeter=vumeter; \
+  data->peak=(gint)(peak+0.5); \
+  data->decay=(gint)(decay+0.5); \
+  g_mutex_lock(self->priv->lock); \
+  g_object_add_weak_pointer((GObject *)self,(gpointer *)(&data->self)); \
+  g_mutex_unlock(self->priv->lock); \
+} G_STMT_END
+
+#define FREE_UPDATE_IDLE_DATA(data) G_STMT_START { \
+  if(data->self) { \
+    g_mutex_lock(data->self->priv->lock); \
+    g_object_remove_weak_pointer((gpointer)data->self,(gpointer *)(&data->self)); \
+    g_mutex_unlock(data->self->priv->lock); \
+  } \
+  g_slice_free(BtUpdateIdleData,data); \
+} G_STMT_END
+
+
 static gboolean on_delayed_idle_track_level_change(gpointer user_data) {
-  gconstpointer * const params=(gconstpointer *)user_data;
-  BtMainPageSequence *self=(BtMainPageSequence *)params[0];
-  GstMessage *message=(GstMessage *)params[1];
+  BtUpdateIdleData *data=(BtUpdateIdleData *)user_data;
+  BtMainPageSequence *self=data->self;
 
-  if(self) {
-    GtkVUMeter *vumeter;
-
-    g_mutex_lock(self->priv->lock);
-    g_object_remove_weak_pointer((gpointer)self,(gpointer *)&params[0]);
-    g_mutex_unlock(self->priv->lock);
-
-    if(!self->priv->is_playing)
-      goto done;
-
-    if((vumeter=g_hash_table_lookup(self->priv->level_to_vumeter,GST_MESSAGE_SRC(message)))) {
-      const GstStructure *structure=gst_message_get_structure(message);
-      const GValue *l_cur,*l_peak;
-      gdouble cur=0.0, peak=0.0;
-      guint i,size;
-
-      l_cur=(GValue *)gst_structure_get_value(structure, "decay");
-      l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-      size=gst_value_list_get_size(l_cur);
-      for(i=0;i<size;i++) {
-        cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
-        peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
-      }
-      if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;
-      else cur/=size;
-      if(isinf(peak) || isnan(peak)) peak=LOW_VUMETER_VAL;
-      else peak/=size;
-
-      //GST_INFO("level:  %.3f %.3f", peak, cur);
-      //gtk_vumeter_set_levels(vumeter, (gint)cur, (gint)peak);
-      gtk_vumeter_set_levels(vumeter, (gint)peak, (gint)cur);
-    }
+  if(self && self->priv->is_playing) {
+    gtk_vumeter_set_levels(data->vumeter, data->peak, data->decay);
   }
-done:
-  gst_message_unref(message);
-  g_slice_free1(2*sizeof(gconstpointer),params);
+  FREE_UPDATE_IDLE_DATA(data);
   return(FALSE);
 }
 
@@ -865,10 +879,8 @@ static gboolean on_delayed_track_level_change(GstClock *clock,GstClockTime time,
   if(GST_CLOCK_TIME_IS_VALID(time))
     g_idle_add(on_delayed_idle_track_level_change,user_data);
   else {
-    gconstpointer * const params=(gconstpointer *)user_data;
-    GstMessage *message=(GstMessage *)params[1];
-    gst_message_unref(message);
-    g_slice_free1(2*sizeof(gconstpointer),user_data);
+    BtUpdateIdleData *data=(BtUpdateIdleData *)user_data;
+    FREE_UPDATE_IDLE_DATA(data);
   }
   return(TRUE);
 }
@@ -880,9 +892,10 @@ static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer u
   if(name_id==bus_msg_level_quark) {
     BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
     GstElement *level=GST_ELEMENT(GST_MESSAGE_SRC(message));
+    GtkVUMeter *vumeter;
 
     // check if its our element (we can have multiple level meters)
-    if((g_hash_table_lookup(self->priv->level_to_vumeter,level))) {
+    if((vumeter=g_hash_table_lookup(self->priv->level_to_vumeter,level))) {
       GstClockTime timestamp, duration;
       GstClockTime waittime=GST_CLOCK_TIME_NONE;
 
@@ -896,23 +909,50 @@ static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer u
         waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(level)->segment, GST_FORMAT_TIME, timestamp);
       }
       if(GST_CLOCK_TIME_IS_VALID(waittime)) {
-        gconstpointer *params=(gconstpointer *)g_slice_alloc(2*sizeof(gconstpointer));
-        GstClockID clock_id;
-        GstClockTime basetime=gst_element_get_base_time(level);
+        const GValue *l_decay,*l_peak;
+        gdouble decay=0.0, peak=0.0;
+        guint i,size;
+        gint new_skip=FALSE,old_skip=FALSE;
 
-        //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT, GST_TIME_ARGS(timestamp),GST_TIME_ARGS(waittime));
-
-        params[0]=(gpointer)self;
-        params[1]=(gpointer)gst_message_ref(message);
-        g_mutex_lock(self->priv->lock);
-        g_object_add_weak_pointer((gpointer)self,(gpointer *)&params[0]);
-        g_mutex_unlock(self->priv->lock);
-        clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
-        if(gst_clock_id_wait_async(clock_id,on_delayed_track_level_change,(gpointer)params)!=GST_CLOCK_OK) {
-          gst_message_unref(message);
-          g_slice_free1(2*sizeof(gconstpointer),params);
+        l_decay=(GValue *)gst_structure_get_value(structure, "decay");
+        l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+        size=gst_value_list_get_size(l_decay);
+        for(i=0;i<size;i++) {
+          decay+=g_value_get_double(gst_value_list_get_value(l_decay,i));
+          peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
         }
-        gst_clock_id_unref(clock_id);
+        if(G_UNLIKELY(isinf(decay) || isnan(decay))) {
+          //GST_WARNING_OBJECT(level,"decay was INF or NAN, %lf",decay);
+          decay=LOW_VUMETER_VAL;
+        }
+        else decay/=size;
+        if(G_UNLIKELY(isinf(peak) || isnan(peak)))  {
+          //GST_WARNING_OBJECT(level,"peak was INF or NAN, %lf",peak);
+          peak=LOW_VUMETER_VAL;
+        }
+        else peak/=size;
+        // check if we a silent or very loud
+        if(decay<=LOW_VUMETER_VAL && peak<=LOW_VUMETER_VAL)
+          new_skip=1; // below min level
+        else if(decay>=0.0 && peak>=0.0)
+          new_skip=2; // beyond max level
+        // skip *updates* if we are still below LOW_VUMETER_VAL or beyond 0.0
+        old_skip=GPOINTER_TO_INT(g_object_get_qdata((GObject *)vumeter,vu_meter_skip_update));
+        g_object_set_qdata((GObject *)vumeter,vu_meter_skip_update,GINT_TO_POINTER(new_skip));
+        if(!old_skip || !new_skip || old_skip!=new_skip) {
+          BtUpdateIdleData *data;
+          GstClockID clock_id;
+          GstClockTime basetime=gst_element_get_base_time(level);
+
+          MAKE_UPDATE_IDLE_DATA(data,self,vumeter,peak,decay);
+          clock_id=gst_clock_new_single_shot_id(self->priv->clock,waittime+basetime);
+          if(gst_clock_id_wait_async(clock_id,on_delayed_track_level_change,(gpointer)data)!=GST_CLOCK_OK) {
+            FREE_UPDATE_IDLE_DATA(data);
+          }
+          gst_clock_id_unref(clock_id);
+        }
+        // just for counting
+        //else GST_WARNING_OBJECT(level,"skipping level update");
       }
     }
   }
@@ -1087,6 +1127,12 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
 static void remove_container_widget(GtkWidget *widget,gpointer user_data) {
   GST_LOG("removing: %d, %s",G_OBJECT_REF_COUNT(widget),gtk_widget_get_name(widget));
   gtk_container_remove(GTK_CONTAINER(user_data),widget);
+}
+
+static void reset_level_meter(gpointer key, gpointer value, gpointer user_data) {
+  GtkVUMeter *vumeter=GTK_VUMETER(value);
+  gtk_vumeter_set_levels(vumeter, LOW_VUMETER_VAL, LOW_VUMETER_VAL);
+  g_object_set_qdata((GObject *)vumeter,vu_meter_skip_update,GINT_TO_POINTER((gint)FALSE));
 }
 
 /*
@@ -1411,10 +1457,10 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         }
         vumeter=GTK_VUMETER(gtk_vumeter_new(FALSE));
         gtk_vumeter_set_min_max(vumeter, LOW_VUMETER_VAL, 0);
-        gtk_vumeter_set_levels(vumeter, LOW_VUMETER_VAL, LOW_VUMETER_VAL);
         // no falloff in widget, we have falloff in GstLevel
         //gtk_vumeter_set_peaks_falloff(vumeter, GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
         gtk_vumeter_set_scale(vumeter, GTK_VUMETER_SCALE_LINEAR);
+        reset_level_meter(level, vumeter, NULL);
         gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(vumeter),TRUE,TRUE,0);
 
         // add level meters to hashtable
@@ -1984,10 +2030,6 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
       gtk_tree_path_free(path);
     }
   }
-}
-
-static void reset_level_meter(gpointer key, gpointer value, gpointer user_data) {
-  gtk_vumeter_set_levels(GTK_VUMETER(value), LOW_VUMETER_VAL, LOW_VUMETER_VAL);
 }
 
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
@@ -3483,6 +3525,68 @@ void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self) {
   gtk_clipboard_request_contents(cb,sequence_atom,sequence_clipboard_received_func,(gpointer)self);
 }
 
+//-- change logger interface
+
+static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger *owner,const gchar *data) {
+  BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(owner);
+  GMatchInfo *match_info;
+  gboolean res=FALSE;
+
+  GST_INFO("undo/redo: [%s]",data);
+  // parse data and apply action
+  switch (bt_change_logger_match_method(change_logger_methods, data, &match_info)) {
+    case METHOD_SET_PATTERNS: {
+      // track, beg, end
+      g_match_info_free(match_info);
+
+      // refactor sequence_clipboard_received_func
+
+      break;
+    }
+    case METHOD_ADD_TRACK: {
+      gchar *mid;
+      BtSong *song;
+      BtSetup *setup;
+      BtMachine *machine;
+
+      mid=g_match_info_fetch(match_info,1);
+      g_match_info_free(match_info);
+
+      GST_DEBUG("-> [%s]",mid);
+
+      // get song from app and then setup from song
+      g_object_get(self->priv->app,"song",&song,NULL);
+      g_object_get(song,"setup",&setup,NULL);
+
+      if((machine=bt_setup_get_machine_by_id(setup,mid))) {
+        sequence_add_track(self,machine);
+        g_object_unref(machine);
+        res=TRUE;
+      }
+      g_object_unref(setup);
+      g_object_unref(song);
+      g_free(mid);
+      break;
+    }
+    case METHOD_REM_TRACK: {
+      g_match_info_free(match_info);
+
+      //sequence_rem_last_track(self);
+      break;
+    }
+    default:
+      GST_WARNING("unhandled undo/redo method: [%s]",data);
+  }
+
+  return res;
+}
+
+static void bt_main_page_sequence_change_logger_interface_init(gpointer const g_iface, gconstpointer const iface_data) {
+  BtChangeLoggerInterface * const iface = g_iface;
+
+  iface->change = bt_main_page_sequence_change_logger_change;
+}
+
 //-- wrapper
 
 //-- class internals
@@ -3611,6 +3715,7 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
 
   column_index_quark=g_quark_from_static_string("BtMainPageSequence::column-index");
   bus_msg_level_quark=g_quark_from_static_string("level");
+  vu_meter_skip_update=g_quark_from_static_string("BtMainPageSequence::skip-update");
 
   g_type_class_add_private(klass,sizeof(BtMainPageSequencePrivate));
 
