@@ -1,5 +1,10 @@
 2011-04-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/gtkvumeter.c:
+	  Eventually skip a redraw when setting min/max.
+
+2011-04-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	  Add a G_STMT_BEG/END to macro.
 

@@ -397,6 +397,9 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
  */
 void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint min, gint max)
 {
+    gint old_rms_level = vumeter->rms_level;
+    gint old_peak_level = vumeter->peak_level;
+
     g_return_if_fail (GTK_IS_VUMETER (vumeter));
 
     vumeter->max = MAX(max, min);
@@ -406,7 +409,10 @@ void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint min, gint max)
     }
     vumeter->rms_level = CLAMP (vumeter->rms_level, vumeter->min, vumeter->max);
     vumeter->peak_level = CLAMP (vumeter->peak_level, vumeter->min, vumeter->max);
-    gtk_widget_queue_draw (GTK_WIDGET(vumeter));
+
+    if ((old_rms_level != vumeter->rms_level) || (old_peak_level != vumeter->peak_level)) {
+        gtk_widget_queue_draw (GTK_WIDGET(vumeter));
+    }
 }
 
 /**
@@ -422,14 +428,14 @@ void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak)
 {
     gint old_rms_level = vumeter->rms_level;
     gint old_peak_level = vumeter->peak_level;
-    
+
     g_return_if_fail (GTK_IS_VUMETER (vumeter));
 
     vumeter->rms_level = CLAMP (rms, vumeter->min, vumeter->max);
     vumeter->peak_level = CLAMP (peak, vumeter->min, vumeter->max);
-    
+
     if ((old_rms_level != vumeter->rms_level) || (old_peak_level != vumeter->peak_level)) {
-      gtk_widget_queue_draw (GTK_WIDGET(vumeter));
+        gtk_widget_queue_draw (GTK_WIDGET(vumeter));
     }
 }
 
