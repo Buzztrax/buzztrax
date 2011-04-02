@@ -850,6 +850,7 @@ typedef struct {
   data->decay=(gint)(decay+0.5); \
   g_mutex_lock(self->priv->lock); \
   g_object_add_weak_pointer((GObject *)self,(gpointer *)(&data->self)); \
+  g_object_add_weak_pointer((GObject *)vumeter,(gpointer *)(&data->vumeter)); \
   g_mutex_unlock(self->priv->lock); \
 } G_STMT_END
 
@@ -857,6 +858,7 @@ typedef struct {
   if(data->self) { \
     g_mutex_lock(data->self->priv->lock); \
     g_object_remove_weak_pointer((gpointer)data->self,(gpointer *)(&data->self)); \
+    if(data->vumeter) g_object_remove_weak_pointer((gpointer)data->vumeter,(gpointer *)(&data->vumeter)); \
     g_mutex_unlock(data->self->priv->lock); \
   } \
   g_slice_free(BtUpdateIdleData,data); \
@@ -867,7 +869,7 @@ static gboolean on_delayed_idle_track_level_change(gpointer user_data) {
   BtUpdateIdleData *data=(BtUpdateIdleData *)user_data;
   BtMainPageSequence *self=data->self;
 
-  if(self && self->priv->is_playing) {
+  if(self && self->priv->is_playing && data->vumeter) {
     gtk_vumeter_set_levels(data->vumeter, data->peak, data->decay);
   }
   FREE_UPDATE_IDLE_DATA(data);

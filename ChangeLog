@@ -1,5 +1,10 @@
 2011-04-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Use weak pointers for the cached vu-meter.
+
+2011-04-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/main-page-sequence.c:
 	  Finetune the vu-meter-update skipping. We don't compare against the last
