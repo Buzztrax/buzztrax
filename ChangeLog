@@ -1,5 +1,11 @@
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/gtkvumeter.h:
+	  Remove unused code. Add private comment to instance declaration.
+
+2011-04-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/.cvsignore:
 	* tests (svn:ignore):
 	  Maintenance.

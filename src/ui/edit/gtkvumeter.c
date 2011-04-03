@@ -293,8 +293,6 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
 
     vumeter = GTK_VUMETER (widget);
     cr = gdk_cairo_create (widget->window);
-    // @todo: this should not be needed
-    //cairo_push_group (cr);
 
     /* draw border */
     /* detail for part of progressbar would be called "trough" */
@@ -376,9 +374,6 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
         cairo_stroke (cr);
     }
 
-    // @todo: this should not be needed
-    //cairo_pop_group_to_source (cr);
-    //cairo_paint (cr);
     cairo_destroy (cr);
 
     return FALSE;

@@ -45,6 +45,7 @@ typedef struct _GtkVUMeterClass GtkVUMeterClass;
 struct _GtkVUMeter {
     GtkWidget   widget;
 
+    /* < private > */
     gboolean    vertical;
     gint        rms_level;
     gint        min;
