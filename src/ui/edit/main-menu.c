@@ -761,7 +761,8 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
 
   gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
-  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDELETE,accel_group);
+  //subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDELETE,accel_group);
+  subitem=gtk_menu_item_new_with_label(_("Recover unsaved songs"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_recover_activate),(gpointer)self);
   on_menu_recover_changed(self->priv->change_log, NULL, subitem);

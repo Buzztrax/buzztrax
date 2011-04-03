@@ -1,3 +1,10 @@
+2011-04-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/crash-recover-dialog.c:
+	* src/ui/edit/main-menu.c:
+	  Use non-stock menu-item and button for crash recovery as the stock labels
+	  did not really fit. Add extra explanation to crash recover dialog.
+
 2011-04-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:

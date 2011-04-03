@@ -187,8 +187,8 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
 
   GST_DEBUG("prepare crash recover dialog");
 
-  gtk_widget_set_name(GTK_WIDGET(self),"Previous unfinished sessions found");
-  gtk_window_set_title(GTK_WINDOW(self),_("Previous unfinished sessions found"));
+  gtk_widget_set_name(GTK_WIDGET(self),"Unsaved song recovery");
+  gtk_window_set_title(GTK_WINDOW(self),_("Unsaved song recovery"));
 
   // add dialog commision widgets (okay)
   // FIXME: add Okay, Cancel, Delete
@@ -206,7 +206,7 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
   gtk_box_pack_start(GTK_BOX(hbox),icon,FALSE,FALSE,0);
 
   vbox=gtk_vbox_new(FALSE,6);
-  str=g_strdup_printf("<big><b>%s</b></big>\n",_("Previous unfinished sessions found"));
+  str=g_strdup_printf("<big><b>%s</b></big>\n%s\n",_("Unsaved songs found"),_("Select them one by one and choose 'recover' or 'delete'."));
   label=g_object_new(GTK_TYPE_LABEL,"use-markup",TRUE,"label",str,NULL);
   g_free(str);
   gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,FALSE,0);
@@ -258,7 +258,7 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
 
   // add "undelete" button to action area
   // GTK_STOCK_REVERT_TO_SAVED
-  btn=gtk_button_new_from_stock(GTK_STOCK_UNDELETE);
+  btn=gtk_button_new_with_label(_("Recover"));
   g_signal_connect(btn, "clicked", G_CALLBACK(on_recover_clicked), (gpointer)self);
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(self))),btn,FALSE,FALSE,0);
 
