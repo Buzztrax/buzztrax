@@ -7,12 +7,25 @@ style "slim-treeview" = "default"
   GtkTreeView::vertical-separator = 0
   #GtkTreeView::grid-line-width = 1
   GtkWidget::focus-line-width = 0
+  GtkWidget::focus-padding = 0
 }
 
 class "BtSequenceView" style "slim-treeview"
 widget "*.sequence-pattern-list" style "slim-treeview"
 widget "*.wave-level-list" style "slim-treeview"
 widget "*.wave-list" style "slim-treeview"
+
+
+# less spacious buttons (for sequence headers)
+style "slim-button" = "default"
+{
+  GtkButton::inner-border = {0, 0, 0, 0}
+  GtkWidget::focus-line-width = 0
+  GtkWidget::focus-padding = 0
+}
+
+widget "*.mini-button" style "slim-button"
+
 
 # row shading for pattern editor
 style "patternview" = "default"

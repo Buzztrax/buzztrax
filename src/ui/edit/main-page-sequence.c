@@ -223,7 +223,7 @@ enum {
 #define SEQUENCE_CELL_XPAD 0
 #define SEQUENCE_CELL_YPAD 0
 #define POSITION_CELL_WIDTH 65
-#define HEADER_SPACING 2
+#define HEADER_SPACING 0
 
 #define LOW_VUMETER_VAL -60.0
 
@@ -685,6 +685,7 @@ static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat b
 #else
   button=gtk_toggle_button_new_with_label(txt);
 #endif
+  gtk_widget_set_name(button,"mini-button");
   widget_shade_bg_color(button,GTK_STATE_ACTIVE  ,rf,gf,bf);
   widget_shade_bg_color(button,GTK_STATE_PRELIGHT,rf,gf,bf);
   gtk_container_set_border_width(GTK_CONTAINER(button),0);

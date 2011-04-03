@@ -1,5 +1,12 @@
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/bt-edit.gtkrc:
+	* src/ui/edit/main-page-sequence.c:
+	  Tune border sizes and padding a bit. We still have some unwanted 
+	  whitespace in the sequence headers.
+
+2011-04-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/crash-recover-dialog.c:
 	* src/ui/edit/main-menu.c:
 	  Use non-stock menu-item and button for crash recovery as the stock labels
