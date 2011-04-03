@@ -672,6 +672,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   GtkFileFilter *filter,*filter_all;
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
+  BtSongIOClass *songio_class;
   guint ix;
   //gchar *glob;
 
@@ -692,8 +693,15 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   plugins=bt_song_io_get_module_info_list();
   for(node=plugins;node;node=g_list_next(node)) {
     info=(BtSongIOModuleInfo *)node->data;
+    
     ix=0;
     while(info->formats[ix].name) {
+      songio_class=(BtSongIOClass *)g_type_class_ref(info->formats[ix].type);
+      if(!songio_class->save) {
+        GST_DEBUG("songio module %s supports no saving", info->formats[ix].name);
+        ix++;
+        continue;
+      }
       filter=gtk_file_filter_new();
       gtk_file_filter_set_name(filter,info->formats[ix].name);
       gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
@@ -786,8 +794,16 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
         GST_DEBUG("file_filter matching failed, match extension '%s'",ext);
         for(pnode=plugins;(pnode && !found);pnode=g_list_next(pnode)) {
           info=(BtSongIOModuleInfo *)pnode->data;
+
           ix=0;
           while(info->formats[ix].name && !found) {
+            // we ref the class above
+            songio_class=(BtSongIOClass *)g_type_class_peek_static(info->formats[ix].type);
+            if(!songio_class->save) {
+              GST_DEBUG("songio module %s supports no saving", info->formats[ix].name);
+              ix++;
+              continue;
+            }
             if(!strcmp(ext,info->formats[ix].extension)) {
               filter=fnode->data;
               /* @bug: it matches, but this does not update the filter

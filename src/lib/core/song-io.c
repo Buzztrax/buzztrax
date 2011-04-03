@@ -326,18 +326,6 @@ const GList *bt_song_io_get_module_info_list(void) {
   return (plugins);
 }
 
-//-- virtual methods
-
-static gboolean bt_song_io_default_load(gconstpointer const self, const BtSong * const song) {
-  GST_ERROR("virtual method bt_song_io_load(self=%p,song=%p) called",self,song);
-  return(FALSE);  // this is a base class that can't load anything
-}
-
-static gboolean bt_song_io_default_save(gconstpointer const self, const BtSong * const song) {
-  GST_ERROR("virtual method bt_song_io_save(self=%p,song=%p) called",self,song);
-  return(FALSE);  // this is a base class that can't save anything
-}
-
 //-- wrapper
 
 /**
@@ -351,11 +339,19 @@ static gboolean bt_song_io_default_save(gconstpointer const self, const BtSong *
  */
 gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
   gboolean result;
+  bt_song_io_virtual_load load;
 
   g_return_val_if_fail(BT_IS_SONG_IO(self),FALSE);
   g_return_val_if_fail(BT_IS_SONG(song),FALSE);
+  
+  load=BT_SONG_IO_GET_CLASS(self)->load;
 
   GST_INFO("loading song [%s]",self->priv->file_name?self->priv->file_name:"data");
+  
+  if(!load) {
+    GST_ERROR("virtual method bt_song_io_load(self=%p,song=%p) called without implementation",self,song);
+    return(FALSE);
+  }
 
   g_object_set((gpointer)song,"song-io",self,NULL);
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
@@ -401,11 +397,19 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
 gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
   gboolean result;
   BtSongInfo * const song_info;
+  bt_song_io_virtual_save save;
 
   g_return_val_if_fail(BT_IS_SONG_IO(self),FALSE);
   g_return_val_if_fail(BT_IS_SONG(song),FALSE);
 
+  save=BT_SONG_IO_GET_CLASS(self)->save;
+
   GST_INFO("saving song [%s]",self->priv->file_name);
+
+  if(!save) {
+    GST_ERROR("virtual method bt_song_io_save(self=%p,song=%p) called without implementation",self,song);
+    return(FALSE);
+  }
 
   // this updates the time-stamp
   g_object_get((gpointer)song,"song-info",&song_info,NULL);
@@ -498,10 +502,7 @@ static void bt_song_io_class_init(BtSongIOClass * const klass) {
   gobject_class->get_property = bt_song_io_get_property;
   gobject_class->dispose      = bt_song_io_dispose;
   gobject_class->finalize     = bt_song_io_finalize;
-
-  klass->load = bt_song_io_default_load;
-  klass->save = bt_song_io_default_save;
-
+  
   g_object_class_install_property(gobject_class,SONG_IO_FILE_NAME,
                                   g_param_spec_string("file-name",
                                      "filename prop",

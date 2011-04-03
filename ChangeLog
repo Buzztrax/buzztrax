@@ -1,5 +1,17 @@
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-io.c:
+	  Remove default implementations for load/save (chaining up does not
+	  make sense here anyway). Check that we have an implementation in
+	  _load/_save instead. This is more robust as a plugin could just do
+	  klass->save=NULL; anyway.
+
+	* src/ui/edit/main-window.c:
+	  When building the format list for the save-as dialog skip plugins that
+	  can't save.
+
+2011-04-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-properties-dialog.c:
 	  Unbreak renaming the pattern.
 
