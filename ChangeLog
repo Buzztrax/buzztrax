@@ -1,5 +1,10 @@
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-menu.c:
+	  Also check for unsaved when loading from recent menu.
+
+2011-04-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/bt-edit.gtkrc:
 	* src/ui/edit/main-page-sequence.c:
 	  Tune border sizes and padding a bit. We still have some unwanted 

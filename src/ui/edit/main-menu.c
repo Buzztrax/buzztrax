@@ -92,11 +92,15 @@ static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user
     GST_WARNING ("Unable to retrieve the current recent-item, aborting...");
     return;
   }
+
+  if(!bt_main_window_check_unsaved_song(self->priv->main_window,_("Load new song?"),_("Load new song?")))
+    return;
+
   uri=gtk_recent_info_get_uri(info);
   file_name=g_filename_from_uri(uri,NULL,NULL);
 
-  GST_INFO("menu open event occurred : %s",file_name);
-
+  GST_INFO("menu open recent event occurred : %s",file_name);
+  
   if(!bt_edit_application_load_song(self->priv->app,file_name)) {
     gchar *msg=g_strdup_printf(_("An error occurred while loading the song from file '%s'"),file_name);
 
