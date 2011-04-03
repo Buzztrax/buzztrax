@@ -1,5 +1,10 @@
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-properties-dialog.c:
+	  Unbreak renaming the pattern.
+
+2011-04-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Add a gross hack for something that looks like an ugly bug in gtk+. We
 	  need a spacer to eat the remainder of the sequence headers. In the past a
