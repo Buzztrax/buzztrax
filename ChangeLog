@@ -1,5 +1,14 @@
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Add a gross hack for something that looks like an ugly bug in gtk+. We
+	  need a spacer to eat the remainder of the sequence headers. In the past a
+	  label containing a whitespace worked fine. Now gtk+ seems to try to be
+	  smart and skip the rendering of it :/. We're now using "#####" as a text
+	  and copy base color to fg and text.
+
+2011-04-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/gtkvumeter.c:
 	* src/ui/edit/gtkvumeter.h:
 	  Remove unused code. Add private comment to instance declaration.

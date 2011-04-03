@@ -1515,8 +1515,18 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
 
-  header=gtk_label_new("");
-  gtk_widget_show_all(header);
+  //header=gtk_label_new("\xC2\xA0");
+  //header=gtk_label_new("\xA0\xA0\xA0\xA0\xA0\xA0");
+  // FIXME: gtk+ tries to be smart and skip rendering a seemingly invisible image
+  header=gtk_label_new("#####");
+  {
+    GtkStyle *style=gtk_widget_get_style(header);
+    gtk_widget_modify_text(header,GTK_STATE_NORMAL,&style->base[GTK_STATE_NORMAL]);
+    gtk_widget_modify_fg(header,GTK_STATE_NORMAL,&style->base[GTK_STATE_NORMAL]);
+    gtk_widget_modify_text(header,GTK_STATE_INSENSITIVE,&style->base[GTK_STATE_INSENSITIVE]);
+    gtk_widget_modify_fg(header,GTK_STATE_INSENSITIVE,&style->base[GTK_STATE_INSENSITIVE]);
+  }
+  gtk_widget_show(header);
   gtk_box_pack_start(GTK_BOX(self->priv->sequence_table_header),header,TRUE,TRUE,0);
   if((tree_col=gtk_tree_view_column_new_with_attributes(/*title=*/NULL,renderer,NULL))) {
     g_object_set(tree_col,
