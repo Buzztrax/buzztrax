@@ -1,5 +1,10 @@
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Planning.
+
+2011-04-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song-io.c:
 	  Remove default implementations for load/save (chaining up does not
 	  make sense here anyway). Check that we have an implementation in

@@ -34,11 +34,9 @@
  *     - set increment for cursor-down on edit
  *   - Duplicate pattern: make a copy of pattern under cursor and go to pattern view
  *   - New pattern: open new pattern dialog, insert pattern under cursor and go to pattern view
- * - sequence header
- *   - add the same context menu as the machines have in machine view when
- *     clicking on track headers
- *     - e.g. allow to open machine settings/preferences
- *       see also comments on pattern page
+ * - sequence view context menu
+ *   - open pattern properties
+ *   - copy current pattern
  *   - allow to switch meters (off, level, scope, spectrum)
  * - when we move between tracks, switch the current-machine in pattern-view
  * - pattern list
@@ -65,7 +63,10 @@
  * @todo: handle pattern name changes
  *   - when pattern gets renamed
  *     - we need to update the pattern list (if shown)
- *     - we need to update the sequence
+ *     - we need to update the sequence (if pattern is used)
+ *     - we need to catch each pattern addition to listen to notify::name
+ *       - right now we only watch for pattern add/remove for current track
+ *       - we need to avoid to add the handler multiple times
  */
 
 #define BT_EDIT
@@ -1553,7 +1554,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     gchar *str,key[2]={0,};
 
     GST_INFO("refresh pattern list for machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
-
+    
     //-- append default rows
     self->priv->pattern_keys=sink_pattern_keys;
     index=2;
