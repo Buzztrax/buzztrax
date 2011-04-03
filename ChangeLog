@@ -1,5 +1,13 @@
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWS:
+	  Update the NEWS.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Review and extend help.
+
+2011-04-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Planning.
 

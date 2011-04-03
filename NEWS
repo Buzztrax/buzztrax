@@ -1,10 +1,16 @@
-0.6.0 black beats blue
+0.6.0 black beats blue (xx.xxx.2011)
 ================================================================================
-- UI improvements (tip of day, spectrum analyzer, clipboard support)
-- gstreamer decoder
-- performance
-- code cleanups and porting (gnomevfs->gio, hal->gudev)
-- better docs, man-pages
+Main feature of this release is full undo/redo support. Related to it is the
+journaling of edit action and the crash recovery. This way chances of losing
+changes in the song are quite low. Other UI improvements are: tip of day,
+improved spectrum analyzer, clipboard support, more commands in context menus
+and many more). This release features a gstreamer decoder that enables playback
+of buzztard songs in any gstreamer based media player.
+We also kept the buzztard codebase clean and ported from deprecated APIs to the
+successors (gnomevfs->gio, hal->gudev). The libraries and the applications got
+performance improvements in many areas.
+Also the docs have been improved a lot with tutorials, better coverage and
+man-pages.
 
 0.5.0 crown of thorns (06.Sep.2009)
 ================================================================================

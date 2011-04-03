@@ -90,7 +90,7 @@
   <para>
     During the next section we describe the concept of the <application>&app;</application>
     and also compare it to similar applications. If you are familiar with some
-    of those, the retrospective sections should help to understand the way
+    of those, the respective sections should help to understand the way
     <application>&app;</application> works.
   </para>
   <para>
@@ -102,8 +102,8 @@
       <listitem><para><link linkend="bt-edit-reference" endterm="bt-edit-reference.title"/></para></listitem>
     </itemizedlist>
     The <link linkend="bt-edit-tutorial" endterm="bt-edit-tutorial.title"/>
-    chapter is introducing the <application>&app;</application> in a tutorial
-    style. The later chapter have reference character, describing each view and
+    chapter is introducing <application>&app;</application> in a tutorial
+    style. The later chapters have reference character, describing each view and
     dialog.
   </para>
 
@@ -113,24 +113,26 @@
       &app; follows the concept of tracker applications. This is quite different
       when compared to other music composers.
       The tracker concept is more focused on the event data. There is no piano roll (at least not now).
-      Instead song fragments (patterns) are shown in a tabular way.
+      Instead song fragments (patterns) are shown in a tabular way containing events over time.
     </para>
     <para>
       The tabbed UI provides several linked views on a song:
       <itemizedlist>
         <listitem><para>A machine view: virtual devices and how they are connected</para></listitem>
-        <listitem><para>A pattern view: each virtual device has a list or event fragments</para></listitem>
-        <listitem><para>A sequence view: a timeline where each track containes patterns that should be played at a given time for the machine of the track</para></listitem>
-        <listitem><para>A wavetable view: collection of sample clips (optional)</para></listitem>
+        <listitem><para>A pattern view: each virtual device has a list of event fragments</para></listitem>
+        <listitem><para>A sequence view: a timeline where each track contains patterns that should be played at a given time for the machine of the track</para></listitem>
+        <listitem><para>A wavetable view: collection of sample clips to be used as sound sources for some machines (optional)</para></listitem>
         <listitem><para>A metadata view: extra information about the song</para></listitem>
       </itemizedlist>
     </para>
     <para>
       Important design criteria for <application>&app;</application> are:
       <itemizedlist>
-        <listitem><para>fast and system compliant ui</para></listitem>
+        <listitem><para>fast and desktop compliant ui</para></listitem>
         <listitem><para>keyboard shortcuts for everything</para></listitem>
         <listitem><para>total recall</para></listitem>
+        <listitem><para>highly interactive</para></listitem>
+        <listitem><para>protect the creative process (open song format, journaling)</para></listitem>
       </itemizedlist>
     </para>
   </sect2>
@@ -156,6 +158,9 @@
         <listitem><para>can have multiple wire-analyzers open</para></listitem>
         <listitem><para>can be remote controlled with UPnP A/V software</para></listitem>
         <listitem><para>supports HID input devices for effect control (e.g. joysticks)</para></listitem>
+        <listitem><para>has unlimmited undo/redo support</para></listitem>
+        <listitem><para>does journaling and crash recovery</para></listitem>
+        <listitem><para>ships with a plugin that enables GStreamer based media players to play buzztard songs</para></listitem>
       </itemizedlist>
       current shortcomings in &app;:
       <itemizedlist>
@@ -359,7 +364,11 @@
       be played. These are the sound-generators and effects that are used and
       eventually digital audio-samples. When loading a song &app; checks if all
       needed resources are available and if not lists them in one dialog
-      (FIXME: document and link).
+      (FIXME: document and link). &app; loads and saves songs in an own format
+      is either a single xml file or a compressed zip file (.bzt) containing the
+      xml file and external files (samples). &app; supports plugins to load and
+      save files in differet formats. As of now an importer for buzz-songs (.bmx
+      and .bmw) exists. 
     </para>
     <para>
       The <menuchoice><guimenu>Edit</guimenu></menuchoice> menu contains
@@ -442,8 +451,7 @@
       </para>
       <para>
         Machines and wires have context menus. The menu for the wire can be
-        accessed by right clicking over the pointer shape in the middle. Not yet
-        connected elements can be removed immediately (without any dialogs).
+        accessed by right clicking over the pointer shape in the middle.
       </para>
       <para>
         A double click on a machine brings up the <link linkend="bt-edit-dialog-machine-properties" endterm="bt-edit-dialog-machine-properties.title"/>.
@@ -787,19 +795,14 @@
       </figure>
     </sect3>
   </sect2>
-<!--
-@todo: more dialogs
-  machine preferences
-  machine rename
-  preset properties(name and comment)
-  wire analysis
-  pattern properties
-
-  about dialog
-  missing machines and waves
--->
   <sect2 id="bt-edit-dialog-machine-properties">
     <title id="bt-edit-dialog-machine-properties.title">Machine properties dialog</title>
+    <para>
+      Context menus on <link linkend="bt-edit-main-view-machines">machine</link>,
+      <link linkend="bt-edit-main-view-patterns">pattern</link> and 
+      <link linkend="bt-edit-main-view-sequence">sequence</link> page allow to open this
+      property view for the current machine.
+    </para>
     <para>
       The main area of the dialog is covered by the parameters of the machine.
       These parameter control the generated audio or the effects. If parameters
@@ -807,10 +810,10 @@
       the ui will reflect the changes as the music plays.
     </para>
     <para>
-      Parameters are grouped. There is a group from global parameters and one
+      Parameters are grouped. There is one group for global parameters and one
       for each voice (for polyphonic machines). Effects and the master also have
       a group for each input allowing to change volume and panorama. These are
-      the same parameters that can be changed in the wire in the
+      the same parameters that can be changed on the wire in the
       <link linkend="bt-edit-main-view-machines">machine view</link>.
     </para>
     <para>
@@ -823,7 +826,8 @@
     <para>
       At the top of the dialog is a small toolbar. One button allows to show or
       hide the right side preset pane. Most machines support presets. Presets
-      are a collection of parameter sets.
+      are a collection of parameter sets. Other buttons on the toolbar show
+      information about the machine, the help, reset or randomize parameters.
     </para>
     <figure id="bt-edit-dialog-machine-properties-fig">
       <title>Info view</title>
@@ -838,16 +842,23 @@
         </mediaobject>
       </screenshot>
     </figure>
+    <para>
+      Several such dialogs can be openend and the status is saved with the song.
+    </para>
   </sect2>
   <sect2 id="bt-edit-dialog-machine-preferences">
     <title id="bt-edit-dialog-machine-preferences.title">Machine preferences dialog</title>
     <para>
       Machine preferences are settings that are configured for the whole song.
-      These settings can be changed over time.
+      These settings cannot be changed over time. Context menus on 
+      <link linkend="bt-edit-main-view-machines">machine</link>,
+      <link linkend="bt-edit-main-view-patterns">pattern</link> and 
+      <link linkend="bt-edit-main-view-sequence">sequence</link> page allow to
+      open this dialog.
     </para>
     <note><title>Warning</title>
       <para>
-        Right now this contains also some low-level settings, where changing
+        Right now this might also contain some low-level settings, where changing
         them could break playback.
       </para>
     </note>
@@ -865,6 +876,71 @@
       </screenshot>
     </figure>
   </sect2>
+  <sect2 id="bt-edit-dialog-machine-rename">
+    <title id="bt-edit-dialog-machine-rename.title">Machine rename dialog</title>
+    <para>
+      Allows renaming a machine. The dialog ensures that the new name is unique
+      in the song.
+    </para>
+    <para>
+      (FIXME: need screenshot)
+    </para>
+  </sect2>
+  <sect2 id="bt-edit-dialog-preset-properties">
+    <title id="bt-edit-dialog-preset-properties.title">Preset properties dialog</title>
+    <para>
+      Allows renaming a preset and adding comments for them. The dialog ensures
+      that the new name is unique among the presets of a machine.
+    </para>
+    <para>
+      (FIXME: need screenshot)
+    </para>
+  </sect2>
+  <sect2 id="bt-edit-dialog-signal-analysis">
+    <title id="bt-edit-dialog-signal-analysis.title">Signal analysis dialog</title>
+    <para>
+      The context menu on wires and the master machine allow to attach live signal
+      analyzers to the song. This dialog shows the volume meters and a
+      spectrogram for the wire or the master. There are a few settings to change
+      the visualization of the spectrogram.
+    </para>
+    <para>
+      Several such dialogs can be openend and the status is saved with the song.
+    </para>
+    <para>
+      (FIXME: need screenshot)
+    </para>
+  </sect2>
+  <sect2 id="bt-edit-dialog-pattern-properties">
+    <title id="bt-edit-dialog-pattern-properties.title">Pattern properties dialog</title>
+    <para>
+      Allows renaming a pattern as well as changing its length or the number of
+      voices (for polyphonic machines). The dialog ensures that the new name is
+      unique among the patterns of a machine.
+    </para>
+    <para>
+      (FIXME: need screenshot)
+    </para>
+  </sect2>
+  <sect2 id="bt-edit-dialog-song-recording">
+    <title id="bt-edit-dialog-song-recording.title">Song recording dialog</title>
+    <para>
+      &app; can render a song as a mix-down or a series of files per generator.
+      The mix-down is idea to share or publish the song. In both ways the recordings
+      can be encoded and muxed in several formats.
+    </para>
+    <para>
+      (FIXME: need screenshot)
+    </para>
+  </sect2>
+<!--
+@todo: more dialogs
+  recording dialog
+
+  about dialog
+  tip dialog
+  missing machines and waves
+-->
 </sect1>
 
 <sect1 id="bt-edit-reference">
@@ -882,7 +958,10 @@
       (FIXME:)
     </para>
   </sect2>
-
+<!--
+@todo:
+  list of warnings/errors?
+-->
 </sect1>
 
 <index id="bt-edit-keyword-index">
