@@ -998,7 +998,7 @@ void check_shutdown_test_server(void) {
     // wait for the server to finish (use waitpid() here ?)
     while(wait_for_server && wait_count) {
       sleep(1);
-			wait_count--;
+      wait_count--;
     }
     GST_INFO("test server has been shut down");
   }

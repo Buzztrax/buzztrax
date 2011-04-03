@@ -7,6 +7,7 @@
 Makefile
 Makefile.in
 bt_core
+bt_ic
 bt_cmd
 bt_edit
 bt-cfg.sh

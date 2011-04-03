@@ -1,5 +1,14 @@
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/.cvsignore:
+	* tests (svn:ignore):
+	  Maintenance.
+
+	* tests/bt-check.c:
+	  Indent.
+
+2011-04-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-menu.c:
 	  Also check for unsaved when loading from recent menu.
 
