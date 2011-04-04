@@ -1,5 +1,10 @@
 2011-04-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/signal-analysis-dialog.c:
+	  Fix non-sense labels.
+
+2011-04-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/m-bt-edit.c:
 	* tests/ui/edit/Makefile.am:
 	* tests/ui/edit/e-bt-crash-recover-dialog.c:
