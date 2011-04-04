@@ -1,5 +1,20 @@
 2011-04-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/m-bt-edit.c:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-crash-recover-dialog.c:
+	* tests/ui/edit/s-bt-crash-recover-dialog.c:
+	* tests/ui/edit/s-bt-crash-recover-dialog.c (svn:keywords, svn:eol-
+	  style):
+	* tests/ui/edit/e-bt-crash-recover-dialog.c (svn:keywords, svn:eol-
+	  style):
+	* tests/ui/edit/s-bt-crash-recover-dialog.c (added):
+	* tests/ui/edit/e-bt-crash-recover-dialog.c (added):
+	  Add another test to get a screenshot for the crash-recover dialog. Also
+	  set the application name to get a nicer screenshot for the about dialog.
+
+2011-04-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/dec/bt-dec.c:
 	  Also rename debug category.
 

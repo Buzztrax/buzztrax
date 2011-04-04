@@ -37,6 +37,7 @@ GST_DEBUG_CATEGORY_EXTERN(bt_edit_debug);
 extern Suite *bt_about_dialog_suite(void);
 extern Suite *bt_change_log_suite(void);
 extern Suite *bt_controller_learn_dialog_suite(void);
+extern Suite *bt_crash_recover_dialog_suite(void);
 extern Suite *bt_edit_application_suite(void);
 extern Suite *bt_interaction_controller_menu_suite(void);
 extern Suite *bt_machine_actions_suite(void);
@@ -103,6 +104,7 @@ void bt_edit_setup(void) {
   theme=gtk_icon_theme_get_default()
   gtk_icon_theme_append_search_path(theme,....);
   */
+  g_set_application_name("Buzztard");
   bt_check_init();
   GST_INFO("................................................................................");
 
@@ -161,13 +163,14 @@ int main(int argc, char **argv) {
 
   //GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   //gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-  g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
+  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   check_setup_test_server();
 
   sr=srunner_create(bt_about_dialog_suite());
   srunner_add_suite(sr, bt_change_log_suite());
   srunner_add_suite(sr, bt_controller_learn_dialog_suite());
+  srunner_add_suite(sr, bt_crash_recover_dialog_suite());
   srunner_add_suite(sr, bt_edit_application_suite());
   srunner_add_suite(sr, bt_interaction_controller_menu_suite());
   srunner_add_suite(sr, bt_machine_actions_suite());
