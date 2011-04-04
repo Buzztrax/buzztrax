@@ -48,6 +48,11 @@ buzztard-edit2.pdf: buzztard-edit.xml
 # xsltproc --nonet $(stylesheet) $(docname).xml
 # b) simple install pregenerated html (pdf)
 
+# this relies on particular names in the tests
+# it would be nicer to fix the names in the tests and apply some rule:
+#   /tmp/check_buzzard_help_(*).png -> figures/\1.png
+#   - here we would mark the images by having an additional "_help" in the name
+#   - right now this is prgname + widget name + optinal extra name
 update_figures:
 	if [ -e "/tmp/check_buzzard_main window.png" ]; then \
 	  pngtopnm "/tmp/check_buzzard_main window.png" | ../../mk-shadow.sh | pnmtopng >figures/main-window.png; \
@@ -76,6 +81,33 @@ update_figures:
 	fi; \
 	if [ -e "/tmp/check_buzzard_machine preferences.png" ]; then \
 	  pngtopnm "/tmp/check_buzzard_machine preferences.png" | ../../mk-shadow.sh | pnmtopng >figures/machine-preferences.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_rename machine.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_rename machine.png" | ../../mk-shadow.sh | pnmtopng >figures/machine-rename.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_preset name and comment.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_preset name and comment.png" | ../../mk-shadow.sh | pnmtopng >figures/preset-properties.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_wire analysis.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_wire analysis.png" | ../../mk-shadow.sh | pnmtopng >figures/signal-analysis.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_BtAboutDialog.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_BtAboutDialog.png" | ../../mk-shadow.sh | pnmtopng >figures/about.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_Tip of the day.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_Tip of the day.png" | ../../mk-shadow.sh | pnmtopng >figures/tip.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_song rendering.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_song rendering.png" | ../../mk-shadow.sh | pnmtopng >figures/recording-settings.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_song render progress.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_song render progress.png" | ../../mk-shadow.sh | pnmtopng >figures/recording-progress.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_Missing elements in song.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_Missing elements in song.png" | ../../mk-shadow.sh | pnmtopng >figures/missing-song-elements.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_Missing GStreamer elements.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_Missing GStreamer elements.png" | ../../mk-shadow.sh | pnmtopng >figures/missing-gstreamer-elements.png; \
 	fi; \
 	\
 	if [ -e "/tmp/check_buzzard_buzztard settings_audio devices.png" ]; then \

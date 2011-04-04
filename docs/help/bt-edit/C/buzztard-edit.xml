@@ -363,12 +363,12 @@
       songs, as well as end the program. Songs need other resources in order to
       be played. These are the sound-generators and effects that are used and
       eventually digital audio-samples. When loading a song &app; checks if all
-      needed resources are available and if not lists them 
+      needed resources are available and if not lists them
       <link linkend="bt-edit-dialog-missing-song-elements">in one dialog</link>.
       &app; loads and saves songs in an own format is either a single xml file
       or a compressed zip file (.bzt) containing the xml file and external files
       (samples). &app; supports plugins to load and save files in different
-      formats. As of now an importer for buzz-songs (.bmx and .bmw) exists. 
+      formats. As of now an importer for buzz-songs (.bmx and .bmw) exists.
     </para>
     <para>
       The <menuchoice><guimenu>Edit</guimenu></menuchoice> menu contains
@@ -668,6 +668,9 @@
           <imageobject>
             <imagedata fileref="figures/settings-audio.png" format="PNG" contentwidth="65%"/>
           </imageobject>
+          <textobject>
+            <phrase>Settings dialog.</phrase>
+          </textobject>
         </mediaobject>
       </screenshot>
     </figure>
@@ -686,6 +689,9 @@
             <imageobject>
               <imagedata fileref="figures/settings-audio.png" format="PNG" contentwidth="65%"/>
             </imageobject>
+            <textobject>
+              <phrase>Audio device settings.</phrase>
+            </textobject>
           </mediaobject>
         </screenshot>
       </figure>
@@ -717,6 +723,9 @@
             <imageobject>
               <imagedata fileref="figures/settings-pc.png" format="PNG" contentwidth="65%"/>
             </imageobject>
+            <textobject>
+              <phrase>Playback controller settings.</phrase>
+            </textobject>
           </mediaobject>
         </screenshot>
       </figure>
@@ -736,6 +745,9 @@
             <imageobject>
               <imagedata fileref="figures/settings-ic.png" format="PNG" contentwidth="65%"/>
             </imageobject>
+            <textobject>
+              <phrase>Interaction controller settings.</phrase>
+            </textobject>
           </mediaobject>
         </screenshot>
       </figure>
@@ -754,6 +766,9 @@
             <imageobject>
               <imagedata fileref="figures/settings-colors.png" format="PNG" contentwidth="65%"/>
             </imageobject>
+            <textobject>
+              <phrase>Colors settings.</phrase>
+            </textobject>
           </mediaobject>
         </screenshot>
       </figure>
@@ -772,6 +787,9 @@
             <imageobject>
               <imagedata fileref="figures/settings-shortcuts.png" format="PNG" contentwidth="65%"/>
             </imageobject>
+            <textobject>
+              <phrase>Shortcut settings.</phrase>
+            </textobject>
           </mediaobject>
         </screenshot>
       </figure>
@@ -790,6 +808,9 @@
             <imageobject>
               <imagedata fileref="figures/settings-directories.png" format="PNG" contentwidth="65%"/>
             </imageobject>
+            <textobject>
+              <phrase>Directory settings.</phrase>
+            </textobject>
           </mediaobject>
         </screenshot>
       </figure>
@@ -799,7 +820,7 @@
     <title id="bt-edit-dialog-machine-properties.title">Machine properties dialog</title>
     <para>
       Context menus on <link linkend="bt-edit-main-view-machines">machine</link>,
-      <link linkend="bt-edit-main-view-patterns">pattern</link> and 
+      <link linkend="bt-edit-main-view-patterns">pattern</link> and
       <link linkend="bt-edit-main-view-sequence">sequence</link> page allow to open this
       property view for the current machine.
     </para>
@@ -830,7 +851,7 @@
       information about the machine, the help, reset or randomize parameters.
     </para>
     <figure id="bt-edit-dialog-machine-properties-fig">
-      <title>Info view</title>
+      <title>Machine properties dialog</title>
       <screenshot>
         <mediaobject>
           <imageobject>
@@ -850,9 +871,9 @@
     <title id="bt-edit-dialog-machine-preferences.title">Machine preferences dialog</title>
     <para>
       Machine preferences are settings that are configured for the whole song.
-      These settings cannot be changed over time. Context menus on 
+      These settings cannot be changed over time. Context menus on
       <link linkend="bt-edit-main-view-machines">machine</link>,
-      <link linkend="bt-edit-main-view-patterns">pattern</link> and 
+      <link linkend="bt-edit-main-view-patterns">pattern</link> and
       <link linkend="bt-edit-main-view-sequence">sequence</link> page allow to
       open this dialog.
     </para>
@@ -863,7 +884,7 @@
       </para>
     </note>
     <figure id="bt-edit-dialog-machine-preferences-fig">
-      <title>Info view</title>
+      <title>Machine preferences dialog</title>
       <screenshot>
         <mediaobject>
           <imageobject>
@@ -882,9 +903,19 @@
       Allows renaming a machine. The dialog ensures that the new name is unique
       in the song.
     </para>
-    <para>
-      (FIXME: need screenshot)
-    </para>
+    <figure id="bt-edit-dialog-preset-properties-fig">
+      <title>Machine rename dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/machine-rename.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Machine rename dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
   <sect2 id="bt-edit-dialog-preset-properties">
     <title id="bt-edit-dialog-preset-properties.title">Preset properties dialog</title>
@@ -892,9 +923,19 @@
       Allows renaming a preset and adding comments for them. The dialog ensures
       that the new name is unique among the presets of a machine.
     </para>
-    <para>
-      (FIXME: need screenshot)
-    </para>
+    <figure id="bt-edit-dialog-preset-properties-fig">
+      <title>Preset properties dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/preset-properties.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Preset properties dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
   <sect2 id="bt-edit-dialog-signal-analysis">
     <title id="bt-edit-dialog-signal-analysis.title">Signal analysis dialog</title>
@@ -907,9 +948,19 @@
     <para>
       Several such dialogs can be openend and the status is saved with the song.
     </para>
-    <para>
-      (FIXME: need screenshot)
-    </para>
+    <figure id="bt-edit-dialog-signal-analysis-fig">
+      <title>Signal analysis dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/signal-analysis.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Signal analysis dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
   <sect2 id="bt-edit-dialog-pattern-properties">
     <title id="bt-edit-dialog-pattern-properties.title">Pattern properties dialog</title>
@@ -918,9 +969,19 @@
       voices (for polyphonic machines). The dialog ensures that the new name is
       unique among the patterns of a machine.
     </para>
-    <para>
-      (FIXME: need screenshot)
-    </para>
+    <figure id="bt-edit-dialog-pattern-properties-fig">
+      <title>Pattern properties dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/pattern-properties.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Pattern properties dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
   <sect2 id="bt-edit-dialog-song-recording">
     <title id="bt-edit-dialog-song-recording.title">Song recording dialog</title>
@@ -929,9 +990,32 @@
       The mix-down is idea to share or publish the song. In both ways the recordings
       can be encoded and muxed in several formats.
     </para>
-    <para>
-      (FIXME: need screenshot)
-    </para>
+    <figure id="bt-edit-dialog-song-recording-settings-fig">
+      <title>Song recording settings dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/recording-settings.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Song recording settings dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+    <figure id="bt-edit-dialog-song-recording-progress-fig">
+      <title>Song recording progress dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/recording-progress.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Song recording progress dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
   <sect2 id="bt-edit-dialog-about">
     <title id="bt-edit-dialog-about.title">About dialog</title>
@@ -939,9 +1023,19 @@
       This dialog shows a short info about the appliation, the license it is
       released under and gives credits to the contributors.
     </para>
-    <para>
-      (FIXME: need screenshot)
-    </para>
+    <figure id="bt-edit-dialog-about-fig">
+      <title>About dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/about.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>About dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
   <sect2 id="bt-edit-dialog-tip">
     <title id="bt-edit-dialog-tip.title">Tip-of-the-day dialog</title>
@@ -951,9 +1045,19 @@
       each time after starting the application. It will highlight special
       features that one might otherwise miss.
     </para>
-    <para>
-      (FIXME: need screenshot)
-    </para>
+    <figure id="bt-edit-dialog-tip-fig">
+      <title>Tip-of-the-day dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/tip.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Tip-of-the-day dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
   <sect2 id="bt-edit-dialog-missing-song-elements">
     <title id="bt-edit-dialog-missing-song-elements.title">Missing song elements dialog</title>
@@ -970,9 +1074,19 @@
       external waveforms back to the original place. It would be desirable to
       have some repair feature in &app; to support fixing the song.
     </para>
-    <para>
-      (FIXME: need screenshot)
-    </para>
+    <figure id="bt-edit-dialog-missing-song-elements-fig">
+      <title>Missing song elements dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/missing-song-elements.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Missing song elements dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
   <sect2 id="bt-edit-dialog-crash-recovery">
     <title id="bt-edit-dialog-crash-recovery.title">Crash recovery dialog</title>
@@ -986,7 +1100,7 @@
       <link linkend="bt-edit-main-menu">file menu</link>.
     </para>
     <para>
-      (FIXME: need screenshot)
+      (FIXME: need screenshot and test for it)
     </para>
   </sect2>
 </sect1>
