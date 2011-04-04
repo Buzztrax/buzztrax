@@ -742,7 +742,7 @@ plugin_init (GstPlugin * plugin)
   gchar **exts = NULL;
   guint i = 0, j ,l = 20;
 
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-bin", GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "buzztard song player");
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-dec", GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "buzztard song renderer");
 
   if (!bt_init_check (NULL,NULL, NULL)) {
     GST_WARNING ("failed to init buzztard library");
