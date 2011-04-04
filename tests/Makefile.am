@@ -223,13 +223,13 @@ VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS) $(VALSUPPRESSION)
 valgrind:: $(TESTS_BIN)
 	for i in $^; do \
 	  rm -rf /tmp/$$i.valgrind.pid*; \
-	  $(VALCMD) --log-file=/tmp/$$i.valgrind ./$$i; \
+	  $(VALCMD) --log-file=/tmp/$$i_valgrind.pid%p ./$$i; \
 	done
 
 # valgrind any given test by running make <test>.valgrind
 %.valgrind: %
 	rm -rf /tmp/$$i.valgrind.pid*; \
-	$(VALCMD) --log-file=/tmp/$*.valgrind ./$*;
+	$(VALCMD) --log-file=/tmp/$*.valgrind.pid%p ./$*;
 endif
 
 splint::

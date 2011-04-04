@@ -72,7 +72,7 @@ BT_START_TEST(test_machine_properties_dialog) {
 
   // make screenshot
   check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
-  
+
   // play for a while to trigger dialog updates
   bt_song_play(song);
   bt_song_update_playback_position(song);

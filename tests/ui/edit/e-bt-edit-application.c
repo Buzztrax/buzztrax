@@ -528,6 +528,7 @@ BT_START_TEST(test_tabs1) {
   g_object_unref(setup);
 
   children=gtk_container_get_children(GTK_CONTAINER(pages));
+  fail_unless(children != NULL, NULL);
   //num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));
   num_pages=g_list_length(children);
   for(i=0;i<num_pages;i++) {
@@ -564,7 +565,6 @@ BT_START_TEST(test_tabs_playing) {
   BtSetup *setup;
   BtWave *wave;
   BtMachine *src_machine;
-  GtkWidget *child;
   GList *children;
   guint i,num_pages;
 
@@ -604,6 +604,7 @@ BT_START_TEST(test_tabs_playing) {
   g_object_unref(setup);
 
   children=gtk_container_get_children(GTK_CONTAINER(pages));
+  fail_unless(children != NULL, NULL);
   //num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));
   num_pages=g_list_length(children);
   // play for a while to trigger screen updates
@@ -612,8 +613,6 @@ BT_START_TEST(test_tabs_playing) {
     bt_song_update_playback_position(song);
 
     gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),i);
-    child=GTK_WIDGET(g_list_nth_data(children,i));
-
     while(gtk_events_pending()) gtk_main_iteration();
   }
   bt_song_stop(song);

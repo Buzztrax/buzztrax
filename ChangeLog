@@ -1,5 +1,16 @@
 2011-04-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/Makefile.am:
+	  Use separate files per pid for valgrind logs.
+
+	* tests/ui/edit/e-bt-edit-application.c:
+	  Tinker with the test to get more trace points.
+	  
+	* tests/ui/edit/e-bt-machine-properties-dialog.c:
+	  Whitespace.
+
+2011-04-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/Makefile.am:
 	* docs/help/bt-edit/C/buzztard-edit.xml:
 	* docs/help/bt-edit/C/figures/about.png:
