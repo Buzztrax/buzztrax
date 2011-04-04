@@ -363,12 +363,12 @@
       songs, as well as end the program. Songs need other resources in order to
       be played. These are the sound-generators and effects that are used and
       eventually digital audio-samples. When loading a song &app; checks if all
-      needed resources are available and if not lists them in one dialog
-      (FIXME: document and link). &app; loads and saves songs in an own format
-      is either a single xml file or a compressed zip file (.bzt) containing the
-      xml file and external files (samples). &app; supports plugins to load and
-      save files in differet formats. As of now an importer for buzz-songs (.bmx
-      and .bmw) exists. 
+      needed resources are available and if not lists them 
+      <link linkend="bt-edit-dialog-missing-song-elements">in one dialog</link>.
+      &app; loads and saves songs in an own format is either a single xml file
+      or a compressed zip file (.bzt) containing the xml file and external files
+      (samples). &app; supports plugins to load and save files in different
+      formats. As of now an importer for buzz-songs (.bmx and .bmw) exists. 
     </para>
     <para>
       The <menuchoice><guimenu>Edit</guimenu></menuchoice> menu contains
@@ -933,14 +933,62 @@
       (FIXME: need screenshot)
     </para>
   </sect2>
-<!--
-@todo: more dialogs
-  recording dialog
-
-  about dialog
-  tip dialog
-  missing machines and waves
--->
+  <sect2 id="bt-edit-dialog-about">
+    <title id="bt-edit-dialog-about.title">About dialog</title>
+    <para>
+      This dialog shows a short info about the appliation, the license it is
+      released under and gives credits to the contributors.
+    </para>
+    <para>
+      (FIXME: need screenshot)
+    </para>
+  </sect2>
+  <sect2 id="bt-edit-dialog-tip">
+    <title id="bt-edit-dialog-tip.title">Tip-of-the-day dialog</title>
+    <para>
+      If the tip-of-the-day feature is enabled in the
+      <link linkend="bt-edit-main-menu">help menu</link> this dialog is shown
+      each time after starting the application. It will highlight special
+      features that one might otherwise miss.
+    </para>
+    <para>
+      (FIXME: need screenshot)
+    </para>
+  </sect2>
+  <sect2 id="bt-edit-dialog-missing-song-elements">
+    <title id="bt-edit-dialog-missing-song-elements.title">Missing song elements dialog</title>
+    <para>
+      Songs have external dependecies, such as the machines (generators and
+      effects) and sampled waveforms. In some song formats (e.g. .bzt) the
+      waveforms are part of the song file, in others (e.g. .xml) only the path
+      to the waveform file is stored. If loading a file detects that some
+      dependencies are missing, &app; will gather them and present them in one
+      dialog.
+    </para>
+    <para>
+      To solve the problem one needs to install the missing machines or put the
+      external waveforms back to the original place. It would be desirable to
+      have some repair feature in &app; to support fixing the song.
+    </para>
+    <para>
+      (FIXME: need screenshot)
+    </para>
+  </sect2>
+  <sect2 id="bt-edit-dialog-crash-recovery">
+    <title id="bt-edit-dialog-crash-recovery.title">Crash recovery dialog</title>
+    <para>
+      When editing a song &app; is writing a detailed change log to disk. In the
+      case of a application, system or computer failure it is possible to replay
+      the changes on top of the last saved copy to get back to the state before
+      failure.  When starting &app; it will check for such logs and if some are
+      found present this dialog. Now one can choose to restore the changes or
+      delete them. The dialog is also availab le from the
+      <link linkend="bt-edit-main-menu">file menu</link>.
+    </para>
+    <para>
+      (FIXME: need screenshot)
+    </para>
+  </sect2>
 </sect1>
 
 <sect1 id="bt-edit-reference">
