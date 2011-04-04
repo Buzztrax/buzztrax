@@ -903,7 +903,7 @@
       Allows renaming a machine. The dialog ensures that the new name is unique
       in the song.
     </para>
-    <figure id="bt-edit-dialog-preset-properties-fig">
+    <figure id="bt-edit-dialog-machine-rename-fig">
       <title>Machine rename dialog</title>
       <screenshot>
         <mediaobject>
@@ -1099,10 +1099,24 @@
       delete them. The dialog is also availab le from the
       <link linkend="bt-edit-main-menu">file menu</link>.
     </para>
-    <para>
-      (FIXME: need screenshot and test for it)
-    </para>
+    <figure id="bt-edit-dialog-crash-recovery-fig">
+      <title>Crash recovery dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/crash-recovery.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Crash recovery dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
   </sect2>
+<!--
+@todo:
+  interaction-controller-learn.png
+-->
 </sect1>
 
 <sect1 id="bt-edit-reference">

@@ -109,6 +109,12 @@ update_figures:
 	if [ -e "/tmp/check_buzzard_Missing GStreamer elements.png" ]; then \
 	  pngtopnm "/tmp/check_buzzard_Missing GStreamer elements.png" | ../../mk-shadow.sh | pnmtopng >figures/missing-gstreamer-elements.png; \
 	fi; \
+	if [ -e "/tmp/check_buzzard_Unsaved song recovery.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_Unsaved song recovery.png" | ../../mk-shadow.sh | pnmtopng >figures/crash-recovery.png; \
+	fi; \
+	if [ -e "/tmp/check_buzzard_interaction controller learn.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_interaction controller learn.png" | ../../mk-shadow.sh | pnmtopng >figures/interaction-controller-learn.png; \
+	fi; \
 	\
 	if [ -e "/tmp/check_buzzard_buzztard settings_audio devices.png" ]; then \
 	  pngtopnm "/tmp/check_buzzard_buzztard settings_audio devices.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-audio.png; \

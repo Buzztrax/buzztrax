@@ -1,3 +1,60 @@
+2011-04-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/Makefile.am:
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/figures/about.png:
+	* docs/help/bt-edit/C/figures/crash-recovery.png:
+	* docs/help/bt-edit/C/figures/interaction-controller-learn.png:
+	* docs/help/bt-edit/C/figures/machine-preferences.png:
+	* docs/help/bt-edit/C/figures/machine-properties.png:
+	* docs/help/bt-edit/C/figures/machine-rename.png:
+	* docs/help/bt-edit/C/figures/main-window.png:
+	* docs/help/bt-edit/C/figures/missing-gstreamer-elements.png:
+	* docs/help/bt-edit/C/figures/missing-song-elements.png:
+	* docs/help/bt-edit/C/figures/page-info-view.png:
+	* docs/help/bt-edit/C/figures/page-machine-view.png:
+	* docs/help/bt-edit/C/figures/page-pattern-view.png:
+	* docs/help/bt-edit/C/figures/page-sequence-view.png:
+	* docs/help/bt-edit/C/figures/page-wavetable-view.png:
+	* docs/help/bt-edit/C/figures/pattern-properties.png:
+	* docs/help/bt-edit/C/figures/preset-properties.png:
+	* docs/help/bt-edit/C/figures/recording-progress.png:
+	* docs/help/bt-edit/C/figures/recording-settings.png:
+	* docs/help/bt-edit/C/figures/settings-audio.png:
+	* docs/help/bt-edit/C/figures/settings-colors.png:
+	* docs/help/bt-edit/C/figures/settings-directories.png:
+	* docs/help/bt-edit/C/figures/settings-ic.png:
+	* docs/help/bt-edit/C/figures/settings-pc.png:
+	* docs/help/bt-edit/C/figures/settings-shortcuts.png:
+	* docs/help/bt-edit/C/figures/signal-analysis.png:
+	* docs/help/bt-edit/C/figures/tip.png:
+	* docs/help/bt-edit/C/figures/missing-song-elements.png (svn:mime-
+	  type):
+	* docs/help/bt-edit/C/figures/about.png (svn:mime-type):
+	* docs/help/bt-edit/C/figures/signal-analysis.png (svn:mime-type):
+	* docs/help/bt-edit/C/figures/missing-gstreamer-elements.png (svn:mime-
+	  type):
+	* docs/help/bt-edit/C/figures/recording-progress.png (svn:mime-type):
+	* docs/help/bt-edit/C/figures/crash-recovery.png (svn:mime-type):
+	* docs/help/bt-edit/C/figures/preset-properties.png (svn:mime-type):
+	* docs/help/bt-edit/C/figures/machine-rename.png (svn:mime-type):
+	* docs/help/bt-edit/C/figures/recording-settings.png (svn:mime-type):
+	* docs/help/bt-edit/C/figures/tip.png (svn:mime-type):
+	* docs/help/bt-edit/C/figures/interaction-controller-learn.png (svn
+	  :mime-type):
+	* docs/help/bt-edit/C/figures/tip.png (added):
+	* docs/help/bt-edit/C/figures/crash-recovery.png (added):
+	* docs/help/bt-edit/C/figures/preset-properties.png (added):
+	* docs/help/bt-edit/C/figures/signal-analysis.png (added):
+	* docs/help/bt-edit/C/figures/interaction-controller-learn.png (added):
+	* docs/help/bt-edit/C/figures/machine-rename.png (added):
+	* docs/help/bt-edit/C/figures/about.png (added):
+	* docs/help/bt-edit/C/figures/recording-settings.png (added):
+	* docs/help/bt-edit/C/figures/missing-gstreamer-elements.png (added):
+	* docs/help/bt-edit/C/figures/recording-progress.png (added):
+	* docs/help/bt-edit/C/figures/missing-song-elements.png (added):
+	  Update figures.
+
 2011-04-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/signal-analysis-dialog.c:
