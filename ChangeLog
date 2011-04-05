@@ -1,5 +1,11 @@
 2011-04-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Also init width=0 to avoid accessing it uninitialized from pattern
+	  editor.
+
+2011-04-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/Makefile.am:
 	  Use separate files per pid for valgrind logs.
 

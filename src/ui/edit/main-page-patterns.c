@@ -1903,6 +1903,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
         group->user_data=wire;
         group->num_columns=wire_params;
         group->columns=g_new(BtPatternEditorColumn,wire_params);
+        group->width=0;
         for(i=0;i<wire_params;i++) {
           bt_wire_get_param_details(wire,i,&property,&min_val,&max_val);
           pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val);
@@ -1922,6 +1923,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       group->user_data=NULL;
       group->num_columns=global_params;
       group->columns=g_new(BtPatternEditorColumn,global_params);
+      group->width=0;
       GST_INFO("global parameters");
       for(i=0;i<global_params;i++) {
         bt_machine_get_global_param_details(machine,i,&property,&min_val,&max_val);
@@ -1938,6 +1940,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       group->user_data=GUINT_TO_POINTER(0);
       group->num_columns=voice_params;
       group->columns=g_new(BtPatternEditorColumn,voice_params);
+      group->width=0;
       GST_INFO("voice parameters");
       for(i=0;i<voice_params;i++) {
         bt_machine_get_voice_param_details(machine,i,&property,&min_val,&max_val);
@@ -1951,6 +1954,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
         group->user_data=GUINT_TO_POINTER(i);
         group->num_columns=voice_params;
         group->columns=g_memdup(stamp->columns,sizeof(BtPatternEditorColumn)*voice_params);
+        group->width=0;
         group++;
       }
     }
