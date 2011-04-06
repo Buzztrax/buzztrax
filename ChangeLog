@@ -1,5 +1,10 @@
 2011-04-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Naming update.
+
+2011-04-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* gst.supp:
 	* gtk.supp:
 	* tests/Makefile.am:

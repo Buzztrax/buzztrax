@@ -216,7 +216,7 @@ static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *ne
 
 //-- tree model helper
 
-static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *iter,BtMachine *that_machine) {
+static void machine_menu_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *iter,BtMachine *that_machine) {
   BtMachine *this_machine;
 
   GST_INFO("look up iter for machine : %p,ref_count=%d",that_machine,G_OBJECT_REF_COUNT(that_machine));
@@ -233,7 +233,7 @@ static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *i
   } while(gtk_tree_model_iter_next(store,iter));
 }
 
-static void pattern_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *iter,BtPattern *that_pattern) {
+static void pattern_menu_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *iter,BtPattern *that_pattern) {
   BtPattern *this_pattern;
 
   gtk_tree_model_get_iter_first(store,iter);
@@ -754,7 +754,7 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 
   store=gtk_combo_box_get_model(self->priv->machine_menu);
   // get the row where row.machine==machine
-  machine_model_get_iter_by_machine(store,&iter,machine);
+  machine_menu_model_get_iter_by_machine(store,&iter,machine);
   gtk_list_store_set(GTK_LIST_STORE(store),&iter,MACHINE_MENU_LABEL,str,-1);
 
   g_free(str);
@@ -771,7 +771,7 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
 
   store=gtk_combo_box_get_model(self->priv->pattern_menu);
   // get the row where row.pattern==pattern
-  pattern_model_get_iter_by_pattern(store,&iter,pattern);
+  pattern_menu_model_get_iter_by_pattern(store,&iter,pattern);
   gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_MENU_LABEL,str,-1);
 
   g_free(str);
@@ -2147,13 +2147,13 @@ static void switch_machine_and_pattern(const BtMainPagePatterns *self,BtMachine 
   if(machine) {
     // update machine menu
     store=gtk_combo_box_get_model(self->priv->machine_menu);
-    machine_model_get_iter_by_machine(store,&iter,machine);
+    machine_menu_model_get_iter_by_machine(store,&iter,machine);
     gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
   }
   if(pattern) {
     // update pattern menu
     store=gtk_combo_box_get_model(self->priv->pattern_menu);
-    pattern_model_get_iter_by_pattern(store,&iter,pattern);
+    pattern_menu_model_get_iter_by_pattern(store,&iter,pattern);
     gtk_combo_box_set_active_iter(self->priv->pattern_menu,&iter);
   }
 }
@@ -2336,7 +2336,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
   store=gtk_combo_box_get_model(self->priv->machine_menu);
   // get the row where row.machine==machine
-  machine_model_get_iter_by_machine(store,&iter,machine);
+  machine_menu_model_get_iter_by_machine(store,&iter,machine);
   gtk_list_store_remove(GTK_LIST_STORE(store),&iter);
   index=gtk_tree_model_iter_n_children(store,NULL);
   if(index==0) {
@@ -3026,7 +3026,7 @@ void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine
 
   // update machine menu
   store=gtk_combo_box_get_model(self->priv->machine_menu);
-  machine_model_get_iter_by_machine(store,&iter,machine);
+  machine_menu_model_get_iter_by_machine(store,&iter,machine);
   gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
   // focus pattern editor
   gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->pattern_table));
