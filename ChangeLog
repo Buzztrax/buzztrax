@@ -1,3 +1,12 @@
+2011-04-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* gst.supp:
+	* gtk.supp:
+	* tests/Makefile.am:
+	* gtk.supp (added):
+	  Add another supression file. Add and tune valgrind options. Fix the
+	  valgrind rule for single tests.
+
 2011-04-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

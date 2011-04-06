@@ -155,7 +155,7 @@ clean-local:
 	  $(top_builddir)/tests/songs/*.ogg \
 	  $(abs_builddir)/buzztard/*.log \
 	  /tmp/test.wav
-	rmdir $(abs_builddir)/buzztard
+	-rmdir $(abs_builddir)/buzztard
 
 # run any given test by running make <test>.check
 %.check: %
@@ -214,9 +214,10 @@ VALDEFAULT = @VALGRIND@/bin/valgrind
 VALSUPP = @VALGRIND@/lib/valgrind
 VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp
 VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztard.supp \
-	--suppressions=$(top_builddir)/gst.supp
+	--suppressions=$(top_builddir)/gst.supp \
+	--suppressions=$(top_builddir)/gtk.supp
 VALSUPPRESSION = $(VALSUPPRESSIONDEF) $(VALSUPPRESSIONOWN)
-VALOPTIONS = -q --trace-children=yes --num-callers=20 \
+VALOPTIONS = -v --trace-children=yes --num-callers=30 --read-var-info=yes \
   --tool=memcheck --leak-check=full --leak-resolution=high --track-origins=yes
 VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS) $(VALSUPPRESSION)
 
@@ -228,7 +229,7 @@ valgrind:: $(TESTS_BIN)
 
 # valgrind any given test by running make <test>.valgrind
 %.valgrind: %
-	rm -rf /tmp/$$i.valgrind.pid*; \
+	rm -rf /tmp/$*.valgrind.pid*; \
 	$(VALCMD) --log-file=/tmp/$*.valgrind.pid%p ./$*;
 endif
 
