@@ -613,7 +613,7 @@ BT_START_TEST(test_tabs_playing) {
     bt_song_update_playback_position(song);
 
     gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),i);
-    while(gtk_events_pending()) gtk_main_iteration();
+    //while(gtk_events_pending()) gtk_main_iteration();
   }
   bt_song_stop(song);
   g_list_free(children);

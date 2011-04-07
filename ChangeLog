@@ -1,3 +1,20 @@
+2011-04-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/object-list-model-methods.h:
+	* src/ui/edit/object-list-model.c:
+	* src/ui/edit/object-list-model.h:
+	* tests/ui/edit/e-bt-edit-application.c:
+	* src/ui/edit/object-list-model-methods.h (svn:keywords, svn:eol-
+	  style):
+	* src/ui/edit/object-list-model.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/object-list-model.c (svn:keywords, svn:eol-style):
+	* src/ui/edit/object-list-model.c (added):
+	* src/ui/edit/object-list-model.h (added):
+	* src/ui/edit/object-list-model-methods.h (added):
+	  Add first step of our own model.
+
 2011-04-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
