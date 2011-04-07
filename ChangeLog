@@ -1,5 +1,10 @@
 2011-04-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-logger.h:
+	  Comment fix.
+
+2011-04-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.h:
 	* src/ui/edit/object-list-model-methods.h:

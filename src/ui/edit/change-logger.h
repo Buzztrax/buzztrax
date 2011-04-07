@@ -55,4 +55,4 @@ struct _BtChangeLoggerMethods {
 
 GType bt_change_logger_get_type(void) G_GNUC_CONST;
 
-#endif // BT_PERSISTENCE_H
+#endif // BT_CHANGE_LOGGER_H
