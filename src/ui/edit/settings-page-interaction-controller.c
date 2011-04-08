@@ -32,15 +32,11 @@
 #include "bt-edit.h"
 
 enum {
-  //DEVICE_MENU_ICON=0,
-  DEVICE_MENU_LABEL=0,
-  DEVICE_MENU_DEVICE
+  DEVICE_MENU_LABEL=0
 };
 
 enum {
-  //CONTROLLER_LIST_ICON=0,
-  CONTROLLER_LIST_LABEL=0,
-  CONTROLLER_LIST_CONTROLLER
+  CONTROLLER_LIST_LABEL=0
 };
 
 struct _BtSettingsPageInteractionControllerPrivate {
@@ -63,77 +59,51 @@ G_DEFINE_TYPE (BtSettingsPageInteractionController, bt_settings_page_interaction
 
 static void on_device_menu_changed(GtkComboBox *combo_box, gpointer user_data) {
   BtSettingsPageInteractionController *self=BT_SETTINGS_PAGE_INTERACTION_CONTROLLER(user_data);
-  BtIcDevice *device=NULL;
+  GObject *device=NULL;
   BtIcControl *control;
-  GtkListStore *store;
+  BtObjectListModel *store;
   GtkTreeModel *model;
-  GList *node,*list;
-  gchar *str;
   GtkTreeIter iter;
+  GList *node,*list;
 
   GST_INFO("interaction controller device changed");
   model=gtk_combo_box_get_model(self->priv->device_menu);
   if(gtk_combo_box_get_active_iter(self->priv->device_menu,&iter)) {
-    gtk_tree_model_get(model,&iter,DEVICE_MENU_DEVICE,&device,-1);
+    device=bt_object_list_model_get_object(BT_OBJECT_LIST_MODEL(model),&iter);
   }
-  
+
   // update list of controllers
-  //store=gtk_list_store_new(3,GDK_TYPE_PIXBUF,G_TYPE_STRING,BTIC_TYPE_CONTROL);
-  store=gtk_list_store_new(2,G_TYPE_STRING,BTIC_TYPE_CONTROL);
+  store=bt_object_list_model_new(1,BTIC_TYPE_CONTROL,"name");
   if(device) {
     g_object_get(device,"controls",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
       control=BTIC_CONTROL(node->data);
-      g_object_get(control,"name",&str,NULL);
-      gtk_list_store_append(store, &iter);
-      gtk_list_store_set(store,&iter,
-        CONTROLLER_LIST_LABEL,str,
-        CONTROLLER_LIST_CONTROLLER,control,
-        -1);
-      g_free(str);
+      bt_object_list_model_append(store,(GObject *)control);
     }
     g_list_free(list);
   }
-  else {
-    gtk_list_store_append(store, &iter);
-    gtk_list_store_set(store,&iter,
-      CONTROLLER_LIST_LABEL,_("no controllers"),
-      CONTROLLER_LIST_CONTROLLER,NULL,
-      -1);
-  }
   GST_INFO("control list refreshed");
+  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->controller_list),(device!=NULL));
   gtk_tree_view_set_model(self->priv->controller_list,GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
-
 }
 
 static void on_ic_registry_devices_changed(BtIcRegistry *ic_registry,GParamSpec *arg,gpointer user_data) {
   BtSettingsPageInteractionController *self=BT_SETTINGS_PAGE_INTERACTION_CONTROLLER(user_data);
   BtIcDevice *device=NULL;
-  GtkListStore *store;
   GList *node,*list;
-  gchar *str;
-  GtkTreeIter menu_iter;
+  BtObjectListModel *store;
 
   GST_INFO("refreshing device menu");
 
-  // update device menu
-  //store=gtk_list_store_new(3,GDK_TYPE_PIXBUF,G_TYPE_STRING,BTIC_TYPE_DEVICE);
-  store=gtk_list_store_new(2,G_TYPE_STRING,BTIC_TYPE_DEVICE);
+  store=bt_object_list_model_new(1,BTIC_TYPE_DEVICE,"name");
   g_object_get(ic_registry,"devices",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     device=BTIC_DEVICE(node->data);
-    g_object_get(device,"name",&str,NULL);
-    gtk_list_store_append(store,&menu_iter);
-    gtk_list_store_set(store,&menu_iter,
-      //DEVICE_MENU_ICON,pixbuf,
-      DEVICE_MENU_LABEL,str,
-      DEVICE_MENU_DEVICE,device,
-      -1);
-    GST_INFO("  adding device %p, \"%s\"",device,str);
-    g_free(str);
+    bt_object_list_model_append(store,(GObject *)device);
   }
   g_list_free(list);
+
   GST_INFO("device menu refreshed");
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->device_menu),(device!=NULL));
   gtk_combo_box_set_model(self->priv->device_menu,GTK_TREE_MODEL(store));
@@ -204,12 +174,12 @@ static void bt_settings_page_interaction_controller_init_ui(const BtSettingsPage
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->controller_list),GTK_SELECTION_BROWSE);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->controller_list));
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(scrolled_window), 1, 3, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  
+
   /* @todo: add "Learn" and "Tune" buttons
    * Learn: train new controllers (BTIC_IS_LEARN(device))
-   * Tune: learn real range (useful if real range is less than the one defined by the api 
+   * Tune: learn real range (useful if real range is less than the one defined by the api
    */
-   
+
   on_device_menu_changed(self->priv->device_menu,(gpointer)self);
 }
 

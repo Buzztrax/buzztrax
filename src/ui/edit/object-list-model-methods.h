@@ -25,5 +25,7 @@
 #include "object-list-model.h"
 
 extern BtObjectListModel *bt_object_list_model_new(gint n_columns,GType object_type,...);
+extern void bt_object_list_model_append(BtObjectListModel *model,GObject *object);
+extern GObject *bt_object_list_model_get_object(BtObjectListModel *model,GtkTreeIter *iter);
 
 #endif // BT_OBJECT_LIST_MODEL_METHDOS_H

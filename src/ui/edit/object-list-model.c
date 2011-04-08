@@ -116,6 +116,10 @@ void bt_object_list_model_append(BtObjectListModel *model,GObject *object) {
   gtk_tree_path_free(path);
 }
 
+GObject *bt_object_list_model_get_object(BtObjectListModel *model,GtkTreeIter *iter) {
+  return(g_sequence_get(iter->user_data));
+}
+
 //-- tree model interface
 
 static GtkTreeModelFlags bt_object_list_model_tree_model_get_flags(GtkTreeModel *tree_model) {
@@ -167,15 +171,18 @@ static GtkTreePath *bt_object_list_model_tree_model_get_path(GtkTreeModel *tree_
 
 static void bt_object_list_model_tree_model_get_value(GtkTreeModel *tree_model,GtkTreeIter *iter,gint column,GValue *value) {
   BtObjectListModel *model=BT_OBJECT_LIST_MODEL(tree_model);
+  GParamSpec *pspec;
   GObject *obj;
 
   g_return_if_fail(column<model->priv->n_columns);
 
+  pspec=model->priv->params[column];
+  g_value_init(value,pspec->value_type);
   if((obj=g_sequence_get(iter->user_data))) {
-    g_object_get_property(obj,model->priv->params[column]->name,value);
+    g_object_get_property(obj,pspec->name,value);
   }
   else {
-    g_param_value_set_default(model->priv->params[column],value);
+    g_param_value_set_default(pspec,value);
   }
 }
 
