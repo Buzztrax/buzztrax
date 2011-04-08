@@ -168,6 +168,11 @@ enum {
 };
 
 enum {
+  WAVE_MENU_NUMBER=0,
+  WAVE_MENU_LABEL,
+};
+
+enum {
   PATTERN_TABLE_POS=0,
   PATTERN_TABLE_PRE_CT
 };
@@ -1352,7 +1357,10 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
       GST_INFO("  adding [%3d] \"%s\"",i,str);
       // buzz shows index as hex, because trackers needs it this way
       sprintf(hstr,"%02x",i);
-      gtk_list_store_set(store,&menu_iter,0,hstr,1,str,-1);
+      gtk_list_store_set(store,&menu_iter,
+        WAVE_MENU_NUMBER,hstr,
+        WAVE_MENU_LABEL,str,
+        -1);
       g_free(str);
       g_object_unref(wave);
       if(index==-1) index=i-1;
@@ -2785,12 +2793,12 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   g_object_set(renderer, "width", 22, NULL);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,FALSE);
-  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 0,NULL);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text",WAVE_MENU_NUMBER,NULL);
   renderer=gtk_cell_renderer_text_new();
   //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,TRUE);
-  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 1,NULL);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text",WAVE_MENU_LABEL,NULL);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Wave")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->wavetable_menu),TRUE,TRUE,2);
   //g_signal_connect(self->priv->wavetable_menu, "changed", G_CALLBACK(on_wavetable_menu_changed), (gpointer)self);
