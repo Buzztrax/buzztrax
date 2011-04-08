@@ -43,8 +43,10 @@
 struct _BtObjectListModelPrivate {
   gint n_columns;
   gint stamp;
+  GType object_type;
 
-  gchar **property_names;
+  GParamSpec **params;
+  GSequence *seq;
 };
 
 //-- the class
@@ -59,26 +61,29 @@ G_DEFINE_TYPE_WITH_CODE (BtObjectListModel, bt_object_list_model, G_TYPE_OBJECT,
 
 //-- constructor methods
 
-BtObjectListModel *bt_object_list_model_new(gint n_columns,...) {
+BtObjectListModel *bt_object_list_model_new(gint n_columns,GType object_type,...) {
   BtObjectListModel *self;
+  GObjectClass *klass;
   va_list args;
+  GParamSpec **params;
   gint i;
-  gchar **names;
 
   self=g_object_new(BT_TYPE_OBJECT_LIST_MODEL, NULL);
 
-  // allocate an array for the properties
-  self->priv->property_names=g_new(gchar*,n_columns);
-  // FIXME: supply the list item GType too, then we can lookup the paramspecs
-  // and from that the property GTypes
+  self->priv->n_columns=n_columns;
+  self->priv->object_type=object_type;
 
-  va_start (args, n_columns);
-  names=self->priv->property_names;
+  // allocate an array for the properties
+  self->priv->params=g_new(GParamSpec*,n_columns);
+
+  // look up the param-specs
+  klass=g_type_class_ref(object_type);
+  va_start (args, object_type);
+  params=self->priv->params;
   for(i=0;i<n_columns;i++) {
-    names[i]=va_arg(args, gpointer);
+    params[i]=g_object_class_find_property(klass,va_arg(args, gchar*));
   }
   va_end (args);
-  self->priv->n_columns=n_columns;
 
   return(self);
 }
@@ -90,14 +95,26 @@ void bt_object_list_model_clear(BtObjectListModel *model) {
 }
 
 void bt_object_list_model_prepend(BtObjectListModel *model,GObject *object) {
-
 }
+#endif
 
 void bt_object_list_model_append(BtObjectListModel *model,GObject *object) {
+  GSequence *seq=model->priv->seq;
+  GtkTreePath *path;
+  GtkTreeIter iter;
+  gint position;
 
+  g_return_if_fail(G_OBJECT_TYPE(object)!=model->priv->object_type);
+
+  position=g_sequence_get_length(seq);
+  iter.stamp=model->priv->stamp;
+  iter.user_data=g_sequence_append(seq,object);
+
+  path=gtk_tree_path_new();
+  gtk_tree_path_append_index(path,position);
+  gtk_tree_model_row_inserted(GTK_TREE_MODEL(model),path,&iter);
+  gtk_tree_path_free(path);
 }
-
-#endif
 
 //-- tree model interface
 
@@ -108,10 +125,6 @@ static GtkTreeModelFlags bt_object_list_model_tree_model_get_flags(GtkTreeModel 
 static gint bt_object_list_model_tree_model_get_n_columns(GtkTreeModel *tree_model) {
   BtObjectListModel *model=BT_OBJECT_LIST_MODEL(tree_model);
 
-#if 0
-  model->columns_dirty=TRUE;
-#endif
-
   return(model->priv->n_columns);
 }
 
@@ -120,37 +133,24 @@ static GType bt_object_list_model_tree_model_get_column_type(GtkTreeModel *tree_
 
   g_return_val_if_fail(index<model->priv->n_columns,G_TYPE_INVALID);
 
-#if 0
-  model->columns_dirty=TRUE;
-
-  return(model->column_headers[index]);
-#endif
-  return(G_TYPE_INVALID);
+  return(model->priv->params[index]->value_type);
 }
 
 static gboolean bt_object_list_model_tree_model_get_iter(GtkTreeModel *tree_model,GtkTreeIter *iter,GtkTreePath *path) {
-#if 0
   BtObjectListModel *model=BT_OBJECT_LIST_MODEL(tree_model);
-  GSequence *seq;
-  gint i;
+  GSequence *seq=model->priv->seq;
+  gint i=gtk_tree_path_get_indices (path)[0];
 
-  model->columns_dirty=TRUE;
-  seq=model->seq;
-  i = gtk_tree_path_get_indices (path)[0];
+  if(i>=g_sequence_get_length(seq))
+    return(FALSE);
 
-  if (i >= g_sequence_get_length (seq))
-    return FALSE;
-
-  iter->stamp = model->stamp;
-  iter->user_data = g_sequence_get_iter_at_pos (seq, i);
+  iter->stamp=model->priv->stamp;
+  iter->user_data=g_sequence_get_iter_at_pos(seq,i);
 
   return(TRUE);
-#endif
-  return(FALSE);
 }
 
 static GtkTreePath *bt_object_list_model_tree_model_get_path(GtkTreeModel *tree_model,GtkTreeIter *iter) {
-#if 0
   BtObjectListModel *model=BT_OBJECT_LIST_MODEL(tree_model);
   GtkTreePath *path;
 
@@ -163,62 +163,46 @@ static GtkTreePath *bt_object_list_model_tree_model_get_path(GtkTreeModel *tree_
   gtk_tree_path_append_index(path,g_sequence_iter_get_position(iter->user_data));
 
   return(path);
-#endif
-  return(NULL);
 }
 
 static void bt_object_list_model_tree_model_get_value(GtkTreeModel *tree_model,GtkTreeIter *iter,gint column,GValue *value) {
-#if 0
   BtObjectListModel *model=BT_OBJECT_LIST_MODEL(tree_model);
-  GtkTreeDataList *list;
-  gint tmp_column=column;
+  GObject *obj;
 
-  g_return_if_fail(column<model->n_columns);
-  g_return_if_fail(VALID_ITER(iter,model));
+  g_return_if_fail(column<model->priv->n_columns);
 
-  list=g_sequence_get(iter->user_data);
-
-  while(tmp_column-- > 0 && list)
-    list=list->next;
-
-  if(list==NULL)
-    g_value_init(value,model->column_headers[column]);
-  else
-    _gtk_tree_data_list_node_to_value (list,
-				       model->column_headers[column],
-				       value);
-  #endif
+  if((obj=g_sequence_get(iter->user_data))) {
+    g_object_get_property(obj,model->priv->params[column]->name,value);
+  }
+  else {
+    g_param_value_set_default(model->priv->params[column],value);
+  }
 }
 
 static gboolean bt_object_list_model_tree_model_iter_next(GtkTreeModel *tree_model,GtkTreeIter *iter) {
-#if 0
   BtObjectListModel *model=BT_OBJECT_LIST_MODEL(tree_model);
   gboolean res;
 
   g_return_val_if_fail(model->priv->stamp==iter->stamp,FALSE);
 
   iter->user_data=g_sequence_iter_next(iter->user_data);
-  if(res=g_sequence_iter_is_end(iter->user_data))
+  if((res=g_sequence_iter_is_end(iter->user_data)))
     iter->stamp=0;
 
   return !res;
-#endif
-  return(FALSE);
 }
 
 static gboolean bt_object_list_model_tree_model_iter_children(GtkTreeModel *tree_model,GtkTreeIter *iter,GtkTreeIter *parent) {
-#if 0
   BtObjectListModel *model=BT_OBJECT_LIST_MODEL(tree_model);
 
   /* this is a list, nodes have no children */
   if (!parent) {
-    if (g_sequence_get_length(model->seq)>0) {
-      iter->stamp=model->stamp;
-      iter->user_data=g_sequence_get_begin_iter(model->seq);
+    if (g_sequence_get_length(model->priv->seq)>0) {
+      iter->stamp=model->priv->stamp;
+      iter->user_data=g_sequence_get_begin_iter(model->priv->seq);
       return(TRUE);
     }
   }
-#endif
   iter->stamp=0;
   return(FALSE);
 }
@@ -228,38 +212,33 @@ static gboolean bt_object_list_model_tree_model_iter_has_child(GtkTreeModel *tre
 }
 
 static gint bt_object_list_model_tree_model_iter_n_children(GtkTreeModel *tree_model,GtkTreeIter *iter) {
-#if 0
-  BtObjectListModel *model=(BtObjectListModel *)tree_model;
+  BtObjectListModel *model=BT_OBJECT_LIST_MODEL(tree_model);
 
   if (iter == NULL)
-    return g_sequence_get_length(model->seq);
+    return g_sequence_get_length(model->priv->seq);
 
-  g_return_val_if_fail(model->stamp==iter->stamp,-1);
-#endif
+  g_return_val_if_fail(model->priv->stamp==iter->stamp,-1);
   return(0);
 }
 
 static gboolean  bt_object_list_model_tree_model_iter_nth_child(GtkTreeModel *tree_model,GtkTreeIter *iter,GtkTreeIter *parent,gint n) {
-#if 0
-  BtObjectListModel *model=(BtObjectListModel *)tree_model;
+  BtObjectListModel *model=BT_OBJECT_LIST_MODEL(tree_model);
   GSequenceIter *child;
 
-  iter->stamp = 0;
+  iter->stamp=0;
 
   if (parent)
     return(FALSE);
 
-  child = g_sequence_get_iter_at_pos (model->seq, n);
+  child=g_sequence_get_iter_at_pos(model->priv->seq,n);
 
-  if (g_sequence_iter_is_end (child))
+  if(g_sequence_iter_is_end(child))
     return(FALSE);
 
-  iter->stamp = model->stamp;
-  iter->user_data = child;
+  iter->stamp=model->priv->stamp;
+  iter->user_data=child;
 
   return(TRUE);
-#endif
-  return(FALSE);
 }
 
 static gboolean bt_object_list_model_tree_model_iter_parent(GtkTreeModel *tree_model,GtkTreeIter *iter,GtkTreeIter *child) {
@@ -286,25 +265,23 @@ static void bt_object_list_model_tree_model_init(gpointer const g_iface, gpointe
 
 //-- class internals
 
-static void bt_object_list_model_dispose(GObject *object) {
-  BtObjectListModel *self = BT_OBJECT_LIST_MODEL(object);
-
-  GST_DEBUG("!!!! self=%p",self);
-
-  G_OBJECT_CLASS(bt_object_list_model_parent_class)->dispose(object);
-}
-
 static void bt_object_list_model_finalize(GObject *object) {
   BtObjectListModel *self = BT_OBJECT_LIST_MODEL(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  g_free(self->priv->property_names);
+
+  g_sequence_free(self->priv->seq);
+  g_free(self->priv->params);
 
   G_OBJECT_CLASS(bt_object_list_model_parent_class)->finalize(object);
 }
 
 static void bt_object_list_model_init(BtObjectListModel *self) {
   self->priv=G_TYPE_INSTANCE_GET_PRIVATE(self,BT_TYPE_OBJECT_LIST_MODEL,BtObjectListModelPrivate);
+
+  self->priv->seq=g_sequence_new (NULL);
+  // random int to check whether an iter belongs to our model
+  self->priv->stamp=g_random_int();
 }
 
 static void bt_object_list_model_class_init(BtObjectListModelClass *klass) {
@@ -312,8 +289,6 @@ static void bt_object_list_model_class_init(BtObjectListModelClass *klass) {
 
   g_type_class_add_private(klass,sizeof(BtObjectListModelPrivate));
 
-  gobject_class->dispose      = bt_object_list_model_dispose;
   gobject_class->finalize     = bt_object_list_model_finalize;
-
 }
 

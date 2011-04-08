@@ -1,5 +1,11 @@
 2011-04-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/object-list-model-methods.h:
+	* src/ui/edit/object-list-model.c:
+	  Fully implemented.
+
+2011-04-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Whitespace.
 

@@ -24,6 +24,6 @@
 
 #include "object-list-model.h"
 
-extern BtObjectListModel *bt_object_list_model_new(gint n_columns,...);
+extern BtObjectListModel *bt_object_list_model_new(gint n_columns,GType object_type,...);
 
 #endif // BT_OBJECT_LIST_MODEL_METHDOS_H
