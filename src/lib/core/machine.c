@@ -2731,7 +2731,7 @@ void bt_machine_reset_parameters(const BtMachine * const self) {
   for(i=0;i<global_params;i++) {
     g_value_init(&gvalue, GLOBAL_PARAM_TYPE(i));
     g_param_value_set_default(self->priv->global_props[i], &gvalue);
-    g_object_set_property (machine, GLOBAL_PARAM_NAME(i), &gvalue);
+    g_object_set_property(machine, GLOBAL_PARAM_NAME(i), &gvalue);
     g_value_unset(&gvalue);
   }
   for(j=0;j<voices;j++) {

@@ -1,5 +1,10 @@
 2011-04-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Whitespace.
+
+2011-04-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Use enums for the list-store columns one more time.
 
