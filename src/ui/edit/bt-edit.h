@@ -123,6 +123,7 @@
 #include "machine-canvas-item-methods.h"
 #include "machine-menu-methods.h"
 #include "machine-actions.h"
+#include "machine-list-model-methods.h"
 #include "machine-preset-properties-dialog-methods.h"
 #include "machine-properties-dialog-methods.h"
 #include "machine-preferences-dialog-methods.h"

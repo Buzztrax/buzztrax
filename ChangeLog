@@ -1,3 +1,19 @@
+2011-04-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-list-model-methods.h:
+	* src/ui/edit/machine-list-model.c:
+	* src/ui/edit/machine-list-model.h:
+	* src/ui/edit/machine-list-model.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/machine-list-model-methods.h (svn:keywords, svn:eol-
+	  style):
+	* src/ui/edit/machine-list-model.c (svn:keywords, svn:eol-style):
+	* src/ui/edit/machine-list-model-methods.h (added):
+	* src/ui/edit/machine-list-model.c (added):
+	* src/ui/edit/machine-list-model.h (added):
+	  Start a new model for the machine-list.
+
 2011-04-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/object-list-model-methods.h:

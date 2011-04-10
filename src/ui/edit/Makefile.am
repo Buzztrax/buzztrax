@@ -32,6 +32,7 @@ libbtedit_la_SOURCES	= \
 	machine-canvas-item.c machine-canvas-item.h machine-canvas-item-methods.h\
 	machine-menu.c machine-menu.h machine-menu-methods.h \
 	machine-actions.c machine-actions.h \
+	machine-list-model.c machine-list-model.h machine-list-model-methods.h \
 	machine-preset-properties-dialog.c machine-preset-properties-dialog.h machine-preset-properties-dialog-methods.h \
 	machine-properties-dialog.c machine-properties-dialog.h machine-properties-dialog-methods.h \
 	machine-preferences-dialog.c machine-preferences-dialog.h machine-preferences-dialog-methods.h \
