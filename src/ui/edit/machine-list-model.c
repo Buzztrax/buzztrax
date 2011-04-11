@@ -70,12 +70,14 @@ static void bt_machine_list_model_add(BtMachineListModel *model,BtMachine *machi
   GtkTreeIter iter;
   gint position;
 
+  // add new entry
   position=g_sequence_get_length(seq);
   iter.stamp=model->priv->stamp;
   iter.user_data=g_sequence_append(seq,machine);
 
   g_signal_connect(machine,"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)model);
 
+  // signal to the view/app
   path=gtk_tree_path_new();
   gtk_tree_path_append_index(path,position);
   gtk_tree_model_row_inserted(GTK_TREE_MODEL(model),path,&iter);
@@ -88,16 +90,19 @@ static void bt_machine_list_model_rem(BtMachineListModel *model,BtMachine *machi
   GSequenceIter *iter;
   gint position;
 
-  iter=g_sequence_lookup(seq,machine,model_item_cmp,NULL);
-  position=g_sequence_iter_get_position(iter);
-  g_sequence_remove(iter);
-
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_id_changed,(gpointer)model);
 
+  iter=g_sequence_lookup(seq,machine,model_item_cmp,NULL);
+  position=g_sequence_iter_get_position(iter);
+
+  // signal to the view/app
   path=gtk_tree_path_new();
   gtk_tree_path_append_index(path,position);
   gtk_tree_model_row_deleted(GTK_TREE_MODEL(model),path);
   gtk_tree_path_free(path);
+
+  // remove entry
+  g_sequence_remove(iter);
 }
 
 //-- signal handlers
