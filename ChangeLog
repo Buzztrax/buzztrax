@@ -1,3 +1,10 @@
+2011-04-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-list-model-methods.h:
+	* src/ui/edit/machine-list-model.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Conditionally use the new model.
+
 2011-04-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-list-model.c:

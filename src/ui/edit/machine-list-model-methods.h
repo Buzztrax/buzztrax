@@ -25,6 +25,6 @@
 #include "machine-list-model.h"
 
 extern BtMachineListModel *bt_machine_list_model_new(BtSetup *setup);
-extern GObject *bt_machine_list_model_get_object(BtMachineListModel *model,GtkTreeIter *iter);
+extern BtMachine *bt_machine_list_model_get_object(BtMachineListModel *model,GtkTreeIter *iter);
 
 #endif // BT_MACHINE_LIST_MODEL_METHDOS_H

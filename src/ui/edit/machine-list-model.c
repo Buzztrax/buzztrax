@@ -92,7 +92,11 @@ static void bt_machine_list_model_rem(BtMachineListModel *model,BtMachine *machi
 
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_id_changed,(gpointer)model);
 
+#if GLIB_CHECK_VERSION(2,28,0)
   iter=g_sequence_lookup(seq,machine,model_item_cmp,NULL);
+#else
+  iter=g_sequence_search(seq,machine,model_item_cmp,NULL);
+#endif
   position=g_sequence_iter_get_position(iter);
 
   // signal to the view/app
@@ -116,7 +120,11 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 
   // look the iter in model
   iter.stamp=model->priv->stamp;
+#if GLIB_CHECK_VERSION(2,28,0)
   iter.user_data=g_sequence_lookup(seq,machine,model_item_cmp,NULL);
+#else
+  iter.user_data=g_sequence_search(seq,machine,model_item_cmp,NULL);
+#endif
   position=g_sequence_iter_get_position(iter.user_data);
 
   // -> gtk_tree_model_row_changed
@@ -149,6 +157,7 @@ BtMachineListModel *bt_machine_list_model_new(BtSetup *setup) {
   self=g_object_new(BT_TYPE_MACHINE_LIST_MODEL, NULL);
 
   self->priv->setup=setup;
+  g_object_add_weak_pointer((GObject *)setup,(gpointer *)&self->priv->setup);
 
   self->priv->param_types[0]=GDK_TYPE_PIXBUF;
   self->priv->param_types[1]=G_TYPE_STRING;
@@ -170,7 +179,7 @@ BtMachineListModel *bt_machine_list_model_new(BtSetup *setup) {
 
 //-- methods
 
-GObject *bt_machine_list_model_get_object(BtMachineListModel *model,GtkTreeIter *iter) {
+BtMachine *bt_machine_list_model_get_object(BtMachineListModel *model,GtkTreeIter *iter) {
   return(g_sequence_get(iter->user_data));
 }
 
@@ -331,8 +340,10 @@ static void bt_machine_list_model_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_signal_handlers_disconnect_matched(self->priv->setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_added,(gpointer)self);
-  g_signal_handlers_disconnect_matched(self->priv->setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
+  if(self->priv->setup) {
+    g_signal_handlers_disconnect_matched(self->priv->setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_added,(gpointer)self);
+    g_signal_handlers_disconnect_matched(self->priv->setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
+  }
 
   g_sequence_free(self->priv->seq);
 
