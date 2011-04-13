@@ -1,5 +1,10 @@
 2011-04-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Add comment, remove todo.
+
+2011-04-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/Makefile.am:
 	* docs/help/bt-edit/C/Makefile.am:
 	* docs/help/bt-edit/Makefile.am:

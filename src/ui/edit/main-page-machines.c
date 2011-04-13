@@ -1496,10 +1496,11 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
   bt_change_log_start_group(self->priv->change_log);
   /* @todo: serialize all sequence tracks
    * @todo: serialize all patterns
-   * @todo: serialize machine position (like the move command)
    */
 
   bt_setup_remove_machine(setup,machine);
+  // triggers setup:machine-removed -> self:on_machine_removed()
+
   // this segfaults if the machine is finalized
   //GST_INFO("... machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
   bt_change_log_end_group(self->priv->change_log);
