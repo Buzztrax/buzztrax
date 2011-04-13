@@ -66,6 +66,40 @@ btic_device_get_type
 </SECTION>
 
 <SECTION>
+<FILE>bticgudevdiscoverer</FILE>
+<TITLE>BtIcGudevDiscoverer</TITLE>
+BtIcGudevDiscoverer
+btic_gudev_discoverer_new
+<SUBSECTION Standard>
+BtIcGudevDiscovererClass
+BTIC_GUDEV_DISCOVERER
+BTIC_IS_GUDEV_DISCOVERER
+BTIC_TYPE_GUDEV_DISCOVERER
+BTIC_GUDEV_DISCOVERER_CLASS
+BTIC_IS_GUDEV_DISCOVERER_CLASS
+BTIC_GUDEV_DISCOVERER_GET_CLASS
+BtIcGudevDiscovererPrivate
+btic_gudev_discoverer_get_type
+</SECTION>
+
+<SECTION>
+<FILE>btichaldiscoverer</FILE>
+<TITLE>BtIcHalDiscoverer</TITLE>
+BtIcHalDiscoverer
+btic_hal_discoverer_new
+<SUBSECTION Standard>
+BtIcHalDiscovererClass
+BTIC_HAL_DISCOVERER
+BTIC_IS_HAL_DISCOVERER
+BTIC_TYPE_HAL_DISCOVERER
+BTIC_HAL_DISCOVERER_CLASS
+BTIC_IS_HAL_DISCOVERER_CLASS
+BTIC_HAL_DISCOVERER_GET_CLASS
+BtIcHalDiscovererPrivate
+btic_hal_discoverer_get_type
+</SECTION>
+
+<SECTION>
 <FILE>bticinputdevice</FILE>
 <TITLE>BtIcInputDevice</TITLE>
 BtIcInputDevice
@@ -123,6 +157,8 @@ btic_midi_device_get_type
 <TITLE>BtIcRegistry</TITLE>
 BtIcRegistry
 btic_registry_new
+btic_registry_add_device
+btic_registry_remove_device_by_udi
 <SUBSECTION Standard>
 BtIcRegistryClass
 BTIC_REGISTRY

@@ -319,11 +319,14 @@ PKG_CHECK_MODULES(GUDEV_DEPS, gudev-1.0, [
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GUDEV_DEPS_LIBS"
     AM_CONDITIONAL(USE_GUDEV, true)
     use_gudev=yes
+    GUDEV_DOC_TYPES=
   ],[
     AM_CONDITIONAL(USE_GUDEV, false)
     use_gudev=no
+    GUDEV_DOC_TYPES=%
   ]
 )
+AC_SUBST(GUDEV_DOC_TYPES)
 
 PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
   AC_DEFINE(USE_HAL, [1], [Define to 1 if we can use hal libraries])
@@ -332,15 +335,20 @@ PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
     if test x$use_gudev = xno; then
       AM_CONDITIONAL(USE_HAL, true)
       use_hal=yes
+      HAL_DOC_TYPES=
     else
       AM_CONDITIONAL(USE_HAL, false)
       use_hal=no
+      HAL_DOC_TYPES=%
     fi
   ],[
     AM_CONDITIONAL(USE_HAL, false)
     use_hal=no
+    HAL_DOC_TYPES=%
   ]
 )
+AC_SUBST(HAL_DOC_TYPES)
+
 
 PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
   AM_CONDITIONAL(USE_GSF, true)

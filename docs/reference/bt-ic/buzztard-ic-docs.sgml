@@ -9,7 +9,7 @@
     href       CDATA       #IMPLIED
     parse      (xml|text)  "xml"
     xpointer   CDATA       #IMPLIED
-    encoding   CDATA       #IMPLIED 
+    encoding   CDATA       #IMPLIED
     accept     CDATA       #IMPLIED
     accept-language CDATA  #IMPLIED >
 
@@ -62,6 +62,8 @@
     </partintro>
     <xi:include href="xml/libbtic.xml" />
     <xi:include href="xml/bticregistry.xml" />
+    <xi:include href="xml/bticgudevdiscoverer.xml" />
+    <xi:include href="xml/btichaldiscoverer.xml" />
     <xi:include href="xml/bticdevice.xml" />
     <xi:include href="xml/bticinputdevice.xml" />
     <xi:include href="xml/bticmididevice.xml" />

@@ -75,7 +75,7 @@ BtIcRegistry *btic_registry_new(void) {
 
 /**
  * btic_registry_remove_device_by_udi:
- * udi: device id
+ * @udi: device id
  *
  * Remove device identified by the given @udi from the registry.
  *
@@ -106,7 +106,7 @@ void btic_registry_remove_device_by_udi(const gchar *udi) {
 
 /**
  * btic_registry_add_device:
- * device: new device
+ * @device: new device
  *
  * Add the given device to the registry.
  *

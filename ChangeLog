@@ -1,5 +1,14 @@
 2011-04-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
+	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	* docs/reference/bt-ic/buzztard-ic.types.in:
+	* src/lib/ic/registry.c:
+	  Fix warnings in btic docs. Handle conditional Api.
+
+2011-04-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core/tools.h:
 	* src/lib/core/tools.c:
 	  Remove unused test code, this has to work via refdbg or alike.
