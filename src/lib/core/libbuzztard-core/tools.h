@@ -246,19 +246,4 @@ union { \
  */
 #define g_object_try_unref(obj) if(obj) g_object_unref(obj)
 
-#if 0
-#define g_object_try_tagged_ref(obj,tag) (obj)?g_object_tagged_ref((obj),(tag)):NULL
-#define g_object_try_tagged_unref(obj,tag) if(obj) g_object_tagged_unref((obj),(tag))
-
-extern gpointer bt_gobject_tag_ref(gpointer object,const gchar *tag);
-extern void bt_gobject_tagged_unref(gpointer object,const gchar *tag);
-#define g_object_tag_ref(obj,tag) bt_gobject_tag_ref((obj),(tag))
-#define g_object_tagged_unref(obj,tag) bt_gobject_tagged_unref((obj),(tag))
-
-#define g_object_try_tag_ref(obj,tag) (obj)?g_object_tag_ref((obj),(tag)):NULL
-#define g_object_tagged_ref(obj,tag) g_object_tag_ref(g_object_ref(obj),(tag));
-
-extern void bt_gobject_check_refs(gpointer object);
-#endif
-
 #endif // !BT_TOOLS_H
