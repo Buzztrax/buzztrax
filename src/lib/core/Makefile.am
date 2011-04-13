@@ -88,7 +88,7 @@ if USE_GIR
 gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_core_la_SOURCES))
 
 BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
-	-$(G_IR_SCANNER) -v \
+	-$(AM_V_GEN)$(G_IR_SCANNER) -v \
 	     --namespace=BuzztardCore \
 	     --nsversion 0.0 \
 	     -I$(builddir)/libbuzztard-core \
@@ -129,11 +129,11 @@ clean-gir:
 	@rm -fr $(BUILT_GIRSOURCES)
 
 .gir.typelib:
-	-$(G_IR_COMPILER) --includedir=. --includedir=../ic $(G_IR_COMPILER_OPTS) $< -o $@
+	-$(AM_V_GEN)$(G_IR_COMPILER) --includedir=. --includedir=../ic $(G_IR_COMPILER_OPTS) $< -o $@
 else
 BUILT_GIRSOURCES=
 endif
-        
+
 EXTRA_DIST = \
 	libbuzztard-core.pc.in \
 	marshal.list

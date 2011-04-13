@@ -58,7 +58,7 @@ if USE_GIR
 gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_ic_la_SOURCES))
 
 BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
-	-$(G_IR_SCANNER) -v \
+	-$(AM_V_GEN)$(G_IR_SCANNER) -v \
 	     --namespace=BuzztardIc \
 	     --nsversion 0.0 \
 	     -I$(builddir)/libbuzztard-ic \
@@ -93,7 +93,7 @@ clean-gir:
 	@rm -fr $(BUILT_GIRSOURCES)
 
 .gir.typelib:
-	$(G_IR_COMPILER) --includedir=. $(G_IR_COMPILER_OPTS) $< -o $@
+	-$(AM_V_GEN)$(G_IR_COMPILER) --includedir=. $(G_IR_COMPILER_OPTS) $< -o $@
 else
 BUILT_GIRSOURCES=
 endif
