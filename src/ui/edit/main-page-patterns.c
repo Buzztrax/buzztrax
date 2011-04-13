@@ -794,15 +794,12 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   g_free(str);
 }
 
-#ifndef USE_MACHINE_MODEL
-/* FIXME: we are doing that for *all* patterns here,
- * not just the ones of the current machine
- */
-
+#if 0
+/* unused */
 static void on_pattern_added(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
-  //BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-
 /* this would be too early, the pattern properties are not set :/
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
   // add undo/redo details
   if(bt_change_log_is_active(self->priv->change_log)) {
     gchar *undo_str,*redo_str;
@@ -819,6 +816,7 @@ static void on_pattern_added(BtMachine *machine,BtPattern *pattern,gpointer user
   }
 */
 }
+#endif
 
 static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
@@ -908,7 +906,6 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
   }
   GST_INFO("removed pattern: %p,pattern->ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 }
-#endif
 
 // use key-press-event, as then we get key repeats
 static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
@@ -1266,7 +1263,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
     MACHINE_MENU_MACHINE,machine,
     -1);
   g_signal_connect(machine,"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)self);
-  g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
+  //g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
   g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
 
   GST_DEBUG_OBJECT(machine,"  added %p (machine-refs: %d)",machine,G_OBJECT_REF_COUNT(machine));
@@ -1276,6 +1273,8 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
 #endif
 
 static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
+  BtMachine *machine=NULL;
+  GList *node,*list;
 #ifdef USE_MACHINE_MODEL
   BtMachineListModel *store;
   gint index;
@@ -1283,10 +1282,16 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
   // create machine menu
   store=bt_machine_list_model_new((BtSetup *)setup);
   index=gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store),NULL)-1;
+  // connect signal handlers for pattern undo/redo
+  g_object_get((gpointer)setup,"machines",&list,NULL);
+  for(node=list;node;node=g_list_next(node)) {
+    machine=BT_MACHINE(node->data);
+    //g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
+    g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
+  }
+  g_list_free(list);
 #else
   GtkListStore *store;
-  BtMachine *machine=NULL;
-  GList *node,*list;
   gint index=-1;
 
   // update machine menu

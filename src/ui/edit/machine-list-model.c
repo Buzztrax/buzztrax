@@ -70,6 +70,8 @@ static void bt_machine_list_model_add(BtMachineListModel *model,BtMachine *machi
   GtkTreeIter iter;
   gint position;
 
+  GST_WARNING_OBJECT(machine,"add machine to model");
+
   // add new entry
   position=g_sequence_get_length(seq);
   iter.stamp=model->priv->stamp;
@@ -89,6 +91,8 @@ static void bt_machine_list_model_rem(BtMachineListModel *model,BtMachine *machi
   GtkTreePath *path;
   GSequenceIter *iter;
   gint position;
+
+  GST_WARNING_OBJECT(machine,"removing machine from model");
 
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_id_changed,(gpointer)model);
 
@@ -125,6 +129,11 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 #else
   iter.user_data=g_sequence_search(seq,machine,model_item_cmp,NULL);
 #endif
+  // FIXME: this should not bee needed, something is wrong with the cmp func.
+  if(!iter.user_data) {
+    GST_WARNING_OBJECT(machine,"machine not found in model");
+    return;
+  }
   position=g_sequence_iter_get_position(iter.user_data);
 
   // -> gtk_tree_model_row_changed

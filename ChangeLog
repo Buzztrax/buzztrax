@@ -1,3 +1,9 @@
+2011-04-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-list-model.c:
+	* src/ui/edit/main-page-patterns.c:
+	  WIP changes on the machine-list model use.
+
 2011-04-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:
