@@ -6,10 +6,10 @@ entities = legal.xml version.entities
 
 all-local:
 	@-chmod -R u+w $(srcdir)
-	cp $(top_builddir)/docs/version.entities $(srcdir)/version.entities
+	@cp $(top_builddir)/docs/version.entities $(srcdir)/version.entities
 
 clean-local:
-	rm -f version.entities
+	-@rm -f version.entities
 
 # FIXME: only do this if ENABLE_SCROLLKEEPER ?
 include $(top_srcdir)/xmldocs.make

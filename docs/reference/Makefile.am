@@ -7,7 +7,7 @@ SUBDIRS = . bt-core bt-ic bt-cmd bt-edit
 all-local: version.entities
 
 version.entities:
-	cp ../version.entities ./
+	@cp ../version.entities ./
 
 clean-local:
-	-rm version.entities
+	-@rm version.entities
