@@ -46,7 +46,7 @@ typedef struct _BtSinkBinPrivate BtSinkBinPrivate;
  */
 struct _BtSinkBin {
   const GstBin parent;
-  
+
   /*< private >*/
   BtSinkBinPrivate *priv;
 };

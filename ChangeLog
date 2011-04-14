@@ -1,5 +1,12 @@
 2011-04-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* Makefile.am:
+	  Hide more commands.
+	* src/lib/core/libbuzztard-core/sink-bin.h:
+	  Whitespace.
+
+2011-04-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-list-model.c:
 	* src/ui/edit/main-page-patterns.c:
 	  WIP changes on the machine-list model use.
