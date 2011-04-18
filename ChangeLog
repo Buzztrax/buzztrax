@@ -1,6 +1,11 @@
 2011-04-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
+	  Try different hack for the space eating sequence view column.
+
+2011-04-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
 	  Fix the label-menu cell renderer layout setup.
 
 2011-04-18  Stefan Kost  <ensonic@users.sf.net>
