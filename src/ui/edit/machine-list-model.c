@@ -86,7 +86,7 @@ static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data)
     else if(c==-1)
       ra+=1;
 
-    GST_WARNING("comparing %s <-> %s: %d: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),c,ra,rb);
+    GST_LOG("comparing %s <-> %s: %d: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),c,ra,rb);
   }
 
   return (rb-ra);
@@ -99,7 +99,7 @@ static void bt_machine_list_model_add(BtMachineListModel *model,BtMachine *machi
   GtkTreeIter iter;
   gint position;
 
-  GST_WARNING_OBJECT(machine,"add machine to model");
+  GST_INFO_OBJECT(machine,"add machine to model");
 
   // insert new entry
   iter.stamp=model->priv->stamp;
@@ -121,25 +121,24 @@ static void bt_machine_list_model_rem(BtMachineListModel *model,BtMachine *machi
   GSequenceIter *iter;
   gint position;
 
-  GST_WARNING_OBJECT(machine,"removing machine from model");
+  GST_INFO_OBJECT(machine,"removing machine from model");
 
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_id_changed,(gpointer)model);
 
+  // remove entry
 #if GLIB_CHECK_VERSION(2,28,0)
   iter=g_sequence_lookup(seq,machine,model_item_cmp,NULL);
 #else
   iter=g_sequence_iter_prev(g_sequence_search(seq,machine,model_item_cmp,NULL));
 #endif
   position=g_sequence_iter_get_position(iter);
+  g_sequence_remove(iter);
 
   // signal to the view/app
   path=gtk_tree_path_new();
   gtk_tree_path_append_index(path,position);
   gtk_tree_model_row_deleted(GTK_TREE_MODEL(model),path);
   gtk_tree_path_free(path);
-
-  // remove entry
-  g_sequence_remove(iter);
 }
 
 //-- signal handlers

@@ -1,6 +1,14 @@
 2011-04-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-list-model.c:
+	  Delete node before notifying (in contrast to what the gtk+ api docs
+	  say). Anything else will create small window of inconsistency
+	* src/ui/edit/main-page-patterns.c:
+	  Make listening to machine menu deletions work.
+
+2011-04-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-list-model.c:
 	  g_sequence_search gives the insertion position (we have to go one
 	  back).
 	* src/ui/edit/main-page-patterns.c:

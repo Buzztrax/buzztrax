@@ -1256,16 +1256,18 @@ static void on_machine_model_row_deleted(GtkTreeModel *tree_model, GtkTreePath *
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeIter iter;
 
-  // we'd like to activate the next iter, or if there is none the previous
-  if(!gtk_combo_box_get_active_iter(self->priv->machine_menu,&iter))
-    goto activate_first;
-  if(!gtk_tree_model_iter_next(tree_model,&iter))
-    goto activate_first;
+  //GST_WARNING("-- about to remove index %s", gtk_tree_path_to_string(path));
+
+  // the last machine is master which we actually cannot remove
+  if(!gtk_tree_model_get_iter(tree_model, &iter, path)) {
+    if(!gtk_tree_path_prev(path))
+      return;
+    if(!gtk_tree_model_get_iter(tree_model, &iter, path))
+      return;
+  }
+
+  //GST_WARNING("-- activate index %s", gtk_tree_path_to_string(path));
   gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
-  return;
-activate_first:
-  if(gtk_tree_model_get_iter_first(tree_model,&iter))
-    gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
 }
 #endif
 
@@ -2474,8 +2476,8 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMachine *machine;
 
-  GST_INFO("machine_menu changed");
   machine=get_current_machine(self);
+  GST_DEBUG("machine_menu changed, new machine is %s",(machine?GST_OBJECT_NAME(machine):""));
   change_current_machine(self,machine);
   g_object_try_unref(machine);
 }
