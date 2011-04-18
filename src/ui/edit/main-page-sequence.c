@@ -1554,7 +1554,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     gchar *str,key[2]={0,};
 
     GST_INFO("refresh pattern list for machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
-    
+
     //-- append default rows
     self->priv->pattern_keys=sink_pattern_keys;
     index=2;
@@ -3081,12 +3081,12 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   self->priv->label_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->label_menu),_("Browse to labels in the sequence"));
   renderer=gtk_cell_renderer_text_new();
-  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
+  gtk_cell_renderer_set_fixed_size(renderer, -1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,FALSE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_POSSTR,NULL);
   renderer=gtk_cell_renderer_text_new();
-  gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
+  gtk_cell_renderer_set_fixed_size(renderer, -1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_LABEL,NULL);

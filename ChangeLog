@@ -1,5 +1,10 @@
 2011-04-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Fix the label-menu cell renderer layout setup.
+
+2011-04-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-list-model.c:
 	  Delete node before notifying (in contrast to what the gtk+ api docs
 	  say). Anything else will create small window of inconsistency
