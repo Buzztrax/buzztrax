@@ -58,9 +58,34 @@ G_DEFINE_TYPE_WITH_CODE (BtMachineListModel, bt_machine_list_model, G_TYPE_OBJEC
 
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data);
 
+// we are comparing by type and name
 static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data)
 {
-  return ((gint)b-(gint)a);
+  BtMachine *ma=(BtMachine *)a;
+  BtMachine *mb=(BtMachine *)b;
+  gint ra=0,rb=0;
+
+  if(BT_IS_SINK_MACHINE(ma)) ra=2;
+  else if(BT_IS_PROCESSOR_MACHINE(ma)) ra=4;
+  else if(BT_IS_SOURCE_MACHINE(ma)) ra=6;
+  if(BT_IS_SINK_MACHINE(mb)) rb=2;
+  else if(BT_IS_PROCESSOR_MACHINE(mb)) rb=4;
+  else if(BT_IS_SOURCE_MACHINE(mb)) rb=6;
+
+  GST_LOG("comparing %s <-> %s: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),ra,rb);
+
+  if(ra==rb) {
+    gchar *ida=GST_OBJECT_NAME(ma),*idb=GST_OBJECT_NAME(mb);
+
+    if(strcmp(ida,idb)==1)
+      rb+=1;
+    else
+      ra+=1;
+
+    GST_LOG("comparing %s <-> %s: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),ra,rb);
+  }
+
+  return (rb-ra);
 }
 
 
@@ -72,10 +97,10 @@ static void bt_machine_list_model_add(BtMachineListModel *model,BtMachine *machi
 
   GST_WARNING_OBJECT(machine,"add machine to model");
 
-  // add new entry
-  position=g_sequence_get_length(seq);
+  // insert new entry
   iter.stamp=model->priv->stamp;
-  iter.user_data=g_sequence_append(seq,machine);
+  iter.user_data=g_sequence_insert_sorted(seq,machine,model_item_cmp,NULL);
+  position=g_sequence_iter_get_position(iter.user_data);
 
   g_signal_connect(machine,"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)model);
 
