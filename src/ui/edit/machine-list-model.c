@@ -65,6 +65,9 @@ static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data)
   BtMachine *mb=(BtMachine *)b;
   gint ra=0,rb=0;
 
+  if(a==b)
+    return 0;
+
   if(BT_IS_SINK_MACHINE(ma)) ra=2;
   else if(BT_IS_PROCESSOR_MACHINE(ma)) ra=4;
   else if(BT_IS_SOURCE_MACHINE(ma)) ra=6;
@@ -76,13 +79,14 @@ static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data)
 
   if(ra==rb) {
     gchar *ida=GST_OBJECT_NAME(ma),*idb=GST_OBJECT_NAME(mb);
+    gint c=strcmp(ida,idb);
 
-    if(strcmp(ida,idb)==1)
+    if(c==1)
       rb+=1;
-    else
+    else if(c==-1)
       ra+=1;
 
-    GST_LOG("comparing %s <-> %s: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),ra,rb);
+    GST_WARNING("comparing %s <-> %s: %d: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),c,ra,rb);
   }
 
   return (rb-ra);
@@ -124,7 +128,7 @@ static void bt_machine_list_model_rem(BtMachineListModel *model,BtMachine *machi
 #if GLIB_CHECK_VERSION(2,28,0)
   iter=g_sequence_lookup(seq,machine,model_item_cmp,NULL);
 #else
-  iter=g_sequence_search(seq,machine,model_item_cmp,NULL);
+  iter=g_sequence_iter_prev(g_sequence_search(seq,machine,model_item_cmp,NULL));
 #endif
   position=g_sequence_iter_get_position(iter);
 
@@ -152,7 +156,7 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 #if GLIB_CHECK_VERSION(2,28,0)
   iter.user_data=g_sequence_lookup(seq,machine,model_item_cmp,NULL);
 #else
-  iter.user_data=g_sequence_search(seq,machine,model_item_cmp,NULL);
+  iter.user_data=g_sequence_iter_prev(g_sequence_search(seq,machine,model_item_cmp,NULL));
 #endif
   // FIXME: this should not bee needed, something is wrong with the cmp func.
   if(!iter.user_data) {

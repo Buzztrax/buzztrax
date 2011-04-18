@@ -1245,6 +1245,30 @@ static void on_pattern_table_cursor_row_changed(const BtPatternEditor *editor,GP
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
 }
 
+#ifdef USE_MACHINE_MODEL
+static void on_machine_model_row_inserted(GtkTreeModel *tree_model, GtkTreePath *path,GtkTreeIter *iter,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+  gtk_combo_box_set_active_iter(self->priv->machine_menu,iter);
+}
+
+static void on_machine_model_row_deleted(GtkTreeModel *tree_model, GtkTreePath *path,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  GtkTreeIter iter;
+
+  // we'd like to activate the next iter, or if there is none the previous
+  if(!gtk_combo_box_get_active_iter(self->priv->machine_menu,&iter))
+    goto activate_first;
+  if(!gtk_tree_model_iter_next(tree_model,&iter))
+    goto activate_first;
+  gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
+  return;
+activate_first:
+  if(gtk_tree_model_get_iter_first(tree_model,&iter))
+    gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
+}
+#endif
+
 //-- event handler helper
 
 #ifndef USE_MACHINE_MODEL
@@ -1290,6 +1314,8 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
     g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
   }
   g_list_free(list);
+  g_signal_connect(store,"row-inserted",G_CALLBACK(on_machine_model_row_inserted),(gpointer)self);
+  g_signal_connect(store,"row-deleted",G_CALLBACK(on_machine_model_row_deleted),(gpointer)self);
 #else
   GtkListStore *store;
   gint index=-1;
