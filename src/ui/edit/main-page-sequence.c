@@ -57,12 +57,6 @@
  *   - we would share the hadjustment, but have separate vadjustments
  *   - the label-menu would require that we have a focused view
  *
- * @todo: make color shades work with more themes
- *   - we should check the treeview background color
- *   - the shading should shaden from black up or white down
- *   - direction is given by treeviews foreground -> background delta
- *   -> bt_main_page_sequence_init_ui::get colors
- *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
  * - hovering the mouse over the treeview causes redraws for the whole lines
@@ -2755,6 +2749,59 @@ static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScrol
   return FALSE;
 }
 
+// setup colors for sequence view
+static void bt_sequence_table_update_colors(const BtMainPageSequence *self) {
+  GtkStyle *s=GTK_WIDGET(self->priv->sequence_table)->style;
+  guint fg,bg;
+
+  fg=(s->text->red>>8) + (s->text->green>>8) + (s->text->blue>>8);
+  bg=(s->base->red>>8) + (s->base->green>>8) + (s->base->blue>>8);
+/*
+  GST_DEBUG("text %u : base %u",fg,bg);
+#define PRINT_COLOR(c) (c->red)>>8,(c->green)>>8,(c->blue)>>8
+  GST_DEBUG("sequence view colors: fg    : #%02x%02x%02x",PRINT_COLOR(s->fg));
+  GST_DEBUG("sequence view colors: bg    : #%02x%02x%02x",PRINT_COLOR(s->bg));
+  GST_DEBUG("sequence view colors: light : #%02x%02x%02x",PRINT_COLOR(s->light));
+  GST_DEBUG("sequence view colors: mid   : #%02x%02x%02x",PRINT_COLOR(s->mid));
+  GST_DEBUG("sequence view colors: dark  : #%02x%02x%02x",PRINT_COLOR(s->dark));
+  GST_DEBUG("sequence view colors: base  : #%02x%02x%02x",PRINT_COLOR(s->base));
+  GST_DEBUG("sequence view colors: text  : #%02x%02x%02x",PRINT_COLOR(s->text));
+  GST_DEBUG("sequence view colors: texta : #%02x%02x%02x",PRINT_COLOR(s->text_aa));
+*/
+
+  // get colors
+  self->priv->cursor_bg=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
+  self->priv->selection_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
+  self->priv->selection_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
+  if (bg>fg) {
+    self->priv->source_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1);
+    self->priv->source_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2);
+    self->priv->processor_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1);
+    self->priv->processor_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2);
+    self->priv->sink_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1);
+    self->priv->sink_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2);
+  } else {
+    self->priv->source_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1);
+    self->priv->source_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2);
+    self->priv->processor_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1);
+    self->priv->processor_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2);
+    self->priv->sink_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_DARK1);
+    self->priv->sink_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_DARK2);
+  }
+  sequence_model_recolorize(self);
+}
+
+static void on_sequence_table_realize(GtkWidget *widget,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+
+  bt_sequence_table_update_colors(self);
+}
+
+static void on_sequence_table_style_set(GtkWidget *widget,GtkStyle *old_style,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+
+  bt_sequence_table_update_colors(self);
+}
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -2966,18 +3013,6 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_menu_clicked),(gpointer)self);
 
-
-  // get colors
-  self->priv->cursor_bg=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
-  self->priv->selection_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
-  self->priv->selection_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
-  self->priv->source_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1);
-  self->priv->source_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2);
-  self->priv->processor_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1);
-  self->priv->processor_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2);
-  self->priv->sink_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1);
-  self->priv->sink_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2);
-
   // generate the context menu
   self->priv->accel_group=gtk_accel_group_new();
   self->priv->context_menu=GTK_MENU(g_object_ref_sink(gtk_menu_new()));
@@ -3140,6 +3175,8 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   g_signal_connect(self->priv->sequence_table, "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
   g_signal_connect(self->priv->sequence_table, "motion-notify-event", G_CALLBACK(on_sequence_table_motion_notify_event), (gpointer)self);
   g_signal_connect(self->priv->sequence_table, "scroll-event", G_CALLBACK(on_sequence_table_scroll_event), (gpointer)self);
+  g_signal_connect(self->priv->sequence_table, "realize", G_CALLBACK(on_sequence_table_realize), (gpointer)self);
+  g_signal_connect(self->priv->sequence_table, "style-set", G_CALLBACK(on_sequence_table_style_set), (gpointer)self);
   gtk_widget_set_name(GTK_WIDGET(self->priv->sequence_table),"sequence editor");
 
   // make pos scrolled-window also use the vertical-scrollbar of the sequence scrolled-window
