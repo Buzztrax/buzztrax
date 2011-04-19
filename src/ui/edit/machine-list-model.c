@@ -75,18 +75,23 @@ static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data)
   else if(BT_IS_PROCESSOR_MACHINE(mb)) rb=4;
   else if(BT_IS_SOURCE_MACHINE(mb)) rb=6;
 
-  GST_LOG("comparing %s <-> %s: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),ra,rb);
+  GST_WARNING("comparing %s <-> %s: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),ra,rb);
 
   if(ra==rb) {
-    gchar *ida=GST_OBJECT_NAME(ma),*idb=GST_OBJECT_NAME(mb);
-    gint c=strcmp(ida,idb);
+    gchar *ida,*idb;
+    gint c;
 
+    g_object_get(ma,"id",&ida,NULL);
+    g_object_get(mb,"id",&idb,NULL);
+
+    c=strcmp(ida,idb);
     if(c==1)
       rb+=1;
     else if(c==-1)
       ra+=1;
 
-    GST_LOG("comparing %s <-> %s: %d: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),c,ra,rb);
+    GST_WARNING("comparing %s <-> %s: %d: %d <-> %d",ida,idb,c,ra,rb);
+    g_free(ida);g_free(idb);
   }
 
   return (rb-ra);
@@ -148,27 +153,36 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
   GSequence *seq=model->priv->seq;
   GtkTreePath *path;
   GtkTreeIter iter;
-  gint position;
+  gint pos1,pos2;
 
-  // look the iter in model
+  // find the item by machine (cannot use model_item_cmp, as id has changed)
   iter.stamp=model->priv->stamp;
-#if GLIB_CHECK_VERSION(2,28,0)
-  iter.user_data=g_sequence_lookup(seq,machine,model_item_cmp,NULL);
-#else
-  iter.user_data=g_sequence_iter_prev(g_sequence_search(seq,machine,model_item_cmp,NULL));
-#endif
-  // FIXME: this should not bee needed, something is wrong with the cmp func.
-  if(!iter.user_data) {
-    GST_WARNING_OBJECT(machine,"machine not found in model");
-    return;
+  for(pos1=0;pos1<g_sequence_get_length(seq);pos1++) {
+    iter.user_data=g_sequence_get_iter_at_pos(seq,pos1);
+    if(g_sequence_get(iter.user_data)==machine)
+      break;
   }
-  position=g_sequence_iter_get_position(iter.user_data);
+  g_sequence_sort_changed(iter.user_data,model_item_cmp,NULL);
+  pos2=g_sequence_iter_get_position(iter.user_data);
 
-  // -> gtk_tree_model_row_changed
-  path=gtk_tree_path_new();
-  gtk_tree_path_append_index(path,position);
-  gtk_tree_model_row_changed(GTK_TREE_MODEL(model),path,&iter);
-  gtk_tree_path_free(path);
+  GST_WARNING("pos %d -> %d",pos1,pos2);
+
+  // signal updates
+  if(pos1!=pos2) {
+    path=gtk_tree_path_new();
+    gtk_tree_path_append_index(path,pos1);
+    gtk_tree_model_row_deleted(GTK_TREE_MODEL(model),path);
+    gtk_tree_path_free(path);
+    path=gtk_tree_path_new();
+    gtk_tree_path_append_index(path,pos2);
+    gtk_tree_model_row_inserted(GTK_TREE_MODEL(model),path,&iter);
+    gtk_tree_path_free(path);
+  } else {
+    path=gtk_tree_path_new();
+    gtk_tree_path_append_index(path,pos2);
+    gtk_tree_model_row_changed(GTK_TREE_MODEL(model),path,&iter);
+    gtk_tree_path_free(path);
+  }
 }
 
 

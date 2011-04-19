@@ -1,5 +1,11 @@
 2011-04-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-list-model.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Keep list sorted when renaming machines.
+
+2011-04-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/tools.c:
 	  Use the timestamp function from gstreamer.

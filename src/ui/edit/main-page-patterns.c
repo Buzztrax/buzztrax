@@ -1249,6 +1249,8 @@ static void on_pattern_table_cursor_row_changed(const BtPatternEditor *editor,GP
 static void on_machine_model_row_inserted(GtkTreeModel *tree_model, GtkTreePath *path,GtkTreeIter *iter,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
+  GST_WARNING("-- added index %s", gtk_tree_path_to_string(path));
+
   gtk_combo_box_set_active_iter(self->priv->machine_menu,iter);
 }
 
@@ -1256,7 +1258,7 @@ static void on_machine_model_row_deleted(GtkTreeModel *tree_model, GtkTreePath *
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeIter iter;
 
-  //GST_WARNING("-- about to remove index %s", gtk_tree_path_to_string(path));
+  GST_WARNING("-- removed index %s", gtk_tree_path_to_string(path));
 
   // the last machine is master which we actually cannot remove
   if(!gtk_tree_model_get_iter(tree_model, &iter, path)) {
@@ -1266,7 +1268,7 @@ static void on_machine_model_row_deleted(GtkTreeModel *tree_model, GtkTreePath *
       return;
   }
 
-  //GST_WARNING("-- activate index %s", gtk_tree_path_to_string(path));
+  GST_WARNING("-- activate index %s", gtk_tree_path_to_string(path));
   gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
 }
 #endif
