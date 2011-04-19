@@ -1,5 +1,11 @@
 2011-04-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-list-model.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Downgrade the log statements again.
+
+2011-04-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-statusbar.c:
 	  Experiment with a main_loop_lag monitor.
 

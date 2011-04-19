@@ -75,7 +75,7 @@ static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data)
   else if(BT_IS_PROCESSOR_MACHINE(mb)) rb=4;
   else if(BT_IS_SOURCE_MACHINE(mb)) rb=6;
 
-  GST_WARNING("comparing %s <-> %s: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),ra,rb);
+  GST_LOG("comparing %s <-> %s: %d <-> %d",GST_OBJECT_NAME(ma),GST_OBJECT_NAME(mb),ra,rb);
 
   if(ra==rb) {
     gchar *ida,*idb;
