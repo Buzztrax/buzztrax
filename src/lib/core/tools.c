@@ -481,22 +481,11 @@ static GstClockTime treal_last=G_GINT64_CONSTANT(0),tuser_last=G_GINT64_CONSTANT
  * Initializes cpu usage monitoring.
  */
 static void GST_GNUC_CONSTRUCTOR bt_cpu_load_init(void) {
-#ifdef HAVE_CLOCK_GETTIME
-  struct timespec now;
-#else
-  struct timeval now;
-#endif
-
-#ifdef HAVE_CLOCK_GETTIME
-  clock_gettime (CLOCK_MONOTONIC, &now);
-  treal_last=GST_TIMESPEC_TO_TIME(now);
-#else
-  gettimeofday(&now,NULL);
-  treal_last=GST_TIMEVAL_TO_TIME(now);
-#endif
+  treal_last=gst_util_get_timestamp();
   //clk=sysconf(_SC_CLK_TCK);
 
-  /* @todo: get number of CPUS's
+  /* @todo: we might need to handle multi core cpus and divide by num-cores
+   * http://lxr.linux.no/linux/include/linux/cpumask.h
 #ifndef WIN32
    num_cpus = sysconf (_SC_NPROCESSORS_ONLN);
 #else
@@ -515,23 +504,12 @@ static void GST_GNUC_CONSTRUCTOR bt_cpu_load_init(void) {
  * Returns: CPU usage as integer ranging from 0% to 100%
  */
 guint bt_cpu_load_get_current(void) {
-#ifdef HAVE_CLOCK_GETTIME
-  struct timespec now;
-#else
-  struct timeval now;
-#endif
   struct rusage rus,ruc;
   GstClockTime tnow,treal,tuser,tsys;
   guint cpuload;
 
   // check real time elapsed
-#ifdef HAVE_CLOCK_GETTIME
-  clock_gettime (CLOCK_MONOTONIC, &now);
-  tnow=GST_TIMESPEC_TO_TIME(now);
-#else
-  gettimeofday(&now,NULL);
-  tnow=GST_TIMEVAL_TO_TIME(now);
-#endif
+  tnow=gst_util_get_timestamp();
   treal=tnow-treal_last;
   treal_last=tnow;
   // check time spent load

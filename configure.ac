@@ -527,14 +527,6 @@ AC_CHECK_FUNCS( mlockall)
 AC_CHECK_FUNCS( getrusage)
 AC_CHECK_FUNCS( setrlimit)
 
-dnl POSIX timers
-AC_CHECK_FUNCS(clock_gettime, [], [
-  AC_CHECK_LIB(rt, clock_gettime, [
-    AC_DEFINE(HAVE_CLOCK_GETTIME, 1)
-    FEATURE_LIBS="$FEATURE_LIBS -lrt"
-  ])
-])
-
 dnl Check for -Bsymbolic-functions linker flag used to avoid
 dnl intra-library PLT jumps, if available.
 AC_ARG_ENABLE(Bsymbolic,
