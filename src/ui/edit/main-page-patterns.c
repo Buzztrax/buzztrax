@@ -75,8 +75,6 @@
 
 #define MAX_WAVETABLE_ITEMS 200
 
-#define USE_MACHINE_MODEL 1
-
 struct _BtMainPagePatternsPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
@@ -230,21 +228,11 @@ static void machine_menu_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIt
 
   gtk_tree_model_get_iter_first(store,iter);
   do {
-#ifdef USE_MACHINE_MODEL
     this_machine=bt_machine_list_model_get_object((BtMachineListModel *)store,iter);
-#else
-    gtk_tree_model_get(store,iter,MACHINE_MENU_MACHINE,&this_machine,-1);
-#endif
     if(this_machine==that_machine) {
       GST_INFO("found iter for machine : %p,ref_count=%d",that_machine,G_OBJECT_REF_COUNT(that_machine));
-#ifndef USE_MACHINE_MODEL
-      g_object_unref(this_machine);
-#endif
       break;
     }
-#ifndef USE_MACHINE_MODEL
-    g_object_unref(this_machine);
-#endif
   } while(gtk_tree_model_iter_next(store,iter));
 }
 
@@ -758,25 +746,6 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
 
 //-- event handlers
 
-#ifndef USE_MACHINE_MODEL
-static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  GtkTreeModel *store;
-  GtkTreeIter iter;
-  gchar *str;
-
-  g_object_get(machine,"id",&str,NULL);
-  GST_INFO("machine id changed to \"%s\"",str);
-
-  store=gtk_combo_box_get_model(self->priv->machine_menu);
-  // get the row where row.machine==machine
-  machine_menu_model_get_iter_by_machine(store,&iter,machine);
-  gtk_list_store_set(GTK_LIST_STORE(store),&iter,MACHINE_MENU_LABEL,str,-1);
-
-  g_free(str);
-}
-#endif
-
 static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeModel *store;
@@ -1245,7 +1214,6 @@ static void on_pattern_table_cursor_row_changed(const BtPatternEditor *editor,GP
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
 }
 
-#ifdef USE_MACHINE_MODEL
 static void on_machine_model_row_inserted(GtkTreeModel *tree_model, GtkTreePath *path,GtkTreeIter *iter,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
@@ -1271,39 +1239,12 @@ static void on_machine_model_row_deleted(GtkTreeModel *tree_model, GtkTreePath *
   //GST_WARNING("-- activate index %s", gtk_tree_path_to_string(path));
   gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
 }
-#endif
 
 //-- event handler helper
-
-#ifndef USE_MACHINE_MODEL
-static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,GtkListStore *store) {
-  gchar *str;
-  GtkTreeIter menu_iter;
-  GdkPixbuf *pixbuf=bt_ui_resources_get_icon_pixbuf_by_machine(machine);
-
-  g_object_get(machine,"id",&str,NULL);
-  GST_INFO_OBJECT(machine,"  adding %p, \"%s\"  (machine-refs: %d)",machine,str,G_OBJECT_REF_COUNT(machine));
-
-  gtk_list_store_append(store,&menu_iter);
-  gtk_list_store_set(store,&menu_iter,
-    MACHINE_MENU_ICON,pixbuf,
-    MACHINE_MENU_LABEL,str,
-    MACHINE_MENU_MACHINE,machine,
-    -1);
-  g_signal_connect(machine,"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)self);
-  //g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
-  g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
-
-  GST_DEBUG_OBJECT(machine,"  added %p (machine-refs: %d)",machine,G_OBJECT_REF_COUNT(machine));
-  g_free(str);
-  g_object_unref(pixbuf);
-}
-#endif
 
 static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
   BtMachine *machine=NULL;
   GList *node,*list;
-#ifdef USE_MACHINE_MODEL
   BtMachineListModel *store;
   gint index;
 
@@ -1320,20 +1261,7 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
   g_list_free(list);
   g_signal_connect(store,"row-inserted",G_CALLBACK(on_machine_model_row_inserted),(gpointer)self);
   g_signal_connect(store,"row-deleted",G_CALLBACK(on_machine_model_row_deleted),(gpointer)self);
-#else
-  GtkListStore *store;
-  gint index=-1;
 
-  // update machine menu
-  store=gtk_list_store_new(3,GDK_TYPE_PIXBUF,G_TYPE_STRING,BT_TYPE_MACHINE);
-  g_object_get((gpointer)setup,"machines",&list,NULL);
-  for(node=list;node;node=g_list_next(node)) {
-    machine=BT_MACHINE(node->data); // we take no extra ref on the machines here
-    machine_menu_add(self,machine,store);
-    index++;  // count so that we can activate the last one
-  }
-  g_list_free(list);
-#endif
   GST_INFO("machine menu refreshed, active item %d",index);
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),(index!=-1));
   gtk_combo_box_set_model(self->priv->machine_menu,GTK_TREE_MODEL(store));
@@ -2180,20 +2108,10 @@ static BtMachine *get_current_machine(const BtMainPagePatterns *self) {
 
   if(gtk_combo_box_get_active_iter(self->priv->machine_menu,&iter)) {
     store=gtk_combo_box_get_model(self->priv->machine_menu);
-#ifdef USE_MACHINE_MODEL
     if((machine=bt_machine_list_model_get_object(BT_MACHINE_LIST_MODEL(store),&iter))) {
       GST_DEBUG("  got machine: %p,machine-refs: %d",machine,G_OBJECT_REF_COUNT(machine));
       return(g_object_ref(machine));
     }
-#else
-    gtk_tree_model_get(store,&iter,MACHINE_MENU_MACHINE,&machine,-1);
-    if(machine) {
-      GST_DEBUG("  got machine: %p,machine-refs: %d",machine,G_OBJECT_REF_COUNT(machine));
-      // gtk_tree_model_get already refs()
-      return(machine);
-      //return(g_object_ref(machine));
-    }
-#endif
   }
   return(NULL);
 }
@@ -2378,10 +2296,6 @@ static void on_toolbar_menu_clicked(GtkButton *button, gpointer user_data) {
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-#ifndef USE_MACHINE_MODEL
-  GtkTreeModel *store;
-  gint index;
-#endif
 
   GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 
@@ -2392,30 +2306,13 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
     }
   }
 
-#ifndef USE_MACHINE_MODEL
-  GST_INFO("... machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
-
-  store=gtk_combo_box_get_model(self->priv->machine_menu);
-  machine_menu_add(self,machine,GTK_LIST_STORE(store));
-
-  index=gtk_tree_model_iter_n_children(store,NULL);
-  if(index==1) {
-    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),TRUE);
-  }
-  gtk_combo_box_set_active(self->priv->machine_menu,index-1);
-#else
   g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
-#endif
+
   GST_INFO("... machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 }
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
-#ifndef USE_MACHINE_MODEL
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  GtkTreeModel *store;
-  GtkTreeIter iter;
-  gint index;
-#endif
+  //BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtPattern *pattern=NULL;
   GList *node,*list;
   gboolean is_internal;
@@ -2423,19 +2320,6 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_return_if_fail(BT_IS_MACHINE(machine));
 
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
-
-#ifndef USE_MACHINE_MODEL
-  store=gtk_combo_box_get_model(self->priv->machine_menu);
-  // get the row where row.machine==machine
-  machine_menu_model_get_iter_by_machine(store,&iter,machine);
-  gtk_list_store_remove(GTK_LIST_STORE(store),&iter);
-  index=gtk_tree_model_iter_n_children(store,NULL);
-  if(index==0) {
-    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),FALSE);
-  }
-  gtk_combo_box_set_active(self->priv->machine_menu,index-1);
-  GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
-#endif
 
   // remove all patterns to ensure we emit "pattern-removed" signals
   g_object_get(machine,"patterns",&list,NULL);
