@@ -1,5 +1,12 @@
 svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
 
+2011/05 ========================================================================
+
+Own tree models (machine list, now nicely sorted)
+User manual work
+Save-as only shows io-plugin that actually can save.
+VU-meter update skipping.
+
 2011/04 ========================================================================
 
 I have been refactoring GStreamer's spectrum analyzer. It is now working faster

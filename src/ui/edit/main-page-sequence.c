@@ -53,6 +53,15 @@
  * @idea: bold row,label for cursor row
  *   - makes it easier to follow position in wide sequences
  *     (same needed for pattern view)
+ * @idea: have a split horizontal command
+ *   - we would share the hadjustment, but have separate vadjustments
+ *   - the label-menu would require that we have a focused view
+ *
+ * @todo: make color shades work with more themes
+ *   - we should check the treeview background color
+ *   - the shading should shaden from black up or white down
+ *   - direction is given by treeviews foreground -> background delta
+ *   -> bt_main_page_sequence_init_ui::get colors
  *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756

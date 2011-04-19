@@ -1,5 +1,13 @@
 2011-04-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Collect NEWS.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Planning.
+
+2011-04-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Fully switch to use the machine model.
 
