@@ -25,9 +25,6 @@
  * The statusbar shows some contextual help, as well as things like playback
  * status.
  */
-/* buzz uses 3 time counters
- * file:///windows/C/Programme/Jeskola/Buzz%20(work)/Help/Files/Time%20Window.htm
- */
 
 #define BT_EDIT
 #define BT_MAIN_STATUSBAR_C
@@ -37,6 +34,8 @@
 enum {
   MAIN_STATUSBAR_STATUS=1
 };
+
+//#define USE_MAIN_LOOP_IDLE_TRACKER 1
 
 
 struct _BtMainStatusbarPrivate {
@@ -69,6 +68,13 @@ struct _BtMainStatusbarPrivate {
   /* cpu load */
   GtkProgressBar *cpu_load;
   guint cpu_load_handler_id;
+
+#ifdef USE_MAIN_LOOP_IDLE_TRACKER
+  /* main-loop monitor */
+  guint main_loop_idle_handler_id;
+  GstClockTime ml_tlast,ml_tavg;
+  guint64 ml_ct;
+#endif
 
   /* total playtime */
   GstClockTime total_time;
@@ -226,17 +232,42 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 static gboolean on_cpu_load_update(gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   guint cpu_load=bt_cpu_load_get_current();
+#ifdef USE_MAIN_LOOP_IDLE_TRACKER
+  guint ml_lag=GST_TIME_AS_MSECONDS(self->priv->ml_tavg);
+  gchar str[strlen("CPU: 000 %, ML: 00000 ms") + 3];
+#else
   gchar str[strlen("CPU: 000 %") + 3];
+#endif
 
-  // @todo: we might need to handle multi core cpus and divide by num-cores
-  // http://lxr.linux.no/linux/include/linux/cpumask.h
   if(cpu_load>100.0) cpu_load=100.0;
 
+#ifdef USE_MAIN_LOOP_IDLE_TRACKER
+  g_sprintf(str,"CPU: %d %%, ML: %d ms",cpu_load,ml_lag);
+#else
   g_sprintf(str,"CPU: %d %%",cpu_load);
+#endif
   gtk_progress_bar_set_fraction(self->priv->cpu_load,(gdouble)cpu_load/100.0);
   gtk_progress_bar_set_text(self->priv->cpu_load,str);
   return(TRUE);
 }
+
+#ifdef USE_MAIN_LOOP_IDLE_TRACKER
+static gboolean on_main_loop_idle(gpointer user_data) {
+  BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
+  GstClockTime tnow,tdiff;
+
+  tnow=gst_util_get_timestamp();
+  if(self->priv->ml_ct!=0) {
+    tdiff=self->priv->ml_tlast-tnow;
+    // moving cumulative average
+    self->priv->ml_tavg=self->priv->ml_tavg+((tdiff-self->priv->ml_tavg)/self->priv->ml_ct);
+    self->priv->ml_ct++;
+  }
+  self->priv->ml_tlast=tnow;
+
+  return TRUE;
+}
+#endif
 
 //-- helper methods
 
@@ -272,6 +303,9 @@ static void bt_main_statusbar_init_ui(const BtMainStatusbar *self) {
 
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->cpu_load),FALSE,FALSE,1);
   self->priv->cpu_load_handler_id=g_timeout_add(1000, on_cpu_load_update, (gpointer)self);
+#ifdef USE_MAIN_LOOP_IDLE_TRACKER
+  self->priv->main_loop_idle_handler_id=g_idle_add_full(G_PRIORITY_LOW, on_main_loop_idle, (gpointer)self,NULL);
+#endif
 
   // timer status-bars
   ev_box=gtk_event_box_new();
@@ -382,6 +416,9 @@ static void bt_main_statusbar_dispose(GObject *object) {
     g_object_unref(song);
   }
   g_source_remove(self->priv->cpu_load_handler_id);
+#ifdef USE_MAIN_LOOP_IDLE_TRACKER
+  g_source_remove(self->priv->main_loop_idle_handler_id);
+#endif
 
   g_object_unref(self->priv->app);
 
