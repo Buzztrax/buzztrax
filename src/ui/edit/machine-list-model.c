@@ -90,7 +90,7 @@ static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data)
     else if(c==-1)
       ra+=1;
 
-    GST_WARNING("comparing %s <-> %s: %d: %d <-> %d",ida,idb,c,ra,rb);
+    GST_LOG("comparing %s <-> %s: %d: %d <-> %d",ida,idb,c,ra,rb);
     g_free(ida);g_free(idb);
   }
 
@@ -165,7 +165,7 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
   g_sequence_sort_changed(iter.user_data,model_item_cmp,NULL);
   pos2=g_sequence_iter_get_position(iter.user_data);
 
-  GST_WARNING("pos %d -> %d",pos1,pos2);
+  GST_DEBUG("pos %d -> %d",pos1,pos2);
 
   // signal updates
   if(pos1!=pos2) {

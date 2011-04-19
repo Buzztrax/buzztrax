@@ -904,7 +904,7 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
 
     g_free(mid);g_free(pid);g_free(pname);
   }
-  GST_INFO("removed pattern: %p,pattern->ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+  GST_WARNING("removed pattern: %p,pattern->ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 }
 
 // use key-press-event, as then we get key repeats
@@ -2403,6 +2403,8 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),TRUE);
   }
   gtk_combo_box_set_active(self->priv->machine_menu,index-1);
+#else
+  g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
 #endif
   GST_INFO("... machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 }

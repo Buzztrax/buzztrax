@@ -1,6 +1,15 @@
 2011-04-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-list-model.c:
+	  Downgrade more log statements again.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add signal handler listening for pattern removal also in the model
+	  case. Makes undo/redo work again here.
+
+2011-04-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-list-model.c:
 	* src/ui/edit/main-page-patterns.c:
 	  Downgrade the log statements again.
 
