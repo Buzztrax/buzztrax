@@ -202,12 +202,12 @@ enum {
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
-  BT_CHANGE_LOGGER_METHOD("set_global_events",18,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
-  BT_CHANGE_LOGGER_METHOD("set_voice_events",17,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),,([0-9]+)([0-9]+),([0-9]+),(.*)$"),
-  BT_CHANGE_LOGGER_METHOD("set_wire_events",16,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
-  BT_CHANGE_LOGGER_METHOD("set_property",13,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
-  BT_CHANGE_LOGGER_METHOD("add_pattern",12,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\",([0-9]+)$"),
-  BT_CHANGE_LOGGER_METHOD("rem_pattern",12,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("set_global_events",18,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
+  BT_CHANGE_LOGGER_METHOD("set_voice_events",17,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+)([0-9]+),([0-9]+),(.*)$"),
+  BT_CHANGE_LOGGER_METHOD("set_wire_events",16,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
+  BT_CHANGE_LOGGER_METHOD("set_property",13,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("add_pattern",12,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+)$"),
+  BT_CHANGE_LOGGER_METHOD("rem_pattern",12,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   { NULL, }
 };
 
@@ -3390,6 +3390,8 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
   g_object_try_unref(machine);
   g_object_try_unref(pattern);
   g_free(c_mid);g_free(c_pid);
+
+  GST_INFO("undo/redo: %s : [%s]",(res?"okay":"failed"),data);
   return res;
 }
 

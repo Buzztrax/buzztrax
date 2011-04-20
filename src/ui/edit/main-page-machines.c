@@ -167,11 +167,11 @@ enum {
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
-  BT_CHANGE_LOGGER_METHOD("add_machine",12,"([0-9]),\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
-  BT_CHANGE_LOGGER_METHOD("rem_machine",12,"\"([a-zA-Z0-9 ]+)\"$"),
-  BT_CHANGE_LOGGER_METHOD("set_machine_property",21,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9]+)\",\"(.+)\"$"),
-  BT_CHANGE_LOGGER_METHOD("add_wire",9,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
-  BT_CHANGE_LOGGER_METHOD("rem_wire",9,"\"([a-zA-Z0-9 ]+)\",\"([a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("add_machine",12,"([0-9]),\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("rem_machine",12,"\"([-_a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("set_machine_property",21,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9]+)\",\"(.+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("add_wire",9,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("rem_wire",9,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   { NULL, }
 };
 
@@ -1740,6 +1740,7 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       GST_WARNING("unhandled undo/redo method: [%s]",data);
   }
 
+  GST_INFO("undo/redo: %s : [%s]",(res?"okay":"failed"),data);
   return res;
 }
 

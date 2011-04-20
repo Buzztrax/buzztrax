@@ -1,3 +1,10 @@
+2011-04-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/change-logger.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Relax the rexexp-patterns and fix some. Add more logging.
+
 2011-04-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:

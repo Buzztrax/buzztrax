@@ -24,7 +24,7 @@
  *
  * Defines undo/redo interface.
  */
- 
+
 #define BT_EDIT
 #define BT_CHANGE_LOGGER_C
 
@@ -49,7 +49,7 @@ gint bt_change_logger_match_method(BtChangeLoggerMethods *change_logger_methods,
         res=i;
       }
       else {
-        GST_WARNING("no match for command %s in pattern \"%s\"",clm->name,g_regex_get_pattern(clm->regex));
+        GST_WARNING("no match for command %s in regexp \"%s\" for data \"%s\"",clm->name,g_regex_get_pattern(clm->regex),&data[clm->name_len]);
       }
       break;
     }
@@ -71,7 +71,7 @@ gint bt_change_logger_match_method(BtChangeLoggerMethods *change_logger_methods,
  */
 gboolean bt_change_logger_change(const BtChangeLogger *self,const gchar *data) {
   g_return_val_if_fail (BT_IS_CHANGE_LOGGER (self), FALSE);
-  
+
   return (BT_CHANGE_LOGGER_GET_INTERFACE (self)->change(self, data));
 }
 
