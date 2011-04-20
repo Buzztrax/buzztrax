@@ -203,7 +203,7 @@ enum {
 
 static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_global_events",18,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
-  BT_CHANGE_LOGGER_METHOD("set_voice_events",17,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+)([0-9]+),([0-9]+),(.*)$"),
+  BT_CHANGE_LOGGER_METHOD("set_voice_events",17,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),([0-9]+),(.*)$"),
   BT_CHANGE_LOGGER_METHOD("set_wire_events",16,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
   BT_CHANGE_LOGGER_METHOD("set_property",13,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_pattern",12,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+)$"),
