@@ -56,8 +56,32 @@ struct _BtUIResourcesClass {
 
 /**
  * BtUIResourcesColors:
+ * @BT_UI_RES_COLOR_CURSOR: cursor color
+ * @BT_UI_RES_COLOR_SELECTION1: selection color
+ * @BT_UI_RES_COLOR_SELECTION2: shaded selection color
+ * @BT_UI_RES_COLOR_PLAYLINE: playback line
+ * @BT_UI_RES_COLOR_LOOPLINE: loop line
+ * @BT_UI_RES_COLOR_ENDLINE: song end line
+ * @BT_UI_RES_COLOR_SOURCE_MACHINE_BASE: source machine base color
+ * @BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1: source machine lighter variant
+ * @BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2: source machine even lighter variant
+ * @BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1: source machine darker variant
+ * @BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2: source machine even darker variant
+ * @BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE: processor machine base color
+ * @BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1: processor machine lighter variant
+ * @BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2: processor machine even lighter variant
+ * @BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1: processor machine darker variant
+ * @BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2: processor machine even darker variant
+ * @BT_UI_RES_COLOR_SINK_MACHINE_BASE: sink machine base color
+ * @BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1: sink machine lighter variant
+ * @BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2: sink machine even lighter variant
+ * @BT_UI_RES_COLOR_SINK_MACHINE_DARK1: sink machine darker variant
+ * @BT_UI_RES_COLOR_SINK_MACHINE_DARK2: sink machine even darker variant
+ * @BT_UI_RES_COLOR_ANALYZER_PEAK: analyzer peak lines
+ * @BT_UI_RES_COLOR_GRID_LINES: grid lines
+ * @BT_UI_RES_COLOR_COUNT: symbolic color count
  *
- * Symbolic color names for the UI. 
+ * Symbolic color names for the UI.
  */
 typedef enum {
   BT_UI_RES_COLOR_CURSOR=0,
@@ -88,8 +112,13 @@ typedef enum {
 
 /**
  * BtUIResourcesMachineColors:
+ * @BT_UI_RES_COLOR_MACHINE_BASE: base color
+ * @BT_UI_RES_COLOR_MACHINE_BRIGHT1: lighter variant
+ * @BT_UI_RES_COLOR_MACHINE_BRIGHT2: even lighter variant
+ * @BT_UI_RES_COLOR_MACHINE_DARK1: darker variant
+ * @BT_UI_RES_COLOR_MACHINE_DARK2: even darker variant
  *
- * Symbolic color names for machines. 
+ * Symbolic color names for machines.
  */
 typedef enum {
   BT_UI_RES_COLOR_MACHINE_BASE=0,     /* machine view normal */

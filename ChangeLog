@@ -1,3 +1,10 @@
+2011-04-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.h:
+	* src/ui/edit/ui-resources.h:
+	* src/ui/edit/wire-canvas-item.c:
+	  Documentation fixes.
+
 2011-04-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/pattern.c:

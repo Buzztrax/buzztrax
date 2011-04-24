@@ -33,7 +33,16 @@ G_BEGIN_DECLS
 #define BT_PATTERN_EDITOR_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  BT_TYPE_PATTERN_EDITOR, BtPatternEditorClass))
 #define BT_IS_PATTERN_EDITOR_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  BT_TYPE_PATTERN_EDITOR))
 
-
+/**
+ * BtPatternEditorColumnType:
+ * @PCT_NOTE: musical notes
+ * @PCT_SWITCH: on/off switches
+ * @PCT_BYTE: 8bit values
+ * @PCT_WORD: 16bit value
+ * @PCT_FLOAT: single precission floating point values
+ *
+ * Column data types.
+ */
 enum _BtPatternEditorColumnType {
   PCT_NOTE=0,
   PCT_SWITCH,
@@ -45,6 +54,11 @@ typedef enum _BtPatternEditorColumnType BtPatternEditorColumnType;
 
 /**
  * BtPatternEditorColumn:
+ * @type: column value type
+ * @def: default value
+ * @min: minimum allowed value
+ * @max: maximum allowed value
+ * @user_data: extra data to attach
  *
  * A parameter column.
  */
@@ -55,6 +69,14 @@ struct _BtPatternEditorColumn {
 };
 typedef struct _BtPatternEditorColumn BtPatternEditorColumn;
 
+/**
+ * BtPatternEditorColumnGroupType:
+ * @PGT_WIRE: wire parameters
+ * @PGT_GLOBAL: global parameters
+ * @PGT_VOICE: voice parameters
+ *
+ * Column group type
+ */
 enum _BtPatternEditorColumnGroupType {
   PGT_WIRE=0,
   PGT_GLOBAL,
@@ -64,6 +86,11 @@ typedef enum _BtPatternEditorColumnGroupType BtPatternEditorColumnGroupType;
 
 /**
  * BtPatternEditorColumnGroup:
+ * @type: group type
+ * @name: group name
+ * @num_columns: number of columns
+ * @columns: array of columns
+ * @user_data: extra data to attach
  *
  * A group of #BtPatternEditorColumns, such as a voice or all global parameters.
  */
@@ -75,6 +102,7 @@ struct _BtPatternEditorColumnGroup {
   guint num_columns;
   BtPatternEditorColumn *columns;
   gpointer user_data;
+  /* < private > */
   guint width; /* in pixels for now, may change to chars some day when needed */
 };
 typedef struct _BtPatternEditorColumnGroup BtPatternEditorColumnGroup;
@@ -100,8 +128,11 @@ typedef struct _BtPatternEditor BtPatternEditor;
 typedef struct _BtPatternEditorClass BtPatternEditorClass;
 typedef struct _BtPatternEditorPrivate BtPatternEditorPrivate;
 
-/*
+/**
  * BtPatternEditorSelectionMode:
+ * @PESM_COLUMN: a single columns
+ * @PESM_GROUP: a whole group
+ * @PESM_ALL: all columns (and groups)
  *
  * Seleting single columns, whole groups (e.g. voices) or the whole pattern.
  */
