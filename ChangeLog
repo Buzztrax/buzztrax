@@ -1,5 +1,13 @@
 2011-04-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	  Add parameter check for 'param' when deserializing.
+
+	* src/ui/edit/main-page-machines.c:
+	  Also handle machine voices in undo/redo.
+
+2011-04-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Fix the regexp more (there was a misplaced ',').
 
