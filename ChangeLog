@@ -1,5 +1,10 @@
 2011-04-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/Makefile.am:
+	  Generate the desktop file.
+
+2011-04-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/pattern.c:
 	  Simple fix for "Add parameter check for 'param' when deserializing.".
 
