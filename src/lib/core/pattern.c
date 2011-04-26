@@ -1345,7 +1345,7 @@ gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulon
   g_return_val_if_fail(end_tick<self->priv->length,FALSE);
   g_return_val_if_fail(self->priv->data,FALSE);
   g_return_val_if_fail(data,FALSE);
-  g_return_val_if_fail(param<(self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  g_return_val_if_fail(param<(self->priv->global_params+self->priv->voices*self->priv->voice_params),FALSE);
 
   gboolean ret=TRUE;
   GType stype,dtype;
