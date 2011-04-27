@@ -142,6 +142,7 @@
 #include "missing-song-elements-dialog-methods.h"
 #include "object-list-model-methods.h"
 #include "panorama-popup.h"
+#include "pattern-list-model-methods.h"
 #include "pattern-properties-dialog-methods.h"
 #include "pattern-editor.h"
 #include "playback-controller-socket-methods.h"

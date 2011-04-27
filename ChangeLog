@@ -1,6 +1,22 @@
 2011-04-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/pattern-list-model-methods.h:
+	* src/ui/edit/pattern-list-model.c:
+	* src/ui/edit/pattern-list-model.h:
+	* src/ui/edit/pattern-list-model.c (svn:keywords, svn:eol-style):
+	* src/ui/edit/pattern-list-model-methods.h (svn:keywords, svn:eol-
+	  style):
+	* src/ui/edit/pattern-list-model.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/pattern-list-model-methods.h (added):
+	* src/ui/edit/pattern-list-model.c (added):
+	* src/ui/edit/pattern-list-model.h (added):
+	  WIP version of new model for pattern lists.
+
+2011-04-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
 	  Generate the desktop file.
 
 2011-04-27  Stefan Kost  <ensonic@users.sf.net>
