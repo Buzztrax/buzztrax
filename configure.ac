@@ -507,10 +507,12 @@ AC_SUBST(LINUX_INPUT_DOC_TYPES)
 AM_CONDITIONAL(USE_LINUX_INPUT, test x$have_linux_input_h = xyes)
 
 dnl check for SSE intrisics
+ARCH_CFLAGS=""
+ARCH_CPPFLAGS=""
 case "x${host_cpu}" in
   xi?86|k?|xx86_64|xamd64)
-    CFLAGS="$CFLAGS -march=native"
-    CPPFLAGS="$CPPFLAGS -D__SSE__ -D__MMX__"
+    ARCH_CFLAGS="-march=native"
+    ARCH_CPPFLAGS="-D__SSE__ -D__MMX__"
     AC_CHECK_HEADERS([xmmintrin.h])
     ;;
 esac
@@ -546,7 +548,7 @@ AC_ARG_ENABLE(Bsymbolic,
 dnl Extra vars
 BT_INCLUDEDIR='-I${includedir}'
 dnl -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
-BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
+BT_CFLAGS="$ARCH_CFLAGS $ARCH_CPPFLAGS $DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
 BT_LIBS="$DEBUG_LDFLAGS $FEATURE_LIBS $COVERAGE_LIBS"
 if test "x${enable_Bsymbolic}" == "xyes"; then
