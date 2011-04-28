@@ -26,10 +26,7 @@
 #define BT_PANORAMA_POPUP_H
 
 #include <glib.h>
-
-#include <gtk/gtkbutton.h>
-#include <gtk/gtkrange.h>
-#include <gtk/gtkwindow.h>
+#include <gtk/gtk.h>
 #include <gst/gst.h>
 
 G_BEGIN_DECLS

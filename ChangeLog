@@ -1,3 +1,9 @@
+2011-04-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/panorama-popup.h:
+	* src/ui/edit/volume-popup.h:
+	  Single include fixes.
+
 2011-04-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/Makefile.am:
