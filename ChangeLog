@@ -1,5 +1,11 @@
 2011-04-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-list-model.c:
+	* src/ui/edit/pattern-list-model.c:
+	  Small model cleanups.
+
+2011-04-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Don't muck with CFLAGS in configure - it is for the user.
 

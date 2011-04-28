@@ -59,8 +59,7 @@ G_DEFINE_TYPE_WITH_CODE (BtMachineListModel, bt_machine_list_model, G_TYPE_OBJEC
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data);
 
 // we are comparing by type and name
-static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data)
-{
+static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data) {
   BtMachine *ma=(BtMachine *)a;
   BtMachine *mb=(BtMachine *)b;
   gint ra=0,rb=0;

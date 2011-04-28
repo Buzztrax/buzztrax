@@ -82,8 +82,7 @@ G_DEFINE_TYPE_WITH_CODE (BtPatternListModel, bt_pattern_list_model, G_TYPE_OBJEC
 static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data);
 
 // we are comparing by type and name
-static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data)
-{
+static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data) {
   BtPattern *pa=(BtPattern *)a;
   BtPattern *pb=(BtPattern *)b;
   gchar *ida,*idb;
@@ -230,13 +229,13 @@ BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *seq
   self->priv->param_types[1]=G_TYPE_BOOLEAN;
   self->priv->param_types[2]=G_TYPE_STRING;
 
-  // shortcut keys
-  self->priv->pattern_keys=sink_pattern_keys;
+  // shortcut keys (take skiping into account)
+  self->priv->pattern_keys=skip_internal?&sink_pattern_keys[2]:sink_pattern_keys;
   if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
-    self->priv->pattern_keys=processor_pattern_keys;
+    self->priv->pattern_keys=skip_internal?&processor_pattern_keys[3]:processor_pattern_keys;
   }
   else if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
-    self->priv->pattern_keys=source_pattern_keys;
+    self->priv->pattern_keys=skip_internal?&source_pattern_keys[3]:source_pattern_keys;
   }
 
   // get pattern list from machine
@@ -315,24 +314,23 @@ static void bt_pattern_list_model_tree_model_get_value(GtkTreeModel *tree_model,
 
   g_value_init(value,model->priv->param_types[column]);
   if((pattern=g_sequence_get(iter->user_data))) {
-    gchar key[2]={0,};
-    gint index;
 
     switch(column) {
       case 0:
         g_object_get_property((GObject *)pattern,"name",value);
         break;
       case 1:
-        // FIXME: need real value
-        // is_used=bt_sequence_is_pattern_used(self->priv->sequence,pattern);
-        g_value_set_boolean(value,TRUE);
+        g_value_set_boolean(value,bt_sequence_is_pattern_used(model->priv->sequence,pattern));
         break;
-      case 2:
-        // FIXME: need real value
+      case 2: {
+        gchar key[2]={0,};
+        gint index;
+
         index=g_sequence_iter_get_position(iter->user_data);
         key[0]=(index<64)?model->priv->pattern_keys[index]:' ';
         g_value_set_string(value,key);
         break;
+      }
     }
   }
 }
