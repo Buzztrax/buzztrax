@@ -80,7 +80,7 @@ G_DEFINE_TYPE (BtTipDialog, bt_tip_dialog, GTK_TYPE_DIALOG);
 
 static void on_refresh_clicked(GtkButton *button, gpointer user_data) {
   BtTipDialog *self = BT_TIP_DIALOG(user_data);
-  guint ix=g_random_int_range(0,G_N_ELEMENTS(tips));
+  guint ix;
   gint i,j;
 
   if(!self->priv->n_pending_tips) {

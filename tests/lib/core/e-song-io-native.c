@@ -284,6 +284,10 @@ BT_START_TEST(test_btsong_io_write_song2) {
     gen=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
     wire=bt_wire_new(song, gen, sink,NULL);
     pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(gen));
+    g_object_unref(pattern);
+    g_object_unref(wire);
+    g_object_unref(gen);
+    g_object_unref(sink);
 
     /* save the song*/
     song_io=bt_song_io_from_file(song_path);

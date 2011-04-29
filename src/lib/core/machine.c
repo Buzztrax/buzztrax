@@ -3455,7 +3455,7 @@ static void bt_machine_dispose(GObject * const object) {
   const gulong voices=self->priv->voices;
   const gulong global_params=self->priv->global_params;
   const gulong voice_params=self->priv->voice_params;
-  GObject *param_parent;
+  //GObject *param_parent;
   guint i,j;
 
   return_if_disposed();
@@ -3481,7 +3481,7 @@ static void bt_machine_dispose(GObject * const object) {
   // unref controllers
   GST_DEBUG("  releasing controllers, global.ref_ct=%d, voices=%lu",
     G_OBJECT_REF_COUNT(self->priv->global_controller),self->priv->voices);
-  param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
+  //param_parent=G_OBJECT(self->priv->machines[PART_MACHINE]);
   for(j=0;j<global_params;j++) {
     g_object_try_unref(self->priv->global_control_sources[j]);
     //bt_gst_object_deactivate_controller(param_parent, GLOBAL_PARAM_NAME(j));
@@ -3490,12 +3490,12 @@ static void bt_machine_dispose(GObject * const object) {
   g_object_try_unref(self->priv->global_controller);
   if(self->priv->voice_controllers) {
     for(i=0;i<voices;i++) {
-      param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),i));
+      //param_parent=G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),i));
       for(j=0;j<voice_params;j++) {
         g_object_try_unref(self->priv->voice_control_sources[i*self->priv->voice_params+j]);
         //bt_gst_object_deactivate_controller(param_parent, VOICE_PARAM_NAME(j));
       }
-      g_object_unref(param_parent);
+      //g_object_unref(param_parent);
       //self->priv->voice_controllers[i]=NULL; // <- this is wrong, controllers have a refcount on the gstelement
       g_object_try_unref(self->priv->voice_controllers[i]);
     }

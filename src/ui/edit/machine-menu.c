@@ -91,7 +91,7 @@ static gint bt_machine_menu_compare(const gchar *str1, const gchar *str2) {
 static gboolean bt_machine_menu_check_pads(const GList *pads) {
   const GList *node;
   gint pad_dir_ct[4]={0,};
-  
+
   for(node=pads;node;node=g_list_next(node)) {
     pad_dir_ct[((GstStaticPadTemplate *)(node->data))->direction]++;
   }
@@ -178,7 +178,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       // can we do something about bins (autoaudiosrc,gconfaudiosrc,halaudiosrc)
       // - having autoaudiosrc might be nice to have
       // - extra category?
-      
+
       // add sub-menu for all audio inputs
       // get element type for filtering, this slows things down :/
       if(!(loaded_feature=gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)))) {
@@ -198,9 +198,9 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       }
       if(menu_path) {
         GtkWidget *cached_menu;
-        
+
         GST_DEBUG("  subclass : '%s'",&menu_path[1]);
-        
+
         //check in parent_menu_hash if we have a parent for this klass
         if(!(cached_menu=g_hash_table_lookup(parent_menu_hash,(gpointer)menu_path))) {
           GST_DEBUG("    create new: '%s'",&menu_path[1]);
@@ -214,7 +214,8 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
         else {
           parentmenu=cached_menu;
         }
-        have_submenu=TRUE;
+        // uncomment if we add another filter
+        //have_submenu=TRUE;
       }
     }
 
@@ -225,7 +226,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     // @bug: see http://bugzilla.gnome.org/show_bug.cgi?id=571832
     if(BT_IS_STRING(klass_name) && (plugin_name=GST_PLUGIN_FEATURE(factory)->plugin_name)) {
       gint len=strlen(plugin_name);
-      
+
       GST_LOG("%s:%s, %c",plugin_name,menu_name,menu_name[len]);
 
       // remove prefix "<plugin-name>-"

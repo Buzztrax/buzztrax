@@ -74,7 +74,7 @@ BT_START_TEST(test_btsourcemachine_obj2) {
   song=bt_song_new(app);
 
   /* try to create a source machine with wrong plugin type (sink instead of source) */
-  machine=bt_source_machine_new(song,"id","esdsink",1,&err);
+  machine=bt_source_machine_new(song,"id","autoaudio",1,&err);
   fail_unless(machine!=NULL, NULL);
   fail_unless(err!=NULL, NULL);
 
@@ -88,7 +88,7 @@ BT_START_TEST(test_btsourcemachine_obj3){
   GError *err=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
-  gulong testIdx=0;
+  gulong ix=0;
   GError *error=NULL;
 
   /* create app and song */
@@ -100,12 +100,10 @@ BT_START_TEST(test_btsourcemachine_obj3){
   fail_unless(machine!=NULL,NULL);
   fail_unless(err==NULL, NULL);
   /* try to get global param index from audiotestsrc */
-  testIdx=bt_machine_get_global_param_index(BT_MACHINE(machine),"nonsense",&error);
-  fail_unless(g_error_matches(error,
-                              g_quark_from_static_string("BtMachine"),
-                              0),
-                              NULL);
+  ix=bt_machine_get_global_param_index(BT_MACHINE(machine),"nonsense",&error);
+  fail_unless(g_error_matches(error, g_quark_from_static_string("BtMachine"),0),NULL);
   g_error_free(error);
+  fail_unless(ix==-1);
 
   g_object_unref(machine);
   g_object_checked_unref(song);

@@ -118,7 +118,6 @@ static void check_print_handler(const gchar * const message) {
     FILE *logfile;
     gboolean add_nl=FALSE;
     guint sl=strlen(message);
-    size_t written;
 
     //-- check if messages has no newline
     if((sl>1) && (message[sl-1]!='\n')) add_nl=TRUE;
@@ -129,8 +128,8 @@ static void check_print_handler(const gchar * const message) {
     else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
 
     if((logfile=fopen(__log_file_name, "a")) || (logfile=fopen(__log_file_name, "w"))) {
-      written=fwrite(message,sl,1,logfile);
-      if(add_nl) written=fwrite("\n",1,1,logfile);
+      (void)fwrite(message,sl,1,logfile);
+      if(add_nl) (void)fwrite("\n",1,1,logfile);
       fclose(logfile);
     }
     else { /* Fall back to console output if unable to open file */
@@ -825,7 +824,7 @@ void check_setup_test_server(void) {
     }
 
     // this display is not yet in use
-    if(!g_file_test(display_file, G_FILE_TEST_EXISTS)) {
+    if(found && !g_file_test(display_file, G_FILE_TEST_EXISTS)) {
       // create the testing server
       server_argv[1]=display_name;
       if(!(g_spawn_async(NULL,server_argv,NULL,flags,NULL,NULL,&server_pid,&error))) {
@@ -845,7 +844,6 @@ void check_setup_test_server(void) {
             sleep(1);
           }
         }
-        //sleep(2);
       }
     }
     if(!launched) {

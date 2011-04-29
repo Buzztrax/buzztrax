@@ -100,7 +100,7 @@ static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user
   file_name=g_filename_from_uri(uri,NULL,NULL);
 
   GST_INFO("menu open recent event occurred : %s",file_name);
-  
+
   if(!bt_edit_application_load_song(self->priv->app,file_name)) {
     gchar *msg=g_strdup_printf(_("An error occurred while loading the song from file '%s'"),file_name);
 
@@ -1042,13 +1042,13 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
     GSList *group = NULL;
 
     subitem=gtk_radio_menu_item_new_with_mnemonic(group, "use svg");
-    group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (subitem));
+    group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(subitem));
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),TRUE);
     gtk_container_add(GTK_CONTAINER(submenu),subitem);
     g_signal_connect(subitem,"toggled",G_CALLBACK(on_menu_debug_use_svg_toggled),(gpointer)self);
 
     subitem=gtk_radio_menu_item_new_with_mnemonic(group, "use png");
-    group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (subitem));
+    //group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(subitem));
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),FALSE);
     gtk_container_add(GTK_CONTAINER(submenu),subitem);
     g_signal_connect(subitem,"toggled",G_CALLBACK(on_menu_debug_use_png_toggled),(gpointer)self);

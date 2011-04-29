@@ -1,3 +1,16 @@
+2011-04-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/ui/edit/machine-list-model.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/pattern-list-model.c:
+	* src/ui/edit/tip-dialog.c:
+	* tests/bt-check.c:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/lib/core/t-source-machine.c:
+	  Clang checker cleanups.
+
 2011-04-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-list-model.c:
