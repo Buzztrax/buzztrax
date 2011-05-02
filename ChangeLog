@@ -1,5 +1,10 @@
 2011-05-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Add all the alternative code paths to use the new model.
+
+2011-05-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-list-model.c:
 	* src/ui/edit/machine-list-model.h:
 	* src/ui/edit/pattern-list-model.c:
