@@ -54,6 +54,12 @@ struct _BtPatternListModelClass {
   GObjectClass parent;
 };
 
+enum {
+  BT_PATTERN_MODEL_LABEL=0,
+  BT_PATTERN_MODEL_IS_USED,
+  BT_PATTERN_MODEL_SHORTCUT,
+  __BT_PATTERN_MODEL_N_COLUMNS
+};
 
 GType bt_pattern_list_model_get_type(void) G_GNUC_CONST;
 

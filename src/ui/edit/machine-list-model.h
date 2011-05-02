@@ -54,6 +54,11 @@ struct _BtMachineListModelClass {
   GObjectClass parent;
 };
 
+enum {
+  BT_MACHINE_MODEL_ICON=0,
+  BT_MACHINE_MODEL_LABEL,
+  __BT_MACHINE_MODEL_N_COLUMNS
+};
 
 GType bt_machine_list_model_get_type(void) G_GNUC_CONST;
 

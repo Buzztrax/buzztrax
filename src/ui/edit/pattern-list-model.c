@@ -39,7 +39,7 @@
 #include "bt-edit.h"
 
 //-- defines
-#define N_COLUMNS 3
+#define N_COLUMNS __BT_PATTERN_MODEL_N_COLUMNS
 
 //-- globals
 
@@ -228,9 +228,9 @@ BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *seq
   g_object_add_weak_pointer((GObject *)machine,(gpointer *)&self->priv->machine);
   self->priv->skip_internal=skip_internal;
 
-  self->priv->param_types[0]=G_TYPE_STRING;
-  self->priv->param_types[1]=G_TYPE_BOOLEAN;
-  self->priv->param_types[2]=G_TYPE_STRING;
+  self->priv->param_types[BT_PATTERN_MODEL_LABEL]=G_TYPE_STRING;
+  self->priv->param_types[BT_PATTERN_MODEL_IS_USED]=G_TYPE_BOOLEAN;
+  self->priv->param_types[BT_PATTERN_MODEL_SHORTCUT]=G_TYPE_STRING;
 
   // shortcut keys (take skiping into account)
   self->priv->pattern_keys=skip_internal?&sink_pattern_keys[2]:sink_pattern_keys;
@@ -319,13 +319,13 @@ static void bt_pattern_list_model_tree_model_get_value(GtkTreeModel *tree_model,
   if((pattern=g_sequence_get(iter->user_data))) {
 
     switch(column) {
-      case 0:
+      case BT_PATTERN_MODEL_LABEL:
         g_object_get_property((GObject *)pattern,"name",value);
         break;
-      case 1:
+      case BT_PATTERN_MODEL_IS_USED:
         g_value_set_boolean(value,bt_sequence_is_pattern_used(model->priv->sequence,pattern));
         break;
-      case 2: {
+      case BT_PATTERN_MODEL_SHORTCUT: {
         gchar key[2]={0,};
         gint index;
 

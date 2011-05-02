@@ -32,7 +32,7 @@
 #include "bt-edit.h"
 
 //-- defines
-#define N_COLUMNS 2
+#define N_COLUMNS __BT_MACHINE_MODEL_N_COLUMNS
 
 //-- property ids
 
@@ -212,8 +212,8 @@ BtMachineListModel *bt_machine_list_model_new(BtSetup *setup) {
   self->priv->setup=setup;
   g_object_add_weak_pointer((GObject *)setup,(gpointer *)&self->priv->setup);
 
-  self->priv->param_types[0]=GDK_TYPE_PIXBUF;
-  self->priv->param_types[1]=G_TYPE_STRING;
+  self->priv->param_types[BT_MACHINE_MODEL_ICON]=GDK_TYPE_PIXBUF;
+  self->priv->param_types[BT_MACHINE_MODEL_LABEL]=G_TYPE_STRING;
 
   // get machine list from setup
   g_object_get((gpointer)setup,"machines",&list,NULL);
@@ -292,10 +292,10 @@ static void bt_machine_list_model_tree_model_get_value(GtkTreeModel *tree_model,
   g_value_init(value,model->priv->param_types[column]);
   if((machine=g_sequence_get(iter->user_data))) {
     switch(column) {
-      case 0:
+      case BT_MACHINE_MODEL_ICON:
         g_value_set_object(value,bt_ui_resources_get_icon_pixbuf_by_machine(machine));
         break;
-      case 1:
+      case BT_MACHINE_MODEL_LABEL:
         g_object_get_property((GObject *)machine,"id",value);
         break;
     }

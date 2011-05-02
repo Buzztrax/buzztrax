@@ -1,3 +1,11 @@
+2011-05-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-list-model.c:
+	* src/ui/edit/machine-list-model.h:
+	* src/ui/edit/pattern-list-model.c:
+	* src/ui/edit/pattern-list-model.h:
+	  Add enums for column ids.
+
 2011-04-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
