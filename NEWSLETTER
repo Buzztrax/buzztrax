@@ -1,11 +1,37 @@
-svn diff -r "{2010-01-01}:{2010-01-31}" | diffstat
+svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
 2011/05 ========================================================================
 
-Own tree models (machine list, now nicely sorted)
-User manual work
-Save-as only shows io-plugin that actually can save.
-VU-meter update skipping.
+After last month spectrum analyzer work, I also looked at the volume meters
+again. Handling the updates is a bit tricky as I need to sync them to the audio
+playback. Now I have optimizations in place to skip updates when the meter is
+zero or maxed and has not changed. This is actually quite often the case.
+
+I also fixed a small UI glitch; song-io plugins did not tell so far whether they
+support saving and/or loading. Thus one could end up selecting a format and then
+getting an error. Now one will see only the formats that plugins can handle.
+
+Finally I got around catching up on the docs too. Now all dialogs have some docs
+including screenshots.
+
+One refactoring I was actually considering to push for after the next release was
+getting rid of the GtkListStores and use real GtkTreeModels instead. The
+disadvantage of a ListStore is that it is static, if the underlying object is
+dynamic one needs to manually synchronize it. This enlarges the code and also the
+duplicated data storage uses memory. Writing own models was in the end not so
+difficult, it is quite some boilerplate code though. The first one I wrote is a
+object-list-model. It allows to bind object-properties to model columns. If e.g.
+a field changes, the model notifies and the view updates [1]. The whole thing
+could become more generic if we would have an iterator interfaces and the
+collection types (list, array, ..) would be gobjects implementing the iface.
+Well, I am not the first to notice that :) [2]. Next I made 2 specialized models
+and started to takes them into use. As a bonus e.g. the machine model provides a
+nice logical sorting. One more model to implements and switch to.
+
+72 files changed, 6268 insertions(+), 1250 deletions(-)
+
+[1] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/src/ui/edit/object-list-model.c?revision=3350&view=markup
+[2] http://pvanhoof.be/blog/index.php/2009/08/17/treemodel-zero-a-taste-of-life-as-it-should-be
 
 2011/04 ========================================================================
 
@@ -19,7 +45,7 @@ I spend the bigger part of the month on the tests again. I had an unref too
 much somewhere. Even after all the work in refdbg this is still difficult to
 track down. Eventually I found it and now all tests are green.
 
-43 files changed, 796 insertions(+), 100 deletions(-)
+51 files changed, 2549 insertions(+), 1817 deletions(-)
 
 2011/03 ========================================================================
 
@@ -59,7 +85,7 @@ data access. It only seems to happen when you have a /dev/input/mice which all
 my computers have. I have a workaround, but believe more testing from other
 would be great. [1]
 
-44 files changed, 1087 insertions(+), 317 deletions(-)
+65 files changed, 3160 insertions(+), 1085 deletions(-)
 
 [1] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/design/udev/udevls.c?revision=3231&view=markup
 
@@ -119,7 +145,7 @@ controllers work better. Finally the dialogs warning about unsaved changes are
 more user-friendly; they now show the time passed since last saved/created in
 addition to the timestamp.
 
-50 files changed, 2402 insertions(+), 1183 deletions(-)
+20 files changed, 1635 insertions(+), 989 deletions(-)
 
 2010/12 ========================================================================
 
