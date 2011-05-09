@@ -1,5 +1,9 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
+2011/06 ========================================================================
+
+
+
 2011/05 ========================================================================
 
 After last month spectrum analyzer work, I also looked at the volume meters
@@ -25,8 +29,8 @@ a field changes, the model notifies and the view updates [1]. The whole thing
 could become more generic if we would have an iterator interfaces and the
 collection types (list, array, ..) would be gobjects implementing the iface.
 Well, I am not the first to notice that :) [2]. Next I made 2 specialized models
-and started to takes them into use. As a bonus e.g. the machine model provides a
-nice logical sorting. One more model to implements and switch to.
+and started to take them into use. As a bonus e.g. the machine model provides a
+nice logical sorting. One more model to implement and switch to.
 
 72 files changed, 6268 insertions(+), 1250 deletions(-)
 
