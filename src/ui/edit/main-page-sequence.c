@@ -42,34 +42,37 @@
  * - pattern list
  *   - go to next occurence when double clicking a pattern
  *   - show tick-length in pattern list
- *
- * @todo: we should have a track-changed signal
+ */
+/* @todo: we should have a track-changed signal
  *  - allows pattern to sync with selected machine and not passively syncing
  *    (bt_main_page_patterns_show_machine())
- * @idea: add a follow playback checkbox to toolbar to en/disable sequence scrolling
- *   - the scrolling causes quite some repaints and thus slowness
- *   - it would be good if we could deoouple the scolling and the events, so
- *     that we e.g. scroll 10 times a second to the latest position
- * @idea: bold row,label for cursor row
- *   - makes it easier to follow position in wide sequences
- *     (same needed for pattern view)
- * @idea: have a split horizontal command
- *   - we would share the hadjustment, but have separate vadjustments
- *   - the label-menu would require that we have a focused view
- *
- * @bugs
- * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
- * - hovering the mouse over the treeview causes redraws for the whole lines
- *   - cells are asked to do prelight, even if they wouldn't draw anything else
- *     http://www.gtk.org/plan/meetings/20041025.txt
- *
- * @todo: handle pattern name changes
+ */
+/* @todo: handle pattern name changes
  *   - when pattern gets renamed
- *     - we need to update the pattern list (if shown)
+ *     - we need to update the pattern list (if shown) - done
  *     - we need to update the sequence (if pattern is used)
  *     - we need to catch each pattern addition to listen to notify::name
  *       - right now we only watch for pattern add/remove for current track
  *       - we need to avoid to add the handler multiple times
+ */
+/* @idea: add a follow playback checkbox to toolbar to en/disable sequence scrolling
+ *   - the scrolling causes quite some repaints and thus slowness
+ *   - it would be good if we could deoouple the scolling and the events, so
+ *     that we e.g. scroll 10 times a second to the latest position
+ */
+/* @idea: bold row,label for cursor row
+ *   - makes it easier to follow position in wide sequences
+ *     (same needed for pattern view)
+ */
+/* @idea: have a split horizontal command
+ *   - we would share the hadjustment, but have separate vadjustments
+ *   - the label-menu would require that we have a focused view
+ */
+/* @bugs
+ * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
+ * - hovering the mouse over the treeview causes redraws for the whole lines
+ *   - cells are asked to do prelight, even if they wouldn't draw anything else
+ *     http://www.gtk.org/plan/meetings/20041025.txt
  */
 
 #define BT_EDIT
@@ -77,6 +80,8 @@
 
 #include "bt-edit.h"
 #include "gtkvumeter.h"
+
+//#define USE_PATTERN_MODEL 1
 
 enum {
   MAIN_PAGE_SEQUENCE_CURSOR_ROW=1
@@ -202,11 +207,14 @@ enum {
   POSITION_MENU_LABEL
 };
 
+#ifndef USE_PATTERN_MODEL
 enum {
-  PATTERN_TABLE_KEY=0,
-  PATTERN_TABLE_NAME,
-  PATTERN_TABLE_USED
+  PATTERN_LIST_NAME=0,
+  PATTERN_LIST_USED,
+  PATTERN_LIST_KEY,
+  PATTERN_LIST_PATTERN
 };
+#endif
 
 enum {
   PATTERN_POS_FORMAT_TICKS=0,
@@ -699,6 +707,27 @@ static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat b
   return(button);
 }
 
+//-- tree model helper
+
+#ifndef USE_PATTERN_MODEL
+static void pattern_list_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *iter,BtPattern *that_pattern) {
+  BtPattern *this_pattern;
+
+  GST_INFO("look up iter for pattern : %p,ref_count=%d",that_pattern,G_OBJECT_REF_COUNT(that_pattern));
+
+  gtk_tree_model_get_iter_first(store,iter);
+  do {
+    gtk_tree_model_get(store,iter,PATTERN_LIST_PATTERN,&this_pattern,-1);
+    if(this_pattern==that_pattern) {
+      GST_INFO("found iter for machine : %p,ref_count=%d",that_pattern,G_OBJECT_REF_COUNT(that_pattern));
+      g_object_unref(this_pattern);
+      break;
+    }
+    g_object_try_unref(this_pattern); // we also have the internal patterns where this_pattern=NULL
+  } while(gtk_tree_model_iter_next(store,iter));
+}
+#endif
+
 //-- event handlers
 
 static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer user_data) {
@@ -738,6 +767,25 @@ static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer us
   }
   prev_page_num = page_num;
 }
+
+#ifndef USE_PATTERN_MODEL
+static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  GtkTreeModel *store;
+  GtkTreeIter iter;
+  gchar *str;
+
+  g_object_get(pattern,"name",&str,NULL);
+  GST_INFO("pattern name changed to \"%s\"",str);
+
+  store=gtk_tree_view_get_model(self->priv->pattern_list);
+  // get the row where row.machine==machine
+  pattern_list_model_get_iter_by_pattern(store,&iter,pattern);
+  gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_LIST_NAME,str,-1);
+
+  g_free(str);
+}
+#endif
 
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
   GtkLabel *label=GTK_LABEL(user_data);
@@ -1538,40 +1586,74 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 }
 
 static void pattern_list_refresh(const BtMainPageSequence *self) {
+#ifdef USE_PATTERN_MODEL
+  BtPatternListModel *store;
+#else
   GtkListStore *store;
+  GtkTreeModel *old_store;
   GtkTreeIter tree_iter;
 
-  // refresh the pattern list
-  store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
-
-  if(self->priv->machine) {
+  // clean up old list
+  if((old_store=gtk_tree_view_get_model(self->priv->pattern_list))) {
     BtPattern *pattern;
+
+    if(gtk_tree_model_get_iter_first(old_store,&tree_iter)) {
+      do {
+        gtk_tree_model_get(old_store,&tree_iter,PATTERN_LIST_PATTERN,&pattern,-1);
+        if(pattern) {
+          g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_pattern_name_changed,NULL);
+          g_object_unref(pattern);
+        }
+      } while(gtk_tree_model_iter_next(old_store,&tree_iter));
+    }
+  }
+#endif
+
+  // refresh the pattern list
+  if(self->priv->machine) {
     gulong index;
+#ifndef USE_PATTERN_MODEL
+    BtPattern *pattern;
     GList *node,*list;
     gboolean is_internal,is_used;
     gchar *str,key[2]={0,};
+#endif
 
     GST_INFO("refresh pattern list for machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
+
+#ifdef USE_PATTERN_MODEL
+    store=bt_pattern_list_model_new(self->priv->machine,self->priv->sequence,FALSE);
+    index=gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store),NULL)-1;
+    // would be nice if we don't need to duplicate that with the model
+    self->priv->pattern_keys=sink_pattern_keys;
+    if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
+      self->priv->pattern_keys=processor_pattern_keys;
+    }
+    if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
+      self->priv->pattern_keys=source_pattern_keys;
+    }
+#else
+    store=gtk_list_store_new(4,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN,BT_TYPE_PATTERN);
 
     //-- append default rows
     self->priv->pattern_keys=sink_pattern_keys;
     index=2;
     gtk_list_store_append(store, &tree_iter);
     // use spaces to avoid clashes with normal patterns?
-    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,".",PATTERN_TABLE_NAME,_("  clear"),PATTERN_TABLE_USED,TRUE,-1);
+    gtk_list_store_set(store,&tree_iter,PATTERN_LIST_KEY,".",PATTERN_LIST_NAME,_("  clear"),PATTERN_LIST_USED,TRUE,-1);
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"-",PATTERN_TABLE_NAME,_("  mute"),PATTERN_TABLE_USED,TRUE,-1);
+    gtk_list_store_set(store,&tree_iter,PATTERN_LIST_KEY,"-",PATTERN_LIST_NAME,_("  mute"),PATTERN_LIST_USED,TRUE,-1);
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,",",PATTERN_TABLE_NAME,_("  break"),PATTERN_TABLE_USED,TRUE,-1);
+    gtk_list_store_set(store,&tree_iter,PATTERN_LIST_KEY,",",PATTERN_LIST_NAME,_("  break"),PATTERN_LIST_USED,TRUE,-1);
     if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
       gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  bypass"),PATTERN_TABLE_USED,TRUE,-1);
+      gtk_list_store_set(store,&tree_iter,PATTERN_LIST_KEY,"_",PATTERN_LIST_NAME,_("  bypass"),PATTERN_LIST_USED,TRUE,-1);
       self->priv->pattern_keys=processor_pattern_keys;
       index++;
     }
     if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
       gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,PATTERN_TABLE_KEY,"_",PATTERN_TABLE_NAME,_("  solo"),PATTERN_TABLE_USED,TRUE,-1);
+      gtk_list_store_set(store,&tree_iter,PATTERN_LIST_KEY,"_",PATTERN_LIST_NAME,_("  solo"),PATTERN_LIST_USED,TRUE,-1);
       self->priv->pattern_keys=source_pattern_keys;
       index++;
     }
@@ -1593,16 +1675,19 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
         is_used=bt_sequence_is_pattern_used(self->priv->sequence,pattern);
         gtk_list_store_append(store, &tree_iter);
         gtk_list_store_set(store,&tree_iter,
-          PATTERN_TABLE_KEY,key,
-          PATTERN_TABLE_NAME,str,
-          PATTERN_TABLE_USED,is_used,
+          PATTERN_LIST_KEY,key,
+          PATTERN_LIST_NAME,str,
+          PATTERN_LIST_USED,is_used,
+          PATTERN_LIST_PATTERN,pattern,
           -1);
         index++;
+        g_signal_connect(pattern,"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
       }
       g_free(str);
       g_object_unref(pattern);
     }
     g_list_free(list);
+#endif
 
     // sync machine in pattern page
     if(self->priv->main_window) {
@@ -1616,11 +1701,14 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     GST_INFO("refreshed pattern list for machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
   }
   else {
+    // FIXME, do we need a dummy store?
+    //store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_BOOLEAN,G_TYPE_STRING);
+    store=NULL;
     GST_INFO("no machine for cursor_column: %ld",self->priv->cursor_column);
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
 
-  g_object_unref(store); // drop with treeview
+  g_object_try_unref(store); // drop with treeview
 }
 
 
@@ -2478,6 +2566,8 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
     if((!res) && (event->keyval<='z') && (modifier==0)) {
       // first column is label
       if((track>0) && (row<length)) {
+        // FIXME:(USE_PATTERN_MODEL) we now sort the pattern names,
+        // and thus can't use _get_pattern_by_index
         gchar *pos=strchr(self->priv->pattern_keys,(gchar)(event->keyval&0xff));
 
         // reset selection
@@ -2864,7 +2954,7 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
 
   // get song from app
   g_object_get(self->priv->app,"song",&song,NULL);
-  // reinit the sequence view (why?)
+  // reinit the sequence view, FIXME: only when removing patterns
   sequence_table_refresh(self,song);
   sequence_model_recolorize(self);
   g_object_unref(song);
@@ -3216,8 +3306,8 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Key"),renderer,
-    "text",PATTERN_TABLE_KEY,
-    "sensitive",PATTERN_TABLE_USED,
+    "text",BT_PATTERN_MODEL_SHORTCUT,
+    "sensitive",BT_PATTERN_MODEL_IS_USED,
     NULL))
   ) {
     g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",30,NULL);
@@ -3229,8 +3319,8 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Patterns"),renderer,
-    "text",PATTERN_TABLE_NAME,
-    "sensitive",PATTERN_TABLE_USED,
+    "text",BT_PATTERN_MODEL_LABEL,
+    "sensitive",BT_PATTERN_MODEL_IS_USED,
     NULL))
   ) {
     g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",70,NULL);

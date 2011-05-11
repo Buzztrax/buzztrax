@@ -74,6 +74,9 @@
 #include "bt-edit.h"
 
 //#define USE_PATTERN_MODEL 1
+/*FIXME: when adding new items and they are not the last one in sort-order we're
+ *  not activating the new one
+ */
 
 #define MAX_WAVETABLE_ITEMS 200
 
@@ -1301,7 +1304,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 #endif
 
 #ifdef USE_PATTERN_MODEL
-  // FIXME: get active?
+  // FIXME: (USE_PATTERN_MODEL) get active?
 #else
   g_object_get(machine,"patterns",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
