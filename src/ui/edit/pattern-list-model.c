@@ -322,9 +322,19 @@ static void bt_pattern_list_model_tree_model_get_value(GtkTreeModel *tree_model,
       case BT_PATTERN_MODEL_LABEL:
         g_object_get_property((GObject *)pattern,"name",value);
         break;
-      case BT_PATTERN_MODEL_IS_USED:
-        g_value_set_boolean(value,bt_sequence_is_pattern_used(model->priv->sequence,pattern));
+      case BT_PATTERN_MODEL_IS_USED: {
+        gboolean is_used=FALSE;
+
+        if(!model->priv->skip_internal) {
+          /* treat internal patterns as always used */
+          g_object_get(pattern,"is-internal",&is_used,NULL);
+        }
+        if(!is_used) {
+          is_used=bt_sequence_is_pattern_used(model->priv->sequence,pattern);
+        }
+        g_value_set_boolean(value,is_used);
         break;
+      }
       case BT_PATTERN_MODEL_SHORTCUT: {
         gchar key[2]={0,};
         gint index;
