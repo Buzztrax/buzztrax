@@ -1,5 +1,11 @@
 2011-05-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/dec/bt-dec.c:
+	  Update the _loop() function pause handling. Avoid the FLOW_IS_FATAL
+	  macro like other gst elements. Handle segmented seeks.
+
+2011-05-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/buzztard-edit.desktop.in:
 	* src/ui/edit/buzztard-edit.desktop.in (added):
 	  Readd src for desktop file (again).

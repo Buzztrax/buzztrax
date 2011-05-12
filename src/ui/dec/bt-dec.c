@@ -497,20 +497,34 @@ pause:
 
     GST_DEBUG_OBJECT (self, "pausing task, reason %s", reason);
     gst_pad_pause_task (sinkpad);
-    if (GST_FLOW_IS_FATAL (ret) || ret == GST_FLOW_NOT_LINKED) {
-      if (ret == GST_FLOW_UNEXPECTED) {
-        /* perform EOS logic */
-        event = gst_event_new_eos ();
-        gst_pad_push_event (self->srcpad, event);
+    if (ret == GST_FLOW_UNEXPECTED) {
+      if (self->segment.flags & GST_SEEK_FLAG_SEGMENT) {
+        gint64 stop;
+        GstMessage *message;
+
+        /* for segment playback we need to post when (in stream time)
+         * we stopped, this is either stop (when set) or the duration. */
+        if ((stop = self->segment.stop) == -1)
+          stop = self->segment.duration;
+
+        GST_LOG_OBJECT (self, "Sending segment done, at end of segment");
+        message = gst_message_new_segment_done (GST_OBJECT (self),
+            GST_FORMAT_TIME, stop);
+        gst_element_post_message (GST_ELEMENT (self), message);
       } else {
+        /* perform EOS logic */
+        GST_LOG_OBJECT (self, "Sending EOS, at end of stream");
         event = gst_event_new_eos ();
-        /* for fatal errors we post an error message, post the error
-         * first so the app knows about the error first. */
-        GST_ELEMENT_ERROR (self, STREAM, FAILED,
-            ("Internal data flow error."),
-            ("streaming task paused, reason %s (%d)", reason, ret));
         gst_pad_push_event (self->srcpad, event);
       }
+    } else if (ret == GST_FLOW_NOT_LINKED || ret < GST_FLOW_UNEXPECTED) {
+      event = gst_event_new_eos ();
+      /* for fatal errors we post an error message, post the error
+       * first so the app knows about the error first. */
+      GST_ELEMENT_ERROR (self, STREAM, FAILED,
+          ("Internal data flow error."),
+          ("streaming task paused, reason %s (%d)", reason, ret));
+      gst_pad_push_event (self->srcpad, event);
     }
   }
 }
