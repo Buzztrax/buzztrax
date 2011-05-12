@@ -1,3 +1,12 @@
+2011-05-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* src/ui/edit/pattern-editor.h:
+	  Doc cleanups.
+
 2011-05-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-list-model.c:

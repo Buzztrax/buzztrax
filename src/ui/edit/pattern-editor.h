@@ -103,7 +103,8 @@ struct _BtPatternEditorColumnGroup {
   BtPatternEditorColumn *columns;
   gpointer user_data;
   /* < private > */
-  guint width; /* in pixels for now, may change to chars some day when needed */
+  /* in pixels for now, may change to chars some day when needed */
+  guint width;
 };
 typedef struct _BtPatternEditorColumnGroup BtPatternEditorColumnGroup;
 

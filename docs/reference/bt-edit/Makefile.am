@@ -29,14 +29,11 @@ MKDB_OPTIONS=--sgml-mode
 MKTMPL_OPTIONS=
 
 # Extra options to supply to gtkdoc-fixref. Not normally needed.
-FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/gobject \
-	--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/glib \
-	--extra-dir=$(GTK_PREFIX)/share/gtk-doc/html/gtk \
-	--extra-dir=$(GCANVAS_PREFIX)/share/gtk-doc/html/libgnomecanvas \
-	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/gstreamer \
-	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/gstreamer-libs \
-	--extra-dir=../bt-core \
-  --extra-dir=../bt-ic
+FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/ \
+	--extra-dir=$(GTK_PREFIX)/share/gtk-doc/html/ \
+	--extra-dir=$(GCANVAS_PREFIX)/share/gtk-doc/html/ \
+	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html \
+	--extra-dir=..
 
 # Used for dependencies.
 HFILE_GLOB=$(top_srcdir)/src/ui/edit/*.h

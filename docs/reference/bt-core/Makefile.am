@@ -31,10 +31,9 @@ MKDB_OPTIONS=--sgml-mode
 MKTMPL_OPTIONS=
 
 # Extra options to supply to gtkdoc-fixref. Not normally needed.
-FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/gobject \
-	--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/glib \
-	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/gstreamer \
-	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/gstreamer-libs
+FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/ \
+	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/ \
+	--extra-dir=..
 
 # Used for dependencies. The docs will be rebuilt if any of these change.
 HFILE_GLOB=$(top_srcdir)/src/lib/core/libbuzztard-core/*.h
