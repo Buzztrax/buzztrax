@@ -1,5 +1,10 @@
 2011-05-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wave.c:
+	  Don't leak the FILE handle.
+
+2011-05-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/playback-controller-socket.c:
 	  Both len and term are unsigned, term can be 0, but then len would be
 	  1. So use len in the check.
