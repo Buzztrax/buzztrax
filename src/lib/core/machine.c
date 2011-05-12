@@ -1861,7 +1861,6 @@ glong bt_machine_get_global_param_index(const BtMachine *const self, const gchar
                   "global param for name %s not found", name);
     }
   }
-  //g_assert((found || (error && *error)));
   g_assert(((found && (ret>=0)) || ((ret==-1) && ((error && *error) || !error))));
   return(ret);
 }
@@ -1879,7 +1878,7 @@ glong bt_machine_get_global_param_index(const BtMachine *const self, const gchar
  */
 glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar * const name, GError **error) {
   const gulong voice_params=self->priv->voice_params;
-  gulong ret=-1,i;
+  glong ret=-1,i;
   gboolean found=FALSE;
 
   g_return_val_if_fail(BT_IS_MACHINE(self),-1);
