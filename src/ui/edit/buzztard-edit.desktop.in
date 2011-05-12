@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=0.6.0
+Type=Application
+_Name=Buzztard Music Editor
+_Comment=Edit buzztard song files
+TryExec=buzztard-edit
+Exec=buzztard-edit --command=load --input-file=%f
+Terminal=false
+Icon=buzztard
+DocPath=buzztard/buzztard.xml
+StartupNotify=true
+Categories=GNOME;GTK;AudioVideo;Audio;Sequencer;
+MimeType=audio/x-bzt;audio/x-bzt-xml;

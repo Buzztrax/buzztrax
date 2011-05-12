@@ -1,5 +1,11 @@
 2011-05-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/buzztard-edit.desktop.in:
+	* src/ui/edit/buzztard-edit.desktop.in (added):
+	  Readd src for desktop file (again).
+
+2011-05-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-core/Makefile.am:
 	* docs/reference/bt-edit/Makefile.am:
