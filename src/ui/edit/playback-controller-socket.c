@@ -275,7 +275,7 @@ static gchar *client_read(BtPlaybackControllerSocket *self) {
 
   g_io_channel_read_line(self->priv->client_channel,&str,&len,&term,&error);
   if(!error) {
-    if(str && term>=0) str[term]='\0';
+    if(str && len>0) str[term]='\0';
     GST_INFO("command received : %s",str);
   }
   else {
