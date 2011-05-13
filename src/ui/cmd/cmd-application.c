@@ -52,14 +52,14 @@ struct _BtCmdApplicationPrivate {
 
   /* no output on stdout */
   gboolean quiet;
-  
+
   /* error flag from bus handler */
   gboolean has_error;
 
   /* runtime data */
   const BtSong *song;
   gboolean res;
-  
+
   /* main loop */
   GMainLoop *loop;
 };
@@ -127,15 +127,15 @@ static BtSong *bt_cmd_application_song_init(const BtCmdApplication *self) {
   BtSong *song;
   GstBin *bin;
   GstBus *bus;
-  
+
   song=bt_song_new(BT_APPLICATION(self));
-  
+
   g_object_get((gpointer)song,"bin",&bin,NULL);
   bus=gst_element_get_bus(GST_ELEMENT(bin));
   g_signal_connect(bus, "message::error", G_CALLBACK(on_song_error), (gpointer)self);
   g_signal_connect(bus, "message::warning", G_CALLBACK(on_song_warning), (gpointer)self);
   //g_signal_connect(bus, "message::element", G_CALLBACK(on_song_element_msg), (gpointer)self);
-  
+
   gst_object_unref(bus);
   gst_object_unref(bin);
   return(song);
@@ -171,7 +171,7 @@ static void bt_cmd_application_idle_play_song(const BtCmdApplication *self) {
   tmsec=(gulong)((length*bar_time)/G_USEC_PER_SEC);
   tmin=(gulong)(tmsec/60000);tmsec-=(tmin*60000);
   tsec=(gulong)(tmsec/ 1000);tmsec-=(tsec* 1000);
-  
+
   // connection play and stop signals
   g_signal_connect((gpointer)song, "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   if(bt_song_play(song)) {
@@ -220,7 +220,7 @@ Error:
 }
 
 static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const BtSong *song) {
-  
+
   self->priv->song=song;
 
   g_idle_add((GSourceFunc)bt_cmd_application_idle_play_song,(gpointer)self);
@@ -284,7 +284,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
     g_object_set(convert,"dithering",2,"noise-shaping",3,NULL);
 
     ret=!self->priv->has_error;
-    
+
     g_free(file_name);
     gst_object_unref(convert);
     gst_object_unref(sink_bin);
@@ -410,7 +410,10 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
   if (!BT_IS_STRING(output_file_name)) {
     output_file=stdout;
   } else {
-    output_file = fopen(output_file_name,"wb");
+    if(!(output_file = fopen(output_file_name,"wb"))) {
+      GST_ERROR("cannot open output file \"%s\"",output_file_name);
+      goto Error;
+    }
   }
   // prepare song and song-io
   song=bt_cmd_application_song_init(self);
@@ -524,7 +527,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 Error:
   g_object_try_unref(song);
   g_object_try_unref(loader);
-  if (BT_IS_STRING(output_file_name)) {
+  if (output_file) {
     fclose(output_file);
   }
   return(res);
@@ -669,7 +672,7 @@ static void bt_cmd_application_finalize(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   // this would exit the mainloop from a different thread :/
   //g_main_loop_quit(self->priv->loop);
   g_main_loop_unref(self->priv->loop);
