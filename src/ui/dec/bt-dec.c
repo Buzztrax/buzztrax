@@ -497,6 +497,8 @@ pause:
 
     GST_DEBUG_OBJECT (self, "pausing task, reason %s", reason);
     gst_pad_pause_task (sinkpad);
+#if 0
+    /* this is never executed, see above */
     if (ret == GST_FLOW_UNEXPECTED) {
       if (self->segment.flags & GST_SEEK_FLAG_SEGMENT) {
         gint64 stop;
@@ -517,7 +519,9 @@ pause:
         event = gst_event_new_eos ();
         gst_pad_push_event (self->srcpad, event);
       }
-    } else if (ret == GST_FLOW_NOT_LINKED || ret < GST_FLOW_UNEXPECTED) {
+    } else
+#endif
+    if (ret == GST_FLOW_NOT_LINKED || ret < GST_FLOW_UNEXPECTED) {
       event = gst_event_new_eos ();
       /* for fatal errors we post an error message, post the error
        * first so the app knows about the error first. */

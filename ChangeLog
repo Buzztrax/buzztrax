@@ -1,5 +1,11 @@
 2011-05-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/dec/bt-dec.c:
+	  Comment out code block and add a comment why this is actualy not run
+	  right now.
+
+2011-05-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wave.c:
 	  Always free the local fd.
 
