@@ -131,6 +131,7 @@ static void bt_pattern_list_model_add(BtPatternListModel *model,BtPattern *patte
   gtk_tree_path_append_index(path,position);
   gtk_tree_model_row_inserted(GTK_TREE_MODEL(model),path,&iter);
   gtk_tree_path_free(path);
+  GST_DEBUG("inserted pattern %p at position %d",pattern, position);
 }
 
 static void bt_pattern_list_model_rem(BtPatternListModel *model,BtPattern *pattern) {
@@ -261,6 +262,20 @@ BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *seq
 BtPattern *bt_pattern_list_model_get_object(BtPatternListModel *model,GtkTreeIter *iter) {
   return(g_sequence_get(iter->user_data));
 }
+
+/* more efficient than main-page-patterns::pattern_menu_model_get_iter_by_pattern()
+gboolean bt_pattern_list_model_get_iter(BtPatternListModel *model,GtkTreeIter *iter,BtPattern *pattern) {
+  GSequence *seq=model->priv->seq;
+
+  iter->stamp=model->priv->stamp;
+#if GLIB_CHECK_VERSION(2,28,0)
+  iter->user_data=g_sequence_lookup(seq,pattern,model_item_cmp,NULL);
+#else
+  iter->user_data=g_sequence_iter_prev(g_sequence_search(seq,pattern,model_item_cmp,NULL));
+#endif
+  return(g_sequence_get(iter->user_data)==pattern);
+}
+*/
 
 //-- tree model interface
 

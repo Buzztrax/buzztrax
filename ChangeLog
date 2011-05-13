@@ -1,5 +1,13 @@
 2011-05-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Fix selection of new pattern.
+
+	* src/ui/edit/pattern-list-model.c:
+	  More logging and some idea comments.
+
+2011-05-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/machine-methods.h:
 	* src/lib/core/machine.c:

@@ -74,9 +74,6 @@
 #include "bt-edit.h"
 
 //#define USE_PATTERN_MODEL 1
-/*FIXME: when adding new items and they are not the last one in sort-order we're
- *  not activating the new one
- */
 
 #define MAX_WAVETABLE_ITEMS 200
 
@@ -770,7 +767,6 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
 #endif
 
 #if 0
-/* unused */
 static void on_pattern_added(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
 /* this would be too early, the pattern properties are not set :/
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
@@ -2117,6 +2113,21 @@ static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *ne
     g_object_unref(old_pattern);
   }
 
+#ifdef USE_PATTERN_MODEL
+  // select pattern combo entry
+  if(new_pattern) {
+    GtkTreeModel *store;
+    GtkTreeIter iter;
+
+    store=gtk_combo_box_get_model(self->priv->pattern_menu);
+    // get the row where row.pattern==pattern
+    pattern_menu_model_get_iter_by_pattern(store,&iter,new_pattern);
+    gtk_combo_box_set_active_iter(self->priv->pattern_menu,&iter);
+
+    GST_DEBUG("selecting new pattern");
+  }
+#endif
+
   // refresh pattern view
   GST_INFO("store new pattern : %p,ref_count=%d",new_pattern,G_OBJECT_REF_COUNT(new_pattern));
   pattern_table_refresh(self);
@@ -2282,7 +2293,7 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtPattern *pattern;
 
   // refresh pattern view
-  GST_WARNING("unref'ed old pattern: %p,refs=%d",
+  GST_INFO("unref'ed old pattern: %p,refs=%d",
     self->priv->pattern,G_OBJECT_REF_COUNT(self->priv->pattern));
   pattern=get_current_pattern(self);
   change_current_pattern(self,pattern);
@@ -2336,6 +2347,7 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
     }
   }
 
+  //g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
   g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
 
   GST_INFO("... machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
@@ -2547,7 +2559,9 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
     g_free(mid);g_free(pid);g_free(pname);
 
     change_current_pattern(self,pattern);
+#ifndef USE_PATTERN_MODEL
     pattern_menu_refresh(self,self->priv->machine);
+#endif
     context_menu_refresh(self,self->priv->machine);
   }
   else {
@@ -2616,7 +2630,9 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
     bt_change_log_end_group(self->priv->change_log);
 
     change_current_pattern(self,NULL);
+#ifndef USE_PATTERN_MODEL
     pattern_menu_refresh(self,machine);
+#endif
     context_menu_refresh(self,machine);
 
     g_object_unref(machine);
@@ -2663,7 +2679,9 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
     g_free(mid);g_free(pid);g_free(pname);
 
     change_current_pattern(self,pattern);
+#ifndef USE_PATTERN_MODEL
     pattern_menu_refresh(self,machine);
+#endif
     context_menu_refresh(self,machine);
   }
   else {
@@ -3393,7 +3411,9 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_free(pid);
 
       change_current_pattern(self,pattern);
+#ifndef USE_PATTERN_MODEL
       pattern_menu_refresh(self,machine);
+#endif
       context_menu_refresh(self,machine);
       break;
     }
@@ -3409,7 +3429,9 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       res=TRUE;
 
       change_current_pattern(self,NULL);
+#ifndef USE_PATTERN_MODEL
       pattern_menu_refresh(self,machine);
+#endif
       context_menu_refresh(self,machine);
       break;
     }
