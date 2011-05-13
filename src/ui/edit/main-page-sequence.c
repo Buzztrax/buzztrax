@@ -1633,27 +1633,47 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
       self->priv->pattern_keys=source_pattern_keys;
     }
 #else
-    store=gtk_list_store_new(4,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN,BT_TYPE_PATTERN);
+    store=gtk_list_store_new(4,G_TYPE_STRING,G_TYPE_BOOLEAN,G_TYPE_STRING,BT_TYPE_PATTERN);
 
     //-- append default rows
     self->priv->pattern_keys=sink_pattern_keys;
     index=2;
     gtk_list_store_append(store, &tree_iter);
     // use spaces to avoid clashes with normal patterns?
-    gtk_list_store_set(store,&tree_iter,PATTERN_LIST_KEY,".",PATTERN_LIST_NAME,_("  clear"),PATTERN_LIST_USED,TRUE,-1);
+    gtk_list_store_set(store,&tree_iter,
+      PATTERN_LIST_KEY,".",
+      PATTERN_LIST_USED,TRUE,
+      PATTERN_LIST_NAME,_("  clear"),
+      -1);
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PATTERN_LIST_KEY,"-",PATTERN_LIST_NAME,_("  mute"),PATTERN_LIST_USED,TRUE,-1);
+    gtk_list_store_set(store,&tree_iter,
+      PATTERN_LIST_KEY,"-",
+      PATTERN_LIST_USED,TRUE,
+      PATTERN_LIST_NAME,_("  mute"),
+      -1);
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PATTERN_LIST_KEY,",",PATTERN_LIST_NAME,_("  break"),PATTERN_LIST_USED,TRUE,-1);
+    gtk_list_store_set(store,&tree_iter,
+      PATTERN_LIST_KEY,",",
+      PATTERN_LIST_USED,TRUE,
+      PATTERN_LIST_NAME,_("  break"),
+      -1);
     if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
       gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,PATTERN_LIST_KEY,"_",PATTERN_LIST_NAME,_("  bypass"),PATTERN_LIST_USED,TRUE,-1);
+      gtk_list_store_set(store,&tree_iter,
+        PATTERN_LIST_KEY,"_",
+        PATTERN_LIST_USED,TRUE,
+        PATTERN_LIST_NAME,_("  bypass"),
+        -1);
       self->priv->pattern_keys=processor_pattern_keys;
       index++;
     }
     if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
       gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,PATTERN_LIST_KEY,"_",PATTERN_LIST_NAME,_("  solo"),PATTERN_LIST_USED,TRUE,-1);
+      gtk_list_store_set(store,&tree_iter,
+        PATTERN_LIST_KEY,"_",
+        PATTERN_LIST_USED,TRUE,
+        PATTERN_LIST_NAME,_("  solo"),
+        -1);
       self->priv->pattern_keys=source_pattern_keys;
       index++;
     }

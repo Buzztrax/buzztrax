@@ -1,5 +1,10 @@
 2011-05-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Fix order of types in pattern-list.
+
+2011-05-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/cmd/cmd-application.c:
 	  Add error handling when we can't open the output file.
 
