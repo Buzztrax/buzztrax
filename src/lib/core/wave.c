@@ -470,11 +470,10 @@ static gboolean bt_wave_save_to_fd(const BtWave * const self) {
   GST_INFO("sample saved");
 
 Error:
-  if(!res) {
+  if(tf)
+    fclose(tf);
+  if(!res)
     wave_loader_free(self);
-    if(!tf)
-        fclose(tf);
-  }
   return(res);
 }
 
