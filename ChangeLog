@@ -1,5 +1,10 @@
 2011-05-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Remove unused variable.
+
+2011-05-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  Remove copy'n'paste left-over variable.
 

@@ -1807,17 +1807,16 @@ void bt_machine_set_param_defaults(const BtMachine *const self) {
   const gulong voice_params=self->priv->voice_params;
   GstElement *machine=self->priv->machines[PART_MACHINE];
   GstObject *voice;
-  GstController *ctrl;
   gulong i,j;
 
-  if((ctrl=gst_object_get_controller(G_OBJECT(machine)))) {
+  if(gst_object_get_controller(G_OBJECT(machine))) {
     for(i=0;i<global_params;i++) {
       bt_machine_set_global_param_default(self,i);
     }
   }
   for(j=0;j<voices;j++) {
     voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
-    if((ctrl=gst_object_get_controller(G_OBJECT(voice)))) {
+    if(gst_object_get_controller(G_OBJECT(voice))) {
       for(i=0;i<voice_params;i++) {
         bt_machine_set_voice_param_default(self,j,i);
       }
