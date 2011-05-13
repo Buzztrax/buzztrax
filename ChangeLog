@@ -1,5 +1,10 @@
 2011-05-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Remove copy'n'paste left-over variable.
+
+2011-05-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/dec/bt-dec.c:
 	  Comment out code block and add a comment why this is actualy not run
 	  right now.

@@ -470,7 +470,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
     if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
       for(i=0;i<pattern_length;i++) {
         // check wire params
-        for(j=0;j<wire_params;j++,k++) {
+        for(j=0;j<wire_params;j++) {
           // mark region covered by change as damaged
           if(bt_wire_pattern_test_event(wire_pattern,i,j)) {
             bt_sequence_invalidate_wire_param(self,machine,time+i,wire,param_offset+j);
