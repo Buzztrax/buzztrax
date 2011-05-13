@@ -911,17 +911,18 @@ void check_setup_test_display(void) {
       else GST_WARNING("can't get default_screen");
 
       if((test_display = gdk_display_open(display_name))) {
+#if 0
         GdkScreen *test_screen;
 
         if((test_screen = gdk_display_get_default_screen(test_display))) {
           GtkSettings *test_settings;
-          //gdk_threads_enter();
+
           if((test_settings = gtk_settings_get_for_screen(test_screen))) {
             // this just switches to the default theme
             //g_object_set(test_settings,"gtk-theme-name",NULL,NULL);
             /* Is there a bug in gtk+? None of this reliable creates a working
              * theme setup
-              */
+             */
             //g_object_set(test_settings,"gtk-theme-name",theme_name,NULL);
             /* Again this shows no effect */
             //g_object_set(test_settings,"gtk-toolbar-style",GTK_TOOLBAR_ICONS,NULL);
@@ -931,11 +932,10 @@ void check_setup_test_display(void) {
             //g_object_unref(test_settings);
           }
           else GST_WARNING("can't get test_settings on display: \"%s\"",display_name);
-          //gdk_threads_leave();
           //g_object_unref(test_screen);
         }
         else GST_WARNING("can't get test_screen on display: \"%s\"",display_name);
-
+#endif
         gdk_display_manager_set_default_display(display_manager,test_display);
         GST_INFO("display %p,\"%s\" is active",test_display,gdk_display_get_name(test_display));
       }
