@@ -94,7 +94,7 @@ struct _BtWavePrivate {
   /* wave loader */
   GstElement *pipeline,*fmt;
   gint fd,ext_fd;
-  FILE *tf;
+  FILE *tf,*ext_tf;
 };
 
 static GQuark error_domain=0;
@@ -167,17 +167,23 @@ static void wave_loader_free(const BtWave *self) {
     self->priv->pipeline=NULL;
     self->priv->fmt=NULL;
   }
-  if(self->priv->ext_fd!=-1) {
+  if(self->priv->ext_tf) {
+    // ext_fd is fileno() of a ext_tf
+    fclose(self->priv->ext_tf);
+    self->priv->ext_tf=NULL;
+    self->priv->ext_fd=-1;
+  } else if(self->priv->ext_fd!=-1) {
     close(self->priv->ext_fd);
     self->priv->ext_fd=-1;
   }
-  if(self->priv->fd!=-1) {
-    close(self->priv->fd);
-    self->priv->fd=-1;
-  }
   if(self->priv->tf) {
+    // fd is fileno() of a tf
     fclose(self->priv->tf);
     self->priv->tf=NULL;
+    self->priv->fd=-1;
+  } else if(self->priv->fd!=-1) {
+    close(self->priv->fd);
+    self->priv->fd=-1;
   }
 }
 
@@ -308,7 +314,6 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   g_object_set(self->priv->fmt,"caps",caps,NULL);
   gst_caps_unref(caps);
 
-  // or mkstemp("...XXXXXX")
   self->priv->tf=tmpfile();
   self->priv->fd=fileno(self->priv->tf);
   g_object_set(sink,"fd",self->priv->fd,"sync",FALSE,NULL);
@@ -375,16 +380,16 @@ static gboolean bt_wave_save_to_fd(const BtWave * const self) {
   //gchar *fn_wav;
   gulong srate,length,size,written;
   gint16 *data;
+  FILE *tf=NULL;
   gint fd;
 
   // we should have a wave loaded
   g_assert(self->priv->wavelevels->data);
 
-  //fn_wav=g_strdup_printf("%s" G_DIR_SEPARATOR_S "XXXXXX",g_get_tmp_dir());
-  fd=fileno(tmpfile());
-  self->priv->ext_fd=fileno(tmpfile());
-  //self->priv->ext_fd=mkstemp(fn_wav);
-  //g_free(fn_wav);
+  tf=tmpfile();
+  fd=fileno(tf);
+  self->priv->ext_tf=tmpfile();
+  self->priv->ext_fd=fileno(self->priv->ext_tf);
 
   // the data is in the wave-level :/
   wavelevel=BT_WAVELEVEL(self->priv->wavelevels->data);
@@ -461,11 +466,15 @@ static gboolean bt_wave_save_to_fd(const BtWave * const self) {
 
   gst_object_unref(bus);
   gst_element_set_state(pipeline,GST_STATE_NULL);
-  close(fd);
 
   GST_INFO("sample saved");
 
 Error:
+  if(!res) {
+    wave_loader_free(self);
+    if(!tf)
+        fclose(tf);
+  }
   return(res);
 }
 
@@ -679,12 +688,14 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
       GST_INFO("loading external uri=%s -> zip=%s",(gchar *)uri_str,fp);
 
       // we need to copy the files from zip and change the uri to "fd://%d"
-      self->priv->ext_fd=fileno(tmpfile()); // or mkstemp("...XXXXXX")
+      self->priv->ext_tf=tmpfile();
+      self->priv->ext_fd=fileno(self->priv->ext_tf);
       if(bt_song_io_native_bzt_copy_to_fd(BT_SONG_IO_NATIVE_BZT(song_io),fp,self->priv->ext_fd)) {
         uri=g_strdup_printf("fd://%d",self->priv->ext_fd);
       }
       else {
-        close(self->priv->ext_fd);
+        fclose(self->priv->ext_tf);
+        self->priv->ext_tf=NULL;
         self->priv->ext_fd=-1;
         unpack_failed=TRUE;
       }
