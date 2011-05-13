@@ -1,3 +1,16 @@
+2011-05-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	  Add method to get pattern per name.
+
+	* src/lib/core/pattern.c:
+	  Clarify property scope.
+
+	* src/ui/edit/pattern-properties-dialog.c:
+	  Use new method and fix uniquness check.
+
 2011-05-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

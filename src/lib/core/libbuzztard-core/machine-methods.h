@@ -45,6 +45,7 @@ extern void bt_machine_add_pattern(const BtMachine *self, const BtPattern *patte
 extern void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern);
 
 extern BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
+extern BtPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name);
 extern BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
 
 extern gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self);

@@ -1786,7 +1786,7 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
   g_object_class_install_property(gobject_class,PATTERN_ID,
                                   g_param_spec_string("id",
                                      "id contruct prop",
-                                     "pattern identifier",
+                                     "pattern identifier (unique per song)",
                                      "unamed pattern", /* default value */
                                      G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 

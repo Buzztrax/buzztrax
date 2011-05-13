@@ -85,6 +85,7 @@ bt_machine_has_active_spreader
 bt_machine_add_pattern
 bt_machine_remove_pattern
 bt_machine_get_pattern_by_id
+bt_machine_get_pattern_by_name
 bt_machine_get_pattern_by_index
 bt_machine_get_unique_pattern_name
 bt_machine_has_patterns

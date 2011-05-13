@@ -1516,6 +1516,39 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar
 }
 
 /**
+ * bt_machine_get_pattern_by_name:
+ * @self: the machine to search for the pattern
+ * @name: the name of the pattern
+ *
+ * Search the machine for a pattern by the supplied name.
+ * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
+ * Unref the pattern, when done with it.
+ *
+ * Returns: #BtPattern instance or %NULL if not found
+ */
+BtPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name) {
+  gboolean found=FALSE;
+  BtPattern *pattern;
+  gchar *pattern_name;
+  GList* node;
+
+  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
+  g_return_val_if_fail(BT_IS_STRING(name),NULL);
+
+  //GST_DEBUG("pattern-list.length=%d",g_list_length(self->priv->patterns));
+
+  for(node=self->priv->patterns;node;node=g_list_next(node)) {
+    pattern=BT_PATTERN(node->data);
+    g_object_get(pattern,"name",&pattern_name,NULL);
+    if(!strcmp(pattern_name,name)) found=TRUE;
+    g_free(pattern_name);
+    if(found) return(g_object_ref(pattern));
+  }
+  GST_DEBUG("no pattern found for name \"%s\"",name);
+  return(NULL);
+}
+
+/**
  * bt_machine_get_pattern_by_index:
  * @self: the machine to search for the pattern
  * @index: the index of the pattern in the machines pattern list

@@ -68,15 +68,13 @@ G_DEFINE_TYPE (BtPatternPropertiesDialog, bt_pattern_properties_dialog, GTK_TYPE
 static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   BtPatternPropertiesDialog *self=BT_PATTERN_PROPERTIES_DIALOG(user_data);
   BtPattern *pattern;
-  gchar *id;
   const gchar *name=gtk_entry_get_text(GTK_ENTRY(editable));
   gboolean unique=FALSE;
 
   GST_DEBUG("change name");
   // assure uniqueness of the entered data
   if(*name) {
-    id=g_strdup_printf("%s %s",self->priv->machine_id,name);
-    if((pattern=bt_machine_get_pattern_by_id(self->priv->machine,id))) {
+    if((pattern=bt_machine_get_pattern_by_name(self->priv->machine,name))) {
       if(pattern==self->priv->pattern) {
         unique=TRUE;
       }
@@ -85,9 +83,8 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
     else {
       unique=TRUE;
     }
-    g_free(id);
   }
-  GST_INFO("%s""unique '%s'",(unique?"not ":""),name);
+  GST_INFO("%s""unique '%s'",(unique?"":"not "),name);
   gtk_widget_set_sensitive(self->priv->okay_button,unique);
   // update field
   g_free(self->priv->name);
