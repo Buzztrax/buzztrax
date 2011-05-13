@@ -314,7 +314,11 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   g_object_set(self->priv->fmt,"caps",caps,NULL);
   gst_caps_unref(caps);
 
-  self->priv->tf=tmpfile();
+  if(!(self->priv->tf=tmpfile())) {
+    res=FALSE;
+    GST_WARNING ("Can't create tempfile.");
+    goto Error;
+  }
   self->priv->fd=fileno(self->priv->tf);
   g_object_set(sink,"fd",self->priv->fd,"sync",FALSE,NULL);
 
@@ -386,9 +390,17 @@ static gboolean bt_wave_save_to_fd(const BtWave * const self) {
   // we should have a wave loaded
   g_assert(self->priv->wavelevels->data);
 
-  tf=tmpfile();
+  if(!(tf=tmpfile())) {
+    res=FALSE;
+    GST_WARNING ("Can't create tempfile.");
+    goto Error;
+  }
   fd=fileno(tf);
-  self->priv->ext_tf=tmpfile();
+  if(!(self->priv->ext_tf=tmpfile())) {
+    res=FALSE;
+    GST_WARNING ("Can't create tempfile.");
+    goto Error;
+  }
   self->priv->ext_fd=fileno(self->priv->ext_tf);
 
   // the data is in the wave-level :/
@@ -687,15 +699,18 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
       GST_INFO("loading external uri=%s -> zip=%s",(gchar *)uri_str,fp);
 
       // we need to copy the files from zip and change the uri to "fd://%d"
-      self->priv->ext_tf=tmpfile();
-      self->priv->ext_fd=fileno(self->priv->ext_tf);
-      if(bt_song_io_native_bzt_copy_to_fd(BT_SONG_IO_NATIVE_BZT(song_io),fp,self->priv->ext_fd)) {
-        uri=g_strdup_printf("fd://%d",self->priv->ext_fd);
-      }
-      else {
-        fclose(self->priv->ext_tf);
-        self->priv->ext_tf=NULL;
-        self->priv->ext_fd=-1;
+      if((self->priv->ext_tf=tmpfile())) {
+        self->priv->ext_fd=fileno(self->priv->ext_tf);
+        if(bt_song_io_native_bzt_copy_to_fd(BT_SONG_IO_NATIVE_BZT(song_io),fp,self->priv->ext_fd)) {
+          uri=g_strdup_printf("fd://%d",self->priv->ext_fd);
+        }
+        else {
+          fclose(self->priv->ext_tf);
+          self->priv->ext_tf=NULL;
+          self->priv->ext_fd=-1;
+          unpack_failed=TRUE;
+        }
+      } else {
         unpack_failed=TRUE;
       }
       g_free(fp);
