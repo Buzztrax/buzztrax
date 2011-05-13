@@ -25,8 +25,8 @@
  * Sinks are machines that do playback or recording of the song. The
  * sink-machine utilizes the #BtSinkBin to transparently switch elements between
  * record (encoding) and playback.
- */ 
- 
+ */
+
 #define BT_CORE
 #define BT_SINK_MACHINE_C
 
@@ -96,7 +96,7 @@ static BtPersistence *bt_sink_machine_persistence_load(const GType type, const B
 
   GST_DEBUG("PERSISTENCE::sink_machine");
   g_assert(node);
-  
+
   xmlChar * const id=xmlGetProp(node,XML_CHAR_PTR("id"));
 
   if(!persistence) {
@@ -118,18 +118,19 @@ static BtPersistence *bt_sink_machine_persistence_load(const GType type, const B
       }
       param_name=va_arg(va,gchar*);
     }
- 
+
     self=bt_sink_machine_new(song,(gchar*)id,err);
     result=BT_PERSISTENCE(self);
+    va_end (va);
   }
   else {
-    self=BT_SINK_MACHINE(persistence); 
+    self=BT_SINK_MACHINE(persistence);
     result=BT_PERSISTENCE(persistence);
 
     g_object_set(self,"plugin-name","bt-sink-bin",NULL);
   }
   xmlFree(id);
-  
+
   // load parent class stuff
   parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(result));
   parent_iface->load(BT_TYPE_MACHINE,result,node,NULL,var_args);
@@ -139,7 +140,7 @@ static BtPersistence *bt_sink_machine_persistence_load(const GType type, const B
 
 static void bt_sink_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
   BtPersistenceInterface * const iface = g_iface;
-  
+
   iface->load = bt_sink_machine_persistence_load;
   iface->save = bt_sink_machine_persistence_save;
 }
@@ -162,7 +163,7 @@ static gboolean bt_sink_machine_check_type(const BtMachine * const self, const g
 static void bt_sink_machine_constructed(GObject *object) {
   BtSinkMachine * const self=BT_SINK_MACHINE(object);
   GError **err;
-    
+
   GST_INFO("sink-machine constructed");
 
   G_OBJECT_CLASS(bt_sink_machine_parent_class)->constructed(object);
@@ -183,7 +184,7 @@ static void bt_sink_machine_constructed(GObject *object) {
     g_object_set(song,"master",self,NULL);
     gst_object_unref(element);
     gst_object_unref(gain);
-    
+
     GST_INFO_OBJECT(self,"machine %p,ref_count=%d has been constructed",self,G_OBJECT_REF_COUNT(self));
 
     // add the machine to the setup of the song
@@ -209,7 +210,7 @@ static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
   gobject_class->constructed  = bt_sink_machine_constructed;
 
   machine_class->check_type   = bt_sink_machine_check_type;
-  
+
   gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&machine_sink_template));
 }
 

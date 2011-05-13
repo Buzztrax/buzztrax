@@ -24,7 +24,7 @@
  *
  * Sources are machines that generate audio.
  */
- 
+
 #define BT_CORE
 #define BT_SOURCE_MACHINE_C
 
@@ -102,7 +102,7 @@ static BtPersistence *bt_source_machine_persistence_load(const GType type, const
   xmlChar * const plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
   xmlChar * const voices_str=xmlGetProp(node,XML_CHAR_PTR("voices"));
   const gulong voices=voices_str?atol((char *)voices_str):0;
-  
+
   if(!persistence) {
     BtSong *song=NULL;
     gchar *param_name;
@@ -121,9 +121,10 @@ static BtPersistence *bt_source_machine_persistence_load(const GType type, const
       }
       param_name=va_arg(va,gchar*);
     }
-    
+
     self=bt_source_machine_new(song,(gchar*)id,(gchar *)plugin_name,voices,err);
     result=BT_PERSISTENCE(self);
+    va_end (va);
   }
   else {
     self=BT_SOURCE_MACHINE(persistence);
@@ -134,7 +135,7 @@ static BtPersistence *bt_source_machine_persistence_load(const GType type, const
   xmlFree(id);
   xmlFree(plugin_name);
   xmlFree(voices_str);
-  
+
   // load parent class stuff
   parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(result));
   parent_iface->load(BT_TYPE_MACHINE,result,node,NULL,var_args);
@@ -144,7 +145,7 @@ static BtPersistence *bt_source_machine_persistence_load(const GType type, const
 
 static void bt_source_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
   BtPersistenceInterface * const iface = g_iface;
-  
+
   iface->load = bt_source_machine_persistence_load;
   iface->save = bt_source_machine_persistence_save;
 }
@@ -167,7 +168,7 @@ static gboolean bt_source_machine_check_type(const BtMachine * const self, const
 static void bt_source_machine_constructed(GObject *object) {
   BtSourceMachine * const self=BT_SOURCE_MACHINE(object);
   GError **err;
-  
+
   GST_INFO("source-machine constructed");
 
   G_OBJECT_CLASS(bt_source_machine_parent_class)->constructed(object);
@@ -179,7 +180,7 @@ static void bt_source_machine_constructed(GObject *object) {
     BtSetup *setup;
     BtPattern *pattern;
     BtMachine *machine=(BtMachine *)self;
-    
+
     g_object_get(self,"machine",&element,"song",&song,NULL);
     if(GST_IS_BASE_SRC(element)) {
       // don't ever again get the idea to turn of is_live for basesrc elements
@@ -194,10 +195,10 @@ static void bt_source_machine_constructed(GObject *object) {
     gst_object_unref(element);
     pattern=bt_pattern_new_with_event(song,machine,BT_PATTERN_CMD_SOLO);
     g_object_unref(pattern);
-    
+
     bt_machine_activate_spreader(machine);
     bt_machine_enable_output_gain(machine);
-    
+
     GST_INFO_OBJECT(self,"machine %p,ref_count=%d has been constructed",self,G_OBJECT_REF_COUNT(self));
 
     // add the machine to the setup of the song
@@ -223,7 +224,7 @@ static void bt_source_machine_class_init(BtSourceMachineClass * const klass) {
   gobject_class->constructed  = bt_source_machine_constructed;
 
   machine_class->check_type   = bt_source_machine_check_type;
-  
+
   gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&machine_src_template));
 }
 

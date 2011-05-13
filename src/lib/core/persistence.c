@@ -40,7 +40,7 @@
  * - need some parameters for constructor (e.g. uri)
  * - BtPersistenceContext would be an abstract baseclass, we would then implement
  *   BtPersistenceContextLibXML2
- *   - this way we have the libxml2 hidden, we then can support different backends (e.g. for clipboard) 
+ *   - this way we have the libxml2 hidden, we then can support different backends (e.g. for clipboard)
  */
 
 #define BT_CORE
@@ -193,7 +193,7 @@ gboolean bt_persistence_load_list(const GList *list,xmlNodePtr node,const gchar 
 /**
  * bt_persistence_collect_hashtable_entries:
  * @key: hashtable key
- * @value: hashtable value 
+ * @value: hashtable value
  * @user_data: GList **list
  *
  * Gather #GHashTable entries in a list. Should be used with g_hash_table_foreach().
@@ -270,7 +270,7 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
   GType base_type;
 
   g_return_val_if_fail(G_IS_VALUE(gvalue),FALSE);
- 
+
   base_type=bt_g_type_get_base_type(G_VALUE_TYPE(gvalue));
   // depending on the type, set the GValue
   switch(base_type) {
@@ -412,8 +412,7 @@ xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr cons
 BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const self, xmlNodePtr node, GError **err, ...) {
   BtPersistence *result;
   va_list var_args;
-  
-  va_start (var_args, err);
+
   if(!self) {
     GObjectClass *klass;
     BtPersistenceInterface *iface;
@@ -422,15 +421,18 @@ BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const
 
     klass = g_type_class_ref (type);
     iface = g_type_interface_peek (klass, BT_TYPE_PERSISTENCE);
+    va_start (var_args, err);
     result = iface->load (type, self, node, err, var_args);
+    va_end (var_args);
     g_type_class_unref(klass);
   }
   else {
     g_return_val_if_fail (BT_IS_PERSISTENCE (self), NULL);
 
+    va_start (var_args, err);
     result = BT_PERSISTENCE_GET_INTERFACE (self)->load (type, self, node, err, var_args);
+    va_end (var_args);
   }
-  va_end (var_args);
   return (result);
 }
 

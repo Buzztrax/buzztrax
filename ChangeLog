@@ -1,5 +1,15 @@
 2011-05-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/persistence.c:
+	  Move the varargs processing closer to where we actually need it.
+
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/source-machine.c:
+	  Add missing va_end.
+
+2011-05-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wave.c:
 	  One more round and handle the (unlikely) case of tmpfile() failing.
 
