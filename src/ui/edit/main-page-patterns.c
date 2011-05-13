@@ -1300,7 +1300,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   store=bt_pattern_list_model_new(machine,sequence,TRUE);
   index=gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store),NULL)-1;
 #else
-  store=gtk_list_store_new(3,G_TYPE_STRING,BT_TYPE_PATTERN,G_TYPE_BOOLEAN);
+  store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_BOOLEAN,BT_TYPE_PATTERN);
 #endif
 
 #ifdef USE_PATTERN_MODEL
