@@ -1,3 +1,10 @@
+2011-05-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/LINGUAS:
+	* po/fr.po:
+	* po/fr.po (added):
+	  Add french translations.
+
 2011-05-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
