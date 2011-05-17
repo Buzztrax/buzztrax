@@ -152,8 +152,10 @@ struct _BtMainPageSequencePrivate {
   glong selection_column;
   glong selection_row;
 
+#ifndef USE_PATTERN_MODEL
   /* shortcut table */
   const char *pattern_keys;
+#endif
 
   /* vumeter data */
   GHashTable *level_to_vumeter;
@@ -242,6 +244,7 @@ enum {
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
 
+#ifndef USE_PATTERN_MODEL
 // keyboard shortcuts for sequence-table
 // CLEAR       '.'
 // MUTE        '-'
@@ -250,6 +253,7 @@ enum {
 static const gchar sink_pattern_keys[]     = "-,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const gchar source_pattern_keys[]   ="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const gchar processor_pattern_keys[]="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+#endif
 
 enum {
   METHOD_SET_PATTERNS,
@@ -727,6 +731,31 @@ static void pattern_list_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIt
   } while(gtk_tree_model_iter_next(store,iter));
 }
 #endif
+
+static BtPattern *pattern_list_model_get_pattern_by_key(GtkTreeModel *store,gchar that_key) {
+  GtkTreeIter iter;
+  gchar *this_key;
+  BtPattern *pattern=NULL;
+
+  GST_INFO("look up pattern for key: '%s'",that_key);
+
+  gtk_tree_model_get_iter_first(store,&iter);
+  do {
+    gtk_tree_model_get(store,&iter,BT_PATTERN_MODEL_SHORTCUT,&this_key,-1);
+    if(this_key[0]==that_key) {
+#ifndef USE_PATTERN_MODEL
+      gtk_tree_model_get(store,&iter,PATTERN_LIST_PATTERN,&pattern,-1);
+#else
+      pattern=g_object_ref(bt_pattern_list_model_get_object((BtPatternListModel *)store,&iter));
+#endif
+      GST_INFO("found pattern for key : %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+      g_free(this_key);
+      break;
+    }
+    g_free(this_key);
+  } while(gtk_tree_model_iter_next(store,&iter));
+  return(pattern);
+}
 
 //-- event handlers
 
@@ -1624,14 +1653,6 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
 #ifdef USE_PATTERN_MODEL
     store=bt_pattern_list_model_new(self->priv->machine,self->priv->sequence,FALSE);
     index=gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store),NULL)-1;
-    // would be nice if we don't need to duplicate that with the model
-    self->priv->pattern_keys=sink_pattern_keys;
-    if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
-      self->priv->pattern_keys=processor_pattern_keys;
-    }
-    if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
-      self->priv->pattern_keys=source_pattern_keys;
-    }
 #else
     store=gtk_list_store_new(4,G_TYPE_STRING,G_TYPE_BOOLEAN,G_TYPE_STRING,BT_TYPE_PATTERN);
 
@@ -2586,36 +2607,22 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
     if((!res) && (event->keyval<='z') && (modifier==0)) {
       // first column is label
       if((track>0) && (row<length)) {
-        // FIXME:(USE_PATTERN_MODEL) we now sort the pattern names,
-        // and thus can't use _get_pattern_by_index
-        gchar *pos=strchr(self->priv->pattern_keys,(gchar)(event->keyval&0xff));
-
-        // reset selection
-        self->priv->selection_start_column=-1;
-        self->priv->selection_start_row=-1;
-        self->priv->selection_end_column=-1;
-        self->priv->selection_end_row=-1;
-
-        if(pos) {
-          BtPattern *pattern;
-          gulong index=(gulong)pos-(gulong)self->priv->pattern_keys;
-
-          GST_INFO("pattern key pressed: '%c' > index: %lu",*pos,index);
-
-          if((pattern=bt_machine_get_pattern_by_index(self->priv->machine,index))) {
-            pattern_usage_changed=!bt_sequence_is_pattern_used(self->priv->sequence,pattern);
-            bt_sequence_set_pattern(self->priv->sequence,row,track-1,pattern);
-            g_object_get(pattern,"name",&str,NULL);
-            g_object_unref(pattern);
-            free_str=TRUE;
-            change=TRUE;
-            res=TRUE;
-          } else {
-            GST_WARNING_OBJECT(self->priv->machine,"no pattern for index %d",index);
-          }
+        gchar key=(gchar)(event->keyval&0xff);
+        BtPattern *pattern;
+        GtkTreeModel *store;
+        store=gtk_tree_view_get_model(self->priv->pattern_list);
+        if((pattern=pattern_list_model_get_pattern_by_key(store,key))) {
+          // FIXME: we can get this from the model (once we cache it there)
+          pattern_usage_changed=!bt_sequence_is_pattern_used(self->priv->sequence,pattern);
+          bt_sequence_set_pattern(self->priv->sequence,row,track-1,pattern);
+          g_object_get(pattern,"name",&str,NULL);
+          g_object_unref(pattern);
+          free_str=TRUE;
+          change=TRUE;
+          res=TRUE;
         }
         else {
-          GST_WARNING_OBJECT(self->priv->machine,"keyval %c not used by machine",(gchar)(event->keyval&0xff));
+          GST_WARNING_OBJECT(self->priv->machine,"keyval %c not used by machine",key);
         }
       }
     }
@@ -2657,6 +2664,7 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
             }
 
             if(pattern_usage_changed) {
+              // FIXME: ideally we only notify the usage_changed
               pattern_list_refresh(self);
             }
           }
