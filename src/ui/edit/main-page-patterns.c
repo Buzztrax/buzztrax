@@ -73,8 +73,6 @@
 
 #include "bt-edit.h"
 
-//#define USE_PATTERN_MODEL 1
-
 #define MAX_WAVETABLE_ITEMS 200
 
 struct _BtMainPagePatternsPrivate {
@@ -157,14 +155,6 @@ G_DEFINE_TYPE_WITH_CODE (BtMainPagePatterns, bt_main_page_patterns, GTK_TYPE_VBO
 /* we need this in machine-properties-dialog.c too */
 GdkAtom pattern_atom;
 
-#ifndef USE_PATTERN_MODEL
-enum {
-  PATTERN_MENU_LABEL=0,
-  PATTERN_MENU_COLOR_SET,
-  PATTERN_MENU_PATTERN,
-};
-#endif
-
 enum {
   WAVE_MENU_NUMBER=0,
   WAVE_MENU_LABEL,
@@ -219,36 +209,28 @@ static void machine_menu_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIt
 
   GST_INFO("look up iter for machine : %p,ref_count=%d",that_machine,G_OBJECT_REF_COUNT(that_machine));
 
-  gtk_tree_model_get_iter_first(store,iter);
-  do {
-    this_machine=bt_machine_list_model_get_object((BtMachineListModel *)store,iter);
-    if(this_machine==that_machine) {
-      GST_INFO("found iter for machine : %p,ref_count=%d",that_machine,G_OBJECT_REF_COUNT(that_machine));
-      break;
-    }
-  } while(gtk_tree_model_iter_next(store,iter));
+  if(gtk_tree_model_get_iter_first(store,iter)) {
+    do {
+      this_machine=bt_machine_list_model_get_object((BtMachineListModel *)store,iter);
+      if(this_machine==that_machine) {
+        GST_INFO("found iter for machine : %p,ref_count=%d",that_machine,G_OBJECT_REF_COUNT(that_machine));
+        break;
+      }
+    } while(gtk_tree_model_iter_next(store,iter));
+  }
 }
 
 static void pattern_menu_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *iter,BtPattern *that_pattern) {
   BtPattern *this_pattern;
 
-  gtk_tree_model_get_iter_first(store,iter);
-  do {
-#ifdef USE_PATTERN_MODEL
-    this_pattern=bt_pattern_list_model_get_object((BtPatternListModel *)store,iter);
-#else
-    gtk_tree_model_get(store,iter,PATTERN_MENU_PATTERN,&this_pattern,-1);
-#endif
-    if(this_pattern==that_pattern) {
-#ifndef USE_PATTERN_MODEL
-      g_object_unref(this_pattern);
-#endif
-      break;
-    }
-#ifndef USE_PATTERN_MODEL
-    g_object_unref(this_pattern);
-#endif
-  } while(gtk_tree_model_iter_next(store,iter));
+  if(gtk_tree_model_get_iter_first(store,iter)) {
+    do {
+      this_pattern=bt_pattern_list_model_get_object((BtPatternListModel *)store,iter);
+      if(this_pattern==that_pattern) {
+        break;
+      }
+    } while(gtk_tree_model_iter_next(store,iter));
+  }
 }
 
 //-- status bar helpers
@@ -746,25 +728,6 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
 }
 
 //-- event handlers
-
-#ifndef USE_PATTERN_MODEL
-static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  GtkTreeModel *store;
-  GtkTreeIter iter;
-  gchar *str;
-
-  g_object_get(pattern,"name",&str,NULL);
-  GST_INFO("pattern name changed to \"%s\"",str);
-
-  store=gtk_combo_box_get_model(self->priv->pattern_menu);
-  // get the row where row.pattern==pattern
-  pattern_menu_model_get_iter_by_pattern(store,&iter,pattern);
-  gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_MENU_LABEL,str,-1);
-
-  g_free(str);
-}
-#endif
 
 #if 0
 static void on_pattern_added(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
@@ -1272,16 +1235,9 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
 }
 
 static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machine) {
-#ifdef USE_PATTERN_MODEL
   BtPatternListModel *store;
-#else
   BtPattern *pattern=NULL;
-  GtkListStore *store;
-  gboolean is_internal,is_used;
-  GtkTreeIter menu_iter;
-  GList *node,*list;
-  gchar *str;
-#endif
+  GtkTreeIter iter;
   gint index=-1;
   gint active=-1;
   BtSong *song;
@@ -1292,40 +1248,18 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   // update pattern menu
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"sequence",&sequence,NULL);
-#ifdef USE_PATTERN_MODEL
   store=bt_pattern_list_model_new(machine,sequence,TRUE);
-  index=gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store),NULL)-1;
-#else
-  store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_BOOLEAN,BT_TYPE_PATTERN);
-#endif
 
-#ifdef USE_PATTERN_MODEL
-  // FIXME: (USE_PATTERN_MODEL) get active?
-#else
-  g_object_get(machine,"patterns",&list,NULL);
-  for(node=list;node;node=g_list_next(node)) {
-    pattern=BT_PATTERN(node->data);
-    g_object_get(pattern,"name",&str,"is-internal",&is_internal,NULL);
-    if(!is_internal) {
-      GST_INFO("  adding \"%s\"",str);
-      is_used=bt_sequence_is_pattern_used(sequence,pattern);
-      gtk_list_store_append(store,&menu_iter);
-      gtk_list_store_set(store,&menu_iter,
-        PATTERN_MENU_LABEL,str,
-        PATTERN_MENU_COLOR_SET,!is_used,
-        PATTERN_MENU_PATTERN,pattern,
-        -1);
-      g_signal_connect(pattern,"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
+  if(gtk_tree_model_get_iter_first((GtkTreeModel *)store,&iter)) {
+    do {
+      pattern=bt_pattern_list_model_get_object((BtPatternListModel *)store,&iter);
       index++;  // count pattern index, so that we can activate one in the combobox
       if(pattern==self->priv->pattern) {
         active=index;
+        break;
       }
-    }
-    g_free(str);
-    g_object_unref(pattern);
+    } while(gtk_tree_model_iter_next((GtkTreeModel *)store,&iter));
   }
-  g_list_free(list);
-#endif
   g_object_unref(sequence);
   g_object_unref(song);
   GST_INFO("pattern menu refreshed, active entry=%d",active);
@@ -1334,10 +1268,12 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
     // use the last one, if there is no active one
     active=index;
   }
+
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(index!=-1));
   gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
   gtk_combo_box_set_active(self->priv->pattern_menu,active);
   g_object_unref(store); // drop with comboxbox
+
   // unfortunately we need to do this, gtk+ swallows the first changed signal here
   // as nothing was selected and we don't select anything
   if(active==-1) {
@@ -2073,20 +2009,10 @@ static BtPattern *get_current_pattern(const BtMainPagePatterns *self) {
   if(self->priv->machine) {
     if(gtk_combo_box_get_active_iter(self->priv->pattern_menu,&iter)) {
       store=gtk_combo_box_get_model(self->priv->pattern_menu);
-#ifdef USE_PATTERN_MODEL
       if((pattern=bt_pattern_list_model_get_object(BT_PATTERN_LIST_MODEL(store),&iter))) {
         GST_DEBUG("  got pattern: %p,pattern-refs: %d",pattern,G_OBJECT_REF_COUNT(pattern));
         return(g_object_ref(pattern));
       }
-#else
-      gtk_tree_model_get(store,&iter,PATTERN_MENU_PATTERN,&pattern,-1);
-      if(pattern) {
-        // gtk_tree_model_get already refs()
-        GST_DEBUG("  got pattern: %p,pattern-refs: %d",pattern,G_OBJECT_REF_COUNT(pattern));
-        return(pattern);
-        //return(g_object_ref(pattern));
-      }
-#endif
     }
   }
   return(NULL);
@@ -2113,7 +2039,6 @@ static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *ne
     g_object_unref(old_pattern);
   }
 
-#ifdef USE_PATTERN_MODEL
   // select pattern combo entry
   if(new_pattern) {
     GtkTreeModel *store;
@@ -2126,7 +2051,6 @@ static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *ne
 
     GST_DEBUG("selecting new pattern");
   }
-#endif
 
   // refresh pattern view
   GST_INFO("store new pattern : %p,ref_count=%d",new_pattern,G_OBJECT_REF_COUNT(new_pattern));
@@ -2559,9 +2483,6 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
     g_free(mid);g_free(pid);g_free(pname);
 
     change_current_pattern(self,pattern);
-#ifndef USE_PATTERN_MODEL
-    pattern_menu_refresh(self,self->priv->machine);
-#endif
     context_menu_refresh(self,self->priv->machine);
   }
   else {
@@ -2630,9 +2551,6 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
     bt_change_log_end_group(self->priv->change_log);
 
     change_current_pattern(self,NULL);
-#ifndef USE_PATTERN_MODEL
-    pattern_menu_refresh(self,machine);
-#endif
     context_menu_refresh(self,machine);
 
     g_object_unref(machine);
@@ -2679,9 +2597,6 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
     g_free(mid);g_free(pid);g_free(pname);
 
     change_current_pattern(self,pattern);
-#ifndef USE_PATTERN_MODEL
-    pattern_menu_refresh(self,machine);
-#endif
     context_menu_refresh(self,machine);
   }
   else {
@@ -2784,7 +2699,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,
     "text",BT_PATTERN_MODEL_LABEL,
-    "foreground-set",BT_PATTERN_MODEL_IS_USED,
+    "foreground-set",BT_PATTERN_MODEL_IS_UNUSED,
     NULL);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Pattern")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pattern_menu),TRUE,TRUE,2);
@@ -3411,9 +3326,6 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_free(pid);
 
       change_current_pattern(self,pattern);
-#ifndef USE_PATTERN_MODEL
-      pattern_menu_refresh(self,machine);
-#endif
       context_menu_refresh(self,machine);
       break;
     }
@@ -3429,9 +3341,6 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       res=TRUE;
 
       change_current_pattern(self,NULL);
-#ifndef USE_PATTERN_MODEL
-      pattern_menu_refresh(self,machine);
-#endif
       context_menu_refresh(self,machine);
       break;
     }

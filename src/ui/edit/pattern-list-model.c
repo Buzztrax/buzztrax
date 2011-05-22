@@ -26,11 +26,9 @@
  * combo-boxes and treeview widgets.
  */
 /* TODO:
- * - we probably want to have a construction parameter to select wheter we want
- *   internal patterns to be skipped (we could use a filter for it too)
- * - columns:
- *   pattern-view: name, is-used
- *   sequence-view: name, is-used, key
+ * - we need caching for is-used
+ *   - maybe the sequence can update a qdata key
+ *   - we would still need a way to detect changes, in order to update the views
  */
 
 #define BT_EDIT
@@ -231,6 +229,7 @@ BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *seq
 
   self->priv->param_types[BT_PATTERN_MODEL_LABEL]=G_TYPE_STRING;
   self->priv->param_types[BT_PATTERN_MODEL_IS_USED]=G_TYPE_BOOLEAN;
+  self->priv->param_types[BT_PATTERN_MODEL_IS_UNUSED]=G_TYPE_BOOLEAN;
   self->priv->param_types[BT_PATTERN_MODEL_SHORTCUT]=G_TYPE_STRING;
 
   // shortcut keys (take skiping into account)
@@ -348,6 +347,19 @@ static void bt_pattern_list_model_tree_model_get_value(GtkTreeModel *tree_model,
           is_used=bt_sequence_is_pattern_used(model->priv->sequence,pattern);
         }
         g_value_set_boolean(value,is_used);
+        break;
+      }
+      case BT_PATTERN_MODEL_IS_UNUSED: {
+        gboolean is_used=FALSE;
+
+        if(!model->priv->skip_internal) {
+          /* treat internal patterns as always used */
+          g_object_get(pattern,"is-internal",&is_used,NULL);
+        }
+        if(!is_used) {
+          is_used=bt_sequence_is_pattern_used(model->priv->sequence,pattern);
+        }
+        g_value_set_boolean(value,!is_used);
         break;
       }
       case BT_PATTERN_MODEL_SHORTCUT: {

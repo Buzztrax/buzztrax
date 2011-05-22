@@ -81,8 +81,6 @@
 #include "bt-edit.h"
 #include "gtkvumeter.h"
 
-//#define USE_PATTERN_MODEL 1
-
 enum {
   MAIN_PAGE_SEQUENCE_CURSOR_ROW=1
 };
@@ -152,11 +150,6 @@ struct _BtMainPageSequencePrivate {
   glong selection_column;
   glong selection_row;
 
-#ifndef USE_PATTERN_MODEL
-  /* shortcut table */
-  const char *pattern_keys;
-#endif
-
   /* vumeter data */
   GHashTable *level_to_vumeter;
   GstClock *clock;
@@ -209,15 +202,6 @@ enum {
   POSITION_MENU_LABEL
 };
 
-#ifndef USE_PATTERN_MODEL
-enum {
-  PATTERN_LIST_NAME=0,
-  PATTERN_LIST_USED,
-  PATTERN_LIST_KEY,
-  PATTERN_LIST_PATTERN
-};
-#endif
-
 enum {
   PATTERN_POS_FORMAT_TICKS=0,
   PATTERN_POS_FORMAT_TIME
@@ -243,17 +227,6 @@ enum {
 
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
-
-#ifndef USE_PATTERN_MODEL
-// keyboard shortcuts for sequence-table
-// CLEAR       '.'
-// MUTE        '-'
-// BREAK       ','
-// SOLO/BYPASS '_'
-static const gchar sink_pattern_keys[]     = "-,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static const gchar source_pattern_keys[]   ="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static const gchar processor_pattern_keys[]="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-#endif
 
 enum {
   METHOD_SET_PATTERNS,
@@ -713,25 +686,6 @@ static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat b
 
 //-- tree model helper
 
-#ifndef USE_PATTERN_MODEL
-static void pattern_list_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *iter,BtPattern *that_pattern) {
-  BtPattern *this_pattern;
-
-  GST_INFO("look up iter for pattern : %p,ref_count=%d",that_pattern,G_OBJECT_REF_COUNT(that_pattern));
-
-  gtk_tree_model_get_iter_first(store,iter);
-  do {
-    gtk_tree_model_get(store,iter,PATTERN_LIST_PATTERN,&this_pattern,-1);
-    if(this_pattern==that_pattern) {
-      GST_INFO("found iter for machine : %p,ref_count=%d",that_pattern,G_OBJECT_REF_COUNT(that_pattern));
-      g_object_unref(this_pattern);
-      break;
-    }
-    g_object_try_unref(this_pattern); // we also have the internal patterns where this_pattern=NULL
-  } while(gtk_tree_model_iter_next(store,iter));
-}
-#endif
-
 static BtPattern *pattern_list_model_get_pattern_by_key(GtkTreeModel *store,gchar that_key) {
   GtkTreeIter iter;
   gchar *this_key;
@@ -743,11 +697,7 @@ static BtPattern *pattern_list_model_get_pattern_by_key(GtkTreeModel *store,gcha
   do {
     gtk_tree_model_get(store,&iter,BT_PATTERN_MODEL_SHORTCUT,&this_key,-1);
     if(this_key[0]==that_key) {
-#ifndef USE_PATTERN_MODEL
-      gtk_tree_model_get(store,&iter,PATTERN_LIST_PATTERN,&pattern,-1);
-#else
       pattern=g_object_ref(bt_pattern_list_model_get_object((BtPatternListModel *)store,&iter));
-#endif
       GST_INFO("found pattern for key : %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
       g_free(this_key);
       break;
@@ -796,25 +746,6 @@ static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer us
   }
   prev_page_num = page_num;
 }
-
-#ifndef USE_PATTERN_MODEL
-static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
-  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  GtkTreeModel *store;
-  GtkTreeIter iter;
-  gchar *str;
-
-  g_object_get(pattern,"name",&str,NULL);
-  GST_INFO("pattern name changed to \"%s\"",str);
-
-  store=gtk_tree_view_get_model(self->priv->pattern_list);
-  // get the row where row.machine==machine
-  pattern_list_model_get_iter_by_pattern(store,&iter,pattern);
-  gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_LIST_NAME,str,-1);
-
-  g_free(str);
-}
-#endif
 
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
   GtkLabel *label=GTK_LABEL(user_data);
@@ -1615,120 +1546,16 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 }
 
 static void pattern_list_refresh(const BtMainPageSequence *self) {
-#ifdef USE_PATTERN_MODEL
   BtPatternListModel *store;
-#else
-  GtkListStore *store;
-  GtkTreeModel *old_store;
-  GtkTreeIter tree_iter;
-
-  // clean up old list
-  if((old_store=gtk_tree_view_get_model(self->priv->pattern_list))) {
-    BtPattern *pattern;
-
-    if(gtk_tree_model_get_iter_first(old_store,&tree_iter)) {
-      do {
-        gtk_tree_model_get(old_store,&tree_iter,PATTERN_LIST_PATTERN,&pattern,-1);
-        if(pattern) {
-          g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_pattern_name_changed,NULL);
-          g_object_unref(pattern);
-        }
-      } while(gtk_tree_model_iter_next(old_store,&tree_iter));
-    }
-  }
-#endif
 
   // refresh the pattern list
   if(self->priv->machine) {
     gulong index;
-#ifndef USE_PATTERN_MODEL
-    BtPattern *pattern;
-    GList *node,*list;
-    gboolean is_internal,is_used;
-    gchar *str,key[2]={0,};
-#endif
 
     GST_INFO("refresh pattern list for machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
 
-#ifdef USE_PATTERN_MODEL
     store=bt_pattern_list_model_new(self->priv->machine,self->priv->sequence,FALSE);
     index=gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store),NULL)-1;
-#else
-    store=gtk_list_store_new(4,G_TYPE_STRING,G_TYPE_BOOLEAN,G_TYPE_STRING,BT_TYPE_PATTERN);
-
-    //-- append default rows
-    self->priv->pattern_keys=sink_pattern_keys;
-    index=2;
-    gtk_list_store_append(store, &tree_iter);
-    // use spaces to avoid clashes with normal patterns?
-    gtk_list_store_set(store,&tree_iter,
-      PATTERN_LIST_KEY,".",
-      PATTERN_LIST_USED,TRUE,
-      PATTERN_LIST_NAME,_("  clear"),
-      -1);
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,
-      PATTERN_LIST_KEY,"-",
-      PATTERN_LIST_USED,TRUE,
-      PATTERN_LIST_NAME,_("  mute"),
-      -1);
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,
-      PATTERN_LIST_KEY,",",
-      PATTERN_LIST_USED,TRUE,
-      PATTERN_LIST_NAME,_("  break"),
-      -1);
-    if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
-      gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,
-        PATTERN_LIST_KEY,"_",
-        PATTERN_LIST_USED,TRUE,
-        PATTERN_LIST_NAME,_("  bypass"),
-        -1);
-      self->priv->pattern_keys=processor_pattern_keys;
-      index++;
-    }
-    if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
-      gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,
-        PATTERN_LIST_KEY,"_",
-        PATTERN_LIST_USED,TRUE,
-        PATTERN_LIST_NAME,_("  solo"),
-        -1);
-      self->priv->pattern_keys=source_pattern_keys;
-      index++;
-    }
-
-    //-- append pattern rows
-    g_object_get(self->priv->machine,"patterns",&list,NULL);
-    for(node=list;node;node=g_list_next(node)) {
-      pattern=BT_PATTERN(node->data);
-      GST_DEBUG("adding pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
-      g_object_get(pattern,"name",&str,"is-internal",&is_internal,NULL);
-      if(!is_internal) {
-        //GST_DEBUG("  adding \"%s\" at index %d -> '%c'",str,index,self->priv->pattern_keys[index]);
-        key[0]=(index<64)?self->priv->pattern_keys[index]:' ';
-        //if(index<64) key[0]=self->priv->pattern_keys[index];
-        //else key[0]=' ';
-
-        //GST_DEBUG("  with shortcut \"%s\"",key);
-        // use gray color for unused patterns in pattern list
-        is_used=bt_sequence_is_pattern_used(self->priv->sequence,pattern);
-        gtk_list_store_append(store, &tree_iter);
-        gtk_list_store_set(store,&tree_iter,
-          PATTERN_LIST_KEY,key,
-          PATTERN_LIST_NAME,str,
-          PATTERN_LIST_USED,is_used,
-          PATTERN_LIST_PATTERN,pattern,
-          -1);
-        index++;
-        g_signal_connect(pattern,"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
-      }
-      g_free(str);
-      g_object_unref(pattern);
-    }
-    g_list_free(list);
-#endif
 
     // sync machine in pattern page
     if(self->priv->main_window) {

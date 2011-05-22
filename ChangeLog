@@ -1,3 +1,14 @@
+2011-05-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Use the new models and remove the old code.
+
+	* src/ui/edit/pattern-list-model.c:
+	* src/ui/edit/pattern-list-model.h:
+	  Add a unused column too, as we can't invert when assigning it to a cell-
+	  renderer.
+
 2011-05-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
