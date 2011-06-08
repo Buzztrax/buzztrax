@@ -2,7 +2,12 @@ svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
 2011/06 ========================================================================
 
+- work on gstreamer, gtk-doc
+- more work on models
+- doc updates
+- bug fixes
 
+32 files changed, 1848 insertions(+), 444 deletions(-)
 
 2011/05 ========================================================================
 
