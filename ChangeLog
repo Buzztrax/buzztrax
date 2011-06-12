@@ -1,6 +1,12 @@
 2011-06-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
+	  Remove two more columns. Only listen for pattern removal to lessen
+	  the amount of updates we do (fixes a FIXME). Clarify some comments. 
+
+2011-06-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
 	  Remove unused column. Replace pos var with i to save one var.
 
 2011-06-08  Stefan Kost  <ensonic@users.sf.net>

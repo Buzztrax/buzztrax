@@ -39,11 +39,12 @@
  *   - copy current pattern
  *   - allow to switch meters (off, level, scope, spectrum)
  * - when we move between tracks, switch the current-machine in pattern-view
+ *   - we could expose current-machine as a property
  * - pattern list
  *   - go to next occurence when double clicking a pattern
- *   - show tick-length in pattern list
+ *   - show tick-length in pattern list (needs column in model)
  */
-/* @todo: we should have a track-changed signal
+/* @todo: we should have a track-changed signal ((current-track property)
  *  - allows pattern to sync with selected machine and not passively syncing
  *    (bt_main_page_patterns_show_machine())
  */
@@ -159,7 +160,7 @@ struct _BtMainPageSequencePrivate {
   glong row_filter_pos;   /* the number of visible (not-filtered) rows */
 
   /* signal handler id's */
-  gulong pattern_added_handler, pattern_removed_handler;
+  gulong pattern_removed_handler;
 
   /* playback state */
   gboolean is_playing;
@@ -187,8 +188,6 @@ enum {
   SEQUENCE_TABLE_SOURCE_BG=0,
   SEQUENCE_TABLE_PROCESSOR_BG,
   SEQUENCE_TABLE_SINK_BG,
-  SEQUENCE_TABLE_CURSOR_BG,
-  SEQUENCE_TABLE_SELECTION_BG,
   SEQUENCE_TABLE_POS,
   SEQUENCE_TABLE_POSSTR,
   SEQUENCE_TABLE_LABEL,
@@ -248,7 +247,7 @@ static void sequence_table_refresh_labels(const BtMainPageSequence *self);
 static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *song);
 
 static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data);
-static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer user_data);
+static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer user_data);
 
 //-- main-window helper
 static void grab_main_window(const BtMainPageSequence *self) {
@@ -262,24 +261,16 @@ static void grab_main_window(const BtMainPageSequence *self) {
 //-- tree filter func
 
 static gboolean step_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpointer user_data) {
-  //gboolean visible=TRUE;
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   gulong pos;
 
   // determine row number and hide or show accordingly
   gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&pos,-1);
 
-  if( pos < self->priv->row_filter_pos && IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars))
+  if((pos<self->priv->row_filter_pos) && IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars))
     return TRUE;
   else
     return FALSE;
-
-  // determine row number and hide or show accordingly
-  //gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&pos,-1);
-  //visible=IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars);
-  //GST_INFO("bars=%d, pos=%d, -> visible=%1d",self->priv->bars,pos,visible);
-
-  //return(IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars));
 }
 
 //-- tree cell data functions
@@ -622,11 +613,9 @@ static gchar *sequence_format_positions(const BtMainPageSequence *self,gulong po
       gulong msec,sec,min;
       const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
 
-      // update current statusbar
       msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
       min=(gulong)(msec/60000);msec-=(min*60000);
       sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-      // format
       g_sprintf(pos_str,"%02lu:%02lu.%03lu",min,sec,msec);
     } break;
     default:
@@ -1300,8 +1289,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   store_types[SEQUENCE_TABLE_SOURCE_BG   ]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_PROCESSOR_BG]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_SINK_BG     ]=GDK_TYPE_COLOR;
-  store_types[SEQUENCE_TABLE_CURSOR_BG   ]=GDK_TYPE_COLOR;
-  store_types[SEQUENCE_TABLE_SELECTION_BG]=GDK_TYPE_COLOR;
   // for static display columns
   store_types[SEQUENCE_TABLE_POS         ]=G_TYPE_LONG;
   store_types[SEQUENCE_TABLE_POSSTR      ]=G_TYPE_STRING;
@@ -1561,7 +1548,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     GST_INFO("refreshed pattern list for machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
   }
   else {
-    // FIXME, do we need a dummy store?
+    // FIXME, do we need a dummy store? - yes for the label columns
     //store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_BOOLEAN,G_TYPE_STRING);
     store=NULL;
     GST_INFO("no machine for cursor_column: %ld",self->priv->cursor_column);
@@ -1600,18 +1587,15 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
 
   if(self->priv->machine) {
     GST_INFO("unref old cur-machine %p,refs=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
-    g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_added_handler);
     g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_removed_handler);
     // unref the old machine
     g_object_unref(self->priv->machine);
     self->priv->machine=NULL;
-    self->priv->pattern_added_handler=0;
     self->priv->pattern_removed_handler=0;
   }
   if(machine) {
     GST_INFO("ref new cur-machine: refs: %d",G_OBJECT_REF_COUNT(machine));
-    self->priv->pattern_added_handler=g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
-    self->priv->pattern_removed_handler=g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
+    self->priv->pattern_removed_handler=g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
     // remember the new machine
     self->priv->machine=machine;
   }
@@ -2791,17 +2775,15 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 }
 
-static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
+static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
 
-  GST_INFO("pattern has been added/removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
-  // reinit the list
-  pattern_list_refresh(self);
+  GST_INFO("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 
   // get song from app
   g_object_get(self->priv->app,"song",&song,NULL);
-  // reinit the sequence view, FIXME: only when removing patterns
+  // reinit the sequence view, FIXME: only when pattern was used
   sequence_table_refresh(self,song);
   sequence_model_recolorize(self);
   g_object_unref(song);
@@ -3653,8 +3635,6 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 
   if(self->priv->machine) {
     GST_INFO("unref old cur-machine: %p,refs=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
-    if(self->priv->pattern_added_handler)
-      g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_added_handler);
     if(self->priv->pattern_removed_handler)
       g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_removed_handler);
     g_object_unref(self->priv->machine);
