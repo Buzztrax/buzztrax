@@ -25,11 +25,6 @@
  * A generic model representing the patterns of a machine, suitable for
  * combo-boxes and treeview widgets.
  */
-/* TODO:
- * - we need caching for is-used
- *   - maybe the sequence can update a qdata key
- *   - we would still need a way to detect changes, in order to update the views
- */
 
 #define BT_EDIT
 #define BT_PATTERN_LIST_MODEL_C
@@ -167,7 +162,7 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   GtkTreeIter iter;
   gint pos1,pos2=-1;
 
-  // find the item by machine (cannot use model_item_cmp, as id has changed)
+  // find the item by pattern (cannot use model_item_cmp, as id has changed)
   iter.stamp=model->priv->stamp;
   for(pos1=0;pos1<g_sequence_get_length(seq);pos1++) {
     iter.user_data=g_sequence_get_iter_at_pos(seq,pos1);
@@ -213,6 +208,31 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
   bt_pattern_list_model_rem(model,pattern);
 }
 
+static void on_sequence_pattern_usage_changed(BtSequence *sequence,BtPattern *pattern,gpointer user_data) {
+  BtPatternListModel *model=BT_PATTERN_LIST_MODEL(user_data);
+  BtMachine *machine;
+  
+  g_object_get(pattern,"machine",&machine,NULL);
+  if(machine==model->priv->machine) {
+    GSequence *seq=model->priv->seq;
+    GtkTreeIter iter;
+    GtkTreePath *path;
+
+    // find the item by pattern
+    iter.stamp=model->priv->stamp;
+#if GLIB_CHECK_VERSION(2,28,0)
+    iter.user_data=g_sequence_lookup(seq,pattern,model_item_cmp,NULL);
+#else
+    iter.user_data=g_sequence_iter_prev(g_sequence_search(seq,pattern,model_item_cmp,NULL));
+#endif
+    path=gtk_tree_path_new();
+    gtk_tree_path_append_index(path,g_sequence_iter_get_position(iter.user_data));
+    gtk_tree_model_row_changed(GTK_TREE_MODEL(model),path,&iter);
+    gtk_tree_path_free(path);   
+  }
+  g_object_unref(machine);
+}
+
 //-- constructor methods
 
 BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *sequence,gboolean skip_internal) {
@@ -223,6 +243,7 @@ BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *seq
   self=g_object_new(BT_TYPE_PATTERN_LIST_MODEL, NULL);
 
   self->priv->sequence=sequence;
+  g_object_add_weak_pointer((GObject *)sequence,(gpointer *)&self->priv->sequence);
   self->priv->machine=machine;
   g_object_add_weak_pointer((GObject *)machine,(gpointer *)&self->priv->machine);
   self->priv->skip_internal=skip_internal;
@@ -252,6 +273,8 @@ BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *seq
 
   g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
   g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
+  g_signal_connect(sequence,"pattern-added",G_CALLBACK(on_sequence_pattern_usage_changed),(gpointer)self);
+  g_signal_connect(sequence,"pattern-removed",G_CALLBACK(on_sequence_pattern_usage_changed),(gpointer)self);
 
   return(self);
 }
@@ -467,8 +490,22 @@ static void bt_pattern_list_model_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   if(self->priv->machine) {
-    g_signal_handlers_disconnect_matched(self->priv->machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pattern_added,(gpointer)self);
-    g_signal_handlers_disconnect_matched(self->priv->machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pattern_removed,(gpointer)self);
+    BtMachine *machine=self->priv->machine;
+    BtPattern *pattern;
+    GList *list, *node;
+    
+    g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pattern_added,(gpointer)self);
+    g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pattern_removed,(gpointer)self);
+
+    g_object_get((gpointer)machine,"patterns",&list,NULL);
+    for(node=list;node;node=g_list_next(node)) {
+      pattern=BT_PATTERN(node->data);
+      g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pattern_name_changed,(gpointer)self);
+    }
+    g_list_free(list);
+  }
+  if(self->priv->sequence) { 
+    g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_pattern_usage_changed,(gpointer)self);
   }
 
   g_sequence_free(self->priv->seq);

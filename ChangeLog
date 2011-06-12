@@ -1,5 +1,10 @@
 2011-06-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-list-model.c:
+	  Use the new signals from sequence to update the is-used state dynamically.
+
+2011-06-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  Add a hashtable to track pattern usage. Use it to speedup the methods
 	  instead of scanning the whole sequence. Add two signals to notify of
