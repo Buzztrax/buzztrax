@@ -1,3 +1,8 @@
+2011-06-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Remove unused column. Replace pos var with i to save one var.
+
 2011-06-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

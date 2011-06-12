@@ -189,7 +189,6 @@ enum {
   SEQUENCE_TABLE_SINK_BG,
   SEQUENCE_TABLE_CURSOR_BG,
   SEQUENCE_TABLE_SELECTION_BG,
-  SEQUENCE_TABLE_TICK_FG_SET,
   SEQUENCE_TABLE_POS,
   SEQUENCE_TABLE_POSSTR,
   SEQUENCE_TABLE_LABEL,
@@ -1080,13 +1079,11 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
     "mode",GTK_CELL_RENDERER_MODE_INERT,
     "xalign",1.0,
     "yalign",0.5,
-    "foreground","blue",
     NULL);
   gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
   if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
     "text",SEQUENCE_TABLE_POSSTR,
-    "foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL))
   ) {
     g_object_set(tree_col,
@@ -1201,7 +1198,6 @@ static void sequence_table_init(const BtMainPageSequence *self) {
     "mode",GTK_CELL_RENDERER_MODE_EDITABLE,
     "xalign",1.0,
     "yalign",0.5,
-    "foreground","blue",
     "editable",TRUE,
     /*
     "width",SEQUENCE_CELL_WIDTH-4,
@@ -1215,7 +1211,6 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   g_signal_connect(renderer,"edited",G_CALLBACK(on_sequence_label_edited),(gpointer)self);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
-    "foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL))
   ) {
     g_object_set(tree_col,
@@ -1278,7 +1273,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   BtPattern *pattern;
   GtkWidget *header;
   gchar *str,*pos_str;
-  gulong i,j,col_ct,timeline_ct,track_ct,pos=0;
+  gulong i,j,col_ct,timeline_ct,track_ct;
   gint col_index;
   GtkCellRenderer *renderer;
   GtkListStore *store;
@@ -1307,7 +1302,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   store_types[SEQUENCE_TABLE_SINK_BG     ]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_CURSOR_BG   ]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_SELECTION_BG]=GDK_TYPE_COLOR;
-  store_types[SEQUENCE_TABLE_TICK_FG_SET ]=G_TYPE_BOOLEAN;
   // for static display columns
   store_types[SEQUENCE_TABLE_POS         ]=G_TYPE_LONG;
   store_types[SEQUENCE_TABLE_POSSTR      ]=G_TYPE_STRING;
@@ -1325,11 +1319,9 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     pos_str=sequence_format_positions(self,i);
     // set position, highlight-color
     gtk_list_store_set(store,&tree_iter,
-      SEQUENCE_TABLE_POS,pos,
+      SEQUENCE_TABLE_POS,i,
       SEQUENCE_TABLE_POSSTR,pos_str,
-      SEQUENCE_TABLE_TICK_FG_SET,FALSE,
       -1);
-    pos++;
     if( i < timeline_ct ) {
       // set label
       str=bt_sequence_get_label(self->priv->sequence,i);
