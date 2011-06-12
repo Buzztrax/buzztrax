@@ -1697,7 +1697,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
    * @self: the setup object that emitted the signal
    * @machine: the new machine
    *
-   * A new machine item has been added to the setup
+   * A new machine item has been added to the setup.
    */
   signals[MACHINE_ADDED_EVENT] = g_signal_new("machine-added",
                                         G_TYPE_FROM_CLASS(klass),
@@ -1716,7 +1716,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
    * @self: the setup object that emitted the signal
    * @wire: the new wire
    *
-   * A new wire item has been added to the setup
+   * A new wire item has been added to the setup.
    */
   signals[WIRE_ADDED_EVENT] = g_signal_new("wire-added",
                                         G_TYPE_FROM_CLASS(klass),
@@ -1735,7 +1735,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
    * @self: the setup object that emitted the signal
    * @machine: the old machine
    *
-   * A machine item has been removed from the setup
+   * A machine item has been removed from the setup.
    */
   signals[MACHINE_REMOVED_EVENT] = g_signal_new("machine-removed",
                                         G_TYPE_FROM_CLASS(klass),
@@ -1754,7 +1754,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
    * @self: the setup object that emitted the signal
    * @wire: the old wire
    *
-   * A wire item has been removed from the setup
+   * A wire item has been removed from the setup.
    */
   signals[WIRE_REMOVED_EVENT] = g_signal_new("wire-removed",
                                         G_TYPE_FROM_CLASS(klass),
