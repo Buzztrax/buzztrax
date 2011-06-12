@@ -241,8 +241,10 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   BtSong *song;
   BtSetup *setup;
   BtSequence *sequence;
+  BtSongInfo *song_info;
   BtMachine *machine;
   gchar *id;
+  gulong bars;
   GError *err=NULL;
 
   g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
@@ -250,9 +252,10 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   // create new song
   song=bt_song_new(BT_APPLICATION(self));
 
-  g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
-  // add some initial timelines
-  g_object_set(sequence,"length",SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
+  g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&song_info,NULL);
+  // make initial song length 4 timelines
+  g_object_get(song_info,"bars",&bars,NULL);
+  g_object_set(sequence,"length",bars*4,NULL);
   // add audiosink
   id=bt_setup_get_unique_machine_id(setup,"master");
   machine=BT_MACHINE(bt_sink_machine_new(song,id,&err));
@@ -286,6 +289,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   g_free(id);
 
   // release references
+  g_object_unref(song_info);
   g_object_unref(setup);
   g_object_unref(sequence);
   g_object_unref(song);

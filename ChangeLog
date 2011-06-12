@@ -1,5 +1,16 @@
 2011-06-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-sequence.h:
+	  Get rid of SEQUENCE_ROW_ADDITION_INTERVAL define and use the bars from
+	  song-info instead. Rework the coloring and use a single boolean column
+	  for the 'shade' flag instead. This speeds up the cell-data function
+	  and saves memory.
+
+2011-06-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Remove two more columns. Only listen for pattern removal to lessen
 	  the amount of updates we do (fixes a FIXME). Clarify some comments. 
