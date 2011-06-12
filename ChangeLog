@@ -1,5 +1,12 @@
 2011-06-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Add a hashtable to track pattern usage. Use it to speedup the methods
+	  instead of scanning the whole sequence. Add two signals to notify of
+	  first and last use.
+
+2011-06-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/ui/edit/machine-preferences-dialog.c:
 	* src/ui/edit/machine-properties-dialog.c:
