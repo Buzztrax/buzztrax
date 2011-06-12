@@ -1190,9 +1190,6 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   GtkWidget *image,*scrolled_window;
   GtkWidget *tool_item;
   gchar *density;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
 
   GST_DEBUG("!!!! self=%p",self);
 

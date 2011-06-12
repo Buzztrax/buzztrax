@@ -64,9 +64,6 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkWidget *main_toolbar,*preset_toolbar;
   GtkWidget *preset_box;
   GtkWidget *preset_list;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *preset_tips;
-#endif
 
   GtkWidget *param_group_box;
   /* need this to remove right expander when wire is removed */
@@ -1295,52 +1292,8 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
   }
 }
 
-#if !GTK_CHECK_VERSION(2,12,0)
-static void on_preset_list_motion_notify(GtkTreeView *tree_view,GdkEventMotion *event,gpointer user_data) {
-  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-  GdkWindow *bin_window;
-  GtkTreePath *path;
-  GtkTreeViewColumn *column;
 
-  bin_window=gtk_tree_view_get_bin_window(tree_view);
-  if(event->window!=bin_window) return;
 
-  if(gtk_tree_view_get_path_at_pos(tree_view,(gint)event->x,(gint)event->y,&path,&column,NULL,NULL)) {
-    GtkTreeModel *model;
-    GtkTreeIter iter;
-
-    model=gtk_tree_view_get_model(tree_view);
-    if(gtk_tree_model_get_iter(model,&iter,path)) {
-      static gchar *old_comment=NULL;
-      gchar *comment;
-      GtkWindow *tip_window=GTK_WINDOW(self->priv->preset_tips->tip_window);
-
-      gtk_tree_model_get(model,&iter,PRESET_LIST_COMMENT,&comment,-1);
-      if(!comment || !old_comment || (comment && old_comment && strcmp(comment,old_comment))) {
-        GST_LOG("tip is '%s'",comment);
-        //gtk_tooltips_set_tip(self->priv->preset_tips,GTK_WIDGET(tree_view),(comment?comment:""),NULL);
-        gtk_tooltips_set_tip(self->priv->preset_tips,GTK_WIDGET(tree_view),comment,NULL);
-        if(tip_window && GTK_WIDGET_VISIBLE(tip_window)) {
-          GdkRectangle vr,cr;
-          gint ox,oy,tx,ty;
-
-          gtk_tree_view_get_visible_rect(tree_view,&vr);
-          gtk_tree_view_get_background_area(tree_view,path,column,&cr);
-          gdk_window_get_origin(bin_window,&tx,&ty);
-          gtk_tree_view_tree_to_widget_coords(tree_view,vr.x+cr.x,vr.y+cr.y,&ox,&oy);
-          GST_INFO("tx=%4d,ty=%4d  ox=%4d,oy=%4d",tx,ty,ox,oy);
-          tx += ox + cr.width / 2 - (GTK_WIDGET(tip_window)->allocation.width / 2 + 4);
-          ty += oy + cr.height;
-          GST_INFO("tx=%4d,ty=%4d",tx,ty);
-          gtk_window_move(tip_window,tx,ty);
-        }
-        old_comment=comment;
-      }
-    }
-    gtk_tree_path_free(path);
-  }
-}
-#else
 static gboolean on_preset_list_query_tooltip(GtkWidget *widget,gint x,gint y,gboolean keyboard_mode,GtkTooltip *tooltip,gpointer user_data) {
   GtkTreeView *tree_view=GTK_TREE_VIEW(widget);
   GtkTreePath *path;
@@ -1366,7 +1319,6 @@ static gboolean on_preset_list_query_tooltip(GtkWidget *widget,gint x,gint y,gbo
   }
   return(res);
 }
-#endif
 
 static void on_preset_list_selection_changed(GtkTreeSelection *treeselection,gpointer user_data) {
   gtk_widget_set_sensitive(GTK_WIDGET(user_data),(gtk_tree_selection_count_selected_rows(treeselection)!=0));
@@ -1723,9 +1675,6 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
   GParamSpec *property;
   GValue *range_min,*range_max;
   gulong i,k,params;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
 
   // determine params to be skipped
   params=global_params;
@@ -1778,9 +1727,6 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
   GstObject *machine_voice;
   gchar *name;
   gulong i,k,params;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
 
   params=voice_params;
   for(i=0;i<voice_params;i++) {
@@ -1887,9 +1833,6 @@ static GtkWidget *make_wire_param_box(const BtMachinePropertiesDialog *self,BtWi
   GParamSpec *property;
   GValue *range_min,*range_max;
   gulong i,params;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
   BtMachine *src;
 
   g_object_get(wire,"num-params",&params,"src",&src,NULL);
@@ -1992,9 +1935,6 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   GtkTreeSelection *tree_sel;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
 
   self->priv->preset_box=gtk_vbox_new(FALSE,0);
 
@@ -2026,16 +1966,9 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   g_object_set(self->priv->preset_list,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
   tree_sel=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_SINGLE);
-#if !GTK_CHECK_VERSION(2,12,0)
-  gtk_widget_set_events(self->priv->preset_list,gtk_widget_get_events(self->priv->preset_list)|GDK_POINTER_MOTION_MASK);
-  self->priv->preset_tips=gtk_tooltips_new();
-  gtk_tooltips_set_tip(self->priv->preset_tips,self->priv->preset_list,"",NULL);
-  g_signal_connect(self->priv->preset_list, "motion-notify-event", G_CALLBACK(on_preset_list_motion_notify), (gpointer)self);
-#else
   g_object_set(self->priv->preset_list,"has-tooltip",TRUE,NULL);
   g_signal_connect(self->priv->preset_list, "query-tooltip", G_CALLBACK(on_preset_list_query_tooltip), (gpointer)self);
   // alternative: gtk_tree_view_set_tooltip_row
-#endif
   g_signal_connect(self->priv->preset_list, "row-activated", G_CALLBACK(on_preset_list_row_activated), (gpointer)self);
   g_signal_connect(tree_sel, "changed", G_CALLBACK(on_preset_list_selection_changed), (gpointer)remove_tool_button);
   g_signal_connect(tree_sel, "changed", G_CALLBACK(on_preset_list_selection_changed), (gpointer)edit_tool_button);
@@ -2080,9 +2013,6 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
   gulong global_params,voice_params;
   GstElement *machine;
   BtSettings *settings;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
   GList *wires;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("machine properties"));

@@ -131,9 +131,6 @@ static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer us
 
 static void bt_main_pages_add_tab(const BtMainPages *self,GtkWidget *content,gchar *str,gchar *icon,gchar *tip) {
   GtkWidget *label,*event_box,*box,*image;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
 
   label=gtk_label_new(str);
   //gtk_label_set_ellipsize(GTK_LABEL(label),PANGO_ELLIPSIZE_END);

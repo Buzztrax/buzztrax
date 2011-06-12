@@ -1109,7 +1109,6 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
         bt_wire_pattern_randomize_column,bt_wire_pattern_randomize_columns);
     }
   }
-#if GTK_CHECK_VERSION(2,12,0)
   else if((event->keyval == GDK_Up) && (modifier==GDK_CONTROL_MASK)) {
     g_signal_emit_by_name(self->priv->machine_menu,"move-active",GTK_SCROLL_STEP_BACKWARD,NULL);
     res=TRUE;
@@ -1142,7 +1141,6 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
     g_signal_emit_by_name(self->priv->wavetable_menu,"move-active",GTK_SCROLL_STEP_FORWARD,NULL);
     res=TRUE;
   }
-#endif
   return(res);
 }
 
@@ -2168,10 +2166,6 @@ static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer us
       g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
       if(main_window) {
         gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
-#if !GTK_CHECK_VERSION(2,12,0)
-        // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
-        g_signal_emit_by_name (main_window, "keys-changed", 0);
-#endif
         g_object_unref(main_window);
       }
       if(song) {

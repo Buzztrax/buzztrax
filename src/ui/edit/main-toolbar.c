@@ -791,9 +791,6 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkWidget *tool_item;
   GtkWidget *box, *child;
   gulong i;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
 
   gtk_widget_set_name(GTK_WIDGET(self),"main toolbar");
 

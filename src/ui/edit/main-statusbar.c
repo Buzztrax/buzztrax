@@ -274,9 +274,6 @@ static gboolean on_main_loop_idle(gpointer user_data) {
 static void bt_main_statusbar_init_ui(const BtMainStatusbar *self) {
   GtkWidget *ev_box;
   gchar str[]="00:00.000";
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
 
   gtk_widget_set_name(GTK_WIDGET(self),"status-bar");
   //#ifdef USE_HILDON /* has no effect */

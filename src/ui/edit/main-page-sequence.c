@@ -155,9 +155,9 @@ struct _BtMainPageSequencePrivate {
   GHashTable *level_to_vumeter;
   GstClock *clock;
 
-  /* step filtering */
-  gulong sequence_length;     /* number of [dummy] rows contained in the model */
-  glong row_filter_pos;   /* the number of visible (not-filtered) rows */
+  /* number of rows contained in the model, this is the length of the sequence
+   * plus extra dummy lines */
+  gulong sequence_length;
 
   /* signal handler id's */
   gulong pattern_removed_handler;
@@ -265,7 +265,7 @@ static gboolean step_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpoint
   // determine row number and hide or show accordingly
   gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&pos,-1);
 
-  if((pos<self->priv->row_filter_pos) && IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars))
+  if((pos<self->priv->sequence_length) && IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars))
     return TRUE;
   else
     return FALSE;
@@ -529,22 +529,18 @@ static GtkTreeModel *sequence_model_get_store(const BtMainPageSequence *self) {
 static void sequence_model_recolorize(const BtMainPageSequence *self) {
   GtkTreeModel *store;
   GtkTreeIter iter;
-  gboolean odd_row=FALSE;
-  gulong filter_pos;
 
   GST_INFO("recolorize sequence tree view");
 
   if((store=sequence_model_get_store(self))) {
     if(gtk_tree_model_get_iter_first(store,&iter)) {
-      filter_pos=self->priv->row_filter_pos;
-      self->priv->row_filter_pos=self->priv->sequence_length;
+      gboolean odd_row=FALSE;
       do {
         if(step_visible_filter(store,&iter,(gpointer)self)) {
           gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_SHADE,odd_row,-1);
           odd_row=!odd_row;
         }
       } while(gtk_tree_model_iter_next(store,&iter));
-      self->priv->row_filter_pos=filter_pos;
     }
   }
   else {
@@ -568,9 +564,6 @@ static void sequence_calculate_visible_lines(const BtMainPageSequence *self) {
 
   if(self->priv->sequence_length<sequence_length) {
     self->priv->sequence_length=sequence_length;
-  }
-  if(self->priv->row_filter_pos<sequence_length) {
-    self->priv->row_filter_pos=sequence_length;
   }
 
   visible_rows=sequence_length/self->priv->bars;
@@ -693,10 +686,6 @@ static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer us
       if(self->priv->main_window) {
         // add local commands
         gtk_window_add_accel_group(GTK_WINDOW(self->priv->main_window),self->priv->accel_group);
-#if !GTK_CHECK_VERSION(2,12,0)
-        // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
-        g_signal_emit_by_name(self->priv->main_window, "keys-changed", 0);
-#endif
       }
     }
   }
@@ -1209,7 +1198,7 @@ static void sequence_table_refresh_labels(const BtMainPageSequence *self) {
 
   for(i=0;i<self->priv->sequence_length;i++) {
     pos_str=sequence_format_positions(self,i);
-    if( i < timeline_ct ) {
+    if(i<timeline_ct) {
       // set label
       str=bt_sequence_get_label(self->priv->sequence,i);
       if(BT_IS_STRING(str)) {
@@ -2046,17 +2035,17 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
   if(column && path) {
     if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&cursor_column,&cursor_row)) {
-      gulong lastbar,lastcolumn;
+      gulong last_line,last_bar,last_column;
 
       columns=gtk_tree_view_get_columns(self->priv->sequence_table);
-      lastcolumn=g_list_length(columns)-2;
+      last_column=g_list_length(columns)-2;
       g_list_free(columns);
 
       GST_INFO("new row = %3lu <-> old row = %3ld",cursor_row,self->priv->cursor_row);
       self->priv->cursor_row=cursor_row;
 
-      if(cursor_column>lastcolumn) {
-        cursor_column=lastcolumn;
+      if(cursor_column>last_column) {
+        cursor_column=last_column;
         sequence_view_set_cursor_pos(self);
       }
 
@@ -2068,26 +2057,23 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       GST_INFO("cursor has changed: %3ld,%3ld",self->priv->cursor_column,self->priv->cursor_row);
 
       // calculate the last visible row from step-filter and scroll-filter
-      lastbar=(self->priv->row_filter_pos-1)-((self->priv->row_filter_pos-1)%self->priv->bars);
+      last_line=self->priv->sequence_length-1;
+      last_bar=last_line-(last_line%self->priv->bars);
 
       // do we need to extend sequence?
-      if( cursor_row >= lastbar ) {
+      if(cursor_row>=last_bar) {
         GtkTreeModelFilter *filtered_store;
+        BtSong *song;
 
-        self->priv->row_filter_pos += self->priv->bars;
-        if( self->priv->row_filter_pos > self->priv->sequence_length ) {
-          BtSong *song;
+        g_object_get(self->priv->app,"song",&song,NULL);
 
-          g_object_get(self->priv->app,"song",&song,NULL);
+        self->priv->sequence_length+=self->priv->bars;
+        sequence_table_refresh(self,song);
+        sequence_model_recolorize(self);
+        // this got invalidated by _refresh()
+        column=gtk_tree_view_get_column(self->priv->sequence_table,cursor_column);
 
-          self->priv->sequence_length+=self->priv->bars;
-          sequence_table_refresh(self,song);
-          sequence_model_recolorize(self);
-          // this got invalidated by _refresh()
-          column=gtk_tree_view_get_column(self->priv->sequence_table,cursor_column);
-
-          g_object_unref(song);
-        }
+        g_object_unref(song);
 
         if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
           gtk_tree_model_filter_refilter(filtered_store);
@@ -2182,30 +2168,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
       gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     }
     else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
-      // work around http://bugzilla.gnome.org/show_bug.cgi?id=371756
-#if GTK_CHECK_VERSION(2,10,0) && !GTK_CHECK_VERSION(2,10,7)
-      gboolean changed=FALSE;
-
-      switch(event->keyval) {
-        case GDK_Up:
-          if(self->priv->cursor_row>0) {
-            self->priv->cursor_row-=self->priv->bars;
-            changed=TRUE;
-          }
-          break;
-        case GDK_Down:
-          // we expand length
-          //if(self->priv->cursor_row<self->priv->sequence_length) {
-            self->priv->cursor_row+=self->priv->bars;
-            changed=TRUE;
-          //}
-          break;
-      }
-      if(changed) {
-        sequence_view_set_cursor_pos(self);
-      }
-#endif
-
       if(modifier==GDK_SHIFT_MASK) {
         gboolean select=FALSE;
 
@@ -2214,11 +2176,9 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         // handle selection
         switch(event->keyval) {
           case GDK_Up:
-            if((self->priv->cursor_row>=0)
-#if GTK_CHECK_VERSION(2,10,0) && !GTK_CHECK_VERSION(2,10,7)
-              && changed
-#endif
-              ) {
+            if((self->priv->cursor_row>=0)) {
+              self->priv->cursor_row-=self->priv->bars;
+              sequence_view_set_cursor_pos(self);
               GST_INFO("up   : %3ld,%3ld -> %3ld,%3ld @ %3ld,%3ld",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
               if(self->priv->selection_start_row==-1) {
                 GST_INFO("up   : new selection");
@@ -2243,6 +2203,8 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
             break;
           case GDK_Down:
             /* we expand length */
+            self->priv->cursor_row+=self->priv->bars;
+            sequence_view_set_cursor_pos(self);
             GST_INFO("down : %3ld,%3ld -> %3ld,%3ld @ %3ld,%3ld",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
             if(self->priv->selection_end_row==-1) {
               GST_INFO("down : new selection");
@@ -2804,7 +2766,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(song,"song-info",&song_info,"setup",&setup,"sequence",&self->priv->sequence,"bin", &bin,NULL);
   g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
   // make sequence_length and step_filter_pos accord to song length
-  self->priv->sequence_length=self->priv->row_filter_pos=sequence_length;
+  self->priv->sequence_length=sequence_length;
 
   // reset vu-meter hash (rebuilt below)
   if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
@@ -3659,7 +3621,6 @@ static void bt_main_page_sequence_init(BtMainPageSequence *self) {
   self->priv->selection_start_row=-1;
   self->priv->selection_end_column=-1;
   self->priv->selection_end_row=-1;
-  self->priv->row_filter_pos=self->priv->bars;
   self->priv->sequence_length=self->priv->bars;
 
   self->priv->lock=g_mutex_new();

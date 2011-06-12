@@ -1107,9 +1107,6 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   GtkWidget *tool_item;
   GtkWidget *scrolled_window;
   GtkCellRenderer *renderer;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
   GEnumClass *enum_class;
   GEnumValue *enum_value;
   guint i;

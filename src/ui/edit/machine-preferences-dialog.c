@@ -261,9 +261,6 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
   GstElement *machine;
   GParamSpec **properties,*property;
   guint i,k,props,number_of_properties;
-#if !GTK_CHECK_VERSION(2,12,0)
-  GtkTooltips *tips=gtk_tooltips_new();
-#endif
 
   gtk_widget_set_name(GTK_WIDGET(self),"machine preferences");
 

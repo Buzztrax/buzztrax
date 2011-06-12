@@ -1,5 +1,26 @@
 2011-06-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/tools.h:
+	  Bump gtk+ (2.10.12) requiremtns, remove backwards compat defines and
+	  fallback code.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Also remove fallback code. Simplify the sequence expasion code and get
+	  rid of one obscure extra state.
+
+2011-06-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/main-page-sequence.c:

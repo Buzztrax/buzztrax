@@ -81,7 +81,6 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   bt_main_window_open_song(self->priv->main_window);
 }
 
-#if GTK_CHECK_VERSION(2,10,0)
 static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   GtkRecentInfo *info;
@@ -109,7 +108,6 @@ static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user
   }
   g_free(file_name);
 }
-#endif
 
 static void on_menu_save_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
@@ -404,7 +402,6 @@ static void on_menu_view_tabs_toggled(GtkMenuItem *menuitem,gpointer user_data) 
   g_object_unref(settings);
 }
 
-#if GTK_CHECK_VERSION(2,8,0)
 static void on_menu_fullscreen_toggled(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   gboolean fullscreen;
@@ -424,7 +421,6 @@ static void on_menu_fullscreen_toggled(GtkMenuItem *menuitem,gpointer user_data)
     gtk_window_unfullscreen(GTK_WINDOW(self->priv->main_window));
   }
 }
-#endif
 
 static void on_menu_goto_machine_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
@@ -689,6 +685,10 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gboolean toolbar_hide,statusbar_hide,tabs_hide;
   GtkAccelGroup *accel_group=bt_ui_resources_get_accel_group();
   GtkSettings *gtk_settings;
+  GtkRecentFilter *filter=gtk_recent_filter_new();
+  const GList *plugins, *node;
+  BtSongIOModuleInfo *info;
+  guint ix;
 
   // disable F10 keybinding to activate the menu
   gtk_settings=gtk_settings_get_for_screen(gdk_screen_get_default());
@@ -719,7 +719,6 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_open_activate),(gpointer)self);
 
-#if GTK_CHECK_VERSION(2,10,0)
   subitem = gtk_menu_item_new_with_mnemonic (_("_Recently used"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 
@@ -727,29 +726,22 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(subitem),item);
   g_signal_connect (item, "item-activated", G_CALLBACK (on_menu_open_recent_activate), (gpointer)self);
 
-  {
-    GtkRecentFilter *filter=gtk_recent_filter_new();
-    const GList *plugins, *node;
-    BtSongIOModuleInfo *info;
-    guint ix;
-
-    //gtk_recent_filter_add_application (filter, "buzztard-edit");
-
-    // set filters
-    plugins=bt_song_io_get_module_info_list();
-    for(node=plugins;node;node=g_list_next(node)) {
-      info=(BtSongIOModuleInfo *)node->data;
-      ix=0;
-      while(info->formats[ix].name) {
-        gtk_recent_filter_add_mime_type(filter,info->formats[ix].mime_type);
-        ix++;
-      }
+  //gtk_recent_filter_add_application (filter, "buzztard-edit");
+  // set filters
+  plugins=bt_song_io_get_module_info_list();
+  for(node=plugins;node;node=g_list_next(node)) {
+    info=(BtSongIOModuleInfo *)node->data;
+    ix=0;
+    while(info->formats[ix].name) {
+      gtk_recent_filter_add_mime_type(filter,info->formats[ix].mime_type);
+      ix++;
     }
-    /* workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236 */
-    gtk_recent_filter_add_pattern(filter,"*.xml");
-    gtk_recent_chooser_add_filter(GTK_RECENT_CHOOSER(item),filter);
-    gtk_recent_chooser_set_filter(GTK_RECENT_CHOOSER(item),filter);
   }
+#if 1
+  /* FIXME: workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236 */
+  gtk_recent_filter_add_pattern(filter,"*.xml");
+  gtk_recent_chooser_add_filter(GTK_RECENT_CHOOSER(item),filter);
+  gtk_recent_chooser_set_filter(GTK_RECENT_CHOOSER(item),filter);
 #endif
 
   gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
@@ -863,13 +855,11 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   /* @todo 'Machine properties' show/hide toggle */
   /* @todo 'Analyzer windows' show/hide toggle */
 
-#if GTK_CHECK_VERSION(2,8,0)
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Fullscreen"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/FullScreen");
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/FullScreen", GDK_F11, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"toggled",G_CALLBACK(on_menu_fullscreen_toggled),(gpointer)self);
-#endif
 
   gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 

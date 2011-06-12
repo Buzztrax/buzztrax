@@ -44,19 +44,6 @@ extern void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri);
 
 /* gtk+ compatibillity */
 
-#if !GTK_CHECK_VERSION(2,12,0)
-
-#define gtk_widget_set_tooltip_text(widget,text) \
-    gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,text,NULL)
-
-#define gtk_tool_item_set_tooltip_text(widget,text) \
-    gtk_tool_item_set_tooltip(widget,GTK_TOOLTIPS(tips),text,NULL)
-
-#define gtk_menu_tool_button_set_arrow_tooltip_text(widget,text) \
-    gtk_menu_tool_button_set_arrow_tooltip(widget,GTK_TOOLTIPS(tips),text,NULL)
-    
-#endif
-
 #if !GTK_CHECK_VERSION(2,14,0)
 
 #define gtk_dialog_get_content_area(dialog) (dialog->vbox)

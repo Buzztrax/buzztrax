@@ -251,7 +251,7 @@ PKG_CHECK_MODULES(BASE_DEPS, \
 # gstreamer-app-0.10 >= 0.10.22
 
 PKG_CHECK_MODULES(GUI_DEPS, \
-  gtk+-2.0 >= 2.6.0 \
+  gtk+-2.0 >= 2.12.0 \
   libgnomecanvas-2.0 \
 )
 # still the pixbuf loader should have svg support
