@@ -78,7 +78,7 @@ BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
 	     --pkg-export libbuzztard-ic \
 	     --add-init-section="btic_init(NULL,NULL);" \
 	     --output $@ \
-	     $(gir_sources)
+	     $(gir_sources) || touch $@
 BUILT_GIRSOURCES = BuzztardIc-0.0.gir
 
 girdir = $(datadir)/gir
@@ -93,7 +93,7 @@ clean-gir:
 	@rm -fr $(BUILT_GIRSOURCES)
 
 .gir.typelib:
-	-$(AM_V_GEN)$(G_IR_COMPILER) --includedir=. $(G_IR_COMPILER_OPTS) $< -o $@
+	-$(AM_V_GEN)$(G_IR_COMPILER) --includedir=. $(G_IR_COMPILER_OPTS) $< -o $@  || touch $@
 else
 BUILT_GIRSOURCES=
 endif

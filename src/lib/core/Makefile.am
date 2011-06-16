@@ -114,7 +114,7 @@ BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
 	     --pkg-export libbuzztard-core \
 	     --add-init-section="bt_init(NULL,NULL);" \
 	     --output $@ \
-	     $(gir_sources)
+	     $(gir_sources) || touch $@
 BUILT_GIRSOURCES = BuzztardCore-0.0.gir
 
 girdir = $(datadir)/gir
@@ -129,7 +129,7 @@ clean-gir:
 	@rm -fr $(BUILT_GIRSOURCES)
 
 .gir.typelib:
-	-$(AM_V_GEN)$(G_IR_COMPILER) --includedir=. --includedir=../ic $(G_IR_COMPILER_OPTS) $< -o $@
+	-$(AM_V_GEN)$(G_IR_COMPILER) --includedir=. --includedir=../ic $(G_IR_COMPILER_OPTS) $< -o $@ || touch $@
 else
 BUILT_GIRSOURCES=
 endif

@@ -1,3 +1,10 @@
+2011-06-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  Make the build succedd with missing too old gobject introspections, by
+	  touching the files.
+
 2011-06-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:
