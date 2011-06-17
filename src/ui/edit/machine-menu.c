@@ -103,15 +103,31 @@ static gboolean bt_machine_menu_check_pads(const GList *pads) {
   return TRUE;
 }
 
+static int blacklist_compare(const void *node1, const void *node2) {
+  //GST_DEBUG("comparing '%s' '%s'",*(gchar**)node1,*(gchar**)node2);
+  return (strcasecmp(*(gchar **)node1,*(gchar**)node2));
+}
+
 static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *submenu, const gchar *root, GCallback handler) {
   GtkWidget *menu_item,*parentmenu;
   GList *node,*element_names;
   GstElementFactory *factory;
   GstPluginFeature *loaded_feature;
   GHashTable *parent_menu_hash;
-  const gchar *klass_name,*menu_name,*plugin_name;
+  const gchar *klass_name,*menu_name,*plugin_name,*factory_name;
   GType type;
   gboolean have_submenu;
+
+  /* list known gstreamer element that are not useful unde buzztard,
+   * but we can't detect otherwise */
+  const gchar *blacklist[] = {
+    "audiorate",
+    "dtmfsrc",
+    "memoryaudiosrc",
+    "rglimiter",
+    "rgvolume",
+    "sfsrc"
+  };
 
   // scan registered sources
   element_names=bt_gst_registry_get_element_names_matching_all_categories(root);
@@ -119,17 +135,24 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
   // sort list by name
   element_names=g_list_sort(element_names,(GCompareFunc)bt_machine_menu_compare);
   for(node=element_names;node;node=g_list_next(node)) {
-    factory=gst_element_factory_find(node->data);
+    factory_name=(const gchar *)node->data;
+    factory=gst_element_factory_find(factory_name);
 
     // skip elements with too many pads
     if(!(bt_machine_menu_check_pads(gst_element_factory_get_static_pad_templates(factory)))) {
-      GST_INFO("skipping uncompatible element : '%s'",(gchar *)node->data);
+      GST_INFO("skipping uncompatible element : '%s'",factory_name);
       goto next;
     }
+
     // @todo: we could also hide elements without controlable parameters,
     // that derive from basesrc, but not from pushsrc
     // this could help to hide "dtmfsrc" and "sfsrc"
     // for this it would be helpful to get a src/sink hint from the previous function
+    // lets simply blacklist for now
+    if(bsearch(&factory_name, blacklist, G_N_ELEMENTS(blacklist), sizeof(gchar *), blacklist_compare)) {
+      GST_INFO("skipping backlisted element : '%s'",factory_name);
+      goto next;
+    }
 
     klass_name=gst_element_factory_get_klass(factory);
     GST_LOG("adding element : '%s' with classification: '%s'",(gchar*)node->data,klass_name);
