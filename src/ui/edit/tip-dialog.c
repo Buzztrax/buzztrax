@@ -52,7 +52,8 @@ static gchar *tips[]={
   N_("You can use input devices such as joysticks, beside midi devices to live control machine parameters."),
   N_("You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."),
   N_("To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."),
-  N_("You can get more help from the community on irc://irc.freenode.net/#buzztard.")
+  N_("You can get more help from the community on irc://irc.freenode.net/#buzztard."),
+  N_("Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column.")
 };
 
 struct _BtTipDialogPrivate {

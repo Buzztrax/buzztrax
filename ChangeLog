@@ -1,5 +1,10 @@
 2011-06-17  Stefan Sauer,,,  <ensonic@users.sf.net>
 
+	* src/ui/edit/tip-dialog.c:
+	  Add another tip.
+
+2011-06-17  Stefan Sauer,,,  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-menu.c:
 	  Add a blacklist filter for known-not-so-useful elements.
 
