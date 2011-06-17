@@ -2090,6 +2090,16 @@ static void bt_machine_get_param_details(const BtMachine * const self, GParamSpe
           if(min_val) g_value_set_uint(*min_val,uint_property->minimum);
           if(max_val) g_value_set_uint(*max_val,uint_property->maximum);
         } break;
+        case G_TYPE_INT64: {
+          const GParamSpecInt64 *int64_property=G_PARAM_SPEC_INT64(property);
+          if(min_val) g_value_set_int64(*min_val,int64_property->minimum);
+          if(max_val) g_value_set_int64(*max_val,int64_property->maximum);
+        } break;
+        case G_TYPE_UINT64: {
+          const GParamSpecUInt64 *uint64_property=G_PARAM_SPEC_UINT64(property);
+          if(min_val) g_value_set_uint64(*min_val,uint64_property->minimum);
+          if(max_val) g_value_set_uint64(*max_val,uint64_property->maximum);
+        } break;
         case G_TYPE_LONG: {
           const GParamSpecLong *long_property=G_PARAM_SPEC_LONG(property);
           if(min_val) g_value_set_long(*min_val,long_property->minimum);
