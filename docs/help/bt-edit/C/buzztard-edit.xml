@@ -483,7 +483,7 @@
       <para>
         In the page toolbar one can select the machine and the pattern for the machine.
         Pattern names in gray color indicated that the pattern is not used in the
-        sequence (thus save to be removed or changed). One can also select the
+        sequence (thus are save to be removed or changed). One can also select the
         base octave for entering notes via keyboard and the sample that should
         be used for wave-table based machines. Those combo boxes work when
         entering new notes, for existing notes one can just edit the respective
@@ -497,10 +497,16 @@
       </para>
       <para>
         To switch to the sequence editor press <keycap>Enter</keycap> while the
-        pattern editor has focus.
+        pattern editor has focus. When moving the cursor around one can see the
+        parameter name and value range in the <link linkend="bt-edit-main-statusbar">statusbar</link>.
+        To enter notes, imagine your pc keyboard as a music keyboard in two rows.
+        Bottom left <keycap>y/z</keycap> key becomes a 'c', <keycap>s</keycap> a 'c#',
+        <keycap>x</keycap> a 'd' and so on. The next octave starts on the upper
+        part of the keyboard with <keycap>q</keycap> being mapped to a 'c' again.  
       </para>
       <para>
-        (FIXME: write about keyboard short cuts)
+        A list of editing shortcuts can be seen on the
+        <ulink uri="http://wiki.buzztard.org/index.php/Keyboard_shortcuts#Pattern_View">wiki</ulink>.
       </para>
     </sect3>
 
@@ -565,6 +571,10 @@
       </para>
       <para>
         (FIXME: special-patterns = {mute, break, solo, bypass})
+      </para>
+      <para>
+        A full list of editing shortcuts can be seen on the
+        <ulink uri="http://wiki.buzztard.org/index.php/Keyboard_shortcuts#Sequence_View">wiki</ulink>.
       </para>
     </sect3>
 
