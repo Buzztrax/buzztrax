@@ -579,7 +579,7 @@ static gchar *sequence_format_positions(const BtMainPageSequence *self,gulong po
 
   switch(self->priv->pos_format) {
     case PATTERN_POS_FORMAT_TICKS:
-      g_snprintf(pos_str,5,"%lu",pos);
+      g_snprintf(pos_str,6,"%5lu",pos);
       break;
     case PATTERN_POS_FORMAT_TIME: {
       gulong msec,sec,min;
@@ -1254,7 +1254,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   col_ct=(SEQUENCE_TABLE_PRE_CT+track_ct);
   store_types=(GType *)g_new(GType,col_ct);
   store_types[SEQUENCE_TABLE_SHADE]=G_TYPE_BOOLEAN;
-  store_types[SEQUENCE_TABLE_POS  ]=G_TYPE_LONG;
+  store_types[SEQUENCE_TABLE_POS  ]=G_TYPE_ULONG;
   for(i=SEQUENCE_TABLE_POSSTR;i<col_ct;i++) {
     store_types[i]=G_TYPE_STRING;
   }
