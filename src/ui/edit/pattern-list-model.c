@@ -79,14 +79,25 @@ static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data) {
   BtPattern *pa=(BtPattern *)a;
   BtPattern *pb=(BtPattern *)b;
   gchar *ida,*idb;
+  gboolean iia,iib;
   gint c;
 
   if(a==b)
     return 0;
 
-  g_object_get(pa,"name",&ida,NULL);
-  g_object_get(pb,"name",&idb,NULL);
-  c=strcmp(ida,idb);
+  g_object_get(pa,"name",&ida,"is-internal",&iia,NULL);
+  g_object_get(pb,"name",&idb,"is-internal",&iib,NULL);
+  if(iia && iib) {
+    BtPatternCmd ca=bt_pattern_get_cmd(pa,0);
+    BtPatternCmd cb=bt_pattern_get_cmd(pb,0);
+    c=(ca<cb)?-1:((ca==cb)?0:1);
+  } else if (iia && !iib) {
+    c=-1;
+  } else if (!iia && iib) {
+    c=1;
+  } else {
+    c=strcmp(ida,idb);
+  }
   GST_LOG("comparing %s <-> %s: %d",ida,idb,c);
   g_free(ida);g_free(idb);
 
