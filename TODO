@@ -29,11 +29,6 @@ $Id$
 * sparse
   make CC=cgcc
 
-* user docs
- * try getting e.g. the shortcuts table from our wiki
-   http://freshmeat.net/projects/wt2db/
-   http://wiki.blender.org/index.php/Meta/DocBook_to_Wiki
-
 * controller api
   * allow to modify interpolation control sequence inplace (scale time or value range)
     - we need a gst_interpolation_control_foreach(cs, callback, user_data)
@@ -43,6 +38,26 @@ $Id$
       - void callback(GstClockTime *timestamp, GValue *value, gpointer user_data);
   * or have a BtPatternControlSource
     - then we never need to update the timeline controller
+    - the individual instances should be relative lightweight and use a central
+      controller for some global state
+      - we want to pre-cache the tracks for each machine to speed up finding the
+        patterns that apply at a given time
+    
+* special patterns
+  - break works as in breaking patterns
+  - mute, solo, bypass don't work at all
+    - the mute-pattern wold need to control the mute-parameter of a machines
+      output-volume (input-volume for master)
+    - solo would be interpreted as mute on all other generators
+    - bypass would need a (controlable) gobject property
+    - break would need to be able to undo mute, solo, bypass
+  - for now we would need to handle the special patterns in bt_sequence_repair_global_damage_entry
+  - we could see if we can make BtMachine::state controlable
+    - we would need a pad-probe to call gst_object_sync()
+    - break would set the BtMachine::state=NORMAL
+    - we need to avoid setting the song to unsaved when controlling BtMachine::state
+    - in sequence.c we need to do handle intern_damage (like global_damage) and we need
+      BtMachine::bt_machine_intern_controller_change_value()
 
 * undo/redo/journaling
   - links

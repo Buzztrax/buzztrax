@@ -1,3 +1,11 @@
+2011-06-20  Stefan Sauer,,,  <ensonic@users.sf.net>
+
+	* TODO:
+	  Planning.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Add shortcut tables. Add a lot of explanations.
+
 2011-06-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

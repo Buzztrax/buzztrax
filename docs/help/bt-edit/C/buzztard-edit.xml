@@ -5,6 +5,7 @@
 %version-entities;
 <!ENTITY app "Buzztard">
 <!ENTITY rrar "&#8594;">
+<!ENTITY nbsp "&#xA0;">
 ]>
 <!--
   (Do not remove this comment block.)
@@ -465,7 +466,10 @@
         events for one machine, that can be reused in the sequence. The vertical
         axis shows ticks (time) and the horizontal axis has the parameters.
         Parameters are organized in groups. There is a group for global settings
-        and groups for each voice if the machine is polyphonic.
+        and groups for each voice if the machine is polyphonic. If the pattern
+        is for an effect or sink (master), then the pattern has a group for each
+        incoming wire. There one can change volume and panning/balance (if
+        applicable).
       </para>
       <figure id="bt-edit-page-pattern-view-fig">
         <title>Pattern view</title>
@@ -496,16 +500,228 @@
         remove voices by using the context menu.
       </para>
       <para>
-        To switch to the sequence editor press <keycap>Enter</keycap> while the
-        pattern editor has focus. When moving the cursor around one can see the
-        parameter name and value range in the <link linkend="bt-edit-main-statusbar">statusbar</link>.
+        When moving the cursor around one can see the parameter name and value
+        range in the <link linkend="bt-edit-main-statusbar">statusbar</link>.
         To enter notes, imagine your pc keyboard as a music keyboard in two rows.
         Bottom left <keycap>y/z</keycap> key becomes a 'c', <keycap>s</keycap> a 'c#',
         <keycap>x</keycap> a 'd' and so on. The next octave starts on the upper
-        part of the keyboard with <keycap>q</keycap> being mapped to a 'c' again.  
+        part of the keyboard with <keycap>q</keycap> being mapped to a 'c' again.
+        Below are tables listing all keyboard shortcuts.
       </para>
+      <table frame="all" id="bt-edit-page-pattern-view-table-nav-keys">
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
+        <title>Pattern navigation keyboard shortcuts</title>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>move cursor</entry>
+              <entry><keycap>arrows</keycap></entry>
+              <entry>moves the cursor one position</entry>
+            </row>
+            <row>
+              <entry>next group</entry>
+              <entry><keycap>tab</keycap></entry>
+              <entry>moves the cursor to the next group (wire, global, voices)</entry>
+            </row>
+            <row>
+              <entry>prev group</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>tab</keycap></keycombo></entry>
+              <entry>moves the cursor to the preious group (wire, global, voices)</entry>
+            </row>
+            <row>
+              <entry>move page</entry>
+              <entry><keycap>page up/down</keycap></entry>
+              <entry>moves the cursor 16 rows up or down</entry>
+            </row>
+            <row>
+              <entry>jump cursor</entry>
+              <entry><keycap>home/end</keycap></entry>
+              <entry>moves the cursor to first/last field in group, then first/last group, then first/last row</entry>
+            </row>
+            <row>
+              <entry>select area</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>arrows</keycap></keycombo></entry>
+              <entry>set and enlarge/shrink the selection</entry>
+            </row>
+            <row>
+              <entry>begin selection</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>b</keycap></keycombo></entry>
+              <entry>sets the upper row of the selection and changes selection mode into one of column, group, full-pattern (press multiple times) relative to the cursor</entry>
+            </row>
+            <row>
+              <entry>end selection</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>e</keycap></keycombo></entry>
+              <entry>sets the lower row of the selection and changes selection mode into one of column, group, full-pattern (press multiple times) relative to the cursor</entry>
+            </row>
+            <row>
+              <entry>select column</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>l</keycap></keycombo></entry>
+              <entry>select the full column the cursor is in</entry>
+            </row>
+            <row>
+              <entry>select group</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>k</keycap></keycombo></entry>
+              <entry>select the full group the cursor is in</entry>
+            </row>
+            <row>
+              <entry>select all</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>a</keycap></keycombo></entry>
+              <entry>select the full pattern</entry>
+            </row>
+            <row>
+              <entry>unselect</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>u</keycap></keycombo></entry>
+              <entry>remove the selection (leaves the data intact)</entry>
+            </row>
+            <row>
+              <entry>stepping</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>1...9</keycap></keycombo></entry>
+              <entry>set how many lines the cursor goes down when editing</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table frame="all" id="bt-edit-page-pattern-view-table-edit-keys">
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
+        <title>Pattern editing keyboard shortcuts</title>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>enter notes</entry>
+              <entry><keycap><screen>   s d   g h j
+y/z x c v b n m</screen></keycap></entry>
+              <entry>notes from the base octave</entry>
+            </row>
+            <row>
+              <entry>enter notes</entry>
+              <entry><keycap><screen> 2 3   5 6   7
+q w e r t z/y u</screen></keycap></entry>
+              <entry>notes from one octave above the base octave</entry>
+            </row>
+            <row>
+              <entry>enter notes</entry>
+              <entry><keycap><screen> 9 0
+i o p</screen></keycap></entry>
+              <entry>notes from two octaves above the base octave</entry>
+            </row>
+            <row>
+              <entry>clear value</entry>
+              <entry><keycap>. (period)</keycap></entry>
+              <entry>clears the field under the cursor</entry>
+            </row>
+            <row>
+              <entry>delete column</entry>
+              <entry><keycap>delete</keycap></entry>
+              <entry>deletes the row at the cursor for the current column (move entries below up)</entry>
+            </row>
+            <row>
+              <entry>insert column</entry>
+              <entry><keycap>insert</keycap></entry>
+              <entry>insert a black row at the cursor for the current column (move entries below down)</entry>
+            </row>
+            <row>
+              <entry>delete group</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>delete</keycap></keycombo></entry>
+              <entry>deletes the row at the cursor for the current group (move entries below up)</entry>
+            </row>
+            <row>
+              <entry>insert group</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>insert</keycap></keycombo></entry>
+              <entry>insert a black row at the cursor for the current group (move entries below down)</entry>
+            </row>
+            <row>
+              <entry>delete full row</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>shift</keycap><keycap>delete</keycap></keycombo></entry>
+              <entry>deletes the row at the cursor for the whole pattern (move entries below up)</entry>
+            </row>
+            <row>
+              <entry>insert full row</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>shift</keycap><keycap>insert</keycap></keycombo></entry>
+              <entry>insert a black row at the cursor for the whole pattern (move entries below down)</entry>
+            </row>
+            <row>
+              <entry>flip</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>f</keycap></keycombo></entry>
+              <entry>turns the values in the selected range upside down</entry>
+            </row>
+            <row>
+              <entry>interpolate</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>i</keycap></keycombo></entry>
+              <entry>enters values into the selected range that linearilly blend from the start to the end value</entry>
+            </row>
+            <row>
+              <entry>randomize</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>r</keycap></keycombo></entry>
+              <entry>enters random values into the selected range</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table frame="all" id="bt-edit-page-pattern-view-table-action-keys">
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
+        <title>Pattern action keyboard shortcuts</title>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>sequence editor</entry>
+              <entry><keycap>return</keycap></entry>
+              <entry>go to sequence editor</entry>
+            </row>
+            <row>
+              <entry>select machine</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>up,down (arrow)</keycap></keycombo></entry>
+              <entry>select current machine</entry>
+            </row>
+            <row>
+              <entry>select pattern</entry>
+              <entry><keycap>+,- (keypad)</keycap></entry>
+              <entry>select current pattern</entry>
+            </row>
+            <row>
+              <entry>select wave</entry>
+              <entry><keycap>&lt;,&gt;</keycap></entry>
+              <entry>select current wave</entry>
+            </row>
+            <row>
+              <entry>switch base ocate</entry>
+              <entry><keycap>*,/ (keypad)</keycap></entry>
+              <entry>lower/raise the base octave</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
       <para>
-        A list of editing shortcuts can be seen on the
+        A list of keyboard shortcuts can also be seen on the
         <ulink uri="http://wiki.buzztard.org/index.php/Keyboard_shortcuts#Pattern_View">wiki</ulink>.
       </para>
     </sect3>
@@ -514,7 +730,9 @@
       <title id="bt-edit-main-view-sequence.title">The sequence view of a song</title>
       <para>
         A song consists of several tracks (columns), where in each track patterns
-        are played. The rows are time slots.
+        are played. There can be several tracks for the same machine. 
+        The rows are time slots. The labels can show the time in different
+        formats suchs as ticks and time.
       </para>
       <figure id="bt-edit-page-sequence-view-fig">
         <title>Sequence view</title>
@@ -535,15 +753,70 @@
         sink) and a level-meter.
       </para>
       <para>
+        The context menu allow to add or remove tracks, move tracks left or
+        right and open the machine <link linkend="bt-edit-dialog-machine-properties">properties</link>/
+        <link linkend="bt-edit-dialog-machine-preferences">preferences</link> for the current track.
+        For new generators a track is added automatically.
+      </para>
+      <para>
         One can navigate around using cursor keys. When changing tracks, the
         list of patterns on the right is updated to show the patterns for the
         current machine. Again gray pattern label color indicates that the
         pattern is not in use.
         Patterns can be entered into tracks by pressing the associated key
-        (shown left to the pattern name in the list).
-        To switch to the pattern editor with the pattern the cursor is over selected,
-        press <keycap>Enter</keycap>.
+        (shown left to the pattern name in the list). A new pattern always
+        interrupts a previous one, that is if there is a 32 tick long pattern
+        '00' at row 0 and and a pattern '01' at row 16, then only the first 16
+        ticks of pattern '00' will be played. In addition patterns further to
+        the right shadow patterns to the left (only the filled parameters are
+        overlayed). Why is that useful? One can have multiple tracks for the
+        same machine and then on-the-fly combine patterns.
+        To give an example, for a synthesizer one can have patterns with the
+        melodies and patterns with filter sweeps. Then one can use the filter
+        sweep patterns with the melody patterns.
       </para>
+      <para>
+        The pattern list always contains a few special patterns. Depending on
+        the machine type, there are break, mute, solo, bypass.
+      </para>
+      <table frame="all" id="bt-edit-page-sequence-view-table-special-patterns">
+        <indexterm><primary>special patterns</primary></indexterm>
+        <title>Special patterns</title>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="p" />
+          <colspec colname="m" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>pattern</entry>
+              <entry>machine type</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>break</entry>
+              <entry>all</entry>
+              <entry>stop the pattern above, can be used to reuse a long pattern and cut it off at some point and to undo the special patterns below</entry>
+            </row>
+            <row>
+              <entry>mute</entry>
+              <entry>all</entry>
+              <entry>silence the output, this is simillar to break, but would cut-off any sound immediately, use a break pattern to unmute</entry>
+            </row>
+            <row>
+              <entry>bypass</entry>
+              <entry>effects</entry>
+              <entry>stop applying the effect, use a break pattern to enable again</entry>
+            </row>
+            <row>
+              <entry>solo</entry>
+              <entry>generators</entry>
+              <entry>play only this generator, use a break pattern to enable the other generators again</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>      
       <para>
         To set play position click with left-mouse button in the first column at the
         desired time location. To modify the loop start/end instead hold down
@@ -569,11 +842,122 @@
         remove a full row. To only insert or remove inside the current track
         hold the <keycap>Shift</keycap> key in addition.
       </para>
+      <table frame="all" id="bt-edit-page-sequence-view-table-nav-keys">
+        <indexterm><primary>sequence view shortcuts</primary></indexterm>
+        <title>Sequence navigation keyboard shortcuts</title>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>move cursor</entry>
+              <entry><keycap>arrows</keycap></entry>
+              <entry>moves the cursor one position</entry>
+            </row>
+            <row>
+              <entry>move page</entry>
+              <entry><keycap>page up/down</keycap></entry>
+              <entry>moves the cursor a screen-page up or down</entry>
+            </row>
+            <row>
+              <entry>jump cursor</entry>
+              <entry><keycap>home/end</keycap></entry>
+              <entry>moves the cursor to first/last row</entry>
+            </row>
+            <row>
+              <entry>set loop start</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>b</keycap></keycombo></entry>
+              <entry>sets the begin of the loop region</entry>
+            </row>
+            <row>
+              <entry>set loop/song end</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>e</keycap></keycombo></entry>
+              <entry>sets the end of the loop region or end of song (press again)</entry>
+            </row>
+            <row>
+              <entry>select area</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>arrows</keycap></keycombo></entry>
+              <entry>set and enlarge/shrink the selection</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table frame="all" id="bt-edit-page-pattern-view-table-edit-keys">
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
+        <title>Pattern editing keyboard shortcuts</title>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>clear value</entry>
+              <entry><keycap>. (period)</keycap></entry>
+              <entry>clears the pattern under the cursor</entry>
+            </row>
+            <row>
+              <entry>delete track</entry>
+              <entry><keycap>delete</keycap></entry>
+              <entry>deletes the row at the cursor for the current track (move entries below up)</entry>
+            </row>
+            <row>
+              <entry>insert track</entry>
+              <entry><keycap>insert</keycap></entry>
+              <entry>insert a black row at the cursor for the current track (move entries below down)</entry>
+            </row>
+            <row>
+              <entry>delete full row</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>delete</keycap></keycombo></entry>
+              <entry>deletes the row at the cursor for the whole sequence (move entries below up)</entry>
+            </row>
+            <row>
+              <entry>insert full row</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>insert</keycap></keycombo></entry>
+              <entry>insert a black row at the cursor for the whole sequence (move entries below down)</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table frame="all" id="bt-edit-page-pattern-view-table-action-keys">
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
+        <title>Pattern action keyboard shortcuts</title>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>pattern editor</entry>
+              <entry><keycap>return</keycap></entry>
+              <entry>go to sequence editor</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
       <para>
-        (FIXME: special-patterns = {mute, break, solo, bypass})
-      </para>
-      <para>
-        A full list of editing shortcuts can be seen on the
+        A full list of keyboard shortcuts can also be seen on the
         <ulink uri="http://wiki.buzztard.org/index.php/Keyboard_shortcuts#Sequence_View">wiki</ulink>.
       </para>
     </sect3>
@@ -612,7 +996,7 @@
       </para>
       <para>
         Samples can be found on the internet, brought from companies offering
-        sample collections or self-recorded.
+        sample collections (as CD/DVD sets) or recorded yourself.
       </para>
     </sect3>
 
@@ -622,6 +1006,8 @@
         This page allows you to change song parameters, such as speed and
         timing resolutions and to enter information about the song.
         The meta data will be used for the tags when creating a final mix-down.
+        The tags show up in your desktop media player or portable media player.
+        While the fileds are not mandatory, it is a good idea to fill them.
       </para>
       <figure id="bt-edit-page-info-view-fig">
         <title>Info view</title>
@@ -637,7 +1023,6 @@
         </screenshot>
       </figure>
     </sect3>
-
   </sect2>
 
   <sect2 id="bt-edit-main-statusbar">
@@ -745,7 +1130,8 @@
       <title id="bt-edit-prefs-interaction-controller.title">Interaction controller settings</title>
 
       <para>
-        Interactive controller for machine parameters.
+        Interactive controller for machine parameters. There are actually no
+        settings here right now. It just shows the available devices.
         (FIXME: no settings yet)
       </para>
       <figure id="bt-edit-settings-ic-fig">
@@ -767,7 +1153,7 @@
       <title id="bt-edit-prefs-colors.title">Color settings</title>
 
       <para>
-        (FIXME:)
+        (FIXME: no theme settings yet)
       </para>
       <figure id="bt-edit-settings-colors-fig">
         <title>Colors settings</title>
@@ -788,7 +1174,7 @@
       <title id="bt-edit-prefs-shortcuts.title">Shortcut settings</title>
 
       <para>
-        (FIXME:)
+        (FIXME: no shortcut settings yet)
       </para>
       <figure id="bt-edit-settings-shortcuts-fig">
         <title>Shortcut settings</title>
@@ -1139,14 +1525,16 @@
     <title id="bt-edit-reference-shortcuts.title">Keyboard shortcuts</title>
 
     <para>
-      Currently keyboard shortcuts are listed on
-      <ulink url="http://www.buzztard.org/index.php/Keyboard_shortcuts">the buzztard wiki</ulink>.
-      (FIXME:)
+      A complete list of keyboard shortcuts is listed on
+      <ulink url="http://wiki.buzztard.org/index.php/Keyboard_shortcuts">the buzztard wiki</ulink>.
+      Each of <link linkend="bt-edit-main-views" endterm="bt-edit-main-views.title" /> 
+      has a table describing the local keyboard shortcuts.
     </para>
   </sect2>
 <!--
 @todo:
   list of warnings/errors?
+  trouble shooting
 -->
 </sect1>
 
