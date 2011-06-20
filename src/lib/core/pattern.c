@@ -109,11 +109,13 @@ struct _BtPatternPrivate {
 
 static guint signals[LAST_SIGNAL]={0,};
 
-/* @todo we need more params:
- * - the machine state (BtMachineState: normal, mute, solo, bypass)
- * - the input and output gain (is now in wirepattern)
+/* Internal parameters:
+ * - BtPatternCmd
+ * @todo we need more params:
+ * - BtMachineState
+ *   - the machine state (BtMachineState: normal, mute, solo, bypass)
  */
-static gulong internal_params=1;
+static const gulong internal_params=1;
 
 //-- the class
 
