@@ -1705,6 +1705,13 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine * const self, const 
 
   if(!BT_IS_GVALUE(&self->priv->voice_no_val[index])) return(FALSE);
 
+  /*
+  GST_WARNING("%s <-> %s",g_strdup_value_contents(&self->priv->voice_no_val[index]),g_strdup_value_contents(value));
+  with bml-Jeskola-Noise we end up with:
+    ((GstBtTriggerSwitch) EMPTY) <-> ((GstBtTriggerSwitch) 2)
+  where '2' is invalid
+  */
+
   if(gst_value_compare(&self->priv->voice_no_val[index],value)==GST_VALUE_EQUAL) {
     return(TRUE);
   }
@@ -2054,6 +2061,13 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine * const self, const
   return(VOICE_PARAM_NAME(index));
 }
 
+#define _DETAILS(t,T,p)                                                        \
+	case G_TYPE_ ## T: {                                                         \
+		const GParamSpec ## p *p=G_PARAM_SPEC_ ## T(property);                     \
+		if(min_val) g_value_set_ ## t(*min_val,p->minimum);                        \
+		if(max_val) g_value_set_ ## t(*max_val,p->maximum);                        \
+	} break;
+
 static void bt_machine_get_param_details(const BtMachine * const self, GParamSpec *property, GValue **min_val, GValue **max_val) {
   gboolean done=FALSE;
 
@@ -2076,50 +2090,18 @@ static void bt_machine_get_param_details(const BtMachine * const self, GParamSpe
       if(min_val) g_value_init(*min_val,property->value_type);
       if(max_val) g_value_init(*max_val,property->value_type);
       switch(base_type) {
+      	_DETAILS(int,INT,Int)
+      	_DETAILS(uint,UINT,UInt)
+      	_DETAILS(int64,INT64,Int64)
+      	_DETAILS(uint64,UINT64,UInt64)
+      	_DETAILS(long,LONG,Long)
+      	_DETAILS(ulong,ULONG,ULong)
+      	_DETAILS(float,FLOAT,Float)
+      	_DETAILS(double,DOUBLE,Double)
         case G_TYPE_BOOLEAN:
           if(min_val) g_value_set_boolean(*min_val,0);
           if(max_val) g_value_set_boolean(*max_val,0);
         break;
-        case G_TYPE_INT: {
-          const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-          if(min_val) g_value_set_int(*min_val,int_property->minimum);
-          if(max_val) g_value_set_int(*max_val,int_property->maximum);
-        } break;
-        case G_TYPE_UINT: {
-          const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-          if(min_val) g_value_set_uint(*min_val,uint_property->minimum);
-          if(max_val) g_value_set_uint(*max_val,uint_property->maximum);
-        } break;
-        case G_TYPE_INT64: {
-          const GParamSpecInt64 *int64_property=G_PARAM_SPEC_INT64(property);
-          if(min_val) g_value_set_int64(*min_val,int64_property->minimum);
-          if(max_val) g_value_set_int64(*max_val,int64_property->maximum);
-        } break;
-        case G_TYPE_UINT64: {
-          const GParamSpecUInt64 *uint64_property=G_PARAM_SPEC_UINT64(property);
-          if(min_val) g_value_set_uint64(*min_val,uint64_property->minimum);
-          if(max_val) g_value_set_uint64(*max_val,uint64_property->maximum);
-        } break;
-        case G_TYPE_LONG: {
-          const GParamSpecLong *long_property=G_PARAM_SPEC_LONG(property);
-          if(min_val) g_value_set_long(*min_val,long_property->minimum);
-          if(max_val) g_value_set_long(*max_val,long_property->maximum);
-        } break;
-        case G_TYPE_ULONG: {
-          const GParamSpecULong *ulong_property=G_PARAM_SPEC_ULONG(property);
-          if(min_val) g_value_set_ulong(*min_val,ulong_property->minimum);
-          if(max_val) g_value_set_ulong(*max_val,ulong_property->maximum);
-        } break;
-        case G_TYPE_FLOAT: {
-          const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
-          if(min_val) g_value_set_float(*min_val,float_property->minimum);
-          if(max_val) g_value_set_float(*max_val,float_property->maximum);
-        } break;
-        case G_TYPE_DOUBLE: {
-          const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
-          if(min_val) g_value_set_double(*min_val,double_property->minimum);
-          if(max_val) g_value_set_double(*max_val,double_property->maximum);
-        } break;
         case G_TYPE_ENUM: {
           const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
           const GEnumClass *enum_class=enum_property->enum_class;
@@ -2542,30 +2524,25 @@ static void on_boolean_control_notify(const BtIcControl *control,GParamSpec *arg
   g_object_set(data->object,data->pspec->name,value,NULL);
 }
 
-static void on_uint_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
-  BtControlData *data=(BtControlData *)(user_data);
-  GParamSpecUInt *pspec=(GParamSpecUInt *)data->pspec;
-  glong svalue,min,max;
-  guint dvalue;
-
-  g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
-  dvalue=pspec->minimum+(guint)((svalue-min)*((gdouble)(pspec->maximum-pspec->minimum)/(gdouble)(max-min)));
-  dvalue=CLAMP(dvalue,pspec->minimum,pspec->maximum);
-  g_object_set(data->object,data->pspec->name,dvalue,NULL);
+#define ON_CONTROL_NOTIFY(t,T) \
+static void on_## t ##_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) { \
+  BtControlData *data=(BtControlData *)(user_data);                                                    \
+  GParamSpec ## T *p=(GParamSpec ## T *)data->pspec;                                                   \
+  glong svalue,min,max;                                                                                \
+  g ## t dvalue;                                                                                       \
+                                                                                                       \
+  g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);                  \
+  dvalue=p->minimum+(g ## t)((svalue-min)*((gdouble)(p->maximum-p->minimum)/(gdouble)(max-min)));      \
+  dvalue=CLAMP(dvalue,p->minimum,p->maximum);                                                          \
+  g_object_set(data->object,((GParamSpec *)p)->name,dvalue,NULL);                                      \
 }
 
-static void on_double_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
-  BtControlData *data=(BtControlData *)(user_data);
-  GParamSpecDouble *pspec=(GParamSpecDouble *)data->pspec;
-  glong svalue,min,max;
-  gdouble dvalue;
-
-  g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
-  dvalue=pspec->minimum+((svalue-min)*((pspec->maximum-pspec->minimum)/(gdouble)(max-min)));
-  dvalue=CLAMP(dvalue,pspec->minimum,pspec->maximum);
-  //GST_INFO("setting %s value %lf",data->pspec->name,dvalue);
-  g_object_set(data->object,data->pspec->name,dvalue,NULL);
-}
+ON_CONTROL_NOTIFY(int,Int)
+ON_CONTROL_NOTIFY(uint,UInt)
+ON_CONTROL_NOTIFY(int64,Int64)
+ON_CONTROL_NOTIFY(uint64,UInt64)
+ON_CONTROL_NOTIFY(float,Float)
+ON_CONTROL_NOTIFY(double,Double)
 
 /**
  * bt_machine_bind_parameter_control:
@@ -2614,8 +2591,20 @@ void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *
     case G_TYPE_BOOLEAN:
       data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_boolean_control_notify),(gpointer)data);
       break;
+    case G_TYPE_INT:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_int_control_notify),(gpointer)data);
+      break;
     case G_TYPE_UINT:
       data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_uint_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_INT64:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_int64_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_UINT64:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_uint64_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_FLOAT:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_float_control_notify),(gpointer)data);
       break;
     case G_TYPE_DOUBLE:
       data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_double_control_notify),(gpointer)data);
@@ -2657,72 +2646,40 @@ void bt_machine_unbind_parameter_controls(const BtMachine * const self) {
 
 //-- settings
 
+#define _RANDOMIZE(t,T,p)                                                      \
+	case G_TYPE_ ## T:{                                                          \
+		const GParamSpec ## p *p=G_PARAM_SPEC_ ## T(property);                     \
+		g_object_set(self,n,(g ## t)(p->minimum+((p->maximum-p->minimum)*rnd)),NULL); \
+	} break;
+
 static void
 bt_g_object_randomize_parameter(GObject *self, GParamSpec *property) {
-  gdouble rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+  gdouble rnd=((gdouble)rand())/(RAND_MAX+1.0);
+  const gchar *n=property->name;
 
-  GST_DEBUG ("set random value for property: %s (type is %s)", property->name,
-      G_PARAM_SPEC_TYPE_NAME (property));
+  GST_DEBUG("set random value for property: %s (type is %s)",n,G_PARAM_SPEC_TYPE_NAME(property));
 
   switch (bt_g_type_get_base_type(property->value_type)) {
+  	_RANDOMIZE(int,INT,Int)
+  	_RANDOMIZE(uint,UINT,UInt)
+  	_RANDOMIZE(int64,INT64,Int64)
+  	_RANDOMIZE(uint64,UINT64,UInt64)
+  	_RANDOMIZE(long,LONG,Long)
+  	_RANDOMIZE(ulong,ULONG,ULong)
+  	_RANDOMIZE(float,FLOAT,Float)
+  	_RANDOMIZE(double,DOUBLE,Double)
     case G_TYPE_BOOLEAN:{
-      g_object_set (self, property->name, (gboolean) (2.0 * rnd), NULL);
-    } break;
-    case G_TYPE_INT:{
-      const GParamSpecInt *int_property = G_PARAM_SPEC_INT (property);
-
-      g_object_set (self, property->name,
-          (gint) (int_property->minimum + ((int_property->maximum -
-                  int_property->minimum) * rnd)), NULL);
-    } break;
-    case G_TYPE_UINT:{
-      const GParamSpecUInt *uint_property = G_PARAM_SPEC_UINT (property);
-
-      g_object_set (self, property->name,
-          (guint) (uint_property->minimum + ((uint_property->maximum -
-                   uint_property->minimum) * rnd)), NULL);
-    } break;
-    case G_TYPE_LONG:{
-      const GParamSpecLong *long_property = G_PARAM_SPEC_LONG (property);
-
-      g_object_set (self, property->name,
-          (glong) (long_property->minimum + ((long_property->maximum -
-                  long_property->minimum) * rnd)), NULL);
-    } break;
-    case G_TYPE_ULONG:{
-      const GParamSpecULong *ulong_property = G_PARAM_SPEC_ULONG (property);
-
-      g_object_set (self, property->name,
-          (gulong) (ulong_property->minimum + ((ulong_property->maximum -
-                   ulong_property->minimum) * rnd)), NULL);
-    } break;
-    case G_TYPE_FLOAT:{
-      const GParamSpecFloat *float_property =
-          G_PARAM_SPEC_FLOAT (property);
-
-      g_object_set (self, property->name,
-          (gfloat) (float_property->minimum + ((float_property->maximum -
-                    float_property->minimum) * rnd)), NULL);
-    } break;
-    case G_TYPE_DOUBLE:{
-      const GParamSpecDouble *double_property =
-          G_PARAM_SPEC_DOUBLE (property);
-
-      g_object_set (self, property->name,
-          (gdouble) (double_property->minimum + ((double_property->maximum -
-                     double_property->minimum) * rnd)), NULL);
+      g_object_set(self,n,(gboolean)(2*rnd),NULL);
     } break;
     case G_TYPE_ENUM:{
-      const GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
-      const GEnumClass *enum_class = enum_property->enum_class;
-      gint value = (enum_class->minimum + ((enum_class->maximum -
-                    enum_class->minimum) * rnd));
+      const GParamSpecEnum *p=G_PARAM_SPEC_ENUM(property);
+      const GEnumClass *e = p->enum_class;
+      gint v=(e->minimum+((e->maximum-e->minimum) * rnd));
 
       // handle sparse enums (lets go the next smaller valid value for now)
-      while(!g_enum_get_value((GEnumClass *)enum_class, value) && (value>=enum_class->minimum)) {
-        value--;
-      }
-      g_object_set (self, property->name, value, NULL);
+      while(!g_enum_get_value((GEnumClass *)e,v) && (v>=e->minimum))
+        v--;
+      g_object_set(self,n,v,NULL);
     } break;
     default:
       GST_WARNING ("incomplete implementation for GParamSpec type '%s'",
@@ -3482,6 +3439,7 @@ static void bt_machine_set_property(GObject * const object, const guint property
     case MACHINE_STATE: {
       if(bt_machine_change_state(self,g_value_get_enum(value))) {
         GST_DEBUG_OBJECT(self,"set the state for machine: %d",self->priv->state);
+        // FIXME: if we make that controlable, we don't want to mark the song as changed
         bt_song_set_unsaved(self->priv->song,TRUE);
       }
     } break;

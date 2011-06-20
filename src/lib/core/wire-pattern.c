@@ -22,23 +22,24 @@
  * SECTION:btwirepattern
  * @short_description: class for an event pattern of a #BtMachine instance
  *
- * A pattern contains a grid of events. Events are parameter changes in
- * #BtMachine objects. The events are stored aas #GValues.
+ * A wire-pattern contains a grid of events. Events are parameter changes in
+ * #BtWire objects. The events are stored aas #GValues.
  *
- * The patterns are used in the #BtSequence to form the score of a song.
+ * The wire-patterns are used in normal #BtPattern objects as a group for each
+ * input.
  */
-/* @todo:
- * - we need wire_params (volume,panning ) per input
- *   - only for processor machines sink machine patterns
- *   - volume: is input-volume for the wire
- *     - one volume per input
- *   - panning: is panorama on the wire, if we connect e.g. mono -> stereo
- *     - panning parameters can change, if the connection changes
- *     - mono-to-stereo (1->2): 1 parameter
- *     - mono-to-suround (1->4): 2 parameters
- *     - stereo-to-surround (2->4): 1 parameter
- * - BtWirePattern is not a good name :/
- *   - maybe we can make BtPattern a base class and also have BtMachinePattern
+/* we need wire_params (volume,panning ) per input
+ * - only for processor machines sink machine patterns
+ * - volume: is input-volume for the wire
+ *   - one volume per input
+ * - panning: is panorama on the wire, if we connect e.g. mono -> stereo
+ *   - panning parameters can change, if the connection changes
+ *   - mono-to-stereo (1->2): 1 parameter
+ *   - mono-to-suround (1->4): 2 parameters
+ *   - stereo-to-surround (2->4): 1 parameter
+ */
+/* @todo: BtWirePattern is not a good name :/
+ * - maybe we can make BtPattern a base class and also have BtMachinePattern
  */
 #define BT_CORE
 #define BT_WIRE_PATTERN_C
@@ -572,11 +573,25 @@ void bt_wire_pattern_delete_columns(const BtWirePattern * const self, const gulo
   }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
+                          
 
+#define _BLEND(t,T)                                                            \
+	case G_TYPE_ ## T: {                                                         \
+		gint val=g_value_get_ ## t(beg);                                           \
+	  gdouble step=(gdouble)(g_value_get_ ## t(end)-val)/(gdouble)ticks;         \
+	                                                                             \
+		for(i=0;i<ticks;i++) {                                                     \
+			if(!BT_IS_GVALUE(beg))                                                   \
+				g_value_init(beg,G_TYPE_ ## T);                                        \
+			g_value_set_ ## t(beg,val+(g ## t)(step*i));                             \
+			beg+=params;                                                             \
+		}                                                                          \
+	} break;
 
 static void _blend_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
-  GValue *end=&self->priv->data[param+self->priv->num_params*end_tick];
+	gulong params=self->priv->num_params;
+  GValue *beg=&self->priv->data[param+params*start_tick];
+  GValue *end=&self->priv->data[param+params*end_tick];
   gulong i,ticks=end_tick-start_tick;
 
   if(!BT_IS_GVALUE(beg) || !BT_IS_GVALUE(end)) {
@@ -589,47 +604,12 @@ static void _blend_column(const BtWirePattern * const self, const gulong start_t
   // @todo: should this honour the cursor stepping? e.g. enter only every second value
   
   switch(G_VALUE_TYPE(end)) {
-    case G_TYPE_INT: {
-      gint val=g_value_get_int(beg);
-      gdouble step=(gdouble)(g_value_get_int(end)-val)/(gdouble)ticks;
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_INT);
-        g_value_set_int(beg,val+(gint)(step*i));
-        beg+=self->priv->num_params;
-      }
-    } break;
-    case G_TYPE_UINT: {
-      gint val=g_value_get_uint(beg);
-      gdouble step=(gdouble)(g_value_get_uint(end)-val)/(gdouble)ticks;
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_UINT);
-        g_value_set_uint(beg,val+(guint)(step*i));
-        beg+=self->priv->num_params;
-      }
-    } break;
-    case G_TYPE_FLOAT: {
-      gfloat val=g_value_get_float(beg);
-      gdouble step=(gdouble)(g_value_get_float(end)-val)/(gdouble)ticks;
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_FLOAT);
-        g_value_set_float(beg,val+(gfloat)(step*i));
-        beg+=self->priv->num_params;
-      }
-    } break;
-    case G_TYPE_DOUBLE: {
-      gdouble val=g_value_get_double(beg);
-      gdouble step=(gdouble)(g_value_get_double(end)-val)/(gdouble)ticks;
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_DOUBLE);
-        g_value_set_double(beg,val+(step*i));
-        beg+=self->priv->num_params;
-      }
-    } break;
-    // @todo: need this for more types
+  	_BLEND(int,INT)
+  	_BLEND(uint,UINT)
+  	_BLEND(int64,INT64)
+  	_BLEND(uint64,UINT64)
+  	_BLEND(float,FLOAT)
+  	_BLEND(double,DOUBLE)
     default:
       GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(end));
   }
@@ -763,9 +743,23 @@ void bt_wire_pattern_flip_columns(const BtWirePattern * const self, const gulong
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
 }
 
+
+#define _RANDOMIZE(t,T,p)                                                       \
+	case G_TYPE_ ## T: {                                                         \
+      const GParamSpec ## p *p=G_PARAM_SPEC_ ## T(property);                   \
+      for(i=0;i<ticks;i++) {                                                   \
+        if(!BT_IS_GVALUE(beg))                                                 \
+          g_value_init(beg,G_TYPE_ ## T);                                      \
+        rnd=((gdouble)rand())/(RAND_MAX+1.0);                                  \
+        g_value_set_ ## t(beg,(g ## t)(p->minimum+((p->maximum-p->minimum)*rnd))); \
+        beg+=params;                                                           \
+      }                                                                        \
+    } break;
+
 static void _randomize_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
-  //GValue *end=&self->priv->data[param+self->priv->num_params*end_tick];
+	gulong params=self->priv->num_params;
+  GValue *beg=&self->priv->data[param+params*start_tick];
+  //GValue *end=&self->priv->data[param+params*end_tick];
   gulong i,ticks=(end_tick+1)-start_tick;
   GParamSpec *property;
   GType base_type;
@@ -778,65 +772,40 @@ static void _randomize_column(const BtWirePattern * const self, const gulong sta
   
   // @todo: should this honour the cursor stepping? e.g. enter only every second value
   // @todo: if beg and end are not empty, shall we use them as upper and lower
-  
+  // bounds instead of the pspec values (ev. have a flag on the function)
+
   switch(base_type) {
-    case G_TYPE_INT: {
-      const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+  	_RANDOMIZE(int,INT,Int)
+  	_RANDOMIZE(uint,UINT,UInt)
+  	_RANDOMIZE(int64,INT64,Int64)
+  	_RANDOMIZE(uint64,UINT64,UInt64)
+  	_RANDOMIZE(float,FLOAT,Float)
+  	_RANDOMIZE(double,DOUBLE,Double)
+    case G_TYPE_BOOLEAN:{
       for(i=0;i<ticks;i++) {
         if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_INT);
-        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        g_value_set_int(beg, (gint) (int_property->minimum +
-          ((int_property->maximum - int_property->minimum) * rnd)));
-        beg+=self->priv->num_params;
-      }
-    } break;
-    case G_TYPE_UINT: {
-      const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_UINT);
-        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        g_value_set_uint(beg, (guint) (uint_property->minimum +
-          ((uint_property->maximum - uint_property->minimum) * rnd)));
-        beg+=self->priv->num_params;
-      }
-    } break;
-    case G_TYPE_FLOAT: {
-      const GParamSpecFloat *float_property = G_PARAM_SPEC_FLOAT (property);
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_FLOAT);
-        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        g_value_set_float(beg, (gfloat) (float_property->minimum +
-          ((float_property->maximum - float_property->minimum) * rnd)));
-        beg+=self->priv->num_params;
-      }
-    } break;
-    case G_TYPE_DOUBLE: {
-      const GParamSpecDouble *double_property = G_PARAM_SPEC_DOUBLE (property);
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_DOUBLE);
-        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        g_value_set_double(beg, (gdouble) (double_property->minimum +
-          ((double_property->maximum - double_property->minimum) * rnd)));
-        beg+=self->priv->num_params;
+          g_value_init(beg,G_TYPE_BOOLEAN);
+        rnd=((gdouble)rand())/(RAND_MAX+1.0);
+        g_value_set_boolean(beg,(gboolean)(2*rnd));
       }
     } break;
     case G_TYPE_ENUM:{
-      const GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
-      const GEnumClass *enum_class = enum_property->enum_class;
+      const GParamSpecEnum *p=G_PARAM_SPEC_ENUM (property);
+      const GEnumClass *e=p->enum_class;
+      gint v;            
+
       for(i=0;i<ticks;i++) {
         if(!BT_IS_GVALUE(beg))
           g_value_init(beg,property->value_type);
-        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        g_value_set_enum (beg, (gulong) (enum_class->minimum +
-          ((enum_class->maximum - enum_class->minimum) * rnd)));
-        beg+=self->priv->num_params;
+        rnd=((gdouble)rand())/(RAND_MAX+1.0);
+        v=(gint)(e->minimum+((e->maximum-e->minimum)*rnd));
+				// handle sparse enums (lets go the next smaller valid value for now)
+				while(!g_enum_get_value((GEnumClass *)e,v) && (v>=e->minimum))
+					v--;
+        g_value_set_enum(beg,v);
+        beg+=params;
       }
     } break;
-    // @todo: need this for more types
     default:
       GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(base_type));
   }

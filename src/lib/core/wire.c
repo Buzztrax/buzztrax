@@ -25,7 +25,10 @@
  * Abstracts connection between two #BtMachines. After creation, the elements
  * are connected. In contrast to directly wiring #GstElements this insert needed
  * conversion elements automatically.
+ *
  * Furthermore each wire has a volume and if possible panorama/balance element.
+ * Volume and panorama/balance can be sequenced like machine parameters in
+ * #BtWirePattern objects.
  */
 
 #define BT_CORE
@@ -855,6 +858,14 @@ const gchar *bt_wire_get_param_name(const BtWire * const self, const gulong inde
  * Retrieves the details of a voice param. Any detail can be %NULL if its not
  * wanted.
  */
+
+#define _DETAILS(t,T,p)                                                        \
+	case G_TYPE_ ## T: {                                                         \
+		const GParamSpec ## p *p=G_PARAM_SPEC_ ## T(property);                     \
+		if(min_val) g_value_set_ ## t(*min_val,p->minimum);                        \
+		if(max_val) g_value_set_ ## t(*max_val,p->maximum);                        \
+	} break;
+
 void bt_wire_get_param_details(const BtWire * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val) {
   GParamSpec *property=bt_wire_get_param_spec(self,index);
 
@@ -873,30 +884,18 @@ void bt_wire_get_param_details(const BtWire * const self, const gulong index, GP
       g_value_init(*max_val,property->value_type);
     }
     switch(base_type) {
+			_DETAILS(int,INT,Int)
+			_DETAILS(uint,UINT,UInt)
+			_DETAILS(int64,INT64,Int64)
+			_DETAILS(uint64,UINT64,UInt64)
+			_DETAILS(long,LONG,Long)
+			_DETAILS(ulong,ULONG,ULong)
+			_DETAILS(float,FLOAT,Float)
+			_DETAILS(double,DOUBLE,Double)
       case G_TYPE_BOOLEAN:
         if(min_val) g_value_set_boolean(*min_val,0);
         if(max_val) g_value_set_boolean(*max_val,0);
       break;
-      case G_TYPE_INT: {
-        const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-        if(min_val) g_value_set_int(*min_val,int_property->minimum);
-        if(max_val) g_value_set_int(*max_val,int_property->maximum);
-      } break;
-      case G_TYPE_UINT: {
-        const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-        if(min_val) g_value_set_uint(*min_val,uint_property->minimum);
-        if(max_val) g_value_set_uint(*max_val,uint_property->maximum);
-      } break;
-      case G_TYPE_FLOAT: {
-        const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
-        if(min_val) g_value_set_float(*min_val,float_property->minimum);
-        if(max_val) g_value_set_float(*max_val,float_property->maximum);
-      } break;
-      case G_TYPE_DOUBLE: {
-        const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
-        if(min_val) g_value_set_double(*min_val,double_property->minimum);
-        if(max_val) g_value_set_double(*max_val,double_property->maximum);
-      } break;
       case G_TYPE_ENUM: {
         const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
         const GEnumClass *enum_class=enum_property->enum_class;

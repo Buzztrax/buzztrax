@@ -1,3 +1,12 @@
+2011-06-20  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	  Support more GTypes. Use macros to reduce the LOC.
+
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

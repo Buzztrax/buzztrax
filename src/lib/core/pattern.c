@@ -1005,6 +1005,19 @@ void bt_pattern_delete_columns(const BtPattern * const self, const gulong start_
 }
 
 
+#define _BLEND(t,T)                                                            \
+	case G_TYPE_ ## T: {                                                         \
+		gint val=g_value_get_ ## t(beg);                                           \
+	  gdouble step=(gdouble)(g_value_get_ ## t(end)-val)/(gdouble)ticks;         \
+	                                                                             \
+		for(i=0;i<ticks;i++) {                                                     \
+			if(!BT_IS_GVALUE(beg))                                                   \
+				g_value_init(beg,G_TYPE_ ## T);                                        \
+			g_value_set_ ## t(beg,val+(g ## t)(step*i));                             \
+			beg+=params;                                                             \
+		}                                                                          \
+	} break;
+
 static void _blend_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
@@ -1021,47 +1034,12 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
   // @todo: should this honour the cursor stepping? e.g. enter only every second value
 
   switch(G_VALUE_TYPE(end)) {
-    case G_TYPE_INT: {
-      gint val=g_value_get_int(beg);
-      gdouble step=(gdouble)(g_value_get_int(end)-val)/(gdouble)ticks;
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_INT);
-        g_value_set_int(beg,val+(gint)(step*i));
-        beg+=params;
-      }
-    } break;
-    case G_TYPE_UINT: {
-      gint val=g_value_get_uint(beg);
-      gdouble step=((gdouble)g_value_get_uint(end)-val)/(gdouble)ticks;
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_UINT);
-        g_value_set_uint(beg,val+(gint)(step*i));
-        beg+=params;
-      }
-    } break;
-    case G_TYPE_FLOAT: {
-      gfloat val=g_value_get_float(beg);
-      gdouble step=(gdouble)(g_value_get_float(end)-val)/(gdouble)ticks;
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_FLOAT);
-        g_value_set_float(beg,val+(gfloat)(step*i));
-        beg+=params;
-      }
-    } break;
-    case G_TYPE_DOUBLE: {
-      gdouble val=g_value_get_double(beg);
-      gdouble step=(gdouble)(g_value_get_double(end)-val)/(gdouble)ticks;
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_DOUBLE);
-        g_value_set_double(beg,val+(step*i));
-        beg+=params;
-      }
-    } break;
-    // @todo: need this for more types
+  	_BLEND(int,INT)
+  	_BLEND(uint,UINT)
+  	_BLEND(int64,INT64)
+  	_BLEND(uint64,UINT64)
+  	_BLEND(float,FLOAT)
+  	_BLEND(double,DOUBLE)
     default:
       GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(end));
   }
@@ -1203,6 +1181,18 @@ void bt_pattern_flip_columns(const BtPattern * const self, const gulong start_ti
 }
 
 
+#define _RANDOMIZE(t,T,p)                                                       \
+	case G_TYPE_ ## T: {                                                         \
+      const GParamSpec ## p *p=G_PARAM_SPEC_ ## T(property);                   \
+      for(i=0;i<ticks;i++) {                                                   \
+        if(!BT_IS_GVALUE(beg))                                                 \
+          g_value_init(beg,G_TYPE_ ## T);                                      \
+        rnd=((gdouble)rand())/(RAND_MAX+1.0);                                  \
+        g_value_set_ ## t(beg,(g ## t)(p->minimum+((p->maximum-p->minimum)*rnd))); \
+        beg+=params;                                                           \
+      }                                                                        \
+    } break;
+
 static void _randomize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
@@ -1225,65 +1215,40 @@ static void _randomize_column(const BtPattern * const self, const gulong start_t
 
   // @todo: should this honour the cursor stepping? e.g. enter only every second value
   // @todo: if beg and end are not empty, shall we use them as upper and lower
+  // bounds instead of the pspec values (ev. have a flag on the function)
 
   switch(base_type) {
-    case G_TYPE_INT: {
-      const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+  	_RANDOMIZE(int,INT,Int)
+  	_RANDOMIZE(uint,UINT,UInt)
+  	_RANDOMIZE(int64,INT64,Int64)
+  	_RANDOMIZE(uint64,UINT64,UInt64)
+  	_RANDOMIZE(float,FLOAT,Float)
+  	_RANDOMIZE(double,DOUBLE,Double)
+    case G_TYPE_BOOLEAN:{
       for(i=0;i<ticks;i++) {
         if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_INT);
-        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        g_value_set_int(beg, (gint) (int_property->minimum +
-          ((int_property->maximum - int_property->minimum) * rnd)));
-        beg+=params;
-      }
-    } break;
-    case G_TYPE_UINT: {
-      const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_UINT);
-        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        g_value_set_uint(beg, (guint) (uint_property->minimum +
-          ((uint_property->maximum - uint_property->minimum) * rnd)));
-        beg+=params;
-      }
-    } break;
-    case G_TYPE_FLOAT: {
-      const GParamSpecFloat *float_property = G_PARAM_SPEC_FLOAT (property);
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_FLOAT);
-        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        g_value_set_float(beg, (gfloat) (float_property->minimum +
-          ((float_property->maximum - float_property->minimum) * rnd)));
-        beg+=params;
-      }
-    } break;
-    case G_TYPE_DOUBLE: {
-      const GParamSpecDouble *double_property = G_PARAM_SPEC_DOUBLE (property);
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_DOUBLE);
-        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        g_value_set_double(beg, (gdouble) (double_property->minimum +
-          ((double_property->maximum - double_property->minimum) * rnd)));
-        beg+=params;
+          g_value_init(beg,G_TYPE_BOOLEAN);
+        rnd=((gdouble)rand())/(RAND_MAX+1.0);
+        g_value_set_boolean(beg,(gboolean)(2*rnd));
       }
     } break;
     case G_TYPE_ENUM:{
-      const GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
-      const GEnumClass *enum_class = enum_property->enum_class;
+      const GParamSpecEnum *p=G_PARAM_SPEC_ENUM (property);
+      const GEnumClass *e=p->enum_class;
+      gint v;
+
       for(i=0;i<ticks;i++) {
         if(!BT_IS_GVALUE(beg))
           g_value_init(beg,property->value_type);
-        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        g_value_set_enum (beg, (gulong) (enum_class->minimum +
-          ((enum_class->maximum - enum_class->minimum) * rnd)));
+        rnd=((gdouble)rand())/(RAND_MAX+1.0);
+        v=(gint)(e->minimum+((e->maximum-e->minimum)*rnd));
+				// handle sparse enums (lets go the next smaller valid value for now)
+				while(!g_enum_get_value((GEnumClass *)e,v) && (v>=e->minimum))
+					v--;
+        g_value_set_enum(beg,v);
         beg+=params;
       }
     } break;
-    // @todo: need this for more types
     default:
       GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(base_type));
   }

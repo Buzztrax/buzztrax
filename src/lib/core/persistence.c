@@ -303,6 +303,14 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
       const guint val=svalue?atoi(svalue):0;
       g_value_set_uint(gvalue,val);
     } break;
+    case G_TYPE_INT64: {
+      const gint64 val=svalue?g_ascii_strtoll(svalue,NULL,10):0;
+      g_value_set_int64(gvalue,val);
+    } break;
+    case G_TYPE_UINT64: {
+      const guint64 val=svalue?g_ascii_strtoull(svalue,NULL,10):0;
+      g_value_set_uint64(gvalue,val);
+    } break;
     case G_TYPE_LONG: {
       const glong val=svalue?atol(svalue):0;
       g_value_set_long(gvalue,val);
@@ -364,6 +372,12 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
       break;
     case G_TYPE_UINT:
       res=g_strdup_printf("%u",g_value_get_uint(gvalue));
+      break;
+    case G_TYPE_INT64:
+      res=g_strdup_printf("%"G_GINT64_FORMAT,g_value_get_int64(gvalue));
+      break;
+    case G_TYPE_UINT64:
+      res=g_strdup_printf("%"G_GUINT64_FORMAT,g_value_get_uint64(gvalue));
       break;
     case G_TYPE_LONG:
       res=g_strdup_printf("%ld",g_value_get_long(gvalue));
