@@ -1,3 +1,9 @@
+2011-06-20  Stefan Sauer,,,  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	  Fix sequence repairs to also take previous patterns into account.
+	  Makes the 'break' patterns work.
+
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c:

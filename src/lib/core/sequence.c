@@ -509,17 +509,21 @@ static void bt_sequence_invalidate_wire_param(const BtSequence * const self, con
  *
  * Calculated the damage region for the given pattern and location.
  * Adds the region to the repair-queue.
+ * To determine the regio we need to check patterns before and after this
+ * pattern to handle truncation.
  */
 static void bt_sequence_invalidate_pattern_region(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern) {
-  const gulong length=self->priv->length;
+  const gulong sequence_length=self->priv->length;
+  BtPattern *other_pattern=NULL;
   BtMachine *machine;
   BtWire *wire;
   BtWirePattern *wire_pattern;
   GList *node;
   gulong i,j,k;
-  gulong pattern_length;
+  gulong pattern_length,damage_length,other_pattern_time=0;
   gulong global_params,voice_params,voices,wire_params;
   gulong param_offset;
+  gulong start=0,length;
 
   GST_DEBUG("invalidate pattern %p region for tick=%5lu, track=%3lu",pattern,time,track);
   /* @todo: if we load a song and thus set a lot of patterns, this is called a
@@ -530,7 +534,38 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
    * It also involves a lot of creating and destoying of hashtables
    */
 
-  // determine region of change
+  /* determine region of change
+   * pos track1 d1  track2   d2  track3   d3  track4   d4
+   *   0                         + p2 +       + p2 +    
+   *   1                         |    |       |    |    
+   *   2                         | + p1 + #   | + p1 + #
+   *   3                         | |    | #   | |    | #
+   *   4 + p1 + #     + p1 + #   | |    | #   | |    | #
+   *   5 |    | #     |    | #   | +----+ #   | +----+ #
+   *   6 |    | #   + p2 + |     |    |   #   | + p3 +
+   *   7 +----+ #   |    |-+     +----+   #   : |    |
+   *   8            :    :                    : :    :    
+   *
+   * damage regions
+   * track1(t=4,dl=4): 4...7
+   *   p1  (t=4, l=4): 0...3
+   * track2(t=4,dl=2): 4...5
+   *   p1  (t=4, l=4): 0...1
+   *   p2  (t=6, l=-): -----
+   * track3(t=2,dl=6): 2...7 
+   *   p1  (t=2, l=4): 0...3
+   *   p2  (t=0, l=8): 2...7
+   * track4(t=2,dl=4): 2...5
+   *   p1  (t=2, l=4): 0...3
+   *   p2  (t=0, l=-): -----
+   *   p3  (t=6, l=-): -----
+   *
+   * the global damage region is time pos of new pattern + damage-length. The
+   * pattern below new pattern is never repaired (it truncates). The pattern
+   * above is only involved if it would have enlarged the region (track 3,4):
+   *   pattern      :0 ... MIN(pattern_length,damage_length)
+   *   other_pattern:(p1.t+p1+l)-p2.t ... damage_length
+   */
   g_object_get((gpointer)pattern,"length",&pattern_length,"machine",&machine,NULL);
   if(G_UNLIKELY(!pattern_length)) {
     g_object_unref(machine);
@@ -539,11 +574,51 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   }
   g_assert(machine);
   g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
-  // check if from time+1 to time+pattern_length another pattern starts (in this track)
-  for(i=1;((i<pattern_length) && (time+i<length));i++) {
-    if(bt_sequence_test_pattern(self,time+i,track)) break;
+  damage_length=pattern_length;
+
+  // check if from time-1 to 0 a pattern starts with a length that would reach over this pattern
+  // and if so expand damage_length
+  if(time>0) {
+  	gulong other_pattern_length;
+
+  	// for long sequences we could speedup by knwing the max-pattern-length per machine
+  	for(i=time,j=time-1;i>0;i--,j--) {
+  		if((other_pattern=bt_sequence_get_pattern_unchecked(self,j,track))) {
+ 				other_pattern_time=j;
+  			g_object_get(other_pattern,"length",&other_pattern_length,NULL);
+  			if(j+other_pattern_length>time+damage_length) {
+  				damage_length=(j+other_pattern_length)-time;
+  			} else {
+  				// we don't need to check other_pattern for needed repairs
+  				other_pattern=NULL;
+  			}
+  		  break;
+  		}
+  	}
   }
-  pattern_length=i;
+
+  // check if from time+1 to time+pattern_length another pattern starts (in this track)
+  // and if so truncate damage_length
+  for(i=1;((i<pattern_length) && (time+i<sequence_length));i++) {
+    if(bt_sequence_test_pattern(self,time+i,track)) {
+    	damage_length=i;
+    	if(damage_length<=pattern_length) {
+				// we don't need to check other_pattern for needed repairs
+    		other_pattern=NULL;
+    	}
+    	break;
+    }
+  }
+
+	length=MIN(pattern_length,damage_length);
+	if(other_pattern) {
+		// we also need to repair the overlapping region
+    start=time-other_pattern_time;
+ 	}
+ 	
+ 	GST_LOG("doing repair: p: 0 .. %lu, %s: %lu .. %lu",
+ 		  length,(other_pattern?"op":"--"),start,damage_length);
+
   // mark region covered by new pattern as damaged
   // check wires
   param_offset=global_params+voices*voice_params;
@@ -551,7 +626,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
     wire=BT_WIRE(node->data);
     g_object_get(wire,"num-params",&wire_params,NULL);
     if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
-      for(i=0;i<pattern_length;i++) {
+      for(i=0;i<length;i++) {
         // check wire params
         for(j=0;j<wire_params;j++) {
           // mark region covered by change as damaged
@@ -562,8 +637,22 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
       }
       g_object_unref(wire_pattern);
     }
+    if(other_pattern) {
+			if((wire_pattern=bt_wire_get_pattern(wire,other_pattern))) {
+				for(i=start;i<start+damage_length;i++) {
+					// check wire params
+					for(j=0;j<wire_params;j++) {
+						// mark region covered by change as damaged
+						if(bt_wire_pattern_test_event(wire_pattern,i,j)) {
+							bt_sequence_invalidate_wire_param(self,machine,time+(i-start),wire,param_offset+j);
+						}
+					}
+				}
+				g_object_unref(wire_pattern);
+			}
+    }
   }
-  for(i=0;i<pattern_length;i++) {
+  for(i=0;i<length;i++) {
     // check global params
     for(j=0;j<global_params;j++) {
       // mark region covered by change as damaged
@@ -583,6 +672,28 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
       }
     }
   }
+	if(other_pattern) {
+		for(i=start;i<start+damage_length;i++) {
+			// check global params
+			for(j=0;j<global_params;j++) {
+				// mark region covered by change as damaged
+				if(bt_pattern_test_global_event(other_pattern,i,j)) {
+					bt_sequence_invalidate_global_param(self,machine,time+(i-start),j);
+				}
+			}
+			// check voices
+			param_offset=global_params;
+			for(k=0;k<voices;k++,param_offset+=voice_params) {
+				// check voice params
+				for(j=0;j<voice_params;j++) {
+					// mark region covered by change as damaged
+					if(bt_pattern_test_voice_event(other_pattern,i,k,j)) {
+						bt_sequence_invalidate_voice_param(self,machine,time+(i-start),k,param_offset+j);
+					}
+				}
+			}
+		}
+	}
   g_object_unref(machine);
   GST_DEBUG("done");
 }
