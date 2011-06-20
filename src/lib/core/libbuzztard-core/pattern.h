@@ -69,8 +69,8 @@ struct _BtPatternClass {
  */
 typedef enum {
   BT_PATTERN_CMD_NORMAL=0,
-  BT_PATTERN_CMD_MUTE,
   BT_PATTERN_CMD_BREAK,
+  BT_PATTERN_CMD_MUTE,
   BT_PATTERN_CMD_SOLO,
   BT_PATTERN_CMD_BYPASS
 } BtPatternCmd;

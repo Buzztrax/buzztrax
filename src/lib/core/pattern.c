@@ -130,8 +130,8 @@ GType bt_pattern_cmd_get_type(void) {
   if(G_UNLIKELY(type == 0)) {
     static const GEnumValue values[] = {
       { BT_PATTERN_CMD_NORMAL,"BT_PATTERN_CMD_NORMAL","normal" },
-      { BT_PATTERN_CMD_MUTE,  "BT_PATTERN_CMD_MUTE",  "mute" },
       { BT_PATTERN_CMD_BREAK, "BT_PATTERN_CMD_BREAK", "break" },
+      { BT_PATTERN_CMD_MUTE,  "BT_PATTERN_CMD_MUTE",  "mute" },
       { BT_PATTERN_CMD_SOLO,  "BT_PATTERN_CMD_SOLO",  "solo" },
       { BT_PATTERN_CMD_BYPASS,"BT_PATTERN_CMD_BYPASS","bypass" },
       { 0, NULL, NULL},

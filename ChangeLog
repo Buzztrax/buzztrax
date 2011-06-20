@@ -1,5 +1,11 @@
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbuzztard-core/pattern.h:
+	* src/lib/core/pattern.c:
+	  Reorder enum.
+
+2011-06-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Planning and comment update.
 
