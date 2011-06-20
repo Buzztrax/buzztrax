@@ -1,4 +1,10 @@
-2011-06-20  Stefan Sauer,,,  <ensonic@users.sf.net>
+2011-06-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Refresh context menu on new patterns (after adding generators). Also
+	  update statusbar on editits.
+
+2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* TODO:
 	  Planning.
