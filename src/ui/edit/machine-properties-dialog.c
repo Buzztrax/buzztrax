@@ -79,7 +79,7 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkMenu *param_menu[2]; // we have two controller types
 };
 
-static GQuark widget_label_quark=0;
+static GQuark wdget_peer_quark=0;
 static GQuark widget_parent_quark=0;
 static GQuark control_object_quark=0;
 static GQuark control_property_quark=0;
@@ -514,6 +514,8 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
 static void on_float_range_property_changed(GtkRange *range,gpointer user_data);
 static void on_int_range_property_changed(GtkRange *range,gpointer user_data);
 static void on_uint_range_property_changed(GtkRange *range,gpointer user_data);
+static void on_uint64_range_property_changed(GtkRange *range,gpointer user_data);
+static void on_uint64_entry_property_changed(GtkEditable *editable,gpointer user_data);
 static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer user_data);
 static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_data);
 
@@ -603,6 +605,52 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
   else {
     strncpy(_str,str,20);
     _str[19]='\0';
+    g_free(str);
+    str=_str;
+  }
+  return(str);
+}
+
+static gchar* on_uint64_range_global_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
+  BtMachine *machine=BT_MACHINE(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
+  glong index=bt_machine_get_global_param_index(machine,name,NULL);
+  GValue uint64_value={0,};
+  gchar *str=NULL;
+  static gchar _str[30];
+
+  g_value_init(&uint64_value,G_TYPE_UINT64);
+  g_value_set_uint64(&uint64_value,(guint64)value);
+  if(!(str=bt_machine_describe_global_param_value(machine,index,&uint64_value))) {
+    g_sprintf(_str,"%"G_GUINT64_FORMAT,(guint64)value);
+    str=_str;
+  }
+  else {
+    strncpy(_str,str,30);
+    _str[29]='\0';
+    g_free(str);
+    str=_str;
+  }
+  return(str);
+}
+
+static gchar* on_uint64_range_voice_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
+  BtMachine *machine=BT_MACHINE(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
+  glong index=bt_machine_get_voice_param_index(machine,name,NULL);
+  GValue uint64_value={0,};
+  gchar *str=NULL;
+  static gchar _str[30];
+
+  g_value_init(&uint64_value,G_TYPE_UINT64);
+  g_value_set_uint64(&uint64_value,(guint64)value);
+  if(!(str=bt_machine_describe_voice_param_value(machine,index,&uint64_value))) {
+    g_sprintf(_str,"%"G_GUINT64_FORMAT,(guint64)value);
+    str=_str;
+  }
+  else {
+    strncpy(_str,str,30);
+    _str[29]='\0';
     g_free(str);
     str=_str;
   }
@@ -826,7 +874,7 @@ static gboolean on_double_range_property_notify_idle(gpointer _data) {
     const GstElement *machine=data->machine;
     GParamSpec *property=data->property;
     GtkWidget *widget=GTK_WIDGET(data->user_data);
-    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),wdget_peer_quark));
     gdouble value;
 
     GST_INFO("property value notify received : %s ",property->name);
@@ -852,7 +900,7 @@ static void on_double_range_property_notify(const GstElement *machine,GParamSpec
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),wdget_peer_quark));
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
   gdouble value=gtk_range_get_value(range);
 
@@ -880,7 +928,7 @@ static gboolean on_float_range_property_notify_idle(gpointer _data) {
     const GstElement *machine=data->machine;
     GParamSpec *property=data->property;
     GtkWidget *widget=GTK_WIDGET(data->user_data);
-    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),wdget_peer_quark));
     gfloat value;
 
     //GST_INFO("property value notify received : %s ",property->name);
@@ -905,7 +953,7 @@ static void on_float_range_property_notify(const GstElement *machine,GParamSpec 
 static void on_float_range_property_changed(GtkRange *range,gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),wdget_peer_quark));
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
   gfloat value=gtk_range_get_value(range);
 
@@ -935,7 +983,7 @@ static gboolean on_int_range_property_notify_idle(gpointer _data) {
     const GstElement *machine=data->machine;
     GParamSpec *property=data->property;
     GtkWidget *widget=GTK_WIDGET(data->user_data);
-    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),wdget_peer_quark));
     BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
     gint value;
 
@@ -961,7 +1009,7 @@ static void on_int_range_property_notify(const GstElement *machine,GParamSpec *p
 static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),wdget_peer_quark));
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
   gdouble value=gtk_range_get_value(range);
 
@@ -991,7 +1039,7 @@ static gboolean on_uint_range_property_notify_idle(gpointer _data) {
     const GstElement *machine=data->machine;
     GParamSpec *property=data->property;
     GtkWidget *widget=GTK_WIDGET(data->user_data);
-    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+    GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),wdget_peer_quark));
     BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
     guint value;
 
@@ -1017,7 +1065,7 @@ static void on_uint_range_property_notify(const GstElement *machine,GParamSpec *
 static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),wdget_peer_quark));
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
   gdouble value=gtk_range_get_value(range);
 
@@ -1030,6 +1078,82 @@ static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
   mark_song_as_changed(self);
 }
 
+
+static void update_uint64_range_entry(const BtMachinePropertiesDialog *self,GtkRange *range,GstObject *param_parent,GtkEntry *entry,gdouble value) {
+  if(GST_IS_ELEMENT(param_parent)) {
+    gtk_entry_set_text(entry,on_uint64_range_global_property_format_value(GTK_SCALE(range),value,(gpointer)self->priv->machine));
+  }
+  else {
+    gtk_entry_set_text(entry,on_uint64_range_voice_property_format_value(GTK_SCALE(range),value,(gpointer)self->priv->machine));
+  }
+}
+
+static gboolean on_uint64_range_property_notify_idle(gpointer _data) {
+  BtNotifyIdleData *data=(BtNotifyIdleData *)_data;
+
+  if(data->user_data) {
+    const GstElement *machine=data->machine;
+    GParamSpec *property=data->property;
+    GtkWidget *widget=GTK_WIDGET(data->user_data);
+    GtkEntry *entry=GTK_ENTRY(g_object_get_qdata(G_OBJECT(widget),wdget_peer_quark));
+    BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
+    guint64 value;
+
+    //GST_INFO("property value notify received : %s ",property->name);
+
+    g_object_get((gpointer)machine,property->name,&value,NULL);
+    g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_range_property_changed,(gpointer)machine);
+    gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
+    g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_range_property_changed,(gpointer)machine);
+    g_signal_handlers_block_matched(entry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_entry_property_changed,(gpointer)machine);
+    update_uint64_range_entry(self,GTK_RANGE(widget),GST_OBJECT(machine),entry,(gdouble)value);
+    g_signal_handlers_unblock_matched(entry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_entry_property_changed,(gpointer)machine);
+  }
+  FREE_NOTIFY_IDLE_DATA(data);
+  return(FALSE);
+}
+
+static void on_uint64_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
+  BtNotifyIdleData *data;
+
+  MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data);
+  g_idle_add(on_uint64_range_property_notify_idle,(gpointer)data);
+}
+
+static void on_uint64_range_property_changed(GtkRange *range,gpointer user_data) {
+  GstObject *param_parent=GST_OBJECT(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
+  GtkEntry *entry=GTK_ENTRY(g_object_get_qdata(G_OBJECT(range),wdget_peer_quark));
+  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
+  gdouble value=gtk_range_get_value(range);
+
+  GST_INFO("property value change received");
+
+  g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_range_property_notify,(gpointer)range);
+  g_object_set(param_parent,name,(guint64)value,NULL);
+  g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_range_property_notify,(gpointer)range);
+  g_signal_handlers_block_matched(entry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_entry_property_changed,(gpointer)user_data);
+  update_uint64_range_entry(self,range,param_parent,entry,value);
+  g_signal_handlers_unblock_matched(entry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_entry_property_changed,(gpointer)user_data);
+  mark_song_as_changed(self);
+}
+
+static void on_uint64_entry_property_changed(GtkEditable *editable,gpointer user_data) {
+  GstObject *param_parent=GST_OBJECT(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(editable));
+  GtkRange *range=GTK_RANGE(g_object_get_qdata(G_OBJECT(editable),wdget_peer_quark));
+  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(editable),widget_parent_quark));
+  guint64 clamped_value,value=g_ascii_strtoull(gtk_entry_get_text(GTK_ENTRY(editable)),NULL,10);
+
+  g_signal_handlers_block_matched(range,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_range_property_changed,(gpointer)user_data);
+  gtk_range_set_value(range,(gdouble)value);
+  clamped_value=gtk_range_get_value(range);
+  g_signal_handlers_unblock_matched(range,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_range_property_changed,(gpointer)user_data);
+  g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_range_property_notify,(gpointer)range);
+  g_object_set(param_parent,name,clamped_value,NULL);
+  g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_range_property_notify,(gpointer)range);
+  mark_song_as_changed(self);
+}
 
 static gboolean on_combobox_property_notify_idle(gpointer _data) {
   BtNotifyIdleData *data=(BtNotifyIdleData *)_data;
@@ -1417,6 +1541,29 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,G
   return(widget);
 }
 
+static GtkWidget *make_uint64_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *entry) {
+  GtkWidget *widget;
+  gchar *signal_name;
+  guint64 value;
+
+  g_object_get(machine,property->name,&value,NULL);
+  //step=(int_property->maximum-int_property->minimum)/1024.0;
+  widget=gtk_hscale_new_with_range((gdouble)g_value_get_uint64(range_min),(gdouble)g_value_get_uint64(range_max),1.0);
+  gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
+  gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
+  // @todo add numerical entry as well ?
+
+  signal_name=g_alloca(9+strlen(property->name));
+  g_sprintf(signal_name,"notify::%s",property->name);
+  g_signal_connect(machine,signal_name,G_CALLBACK(on_uint64_range_property_notify), (gpointer)widget);
+  g_signal_connect(widget,"value-changed",G_CALLBACK(on_uint64_range_property_changed), (gpointer)machine);
+  g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(entry,"changed",G_CALLBACK(on_uint64_entry_property_changed), (gpointer)machine);
+
+  return(widget);
+}
+
 static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
@@ -1580,10 +1727,14 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
     case G_TYPE_INT:
       widget2=gtk_label_new(NULL);
       widget1=make_int_range_widget(self,object,property,range_min,range_max,widget2);
-     break;
+      break;
     case G_TYPE_UINT:
       widget2=gtk_label_new(NULL);
       widget1=make_uint_range_widget(self,object,property,range_min,range_max,widget2);
+      break;
+    case G_TYPE_UINT64:
+      widget2=gtk_entry_new();
+      widget1=make_uint64_range_widget(self,object,property,range_min,range_max,widget2);
       break;
     case G_TYPE_FLOAT:
       widget2=gtk_label_new(NULL);
@@ -1612,7 +1763,10 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
   gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
   g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
   if(widget2) {
-    g_object_set_qdata(G_OBJECT(widget1),widget_label_quark,(gpointer)widget2);
+    gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
+    g_object_set_qdata(G_OBJECT(widget1),wdget_peer_quark,(gpointer)widget2);
+    g_object_set_qdata(G_OBJECT(widget2),widget_parent_quark,(gpointer)self);
+    g_object_set_qdata(G_OBJECT(widget2),wdget_peer_quark,(gpointer)widget1);
   }
   g_object_set_qdata(G_OBJECT(widget1),widget_param_group_quark,(gpointer)pg);
   g_object_set_qdata(G_OBJECT(widget1),widget_param_num_quark,GINT_TO_POINTER(row));
@@ -1632,6 +1786,12 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
 
       g_object_get(object,property->name,&value,NULL);
       update_uint_range_label(self,GTK_RANGE(widget1),object,GTK_LABEL(widget2),(gdouble)value);
+    } break;
+    case G_TYPE_UINT64: {
+      guint64 value;
+
+      g_object_get(object,property->name,&value,NULL);
+      update_uint64_range_entry(self,GTK_RANGE(widget1),object,GTK_ENTRY(widget2),(gdouble)value);
     } break;
     case G_TYPE_FLOAT: {
       gfloat value;
@@ -2255,6 +2415,7 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_uint_range_property_notify,NULL);
+  g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_uint64_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_checkbox_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_combobox_property_notify,NULL);
   for(j=0;j<self->priv->voices;j++) {
@@ -2263,6 +2424,7 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_uint_range_property_notify,NULL);
+    g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_uint64_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_checkbox_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_combobox_property_notify,NULL);
   }
@@ -2334,7 +2496,7 @@ static void bt_machine_properties_dialog_init(BtMachinePropertiesDialog *self) {
 static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  widget_label_quark=g_quark_from_static_string("BtMachinePropertiesDialog::widget-label");
+  wdget_peer_quark=g_quark_from_static_string("BtMachinePropertiesDialog::widget-peer");
   widget_parent_quark=g_quark_from_static_string("BtMachinePropertiesDialog::widget-parent");
   control_object_quark=g_quark_from_static_string("BtMachinePropertiesDialog::control-object");
   control_property_quark=g_quark_from_static_string("BtMachinePropertiesDialog::control-property");

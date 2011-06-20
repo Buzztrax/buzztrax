@@ -1,5 +1,11 @@
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Support more GTypes.
+
+2011-06-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Avoid rebuilding the whole sequence when expanding.
 

@@ -85,9 +85,7 @@ static void on_range_property_notify(const GstElement *machine,GParamSpec *prope
   //GST_INFO("preferences value notify received for: '%s'",property->name);
 
   g_object_get((gpointer)machine,property->name,&value,NULL);
-  //gdk_threads_enter();
   gtk_range_set_value(GTK_RANGE(widget),value);
-  //gdk_threads_leave();
 }
 
 static void on_double_entry_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
@@ -98,10 +96,8 @@ static void on_double_entry_property_notify(const GstElement *machine,GParamSpec
   //GST_INFO("preferences value notify received for: '%s'",property->name);
 
   g_object_get((gpointer)machine,property->name,&value,NULL);
-  str_value=g_strdup_printf("%f",value);
-  //gdk_threads_enter();
+  str_value=g_strdup_printf("%7.2lf",value);
   gtk_entry_set_text(GTK_ENTRY(widget),str_value);
-  //gdk_threads_leave();
   g_free(str_value);
 }
 
@@ -121,6 +117,7 @@ static void on_combobox_property_notify(const GstElement *machine,GParamSpec *pr
 
   gtk_combo_box_set_active_iter(GTK_COMBO_BOX(widget),&iter);
 }
+
 
 static void on_entry_property_changed(GtkEditable *editable,gpointer user_data) {
   GstElement *machine=GST_ELEMENT(user_data);
@@ -253,6 +250,25 @@ static gboolean skip_property(GstElement *element,GParamSpec *pspec) {
   return(FALSE);
 }
 
+#define _MAKE_SPIN_BUTTON(t,T,p)                                               \
+	case G_TYPE_ ## T: {                                                         \
+		GParamSpec ## p *p=G_PARAM_SPEC_ ## T(property);                           \
+		g ## t value;                                                              \
+		gdouble step;                                                              \
+                                                                               \
+		g_object_get(machine,property->name,&value,NULL);                          \
+		step=(gdouble)(p->maximum-p->minimum)/1024.0;                              \
+		spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(                         \
+			  (gdouble)value,(gdouble)p->minimum, (gdouble)p->maximum,1.0,step,0.0));\
+		widget1=gtk_spin_button_new(spin_adjustment,1.0,0);                        \
+		gtk_widget_set_name(GTK_WIDGET(widget1),property->name);                   \
+		g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);  \
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);        \
+		widget2=NULL;                                                              \
+		g_signal_connect(widget1,"value-changed",G_CALLBACK(on_spinbutton_property_changed),(gpointer)machine); \
+	} break;
+
+
 static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDialog *self) {
   BtMainWindow *main_window;
   GtkWidget *label,*widget1,*widget2,*table,*scrolled_window;
@@ -345,118 +361,22 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             // connect handlers
             g_signal_connect(widget1, "toggled", G_CALLBACK(on_checkbox_property_toggled), (gpointer)machine);
           } break;
-          case G_TYPE_INT: {
-            GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-            gint value;
-            gdouble step;
-
-            g_object_get(machine,property->name,&value,NULL);
-            step=(gdouble)(int_property->maximum-int_property->minimum)/1024.0;
-            GST_INFO("  int : %d...%d, step=%f",int_property->minimum,int_property->maximum,step);
-            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int_property->minimum, (gdouble)int_property->maximum,1.0,step,0.0));
-            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-            widget2=NULL;
-            // connect handlers
-            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
-          } break;
-          case G_TYPE_UINT: {
-            GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-            guint value;
-            gdouble step;
-
-            g_object_get(machine,property->name,&value,NULL);
-            step=(gdouble)(uint_property->maximum-uint_property->minimum)/1024.0;
-            GST_INFO("  uint : %u...%u, step=%f",uint_property->minimum,uint_property->maximum,step);
-            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)uint_property->minimum, (gdouble)uint_property->maximum,1.0,step,0.0));
-            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-            widget2=NULL;
-            // connect handlers
-            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
-          } break;
-          case G_TYPE_LONG: {
-            GParamSpecLong *long_property=G_PARAM_SPEC_LONG(property);
-            glong value;
-            gdouble step;
-
-            g_object_get(machine,property->name,&value,NULL);
-            step=(gdouble)(long_property->maximum-long_property->minimum)/1024.0;
-            GST_INFO("  long : %ld...%ld, step=%f",long_property->minimum,long_property->maximum,step);
-            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)long_property->minimum, (gdouble)long_property->maximum,1.0,step,0.0));
-            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-            widget2=NULL;
-            // connect handlers
-            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
-          } break;
-          case G_TYPE_ULONG: {
-            GParamSpecULong *ulong_property=G_PARAM_SPEC_ULONG(property);
-            gulong value;
-            gdouble step;
-
-            g_object_get(machine,property->name,&value,NULL);
-            step=(gdouble)(ulong_property->maximum-ulong_property->minimum)/1024.0;
-            GST_INFO("  ulong : %lu...%lu, step=%f",ulong_property->minimum,ulong_property->maximum,step);
-            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)ulong_property->minimum, (gdouble)ulong_property->maximum,1.0,step,0.0));
-            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-            widget2=NULL;
-            // connect handlers
-            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
-          } break;
-          case G_TYPE_INT64: {
-            GParamSpecInt64 *int64_property=G_PARAM_SPEC_INT64(property);
-            gint64 value;
-            gdouble step;
-
-            g_object_get(machine,property->name,&value,NULL);
-            step=(gdouble)(int64_property->maximum-int64_property->minimum)/1024.0;
-            GST_INFO("  int : %"G_GINT64_FORMAT"...%"G_GINT64_FORMAT", step=%f",int64_property->minimum,int64_property->maximum,step);
-            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int64_property->minimum, (gdouble)int64_property->maximum,1.0,step,0.0));
-            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-            widget2=NULL;
-            // connect handlers
-            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
-          } break;
-          case G_TYPE_UINT64: {
-            GParamSpecUInt64 *uint64_property=G_PARAM_SPEC_UINT64(property);
-            guint64 value;
-            gdouble step;
-
-            g_object_get(machine,property->name,&value,NULL);
-            step=(gdouble)(uint64_property->maximum-uint64_property->minimum)/1024.0;
-            GST_INFO("  uint : %"G_GUINT64_FORMAT"...%"G_GUINT64_FORMAT", step=%f",uint64_property->minimum,uint64_property->maximum,step);
-            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)uint64_property->minimum, (gdouble)uint64_property->maximum,1.0,step,0.0));
-            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-            g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-            widget2=NULL;
-            // connect handlers
-            g_signal_connect(widget1, "value-changed", G_CALLBACK(on_spinbutton_property_changed), (gpointer)machine);
-          } break;
+          _MAKE_SPIN_BUTTON(int,INT,Int)
+          _MAKE_SPIN_BUTTON(uint,UINT,UInt)
+          _MAKE_SPIN_BUTTON(int64,INT64,Int64)
+          _MAKE_SPIN_BUTTON(uint64,UINT64,UInt64)
+          _MAKE_SPIN_BUTTON(long,LONG,Long)
+          _MAKE_SPIN_BUTTON(ulong,ULONG,ULong)
           case G_TYPE_DOUBLE: {
-            GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+            GParamSpecDouble *p=G_PARAM_SPEC_DOUBLE(property);
             gdouble step,value;
             gchar *str_value;
 
             g_object_get(machine,property->name,&value,NULL);
             // get max(max,-min), count digits -> to determine needed length of field
-            str_value=g_strdup_printf("%7.2f",value);
-            step=(double_property->maximum-double_property->minimum)/1024.0;
-            widget1=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
+            str_value=g_strdup_printf("%7.2lf",value);
+            step=(p->maximum-p->minimum)/1024.0;
+            widget1=gtk_hscale_new_with_range(p->minimum,p->maximum,step);
             gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
             g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
             gtk_scale_set_draw_value(GTK_SCALE(widget1),FALSE);
