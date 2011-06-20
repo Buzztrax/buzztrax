@@ -1,6 +1,11 @@
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
+	  Avoid rebuilding the whole sequence when expanding.
+
+2011-06-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
 	  Minor fixup in position formatting.
 
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>

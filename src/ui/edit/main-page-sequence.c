@@ -2064,14 +2064,28 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       if(cursor_row>=last_bar) {
         GtkTreeModelFilter *filtered_store;
         BtSong *song;
+        GtkTreeIter tree_iter;
+        GtkListStore *store;
+        gulong pos;
+        gchar *pos_str;
 
         g_object_get(self->priv->app,"song",&song,NULL);
 
+        pos=self->priv->sequence_length;
         self->priv->sequence_length+=self->priv->bars;
-        sequence_table_refresh(self,song);
+
+        store=GTK_LIST_STORE(gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table))));
+        for(;pos<self->priv->sequence_length;pos++) {
+          gtk_list_store_append(store, &tree_iter);
+					pos_str=sequence_format_positions(self,pos);
+					// set position, highlight-color
+					gtk_list_store_set(store,&tree_iter,
+						SEQUENCE_TABLE_POS,pos,
+						SEQUENCE_TABLE_POSSTR,pos_str,
+						-1);
+        }
+        // this is not optimal
         sequence_model_recolorize(self);
-        // this got invalidated by _refresh()
-        column=gtk_tree_view_get_column(self->priv->sequence_table,cursor_column);
 
         g_object_unref(song);
 
