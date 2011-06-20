@@ -1,5 +1,10 @@
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Make adding solo/bypass patterns using '_' work again.
+
+2011-06-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-list-model.c:
 	  Fix sort order in pattern list, keep internal patterns at the top in a
 	  pre-defined order.

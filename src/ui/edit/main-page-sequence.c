@@ -2355,7 +2355,7 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
       }
     }
 
-    if((!res) && (event->keyval<='z') && (modifier==0)) {
+    if((!res) && (event->keyval<='z') && ((modifier==0) || (modifier==GDK_SHIFT_MASK))) {
       // first column is label
       if((track>0) && (row<length)) {
         gchar key=(gchar)(event->keyval&0xff);
@@ -2373,7 +2373,7 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
           res=TRUE;
         }
         else {
-          GST_WARNING_OBJECT(self->priv->machine,"keyval %c not used by machine",key);
+          GST_WARNING_OBJECT(self->priv->machine,"keyval '%c' not used by machine",key);
         }
       }
     }
