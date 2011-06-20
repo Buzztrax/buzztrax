@@ -1,6 +1,11 @@
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
+	  Planning and comment update.
+
+2011-06-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
 	  Refresh context menu on new patterns (after adding generators). Also
 	  update statusbar on editits.
 
