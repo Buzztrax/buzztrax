@@ -28,8 +28,16 @@
 
 /* @todo: main-page-patterns tasks
  * - shortcuts
+ *   - on_pattern_table_key_press_event()
  *   - Ctrl-S : Smooth
- *     - low pass median filter over changes
+ *     - low pass median filter over values
+ *     - need to figure what to do with empty slots
+ *   - Ctrl-Shift-R: Randomize-Range
+ *     - randomize between first and last value
+ *   - Ctrl-T : Invert (I is Interpolate already)
+ *     - value = max - (value-min))
+ *   - Ctrl-Shift-T : Invert-Range
+ *     - like invert, but take min, max from the values in the selection
  *   - prev/next for combobox entries
  *     - trigger "move-active" action signal with GTK_SCROLL_STEP_UP/GTK_SCROLL_STEP_DOWN
  *     - what mechanism to use:
@@ -1581,6 +1589,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
     default:
       GST_WARNING("invalid column group type");
   }
+  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
   g_object_unref(machine);
 }
 
@@ -2261,6 +2270,7 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   if(bt_change_log_is_active(self->priv->change_log)) {
     if(BT_IS_SOURCE_MACHINE(machine)) {
       BtPattern *pattern=add_new_pattern(self, machine);
+      context_menu_refresh(self,machine);
       g_object_unref(pattern);
     }
   }
@@ -2350,6 +2360,7 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   if(pos<sequence_length) {
     // check all tracks
     // @todo: what if the pattern is played on multiple tracks ?
+    // we'd need to draw several lines
     for(i=0;((i<tracks) && !found);i++) {
       machine=bt_sequence_get_machine(sequence,i);
       if(machine==cur_machine) {
