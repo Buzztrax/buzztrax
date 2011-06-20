@@ -682,6 +682,87 @@ void bt_wire_pattern_blend_columns(const BtWirePattern * const self, const gulon
 }
 
 
+static void _flip_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+  GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
+  GValue *end=&self->priv->data[param+self->priv->num_params*end_tick];
+  gulong i,ticks=end_tick-start_tick;
+  GParamSpec *property;
+  GType base_type;
+  GValue tmp={0,};
+
+	property=bt_wire_get_param_spec(self->priv->wire, param);
+  base_type=bt_g_type_get_base_type(property->value_type);
+
+  GST_INFO("flipping gvalue type %s",G_VALUE_TYPE_NAME(base_type));
+  
+  // g_value_copy(src,dst)
+  g_value_init(&tmp,base_type);
+  for(i=0;i<ticks/2;i++) {
+		if(BT_IS_GVALUE(beg) && BT_IS_GVALUE(end)) {
+			g_value_copy(beg,&tmp);
+			g_value_copy(end,beg);
+			g_value_copy(&tmp,end);
+		} else if(!BT_IS_GVALUE(beg) && BT_IS_GVALUE(end)) {
+			g_value_init(beg,base_type);
+			g_value_copy(end,beg);
+			g_value_unset(end);
+		} else if(BT_IS_GVALUE(beg) && !BT_IS_GVALUE(end)) {
+			g_value_init(end,base_type);
+			g_value_copy(beg,end);
+			g_value_unset(beg);
+		}
+    beg+=self->priv->num_params;
+    end-=self->priv->num_params;
+  }
+  g_value_unset(&tmp);
+}
+
+/**
+ * bt_wire_pattern_flip_column:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ * @param: the parameter
+ *
+ * Flips values from @start_tick to @end_tick for @param up-side down.
+ *
+ * Since: 0.6
+ */
+void bt_wire_pattern_flip_column(const BtWirePattern * const self, const gulong start_tick,const gulong end_tick, const gulong param) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+  
+  _flip_column(self,start_tick,end_tick,param);
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+}
+
+/**
+ * bt_wire_pattern_flip_columns:
+ * @self: the pattern
+ * @start_tick: the start postion for the range
+ * @end_tick: the end postion for the range
+ *
+ * Flips values from @start_tick to @end_tick for all params up-side down.
+ *
+ * Since: 0.6
+ */
+void bt_wire_pattern_flip_columns(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick) {
+  g_return_if_fail(BT_IS_WIRE_PATTERN(self));
+  g_return_if_fail(start_tick<self->priv->length);
+  g_return_if_fail(end_tick<self->priv->length);
+  g_return_if_fail(self->priv->data);
+
+  const gulong num_params=self->priv->num_params;
+  gulong j;
+  
+  for(j=0;j<num_params;j++) {
+    _flip_column(self,start_tick,end_tick,j);
+  }
+  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0);
+}
+
 static void _randomize_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   GValue *beg=&self->priv->data[param+self->priv->num_params*start_tick];
   //GValue *end=&self->priv->data[param+self->priv->num_params*end_tick];

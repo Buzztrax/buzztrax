@@ -56,6 +56,8 @@ extern void bt_pattern_delete_columns(const BtPattern * const self, const gulong
 
 extern void bt_pattern_blend_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
 extern void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+extern void bt_pattern_flip_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+extern void bt_pattern_flip_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
 extern void bt_pattern_randomize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
 extern void bt_pattern_randomize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
 

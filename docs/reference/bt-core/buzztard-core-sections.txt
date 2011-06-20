@@ -167,6 +167,8 @@ bt_pattern_delete_column
 bt_pattern_delete_columns
 bt_pattern_blend_column
 bt_pattern_blend_columns
+bt_pattern_flip_column
+bt_pattern_flip_columns
 bt_pattern_randomize_column
 bt_pattern_randomize_columns
 bt_pattern_serialize_column
@@ -626,6 +628,8 @@ bt_wire_pattern_delete_column
 bt_wire_pattern_delete_columns
 bt_wire_pattern_blend_column
 bt_wire_pattern_blend_columns
+bt_wire_pattern_flip_column
+bt_wire_pattern_flip_columns
 bt_wire_pattern_randomize_column
 bt_wire_pattern_randomize_columns
 bt_wire_pattern_deserialize_column
