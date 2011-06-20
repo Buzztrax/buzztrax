@@ -1103,6 +1103,13 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
     g_string_free(old_data,TRUE);
     g_string_free(new_data,TRUE);
   }
+  else if(event->keyval == GDK_f) {
+    if(modifier&GDK_CONTROL_MASK) {
+      res=pattern_selection_apply(self,
+        bt_pattern_flip_column,bt_pattern_flip_columns,
+        bt_wire_pattern_flip_column,bt_wire_pattern_flip_columns);
+    }
+  }
   else if(event->keyval == GDK_i) {
     if(modifier&GDK_CONTROL_MASK) {
       res=pattern_selection_apply(self,

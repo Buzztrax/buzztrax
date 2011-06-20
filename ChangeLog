@@ -1,5 +1,10 @@
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Use the new flip operators.
+
+2011-06-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/pattern-methods.h:
 	* src/lib/core/libbuzztard-core/wire-pattern-methods.h:
