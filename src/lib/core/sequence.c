@@ -234,15 +234,17 @@ static void bt_sequence_unuse_pattern(const BtSequence * const self, BtPattern *
     g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_changed,NULL);
 
     g_object_get(pattern,"machine",&machine,NULL);
-    for(node=machine->dst_wires;node;node=g_list_next(node)) {
-      wire=BT_WIRE(node->data);
-      if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
-        g_signal_handlers_disconnect_matched(wire_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
-        g_signal_handlers_disconnect_matched(wire_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_changed,NULL);
-        g_object_unref(wire_pattern);
-      }
-    }
-    g_object_unref(machine);
+    if(machine) {
+			for(node=machine->dst_wires;node;node=g_list_next(node)) {
+				wire=BT_WIRE(node->data);
+				if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
+					g_signal_handlers_disconnect_matched(wire_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
+					g_signal_handlers_disconnect_matched(wire_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_changed,NULL);
+					g_object_unref(wire_pattern);
+				}
+			}
+			g_object_unref(machine);
+		}
     g_signal_emit((gpointer)self,signals[PATTERN_REMOVED_EVENT],0,pattern);
     // release the shared ref
     g_object_unref(pattern);
@@ -1703,7 +1705,7 @@ gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPatte
  * @track: the track
  * @rows: the number of rows to insert
  *
- * Insert one empty row for given @track.
+ * Insert empty @rows for given @track.
  */
 static void insert_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows) {
   const gulong tracks=self->priv->tracks;
@@ -1723,6 +1725,7 @@ static void insert_rows(const BtSequence * const self, const gulong time, const 
    * 7 h dst e e e e e e
    */
 
+  /* we're overwriting these */
   for(i=1;i<=rows;i++) {
     if(src[i*tracks])
       bt_sequence_unuse_pattern(self,src[i*tracks]);
@@ -1752,13 +1755,29 @@ static void insert_rows(const BtSequence * const self, const gulong time, const 
  *
  * Since: 0.3
  */
-void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows) {
+void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, const glong track, const gulong rows) {
   g_return_if_fail(BT_IS_SEQUENCE(self));
 
-  GST_INFO("insert %lu rows at %lu,%lu", rows, time, track);
+  GST_INFO("insert %lu rows at %lu,%ld", rows, time, track);
+  
+  if(track>-1) {
+  	insert_rows(self,time,track,rows);
+  	bt_sequence_repair_damage(self);
+  }
+  else {
+  	gulong j=0;
+  	const gulong length=self->priv->length;
+		gchar ** const labels=self->priv->labels;
 
-  insert_rows(self,time,track,rows);
-  bt_sequence_repair_damage(self);
+		// shift label down
+		for(j=length-rows;j<length;j++) {
+			g_free(labels[j]);
+		}
+		memmove(&labels[time+rows],&labels[time],((length-rows)-time)*sizeof(gpointer));
+		for(j=0;j<rows;j++) {
+			labels[time+j]=NULL;
+		}  	
+  }
 }
 
 /**
@@ -1777,13 +1796,14 @@ void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong ti
   const gulong tracks=self->priv->tracks;
   const gulong length=self->priv->length;
   gulong j=0;
-  gchar ** const labels=self->priv->labels;
+  gchar **labels; // don't take the pointer yet, we realloc
 
   GST_DEBUG("insert %lu full-rows at %lu / %lu", rows, time, length);
 
   g_object_set((gpointer)self,"length",length+rows,NULL);
 
   // shift label down
+  labels=self->priv->labels;
   memmove(&labels[time+rows],&labels[time],((length-rows)-time)*sizeof(gpointer));
   for(j=0;j<rows;j++) {
     labels[time+j]=NULL;
@@ -1801,7 +1821,7 @@ void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong ti
  * @track: the track
  * @rows: the number of rows to remove
  *
- * Delete row for given @track.
+ * Delete @rows for given @track.
  */
 static void delete_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows) {
   const gulong tracks=self->priv->tracks;
@@ -1831,6 +1851,8 @@ static void delete_rows(const BtSequence * const self, const gulong time, const 
    * 6 g       g g g . .
    * 7 h       h h h h .
    */
+
+   /* we're overwriting these */
   for(i=0;i<rows;i++) {
     if(dst[i*tracks])
       bt_sequence_unuse_pattern(self,dst[i*tracks]);
@@ -1864,14 +1886,29 @@ static void delete_rows(const BtSequence * const self, const gulong time, const 
  *
  * Since: 0.3
  */
-void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows) {
+void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const glong track, const gulong rows) {
   g_return_if_fail(BT_IS_SEQUENCE(self));
 
-  GST_INFO("delete %lu rows at %lu,%lu", rows, time, track);
+  GST_INFO("delete %lu rows at %lu,%ld", rows, time, track);
 
-  delete_rows(self,time,track,rows);
+  if(track>-1) {
+		delete_rows(self,time,track,rows);
+		bt_sequence_repair_damage(self);
+	}
+	else {
+		gulong j=0;
+		const gulong length=self->priv->length;
+		gchar ** const labels=self->priv->labels;
 
-  bt_sequence_repair_damage(self);
+		// shift label up
+		for(j=0;j<rows;j++) {
+			g_free(labels[time+j]);
+		}
+		memmove(&labels[time],&labels[time+rows],((length-rows)-time)*sizeof(gpointer));
+		for(j=length-rows;j<length;j++) {
+			labels[j]=NULL;
+		}
+	}
 }
 
 /**

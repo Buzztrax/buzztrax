@@ -651,7 +651,7 @@ static BtPattern *pattern_list_model_get_pattern_by_key(GtkTreeModel *store,gcha
   gchar *this_key;
   BtPattern *pattern=NULL;
 
-  GST_INFO("look up pattern for key: '%s'",that_key);
+  GST_INFO("look up pattern for key: '%c'",that_key);
 
   gtk_tree_model_get_iter_first(store,&iter);
   do {
@@ -2324,8 +2324,8 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
     }
     else if(event->keyval == GDK_Insert) {
       if(modifier==0) {
-        GST_INFO("insert pressed, row %lu, track %lu",row,track-1);
-        bt_sequence_insert_rows(self->priv->sequence,row,track-1,self->priv->bars);
+        GST_INFO("insert pressed, row %lu, track %ld",row,(glong)track-1);
+        bt_sequence_insert_rows(self->priv->sequence,row,(glong)track-1,self->priv->bars);
         // reinit the view
         sequence_table_refresh(self,song);
         //sequence_calculate_visible_lines(self);
@@ -2347,8 +2347,8 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
     }
     else if(event->keyval == GDK_Delete) {
       if(modifier==0) {
-        GST_INFO("delete pressed, row %lu, track %lu",row,track-1);
-        bt_sequence_delete_rows(self->priv->sequence,row,track-1,self->priv->bars);
+        GST_INFO("delete pressed, row %lu, track %ld",row,(glong)track-1);
+        bt_sequence_delete_rows(self->priv->sequence,row,(glong)track-1,self->priv->bars);
         // reinit the view
         sequence_table_refresh(self,song);
         //sequence_calculate_visible_lines(self);
@@ -3273,8 +3273,8 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
     GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->sequence_table),GDK_SELECTION_CLIPBOARD);
     GtkTargetEntry *targets;
     gint n_targets;
-    glong i,j;
-    gchar *id;
+    glong i,j,col;
+    gchar *id,*str;
     BtMachine *machine;
     BtPattern *pattern;
     GString *data=g_string_new(NULL);
@@ -3285,30 +3285,47 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
 
     /* the number of ticks */
     g_string_append_printf(data,"%ld\n",(self->priv->selection_end_row+1)-self->priv->selection_start_row);
+    
+    col=self->priv->selection_start_column;
+    if(col==0) {
+    	g_string_append_c(data,' ');
+    	for(j=self->priv->selection_start_row;j<=self->priv->selection_end_row;j++) {
+    		if((str=bt_sequence_get_label(self->priv->sequence,j))) {
+					g_string_append_c(data,',');
+					g_string_append(data,str);
+					g_free(str);
+    		} else {
+					// empty cell
+					g_string_append(data,", ");
+    		}
+    	}
+			g_string_append_c(data,'\n');
+    	col++;
+    }
 
-    for(i=self->priv->selection_start_column;i<=self->priv->selection_end_column;i++) {
+    for(i=col;i<=self->priv->selection_end_column;i++) {
       // store machine id
       machine=bt_sequence_get_machine(self->priv->sequence,i-1);
-      g_object_get(machine,"id",&id,NULL);
-      g_string_append(data,id);
-      g_free(id);
-      for(j=self->priv->selection_start_row;j<=self->priv->selection_end_row;j++) {
-        // store pattern id
-        if((pattern=bt_sequence_get_pattern(self->priv->sequence,j,i-1))) {
-          g_object_get(pattern,"id",&id,NULL);
-          g_string_append_c(data,',');
-          g_string_append(data,id);
-          g_free(id);
-          g_object_unref(pattern);
-        }
-        else {
-          // empty cell
-          g_string_append(data,", ");
-        }
-      }
-      g_string_append_c(data,'\n');
-      g_object_unref(machine);
-    }
+			g_object_get(machine,"id",&id,NULL);
+			g_string_append(data,id);
+			g_free(id);
+			for(j=self->priv->selection_start_row;j<=self->priv->selection_end_row;j++) {
+				// store pattern id
+				if((pattern=bt_sequence_get_pattern(self->priv->sequence,j,i-1))) {
+					g_object_get(pattern,"id",&id,NULL);
+					g_string_append_c(data,',');
+					g_string_append(data,id);
+					g_free(id);
+					g_object_unref(pattern);
+				}
+				else {
+					// empty cell
+					g_string_append(data,", ");
+				}
+			}
+			g_string_append_c(data,'\n');
+			g_object_unref(machine);
+		}
 
     GST_INFO("copying : [%s]",data->str);
 
@@ -3374,56 +3391,85 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
         // process each line (= pattern column)
         while(lines[i] && *lines[i] && (self->priv->cursor_row+(i-1)<=end) && res) {
           fields=g_strsplit_set(lines[i],",",0);
-          track=self->priv->cursor_column+i-2;
-
-          GST_INFO("get machine for col %d",track);
-          machine=bt_sequence_get_machine(self->priv->sequence,track);
-          if(machine) {
-            g_object_get(machine,"id",&id,NULL);
-
-            if (!strcmp(id,fields[0])) {
-              if(gtk_tree_model_get_iter(store,&iter,path)) {
-                j=1;
-                while(fields[j] && *fields[j] && res) {
-                  if(*fields[j]!=' ') {
-                    pattern=bt_machine_get_pattern_by_id(machine,fields[j]);
-                    if(!pattern) {
-                      GST_WARNING("machine %p on track %d, has no pattern with id %s",machine,track,fields[j]);
-                    }
-                    g_object_get(pattern,"name",&str,NULL);
-                  }
-                  else {
-                    pattern=NULL;
-                    str=NULL;
-                  }
-                  sequence_changed|=bt_sequence_set_pattern_quick(self->priv->sequence,self->priv->cursor_row+(j-1),track,pattern);
-                  gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
-                  GST_DEBUG("inserted %s @ %d,%d - changed=%d",str,self->priv->cursor_row+(j-1),track,sequence_changed);
-                  g_object_try_unref(pattern);
-                  g_free(str);
-                  if(!gtk_tree_model_iter_next(store,&iter)) {
-                    GST_WARNING("  can't get next tree-iter");
-                    res=FALSE;
-                  }
-                  j++;
-                }
-              }
-              else {
-                GST_WARNING("  can't get tree-iter for row %ld",self->priv->cursor_row);
-                res=FALSE;
-              }
-            }
-            else {
-              GST_INFO("machines don't match in %s <-> %s",fields[0],id);
-              res=FALSE;
-            }
-
-            g_free(id);
-            g_object_unref(machine);
-          }
-          else {
-            GST_INFO("no machine for track");
-            res=FALSE;
+          
+          if((self->priv->cursor_column+(i-2))>=0) {
+						track=self->priv->cursor_column+i-2;
+	
+						GST_INFO("get machine for col %d",track);
+						machine=bt_sequence_get_machine(self->priv->sequence,track);
+						if(machine) {
+							g_object_get(machine,"id",&id,NULL);
+	
+							if (!strcmp(id,fields[0])) {
+								if(gtk_tree_model_get_iter(store,&iter,path)) {
+									j=1;
+									while(fields[j] && *fields[j] && res) {
+										if(*fields[j]!=' ') {
+											pattern=bt_machine_get_pattern_by_id(machine,fields[j]);
+											if(!pattern) {
+												GST_WARNING("machine %p on track %d, has no pattern with id %s",machine,track,fields[j]);
+											}
+											g_object_get(pattern,"name",&str,NULL);
+										}
+										else {
+											pattern=NULL;
+											str=NULL;
+										}
+										sequence_changed|=bt_sequence_set_pattern_quick(self->priv->sequence,self->priv->cursor_row+(j-1),track,pattern);
+										gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
+										GST_DEBUG("inserted %s @ %d,%d - changed=%d",str,self->priv->cursor_row+(j-1),track,sequence_changed);
+										g_object_try_unref(pattern);
+										g_free(str);
+										if(!gtk_tree_model_iter_next(store,&iter)) {
+											GST_WARNING("  can't get next tree-iter");
+											res=FALSE;
+										}
+										j++;
+									}
+								}
+								else {
+									GST_WARNING("  can't get tree-iter for row %ld",self->priv->cursor_row);
+									res=FALSE;
+								}
+							}
+							else {
+								GST_INFO("machines don't match in %s <-> %s",fields[0],id);
+								res=FALSE;
+							}
+	
+							g_free(id);
+							g_object_unref(machine);
+						}
+          	else {
+          		GST_INFO("no machine for track");
+          		res=FALSE;
+          	}
+					}
+          else if(*fields[0]==' ') {
+						GST_INFO("paste labels");
+						if(gtk_tree_model_get_iter(store,&iter,path)) {
+							j=1;
+							while(fields[j] && *fields[j] && res) {
+								if(*fields[j]!=' ') {
+									str=fields[j];
+								}
+								else {
+									str=NULL;
+								}
+								bt_sequence_set_label(self->priv->sequence,j,str);
+								gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_LABEL,str,-1);
+								GST_DEBUG("inserted %s @ %d",str,self->priv->cursor_row+(j-1));
+								if(!gtk_tree_model_iter_next(store,&iter)) {
+									GST_WARNING("  can't get next tree-iter");
+									res=FALSE;
+								}
+								j++;
+							}
+						}
+						else {
+							GST_WARNING("  can't get tree-iter for row %ld",self->priv->cursor_row);
+							res=FALSE;
+						}          		
           }
           g_strfreev(fields);
           i++;

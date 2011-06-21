@@ -50,9 +50,9 @@ extern gulong bt_sequence_limit_play_pos(const BtSequence * const self, const gu
 
 extern gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPattern * const pattern);
 
-extern void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows);
+extern void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, const glong track, const gulong rows);
 extern void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong time, const gulong rows);
-extern void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows);
+extern void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const glong track, const gulong rows);
 extern void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong time, const gulong rows);
 
 extern void bt_sequence_update_tempo(const BtSequence * const self);
