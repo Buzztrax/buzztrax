@@ -1007,13 +1007,13 @@ void bt_pattern_delete_columns(const BtPattern * const self, const gulong start_
 
 #define _BLEND(t,T)                                                            \
 	case G_TYPE_ ## T: {                                                         \
-		gint val=g_value_get_ ## t(beg);                                           \
-	  gdouble step=(gdouble)(g_value_get_ ## t(end)-val)/(gdouble)ticks;         \
+		gdouble val=(gdouble)g_value_get_ ## t(beg);                               \
+	  gdouble step=((gdouble)g_value_get_ ## t(end)-val)/(gdouble)ticks;         \
 	                                                                             \
 		for(i=0;i<ticks;i++) {                                                     \
 			if(!BT_IS_GVALUE(beg))                                                   \
 				g_value_init(beg,G_TYPE_ ## T);                                        \
-			g_value_set_ ## t(beg,val+(g ## t)(step*i));                             \
+			g_value_set_ ## t(beg,(g ## t)(val+(step*i)));                           \
 			beg+=params;                                                             \
 		}                                                                          \
 	} break;
@@ -1096,7 +1096,6 @@ static void _flip_column(const BtPattern * const self, const gulong start_tick, 
   gulong params=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
   GValue *beg=&self->priv->data[internal_params+param+params*start_tick];
   GValue *end=&self->priv->data[internal_params+param+params*end_tick];
-  gulong i,ticks=end_tick-start_tick;
   GParamSpec *property;
   GType base_type;
   GValue tmp={0,};
@@ -1111,10 +1110,9 @@ static void _flip_column(const BtPattern * const self, const gulong start_tick, 
   base_type=bt_g_type_get_base_type(property->value_type);
 
   GST_INFO("flipping gvalue type %s",G_VALUE_TYPE_NAME(base_type));
-  
-  // g_value_copy(src,dst)
+
   g_value_init(&tmp,base_type);
-  for(i=0;i<ticks/2;i++) {
+  while(beg<end) {
 		if(BT_IS_GVALUE(beg) && BT_IS_GVALUE(end)) {
 			g_value_copy(beg,&tmp);
 			g_value_copy(end,beg);
