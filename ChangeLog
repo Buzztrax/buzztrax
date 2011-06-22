@@ -1,5 +1,11 @@
 2011-06-23  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-window.c:
+	  Retest glib bug (still there) and sync the comments.
+
+2011-06-23  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Fix trigger-switch mapping to not produce wrong enums.
 

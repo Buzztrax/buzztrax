@@ -738,11 +738,13 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
     }
   }
 #if 1
-  /* FIXME: workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236 */
+  /* FIXME: workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236
+   * should be fixed, but is not :/ - see also main-window.c
+   */
   gtk_recent_filter_add_pattern(filter,"*.xml");
+#endif
   gtk_recent_chooser_add_filter(GTK_RECENT_CHOOSER(item),filter);
   gtk_recent_chooser_set_filter(GTK_RECENT_CHOOSER(item),filter);
-#endif
 
   gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 

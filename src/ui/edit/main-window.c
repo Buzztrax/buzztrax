@@ -544,7 +544,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
 #if 1
 //#if !GLIB_CHECK_VERSION(2,22,0)
       /* workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236
-       * should be fixed, but is not :/
+       * should be fixed, but is not :/ - see also main-menu.c
        */
       if(!strcmp(info->formats[ix].mime_type,"audio/x-bzt-xml")) {
         gtk_file_filter_add_pattern(filter,"*.xml");
