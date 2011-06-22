@@ -1702,15 +1702,16 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
 
       if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH) {
         col->type=PCT_SWITCH;
-        col->min=0;
-        col->max=1;
+        col->min=GSTGSTBT_TRIGGER_SWITCH_OFF;
+        col->max=GSTGSTBT_TRIGGER_SWITCH_ON;
+        col->def=GSTGSTBT_TRIGGER_SWITCH_EMPTY;
       }
       else {
         col->type=PCT_BYTE;
         col->min=g_value_get_enum(min_val);
         col->max=g_value_get_enum(max_val);
+        col->def=col->max+1;
       }
-      col->def=col->max+1;
       col->user_data=g_new(BtPatternEditorColumnConverters,1);
       pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->val_to_float=enum_val_to_float;
