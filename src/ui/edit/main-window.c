@@ -541,10 +541,10 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       gtk_file_filter_set_name(filter,info->formats[ix].name);
       gtk_file_filter_add_mime_type(filter,info->formats[ix].mime_type);
       gtk_file_filter_add_mime_type(filter_all,info->formats[ix].mime_type);
-#if 1
-//#if !GLIB_CHECK_VERSION(2,22,0)
+#if !GLIB_CHECK_VERSION(2,22,2)
       /* workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236
-       * should be fixed, but is not :/ - see also main-menu.c
+       * - see also main-menu.c
+       * - git describe e63262d49d40a36060613fb1d0ed468ca5dddc19
        */
       if(!strcmp(info->formats[ix].mime_type,"audio/x-bzt-xml")) {
         gtk_file_filter_add_pattern(filter,"*.xml");

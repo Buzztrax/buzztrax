@@ -11,7 +11,7 @@
   </mime-type>
   <mime-type type="audio/x-bzt-xml">
     <sub-class-of type="application/xml"/>
-    <!--glob pattern="*.xml"/-->
+    <glob pattern="*.xml" weight="5"/>
     <magic priority="100">
       <match type="string" value="&lt;buzztard" offset="0:100"/>
       <match type="string" value="http://www.buzztard.org/" offset="0:100"/>
