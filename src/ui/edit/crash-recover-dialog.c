@@ -83,32 +83,35 @@ G_DEFINE_TYPE (BtCrashRecoverDialog, bt_crash_recover_dialog, GTK_TYPE_DIALOG);
 
 //-- helper
 
-static gchar *get_selected(BtCrashRecoverDialog *self) {
+static gboolean check_selection(BtCrashRecoverDialog *self,GtkTreeModel **model,GtkTreeIter *iter) {
   GtkTreeSelection *selection;
-  GtkTreeModel     *model;
-  GtkTreeIter       iter;
-  gchar *log_name=NULL;
 
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->entries_list));
-  if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+  return gtk_tree_selection_get_selected(selection, model, iter);
+}
+
+static gchar *get_selected(BtCrashRecoverDialog *self) {
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+  gchar *log_name=NULL;
+
+  if(check_selection(self, &model, &iter)) {
     gtk_tree_model_get(model,&iter,COL_LOG_NAME,&log_name,-1);
   }
   return(log_name);
 }
 
 static void remove_selected(BtCrashRecoverDialog *self) {
-  GtkTreeSelection *selection;
-  GtkTreeModel     *model;
-  GtkTreeIter       iter;
+  GtkTreeModel *model;
+  GtkTreeIter iter;
 
-  selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->entries_list));
-  if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+  if(check_selection(self, &model, &iter)) {
     GtkTreeIter next_iter=iter;
     gboolean have_next=(gtk_tree_model_iter_next(model,&next_iter) || gtk_tree_model_get_iter_first(model,&next_iter));
 
     gtk_list_store_remove(GTK_LIST_STORE(model),&iter);
     if(have_next) {
-      gtk_tree_selection_select_iter(selection,&next_iter);
+      gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->entries_list)),&next_iter);
     }
   }
 }
@@ -171,6 +174,10 @@ static void on_delete_clicked(GtkButton *button, gpointer user_data) {
     g_remove(log_name);
     remove_selected(self);
     g_free(log_name);
+    /* if that was the last entry, close dialog */
+    if(!check_selection(self, NULL, NULL)) {
+    	gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_CLOSE);
+    }
   }
 }
 

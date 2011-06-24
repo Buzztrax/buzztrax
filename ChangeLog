@@ -1,3 +1,8 @@
+2011-06-24  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/crash-recover-dialog.c:
+	  Close dialog when last entry was deleted.
+
 2011-06-23  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/buzztard.xml.in:
