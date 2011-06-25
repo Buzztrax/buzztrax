@@ -524,6 +524,25 @@ static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
   gtk_show_uri_simple(GTK_WIDGET(menuitem),"ghelp:buzztard-edit");
 }
 
+static void on_menu_join_irc(GtkMenuItem *menuitem,gpointer user_data) {
+  //BtMainMenu *self=BT_MAIN_MENU(user_data);
+  gchar *uri;
+
+  GST_INFO("menu join-irc event occurred");
+
+  //gtk_show_uri_simple(GTK_WIDGET(menuitem),"irc://irc.freenode.net/#buzztard");
+  uri=g_strdup_printf("http://webchat.freenode.net?nick=%s&channels=#buzztard",g_get_user_name());
+  gtk_show_uri_simple(GTK_WIDGET(menuitem),uri);
+  g_free(uri);
+}
+
+static void on_menu_report_problem(GtkMenuItem *menuitem,gpointer user_data) {
+  //BtMainMenu *self=BT_MAIN_MENU(user_data);
+  GST_INFO("menu submit_bug event occurred");
+
+  gtk_show_uri_simple(GTK_WIDGET(menuitem),"http://buzztard.org/bugs/?");
+}
+
 static void on_menu_help_show_tip(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 
@@ -981,12 +1000,24 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_help_show_tip),(gpointer)self);
 
+  /* join web-chat */  
+  subitem=gtk_menu_item_new_with_label(_("Join IRC discussion"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_join_irc),(gpointer)self);
+
   /* @todo 'translate application' -> link to translator project
    * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-translate.png
    */
-  /* @todo 'report a problem' -> link to sf.net bug tracker
+
+  /* 'report a problem' -> link to bug tracker
    * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-bug.png
+   * /usr/share/app-install/icons/bug-buddy.png
    */
+  subitem=gtk_menu_item_new_with_label(_("Report a problem"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_report_problem),(gpointer)self);
+
+  gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT,accel_group);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
