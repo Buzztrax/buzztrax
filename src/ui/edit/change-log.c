@@ -304,11 +304,14 @@ static void add_change_log_entry(BtChangeLog *self,BtChangeLogEntry *cle) {
   }
 }
 
-static void undo_change_log_entry(BtChangeLogEntry *cle) {
+static void undo_change_log_entry(BtChangeLog *self,BtChangeLogEntry *cle) {
   switch(cle->type) {
     case CHANGE_LOG_ENTRY_SINGLE: {
       BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
       bt_change_logger_change(cles->owner,cles->undo_data);
+      if(self->priv->log_file) {
+        fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(cles->owner),cles->undo_data);
+      }
       break;
     }
     case CHANGE_LOG_ENTRY_GROUP: {
@@ -317,7 +320,7 @@ static void undo_change_log_entry(BtChangeLogEntry *cle) {
 
       // recurse, apply from start to end of group
       for(i=0;i<cleg->changes->len;i++) {
-        undo_change_log_entry(g_ptr_array_index(cleg->changes,i));
+        undo_change_log_entry(self,g_ptr_array_index(cleg->changes,i));
       }
       break;
     }
@@ -326,11 +329,14 @@ static void undo_change_log_entry(BtChangeLogEntry *cle) {
   }
 }
 
-static void redo_change_log_entry(BtChangeLogEntry *cle) {
+static void redo_change_log_entry(BtChangeLog *self,BtChangeLogEntry *cle) {
   switch(cle->type) {
     case CHANGE_LOG_ENTRY_SINGLE: {
       BtChangeLogEntrySingle *cles=(BtChangeLogEntrySingle*)cle;
       bt_change_logger_change(cles->owner,cles->redo_data);
+      if(self->priv->log_file) {
+        fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(cles->owner),cles->redo_data);
+      }
       break;
     }
     case CHANGE_LOG_ENTRY_GROUP: {
@@ -339,7 +345,7 @@ static void redo_change_log_entry(BtChangeLogEntry *cle) {
 
       // recurse, apply from end to start of group
       for(i=cleg->changes->len-1;i>=0;i--) {
-        redo_change_log_entry(g_ptr_array_index(cleg->changes,i));
+        redo_change_log_entry(self,g_ptr_array_index(cleg->changes,i));
       }
       break;
     }
@@ -829,7 +835,7 @@ void bt_change_log_undo(BtChangeLog *self) {
     self->priv->is_active=FALSE;
 
     GST_INFO("before undo %d, %d",self->priv->next_undo,self->priv->next_redo);
-    undo_change_log_entry(g_ptr_array_index(self->priv->changes,self->priv->next_undo));
+    undo_change_log_entry(self,g_ptr_array_index(self->priv->changes,self->priv->next_undo));
     // update undo undo/redo pointers
     self->priv->next_redo=self->priv->next_undo;
     self->priv->next_undo--;
@@ -861,7 +867,7 @@ void bt_change_log_redo(BtChangeLog *self) {
     self->priv->is_active=FALSE;
 
     GST_INFO("before redo %d, %d",self->priv->next_undo,self->priv->next_redo);
-    redo_change_log_entry(g_ptr_array_index(self->priv->changes,self->priv->next_redo));
+    redo_change_log_entry(self,g_ptr_array_index(self->priv->changes,self->priv->next_redo));
     // update undo undo/redo pointers
     self->priv->next_undo=self->priv->next_redo;
     self->priv->next_redo++;
