@@ -1,5 +1,10 @@
 2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  More undo/redo preparations.
+
+2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Fix undo/redo of groups.
 

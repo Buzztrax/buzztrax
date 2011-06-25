@@ -70,7 +70,6 @@
  *   - the label-menu would require that we have a focused view
  */
 /* @bugs
- * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
  * - hovering the mouse over the treeview causes redraws for the whole lines
  *   - cells are asked to do prelight, even if they wouldn't draw anything else
  *     http://www.gtk.org/plan/meetings/20041025.txt
@@ -229,12 +228,14 @@ enum {
 
 enum {
   METHOD_SET_PATTERNS,
+  METHOD_SET_PROPERTY,
   METHOD_ADD_TRACK,
   METHOD_REM_TRACK
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_patterns",13,"$"),
+  BT_CHANGE_LOGGER_METHOD("set_property",13,"$"),
   BT_CHANGE_LOGGER_METHOD("add_track",10,"\"([a-zA-Z0-9 ]+)\",([0-9]+)$"),
   BT_CHANGE_LOGGER_METHOD("rem_track",10,"([0-9]+)$"),
   { NULL, }
@@ -3576,6 +3577,13 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
 
       break;
     }
+		case METHOD_SET_PROPERTY: {
+		  // length
+		  // loop-start/end
+      g_match_info_free(match_info);
+      
+      break;
+		}
     case METHOD_ADD_TRACK: {
       gchar *mid;
       gulong ix;
