@@ -74,6 +74,7 @@
  */
 /* @todo: undo/redo - machine voices
  * - handle undo/redo for add/rem track
+ * - handle undo/redo for randomize/blend/flip
  */
 
 #define BT_EDIT
@@ -526,10 +527,10 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
 
           for(i=0;i<pc_group->num_columns;i++) {
             p=strchr(old_str,'\n');*p='\0';
-            undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,mid,pid,beg,end,param,old_str);
+            undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,mid,pid,beg,end,i,old_str);
             old_str=&p[1];
             p=strchr(new_str,'\n');*p='\0';
-            redo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,mid,pid,beg,end,param,new_str);
+            redo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,mid,pid,beg,end,i,new_str);
             new_str=&p[1];
             bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
           }
@@ -542,10 +543,10 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
       case PGT_GLOBAL: {
         for(i=0;i<pc_group->num_columns;i++) {
           p=strchr(old_str,'\n');*p='\0';
-          undo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,beg,end,param,old_str);
+          undo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,beg,end,i,old_str);
           old_str=&p[1];
           p=strchr(new_str,'\n');*p='\0';
-          redo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,beg,end,param,new_str);
+          redo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,beg,end,i,new_str);
           new_str=&p[1];
           bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
         }
@@ -555,10 +556,10 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
 
         for(i=0;i<pc_group->num_columns;i++) {
           p=strchr(old_str,'\n');*p='\0';
-          undo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,beg,end,voice,param,old_str);
+          undo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,beg,end,voice,i,old_str);
           old_str=&p[1];
           p=strchr(new_str,'\n');*p='\0';
-          redo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,beg,end,voice,param,new_str);
+          redo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,beg,end,voice,i,new_str);
           new_str=&p[1];
           bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
         }
@@ -3311,6 +3312,7 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       // ulong "length"
       // ulong "voices"
       */
+		  GST_DEBUG("-> [%s|%s|%s|%s]",mid,pid,param,value);
 
       g_free(mid);
       g_free(pid);
