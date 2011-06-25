@@ -213,7 +213,7 @@ static void on_machine_item_start_connect(BtMachineCanvasItem *machine_item, gpo
 
 //-- event handler helper
 
-static void machine_item_moved(BtMainPageMachines *self, BtMachineCanvasItem *machine_item) {
+static void machine_item_moved(const BtMainPageMachines *self, BtMachineCanvasItem *machine_item) {
   BtMachine *machine;
   gchar *undo_str,*redo_str;
   gchar *mid;
@@ -557,6 +557,8 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
     pos_x=self->priv->mouse_x;
     pos_y=self->priv->mouse_y;
   }
+	self->priv->machine_xn=pos_x/MACHINE_VIEW_ZOOM_X;
+	self->priv->machine_yn=pos_y/MACHINE_VIEW_ZOOM_Y;
 
   GST_DEBUG_OBJECT(machine,"adding machine at %lf x %lf, mouse is at %lf x %lf",
     pos_x,pos_y,self->priv->mouse_x,self->priv->mouse_y);
@@ -1434,12 +1436,18 @@ static gboolean bt_main_page_machines_add_machine(const BtMainPageMachines *self
       break;
   }
   if(err==NULL) {
+  BtMachineCanvasItem *mi;
     gchar *undo_str,*redo_str;
+
     GST_INFO_OBJECT(machine,"created machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
 
     undo_str = g_strdup_printf("rem_machine \"%s\"",uid);
     redo_str = g_strdup_printf("add_machine %u,\"%s\",\"%s\"",type,uid,plugin_name);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+		if((mi=g_hash_table_lookup(self->priv->machines,machine))) {
+			machine_item_moved(self,mi);
+		}
   }
   else {
     GST_WARNING("Can't create machine %s: %s",plugin_name,err->message);

@@ -1,5 +1,10 @@
 2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Log the initial position.
+
+2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/change-log.c:
 	  Also write to change log on undo/redo. We need to do this to recover
 	  correctly when one adds something and then does undo.
