@@ -126,7 +126,7 @@ BT_START_TEST(test_btwirepattern_obj2) {
   g_object_set(sequence,"length",4L,NULL);
 
   /* set machine */
-  bt_sequence_add_track(sequence,sink_machine);
+  bt_sequence_add_track(sequence,sink_machine,-1);
 
   /* set pattern */
   bt_sequence_set_pattern(sequence,0,0,pattern);

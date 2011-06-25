@@ -1311,25 +1311,50 @@ as it should not be allowed to change the machine later on
  * bt_sequence_add_track:
  * @self: the #BtSequence that holds the tracks
  * @machine: the #BtMachine
+ * @ix: position to add the track at, use -1 to append
  *
- * Adds a new track with the @machine to the end.
+ * Adds a new track with the @machine at @ix or the end.
  *
  * Returns: %TRUE for success
  */
-gboolean bt_sequence_add_track(const BtSequence * const self, const BtMachine * const machine) {
+gboolean bt_sequence_add_track(const BtSequence * const self, const BtMachine * const machine, const glong ix) {
   g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
 
-  const gulong track=self->priv->tracks;
-  GST_INFO("add track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT_REF_COUNT(machine),track);
+	BtMachine **machines;
+	gulong tracks=self->priv->tracks+1;
+	const gulong pos=(ix==-1)?self->priv->tracks:ix;
 
-  g_object_set((gpointer)self,"tracks",(gulong)(track+1),NULL);
-  self->priv->machines[track]=g_object_ref((gpointer)machine);
+	g_return_val_if_fail(ix<(glong)self->priv->tracks,FALSE);
+
+  GST_INFO("add track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT_REF_COUNT(machine),pos);
+
+  // enlarge
+  g_object_set((gpointer)self,"tracks",tracks,NULL);
+  machines=self->priv->machines;
+  if(pos!=(tracks-1)) {
+  	// shift tracks to the right
+		BtPattern **src,**dst;
+		const gulong count=tracks-pos;
+		const gulong length=self->priv->length;
+		gulong i;
+
+		src=&self->priv->patterns[pos];
+		dst=&self->priv->patterns[pos+1];
+		for(i=0;i<length;i++) {
+  		memmove(dst,src,count*sizeof(gpointer));
+			src[count-1]=NULL;
+			src=&src[tracks];
+			dst=&dst[tracks];
+		}
+		memmove(&machines[pos+1],&machines[pos],count*sizeof(gpointer));
+  }
+  machines[pos]=g_object_ref((gpointer)machine);
   // check if that has already been connected
   if(!g_signal_handler_find((gpointer)machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_sequence_on_pattern_removed,(gpointer)self)) {
     g_signal_connect((gpointer)machine,"pattern-removed",G_CALLBACK(bt_sequence_on_pattern_removed),(gpointer)self);
   }
-  GST_INFO(".. added track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT_REF_COUNT(machine),track);
+  GST_INFO(".. added track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT_REF_COUNT(machine),pos);
   return(TRUE);
 }
 

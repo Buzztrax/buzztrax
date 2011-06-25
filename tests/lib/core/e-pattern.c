@@ -160,7 +160,7 @@ BT_START_TEST(test_btpattern_obj_poly2) {
   g_object_set(sequence,"length",4L,NULL);
 
   /* set machine */
-  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine,-1);
 
   /* set pattern */
   bt_sequence_set_pattern(sequence,0,0,pattern);

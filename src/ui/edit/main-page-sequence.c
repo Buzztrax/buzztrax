@@ -167,6 +167,9 @@ struct _BtMainPageSequencePrivate {
 
   /* lock for multithreaded access */
   GMutex        *lock;
+
+  /* editor change log */
+  BtChangeLog *change_log;
 };
 
 static GQuark bus_msg_level_quark=0;
@@ -232,8 +235,8 @@ enum {
 
 static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_patterns",13,"$"),
-  BT_CHANGE_LOGGER_METHOD("add_track",10,"\"([a-zA-Z0-9 ]+)\"$"),
-  BT_CHANGE_LOGGER_METHOD("rem_track",10,"$"),
+  BT_CHANGE_LOGGER_METHOD("add_track",10,"\"([a-zA-Z0-9 ]+)\",([0-9]+)$"),
+  BT_CHANGE_LOGGER_METHOD("rem_track",10,"([0-9]+)$"),
   { NULL, }
 };
 
@@ -1081,6 +1084,7 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
     // disconnect signal handlers
     for(i=0;i<number_of_tracks;i++) {
       if((machine=bt_sequence_get_machine(self->priv->sequence,i))) {
+      	// even though we can have multiple tracks per machine, we can disconnect them all, as we rebuild the treeview anyway
         g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
         g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
         g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
@@ -1696,14 +1700,21 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
   g_object_unref(song);
 }
 
-static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine) {
+/*
+ * sequence_add_track:
+ * @pos: the track position (-1 at the end)
+ *
+ * add a new track for the machine at the given position
+ */
+static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine,glong pos) {
   BtSong *song;
   GList *columns;
 
   // get song from app and then setup from song
   g_object_get(self->priv->app,"song",&song,NULL);
+	
+  bt_sequence_add_track(self->priv->sequence,machine,pos);
 
-  bt_sequence_add_track(self->priv->sequence,machine);
   GST_INFO("machine %p,ref_count=%d track added",machine,G_OBJECT_REF_COUNT(machine));
 
   // reset selection
@@ -1730,6 +1741,24 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   GST_INFO("machine %p,ref_count=%d adding track and updates done",machine,G_OBJECT_REF_COUNT(machine));
 
   g_object_unref(song);
+}
+
+static void sequence_remove_track(const BtMainPageSequence *self,gulong ix) {
+	BtMachine *machine;
+
+	if((machine=bt_sequence_get_machine(self->priv->sequence,ix))) {
+		// even though we can have multiple tracks per machine, we can disconnect them all, as we rebuild the treeview anyway
+		// FIXME: be careful when using the new sequence model
+		g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
+		g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
+		g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
+		GST_INFO("machine %p,ref_count=%d removing track",machine,G_OBJECT_REF_COUNT(machine));
+	
+		// remove the track where the cursor is
+		bt_sequence_remove_track_by_ix(self->priv->sequence,ix);
+	
+		g_object_unref(machine);
+	}
 }
 
 static gboolean update_bars_menu(const BtMainPageSequence *self,gulong bars) {
@@ -1789,10 +1818,10 @@ static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
   widgets=gtk_container_get_children(GTK_CONTAINER(menu_item));
   label=g_list_nth_data(widgets,0);
   if(GTK_IS_LABEL(label)) {
+  	const gchar *id;
     BtSong *song;
     BtSetup *setup;
     BtMachine *machine;
-    const gchar *id;
 
     // get song from app and then setup from song
     g_object_get(self->priv->app,"song",&song,NULL);
@@ -1801,7 +1830,21 @@ static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
     id=gtk_label_get_text(GTK_LABEL(label));
     GST_INFO("adding track for machine \"%s\"",id);
     if((machine=bt_setup_get_machine_by_id(setup,id))) {
-      sequence_add_track(self,machine);
+			gchar *undo_str,*redo_str;
+			gchar *mid;
+			gulong ix;
+
+      sequence_add_track(self,machine,-1);
+      
+			g_object_get(machine,"id",&mid,NULL);
+      g_object_get(self->priv->sequence,"tracks",&ix,NULL);
+
+      /* handle undo/redo */
+			undo_str = g_strdup_printf("rem_track %lu",ix);
+			redo_str = g_strdup_printf("add_track \"%s\",%lu",mid,ix);
+			bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+			g_free(mid);
+      
       g_object_unref(machine);
     }
     g_object_unref(setup);
@@ -1817,42 +1860,47 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
   // change number of tracks
   g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
   if(number_of_tracks>0) {
-    BtSong *song;
-    BtMachine *machine;
+		BtMachine *machine;
+		gulong ix=self->priv->cursor_column-1;
 
-    if((machine=bt_sequence_get_machine(self->priv->sequence,number_of_tracks-1))) {
-      // even though we can have multiple tracks per machine, we can disconnect them all, as we rebuild the treeview anyway
-      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
-      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
-      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
-      GST_INFO("machine %p,ref_count=%d removing track",machine,G_OBJECT_REF_COUNT(machine));
-      g_object_unref(machine);
-    }
+   	if((machine=bt_sequence_get_machine(self->priv->sequence,ix))) {
+   		BtSong *song;
+			gchar *undo_str,*redo_str;
+			gchar *mid;
 
-    // get song from app
-    g_object_get(self->priv->app,"song",&song,NULL);
+			g_object_get(machine,"id",&mid,NULL);
+		
+			/* handle undo/redo */
+			undo_str = g_strdup_printf("add_track \"%s\",%lu",mid,ix);
+			redo_str = g_strdup_printf("rem_track %lu",ix);
+			bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 
-    GST_DEBUG("old cursor column: %ld, tracks: %lu",self->priv->cursor_column,number_of_tracks);
-    // remove the track where the cursor is
-    bt_sequence_remove_track_by_ix(self->priv->sequence,self->priv->cursor_column-1);
-
-    // reset selection
-    self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
-
-    // reinit the view
-    sequence_table_refresh(self,song);
-    sequence_model_recolorize(self);
-
-    if(self->priv->cursor_column>=number_of_tracks) {
-      // update cursor_column and focus cell
-      self->priv->cursor_column--;
-      sequence_view_set_cursor_pos(self);
-      GST_DEBUG("new cursor column: %ld",self->priv->cursor_column);
-    }
-
-    update_after_track_changed(self);
-
-    g_object_unref(song);
+			GST_DEBUG("old cursor column: %ld, tracks: %lu",self->priv->cursor_column,number_of_tracks);
+			sequence_remove_track(self,self->priv->cursor_column-1);
+			
+			// reset selection
+			self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
+	
+			// get song from app
+			g_object_get(self->priv->app,"song",&song,NULL);
+	
+			// reinit the view
+			sequence_table_refresh(self,song);
+			sequence_model_recolorize(self);
+	
+			if(self->priv->cursor_column>=number_of_tracks) {
+				// update cursor_column and focus cell
+				self->priv->cursor_column--;
+				sequence_view_set_cursor_pos(self);
+				GST_DEBUG("new cursor column: %ld",self->priv->cursor_column);
+			}
+	
+			update_after_track_changed(self);
+	
+			g_free(mid);
+			g_object_unref(song);
+			g_object_unref(machine);
+		}
   }
 }
 
@@ -2692,9 +2740,11 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   GST_INFO("machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
   machine_menu_refresh(self,setup);
   GST_INFO("machine %p,ref_count=%d chk1",machine,G_OBJECT_REF_COUNT(machine));
-  if(BT_IS_SOURCE_MACHINE(machine)) {
-    sequence_add_track(self,machine);
-  }
+  //if(bt_change_log_is_active(self->priv->change_log)) {
+		if(BT_IS_SOURCE_MACHINE(machine)) {
+			sequence_add_track(self,machine,-1);
+		}
+	//}
   GST_INFO("... machine %p,ref_count=%d has been added",machine,G_OBJECT_REF_COUNT(machine));
 }
 
@@ -3513,6 +3563,7 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(owner);
   GMatchInfo *match_info;
   gboolean res=FALSE;
+  gchar *s;
 
   GST_INFO("undo/redo: [%s]",data);
   // parse data and apply action
@@ -3527,22 +3578,26 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
     }
     case METHOD_ADD_TRACK: {
       gchar *mid;
+      gulong ix;
       BtSong *song;
       BtSetup *setup;
       BtMachine *machine;
 
       mid=g_match_info_fetch(match_info,1);
+      s=g_match_info_fetch(match_info,2);ix=atol(s);g_free(s);
       g_match_info_free(match_info);
 
-      GST_DEBUG("-> [%s]",mid);
+      GST_DEBUG("-> [%s|%lu]",mid,ix);
 
       // get song from app and then setup from song
       g_object_get(self->priv->app,"song",&song,NULL);
       g_object_get(song,"setup",&setup,NULL);
 
       if((machine=bt_setup_get_machine_by_id(setup,mid))) {
-        sequence_add_track(self,machine);
+        sequence_add_track(self,machine,ix);
         g_object_unref(machine);
+        
+        update_after_track_changed(self);
         res=TRUE;
       }
       g_object_unref(setup);
@@ -3551,9 +3606,16 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
       break;
     }
     case METHOD_REM_TRACK: {
+      gulong ix;
+
+      s=g_match_info_fetch(match_info,1);ix=atol(s);g_free(s);
       g_match_info_free(match_info);
 
-      //sequence_rem_last_track(self);
+      GST_DEBUG("-> [%lu]",ix);
+    	sequence_remove_track(self,ix);
+    	
+    	update_after_track_changed(self);
+      res=TRUE;
       break;
     }
     default:
@@ -3639,6 +3701,8 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 
   g_object_try_unref(self->priv->sequence);
   self->priv->main_window=NULL;
+
+  g_object_unref(self->priv->change_log);
   g_object_unref(self->priv->app);
 
   if(self->priv->machine) {
@@ -3684,6 +3748,10 @@ static void bt_main_page_sequence_init(BtMainPageSequence *self) {
   self->priv->sequence_length=self->priv->bars;
 
   self->priv->lock=g_mutex_new();
+
+  // the undo/redo changelogger
+  self->priv->change_log=bt_change_log_new();
+  bt_change_log_register(self->priv->change_log,BT_CHANGE_LOGGER(self));
 }
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {

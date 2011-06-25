@@ -86,7 +86,7 @@ BT_START_TEST(test_btsequence_add_track1) {
   fail_unless(sequence!=NULL,NULL);
 
   check_init_error_trapp("","BT_IS_MACHINE(machine)");
-  bt_sequence_add_track(sequence,NULL);
+  bt_sequence_add_track(sequence,NULL,-1);
   fail_unless(check_has_error_trapped(), NULL);
 
   /* clean up */
@@ -113,7 +113,7 @@ BT_START_TEST(test_btsequence_add_track2) {
   fail_unless(err==NULL, NULL);
 
   check_init_error_trapp("","BT_IS_SEQUENCE(self)");
-  bt_sequence_add_track(NULL,BT_MACHINE(machine));
+  bt_sequence_add_track(NULL,BT_MACHINE(machine),-1);
   fail_unless(check_has_error_trapped(), NULL);
 
   /* clean up */
@@ -265,8 +265,8 @@ BT_START_TEST(test_btsequence_pattern2) {
   g_object_set(sequence,"length",4L,NULL);
 
   /* add tracks */
-  bt_sequence_add_track(sequence,machine1);
-  bt_sequence_add_track(sequence,machine2);
+  bt_sequence_add_track(sequence,machine1,-1);
+  bt_sequence_add_track(sequence,machine2,-1);
 
   /* get pattern */
   pattern2=bt_sequence_get_pattern(sequence,0,1);

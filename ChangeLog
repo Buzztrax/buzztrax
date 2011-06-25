@@ -1,3 +1,19 @@
+2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	  Change method to allow adding tracks at any index.
+
+	* tests/lib/core/e-network.c:
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/e-sequence.c:
+	* tests/lib/core/e-wire-pattern.c:
+	* tests/lib/core/t-sequence.c:
+	  Update tests.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Flesh out undo/redo for adding/removing tracks.
+
 2011-06-24  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/crash-recover-dialog.c:

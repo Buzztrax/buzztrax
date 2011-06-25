@@ -163,10 +163,10 @@ BT_START_TEST(test_btsequence_enlarge_track) {
   fail_unless(tracks==0, NULL);
 
   /* try to enlarge tracks */
-  bt_sequence_add_track(sequence,machine);
-  bt_sequence_add_track(sequence,machine);
-  bt_sequence_add_track(sequence,machine);
-  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine,-1);
+  bt_sequence_add_track(sequence,machine,-1);
+  bt_sequence_add_track(sequence,machine,-1);
+  bt_sequence_add_track(sequence,machine,-1);
   g_object_get(sequence,"tracks",&tracks,NULL);
   fail_unless(tracks==4, NULL);
 
@@ -199,8 +199,8 @@ BT_START_TEST(test_btsequence_enlarge_track_vals) {
   fail_unless(tracks==0, NULL);
 
   /* set machine twice */
-  bt_sequence_add_track(sequence,machine1);
-  bt_sequence_add_track(sequence,machine1);
+  bt_sequence_add_track(sequence,machine1,-1);
+  bt_sequence_add_track(sequence,machine1,-1);
 
   /* check number of tracks */
   g_object_get(sequence,"tracks",&tracks,NULL);
@@ -256,10 +256,10 @@ BT_START_TEST(test_btsequence_shrink_track) {
 	g_object_set(sequence,"length",1L,NULL);
 
   /* set machine 4 times */
-  bt_sequence_add_track(sequence,machine);
-  bt_sequence_add_track(sequence,machine);
-  bt_sequence_add_track(sequence,machine);
-  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine,-1);
+  bt_sequence_add_track(sequence,machine,-1);
+  bt_sequence_add_track(sequence,machine,-1);
+  bt_sequence_add_track(sequence,machine,-1);
   g_object_get(sequence,"tracks",&tracks,NULL);
   fail_unless(tracks==4, NULL);
 
@@ -303,8 +303,8 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
   fail_unless(length==8, NULL);
 
   /* set machine twice */
-  bt_sequence_add_track(sequence,machine);
-  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine,-1);
+  bt_sequence_add_track(sequence,machine,-1);
 
   /* check tracks */
   g_object_get(sequence,"tracks",&tracks,NULL);
@@ -334,8 +334,8 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
   g_object_get(sequence,"length",&length,NULL);
   fail_unless(length==16, NULL);
   /* try to enlarge tracks again */
-  bt_sequence_add_track(sequence,machine);
-  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine,-1);
+  bt_sequence_add_track(sequence,machine,-1);
   g_object_get(sequence,"tracks",&tracks,NULL);
   fail_unless(tracks==4, NULL);
 
@@ -387,7 +387,7 @@ BT_START_TEST(test_btsequence_update) {
   g_object_set(sequence,"length",4L,NULL);
 
   /* set machine */
-  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine,-1);
 
   /* set pattern */
   bt_sequence_set_pattern(sequence,0,0,pattern1);
@@ -435,7 +435,7 @@ BT_START_TEST(test_btsequence_change_pattern) {
   g_object_set(sequence,"length",4L,NULL);
 
   /* set machine */
-  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine,-1);
 
   /* set pattern */
   bt_sequence_set_pattern(sequence,0,0,pattern);
@@ -493,8 +493,8 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
   g_object_set(sequence,"length",4L,NULL);
 
   /* add two tracks for the machine */
-  bt_sequence_add_track(sequence,machine);
-  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine,-1);
+  bt_sequence_add_track(sequence,machine,-1);
 
   /* set pattern */
   bt_sequence_set_pattern(sequence,0,0,pattern);

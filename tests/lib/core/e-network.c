@@ -97,7 +97,7 @@ BT_START_TEST(test_btcore_net_static1) {
 
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",1L,NULL);
-  bt_sequence_add_track(sequence,gen1);
+  bt_sequence_add_track(sequence,gen1,-1);
 
   /* try to start playing the song */
   if(bt_song_play(song)) {
@@ -172,8 +172,8 @@ BT_START_TEST(test_btcore_net_static2) {
 
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",2L,NULL);
-  bt_sequence_add_track(sequence,gen1);
-  bt_sequence_add_track(sequence,gen2);
+  bt_sequence_add_track(sequence,gen1,-1);
+  bt_sequence_add_track(sequence,gen2,-1);
   mark_point();
 
   /* try to start playing the song */
@@ -265,8 +265,8 @@ BT_START_TEST(test_btcore_net_static3) {
 
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",2L,NULL);
-  bt_sequence_add_track(sequence,gen1);
-  bt_sequence_add_track(sequence,gen2);
+  bt_sequence_add_track(sequence,gen1,-1);
+  bt_sequence_add_track(sequence,gen2,-1);
   mark_point();
 
   /* try to start playing the song */
@@ -354,9 +354,9 @@ BT_START_TEST(test_btcore_net_static4) {
 
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",2L,NULL);
-  bt_sequence_add_track(sequence,gen1);
+  bt_sequence_add_track(sequence,gen1,-1);
   GST_DEBUG_OBJECT(gen1,"added machine to sequence: %p,ref_count=%d",gen1,G_OBJECT_REF_COUNT(gen1));
-  bt_sequence_add_track(sequence,gen2);
+  bt_sequence_add_track(sequence,gen2,-1);
   GST_DEBUG_OBJECT(gen2,"added machine to sequence: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
   mark_point();
 
@@ -445,7 +445,7 @@ BT_START_TEST(test_btcore_net_dynamic1) {
 
   /* enlarge the sequence */
   g_object_set(sequence,"length",10L,"tracks",1L,NULL);
-  bt_sequence_add_track(sequence,gen1);
+  bt_sequence_add_track(sequence,gen1,-1);
 
   /* try to start playing the song */
   if(bt_song_play(song)) {
@@ -542,7 +542,7 @@ BT_START_TEST(test_btcore_net_dynamic2) {
 
   /* enlarge the sequence */
   g_object_set(sequence,"length",10L,"tracks",1L,NULL);
-  bt_sequence_add_track(sequence,gen1);
+  bt_sequence_add_track(sequence,gen1,-1);
   mark_point();
 
   /* try to start playing the song */
