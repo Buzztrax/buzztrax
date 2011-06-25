@@ -1,5 +1,12 @@
 2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire-pattern.c:
+	  Fix out of rage enum value. Allow to also blend enums.
+
+2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Also link to gio explicitely.
 

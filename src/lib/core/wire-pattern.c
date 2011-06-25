@@ -593,23 +593,46 @@ static void _blend_column(const BtWirePattern * const self, const gulong start_t
   GValue *beg=&self->priv->data[param+params*start_tick];
   GValue *end=&self->priv->data[param+params*end_tick];
   gulong i,ticks=end_tick-start_tick;
+  GParamSpec *property;
+  GType base_type;
 
   if(!BT_IS_GVALUE(beg) || !BT_IS_GVALUE(end)) {
     GST_INFO("Can't blend, beg or end is empty");
     return;
   }
+	property=bt_wire_get_param_spec(self->priv->wire, param);
+  base_type=bt_g_type_get_base_type(property->value_type);
   
   GST_INFO("blending gvalue type %s",G_VALUE_TYPE_NAME(end));
   
   // @todo: should this honour the cursor stepping? e.g. enter only every second value
   
-  switch(G_VALUE_TYPE(end)) {
+  switch(base_type) {
   	_BLEND(int,INT)
   	_BLEND(uint,UINT)
   	_BLEND(int64,INT64)
   	_BLEND(uint64,UINT64)
   	_BLEND(float,FLOAT)
   	_BLEND(double,DOUBLE)
+    case G_TYPE_ENUM:{
+      GParamSpecEnum *p=G_PARAM_SPEC_ENUM (property);
+      GEnumClass *e=p->enum_class;
+			gdouble val1,val2,step;
+      gint v;
+      
+      val1=g_enum_get_value(e,g_value_get_enum(beg))->value;
+      val2=g_enum_get_value(e,g_value_get_enum(end))->value;
+      step=(val2-val1)/(gdouble)ticks;
+
+      for(i=0;i<ticks;i++) {
+        if(!BT_IS_GVALUE(beg))
+          g_value_init(beg,property->value_type);
+        v=(gint)(val1+(step*i));
+				// handle sparse enums
+        g_value_set_enum(beg,e->values[v].value);
+        beg+=params;
+      }    		
+    } break;
     default:
       GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(end));
   }
@@ -790,17 +813,16 @@ static void _randomize_column(const BtWirePattern * const self, const gulong sta
     case G_TYPE_ENUM:{
       const GParamSpecEnum *p=G_PARAM_SPEC_ENUM (property);
       const GEnumClass *e=p->enum_class;
+      gint nv=e->n_values-1; // don't use no_value
       gint v;            
 
       for(i=0;i<ticks;i++) {
         if(!BT_IS_GVALUE(beg))
           g_value_init(beg,property->value_type);
         rnd=((gdouble)rand())/(RAND_MAX+1.0);
-        v=(gint)(e->minimum+((e->maximum-e->minimum)*rnd));
-				// handle sparse enums (lets go the next smaller valid value for now)
-				while(!g_enum_get_value((GEnumClass *)e,v) && (v>=e->minimum))
-					v--;
-        g_value_set_enum(beg,v);
+        v=(gint)(nv*rnd);
+				// handle sparse enums
+				g_value_set_enum(beg,e->values[v].value);
         beg+=params;
       }
     } break;
