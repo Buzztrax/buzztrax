@@ -242,7 +242,8 @@ dnl Checks for libraries.
 
 dnl mandarory deps
 PKG_CHECK_MODULES(BASE_DEPS, \
-  glib-2.0 >= 2.10.0 gobject-2.0  >= 2.10.0 gthread-2.0 >= 2.10.0 gmodule-2.0 >= 2.10.0 \
+  glib-2.0 >= 2.10.0 gobject-2.0  >= 2.10.0 gthread-2.0 >= 2.10.0 \
+  gmodule-2.0 >= 2.10.0 gio-2.0 >= 2.10.0 \
   libxml-2.0 >= 2.6.0 \
   gstreamer-0.10 >= 0.10.14 gstreamer-controller-0.10 >= 0.10.14 \
   gstreamer-base-0.10 >= 0.10.14 \

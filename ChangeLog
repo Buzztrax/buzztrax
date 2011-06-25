@@ -1,5 +1,10 @@
 2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  Also link to gio explicitely.
+
+2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-menu.c:
 	  Add tw items to help menu to get to web-irc chat and to the bug 
 	  tracker.
