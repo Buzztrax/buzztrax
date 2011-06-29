@@ -1670,6 +1670,7 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
 
         g_object_get(machine,"properties",&properties,NULL);
 
+        res=TRUE;
         if(!strcmp(key,"xpos")) {
           if((item=g_hash_table_lookup(self->priv->machines,machine))) {
             g_object_get(item,"x",&po,NULL);
@@ -1696,12 +1697,15 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
         else if(!strcmp(key,"voices")) {
           g_object_set(machine,"voices",atol(val),NULL);
         }
+        else {
+        	GST_WARNING("unhandled property '%s'",key);
+        	res=FALSE;
+        }
         if(is_prop && properties) {
           // take ownership of the strings
           g_hash_table_replace(properties,key,val);
           key=val=NULL;
         }
-        res=TRUE;
         g_object_unref(machine);
       }
       g_free(mid);g_free(key);g_free(val);

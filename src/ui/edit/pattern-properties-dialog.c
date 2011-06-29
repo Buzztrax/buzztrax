@@ -33,7 +33,10 @@
 //-- property ids
 
 enum {
-  PATTERN_PROPERTIES_DIALOG_PATTERN=1
+  PATTERN_PROPERTIES_DIALOG_PATTERN=1,
+  PATTERN_PROPERTIES_DIALOG_NAME,
+  PATTERN_PROPERTIES_DIALOG_LENGTH,
+  PATTERN_PROPERTIES_DIALOG_VOICES
 };
 
 struct _BtPatternPropertiesDialogPrivate {
@@ -240,6 +243,25 @@ void bt_pattern_properties_dialog_apply(const BtPatternPropertiesDialog *self) {
 
 //-- class internals
 
+static void bt_pattern_properties_dialog_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
+  BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(object);
+  return_if_disposed();
+  switch (property_id) {
+    case PATTERN_PROPERTIES_DIALOG_NAME: {
+      g_value_set_string(value, self->priv->name);
+    } break;
+    case PATTERN_PROPERTIES_DIALOG_LENGTH: {
+      g_value_set_ulong(value, self->priv->length);
+    } break;
+    case PATTERN_PROPERTIES_DIALOG_VOICES: {
+      g_value_set_ulong(value, self->priv->voices);
+    } break;
+    default: {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
+  }
+}
+
 static void bt_pattern_properties_dialog_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(object);
   return_if_disposed();
@@ -291,6 +313,7 @@ static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogCla
 
   g_type_class_add_private(klass,sizeof(BtPatternPropertiesDialogPrivate));
 
+  gobject_class->get_property = bt_pattern_properties_dialog_get_property;
   gobject_class->set_property = bt_pattern_properties_dialog_set_property;
   gobject_class->dispose      = bt_pattern_properties_dialog_dispose;
   gobject_class->finalize     = bt_pattern_properties_dialog_finalize;
@@ -302,5 +325,29 @@ static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogCla
                                      BT_TYPE_PATTERN, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property(gobject_class,PATTERN_PROPERTIES_DIALOG_NAME,
+                                  g_param_spec_string("name",
+                                     "name prop",
+                                     "the display-name of the pattern",
+                                     "unamed", /* default value */
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,PATTERN_PROPERTIES_DIALOG_LENGTH,
+                                  g_param_spec_ulong("length",
+                                     "length prop",
+                                     "length of the pattern in ticks",
+                                     1,
+                                     G_MAXULONG,
+                                     1,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,PATTERN_PROPERTIES_DIALOG_VOICES,
+                                  g_param_spec_ulong("voices",
+                                     "voices prop",
+                                     "number of voices in the pattern",
+                                     0,
+                                     G_MAXULONG,
+                                     0,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 

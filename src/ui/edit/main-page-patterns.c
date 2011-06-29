@@ -197,7 +197,7 @@ static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_global_events",18,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
   BT_CHANGE_LOGGER_METHOD("set_voice_events",17,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),([0-9]+),(.*)$"),
   BT_CHANGE_LOGGER_METHOD("set_wire_events",16,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+),([0-9]+),([0-9]+),(.*)$"),
-  BT_CHANGE_LOGGER_METHOD("set_property",13,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("set_pattern_property",21,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_pattern",12,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+)$"),
   BT_CHANGE_LOGGER_METHOD("rem_pattern",12,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   { NULL, }
@@ -2521,10 +2521,58 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
   gtk_widget_show_all(dialog);
 
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+  	BtMachine *machine;
+  	gchar *new_name, *old_name;
+  	gulong new_length, old_length, new_voices, old_voices;
+  	gchar *undo_str,*redo_str;
+  	gchar *mid,*pid;
+
     /* FIXME: undo/redo
      * here, we don't know what is going to be changed :/
+     *   a) add method here and set it this way
+     *   b) catch g_object_set? - won't work, as we need it before
+     *   c) make name/length/voices properties on the dialog
+     *      and move the bt_pattern_properties_dialog_apply() here.
+     *   d) make a tmp copy of the pattern (need to pick an 'internal' name)
+     *      and take the old data from it
+     *   E) make name/length/voices properties on the dialog
+     *      and check them from here
      */
+    g_object_get(self->priv->pattern,"id",&pid,"name",&old_name,"length",&old_length,"voices",&old_voices,"machine",&machine,NULL);
+    g_object_get(dialog,"name",&new_name,"length",&new_length,"voices",&new_voices,NULL);
+    g_object_get(machine,"id",&mid,NULL);
+    
+		bt_change_log_start_group(self->priv->change_log);
+
+    if(strcmp(old_name,new_name)) {
+			undo_str = g_strdup_printf("set_pattern_property \"%s\",\"%s\",\"name\",\"%s\"",mid,pid,old_name);
+			redo_str = g_strdup_printf("set_pattern_property \"%s\",\"%s\",\"name\",\"%s\"",mid,pid,new_name);
+			bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+    }
+    if(old_length!=new_length) {
+			undo_str = g_strdup_printf("set_pattern_property \"%s\",\"%s\",\"length\",\"%lu\"",mid,pid,old_length);
+			redo_str = g_strdup_printf("set_pattern_property \"%s\",\"%s\",\"length\",\"%lu\"",mid,pid,new_length);
+			bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+      if(old_length>new_length) {
+      	GString *old_data=g_string_new(NULL);
+      	pattern_range_copy(self,new_length,old_length-1,-1,-1,old_data);
+        pattern_range_log_undo_redo(self,new_length,old_length-1,-1,-1,old_data->str,g_strdup(old_data->str));
+				g_string_free(old_data,TRUE);
+      }
+    }
+    /* if old_voices<voices
+     *   set the property for machine
+     * else
+     *   save regions for *all* patterns
+     *   set the property for machine
+     * // we might need to do that from the machine-page
+     * // maybe the voices parameter needs to be moved
+     */
+
+    bt_change_log_end_group(self->priv->change_log);
+
     bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+    g_free(mid);g_free(pid);g_free(old_name);g_free(new_name);
   }
   gtk_widget_destroy(dialog);
 }
@@ -3296,28 +3344,34 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       break;
     }
     case METHOD_SET_PROPERTY: {
-      gchar *mid,*pid,*param,*value;
+      gchar *mid,*pid,*key,*val;
 
       mid=g_match_info_fetch(match_info,1);
       pid=g_match_info_fetch(match_info,2);
-      param=g_match_info_fetch(match_info,3);
-      value=g_match_info_fetch(match_info,4);
+      key=g_match_info_fetch(match_info,3);
+      val=g_match_info_fetch(match_info,4);
       g_match_info_free(match_info);
 
+		  GST_DEBUG("-> [%s|%s|%s|%s]",mid,pid,key,val);
+
       lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
-      /* only used from pattern_properties_dialog
-         a) add method here and set it this way
-         b) catch g_object_set?
-      // string "name"
-      // ulong "length"
-      // ulong "voices"
-      */
-		  GST_DEBUG("-> [%s|%s|%s|%s]",mid,pid,param,value);
+
+      res=TRUE;
+      if(!strcmp(key,"name")) {
+        // string "name"
+        g_object_set(pattern,"name",val,NULL);
+      } else if(!strcmp(key,"length")) {
+      	g_object_set(pattern,"length",atol(val),NULL);
+      }
+			else {
+				GST_WARNING("unhandled property '%s'",key);
+				res=FALSE;
+			}
 
       g_free(mid);
       g_free(pid);
-      g_free(param);
-      g_free(value);
+      g_free(key);
+      g_free(val);
       break;
     }
     case METHOD_ADD_PATTERN: {
