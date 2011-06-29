@@ -6,6 +6,7 @@
 bt_about_dialog_get_type
 bt_change_log_get_type
 bt_change_logger_get_type
+bt_crash_recover_dialog_get_type
 bt_edit_application_get_type
 bt_interaction_controller_menu_get_type
 bt_interaction_controller_learn_dialog_get_type

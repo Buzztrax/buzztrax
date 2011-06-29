@@ -1,3 +1,11 @@
+2011-06-28  Stefan Sauer  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztard-edit.types:
+	* src/ui/edit/crash-recover-dialog.c:
+	  Fix docblob and add dialog to the docs.
+
 2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:

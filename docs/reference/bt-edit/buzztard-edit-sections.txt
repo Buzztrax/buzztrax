@@ -70,6 +70,23 @@ bt_change_logger_get_type
 
 
 <SECTION>
+<FILE>btcrashrecoverdialog</FILE>
+<TITLE>BtCrashRecoverDialog</TITLE>
+bt_crash_recover_dialog_new
+<SUBSECTION Standard>
+BtCrashRecoverDialog
+BtCrashRecoverDialogClass
+BT_CRASH_RECOVER_DIALOG
+BT_IS_CRASH_RECOVER_DIALOG
+BT_CRASH_RECOVER_DIALOG_CLASS
+BT_IS_CRASH_RECOVER_DIALOG_CLASS
+BT_TYPE_CRASH_RECOVER_DIALOG
+BT_CRASH_RECOVER_DIALOG_GET_CLASS
+bt_crash_recover_dialog_get_type
+</SECTION>
+
+
+<SECTION>
 <FILE>bteditapplication</FILE>
 <TITLE>BtEditApplication</TITLE>
 BtEditApplication

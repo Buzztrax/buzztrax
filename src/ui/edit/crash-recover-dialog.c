@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:bttipdialog
+ * SECTION:btcrashrecoverdialog
  * @short_description: class for the song recovery dialog
  *
  * Show a dialog listing found unsaved songs. Allows to delete or restore them.
