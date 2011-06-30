@@ -1,6 +1,12 @@
 2011-06-29  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
+	  More undo/redo preparations. Factor out track deserialisation. Add
+	  undo/redo command parameters.
+
+2011-06-29  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
 	  The pattern list updates itself on usage changes now. No need to
 	  manually trigger it.
 

@@ -234,8 +234,8 @@ enum {
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
-  BT_CHANGE_LOGGER_METHOD("set_patterns",13,"$"),
-  BT_CHANGE_LOGGER_METHOD("set_property",13,"$"),
+  BT_CHANGE_LOGGER_METHOD("set_patterns",13,"([0-9]+),([0-9]+),([0-9]+),(.*)$"),
+  BT_CHANGE_LOGGER_METHOD("set_sequence_property",22,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_track",10,"\"([a-zA-Z0-9 ]+)\",([0-9]+)$"),
   BT_CHANGE_LOGGER_METHOD("rem_track",10,"([0-9]+)$"),
   { NULL, }
@@ -2192,12 +2192,20 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
     if(event->keyval==GDK_space || event->keyval == GDK_period) {
       // first column is label
       if((track>0) && (row<length)) {
-        BtPattern *pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1);
+        BtPattern *old_pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1);
+        gchar *undo_str,*redo_str;
+        gchar *old_pid=NULL;
 
         bt_sequence_set_pattern(self->priv->sequence,row,track-1,NULL);
-        if(pattern) {
-          g_object_unref(pattern);
+        if(old_pattern) {
+        	g_object_get(old_pattern,"id",&old_pid,NULL);
+          g_object_unref(old_pattern);
         }
+        undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s",track-1,row,row,old_pid);
+        redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,",track-1,row,row);
+        bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
+        g_free(old_pid);
+        
         str=" ";
         change=TRUE;
         res=TRUE;
@@ -3387,6 +3395,99 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
   }
 }
 
+static gboolean sequence_deserialize_pattern_track(BtMainPageSequence *self,GtkTreeModel *store,GtkTreePath *path,gchar **fields,gulong track,gboolean *sequence_changed) {
+	gboolean res=TRUE;
+	GtkTreeIter iter;
+	BtMachine *machine;
+
+	GST_INFO("get machine for col %d",track);
+	machine=bt_sequence_get_machine(self->priv->sequence,track);
+	if(machine) {
+    gchar *id, *str;
+
+		g_object_get(machine,"id",&id,NULL);
+		if(!strcmp(id,fields[0])) {
+			if(gtk_tree_model_get_iter(store,&iter,path)) {
+				BtPattern *pattern;
+				gint j=1;
+				while(fields[j] && *fields[j] && res) {
+					if(*fields[j]!=' ') {
+						pattern=bt_machine_get_pattern_by_id(machine,fields[j]);
+						if(!pattern) {
+							GST_WARNING("machine %p on track %d, has no pattern with id %s",machine,track,fields[j]);
+						}
+						g_object_get(pattern,"name",&str,NULL);
+					}
+					else {
+						pattern=NULL;
+						str=NULL;
+					}
+					(*sequence_changed)|=bt_sequence_set_pattern_quick(self->priv->sequence,self->priv->cursor_row+(j-1),track,pattern);
+					gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
+					GST_DEBUG("inserted %s @ %d,%d - changed=%d",str,self->priv->cursor_row+(j-1),track,sequence_changed);
+					g_object_try_unref(pattern);
+					g_free(str);
+					if(!gtk_tree_model_iter_next(store,&iter)) {
+						GST_WARNING("  can't get next tree-iter");
+						res=FALSE;
+					}
+					j++;
+				}
+			}
+			else {
+				GST_WARNING("  can't get tree-iter for row %ld",self->priv->cursor_row);
+				res=FALSE;
+			}
+		}
+		else {
+			GST_INFO("machines don't match in %s <-> %s",fields[0],id);
+			res=FALSE;
+		}
+
+		g_free(id);
+		g_object_unref(machine);
+	}
+	else {
+		GST_INFO("no machine for track");
+		res=FALSE;
+	}
+  return(res);
+}
+
+static gboolean sequence_deserialize_label_track(BtMainPageSequence *self,GtkTreeModel *store,GtkTreePath *path,gchar **fields) {
+	gboolean res=TRUE;
+	GtkTreeIter iter;
+	gchar *str;
+
+	GST_INFO("paste labels");
+	if(gtk_tree_model_get_iter(store,&iter,path)) {
+		gint j=1;
+		while(fields[j] && *fields[j] && res) {
+			if(*fields[j]!=' ') {
+				str=fields[j];
+			}
+			else {
+				str=NULL;
+			}
+			bt_sequence_set_label(self->priv->sequence,j,str);
+			gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_LABEL,str,-1);
+			GST_DEBUG("inserted %s @ %d",str,self->priv->cursor_row+(j-1));
+			if(!gtk_tree_model_iter_next(store,&iter)) {
+				GST_WARNING("  can't get next tree-iter");
+				res=FALSE;
+			}
+			j++;
+		}
+	}
+	else {
+		GST_WARNING("  can't get tree-iter for row %ld",self->priv->cursor_row);
+		res=FALSE;
+	}          		
+
+  return(res);
+}
+
+
 static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,gpointer user_data) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(user_data);
   gchar **lines;
@@ -3404,14 +3505,11 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
   lines=g_strsplit_set(data,"\n",0);
   if(lines[0]) {
     GtkTreeModel *store;
-    BtMachine *machine;
-    BtPattern *pattern;
-    gint i=1,j;
+    gint i=1;
     gint beg,end;
-    gulong sequence_length,track;
+    gulong sequence_length;
     gboolean sequence_changed=FALSE;
     gchar **fields;
-    gchar *id, *str;
     gboolean res=TRUE;
 
     g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
@@ -3428,90 +3526,15 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
       GtkTreePath *path;
 
       if((path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1))) {
-        GtkTreeIter iter;
-
         // process each line (= pattern column)
         while(lines[i] && *lines[i] && (self->priv->cursor_row+(i-1)<=end) && res) {
           fields=g_strsplit_set(lines[i],",",0);
           
           if((self->priv->cursor_column+(i-2))>=0) {
-						track=self->priv->cursor_column+i-2;
-	
-						GST_INFO("get machine for col %d",track);
-						machine=bt_sequence_get_machine(self->priv->sequence,track);
-						if(machine) {
-							g_object_get(machine,"id",&id,NULL);
-	
-							if (!strcmp(id,fields[0])) {
-								if(gtk_tree_model_get_iter(store,&iter,path)) {
-									j=1;
-									while(fields[j] && *fields[j] && res) {
-										if(*fields[j]!=' ') {
-											pattern=bt_machine_get_pattern_by_id(machine,fields[j]);
-											if(!pattern) {
-												GST_WARNING("machine %p on track %d, has no pattern with id %s",machine,track,fields[j]);
-											}
-											g_object_get(pattern,"name",&str,NULL);
-										}
-										else {
-											pattern=NULL;
-											str=NULL;
-										}
-										sequence_changed|=bt_sequence_set_pattern_quick(self->priv->sequence,self->priv->cursor_row+(j-1),track,pattern);
-										gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
-										GST_DEBUG("inserted %s @ %d,%d - changed=%d",str,self->priv->cursor_row+(j-1),track,sequence_changed);
-										g_object_try_unref(pattern);
-										g_free(str);
-										if(!gtk_tree_model_iter_next(store,&iter)) {
-											GST_WARNING("  can't get next tree-iter");
-											res=FALSE;
-										}
-										j++;
-									}
-								}
-								else {
-									GST_WARNING("  can't get tree-iter for row %ld",self->priv->cursor_row);
-									res=FALSE;
-								}
-							}
-							else {
-								GST_INFO("machines don't match in %s <-> %s",fields[0],id);
-								res=FALSE;
-							}
-	
-							g_free(id);
-							g_object_unref(machine);
-						}
-          	else {
-          		GST_INFO("no machine for track");
-          		res=FALSE;
-          	}
+          	res=sequence_deserialize_pattern_track(self,store,path,fields,(self->priv->cursor_column+i-2),&sequence_changed);
 					}
           else if(*fields[0]==' ') {
-						GST_INFO("paste labels");
-						if(gtk_tree_model_get_iter(store,&iter,path)) {
-							j=1;
-							while(fields[j] && *fields[j] && res) {
-								if(*fields[j]!=' ') {
-									str=fields[j];
-								}
-								else {
-									str=NULL;
-								}
-								bt_sequence_set_label(self->priv->sequence,j,str);
-								gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_LABEL,str,-1);
-								GST_DEBUG("inserted %s @ %d",str,self->priv->cursor_row+(j-1));
-								if(!gtk_tree_model_iter_next(store,&iter)) {
-									GST_WARNING("  can't get next tree-iter");
-									res=FALSE;
-								}
-								j++;
-							}
-						}
-						else {
-							GST_WARNING("  can't get tree-iter for row %ld",self->priv->cursor_row);
-							res=FALSE;
-						}          		
+          	res=sequence_deserialize_label_track(self,store,path,fields);
           }
           g_strfreev(fields);
           i++;
@@ -3561,18 +3584,36 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
   // parse data and apply action
   switch (bt_change_logger_match_method(change_logger_methods, data, &match_info)) {
     case METHOD_SET_PATTERNS: {
-      // track, beg, end
+      gchar *str;
+      gulong track,s_row,e_row;
+
+      // track, beg, end, patterns
+      s=g_match_info_fetch(match_info,1);track=atol(s);g_free(s);
+      s=g_match_info_fetch(match_info,2);s_row=atol(s);g_free(s);
+      s=g_match_info_fetch(match_info,3);e_row=atol(s);g_free(s);
+      str=g_match_info_fetch(match_info,4);
       g_match_info_free(match_info);
+      
+      GST_DEBUG("-> [%lu|%lu|%lu|%s]",track,s_row,e_row,str);
 
       // refactor sequence_clipboard_received_func
-
+      
+      g_free(str);
       break;
     }
 		case METHOD_SET_PROPERTY: {
+		  gchar *key,*val;
+
+      key=g_match_info_fetch(match_info,1);
+      val=g_match_info_fetch(match_info,2);
+      g_match_info_free(match_info);
+
+		  GST_DEBUG("-> [%s|%s]",key,val);
 		  // length
 		  // loop-start/end
-      g_match_info_free(match_info);
-      
+		  
+      g_free(key);
+      g_free(val);
       break;
 		}
     case METHOD_ADD_TRACK: {
