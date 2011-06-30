@@ -2179,7 +2179,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
     gchar *str=NULL;
     gboolean free_str=FALSE;
     gboolean change=FALSE;
-    gboolean pattern_usage_changed=FALSE;
     gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
 
     g_object_get(self->priv->sequence,"length",&length,"tracks",&tracks,NULL);
@@ -2197,7 +2196,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
 
         bt_sequence_set_pattern(self->priv->sequence,row,track-1,NULL);
         if(pattern) {
-          pattern_usage_changed=!bt_sequence_is_pattern_used(self->priv->sequence,pattern);
           g_object_unref(pattern);
         }
         str=" ";
@@ -2426,8 +2424,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         GtkTreeModel *store;
         store=gtk_tree_view_get_model(self->priv->pattern_list);
         if((pattern=pattern_list_model_get_pattern_by_key(store,key))) {
-          // FIXME: we can get this from the model (once we cache it there)
-          pattern_usage_changed=!bt_sequence_is_pattern_used(self->priv->sequence,pattern);
           bt_sequence_set_pattern(self->priv->sequence,row,track-1,pattern);
           g_object_get(pattern,"name",&str,NULL);
           g_object_unref(pattern);
@@ -2475,11 +2471,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
             if((cpath=gtk_tree_path_new_from_indices((self->priv->cursor_row/self->priv->bars),-1))) {
               gtk_tree_view_set_cursor(self->priv->sequence_table,cpath,column,FALSE);
               gtk_tree_path_free(cpath);
-            }
-
-            if(pattern_usage_changed) {
-              // FIXME: ideally we only notify the usage_changed
-              pattern_list_refresh(self);
             }
           }
           else {

@@ -1,3 +1,9 @@
+2011-06-29  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  The pattern list updates itself on usage changes now. No need to
+	  manually trigger it.
+
 2011-06-28  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:
