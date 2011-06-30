@@ -1,6 +1,11 @@
 2011-06-29  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
+	  Implement undo/redo for single pattern edits in sequence.
+
+2011-06-29  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
 	  More undo/redo preparations. Factor out track deserialisation. Add
 	  undo/redo command parameters.
 

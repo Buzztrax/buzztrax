@@ -2193,22 +2193,27 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
       // first column is label
       if((track>0) && (row<length)) {
         BtPattern *old_pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1);
+        BtMachine *machine;
         gchar *undo_str,*redo_str;
-        gchar *old_pid=NULL;
+        gchar *mid,*old_pid=NULL;
 
-        bt_sequence_set_pattern(self->priv->sequence,row,track-1,NULL);
-        if(old_pattern) {
-        	g_object_get(old_pattern,"id",&old_pid,NULL);
-          g_object_unref(old_pattern);
-        }
-        undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s",track-1,row,row,old_pid);
-        redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,",track-1,row,row);
-        bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
-        g_free(old_pid);
-        
-        str=" ";
-        change=TRUE;
-        res=TRUE;
+        if((machine=bt_sequence_get_machine(self->priv->sequence,track-1))) {
+					g_object_get(machine,"id",&mid,NULL);
+					bt_sequence_set_pattern(self->priv->sequence,row,track-1,NULL);
+					if(old_pattern) {
+						g_object_get(old_pattern,"id",&old_pid,NULL);
+						g_object_unref(old_pattern);
+					}
+					undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track-1,row,row,mid,old_pid);
+					redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s, ",track-1,row,row,mid);
+					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
+					g_free(mid);g_free(old_pid);
+					g_object_unref(machine);
+					
+					str=" ";
+					change=TRUE;
+					res=TRUE;
+				}
       }
     }
     else if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
@@ -2428,16 +2433,36 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
       // first column is label
       if((track>0) && (row<length)) {
         gchar key=(gchar)(event->keyval&0xff);
-        BtPattern *pattern;
+        BtPattern *new_pattern;
+        BtMachine *machine;
         GtkTreeModel *store;
+
         store=gtk_tree_view_get_model(self->priv->pattern_list);
-        if((pattern=pattern_list_model_get_pattern_by_key(store,key))) {
-          bt_sequence_set_pattern(self->priv->sequence,row,track-1,pattern);
-          g_object_get(pattern,"name",&str,NULL);
-          g_object_unref(pattern);
-          free_str=TRUE;
-          change=TRUE;
-          res=TRUE;
+        if((new_pattern=pattern_list_model_get_pattern_by_key(store,key))) {
+					if((machine=bt_sequence_get_machine(self->priv->sequence,track-1))) {
+						BtPattern *old_pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1);
+						gchar *undo_str,*redo_str;
+						gchar *mid,*old_pid=NULL,*new_pid;
+	
+						bt_sequence_set_pattern(self->priv->sequence,row,track-1,new_pattern);
+						if(old_pattern) {
+							g_object_get(old_pattern,"id",&old_pid,NULL);
+							g_object_unref(old_pattern);
+						}
+						g_object_get(new_pattern,"name",&str,"id",&new_pid,NULL);
+						g_object_unref(new_pattern);
+						g_object_get(machine,"id",&mid,NULL);
+	
+						undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track-1,row,row,mid,(old_pid?old_pid:" "));
+						redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track-1,row,row,mid,new_pid);
+						bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
+						g_free(mid);g_free(new_pid);g_free(old_pid);
+						g_object_unref(machine);
+
+						free_str=TRUE;
+						change=TRUE;
+						res=TRUE;
+					}
         }
         else {
           GST_WARNING_OBJECT(self->priv->machine,"keyval '%c' not used by machine",key);
@@ -3508,7 +3533,6 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
     gint i=1;
     gint beg,end;
     gulong sequence_length;
-    gboolean sequence_changed=FALSE;
     gchar **fields;
     gboolean res=TRUE;
 
@@ -3526,6 +3550,7 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
       GtkTreePath *path;
 
       if((path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1))) {
+      	gboolean sequence_changed=FALSE;
         // process each line (= pattern column)
         while(lines[i] && *lines[i] && (self->priv->cursor_row+(i-1)<=end) && res) {
           fields=g_strsplit_set(lines[i],",",0);
@@ -3584,6 +3609,7 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
   // parse data and apply action
   switch (bt_change_logger_match_method(change_logger_methods, data, &match_info)) {
     case METHOD_SET_PATTERNS: {
+			GtkTreeModel *store;
       gchar *str;
       gulong track,s_row,e_row;
 
@@ -3596,8 +3622,26 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
       
       GST_DEBUG("-> [%lu|%lu|%lu|%s]",track,s_row,e_row,str);
 
-      // refactor sequence_clipboard_received_func
-      
+			if((store=sequence_model_get_store(self))) {
+				GtkTreePath *path;
+				if((path=gtk_tree_path_new_from_indices(s_row,-1))) {
+					gboolean sequence_changed=FALSE;
+					gchar **fields=g_strsplit_set(str,",",0);
+
+					res=sequence_deserialize_pattern_track(self,store,path,fields,track,&sequence_changed);
+					if(sequence_changed) {
+						// repair damage
+						bt_sequence_repair_damage(self->priv->sequence);
+					}
+					g_strfreev(fields);
+					gtk_tree_path_free(path);
+				}
+			}
+			if(res) {
+				// move cursor to s_row (+self->priv->bars?)
+				self->priv->cursor_row=s_row;
+				sequence_view_set_cursor_pos(self);
+			}
       g_free(str);
       break;
     }
