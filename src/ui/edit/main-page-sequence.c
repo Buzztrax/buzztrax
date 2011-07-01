@@ -1621,10 +1621,12 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
   gulong sequence_length;
   gdouble pos;
   glong play_pos,loop_start,loop_end;
+  glong old_loop_start,old_loop_end;
+  gchar *undo_str,*redo_str;
 
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"play-pos",&play_pos,NULL);
-  g_object_get(self->priv->sequence,"length",&sequence_length,"loop-end",&loop_end,NULL);
+  g_object_get(self->priv->sequence,"length",&sequence_length,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
   if(row==-1) row=sequence_length;
   // use a keyboard qualifier to set loop_start and end
   /* @todo should the sequence-view listen to notify::xxx ? */
@@ -1635,33 +1637,53 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
       }
       break;
     case SEQUENCE_VIEW_POS_LOOP_START:
+    	g_object_get(self->priv->sequence,"loop-start",&old_loop_start,NULL);
       // set and read back, as sequence might clamp the value
       g_object_set(self->priv->sequence,"loop-start",row,NULL);
-      g_object_get(self->priv->sequence,"loop-start",&row,NULL);
-      loop_start=row;
+      g_object_get(self->priv->sequence,"loop-start",&loop_start,NULL);
+      
+      if(loop_start!=old_loop_start) {
+      	bt_change_log_start_group(self->priv->change_log);
 
-      pos=(gdouble)row/(gdouble)sequence_length;
-      g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
-      g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
-
-      GST_INFO("adjusted loop-start = %ld",row);
-
-      g_object_get(self->priv->sequence,"loop-end",&loop_end,NULL);
-      if((loop_end!=-1) && (loop_end<=row)) {
-        loop_end=loop_start+self->priv->bars;
-        g_object_set(self->priv->sequence,"loop-end",loop_end,NULL);
-
-        GST_INFO("and adjusted loop-end = %ld",loop_end);
-
-        pos=(gdouble)loop_end/(gdouble)sequence_length;
-        g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);
-        g_object_set(self->priv->sequence_pos_table,"loop-end",pos,NULL);
-      }
+				undo_str = g_strdup_printf("set_sequence_property \"loop-start\",\"%ld\"",old_loop_start);
+				redo_str = g_strdup_printf("set_sequence_property \"loop-start\",\"%ld\"",loop_start);
+				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+      	
+				pos=(gdouble)loop_start/(gdouble)sequence_length;
+				g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
+				g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
+	
+				GST_INFO("adjusted loop-end = %ld -> %ld",old_loop_start,loop_start);
+	
+				g_object_get(self->priv->sequence,"loop-end",&old_loop_end,NULL);
+				if((old_loop_end!=-1) && (old_loop_end<=old_loop_start)) {
+					loop_end=loop_start+self->priv->bars;
+					g_object_set(self->priv->sequence,"loop-end",loop_end,NULL);
+	
+					undo_str = g_strdup_printf("set_sequence_property \"loop-end\",\"%ld\"",old_loop_end);
+					redo_str = g_strdup_printf("set_sequence_property \"loop-end\",\"%ld\"",loop_end);
+					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+	
+					GST_INFO("adjusted loop-end = %ld -> %ld",old_loop_end,loop_end);
+	
+					pos=(gdouble)loop_end/(gdouble)sequence_length;
+					g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);
+					g_object_set(self->priv->sequence_pos_table,"loop-end",pos,NULL);
+				}
+				
+				bt_change_log_end_group(self->priv->change_log);
+			}
       break;
     case SEQUENCE_VIEW_POS_LOOP_END:
       // pos is beyond length or is on loop-end already -> adjust length
       if((row>sequence_length) || (row==loop_end)) {
         GST_INFO("adjusted length = %ld -> %ld",sequence_length,row);
+
+        // FIXME: backup old data if we make it shorter 
+				undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length);
+				redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",row);
+				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+        
         sequence_length=row;
         g_object_set(self->priv->sequence,"length",sequence_length,NULL);
         g_object_get(self->priv->sequence,"loop-start",&loop_start,NULL);
@@ -1673,21 +1695,35 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
         sequence_view_set_cursor_pos(self);
       }
       else {
+      	old_loop_end=loop_end;
         // set and read back, as sequence might clamp the value
         g_object_set(self->priv->sequence,"loop-end",row,NULL);
-        g_object_get(self->priv->sequence,"loop-end",&row,NULL);
-        loop_end=row;
+        g_object_get(self->priv->sequence,"loop-end",&loop_end,NULL);
 
-        GST_INFO("adjusted loop-end = %ld",row);
+				if(loop_end!=old_loop_end) {
+					bt_change_log_start_group(self->priv->change_log);
 
-        g_object_get(self->priv->sequence,"loop-start",&loop_start,NULL);
-        if((loop_start!=-1) && (loop_start>=row)) {
-          loop_start=loop_end-self->priv->bars;
-          if(loop_start<0) loop_start=0;
-          g_object_set(self->priv->sequence,"loop-start",loop_start,NULL);
+					GST_INFO("adjusted loop-end = %ld -> %ld",old_loop_end,loop_end);
 
-          GST_INFO("and adjusted loop-start = %ld",loop_start);
-        }
+					undo_str = g_strdup_printf("set_sequence_property \"loop-end\",\"%ld\"",old_loop_end);
+					redo_str = g_strdup_printf("set_sequence_property \"loop-end\",\"%ld\"",loop_end);
+					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+	
+					g_object_get(self->priv->sequence,"loop-start",&old_loop_start,NULL);
+					if((old_loop_start!=-1) && (old_loop_start>=loop_end)) {
+						loop_start=loop_end-self->priv->bars;
+						if(loop_start<0) loop_start=0;
+						g_object_set(self->priv->sequence,"loop-start",loop_start,NULL);
+	
+						undo_str = g_strdup_printf("set_sequence_property \"loop-start\",\"%ld\"",old_loop_start);
+						redo_str = g_strdup_printf("set_sequence_property \"loop-start\",\"%ld\"",loop_start);
+						bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+						GST_INFO("and adjusted loop-start = %ld",loop_start);
+					}
+					
+					bt_change_log_end_group(self->priv->change_log);
+				}
       }
       pos=(loop_end>-1)?(gdouble)loop_end/(gdouble)sequence_length:1.0;
       g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);
@@ -3655,7 +3691,21 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
 		  GST_DEBUG("-> [%s|%s]",key,val);
 		  // length
 		  // loop-start/end
-		  
+		  res=TRUE;
+      if(!strcmp(key,"loop-start")) {
+        g_object_set(self->priv->sequence,"loop-start",atol(val),NULL);
+      	sequence_calculate_visible_lines(self);
+      } else if(!strcmp(key,"loop-end")) {
+      	g_object_set(self->priv->sequence,"loop-end",atol(val),NULL);
+      	sequence_calculate_visible_lines(self);
+      } else if(!strcmp(key,"length")) {
+      	g_object_set(self->priv->sequence,"length",atol(val),NULL);
+      	sequence_calculate_visible_lines(self);
+      }
+			else {
+				GST_WARNING("unhandled property '%s'",key);
+				res=FALSE;
+			}
       g_free(key);
       g_free(val);
       break;
