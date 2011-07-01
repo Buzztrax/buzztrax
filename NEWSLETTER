@@ -1,11 +1,61 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
+2011/07 ========================================================================
+
+This month I made great progress. I have been making several small demo songs
+and found+fixed quite many bugs and glitches along with that.
+
+After a little break I took up undo/redo work and could make good progress. Now
+also pattern property changes (name and length) are tracked. In the sequence the
+boilerplate code is there, single edits, track and property changes are handled.
+In the machine view the initial machine position is tracked in the change-log.
+
+In the middle of the month I did doc updates - api docs had some stuff missing
+and the user help finality has more beef and short-cut tables for all the
+keyboard accelerators.
+
+OmniMancer on irc gave me some good first perspective usage experience. I added
+a blacklist filter to hide gstreamer elements from the menu that are known
+to be not useful for buzztard (e.g. dtmfsrc). Also some machines used GTypes not
+yet supported by the UI - this is now fixed. With that came some fixes in
+pattern editing (blending parameters wasn't working in all cases). I also added
+a flip operation to the patterns. Also to make a few things easier for new users
+I added two items to help menu - file a bug and goto irc. The later fres up the
+freenode webirc as xdg-open seems to be unable to fire up e.g. xchat for irc://
+urls.
+
+I have started to write the missing treemodel for the sequence view and used
+that changed to overhaul a few things. Even without the new model its quite a
+bit faster as we do less model rebuilds  (e.g. when expanding the length). Also
+the row-shading code is simpler and with that the cell-data functions. Finally
+the pattern usage tracking is now using a hashtable instead of rescanning the
+sequence.
+
+With all those changes comes a bag of bug fixes - I'll skip listing them here -
+it is all in the change log. Also I did a bit of code cleanups and reorgs. Like
+using macros for the GType handling to save lines of code. Or bump the gtk+
+version (2.10.12) to get rid of fallback code. Finally I rechecked a glib bug
+regarding mime-matching. It's fixed since a while, but I still saw it, as the
+.recently-used.xbel file had the wrong mime type from the time when glib had the
+bug in there. Maybe it is good to trim that file from time to time. Imho it
+should also be in $XDG_CACHE_DIR and not $HOME, but that is a different story.
+
+48 files changed, 2712 insertions(+), 1250 deletions(-)
+
 2011/06 ========================================================================
 
-- work on gstreamer, gtk-doc
-- more work on models
-- doc updates
-- bug fixes
+In the beginning of the month I finished the new treeview models. There were a
+couple of corner cases I did not handled yet. I did some thinking about the
+remaining model, but did not yet write any code for it. Instead I did some code
+review of the whole project leading to numerous small cleanups and fixes. I also
+got rid of some holes in the api docs.
+
+Otherwise I worked more on GStreamer and gtk-doc. In GStreamer I mostly hacked
+on a baseclass for audio-visualizers which is now in gst-plugins-bad (together 
+with 4 elements using it).
+
+There are some other reasons for not having so much time to hack on, of which I
+will shortly speak about :)
 
 32 files changed, 1848 insertions(+), 444 deletions(-)
 
