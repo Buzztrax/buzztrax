@@ -1,3 +1,8 @@
+2011-06-30  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Remove obsolete comment.
+
 2011-06-29  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
@@ -58,7 +63,7 @@
 2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:
-	  Add tw items to help menu to get to web-irc chat and to the bug 
+	  Add two items to help menu to get to web-irc chat and to the bug 
 	  tracker.
 
 2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
@@ -96,7 +101,7 @@
 2011-06-23  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/buzztard.xml.in:
-	  Readd the glob, but witha low weight.
+	  Readd the glob, but with a low weight.
 
 	* src/ui/edit/main-menu.c:
 	* src/ui/edit/main-window.c:
@@ -205,7 +210,7 @@
 
 	* src/ui/edit/main-page-patterns.c:
 	  Refresh context menu on new patterns (after adding generators). Also
-	  update statusbar on editits.
+	  update statusbar on edits.
 
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
@@ -241,7 +246,7 @@
 
 	* src/lib/core/Makefile.am:
 	* src/lib/ic/Makefile.am:
-	  Make the build succedd with missing too old gobject introspections, by
+	  Make the build succeed with missing too old gobject introspections, by
 	  touching the files.
 
 2011-06-13  Stefan Kost  <ensonic@users.sf.net>

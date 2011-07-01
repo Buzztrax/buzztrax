@@ -3358,7 +3358,6 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
 
       res=TRUE;
       if(!strcmp(key,"name")) {
-        // string "name"
         g_object_set(pattern,"name",val,NULL);
       } else if(!strcmp(key,"length")) {
       	g_object_set(pattern,"length",atol(val),NULL);
