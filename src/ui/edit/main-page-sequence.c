@@ -74,6 +74,18 @@
  *   - cells are asked to do prelight, even if they wouldn't draw anything else
  *     http://www.gtk.org/plan/meetings/20041025.txt
  */
+/* @idea: programmable keybindings
+ * - we should define an enum for the key commands
+ * - we should have a tables that maps keyval+state to one of the enums
+ * - we should have a utility function to do the lookups
+ * - we could have primary and secondary keys (keyval+state)
+ * - each enry has a description (i18n)
+ * - the whole group has a name (i18n)
+ * - we can regiser the group to a binding manager
+ * - the binding manager provides a ui to:
+ *   - edit the bindings
+ *   - save/load bindings to/from a named preset
+ */
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_SEQUENCE_C
@@ -226,11 +238,16 @@ enum {
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
 
+/* need to refactor bt_main_page_sequence_copy_selection() to be able to
+ * use it to generate the serialization for METHOD_SET_PATTERNS 
+ */
 enum {
   METHOD_SET_PATTERNS,
   METHOD_SET_PROPERTY,
   METHOD_ADD_TRACK,
   METHOD_REM_TRACK
+  /* METHOD_SET_LABELS */
+  /* METHOD_MOVE_TRACK_(LEFT|RIGHT) <ix> */
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
@@ -2197,6 +2214,34 @@ static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer use
   g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_sequence_table_cursor_changed_idle,user_data,NULL);
 }
 
+static gboolean change_pattern(BtMainPageSequence *self, BtPattern *new_pattern,gulong row,gulong track) {
+	gboolean res=FALSE;
+	BtMachine *machine;
+
+	if((machine=bt_sequence_get_machine(self->priv->sequence,track))) {
+		BtPattern *old_pattern=bt_sequence_get_pattern(self->priv->sequence,row,track);
+		gchar *undo_str,*redo_str;
+		gchar *mid,*old_pid=NULL,*new_pid=NULL;
+
+		g_object_get(machine,"id",&mid,NULL);
+		bt_sequence_set_pattern(self->priv->sequence,row,track,new_pattern);
+		if(old_pattern) {
+			g_object_get(old_pattern,"id",&old_pid,NULL);
+			g_object_unref(old_pattern);
+		}
+		if(new_pattern) {
+			g_object_get(new_pattern,"id",&new_pid,NULL);
+		}
+		undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,row,row,mid,(old_pid?old_pid:" "));
+		redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,row,row,mid,(new_pid?new_pid:" "));
+		bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
+		g_free(mid);g_free(new_pid);g_free(old_pid);
+		g_object_unref(machine);
+		res=TRUE;
+	}
+  return(res);
+}
+
 // use key-press-event, as then we get key repeats
 static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -2228,24 +2273,7 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
     if(event->keyval==GDK_space || event->keyval == GDK_period) {
       // first column is label
       if((track>0) && (row<length)) {
-        BtPattern *old_pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1);
-        BtMachine *machine;
-        gchar *undo_str,*redo_str;
-        gchar *mid,*old_pid=NULL;
-
-        if((machine=bt_sequence_get_machine(self->priv->sequence,track-1))) {
-					g_object_get(machine,"id",&mid,NULL);
-					bt_sequence_set_pattern(self->priv->sequence,row,track-1,NULL);
-					if(old_pattern) {
-						g_object_get(old_pattern,"id",&old_pid,NULL);
-						g_object_unref(old_pattern);
-					}
-					undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track-1,row,row,mid,old_pid);
-					redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s, ",track-1,row,row,mid);
-					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
-					g_free(mid);g_free(old_pid);
-					g_object_unref(machine);
-					
+      	if((res=change_pattern(self,NULL,row,track-1))) {
 					str=" ";
 					change=TRUE;
 					res=TRUE;
@@ -2470,30 +2498,13 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
       if((track>0) && (row<length)) {
         gchar key=(gchar)(event->keyval&0xff);
         BtPattern *new_pattern;
-        BtMachine *machine;
         GtkTreeModel *store;
 
         store=gtk_tree_view_get_model(self->priv->pattern_list);
         if((new_pattern=pattern_list_model_get_pattern_by_key(store,key))) {
-					if((machine=bt_sequence_get_machine(self->priv->sequence,track-1))) {
-						BtPattern *old_pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1);
-						gchar *undo_str,*redo_str;
-						gchar *mid,*old_pid=NULL,*new_pid;
-	
-						bt_sequence_set_pattern(self->priv->sequence,row,track-1,new_pattern);
-						if(old_pattern) {
-							g_object_get(old_pattern,"id",&old_pid,NULL);
-							g_object_unref(old_pattern);
-						}
-						g_object_get(new_pattern,"name",&str,"id",&new_pid,NULL);
+        	if((res=change_pattern(self,new_pattern,row,track-1))) {
+						g_object_get(new_pattern,"name",&str,NULL);
 						g_object_unref(new_pattern);
-						g_object_get(machine,"id",&mid,NULL);
-	
-						undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track-1,row,row,mid,(old_pid?old_pid:" "));
-						redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track-1,row,row,mid,new_pid);
-						bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
-						g_free(mid);g_free(new_pid);g_free(old_pid);
-						g_object_unref(machine);
 
 						free_str=TRUE;
 						change=TRUE;
