@@ -239,7 +239,8 @@ enum {
 // the other (smaller) columns
 
 /* need to refactor bt_main_page_sequence_copy_selection() to be able to
- * use it to generate the serialization for METHOD_SET_PATTERNS 
+ * use it to generate the serialization for METHOD_SET_PATTERNS
+ * something like pattern_range_copy() + pattern_range_log_undo_redo()
  */
 enum {
   METHOD_SET_PATTERNS,
@@ -686,6 +687,58 @@ static BtPattern *pattern_list_model_get_pattern_by_key(GtkTreeModel *store,gcha
     g_free(this_key);
   } while(gtk_tree_model_iter_next(store,&iter));
   return(pattern);
+}
+
+//-- undo/redo helpers
+static void sequence_range_copy(const BtMainPageSequence *self,glong track_beg,glong track_end,glong tick_beg,glong tick_end,GString *data) {
+  BtSequence *sequence=self->priv->sequence;
+  BtMachine *machine;
+  BtPattern *pattern;
+	glong i,j,col;
+	gchar *id,*str;
+
+  /* label-track */
+	col=track_beg;
+	if(col==0) {
+		g_string_append_c(data,' ');
+		for(j=tick_beg;j<=tick_end;j++) {
+			if((str=bt_sequence_get_label(sequence,j))) {
+				g_string_append_c(data,',');
+				g_string_append(data,str);
+				g_free(str);
+			} else {
+				// empty cell
+				g_string_append(data,", ");
+			}
+		}
+		g_string_append_c(data,'\n');
+		col++;
+	}
+
+	/* machine-tracks */
+	for(i=col;i<=track_end;i++) {
+		// store machine id
+		machine=bt_sequence_get_machine(sequence,i-1);
+		g_object_get(machine,"id",&id,NULL);
+		g_string_append(data,id);
+		g_free(id);
+		for(j=tick_beg;j<=tick_end;j++) {
+			// store pattern id
+			if((pattern=bt_sequence_get_pattern(sequence,j,i-1))) {
+				g_object_get(pattern,"id",&id,NULL);
+				g_string_append_c(data,',');
+				g_string_append(data,id);
+				g_free(id);
+				g_object_unref(pattern);
+			}
+			else {
+				// empty cell
+				g_string_append(data,", ");
+			}
+		}
+		g_string_append_c(data,'\n');
+		g_object_unref(machine);
+	}
 }
 
 //-- event handlers
@@ -3395,10 +3448,6 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
     GtkClipboard *cb=gtk_widget_get_clipboard(GTK_WIDGET(self->priv->sequence_table),GDK_SELECTION_CLIPBOARD);
     GtkTargetEntry *targets;
     gint n_targets;
-    glong i,j,col;
-    gchar *id,*str;
-    BtMachine *machine;
-    BtPattern *pattern;
     GString *data=g_string_new(NULL);
 
     GST_INFO("copying : %ld,%ld - %d,%ld", self->priv->selection_start_column, self->priv->selection_start_row, self->priv->selection_end_column, self->priv->selection_end_row);
@@ -3407,47 +3456,11 @@ void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
 
     /* the number of ticks */
     g_string_append_printf(data,"%ld\n",(self->priv->selection_end_row+1)-self->priv->selection_start_row);
-    
-    col=self->priv->selection_start_column;
-    if(col==0) {
-    	g_string_append_c(data,' ');
-    	for(j=self->priv->selection_start_row;j<=self->priv->selection_end_row;j++) {
-    		if((str=bt_sequence_get_label(self->priv->sequence,j))) {
-					g_string_append_c(data,',');
-					g_string_append(data,str);
-					g_free(str);
-    		} else {
-					// empty cell
-					g_string_append(data,", ");
-    		}
-    	}
-			g_string_append_c(data,'\n');
-    	col++;
-    }
 
-    for(i=col;i<=self->priv->selection_end_column;i++) {
-      // store machine id
-      machine=bt_sequence_get_machine(self->priv->sequence,i-1);
-			g_object_get(machine,"id",&id,NULL);
-			g_string_append(data,id);
-			g_free(id);
-			for(j=self->priv->selection_start_row;j<=self->priv->selection_end_row;j++) {
-				// store pattern id
-				if((pattern=bt_sequence_get_pattern(self->priv->sequence,j,i-1))) {
-					g_object_get(pattern,"id",&id,NULL);
-					g_string_append_c(data,',');
-					g_string_append(data,id);
-					g_free(id);
-					g_object_unref(pattern);
-				}
-				else {
-					// empty cell
-					g_string_append(data,", ");
-				}
-			}
-			g_string_append_c(data,'\n');
-			g_object_unref(machine);
-		}
+    sequence_range_copy(self,
+      self->priv->selection_start_column,self->priv->selection_end_column,
+      self->priv->selection_start_row,self->priv->selection_end_row,
+      data);
 
     GST_INFO("copying : [%s]",data->str);
 
