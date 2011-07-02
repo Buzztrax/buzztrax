@@ -1,5 +1,10 @@
 2011-07-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* NEWS:
+	  Mention keyboard shortcuts among the doc updates.
+
+2011-07-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Implement undoredo of the sequence data on length changes. For that
 	  also handled undo/redo for the label column.

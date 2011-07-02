@@ -9,8 +9,8 @@ of buzztard songs in any gstreamer based media player.
 We also kept the buzztard codebase clean and ported from deprecated APIs to the
 successors (gnomevfs->gio, hal->gudev). The libraries and the applications got
 performance improvements in many areas.
-Also the docs have been improved a lot with tutorials, better coverage and
-man-pages.
+Also the docs have been improved a lot with tutorials, keyboard shortcut tables,
+better coverage and man-pages.
 
 0.5.0 crown of thorns (06.Sep.2009)
 ================================================================================
