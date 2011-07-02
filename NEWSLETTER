@@ -1,5 +1,9 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
+2011/08 ========================================================================
+
+- sequence undo/redo
+
 2011/07 ========================================================================
 
 This month I made great progress. I have been making several small demo songs
@@ -20,8 +24,8 @@ to be not useful for buzztard (e.g. dtmfsrc). Also some machines used GTypes not
 yet supported by the UI - this is now fixed. With that came some fixes in
 pattern editing (blending parameters wasn't working in all cases). I also added
 a flip operation to the patterns. Also to make a few things easier for new users
-I added two items to help menu - file a bug and goto irc. The later fres up the
-freenode webirc as xdg-open seems to be unable to fire up e.g. xchat for irc://
+I added two items to help menu - file a bug and goto irc. The later fires up the
+freenode webirc as xdg-open seems to be unable to launch e.g. xchat for irc://
 urls.
 
 I have started to write the missing treemodel for the sequence view and used
@@ -37,8 +41,9 @@ using macros for the GType handling to save lines of code. Or bump the gtk+
 version (2.10.12) to get rid of fallback code. Finally I rechecked a glib bug
 regarding mime-matching. It's fixed since a while, but I still saw it, as the
 .recently-used.xbel file had the wrong mime type from the time when glib had the
-bug in there. Maybe it is good to trim that file from time to time. Imho it
-should also be in $XDG_CACHE_DIR and not $HOME, but that is a different story.
+bug in there. Maybe it would be good to trim that file from time to time. Imho
+it should also be in $XDG_CACHE_DIR and not $HOME, but that is a different
+story.
 
 48 files changed, 2712 insertions(+), 1250 deletions(-)
 
