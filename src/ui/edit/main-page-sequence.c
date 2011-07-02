@@ -1060,25 +1060,40 @@ static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar
 
       if(old_text || new_text) {
         changed=TRUE;
-        if(old_text && !*old_text) changed=FALSE;
-        if(new_text && !*new_text) changed=FALSE;
+        if(old_text && !*old_text) old_text=NULL;
+        if(new_text && !*new_text) new_text=NULL;
       }
       else if(old_text && new_text && !strcmp(old_text,new_text)) changed=TRUE;
       if(changed) {
-        gulong length;
+      	gchar *undo_str,*redo_str;
+        gulong old_length,new_length=0;
 
         GST_INFO("label changed");
-        g_object_get(self->priv->sequence,"length",&length,NULL);
+        g_object_get(self->priv->sequence,"length",&old_length,NULL);
 
         // need to change it in the model
         gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_LABEL,new_text,-1);
         // update the sequence
-        if(pos>=length) {
-          g_object_set(self->priv->sequence,"length",pos+1,NULL);
+        if(pos>=old_length) {
+        	new_length=pos+self->priv->bars;
+          g_object_set(self->priv->sequence,"length",new_length,NULL);
+          sequence_calculate_visible_lines(self);
         }
         bt_sequence_set_label(self->priv->sequence,pos,new_text);
         // update label_menu
         sequence_table_refresh_labels(self);
+        
+        bt_change_log_start_group(self->priv->change_log);
+
+        if(pos>=old_length) {
+					undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",old_length);
+					redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",new_length);
+					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        	
+        }
+				undo_str = g_strdup_printf("set_labels %lu,%lu,%s",pos,pos,(old_text?old_text:" "));
+				redo_str = g_strdup_printf("set_labels %lu,%lu,%s",pos,pos,(new_text?new_text:" "));
+				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
+				bt_change_log_end_group(self->priv->change_log);
       }
       g_free(old_text);
     }
@@ -1305,11 +1320,11 @@ static void sequence_table_refresh_labels(const BtMainPageSequence *self) {
   g_object_get(self->priv->sequence,"length",&timeline_ct,NULL);
 
   for(i=0;i<self->priv->sequence_length;i++) {
-    pos_str=sequence_format_positions(self,i);
     if(i<timeline_ct) {
       // set label
       str=bt_sequence_get_label(self->priv->sequence,i);
       if(BT_IS_STRING(str)) {
+      	pos_str=sequence_format_positions(self,i);
         gtk_list_store_append(label_menu_store,&label_menu_iter);
         gtk_list_store_set(label_menu_store,&label_menu_iter,
           POSITION_MENU_POS,i,
@@ -3592,7 +3607,7 @@ static gboolean sequence_deserialize_label_track(BtMainPageSequence *self,GtkTre
 
 	GST_INFO("paste labels");
 	if(gtk_tree_model_get_iter(store,&iter,path)) {
-		gint j=1;
+		gint j=0;
 		while(fields[j] && *fields[j] && res) {
 			if(*fields[j]!=' ') {
 				str=fields[j];
@@ -3600,9 +3615,9 @@ static gboolean sequence_deserialize_label_track(BtMainPageSequence *self,GtkTre
 			else {
 				str=NULL;
 			}
-			bt_sequence_set_label(self->priv->sequence,j,str);
+			bt_sequence_set_label(self->priv->sequence,self->priv->cursor_row+j,str);
 			gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_LABEL,str,-1);
-			GST_DEBUG("inserted %s @ %d",str,self->priv->cursor_row+(j-1));
+			GST_DEBUG("inserted %s @ %d",str,self->priv->cursor_row+j);
 			if(!gtk_tree_model_iter_next(store,&iter)) {
 				GST_WARNING("  can't get next tree-iter");
 				res=FALSE;
@@ -3772,6 +3787,8 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
 					res=sequence_deserialize_label_track(self,store,path,fields);
 					g_strfreev(fields);
 					gtk_tree_path_free(path);
+					// update label_menu
+					sequence_table_refresh_labels(self);
 				}
 			}
 			if(res) {

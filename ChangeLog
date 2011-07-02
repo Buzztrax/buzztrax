@@ -1,5 +1,10 @@
 2011-07-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Handle undo/redo for label edits.
+
+2011-07-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Sent News.
 
@@ -11,7 +16,7 @@
 2011-07-01  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
-	  Implement undoredo of the sequence data on length changes. For that
+	  Implement undo/redo of the sequence data on length changes. For that
 	  also handled undo/redo for the label column.
 
 2011-07-01  Stefan Sauer  <ensonic@users.sf.net>
