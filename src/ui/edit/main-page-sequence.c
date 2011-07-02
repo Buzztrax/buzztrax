@@ -244,15 +244,16 @@ enum {
  */
 enum {
   METHOD_SET_PATTERNS,
+  METHOD_SET_LABELS,
   METHOD_SET_PROPERTY,
   METHOD_ADD_TRACK,
   METHOD_REM_TRACK
-  /* METHOD_SET_LABELS */
   /* METHOD_MOVE_TRACK_(LEFT|RIGHT) <ix> */
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_patterns",13,"([0-9]+),([0-9]+),([0-9]+),(.*)$"),
+  BT_CHANGE_LOGGER_METHOD("set_labels",11,"([0-9]+),([0-9]+),(.*)$"),
   BT_CHANGE_LOGGER_METHOD("set_sequence_property",22,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_track",10,"\"([a-zA-Z0-9 ]+)\",([0-9]+)$"),
   BT_CHANGE_LOGGER_METHOD("rem_track",10,"([0-9]+)$"),
@@ -739,6 +740,38 @@ static void sequence_range_copy(const BtMainPageSequence *self,glong track_beg,g
 		g_string_append_c(data,'\n');
 		g_object_unref(machine);
 	}
+}
+
+static void sequence_range_log_undo_redo(const BtMainPageSequence *self,glong track_beg,glong track_end,glong tick_beg,glong tick_end,gchar *old_str,gchar *new_str) {
+	gchar *undo_str,*redo_str;
+	gchar *p;
+	glong i,col;
+
+	bt_change_log_start_group(self->priv->change_log);
+	
+  /* label-track */
+	col=track_beg;
+	if(col==0) {
+		p=strchr(old_str,'\n');*p='\0';
+		undo_str = g_strdup_printf("set_labels %lu,%lu,%s",tick_beg,tick_end,old_str);
+		old_str=&p[1];
+		p=strchr(new_str,'\n');*p='\0';
+		redo_str = g_strdup_printf("set_labels %lu,%lu,%s",tick_beg,tick_end,new_str);
+		new_str=&p[1];
+		bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+		col++;		
+	}
+	/* machine-tracks */
+	for(i=col;i<=track_end;i++) {
+		p=strchr(old_str,'\n');*p='\0';
+		undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s",i-1,tick_beg,tick_end,old_str);
+		old_str=&p[1];
+		p=strchr(new_str,'\n');*p='\0';
+		redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s",i-1,tick_beg,tick_end,new_str);
+		new_str=&p[1];
+		bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+	}
+  bt_change_log_end_group(self->priv->change_log);
 }
 
 //-- event handlers
@@ -1748,15 +1781,28 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
       // pos is beyond length or is on loop-end already -> adjust length
       if((row>sequence_length) || (row==loop_end)) {
         GST_INFO("adjusted length = %ld -> %ld",sequence_length,row);
+        
+        bt_change_log_start_group(self->priv->change_log);
 
-        // FIXME: backup old data if we make it shorter 
 				undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length);
 				redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",row);
 				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+        // we shorten the song, backup data
+        if(row<sequence_length) {
+					GString *old_data=g_string_new(NULL);
+					gulong number_of_tracks;
+
+					g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
+					sequence_range_copy(self,0,number_of_tracks,row,sequence_length-1,old_data);
+					sequence_range_log_undo_redo(self,0,number_of_tracks,row,sequence_length-1,old_data->str,g_strdup(old_data->str));
+					g_string_free(old_data,TRUE);
+        	
+        }				
+				bt_change_log_end_group(self->priv->change_log);
         
         sequence_length=row;
         g_object_set(self->priv->sequence,"length",sequence_length,NULL);
-        g_object_get(self->priv->sequence,"loop-start",&loop_start,NULL);
         // this triggers redraw
         sequence_table_refresh(self,song);
         sequence_table_refresh_labels(self);
@@ -3693,6 +3739,37 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
 						// repair damage
 						bt_sequence_repair_damage(self->priv->sequence);
 					}
+					g_strfreev(fields);
+					gtk_tree_path_free(path);
+				}
+			}
+			if(res) {
+				// move cursor to s_row (+self->priv->bars?)
+				self->priv->cursor_row=s_row;
+				sequence_view_set_cursor_pos(self);
+			}
+      g_free(str);
+      break;
+    }
+    case METHOD_SET_LABELS: {
+			GtkTreeModel *store;
+      gchar *str;
+      gulong s_row,e_row;
+
+      // track, beg, end, patterns
+      s=g_match_info_fetch(match_info,1);s_row=atol(s);g_free(s);
+      s=g_match_info_fetch(match_info,2);e_row=atol(s);g_free(s);
+      str=g_match_info_fetch(match_info,3);
+      g_match_info_free(match_info);
+      
+      GST_DEBUG("-> [%lu|%lu|%s]",s_row,e_row,str);
+
+			if((store=sequence_model_get_store(self))) {
+				GtkTreePath *path;
+				if((path=gtk_tree_path_new_from_indices(s_row,-1))) {
+					gchar **fields=g_strsplit_set(str,",",0);
+
+					res=sequence_deserialize_label_track(self,store,path,fields);
 					g_strfreev(fields);
 					gtk_tree_path_free(path);
 				}
