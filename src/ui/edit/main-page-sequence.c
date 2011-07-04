@@ -238,10 +238,6 @@ enum {
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
 
-/* need to refactor bt_main_page_sequence_copy_selection() to be able to
- * use it to generate the serialization for METHOD_SET_PATTERNS
- * something like pattern_range_copy() + pattern_range_log_undo_redo()
- */
 enum {
   METHOD_SET_PATTERNS,
   METHOD_SET_LABELS,
@@ -2562,8 +2558,17 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
     }
     else if(event->keyval == GDK_Insert) {
       if(modifier==0) {
-        GST_INFO("insert pressed, row %lu, track %ld",row,(glong)track-1);
-        bt_sequence_insert_rows(self->priv->sequence,row,(glong)track-1,self->priv->bars);
+      	GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
+      	glong col=(glong)track-1;
+      	gulong sequence_length;
+
+        GST_INFO("insert pressed, row %lu, track %ld",row,col);
+        g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
+				sequence_range_copy(self,track,track,row,sequence_length-1,old_data);
+        bt_sequence_insert_rows(self->priv->sequence,row,col,self->priv->bars);
+        sequence_range_copy(self,track,track,row,sequence_length-1,new_data);
+        sequence_range_log_undo_redo(self,track,track,row,sequence_length-1,old_data->str,new_data->str);
+				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         // reinit the view
         sequence_table_refresh(self,song);
         //sequence_calculate_visible_lines(self);
@@ -2585,8 +2590,17 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
     }
     else if(event->keyval == GDK_Delete) {
       if(modifier==0) {
-        GST_INFO("delete pressed, row %lu, track %ld",row,(glong)track-1);
-        bt_sequence_delete_rows(self->priv->sequence,row,(glong)track-1,self->priv->bars);
+      	GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
+      	glong col=(glong)track-1;
+      	gulong sequence_length;
+
+        GST_INFO("delete pressed, row %lu, track %ld",row,col);
+        g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
+				sequence_range_copy(self,track,track,row,sequence_length-1,old_data);
+        bt_sequence_delete_rows(self->priv->sequence,row,col,self->priv->bars);
+        sequence_range_copy(self,track,track,row,sequence_length-1,new_data);
+        sequence_range_log_undo_redo(self,track,track,row,sequence_length-1,old_data->str,new_data->str);
+				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         // reinit the view
         sequence_table_refresh(self,song);
         //sequence_calculate_visible_lines(self);

@@ -1,3 +1,8 @@
+2011-07-03  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Handle undo/redo for single columns ins/del.
+
 2011-07-01  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
