@@ -1,3 +1,8 @@
+2011-07-04  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Add undo/redo for multi-column ins.
+
 2011-07-03  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:

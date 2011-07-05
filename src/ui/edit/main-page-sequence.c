@@ -693,13 +693,16 @@ static void sequence_range_copy(const BtMainPageSequence *self,glong track_beg,g
   BtPattern *pattern;
 	glong i,j,col;
 	gchar *id,*str;
+	gulong sequence_length;
+	
+	g_object_get(sequence,"length",&sequence_length,NULL);
 
   /* label-track */
 	col=track_beg;
 	if(col==0) {
 		g_string_append_c(data,' ');
 		for(j=tick_beg;j<=tick_end;j++) {
-			if((str=bt_sequence_get_label(sequence,j))) {
+			if((j<sequence_length) && (str=bt_sequence_get_label(sequence,j))) {
 				g_string_append_c(data,',');
 				g_string_append(data,str);
 				g_free(str);
@@ -721,7 +724,7 @@ static void sequence_range_copy(const BtMainPageSequence *self,glong track_beg,g
 		g_free(id);
 		for(j=tick_beg;j<=tick_end;j++) {
 			// store pattern id
-			if((pattern=bt_sequence_get_pattern(sequence,j,i-1))) {
+			if((j<sequence_length) && (pattern=bt_sequence_get_pattern(sequence,j,i-1))) {
 				g_object_get(pattern,"id",&id,NULL);
 				g_string_append_c(data,',');
 				g_string_append(data,id);
@@ -2577,8 +2580,26 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         res=TRUE;
       }
       else if(modifier==GDK_SHIFT_MASK) {
+      	GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
+      	gulong sequence_length,number_of_tracks;
+      	gchar *undo_str,*redo_str;
+
         GST_INFO("shift-insert pressed, row %lu",row);
+        g_object_get(self->priv->sequence,"length",&sequence_length,"tracks",&number_of_tracks,NULL);
+        sequence_length+=self->priv->bars;
+
+				sequence_range_copy(self,0,number_of_tracks,row,sequence_length-1,old_data);
         bt_sequence_insert_full_rows(self->priv->sequence,row,self->priv->bars);
+        sequence_range_copy(self,0,number_of_tracks,row,sequence_length-1,new_data);
+        
+        bt_change_log_start_group(self->priv->change_log);
+        sequence_range_log_undo_redo(self,0,number_of_tracks,row,sequence_length-1,old_data->str,new_data->str);
+				undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length-self->priv->bars);
+				redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length);
+				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        	
+        bt_change_log_end_group(self->priv->change_log);
+        
+				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         self->priv->sequence_length+=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
@@ -3568,9 +3589,15 @@ static gboolean sequence_deserialize_pattern_track(BtMainPageSequence *self,GtkT
 		g_object_get(machine,"id",&id,NULL);
 		if(!strcmp(id,fields[0])) {
 			if(gtk_tree_model_get_iter(store,&iter,path)) {
+				BtSequence *sequence=self->priv->sequence;
 				BtPattern *pattern;
 				gint j=1;
-				while(fields[j] && *fields[j] && res) {
+				gulong sequence_length;
+				gulong row=self->priv->cursor_row;
+				
+				g_object_get(sequence,"length",&sequence_length,NULL);
+			
+				while((row<sequence_length) && fields[j] && *fields[j] && res) {
 					if(*fields[j]!=' ') {
 						pattern=bt_machine_get_pattern_by_id(machine,fields[j]);
 						if(!pattern) {
@@ -3582,16 +3609,16 @@ static gboolean sequence_deserialize_pattern_track(BtMainPageSequence *self,GtkT
 						pattern=NULL;
 						str=NULL;
 					}
-					(*sequence_changed)|=bt_sequence_set_pattern_quick(self->priv->sequence,self->priv->cursor_row+(j-1),track,pattern);
+					(*sequence_changed)|=bt_sequence_set_pattern_quick(sequence,row,track,pattern);
 					gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
-					GST_DEBUG("inserted %s @ %d,%d - changed=%d",str,self->priv->cursor_row+(j-1),track,sequence_changed);
+					GST_DEBUG("inserted %s @ %d,%d - changed=%d",str,row,track,sequence_changed);
 					g_object_try_unref(pattern);
 					g_free(str);
 					if(!gtk_tree_model_iter_next(store,&iter)) {
 						GST_WARNING("  can't get next tree-iter");
 						res=FALSE;
 					}
-					j++;
+					j++;row++;
 				}
 			}
 			else {
@@ -3621,22 +3648,28 @@ static gboolean sequence_deserialize_label_track(BtMainPageSequence *self,GtkTre
 
 	GST_INFO("paste labels");
 	if(gtk_tree_model_get_iter(store,&iter,path)) {
+		BtSequence *sequence=self->priv->sequence;
 		gint j=0;
-		while(fields[j] && *fields[j] && res) {
+		gulong sequence_length;
+		gulong row=self->priv->cursor_row;
+
+		g_object_get(sequence,"length",&sequence_length,NULL);
+		
+		while((row<sequence_length) && fields[j] && *fields[j] && res) {
 			if(*fields[j]!=' ') {
 				str=fields[j];
 			}
 			else {
 				str=NULL;
 			}
-			bt_sequence_set_label(self->priv->sequence,self->priv->cursor_row+j,str);
+			bt_sequence_set_label(sequence,row,str);
 			gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_LABEL,str,-1);
-			GST_DEBUG("inserted %s @ %d",str,self->priv->cursor_row+j);
+			GST_DEBUG("inserted %s @ %d",str,row);
 			if(!gtk_tree_model_iter_next(store,&iter)) {
 				GST_WARNING("  can't get next tree-iter");
 				res=FALSE;
 			}
-			j++;
+			j++;row++;
 		}
 	}
 	else {
