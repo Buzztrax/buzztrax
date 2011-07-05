@@ -1089,8 +1089,8 @@ static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar
 					redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",new_length);
 					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        	
         }
-				undo_str = g_strdup_printf("set_labels %lu,%lu,%s",pos,pos,(old_text?old_text:" "));
-				redo_str = g_strdup_printf("set_labels %lu,%lu,%s",pos,pos,(new_text?new_text:" "));
+				undo_str = g_strdup_printf("set_labels %lu,%lu, ,%s",pos,pos,(old_text?old_text:" "));
+				redo_str = g_strdup_printf("set_labels %lu,%lu, ,%s",pos,pos,(new_text?new_text:" "));
 				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
 				bt_change_log_end_group(self->priv->change_log);
       }
@@ -2630,8 +2630,25 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         res=TRUE;
       }
       else if(modifier==GDK_SHIFT_MASK) {
+      	GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
+      	gulong sequence_length,number_of_tracks;
+      	gchar *undo_str,*redo_str;
+
         GST_INFO("shift-delete pressed, row %lu",row);
+        g_object_get(self->priv->sequence,"length",&sequence_length,"tracks",&number_of_tracks,NULL);
+
+				sequence_range_copy(self,0,number_of_tracks,row,sequence_length-1,old_data);
         bt_sequence_delete_full_rows(self->priv->sequence,row,self->priv->bars);
+        sequence_range_copy(self,0,number_of_tracks,row,sequence_length-1,new_data);
+        
+        bt_change_log_start_group(self->priv->change_log);
+				undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length);
+				redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length-self->priv->bars);
+				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        	
+        sequence_range_log_undo_redo(self,0,number_of_tracks,row,sequence_length-1,old_data->str,new_data->str);
+        bt_change_log_end_group(self->priv->change_log);
+        
+				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         self->priv->sequence_length-=self->priv->bars;
         // reinit the view
         sequence_table_refresh(self,song);
@@ -3649,7 +3666,7 @@ static gboolean sequence_deserialize_label_track(BtMainPageSequence *self,GtkTre
 	GST_INFO("paste labels");
 	if(gtk_tree_model_get_iter(store,&iter,path)) {
 		BtSequence *sequence=self->priv->sequence;
-		gint j=0;
+		gint j=1;
 		gulong sequence_length;
 		gulong row=self->priv->cursor_row;
 

@@ -1,3 +1,9 @@
+2011-07-05  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Add undo/redo for multi-column del and fix a off by one for label
+	  column undo/redo.
+
 2011-07-04  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
