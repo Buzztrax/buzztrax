@@ -136,11 +136,29 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
     // connect handler
     g_signal_connect(menu_item,"activate",G_CALLBACK(on_control_learn_activated),device);
   }
+  
+#ifndef GST_DISABLE_GST_DEBUG
+  {
+  	gchar *dname;
+  	g_object_get(device,"name",&dname,NULL);
+    GST_INFO("Build control menu for '%s'",dname);
+    g_free(dname);
+  }
+#endif
 
   // get list of controls per device
   g_object_get(device,"controls",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     control=BTIC_CONTROL(node->data);
+
+#ifndef GST_DISABLE_GST_DEBUG
+		{
+			gchar *cname;
+			g_object_get(control,"name",&cname,NULL);
+			GST_INFO("  Add control '%s'",cname);
+      g_free(cname);
+		}
+#endif
 
     // filter by self->priv->type
     switch(self->priv->type) {
@@ -288,7 +306,7 @@ static void bt_interaction_controller_menu_set_property(GObject *object, guint p
     } break;
     case INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL: {
       g_object_try_unref(self->priv->selected_control);
-      self->priv->selected_control = BTIC_CONTROL(g_value_get_object(value));
+      self->priv->selected_control = BTIC_CONTROL(g_value_dup_object(value));
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

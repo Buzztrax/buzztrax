@@ -1,3 +1,11 @@
+2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/ic/input-device.c:
+	  Add more logging.
+
+	* src/ui/edit/interaction-controller-menu.c:
+	  Add a missing ref.
+
 2011-07-05  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:

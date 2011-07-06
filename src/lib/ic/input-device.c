@@ -416,6 +416,7 @@ static void btic_input_device_set_property(GObject * const object, const guint p
   switch (property_id) {
     case DEVICE_DEVNODE: {
       self->priv->devnode = g_value_dup_string(value);
+      //g_assert(!btic_device_has_controls(BTIC_DEVICE(self)));
       register_controls(self);
     } break;
     default: {
