@@ -1,5 +1,10 @@
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Don't trigger no-values.
+
+2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/ic/device.c:
 	  Add a notify when changing the control-list.
 

@@ -1409,6 +1409,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
 
     if(is_trigger) {
       gboolean update_wave=FALSE;
+			BtPatternEditorColumn *col=&group->columns[param];
 
       // play live (notes, triggers)
       if(BT_IS_STRING(str) && self->priv->play_live) {
@@ -1419,7 +1420,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
         /* @todo: buzz machines need set, tick, unset */
         if(group->type==PGT_GLOBAL) {
           GST_INFO("play global trigger: %f,'%s'",value,str);
-          switch(group->columns[param].type) {
+          switch(col->type) {
             case PCT_NOTE:
               g_object_set(element,bt_machine_get_global_param_name(machine,param),str,NULL);
               break;
@@ -1427,18 +1428,22 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
             case PCT_BYTE:
             case PCT_WORD: {
               gint val=atoi(str);
-              g_object_set(element,bt_machine_get_global_param_name(machine,param),val,NULL);
+              if(val==col->def) {
+              	g_object_set(element,bt_machine_get_global_param_name(machine,param),val,NULL);
+              }
             } break;
             case PCT_FLOAT: {
               gfloat val=atof(str);
-              g_object_set(element,bt_machine_get_global_param_name(machine,param),val,NULL);
+              if(val==col->def) {
+              	g_object_set(element,bt_machine_get_global_param_name(machine,param),val,NULL);
+              }
             } break;
           }
         }
         else {
           GST_INFO("play voice %u trigger: %f,'%s'",GPOINTER_TO_UINT(group->user_data),value,str);
           voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(element),GPOINTER_TO_UINT(group->user_data));
-          switch(group->columns[param].type) {
+          switch(col->type) {
             case PCT_NOTE:
               g_object_set(voice,bt_machine_get_voice_param_name(machine,param),str,NULL);
               break;
@@ -1446,11 +1451,15 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
             case PCT_BYTE:
             case PCT_WORD: {
               gint val=atoi(str);
-              g_object_set(voice,bt_machine_get_voice_param_name(machine,param),val,NULL);
+              if(val==col->def) {
+              	g_object_set(voice,bt_machine_get_voice_param_name(machine,param),val,NULL);
+              }
             } break;
             case PCT_FLOAT: {
               gfloat val=atof(str);
-              g_object_set(voice,bt_machine_get_voice_param_name(machine,param),val,NULL);
+              if(val==col->def) {
+              	g_object_set(voice,bt_machine_get_voice_param_name(machine,param),val,NULL);
+              }
             } break;
           }
 
@@ -1459,7 +1468,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
         gst_object_unref(element);
       }
 
-      if(group->columns[param].type == PCT_NOTE) {
+      if(col->type == PCT_NOTE) {
         // do not update the wave if it's an octave column or if the new value is 'off'
         if(digit == 0 && value != 255 && value != 0) {
           update_wave=TRUE;
@@ -1472,8 +1481,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
 
         if(BT_IS_STRING(str)) {
           gint wave_ix=gtk_combo_box_get_active(self->priv->wavetable_menu);
-          if (wave_ix >= 0)
-          {
+          if (wave_ix >= 0) {
             wave_ix = self->priv->combopos_to_wave[wave_ix];
             wave_str=bt_persistence_strfmt_ulong(wave_ix);
           }
