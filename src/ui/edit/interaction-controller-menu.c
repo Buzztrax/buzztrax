@@ -25,6 +25,12 @@
  * Build a menu with available interaction controllers of a type.
  */
 
+/* FIXME: we need to update the menu after learn().
+ * - for that we need a signal in device, or at least do a notify when
+ *   adding/removing controls
+ */
+
+
 #define BT_EDIT
 #define BT_INTERACTION_CONTROLLER_MENU_C
 
@@ -49,7 +55,7 @@ struct _BtInteractionControllerMenuPrivate {
 
   BtInteractionControllerMenuType type;
 
-  /* the selected control */
+  /* the selected control */          
   BtIcControl *selected_control;
 
   /* actions */
@@ -136,29 +142,11 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
     // connect handler
     g_signal_connect(menu_item,"activate",G_CALLBACK(on_control_learn_activated),device);
   }
-  
-#ifndef GST_DISABLE_GST_DEBUG
-  {
-  	gchar *dname;
-  	g_object_get(device,"name",&dname,NULL);
-    GST_INFO("Build control menu for '%s'",dname);
-    g_free(dname);
-  }
-#endif
 
   // get list of controls per device
   g_object_get(device,"controls",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     control=BTIC_CONTROL(node->data);
-
-#ifndef GST_DISABLE_GST_DEBUG
-		{
-			gchar *cname;
-			g_object_get(control,"name",&cname,NULL);
-			GST_INFO("  Add control '%s'",cname);
-      g_free(cname);
-		}
-#endif
 
     // filter by self->priv->type
     switch(self->priv->type) {
@@ -173,6 +161,7 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
     }
 
     g_object_get(control,"name",&str,NULL);
+    GST_INFO("  Add control '%s'",str);
 
     if(!submenu) {
       submenu=gtk_menu_new();
@@ -204,10 +193,13 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
   g_object_get(ic_registry,"devices",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     device=BTIC_DEVICE(node->data);
+    // urgs, this would need the submenu too, qdata?
+    //g_signal_connect(device,"notify::controls",G_CALLBACK(on_controls_changed),(gpointer)self);
 
     // only create items for non-empty submenus
     if((parentmenu=bt_interaction_controller_menu_init_control_menu(self,device))) {
       g_object_get(device,"name",&str,NULL);
+      GST_INFO("Build control menu for '%s'",str);
 
       menu_item=gtk_image_menu_item_new_with_label(str);
       gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);

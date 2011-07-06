@@ -1,5 +1,13 @@
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/ic/device.c:
+	  Add a notify when changing the control-list.
+
+	* src/ui/edit/interaction-controller-menu.c:
+	  Better logging. Add todo comments for the menu-updating.
+
+2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Improve saving data when tracks get removed.
 

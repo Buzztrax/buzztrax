@@ -84,6 +84,7 @@ void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control)
 
   // @todo: should we ref?
   self->priv->controls=g_list_append(self->priv->controls,(gpointer)control);
+  g_object_notify((GObject *)self,"controls");
 }
 
 /**
