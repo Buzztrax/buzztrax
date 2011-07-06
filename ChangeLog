@@ -1,5 +1,12 @@
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	  Export a function to be able to loop over tracks.
+
+2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/ic/input-device.c:
 	  Add more logging.
 

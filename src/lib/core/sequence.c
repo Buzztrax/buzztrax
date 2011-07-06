@@ -407,28 +407,6 @@ static void bt_sequence_resize_data_tracks(const BtSequence * const self, const 
 }
 
 /*
- * bt_sequence_get_track_by_machine:
- * @self: the sequence to search in
- * @machine: the machine to find the first track for
- *
- * Gets the first track this @machine is on.
- *
- * Returns: the track-index or -1 if there is no track for this @machine.
- */
-static glong bt_sequence_get_track_by_machine(const BtSequence * const self,const BtMachine * const machine) {
-  const gulong tracks=self->priv->tracks;
-  BtMachine **machines=self->priv->machines;
-  gulong track;
-
-  for(track=0;track<tracks;track++) {
-    if(machines[track]==machine) {
-      return((glong)track);
-    }
-  }
-  return(-1);
-}
-
-/*
  * bt_sequence_limit_play_pos_internal:
  * @self: the sequence to trim the play position of
  *
@@ -1282,6 +1260,30 @@ void bt_sequence_repair_damage(const BtSequence * const self) {
       }
     }
   }
+}
+
+/**
+ * bt_sequence_get_track_by_machine:
+ * @self: the sequence to search in
+ * @machine: the machine to find the first track for
+ *
+ * Gets the first track this @machine is on.
+ *
+ * Returns: the track-index or -1 if there is no track for this @machine.
+ *
+ * Since: 0.6
+ */
+glong bt_sequence_get_track_by_machine(const BtSequence * const self,const BtMachine * const machine) {
+  const gulong tracks=self->priv->tracks;
+  BtMachine **machines=self->priv->machines;
+  gulong track;
+
+  for(track=0;track<tracks;track++) {
+    if(machines[track]==machine) {
+      return((glong)track);
+    }
+  }
+  return(-1);
 }
 
 /**

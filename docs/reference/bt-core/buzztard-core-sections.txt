@@ -256,6 +256,7 @@ BtProcessorMachinePrivate
 BtSequence
 bt_sequence_new
 bt_sequence_repair_damage
+bt_sequence_get_track_by_machine
 bt_sequence_get_machine
 bt_sequence_add_track
 bt_sequence_remove_track_by_ix
