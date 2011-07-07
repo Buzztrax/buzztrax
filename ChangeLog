@@ -1,5 +1,10 @@
 2011-07-07  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Fix gvalue checks to not access unset gvalues.
+
+2011-07-07  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/interaction-controller-learn-dialog.c:
 	  Add comments. Select the suggested name and make enter activate the
 	  default dialog action.

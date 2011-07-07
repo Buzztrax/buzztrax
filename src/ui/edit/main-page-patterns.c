@@ -1700,7 +1700,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->type=PCT_SWITCH;
       col->min=0;
       col->max=1;
-      col->def=no_val?g_value_get_boolean(no_val):col->max+1;
+      col->def=BT_IS_GVALUE(no_val)?g_value_get_boolean(no_val):col->max+1;
       col->user_data=g_new(BtPatternEditorColumnConverters,1);
       pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->val_to_float=boolean_val_to_float;
@@ -1719,7 +1719,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
         col->type=PCT_BYTE;
         col->min=g_value_get_enum(min_val);
         col->max=g_value_get_enum(max_val);
-        col->def=no_val?g_value_get_enum(no_val):col->max+1;
+        col->def=BT_IS_GVALUE(no_val)?g_value_get_enum(no_val):col->max+1;
       }
       col->user_data=g_new(BtPatternEditorColumnConverters,1);
       pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
@@ -1732,7 +1732,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->type=PCT_WORD;
       col->min=g_value_get_int(min_val);
       col->max=g_value_get_int(max_val);
-      col->def=no_val?g_value_get_int(no_val):col->max+1;
+      col->def=BT_IS_GVALUE(no_val)?g_value_get_int(no_val):col->max+1;
       if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
@@ -1747,7 +1747,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->type=PCT_WORD;
       col->min=g_value_get_uint(min_val);
       col->max=g_value_get_uint(max_val);
-      col->def=no_val?g_value_get_uint(no_val):col->max+1;
+      col->def=BT_IS_GVALUE(no_val)?g_value_get_uint(no_val):col->max+1;
       if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
