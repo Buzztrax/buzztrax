@@ -61,6 +61,9 @@ extern gboolean bt_machine_is_voice_param_trigger(const BtMachine * const self, 
 extern gboolean bt_machine_is_global_param_no_value(const BtMachine * const self, const gulong index, GValue * const value);
 extern gboolean bt_machine_is_voice_param_no_value(const BtMachine *const self, const gulong index, GValue * const value);
 
+extern GValue *bt_machine_get_global_param_no_value(const BtMachine * const self, const gulong index);
+extern GValue *bt_machine_get_voice_param_no_value(const BtMachine * const self, const gulong index);
+
 extern glong bt_machine_get_global_wave_param_index(const BtMachine * const self);
 extern glong bt_machine_get_voice_wave_param_index(const BtMachine * const self);
 

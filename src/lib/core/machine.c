@@ -1719,6 +1719,43 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine * const self, const 
 }
 
 /**
+ * bt_machine_get_global_param_no_value:
+ * @self: the machine to get params from
+ * @index: the offset in the list of global params
+ *
+ * Get the neutral value for the machines parameter.
+ *
+ * Returns: the value. Don't modify.
+ *
+ * Since: 0.6
+ */
+GValue *bt_machine_get_global_param_no_value(const BtMachine * const self, const gulong index) {
+  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail(index<self->priv->global_params,FALSE);
+
+  return(&self->priv->global_no_val[index]);
+}
+
+/**
+ * bt_machine_get_voice_param_no_value:
+ * @self: the machine to get params from
+ * @index: the offset in the list of voice params
+ *
+ * Get the neutral value for the machines parameter.
+ *
+ * Returns: the value. Don't modify.
+ *
+ * Since: 0.6
+ */
+GValue *bt_machine_get_voice_param_no_value(const BtMachine * const self, const gulong index) {
+  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail(index<self->priv->voice_params,FALSE);
+
+  return(&self->priv->voice_no_val[index]);
+}
+
+
+/**
  * bt_machine_get_global_wave_param_index:
  * @self: the machine to lookup the param from
  *

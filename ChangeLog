@@ -1,5 +1,13 @@
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	  Expose two methods to get parameter no-values. We'll need that for the
+	  pattern editor to use them for clearing cells.
+
+2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Don't trigger no-values.
 
