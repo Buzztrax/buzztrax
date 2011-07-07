@@ -279,6 +279,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
 
   self->priv->file_name_entry=widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY (widget), self->priv->filename);
+  gtk_entry_set_activates_default(GTK_ENTRY(self->priv->file_name_entry),TRUE);
   g_signal_connect(widget, "changed", G_CALLBACK(on_filename_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 

@@ -1,5 +1,10 @@
 2011-07-07  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/render-dialog.c:
+	  Make enter activate the default dialog action.
+
+2011-07-07  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-properties-dialog.c:
 	  Make enter activate the default dialog action.
 
