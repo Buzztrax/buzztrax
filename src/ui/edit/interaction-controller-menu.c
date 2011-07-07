@@ -25,12 +25,6 @@
  * Build a menu with available interaction controllers of a type.
  */
 
-/* FIXME: we need to update the menu after learn().
- * - for that we need a signal in device, or at least do a notify when
- *   adding/removing controls
- */
-
-
 #define BT_EDIT
 #define BT_INTERACTION_CONTROLLER_MENU_C
 
@@ -57,6 +51,9 @@ struct _BtInteractionControllerMenuPrivate {
 
   /* the selected control */          
   BtIcControl *selected_control;
+  
+  /* sub menu (needed to update the menu) */
+  GtkWidget *device_menu;
 
   /* actions */
   GtkWidget *item_unbind,*item_unbind_all;
@@ -67,6 +64,10 @@ static GQuark widget_parent_quark=0;
 //-- the class
 
 G_DEFINE_TYPE (BtInteractionControllerMenu, bt_interaction_controller_menu, GTK_TYPE_MENU);
+
+//-- prototypes
+
+static void bt_interaction_controller_menu_init_device_menu(const BtInteractionControllerMenu *self);
 
 //-- enums
 
@@ -84,6 +85,12 @@ GType bt_interaction_controller_menu_type_get_type(void) {
 }
 
 //-- event handler
+
+void on_controls_changed(BtIcDevice * const device, const GParamSpec * const arg, gconstpointer const user_data) {
+	BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(user_data);
+
+	bt_interaction_controller_menu_init_device_menu(self);
+}
 
 static void on_control_bind_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(g_object_get_qdata(G_OBJECT(menuitem),widget_parent_quark));
@@ -181,20 +188,23 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
   return(submenu);
 }
 
-static void bt_interaction_controller_menu_init_device_menu(const BtInteractionControllerMenu *self,GtkWidget *submenu) {
+static void bt_interaction_controller_menu_init_device_menu(const BtInteractionControllerMenu *self) {
   BtIcRegistry *ic_registry;
   BtIcDevice *device;
-  GtkWidget *menu_item,*parentmenu;
+  GtkWidget *menu_item,*submenu,*parentmenu;
   GList *node,*list;
   gchar *str;
+  
+  submenu=gtk_menu_new();
+  gtk_widget_set_name(submenu,"interaction controller submenu");
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(self->priv->device_menu),submenu);
 
   // get list of interaction devices
   g_object_get(self->priv->app,"ic-registry",&ic_registry,NULL);
   g_object_get(ic_registry,"devices",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     device=BTIC_DEVICE(node->data);
-    // urgs, this would need the submenu too, qdata?
-    //g_signal_connect(device,"notify::controls",G_CALLBACK(on_controls_changed),(gpointer)self);
+    g_signal_connect(device,"notify::controls",G_CALLBACK(on_controls_changed),(gpointer)self);
 
     // only create items for non-empty submenus
     if((parentmenu=bt_interaction_controller_menu_init_control_menu(self,device))) {
@@ -214,7 +224,7 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
 }
 
 static void bt_interaction_controller_menu_init_ui(const BtInteractionControllerMenu *self) {
-  GtkWidget *menu_item,*submenu,*image;
+  GtkWidget *menu_item,*image;
 
   gtk_widget_set_name(GTK_WIDGET(self),"interaction controller menu");
 
@@ -223,12 +233,10 @@ static void bt_interaction_controller_menu_init_ui(const BtInteractionController
   image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);
-  // add another submenu
-  submenu=gtk_menu_new();
-  gtk_widget_set_name(submenu,"interaction controller submenu");
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
+  self->priv->device_menu=menu_item;
 
-  bt_interaction_controller_menu_init_device_menu(self,submenu);
+  // add the device submenu
+  bt_interaction_controller_menu_init_device_menu(self);
 
   self->priv->item_unbind=menu_item=gtk_image_menu_item_new_with_label(_("Unbind controller"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self),menu_item);
@@ -308,10 +316,23 @@ static void bt_interaction_controller_menu_set_property(GObject *object, guint p
 
 static void bt_interaction_controller_menu_dispose(GObject *object) {
   BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU(object);
+  BtIcRegistry *ic_registry;
+  BtIcDevice *device;
+  GList *node,*list;
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  // disconnect notify handlers
+  g_object_get(self->priv->app,"ic-registry",&ic_registry,NULL);
+  g_object_get(ic_registry,"devices",&list,NULL);
+  for(node=list;node;node=g_list_next(node)) {
+    device=BTIC_DEVICE(node->data);
+    g_signal_handlers_disconnect_matched(device,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_controls_changed,(gpointer)self);
+  }
+  
   g_object_try_unref(self->priv->selected_control);
   g_object_unref(self->priv->app);
 
