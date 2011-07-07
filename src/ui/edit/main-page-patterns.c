@@ -1711,9 +1711,9 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
 
       if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH) {
         col->type=PCT_SWITCH;
-        col->min=GSTGSTBT_TRIGGER_SWITCH_OFF;
-        col->max=GSTGSTBT_TRIGGER_SWITCH_ON;
-        col->def=GSTGSTBT_TRIGGER_SWITCH_EMPTY;
+        col->min=GSTBT_TRIGGER_SWITCH_OFF;
+        col->max=GSTBT_TRIGGER_SWITCH_ON;
+        col->def=GSTBT_TRIGGER_SWITCH_EMPTY;
       }
       else {
         col->type=PCT_BYTE;

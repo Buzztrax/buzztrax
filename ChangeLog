@@ -1,6 +1,11 @@
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
+	  Rename misnamed enums.
+
+2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
 	  Use the new api to use appropriate no-values in pattern-editor.
 
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
