@@ -174,6 +174,7 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   length_str=g_strdup_printf("%lu",self->priv->length);
   widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(widget),length_str);g_free(length_str);
+  gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(widget, "changed", G_CALLBACK(on_length_changed), (gpointer)self);
 
@@ -186,6 +187,7 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   widget=gtk_spin_button_new(spin_adjustment,(gdouble)(self->priv->voices),0);
   if(bt_machine_is_polyphonic(self->priv->machine)) {
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),(gdouble)self->priv->voices);
+  	gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
     g_signal_connect(widget, "value-changed", G_CALLBACK(on_voices_changed), (gpointer)self);
   }
   else {
