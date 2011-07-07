@@ -312,7 +312,7 @@ static void bt_pattern_init_voice_event(const BtPattern * const self, GValue * c
 
 //-- signal handler
 
-void bt_pattern_on_voices_changed(BtMachine * const machine, const GParamSpec * const arg, gconstpointer const user_data) {
+static void bt_pattern_on_voices_changed(BtMachine * const machine, const GParamSpec * const arg, gconstpointer const user_data) {
   const BtPattern * const self=BT_PATTERN(user_data);
   gulong old_voices=self->priv->voices;
 

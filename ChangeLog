@@ -1,5 +1,10 @@
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	  Add missing 'static' keyword to signal handler.
+
+2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Rename misnamed enums.
 
