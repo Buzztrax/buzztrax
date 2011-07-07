@@ -1,5 +1,10 @@
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/ic/device.c:
+	  Sort control list by name.
+
+2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/interaction-controller-menu.c:
 	  Update menu after learn.
 

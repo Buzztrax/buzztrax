@@ -65,6 +65,24 @@ G_DEFINE_ABSTRACT_TYPE (BtIcDevice, btic_device, G_TYPE_OBJECT);
 
 //-- helper
 
+static gint sort_by_name(const gpointer obj1,const gpointer obj2) {
+	gchar *str1,*str2;
+	gchar *str1c,*str2c;
+	gint res;
+
+  // @todo: this is fragmenting memory :/
+  // - we could atleast a compare func in control
+	g_object_get(obj1,"name",&str1,NULL);
+	g_object_get(obj2,"name",&str2,NULL);
+  str1c=g_utf8_casefold(str1,-1);
+  str2c=g_utf8_casefold(str2,-1);
+  res=g_utf8_collate(str1c,str2c);
+
+  g_free(str1c);g_free(str1);
+  g_free(str2c);g_free(str2);
+  return(res);
+}
+
 //-- handler
 
 //-- constructor methods
@@ -79,11 +97,13 @@ G_DEFINE_ABSTRACT_TYPE (BtIcDevice, btic_device, G_TYPE_OBJECT);
  * Add the given @control to the list that the device manages.
  */
 void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control) {
+	GList *list;
   g_return_if_fail(BTIC_DEVICE(self));
   g_return_if_fail(BTIC_CONTROL(control));
 
   // @todo: should we ref?
-  self->priv->controls=g_list_append(self->priv->controls,(gpointer)control);
+  list=g_list_append(self->priv->controls,(gpointer)control);
+  self->priv->controls=g_list_sort(list,(GCompareFunc)sort_by_name);
   g_object_notify((GObject *)self,"controls");
 }
 
