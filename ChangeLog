@@ -1,5 +1,10 @@
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Use the new api to use appropriate no-values in pattern-editor.
+
+2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/machine-methods.h:
 	* src/lib/core/machine.c:

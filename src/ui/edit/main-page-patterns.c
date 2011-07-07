@@ -1674,7 +1674,7 @@ static gfloat uint_val_to_float(GValue *v, gpointer user_data) {
 }
 
 
-static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val) {
+static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val, GValue *no_val) {
   GType type=bt_g_type_get_base_type(property->value_type);
 
   GST_LOG("filling param type: '%s'::'%s'/'%s' for parameter '%s'",
@@ -1688,7 +1688,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->type=PCT_NOTE;
       col->min=0;
       col->max=((16*9)+12);
-      col->def=0;
+      col->def=GSTBT_TONE_CONVERSION_NOTE_NO;
       col->user_data=g_new(BtPatternEditorColumnConverters,1);
       pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->val_to_float=note_val_to_float;
@@ -1700,7 +1700,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->type=PCT_SWITCH;
       col->min=0;
       col->max=1;
-      col->def=col->max+1;
+      col->def=no_val?g_value_get_boolean(no_val):col->max+1;
       col->user_data=g_new(BtPatternEditorColumnConverters,1);
       pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->val_to_float=boolean_val_to_float;
@@ -1719,7 +1719,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
         col->type=PCT_BYTE;
         col->min=g_value_get_enum(min_val);
         col->max=g_value_get_enum(max_val);
-        col->def=col->max+1;
+        col->def=no_val?g_value_get_enum(no_val):col->max+1;
       }
       col->user_data=g_new(BtPatternEditorColumnConverters,1);
       pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
@@ -1732,7 +1732,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->type=PCT_WORD;
       col->min=g_value_get_int(min_val);
       col->max=g_value_get_int(max_val);
-      col->def=col->max+1;
+      col->def=no_val?g_value_get_int(no_val):col->max+1;
       if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
@@ -1747,7 +1747,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->type=PCT_WORD;
       col->min=g_value_get_uint(min_val);
       col->max=g_value_get_uint(max_val);
-      col->def=col->max+1;
+      col->def=no_val?g_value_get_uint(no_val):col->max+1;
       if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
@@ -1847,8 +1847,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
     gulong number_of_ticks,voices,global_params,voice_params;
     BtMachine *machine;
     BtPatternEditorColumnGroup *group;
-    GValue *min_val,*max_val;
     GParamSpec *property;
+    GValue *min_val,*max_val,*no_val;
 
     g_object_get(self->priv->pattern,"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
     g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
@@ -1884,7 +1884,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
         group->width=0;
         for(i=0;i<wire_params;i++) {
           bt_wire_get_param_details(wire,i,&property,&min_val,&max_val);
-          pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val);
+          pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val,NULL);
         }
         g_object_unref(src);
         group++;
@@ -1905,7 +1905,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       GST_INFO("global parameters");
       for(i=0;i<global_params;i++) {
         bt_machine_get_global_param_details(machine,i,&property,&min_val,&max_val);
-        pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val);
+      	no_val=bt_machine_get_global_param_no_value(machine,i);
+        pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val,no_val);
+        //g_value_unset(&no_val);
       }
       group++;
     }
@@ -1922,7 +1924,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       GST_INFO("voice parameters");
       for(i=0;i<voice_params;i++) {
         bt_machine_get_voice_param_details(machine,i,&property,&min_val,&max_val);
-        pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val);
+      	no_val=bt_machine_get_voice_param_no_value(machine,i);
+        pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val,no_val);
       }
       group++;
       for(i=1;i<voices;i++) {
