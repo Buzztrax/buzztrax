@@ -1,3 +1,9 @@
+2011-07-07  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	  Add comments. Select the suggested name and make enter activate the
+	  default dialog action.
+
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/ic/device.c:

@@ -26,6 +26,7 @@
  */
 /* @todo: having okay & assign would be nice
  * @todo: having a way to train multiple controllers would be nice
+ * - we could have: okay, okay & assign, okay & learn more, cancel
  */
 #define BT_EDIT
 #define BT_INTERACTION_CONTROLLER_LEARN_DIALOG_C
@@ -63,6 +64,7 @@ static void notify_device_controlchange(const BtIcLearn* learn,
 	       "device-controlchange", &control, NULL);
   gtk_label_set_text(GTK_LABEL(self->priv->label_output), control);
   gtk_entry_set_text(GTK_ENTRY(self->priv->entry_name), control);
+  gtk_editable_select_region(GTK_EDITABLE(self->priv->entry_name),0,-1);
 
   g_free(control);
 }
@@ -74,14 +76,14 @@ static void on_dialog_response(GtkDialog *dialog,
   BtInteractionControllerLearnDialog *self=BT_INTERACTION_CONTROLLER_LEARN_DIALOG(user_data);
 
   switch(signal) {
-  case GTK_RESPONSE_ACCEPT:
-    //GST_INFO("learn dialog okay");
-    btic_learn_register_learned_control(BTIC_LEARN(self->priv->device),
-					gtk_entry_get_text(GTK_ENTRY(self->priv->entry_name)));
-    break;
-  case GTK_RESPONSE_REJECT:
-    //GST_INFO("learn dialog cancel");
-    break;
+		case GTK_RESPONSE_ACCEPT:
+			//GST_INFO("learn dialog okay");
+			btic_learn_register_learned_control(BTIC_LEARN(self->priv->device),
+						gtk_entry_get_text(GTK_ENTRY(self->priv->entry_name)));
+			break;
+		case GTK_RESPONSE_REJECT:
+			//GST_INFO("learn dialog cancel");
+			break;
   }
 
   GST_DEBUG("object: %p refs: %d)",self->priv->device,G_OBJECT_REF_COUNT(self->priv->device));
@@ -134,6 +136,7 @@ static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionCo
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
 
   self->priv->entry_name=gtk_entry_new();
+  gtk_entry_set_activates_default(GTK_ENTRY(self->priv->entry_name),TRUE);
   gtk_table_attach(GTK_TABLE(table),self->priv->entry_name, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
 
