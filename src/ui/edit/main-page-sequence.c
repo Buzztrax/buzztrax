@@ -3001,7 +3001,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 	GString *old_data;
 	gchar *undo_str,*redo_str;
 	gchar *mid;
-	glong ix;
+	glong ix=0;
 	gulong sequence_length;
 
   g_return_if_fail(BT_IS_MACHINE(machine));
@@ -3017,12 +3017,16 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_object_get(self->priv->app,"song",&song,NULL);
 
 	/* handle undo/redo */
-	/* FIXME: this is not happening within the machine-removing undo/redo block */
+	/* FIXME: this is not happening within the machine-removing undo/redo block
+	 * - it seems to wok for patterns as we dispose the patterns when disposing
+	 *   the machine
+	 * - we can't do that for tracks as the don't exist as separate entities
+	 */
 	g_object_get(machine,"id",&mid,NULL);
 	g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
 	bt_change_log_start_group(self->priv->change_log);
 	/* which order ? */
-  while(((ix=bt_sequence_get_track_by_machine(self->priv->sequence,machine))>-1)) {
+  while(((ix=bt_sequence_get_track_by_machine(self->priv->sequence,machine,ix))>-1)) {
   	old_data=g_string_new(NULL);
   	undo_str = g_strdup_printf("add_track \"%s\",%lu",mid,(gulong)ix);
 	  redo_str = g_strdup_printf("rem_track %lu",(gulong)ix);
@@ -3059,9 +3063,25 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
 static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  BtSequence *sequence=self->priv->sequence;
   BtSong *song;
 
   GST_INFO("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+
+  if(bt_sequence_is_pattern_used(sequence,pattern)) {
+  	//glong tick;
+  	glong track=0;
+  	
+  	
+  	while((track=bt_sequence_get_track_by_machine(sequence,machine,track))>-1) {
+#if 0
+      tick=0;
+      while((tick=bt_sequence_get_tick_by_pattern(sequence,track,pattern,tick))>-1) {
+      	/* @todo: undo/redo: save the cells that use the pattern */
+      }
+#endif
+		}
+	}
 
   // get song from app
   g_object_get(self->priv->app,"song",&song,NULL);

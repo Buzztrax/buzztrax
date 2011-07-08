@@ -1266,19 +1266,19 @@ void bt_sequence_repair_damage(const BtSequence * const self) {
  * bt_sequence_get_track_by_machine:
  * @self: the sequence to search in
  * @machine: the machine to find the first track for
+ * @track: the track to start the search from
  *
- * Gets the first track this @machine is on.
+ * Gets the next track after @track this @machine is on.
  *
  * Returns: the track-index or -1 if there is no track for this @machine.
  *
  * Since: 0.6
  */
-glong bt_sequence_get_track_by_machine(const BtSequence * const self,const BtMachine * const machine) {
+glong bt_sequence_get_track_by_machine(const BtSequence * const self,const BtMachine * const machine,gulong track) {
   const gulong tracks=self->priv->tracks;
   BtMachine **machines=self->priv->machines;
-  gulong track;
 
-  for(track=0;track<tracks;track++) {
+  for(;track<tracks;track++) {
     if(machines[track]==machine) {
       return((glong)track);
     }
@@ -1327,7 +1327,7 @@ gboolean bt_sequence_add_track(const BtSequence * const self, const BtMachine * 
 	gulong tracks=self->priv->tracks+1;
 	const gulong pos=(ix==-1)?self->priv->tracks:ix;
 
-	g_return_val_if_fail(ix<(glong)self->priv->tracks,FALSE);
+	g_return_val_if_fail(ix<=(glong)self->priv->tracks,FALSE);
 
   GST_INFO("add track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT_REF_COUNT(machine),pos);
 
@@ -1409,7 +1409,7 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   g_object_set((gpointer)self,"tracks",(gulong)(tracks-1),NULL);
 
   // disconnect signal handler if its the last of this machine
-  if(bt_sequence_get_track_by_machine(self,machine)==-1) {
+  if(bt_sequence_get_track_by_machine(self,machine,0)==-1) {
     g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA, 0, 0, NULL, bt_sequence_on_pattern_removed, (gpointer)self);
   }
   GST_INFO("release machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
@@ -1495,7 +1495,7 @@ gboolean bt_sequence_move_track_right(const BtSequence * const self, const gulon
  */
 gboolean bt_sequence_remove_track_by_machine(const BtSequence * const self,const BtMachine * const machine) {
   gboolean res=TRUE;
-  glong track;
+  glong track=0;
 
   g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
@@ -1503,7 +1503,7 @@ gboolean bt_sequence_remove_track_by_machine(const BtSequence * const self,const
   GST_INFO("remove tracks for machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
 
   // do bt_sequence_remove_track_by_ix() for each occurance
-  while(((track=bt_sequence_get_track_by_machine(self,machine))>-1) && res) {
+  while(((track=bt_sequence_get_track_by_machine(self,machine,track))>-1) && res) {
     res=bt_sequence_remove_track_by_ix(self,(gulong)track);
   }
   GST_INFO("removed tracks for machine %p,ref_count=%d,res=%d",machine,G_OBJECT_REF_COUNT(machine),res);

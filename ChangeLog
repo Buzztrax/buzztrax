@@ -1,5 +1,14 @@
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	  Allow to iterate the tracks, but passing a start position.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Use new method. Sketch out pattern-remove undo/redo.
+
+2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-machines.c:
 	  Comment update.
 
