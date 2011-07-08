@@ -1,5 +1,10 @@
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/ic/learn.c:
+	  Planning.
+
+2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/pattern.c:
 	  Notify voice changes.
 

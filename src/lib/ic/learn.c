@@ -25,6 +25,16 @@
  * An interface which all devices which support interactive learning of
  * controls should implement.
  */
+
+/* @todo: store controller maps for trainable devices
+ * - whenever we have learned a control update the file on disk
+ *   use btic_learn_register_learned_control()
+ * - whenever we discover a device load the previous settings from disk
+ * - files
+ *   - use gkeyfile as a format
+ *   - store them as g_get_user_data_dir(),PACKAGE_NAME,"$device_name.map"
+ *   
+ */
 #define BTIC_CORE
 #define BTIC_LEARN_C
 
