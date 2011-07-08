@@ -320,6 +320,7 @@ static void bt_pattern_on_voices_changed(BtMachine * const machine, const GParam
   if(old_voices!=self->priv->voices) {
     GST_DEBUG("set the voices for pattern %s: %lu -> %lu",self->priv->id,old_voices,self->priv->voices);
     bt_pattern_resize_data_voices(self,old_voices);
+    g_object_notify((GObject *)self,"voices");
   }
 }
 
