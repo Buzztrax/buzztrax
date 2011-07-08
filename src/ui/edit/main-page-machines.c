@@ -1502,50 +1502,11 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
 
   GST_INFO("now removing machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
   bt_change_log_start_group(self->priv->change_log);
-  /* @todo: serialize all sequence tracks
-   * @todo: serialize all patterns
-   */
 
   bt_setup_remove_machine(setup,machine);
   // triggers setup:machine-removed -> self:on_machine_removed()
   // -> triggers machine:pattern-removed
   // ??? -> triggers setup:wire-removed -> self:on_wire_removed()
-  /* somehow we need to put "machine-removed" signal handler invocation into a controlled order
-- good -
-#0  on_wire_removed (setup=0x852d5a0, wire=0x84ee1f0, user_data=0x82a01a0) at main-page-machines.c:628
-#5  g_signal_emit (instance=0x852d5a0, signal_id=408, detail=0) at /build/buildd/glib2.0-2.26.1/gobject/gsignal.c:3040
-#6  bt_setup_remove_wire (self=0x852d5a0, wire=0x84ee1f0) at setup.c:1053
-#7  on_machine_removed (setup=0x852d5a0, machine=0x83b4210, user_data=0x87b6e40) at wire-canvas-item.c:249
-#12 g_signal_emit (instance=0x852d5a0, signal_id=407, detail=0) at /build/buildd/glib2.0-2.26.1/gobject/gsignal.c:3040
-#13 bt_setup_remove_machine (self=0x852d5a0, machine=0x83b4210) at setup.c:1005
-#14 bt_main_page_machines_delete_machine (self=0x82a01a0, machine=0x83b4210) at main-page-machines.c:1504
-
-BtMainPageMachines::rem_wire "simsyn","master"
-...
-BtMainPagePatterns::rem_pattern "simsyn","simsyn 00"
-...
-BtMainPageMachines::rem_machine "simsyn"
-
-- fail -
-#0  on_wire_removed (setup=0x876f458, wire=0x84ee4b0, user_data=0x82a01a0) at main-page-machines.c:628
-#5  g_signal_emit (instance=0x876f458, signal_id=408, detail=0) at /build/buildd/glib2.0-2.26.1/gobject/gsignal.c:3040
-#6  bt_setup_remove_wire (self=0x876f458, wire=0x84ee4b0) at setup.c:1053
-#7  on_machine_removed (setup=0x876f458, machine=0x83b45e0, user_data=0x8912b30) at wire-canvas-item.c:249
-#12 g_signal_emit (instance=0x876f458, signal_id=407, detail=0) at /build/buildd/glib2.0-2.26.1/gobject/gsignal.c:3040
-#13 bt_setup_remove_machine (self=0x876f458, machine=0x83b45e0) at setup.c:1005
-#14 bt_main_page_machines_delete_machine (self=0x82a01a0, machine=0x83b45e0) at main-page-machines.c:1504
-
-BtMainPagePatterns::rem_pattern "Matilde-Tracker-Mono","Matilde-Tracker-Mono 00"
-...
-BtMainPageMachines::rem_machine "Matilde-Tracker-Mono"
-BtMainPageMachines::rem_wire "Matilde-Tracker-Mono","master"
-
--fail-
-BtMainPageMachines::rem_machine "Matilde-Tracker-Mono"
-...
-BtMainPagePatterns::rem_pattern "Matilde-Tracker-Mono","Matilde-Tracker-Mono 00"
-BtMainPageMachines::rem_wire "Matilde-Tracker-Mono","master"
-  */
 
   // this segfaults if the machine is finalized
   //GST_INFO("... machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
