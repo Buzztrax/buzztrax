@@ -786,6 +786,9 @@ void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,
  *
  * A top-level group is undone or redone with a single bt_change_log_undo() or
  * bt_change_log_redo() call.
+ *
+ * One would start and finish such a group in the first signal handler that
+ * triggered the change.  
  */
 void bt_change_log_start_group(BtChangeLog *self) {
   if(self->priv->changes) {
@@ -806,7 +809,8 @@ void bt_change_log_start_group(BtChangeLog *self) {
  * bt_change_log_end_group:
  * @self: the change log
  *
- * Closed the last group opened with bt_change_log_start_group().
+ * Closed the last group opened with bt_change_log_start_group(). Usually one
+ * a group would be closed in the same local scope where it was opened.
  */
 void bt_change_log_end_group(BtChangeLog *self) {
   if(self->priv->changes) {
