@@ -1265,12 +1265,13 @@ void bt_sequence_repair_damage(const BtSequence * const self) {
 /**
  * bt_sequence_get_track_by_machine:
  * @self: the sequence to search in
- * @machine: the machine to find the first track for
+ * @machine: the machine to find the next track for
  * @track: the track to start the search from
  *
- * Gets the next track after @track this @machine is on.
+ * Gets the next track >= @track this @machine is on.
  *
- * Returns: the track-index or -1 if there is no track for this @machine.
+ * Returns: the track-index or -1 if there is no further track for this
+ * @machine.
  *
  * Since: 0.6
  */
@@ -1281,6 +1282,33 @@ glong bt_sequence_get_track_by_machine(const BtSequence * const self,const BtMac
   for(;track<tracks;track++) {
     if(machines[track]==machine) {
       return((glong)track);
+    }
+  }
+  return(-1);
+}
+
+/**
+ * bt_sequence_get_tick_by_pattern:
+ * @self: the sequence to search in
+ * @track: the track to search in
+ * @pattern: the pattern to find the next track for
+ * @tick: the tick position to start the search from
+ *
+ * Gets the next tick position >= @tick this @pattern is on.
+ *
+ * Returns: the tick position or -1 if there is no further tick for this
+ * @pattern.
+ *
+ * Since: 0.6
+ */
+glong bt_sequence_get_tick_by_pattern(const BtSequence * const self,gulong track,const BtPattern * const pattern,gulong tick) {
+  const gulong length=self->priv->length;
+  const gulong tracks=self->priv->tracks;
+  BtPattern **patterns=self->priv->patterns;
+
+  for(;tick<length;tick++) {
+    if(patterns[tick*tracks+track]==pattern) {
+    	return((glong)tick);
     }
   }
   return(-1);

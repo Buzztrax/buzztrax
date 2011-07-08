@@ -31,6 +31,8 @@ extern BtSequence *bt_sequence_new(const BtSong * const song);
 extern void bt_sequence_repair_damage(const BtSequence * const self);
 
 extern glong bt_sequence_get_track_by_machine(const BtSequence * const self,const BtMachine * const machine,gulong track);
+extern glong bt_sequence_get_tick_by_pattern(const BtSequence * const self,gulong track, const BtPattern * const pattern,gulong tick);
+
 extern BtMachine *bt_sequence_get_machine(const BtSequence * const self,const gulong track);
 
 extern gboolean bt_sequence_add_track(const BtSequence * const self,const BtMachine * const machine, const glong track);
