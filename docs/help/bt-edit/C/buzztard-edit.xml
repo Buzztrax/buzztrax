@@ -509,8 +509,8 @@
         Below are tables listing all keyboard shortcuts.
       </para>
       <table frame="all" id="bt-edit-page-pattern-view-table-nav-keys">
-        <indexterm><primary>pattern view shortcuts</primary></indexterm>
         <title>Pattern navigation keyboard shortcuts</title>
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
         <tgroup cols="3" align="left" colsep="1" rowsep="1">
           <colspec colname="c" />
           <colspec colname="s" />
@@ -592,8 +592,8 @@
         </tgroup>
       </table>
       <table frame="all" id="bt-edit-page-pattern-view-table-edit-keys">
-        <indexterm><primary>pattern view shortcuts</primary></indexterm>
         <title>Pattern editing keyboard shortcuts</title>
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
         <tgroup cols="3" align="left" colsep="1" rowsep="1">
           <colspec colname="c" />
           <colspec colname="s" />
@@ -608,20 +608,20 @@
           <tbody>
             <row>
               <entry>enter notes</entry>
-              <entry><keycap><screen>   s d   g h j
-y/z x c v b n m</screen></keycap></entry>
+              <entry><screen><keycap>   s d   g h j
+y/z x c v b n m</keycap></screen></entry>
               <entry>notes from the base octave</entry>
             </row>
             <row>
               <entry>enter notes</entry>
-              <entry><keycap><screen> 2 3   5 6   7
-q w e r t z/y u</screen></keycap></entry>
+              <entry><screen><keycap> 2 3   5 6   7
+q w e r t z/y u</keycap></screen></entry>
               <entry>notes from one octave above the base octave</entry>
             </row>
             <row>
               <entry>enter notes</entry>
-              <entry><keycap><screen> 9 0
-i o p</screen></keycap></entry>
+              <entry><screen><keycap> 9 0
+i o p</keycap></screen></entry>
               <entry>notes from two octaves above the base octave</entry>
             </row>
             <row>
@@ -678,8 +678,8 @@ i o p</screen></keycap></entry>
         </tgroup>
       </table>
       <table frame="all" id="bt-edit-page-pattern-view-table-action-keys">
-        <indexterm><primary>pattern view shortcuts</primary></indexterm>
         <title>Pattern action keyboard shortcuts</title>
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
         <tgroup cols="3" align="left" colsep="1" rowsep="1">
           <colspec colname="c" />
           <colspec colname="s" />
@@ -722,7 +722,7 @@ i o p</screen></keycap></entry>
       </table>
       <para>
         A list of keyboard shortcuts can also be seen on the
-        <ulink uri="http://wiki.buzztard.org/index.php/Keyboard_shortcuts#Pattern_View">wiki</ulink>.
+        <ulink url="http://wiki.buzztard.org/index.php/Keyboard_shortcuts#Pattern_View">wiki</ulink>.
       </para>
     </sect3>
 
@@ -780,8 +780,8 @@ i o p</screen></keycap></entry>
         the machine type, there are break, mute, solo, bypass.
       </para>
       <table frame="all" id="bt-edit-page-sequence-view-table-special-patterns">
-        <indexterm><primary>special patterns</primary></indexterm>
         <title>Special patterns</title>
+        <indexterm><primary>special patterns</primary></indexterm>
         <tgroup cols="3" align="left" colsep="1" rowsep="1">
           <colspec colname="p" />
           <colspec colname="m" />
@@ -843,8 +843,8 @@ i o p</screen></keycap></entry>
         hold the <keycap>Shift</keycap> key in addition.
       </para>
       <table frame="all" id="bt-edit-page-sequence-view-table-nav-keys">
-        <indexterm><primary>sequence view shortcuts</primary></indexterm>
         <title>Sequence navigation keyboard shortcuts</title>
+        <indexterm><primary>sequence view shortcuts</primary></indexterm>
         <tgroup cols="3" align="left" colsep="1" rowsep="1">
           <colspec colname="c" />
           <colspec colname="s" />
@@ -890,9 +890,9 @@ i o p</screen></keycap></entry>
           </tbody>
         </tgroup>
       </table>
-      <table frame="all" id="bt-edit-page-pattern-view-table-edit-keys">
-        <indexterm><primary>pattern view shortcuts</primary></indexterm>
-        <title>Pattern editing keyboard shortcuts</title>
+      <table frame="all" id="bt-edit-page-sequence-view-table-edit-keys">
+        <title>Sequence editing keyboard shortcuts</title>
+        <indexterm><primary>sequence view shortcuts</primary></indexterm>
         <tgroup cols="3" align="left" colsep="1" rowsep="1">
           <colspec colname="c" />
           <colspec colname="s" />
@@ -933,9 +933,9 @@ i o p</screen></keycap></entry>
           </tbody>
         </tgroup>
       </table>
-      <table frame="all" id="bt-edit-page-pattern-view-table-action-keys">
-        <indexterm><primary>pattern view shortcuts</primary></indexterm>
-        <title>Pattern action keyboard shortcuts</title>
+      <table frame="all" id="bt-edit-page-sequence-view-table-action-keys">
+        <title>Sequence action keyboard shortcuts</title>
+        <indexterm><primary>sequence view shortcuts</primary></indexterm>
         <tgroup cols="3" align="left" colsep="1" rowsep="1">
           <colspec colname="c" />
           <colspec colname="s" />
@@ -958,7 +958,7 @@ i o p</screen></keycap></entry>
       </table>
       <para>
         A full list of keyboard shortcuts can also be seen on the
-        <ulink uri="http://wiki.buzztard.org/index.php/Keyboard_shortcuts#Sequence_View">wiki</ulink>.
+        <ulink url="http://wiki.buzztard.org/index.php/Keyboard_shortcuts#Sequence_View">wiki</ulink>.
       </para>
     </sect3>
 

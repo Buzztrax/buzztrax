@@ -1,5 +1,10 @@
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Fix xml validity warnings.
+
+2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
