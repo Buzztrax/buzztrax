@@ -1,5 +1,10 @@
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
+	* design/gst/loop2.c:
+	  Make the example more complex, still we can't demo the issue here.
+
+2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/buzztard-edit.xml:
 	  Fix xml validity warnings.
 

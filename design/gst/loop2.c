@@ -1,6 +1,26 @@
 /** $Id$
  * test seemles looping in gstreamer
  *
+ * In buzztard the loops are not smooth. The code below tries to reproduce the
+ * issue.
+ *
+ * Things we excluded:
+ * - it does not seem to get worse if we use a lot of fx
+ * - it does not matter wheter fx is any of volume,queue,adder
+ * - it is not the low-latency setting on the sink
+ * - it does not seem to be the bins
+ *
+ * What we can still try:
+ * - <add your idea here>
+ *
+ * Theory 1:
+ * - when the loop-end has ben reached the sink we receive SEGMENT_DONE on the
+ *   application
+ * - we then send a new seek event
+ * - in the mean time the pipeline got drained
+ * - we don't manage to catch up with refilling it in time
+ *   (especially on low-latency)
+ *
  * gcc -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` loop2.c -o loop2
  */
 
@@ -8,9 +28,11 @@
 #include <gst/gst.h>
 #include <gst/controller/gstcontroller.h>
 
-#define SINK_NAME "alsasink"
+#define SINK_NAME "pulsesink"
 #define SRC_NAME "audiotestsrc"
 #define FX_NAME "volume"
+
+#define MAX_NUM_FX 30
 
 static GMainLoop *main_loop=NULL;
 static GstEvent *play_seek_event=NULL;
@@ -45,6 +67,7 @@ static void state_changed(const GstBus * const bus, GstMessage *message,  GstEle
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
+        GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(bin),GST_DEBUG_GRAPH_SHOW_ALL,"loop2");
         // seek to start time
         puts("initial seek ===========================================================\n");
         if(!(gst_element_send_event(bin,play_seek_event))) {
@@ -79,20 +102,51 @@ static void segment_done(const GstBus * const bus, const GstMessage * const mess
   }
 }
 
+#if 0
+static GstElement *make_block(void) {
+  GstElement *e;
+  
+  e=gst_element_factory_make (FX_NAME, NULL);
+  return e;
+}
+#endif
+static GstElement *make_block(void) {
+  GstElement *e,*b;
+  GstPad *tp,*gp;
+  
+  b=gst_bin_new(NULL);
+  e=gst_element_factory_make ("volume", NULL);
+  g_object_set(e,"volume",0.95,NULL);
+  gst_bin_add(GST_BIN(b),e);
+  
+  /* pads */
+  tp=gst_element_get_static_pad(e,"src");
+  gp=gst_ghost_pad_new("src",tp);
+  gst_pad_set_active(gp,TRUE);
+  gst_element_add_pad(b,gp);
+  
+  tp=gst_element_get_static_pad(e,"sink");
+  gp=gst_ghost_pad_new("sink",tp);
+  gst_pad_set_active(gp,TRUE);
+  gst_element_add_pad(b,gp);
+  return b;
+}
+
 
 int main(int argc, char **argv) {
   GstElement *bin;
   /* elements used in pipeline */
-  GstElement *src,*fx[20],*sink;
+  GstElement *src,*fx[MAX_NUM_FX],*sink;
   GstController *ctrl;
   GstBus *bus;
   GstStateChangeReturn res;
   GValue val = { 0, };
   gint i,num_fx=2;
+  gint64 chunk;
   
   if(argc>1) {
     num_fx=atoi(argv[1]);
-    if(num_fx>19) num_fx=19;
+    if(num_fx>=MAX_NUM_FX) num_fx=MAX_NUM_FX-1;
     if(num_fx<1) num_fx=1;
   }
     
@@ -123,7 +177,7 @@ int main(int argc, char **argv) {
   g_object_set (src, "wave", 2, NULL);
   gst_bin_add (GST_BIN (bin), src);
   for(i=0;i<num_fx;i++) {
-    if(!(fx[i] = gst_element_factory_make (FX_NAME, NULL))) {
+    if(!(fx[i] = make_block ())) {
       fprintf(stderr,"Can't create element \""FX_NAME"\"\n");exit (-1);
     }
     gst_bin_add (GST_BIN (bin), fx[i]);
@@ -131,6 +185,13 @@ int main(int argc, char **argv) {
   if(!(sink = gst_element_factory_make (SINK_NAME, "sink"))) {
     fprintf(stderr,"Can't create element \""SINK_NAME"\"\n");exit (-1);
   }
+  chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(120*4));
+  printf("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms\n",
+    chunk, (chunk/G_GINT64_CONSTANT(1000)));
+  g_object_set(sink,
+    "latency-time",chunk,
+    "buffer-time",chunk<<1,
+    NULL);
   gst_bin_add (GST_BIN (bin), sink);
 
   /* link elements */
