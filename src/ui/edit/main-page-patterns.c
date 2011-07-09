@@ -2590,48 +2590,21 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
 
 static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  BtMainWindow *main_window;
   BtPattern *pattern=self->priv->pattern;
-  BtSong *song;
-  BtSequence *sequence;
-  gchar *msg=NULL,*id;
-  gboolean is_used,remove=FALSE;
+	BtMachine *machine;
 
   g_return_if_fail(pattern);
 
-  g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
-  g_object_get(song,"sequence",&sequence,NULL);
+	g_object_get(pattern,"machine",&machine,NULL);
 
-  is_used=bt_sequence_is_pattern_used(sequence,pattern);
+	bt_change_log_start_group(self->priv->change_log);
+	bt_machine_remove_pattern(machine,pattern);
+	bt_change_log_end_group(self->priv->change_log);
 
-  if(is_used) {
-    g_object_get(pattern,"name",&id,NULL);
-    msg=g_strdup_printf(_("Delete pattern '%s'"),id);
-    g_free(id);
-  }
-  else {
-    // do not ask
-    remove=TRUE;
-  }
+	change_current_pattern(self,NULL);
+	context_menu_refresh(self,machine);
 
-  if(remove || bt_dialog_question(main_window,_("Delete pattern..."),msg,_("There is no undo for this."))) {
-    BtMachine *machine;
-
-    g_object_get(pattern,"machine",&machine,NULL);
-
-    bt_change_log_start_group(self->priv->change_log);
-    bt_machine_remove_pattern(machine,pattern);
-    bt_change_log_end_group(self->priv->change_log);
-
-    change_current_pattern(self,NULL);
-    context_menu_refresh(self,machine);
-
-    g_object_unref(machine);
-  }
-  g_object_unref(sequence);
-  g_object_unref(song);
-  g_object_unref(main_window);
-  g_free(msg);
+	g_object_unref(machine);
 }
 
 static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {

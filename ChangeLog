@@ -1,5 +1,11 @@
 2011-07-09  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Remove obsolete warning dialogs (as we now have undo/redo).
+
+2011-07-09  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  Remove listening for pattern removal. We'll have to handle that from
 	  the app.

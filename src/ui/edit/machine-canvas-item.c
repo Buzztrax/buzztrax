@@ -619,60 +619,9 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
 
 static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-  BtMainWindow *main_window;
-  BtSong *song;
-  BtSequence *sequence;
-  gchar *msg=NULL,*id;
-  gboolean has_patterns,is_connected,remove=FALSE;
-  //BtWire *wire1,*wire2;
 
   GST_INFO("context_menu delete event occurred for machine : %p",self->priv->machine);
-
-  g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
-  g_object_get(song,"sequence",&sequence,NULL);
-
-  // don't ask if machine has no patterns and is not connected
-  has_patterns=bt_machine_has_patterns(self->priv->machine);
-  is_connected=self->priv->machine->src_wires || self->priv->machine->dst_wires;
-  if(has_patterns) {
-    BtPattern *pattern;
-    gulong ix=0;
-    gboolean is_unused=TRUE;
-
-    // bah, freshly created generators always have one empty pattern called "00"
-    // enough if the pattern is not used?
-    do {
-      pattern=bt_machine_get_pattern_by_index(self->priv->machine,ix++);
-      if(pattern) {
-        is_unused&=(!bt_sequence_is_pattern_used(sequence,pattern));
-        g_object_unref(pattern);
-      }
-    } while(pattern && is_unused);
-    if(is_unused) {
-      // no patterns worth keeping
-      has_patterns=FALSE;
-    }
-  }
-  //GST_DEBUG("is-connected %d, has-patterns %d",is_connected,has_patterns);
-
-  if((has_patterns || is_connected)) {
-    g_object_get(self->priv->machine,"id",&id,NULL);
-    msg=g_strdup_printf(_("Delete machine '%s'"),id);
-    g_free(id);
-  }
-  else {
-    // do not ask
-    remove=TRUE;
-  }
-
-  if(remove || bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no complete undo for this yet."))) {
-    GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
-    bt_main_page_machines_delete_machine(self->priv->main_page_machines, self->priv->machine);
-  }
-  g_object_unref(sequence);
-  g_object_unref(song);
-  g_object_unref(main_window);
-  g_free(msg);
+	bt_main_page_machines_delete_machine(self->priv->main_page_machines, self->priv->machine);
 }
 
 static void on_context_menu_connect_activate(GtkMenuItem *menuitem,gpointer user_data) {
