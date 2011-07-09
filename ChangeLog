@@ -1,5 +1,10 @@
 2011-07-09  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Small doc update for machine section.
+
+2011-07-09  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/main-page-patterns.c:
 	  Remove obsolete warning dialogs (as we now have undo/redo).

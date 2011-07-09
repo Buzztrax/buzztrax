@@ -414,12 +414,13 @@
         click in the page area.
         Machines can be moved around by grabbing them with the mouse and dragging
         them around.
-        To connect machines, move pointer over the source, press shift+left mouse-button
-        and drag the wire to the target machine. The wire turns green, if the
-        connect can be made. Connected machines are shown in bright color and
-        disconnected one in a desaturated style. Alternatively you can select
-        "connect machines" from the right-click context menu of a machine. Again
-        you need to move the mouse to the target machine and click it.
+        To connect machines, move the pointer over the source, press shift+left
+        mouse-button and drag the wire to the target machine. The wire turns
+        green, if the connection can be made. Fully connected machines are shown
+        in bright color and disconnected ones in a desaturated style. 
+        Alternatively you can select "connect machines" from the right-click
+        context menu of a machine. Again you need to move the mouse to the target
+        machine and click it.
       </para>
       <figure id="bt-edit-page-machine-view-fig">
         <title>Machine view</title>
