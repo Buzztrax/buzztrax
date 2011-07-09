@@ -3068,19 +3068,36 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
 
   GST_INFO("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 
-  if(bt_sequence_is_pattern_used(sequence,pattern)) {
-  	//glong tick;
+  /* FIXME: this is racy if the sequence also listens for pattern_removed
+   * and clears the tracks, if so we should probably have a signal in sequence
+   * for it (see sequence.c::bt_sequence_on_pattern_removed)
+   * we also want t ensure, that we update the sequence_view *afterwards*
+   */
+  if(TRUE || bt_sequence_is_pattern_used(sequence,pattern)) {
+  	glong tick;
   	glong track=0;
+		gchar *undo_str,*redo_str;
+		gchar *mid,*pid;
   	
-  	
+    g_object_get(machine,"id",&mid,NULL);
+    g_object_get(pattern,"id",&pid,NULL);
+    
+    GST_WARNING("pattern %s is used in sequence, doing undo/redo",pid);
+		/* save the cells that use the pattern */
+		bt_change_log_start_group(self->priv->change_log);
   	while((track=bt_sequence_get_track_by_machine(sequence,machine,track))>-1) {
-#if 0
+  		GST_WARNING("  saving patterns on track %ld",track);
       tick=0;
       while((tick=bt_sequence_get_tick_by_pattern(sequence,track,pattern,tick))>-1) {
-      	/* @todo: undo/redo: save the cells that use the pattern */
+      	GST_WARNING("    saving patterns on tick %ld",tick);
+        undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,tick,tick,mid,pid);
+        redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,tick,tick,mid," ");
+        bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
       }
-#endif
 		}
+		bt_change_log_end_group(self->priv->change_log);
+
+		g_free(mid);g_free(pid);
 	}
 
   // get song from app

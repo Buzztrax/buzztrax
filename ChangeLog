@@ -1,5 +1,11 @@
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Implemented the unod/redo for pattern removal and added a comment,
+	  which its not effective.
+
+2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
+
 	* design/gst/loop2.c:
 	  Make the example more complex, still we can't demo the issue here.
 
