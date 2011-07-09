@@ -3068,12 +3068,13 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
 
   GST_INFO("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 
-  /* FIXME: this is racy if the sequence also listens for pattern_removed
-   * and clears the tracks, if so we should probably have a signal in sequence
-   * for it (see sequence.c::bt_sequence_on_pattern_removed)
-   * we also want t ensure, that we update the sequence_view *afterwards*
+  /* this is racy if the sequence also listens for pattern_removed
+   * and clears the tracks - right now won't don't do this automatic updates in
+   * the song anymore
+   * we also want t ensure, that we update the sequence_view *after* the changes
+   * which is hard to ensure if the song changes itself
    */
-  if(TRUE || bt_sequence_is_pattern_used(sequence,pattern)) {
+  if(bt_sequence_is_pattern_used(sequence,pattern)) {
   	glong tick;
   	glong track=0;
 		gchar *undo_str,*redo_str;
@@ -3092,10 +3093,14 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
       	GST_WARNING("    saving patterns on tick %ld",tick);
         undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,tick,tick,mid,pid);
         redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,tick,tick,mid," ");
-        bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
+        bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+        bt_sequence_set_pattern_quick(sequence,tick,track,NULL);        
+        tick++;
       }
+      track++;
 		}
 		bt_change_log_end_group(self->priv->change_log);
+		bt_sequence_repair_damage(sequence);
 
 		g_free(mid);g_free(pid);
 	}

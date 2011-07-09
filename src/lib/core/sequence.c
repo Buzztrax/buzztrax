@@ -1077,42 +1077,6 @@ static void bt_sequence_on_wire_pattern_changed(const BtWirePattern * const wire
   GST_DEBUG("Done");
 }
 
-/*
- * bt_sequence_on_pattern_removed:
- *
- * Invalidate the pattern region in all occurences.
- */
-static void bt_sequence_on_pattern_removed(const BtMachine * const machine, const BtPattern * const pattern, gconstpointer user_data) {
-  const BtSequence * const self=BT_SEQUENCE(user_data);
-  const gulong tracks=self->priv->tracks;
-  const gulong length=self->priv->length;
-  gulong i,j;
-  gboolean sequence_changed=FALSE;
-
-  GST_DEBUG("repair damage after a pattern %p has been removed from machine %p",pattern,machine);
-
-  // for all tracks
-  for(i=0;i<tracks;i++) {
-    BtMachine * const that_machine=bt_sequence_get_machine_unchecked(self,i);
-    // does the track belong to the given machine?
-    if(that_machine==machine) {
-      // for all occurance of pattern
-      for(j=0;j<length;j++) {
-        BtPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
-        if(that_pattern==pattern) {
-          sequence_changed|=bt_sequence_set_pattern_quick(self,j,i,NULL);
-        }
-      }
-    }
-  }
-  if(sequence_changed) {
-    // repair damage
-    bt_sequence_repair_damage(self);
-    bt_song_set_unsaved(self->priv->song,TRUE);
-  }
-  GST_DEBUG("Done");
-}
-
 static void on_wire_pattern_added(BtWire *wire,BtWirePattern *wire_pattern,gpointer user_data) {
   BtSequence *self=BT_SEQUENCE(user_data);
 
@@ -1380,10 +1344,6 @@ gboolean bt_sequence_add_track(const BtSequence * const self, const BtMachine * 
 		memmove(&machines[pos+1],&machines[pos],count*sizeof(gpointer));
   }
   machines[pos]=g_object_ref((gpointer)machine);
-  // check if that has already been connected
-  if(!g_signal_handler_find((gpointer)machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_sequence_on_pattern_removed,(gpointer)self)) {
-    g_signal_connect((gpointer)machine,"pattern-removed",G_CALLBACK(bt_sequence_on_pattern_removed),(gpointer)self);
-  }
   GST_INFO(".. added track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT_REF_COUNT(machine),pos);
   return(TRUE);
 }
@@ -1436,10 +1396,6 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   // this will resize the arrays
   g_object_set((gpointer)self,"tracks",(gulong)(tracks-1),NULL);
 
-  // disconnect signal handler if its the last of this machine
-  if(bt_sequence_get_track_by_machine(self,machine,0)==-1) {
-    g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA, 0, 0, NULL, bt_sequence_on_pattern_removed, (gpointer)self);
-  }
   GST_INFO("release machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
   g_object_unref(machine);
   GST_INFO("released machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
