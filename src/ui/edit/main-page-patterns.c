@@ -2087,8 +2087,11 @@ static BtPattern *get_current_pattern(const BtMainPagePatterns *self) {
 
 static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *new_pattern) {
   BtPattern *old_pattern=self->priv->pattern;
+  
+  GST_DEBUG("change_pattern: %p -> %p",old_pattern,new_pattern);
 
   if(new_pattern==old_pattern) {
+  	GST_WARNING("new pattern is the same as previous");
     return;
   }
 
