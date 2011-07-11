@@ -1,5 +1,10 @@
 2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Swap an _unref with an _unuse.
+
+2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/ic/learn.c:
 	* src/ui/edit/settings-page-playback-controller.c:
 	  Planning.

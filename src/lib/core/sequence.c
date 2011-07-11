@@ -1377,7 +1377,7 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
     // unref patterns
     if(*dst) {
       GST_INFO("unref pattern: %p,refs=%d at timeline %lu", *dst,G_OBJECT_REF_COUNT(*dst),i);
-      g_object_unref(*dst);
+      bt_sequence_unuse_pattern(self,*dst);
     }
     if(count) {
       memmove(dst,src,count*sizeof(gpointer));
