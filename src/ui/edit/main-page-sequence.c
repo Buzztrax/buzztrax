@@ -3006,7 +3006,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
   g_return_if_fail(BT_IS_MACHINE(machine));
 
-  GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
+  GST_WARNING("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 
   // reinit the menu
   GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
@@ -3017,11 +3017,6 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_object_get(self->priv->app,"song",&song,NULL);
 
 	/* handle undo/redo */
-	/* FIXME: this is not happening within the machine-removing undo/redo block
-	 * - it seems to wok for patterns as we dispose the patterns when disposing
-	 *   the machine
-	 * - we can't do that for tracks as the don't exist as separate entities
-	 */
 	g_object_get(machine,"id",&mid,NULL);
 	g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
 	bt_change_log_start_group(self->priv->change_log);
@@ -3066,13 +3061,24 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
   BtSequence *sequence=self->priv->sequence;
   BtSong *song;
 
-  GST_INFO("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+  GST_WARNING("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 
   /* this is racy if the sequence also listens for pattern_removed
    * and clears the tracks - right now won't don't do this automatic updates in
    * the song anymore
-   * we also want t ensure, that we update the sequence_view *after* the changes
+   *
+   * we also want to ensure, that we update the sequence_view *after* the changes
    * which is hard to ensure if the song changes itself
+   */
+  /* FIXME: we don't want to do this when the machine gets removed, as then we
+   * save the content already when handling the track removal, in the current
+   * situation the track would then be saved empty
+   *
+   * solutions:
+   * - don't do main-page-patterns::on_machine_removed(), but emit signal in machine::dispose()
+   *   - we get bad undo/redo serialization (due to dispose_has_run)
+   * - use connect_after() for main-page-patterns::on_machine_removed()
+   *   - this isn't better, we want to completely avoid it, or serialize it
    */
   if(bt_sequence_is_pattern_used(sequence,pattern)) {
   	glong tick;
@@ -3087,10 +3093,8 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
 		/* save the cells that use the pattern */
 		bt_change_log_start_group(self->priv->change_log);
   	while((track=bt_sequence_get_track_by_machine(sequence,machine,track))>-1) {
-  		GST_WARNING("  saving patterns on track %ld",track);
       tick=0;
       while((tick=bt_sequence_get_tick_by_pattern(sequence,track,pattern,tick))>-1) {
-      	GST_WARNING("    saving patterns on tick %ld",tick);
         undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,tick,tick,mid,pid);
         redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,tick,tick,mid," ");
         bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
@@ -3692,8 +3696,10 @@ static gboolean sequence_deserialize_pattern_track(BtMainPageSequence *self,GtkT
 						pattern=bt_machine_get_pattern_by_id(machine,fields[j]);
 						if(!pattern) {
 							GST_WARNING("machine %p on track %d, has no pattern with id %s",machine,track,fields[j]);
+							str=NULL;
+						} else {
+							g_object_get(pattern,"name",&str,NULL);
 						}
-						g_object_get(pattern,"name",&str,NULL);
 					}
 					else {
 						pattern=NULL;
