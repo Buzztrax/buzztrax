@@ -3061,7 +3061,7 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
   BtSequence *sequence=self->priv->sequence;
   BtSong *song;
 
-  GST_INFO"pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+  GST_INFO("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 
   /* this is racy if the sequence also listens for pattern_removed
    * and clears the tracks - right now won't don't do this automatic updates in
