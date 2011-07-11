@@ -1505,7 +1505,7 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
 
   bt_setup_remove_machine(setup,machine);
   // triggers setup:machine-removed -> self:on_machine_removed()
-  // -> triggers machine:pattern-removed
+  // dispose? -> triggers machine:pattern-removed
   // ??? -> triggers setup:wire-removed -> self:on_wire_removed()
 
   // this segfaults if the machine is finalized

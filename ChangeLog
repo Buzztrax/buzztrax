@@ -1,5 +1,10 @@
 2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Update comments.
+
+2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  Swap an _unref with an _unuse.
 
