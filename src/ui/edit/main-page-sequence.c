@@ -3006,7 +3006,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
   g_return_if_fail(BT_IS_MACHINE(machine));
 
-  GST_WARNING("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
+  GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 
   // reinit the menu
   GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
@@ -3061,7 +3061,7 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
   BtSequence *sequence=self->priv->sequence;
   BtSong *song;
 
-  GST_WARNING("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+  GST_INFO"pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 
   /* this is racy if the sequence also listens for pattern_removed
    * and clears the tracks - right now won't don't do this automatic updates in
@@ -3089,7 +3089,7 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
     g_object_get(machine,"id",&mid,NULL);
     g_object_get(pattern,"id",&pid,NULL);
     
-    GST_WARNING("pattern %s is used in sequence, doing undo/redo",pid);
+    GST_INFO("pattern %s is used in sequence, doing undo/redo",pid);
 		/* save the cells that use the pattern */
 		bt_change_log_start_group(self->priv->change_log);
   	while((track=bt_sequence_get_track_by_machine(sequence,machine,track))>-1) {
