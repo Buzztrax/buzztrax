@@ -1225,6 +1225,37 @@ static void on_machine_model_row_deleted(GtkTreeModel *tree_model,GtkTreePath *p
   gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
 }
 
+static void on_pattern_model_row_inserted(GtkTreeModel *tree_model, GtkTreePath *path,GtkTreeIter *iter,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+  //GST_WARNING("-- added index %s", gtk_tree_path_to_string(path));
+
+  gtk_combo_box_set_active_iter(self->priv->pattern_menu,iter);
+}
+
+static void on_pattern_model_row_deleted(GtkTreeModel *tree_model,GtkTreePath *path,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  GtkTreeIter iter;
+
+  // GST_WARNING("-- removed index %s", gtk_tree_path_to_string(path));
+
+  if(!gtk_tree_model_get_iter(tree_model, &iter, path)) {
+    GtkTreePath *p=gtk_tree_path_copy(path);
+    if(!gtk_tree_path_prev(p)) {
+    	gtk_tree_path_free(p);
+      return;
+    }
+    if(!gtk_tree_model_get_iter(tree_model, &iter, p)) {
+    	gtk_tree_path_free(p);
+      return;
+    }
+    gtk_tree_path_free(p);
+  }
+
+  //GST_WARNING("-- activate index %s", gtk_tree_path_to_string(path));
+  gtk_combo_box_set_active_iter(self->priv->pattern_menu,&iter);
+}
+
 //-- event handler helper
 
 static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
@@ -1288,6 +1319,9 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
     // use the last one, if there is no active one
     active=index;
   }
+
+  g_signal_connect(store,"row-inserted",G_CALLBACK(on_pattern_model_row_inserted),(gpointer)self);
+  g_signal_connect(store,"row-deleted",G_CALLBACK(on_pattern_model_row_deleted),(gpointer)self);
 
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(index!=-1));
   gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));

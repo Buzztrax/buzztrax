@@ -1,6 +1,11 @@
 2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
+	  Update selected item in pattern-menu on model changes.
+
+2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
 	  We need to make a copy of the treepath when changing it.
 
 2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
