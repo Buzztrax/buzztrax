@@ -1201,7 +1201,7 @@ static void on_machine_model_row_inserted(GtkTreeModel *tree_model, GtkTreePath 
   gtk_combo_box_set_active_iter(self->priv->machine_menu,iter);
 }
 
-static void on_machine_model_row_deleted(GtkTreeModel *tree_model, GtkTreePath *path,gpointer user_data) {
+static void on_machine_model_row_deleted(GtkTreeModel *tree_model,GtkTreePath *path,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeIter iter;
 
@@ -1209,10 +1209,16 @@ static void on_machine_model_row_deleted(GtkTreeModel *tree_model, GtkTreePath *
 
   // the last machine is master which we actually cannot remove
   if(!gtk_tree_model_get_iter(tree_model, &iter, path)) {
-    if(!gtk_tree_path_prev(path))
+    GtkTreePath *p=gtk_tree_path_copy(path);
+    if(!gtk_tree_path_prev(p)) {
+    	gtk_tree_path_free(p);
       return;
-    if(!gtk_tree_model_get_iter(tree_model, &iter, path))
+    }
+    if(!gtk_tree_model_get_iter(tree_model, &iter, p)) {
+    	gtk_tree_path_free(p);
       return;
+    }
+    gtk_tree_path_free(p);
   }
 
   //GST_WARNING("-- activate index %s", gtk_tree_path_to_string(path));
