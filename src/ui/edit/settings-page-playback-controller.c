@@ -24,6 +24,13 @@
  *
  * Lists available playback controllers and allows to configure them.
  */
+/* @todo: add a list of playback controlers:
+ *   - upnp coherence/gupnp
+ *   - alsa midi MC
+ *   - jack midi MC
+ * - when clicking one, we switch the pane below
+ * - in the lst we show name and a checkbox to enable/disable them
+ */
 
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER_C

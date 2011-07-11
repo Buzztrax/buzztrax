@@ -32,6 +32,11 @@
  * - whenever we discover a device load the previous settings from disk
  * - files
  *   - use gkeyfile as a format
+ *     - use a header
+ *       - device name
+ *     - use one section per control
+ *       - section-name is the control-id
+ *       - fileds are i18n'able name and maybe a control type
  *   - store them as g_get_user_data_dir(),PACKAGE_NAME,"$device_name.map"
  *   
  */
