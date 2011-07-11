@@ -2550,7 +2550,6 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
     g_free(mid);g_free(pid);g_free(pname);
 
-    change_current_pattern(self,pattern);
     context_menu_refresh(self,self->priv->machine);
   }
   else {
@@ -2644,7 +2643,6 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 	bt_machine_remove_pattern(machine,pattern);
 	bt_change_log_end_group(self->priv->change_log);
 
-	change_current_pattern(self,NULL);
 	context_menu_refresh(self,machine);
 
 	g_object_unref(machine);
@@ -2685,7 +2683,6 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
     g_free(mid);g_free(pid);g_free(pname);
 
-    change_current_pattern(self,pattern);
     context_menu_refresh(self,machine);
   }
   else {
@@ -3420,7 +3417,6 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_free(mid);
       g_free(pid);
 
-      change_current_pattern(self,pattern);
       context_menu_refresh(self,machine);
       break;
     }
@@ -3435,7 +3431,6 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       bt_machine_remove_pattern(machine,pattern);
       res=TRUE;
 
-      change_current_pattern(self,NULL);
       context_menu_refresh(self,machine);
       break;
     }
