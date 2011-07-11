@@ -1613,12 +1613,10 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
 
   // refresh the pattern list
   if(self->priv->machine) {
-    gulong index;
 
     GST_INFO("refresh pattern list for machine : %p,ref_count=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
 
     store=bt_pattern_list_model_new(self->priv->machine,self->priv->sequence,FALSE);
-    index=gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store),NULL)-1;
 
     // sync machine in pattern page
     if(self->priv->main_window) {
