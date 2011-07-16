@@ -148,6 +148,7 @@
 #include "playback-controller-socket-methods.h"
 #include "render-dialog-methods.h"
 #include "render-progress-methods.h"
+#include "sequence-grid-model-methods.h"
 #include "sequence-view-methods.h"
 #include "settings-dialog-methods.h"
 #include "settings-page-audiodevices-methods.h"

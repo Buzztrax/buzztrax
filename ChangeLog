@@ -1,3 +1,15 @@
+2011-07-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/sequence-grid-model-methods.h:
+	* src/ui/edit/sequence-grid-model.c:
+	* src/ui/edit/sequence-grid-model.h:
+	* src/ui/edit/sequence-grid-model-methods.h (added):
+	* src/ui/edit/sequence-grid-model.c (added):
+	* src/ui/edit/sequence-grid-model.h (added):
+	  Add start of new data model.
+
 2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:

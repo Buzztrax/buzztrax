@@ -54,9 +54,10 @@ libbtedit_la_SOURCES	= \
 	pattern-list-model.c pattern-list-model.h pattern-list-model-methods.h \
 	pattern-properties-dialog.c pattern-properties-dialog.h pattern-properties-dialog-methods.h \
 	playback-controller-socket.c playback-controller-socket.h playback-controller-socket-methods.h \
-	sequence-view.c sequence-view.h sequence-view-methods.h \
 	render-dialog.c render-dialog.h render-dialog-methods.h \
 	render-progress.c render-progress.h render-progress-methods.h \
+	sequence-grid-model.c sequence-grid-model.h sequence-grid-model-methods.h \
+	sequence-view.c sequence-view.h sequence-view-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
 	settings-page-directories.c settings-page-directories.h settings-page-directories-methods.h \
