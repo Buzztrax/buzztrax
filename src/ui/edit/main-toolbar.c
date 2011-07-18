@@ -270,8 +270,9 @@ static void reset_playback_rate(BtMainToolbar *self) {
   }
 }
 
-#define SEEK_FACTOR 1.25
-#define SEEK_TIMEOUT 2000
+#define SEEK_FACTOR 1.2
+#define SEEK_TIMEOUT 2000    
+#define SEEK_MAX_RATE 4.0
 
 static gboolean on_song_playback_rate_rewind(gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
@@ -279,7 +280,7 @@ static gboolean on_song_playback_rate_rewind(gpointer user_data) {
 
   GST_DEBUG(" << speedup");
 
-  if (playback_rate > -5.0) {
+  if (playback_rate > -SEEK_MAX_RATE) {
     set_new_playback_rate(self, playback_rate);
     return(TRUE);
   } else {
@@ -322,7 +323,7 @@ static gboolean on_song_playback_rate_forward(gpointer user_data) {
 
   GST_WARNING(" >> speedup");
 
-  if (playback_rate < 5.0) {
+  if (playback_rate < SEEK_MAX_RATE) {
     set_new_playback_rate(self,playback_rate);
     return(TRUE);
   } else {
