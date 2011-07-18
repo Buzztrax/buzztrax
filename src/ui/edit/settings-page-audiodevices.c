@@ -185,8 +185,14 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
       GstPluginFeature *loaded_feature;
       GType type;
 
+      if(gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory))==GST_RANK_NONE) {
+        GST_INFO("  skipping audio sink: \"%s\" - has RANK_NONE",name);
+        continue;
+      }
+      
+
       // filter some known plugins
-      if (!strcmp(GST_PLUGIN_FEATURE(factory)->plugin_name,"lv2")) {
+      if(!strcmp(GST_PLUGIN_FEATURE(factory)->plugin_name,"lv2")) {
         GST_INFO("  skipping audio sink: \"%s\" - its a lv2 element",name);
         continue;
       }
