@@ -66,7 +66,6 @@
 #include "core_private.h"
 #include <libbuzztard-core/sink-bin.h>
 
-// FIXME: the code fro this is gone
 /* define this to get diagnostics of the sink data flow */
 //#define BT_MONITOR_SINK_DATA_FLOW
 /* define this to verify continuos timestamps */
@@ -267,8 +266,6 @@ static void bt_sink_bin_deactivate_analyzers(const BtSinkBin * const self) {
   bt_bin_deactivate_tee_chain(GST_BIN(self),self->priv->tee,self->priv->analyzers,is_playing);
 }
 
-
-
 static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElement *sink) {
   if(GST_IS_BASE_AUDIO_SINK(sink)) {
     if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
@@ -284,6 +281,11 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
       g_object_set(sink,
         "latency-time",chunk,
         "buffer-time",chunk<<1,
+         /* FIXME: this is a hack to make the loops smooter
+          * - we still get a break after the first round
+          * - if does not really help
+        "drift-tolerance",chunk<<8, 
+          */
         NULL);
     }
   }
@@ -515,6 +517,27 @@ Error:
   return(NULL);
 }
 
+#ifdef BT_MONITOR_SINK_DATA_FLOW	 
+static GstClockTime sink_probe_last_ts=GST_CLOCK_TIME_NONE;	 
+static gboolean sink_probe(GstPad *pad, GstMiniObject *mini_obj, gpointer user_data) {	 
+  if(GST_IS_BUFFER(mini_obj)) {	 
+    if(sink_probe_last_ts==GST_CLOCK_TIME_NONE) {	 
+      GST_WARNING("got SOS at %"GST_TIME_FORMAT,GST_TIME_ARGS(GST_BUFFER_TIMESTAMP(mini_obj)));	 
+    }	 
+    sink_probe_last_ts=GST_BUFFER_TIMESTAMP(mini_obj)+GST_BUFFER_DURATION(mini_obj);	 
+  }	 
+  else if(GST_IS_EVENT(mini_obj)) {	 
+    GST_WARNING("got %s at %"GST_TIME_FORMAT,	 
+      GST_EVENT_TYPE_NAME(mini_obj),	 
+      GST_TIME_ARGS(sink_probe_last_ts));	 
+    if(GST_EVENT_TYPE(mini_obj)==GST_EVENT_EOS) {	 
+      sink_probe_last_ts=GST_CLOCK_TIME_NONE;	 
+    }	 
+  }	 
+  return(TRUE);	 
+}	 
+#endif
+
 static gboolean bt_sink_bin_format_update(const BtSinkBin * const self) {
   GstStructure *sink_format_structures[2];
   GstCaps *sink_format_caps;
@@ -598,9 +621,24 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   if(!gst_element_link_pads(self->priv->caps_filter,"src",audio_resample,"sink")) {
     GST_WARNING("Can't link caps-filter and audio-resample");
   }
+#ifdef BT_MONITOR_TIMESTAMPS
+  {	 
+    GstElement *identity=gst_element_factory_make("identity","identity");	 
+
+    g_object_set(identity,"check-perfect",TRUE,"silent",FALSE,NULL);	 
+    gst_bin_add(GST_BIN(self),identity);
+		if(!gst_element_link_pads(audio_resample,"src",identity,"sink")) {
+			GST_WARNING("Can't link audio-resample and identity");
+		}
+		if(!gst_element_link_pads(identity,"src",tee,"sink")) {
+			GST_WARNING("Can't link identity and tee");
+		}
+	}
+#else
   if(!gst_element_link_pads(audio_resample,"src",tee,"sink")) {
     GST_WARNING("Can't link audio-resample and tee");
   }
+#endif
 
   // add new children
   switch(self->priv->mode) {
@@ -717,7 +755,17 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   }
 
   if((audio_sink=gst_bin_get_by_name(GST_BIN(self),"player"))) {
-    GST_INFO_OBJECT(self,"kick and lock audio sink");
+#ifdef BT_MONITOR_SINK_DATA_FLOW	 
+    GstPad *sink_pad=gst_element_get_static_pad(audio_sink,"sink");	 
+ 	 
+    if(sink_pad) {	 
+      sink_probe_last_ts=GST_CLOCK_TIME_NONE;	 
+      gst_pad_add_data_probe(sink_pad,G_CALLBACK(sink_probe),(gpointer)self);	 
+ 	 
+      gst_object_unref(sink_pad);	 
+    }	 
+#endif
+	  GST_INFO_OBJECT(self,"kick and lock audio sink");
 #if 0
     /* we need a way to kick start the audiosink and actualy open the device
      * so that we show up in pulseaudio or qjackctrl

@@ -14,6 +14,8 @@
  * Things we noticed:
  * - on the netbook the loops are smoother when using alsasink, compared to
  *   pulsesink (CPU load is simmilar and less than 100% in both cases)
+ * - when the break happens we get this in the log:
+ *   WARN           baseaudiosink gstbaseaudiosink.c:1374:gst_base_audio_sink_get_alignment:<player> Unexpected discontinuity in audio timestamps of +0:00:00.120000000, resyncing
  *
  * What we can still try here:
  * - pad probes

@@ -1,5 +1,13 @@
 2011-07-18  Stefan Sauer  <ensonic@users.sf.net>
 
+	* design/gst/loop2.c:
+	  Add comments.
+
+	* src/lib/core/sink-bin.c:
+	  Put some ifdef'ed testing code back.
+
+2011-07-18  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-toolbar.c:
 	  Tune the scrubbing values a bit and add a define for the max-rate.
 
