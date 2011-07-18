@@ -181,11 +181,28 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
 
     // filter some known analyzer sinks
     if(strncasecmp("ladspa-",name,7)) {
-      GstElementFactory * const factory=gst_element_factory_find(name);
+      GstElementFactory * factory=gst_element_factory_find(name);
+      GstPluginFeature *loaded_feature;
+      GType type;
 
       // filter some known plugins
       if (!strcmp(GST_PLUGIN_FEATURE(factory)->plugin_name,"lv2")) {
         GST_INFO("  skipping audio sink: \"%s\" - its a lv2 element",name);
+        continue;
+      }
+
+      // get element type for filtering, this slows things down :/
+      if(!(loaded_feature=gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)))) {
+        GST_INFO("  skipping unloadable element : '%s'",name);
+        continue;
+      }
+      // presumably, we're no longer interested in the potentially-unloaded feature
+      gst_object_unref(factory);
+      factory=(GstElementFactory *)loaded_feature;
+      type=gst_element_factory_get_element_type(factory);
+      // check class hierarchy
+      if (!g_type_is_a (type, GST_TYPE_BASE_AUDIO_SINK)) {
+        GST_INFO("  skipping audio sink: \"%s\" - not inherited from baseaudiosink",name);
         continue;
       }
 
