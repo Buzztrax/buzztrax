@@ -66,6 +66,7 @@
 #include "core_private.h"
 #include <libbuzztard-core/sink-bin.h>
 
+// FIXME: the code fro this is gone
 /* define this to get diagnostics of the sink data flow */
 //#define BT_MONITOR_SINK_DATA_FLOW
 /* define this to verify continuos timestamps */
@@ -874,7 +875,7 @@ static void bt_sink_bin_get_property(GObject * const object, const guint propert
     } break;
     case SINK_BIN_MASTER_VOLUME: {
       if(self->priv->gain) {
-        // FIXME: do we need a notify?
+        // FIXME: do we need a notify (or weak ptr) to update this?
         g_object_get(self->priv->gain,"volume",&self->priv->volume,NULL);
         GST_DEBUG("Get master volume: %lf",self->priv->volume);
       }

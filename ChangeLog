@@ -1,3 +1,11 @@
+2011-07-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/loop2.c:
+	  Add more notes to the test.
+
+	* src/lib/core/sink-bin.c:
+	  Add/update some comments.
+
 2011-07-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/Makefile.am:

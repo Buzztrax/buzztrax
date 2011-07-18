@@ -9,8 +9,18 @@
  * - it does not matter wheter fx is any of volume,queue,adder
  * - it is not the low-latency setting on the sink
  * - it does not seem to be the bins
+ * - it is not the cpu load
  *
- * What we can still try:
+ * Things we noticed:
+ * - on the netbook the loops are smoother when using alsasink, compared to
+ *   pulsesink (CPU load is simmilar and less than 100% in both cases)
+ *
+ * What we can still try here:
+ * - pad probes
+ * - <add your idea here>
+ *
+ * What we can still try in buzztard:
+ * - monitor timestamps
  * - <add your idea here>
  *
  * Theory 1:
@@ -20,6 +30,9 @@
  * - in the mean time the pipeline got drained
  * - we don't manage to catch up with refilling it in time
  *   (especially on low-latency)
+ *
+ * Theory 2:
+ * - could we suffer from some timestamp mess-up (out of segment ts)
  *
  * gcc -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` loop2.c -o loop2
  */
