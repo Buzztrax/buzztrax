@@ -1,3 +1,8 @@
+2011-07-21  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/tools.c:
+	  Make the element check a bit safer.
+
 2011-07-18  Stefan Sauer  <ensonic@users.sf.net>
 
 	* design/gst/loop2.c:

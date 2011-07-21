@@ -126,18 +126,19 @@ GList *bt_gst_check_elements(GList *list) {
   GList *res=NULL,*node;
   GstRegistry *registry;
   GstPluginFeature*feature;
+  
+  g_return_val_if_fail(gst_is_initialized(),NULL);
 
-  registry=gst_registry_get_default();
-
-  for(node=list;node;node=g_list_next(node)) {
-    if((feature=gst_registry_lookup_feature(registry,(const gchar *)node->data))) {
-      gst_object_unref(feature);
-    }
-    else {
-      res=g_list_prepend(res,node->data);
-    }
-  }
-
+  if((registry=gst_registry_get_default())) {
+		for(node=list;node;node=g_list_next(node)) {
+			if((feature=gst_registry_lookup_feature(registry,(const gchar *)node->data))) {
+				gst_object_unref(feature);
+			}
+			else {
+				res=g_list_prepend(res,node->data);
+			}
+		}
+	}
   return(res);
 }
 
