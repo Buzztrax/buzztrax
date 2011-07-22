@@ -35,13 +35,17 @@
   <preface>
     <title>Introduction</title>
     <para>
-      Buzztard aims to be a successor of the freeware music tracker called Buzz.
-      The development of Buzz has been discontinued as the author lost all his source-codes.
+      Buzztard aims to be a successor of the freeware music tracker called Buzz
+      with a focus on Linux. The development of Buzz for windows had been
+      discontinued as the author lost all his source-codes. Buzztard is only
+      related to Buzz in the concepts, Buzztards source code is written from
+      scratch.
     </para>
     <para>
       The homepage of the buzztard project can be found at
       <ulink url="http://www.buzztard.org">www.buzztard.org</ulink>.
-      It is based on a wiki and used to draft further development.
+      It is a social site containing forums, a wiki and bug tracker and many
+      other resoures.
     </para>
   </preface>
 
@@ -92,10 +96,11 @@
       <abstract>
         <para>
           libbtcore is the main library for the buzztard software system.
-          This library contains all classes needed for songs like
-          machines, patterns, wires and so on.
+          This library contains all classes needed for the components of a song
+          like machines, patterns, wires and so on.
           It further defines bases classes for common operations such as
-          song input/output.
+          song input/output. The synthesis engine and the low-level parts of the
+          sequencer are built into <ulink url="http://gstreamer.freedesktop.org">GStreamer</ulink>.
           Please make sure you have read section <link linkend="conventions">conventions</link>
           before reading further.
         </para>

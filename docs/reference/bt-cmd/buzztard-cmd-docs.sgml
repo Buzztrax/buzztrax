@@ -35,13 +35,17 @@
   <preface>
     <title>Introduction</title>
     <para>
-      Buzztard aims to be a succesor of the freeware music tracker calld Buzz.
-      The development of Buzz has been discontinued as the author lost all his source-codes.
+      Buzztard aims to be a successor of the freeware music tracker called Buzz
+      with a focus on Linux. The development of Buzz for windows had been
+      discontinued as the author lost all his source-codes. Buzztard is only
+      related to Buzz in the concepts, Buzztards source code is written from
+      scratch.
     </para>
     <para>
       The homepage of the buzztard project can be found at
       <ulink url="http://www.buzztard.org">www.buzztard.org</ulink>.
-      It is based on a wiki and used to draft further development.
+      It is a social site containing forums, a wiki and bug tracker and many
+      other resoures.
     </para>
   </preface>
   
