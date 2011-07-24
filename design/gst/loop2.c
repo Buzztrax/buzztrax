@@ -10,31 +10,30 @@
  * - it is not the low-latency setting on the sink
  * - it does not seem to be the bins
  * - it is not the cpu load
+ * - it is not the number of elements
+ * - it is not caused by sending out copies of upstream events in adder, as we
+ *   have just one upstream in this example
  *
  * Things we noticed:
  * - on the netbook the loops are smoother when using alsasink, compared to
  *   pulsesink (CPU load is simmilar and less than 100% in both cases)
  * - when the break happens we get this in the log:
  *   WARN           baseaudiosink gstbaseaudiosink.c:1374:gst_base_audio_sink_get_alignment:<player> Unexpected discontinuity in audio timestamps of +0:00:00.120000000, resyncing
+ * - it is caused by "queue ! adder"
  *
- * What we can still try here:
- * - pad probes
- * - <add your idea here>
- *
- * What we can still try in buzztard:
- * - monitor timestamps
- * - <add your idea here>
- *
- * Theory 1:
- * - when the loop-end has ben reached the sink we receive SEGMENT_DONE on the
- *   application
- * - we then send a new seek event
- * - in the mean time the pipeline got drained
- * - we don't manage to catch up with refilling it in time
- *   (especially on low-latency)
- *
- * Theory 2:
- * - could we suffer from some timestamp mess-up (out of segment ts)
+ * Some facts:
+ * - basesrc/sink post segment-done messages from _loop()
+ *   - both pause the task also
+ * - we only run the source in loop(), sink uses chain()
+ * - the messages get aggregated by the bin, once a _done message is received
+ *   for each previously received _start, the bin send _done
+ * - especially in deep pipelines this will happend before the data actually
+ *   reached the sink and should give us enough time to react
+ * - now when we send the new (non-flushing seek) from sink to sources, there
+ *   might be still buffers traveling downstream, those should not be
+ *   interrupted
+ * - src can send segment-start message and new-segment-event right away when
+ *   the handle the seek, as they have been paused anyway 
  *
  * gcc -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` loop2.c -o loop2
  */
@@ -43,11 +42,21 @@
 #include <gst/gst.h>
 #include <gst/controller/gstcontroller.h>
 
-#define SINK_NAME "pulsesink"
-#define SRC_NAME "audiotestsrc"
-#define FX_NAME "volume"
+// fails
+#define FX1_NAME "queue"
+#define FX2_NAME "adder"
 
-#define MAX_NUM_FX 30
+// works
+//#define FX1_NAME "queue"
+//#define FX2_NAME "identity"
+
+// works too
+//#define FX1_NAME "identity"
+//#define FX2_NAME "adder"
+
+#define SRC_NAME "audiotestsrc"
+#define SINK_NAME "pulsesink"
+
 
 static GMainLoop *main_loop=NULL;
 static GstEvent *play_seek_event=NULL;
@@ -117,119 +126,21 @@ static void segment_done(const GstBus * const bus, const GstMessage * const mess
   }
 }
 
-#if 0
-static GstElement *make_block(void) {
+static GstElement *make_src(void) {
   GstElement *e;
-  
-  e=gst_element_factory_make (FX_NAME, NULL);
-  return e;
-}
-#endif
-static GstElement *make_block(void) {
-  GstElement *e,*b;
-  GstPad *tp,*gp;
-  
-  b=gst_bin_new(NULL);
-  e=gst_element_factory_make ("volume", NULL);
-  g_object_set(e,"volume",0.95,NULL);
-  gst_bin_add(GST_BIN(b),e);
-  
-  /* pads */
-  tp=gst_element_get_static_pad(e,"src");
-  gp=gst_ghost_pad_new("src",tp);
-  gst_pad_set_active(gp,TRUE);
-  gst_element_add_pad(b,gp);
-  
-  tp=gst_element_get_static_pad(e,"sink");
-  gp=gst_ghost_pad_new("sink",tp);
-  gst_pad_set_active(gp,TRUE);
-  gst_element_add_pad(b,gp);
-  return b;
-}
-
-
-int main(int argc, char **argv) {
-  GstElement *bin;
-  /* elements used in pipeline */
-  GstElement *src,*fx[MAX_NUM_FX],*sink;
   GstController *ctrl;
-  GstBus *bus;
-  GstStateChangeReturn res;
   GValue val = { 0, };
-  gint i,num_fx=2;
-  gint64 chunk;
-  
-  if(argc>1) {
-    num_fx=atoi(argv[1]);
-    if(num_fx>=MAX_NUM_FX) num_fx=MAX_NUM_FX-1;
-    if(num_fx<1) num_fx=1;
-  }
-    
-  printf("using %d fx element(s)\n",num_fx);
 
-  /* init gstreamer */
-  gst_init(&argc, &argv);
-  g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
+  if(!(e = gst_element_factory_make (SRC_NAME, NULL))) {
+    return NULL;
+  }
+  g_object_set (e, "wave", 2, NULL);
 
-  /* create a new bin to hold the elements */
-  bin = gst_pipeline_new ("song");
-  /* see if we get errors */
-  bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
-  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect (bus, "message::error", G_CALLBACK(message_received), bin);
-  g_signal_connect (bus, "message::warning", G_CALLBACK(message_received), bin);
-  g_signal_connect (bus, "message::eos", G_CALLBACK(message_received), bin);
-  g_signal_connect (bus, "message::segment-done", G_CALLBACK(segment_done), bin);
-  g_signal_connect (bus, "message::state-changed", G_CALLBACK(state_changed), bin);
-  gst_object_unref (G_OBJECT (bus));
-
-  main_loop=g_main_loop_new(NULL,FALSE);
-
-  /* make elements and add them to the bin */
-  if(!(src = gst_element_factory_make (SRC_NAME, NULL))) {
-    fprintf(stderr,"Can't create element \""SRC_NAME"\"\n");exit (-1);
-  }
-  g_object_set (src, "wave", 2, NULL);
-  gst_bin_add (GST_BIN (bin), src);
-  for(i=0;i<num_fx;i++) {
-    if(!(fx[i] = make_block ())) {
-      fprintf(stderr,"Can't create element \""FX_NAME"\"\n");exit (-1);
-    }
-    gst_bin_add (GST_BIN (bin), fx[i]);
-  }
-  if(!(sink = gst_element_factory_make (SINK_NAME, "sink"))) {
-    fprintf(stderr,"Can't create element \""SINK_NAME"\"\n");exit (-1);
-  }
-  chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(120*4));
-  printf("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms\n",
-    chunk, (chunk/G_GINT64_CONSTANT(1000)));
-  g_object_set(sink,
-    "latency-time",chunk,
-    "buffer-time",chunk<<1,
-    NULL);
-  gst_bin_add (GST_BIN (bin), sink);
-
-  /* link elements */
-  if(!gst_element_link (src, fx[0])) {
-    fprintf(stderr,"Can't link elements\n");exit (-1);
-  }
-  for(i=1;i<num_fx;i++) {
-    if(!gst_element_link (fx[i-1],fx[i])) {
-      fprintf(stderr,"Can't link elements\n");exit (-1);
-    }
-  }
-  if(!gst_element_link (fx[i-1],sink)) {
-    fprintf(stderr,"Can't link elements\n");exit (-1);
-  }
-
-  /* prepare controller queues */
+  /* setup controller */
   g_value_init (&val, G_TYPE_DOUBLE);
-
-  /* add a controller to the source */
-  if (!(ctrl = gst_controller_new (G_OBJECT (src), "freq", "volume", NULL))) {
+  if (!(ctrl = gst_controller_new (G_OBJECT (e), "freq", "volume", NULL))) {
     fprintf(stderr,"can't control source element");exit (-1);
   }
-  /* set interpolation */
   gst_controller_set_interpolation_mode (ctrl, "volume", GST_INTERPOLATE_LINEAR);
   gst_controller_set_interpolation_mode (ctrl, "freq", GST_INTERPOLATE_LINEAR);
   /* set control values */
@@ -254,17 +165,83 @@ int main(int argc, char **argv) {
   gst_controller_set (ctrl, "freq",   0 * GST_MSECOND, &val);
   g_value_set_double (&val, 440.0);
   gst_controller_set (ctrl, "freq", 999 * GST_MSECOND, &val);
+  
+  return e;
+}
+
+static GstElement *make_sink(void) {
+  GstElement *e;
+  gint64 chunk;
+  
+  if(!(e = gst_element_factory_make (SINK_NAME, NULL))) {
+    return NULL;
+  }
+  chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(120*8));
+  printf("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms\n",
+    chunk, (chunk/G_GINT64_CONSTANT(1000)));
+  g_object_set(e,
+    "latency-time",chunk,
+    "buffer-time",chunk<<1,
+    NULL);
+
+  return e;
+}
+
+int main(int argc, char **argv) {
+  GstElement *bin;
+  /* elements used in pipeline */
+  GstElement *src,*fx1,*fx2,*sink;
+  GstBus *bus;
+  GstStateChangeReturn res;
+
+  /* init gstreamer */
+  gst_init(&argc, &argv);
+  g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
+
+  /* create a new bin to hold the elements */
+  bin = gst_pipeline_new ("pipeline");
+  /* see if we get errors */
+  bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  g_signal_connect (bus, "message::error", G_CALLBACK(message_received), bin);
+  g_signal_connect (bus, "message::warning", G_CALLBACK(message_received), bin);
+  g_signal_connect (bus, "message::eos", G_CALLBACK(message_received), bin);
+  g_signal_connect (bus, "message::segment-done", G_CALLBACK(segment_done), bin);
+  g_signal_connect (bus, "message::state-changed", G_CALLBACK(state_changed), bin);
+  gst_object_unref (G_OBJECT (bus));
+
+  main_loop=g_main_loop_new(NULL,FALSE);
+
+  /* make elements and add them to the bin */
+  if(!(src = make_src ())) {
+    fprintf(stderr,"Can't create element \""SRC_NAME"\"\n");exit (-1);
+  }
+  if(!(fx1 = gst_element_factory_make (FX1_NAME, NULL))) {
+    fprintf(stderr,"Can't create element \""FX1_NAME"\"\n");exit (-1);
+  }
+  if(!(fx2 = gst_element_factory_make (FX2_NAME, NULL))) {
+    fprintf(stderr,"Can't create element \""FX2_NAME"\"\n");exit (-1);
+  }
+  if(!(sink = make_sink ())) {
+    fprintf(stderr,"Can't create element \""SINK_NAME"\"\n");exit (-1);
+  }
+  gst_bin_add_many (GST_BIN (bin), src, fx1, fx2, sink, NULL);
+
+  /* link elements */
+  if(!gst_element_link_many (src, fx1, fx2, sink, NULL)) {
+    fprintf(stderr,"Can't link elements\n");exit (-1);
+  }
 
   /* initial seek event */
   play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)0,
-        GST_SEEK_TYPE_SET, (GstClockTime)GST_SECOND);
+        GST_SEEK_TYPE_SET, (GstClockTime)(GST_SECOND / 2));
   /* loop seek event (without flush) */
   loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)0,
-        GST_SEEK_TYPE_SET, (GstClockTime)GST_SECOND);
+        GST_SEEK_TYPE_SET, (GstClockTime)(GST_SECOND / 2));
 
   /* prepare playing */
   puts("prepare playing ========================================================\n");
