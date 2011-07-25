@@ -69,4 +69,23 @@ $Id$
     - on replay we can take the prefix og the entry and dispatch
     - on journalling we can probably add the prefix
     - it is a stack of journal entries
-    
+
+* CPU load per machine
+  - as we alway plug the tee-elements on each machine and each wire starts with
+    a queue we could do CPU load per thread
+    - sources start their own thread
+    - effects and the sink live in the thread of one of the incomming wires
+    - a hackish way would be to run a pad_probe before the machine and
+      send a message to the bus with the thread-id<->machine association
+  - ideally we show it on the machine view
+    - bar under machine name?
+    - extra dialog from tools menu?
+    - enable/disable from the view menu
+
+* Allow disabling level-meters
+  - we could iterator over machine, check which levels are activated and
+    set the 'message' property true/false
+  - this could be api on song/setup
+  - the recorder would use it for extra speed
+  - on slow platforms we could offer that in the UI (where)
+    - the view menu?

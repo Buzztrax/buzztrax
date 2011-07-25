@@ -1,5 +1,12 @@
 2011-07-25  Stefan Sauer  <ensonic@users.sf.net>
 
+	* TODO:
+	* src/lib/core/sink-bin.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Planning.
+
+2011-07-25  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Use correct type to fix a crash on 64bit.
 

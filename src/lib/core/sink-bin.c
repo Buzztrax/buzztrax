@@ -272,20 +272,17 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
       // configure buffer size (e.g.  GST_SECONG*60/120*4
       gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
 
-      // DEBUG test for lower latency
-      //chunk>>=4;
-      // DEBUG
+      // FIXME: having a smaller chunk size helps with latency:
+      // - live playback
+      // - changing properties
+      // maybe we can make this an option (for fast machines)
+      // chunk>>=6;
 
       GST_INFO("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
         chunk, (chunk/G_GINT64_CONSTANT(1000)));
       g_object_set(sink,
         "latency-time",chunk,
         "buffer-time",chunk<<1,
-         /* FIXME: this is a hack to make the loops smooter
-          * - we still get a break after the first round
-          * - if does not really help
-        "drift-tolerance",chunk<<8, 
-          */
         NULL);
     }
   }

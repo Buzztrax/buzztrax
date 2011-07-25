@@ -36,6 +36,14 @@
  * - we should probably parse the system-audiosink settings more to eventualy
  *   get the device from the setting
  */
+/* @todo: show the latency
+ * - gst_base_sink_get_latency()
+ *   - when is that available?
+ * - we have the latency caused by the fragment-size and depth of graph
+ *   - thus it is different for each machine
+ * - the latency from changing a parameter until we hear something is what
+ *   the user is interested in 
+ */
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_AUDIODEVICES_C
 
