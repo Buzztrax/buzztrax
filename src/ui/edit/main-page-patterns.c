@@ -2499,7 +2499,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  gint voices;
+  gulong voices;
 
   g_object_get(self->priv->machine,"voices",&voices,NULL);
   voices++;
@@ -2514,7 +2514,7 @@ static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer us
 
 static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  gint voices;
+  gulong voices;
 
   g_object_get(self->priv->machine,"voices",&voices,NULL);
   voices--;
