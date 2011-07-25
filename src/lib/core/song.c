@@ -398,9 +398,17 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
   
   gst_message_parse_segment_done((GstMessage *)message,&format,&position);
 #endif
+#if 0
+  /* time it takes from emitting to handling the event, depends on a change in
+   * gstreamer core to timestamp messages */
+  {
+    GstClockTime delta=GST_CLOCK_DIFF(GST_MESSAGE_TIMESTAMP (message),gst_util_get_timestamp());
+    GST_WARNING("received SEGMENT_DONE after=%"GST_TIME_FORMAT,GST_TIME_ARGS(delta));
+  }
+#endif
 
 #if GST_CHECK_VERSION(0,10,22)
-  GST_WARNING("received SEGMENT_DONE (%u) bus message: %p, from %s, with fmt=%s, ts=%"GST_TIME_FORMAT,
+  GST_INFO("received SEGMENT_DONE (%u) bus message: %p, from %s, with fmt=%s, ts=%"GST_TIME_FORMAT,
     seek_seqnum,message,GST_OBJECT_NAME(GST_MESSAGE_SRC(message)),
     gst_format_get_name(format),GST_TIME_ARGS(position));
 #else
@@ -446,7 +454,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
       GST_WARNING("element failed to handle continuing play seek event");
     }
     else {
-      GST_WARNING("-> loop");
+      GST_INFO("-> loop");
       /*
       gst_pipeline_set_new_stream_time (GST_PIPELINE (self->priv->bin), 0);
       gst_element_get_state (GST_ELEMENT (self->priv->bin), NULL, NULL, 40 * GST_MSECOND);
