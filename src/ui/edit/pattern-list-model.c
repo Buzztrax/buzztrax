@@ -224,24 +224,26 @@ static void on_sequence_pattern_usage_changed(BtSequence *sequence,BtPattern *pa
   BtMachine *machine;
   
   g_object_get(pattern,"machine",&machine,NULL);
-  if(machine==model->priv->machine) {
-    GSequence *seq=model->priv->seq;
-    GtkTreeIter iter;
-    GtkTreePath *path;
-
-    // find the item by pattern
-    iter.stamp=model->priv->stamp;
+  if(machine) {
+    if(machine==model->priv->machine) {
+      GSequence *seq=model->priv->seq;
+      GtkTreeIter iter;
+      GtkTreePath *path;
+  
+      // find the item by pattern
+      iter.stamp=model->priv->stamp;
 #if GLIB_CHECK_VERSION(2,28,0)
-    iter.user_data=g_sequence_lookup(seq,pattern,model_item_cmp,NULL);
+      iter.user_data=g_sequence_lookup(seq,pattern,model_item_cmp,NULL);
 #else
-    iter.user_data=g_sequence_iter_prev(g_sequence_search(seq,pattern,model_item_cmp,NULL));
+      iter.user_data=g_sequence_iter_prev(g_sequence_search(seq,pattern,model_item_cmp,NULL));
 #endif
-    path=gtk_tree_path_new();
-    gtk_tree_path_append_index(path,g_sequence_iter_get_position(iter.user_data));
-    gtk_tree_model_row_changed(GTK_TREE_MODEL(model),path,&iter);
-    gtk_tree_path_free(path);   
+      path=gtk_tree_path_new();
+      gtk_tree_path_append_index(path,g_sequence_iter_get_position(iter.user_data));
+      gtk_tree_model_row_changed(GTK_TREE_MODEL(model),path,&iter);
+      gtk_tree_path_free(path);   
+    }
+    g_object_unref(machine);
   }
-  g_object_unref(machine);
 }
 
 //-- constructor methods
