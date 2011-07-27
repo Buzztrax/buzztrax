@@ -84,9 +84,9 @@ static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data) {
     g_object_get(mb,"id",&idb,NULL);
 
     c=strcmp(ida,idb);
-    if(c==1)
+    if(c>0)
       rb+=1;
-    else if(c==-1)
+    else if(c<0)
       ra+=1;
 
     GST_LOG("comparing %s <-> %s: %d: %d <-> %d",ida,idb,c,ra,rb);

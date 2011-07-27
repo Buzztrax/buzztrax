@@ -1,6 +1,11 @@
 2011-07-27  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-list-model.c:
+	  Fix the comparison, return values are not -1,0,1, but <=> 0
+
+2011-07-27  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-list-model.c:
 	* src/ui/edit/pattern-list-model.c:
 	  Add more logging.
 
