@@ -1,6 +1,11 @@
 2011-07-27  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-list-model.c:
+	  Disconnect signal handlers when destroying model.
+
+2011-07-27  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-list-model.c:
 	  Fix the comparison, return values are not -1,0,1, but <=> 0
 
 2011-07-27  Stefan Sauer  <ensonic@users.sf.net>
@@ -97,7 +102,7 @@
 2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
-	  Remoe unused variable.
+	  Remove unused variable.
 
 2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
 

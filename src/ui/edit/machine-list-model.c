@@ -396,8 +396,19 @@ static void bt_machine_list_model_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   if(self->priv->setup) {
-    g_signal_handlers_disconnect_matched(self->priv->setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_added,(gpointer)self);
-    g_signal_handlers_disconnect_matched(self->priv->setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
+    BtSetup *setup=self->priv->setup;
+    BtMachine *machine;
+    GList *list, *node;
+
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_added,(gpointer)self);
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
+
+    g_object_get((gpointer)setup,"machines",&list,NULL);
+    for(node=list;node;node=g_list_next(node)) {
+      machine=BT_MACHINE(node->data);
+      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_id_changed,(gpointer)self);
+    }
+    g_list_free(list);
   }
 
   g_sequence_free(self->priv->seq);
