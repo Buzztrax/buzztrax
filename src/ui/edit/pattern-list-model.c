@@ -162,6 +162,8 @@ static void bt_pattern_list_model_rem(BtPatternListModel *model,BtPattern *patte
   gtk_tree_path_append_index(path,position);
   gtk_tree_model_row_deleted(GTK_TREE_MODEL(model),path);
   gtk_tree_path_free(path);
+
+  GST_INFO("removed pattern from model at pos %d ", position);
 }
 
 //-- signal handlers

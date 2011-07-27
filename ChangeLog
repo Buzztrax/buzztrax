@@ -1,5 +1,11 @@
 2011-07-27  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-list-model.c:
+	* src/ui/edit/pattern-list-model.c:
+	  Add more logging.
+
+2011-07-27  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-list-model.c:
 	  Fix a NULL ptr deref.
 

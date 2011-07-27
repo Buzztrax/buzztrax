@@ -143,6 +143,8 @@ static void bt_machine_list_model_rem(BtMachineListModel *model,BtMachine *machi
   gtk_tree_path_append_index(path,position);
   gtk_tree_model_row_deleted(GTK_TREE_MODEL(model),path);
   gtk_tree_path_free(path);
+
+  GST_INFO_OBJECT(machine,"removed machine from model at pos %d ", position);
 }
 
 //-- signal handlers
