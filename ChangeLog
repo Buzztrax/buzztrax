@@ -1,5 +1,12 @@
 2011-07-28  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Reset song-info:change-dts on first change to unsaved. This fixes us
+	  showing huge timespan of unsaved edits when loading a song and
+	  changing it.
+
+2011-07-28  Stefan Sauer  <ensonic@users.sf.net>
+
 	* TODO:
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/main-page-sequence.c:

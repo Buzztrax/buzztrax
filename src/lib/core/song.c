@@ -704,6 +704,9 @@ void bt_song_set_unsaved(const BtSong * const self, const gboolean unsaved) {
 
   if(self->priv->unsaved!=unsaved) {
     self->priv->unsaved=unsaved;
+    // this updates the time-stamp (we need that to show the since when we have
+    // unsaved changes, if some one closes the song)
+    g_object_set(self->priv->song_info,"change-dts",NULL,NULL);
     GST_INFO("unsaved = %d",unsaved);
     g_object_notify(G_OBJECT(self),"unsaved");
   }
