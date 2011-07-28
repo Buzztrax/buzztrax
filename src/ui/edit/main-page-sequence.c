@@ -47,6 +47,8 @@
 /* @todo: we should have a track-changed signal ((current-track property)
  *  - allows pattern to sync with selected machine and not passively syncing
  *    (bt_main_page_patterns_show_machine())
+ *  - we already have a cursor-row property and we could add a cursor-column
+ *    property too (and get the notify::cursor-column for free)
  */
 /* @todo: handle pattern name changes
  *   - when pattern gets renamed
@@ -85,6 +87,9 @@
  * - the binding manager provides a ui to:
  *   - edit the bindings
  *   - save/load bindings to/from a named preset
+ */
+/* @todo: undo/redo
+ * - move tracks left/right
  */
 
 #define BT_EDIT
@@ -3087,7 +3092,7 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
     g_object_get(machine,"id",&mid,NULL);
     g_object_get(pattern,"id",&pid,NULL);
     
-    GST_INFO("pattern %s is used in sequence, doing undo/redo",pid);
+    GST_WARNING("pattern %s is used in sequence, doing undo/redo",pid);
 		/* save the cells that use the pattern */
 		bt_change_log_start_group(self->priv->change_log);
   	while((track=bt_sequence_get_track_by_machine(sequence,machine,track))>-1) {

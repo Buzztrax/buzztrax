@@ -72,9 +72,8 @@
  *     bt_main_page_machines_show_preferences_dialog(page,machine);
  *     .. rename/about/help
  */
-/* @todo: undo/redo - machine voices
- * - handle undo/redo for add/rem track
- * - handle undo/redo for randomize/blend/flip
+/* @todo: undo/redo
+ * - add/rem track (machine voices)
  */
 
 #define BT_EDIT
@@ -1237,7 +1236,7 @@ static void on_pattern_model_row_deleted(GtkTreeModel *tree_model,GtkTreePath *p
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeIter iter;
 
-  // GST_WARNING("-- removed index %s", gtk_tree_path_to_string(path));
+  //GST_WARNING("-- removed index %s", gtk_tree_path_to_string(path));
 
   if(!gtk_tree_model_get_iter(tree_model, &iter, path)) {
     GtkTreePath *p=gtk_tree_path_copy(path);

@@ -1,3 +1,10 @@
+2011-07-28  Stefan Sauer  <ensonic@users.sf.net>
+
+	* TODO:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Collect remaining undo/redo tasks.
+
 2011-07-27  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-list-model.c:
