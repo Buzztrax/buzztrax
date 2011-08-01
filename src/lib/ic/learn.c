@@ -120,7 +120,7 @@ BtIcControl* btic_learn_register_learned_control(const BtIcLearn *self, const gc
  * Returns: %TRUE for success
  */
 gboolean btic_learn_store_controller_map(const BtIcLearn *self) {
-  gchar *map_dir,*map_name,*device_name,*control_name;
+  gchar *map_dir,*map_name,*real_device_name,*device_name,*control_name;
   GKeyFile *out;
   GError *error = NULL;
   gchar *data;
@@ -132,12 +132,16 @@ gboolean btic_learn_store_controller_map(const BtIcLearn *self) {
 
   map_dir=g_build_filename(g_get_user_data_dir(),PACKAGE,"controller-maps",NULL);
   /* ensure mapdir, set to NULL if we can't make it */
-  if(!g_mkdir_with_parents(map_dir,S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)!=-1)
+  if(g_mkdir_with_parents(map_dir,S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1)
     goto mkdir_failed;
     
   g_object_get((GObject *)self,"name",&device_name,"controls",&controls,NULL);
-  map_name=g_build_filename(map_dir,device_name,NULL);
-  g_free(device_name);
+  if((real_device_name=strchr(device_name,':'))) {
+    real_device_name=&real_device_name[2];
+  } else {
+    real_device_name=device_name;
+  }
+  map_name=g_build_filename(map_dir,real_device_name,NULL);
   g_free(map_dir);
   
   /* create gkeyfile */
@@ -145,6 +149,7 @@ gboolean btic_learn_store_controller_map(const BtIcLearn *self) {
   
   out=g_key_file_new();
   g_key_file_set_string(out,MAP_HEADER,MAP_HEADER_DEVICE_NAME,device_name);
+  g_free(device_name);
 
   /* todo: write control data  */
   for(node=controls;node;node=g_list_next(node)) {
@@ -204,7 +209,7 @@ write_failed:
  * Returns: %TRUE for success
  */
 gboolean btic_learn_load_controller_map(const BtIcLearn *self) {
-  gchar *map_name,*device_name,*file_device_name;
+  gchar *map_name,*real_device_name,*device_name,*file_device_name;
   GKeyFile *in;
   GError *error = NULL;
   gchar **groups;
@@ -214,7 +219,12 @@ gboolean btic_learn_load_controller_map(const BtIcLearn *self) {
   guint control_id;
 
   g_object_get((GObject *)self,"name",&device_name,NULL);
-  map_name=g_build_filename(g_get_user_data_dir(),PACKAGE,"controller-maps",device_name,NULL);
+  if((real_device_name=strchr(device_name,':'))) {
+    real_device_name=&real_device_name[2];
+  } else {
+    real_device_name=device_name;
+  }
+  map_name=g_build_filename(g_get_user_data_dir(),PACKAGE,"controller-maps",real_device_name,NULL);
   
   /* read gkeyfile */
   GST_INFO("load learned controllers under '%s'",map_name);
@@ -226,7 +236,7 @@ gboolean btic_learn_load_controller_map(const BtIcLearn *self) {
     goto load_error;
 
   file_device_name=g_key_file_get_value(in,MAP_HEADER,MAP_HEADER_DEVICE_NAME,NULL);
-  if(!file_device_name || strcmp(file_device_name,device_name))
+  if(!file_device_name || strcmp(file_device_name,real_device_name))
     goto wrong_name;
   g_free(file_device_name);
 

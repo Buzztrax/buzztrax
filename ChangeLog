@@ -1,5 +1,20 @@
 2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/ic/learn.c:
+	  Fix the mkdir call for creating the controller-maps dir. Improve the
+	  file naming by chopping off the protocol prefix.
+
+2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
+
+	reviewed by: <delete if not using a buddy>
+	patch by: <delete if not someone else's patch>
+
+	* NEWSLETTER:
+	* src/lib/core/sink-bin.c:
+	* src/lib/ic/learn.c:
+
+2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* TODO:
 	* src/ui/edit/change-log.c:
 	  Undo/redo documentation updates.
