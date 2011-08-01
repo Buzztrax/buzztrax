@@ -24,7 +24,7 @@
  * @see_also: #BtCrashRecoverDialog
  *
  * Tracks edits actions since last save. Provides undo/redo. Supports grouping
- * of edits into single undo/redo items.
+ * of edits into single undo/redo items (see bt_change_log_start_group()).
  *
  * Edit actions are logged to disk for crash recovery. Groups are logged
  * atomically, when they are closed (to have a recoverable log).

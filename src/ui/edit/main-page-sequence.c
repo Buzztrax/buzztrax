@@ -89,7 +89,7 @@
  *   - save/load bindings to/from a named preset
  */
 /* @todo: undo/redo
- * - move tracks left/right
+ * - finish add/remove tracks
  */
 
 #define BT_EDIT
@@ -248,8 +248,8 @@ enum {
   METHOD_SET_LABELS,
   METHOD_SET_PROPERTY,
   METHOD_ADD_TRACK,
-  METHOD_REM_TRACK
-  /* METHOD_MOVE_TRACK_(LEFT|RIGHT) <ix> */
+  METHOD_REM_TRACK,
+  METHOD_MOVE_TRACK
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
@@ -258,6 +258,7 @@ static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_sequence_property",22,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_track",10,"\"([a-zA-Z0-9 ]+)\",([0-9]+)$"),
   BT_CHANGE_LOGGER_METHOD("rem_track",10,"([0-9]+)$"),
+  BT_CHANGE_LOGGER_METHOD("move_track",11,"([0-9]+),([0-9]+)$"),
   { NULL, }
 };
 
@@ -2003,10 +2004,11 @@ static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
 			gchar *mid;
 			gulong ix;
 
+      g_object_get(self->priv->sequence,"tracks",&ix,NULL);
+
       sequence_add_track(self,machine,-1);
       
 			g_object_get(machine,"id",&mid,NULL);
-      g_object_get(self->priv->sequence,"tracks",&ix,NULL);
 
       /* handle undo/redo */
 			undo_str = g_strdup_printf("rem_track %lu",ix);
@@ -2083,48 +2085,64 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
 
 static void on_track_move_left_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtSong *song;
   gulong track=self->priv->cursor_column-1;
 
   GST_INFO("move track %ld to left",self->priv->cursor_column);
 
   if(track>0) {
-    // get song from app and then setup from song
-    g_object_get(self->priv->app,"song",&song,NULL);
-
     if(bt_sequence_move_track_left(self->priv->sequence,track)) {
+      BtSong *song;
+      gchar *undo_str,*redo_str;
+      
+      // get song from app
+      g_object_get(self->priv->app,"song",&song,NULL);
+  
       self->priv->cursor_column--;
       // reinit the view
       sequence_table_refresh(self,song);
       sequence_model_recolorize(self);
       sequence_view_set_cursor_pos(self);
-    }
 
-    g_object_unref(song);
+      /* handle undo/redo */
+			undo_str = g_strdup_printf("move_track %lu,%lu",track-1,track);
+			redo_str = g_strdup_printf("move_track %lu,%lu",track,track-1);
+			bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+      g_object_unref(song);
+    }
   }
 }
 
 static void on_track_move_right_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtSong *song;
   gulong track=self->priv->cursor_column-1,number_of_tracks;
 
   GST_INFO("move track %ld to right",self->priv->cursor_column);
 
-  // get song from app and then setup from song
-  g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
 
   if(track<number_of_tracks) {
     if(bt_sequence_move_track_right(self->priv->sequence,track)) {
+      BtSong *song;
+      gchar *undo_str,*redo_str;
+
+      // get song from app
+      g_object_get(self->priv->app,"song",&song,NULL);
+
       self->priv->cursor_column++;
       // reinit the view
       sequence_table_refresh(self,song);
       sequence_model_recolorize(self);
       sequence_view_set_cursor_pos(self);
+
+      /* handle undo/redo */
+			undo_str = g_strdup_printf("move_track %lu,%lu",track+1,track);
+			redo_str = g_strdup_printf("move_track %lu,%lu",track,track+1);
+			bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+      g_object_unref(song);
     }
   }
-  g_object_unref(song);
 }
 
 static void on_context_menu_machine_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -3067,7 +3085,7 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
   GST_INFO("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 
   /* this is racy if the sequence also listens for pattern_removed
-   * and clears the tracks - right now won't don't do this automatic updates in
+   * and clears the tracks - right now we don't do this automatic updates in
    * the song anymore
    *
    * we also want to ensure, that we update the sequence_view *after* the changes
@@ -3082,6 +3100,9 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
    *   - we get bad undo/redo serialization (due to dispose_has_run)
    * - use connect_after() for main-page-patterns::on_machine_removed()
    *   - this isn't better, we want to completely avoid it, or serialize it
+   * - how could we handle the on_machine_removed first, handle undo/redo remove
+   *   the track(s), disconnect the on_pattern_removed handler and don't worry
+   *   - right now main-page-patterns.c::on_machine_removed() removes the patterns
    */
   if(bt_sequence_is_pattern_used(sequence,pattern)) {
   	glong tick;
@@ -4013,6 +4034,40 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
     	
     	update_after_track_changed(self);
       res=TRUE;
+      break;
+    }
+    case METHOD_MOVE_TRACK: {
+      gulong ix_cur,ix_new;
+
+      s=g_match_info_fetch(match_info,1);ix_cur=atol(s);g_free(s);
+      s=g_match_info_fetch(match_info,2);ix_new=atol(s);g_free(s);
+      g_match_info_free(match_info);
+
+      GST_DEBUG("-> [%lu|%lu]",ix_cur,ix_new);
+      // we only move right/left by one right now
+      // @todo: but maybe better change that sequence API, then one function
+      // would be all we need
+      if(ix_cur>ix_new) {
+        if(bt_sequence_move_track_left(self->priv->sequence,ix_cur)) {
+          self->priv->cursor_column--;
+          res=TRUE;
+        }        
+      } else {
+        if(bt_sequence_move_track_right(self->priv->sequence,ix_cur)) {
+          self->priv->cursor_column++;
+          res=TRUE;
+        }        
+      }
+      if(res) {
+        BtSong *song;
+        
+        g_object_get(self->priv->app,"song",&song,NULL);
+        // reinit the view
+        sequence_table_refresh(self,song);
+        sequence_model_recolorize(self);
+        sequence_view_set_cursor_pos(self);
+        g_object_unref(song);
+      }
       break;
     }
     default:

@@ -29,6 +29,7 @@ $Id$
 * sparse
   make CC=cgcc
 
+
 * design issues
   * sim syn uses a string property for notes
     * these cannot be interpolated, we could use a uint like buzz or an enum
@@ -74,11 +75,9 @@ $Id$
     - on journalling we can probably add the prefix
     - it is a stack of journal entries
   - pending parts that need undo/redo
-    - pattern-view:
-      - add/rem track (machine voices)
     - sequence view:
-      - move tracks left/right
-      - look at the comments in on_pattern_removed()
+      - finish add/remove tracks
+        look at the comments in on_pattern_removed()
 
 * CPU load per machine
   - as we alway plug the tee-elements on each machine and each wire starts with

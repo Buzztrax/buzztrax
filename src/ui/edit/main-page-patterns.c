@@ -72,9 +72,6 @@
  *     bt_main_page_machines_show_preferences_dialog(page,machine);
  *     .. rename/about/help
  */
-/* @todo: undo/redo
- * - add/rem track (machine voices)
- */
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_PATTERNS_C
@@ -189,7 +186,8 @@ enum {
   METHOD_SET_WIRE_EVENTS,
   METHOD_SET_PROPERTY,
   METHOD_ADD_PATTERN,
-  METHOD_REM_PATTERN
+  METHOD_REM_PATTERN,
+  METHOD_SET_VOICES,
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
@@ -199,6 +197,7 @@ static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_pattern_property",21,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_pattern",12,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+)$"),
   BT_CHANGE_LOGGER_METHOD("rem_pattern",12,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("set_voices",10,"\"([-_a-zA-Z0-9 ]+)\",([0-9]+)$"),
   { NULL, }
 };
 
@@ -276,13 +275,13 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
 
       group = &self->priv->param_groups[self->priv->cursor_group];
       switch (group->type) {
-        case 0: {
+        case PGT_WIRE: {
           property=bt_wire_get_param_spec(group->user_data, self->priv->cursor_param);
           /* there is no describe here
           bt_wire_pattern_get_event_data(group->user_data,self->priv->cursor_row,self->priv->cursor_param)
           */
         } break;
-        case 1: {
+        case PGT_GLOBAL: {
           BtMachine *machine;
           GValue *gval;
 
@@ -293,7 +292,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
           }
           g_object_unref(machine);
         } break;
-        case 2: {
+        case PGT_VOICE: {
           BtMachine *machine;
           GValue *gval;
 
@@ -2499,34 +2498,73 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   gulong voices;
+  gchar *undo_str,*redo_str;
+  gchar *mid;
 
-  g_object_get(self->priv->machine,"voices",&voices,NULL);
+  g_object_get(self->priv->machine,"voices",&voices,"id",&mid,NULL);
+
+  undo_str = g_strdup_printf("set_voices \"%s\",%lu",mid,voices);
+  redo_str = g_strdup_printf("set_voices \"%s\",%lu",mid,voices+1);
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+  g_free(mid);
+
   voices++;
   g_object_set(self->priv->machine,"voices",voices,NULL);
+
   // we adjust sensitivity of add/rem track menu items
   context_menu_refresh(self,self->priv->machine);
-
-  /* FIXME: undo/redo
-   * undo: remove-track
-   */
 }
 
 static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtPattern *saved_pattern;
   gulong voices;
+  gchar *undo_str,*redo_str;
+  gchar *mid;
+  GList *list,*node;
+  GString *old_data;
+  gulong length;
+  gint group;
+  gboolean is_internal;
 
-  g_object_get(self->priv->machine,"voices",&voices,NULL);
+  g_object_get(self->priv->machine,"voices",&voices,"id",&mid,"patterns",&list,NULL);
+
+  bt_change_log_start_group(self->priv->change_log);
+  undo_str = g_strdup_printf("set_voices \"%s\",%lu",mid,voices);
+  redo_str = g_strdup_printf("set_voices \"%s\",%lu",mid,voices-1);
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+  /* this is hackish, we muck with self->priv->pattern as some local
+   * methods assume the current pattern */ 
+  for(group=0;group<self->priv->number_of_groups;group++) {
+    BtPatternEditorColumnGroup *g=&self->priv->param_groups[group];
+    if((g->type==PGT_VOICE) && (g->user_data==GUINT_TO_POINTER(voices-1)))
+      break;
+  }
+  /* save voice-data for *all* patterns of this machine */
+  saved_pattern=self->priv->pattern;
+  for(node=list;node;node=g_list_next(node)) {
+    self->priv->pattern=BT_PATTERN(node->data);
+    
+    g_object_get(self->priv->pattern,"length",&length,"is-internal",&is_internal,NULL);
+    if(!is_internal) {
+      old_data=g_string_new(NULL);
+      pattern_range_copy(self,0,length-1,group,-1,old_data);
+      pattern_range_log_undo_redo(self,0,length-1,group,-1,old_data->str,g_strdup(old_data->str));
+      g_string_free(old_data,TRUE);
+    }
+    g_object_unref(node->data);
+  }
+  self->priv->pattern=saved_pattern;
+  g_list_free(list);
+  g_free(mid);
+  bt_change_log_end_group(self->priv->change_log);
+
   voices--;
   g_object_set(self->priv->machine,"voices",voices,NULL);
 
   // we adjust sensitivity of add/rem track menu items
   context_menu_refresh(self,self->priv->machine);
-
-  /* FIXME: undo/redo
-   * undo: save voice-data for *all* patterns of this machine
-   * -> pattern_range_copy() and pattern_range_log_undo_redo()
-   */
-
 }
 
 static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -2589,16 +2627,8 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
   	gchar *undo_str,*redo_str;
   	gchar *mid,*pid;
 
-    /* FIXME: undo/redo
-     * here, we don't know what is going to be changed :/
-     *   a) add method here and set it this way
-     *   b) catch g_object_set? - won't work, as we need it before
-     *   c) make name/length/voices properties on the dialog
-     *      and move the bt_pattern_properties_dialog_apply() here.
-     *   d) make a tmp copy of the pattern (need to pick an 'internal' name)
-     *      and take the old data from it
-     *   E) make name/length/voices properties on the dialog
-     *      and check them from here
+    /* we need to check what got changed in the properties to do the undo/redo
+     * before applying the changes, we can check the settings from the dialog
      */
     g_object_get(self->priv->pattern,"id",&pid,"name",&old_name,"length",&old_length,"voices",&old_voices,"machine",&machine,NULL);
     g_object_get(dialog,"name",&new_name,"length",&new_length,"voices",&new_voices,NULL);
@@ -2622,14 +2652,47 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
 				g_string_free(old_data,TRUE);
       }
     }
-    /* if old_voices<voices
-     *   set the property for machine
-     * else
-     *   save regions for *all* patterns
-     *   set the property for machine
-     * // we might need to do that from the machine-page
-     * // maybe the voices parameter needs to be moved
-     */
+    if(old_voices!=new_voices) {
+      undo_str = g_strdup_printf("set_voices \"%s\",%lu",mid,old_voices);
+      redo_str = g_strdup_printf("set_voices \"%s\",%lu",mid,new_voices);
+      bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+      if(old_voices>new_voices) {
+        BtPattern *saved_pattern;
+        GList *list,*node;
+        GString *old_data;
+        gulong length;
+        gint group,beg_group,end_group;
+        gboolean is_internal;
+
+        /* this is hackish, we muck with self->priv->pattern as some local
+         * methods assume the current pattern */ 
+        for(group=0;group<self->priv->number_of_groups;group++) {
+          BtPatternEditorColumnGroup *g=&self->priv->param_groups[group];
+          if((g->type==PGT_VOICE) && (g->user_data==GUINT_TO_POINTER(new_voices)))
+            break;
+        }
+        beg_group=group;end_group=group+(old_voices-new_voices);
+        /* save voice-data for *all* patterns of this machine */
+        g_object_get(machine,"patterns",&list,NULL);
+        saved_pattern=self->priv->pattern;
+        for(node=list;node;node=g_list_next(node)) {
+          self->priv->pattern=BT_PATTERN(node->data);
+          
+          g_object_get(self->priv->pattern,"length",&length,"is-internal",&is_internal,NULL);
+          if(!is_internal) {
+            for(group=beg_group;group<end_group;group++) {
+              old_data=g_string_new(NULL);
+              pattern_range_copy(self,0,length-1,group,-1,old_data);
+              pattern_range_log_undo_redo(self,0,length-1,group,-1,old_data->str,g_strdup(old_data->str));
+              g_string_free(old_data,TRUE);
+            }
+          }
+          g_object_unref(node->data);
+        }
+        self->priv->pattern=saved_pattern;
+        g_list_free(list);
+      }
+    }
 
     bt_change_log_end_group(self->priv->change_log);
 
@@ -3415,6 +3478,7 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       pid=g_match_info_fetch(match_info,2);
       pname=g_match_info_fetch(match_info,3);
       s=g_match_info_fetch(match_info,4);length=atol(s);g_free(s);
+      g_match_info_free(match_info);
 
       GST_DEBUG("-> [%s|%s|%s|%lu]",mid,pid,pname,length);
       lookup_machine_and_pattern(self,&machine,NULL,mid,c_mid,NULL,NULL);
@@ -3434,11 +3498,27 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
 
       mid=g_match_info_fetch(match_info,1);
       pid=g_match_info_fetch(match_info,2);
+      g_match_info_free(match_info);
 
       GST_DEBUG("-> [%s|%s]",mid,pid);
       lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
       bt_machine_remove_pattern(machine,pattern);
       res=TRUE;
+
+      context_menu_refresh(self,machine);
+      break;
+    }
+    case METHOD_SET_VOICES: {
+      gchar *mid;
+      gulong voices;
+
+      mid=g_match_info_fetch(match_info,1);
+      s=g_match_info_fetch(match_info,2);voices=atol(s);g_free(s);
+      g_match_info_free(match_info);
+
+      GST_DEBUG("-> [%s]",mid);
+      lookup_machine_and_pattern(self,&machine,NULL,mid,c_mid,NULL,NULL);
+      g_object_set(machine,"voices",voices,NULL);
 
       context_menu_refresh(self,machine);
       break;

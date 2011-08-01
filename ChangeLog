@@ -1,5 +1,17 @@
 2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* TODO:
+	* src/ui/edit/change-log.c:
+	  Undo/redo documentation updates.
+	  
+	* src/ui/edit/main-page-patterns.c:
+	  Implement voice add/remove.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Undo/redo planning.
+
+2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-ic/buzztard-ic-sections.txt:
 	* src/lib/ic/abs-range-control.c:
 	* src/lib/ic/control.c:
