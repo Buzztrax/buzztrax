@@ -1,5 +1,11 @@
 2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	  Make okay insensitive unless we have detected a control. Add a label
+	  telling people what to do.
+
+2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/ic/learn.c:
 	  Change the device name in *all* the places where it matters.
 

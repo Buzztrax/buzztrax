@@ -45,6 +45,9 @@ struct _BtInteractionControllerLearnDialogPrivate {
   G_POINTER_ALIAS(BtIcDevice *,device);
 
   GtkWidget *label_output, *entry_name;
+
+  /* dialog widgets */
+  GtkWidget *okay_button;
 };
 
 //-- the class
@@ -65,6 +68,8 @@ static void notify_device_controlchange(const BtIcLearn* learn,
   gtk_label_set_text(GTK_LABEL(self->priv->label_output), control);
   gtk_entry_set_text(GTK_ENTRY(self->priv->entry_name), control);
   gtk_editable_select_region(GTK_EDITABLE(self->priv->entry_name),0,-1);
+  
+  gtk_widget_set_sensitive(self->priv->okay_button,TRUE);
 
   g_free(control);
 }
@@ -99,6 +104,9 @@ static void on_dialog_response(GtkDialog *dialog,
 static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionControllerLearnDialog *self) {
   GtkWidget *label,*box,*table;
   gchar *name,*title;
+#if !GTK_CHECK_VERSION(2,20,0)
+  GList *buttons;
+#endif
 
   gtk_widget_set_name(GTK_WIDGET(self),"interaction controller learn");
 
@@ -115,10 +123,24 @@ static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionCo
 
   gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
+  // grab okay button, so that we can block if input is not valid
+#if GTK_CHECK_VERSION(2,20,0)
+  self->priv->okay_button=gtk_dialog_get_widget_for_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
+#else
+  buttons=gtk_container_get_children(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(self))));
+  self->priv->okay_button=GTK_WIDGET(g_list_nth_data(buttons,1));
+  g_list_free(buttons);
+#endif
+
+  gtk_widget_set_sensitive(self->priv->okay_button,FALSE);
+  
   // add widgets to the dialog content area
   box=gtk_vbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
   gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),box);
+
+  label=gtk_label_new(_("Move or press a controller to detect it."));
+  gtk_container_add(GTK_CONTAINER(box),label);
 
   table=gtk_table_new(/*rows=*/2,/*columns=*/2,/*homogenous=*/FALSE);
   gtk_container_add(GTK_CONTAINER(box),table);
