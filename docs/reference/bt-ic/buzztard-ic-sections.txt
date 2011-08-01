@@ -48,6 +48,7 @@ btic_control_get_type
 <TITLE>BtIcDevice</TITLE>
 BtIcDevice
 btic_device_add_control
+btic_device_get_control_by_id
 btic_device_has_controls
 btic_device_start
 btic_device_stop
@@ -123,9 +124,8 @@ BtIcLearn
 btic_learn_start
 btic_learn_stop
 btic_learn_register_learned_control
-btic_learn_virtual_start
-btic_learn_virtual_stop
-btic_learn_virtual_register_learned_control
+btic_learn_load_controller_map
+btic_learn_store_controller_map
 <SUBSECTION Standard>
 BtIcLearnInterface
 BTIC_LEARN

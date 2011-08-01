@@ -56,13 +56,14 @@ G_DEFINE_TYPE (BtIcTriggerControl, btic_trigger_control, BTIC_TYPE_CONTROL);
  * btic_trigger_control_new:
  * @device: the device it belongs to
  * @name: human readable name
+ * @id: unique identifier per device
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtIcTriggerControl *btic_trigger_control_new(const BtIcDevice *device,const gchar *name) {
-  BtIcTriggerControl *self=BTIC_TRIGGER_CONTROL(g_object_new(BTIC_TYPE_TRIGGER_CONTROL,"device",device,"name",name,NULL));
+BtIcTriggerControl *btic_trigger_control_new(const BtIcDevice *device,const gchar *name,guint id) {
+  BtIcTriggerControl *self=BTIC_TRIGGER_CONTROL(g_object_new(BTIC_TYPE_TRIGGER_CONTROL,"device",device,"name",name,"id",id,NULL));
   if(!self) {
     goto Error;
   }

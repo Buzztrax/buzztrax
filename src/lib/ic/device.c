@@ -26,10 +26,12 @@
  * functionality to query capabilities and register #BtIcControl instances.
  * They will also read from the device and trigger the change events on their
  * controls (via value property).
+ *
+ * This baseclass manages the added controls. The can be queries by calling
+ * btic_device_get_control_by_id() or iterating the list in 
+ * BtIcDevice::controls.
  */
-/* @todo: we need a way to export/import controller maps per device
- *        (list of controller id,type,name)
- * @todo: need abstract _start() and _stop() method, whenever we bind/unbind a
+/* @todo: need abstract _start() and _stop() method, whenever we bind/unbind a
  *        control we need to call _start/_stop on the respective device. The
  *        methods inc/dec a counter and if the counter is >0 we run the
  *        g_io_channel
@@ -51,6 +53,7 @@ struct _BtIcDevicePrivate {
 
   /* list of BtIcControl objects */
   GList *controls;
+  GHashTable *controls_by_id;
 
   gchar *udi;
   gchar *name;
@@ -94,17 +97,40 @@ static gint sort_by_name(const gpointer obj1,const gpointer obj2) {
  * @self: the device
  * @control: new control
  *
- * Add the given @control to the list that the device manages.
+ * Add the given @control to the list that the device manages. Takes ownership
+ * of the control.
  */
 void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control) {
 	GList *list;
+	guint id;
   g_return_if_fail(BTIC_DEVICE(self));
   g_return_if_fail(BTIC_CONTROL(control));
 
-  // @todo: should we ref?
   list=g_list_append(self->priv->controls,(gpointer)control);
   self->priv->controls=g_list_sort(list,(GCompareFunc)sort_by_name);
+
+  // we take the ref and unref when we destroy the device 
+  g_object_get((GObject *)control,"id",&id,NULL);
+  g_hash_table_insert(self->priv->controls_by_id,GUINT_TO_POINTER(id),(gpointer)control);
+  
   g_object_notify((GObject *)self,"controls");
+}
+
+/**
+ * btic_device_get_control_by_id:
+ * @self: the device
+ * @id: he control id
+ *
+ * Look up a control by @id.
+ *
+ * Returns: the found instance or %NULL. This does not increase the ref-count!
+ *
+ * Since: 0.6
+ */
+BtIcControl *btic_device_get_control_by_id(const BtIcDevice *self,guint id) {
+  BtIcControl *control=g_hash_table_lookup(self->priv->controls_by_id,GUINT_TO_POINTER(id));
+  
+  return(control);
 }
 
 /**
@@ -241,6 +267,7 @@ static void btic_device_finalize(GObject * const object) {
     g_list_free(self->priv->controls);
     self->priv->controls=NULL;
   }
+  g_hash_table_destroy(self->priv->controls_by_id);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(btic_device_parent_class)->finalize(object);
@@ -249,6 +276,8 @@ static void btic_device_finalize(GObject * const object) {
 
 static void btic_device_init(BtIcDevice *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_DEVICE, BtIcDevicePrivate);
+  
+  self->priv->controls_by_id=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
 }
 
 static void btic_device_class_init(BtIcDeviceClass * const klass) {

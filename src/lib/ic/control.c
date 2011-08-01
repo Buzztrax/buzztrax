@@ -31,10 +31,14 @@
  *   - value would be a guint with the key-number (see GSTBT_TONE_CONVERSION_NOTE_*)
  *   - if a midi keyboard is polyphonic, should it register multiple controls?
  *   - when we bind it, we need to smartly assign the controls to voices
- *     - so instead of listing control, one would select a device
- *   - we could have subclasses of those even to define key-zones 
+ *     - if a synth has 4 voices we assign key0->voice0, key1->voice1, ...
+ *     - a max number of e.g. 16 voices shold be enough in practise (given that
+ *       one has 10 fingers)
+ *    - the device class would implement the voice allocation
+ *      - e.g. round-robin, ev. take key-release or velocity into account 
+ *   - we could have virtual devices to define key-zones 
  *     (those could be assigned separately). so if the device is called "midi", 
- *     the virtual one could be named "midi(C-0 B-1)" 
+ *     the virtual ones could be named "midi(C-0 B-1)" and "midi(C-1 B-2)" 
  */
 #define BTIC_CORE
 #define BTIC_CONTROL_C
@@ -43,7 +47,8 @@
 
 enum {
   CONTROL_DEVICE=1,
-  CONTROL_NAME
+  CONTROL_NAME,
+  CONTROL_ID
 };
 
 struct _BtIcControlPrivate {
@@ -52,6 +57,7 @@ struct _BtIcControlPrivate {
 
   G_POINTER_ALIAS(BtIcDevice *,device);
   gchar *name;
+  guint id;
 };
 
 //-- the class
@@ -81,6 +87,9 @@ static void btic_control_get_property(GObject * const object, const guint proper
     case CONTROL_NAME: {
       g_value_set_string(value, self->priv->name);
     } break;
+    case CONTROL_ID: {
+      g_value_set_uint(value, self->priv->id);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -98,6 +107,9 @@ static void btic_control_set_property(GObject * const object, const guint proper
     } break;
     case CONTROL_NAME: {
       self->priv->name = g_value_dup_string(value);
+    } break;
+    case CONTROL_ID: {
+      self->priv->id = g_value_get_uint(value);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -156,8 +168,15 @@ static void btic_control_class_init(BtIcControlClass * const klass) {
   g_object_class_install_property(gobject_class,CONTROL_NAME,
                                   g_param_spec_string("name",
                                      "name prop",
-                                     "device name",
+                                     "control name",
                                      NULL, /* default value */
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,CONTROL_ID,
+                                  g_param_spec_uint("id",
+                                     "id prop",
+                                     "control id (for lookups)",
+                                     0,G_MAXUINT,0,
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 

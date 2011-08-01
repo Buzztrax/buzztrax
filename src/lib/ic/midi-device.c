@@ -57,12 +57,9 @@ struct _BtIcMidiDevicePrivate {
 
   /* learn-mode members */
   gboolean learn_mode;
-  gulong learn_key;
+  guint learn_key;
   guint learn_bits;
   gchar *control_change;
-
-  /* type|code -> control lookup */
-  GHashTable *controls;
 };
 
 //-- the class
@@ -84,7 +81,7 @@ G_DEFINE_TYPE_WITH_CODE (BtIcMidiDevice, btic_midi_device, BTIC_TYPE_DEVICE,
 
 //-- helper
 
-static void update_learn_info(BtIcMidiDevice *self,gchar *name,gulong key,guint bits) {
+static void update_learn_info(BtIcMidiDevice *self,gchar *name,guint key,guint bits) {
 
   if(self->priv->learn_key!=key) {
     self->priv->learn_key=key;
@@ -102,7 +99,7 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
   gsize bytes_read;
   guchar midi_event[3],cmd;
   static guchar prev_cmd=0;
-  gulong key;
+  guint key;
   gboolean res=TRUE;
 
   if(condition & (G_IO_IN | G_IO_PRI)) {
@@ -137,14 +134,14 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
           else {
             GST_DEBUG("control-change: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
 
-            key=(gulong)midi_event[1]; // 0-119 (normal controls), 120-127 (channel mode message)
+            key=(guint)midi_event[1]; // 0-119 (normal controls), 120-127 (channel mode message)
             if(G_UNLIKELY(self->priv->learn_mode)) {
               static gchar name[20];
 
-              sprintf(name,"control-change %lu",key);
+              sprintf(name,"control-change %u",key);
               update_learn_info(self,name,key,7);
             }
-            if((control=(BtIcControl *)g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(key)))) {
+            if((control=btic_device_get_control_by_id(BTIC_DEVICE(self),key))) {
               g_object_set(control,"value",(gint32)(midi_event[2]),NULL);
             }
             prev_cmd=midi_event[0];
@@ -163,7 +160,7 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
             if(G_UNLIKELY(self->priv->learn_mode)) {
               update_learn_info(self,"pitch-wheel-change",key,14);
             }
-            if((control=(BtIcControl *)g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(key)))) {
+            if((control=btic_device_get_control_by_id(BTIC_DEVICE(self),key))) {
               gint32 v=(((gint32)midi_event[2])<<7)|(midi_event[1]);
 
               GST_WARNING("pitch-wheel-change: %lu, 0x%lx",v,v);
@@ -222,7 +219,7 @@ static gboolean btic_midi_device_start(gconstpointer _self) {
   }
   g_io_channel_set_encoding(self->priv->io_channel,NULL,&error);
   if(error) {
-    GST_WARNING("iochannel error for settin encoding to NULL: %s",error->message);
+    GST_WARNING("iochannel error for setting encoding to NULL: %s",error->message);
     g_error_free(error);
     g_io_channel_unref(self->priv->io_channel);
     self->priv->io_channel=NULL;
@@ -274,17 +271,17 @@ static gboolean btic_midi_device_learn_stop(gconstpointer _self) {
 }
 
 static BtIcControl* btic_midi_device_register_learned_control(gconstpointer _self, const gchar *name) {
-  BtIcAbsRangeControl *control=NULL;
+  BtIcControl *control=NULL;
   BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
 
   GST_INFO("registering midi control as %s", name);
 
-  if(!g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key))) {
-    control = btic_abs_range_control_new(BTIC_DEVICE(self),name, 0, (1<<self->priv->learn_bits)-1, 0);
-    g_hash_table_insert(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key),(gpointer)control);
+  /* this avoids that we learn a key again */
+  if(!(control=btic_device_get_control_by_id(BTIC_DEVICE(self),self->priv->learn_key))) {
+    control=BTIC_CONTROL(btic_abs_range_control_new(BTIC_DEVICE(self),name,self->priv->learn_key,0,(1<<self->priv->learn_bits)-1,0));
+    btic_learn_store_controller_map(BTIC_LEARN(self));
   }
-
-  return(BTIC_CONTROL(control));
+  return(control);
 }
 
 static void btic_midi_device_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -300,13 +297,15 @@ static void btic_midi_device_interface_init(gpointer const g_iface, gpointer con
 //-- class internals
 
 static void btic_midi_device_constructed(GObject *object) {
-#if 0
   const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
+#if 0
   gint io;
 #endif
 
   if(G_OBJECT_CLASS(btic_midi_device_parent_class)->constructed)
     G_OBJECT_CLASS(btic_midi_device_parent_class)->constructed(object);
+
+  btic_learn_load_controller_map(BTIC_LEARN(self));
 
 #if 0
 // we never receive anything back :/
@@ -396,7 +395,6 @@ static void btic_midi_device_finalize(GObject * const object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv->devnode);
-  g_hash_table_destroy(self->priv->controls);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(btic_midi_device_parent_class)->finalize(object);
@@ -405,8 +403,6 @@ static void btic_midi_device_finalize(GObject * const object) {
 
 static void btic_midi_device_init(BtIcMidiDevice *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_MIDI_DEVICE, BtIcMidiDevicePrivate);
-
-  self->priv->controls=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
 }
 
 static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {

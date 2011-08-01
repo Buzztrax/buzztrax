@@ -28,4 +28,7 @@ extern gboolean btic_learn_start(const BtIcLearn *self);
 extern gboolean btic_learn_stop(const BtIcLearn *self);
 extern BtIcControl* btic_learn_register_learned_control(const BtIcLearn *self, const gchar *name);
 
+extern gboolean btic_learn_store_controller_map(const BtIcLearn *self);
+extern gboolean btic_learn_load_controller_map(const BtIcLearn *self);
+
 #endif // BTIC_LEARN_METHDOS_H

@@ -26,8 +26,8 @@
 #include "device.h"
 
 extern void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control);
+extern BtIcControl *btic_device_get_control_by_id(const BtIcDevice *self,guint id);
 extern gboolean btic_device_has_controls(const BtIcDevice *self);
-
 extern gboolean btic_device_start(const BtIcDevice *self);
 extern gboolean btic_device_stop(const BtIcDevice *self);
 

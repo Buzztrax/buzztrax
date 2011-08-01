@@ -59,6 +59,7 @@ G_DEFINE_TYPE (BtIcAbsRangeControl, btic_abs_range_control, BTIC_TYPE_CONTROL);
  * btic_abs_range_control_new:
  * @device: the device it belongs to
  * @name: human readable name
+ * @id: unique identifier per device
  * @min: minimum value
  * @max: maximum value
  * @def: default value
@@ -67,8 +68,8 @@ G_DEFINE_TYPE (BtIcAbsRangeControl, btic_abs_range_control, BTIC_TYPE_CONTROL);
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtIcAbsRangeControl *btic_abs_range_control_new(const BtIcDevice *device,const gchar *name,gint32 min,gint32 max,gint32 def) {
-  BtIcAbsRangeControl *self=BTIC_ABS_RANGE_CONTROL(g_object_new(BTIC_TYPE_ABS_RANGE_CONTROL,"device",device,"name",name,"min",min,"max",max,"def",def,NULL));
+BtIcAbsRangeControl *btic_abs_range_control_new(const BtIcDevice *device,const gchar *name,guint id,gint32 min,gint32 max,gint32 def) {
+  BtIcAbsRangeControl *self=BTIC_ABS_RANGE_CONTROL(g_object_new(BTIC_TYPE_ABS_RANGE_CONTROL,"device",device,"name",name,"id",id,"min",min,"max",max,"def",def,NULL));
   if(!self) {
     goto Error;
   }

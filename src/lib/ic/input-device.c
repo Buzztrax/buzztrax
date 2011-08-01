@@ -59,9 +59,6 @@ struct _BtIcInputDevicePrivate {
   /* io channel */
   GIOChannel *io_channel;
   gint io_source;
-
-  /* type|code -> control lookup */
-  GHashTable *controls;
 };
 
 //-- the class
@@ -148,9 +145,8 @@ static gboolean register_trigger_controls(const BtIcInputDevice * const self,int
       }
       if(name) {
         // create controller instances and register them
-        control = btic_trigger_control_new(BTIC_DEVICE(self),name);
-        key=(((gulong)EV_KEY)<<16)|(gulong)ix;
-        g_hash_table_insert(self->priv->controls,GUINT_TO_POINTER(key),(gpointer)control);
+        key=(((guint)EV_KEY)<<16)|(guint)ix;
+        control = btic_trigger_control_new(BTIC_DEVICE(self),name,key);
       }
     }
   }
@@ -213,10 +209,9 @@ static gboolean register_abs_range_controls(const BtIcInputDevice * const self,i
         );
         if(name) {
           // create controller instances and register them
-          control = btic_abs_range_control_new(BTIC_DEVICE(self),name,
+          key=(((guint)EV_ABS)<<16)|(guint)ix;
+          control = btic_abs_range_control_new(BTIC_DEVICE(self),name,key,
             abs_features.minimum,abs_features.maximum,abs_features.flat);
-          key=(((gulong)EV_ABS)<<16)|(gulong)ix;
-          g_hash_table_insert(self->priv->controls,GUINT_TO_POINTER(key),(gpointer)control);
         }
       }
     }
@@ -292,7 +287,7 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
   BtIcControl *control;
   GError *error=NULL;
   struct input_event ev;
-  gulong key;
+  guint key;
   gboolean res=TRUE;
 
   //GST_INFO("io handler : %d",condition);
@@ -303,8 +298,8 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
       g_error_free(error);
     }
     else {
-      key=(((gulong)ev.type)<<16)|(gulong)ev.code;
-      if((control=(BtIcControl *)g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(key)))) {
+      key=(((guint)ev.type)<<16)|(guint)ev.code;
+      if((control=btic_device_get_control_by_id(BTIC_DEVICE(self),key))) {
         switch(ev.type) {
           case EV_KEY:
             //GST_INFO("key/button event: value %d, code 0x%x",ev.value,ev.code);
@@ -445,7 +440,6 @@ static void btic_input_device_finalize(GObject * const object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv->devnode);
-  g_hash_table_destroy(self->priv->controls);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(btic_input_device_parent_class)->finalize(object);
@@ -454,8 +448,6 @@ static void btic_input_device_finalize(GObject * const object) {
 
 static void btic_input_device_init(BtIcInputDevice *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_INPUT_DEVICE, BtIcInputDevicePrivate);
-
-  self->priv->controls=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
 }
 
 static void btic_input_device_class_init(BtIcInputDeviceClass * const klass) {

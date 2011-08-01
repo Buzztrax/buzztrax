@@ -1,3 +1,20 @@
+2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
+
+	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	* src/lib/ic/abs-range-control.c:
+	* src/lib/ic/control.c:
+	* src/lib/ic/device.c:
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/learn.c:
+	* src/lib/ic/libbuzztard-ic/abs-range-control-methods.h:
+	* src/lib/ic/libbuzztard-ic/device-methods.h:
+	* src/lib/ic/libbuzztard-ic/learn-methods.h:
+	* src/lib/ic/libbuzztard-ic/trigger-control-methods.h:
+	* src/lib/ic/midi-device.c:
+	* src/lib/ic/trigger-control.c:
+	  Implement cache for learned controls. Refactor the code base to have
+	  the controller hashtables in the device base-class.
+
 2011-07-28  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:
@@ -126,16 +143,11 @@
 2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
-	  Take out log to warning changes that are only mean to be temporal.
+	  Take out log to warning changes that are only meant to be temporal.
 
 2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
-	  Added comment with idea about the remaining undo/redo issue.
-
-2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
-
-	* src/ui/edit/main-page-sequence.c:
 	  Added comment with idea about the remaining undo/redo issue.
 
 2011-07-11  Stefan Sauer  <ensonic@users.sf.net>
@@ -197,8 +209,8 @@
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
-	  Implemented the unod/redo for pattern removal and added a comment,
-	  which its not effective.
+	  Implemented the undo/redo for pattern removal and added a comment,
+	  why its not effective.
 
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
@@ -215,7 +227,7 @@
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
-	  Add a new method for ierating patterns of a track.
+	  Add a new method for iterating patterns of a track.
 
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
@@ -229,7 +241,7 @@
 
 	* src/lib/core/libbuzztard-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
-	  Allow to iterate the tracks, but passing a start position.
+	  Allow to iterate the tracks, by passing a start position.
 
 	* src/ui/edit/main-page-sequence.c:
 	  Use new method. Sketch out pattern-remove undo/redo.

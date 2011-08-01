@@ -25,6 +25,6 @@
 #include "device.h"
 #include "abs-range-control.h"
 
-extern BtIcAbsRangeControl *btic_abs_range_control_new(const BtIcDevice *device,const gchar *name,gint32 min,gint32 max,gint32 def);
+extern BtIcAbsRangeControl *btic_abs_range_control_new(const BtIcDevice *device,const gchar *name,guint id,gint32 min,gint32 max,gint32 def);
 
 #endif // BTIC_ABS_RANGE_CONTROL_METHDOS_H

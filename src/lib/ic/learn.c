@@ -24,22 +24,12 @@
  *
  * An interface which all devices which support interactive learning of
  * controls should implement.
+ *
+ * The interface comes with an implementation for caching the learned controls.
+ * The implementor needs to call btic_learn_load_controller_map() after 
+ * construction and btic_learn_store_controller_map() when a control got added.
  */
 
-/* @todo: store controller maps for trainable devices
- * - whenever we have learned a control update the file on disk
- *   use btic_learn_register_learned_control()
- * - whenever we discover a device load the previous settings from disk
- * - files
- *   - use gkeyfile as a format
- *     - use a header
- *       - device name
- *     - use one section per control
- *       - section-name is the control-id
- *       - fileds are i18n'able name and maybe a control type
- *   - store them as g_get_user_data_dir(),PACKAGE_NAME,"$device_name.map"
- *   
- */
 #define BTIC_CORE
 #define BTIC_LEARN_C
 
@@ -68,6 +58,7 @@ static BtIcControl* btic_learn_default_register_learned_control(gconstpointer se
   return(NULL);  // this is a base class that can't do anything
 }
 
+//-- interface vmethods
 
 /**
  * btic_learn_start:
@@ -109,6 +100,173 @@ gboolean btic_learn_stop(const BtIcLearn *self)
 BtIcControl* btic_learn_register_learned_control(const BtIcLearn *self, const gchar* name)
 {
   return BTIC_LEARN_GET_INTERFACE(self)->register_learned_control(self, name);
+}
+
+//-- interface methods
+
+#define MAP_HEADER "_controller-map_"
+
+/* keys of the preset header section */
+#define MAP_HEADER_DEVICE_NAME "device-name"
+
+/**
+ * btic_learn_store_controller_map:
+ * @self: the device
+ *
+ * Store a map of all controls to disk. Interface implementations should call
+ * this from their btic_learn_register_learned_control() function after they
+ * registered a new control.
+ *
+ * Returns: %TRUE for success
+ */
+gboolean btic_learn_store_controller_map(const BtIcLearn *self) {
+  gchar *map_dir,*map_name,*device_name,*control_name;
+  GKeyFile *out;
+  GError *error = NULL;
+  gchar *data;
+  gsize data_size;
+  GList *controls,*node;
+  BtIcControl *control;
+  glong min_val,max_val,def_val;
+  guint control_id;
+
+  map_dir=g_build_filename(g_get_user_data_dir(),PACKAGE,"controller-maps",NULL);
+  /* ensure mapdir, set to NULL if we can't make it */
+  if(!g_mkdir_with_parents(map_dir,S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)!=-1)
+    goto mkdir_failed;
+    
+  g_object_get((GObject *)self,"name",&device_name,"controls",&controls,NULL);
+  map_name=g_build_filename(map_dir,device_name,NULL);
+  g_free(device_name);
+  g_free(map_dir);
+  
+  /* create gkeyfile */
+  GST_INFO("store learned controllers under '%s'",map_name);
+  
+  out=g_key_file_new();
+  g_key_file_set_string(out,MAP_HEADER,MAP_HEADER_DEVICE_NAME,device_name);
+
+  /* todo: write control data  */
+  for(node=controls;node;node=g_list_next(node)) {
+    control=BTIC_CONTROL(node->data);
+    
+    g_object_get(control,"name",&control_name,"id",&control_id,"min",&min_val,"max",&max_val,"def",&def_val,NULL);
+    // @todo: we ignore the type right now
+    g_key_file_set_string(out,control_name,"type","abs-range");
+    g_key_file_set_integer(out,control_name,"id",control_id);
+    g_key_file_set_integer(out,control_name,"min-val",min_val);
+    g_key_file_set_integer(out,control_name,"max-val",max_val);
+    g_key_file_set_integer(out,control_name,"def-val",def_val);
+    g_free(control_name);
+  }
+  g_list_free(controls);
+  
+  /* get new contents, we need this to save it */
+  if(!(data=g_key_file_to_data(out,&data_size,&error)))
+    goto convert_failed;
+  /* write data */
+  if(!g_file_set_contents(map_name,data,data_size,&error))
+    goto write_failed;
+  g_free (data);
+
+  g_key_file_free(out);
+  g_free(map_name);
+  return(TRUE);
+
+  /* ERRORS */
+mkdir_failed:
+  GST_WARNING("Can't create controll-maps dir: '%s': %s",map_dir, g_strerror(errno));
+  g_free(map_dir);
+  return(FALSE);
+convert_failed:
+  GST_WARNING("can not get the keyfile contents: %s", error->message);
+  g_error_free(error);
+  g_free(data);
+  g_key_file_free(out);
+  g_free(map_name);
+  return(FALSE);
+write_failed:
+  GST_WARNING("Unable to store control-map file %s: %s",map_name,error->message);
+  g_error_free(error);
+  g_free(data);
+  g_key_file_free(out);
+  g_free(map_name);
+  return(FALSE);
+}
+
+/**
+ * btic_learn_load_controller_map:
+ * @self: the device
+ *
+ * Create initial set of controls from a stored control map. Interface
+ * implementations should call this from their g_object_constructed() function.
+ *
+ * Returns: %TRUE for success
+ */
+gboolean btic_learn_load_controller_map(const BtIcLearn *self) {
+  gchar *map_name,*device_name,*file_device_name;
+  GKeyFile *in;
+  GError *error = NULL;
+  gchar **groups;
+  gsize i, num_groups;
+  gboolean res;
+  glong min_val,max_val,def_val;
+  guint control_id;
+
+  g_object_get((GObject *)self,"name",&device_name,NULL);
+  map_name=g_build_filename(g_get_user_data_dir(),PACKAGE,"controller-maps",device_name,NULL);
+  
+  /* read gkeyfile */
+  GST_INFO("load learned controllers under '%s'",map_name);
+  in = g_key_file_new ();
+
+  res=g_key_file_load_from_file (in, map_name,
+      G_KEY_FILE_KEEP_COMMENTS|G_KEY_FILE_KEEP_TRANSLATIONS,&error);
+  if(!res || error!=NULL)
+    goto load_error;
+
+  file_device_name=g_key_file_get_value(in,MAP_HEADER,MAP_HEADER_DEVICE_NAME,NULL);
+  if(!file_device_name || strcmp(file_device_name,device_name))
+    goto wrong_name;
+  g_free(file_device_name);
+
+  /* read controllers and create controls */
+  groups=g_key_file_get_groups(in,&num_groups);
+  for(i=0;i<num_groups;i++) {
+    /* ignore private groups */
+    if(groups[i][0] == '_')
+      continue;
+
+    // @todo: we ignore the type right now (field "type")
+    control_id=g_key_file_get_integer(in,groups[i],"id",NULL);
+    min_val=g_key_file_get_integer(in,groups[i],"min-val",NULL);
+    max_val=g_key_file_get_integer(in,groups[i],"max-val",NULL);
+    def_val=g_key_file_get_integer(in,groups[i],"def-val",NULL);
+    /*control=*/btic_abs_range_control_new(BTIC_DEVICE(self),groups[i],control_id,min_val,max_val,def_val);
+  }
+  g_strfreev (groups);
+  
+  g_free(device_name);
+  g_free(map_name);  
+  return(TRUE);
+
+  /* Errors */
+load_error:  
+  GST_WARNING("Unable to controller map file %s: %s", map_name, error->message);
+  g_error_free(error);
+  g_key_file_free(in);
+  g_free(device_name);
+  g_free(map_name);  
+  return(FALSE);
+wrong_name:
+  GST_WARNING("Wrong device name in controller map file %s. Expected %s, got %s",
+    map_name, device_name, GST_STR_NULL(file_device_name));
+  g_key_file_free(in);
+  g_free(file_device_name);
+  g_free(device_name);
+  g_free(map_name);  
+  return(FALSE);
+  
 }
 
 //-- interface internals

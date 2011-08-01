@@ -25,6 +25,6 @@
 #include "device.h"
 #include "trigger-control.h"
 
-extern BtIcTriggerControl *btic_trigger_control_new(const BtIcDevice *device,const gchar *name);
+extern BtIcTriggerControl *btic_trigger_control_new(const BtIcDevice *device,const gchar *name,guint id);
 
 #endif // BTIC_TRIGGER_CONTROL_METHDOS_H
