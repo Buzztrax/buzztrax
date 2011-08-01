@@ -148,7 +148,7 @@ gboolean btic_learn_store_controller_map(const BtIcLearn *self) {
   GST_INFO("store learned controllers under '%s'",map_name);
   
   out=g_key_file_new();
-  g_key_file_set_string(out,MAP_HEADER,MAP_HEADER_DEVICE_NAME,device_name);
+  g_key_file_set_string(out,MAP_HEADER,MAP_HEADER_DEVICE_NAME,real_device_name);
   g_free(device_name);
 
   /* todo: write control data  */
@@ -270,7 +270,7 @@ load_error:
   return(FALSE);
 wrong_name:
   GST_WARNING("Wrong device name in controller map file %s. Expected %s, got %s",
-    map_name, device_name, GST_STR_NULL(file_device_name));
+    map_name, real_device_name, GST_STR_NULL(file_device_name));
   g_key_file_free(in);
   g_free(file_device_name);
   g_free(device_name);

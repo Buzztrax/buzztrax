@@ -1,6 +1,11 @@
 2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/ic/learn.c:
+	  Change the device name in *all* the places where it matters.
+
+2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/ic/learn.c:
 	  Fix the mkdir call for creating the controller-maps dir. Improve the
 	  file naming by chopping off the protocol prefix.
 
