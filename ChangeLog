@@ -1,5 +1,12 @@
 2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	  Use api from gtk-2.20 if we have it.
+
+2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/interaction-controller-learn-dialog.c:
 	  Make okay insensitive unless we have detected a control. Add a label
 	  telling people what to do.
