@@ -1,5 +1,13 @@
 2011-08-02  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/tmpl/.cvsignore (deleted):
+	* docs/reference/bt-edit/tmpl/.cvsignore (deleted):
+	* docs/reference/bt-core/tmpl/.cvsignore (deleted):
+	* docs/reference/bt-ic/tmpl/.cvsignore (deleted):
+	  Remove more files we don't need anymore.
+
+2011-08-02  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/tmpl/_dummy.sgml (deleted):
 	* docs/reference/bt-edit/tmpl/_dummy.sgml (deleted):
 	* docs/reference/bt-core/tmpl/_dummy.sgml (deleted):
