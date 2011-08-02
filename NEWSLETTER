@@ -1,8 +1,63 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
+2011/09 ========================================================================
+
+
 2011/08 ========================================================================
 
-- sequence undo/redo
+Another month with good progress. I've started with the undo/redo parts in the
+sequencer view. Most of the edits are handled now. I am still stuck with one
+problem though. So far the order of signal handler on object removal did not
+matter. Now it does :/ There are things that when they get removed remove other
+things. And that causes chains of modificatins that in the change log would 
+overwrite (shadow) the save data. Not yet sure how to solve that. I'll probably
+confront someone at the desktop summit [1] with the problem over some beer in
+the hope that I find a solution while I am explaining the issue :) As a good
+side effect of the undo/redo work, I could remove the warning dialogs that I was
+showing when removing things. Makes the editor more pleasant to use.
+
+During my july trip to mountain view I brought two cheap midi controlers -
+korg nanokontrol [2] and nanokeys 2 [3]. The nanokeys2 is not so nice, but the
+nanokontrol seems to be okay. Unfortunately I didn't notice is is the old model,
+the nanokontrol 2 [4] has more keys. I have played quite a bit with the nanokontrol
+in buzztard. Found and fixed a few bugs. One thing I definitely needed to do is
+to store the keys one has trained. Thanks to my long train journeys between
+munich and leipzig these days, that got implemented. For the nanokeys I need to
+still do a couple of things and those will have to wait for the next version.
+
+As I was blocked on the undo/redo I did more small mini-songs. As usual found a
+couple of bugs. Buzztard stores timestamps in the song (like when it was created
+and when it was saved the last time). When closing a song with changes it warns
+you about loosing the changes for the last n hours/minutes. Thas was completely
+off if one loads a song and makes some changes. I need to set the last-saved to
+the time of the first change. A few other bugs were related to 64bit arch and
+using wrong int types in varargs functions. I also made some ui improvements.
+The settings hide more unusable audiosinks (apexsink, sfsink), especially
+probing apexsink caused long delays as I don't have the hardware for it.
+
+One issue that I had no good explanation for but that was quite apparent when
+doing demos was small breaks when the song loops. Especially at the first loop
+it caused a bad glitch and later it sometimes played a bit too much or skipped
+something when wrapping around. I had made some test apps for it, but could not
+reproduce it there so far. Finally I looked at it again and found a small self-
+contained testcase that was reproducing it. On that base I could narrow it down
+to a combination of two gstreamer elements causing it. Still it was not straight
+forward to fix it, after all it is not crashing or such. I decided that the only
+way forward was to get a good picture of what is happening and verifying the
+events step by step. Voila, we now have a improved gst-tracelib and a gnuplot
+script for plotting event over time. Would be nice to have a more interactive UI 
+for gnuplot though. I filed a bug [5] and put the data there, if you are curious
+about the graphs. After some more nights I found the issue and the fix for the
+adder plugin is now upstream. A simillar change needs to be done for the
+videomixer elements (will look into that soon). 
+
+[1] http://www.desktopsummit.org
+[2] http://www.amazon.de/Korg-NANOKONTROLB-nanoKONTROL-schwarz/dp/B001J8LJWK
+[3] http://www.thomann.de/gb/korg_nanokey_2_black.htm
+[4] http://www.thomann.de/gb/korg_nanokontrol_2_black.htm
+[5] http://bugzilla.gnome.org/show_bug.cgi?id=655204
+
+43 files changed, 2779 insertions(+), 496 deletions(-)
 
 2011/07 ========================================================================
 
