@@ -1,3 +1,11 @@
+2011-08-02  Stefan Sauer  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/tmpl/_dummy.sgml (deleted):
+	* docs/reference/bt-edit/tmpl/_dummy.sgml (deleted):
+	* docs/reference/bt-core/tmpl/_dummy.sgml (deleted):
+	* docs/reference/bt-ic/tmpl/_dummy.sgml (deleted):
+	  Remove files we don't need anymore.
+
 2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preset-properties-dialog.c:
