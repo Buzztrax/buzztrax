@@ -86,12 +86,15 @@ PKG_PROG_PKG_CONFIG
 
 AC_PATH_PROG(xvfb_path, [Xvfb], [no])
 if test "x$xvfb_path" != "xno" ; then
+  have_xvfb="yes"
   AC_DEFINE_UNQUOTED(XVFB_PATH, "$xvfb_path", [Path of Xvfb executable to be used to run gui unit tests under])
 
   XFONT_PATH=`xset q | grep fonts | sed 's/^\ *//'`
   if test "x$XFONT_PATH" != "x"; then
     AC_DEFINE_UNQUOTED(XFONT_PATH, "$XFONT_PATH", [X font path])
   fi
+else
+  have_xvfb="no"
 fi
 AC_SUBST(XFONT_PATH)
 
@@ -639,6 +642,7 @@ Configuration
 
 	Debug                           : ${enable_debug}
 	Coverage profiling              : ${enable_coverage} ${using_coverage_tool}
+	UI tests on Xvfb                : ${have_xvfb}
 	Use of deprecated API           : ${enable_deprecated}
 	Check based unit tests          : ${have_check}
 "
