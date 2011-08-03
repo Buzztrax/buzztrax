@@ -163,7 +163,6 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
             if((control=btic_device_get_control_by_id(BTIC_DEVICE(self),key))) {
               gint32 v=(((gint32)midi_event[2])<<7)|(midi_event[1]);
 
-              GST_WARNING("pitch-wheel-change: %lu, 0x%lx",v,v);
               g_object_set(control,"value",v,NULL);
             }
             prev_cmd=midi_event[0];
