@@ -79,7 +79,7 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
   const gchar *udi=g_udev_device_get_sysfs_path(udevice);
   const gchar *devnode=g_udev_device_get_device_file(udevice);
 
-  GST_WARNING("action=%6s: subsys=%8s, devtype=%15s, name=%10s, number=%2s, devnode=%s, driver=%s",
+  GST_INFO("action=%6s: subsys=%8s, devtype=%15s, name=%10s, number=%2s, devnode=%s, driver=%s",
     action, subsystem, g_udev_device_get_devtype(udevice), name,
     g_udev_device_get_number(udevice), devnode, g_udev_device_get_driver(udevice));
 
