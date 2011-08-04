@@ -1,3 +1,9 @@
+2011-08-04  Stefan Sauer  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Add more more optional dependency, that people would probably still
+	  rather have than miss.
+
 2011-08-03  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/ic/midi-device.c:
