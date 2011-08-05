@@ -1,3 +1,20 @@
+2011-08-05  Stefan Sauer  <ensonic@users.sf.net>
+
+	* tests/bt-check.c:
+	* tests/bt-check.h:
+	* tests/ui/edit/e-bt-edit-application.c:
+	  Improve the screenshor code. We now have match flags and also can
+	  match by containing label widgets. Also refactor the code more and add
+	  drop-shadow generation. No need to run external scripts anymore.
+
+2011-08-04  Stefan Sauer  <ensonic@users.sf.net>
+
+	* tests/bt-check.c:
+	* tests/bt-check.h:
+	* tests/ui/edit/e-bt-edit-application.c:
+	  Cleanup the screenshot implementation and add a first version of
+	  annotated screenshots.
+
 2011-08-04  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/ic/gudev-discoverer.c:

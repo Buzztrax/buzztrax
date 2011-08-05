@@ -149,7 +149,26 @@ extern void check_setup_test_display(void);
 extern void check_shutdown_test_display(void);
 extern void check_shutdown_test_server(void);
 
+enum _BtCheckWidgetScreenshotRegionsMatch {
+  BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE = 0,
+  BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE = (1<<0),
+  BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NAME = (1<<1),
+  BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_LABEL = (1<<2),
+};
+
+typedef enum _BtCheckWidgetScreenshotRegionsMatch BtCheckWidgetScreenshotRegionsMatch;
+
+struct _BtCheckWidgetScreenshotRegions {
+  BtCheckWidgetScreenshotRegionsMatch match;
+  gchar *name;
+  gchar *label;
+  GType type;
+  GtkPositionType pos; 
+};
+typedef struct _BtCheckWidgetScreenshotRegions BtCheckWidgetScreenshotRegions;
+
 extern void check_make_widget_screenshot(GtkWidget *widget, const gchar *name);
+extern void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar *name, BtCheckWidgetScreenshotRegions *regions);
 
 extern void check_send_key(GtkWidget *widget, guint keyval);
 #endif /* BT_CHECK_H */

@@ -28,6 +28,7 @@
 #include "bt-check.h"
 #include <sys/types.h>
 #include <signal.h>
+#include <math.h> 
 
 #ifdef HAVE_SETRLIMIT
   #include <sys/time.h>
@@ -1009,28 +1010,12 @@ void check_shutdown_test_server(void) {
 // gtk+ gui screenshooter
 
 #if !GTK_CHECK_VERSION(2,18,0)
-
 #define gtk_widget_get_visible(widget) GTK_WIDGET_VISIBLE(widget)
-
 #endif
 
-
-/*
- * check_make_widget_screenshot:
- * @widget: a #GtkWidget to screenshoot
- * @name: filename or NULL.
- *
- * Captures the given widget as png files. The filename is built from tmpdir,
- * application-name, widget-name and give @name.
- */
-void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
-  GdkColormap *colormap=gdk_colormap_get_system();
+static GdkPixbuf *make_screenshot(GtkWidget *widget) {
   GdkWindow *window=widget->window;
-  GdkPixbuf *pixbuf, *scaled_pixbuf;
-  gint wx,wy,ww,wh;
-  gchar *filename;
-
-  g_return_if_fail(GTK_IS_WIDGET(widget));
+  gint ww,wh;
 
   // make sure the window gets drawn
   if(!gtk_widget_get_visible(widget)) {
@@ -1043,6 +1028,13 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   gtk_widget_queue_draw(widget);
   while(gtk_events_pending()) gtk_main_iteration();
 
+  gdk_window_get_geometry(window,NULL,NULL,&ww,&wh,NULL);
+  return(gdk_pixbuf_get_from_drawable(NULL,window,NULL,0,0,0,0,ww,wh));
+}
+
+static gchar *make_filename(GtkWidget *widget, const gchar *name) {
+  gchar *filename;
+
   if(!name) {
     filename=g_strdup_printf("%s"G_DIR_SEPARATOR_S"%s_%s.png",
       g_get_tmp_dir(),g_get_prgname(),gtk_widget_get_name(widget));
@@ -1051,46 +1043,317 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
     filename=g_strdup_printf("%s"G_DIR_SEPARATOR_S"%s_%s_%s.png",
       g_get_tmp_dir(),g_get_prgname(),gtk_widget_get_name(widget),name);
   }
-  /* @todo: if file exists, make backup */
-  /* @todo: remember all names to build an index.html with a table and all images */
+  return(filename);
+}
 
-  gdk_window_get_geometry(window,&wx,&wy,&ww,&wh,NULL);
-  //pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,ww,wh);
-  //gdk_pixbuf_get_from_drawable(pixbuf,window,colormap,0,0,0,0,ww,wh);
-  pixbuf = gdk_pixbuf_get_from_drawable(NULL,window,colormap,0,0,0,0,ww,wh);
-  scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf,ww*0.75, wh*0.75, GDK_INTERP_HYPER);
-  gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
+static void add_shadow_and_save(cairo_surface_t *image, gchar *filename, gint iw, gint ih) {
+  cairo_surface_t *shadow;
+  cairo_t *cr;
+  gint x,y;
+  gint ss=12;  // shadow size
+  gint so=0;  // shadow offset
+  gint sd=1+(ss-so); // number of draws
 
-  /* @todo: create diff images
-   * - check if we have a ref image, skip otherwise
-   * - should we have ref images in repo?
-   * - own diff
-   *   - load old image and subtract pixels
-   *   - should we return a boolean for detected pixel changes?
-   * - imagemagic
-   *   - http://www.imagemagick.org/script/compare.php
-   * - need to make a html with table containing
-   *   [ name, ref image, cur image, diff image ]
-   *
-   */
+  // stupid simple drop shadow code
+  shadow=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,iw+ss,ih+ss);
+  cr=cairo_create(shadow);
+  cairo_rectangle(cr,0.0,0.0,iw+ss,ih+ss);
+  cairo_set_source_rgba(cr,1.0,1.0,1.0,1.0);
+  cairo_fill(cr);
+  // we draw sd*sd-24 and we don't want the gray-level to become >0.7
+  cairo_set_source_rgba(cr,0.0,0.0,0.0,0.7/(sd*sd-24.0));
+  for(x=ss;x>=so;x--) {
+    for(y=ss;y>=so;y--) {
+      // skip corners (this would need to be dependend on shadow size)
+      if((x==ss || x==so) && (y>(ss-2) || y<(so+2)))
+        continue;
+      if((y==ss || y==so) && (x>(ss-2) || x<(so+2)))
+        continue;
+      if((x==(ss-1) || x==(so+1)) && (y>(ss-1) || y<(so+1)))
+        continue;
+      if((y==(ss-1) || y==(so+1)) && (x>(ss-1) || x<(so+1)))
+        continue;
+      cairo_mask_surface(cr,image,x,y);
+    }
+  }
+  cairo_set_source_surface(cr,image,3,3);
+  cairo_paint(cr);
+  
+  cairo_surface_write_to_png(shadow,filename);
+  
+  // cleanup
+  cairo_destroy(cr);
+  cairo_surface_destroy(shadow);
+}
 
-  /* @todo: add shadow to screenshots
-  // see: http://developer.gnome.org/doc/books/WGA/graphics-gdk-pixbuf.html
-  // gdk_drawable_get_image / gdk_pixbuf_get_from_image
+/* @todo: remember all names to build an index.html with a table and all images */
+/* @todo: create diff images
+ * - check if we have a ref image, skip otherwise
+ * - should we have ref images in repo?
+ * - own diff
+ *   - load old image and subtract pixels
+ *   - should we return a boolean for detected pixel changes?
+ * - imagemagic
+ *   - http://www.imagemagick.org/script/compare.php
+ * - need to make a html with table containing
+ *   [ name, ref image, cur image, diff image ]
+ *
+ */
+/*
+ * check_make_widget_screenshot:
+ * @widget: a #GtkWidget to screenshoot
+ * @name: filename or NULL.
+ *
+ * Captures the given widget as a png file. The filename is built from tmpdir,
+ * application-name, widget-name and give @name.
+ */
+void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
+  GdkPixbuf *pixbuf, *scaled_pixbuf;
+  gint iw,ih;
+  gchar *filename;
+  cairo_surface_t *surface;
+  cairo_t *cr;
 
-  // add alpha channel for shadow
-  shadow_pixbuf = gdk_pixbuf_add_alpha(scaled_pixbuf, FALSE, 0,0,0);
-  // enlarge pixbuf
-  gdk_pixbuf_copy_area(const GdkPixbuf *src_pixbuf,
-    int src_x, int src_y, int width, int height,
-    GdkPixbuf *dest_pixbuf, int dest_x, int dest_y);
-  // draw shadow
-  // how to draw into a pixbuf? map to offscreen drawable?
-  */
+  g_return_if_fail(GTK_IS_WIDGET(widget));
 
+  filename=make_filename(widget,name);
+
+  pixbuf = make_screenshot(widget);
+  iw=gdk_pixbuf_get_width(pixbuf)*0.75;
+  ih=gdk_pixbuf_get_height(pixbuf)*0.75;
+  scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf,iw,ih,GDK_INTERP_HYPER);
+  //gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
+
+  // create a image surface with screenshot
+  surface=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,iw,ih);
+  cr=cairo_create(surface);
+  gdk_cairo_set_source_pixbuf(cr,scaled_pixbuf,0,0);
+  cairo_paint(cr);
+  
+  add_shadow_and_save(surface,filename,iw,ih);
+  
+  // cleanup
+  cairo_destroy(cr);
+  cairo_surface_destroy(surface);
   g_object_unref(pixbuf);
   g_object_unref(scaled_pixbuf);
-  g_object_unref(colormap);
+  g_free(filename);
+}
+
+static GtkWidget *find_child(GtkWidget *w, BtCheckWidgetScreenshotRegions *r) {
+  GtkWidget *f=NULL;
+  gboolean match=TRUE;
+  
+  GST_INFO("  trying widget: '%s', '%s', '%s',%d",
+    gtk_widget_get_name(w),(GTK_IS_LABEL(w)?gtk_label_get_text((GtkLabel *)w):NULL),
+    G_OBJECT_TYPE_NAME(w),G_OBJECT_TYPE(w));
+
+  if(r->match&BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE) {
+    if(!g_type_is_a(G_OBJECT_TYPE(w),r->type)) {
+      GST_DEBUG("    wrong type: %d,%s",G_OBJECT_TYPE(w),G_OBJECT_TYPE_NAME(w));
+      match=FALSE;
+    }
+  }
+  if(r->match&BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NAME) {
+    if(g_strcmp0(gtk_widget_get_name(w),r->name)) {
+      GST_DEBUG("    wrong name: %s",gtk_widget_get_name(w));
+      match=FALSE;
+    }
+  }
+  if(r->match&BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_LABEL) {
+    if((!GTK_IS_LABEL(w)) || g_strcmp0(gtk_label_get_text((GtkLabel *)w),r->label)) {
+      GST_DEBUG("    not a label or wrong label text");
+      match=FALSE;
+    }
+  }
+  if(match) {
+    f=w;
+  } else if(GTK_IS_CONTAINER(w)) {
+    GList *node,*list=gtk_container_get_children(GTK_CONTAINER(w));
+    GtkWidget *c=NULL;
+
+    GST_INFO("  searching container: '%s'",G_OBJECT_TYPE_NAME(w));
+    for(node=list;node;node=g_list_next(node)) {
+      c=node->data;
+      if((f=find_child(c,r))) {
+        break;
+      }
+    }
+    g_list_free(list);
+  }
+  return(f);
+}
+
+/*
+ * check_make_widget_screenshot_with_highlight:
+ * @widget: a #GtkWidget to screenshoot
+ * @name: filename or NULL.
+ * @regions: array of regions to highlight
+ *
+ * Captures the given widget as png files. The filename is built from tmpdir,
+ * application-name, widget-name and give @name.
+ *
+ * Locates the widgets listed in @regions, highlights their position and draws
+ * callouts to the given position. The callouts are numberd with the array
+ * index. Widgets can be specified by name and/or type.
+ *
+ * The array needs to be terminated with an entry using 
+ * match=%BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE.
+ */
+void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar *name, BtCheckWidgetScreenshotRegions *regions) {
+  GdkPixbuf *pixbuf, *scaled_pixbuf;
+  GtkWidget *child,*parent;
+  GtkAllocation a;
+  gint iw,ih;
+  gchar *filename;
+  cairo_surface_t *surface;
+  cairo_t *cr;
+  cairo_pattern_t *grad;
+  cairo_text_extents_t extent;
+  BtCheckWidgetScreenshotRegions *r;
+  gint c=12,b=(c/4)+(c*3),bl=c,br=c,bt=c,bb=c;
+  gint wx,wy,ww,wh;
+  gfloat lx1=0.0,ly1=0.0,lx2=0.0,ly2=0.0;
+  gfloat cx=0.0,cy=0.0;
+  gfloat f=0.75;
+  gint num=1;
+  gchar num_str[5];
+  gboolean have_space;
+
+  g_return_if_fail(GTK_IS_WIDGET(widget));
+
+  filename=make_filename(widget,name);
+
+  pixbuf=make_screenshot(widget);
+  iw=gdk_pixbuf_get_width(pixbuf)*f;
+  ih=gdk_pixbuf_get_height(pixbuf)*f;
+  scaled_pixbuf=gdk_pixbuf_scale_simple(pixbuf,iw,ih,GDK_INTERP_HYPER);
+  
+  // check borders
+  r=regions;
+  while(r->match!=BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE) {
+    switch(r->pos) {
+      case GTK_POS_LEFT: 
+        bl=b;
+        break;
+      case GTK_POS_RIGHT:
+        br=b;
+        break;
+      case GTK_POS_TOP:
+        bt=b;
+        break;
+      case GTK_POS_BOTTOM:
+        bb=b;
+        break;
+    }
+    r++;
+  }
+
+  // create a image surface with screenshot
+  surface=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,iw+bl+br,ih+bt+bb);
+  cr=cairo_create(surface);
+  gdk_cairo_set_source_pixbuf(cr,scaled_pixbuf,bl,bt);
+  cairo_paint(cr);
+
+  // locate widgets and highlight the areas
+  r=regions;
+  while(r->match!=BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE) {
+    GST_INFO("searching widget: '%s', '%s', '%s',%d",r->name,r->label,g_type_name(r->type),r->type);
+    if((child=find_child(widget,r))) {
+      // for label matches we look for a sensible parent
+      if(r->match&BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_LABEL) {
+        // TODO: should the region include gtk_label_get_mnemonic_widget()?
+        if((parent=gtk_widget_get_ancestor(child,GTK_TYPE_BUTTON))) {
+          child=parent;
+        }
+        if((parent=gtk_widget_get_ancestor(child,GTK_TYPE_TOOL_ITEM))) {
+          child=parent;
+        }
+      }
+      // highlight area
+      parent=gtk_widget_get_parent(child);
+      have_space=FALSE;
+      if(parent) {
+        if(GTK_IS_CONTAINER(parent) && gtk_container_get_border_width((GtkContainer *)parent)>0) {
+          have_space=TRUE;
+        }
+        if(GTK_IS_BOX(parent) && gtk_box_get_spacing((GtkBox *)parent)>0) {
+          have_space=TRUE;
+        }
+      }
+      /* it seems that the API docs are lying and the allocations are relative to
+       * the toplevel and not their parent
+       */
+      // @todo: if we don't snapshot a top-level, we need to subtract the offset
+      gtk_widget_get_allocation(child,&a);
+      wx=a.x*f;wy=a.y*f;ww=a.width*f;wh=a.height*f;
+      GST_INFO("found widget at: %d,%d with %dx%d pixel size",a.x,a.y,a.width,a.height);
+
+      if(have_space) {
+        cairo_rectangle(cr,bl+wx,bt+wy,ww,wh);
+      } else {
+        // we make this a bit smaller to separate adjacent widgets
+        cairo_rectangle(cr,bl+wx+1,bt+wy+1,ww-2,wh-2);
+      }
+      cairo_set_source_rgba(cr,1.0,0.0,0.2,0.3);
+      cairo_fill(cr);
+      cairo_set_line_width(cr, 4);
+      // callouts positions
+      switch(r->pos) {
+        case GTK_POS_LEFT:
+          lx1=bl+wx;
+          lx2=b-c;
+          cx=lx2-c;
+          cy=ly1=ly2=bt+wy+wh/2.0;
+          break;
+        case GTK_POS_RIGHT:
+          lx1=bl+wx+ww;
+          lx2=bl+iw+c;
+          cx=lx2+c;
+          cy=ly1=ly2=bt+wy+wh/2.0;
+          break;
+        case GTK_POS_TOP:
+          break;
+        case GTK_POS_BOTTOM:
+          break;
+      }
+      // callout line
+      grad=cairo_pattern_create_linear(lx1,ly1,lx2,ly2);
+      cairo_pattern_add_color_stop_rgba(grad,0.00,1.0,0.0,0.2,0.3);
+      cairo_pattern_add_color_stop_rgba(grad,1.00,1.0,0.0,0.2,1.0);
+      cairo_set_source(cr,grad);
+      cairo_move_to(cr,lx1,ly1);
+      cairo_line_to(cr,lx2,ly2);
+      cairo_stroke(cr);
+      cairo_pattern_destroy(grad);
+      // callout circle
+      cairo_arc(cr,cx,cy,c,0.0,2*M_PI);
+      cairo_set_source_rgba(cr,1.0,0.0,0.2,1.0);
+      cairo_stroke_preserve(cr);
+      cairo_set_source_rgba(cr,1.0,1.0,1.0,1.0);
+      cairo_fill(cr);
+      // callout label
+      sprintf(num_str,"%d",num);
+      cairo_set_source_rgba(cr,0.0,0.0,0.0,1.0); 
+      cairo_set_font_size(cr,10);
+      cairo_text_extents(cr,num_str,&extent);
+       // this is the bottom left pos for the text
+      cairo_move_to(cr,cx-(extent.width/2.0),cy+(extent.height/2.0));
+      cairo_show_text(cr,num_str);
+    } 
+    else {
+      GST_WARNING("widget not found: '%s',%d",r->name,r->type);
+    }
+    r++;
+    num++;
+  }  
+  add_shadow_and_save(surface,filename,iw+bl+br,ih+bt+bb);
+  
+  // cleanup
+  cairo_destroy(cr);
+  cairo_surface_destroy(surface);
+  g_object_unref(pixbuf);
+  g_object_unref(scaled_pixbuf);
   g_free(filename);
 }
 

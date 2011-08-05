@@ -62,6 +62,17 @@ BT_START_TEST(test_create) {
 
   // make screenshot
   check_make_widget_screenshot(GTK_WIDGET(main_window),NULL);
+  
+  {
+    BtCheckWidgetScreenshotRegions regions[]={
+      { BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE, NULL, NULL, BT_TYPE_MAIN_MENU, GTK_POS_LEFT },
+      { BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE, NULL, NULL, BT_TYPE_MAIN_TOOLBAR, GTK_POS_LEFT },
+      { BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE, NULL, NULL, BT_TYPE_MAIN_STATUSBAR, GTK_POS_LEFT },
+      { BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_LABEL, NULL, "Grid", G_TYPE_INVALID, GTK_POS_RIGHT },      
+      { BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE, NULL, NULL, G_TYPE_INVALID, 0 } 
+    };
+    check_make_widget_screenshot_with_highlight(GTK_WIDGET(main_window),"highlight",regions);
+  }
 
   // close window
   GST_INFO("main_window->ref_ct=%d",G_OBJECT_REF_COUNT(main_window));
