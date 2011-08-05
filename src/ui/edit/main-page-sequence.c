@@ -2306,13 +2306,10 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       // do we need to extend sequence?
       if(cursor_row>=last_bar) {
         GtkTreeModelFilter *filtered_store;
-        BtSong *song;
         GtkTreeIter tree_iter;
         GtkListStore *store;
         gulong pos;
         gchar *pos_str;
-
-        g_object_get(self->priv->app,"song",&song,NULL);
 
         pos=self->priv->sequence_length;
         self->priv->sequence_length+=self->priv->bars;
@@ -2329,8 +2326,6 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
         }
         // this is not optimal
         sequence_model_recolorize(self);
-
-        g_object_unref(song);
 
         if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
           gtk_tree_model_filter_refilter(filtered_store);

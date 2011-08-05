@@ -1,5 +1,10 @@
 2011-08-05  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Remove fetchign and releasing the song here (not used).
+
+2011-08-05  Stefan Sauer  <ensonic@users.sf.net>
+
 	* tests/bt-check.c:
 	* tests/bt-check.h:
 	* tests/ui/edit/e-bt-edit-application.c:
