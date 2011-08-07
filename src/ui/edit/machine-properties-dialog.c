@@ -77,6 +77,9 @@ struct _BtMachinePropertiesDialogPrivate {
   /* context menus */
   GtkMenu *group_menu;
   GtkMenu *param_menu[2]; // we have two controller types
+  
+  /* first real child for setting a sane focus */
+  GtkWidget *first_widget;
 };
 
 static GQuark wdget_peer_quark=0;
@@ -1495,6 +1498,12 @@ static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gp
   gtk_widget_set_size_request(parent,width,height + 2);
 }
 
+static void on_window_show(GtkWidget *widget,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+
+  gtk_widget_grab_focus(self->priv->first_widget);
+}
+
 //-- helper methods
 
 static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
@@ -1825,6 +1834,9 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
       gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
     }
     gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, row, row+1, GTK_FILL,GTK_SHRINK, 2,1);
+  }
+  if(!self->priv->first_widget) {
+    self->priv->first_widget=widget1;
   }
 }
 
@@ -2306,6 +2318,9 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
     }
   }
   gtk_container_add(GTK_CONTAINER(self),hbox);
+  
+  // set focus on first parameters
+  g_signal_connect((gpointer)self,"show",G_CALLBACK(on_window_show),(gpointer)self);
 
   // dynamically adjust voices
   g_signal_connect(self->priv->machine,"notify::voices",G_CALLBACK(on_machine_voices_notify),(gpointer)self);

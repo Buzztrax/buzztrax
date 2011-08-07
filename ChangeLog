@@ -1,3 +1,14 @@
+2011-08-07  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Set focus on the first parameter, when we show the window.
+
+2011-08-05  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/sequence-grid-model.c:
+	  Prepare using the new sequence grid model.
+
 2011-08-05  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
