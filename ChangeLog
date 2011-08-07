@@ -1,5 +1,11 @@
 2011-08-07  Stefan Sauer  <ensonic@users.sf.net>
 
+	* design/gui/initfocus.c:
+	* design/gui/initfocus.c (added):
+	  Small focus test program.
+
+2011-08-07  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	  Set focus on the first parameter, when we show the window.
 
