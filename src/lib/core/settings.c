@@ -159,7 +159,7 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
     // @todo: try autoaudiosink (if it exists)
     // iterate over gstreamer-audiosink list and choose element with highest rank
     const GList *node;
-    GList * const audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
+    GList * const audiosink_factories=bt_gst_registry_get_element_factories_matching_all_categories("Sink/Audio");
     guint max_rank=0,cur_rank;
     gboolean can_int_caps,can_float_caps;
 
@@ -167,10 +167,10 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
     /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=601775 */
     GST_TYPE_AUDIO_CHANNEL_POSITION;
 
-    for(node=audiosink_names;node;node=g_list_next(node)) {
-      GstElementFactory * const factory=gst_element_factory_find(node->data);
+    for(node=audiosink_factories;node;node=g_list_next(node)) {
+      GstElementFactory * const factory=node->data;
 
-      GST_INFO("  probing audio sink: \"%s\"",(gchar *)node->data);
+      GST_INFO("  probing audio sink: \"%s\"",gst_plugin_feature_get_name((GstPluginFeature *)factory));
 
       // can the sink accept raw audio?
       can_int_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-int");
@@ -178,17 +178,17 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
       if(can_int_caps || can_float_caps) {
         // get element max(rank)
         cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
-        GST_INFO("  trying audio sink: \"%s\" with rank: %d",(gchar *)node->data,cur_rank);
+        GST_INFO("  trying audio sink: \"%s\" with rank: %d",gst_plugin_feature_get_name((GstPluginFeature *)factory),cur_rank);
         if((cur_rank>=max_rank) || (!plugin_name)) {
           plugin_name=g_strdup(node->data);
           max_rank=cur_rank;
         }
       }
       else {
-        GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",(gchar *)node->data);
+        GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",gst_plugin_feature_get_name((GstPluginFeature *)factory));
       }
     }
-    g_list_free(audiosink_names);
+    gst_plugin_feature_list_free(audiosink_factories);
    }
   GST_INFO("using audio sink : \"%s\"",plugin_name);
 
@@ -292,14 +292,14 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                   g_param_spec_int("window-xpos",
                                      "window-xpos prop",
                                      "last application window x-position",
-                                     -1, G_MAXINT, -1,
+                                     G_MININT, G_MAXINT, 0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_WINDOW_YPOS,
                                   g_param_spec_int("window-ypos",
                                      "window-ypos prop",
                                      "last application window y-position",
-                                     -1, G_MAXINT, -1,
+                                     G_MININT, G_MAXINT, 0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_WINDOW_WIDTH,

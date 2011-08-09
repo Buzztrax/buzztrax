@@ -77,15 +77,19 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 
 //-- helper methods
 
-static gint bt_machine_menu_compare(const gchar *str1, const gchar *str2) {
+static gint bt_machine_menu_compare(GstPluginFeature *f1, GstPluginFeature *f2) {
+#if 0
   // @todo: this is fragmenting memory :/
-  gchar *str1c=g_utf8_casefold(str1,-1);
-  gchar *str2c=g_utf8_casefold(str2,-1);
+  gchar *str1c=g_utf8_casefold(gst_plugin_feature_get_name(f1),-1);
+  gchar *str2c=g_utf8_casefold(gst_plugin_feature_get_name(f2),-1);
   gint res=g_utf8_collate(str1c,str2c);
 
   g_free(str1c);
   g_free(str2c);
   return(res);
+#else
+  return(strcasecmp(gst_plugin_feature_get_name(f1),gst_plugin_feature_get_name(f2)));
+#endif
 }
 
 static gboolean bt_machine_menu_check_pads(const GList *pads) {
@@ -97,7 +101,7 @@ static gboolean bt_machine_menu_check_pads(const GList *pads) {
   }
   // skip everything with more that one src or sink pad
   if((pad_dir_ct[GST_PAD_SRC]>1) || (pad_dir_ct[GST_PAD_SINK]>1)) {
-    GST_INFO("%d src pads, %d sink pads", pad_dir_ct[GST_PAD_SRC], pad_dir_ct[GST_PAD_SINK]);
+    GST_DEBUG("%d src pads, %d sink pads", pad_dir_ct[GST_PAD_SRC], pad_dir_ct[GST_PAD_SINK]);
     return FALSE;
   }
   return TRUE;
@@ -110,7 +114,7 @@ static int blacklist_compare(const void *node1, const void *node2) {
 
 static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *submenu, const gchar *root, GCallback handler) {
   GtkWidget *menu_item,*parentmenu;
-  GList *node,*element_names;
+  GList *node,*element_factories;
   GstElementFactory *factory;
   GstPluginFeature *loaded_feature;
   GHashTable *parent_menu_hash;
@@ -130,19 +134,14 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
   };
 
   // scan registered sources
-  element_names=bt_gst_registry_get_element_names_matching_all_categories(root);
+  element_factories=bt_gst_registry_get_element_factories_matching_all_categories(root);
   parent_menu_hash=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,NULL);
   // sort list by name
-  element_names=g_list_sort(element_names,(GCompareFunc)bt_machine_menu_compare);
-  for(node=element_names;node;node=g_list_next(node)) {
-    factory_name=(const gchar *)node->data;
-    factory=gst_element_factory_find(factory_name);
-
-    // skip elements with too many pads
-    if(!(bt_machine_menu_check_pads(gst_element_factory_get_static_pad_templates(factory)))) {
-      GST_INFO("skipping uncompatible element : '%s'",factory_name);
-      goto next;
-    }
+  // eventually first filter and sort remaining factories into a new list
+  element_factories=g_list_sort(element_factories,(GCompareFunc)bt_machine_menu_compare);
+  for(node=element_factories;node;node=g_list_next(node)) {
+    factory=node->data;
+    factory_name=gst_plugin_feature_get_name((GstPluginFeature *)factory);
 
     // @todo: we could also hide elements without controlable parameters,
     // that derive from basesrc, but not from pushsrc
@@ -151,11 +150,17 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     // lets simply blacklist for now
     if(bsearch(&factory_name, blacklist, G_N_ELEMENTS(blacklist), sizeof(gchar *), blacklist_compare)) {
       GST_INFO("skipping backlisted element : '%s'",factory_name);
-      goto next;
+      continue;
+    }
+
+    // skip elements with too many pads
+    if(!(bt_machine_menu_check_pads(gst_element_factory_get_static_pad_templates(factory)))) {
+      GST_INFO("skipping uncompatible element : '%s'",factory_name);
+      continue;
     }
 
     klass_name=gst_element_factory_get_klass(factory);
-    GST_LOG("adding element : '%s' with classification: '%s'",(gchar*)node->data,klass_name);
+    GST_LOG("adding element : '%s' with classification: '%s'",factory_name,klass_name);
 
     // by default we would add the new element here
     parentmenu=submenu;
@@ -205,13 +210,11 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       // add sub-menu for all audio inputs
       // get element type for filtering, this slows things down :/
       if(!(loaded_feature=gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)))) {
-        GST_INFO("skipping unloadable element : '%s'",(gchar *)node->data);
-        goto next;
+        GST_INFO("skipping unloadable element : '%s'",factory_name);
+        continue;
       }
       // presumably, we're no longer interested in the potentially-unloaded feature
-      gst_object_unref(factory);
-      factory=(GstElementFactory *)loaded_feature;
-      type=gst_element_factory_get_element_type(factory);
+      type=gst_element_factory_get_element_type((GstElementFactory *)loaded_feature);
       // check class hierarchy
       if (g_type_is_a (type, GST_TYPE_PUSH_SRC)) {
         menu_path="/Direct Input";
@@ -240,9 +243,10 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
         // uncomment if we add another filter
         //have_submenu=TRUE;
       }
+      gst_object_unref(loaded_feature);
     }
 
-    menu_name=gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory));
+    menu_name=factory_name;
     // cut plugin name from elemnt names for wrapper plugins
     // so, how can we detect wrapper plugins? -> we only filter, if plugin_name
     // is also in klass_name (for now we just check if klass_name is !empty)
@@ -258,15 +262,13 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       }
     }
     menu_item=gtk_menu_item_new_with_label(menu_name);
-    gtk_widget_set_name(menu_item,node->data);
+    gtk_widget_set_name(menu_item,factory_name);
     gtk_menu_shell_append(GTK_MENU_SHELL(parentmenu),menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect(menu_item,"activate",G_CALLBACK(handler),(gpointer)self);
-next:
-    gst_object_unref(factory);
   }
   g_hash_table_destroy(parent_menu_hash);
-  g_list_free(element_names);
+  gst_plugin_feature_list_free(element_factories);
 }
 
 static void bt_machine_menu_init_ui(const BtMachineMenu *self) {

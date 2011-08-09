@@ -43,13 +43,40 @@ static gboolean bt_gst_registry_class_filter(GstPluginFeature * const feature, g
 }
 
 /**
+ * bt_gst_registry_get_element_factories_matching_all_categories:
+ * @class_filter: path for filtering (e.g. "Sink/Audio")
+ *
+ * Iterates over all available elements and filters by categories given in
+ * @class_filter.
+ *
+ * Returns: list of element factories, use gst_plugin_feature_list_free() after
+ * use.
+ *
+ * Since: 0.6
+ */
+GList *bt_gst_registry_get_element_factories_matching_all_categories(const gchar *class_filter) {
+
+  g_return_val_if_fail(BT_IS_STRING(class_filter),NULL);
+
+  GST_DEBUG("run filter for categories: %s",class_filter);
+
+  gchar **categories=g_strsplit(class_filter,"/",0);
+  GList * list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,(gpointer)categories);
+
+  GST_DEBUG("filtering done");
+  g_strfreev(categories);
+  return(list);
+}
+
+
+/**
  * bt_gst_registry_get_element_names_matching_all_categories:
  * @class_filter: path for filtering (e.g. "Sink/Audio")
  *
- * Iterates over all available plugins and filters by categories given in
+ * Iterates over all available elements and filters by categories given in
  * @class_filter.
  *
- * Returns: list of element names, g_list_free after use.
+ * Returns: list of read-only element names, g_list_free after use.
  */
 GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *class_filter) {
   const GList *node;
@@ -59,8 +86,7 @@ GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *cl
 
   GST_DEBUG("run filter for categories: %s",class_filter);
 
-  gchar **categories=g_strsplit(class_filter,"/",0);
-  GList * const list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,(gpointer)categories);
+  GList * const list=bt_gst_registry_get_element_factories_matching_all_categories(class_filter);
 
   GST_DEBUG("filtering done");
 
@@ -69,7 +95,6 @@ GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *cl
     res=g_list_prepend(res,(gpointer)gst_plugin_feature_get_name(feature));
   }
   gst_plugin_feature_list_free((GList *)list);
-  g_strfreev(categories);
   return(res);
 }
 

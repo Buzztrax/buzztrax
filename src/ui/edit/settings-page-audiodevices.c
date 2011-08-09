@@ -120,8 +120,8 @@ static void on_channels_menu_changed(GtkComboBox *combo_box, gpointer user_data)
 static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevices *self) {
   BtSettings *settings;
   GtkWidget *label,*spacer;
-  gchar *audiosink_name,*system_audiosink_name,*name,*str;
-  GList *node,*audiosink_names;
+  gchar *audiosink_name,*system_audiosink_name,*str;
+  GList *node,*audiosink_factories;
   gboolean use_system_audiosink=TRUE;
   gboolean can_int_caps,can_float_caps;
   //GstCaps *int_caps=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
@@ -170,7 +170,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
     gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),_("system default: -"));
   }
 
-  audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
+  audiosink_factories=bt_gst_registry_get_element_factories_matching_all_categories("Sink/Audio");
   // @todo: sort list alphabetically ?
 
   /* @todo: use GST_IS_BIN(gst_element_factory_get_element_type(factory)) to skip bins
@@ -184,12 +184,12 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
    */
 
   // add audio sinks gstreamer provides
-  for(node=audiosink_names,ct=1;node;node=g_list_next(node)) {
-    name=node->data;
+  for(node=audiosink_factories,ct=1;node;node=g_list_next(node)) {
+    GstElementFactory * factory=node->data;
+    const gchar *name=gst_plugin_feature_get_name((GstPluginFeature *)factory);
 
     // filter some known analyzer sinks
     if(strncasecmp("ladspa-",name,7)) {
-      GstElementFactory * factory=gst_element_factory_find(name);
       GstPluginFeature *loaded_feature;
       GType type;
 
@@ -197,7 +197,6 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
         GST_INFO("  skipping audio sink: \"%s\" - has RANK_NONE",name);
         continue;
       }
-      
 
       // filter some known plugins
       if(!strcmp(GST_PLUGIN_FEATURE(factory)->plugin_name,"lv2")) {
@@ -210,8 +209,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
         GST_INFO("  skipping unloadable element : '%s'",name);
         continue;
       }
-      // presumably, we're no longer interested in the potentially-unloaded feature
-      gst_object_unref(factory);
+      // we're no longer interested in the potentially-unloaded feature
       factory=(GstElementFactory *)loaded_feature;
       type=gst_element_factory_get_element_type(factory);
       // check class hierarchy
@@ -276,7 +274,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
           gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
           g_free(str);
           // add this to instance list
-          self->priv->audiosink_names=g_list_append(self->priv->audiosink_names,name);
+          self->priv->audiosink_names=g_list_append(self->priv->audiosink_names,(gpointer)name);
           GST_INFO("  adding audio sink: \"%s\"",name);
           ct++;
         }
@@ -351,7 +349,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
 
   g_free(audiosink_name);
   g_free(system_audiosink_name);
-  g_list_free(audiosink_names);
+  gst_plugin_feature_list_free(audiosink_factories);
   //gst_caps_unref(int_caps);
   //gst_caps_unref(float_caps);
   g_object_unref(settings);

@@ -1,5 +1,17 @@
 2011-08-09  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/settings.c:
+	* src/lib/core/tools.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Add a variant of the registry filter helper that gives us a list of
+	  factories instead of factory names. We need the factories anyway for
+	  further filtering and this way avoid the lookups.
+
+2011-08-09  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/sequence-grid-model.c:
 	  Improve the sequence grid model and take it conditionaly into use (off

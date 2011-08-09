@@ -28,6 +28,7 @@
 
 //-- gst registry
 
+extern GList *bt_gst_registry_get_element_factories_matching_all_categories(const gchar *class_filter);
 extern GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *class_filter);
 extern gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,const gchar *name);
 
