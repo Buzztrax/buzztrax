@@ -225,57 +225,58 @@ static gboolean register_controls(const BtIcInputDevice * const self) {
   guint ix;
   guint8 evtype_bitmask[EV_MAX/8 + 1];
 
+  GST_INFO("checking controls : %s",self->priv->devnode);
+
   if ((fd = open(self->priv->devnode, O_RDONLY)) < 0) {
     GST_WARNING("evdev open failed on device %s: %s",self->priv->devnode,g_strerror(errno));
     return(FALSE);
   }
   GST_INFO("opened device : %s",self->priv->devnode);
 
-  // @todo: query capabillities and register controllers
-
+  // query capabillities and register controllers
+  // FIXME: doing that for e.g. js0/js1 fails slowly 
   memset(evtype_bitmask, 0, sizeof(evtype_bitmask));
   if(ioctl(fd, EVIOCGBIT(0, sizeof(evtype_bitmask)), evtype_bitmask) < 0) {
     GST_WARNING("evdev ioctl : %s",g_strerror(errno));
-  }
-
-  // check supported event types
-  for (ix = 0; ix < EV_MAX; ix++) {
-    if (test_bit(ix, evtype_bitmask)) {
-      switch (ix) {
-        case EV_SYN:
-          break;
-        case EV_KEY:
-          GST_INFO("Keys or Buttons");
-          register_trigger_controls(self,fd);
-          break;
-        case EV_REL :
-          GST_INFO("Relative Axes");
-          break;
-        case EV_ABS:
-          GST_INFO("Absolute Axes");
-          register_abs_range_controls(self,fd);
-          break;
-        case EV_MSC:
-          GST_INFO("Miscellaneous");
-          break;
-        case EV_LED:
-          GST_INFO("LEDs");
-          break;
-        case EV_SND:
-          GST_INFO("Sounds");
-          break;
-        case EV_REP:
-          GST_INFO("Repeat");
-          break;
-        case EV_FF:
-          GST_INFO("Force Feedback");
-          break;
-        default:
-          GST_INFO("Unknown event type: 0x%04hx", ix);
-       }
+  } else {
+    // check supported event types
+    for (ix = 0; ix < EV_MAX; ix++) {
+      if (test_bit(ix, evtype_bitmask)) {
+        switch (ix) {
+          case EV_SYN:
+            break;
+          case EV_KEY:
+            GST_INFO("Keys or Buttons");
+            register_trigger_controls(self,fd);
+            break;
+          case EV_REL :
+            GST_INFO("Relative Axes");
+            break;
+          case EV_ABS:
+            GST_INFO("Absolute Axes");
+            register_abs_range_controls(self,fd);
+            break;
+          case EV_MSC:
+            GST_INFO("Miscellaneous");
+            break;
+          case EV_LED:
+            GST_INFO("LEDs");
+            break;
+          case EV_SND:
+            GST_INFO("Sounds");
+            break;
+          case EV_REP:
+            GST_INFO("Repeat");
+            break;
+          case EV_FF:
+            GST_INFO("Force Feedback");
+            break;
+          default:
+            GST_INFO("Unknown event type: 0x%04hx", ix);
+         }
+      }
     }
   }
-
   close(fd);
   return(TRUE);
 }

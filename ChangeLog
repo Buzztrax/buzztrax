@@ -1,5 +1,12 @@
 2011-08-09  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/ic/gudev-discoverer.c:
+	* src/lib/ic/input-device.c:
+	  Add a access check to skip device-nodes we can't read from earlier.
+	  Tweak logging and comments.
+
+2011-08-09  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/libbuzztard-core/tools.h:
 	* src/lib/core/settings.c:

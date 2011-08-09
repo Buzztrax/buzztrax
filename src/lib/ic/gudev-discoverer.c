@@ -98,6 +98,11 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
     gboolean free_full_name=FALSE;
     gchar *cat_full_name;
 
+    // skip unreadble device descriptors quickly
+    if(access(devnode,R_OK)==-1) {
+      return;
+    }
+
     /* FIXME: this is a udev bug, the address changes and this causes valgrind
      * warnings: http://www.pastie.org/1589552
      * we copy it for now */
