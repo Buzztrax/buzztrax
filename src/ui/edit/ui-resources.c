@@ -205,6 +205,7 @@ static void bt_ui_resources_init_colors(BtUIResources *self) {
       }
     }
   }
+  GST_INFO("colors created");
 }
 
 
@@ -239,6 +240,8 @@ static void bt_ui_resources_init_icons(BtUIResources *self) {
   self->priv->source_machine_pixbuf   =gdk_pixbuf_new_from_theme("buzztard_menu_source_machine",w);
   self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_theme("buzztard_menu_processor_machine",w);
   self->priv->sink_machine_pixbuf     =gdk_pixbuf_new_from_theme("buzztard_menu_sink_machine",w);
+
+  GST_INFO("images created");
 }
 
 /*

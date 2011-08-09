@@ -1,5 +1,11 @@
 2011-08-09  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/ui-resources.c:
+	  More logging for startup time analysis.
+
+2011-08-09  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/interaction-controller-menu.c:
 	  Also update menu when we plug/unplug devices.
 

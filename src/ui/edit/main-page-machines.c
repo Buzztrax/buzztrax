@@ -345,6 +345,8 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     g_object_get(self->priv->vadjustment,"lower",&ys,"upper",&ye,"page-size",&yp,NULL);
     gtk_adjustment_set_value(self->priv->vadjustment,ys+((ye-ys-yp)*0.5));
   }
+  
+  GST_INFO("creating machine canvas items");
 
   // draw all machines
   g_object_get((gpointer)setup,"machines",&list,NULL);
