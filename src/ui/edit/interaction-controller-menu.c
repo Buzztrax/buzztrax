@@ -57,6 +57,9 @@ struct _BtInteractionControllerMenuPrivate {
 
   /* actions */
   GtkWidget *item_unbind,*item_unbind_all;
+  
+  /* signal handler id */
+  gulong ic_changed_handler_id;
 };
 
 static GQuark widget_parent_quark=0;
@@ -86,7 +89,7 @@ GType bt_interaction_controller_menu_type_get_type(void) {
 
 //-- event handler
 
-void on_controls_changed(BtIcDevice * const device, const GParamSpec * const arg, gconstpointer const user_data) {
+void on_ic_changed(BtIcDevice * const device, const GParamSpec * const arg, gconstpointer const user_data) {
 	BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(user_data);
 
 	bt_interaction_controller_menu_init_device_menu(self);
@@ -195,6 +198,9 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
   // get list of interaction devices
   g_object_get(self->priv->app,"ic-registry",&ic_registry,NULL);
   g_object_get(ic_registry,"devices",&list,NULL);
+  if(!self->priv->ic_changed_handler_id) {
+    self->priv->ic_changed_handler_id=g_signal_connect(ic_registry,"notify::devices",G_CALLBACK(on_ic_changed),(gpointer)self);
+  }
   g_object_unref(ic_registry);
   if(list) {
     GtkWidget *menu_item,*submenu,*parentmenu;
@@ -209,7 +215,7 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
 
     for(node=list;node;node=g_list_next(node)) {
       device=BTIC_DEVICE(node->data);
-      g_signal_connect(device,"notify::controls",G_CALLBACK(on_controls_changed),(gpointer)self);
+      g_signal_connect(device,"notify::controls",G_CALLBACK(on_ic_changed),(gpointer)self);
   
       // only create items for non-empty submenus
       if((parentmenu=bt_interaction_controller_menu_init_control_menu(self,device))) {
@@ -338,8 +344,10 @@ static void bt_interaction_controller_menu_dispose(GObject *object) {
   g_object_get(ic_registry,"devices",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     device=BTIC_DEVICE(node->data);
-    g_signal_handlers_disconnect_matched(device,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_controls_changed,(gpointer)self);
+    g_signal_handlers_disconnect_matched(device,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_ic_changed,(gpointer)self);
   }
+  g_signal_handlers_disconnect_matched(ic_registry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_ic_changed,(gpointer)self);
+  g_object_unref(ic_registry);
   
   g_object_try_unref(self->priv->selected_control);
   g_object_unref(self->priv->app);
