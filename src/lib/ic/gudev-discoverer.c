@@ -120,20 +120,19 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
 
     /* get human readable device name */
     uparent=udevice;
-    vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR_FROM_DATABASE");
-    if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR");
-    model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
-    if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL");
+    vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR");
+    if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR_FROM_DATABASE");
+    model_name=g_udev_device_get_property(uparent, "ID_MODEL");
+    if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
 
     GST_INFO("  v m:  '%s' '%s'",vendor_name,model_name);
     while(uparent && !(vendor_name && model_name)) {
       t=uparent;
       if((uparent=g_udev_device_get_parent(t))) {
-        if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR_FROM_DATABASE");
         if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR");
-        if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
+        if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR_FROM_DATABASE");
         if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL");
-
+        if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
       }
       if(t!=udevice) {
         g_object_unref(t);

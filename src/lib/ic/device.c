@@ -74,7 +74,7 @@ static gint sort_by_name(const gpointer obj1,const gpointer obj2) {
 	gint res;
 
   // @todo: this is fragmenting memory :/
-  // - we could atleast a compare func in control
+  // - we could atleast have a compare func in control
 	g_object_get(obj1,"name",&str1,NULL);
 	g_object_get(obj2,"name",&str2,NULL);
   str1c=g_utf8_casefold(str1,-1);
@@ -101,13 +101,11 @@ static gint sort_by_name(const gpointer obj1,const gpointer obj2) {
  * of the control.
  */
 void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control) {
-	GList *list;
 	guint id;
   g_return_if_fail(BTIC_DEVICE(self));
   g_return_if_fail(BTIC_CONTROL(control));
 
-  list=g_list_append(self->priv->controls,(gpointer)control);
-  self->priv->controls=g_list_sort(list,(GCompareFunc)sort_by_name);
+  self->priv->controls=g_list_insert_sorted(self->priv->controls,(gpointer)control,(GCompareFunc)sort_by_name);
 
   // we take the ref and unref when we destroy the device 
   g_object_get((GObject *)control,"id",&id,NULL);

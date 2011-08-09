@@ -89,9 +89,19 @@ GType bt_interaction_controller_menu_type_get_type(void) {
 
 //-- event handler
 
-void on_ic_changed(BtIcDevice * const device, const GParamSpec * const arg, gconstpointer const user_data) {
+void on_devices_changed(BtIcRegistry * const registry, const GParamSpec * const arg, gconstpointer const user_data) {
 	BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(user_data);
+	
+	GST_INFO("devices changed");
+	
+	bt_interaction_controller_menu_init_device_menu(self);
+}
 
+void on_controls_changed(BtIcDevice * const device, const GParamSpec * const arg, gconstpointer const user_data) {
+	BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(user_data);
+	
+	GST_INFO("controls changed");
+	
 	bt_interaction_controller_menu_init_device_menu(self);
 }
 
@@ -199,7 +209,7 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
   g_object_get(self->priv->app,"ic-registry",&ic_registry,NULL);
   g_object_get(ic_registry,"devices",&list,NULL);
   if(!self->priv->ic_changed_handler_id) {
-    self->priv->ic_changed_handler_id=g_signal_connect(ic_registry,"notify::devices",G_CALLBACK(on_ic_changed),(gpointer)self);
+    self->priv->ic_changed_handler_id=g_signal_connect(ic_registry,"notify::devices",G_CALLBACK(on_devices_changed),(gpointer)self);
   }
   g_object_unref(ic_registry);
   if(list) {
@@ -215,7 +225,9 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
 
     for(node=list;node;node=g_list_next(node)) {
       device=BTIC_DEVICE(node->data);
-      g_signal_connect(device,"notify::controls",G_CALLBACK(on_ic_changed),(gpointer)self);
+      if(!g_signal_handler_find(device,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_controls_changed,(gpointer)self)) {
+        g_signal_connect(device,"notify::controls",G_CALLBACK(on_controls_changed),(gpointer)self);
+      }
   
       // only create items for non-empty submenus
       if((parentmenu=bt_interaction_controller_menu_init_control_menu(self,device))) {
@@ -344,9 +356,9 @@ static void bt_interaction_controller_menu_dispose(GObject *object) {
   g_object_get(ic_registry,"devices",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     device=BTIC_DEVICE(node->data);
-    g_signal_handlers_disconnect_matched(device,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_ic_changed,(gpointer)self);
+    g_signal_handlers_disconnect_matched(device,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_controls_changed,(gpointer)self);
   }
-  g_signal_handlers_disconnect_matched(ic_registry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_ic_changed,(gpointer)self);
+  g_signal_handlers_disconnect_matched(ic_registry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_devices_changed,(gpointer)self);
   g_object_unref(ic_registry);
   
   g_object_try_unref(self->priv->selected_control);

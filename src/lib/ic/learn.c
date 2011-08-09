@@ -262,7 +262,7 @@ gboolean btic_learn_load_controller_map(const BtIcLearn *self) {
 
   /* Errors */
 load_error:  
-  GST_WARNING("Unable to controller map file %s: %s", map_name, error->message);
+  GST_WARNING("Unable to load controller map file %s: %s", map_name, error->message);
   g_error_free(error);
   g_key_file_free(in);
   g_free(device_name);

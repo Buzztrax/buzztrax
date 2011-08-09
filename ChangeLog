@@ -1,5 +1,18 @@
 2011-08-09  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/ic/device.c:
+	* src/lib/ic/gudev-discoverer.c:
+	  Swap the name-lookup order. Otherwise we seem to end up with two
+	  variants of names.
+
+	* src/lib/ic/learn.c:
+	  Fix typo in log message
+	  
+	* src/ui/edit/interaction-controller-menu.c:
+	  Ensure we don't register signal handler twice.
+
+2011-08-09  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	* tests/bt-check.c:
 	 Comments.
