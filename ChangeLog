@@ -1,3 +1,10 @@
+2011-08-09  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/sequence-grid-model.c:
+	  Improve the sequence grid model and take it conditionaly into use (off
+	  by default).
+
 2011-08-07  Stefan Sauer  <ensonic@users.sf.net>
 
 	* design/gui/initfocus.c:
