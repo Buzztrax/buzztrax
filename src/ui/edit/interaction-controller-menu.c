@@ -190,37 +190,45 @@ static GtkWidget *bt_interaction_controller_menu_init_control_menu(const BtInter
 
 static void bt_interaction_controller_menu_init_device_menu(const BtInteractionControllerMenu *self) {
   BtIcRegistry *ic_registry;
-  BtIcDevice *device;
-  GtkWidget *menu_item,*submenu,*parentmenu;
-  GList *node,*list;
-  gchar *str;
-  
-  submenu=gtk_menu_new();
-  gtk_widget_set_name(submenu,"interaction controller submenu");
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(self->priv->device_menu),submenu);
+  GList *list;
 
   // get list of interaction devices
   g_object_get(self->priv->app,"ic-registry",&ic_registry,NULL);
   g_object_get(ic_registry,"devices",&list,NULL);
-  for(node=list;node;node=g_list_next(node)) {
-    device=BTIC_DEVICE(node->data);
-    g_signal_connect(device,"notify::controls",G_CALLBACK(on_controls_changed),(gpointer)self);
-
-    // only create items for non-empty submenus
-    if((parentmenu=bt_interaction_controller_menu_init_control_menu(self,device))) {
-      g_object_get(device,"name",&str,NULL);
-      GST_INFO("Build control menu for '%s'",str);
-
-      menu_item=gtk_image_menu_item_new_with_label(str);
-      gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
-      gtk_widget_show(menu_item);
-      g_free(str);
-
-      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
-    }
-  }
-  g_list_free(list);
   g_object_unref(ic_registry);
+  if(list) {
+    GtkWidget *menu_item,*submenu,*parentmenu;
+    BtIcDevice *device;
+    GList *node;
+    gchar *str;
+
+    submenu=gtk_menu_new();
+    gtk_widget_set_name(submenu,"interaction controller submenu");
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(self->priv->device_menu),submenu);
+    gtk_widget_set_sensitive(self->priv->device_menu,TRUE);
+
+    for(node=list;node;node=g_list_next(node)) {
+      device=BTIC_DEVICE(node->data);
+      g_signal_connect(device,"notify::controls",G_CALLBACK(on_controls_changed),(gpointer)self);
+  
+      // only create items for non-empty submenus
+      if((parentmenu=bt_interaction_controller_menu_init_control_menu(self,device))) {
+        g_object_get(device,"name",&str,NULL);
+        GST_INFO("Build control menu for '%s'",str);
+  
+        menu_item=gtk_image_menu_item_new_with_label(str);
+        gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+        gtk_widget_show(menu_item);
+        g_free(str);
+  
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
+      }
+    }
+    g_list_free(list);
+  }
+  else {
+    gtk_widget_set_sensitive(self->priv->device_menu,FALSE);
+  }
 }
 
 static void bt_interaction_controller_menu_init_ui(const BtInteractionControllerMenu *self) {
