@@ -414,6 +414,11 @@ BtMainWindow *bt_main_window_new(void) {
 
   // use position from settings
   if(w>=0 && h>=0) {
+    /* ensure that we can see the window - would also need to check against
+     * gdk_screen_get_width/height. Also as it seems the position is ignored
+    if(x<w) x=0;
+    if(y<h) y=0;
+    */
     gtk_window_move(GTK_WINDOW(self),x,y);
     gtk_window_set_default_size(GTK_WINDOW(self),w,h);
   }

@@ -1097,7 +1097,10 @@ static void add_shadow_and_save(cairo_surface_t *image, gchar *filename, gint iw
  *   - http://www.imagemagick.org/script/compare.php
  * - need to make a html with table containing
  *   [ name, ref image, cur image, diff image ]
- *
+ */
+/* @todo: write a html image map for selected regions
+ * - allows xrefs to the related part in the docs
+ * - having tooltips on images wuld be cool
  */
 /*
  * check_make_widget_screenshot:
