@@ -36,9 +36,6 @@ struct _BtSettingsPageDirectoriesPrivate {
 
   /* the application */
   BtEditApplication *app;
-
-  GtkComboBox *audiosink_menu;
-  GList *audiosink_names;
 };
 
 //-- the class
@@ -174,7 +171,6 @@ static void bt_settings_page_directories_finalize(GObject *object) {
   BtSettingsPageDirectories *self = BT_SETTINGS_PAGE_DIRECTORIES(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  g_list_free(self->priv->audiosink_names);
 
   G_OBJECT_CLASS(bt_settings_page_directories_parent_class)->finalize(object);
 }
