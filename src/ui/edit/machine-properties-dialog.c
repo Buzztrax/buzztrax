@@ -1300,6 +1300,7 @@ static void on_toolbar_reset_clicked(GtkButton *button,gpointer user_data) {
 static void on_toolbar_show_hide_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   GtkAllocation win_alloc, pb_alloc;
+  GHashTable *properties;
 
   gtk_widget_get_allocation(GTK_WIDGET(self),&win_alloc);
   gtk_widget_get_allocation(GTK_WIDGET(self->priv->preset_box),&pb_alloc);
@@ -1308,16 +1309,20 @@ static void on_toolbar_show_hide_clicked(GtkButton *button,gpointer user_data) {
     win_alloc.width,win_alloc.height,
     pb_alloc.width,pb_alloc.height);
 
+  g_object_get(self->priv->machine,"properties",&properties,NULL);
+
   if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button))) {
     // expand window
     gtk_window_resize(GTK_WINDOW(self),
       win_alloc.width+(pb_alloc.width+12),
       win_alloc.height);
 
+    g_hash_table_insert(properties,g_strdup("presets-shown"),g_strdup("1"));
     gtk_widget_show_all(self->priv->preset_box);
   }
   else {
     gtk_widget_hide(self->priv->preset_box);
+    g_hash_table_insert(properties,g_strdup("presets-shown"),g_strdup("0"));
     // shrink window
     gtk_window_resize(GTK_WINDOW(self),
       win_alloc.width-(pb_alloc.width+12),
@@ -2268,9 +2273,20 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
     gtk_widget_set_sensitive(tool_item,FALSE);
   }
   else {
+    GHashTable *properties;
+    gchar *prop;
+    gboolean hidden=TRUE;
+
     /* @todo: add settings for "show presets by default" */
-    gtk_widget_set_no_show_all(self->priv->preset_box,TRUE);
-    gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(tool_item),FALSE);
+    g_object_get(self->priv->machine,"properties",&properties,NULL);
+    if((prop=(gchar *)g_hash_table_lookup(properties,"presets-shown"))) {
+      if(atoi(prop)) {
+        hidden=FALSE;
+      }
+    }
+    gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(tool_item),!hidden);
+    gtk_widget_set_no_show_all(self->priv->preset_box,hidden);
+
     g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_show_hide_clicked),(gpointer)self);
   }
 
