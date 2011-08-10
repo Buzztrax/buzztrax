@@ -1,6 +1,11 @@
 2011-08-11  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
+	  Assume state=NORMAL if not present. Don't parse NULL and crash.
+
+2011-08-11  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
 	  Save machine state with song. Fixes #14.
 
 2011-08-10  Stefan Sauer  <ensonic@users.sf.net>

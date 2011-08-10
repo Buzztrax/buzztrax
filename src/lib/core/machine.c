@@ -3063,9 +3063,10 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
   g_assert(node);
 
   if((machine=GST_OBJECT(self->priv->machines[PART_MACHINE]))) {
-    value_str=xmlGetProp(node,XML_CHAR_PTR("state"));
-    self->priv->state=bt_persistence_parse_enum(BT_TYPE_MACHINE_STATE,(gchar *)value_str);
-    xmlFree(value_str);
+    if((value_str=xmlGetProp(node,XML_CHAR_PTR("state")))) {
+      self->priv->state=bt_persistence_parse_enum(BT_TYPE_MACHINE_STATE,(gchar *)value_str);
+      xmlFree(value_str);
+    }
     
     for(node=node->children;node;node=node->next) {
       if(!xmlNodeIsText(node)) {
