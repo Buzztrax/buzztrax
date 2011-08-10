@@ -2943,6 +2943,7 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
     const gulong voice_params=self->priv->voice_params;
 
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
+    xmlNewProp(node,XML_CHAR_PTR("state"),XML_CHAR_PTR(bt_persistence_strfmt_enum(BT_TYPE_MACHINE_STATE,self->priv->state)));
 
     // @todo: also store non-controllable parameters (preferences) <prefsdata name="" value="">
     // @todo: skip parameters which are default values (is that really a good idea?)
@@ -3062,6 +3063,10 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
   g_assert(node);
 
   if((machine=GST_OBJECT(self->priv->machines[PART_MACHINE]))) {
+    value_str=xmlGetProp(node,XML_CHAR_PTR("state"));
+    self->priv->state=bt_persistence_parse_enum(BT_TYPE_MACHINE_STATE,(gchar *)value_str);
+    xmlFree(value_str);
+    
     for(node=node->children;node;node=node->next) {
       if(!xmlNodeIsText(node)) {
         // @todo: load prefsdata
