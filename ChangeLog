@@ -1,5 +1,11 @@
 2011-08-10  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Track base-octave settings per machine and also save with the song.
+	  Fixes #16.
+
+2011-08-10  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	  Add missing makefile changes from last commit.
 

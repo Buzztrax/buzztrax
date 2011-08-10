@@ -79,6 +79,7 @@
 #include "bt-edit.h"
 
 #define MAX_WAVETABLE_ITEMS 200
+#define DEFAULT_BASE_OCTAVE 4
 
 struct _BtMainPagePatternsPrivate {
   /* used to validate if dispose has run */
@@ -2301,9 +2302,14 @@ static void on_wavetable_menu_changed(GtkComboBox *menu, gpointer user_data) {
 
 static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  GHashTable *properties;
 
   self->priv->base_octave=gtk_combo_box_get_active(self->priv->base_octave_menu);
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,NULL);
+  
+  // remember for machine
+  g_object_get(self->priv->machine,"properties",&properties,NULL);
+  g_hash_table_insert(properties,g_strdup("base-octave"),g_strdup_printf("%d",self->priv->base_octave));
 }
 
 static void on_play_live_toggled(GtkButton *button, gpointer user_data) {
@@ -2404,10 +2410,23 @@ static void on_wave_added_or_removed(BtWavetable *wavetable,BtWave *wave,gpointe
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMachine *machine;
+  GHashTable *properties;
+  gchar *prop;
 
   machine=get_current_machine(self);
   GST_DEBUG("machine_menu changed, new machine is %s",(machine?GST_OBJECT_NAME(machine):""));
   change_current_machine(self,machine);
+  
+  // switch to last used base octave of that machine
+  g_object_get(self->priv->machine,"properties",&properties,NULL);
+  if((prop=(gchar *)g_hash_table_lookup(properties,"base-octave"))) {
+    self->priv->base_octave=atoi(prop);
+  }
+  else {
+    self->priv->base_octave=DEFAULT_BASE_OCTAVE;
+  }
+  gtk_combo_box_set_active(self->priv->base_octave_menu,self->priv->base_octave);
+
   g_object_try_unref(machine);
 }
 
@@ -3626,7 +3645,7 @@ static void bt_main_page_patterns_init(BtMainPagePatterns *self) {
   self->priv->selection_end_column=-1;
   self->priv->selection_end_row=-1;
 
-  self->priv->base_octave=4;
+  self->priv->base_octave=DEFAULT_BASE_OCTAVE;
   for (i = 0; i < MAX_WAVETABLE_ITEMS + 2; i++)
     self->priv->wave_to_combopos[i] = self->priv->combopos_to_wave[i] = -1;
 
