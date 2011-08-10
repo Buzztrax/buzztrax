@@ -918,7 +918,9 @@ static void on_machine_state_changed_mute(BtMachine *machine,GParamSpec *arg,gpo
   BtMachineState state;
 
   g_object_get(machine,"state",&state,NULL);
+  g_signal_handlers_block_matched(button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_mute_toggled,(gpointer)machine);
   gtk_toggle_button_set_active(button,(state==BT_MACHINE_STATE_MUTE));
+  g_signal_handlers_unblock_matched(button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_mute_toggled,(gpointer)machine);
 }
 
 static void on_machine_state_changed_solo(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
@@ -926,7 +928,9 @@ static void on_machine_state_changed_solo(BtMachine *machine,GParamSpec *arg,gpo
   BtMachineState state;
 
   g_object_get(machine,"state",&state,NULL);
+  g_signal_handlers_block_matched(button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_solo_toggled,(gpointer)machine);
   gtk_toggle_button_set_active(button,(state==BT_MACHINE_STATE_SOLO));
+  g_signal_handlers_unblock_matched(button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_solo_toggled,(gpointer)machine);
 }
 
 static void on_machine_state_changed_bypass(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
@@ -934,7 +938,9 @@ static void on_machine_state_changed_bypass(BtMachine *machine,GParamSpec *arg,g
   BtMachineState state;
 
   g_object_get(machine,"state",&state,NULL);
+  g_signal_handlers_block_matched(button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_bypass_toggled,(gpointer)machine);
   gtk_toggle_button_set_active(button,(state==BT_MACHINE_STATE_BYPASS));
+  g_signal_handlers_unblock_matched(button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_bypass_toggled,(gpointer)machine);
 }
 
 typedef struct {

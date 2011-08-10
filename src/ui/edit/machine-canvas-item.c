@@ -692,19 +692,26 @@ static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanva
 
 static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasItem *self) {
   GtkWidget *menu_item,*label;
+  BtMachine *machine=self->priv->machine;
+  BtMachineState state;
+
+  g_object_get(machine,"state",&state,NULL);
 
   self->priv->menu_item_mute=menu_item=gtk_check_menu_item_new_with_label(_("Mute"));
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),(state==BT_MACHINE_STATE_MUTE));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   self->priv->id_mute=g_signal_connect(menu_item,"toggled",G_CALLBACK(on_context_menu_mute_toggled),(gpointer)self);
   if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
     self->priv->menu_item_solo=menu_item=gtk_check_menu_item_new_with_label(_("Solo"));
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),(state==BT_MACHINE_STATE_SOLO));
     gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
     gtk_widget_show(menu_item);
     self->priv->id_solo=g_signal_connect(menu_item,"toggled",G_CALLBACK(on_context_menu_solo_toggled),(gpointer)self);
   }
   if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
     self->priv->menu_item_bypass=menu_item=gtk_check_menu_item_new_with_label(_("Bypass"));
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),(state==BT_MACHINE_STATE_BYPASS));
     gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
     gtk_widget_show(menu_item);
     self->priv->id_bypass=g_signal_connect(menu_item,"toggled",G_CALLBACK(on_context_menu_bypass_toggled),(gpointer)self);
@@ -910,8 +917,8 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
 
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
-        g_signal_connect(self->priv->machine, "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);
         g_signal_connect(self->priv->machine, "notify::state", G_CALLBACK(on_machine_state_changed), (gpointer)self);
+        g_signal_connect(self->priv->machine, "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);
         g_signal_connect(self->priv->machine, "parent-set", G_CALLBACK(on_machine_parent_changed), (gpointer)self);
         g_signal_connect(self->priv->machine, "parent-unset", G_CALLBACK(on_machine_parent_changed), (gpointer)self);
 
