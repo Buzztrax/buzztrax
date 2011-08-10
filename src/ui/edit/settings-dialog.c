@@ -63,6 +63,7 @@ struct _BtSettingsDialogPrivate {
   BtSettingsPageInteractionController *interaction_controller_page;
   BtSettingsPagePlaybackController *playback_controller_page;
   BtSettingsPageDirectories *directories_page;
+  BtSettingsPageShortcuts *shortcuts_page;
 };
 
 //-- the class
@@ -249,6 +250,7 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_label_new(_("Playback Controller")));
 
   // add notebook page #4
+  // @todo: maybe turn that into a theme page
   page=gtk_vbox_new(FALSE,0);
   gtk_widget_set_name(GTK_WIDGET(page),"color settings");
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 4 yet"));
@@ -258,10 +260,8 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_label_new(_("Colors")));
 
   // add notebook page #5
-  page=gtk_vbox_new(FALSE,0);
-  gtk_widget_set_name(GTK_WIDGET(page),"keyboard shortcut settings");
-  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 5 yet"));
-  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
+  self->priv->shortcuts_page=bt_settings_page_shortcuts_new();
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->shortcuts_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
   gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_SHORTCUTS),
   gtk_label_new(_("Shortcuts")));

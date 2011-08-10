@@ -1,5 +1,17 @@
 2011-08-10  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-shortcuts-methods.h:
+	* src/ui/edit/settings-page-shortcuts.c:
+	* src/ui/edit/settings-page-shortcuts.h:
+	* src/ui/edit/settings-page-shortcuts.c (added):
+	* src/ui/edit/settings-page-shortcuts.h (added):
+	* src/ui/edit/settings-page-shortcuts-methods.h (added):
+	  Add empty settings page for planning.
+
+2011-08-10  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/settings-page-directories.c:
 	  Remove some left-overs from copying that file.
 

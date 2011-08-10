@@ -155,6 +155,7 @@
 #include "settings-page-directories-methods.h"
 #include "settings-page-interaction-controller-methods.h"
 #include "settings-page-playback-controller-methods.h"
+#include "settings-page-shortcuts-methods.h"
 #include "signal-analysis-dialog-methods.h"
 #include "tip-dialog-methods.h"
 #include "tools.h"
