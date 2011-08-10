@@ -27,6 +27,7 @@
 /* @todo: we need a shortcut scheme management (buzz,fasttracker,..)
  * - select current scheme
  * - save edited scheme under new/current name
+ * - check the midi-profiles in lib/ic/learn.c for the gkeyfile handling
  */
 /* @todo: we need a way to edit the current scheme
  * - we can look at the shortcut editor code from the gnome-control-center

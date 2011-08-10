@@ -63,6 +63,7 @@ libbtedit_la_SOURCES	= \
 	settings-page-directories.c settings-page-directories.h settings-page-directories-methods.h \
 	settings-page-interaction-controller.c settings-page-interaction-controller.h settings-page-interaction-controller-methods.h \
 	settings-page-playback-controller.c settings-page-playback-controller.h settings-page-playback-controller-methods.h \
+	settings-page-shortcuts.c settings-page-shortcuts.h settings-page-shortcuts-methods.h \
 	signal-analysis-dialog.c signal-analysis-dialog.h signal-analysis-dialog-methods.h \
 	tip-dialog.c tip-dialog.h tip-dialog-methods.h \
 	tools.c tools.h \

@@ -250,10 +250,10 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_label_new(_("Playback Controller")));
 
   // add notebook page #4
-  // @todo: maybe turn that into a theme page
+  // @todo: maybe turn that into a theme page (theme-name + colors + icons?)
   page=gtk_vbox_new(FALSE,0);
   gtk_widget_set_name(GTK_WIDGET(page),"color settings");
-  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 4 yet"));
+  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no color settings yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
   gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_COLORS),
