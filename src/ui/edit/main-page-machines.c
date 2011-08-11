@@ -1640,6 +1640,7 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
             pn=(gdouble)(MACHINE_VIEW_ZOOM_X*g_ascii_strtod(val,NULL));
             gnome_canvas_item_move((GnomeCanvasItem *)item,(pn-po),0.0);
             // for some reason a plain g_object_set(item,"x",pn,NULL); would not fully redraw
+            g_signal_emit_by_name(item,"position-changed",0);
           }
           is_prop=TRUE;
         } else if(!strcmp(key,"ypos")) {
@@ -1648,6 +1649,7 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
             pn=(gdouble)(MACHINE_VIEW_ZOOM_Y*g_ascii_strtod(val,NULL));
             gnome_canvas_item_move((GnomeCanvasItem *)item,0.0,(pn-po));
             // for some reason a plain g_object_set(item,"y",pn,NULL); would not fully redraw
+            g_signal_emit_by_name(item,"position-changed",0);
           }
           is_prop=TRUE;
         } else if(!strcmp(key,"state")) {
