@@ -256,7 +256,7 @@ enum {
 enum {
   METHOD_SET_PATTERNS,
   METHOD_SET_LABELS,
-  METHOD_SET_PROPERTY,
+  METHOD_SET_SEQUENCE_PROPERTY,
   METHOD_ADD_TRACK,
   METHOD_REM_TRACK,
   METHOD_MOVE_TRACK
@@ -4075,7 +4075,7 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
       g_free(str);
       break;
     }
-		case METHOD_SET_PROPERTY: {
+		case METHOD_SET_SEQUENCE_PROPERTY: {
 		  gchar *key,*val;
 
       key=g_match_info_fetch(match_info,1);
