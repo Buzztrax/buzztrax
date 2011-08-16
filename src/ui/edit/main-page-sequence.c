@@ -91,9 +91,6 @@
 /* @todo: undo/redo
  * - finish add/remove tracks
  */
-/* @todo: state persistence
- * - store bars and label format with song
- */
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_SEQUENCE_C
@@ -157,7 +154,7 @@ struct _BtMainPageSequencePrivate {
 
   /* pos unit selection menu */
   GtkComboBox *pos_menu;
-  guint pos_format; // @todo: make enum
+  BtSequenceGridModelPosFormat pos_format;
 
   /* the sequence table */
   GtkHBox *sequence_pos_table_header;
@@ -214,6 +211,9 @@ struct _BtMainPageSequencePrivate {
 
   /* lock for multithreaded access */
   GMutex        *lock;
+
+  /* cached sequence properties */
+  GHashTable *properties;
 
   /* editor change log */
   BtChangeLog *change_log;
@@ -1170,6 +1170,8 @@ static void on_pos_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   sequence_model_recolorize(self);
   g_object_unref(song);
 #endif
+  g_hash_table_insert(self->priv->properties,g_strdup("pos-format"),g_strdup(bt_persistence_strfmt_ulong(self->priv->pos_format)));
+  // @todo: undo/redo: _set_property
 }
 
 //-- event handler helper
@@ -1200,7 +1202,7 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
   gtk_combo_box_set_focus_on_click(self->priv->pos_menu,FALSE);
   gtk_combo_box_append_text(self->priv->pos_menu,_("Ticks"));
   gtk_combo_box_append_text(self->priv->pos_menu,_("Time"));
-  gtk_combo_box_set_active(self->priv->pos_menu,0);
+  gtk_combo_box_set_active(self->priv->pos_menu,self->priv->pos_format);
   gtk_box_pack_start(GTK_BOX(self->priv->pos_header),GTK_WIDGET(self->priv->pos_menu),TRUE,TRUE,0);
   //gtk_widget_set_size_request(self->priv->pos_header,POSITION_CELL_WIDTH,-1);
   g_signal_connect(self->priv->pos_menu,"changed",G_CALLBACK(on_pos_menu_changed), (gpointer)self);
@@ -1994,6 +1996,8 @@ static gboolean update_bars_menu(const BtMainPageSequence *self,gulong bars) {
   gchar str[5];
   gulong i,j;
   gint active=2;
+  gint selected=-1;
+  gint added=0;
   /* the useful stepping depends on the rythm
      beats=bars/tpb
      bars=16, beats=4, tpb=4 : 4/4 -> 1,8, 16,32,64
@@ -2006,6 +2010,8 @@ static gboolean update_bars_menu(const BtMainPageSequence *self,gulong bars) {
     // single steps
     gtk_list_store_append(store,&iter);
     gtk_list_store_set(store,&iter,0,"1",-1);
+    if(self->priv->bars==1) selected=added;
+    added++;
   }
   else {
     active--;
@@ -2015,6 +2021,8 @@ static gboolean update_bars_menu(const BtMainPageSequence *self,gulong bars) {
     sprintf(str,"%lu",bars/2);
     gtk_list_store_append(store,&iter);
     gtk_list_store_set(store,&iter,0,str,-1);
+    if(self->priv->bars==(bars/2)) selected=added;
+    added++;
   }
   else {
     active--;
@@ -2024,9 +2032,11 @@ static gboolean update_bars_menu(const BtMainPageSequence *self,gulong bars) {
     sprintf(str,"%lu",i);
     gtk_list_store_append(store,&iter);
     gtk_list_store_set(store,&iter,0,str,-1);
+    if(self->priv->bars==i) selected=added;
+    added++;
   }
+  if(selected>-1) active=selected;
   gtk_combo_box_set_model(self->priv->bars_menu,GTK_TREE_MODEL(store));
-  // @todo: we should remember the bars-filter with the song
   gtk_combo_box_set_active(self->priv->bars_menu,active);
   g_object_unref(store); // drop with combobox
 
@@ -2298,6 +2308,8 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
 #endif
         gtk_tree_model_filter_refilter(filtered_store);
       }
+      g_hash_table_insert(self->priv->properties,g_strdup("bars"),g_strdup(bt_persistence_strfmt_ulong(self->priv->bars)));
+      // @todo: undo/redo: _set_property
     }
     gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
   }
@@ -3234,6 +3246,7 @@ static void on_song_info_bars_changed(const BtSongInfo *song_info,GParamSpec *ar
 
   g_object_get((gpointer)song_info,"bars",&bars,NULL);
   // this also recolors the sequence
+  self->priv->bars=0;
   update_bars_menu(self,bars);
 }
 
@@ -3246,16 +3259,20 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GstBus *bus;
   glong bars;
   gulong sequence_length;
+  gchar *prop;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   g_object_get(self->priv->app,"song",&song,NULL);
-  if(!song) return;
+  if(!song) {
+    self->priv->properties=NULL;
+    return;
+  }
   GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
 
   g_object_try_unref(self->priv->sequence);
   g_object_get(song,"song-info",&song_info,"setup",&setup,"sequence",&self->priv->sequence,"bin", &bin,NULL);
-  g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
+  g_object_get(self->priv->sequence,"length",&sequence_length,"properties",&self->priv->properties,NULL);
   // make sequence_length and step_filter_pos accord to song length
   self->priv->sequence_length=sequence_length;
 
@@ -3263,9 +3280,17 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
   self->priv->level_to_vumeter=g_hash_table_new_full(NULL,NULL,(GDestroyNotify)gst_object_unref,NULL);
 
-  // reset cursor pos
+  // reset cursor pos                                                               
   self->priv->cursor_column=1;
   self->priv->cursor_row=0;
+  
+  // get stored settings
+  if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"bars"))) {
+    self->priv->bars=atol(prop);
+  }
+  if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"pos-format"))) {
+    self->priv->pos_format=atol(prop);
+  }
 
   // update page
   // update sequence and pattern list
@@ -3274,7 +3299,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   machine_menu_refresh(self,setup);
   g_signal_connect(setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
   g_signal_connect(setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
-  // update toolbar
+  gtk_combo_box_set_active(self->priv->pos_menu,self->priv->pos_format);
+  // update toolbar          
   g_object_get(song_info,"bars",&bars,NULL);
   update_bars_menu(self,bars);
 

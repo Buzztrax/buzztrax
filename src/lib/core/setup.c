@@ -1771,7 +1771,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
   g_object_class_install_property(gobject_class,SETUP_PROPERTIES,
                                   g_param_spec_pointer("properties",
                                      "properties prop",
-                                     "list of setup properties",
+                                     "hashtable of setup properties",
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SETUP_SONG,

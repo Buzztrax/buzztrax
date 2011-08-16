@@ -60,7 +60,8 @@ enum {
   SEQUENCE_TRACKS,
   SEQUENCE_LOOP,
   SEQUENCE_LOOP_START,
-  SEQUENCE_LOOP_END
+  SEQUENCE_LOOP_END,
+  SEQUENCE_PROPERTIES
 };
 
 struct _BtSequencePrivate {
@@ -121,6 +122,9 @@ struct _BtSequencePrivate {
    * use.
    */
   GHashTable *pattern_usage;
+
+  /* (ui) properties */
+  GHashTable *properties;
 };
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -2055,6 +2059,12 @@ static xmlNodePtr bt_sequence_persistence_save(const BtPersistence * const persi
       }
     }
     else goto Error;
+    if(g_hash_table_size(self->priv->properties)) {
+      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
+        if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
+      }
+      else goto Error;
+    }
   }
 Error:
   return(node);
@@ -2156,6 +2166,9 @@ static BtPersistence *bt_sequence_persistence_load(const GType type, const BtPer
         }
         g_object_unref(setup);
       }
+      else if(!strncmp((gchar *)node->name,"properties\0",11)) {
+        bt_persistence_load_hashtable(self->priv->properties,node);
+      }
     }
   }
 
@@ -2222,6 +2235,9 @@ static void bt_sequence_get_property(GObject * const object, const guint propert
     } break;
     case SEQUENCE_LOOP_END: {
       g_value_set_long(value, self->priv->loop_end);
+    } break;
+    case SEQUENCE_PROPERTIES: {
+      g_value_set_pointer(value, self->priv->properties);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -2391,6 +2407,7 @@ static void bt_sequence_finalize(GObject * const object) {
   g_free(self->priv->patterns);
   g_hash_table_destroy(self->priv->damage);
   g_hash_table_destroy(self->priv->pattern_usage);
+  g_hash_table_destroy(self->priv->properties);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(bt_sequence_parent_class)->finalize(object);
@@ -2406,6 +2423,7 @@ static void bt_sequence_init(BtSequence * self) {
   self->priv->wait_per_position=0.0;
   self->priv->damage=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_hash_table_destroy);
   self->priv->pattern_usage=g_hash_table_new(NULL,NULL);
+  self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
 }
 
 static void bt_sequence_class_init(BtSequenceClass * const klass) {
@@ -2507,5 +2525,10 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
                                      -1,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property(gobject_class,SEQUENCE_PROPERTIES,
+                                  g_param_spec_pointer("properties",
+                                     "properties prop",
+                                     "hashtable of sequence properties",
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 

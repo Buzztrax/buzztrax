@@ -1,5 +1,20 @@
 2011-08-16  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	  Fix property description.
+
+	* src/lib/core/sequence.c:
+	  Add a properties hashtable to sequence as well. 
+
+	* src/ui/edit/main-page-machines.c:
+	  Add todo.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Remember step-filter and position-format with song.
+
+2011-08-16  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/change-log.c:
 	  Add more todo/design comments.
 

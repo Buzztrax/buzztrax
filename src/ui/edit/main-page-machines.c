@@ -278,6 +278,7 @@ static void update_machines_zoom(const BtMainPageMachines *self) {
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
 
   g_hash_table_insert(self->priv->properties,g_strdup("zoom"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->zoom)));
+  // @todo: undo/redo: _set_property
 
   g_hash_table_foreach(self->priv->machines,update_machine_zoom,&self->priv->zoom);
   gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
@@ -321,7 +322,6 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   machine_view_clear(self);
 
   // update view
-  g_object_get((gpointer)setup,"properties",&self->priv->properties,NULL);
   if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"zoom"))) {
     self->priv->zoom=g_ascii_strtod(prop,NULL);
     gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
@@ -682,6 +682,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
 
   g_object_get(song,"setup",&setup,NULL);
+  g_object_get(setup,"properties",&self->priv->properties,NULL);
   // update page
   machine_view_refresh(self,setup);
   g_signal_connect(setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);

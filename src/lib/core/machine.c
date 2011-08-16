@@ -3711,7 +3711,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   g_object_class_install_property(gobject_class,MACHINE_PROPERTIES,
                                   g_param_spec_pointer("properties",
                                      "properties prop",
-                                     "list of machine properties",
+                                     "hashtable of machine properties",
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_SONG,
