@@ -1,5 +1,10 @@
 2011-08-16  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/change-log.c:
+	  Add more todo/design comments.
+
+2011-08-16  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/ic/input-device.c:
 	  Fix two "variable set but not used [-Werror=unused-but-set-variable]"
 	  warnings.

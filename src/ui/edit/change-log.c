@@ -67,6 +67,33 @@
  *   bt_main_page_machines_delete_machine: undo/redo: remove machine end
  */
 
+/* scheduling design
+ * - add/remove signals happen at core level
+ *   - add after adding
+ *   - remove before removing
+ *   - there can be chains:
+ *     setup::machine-removed(setup:wire-removed,machine:pattern-removed)
+ * - undo/redo happens at UI level
+ *   - what we'd like to do is when we trigger something from the ui:
+ *     - start the group
+ *     - add/remove the top-level element
+ *     - handle undo/redo for all subsequenty triggered elements
+ *     - close the group
+ *   - when adding a top-level caused adding other stuff we don't want to handle
+ *     the implicitely added objects (as redo the add would already recreate
+ *     them too)
+ *   - likewise when deleting a top-level that also deletes other items, we don't
+ *     want to handle them, although here we have to backup the old data:
+ *     removing a machine, removes the track and patterns, redo will add the
+ *     machine, patterns and track, but we have to fill the data then
+ *     - the pattern removal here is implicit and thus we don't want to handle
+ *       undo/redo for it in the sequence where otherwise it would clear the
+ *       cells that where using the pattern
+ * - we probably need to extend the machine:pattern-{added,removed} and 
+ *   setup:{machine,wire}-{added,removed} signals with a gboolean explicit
+ *   parameter, but that won't work as we call this from core too
+ */
+
 /* design: the undo/redo stack
  * check http://github.com/herzi/gundo more
  *
