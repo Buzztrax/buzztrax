@@ -69,7 +69,6 @@ G_DEFINE_TYPE (BtIcInputDevice, btic_input_device, BTIC_TYPE_DEVICE);
 #define test_bit(bit, array)    (array[bit>>3] & (1<<(bit&0x7)))
 
 static gboolean register_trigger_controls(const BtIcInputDevice * const self,int fd) {
-  BtIcTriggerControl *control;
   guint ix;
   guint8 key_bitmask[KEY_MAX/8 + 1];
   const gchar *name = NULL;
@@ -144,9 +143,10 @@ static gboolean register_trigger_controls(const BtIcInputDevice * const self,int
            GST_INFO("Unknown key: %d",ix);
       }
       if(name) {
+        // BtIcTriggerControl *control;
         // create controller instances and register them
         key=(((guint)EV_KEY)<<16)|(guint)ix;
-        control = btic_trigger_control_new(BTIC_DEVICE(self),name,key);
+        /*control = */btic_trigger_control_new(BTIC_DEVICE(self),name,key);
       }
     }
   }
@@ -154,7 +154,6 @@ static gboolean register_trigger_controls(const BtIcInputDevice * const self,int
 }
 
 static gboolean register_abs_range_controls(const BtIcInputDevice * const self,int fd) {
-  BtIcAbsRangeControl *control;
   guint ix;
   guint8 abs_bitmask[ABS_MAX/8 + 1];
   struct input_absinfo abs_features;
@@ -208,9 +207,10 @@ static gboolean register_abs_range_controls(const BtIcInputDevice * const self,i
            abs_features.fuzz  // tolerance
         );
         if(name) {
+          // BtIcAbsRangeControl *control;
           // create controller instances and register them
           key=(((guint)EV_ABS)<<16)|(guint)ix;
-          control = btic_abs_range_control_new(BTIC_DEVICE(self),name,key,
+          /*control = */btic_abs_range_control_new(BTIC_DEVICE(self),name,key,
             abs_features.minimum,abs_features.maximum,abs_features.flat);
         }
       }

@@ -1,5 +1,11 @@
 2011-08-16  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/ic/input-device.c:
+	  Fix two "variable set but not used [-Werror=unused-but-set-variable]"
+	  warnings.
+
+2011-08-16  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	  TODO comments.
 
