@@ -1,3 +1,14 @@
+2011-08-16  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	  TODO comments.
+
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/sequence-grid-model.c:
+	  Improvements on the grid-model use. Replace extra label-menu-model
+	  with a filtered model on the sequence-{list-store,grid-model}. Split
+	  refresh code into model and view (column) refresh.
+
 2011-08-11  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:

@@ -33,20 +33,18 @@
 /* design:
  * - support reordering tracks without rebuilding the model
  *   - check on_track_move_left_activated()
- *   - maybe we need to emit notity::tracks when reordering too
+ *   - maybe we need to emit notify::tracks when reordering too
+ * - support insert/delete without rebuilding the model
  * - when do we refresh+recolorize in the old code
  *   - todo in new code
- *     - loop-end changed
  *     - move track left/right
  *     - cursor below the end-of song
  *     - insert delete rows (sequence should emit changed signal)
  *   - already handled in new code
+ *     - loop-end changed
  *     - add/remove track
  *     - machine removed (should trigger notify::tracks)
  *     - song changed (will create the model)
- *
- * - we can also use this model on the label menu with a filter to show only
- *   rows with labels
  *
  * - we have a property for the pos-format, when it changes we refresh all rows
  *   - main-page-sequence should build the combobox from this enum

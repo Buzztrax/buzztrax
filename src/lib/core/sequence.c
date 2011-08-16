@@ -48,6 +48,9 @@ enum {
   PATTERN_REMOVED_EVENT,
   LAST_SIGNAL
 };
+/* @todo: sequence grid model needs to know about edits
+ * SEQUENCE_CHANGED_EVENT(track_start,track_end,tick_start,tick_end)
+ */
 
 //-- property ids
 
