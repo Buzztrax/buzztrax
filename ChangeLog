@@ -1,3 +1,9 @@
+2011-08-18  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Add a ',' to font-names to make sure the last word is not tried to be
+	  interpreted as size.
+
 2011-08-16  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:

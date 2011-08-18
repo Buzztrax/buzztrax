@@ -598,9 +598,9 @@ bt_pattern_editor_realize (GtkWidget *widget)
   pc = gtk_widget_get_pango_context (widget);
   pfd = pango_font_description_new();
 
-  //pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono");
+  //pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono,");
   //pango_font_description_set_absolute_size (pfd, 12 * PANGO_SCALE);
-  pango_font_description_set_family_static (pfd, "monospace");
+  pango_font_description_set_family_static (pfd, "monospace,");
   if(pango_font_description_get_size_is_absolute(widget->style->font_desc)) {
     pango_font_description_set_absolute_size (pfd,
       pango_font_description_get_size (widget->style->font_desc));
