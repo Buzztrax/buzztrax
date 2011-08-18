@@ -1,3 +1,8 @@
+2011-08-19  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Don't chomp undo/redo strings as the whitespace matters.
+
 2011-08-18  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-editor.c:
