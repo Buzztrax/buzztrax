@@ -1,5 +1,19 @@
 2011-08-19  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztard-edit.types:
+	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	* src/lib/ic/learn.c:
+	* src/ui/edit/btmemoryaudiosrc.h:
+	* src/ui/edit/change-logger.h:
+	* src/ui/edit/edit-application-methods.h:
+	  Update the API docs.
+
+2011-08-19  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Don't chomp undo/redo strings as the whitespace matters.
 

@@ -44,4 +44,6 @@ extern void bt_edit_application_attach_child_window(const BtEditApplication *sel
 extern void bt_edit_application_ui_lock(const BtEditApplication *self);
 extern void bt_edit_application_ui_unlock(const BtEditApplication *self);
 
+extern gboolean bt_edit_application_is_song_unsaved(const BtEditApplication *self);
+
 #endif // BT_EDIT_APPLICATION_METHDOS_H

@@ -50,6 +50,15 @@ struct _BtChangeLoggerMethods {
   guint name_len;
 };
 
+/**
+ * BT_CHANGE_LOGGER_METHOD:
+ * @name: name of method
+ * @name_len: length of the string
+ * @regexp: regular expression for parsing the parameter part
+ *
+ * Structure entry for a change log line parser array (array of 
+ * BtChangeLoggerMethods).
+ */
 #define BT_CHANGE_LOGGER_METHOD(name,name_len,regexp) \
 { name " ", regexp, NULL, name_len }
 

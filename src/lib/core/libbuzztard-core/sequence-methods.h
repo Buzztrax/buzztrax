@@ -35,8 +35,8 @@ extern glong bt_sequence_get_tick_by_pattern(const BtSequence * const self,gulon
 
 extern BtMachine *bt_sequence_get_machine(const BtSequence * const self,const gulong track);
 
-extern gboolean bt_sequence_add_track(const BtSequence * const self,const BtMachine * const machine, const glong track);
-extern gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gulong track);
+extern gboolean bt_sequence_add_track(const BtSequence * const self,const BtMachine * const machine, const glong ix);
+extern gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gulong ix);
 extern gboolean bt_sequence_remove_track_by_machine(const BtSequence * const self,const BtMachine * const machine);
 extern gboolean bt_sequence_move_track_left(const BtSequence * const self, const gulong track);
 extern gboolean bt_sequence_move_track_right(const BtSequence * const self, const gulong track);

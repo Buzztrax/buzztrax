@@ -204,7 +204,7 @@ write_failed:
  * @self: the device
  *
  * Create initial set of controls from a stored control map. Interface
- * implementations should call this from their g_object_constructed() function.
+ * implementations should call this from their #GObjectClass.constructed() function.
  *
  * Returns: %TRUE for success
  */

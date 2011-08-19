@@ -126,6 +126,9 @@ btic_learn_stop
 btic_learn_register_learned_control
 btic_learn_load_controller_map
 btic_learn_store_controller_map
+btic_learn_virtual_start
+btic_learn_virtual_stop
+btic_learn_virtual_register_learned_control
 <SUBSECTION Standard>
 BtIcLearnInterface
 BTIC_LEARN

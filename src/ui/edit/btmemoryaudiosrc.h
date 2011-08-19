@@ -44,8 +44,6 @@ G_BEGIN_DECLS
 typedef struct _BtMemoryAudioSrc BtMemoryAudioSrc;
 typedef struct _BtMemoryAudioSrcClass BtMemoryAudioSrcClass;
 
-typedef void (*ProcessFunc) (BtMemoryAudioSrc*, guint8 *);
-
 /**
  * BtMemoryAudioSrc:
  *

@@ -43,6 +43,7 @@ bt_change_log_recover
 bt_change_log_register
 <SUBSECTION Standard>
 BtChangeLogClass
+BtChangeLogFile
 BT_CHANGE_LOG
 BT_IS_CHANGE_LOG
 BT_TYPE_CHANGE_LOG
@@ -57,9 +58,12 @@ BtChangeLogPrivate
 <SECTION>
 <FILE>btchangelogger</FILE>
 <TITLE>BtChangeLogger</TITLE>
+BT_CHANGE_LOGGER_METHOD
 bt_change_logger_change
+bt_change_logger_match_method
 <SUBSECTION Standard>
 BtChangeLogger
+BtChangeLoggerMethods
 BtChangeLoggerInterface
 BT_CHANGE_LOGGER
 BT_IS_CHANGE_LOGGER
@@ -83,6 +87,7 @@ BT_IS_CRASH_RECOVER_DIALOG_CLASS
 BT_TYPE_CRASH_RECOVER_DIALOG
 BT_CRASH_RECOVER_DIALOG_GET_CLASS
 bt_crash_recover_dialog_get_type
+BtCrashRecoverDialogPrivate
 </SECTION>
 
 
@@ -103,6 +108,7 @@ bt_edit_application_crash_log_recover
 bt_edit_application_attach_child_window
 bt_edit_application_ui_lock
 bt_edit_application_ui_unlock
+bt_edit_application_is_song_unsaved
 <SUBSECTION Standard>
 BtEditApplicationClass
 BT_EDIT_APPLICATION
@@ -180,6 +186,25 @@ BT_MACHINE_CANVAS_ITEM_GET_CLASS
 BT_TYPE_MACHINE_CANVAS_ITEM
 bt_machine_canvas_item_get_type
 BtMachineCanvasItemPrivate
+</SECTION>
+
+
+<SECTION>
+<FILE>btmachinelistmodel</FILE>
+<TITLE>BtMachineListModel</TITLE>
+BtMachineListModel
+bt_machine_list_model_get_object
+bt_machine_list_model_new
+<SUBSECTION Standard>
+BtMachineListModelClass
+BT_MACHINE_LIST_MODEL
+BT_IS_MACHINE_LIST_MODEL
+BT_MACHINE_LIST_MODEL_CLASS
+BT_IS_MACHINE_LIST_MODEL_CLASS
+BT_MACHINE_LIST_MODEL_GET_CLASS
+BT_TYPE_MACHINE_LIST_MODEL
+bt_machine_list_model_get_type
+BtMachineListModelPrivate
 </SECTION>
 
 
@@ -542,6 +567,26 @@ BtMissingSongElementsDialogPrivate
 
 
 <SECTION>
+<FILE>btobjectlistmodel</FILE>
+<TITLE>BtObjectListModel</TITLE>
+BtObjectListModel
+bt_object_list_model_append
+bt_object_list_model_get_object
+bt_object_list_model_new
+<SUBSECTION Standard>
+BtObjectListModelClass
+BT_OBJECT_LIST_MODEL
+BT_IS_OBJECT_LIST_MODEL
+BT_OBJECT_LIST_MODEL_CLASS
+BT_IS_OBJECT_LIST_MODEL_CLASS
+BT_OBJECT_LIST_MODEL_GET_CLASS
+BT_TYPE_OBJECT_LIST_MODEL
+bt_object_list_model_get_type
+BtObjectListModelPrivate
+</SECTION>
+
+
+<SECTION>
 <FILE>btpanoramapopup</FILE>
 <TITLE>BtPanoramaPopup</TITLE>
 BtPanoramaPopup
@@ -586,6 +631,25 @@ BtPatternEditorPrivate
 
 
 <SECTION>
+<FILE>btpatternlistmodel</FILE>
+<TITLE>BtPatternListModel</TITLE>
+BtPatternListModel
+bt_pattern_list_model_get_object
+bt_pattern_list_model_new
+<SUBSECTION Standard>
+BtPatternListModelClass
+BT_PATTERN_LIST_MODEL
+BT_IS_PATTERN_LIST_MODEL
+BT_PATTERN_LIST_MODEL_CLASS
+BT_IS_PATTERN_LIST_MODEL_CLASS
+BT_PATTERN_LIST_MODEL_GET_CLASS
+BT_TYPE_PATTERN_LIST_MODEL
+bt_pattern_list_model_get_type
+BtPatternListModelPrivate
+</SECTION>
+
+
+<SECTION>
 <FILE>btpatternpropertiesdialog</FILE>
 <TITLE>BtPatternPropertiesDialog</TITLE>
 BtPatternPropertiesDialog
@@ -626,6 +690,7 @@ BtPlaybackControllerSocketPrivate
 <FILE>btrenderdialog</FILE>
 <TITLE>BtRenderDialog</TITLE>
 BtRenderDialog
+BtRenderMode
 bt_render_dialog_new
 <SUBSECTION Standard>
 BtRenderDialogClass
@@ -637,6 +702,8 @@ BT_IS_RENDER_DIALOG_CLASS
 BT_RENDER_DIALOG_GET_CLASS
 bt_render_dialog_get_type
 BtRenderDialogPrivate
+BT_TYPE_RENDER_MODE
+bt_render_mode_get_type
 </SECTION>
 
 
@@ -656,6 +723,27 @@ BT_IS_RENDER_PROGRESS_CLASS
 BT_RENDER_PROGRESS_GET_CLASS
 bt_render_progress_get_type
 BtRenderProgressPrivate
+</SECTION>
+
+
+<SECTION>
+<FILE>btsequencegridmodel</FILE>
+<TITLE>BtSequenceGridModel</TITLE>
+BtSequenceGridModel
+BtSequenceGridModelPosFormat
+bt_sequence_grid_model_new
+<SUBSECTION Standard>
+BtSequenceGridModelClass
+BT_SEQUENCE_GRID_MODEL
+BT_IS_SEQUENCE_GRID_MODEL
+BT_SEQUENCE_GRID_MODEL_CLASS
+BT_IS_SEQUENCE_GRID_MODEL_CLASS
+BT_SEQUENCE_GRID_MODEL_GET_CLASS
+BT_TYPE_SEQUENCE_GRID_MODEL
+bt_sequence_grid_model_get_type
+BtSequenceGridModelPrivate
+BT_TYPE_SEQUENCE_GRID_MODEL_POS_FORMAT
+bt_sequence_grid_model_pos_format_get_type
 </SECTION>
 
 
@@ -756,7 +844,6 @@ BtSettingsPagePlaybackControllerPrivate
 <FILE>btsettingspagedirectories</FILE>
 <TITLE>BtSettingsPageDirectories</TITLE>
 BtSettingsPageDirectories
-BtRenderMode
 bt_settings_page_directories_new
 <SUBSECTION Standard>
 BtSettingsPageDirectoriesClass
@@ -766,10 +853,25 @@ BT_SETTINGS_PAGE_DIRECTORIES_CLASS
 BT_IS_SETTINGS_PAGE_DIRECTORIES_CLASS
 BT_SETTINGS_PAGE_DIRECTORIES_GET_CLASS
 BT_TYPE_SETTINGS_PAGE_DIRECTORIES
-BT_TYPE_RENDER_MODE
 bt_settings_page_directories_get_type
-bt_render_mode_get_type
 BtSettingsPageDirectoriesPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsettingspageshortcuts</FILE>
+<TITLE>BtSettingsPageShortcuts</TITLE>
+BtSettingsPageShortcuts
+bt_settings_page_shortcuts_new
+<SUBSECTION Standard>
+BtSettingsPageShortcutsClass
+BT_SETTINGS_PAGE_SHORTCUTS
+BT_IS_SETTINGS_PAGE_SHORTCUTS
+BT_SETTINGS_PAGE_SHORTCUTS_CLASS
+BT_IS_SETTINGS_PAGE_SHORTCUTS_CLASS
+BT_SETTINGS_PAGE_SHORTCUTS_GET_CLASS
+BT_TYPE_SETTINGS_PAGE_SHORTCUTS
+bt_settings_page_shortcuts_get_type
+BtSettingsPageShortcutsPrivate
 </SECTION>
 
 
@@ -922,6 +1024,9 @@ gtk_toolbar_get_style_from_string
 gtk_target_table_make
 gtk_show_uri_simple
 GNOME_CANVAS_BROKEN_PROPERTIES
+<SUBSECTION Private>
+BOX_BORDER
+SCREEN_BORDER_HEIGHT
 <SUBSECTION Standard>
 # gtk extras
 GTK_CHECK_CAST

@@ -1358,13 +1358,13 @@ gboolean bt_sequence_add_track(const BtSequence * const self, const BtMachine * 
 /**
  * bt_sequence_remove_track_by_ix:
  * @self: the #BtSequence that holds the tracks
- * @track: the requested track index
+ * @ix: the requested track index
  *
  * Removes the specified @track.
  *
  * Returns: %TRUE for success
  */
-gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gulong track) {
+gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gulong ix) {
   const gulong tracks=self->priv->tracks;
   const gulong length=self->priv->length;
   BtMachine **machines=self->priv->machines;
@@ -1373,13 +1373,13 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   gulong i;
 
   g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
-  g_return_val_if_fail(track<tracks,FALSE);
+  g_return_val_if_fail(ix<tracks,FALSE);
 
-  const gulong count=(tracks-1)-track;
-  GST_INFO("remove track %lu/%lu (shift %lu tracks)",track,tracks,count);
+  const gulong count=(tracks-1)-ix;
+  GST_INFO("remove track %lu/%lu (shift %lu tracks)",ix,tracks,count);
 
-  src=&self->priv->patterns[track+1];
-  dst=&self->priv->patterns[track];
+  src=&self->priv->patterns[ix+1];
+  dst=&self->priv->patterns[ix];
   for(i=0;i<length;i++) {
     // unref patterns
     if(*dst) {
@@ -1394,9 +1394,9 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
     dst=&dst[tracks];
   }
 
-  machine=machines[track];
+  machine=machines[ix];
   if(count) {
-    memmove(&machines[track],&machines[track+1],count*sizeof(gpointer));
+    memmove(&machines[ix],&machines[ix+1],count*sizeof(gpointer));
   }
   machines[tracks-1]=NULL;
 
