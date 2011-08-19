@@ -61,6 +61,9 @@
  * - see bt_song_change_play_rate()
  * - there is a problem with wrapping around in loop mode, when playing backwards
  */
+/* @todo: should we move the ::unsaved property to the edit-application?
+ * - core should not care about it
+ */
 #define BT_CORE
 #define BT_SONG_C
 
@@ -695,6 +698,11 @@ BtSong *bt_song_new(const BtApplication * const app) {
  * bt_song_set_unsaved:
  * @self: the song that should be changed
  * @unsaved: the new state of the songs unsaved flag
+ *
+ * The @unsaved flag marks a change that is not undo-able (or won't make sens to
+ * undo). Editing apps that implement undo/redo should not set the flag. The
+ * flag could be used if one e.g. does a zoom-in on the machine-view or changes
+ * the step-resolution on the sequence-view.  
  *
  * Use this method instead of directly setting the state via g_object_set() to
  * avoid double notifies, if the state is unchanged.

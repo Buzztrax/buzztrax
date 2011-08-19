@@ -59,6 +59,7 @@ struct _BtChangeLoggerMethods {
  * Structure entry for a change log line parser array (array of 
  * BtChangeLoggerMethods).
  */
+// too bad we can't put strlen(name) below as name is const
 #define BT_CHANGE_LOGGER_METHOD(name,name_len,regexp) \
 { name " ", regexp, NULL, name_len }
 

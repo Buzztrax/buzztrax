@@ -1,5 +1,11 @@
 2011-08-19  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	* src/ui/edit/change-logger.h:
+	  Add more comments, docs and planning.
+
+2011-08-19  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/pattern.c:
 	  Don't mark the song as dirty here anymore (more such changes needed).
 
