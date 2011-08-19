@@ -65,17 +65,6 @@ static GQuark widget_parent_quark=0;
 
 G_DEFINE_TYPE (BtMachinePreferencesDialog, bt_machine_preferences_dialog, GTK_TYPE_WINDOW);
 
-
-//-- event handler helper
-
-static void mark_song_as_changed(const BtMachinePreferencesDialog *self) {
-  BtSong *song;
-
-  g_object_get(self->priv->app,"song",&song,NULL);
-  bt_song_set_unsaved(song,TRUE);
-  g_object_unref(song);
-}
-
 //-- event handler
 
 static void on_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
@@ -126,7 +115,7 @@ static void on_entry_property_changed(GtkEditable *editable,gpointer user_data) 
 
   //GST_INFO("preferences value change received for: '%s'",name);
   g_object_set(machine,name,gtk_entry_get_text(GTK_ENTRY(editable)),NULL);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer user_data) {
@@ -136,7 +125,7 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
 
   //GST_INFO("preferences value change received for: '%s'",name);
   g_object_set(machine,name,gtk_toggle_button_get_active(togglebutton),NULL);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 static void on_range_property_changed(GtkRange *range,gpointer user_data) {
@@ -146,7 +135,7 @@ static void on_range_property_changed(GtkRange *range,gpointer user_data) {
 
   //GST_INFO("preferences value change received for: '%s'",name);
   g_object_set(machine,name,gtk_range_get_value(range),NULL);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 static void on_double_entry_property_changed(GtkEditable *editable,gpointer user_data) {
@@ -158,7 +147,7 @@ static void on_double_entry_property_changed(GtkEditable *editable,gpointer user
   //GST_INFO("preferences value change received for: '%s'",name);
   value=g_ascii_strtod(gtk_entry_get_text(GTK_ENTRY(editable)),NULL);
   g_object_set(machine,name,value,NULL);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 static void on_spinbutton_property_changed(GtkSpinButton *spinbutton,gpointer user_data) {
@@ -170,7 +159,7 @@ static void on_spinbutton_property_changed(GtkSpinButton *spinbutton,gpointer us
   GST_INFO("preferences value change received for: '%s'",name);
   value=gtk_spin_button_get_value_as_int(spinbutton);
   g_object_set(machine,name,value,NULL);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_data) {
@@ -188,7 +177,7 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
     gtk_tree_model_get(store,&iter,0,&value,-1);
     g_object_set(machine,name,value,NULL);
   }
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 /*

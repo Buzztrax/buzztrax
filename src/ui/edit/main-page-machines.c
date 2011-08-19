@@ -23,7 +23,7 @@
  * @short_description: the editor main machines page
  * @see_also: #BtSetup
  *
- * Displays the machine setup on a canvas.
+ * Displays the machine setup and wires on a canvas.
  */
 /* @todo: multiselect
  * - when clicking on the background
@@ -62,13 +62,9 @@
  */
 /* @todo: click in the background to pan canvas around
  */
-/* @todo: undo/redo - window pos
- * - we need to log changes in xpos/ypos or status all the time to be able to
- *   recover after a crash, this way we don't need to save these when removing a
- *   machine
- *   - this also leads to a lot of undo/redo entries
- *   - we can't flatten those as we don't know the intent of the user and we
- *     have logged the changes already
+/* @todo: undo/redo - renaming machines
+ * - done in machine-canvas-item.c::on_context_menu_rename_activate
+ * - need to provide the method here and just call it
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
@@ -278,7 +274,7 @@ static void update_machines_zoom(const BtMainPageMachines *self) {
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
 
   g_hash_table_insert(self->priv->properties,g_strdup("zoom"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->zoom)));
-  // @todo: undo/redo: _set_property
+  bt_edit_application_set_song_unsaved(self->priv->app);
 
   g_hash_table_foreach(self->priv->machines,update_machine_zoom,&self->priv->zoom);
   gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
@@ -888,6 +884,7 @@ static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 
     //GST_INFO("ypos: %lf",val);
     g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
+    bt_edit_application_set_song_unsaved(self->priv->app);
   }
 }
 
@@ -906,6 +903,7 @@ static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 
     //GST_INFO("xpos: %lf",val);
     g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
+    bt_edit_application_set_song_unsaved(self->priv->app);
   }
 }
 

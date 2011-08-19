@@ -207,14 +207,6 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   GST_INFO("rebuilt preset list");
 }
 
-static void mark_song_as_changed(const BtMachinePropertiesDialog *self) {
-  BtSong *song;
-
-  g_object_get(self->priv->app,"song",&song,NULL);
-  bt_song_set_unsaved(song,TRUE);
-  g_object_unref(song);
-}
-
 // interaction control helper
 
 static void on_control_bind(const BtInteractionControllerMenu *menu,GParamSpec *arg,gpointer user_data) {
@@ -913,7 +905,7 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   g_object_set(param_parent,name,value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
   update_double_range_label(label,value);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 
@@ -966,7 +958,7 @@ static void on_float_range_property_changed(GtkRange *range,gpointer user_data) 
   g_object_set(param_parent,name,value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_notify,(gpointer)range);
   update_float_range_label(label,value);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 
@@ -1022,7 +1014,7 @@ static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
   g_object_set(param_parent,name,(gint)value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
   update_int_range_label(self,range,param_parent,label,value);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 
@@ -1078,7 +1070,7 @@ static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
   g_object_set(param_parent,name,(guint)value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_notify,(gpointer)range);
   update_uint_range_label(self,range,param_parent,label,value);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 
@@ -1138,7 +1130,7 @@ static void on_uint64_range_property_changed(GtkRange *range,gpointer user_data)
   g_signal_handlers_block_matched(entry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_entry_property_changed,(gpointer)user_data);
   update_uint64_range_entry(self,range,param_parent,entry,value);
   g_signal_handlers_unblock_matched(entry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_entry_property_changed,(gpointer)user_data);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 static void on_uint64_entry_property_changed(GtkEditable *editable,gpointer user_data) {
@@ -1155,7 +1147,7 @@ static void on_uint64_entry_property_changed(GtkEditable *editable,gpointer user
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_range_property_notify,(gpointer)range);
   g_object_set(param_parent,name,clamped_value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint64_range_property_notify,(gpointer)range);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 static gboolean on_combobox_property_notify_idle(gpointer _data) {
@@ -1219,7 +1211,7 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
     g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_notify,(gpointer)combobox);
     //GST_WARNING("property value change received: %d",value);
     update_param_after_interaction(GTK_WIDGET(combobox),user_data);
-    mark_song_as_changed(self);
+    bt_edit_application_set_song_unsaved(self->priv->app);
   }
 }
 
@@ -1264,7 +1256,7 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
   g_object_set(param_parent,name,value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
   //update_param_after_interaction(GTK_WIDGET(togglebutton),user_data);
-  mark_song_as_changed(self);
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 
@@ -1417,7 +1409,7 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
 
     GST_INFO("about to load preset : '%s'",name);
     if(gst_preset_load_preset(GST_PRESET(machine),name)) {
-      mark_song_as_changed(self);
+      bt_edit_application_set_song_unsaved(self->priv->app);
       bt_machine_set_param_defaults(self->priv->machine);
     }
     gst_object_unref(machine);

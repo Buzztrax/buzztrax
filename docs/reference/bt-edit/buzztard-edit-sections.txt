@@ -109,6 +109,7 @@ bt_edit_application_attach_child_window
 bt_edit_application_ui_lock
 bt_edit_application_ui_unlock
 bt_edit_application_is_song_unsaved
+bt_edit_application_set_song_unsaved
 <SUBSECTION Standard>
 BtEditApplicationClass
 BT_EDIT_APPLICATION

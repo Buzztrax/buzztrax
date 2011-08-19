@@ -697,6 +697,16 @@ gboolean bt_edit_application_is_song_unsaved(const BtEditApplication *self) {
   return(unsaved);
 }
 
+/**
+ * bt_edit_application_set_song_unsaved:
+ * @self: the application instance
+ *
+ * Flag unsaved changes in the applications song.
+ */
+void bt_edit_application_set_song_unsaved(const BtEditApplication *self) {
+  bt_song_set_unsaved(self->priv->song,TRUE);
+}
+
 //-- wrapper
 
 //-- default signal handler

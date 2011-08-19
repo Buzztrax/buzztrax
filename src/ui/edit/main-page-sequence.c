@@ -1171,7 +1171,7 @@ static void on_pos_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   g_object_unref(song);
 #endif
   g_hash_table_insert(self->priv->properties,g_strdup("pos-format"),g_strdup(bt_persistence_strfmt_ulong(self->priv->pos_format)));
-  // @todo: undo/redo: _set_property
+  bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 //-- event handler helper
@@ -2309,7 +2309,7 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
         gtk_tree_model_filter_refilter(filtered_store);
       }
       g_hash_table_insert(self->priv->properties,g_strdup("bars"),g_strdup(bt_persistence_strfmt_ulong(self->priv->bars)));
-      // @todo: undo/redo: _set_property
+      bt_edit_application_set_song_unsaved(self->priv->app);
     }
     gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
   }
