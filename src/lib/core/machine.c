@@ -3452,7 +3452,6 @@ static void bt_machine_set_property(GObject * const object, const guint property
           gst_object_unref(parent);
         }
       }
-      bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case MACHINE_PLUGIN_NAME: {
       g_free(self->priv->plugin_name);

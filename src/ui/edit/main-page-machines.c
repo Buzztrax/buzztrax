@@ -62,8 +62,6 @@
  */
 /* @todo: click in the background to pan canvas around
  */
-/* @todo: undo/redo - renaming machines
- */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
 
@@ -879,10 +877,20 @@ static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 
   if(self->priv->properties) {
     gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+    gchar *prop;
+    gdouble oval=0.0;
+    gboolean have_val=FALSE;
 
     //GST_INFO("ypos: %lf",val);
-    g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
-    bt_edit_application_set_song_unsaved(self->priv->app);
+    if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"ypos"))) {
+      oval=g_ascii_strtod(prop,NULL);
+      have_val=TRUE;
+    }
+    if((!have_val) || (oval!=val)) {
+      g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
+      if(have_val)
+        bt_edit_application_set_song_unsaved(self->priv->app);
+    }
   }
 }
 
@@ -898,10 +906,20 @@ static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 
   if(self->priv->properties) {
     gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+    gchar *prop;
+    gdouble oval=0.0;
+    gboolean have_val=FALSE;
 
     //GST_INFO("xpos: %lf",val);
-    g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
-    bt_edit_application_set_song_unsaved(self->priv->app);
+    if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"xpos"))) {
+      oval=g_ascii_strtod(prop,NULL);
+      have_val=TRUE;
+    }
+    if((!have_val) || (oval!=val)) {
+      g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
+      if(have_val)
+        bt_edit_application_set_song_unsaved(self->priv->app);
+    }
   }
 }
 
@@ -1553,8 +1571,22 @@ void bt_main_page_machines_rename_machine(const BtMainPageMachines *self, BtMach
   bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(dialog));
   gtk_widget_show_all(dialog);
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
-    // @todo: undo/redo
+  	gchar *new_name;
+  	gchar *undo_str,*redo_str;
+  	gchar *mid;
+
+    g_object_get(machine,"id",&mid,NULL);
+    g_object_get(dialog,"name",&new_name,NULL);
+
+    if(strcmp(mid,new_name)) {
+      bt_change_log_start_group(self->priv->change_log);
+			undo_str = g_strdup_printf("set_machine_property \"%s\",\"name\",\"%s\"",new_name,mid);
+			redo_str = g_strdup_printf("set_machine_property \"%s\",\"name\",\"%s\"",mid,new_name);
+			bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+			bt_change_log_end_group(self->priv->change_log);
+    }
     bt_machine_rename_dialog_apply(BT_MACHINE_RENAME_DIALOG(dialog));
+    g_free(mid);g_free(new_name);
   }
   gtk_widget_destroy(dialog);
 }
@@ -1677,6 +1709,9 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
         }
         else if(!strcmp(key,"voices")) {
           g_object_set(machine,"voices",atol(val),NULL);
+        }
+        else if(!strcmp(key,"name")) {
+          g_object_set(machine,"id",val,NULL);
         }
         else {
         	GST_WARNING("unhandled property '%s'",key);

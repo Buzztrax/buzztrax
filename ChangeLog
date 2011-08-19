@@ -1,5 +1,13 @@
 2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-page-machines.c:
+	  Undo/redo for renaming the machine. Also be more cautios on flagging
+	  the song as dirty on canvas scroll events.
+
+2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/main-page-machines-methods.h:
