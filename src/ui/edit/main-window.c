@@ -184,14 +184,16 @@ static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
   }
 }
 
-static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+static void on_song_unsaved_changed(const GObject *object,GParamSpec *arg,gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
-  gchar *title,*name;
+  gboolean unsaved=bt_edit_application_is_song_unsaved(self->priv->app);
+  BtSong *song;
   BtSongInfo *song_info;
-  gboolean unsaved;
+  gchar *title,*name;
 
-  g_object_get((gpointer)song,"song-info",&song_info,"unsaved",&unsaved,NULL);
   // compose title
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
   g_object_get(song_info,"name",&name,NULL);
   // we don't use PACKAGE_NAME = 'buzztard' for the window title
   title=g_strdup_printf("%s (%s) - Buzztard",name,(unsaved?_("unsaved"):_("saved")));g_free(name);
@@ -199,6 +201,7 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   g_free(title);
   //-- release the references
   g_object_unref(song_info);
+  g_object_unref(song);
 
   GST_INFO("song.unsaved has changed : song=%p, menu=%p, unsaved=%d",song,user_data,unsaved);
 }
@@ -213,7 +216,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get((gpointer)app,"song",&song,NULL);
   if(!song) return;
 
-  on_song_unsaved_changed(song,arg,self);
+  on_song_unsaved_changed((GObject*)song,arg,self);
   g_signal_connect(song, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   //-- release the references
   g_object_unref(song);
@@ -317,6 +320,7 @@ static gchar* bt_main_window_make_unsaved_changes_message(const BtSong *song) {
 static void bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
   GdkPixbuf *window_icon;
+  BtChangeLog *change_log;
 
   gtk_widget_set_name(GTK_WIDGET(self),"main window");
   gtk_window_set_role(GTK_WINDOW(self),"buzztard-edit::main");
@@ -369,6 +373,10 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
   /* just for testing
   g_signal_connect((gpointer)self,"event",G_CALLBACK(on_window_event),(gpointer)self);
   */
+
+  change_log=bt_change_log_new();
+  g_signal_connect(change_log, "notify::can-undo", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
+  g_object_unref(change_log);
 
   GST_INFO("signal connected, app->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->app));
 }

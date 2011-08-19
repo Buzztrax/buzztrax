@@ -1,5 +1,18 @@
 2011-08-19  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	  Don't mark the song as dirty here anymore (more such changes needed).
+
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	  Merge the song::unsaved + change-log::can-undo. This way we can and a
+	  change and the song is clean again.
+	  
+
+2011-08-19  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* docs/reference/bt-edit/buzztard-edit.types:

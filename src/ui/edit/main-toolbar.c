@@ -568,16 +568,11 @@ static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
   nvalue=volume_slider2real(gtk_range_get_value(GTK_RANGE(self->priv->volume)));
   g_object_get(self->priv->gain,"volume",&ovalue,NULL);
   if(fabs(nvalue-ovalue)>0.000001) {
-    BtSong *song;
-
     GST_DEBUG("volume-slider has changed : %f->%f",ovalue,nvalue);
     g_signal_handlers_block_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
     g_object_set(self->priv->gain,"volume",nvalue,NULL);
     g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
-
-    g_object_get(self->priv->app,"song",&song,NULL);
-    bt_song_set_unsaved(song,TRUE);
-    g_object_unref(song);
+    bt_edit_application_set_song_unsaved(self->priv->app);
   }
   /*else {
     GST_WARNING("IGN volume-slider has changed : %f->%f",ovalue,nvalue);
@@ -677,13 +672,10 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
   }
 }
 
-static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+static void on_song_unsaved_changed(const GObject *object,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  gboolean unsaved;
+  gboolean unsaved=bt_edit_application_is_song_unsaved(self->priv->app);
 
-  GST_INFO("song.unsaved has changed : song=%p, toolbar=%p",song,user_data);
-
-  g_object_get((gpointer)song,"unsaved",&unsaved,NULL);
   gtk_widget_set_sensitive(self->priv->save_button,unsaved);
 }
 
@@ -747,7 +739,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
     g_assert(GST_IS_ELEMENT(self->priv->gain));
     // get the current input_gain and adjust volume widget
-     on_song_volume_changed(self->priv->gain,NULL,(gpointer)self);
+    on_song_volume_changed(self->priv->gain,NULL,(gpointer)self);
 
     // connect slider changed and volume changed events
     g_signal_connect(self->priv->volume,"value_changed",G_CALLBACK(on_song_volume_slider_change),(gpointer)self);
@@ -765,7 +757,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(song,"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   on_sequence_loop_notify(sequence,NULL,(gpointer)self);
   g_signal_connect(sequence,"notify::loop",G_CALLBACK(on_sequence_loop_notify),(gpointer)self);
-  on_song_unsaved_changed(song,NULL,(gpointer)self);
+  on_song_unsaved_changed((GObject *)song,NULL,(gpointer)self);
   g_signal_connect(song, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   //-- release the references
   gst_object_unref(bin);
@@ -792,6 +784,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkWidget *tool_item;
   GtkWidget *box, *child;
   gulong i;
+  BtChangeLog *change_log;
 
   gtk_widget_set_name(GTK_WIDGET(self),"main toolbar");
 
@@ -916,6 +909,10 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 
+  change_log=bt_change_log_new();
+  g_signal_connect(change_log, "notify::can-undo", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
+  g_object_unref(change_log);
+  
   // let settings control toolbar style
   g_object_get(self->priv->app,"settings",&settings,NULL);
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
@@ -979,6 +976,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->level);
 
   if(self->priv->clock) gst_object_unref(self->priv->clock);
+  
   g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(bt_main_toolbar_parent_class)->dispose(object);

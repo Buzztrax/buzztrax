@@ -597,7 +597,6 @@ gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong 
     if(res) {
       // notify others that the data has been changed
       g_signal_emit((gpointer)self,signals[GLOBAL_PARAM_CHANGED_EVENT],0,tick,param);
-      bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
   else {
@@ -649,7 +648,6 @@ gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong t
     if(res) {
       // notify others that the data has been changed
       g_signal_emit((gpointer)self,signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
-      bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
   else {
@@ -1708,7 +1706,6 @@ static void bt_pattern_set_property(GObject * const object, const guint property
       g_free(self->priv->name);
       self->priv->name = g_value_dup_string(value);
       GST_DEBUG("set the display name for the pattern: %s",self->priv->name);
-      bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case PATTERN_LENGTH: {
       const gulong length=self->priv->length;
@@ -1716,7 +1713,6 @@ static void bt_pattern_set_property(GObject * const object, const guint property
       if(length!=self->priv->length) {
         GST_DEBUG("set the length for pattern: %lu",self->priv->length);
         bt_pattern_resize_data_length(self,length);
-        bt_song_set_unsaved(self->priv->song,TRUE);
       }
     } break;
     case PATTERN_MACHINE: {

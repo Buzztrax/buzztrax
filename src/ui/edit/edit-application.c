@@ -680,6 +680,22 @@ void bt_edit_application_ui_unlock(const BtEditApplication *self) {
   gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(self->priv->main_window)),NULL);
 }
 
+/**
+ * bt_edit_application_is_song_unsaved:
+ * @self: the application instance
+ *
+ * Check if the song has unsaved changes.
+ *
+ * Returns: %TRUE if there are pending changes
+ */
+gboolean bt_edit_application_is_song_unsaved(const BtEditApplication *self) {
+  gboolean unsaved;
+
+  g_object_get(self->priv->song,"unsaved",&unsaved,NULL);
+  if(!unsaved)
+    g_object_get(self->priv->change_log,"can-undo",&unsaved,NULL);
+  return(unsaved);
+}
 
 //-- wrapper
 

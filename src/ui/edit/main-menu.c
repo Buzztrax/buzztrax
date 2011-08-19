@@ -672,14 +672,11 @@ static void on_menu_debug_update_registry(GtkMenuItem *menuitem,gpointer user_da
 #endif
 
 
-static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+static void on_song_unsaved_changed(const GObject *object,GParamSpec *arg,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  gboolean unsaved;
+  gboolean unsaved=bt_edit_application_is_song_unsaved(self->priv->app);
 
-  g_object_get((gpointer)song,"unsaved",&unsaved,NULL);
   gtk_widget_set_sensitive(self->priv->save_item,unsaved);
-
-  GST_INFO("song.unsaved has changed : song=%p, menu=%p, unsaved=%d",song,user_data,unsaved);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -691,7 +688,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) return;
 
-  on_song_unsaved_changed(song,NULL,self);
+  on_song_unsaved_changed((GObject *)song,NULL,self);
   g_signal_connect((gpointer)song, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   g_object_unref(song);
 }
@@ -708,6 +705,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
   guint ix;
+  BtChangeLog *change_log;
 
   // disable F10 keybinding to activate the menu
   gtk_settings=gtk_settings_get_for_screen(gdk_screen_get_default());
@@ -1092,6 +1090,10 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
 
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+
+  change_log=bt_change_log_new();
+  g_signal_connect(change_log, "notify::can-undo", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
+  g_object_unref(change_log);
 }
 
 //-- constructor methods
