@@ -604,17 +604,9 @@ static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer 
 
 static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-  GtkWidget *dialog;
 
-  GST_INFO("context_menu rename event occurred");
-
-  dialog=GTK_WIDGET(bt_machine_rename_dialog_new(self->priv->machine));
-  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(dialog));
-  gtk_widget_show_all(dialog);
-  if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
-    bt_machine_rename_dialog_apply(BT_MACHINE_RENAME_DIALOG(dialog));
-  }
-  gtk_widget_destroy(dialog);
+  GST_INFO("context_menu rename event occurred");  
+  bt_main_page_machines_rename_machine(self->priv->main_page_machines, self->priv->machine);
 }
 
 static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {

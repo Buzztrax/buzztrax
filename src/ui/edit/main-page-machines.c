@@ -63,8 +63,6 @@
 /* @todo: click in the background to pan canvas around
  */
 /* @todo: undo/redo - renaming machines
- * - done in machine-canvas-item.c::on_context_menu_rename_activate
- * - need to provide the method here and just call it
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
@@ -1540,6 +1538,25 @@ void bt_main_page_machines_delete_wire(const BtMainPageMachines *self, BtWire *w
 
   g_object_unref(setup);
   g_object_unref(song);
+}
+
+/**
+ * bt_main_page_machines_rename_machine:
+ * @self: the machines page
+ * @machine: the machine to renam
+ *
+ * Run the machine #BtMachineRename dialog.
+ */
+void bt_main_page_machines_rename_machine(const BtMainPageMachines *self, BtMachine *machine) {
+  GtkWidget *dialog=GTK_WIDGET(bt_machine_rename_dialog_new(machine));
+
+  bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(dialog));
+  gtk_widget_show_all(dialog);
+  if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+    // @todo: undo/redo
+    bt_machine_rename_dialog_apply(BT_MACHINE_RENAME_DIALOG(dialog));
+  }
+  gtk_widget_destroy(dialog);
 }
 
 //-- change logger interface

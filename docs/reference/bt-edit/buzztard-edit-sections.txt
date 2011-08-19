@@ -366,6 +366,7 @@ bt_main_page_machines_add_source_machine
 bt_main_page_machines_add_processor_machine
 bt_main_page_machines_delete_machine
 bt_main_page_machines_delete_wire
+bt_main_page_machines_rename_machine
 <SUBSECTION Standard>
 BtMainPageMachinesClass
 BT_MAIN_PAGE_MACHINES

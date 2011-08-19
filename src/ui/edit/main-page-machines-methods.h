@@ -39,5 +39,6 @@ extern gboolean bt_main_page_machines_add_source_machine(const BtMainPageMachine
 extern gboolean bt_main_page_machines_add_processor_machine(const BtMainPageMachines *self, const gchar *id, const gchar *plugin_name);
 extern void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMachine *machine);
 extern void bt_main_page_machines_delete_wire(const BtMainPageMachines *self, BtWire *wire);
+extern void bt_main_page_machines_rename_machine(const BtMainPageMachines *self, BtMachine *machine);
 
 #endif // BT_MAIN_PAGE_MACHINES_METHDOS_H

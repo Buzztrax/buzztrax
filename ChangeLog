@@ -1,3 +1,12 @@
+2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-machines-methods.h:
+	* src/ui/edit/main-page-machines.c:
+	  Move the machine-rename dialog handling to mchine page for undo/redo
+	  handling.
+
 2011-08-19  Stefan Sauer  <ensonic@users.sf.net>
 
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
