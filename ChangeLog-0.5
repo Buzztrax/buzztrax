@@ -1,0 +1,2452 @@
+=== release 0.5.0 ===
+
+2009-09-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	* NEWSLETTER:
+	* src/ui/edit/about-dialog.c:
+	  Update NEWS.
+
+2009-09-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/LINGUAS:
+	* po/cs.po:
+	* po/cs.po (added):
+	  Add cs translation.
+
+2009-09-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wave.c:
+	  Check return values and add more logging.
+
+	* tests/lib/core/e-song-io-native.c:
+	  Comments and unref objects.
+
+2009-09-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Whitespaces.
+
+	* src/lib/core/wave.c:
+	  Remove bus signal-watch when freeing wave-loader. Fixes tests.
+
+2009-09-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wave.c:
+	* tests/lib/core/e-song-io-native.c:
+	  Try to improve the test. Its not well synchronized (needs more work).
+
+	* tests/lib/core/t-network.c:
+	* tests/lib/core/t-song.c:
+	  Fix two tests.
+
+2009-09-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Set to NULL when disposing, we are not added to the pipeline by default.
+	  Fixes when closing empty songs.
+
+2009-08-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Just skip spectrum data while resizing to avoid drawing partial
+	  data-sets.
+
+2009-08-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Clean up some debug leftovers.
+
+2009-08-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Remove a leftover update action in graph connection check. This caused
+	  problem when later on unlinking wires. Also use new wire list directly.
+
+2009-07-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/gnome/Makefile.am:
+	* pixmaps/hicolor/Makefile.am:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/ui-resources.c:
+	* pixmaps/hicolor/16x16/buzztard_menu_source_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_tab_sequence.png (svn:mergeinfo):
+	* pixmaps/hicolor/24x24/buzztard_menu_sink_machine.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_effect_bypass.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_effect_bypass.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_effect_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_menu_processor_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_effect.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_generator.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_effect.png (svn:mergeinfo):
+	* pixmaps/hicolor/24x24/buzztard_menu_source_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_tab_sequence.png (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_generator_mute.svg (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_master_mute.svg (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_generator_solo.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_tab_patterns.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_generator.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_master_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_master_mute.png (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_tab_machines.png (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_effect_bypass.svg (svn:mergeinfo):
+	* pixmaps/gnome/24x24/buzztard_menu_sink_machine.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_master.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_tab_machines.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_menu_source_machine.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_generator_solo.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_master_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_tab_waves.png (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_menu_sink_machine.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_effect_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_effect_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_generator.png (svn:mergeinfo):
+	* pixmaps/gnome/24x24/buzztard_menu_processor_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_master.svg (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_effect.svg (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_effect_bypass.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_generator_mute.png (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_tab_info.png (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_generator.svg (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_menu_processor_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_tab_waves.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_effect.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_master.png (svn:mergeinfo):
+	* pixmaps/gnome/24x24/buzztard_menu_grid.png (svn:mergeinfo):
+	* pixmaps/gnome/16x16/buzztard_menu_sink_machine.png (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_effect_mute.svg (svn:mergeinfo):
+	* pixmaps/hicolor/24x24/buzztard_menu_grid.png (svn:mergeinfo):
+	* pixmaps/hicolor/24x24/buzztard_menu_processor_machine.png
+	  (svn:mergeinfo):
+	* pixmaps/hicolor/16x16/buzztard_tab_patterns.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_generator_solo.png (svn:mergeinfo):
+	* pixmaps/gnome/48x48/buzztard_master.png (svn:mergeinfo):
+	* pixmaps/gnome/scalable/buzztard_generator_solo.svg (svn:mergeinfo):
+	* pixmaps/gnome/32x32/buzztard_generator_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/64x64/buzztard_generator_mute.png (svn:mergeinfo):
+	* pixmaps/gnome/24x24/buzztard_menu_source_machine.png (svn:mergeinfo):
+	* pixmaps/hicolor/24x24/menu_sink_machine.png (deleted):
+	* pixmaps/hicolor/24x24/menu_processor_machine.png (deleted):
+	* pixmaps/hicolor/24x24/menu_source_machine.png (deleted):
+	* pixmaps/hicolor/24x24/menu_grid.png (deleted):
+	* pixmaps/hicolor/16x16/tab_sequence.png (deleted):
+	* pixmaps/hicolor/16x16/menu_source_machine.png (deleted):
+	* pixmaps/hicolor/16x16/tab_waves.png (deleted):
+	* pixmaps/hicolor/16x16/menu_sink_machine.png (deleted):
+	* pixmaps/hicolor/16x16/tab_machines.png (deleted):
+	* pixmaps/hicolor/16x16/tab_info.png (deleted):
+	* pixmaps/hicolor/16x16/tab_patterns.png (deleted):
+	* pixmaps/hicolor/16x16/menu_processor_machine.png (deleted):
+	* pixmaps/gnome/48x48/effect.png (deleted):
+	* pixmaps/gnome/48x48/generator-mute.png (deleted):
+	* pixmaps/gnome/48x48/generator-solo.png (deleted):
+	* pixmaps/gnome/48x48/master-mute.png (deleted):
+	* pixmaps/gnome/48x48/effect-mute.png (deleted):
+	* pixmaps/gnome/48x48/generator.png (deleted):
+	* pixmaps/gnome/48x48/effect-bypass.png (deleted):
+	* pixmaps/gnome/48x48/master.png (deleted):
+	* pixmaps/gnome/32x32/effect.png (deleted):
+	* pixmaps/gnome/32x32/generator-mute.png (deleted):
+	* pixmaps/gnome/32x32/generator-solo.png (deleted):
+	* pixmaps/gnome/32x32/master-mute.png (deleted):
+	* pixmaps/gnome/32x32/effect-mute.png (deleted):
+	* pixmaps/gnome/32x32/generator.png (deleted):
+	* pixmaps/gnome/32x32/effect-bypass.png (deleted):
+	* pixmaps/gnome/32x32/master.png (deleted):
+	* pixmaps/gnome/24x24/menu_sink_machine.png (deleted):
+	* pixmaps/gnome/24x24/menu_processor_machine.png (deleted):
+	* pixmaps/gnome/24x24/menu_source_machine.png (deleted):
+	* pixmaps/gnome/24x24/menu_grid.png (deleted):
+	* pixmaps/gnome/16x16/tab_sequence.png (deleted):
+	* pixmaps/gnome/16x16/menu_source_machine.png (deleted):
+	* pixmaps/gnome/16x16/tab_waves.png (deleted):
+	* pixmaps/gnome/16x16/menu_sink_machine.png (deleted):
+	* pixmaps/gnome/16x16/tab_machines.png (deleted):
+	* pixmaps/gnome/16x16/tab_patterns.png (deleted):
+	* pixmaps/gnome/16x16/menu_processor_machine.png (deleted):
+	* pixmaps/gnome/scalable/generator.svg (deleted):
+	* pixmaps/gnome/scalable/master.svg (deleted):
+	* pixmaps/gnome/scalable/effect-bypass.svg (deleted):
+	* pixmaps/gnome/scalable/effect.svg (deleted):
+	* pixmaps/gnome/scalable/generator-mute.svg (deleted):
+	* pixmaps/gnome/scalable/generator-solo.svg (deleted):
+	* pixmaps/gnome/scalable/master-mute.svg (deleted):
+	* pixmaps/gnome/scalable/effect-mute.svg (deleted):
+	* pixmaps/gnome/64x64/effect.png (deleted):
+	* pixmaps/gnome/64x64/generator-mute.png (deleted):
+	* pixmaps/gnome/64x64/generator-solo.png (deleted):
+	* pixmaps/gnome/64x64/master-mute.png (deleted):
+	* pixmaps/gnome/64x64/effect-mute.png (deleted):
+	* pixmaps/gnome/64x64/generator.png (deleted):
+	* pixmaps/gnome/64x64/effect-bypass.png (deleted):
+	* pixmaps/gnome/64x64/master.png (deleted):
+	  Add prefix to icons to not clash with others. Add more logging for icon
+	  theme handling. Try setting fallback theme to gnome.
+
+2009-07-31  Patric Schmitz  <berzerka@users.sf.net>
+
+	* src/lib/core/song.c: (bt_song_update_play_seek_event):
+	  Initialize loop-end with correct default value if -1.
+
+2009-07-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	* src/ui/edit/main-toolbar.c:
+	  Increase likelyhood, that we draw a playline on start and stop.
+
+2009-07-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	  Comments only.
+
+2009-07-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Bump requiremnts for GStreamer to 0.10.14 (03-Aug-2007). This way we can
+	  remove all ifdefs for controller API.
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/tools.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Remove now obsolete use of deprecated controller API. Refactor controller
+	  usage in machine and wire to cache control-sources to avoid lookups,
+	  locking, refs and unrefs.
+
+2009-07-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  We don't need setup here anymore + improve logging.
+
+2009-07-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	  Maintain wire list on each machine for incomming and outgoing wires. This
+	  data is frequently used when updating the sequence, which is now faster.
+
+2009-07-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fix underruns for real (I hope).
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Use size-allocate instead of configure-event. Use local vars. to speedup a
+	   little. Make it less racy when resizing.
+
+2009-07-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Add another check and more logging.
+
+2009-07-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core_private.h:
+	  Move define 1 up to prevent clashes (tentative).
+
+	* src/ui/edit/main-page-patterns.c:
+	  Make loop var unsigned to no overrun and fix stupid bug in terminal
+	  loop condition.
+
+2009-07-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/setup-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	* tests/lib/core/t-setup.c:
+	  Remove one unused funtion from api. Add more internal _unchecked()
+	  variants. Add more comments about how we might be able to optimize
+	  things more.
+
+2009-07-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	  Small optimization for sequence refreshs.
+
+2009-07-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/cmd/cmd-application.c:
+	  Sleep less often.
+
+2009-07-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Make two methods public to allow mass sequence updates without
+	  intermediate refreshs.
+
+2009-07-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/de.po:
+	* po/id.po:
+	* po/nl.po:
+	* po/nn.po:
+	  Update them all.
+
+2009-07-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/da.po:
+	  Updating translations from TPO.
+
+2009-07-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Reset playline when resizing the pattern.
+
+	* src/ui/edit/pattern-editor.c:
+	  Draw playline with correct scroll offset.
+
+2009-07-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Search for currect pattern from active position backwards. Fixes
+	  finding an earlier occurance and drawing the line at the wrong
+	  position.
+
+2009-07-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add more comments and two todo's.
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix clipping of last line for patterns longer than window height. Also
+	  clip number column.
+
+2009-07-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Implement clipping to y-ranges. Lowers cpu load by 5% when watching the
+	  played pattern. Also rename some variables.
+
+2009-07-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix playpos redraws. Fix cell updates on editing.
+
+2009-07-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix note column cursor issue.
+
+2009-07-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix cursor redraws a bit (still one problem with note-columns left).
+
+2009-07-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Many thanks to moap for also committing the not finished pattern-editor
+	  changes.
+
+2009-07-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/sequence-view.c:
+	  Don't redraw fully for loop lines too.
+
+2009-07-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Sent NEWS.
+
+	* NEWS:
+	* src/ui/edit/about-dialog.c:
+	  Add release NEWS. All translatable strings are now frozen.
+
+	* src/ui/edit/main-page-machines.c:
+	  Idea.
+
+	* src/ui/edit/pattern-editor.c:
+	  Logging.
+
+2009-07-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Don't renegotiate formats which playing for now until it works.
+
+2009-07-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write NEWS.
+
+	* src/lib/core/wire.c:
+	  Make code a bit more readable (and prepare def param handling),
+
+	* src/ui/edit/main-page-sequence.c:
+	  Correctly set state of MSB button when updating sequence view.
+
+	* src/ui/edit/pattern-editor.c:
+	  Add some TODO for partial redraw optimizations.
+
+2009-07-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	  Some fixed size tuning, where we constain the object size by layout.
+
+2009-07-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	  Set font-height on text cell-renderers.
+
+2009-07-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/pattern.h:
+	* src/lib/core/libbuzztard-core/wave.h:
+	* src/lib/core/libbuzztard-core/wavelevel.h:
+	* src/lib/core/libbuzztard-core/wavetable.h:
+	* src/lib/core/libbuzztard-core/wire.h:
+	  Fix some of the copy'n'paste docs.
+
+	* src/lib/core/machine.c:
+	  Speedup caps nego a bit if we have new-enough gst.
+
+	* src/ui/edit/Makefile.am:
+	  Fix make dist.
+
+2009-07-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/edit-application.c:
+	  Report missing elements in any case.
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Take scrollbar height into account for max height. Make default border
+	  a bit bigger.
+
+2009-07-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-window.c:
+	  Add better format selection to save-as file-chooser. Add folder
+	  shortcuts for default folder to the left chooser pane.
+
+2009-07-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/LINGUAS:
+	* po/nn.po:
+	* po/nn.po (added):
+	  Add new translation.
+
+	* configure.ac:
+	* src/lib/core/libbuzztard-core/core.h:
+	  Add a few comments for using appsrc/appsink (too new yet).
+
+2009-07-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/wave.c:
+	  Fix wave saving in the case of imported bmx files and in the case we
+	  don't have the external files.
+
+	* src/ui/edit/main-window.c:
+	  Some more logging for filters.
+
+2009-07-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  print libgsf status in sumary.
+
+	* src/lib/core/sink-bin.c:
+	  Indent and test.
+
+	* src/lib/core/song.c:
+	  longer timeout on arm (not the proper ifdef)..
+
+2009-06-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Add a sanity check back.
+
+	* src/lib/core/sequence.c:
+	  Avoid a double if(!NULL). Fix moving tracks left/right in sequence.
+
+2009-06-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Have MSB-buttons & meter only in the header for the first instance of the
+	  machine.
+
+2009-06-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Update loop/length bars when ins/del full lines.
+
+2009-06-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	  Add some comments about GAP-awareness.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Remove some leftover text (<small>) from testing. Some whitespace cleanup.
+
+2009-06-27  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Handle wavetable gaps properly.
+
+2009-06-27  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fix for the previous fix + set the combo when wavetable number is
+	  entered (assumes the waves are sequentially numbered... for now)
+
+2009-06-27  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Fix a bug causing wave number not to be set when entering same
+	  note in different octave, and to be set on the 'note off' value.
+
+2009-06-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/gtkvumeter.c:
+	  Only redraw if the new levels are different.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Use strconcat instread of stdup_printf
+
+	* src/ui/edit/main-page-sequence.c:
+	  Attempt to make MSB button a bit smaller even. Does not work.
+
+2009-06-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/sequence-view.c:
+	  Save 10% cpu on my machine, by only redrawing areas for the playline
+	  instead of repainting the whole treeview.
+
+2009-06-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Do same refactoring for voice params too. Reuse more code. Add api to
+	  update default for all params of a machine. Fix a crasher when loading a
+	  new song while having settings windows open.
+
+2009-06-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Buzz version requiremnts.
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-toolbar.c:
+	  Refactor api for default property values. Need to do same changes for
+	  voice params.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Add a todo: comment.
+
+2009-06-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Refactored a default param handling a bit. Need to come up with bigger
+	  plan.
+	* src/ui/edit/main-page-sequence.c:
+	  Ideas.
+
+2009-06-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Mark song as unsaved, when changing presets. Add todo for preset loading.
+
+2009-06-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix editing the octave of 'b'.
+
+2009-06-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Allow using 'b' and 'e' for entering patterns too.
+
+2009-06-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-machines.c:
+	  Reset pointer for empty songs. Otherwise we access released memory from
+	  previous song.
+
+2009-06-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/pattern.c:
+	  Do deep copies for GValues in a pattern. Otherwise we get crashes when
+	  editing notes.
+
+2009-06-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* TODO:
+	  Add nice tip for testing translations.
+	* src/ui/edit/main-page-sequence.c:
+	  Add an idea. Fix loop start end changes triggering assertions.
+
+2009-06-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Also clamp playpos if >end. Log all eos messages.
+
+2009-06-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Ensure valid enums when randomizing settings.
+
+2009-06-11  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix B note entry.
+
+2009-06-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/wave.c:
+	  Comments and docs.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Don't disconnect handlers twice. Show empty pattern if a machine has no
+	  patterns.
+
+2009-06-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Sent news.
+
+2009-06-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  More links.
+
+2009-06-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Special case handling for volume range.
+
+	* src/ui/edit/pattern-editor.c:
+	  Rounding fix.
+
+2009-06-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect NEWS.
+
+	* src/lib/core/song-info.c:
+	  Don't write NULL values to taglist.
+
+2009-05-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c:
+	  Implement bak file creation and save saving (don't overwrite files before
+	  saving worked).
+
+2009-05-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Downgrade logs.
+
+	* src/ui/edit/edit-application.c:
+	  More planning.
+
+2009-05-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/edit-application.c:
+	  Planning comment for safe song saving.
+
+2009-05-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/source-machine.c:
+	  We don't need that big buffer-time. Not sure how we can detect it.
+
+2009-05-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  It actually works, if I save in the editor.
+
+2009-05-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Doing a song-new trigegrs lots of assertion bacause of last change
+	  here. This should have fixed it, but apparently has not.
+
+2009-05-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/core.h:
+	* src/lib/core/source-machine.c:
+	  Only set buffer size for baseaudiosrc elements.
+
+	* src/lib/core/wire.c:
+	  Add idea comment.
+
+2009-05-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bindings/play.py:
+	  More experiments.
+
+	* src/lib/core/wave.c:
+	  Add a huge todo and atleast don't crash for now. When saving we expect the
+	  original sound files to be present. If they are not we need to save what
+	  we have in memory. Also use a constant instead of hardcoded 44100.
+
+	* src/ui/edit/btmemoryaudiosrc.c:
+	* src/ui/edit/btmemoryaudiosrc.h:
+	  Use constant instead of hardcoded 44100.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Disconnect notify handler when rebuilding seqeunce or the context menu to
+	  fix assertion in the signal-handler. Remove widget-name hack to get
+	  machine name when adding a track, as that was broken when then machine got
+	  renamed.
+
+2009-05-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect news.
+
+	* design/bindings/play.py:
+	  Experiments.
+
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song.c:
+	  Comment.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Don't reset wave number when editing octave.
+
+2009-05-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/Makevars:
+	  Neat way to minimize the conflics of po files.
+
+	* src/lib/core/source-machine.c:
+	  Don't disable live for live sources. The song simply won't play then.
+	  Instead increase buffering. We probabably need to configure queueing
+	  as well too.
+
+2009-05-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-window.c:
+	  Fix format string.
+
+2009-05-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Optionally use READY for stopping. This helps to keep the jack
+	  connection persistent.
+
+	* src/ui/edit/machine-menu.c:
+	  Downgrade WARNING as its not one.
+
+2009-05-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* autogen.sh:
+	  aclocal gather all the necessary macros. And libtoolize installs m4 files.
+	  They must be present before running aclocal. Without this patch, autoconf
+	  complains about unknown libtool macros (using 2.2.6a-4 on Debian).
+
+2009-05-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Commenting.
+
+	* src/ui/edit/main-window.c:
+	  Small filter fix and more comments about the issues.
+
+2009-05-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect NEWS.
+
+	* src/ui/edit/main-window.c:
+	  Do some file-filter fallback - no luck still :/
+
+2009-05-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Comments and more debug details.
+
+2009-05-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/bt-edit.hildon.gtkrc:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	  Even more hildon ui tweaks.
+
+2009-05-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/bt-edit.hildon.gtkrc:
+	* src/ui/edit/main-page-machines.c:
+	  Some more hildon ui tweaks.
+
+2009-05-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/gnome/32x32/master.png:
+	* pixmaps/gnome/48x48/master.png:
+	* pixmaps/gnome/64x64/master.png:
+	* pixmaps/gnome/Makefile.am:
+	  Missing icons.
+
+	* src/ui/edit/main-page-info.c:
+	  Small inlining of values.
+
+	* src/ui/edit/settings-page-audiodevices.c:
+	  TODO.
+
+2009-05-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-window.c:
+	  Hildon Fixes.
+
+2009-05-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/tools.c:
+	* src/ui/edit/ui-resources.c:
+	  Icons size is in pixels.
+
+2009-04-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	  Remove non existing file.
+
+	* NEWS:
+	  Prepare for pre-releasing.
+
+	* docs/help/bt-edit/C/Makefile.am:
+	  move comment around.
+
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song-info.c:
+	  Microoptimization.
+
+2009-04-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-patterns.c:
+	  More format string warning fixes.
+
+2009-04-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/ic_private.h:
+	  Include from right path.
+
+2009-04-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Show if we will build user docs.
+
+	* docs/Makefile.am:
+	* docs/help/bt-edit/C/Makefile.am:
+	  We seem to fail, if there is no scrollkeeper installed. Need to recheck.
+
+2009-04-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* README:
+	* configure.ac:
+	* pixmaps/gnome/32x32/effect-bypass.png:
+	* pixmaps/gnome/32x32/effect-mute.png:
+	* pixmaps/gnome/32x32/effect.png:
+	* pixmaps/gnome/32x32/generator-mute.png:
+	* pixmaps/gnome/32x32/generator-solo.png:
+	* pixmaps/gnome/32x32/generator.png:
+	* pixmaps/gnome/32x32/master-mute.png:
+	* pixmaps/gnome/48x48/effect-bypass.png:
+	* pixmaps/gnome/48x48/effect-mute.png:
+	* pixmaps/gnome/48x48/effect.png:
+	* pixmaps/gnome/48x48/generator-mute.png:
+	* pixmaps/gnome/48x48/generator-solo.png:
+	* pixmaps/gnome/48x48/generator.png:
+	* pixmaps/gnome/48x48/master-mute.png:
+	* pixmaps/gnome/64x64/buzztard.png:
+	* pixmaps/gnome/64x64/effect-bypass.png:
+	* pixmaps/gnome/64x64/effect-mute.png:
+	* pixmaps/gnome/64x64/effect.png:
+	* pixmaps/gnome/64x64/generator-mute.png:
+	* pixmaps/gnome/64x64/generator-solo.png:
+	* pixmaps/gnome/64x64/generator.png:
+	* pixmaps/gnome/64x64/master-mute.png:
+	* pixmaps/gnome/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	  We don't directly depend on librsvg anymore. Add prescaled pngs, for
+	  systems without svg pixbuf loaders.
+
+2009-04-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/gconf-settings.c:
+	  Don't sync if there were no writes.
+
+2009-04-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-menu.c:
+	  Rename submenu for live inputs and stick bins into a submenu too.
+
+2009-04-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-machines.c:
+	  Optimize update order to fix garbage when zooming.
+
+2009-04-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-menu.c:
+	  Reshuffle to only load plugins if we need the type.
+
+2009-04-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Comments.
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-menu.c:
+	  Stick live-sources into a submenu.
+
+2009-04-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bindings/play.js:
+	  Proper signal handler.
+
+2009-04-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bindings/play.js:
+	* design/bindings/play.py:
+	  Improve the bindings examples. js works!
+
+	* src/lib/core/song-io.c:
+	  Copy the string we get passed as a parameter.
+
+2009-04-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  More docs and spelling fixes.
+
+2009-04-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	  Remove non exiting file.
+
+	* src/lib/core/buzzcallbacks.c:
+	  Flag stereo samples.
+
+2009-04-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/buzzcallbacks.c:
+	  Add some warning logs for failure cases and do some micro optimization.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Reflow pattern updates to have less redraws and avoid switching the
+	  pattern if we switch tabs.
+
+	* src/ui/edit/pattern-editor.c:
+	  Default is empty pattern.
+
+2009-04-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/buzzcallbacks.c:
+	  Have one struct per wave-ix, is less racy. There still seems to be some
+	  mismatch in the mapping here or in bsl.
+
+	* src/ui/edit/main-page-patterns.c:
+	  play-notes -> play-live
+
+2009-04-20  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix handling of '1' key in second column of the note parameter.
+
+2009-04-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Doc fixes and copy one section from my GJ article.
+
+2009-04-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Fix the build.
+
+2009-04-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  updates.
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/setup-methods.h:
+	* src/lib/core/libbuzztard-core/song-methods.h:
+	* src/lib/core/setup.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	  Make more api internal. Remove some dead code. implement idle-looping (e.g.
+	  for play-notes if song is not playing).
+
+	* src/ui/edit/main-page-patterns.c:
+	  Use new idle-loop feature. Also allow to play any trigger parameters. Need
+	  a fix for buzz sources (nned to unset the parameter after a tick).
+
+2009-04-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Fix previous change to not crash :)
+
+	* src/ui/edit/main-page-sequence.c:
+	  Only free colors if we got them.
+
+2009-04-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  More docs.
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Fix one time leaks of the string option args.
+
+2009-04-08  Krzysztof Foltman  <kfoltman@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Implement the 'note off' key (1), use correct 'note off' value
+	  (255), do not produce invalid notes on octave change of the "empty"
+	  note
+
+2009-04-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Don't enter wave-ix when pressing ".", instead clear the wave-ix column too.
+
+2009-04-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	  Don't leak da pad!
+
+2009-04-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	  Enable new API.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Enter wave-ix in tracker patterns when inputing notes.
+
+2009-04-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/pattern.c:
+    Don't leak g_values.
+
+	* src/lib/core/machine.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Prepare code for entering wave-ix in tracker patterns.
+
+	* src/ui/edit/pattern-editor.c:
+	  Init base octave (needs proper fix).
+
+2009-04-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/pattern.c:
+	  Add todo: for more leaks to fix.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Don't leak described params. Fixes #2735298.
+
+2009-04-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	  Fix crasher, caused by initializing a const var. Make the related unrefs
+	  conditional too.
+
+2009-04-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Set base octave to 4 and revert what moap wrongly committed.
+
+2009-04-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/wave-viewer.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  More clang checker fixes: remove dead code, fix some logic bugs. Also chain
+	  up in out custom widgets.
+
+2009-04-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/svgcanvas2.c:
+	  Remove unused var.
+
+	* src/lib/core/song-info.c
+	  Fix logic. (found by LLVM clang checker).
+
+2009-04-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Don't leak GdkColors.
+
+	* src/lib/core/wave.c:
+	* src/ui/edit/wave-viewer.c:
+	  More valgrind cleanups.
+
+2009-04-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Indent + commenting.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fix some memory leaks regarding pattern handling.
+
+2009-03-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Use sensite property on renderer instead of custom color. Need to do
+	  the same elsewhere.
+
+2009-03-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* src/lib/core/song.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Docs, ideas and planning.
+
+2009-03-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/Makefile.am:
+	  use LANG=C as the nameing of the eniglish locales differ between the
+	  distros.
+
+	* tests/songs/buzz1.xml:
+	* tests/songs/buzz2.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz4.xml:
+	* tests/songs/buzz5.xml:
+	* tests/songs/buzz6.xml:
+	* tests/songs/buzz7.xml:
+	* tests/songs/buzz8.xml:
+	* tests/songs/buzz9.xml:
+	* tests/songs/combi1.xml:
+	* tests/songs/combi2.xml:
+	* tests/songs/combi3.xml:
+	* tests/songs/melo1.xml:
+	* tests/songs/melo3.xml:
+	* tests/songs/melo4.xml:
+	* tests/songs/melo5.xml:
+	* tests/songs/simple2.xml:
+	* tests/songs/simple3.xml:
+	* tests/songs/simple4.xml:
+	* tests/songs/simple5.xml:
+	* tests/songs/test-simple4.xml:
+	* tests/songs/test-simple5.xml:
+	  Fix panorama property value type.
+
+2009-03-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Updating news.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Updating user docs a bit.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Defering the shading to when the icon is actualy beeing moved.
+
+2009-03-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Kick out svg canvas item hack, that did not work well anyway. Update pixbufs
+	  when zooming instead. Also apply effect, like desatoration and opacity.
+
+	* src/ui/edit/ui-resources-methods.h:
+	* src/ui/edit/ui-resources.c:
+	  Allow to requested certain sizes for the svg graphics. Lazily recreate when
+	  size changes.
+
+2009-03-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect news.
+
+	* src/lib/core/song.c:
+	  Comment change.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Planning.
+
+	* src/ui/edit/pattern-properties-dialog.c:
+	  Set voice-spin-button to initial value.
+
+2009-03-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wave.c:
+	  Fix wrong caps detail. Its called "signed" and not "signdness", also fix the
+	  type of it. This cures the constant renegotiation, that was causing lockups.
+
+	* src/lib/core/setup.c:
+	  Remove the ifdefs again. That wasn't the issue.
+
+2009-03-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Add ifdefs around the pad_blocking, but this seems not to cause the lock-ups
+	  during dynamic editing.
+
+	* src/ui/edit/edit-application.c:
+	  Add sanity check and flush the bin, in case its not empty after unloding a
+	  song.
+
+2009-03-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/Makefile.am:
+	  Add help about how to run single tests.
+
+	* tests/lib/core/e-network.c:
+	  Activate one more test and add two test for dynamic song modifications.
+
+2009-03-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Fix crasher, we forgot to disconnect signal handlers.
+
+2009-03-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/buzztard.xsd:
+	* tests/songs/broken2.xml:
+	* tests/songs/buzz1.xml:
+	* tests/songs/buzz2.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz4.xml:
+	* tests/songs/buzz5.xml:
+	* tests/songs/buzz6.xml:
+	* tests/songs/buzz7.xml:
+	* tests/songs/buzz8.xml:
+	* tests/songs/buzz9.xml:
+	* tests/songs/combi1.xml:
+	* tests/songs/combi2.xml:
+	* tests/songs/combi3.xml:
+	* tests/songs/example.xml:
+	* tests/songs/melo1.xml:
+	* tests/songs/melo2.xml:
+	* tests/songs/melo3.xml:
+	* tests/songs/melo4.xml:
+	* tests/songs/melo5.xml:
+	* tests/songs/simple1.xml:
+	* tests/songs/simple2.xml:
+	* tests/songs/simple3.xml:
+	* tests/songs/simple4.xml:
+	* tests/songs/simple5.xml:
+	* tests/songs/test-simple1.xml:
+	* tests/songs/test-simple2.xml:
+	* tests/songs/test-simple3.xml:
+	* tests/songs/test-simple4.xml:
+	* tests/songs/test-simple5.xml:
+	  Rewrite the schema and fix most of tests and schema. Fixes #2706086.
+
+2009-03-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-info.c:
+	* src/ui/edit/main-page-info.c:
+	  Add UI to short date-time-stamps in info-page. Fixes #2705959.
+
+2009-03-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Add more disable deprecated targets.
+
+	* docs/buzztard.xsd:
+	* tests/songs/simple1.xml:
+	  Tweaking the xsd. Still not validating.
+
+	* tests/bt-check.c:
+	  Add @todo:
+
+2009-03-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/source-machine.c:
+	  Don't segfault when error==NULL
+
+	* tests/lib/core/e-song-io-native.c:
+	  Add tests for saving.
+
+2009-03-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wave.c:
+	  Fix waveloader. This needs unit-tests and some code cleanups.
+
+2009-03-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/svgcanvas2.c:
+	* src/ui/edit/machine-canvas-item.c
+	  Add our svg canvas item hack (disabled by default). This still causes some
+	  odd redraw issues and needs to be better integrated with the themeing
+	  support.
+
+2009-03-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix shift-tab.
+
+2009-03-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Don't access pattern behind the end of the sequence. Fix also some oddities
+	  in sequence length resizing.
+
+2009-03-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  More api-doc update for last change.
+
+2009-03-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect news.
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	* tests/lib/core/e-machine.c:
+	  Add the ability to have pre- and post-gain level meters.
+	  Main level meter is now post-gain.
+
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/render-progress.c:
+	  Ideas.
+
+2009-03-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect news.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Implement dynamic changes.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add keybindings for navigating the comboboxes from the pattern-editor.
+
+	* src/ui/edit/pattern-editor.c:
+	  Filter by keys by modifier.
+
+2009-03-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Implement wire parameter groups. Needs more work for dynamic changes.
+
+2009-03-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Todos and planning.
+
+2009-03-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Implements basic play notes (currently only works when song is playing).
+
+	* pixmaps/Makefile.am:
+	* pixmaps/stock_volume.png:
+	* pixmaps/stock_volume.png (added):
+	  Add temporary image for play-notes function.
+
+	* src/ui/edit/pattern-editor.h:
+	  Comments.
+
+	* design/gui/master.svg:
+	* design/gui/master.svg (added):
+	  Add image that we for last commit.
+	* src/lib/core/libbuzztard-core/machine-private.h (deleted):
+    This is not needed anymore.
+
+2009-03-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/svgcanvas2.c:
+	  Try using svg via pixbuf directly.
+
+2009-03-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	  Improve logging and do more cleanup.
+
+	* src/ui/edit/edit-application.c:
+	  When loading a new song, set old to NULL, so that stuff gets disposed. This
+	  fixes duplicated name issues.
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Fix cleanup, if song is reset from app before.
+
+2009-03-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Better workaround for older version without the fix.
+
+2009-03-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Update position to improv sync of new sources.
+
+	* src/lib/core/song.c:
+	  Workaround for segment-done problem.
+
+2009-03-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Fully switch to new code.
+
+	* src/lib/core/song.c:
+	  Log more details and check more return codes. Somehow the mainloop gets
+	  stuck for a moment when looping. We also get multiple segment-done messages.
+
+	* src/ui/edit/main-toolbar.c:
+	  Try high priority for position query updates, to ensure we update if
+	  mainloop is running.
+
+2009-03-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/registry.c:
+	  Don't leak hal-strings.
+
+2009-03-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/gtkvumeter.c:
+	  Comment merging.
+
+	* src/ui/edit/pattern-editor.c:
+	  Fix access of uninitialized memory.
+
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/volume-popup.c:
+	  Indenting and dead code removal.
+
+2009-03-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Intenting, and free option context in -exit.
+
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/gtkvumeter.h:
+	  Save the gradients.
+
+	* src/ui/edit/pattern-editor.c:
+	  Fully implement End key logic (to be opposite of Home).
+
+2009-03-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/tools.c:
+	  Prefer to use monotonic clock for cpu load display. Add info about to get
+	  the number of cpus, if we need to scale the load value.
+
+2009-03-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/wire-pattern.c:
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/ui-resources.c:
+	* src/ui/edit/volume-popup.c:
+	  Doc fixes.
+
+2009-03-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Fix some copy'n'paste bugs. Use template to do fresh renegotiation,
+	  otheriwse we can never go back from some selected format.
+
+2009-03-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Wrote & sent news.
+
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	  Calculate graph depth and do state changes in the right order. We still have
+	  negotiation failure :/.
+
+2009-03-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Add "play from cursor"/F6 functionaliy. Use enum for some constants in
+	  sequence page.
+
+2009-03-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-menu.c:
+	  Fix reursive menus. We now can have submenues of the same name several
+	  times.
+
+2009-03-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Check more return values.
+
+2009-03-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write news.
+
+	* buzztard.doap:
+	  CVS->SVN.
+
+	* configure.ac:
+	  Don't mention cvs anymore.
+
+	* src/lib/core/machine.c:
+	  Add more logging and return value checks.
+
+	* src/ui/edit/gtkvumeter.c:
+	  Add one more author.
+
+2009-03-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Try to activate the pad.
+
+	* src/lib/core/song-io.c:
+	  Use local symbol scope.
+
+2009-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/svgcanvas2.c:
+	  Desaturate the pixbuf as an example.
+
+2009-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/effect-mute.svg:
+	* design/gui/generator-solo.svg:
+	* design/gui/svgcanvas2.c:
+	* design/gui/svgcanvas2.c (added):
+	* design/gui/effect-mute.svg (added):
+	  Add another example for scaling svgs.
+
+	* src/ui/edit/main-page-machines.c:
+	  Disable debugging code.
+
+
+2009-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	  Disable scrollkeeper for distcheck (because it ignores the --prefix).
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	  Remove name spaces (gtk-doc can figure out automatically).
+
+2009-02-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Implement state-change order, plus various cleanups. Removing elements while
+	  playing seems to work, adding links results in errors still.
+
+2009-02-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Wrap macros to function and add warnings.
+
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/gtkvumeter.h:
+	  Add cairo version from http://bugzilla.gnome.org/show_bug.cgi?id=547490
+	  Do some fixes (diagonal fills) and add shading.
+
+2009-02-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  As moap has silently committed setup.c and songs.c anyway, atleast disable
+	  the new code for now.
+
+2009-02-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Fix format negotiation. Unset flushing of new pads.
+
+2009-02-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* autogen.sh:
+	* m4/shave.m4:
+	* shave-libtool.in:
+	* shave.in:
+	  Update shave.
+
+2009-02-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Set app name also in buzztard-cmd and set pulse hints for new pulseaudio
+	  versions (0.9.15).
+
+2009-02-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* m4/shave.m4:
+	* shave-libtool.in:
+	* shave.in:
+	* m4/shave.m4 (added):
+	* shave.in (added):
+	* shave-libtool.in (added):
+	  Have a less verbose build.
+
+2009-02-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* tests/Makefile.am:
+	  Use check from gtk-doc instead of own one.
+
+2009-02-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collect news.
+
+	* README:
+	* configure.ac:
+	  Give a hint if user installs into a non know location.
+
+2009-02-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-menu.c:
+	  Fix F10 shortcut and remove (duplicated) mnemonics from debug menu. Also
+	  don't mark debug menu items as translatable.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add idea.
+
+2009-02-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-menu.c:
+	  Implement proper hierarchies.
+
+2009-02-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Mark pattern column labels as translatable.
+
+2009-02-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Planning.
+
+2009-02-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Try to be helpful if we have disabled features.
+
+2009-02-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Small update and sent news.
+
+2009-02-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Writing news.
+
+	* src/lib/core/setup.c:
+	* src/ui/edit/machine-canvas-item.c:
+	  Planning.
+
+2009-02-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-menu.c:
+	  More robust machine klass parsing code.
+
+2009-02-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/setup-methods.h:
+	* src/lib/core/libbuzztard-core/wire.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wire.c:
+	* tests/lib/core/e-network.c:
+	  Merge changes from REFACTOR_HIERARCHIC_PIPELINE branch.
+	  Turn machines and wires into bins themself. Add a new algorithms that add
+	  then bins to the pipeline only if they are connected to the master. This
+	  allows to play songs with some unconnected machines.
+	  Remove lots of not anymore needed code (more to be removed).
+
+2009-02-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
+	* src/lib/ic/ic.c:
+	  Fix the docs.
+
+2009-02-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/ref.c:
+	  Add another test.
+
+2009-02-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/Makefile.am:
+	  Add pdf generation.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Write a few more sentences. Add image scaling for pdf output.
+
+	* docs/help/mk-shadow.sh:
+	  Add todo comment about setting image dpi.
+
+2009-02-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/buzztard-edit-C.omf.in:
+	  Fix type in replacement variable, so that we get the correct date in.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Bump docbook version.
+
+2009-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-toolbar.c:
+	  Mark song as unsaved when master volume was changed. Removed "delayed"
+	  update policy for master volume and add some epsilon filtering for changes.
+
+2009-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/volume-popup.c:
+	  Fix delayed setting of master volume when loading songs. Also use same code
+	  to apply log-scaling for ui. Fixes to quiet volumes.
+
+2009-01-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wave.c:
+	* src/lib/core/wavetable.c:
+	  Port one more class.
+
+	* src/lib/core/wire-pattern.c:
+	  Fix type in comment.
+
+2009-01-20  Stefan Kost  <ensonic@users.sf.net>
+
+	reviewed by: <delete if not using a buddy>
+	patch by: <delete if not someone else's patch>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
+	* src/lib/ic/ic.c:
+
+2009-01-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:
+	* docs/reference/bt-core/buzztard-core-docs.sgml:
+	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
+	  Restructure docs.
+
+2009-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Downgrade left-over debug warning.
+
+2009-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/source-machine.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Only add machines once the are fully constructed, so that e.g. noone can add
+	  new patterns before sub-classes have added theirs.
+	  Also rework bt_pattern_new_with_event() to never return NULL. This is a
+	  protected method and their would have been failure before it its called.
+
+2009-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* tests/lib/core/e-network.c:
+	* tests/lib/core/e-setup.c:
+	* tests/lib/core/e-song-info.c:
+	* tests/lib/core/e-source-machine.c:
+	* tests/lib/core/t-pattern.c:
+	* tests/lib/core/t-sequence.c:
+	* tests/lib/core/t-setup.c:
+	* tests/lib/core/t-song-info.c:
+	* tests/lib/core/t-song.c:
+	  Port more classes to never return NULL, but check & warn in _constructed().
+	  Adjust the unit test for it.
+
+2009-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Fix drawing from different thread in other places. More notes about
+	  using gslice.
+
+2009-01-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  News sent.
+
+	* src/lib/core/sink-machine.c:
+	  Remove double return;
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Fix drawing from different thread. Need to do that elsewhere too. Also add a
+	  todo about using g_slice.
+
+2009-01-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* README:
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/application.c:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/persistence-methods.h:
+	* src/lib/core/libbuzztard-core/persistence.h:
+	* src/lib/core/libbuzztard-core/processor-machine-methods.h:
+	* src/lib/core/libbuzztard-core/settings-methods.h:
+	* src/lib/core/libbuzztard-core/sink-machine-methods.h:
+	* src/lib/core/libbuzztard-core/source-machine-methods.h:
+	* src/lib/core/libbuzztard-core/wire-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/plainfile-settings.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/settings.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song-io-native-bzt.c:
+	* src/lib/core/song-io-native-xml.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/lib/ic/abs-range-control.c:
+	* src/lib/ic/control.c:
+	* src/lib/ic/device.c:
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/midi-device.c:
+	* src/lib/ic/registry.c:
+	* src/lib/ic/trigger-control.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	* tests/bt-check.c:
+	* tests/bt-check.h:
+	* tests/bt-test-settings.c:
+	* tests/lib/core/Makefile.am:
+	* tests/lib/core/e-machine.c:
+	* tests/lib/core/e-network.c:
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/e-processor-machine.c:
+	* tests/lib/core/e-sequence.c:
+	* tests/lib/core/e-setup.c:
+	* tests/lib/core/e-sink-machine.c:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/lib/core/e-source-machine.c:
+	* tests/lib/core/s-sink-machine.c:
+	* tests/lib/core/t-machine.c:
+	* tests/lib/core/t-sequence.c:
+	* tests/lib/core/t-setup.c:
+	* tests/lib/core/t-sink-machine.c:
+	* tests/lib/core/t-song.c:
+	* tests/lib/core/t-source-machine.c:
+	* tests/lib/core/t-wire.c:
+	* tests/ui/edit/e-bt-machine-rename-dialog.c:
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c:
+	* tests/lib/core/e-sink-machine.c (added):
+	  Refactor libbtcore gobject to use constructed() vmethod and get rid of own
+	  post g_object_new() construction. Now all _new() methods are pure
+	  convinience. Like in g_object_new() they will never return NULL now.
+	  Cleanup the persistence implementation to work with that. Now
+	  _load() acts as a factory and creates objects. Turn many properties into
+	  construct-only and therefore also drop code that did custom error-handling
+	  to avoid changing those.
+	  Add more tests. For some of the aspects above more changes are comming.
+
+2009-01-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/ui/edit/ui-resources.c:
+	* src/ui/edit/ui-resources.h:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Add one more color and draw a grid in the background. Add more ideas.
+
+2009-01-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bindings/play.js:
+	* design/bindings/play.py:
+	  API updates.
+
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-page-machines.c:
+	  Revert the changes, that moap sneaked in with last commit.
+
+2009-01-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/btmemoryaudiosrc.c:
+	  Include tools.h for G_PARAM_STATIC_STRINGS.
+
+2009-01-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	  Be more efficient.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Allow to remove disconnected machine with unused patterns without
+	  asking.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Allow to remove unused patterns withou asking.
+
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Document the ui shortcuts.
+
+2009-01-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fix crasher on 64bit when checking number of voices.
+
+2009-01-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/song-io-methods.h:
+	* src/lib/core/song-io.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/edit-application.c:
+	* tests/lib/core/e-song-info.c:
+	* tests/lib/core/e-song-io-native.c:
+	* tests/lib/core/e-song-io.c:
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/t-sink-machine.c:
+	* tests/lib/core/t-song-io-native.c:
+	* tests/lib/core/t-song-io.c:
+	  bt_song_io_new -> bt_song_io_make, its not a constructor. Better docs for
+	  it.
+
+2009-01-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  Don't use a pattern rule. It is not portable and not needed here.
+
+2008-12-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write NEWS.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Also show selection in cursor column. Clamp cursor pos to editable area.
+
+2008-12-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Draw the cursor in label column as well.
+
+2008-12-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	  Link to libintl if needed.
+
+	* src/lib/core/pattern.c:
+	* src/lib/core/song-info.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/settings-page-playback-controller.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Comments for translators.
+
+	* src/ui/edit/main-menu.c:
+	  Warn if env-var is not set.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Make Ctrl-R removing current track. Fix cursor pos after moving tracks.
+	  Fix insert/delete full row shortcuts.
+
+2008-12-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* autogen.sh:
+	  Make use of a macro dir.
+
+2008-12-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-menu.c:
+	  Add a debug menu (when configured with --enable-debug). Add command to dump
+	  and show gstreamer pipeline for current song.
+
+2008-12-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Mark as done.
+
+	* m4/README (deleted):
+	  Not needed.
+
+2008-12-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Use more automake features.
+
+	* docs/reference/Makefile.am:
+	  Tell why we override build order.
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	  No need to override build order.
+
+2008-12-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Run 'autoupdate' on configure.ac.
+
+2008-12-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	* src/lib/core/song.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Improve playback position handling to work like in buzz.
+
+2008-12-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Add logging.
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	  Set unsaved when editing machine properties. Filter more interfaces.
+
+	*	src/ui/edit/machine-properties-dialog.c:
+	  Set unsaved when editing machine properties. Better code reuse. Remove some
+	  leftover code.
+
+2008-12-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* README:
+	  Move hacking stuff to wiki.
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Turn 48 into define and make it 64 for now.
+
+2008-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  More vertical reserve. Fix crashers when closing properties window while
+	  playing. Fix leaks of NotifyData.
+
+2008-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	  Filter baseclass and iface properties.
+
+2008-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/LINGUAS:
+	* po/id.po:
+	* po/id.po (added):
+	  Add new translation.
+
+2008-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbuzztard-core.pc.in:
+	* src/lib/ic/libbuzztard-ic.pc.in:
+	  Require full include paths.
+
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/gtkvumeter.h:
+	  Update license.
+
+2008-12-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/buzzcallbacks.c:
+	  Use full include path.
+
+2008-12-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/song.c:
+	  Ideas.
+
+	* src/ui/edit/bt-edit.gtkrc:
+	  Readd small vertical spacing.
+
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-toolbar.c:
+	  Updating 10 times a second is enough.
+
+2008-12-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-menu.c:
+	  No idea how, but this file got borked on last commit.
+
+2008-12-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/machine.c:
+	* src/lib/core/libbuzztard-core/machine-methods.h:
+	  Add one more debugging method.
+
+	* src/lib/core/song.c:
+	  Ideas and logging.
+
+	* buzztard.schemas.in:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbuzztard-core/settings-private.h:
+	* src/lib/core/settings.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-window.c:
+	  Add setting & UI for hiding status-bar. Add UI for fullscreen-
+	  switching.
+
+2008-12-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Don't warn for unhandled format for string types. Add more logging.
+
+	* src/lib/core/sink-bin.c:
+	  Add missing negation for error logging.
+
+	* src/lib/core/song.c:
+	  Remove timeout earlier. Hopefully fixes gobject warning when playing one
+	  song after the other.
+
+2008-12-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Fix comments. Don't leak param_parent for voices.
+
+2008-12-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Slightly reflow drawing code. Would be nice to collect strings for the
+	  groups and draw less often.
+
+2008-12-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/gconf-settings.c:
+	  Handle undefined settings (strange that GError did not worked).
+
+	* src/lib/core/settings.c:
+	  Use symbolic default.
+
+	* src/lib/core/sink-bin.c:
+	  Add more logging for error cases.
+
+2008-12-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Support LONG and ULONG here.
+
+2008-12-07  Stefan Kost  <ensonic@users.sf.net>
+
+	patch by: Carl-Anton Ingmarsson <ca.ingmarsson@gmail.com>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Fix handling of sparse enums.
+
+2008-12-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-actions.c:
+	  Fix copy'n' paste error.
+
+2008-12-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-actions.c:
+	* src/ui/edit/machine-actions.h:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-menu.c:
+	  No libgnome-dependency anymore.
+
+2008-12-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Allow deleting machines without asking if they have not been used. Needs
+	  work for generators.
+
+2008-12-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-waves.c:
+	  The wavetable list in pattern-view had an off by one.
+
+2008-12-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fix compilation.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Don't throw criticals when cursor lands out of range in sequence.
+
+2008-12-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Always count internal patterns. Fixes not grayed menu entries in pattern-view
+	  context menu for master.
+
+	* src/lib/core/persistence.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-patterns.c:
+	  More format string fixes.
+
+2008-12-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Sent NEWS.
+
+	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	  Remove double entry.
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/ic/registry.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/playback-controller-socket.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	* src/ui/edit/ui-resources.c:
+	* tests/bt-check.c:
+	* tests/bt-test-plugin.c:
+	  Fix format string warnings.
+
+2008-12-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Collecting news.
+
+	* design/gui/stylecolors.c:
+	  Add sample invocation.
+
+	* src/ui/edit/pattern-editor.c:
+	  More color tuning.
+
+2008-12-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/reference/bt-core/buzztard-core.types:
+	* docs/reference/bt-core/buzztard-core.types.in:
+	* docs/reference/bt-ic/buzztard-ic.types:
+	* docs/reference/bt-ic/buzztard-ic.types.in:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/ic_private.h:
+	* src/lib/ic/libbuzztard-ic/Makefile.am:
+	* src/lib/ic/libbuzztard-ic/ic.h:
+	* src/lib/ic/registry.c:
+	* docs/reference/bt-core/buzztard-core.types.in (added):
+	* docs/reference/bt-ic/buzztard-ic.types.in (added):
+	* docs/reference/bt-core/buzztard-core.types (deleted):
+	* docs/reference/bt-ic/buzztard-ic.types (deleted):
+	  Make LINUX_INPUT code conditional. Fixes #2367654
+	  Also make those gobject conditional in the docs (same for gconf while we are
+	  at it).
+
+2008-12-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/bt-edit.gtkrc:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Use extra gc for row-shading. Experiment with theming it.
+
+2008-12-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/bt-edit.gtkrc:
+	* src/ui/edit/main-page-sequence.c:
+	  Add own extra gtk theming.
+
+2008-12-02  Stefan Kost  <ensonic@users.sf.net>
+
+	patch by: Thomas Klausner <thomasklausner at users.sourceforge.net>
+
+	* src/ui/edit/playback-controller-socket.c:
+	  INADDR_ANY and struct sockaddr_in on NetBSD are defined in netinet/in.h.
+	  Also the initialization was not portable. Fixes #2367668.
+
+2008-12-02  Stefan Kost  <ensonic@users.sf.net>
+
+	patch by: Thomas Klausner <thomasklausner at users.sourceforge.net>
+
+	* src/ui/cmd/bt-cmd.h:
+	* src/ui/edit/bt-edit.h:
+	  We need an include for setlocale(). Fixes #2367650
+
+2008-12-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Show more detail in he final configuration summary.
+
+2008-11-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* buzztard.schemas.in:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbuzztard-core/settings-private.h:
+	* src/lib/core/settings.c:
+	* src/lib/core/sink-bin.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Make sampling rate and channels configurable.
+
+	* tests/Makefile.am:
+	  Example for forcing a theme.
+
+	* design/gst/linking.dot:
+	* design/gst/linking.dot (added):
+	* src/lib/core/machine.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/wire.c:
+	  Planning.
+
+2008-11-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/interaction-controller-menu.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-directories.c:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	* src/ui/edit/settings-page-playback-controller.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Cleanup gtk_widget_set_name() - no need to make as translatable -
+	  sorry for those translations that now become obsolete.
+
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Filter ladspa stuff. Add ui for configuring sampling-rate and
+	  channels.
+
+2008-11-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Back to development.

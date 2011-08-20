@@ -1,0 +1,2448 @@
+=== release 0.2.0 ===
+
+2007-05-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	  Hotfix double free
+
+2007-05-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	* configure.ac:
+	* po/de.po:
+	* src/ui/edit/edit-application.c (bt_edit_application_show_about):
+	* src/ui/edit/settings-dialog.c (bt_settings_dialog_init_ui):
+	  Releasing
+
+2007-05-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Wrote and sent news.
+
+2007-04-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/lib/core/e-network.c (BT_START_TEST, BT_START_TEST,
+	  BT_START_TEST, BT_START_TEST, bt_network_example_case):
+	  Reactivate two tests that now work and prepare another for #1709322.
+
+2007-04-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	  Fix the tests.
+
+2007-04-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	* NEWSLETTER:
+	  More release preparation.
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Some more user guide paragraphs.
+
+2007-04-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_get_peer):
+	* src/lib/core/wire.c: (bt_wire_get_src_peer_pad),
+	(bt_wire_unlink_machines):
+	  Release request pads, when unlinking from adder. Fixes #1709322.
+
+2007-04-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* buzztard.doap:
+	  Add first release to history.
+
+	* src/lib/core/machine.c (bt_machine_dispose):
+	* src/lib/core/wire.c (bt_wire_deactivate_analyzers, bt_wire_dispose):
+	  Unlink elements in machine when disposing. Better debug logging. Fixes #1707610.
+
+2007-04-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c (on_song_paused_timeout,
+	  on_song_playback_timeout, bt_song_write_to_lowlevel_dot_file):
+	  Escaping spaces in names, Fixes #1707615.
+
+2007-04-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	* src/lib/core/song.c: (bt_song_dispose):
+	  Some more debug logging.
+
+2007-04-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_resize_voices),
+	(bt_machine_init_global_params), (bt_machine_dispose):
+	* src/lib/core/sequence.c: (bt_sequence_remove_track_by_machine):
+	* src/ui/edit/machine-menu.c: (on_source_machine_add_activated),
+	(on_processor_machine_add_activated), (bt_machine_menu_compare):
+	* src/ui/edit/main-toolbar.c: (on_song_error):
+	  Fix GstController leaks.
+
+2007-04-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c (bt_machine_persistence_load):
+	  Reset error=NULL for reuse.
+
+2007-04-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	* NEWSLETTER:
+	  More release preparation
+
+	* src/lib/core/song.c: (on_song_state_changed), (bt_song_play),
+	(bt_song_stop):
+	  Fix loop when we can't open the audio device.
+
+2007-04-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Prepare news
+
+	* buzztard.doap:
+	  Prepare for moap
+
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_play):
+	  Print missing stuff also for play.
+
+2007-04-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/pattern.c: (bt_pattern_persistence_load):
+	  Reset error=NULL for reuse.
+
+2007-04-24  Stefan Kost  <ensonic@users.sf.net>
+
+	Patch by: Henri Valta <henrivee@users.sourceforge.net>
+
+	* src/ui/edit/main-page-machines.c: (on_toolbar_zoom_fit_clicked):
+	  Fix zoom fit, Fixes #1683817
+
+2007-04-24  Stefan Kost  <ensonic@users.sf.net>
+
+	Patch by: Henri Valta <henrivee@users.sourceforge.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_realize):
+	  Fix machine creation when zoom!=1, Fixes #1684508
+
+2007-04-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  update the user-docs
+
+2007-04-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  prepare next newsletter
+
+	* po/de.po:
+	  update translations
+
+	* src/lib/core/machine.c: (bt_machine_persistence_save):
+	  comment typo and add comment for todo
+
+	* src/lib/core/pattern.c: (bt_pattern_set_global_event),
+	(bt_pattern_set_voice_event):
+	  fix marking songs as changed when editing the pattern
+
+	* src/lib/core/sequence.c: (bt_sequence_invalidate_pattern_region):
+	  fix pattern updates
+
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos),
+	(bt_song_update_play_seek_event), (on_song_segment_done),
+	(bt_song_dispose):
+	  add non flushing seek for countinious playback
+
+	* src/ui/edit/main-page-sequence.c: (sequence_view_set_pos):
+	  fix setting end of loop
+
+	* tests/bt-cmd-convert.sh:
+	  add new test script (not yet run by default)
+
+2007-04-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/pattern.c: (bt_pattern_persistence_save):
+	  and another save fix (was swapping two params).
+
+2007-04-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/lib/core/e-pattern.c: (BT_START_TEST):
+	  build fix
+
+2007-04-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/sink-bin.c: (bt_sink_bin_tempo_change_tempo),
+	(bt_sink_bin_tempo_interface_init),
+	(bt_sink_bin_get_player_elements), (bt_sink_bin_get_property),
+	(bt_sink_bin_set_property), (bt_sink_bin_class_init),
+	(bt_sink_bin_get_type):
+	  add tempo iface to sink
+
+	* tests/lib/core/e-pattern.c: (BT_START_TEST),
+	(bt_pattern_example_case):
+	  add new test for pattern_tick_has_data.
+
+2007-04-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/persistence.h:
+	* src/lib/core/machine.c: (bt_machine_persistence_load):
+	* src/lib/core/pattern.c: (bt_pattern_init_data),
+	(bt_pattern_resize_data_length), (bt_pattern_resize_data_voices),
+	(bt_pattern_new), (bt_pattern_new_with_event), (bt_pattern_copy),
+	(bt_pattern_get_global_param_index),
+	(bt_pattern_get_voice_param_index),
+	(bt_pattern_get_voice_event_data), (bt_pattern_set_voice_event),
+	(bt_pattern_tick_has_data), (bt_pattern_persistence_save),
+	(bt_pattern_persistence_load),
+	(bt_pattern_persistence_interface_init), (bt_pattern_set_property),
+	(bt_pattern_finalize), (bt_pattern_class_init):
+	* src/lib/core/sequence.c: (bt_sequence_resize_data_length),
+	(bt_sequence_resize_data_tracks), (bt_sequence_persistence_load):
+	* src/lib/core/setup.c: (bt_setup_get_wire_by_machine_type),
+	(bt_setup_add_machine), (bt_setup_add_wire),
+	(bt_setup_remove_machine), (bt_setup_remove_wire),
+	(bt_setup_get_machine_by_id), (bt_setup_get_machine_by_index),
+	(bt_setup_get_wire_by_machines), (bt_setup_get_unique_machine_id),
+	(bt_setup_persistence_save), (bt_setup_persistence_load),
+	(bt_setup_persistence_interface_init), (bt_setup_dispose),
+	(bt_setup_finalize), (bt_setup_init), (bt_setup_class_init):
+	* src/lib/core/song-info.c: (bt_song_info_persistence_load):
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos),
+	(bt_song_update_play_seek_event), (bt_song_stop):
+	* src/lib/core/wavetable.c: (bt_wavetable_add_wave),
+	(bt_wavetable_remove_wave), (bt_wavetable_persistence_save),
+	(bt_wavetable_persistence_load),
+	(bt_wavetable_persistence_interface_init), (bt_wavetable_init):
+	* src/lib/ic/input-device.c:
+	* src/ui/edit/main-toolbar.c: (on_song_level_change):
+	  fix pattern saving. lower some warnings. make song loading more tolerant (configurable via define in persistence.h).
+
+2007-04-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	(bt_sequence_on_pattern_global_param_changed),
+	(bt_sequence_on_pattern_voice_param_changed),
+	(bt_sequence_set_pattern):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_link_many),
+	(bt_sink_bin_get_player_elements),
+	(bt_sink_bin_get_recorder_elements), (bt_sink_bin_update):
+	* src/ui/edit/main-page-patterns.c:
+	* tests/lib/core/e-sequence.c: (BT_START_TEST),
+	(bt_sequence_example_case):
+	  fix build and hopefully #1701421
+
+2007-04-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	(bt_sequence_on_pattern_global_param_changed),
+	(bt_sequence_set_pattern):
+	  some logging for #1701421
+
+2007-04-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* src/lib/core/song-io.c: (bt_song_io_register_plugins),
+	(bt_song_io_detect), (bt_song_io_new), (bt_song_io_default_load),
+	(bt_song_io_default_save), (bt_song_io_load), (bt_song_io_save),
+	(bt_song_io_init), (bt_song_io_class_init):
+	* src/lib/ic/device.c: (btic_device_default_start),
+	(btic_device_default_stop), (btic_device_start),
+	(btic_device_stop), (btic_device_class_init):
+	* src/lib/ic/input-device.c: (register_trigger_controls),
+	(register_abs_range_controls), (io_handler),
+	(btic_input_device_start), (btic_input_device_stop),
+	(btic_input_device_dispose), (btic_input_device_finalize),
+	(btic_input_device_init), (btic_input_device_class_init):
+	* src/lib/ic/libbtic/device-methods.h:
+	* src/lib/ic/libbtic/device.h:
+	* src/lib/ic/midi-device.c: (btic_midi_device_start),
+	(btic_midi_device_stop), (btic_midi_device_class_init):
+	* src/ui/edit/interaction-controller-menu.c:
+	(on_range_control_notify), (on_trigger_control_notify),
+	(on_control_bind_activated),
+	(bt_interaction_controller_menu_init_control_menu),
+	(bt_interaction_controller_menu_init_device_menu),
+	(bt_interaction_controller_menu_get_property),
+	(bt_interaction_controller_menu_set_property),
+	(bt_interaction_controller_menu_dispose),
+	(bt_interaction_controller_menu_class_init):
+	* src/ui/edit/machine-properties-dialog.c: (make_control_data),
+	(free_control_data), (on_double_range_property_notify_idle),
+	(on_double_range_property_changed),
+	(on_double_range_control_notify), (on_double_range_control_bind),
+	(on_double_range_button_press_event),
+	(on_float_range_property_notify_idle),
+	(on_float_range_property_changed),
+	(on_int_range_property_notify_idle),
+	(on_int_range_property_changed),
+	(on_uint_range_property_notify_idle),
+	(on_uint_range_property_changed), (on_uint_range_control_notify),
+	(on_uint_range_control_bind), (on_uint_range_button_press_event),
+	(on_checkbox_control_notify), (on_checkbox_control_bind),
+	(on_checkbox_button_press_event), (make_checkbox_widget),
+	(make_int_range_widget), (make_uint_range_widget),
+	(make_float_range_widget), (make_double_range_widget),
+	(make_combobox_widget), (bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_dispose),
+	(bt_machine_properties_dialog_finalize),
+	(bt_machine_properties_dialog_init),
+	(bt_machine_properties_dialog_class_init):
+	  implement input device interaction controllers, implement ui to bind controls
+
+2007-04-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* docs/reference/bt-ic/bt-ic.types:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/abs-range-control.c: (btic_abs_range_control_new),
+	(btic_abs_range_control_get_property),
+	(btic_abs_range_control_set_property),
+	(btic_abs_range_control_dispose),
+	(btic_abs_range_control_finalize), (btic_abs_range_control_init),
+	(btic_abs_range_control_class_init),
+	(btic_abs_range_control_get_type):
+	* src/lib/ic/input-device.c: (register_abs_range_controls):
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/abs-range-control-methods.h:
+	* src/lib/ic/libbtic/abs-range-control.h:
+	* src/lib/ic/libbtic/ic.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	(on_controller_bind_activated),
+	(bt_interaction_controller_menu_init_control_menu):
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_dispose):
+	  add the range control and some comments about binding them
+
+2007-04-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c: (pattern_list_refresh),
+	(bt_main_page_sequence_dispose):
+	  fixed two runtime-warnings
+
+2007-04-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* docs/reference/bt-ic/bt-ic.types:
+	* src/lib/core/sink-bin.c:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/control.c: (btic_control_get_property),
+	(btic_control_set_property), (btic_control_dispose),
+	(btic_control_finalize), (btic_control_init),
+	(btic_control_class_init), (btic_control_get_type):
+	* src/lib/ic/device.c: (btic_device_add_control),
+	(btic_device_get_property), (btic_device_finalize),
+	(btic_device_class_init):
+	* src/lib/ic/input-device.c: (register_trigger_controls),
+	(register_abs_range_controls), (register_controls),
+	(btic_input_device_set_property):
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/control-methods.h:
+	* src/lib/ic/libbtic/control.h:
+	* src/lib/ic/libbtic/device-methods.h:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/trigger-control-methods.h:
+	* src/lib/ic/libbtic/trigger-control.h:
+	* src/lib/ic/trigger-control.c: (btic_trigger_control_new),
+	(btic_trigger_control_get_property),
+	(btic_trigger_control_set_property),
+	(btic_trigger_control_dispose), (btic_trigger_control_finalize),
+	(btic_trigger_control_init), (btic_trigger_control_class_init),
+	(btic_trigger_control_get_type):
+	  start with the classes for the controls
+
+	* src/ui/edit/interaction-controller-menu.c:
+	(bt_interaction_controller_menu_init_control_menu),
+	(bt_interaction_controller_menu_init_device_menu),
+	(bt_interaction_controller_menu_init_ui):
+	  add list of control targets
+
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	  fix docs
+
+2007-04-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* TODO:
+	  New report idea
+
+	* po/POTFILES.in:
+	  Add new translatable source.
+
+	* design/input/input.c: (main):
+	* src/lib/ic/input-device.c: (register_trigger_controllers),
+	(register_abs_range_controllers), (register_controllers):
+	  Prepare the HIDDev support
+
+	* tests/lib/core/e-machine.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/e-pattern.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/e-processor-machine.c: (test_teardown),
+	(BT_START_TEST):
+	* tests/lib/core/e-sequence.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/e-setup.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/e-song-info.c: (test_teardown):
+	* tests/lib/core/e-song.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/e-source-machine.c: (test_teardown),
+	(BT_START_TEST):
+	* tests/lib/core/t-core.c:
+	* tests/lib/core/t-machine.c: (test_teardown), (BT_START_TEST),
+	(bt_machine_test_case):
+	* tests/lib/core/t-network.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/t-pattern.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/t-sequence.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/t-settings.c: (get_settings), (test_teardown),
+	(BT_START_TEST):
+	* tests/lib/core/t-sink-machine.c: (test_teardown),
+	(BT_START_TEST):
+	* tests/lib/core/t-song.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/t-source-machine.c: (test_teardown),
+	(BT_START_TEST):
+	* tests/lib/core/t-wire.c: (test_teardown), (BT_START_TEST):
+	* tests/m-bt-core.c: (bt_core_setup), (bt_core_teardown), (main):
+	  Cleanup on the tests
+
+2007-04-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/input/input.c: (main):
+	* src/lib/ic/input-device.c: (register_controllers),
+	(btic_input_device_set_property):
+	  started evdev implementation
+
+2007-04-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  spellchecking
+
+	* design/input/input.c: (main):
+	* design/input/jstest.c: (main):
+	  add two new test sources
+
+2007-04-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing):
+	  disable test code
+
+	* src/ui/edit/main-page-patterns.c: (on_pattern_menu_changed),
+	(bt_main_page_patterns_init_ui):
+	* src/ui/edit/main-page-sequence.c: (sequence_add_track),
+	(on_track_remove_activated), (bt_main_page_sequence_init_ui):
+	  fix gtk+ warning about unrealized widget.
+
+2007-04-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	* README:
+	  update README and add links to NEWSLETTER
+
+2007-04-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  write news.
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	  new class added
+
+	* src/lib/core/machine.c: (bt_machine_enable_input_level):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_add_many):
+	* src/lib/ic/device.c: (btic_device_dispose), (btic_device_init):
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/midi-device.c:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing),
+	(bt_edit_application_show_about):
+	* src/ui/edit/gtkvumeter.c: (gtk_vumeter_get_type),
+	(gtk_vumeter_class_init), (gtk_vumeter_destroy),
+	(gtk_vumeter_realize), (gtk_vumeter_size_request),
+	(gtk_vumeter_size_allocate), (gtk_vumeter_expose),
+	(gtk_vumeter_free_colors), (gtk_vumeter_setup_colors),
+	(gtk_vumeter_sound_level_to_draw_level), (gtk_vumeter_set_min_max),
+	(gtk_vumeter_set_levels), (gtk_vumeter_set_peaks_falloff),
+	(gtk_vumeter_set_scale):
+	* src/ui/edit/gtkvumeter.h:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	(on_name_changed), (bt_machine_preset_properties_dialog_init_ui),
+	(bt_machine_preset_properties_dialog_new),
+	(bt_machine_preset_properties_dialog_apply),
+	(bt_machine_preset_properties_dialog_dispose),
+	(bt_machine_preset_properties_dialog_finalize),
+	(bt_machine_preset_properties_dialog_init),
+	(bt_machine_preset_properties_dialog_class_init):
+	* src/ui/edit/machine-properties-dialog.c:
+	(preset_list_edit_preset_meta):
+	* src/ui/edit/main-page-sequence.c: (on_song_level_change),
+	(sequence_table_refresh):
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_update_length),
+	(on_song_play_pos_notify), (on_cpu_load_update),
+	(bt_main_statusbar_init_ui), (bt_main_statusbar_dispose),
+	(bt_main_statusbar_finalize), (bt_main_statusbar_init):
+	* src/ui/edit/main-toolbar.c: (on_song_level_change),
+	(bt_main_toolbar_init_ui):
+	* src/ui/edit/missing-framework-elements-dialog-methods.h:
+	* src/ui/edit/missing-framework-elements-dialog.c: (make_listview),
+	(bt_missing_framework_elements_dialog_init_ui),
+	(bt_missing_framework_elements_dialog_new),
+	(bt_missing_framework_elements_dialog_apply),
+	(bt_missing_framework_elements_dialog_get_property),
+	(bt_missing_framework_elements_dialog_set_property),
+	(bt_missing_framework_elements_dialog_dispose),
+	(bt_missing_framework_elements_dialog_finalize),
+	(bt_missing_framework_elements_dialog_init),
+	(bt_missing_framework_elements_dialog_class_init),
+	(bt_missing_framework_elements_dialog_get_type):
+	* src/ui/edit/missing-framework-elements-dialog.h:
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui),
+	(bt_pattern_properties_dialog_new),
+	(bt_pattern_properties_dialog_dispose),
+	(bt_pattern_properties_dialog_finalize),
+	(bt_pattern_properties_dialog_init),
+	(bt_pattern_properties_dialog_class_init):
+	* src/ui/edit/pattern-view.c: (bt_pattern_view_expose_event):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui):
+	* src/ui/edit/volume-popup.c: (cb_dock_press):
+	* tests/ui/edit/e-bt-settings-dialog.c: (BT_START_TEST),
+	(bt_settings_dialog_example_case):
+	  more ideas, level meter tuning, cpu load meter placment changed,
+	  factored missing machines dialog into new class, make it remember
+	  missing machines.
+
+2007-03-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/cmd/cmd-application.c: (on_song_is_playing_notify),
+	(bt_cmd_application_prepare_encoding), (bt_cmd_application_new),
+	(bt_cmd_application_play), (bt_cmd_application_info),
+	(bt_cmd_application_convert), (bt_cmd_application_encode),
+	(bt_cmd_application_dispose), (bt_cmd_application_init),
+	(bt_cmd_application_class_init):
+	* tests/bt-check.c: (check_get_test_song_path):
+	* tests/bt-check.h:
+	* tests/ui/cmd/e-bt-cmd-application.c: (BT_START_TEST),
+	(bt_cmd_application_example_case):
+	  increase test timeout
+
+2007-03-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	* po/POTFILES.in:
+	* src/lib/core/song-info.c: (bt_song_info_new),
+	(bt_song_info_persistence_save), (bt_song_info_persistence_load),
+	(bt_song_info_persistence_interface_init),
+	(bt_song_info_set_property), (bt_song_info_init),
+	(bt_song_info_class_init):
+	* src/ui/edit/main-page-patterns.c:
+	(pattern_view_update_column_description), (on_page_switched):
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_key_release_event):
+	* src/ui/edit/settings-page-playback-controller.c:
+	(bt_settings_page_playback_controller_init_ui),
+	(bt_settings_page_playback_controller_new):
+          add coherence URL, more comments, more user docs and new translatable
+          file
+
+2007-03-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* buzztard.schemas.in:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_get_property),
+	(bt_gconf_settings_set_property):
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/libbtcore/settings-private.h:
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	* src/lib/core/persistence.c: (bt_persistence_set_value),
+	(bt_persistence_get_value):
+	* src/lib/core/sequence.c: (bt_sequence_invalidate_pattern_region),
+	(bt_sequence_repair_global_damage_entry),
+	(bt_sequence_on_pattern_removed), (bt_sequence_set_pattern),
+	(bt_sequence_is_pattern_used):
+	* src/lib/core/settings.c: (bt_settings_class_init):
+	* src/lib/core/song.c: (bt_song_stop):
+	* src/lib/ic/registry.c: (on_device_added):
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing):
+	* src/ui/edit/gtkvumeter.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	(bt_interaction_controller_menu_init_submenu),
+	(bt_interaction_controller_menu_init_ui):
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_compare):
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_double_range_button_press_event),
+	(on_uint_range_button_press_event):
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c: (on_canvas_event):
+	* src/ui/edit/main-page-patterns-methods.h:
+	* src/ui/edit/main-page-patterns.c:
+	(pattern_view_update_column_description),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited),
+	(pattern_menu_refresh), (pattern_table_refresh),
+	(on_page_switched_idle), (on_page_switched),
+	(on_context_menu_pattern_remove_activate),
+	(bt_main_page_patterns_init_ui),
+	(bt_main_page_patterns_show_machine):
+	* src/ui/edit/main-page-sequence.c: (sequence_model_recolorize),
+	(pattern_list_refresh), (sequence_add_track),
+	(on_track_add_activated), (on_sequence_table_key_release_event),
+	(on_sequence_header_button_press_event), (on_machine_added),
+	(on_machine_removed), (on_pattern_changed),
+	(bt_main_page_sequence_init_ui):
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-window.c: (bt_main_window_init_ui):
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/pattern-view.h:
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (on_song_is_playing_notify):
+	* src/ui/edit/sequence-view.h:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/volume-popup.c: (cb_dock_press):
+	* src/ui/edit/volume-popup.h:
+	* src/ui/edit/wire-canvas-item.c:
+	* tests/songs/combi2.xml:
+	  add config for remembering missing machines, ref-count fixes, improve
+	  navigation between pattern & sequence, make unused patterns gray in
+	  pattern and sequence view, warn differently when removing a used/
+	  unused pattern, fix warning when clearing a note and playing
+	  afterwards, add context menu to sequence header, more ui docs,
+	  lots of idea comments
+
+2007-03-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (on_song_is_playing_notify):
+	  made play-from-label work
+
+2007-03-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-info.c: (bt_song_info_set_property):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos):
+	* src/lib/ic/registry.c: (on_device_added):
+	* src/ui/cmd/bt-cmd.c: (main):
+	* src/ui/edit/bt-edit.c: (main):
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_compare),
+	(bt_machine_menu_init_submenu):
+	* src/ui/edit/main-statusbar.c: (on_song_play_pos_notify):
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process):
+	  fix memory leaks and workaround a stack smasher
+
+2007-03-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing):
+	* src/ui/edit/interaction-controller-menu-methods.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	(bt_interaction_controller_menu_type_get_type),
+	(on_controller_bind_activated),
+	(bt_interaction_controller_menu_init_submenu),
+	(bt_interaction_controller_menu_init_ui),
+	(bt_interaction_controller_menu_new),
+	(bt_interaction_controller_menu_get_property),
+	(bt_interaction_controller_menu_set_property),
+	(bt_interaction_controller_menu_dispose),
+	(bt_interaction_controller_menu_finalize),
+	(bt_interaction_controller_menu_init),
+	(bt_interaction_controller_menu_class_init),
+	(bt_interaction_controller_menu_get_type):
+	* src/ui/edit/interaction-controller-menu.h:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_double_range_button_press_event),
+	(on_uint_range_button_press_event), (make_uint_range_widget),
+	(make_double_range_widget), (bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_dispose):
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	* src/ui/edit/volume-popup.c: (cb_dock_press),
+	(bt_volume_popup_new):
+	  more documentation comments, added interaction controller menu (not
+	  yet functional).
+
+2007-03-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (on_song_state_changed),
+	(bt_song_write_to_lowlevel_dot_file):
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  more comments
+
+2007-03-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	* NEWSLETTER:
+	  add items
+
+	* design/gst/connection1.c: (message_received), (main):
+	* design/gst/loop1.c: (message_received), (state_changed), (main):
+	* design/gst/seek1.c: (event_loop), (main):
+	* design/gst/states1.c: (main):
+	* design/gst/states1a.c: (main):
+	* design/gst/states1b.c: (main):
+	* design/gst/states1c.c: (main):
+	* design/gst/states2.c: (main):
+	* design/gst/states3.c: (main):
+	* design/gst/states3a.c: (main):
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_set_property):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_clear),
+	(bt_sink_bin_add_many), (bt_sink_bin_link_many),
+	(bt_sink_bin_determine_plugin_name),
+	(bt_sink_bin_get_player_elements), (bt_sink_bin_update),
+	(on_song_state_changed), (on_audio_sink_changed),
+	(on_system_audio_sink_changed), (bt_sink_bin_set_property),
+	(bt_sink_bin_dispose), (bt_sink_bin_finalize), (bt_sink_bin_init),
+	(bt_sink_bin_class_init):
+	* src/lib/core/song.c: (bt_song_new):
+	* src/lib/ic/input-device.c:
+	* src/ui/edit/machine-menu.c: (on_source_machine_add_activated),
+	(on_processor_machine_add_activated),
+	(bt_machine_menu_init_submenu), (bt_machine_menu_init_ui),
+	(bt_machine_menu_dispose), (bt_machine_menu_finalize),
+	(bt_machine_menu_class_init):
+	* src/ui/edit/machine-preferences-dialog.c:
+	(on_range_property_notify), (on_double_entry_property_notify),
+	(on_combobox_property_notify), (on_range_property_changed),
+	(on_double_entry_property_changed),
+	(on_spinbutton_property_changed), (on_combobox_property_changed),
+	(bt_machine_preferences_dialog_init_ui),
+	(bt_machine_preferences_dialog_dispose),
+	(bt_machine_preferences_dialog_init),
+	(bt_machine_preferences_dialog_class_init):
+	* src/ui/edit/machine-properties-dialog.c: (make_checkbox_widget),
+	(make_int_range_widget), (make_uint_range_widget),
+	(make_float_range_widget), (make_double_range_widget),
+	(make_combobox_widget):
+	* src/ui/edit/main-page-sequence.c: (on_song_changed):
+	* src/ui/edit/main-page-waves.c: (waves_list_refresh),
+	(wavelevels_list_refresh), (on_waves_list_cursor_changed),
+	(on_toolbar_style_changed), (on_browser_toolbar_play_clicked),
+	(on_wavetable_toolbar_play_clicked), (on_playbin_state_changed),
+	(on_wavetable_toolbar_clear_clicked),
+	(on_file_chooser_load_sample), (bt_main_page_waves_init_ui),
+	(bt_main_page_waves_new), (bt_main_page_waves_dispose),
+	(bt_main_page_waves_finalize), (bt_main_page_waves_init),
+	(bt_main_page_waves_class_init):
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+	* src/ui/edit/playback-controller-socket.c: (on_active_notify):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	* src/ui/edit/settings-page-playback-controller.c:
+	(on_activate_toggled):
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_change),
+	(on_wire_analyzer_redraw), (bt_wire_analysis_dialog_make_element),
+	(bt_wire_analysis_dialog_init_ui),
+	(bt_wire_analysis_dialog_dispose), (bt_wire_analysis_dialog_init),
+	(bt_wire_analysis_dialog_class_init):
+	  cleanup (GCallback) -> G_CALLBACK, make instant apply work for
+	  changing the audiosink
+
+	* xmldocs.make:
+	  revert last change a bit
+
+2007-03-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(preset_list_edit_preset_meta), (preset_list_refresh),
+	(on_int_range_global_property_format_value),
+	(on_int_range_voice_property_format_value),
+	(on_uint_range_global_property_format_value),
+	(on_uint_range_voice_property_format_value),
+	(on_double_range_property_notify_idle),
+	(on_double_range_property_notify),
+	(on_double_range_property_changed),
+	(on_float_range_property_notify_idle),
+	(on_float_range_property_notify),
+	(on_float_range_property_changed),
+	(on_int_range_property_notify_idle),
+	(on_int_range_property_notify), (on_int_range_property_changed),
+	(on_uint_range_property_notify_idle),
+	(on_uint_range_property_notify), (on_uint_range_property_changed),
+	(on_combobox_property_notify_idle), (on_combobox_property_notify),
+	(on_combobox_property_changed), (on_checkbox_property_notify_idle),
+	(on_checkbox_property_notify), (on_checkbox_property_toggled),
+	(on_toolbar_about_clicked), (on_toolbar_preset_add_clicked),
+	(on_toolbar_preset_remove_clicked),
+	(on_toolbar_preset_edit_clicked),
+	(on_toolbar_preset_random_clicked), (on_preset_list_row_activated),
+	(on_preset_list_motion_notify), (on_toolbar_style_changed),
+	(make_checkbox_widget), (make_int_range_widget),
+	(make_uint_range_widget), (make_float_range_widget),
+	(make_double_range_widget), (make_combobox_widget),
+	(bt_machine_properties_dialog_init_preset_box),
+	(bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_dispose),
+	(bt_machine_properties_dialog_init),
+	(bt_machine_properties_dialog_class_init):
+	  fix looooong standing problem with Xlib async replies.
+
+2007-03-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* docs/Makefile.am:
+	* omf.make:
+	* src/lib/core/settings.c: (bt_settings_class_init):
+	* src/lib/core/song.c: (on_song_state_changed):
+	* src/ui/edit/main-page-patterns.c: (selection_cell_data_function),
+	(machine_model_get_iter_by_machine), (pattern_view_get_cursor_pos),
+	(pattern_view_update_column_description), (on_machine_id_changed),
+	(on_pattern_name_changed), (on_pattern_table_cursor_changed_idle),
+	(on_pattern_table_key_release_event),
+	(on_pattern_table_button_press_event),
+	(on_pattern_table_motion_notify_event),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited),
+	(machine_menu_add), (machine_menu_refresh),
+	(wavetable_menu_refresh), (pattern_pos_table_init),
+	(pattern_table_clear), (pattern_table_refresh),
+	(context_menu_refresh), (on_pattern_menu_changed),
+	(on_machine_added), (on_machine_removed),
+	(on_machine_menu_changed), (on_sequence_tick),
+	(on_context_menu_pattern_new_activate),
+	(on_context_menu_pattern_properties_activate),
+	(on_context_menu_pattern_remove_activate),
+	(on_context_menu_pattern_copy_activate),
+	(bt_main_page_patterns_init_ui),
+	(bt_main_page_patterns_get_current_machine),
+	(bt_main_page_patterns_get_current_pattern),
+	(bt_main_page_patterns_dispose), (bt_main_page_patterns_finalize),
+	(bt_main_page_patterns_init), (bt_main_page_patterns_class_init):
+	* src/ui/edit/playback-controller-socket.c:
+	(client_connection_close), (master_socket_io_handler),
+	(master_connection_close), (master_connection_open),
+	(on_port_notify), (on_active_notify), (settings_listen),
+	(bt_playback_controller_socket_set_property),
+	(bt_playback_controller_socket_dispose):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui):
+	* src/ui/edit/settings-page-interaction-controller.c:
+	(bt_settings_page_interaction_controller_init_ui):
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	* tests/songs/test-simple1.xml:
+	* tests/songs/test-simple2.xml:
+	* xmldocs.make:
+	  fix make distcheck, make test-songs quieter, make playback controller
+	  instant apply
+
+2007-03-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* README:
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_init_ui):
+	* tests/Makefile.am:
+	  unbreak the build
+
+2007-03-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	  new docs
+
+	* po/POTFILES.in:
+	  new translatable files
+
+	* buzztard.schemas.in:
+	* src/lib/core/gconf-settings.c:
+	(bt_gconf_settings_notify_toolbar_style), (bt_gconf_settings_new),
+	(bt_gconf_settings_get_property), (bt_gconf_settings_set_property),
+	(bt_gconf_settings_dispose), (bt_gconf_settings_init):
+	* src/lib/core/libbtcore/settings-private.h:
+	* src/lib/core/settings.c: (bt_settings_init),
+	(bt_settings_class_init):
+	  new settings for playback controller
+
+	* src/lib/core/wire.c: (bt_wire_link_machines):
+	  comment on with/without audioconvert problem
+
+	* src/lib/ic/Makefile.am:
+	  dist fix
+
+	* src/lib/ic/libbtic/midi-device-methods.h:
+	* src/lib/ic/registry.c: (on_device_added):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c: (on_songio_status_changed),
+	(bt_edit_application_check_missing), (bt_edit_application_run_ui),
+	(bt_edit_application_new), (bt_edit_application_new_song),
+	(bt_edit_application_load_song), (bt_edit_application_save_song),
+	(bt_edit_application_show_about),
+	(bt_edit_application_set_property), (bt_edit_application_dispose),
+	(bt_edit_application_finalize), (bt_edit_application_init):
+	* src/ui/edit/main-toolbar.c:
+	  have 2 vumeters visible per default
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (client_read), (client_write),
+	(master_socket_io_handler), (on_song_changed),
+	(master_connection_open),
+	(bt_playback_controller_socket_set_property),
+	(bt_playback_controller_socket_dispose),
+	(bt_playback_controller_socket_finalize),
+	(bt_playback_controller_socket_init),
+	(bt_playback_controller_socket_class_init):
+	* src/ui/edit/settings-dialog.c: (on_settings_list_cursor_changed),
+	(bt_settings_dialog_init_ui), (bt_settings_dialog_init),
+	(bt_settings_dialog_class_init):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui),
+	(bt_settings_page_audiodevices_init),
+	(bt_settings_page_audiodevices_class_init):
+	* src/ui/edit/settings-page-controldevices-methods.h:
+	* src/ui/edit/settings-page-controldevices.c:
+	* src/ui/edit/settings-page-controldevices.h:
+	* src/ui/edit/settings-page-interaction-controller-methods.h:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	(on_device_menu_changed), (on_ic_registry_devices_changed),
+	(bt_settings_page_interaction_controller_init_ui),
+	(bt_settings_page_interaction_controller_new),
+	(bt_settings_page_interaction_controller_get_property),
+	(bt_settings_page_interaction_controller_set_property),
+	(bt_settings_page_interaction_controller_dispose),
+	(bt_settings_page_interaction_controller_finalize),
+	(bt_settings_page_interaction_controller_init),
+	(bt_settings_page_interaction_controller_class_init),
+	(bt_settings_page_interaction_controller_get_type):
+	* src/ui/edit/settings-page-interaction-controller.h:
+	* src/ui/edit/settings-page-playback-controller-methods.h:
+	* src/ui/edit/settings-page-playback-controller.c:
+	(on_activate_toggled), (on_port_changed),
+	(bt_settings_page_playback_controller_init_ui),
+	(bt_settings_page_playback_controller_new),
+	(bt_settings_page_playback_controller_get_property),
+	(bt_settings_page_playback_controller_set_property),
+	(bt_settings_page_playback_controller_dispose),
+	(bt_settings_page_playback_controller_finalize),
+	(bt_settings_page_playback_controller_init),
+	(bt_settings_page_playback_controller_class_init),
+	(bt_settings_page_playback_controller_get_type):
+	* src/ui/edit/settings-page-playback-controller.h:
+	  settings for playback controller, renaming of interaction controller
+	  page
+
+	* tests/Makefile.am:
+	* tests/bt-check.c: (check_print_handler), (setup_log),
+	(file_contains_str), (check_get_test_song_path),
+	(check_read_int_param), (check_read_uint_param),
+	(check_read_int64_param), (check_read_long_param),
+	(check_read_ulong_param), (check_read_property),
+	(check_write_int_param), (check_write_uint_param),
+	(check_write_int64_param), (check_write_long_param),
+	(check_write_ulong_param), (check_write_property),
+	(check_readwrite_property), (check_gobject_properties),
+	(check_setup_test_server), (check_setup_test_display),
+	(check_shutdown_test_display), (check_make_widget_screenshot):
+	* tests/m-bt-edit.c: (bt_edit_setup), (main):
+	  more attempts to fix screenshots on open suse.
+
+	* tests/songs/combi2.xml:
+	* tests/songs/combi3.xml:
+	  new songs
+
+2007-03-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/persistence.c:
+	(bt_persistence_save_hashtable_entries),
+	(bt_persistence_save_hashtable), (bt_persistence_load_hashtable),
+	(bt_persistence_set_value), (bt_persistence_get_value),
+	(bt_persistence_save), (bt_persistence_load),
+	(bt_persistence_get_type):
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/midi-device.c: (btic_midi_device_new),
+	(btic_midi_device_get_property), (btic_midi_device_set_property),
+	(btic_midi_device_finalize), (btic_midi_device_class_init):
+	* src/lib/ic/registry.c: (on_device_added), (on_device_removed),
+	(btic_registry_dispose), (btic_registry_finalize),
+	(btic_registry_init):
+	  Some more doc fixes. Adding devnode parameter for midi too and
+	  scanning oss devices as well.
+
+2007-03-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c: (on_machine_id_changed),
+	(on_context_menu_properties_activate),
+	(on_context_menu_preferences_activate),
+	(on_context_menu_rename_activate),
+	(on_context_menu_delete_activate),
+	(on_context_menu_about_activate),
+	(bt_machine_canvas_item_is_over_state_switch),
+	(bt_machine_canvas_item_new), (bt_machine_canvas_item_dispose),
+	(bt_machine_canvas_item_realize), (bt_machine_canvas_item_event),
+	(bt_machine_canvas_item_init), (bt_machine_canvas_item_class_init):
+	  make machines state better visible. formatting
+
+2007-03-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_on_bpm_changed),
+	(bt_machine_on_tpb_changed), (bt_machine_unset_mute),
+	(bt_machine_change_state), (bt_machine_insert_element),
+	(bt_machine_resize_voices), (bt_machine_make_internal_element),
+	(bt_machine_add_input_element), (bt_machine_add_output_element),
+	(bt_machine_init_core_machine), (bt_machine_init_interfaces),
+	(bt_machine_check_type), (bt_machine_init_global_params),
+	(bt_machine_init_voice_params), (bt_machine_setup),
+	(bt_machine_new), (bt_machine_enable_input_level),
+	(bt_machine_enable_output_level), (bt_machine_enable_input_gain),
+	(bt_machine_enable_output_gain), (bt_machine_activate_adder),
+	(bt_machine_activate_spreader), (bt_machine_add_pattern),
+	(bt_machine_get_pattern_by_id), (bt_machine_get_pattern_by_index),
+	(bt_machine_get_unique_pattern_name),
+	(bt_machine_get_global_param_index),
+	(bt_machine_get_voice_param_index),
+	(bt_machine_get_global_param_spec),
+	(bt_machine_get_voice_param_spec),
+	(bt_machine_get_global_param_type),
+	(bt_machine_set_global_param_value),
+	(bt_machine_set_voice_param_value),
+	(bt_machine_get_global_param_name),
+	(bt_machine_get_voice_param_name),
+	(bt_machine_get_param_min_value),
+	(bt_machine_get_global_param_min_value),
+	(bt_machine_get_global_param_max_value),
+	(bt_machine_is_voice_param_no_value),
+	(bt_machine_describe_voice_param_value),
+	(bt_machine_get_element_list), (bt_machine_dbg_print_parts),
+	(bt_machine_dbg_dump_global_controller_queue),
+	(bt_machine_persistence_save), (bt_machine_persistence_load),
+	(bt_machine_persistence_interface_init), (bt_machine_set_property),
+	(bt_machine_dispose), (bt_machine_init), (bt_machine_class_init):
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos),
+	(bt_song_update_play_seek_event), (bt_song_is_playable),
+	(bt_song_send_tags), (on_song_segment_done),
+	(on_song_state_changed), (bt_song_new), (bt_song_set_unsaved),
+	(bt_song_idle_start), (bt_song_idle_stop), (bt_song_play),
+	(bt_song_stop), (bt_song_update_playback_position),
+	(bt_song_write_to_xml_file), (bt_song_write_to_highlevel_dot_file),
+	(bt_song_write_to_lowlevel_dot_file), (bt_song_persistence_save),
+	(bt_song_persistence_load), (bt_song_persistence_interface_init),
+	(bt_song_dispose), (bt_song_finalize), (bt_song_init),
+	(bt_song_class_init):
+	* src/lib/core/wire.c: (bt_wire_make_internal_element),
+	(bt_wire_activate_analyzers), (bt_wire_deactivate_analyzers),
+	(bt_wire_change_gain), (bt_wire_link_machines),
+	(bt_wire_unlink_machines), (bt_wire_connect), (bt_wire_new),
+	(bt_wire_reconnect), (bt_wire_get_element_list),
+	(bt_wire_dbg_print_parts), (bt_wire_persistence_save),
+	(bt_wire_persistence_load), (bt_wire_persistence_interface_init),
+	(bt_wire_dispose), (bt_wire_init), (bt_wire_class_init):
+	* src/ui/edit/main-page-sequence.c: (step_visible_filter),
+	(source_machine_cell_data_function),
+	(processor_machine_cell_data_function),
+	(sink_machine_cell_data_function), (sequence_view_get_cursor_pos),
+	(sequence_model_get_store), (sequence_model_recolorize),
+	(sequence_calculate_visible_lines), (on_machine_id_changed),
+	(on_header_size_allocate), (on_machine_state_changed_mute),
+	(on_machine_state_changed_solo), (on_machine_state_changed_bypass),
+	(on_song_level_change), (on_sequence_label_edited),
+	(sequence_pos_table_init), (sequence_table_clear),
+	(sequence_table_init), (sequence_table_refresh),
+	(pattern_list_refresh), (machine_menu_refresh),
+	(sequence_view_set_pos), (on_track_add_activated),
+	(on_track_remove_activated), (on_song_play_pos_notify),
+	(reset_level_meter), (on_song_is_playing_notify),
+	(on_bars_menu_changed), (on_label_menu_changed),
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_key_release_event),
+	(on_sequence_table_button_press_event),
+	(on_sequence_table_motion_notify_event),
+	(on_sequence_table_scroll_event), (on_machine_added),
+	(on_pattern_changed), (update_bars_menu),
+	(on_song_info_bars_changed), (on_song_changed),
+	(bt_main_page_sequence_init_ui),
+	(bt_main_page_sequence_get_current_machine),
+	(bt_main_page_sequence_cut_selection),
+	(bt_main_page_sequence_delete_selection),
+	(bt_main_page_sequence_dispose), (bt_main_page_sequence_finalize),
+	(bt_main_page_sequence_init):
+	* src/ui/edit/main-toolbar.c: (gst_caps_get_channels),
+	(on_song_is_playing_notify), (on_toolbar_new_clicked),
+	(on_toolbar_open_clicked), (on_toolbar_save_clicked),
+	(on_toolbar_play_clicked), (on_song_level_change),
+	(on_song_level_negotiated), (on_song_volume_slider_change),
+	(on_song_volume_changed), (on_channels_negotiated),
+	(on_song_unsaved_changed), (on_sequence_loop_notify),
+	(on_song_changed), (on_toolbar_style_changed),
+	(bt_main_toolbar_init_ui), (bt_main_toolbar_dispose),
+	(bt_main_toolbar_finalize), (bt_main_toolbar_init),
+	(bt_main_toolbar_class_init):
+	  made more songs working again (fix/workaround for adder problem).
+	  Tuned the level meters to be a bit more visibly changing. Formatting.
+
+	* tests/songs/combi2.xml:
+	  made it a 'real' melody
+
+2007-03-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/songs/buzz7.xml:
+	  unbreak another song
+
+2007-03-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  no need to check for popt.h
+
+2007-03-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/tab_info.png:
+	* pixmaps/tab_machines.png:
+	* pixmaps/tab_patterns.png:
+	* pixmaps/tab_sequence.png:
+	* pixmaps/tab_waves.png:
+	  New icons - thanks jimmac
+
+	* src/ui/edit/bt-edit.c: (main):
+	  Remove popt left-over
+
+	* src/ui/edit/main-menu.c: (bt_main_menu_init_ui):
+	  Remove 'go to' from view menu.
+
+	* src/ui/edit/main-toolbar.c: (on_song_error), (on_song_warning),
+	(on_song_changed), (bt_main_toolbar_dispose):
+	  Add separate handler for warnings.
+
+2007-03-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* docs/reference/bt-ic/bt-ic.types:
+	  add new class to docs
+
+	* src/lib/core/sequence.c: (bt_sequence_init_data),
+	(bt_sequence_resize_data_length), (bt_sequence_resize_data_tracks),
+	(bt_sequence_get_track_by_machine),
+	(bt_sequence_limit_play_pos_internal),
+	(bt_sequence_get_number_of_pattern_uses),
+	(bt_sequence_test_pattern), (bt_sequence_invalidate_voice_param),
+	(bt_sequence_repair_global_damage_entry),
+	(bt_sequence_repair_voice_damage_entry),
+	(bt_sequence_repair_damage),
+	(bt_sequence_on_pattern_global_param_changed),
+	(bt_sequence_on_pattern_voice_param_changed), (bt_sequence_new),
+	(bt_sequence_get_machine), (bt_sequence_add_track),
+	(bt_sequence_remove_track_by_ix),
+	(bt_sequence_remove_track_by_machine), (bt_sequence_get_label),
+	(bt_sequence_set_label), (bt_sequence_get_pattern),
+	(bt_sequence_set_pattern), (bt_sequence_get_bar_time),
+	(bt_sequence_persistence_save), (bt_sequence_persistence_load),
+	(bt_sequence_persistence_interface_init),
+	(bt_sequence_set_property), (bt_sequence_init),
+	(bt_sequence_class_init):
+	  formatting
+
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/input-device.c: (btic_input_device_new),
+	(btic_input_device_get_property), (btic_input_device_set_property),
+	(btic_input_device_dispose), (btic_input_device_finalize),
+	(btic_input_device_init), (btic_input_device_class_init):
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/input-device-methods.h:
+	* src/lib/ic/libbtic/midi-device-methods.h:
+	* src/lib/ic/libbtic/midi-device.h:
+	* src/lib/ic/midi-device.c: (btic_midi_device_new),
+	(btic_midi_device_get_property), (btic_midi_device_set_property),
+	(btic_midi_device_dispose), (btic_midi_device_finalize),
+	(btic_midi_device_init), (btic_midi_device_class_init),
+	(btic_midi_device_get_type):
+	* src/lib/ic/registry.c: (on_device_added), (btic_registry_init):
+	  add midi device class, add device-node for input-device
+
+	* src/ui/edit/main-toolbar.c: (on_sequence_loop_notify),
+	(on_song_changed):
+	  refactor listening to loop changes
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process):
+	  add repeat commands
+
+	* tests/songs/combi1.xml:
+	* tests/songs/combi2.xml:
+	  add new test song and fix previous
+
+2007-03-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/pattern-view.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-controldevices.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  New macro to handle anonymous unis in a nicer way.
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (on_song_is_playing_notify),
+	(on_song_changed), (bt_playback_controller_socket_dispose),
+	(bt_playback_controller_socket_finalize):
+	  Added volume set/get and optimize the status command a bit.
+
+
+2007-03-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (bt_song_new):
+	* src/lib/ic/registry.c: (on_device_added):
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_set_property):
+	  typo fix, todo cmt and log level tuning
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_connection_free), (client_cmd_parse_and_process),
+	(client_socket_io_handler), (master_socket_io_handler),
+	(bt_playback_controller_socket_dispose),
+	(bt_playback_controller_socket_init):
+	  fix unrefs, lower priority and work on the protocol
+
+2007-03-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-ic/tmpl/.cvsignore:
+	  add dummy
+
+2007-03-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/input-device.c: (btic_input_device_new),
+	(btic_input_device_get_property), (btic_input_device_set_property),
+	(btic_input_device_dispose), (btic_input_device_finalize),
+	(btic_input_device_init), (btic_input_device_class_init),
+	(btic_input_device_get_type):
+	* src/lib/ic/libbtic/input-device-methods.h:
+	* src/lib/ic/libbtic/input-device.h:
+	  add missing files
+
+2007-03-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  adding items for the next one
+
+	* configure.ac:
+	* docs/reference/Makefile.am:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* docs/reference/bt-ic/.cvsignore:
+	* docs/reference/bt-ic/Makefile.am:
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* docs/reference/bt-ic/bt-ic.types:
+	* docs/reference/bt-ic/tmpl/.cvsignore:
+	  docs for new lib
+
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/settings.h:
+	* src/lib/core/libbtcore/song-io-native.h:
+	* src/lib/core/libbtcore/song-io.h:
+	* src/lib/core/libbtcore/song.h:
+	* src/lib/core/persistence-location.c:
+	* src/lib/core/persistence-selection.c:
+	* src/lib/core/settings.c: (bt_settings_new):
+	* src/lib/core/wave.c:
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/machine-actions.c:
+	* src/ui/edit/machine-menu.h:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_dispose):
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/ui-ressources.h:
+	  improving docs
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (client_write), (on_song_changed):
+	  renderer protocol
+
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/device.c: (btic_device_get_type):
+	* src/lib/ic/ic.c: (btic_init_post):
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/device-methods.h:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/registry.c: (on_device_added), (on_device_removed),
+	(btic_registry_new), (btic_registry_dispose),
+	(btic_registry_finalize), (btic_registry_init):
+	  input.joystick devices get recognized danamically
+
+	* src/ui/edit/settings-page-controldevices.c:
+	(on_ic_registry_devices_changed),
+	(bt_settings_page_controldevices_init_ui),
+	(bt_settings_page_controldevices_dispose):
+	  listen to device changes
+
+2007-03-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/reference/bt-edit/Makefile.am:
+	* tests/Makefile.am:
+	  build fixes for new lib
+
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/device.c: (btic_device_new),
+	(btic_device_get_property), (btic_device_set_property),
+	(btic_device_dispose), (btic_device_finalize), (btic_device_init),
+	(btic_device_class_init), (btic_device_get_type):
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/device-methods.h:
+	* src/lib/ic/libbtic/device.h:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/registry-methods.h:
+	* src/lib/ic/registry.c: (on_device_added), (on_device_removed),
+	(btic_registry_new), (btic_registry_dispose), (btic_registry_init):
+	* src/ui/edit/edit-application.c: (bt_edit_application_new),
+	(bt_edit_application_get_property), (bt_edit_application_dispose),
+	(bt_edit_application_class_init):
+	  boilerplate for the device class and start to use registry
+
+	* src/ui/edit/playback-controller-socket.c: (client_write):
+	* src/ui/edit/settings-page-controldevices.c:
+	(on_device_menu_changed), (on_ic_registry_devices_changed),
+	(bt_settings_page_controldevices_init_ui):
+	  start to use registry
+
+2007-03-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/application.h:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/registry-methods.h:
+	* src/lib/ic/libbtic/registry.h:
+	* src/lib/ic/registry.c: (btic_registry_new),
+	(btic_registry_get_property), (btic_registry_set_property),
+	(btic_registry_dispose), (btic_registry_finalize),
+	(btic_registry_init), (btic_registry_class_init),
+	(btic_registry_get_type):
+	  boilerplate for ic device list
+
+	* src/ui/edit/main-toolbar.c: (on_song_is_playing_notify),
+	(on_toolbar_play_clicked):
+	  reflowed the code to also update ui for external plaback trigger
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (on_song_is_playing_notify),
+	(on_song_changed), (bt_playback_controller_socket_finalize):
+	  implemented more commands
+
+2007-03-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  told the little news
+
+	* src/lib/core/core.c: (parse_goption_arg),
+	(bt_init_get_option_group):
+	* src/lib/ic/ic.c: (parse_goption_arg),
+	(btic_init_get_option_group):
+	  make lib options work
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (client_read), (client_write),
+	(client_socket_io_handler), (master_socket_io_handler),
+	(on_song_changed), (bt_playback_controller_socket_new),
+	(bt_playback_controller_socket_set_property):
+	  Refactor a bit and implement some commands.
+
+2007-03-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/playback-controller-socket.c:
+	(parse_and_process_client_cmd), (client_socket_io_handler):
+	  Little cleanup and protocol tweaking.
+
+2007-03-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (on_song_segment_done),
+	(on_song_state_changed):
+	  Disable loop hack (causes always loops).
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_connection_free), (client_socket_io_handler),
+	(master_socket_io_handler),
+	(bt_playback_controller_socket_dispose),
+	(bt_playback_controller_socket_init):
+	  Fix crash when shutting socket down, add reply.
+
+2007-03-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  yes, its newsletter time again.
+
+	* docs/reference/bt-edit/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.c: (main):
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c: (bt_edit_application_new),
+	(bt_edit_application_dispose):
+	* src/ui/edit/playback-controller-socket-methods.h:
+	* src/ui/edit/playback-controller-socket.c:
+	(client_socket_io_handler), (master_socket_io_handler),
+	(bt_playback_controller_socket_new),
+	(bt_playback_controller_socket_get_property),
+	(bt_playback_controller_socket_set_property),
+	(bt_playback_controller_socket_dispose),
+	(bt_playback_controller_socket_finalize),
+	(bt_playback_controller_socket_init),
+	(bt_playback_controller_socket_class_init),
+	(bt_playback_controller_socket_get_type):
+	* src/ui/edit/playback-controller-socket.h:
+	* src/ui/edit/settings-dialog.h:
+	* tests/Makefile.am:
+	* tests/lib/core/Makefile.am:
+	* tests/m-bt-cmd.c:
+	* tests/ui/cmd/Makefile.am:
+	* tests/ui/edit/Makefile.am:
+	  integrate libbtic, start with socket playback controller
+
+2007-03-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/POTFILES.in:
+	  add new file
+	* src/lib/core/sequence.c: (bt_sequence_remove_track_by_ix):
+	* src/lib/core/wire.c: (bt_wire_dispose):
+	* src/ui/edit/main-page-patterns.c: (on_pattern_menu_changed),
+	(bt_main_page_patterns_dispose):
+	  fix another refcount problem
+
+	* Makefile.am:
+	* pixmaps/prefs-audio-card.png:
+	* pixmaps/prefs-input-gaming.png:
+	* pixmaps/prefs-input-keyboard.png:
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui):
+	  add more icons for settings
+
+2007-03-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c: (bt_sequence_resize_data_tracks),
+	(bt_sequence_remove_track_by_ix), (bt_sequence_dispose):
+	  Fix ref-count bug when removing machine (#1666181).
+
+2007-03-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_finalize),
+	(bt_machine_class_init):
+	* src/lib/core/sequence.c: (bt_sequence_resize_data_tracks),
+	(bt_sequence_invalidate_pattern_region), (bt_sequence_get_machine),
+	(bt_sequence_add_track), (bt_sequence_remove_track_by_ix),
+	(bt_sequence_set_pattern), (bt_sequence_persistence_load),
+	(bt_sequence_dispose), (bt_sequence_finalize):
+	* src/lib/core/setup.c: (bt_setup_add_machine),
+	(bt_setup_add_wire), (bt_setup_remove_machine),
+	(bt_setup_remove_wire), (bt_setup_get_machine_by_id),
+	(bt_setup_get_wire_by_machines), (bt_setup_class_init):
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_delete_activate),
+	(bt_machine_canvas_item_get_property),
+	(bt_machine_canvas_item_set_property),
+	(bt_machine_canvas_item_dispose):
+	* src/ui/edit/main-page-machines.c: (on_machine_added),
+	(bt_main_page_machines_remove_machine_item),
+	(bt_main_page_machines_remove_wire_item):
+	* src/ui/edit/main-page-patterns.c:
+	(machine_model_get_iter_by_machine), (on_machine_added),
+	(on_machine_removed), (on_machine_menu_changed),
+	(on_context_menu_pattern_copy_activate),
+	(bt_main_page_patterns_get_current_machine),
+	(bt_main_page_patterns_get_current_pattern):
+	* src/ui/edit/main-page-sequence.c: (pattern_list_refresh),
+	(machine_menu_refresh), (on_machine_added), (on_machine_removed),
+	(bt_main_page_sequence_dispose):
+	* src/ui/edit/wire-canvas-item.c: (on_machine_removed),
+	(on_wire_position_changed):
+	  Lots of refcount debugging, some fixes, lots of questions still :(
+
+2007-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c: (bt_setup_remove_machine),
+	(bt_setup_remove_wire), (bt_setup_dispose), (bt_setup_finalize):
+	* src/lib/core/wire.c: (bt_wire_dispose):
+	* src/ui/edit/edit-application.c: (bt_edit_application_new_song),
+	(bt_edit_application_load_song):
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_delete_activate),
+	(bt_machine_canvas_item_set_property),
+	(bt_machine_canvas_item_dispose):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_remove_machine_item):
+	* src/ui/edit/main-page-patterns.c: (on_machine_removed):
+	* src/ui/edit/main-page-sequence.c: (on_machine_removed):
+	* src/ui/edit/wire-canvas-item.c: (on_machine_removed),
+	(bt_wire_canvas_item_set_property), (bt_wire_canvas_item_dispose):
+	  Started hunting for the remove-machine-and-quit refcount bug.
+
+2007-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/application.c: (bt_application_init):
+	* src/lib/core/libbtcore/Makefile.am:
+	* src/lib/core/libbtcore/song-methods.h:
+	* src/lib/core/song-io.c: (bt_song_io_load):
+	* src/lib/core/song.c: (bt_song_is_playable),
+	(on_song_state_changed), (bt_song_write_to_highlevel_dot_file),
+	(bt_song_write_to_lowlevel_dot_file), (bt_song_dispose):
+	* src/lib/ic/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_play_song),
+	(bt_cmd_application_info):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/edit-application.c: (bt_edit_application_load_song):
+	  Add another dot-file writer to debug songs better. Cleanup Makefile.am
+	  a bit more. Finally found the bug that keep us from playing newly
+	  loaded songs - I disconnected all handler from the bus and not only
+	  those that belonged to the old song.
+
+2007-03-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c: (on_song_changed):
+	  Remove some of the code again. The leak is somewhere else.
+
+2007-02-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/Makefile.am:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/core.c: (bt_init_pre), (bt_init):
+	* src/lib/core/libbtcore/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/ic/.cvsignore:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/ic.c: (btic_init_pre), (btic_init_post),
+	(btic_init_get_option_group), (btic_init_check), (btic_init):
+	* src/lib/ic/libbtic.pc.in:
+	* src/lib/ic/libbtic/.cvsignore:
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/version.h.in:
+	  Add skelleton for interaction controller library.
+
+	* src/ui/edit/main-page-patterns.c: (machine_menu_clear),
+	(machine_menu_refresh), (on_song_changed):
+	  Some more hunting for the ref-problem.
+
+2007-02-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	* src/lib/core/song.c: (bt_song_is_playable):
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_set_property):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_set_property),
+	(bt_machine_canvas_item_dispose):
+	* src/ui/edit/main-page-machines.c: (machine_view_clear),
+	(machine_view_refresh), (on_song_changed):
+	* src/ui/edit/main-toolbar.c: (on_channels_negotiated),
+	(on_song_changed), (bt_main_toolbar_dispose):
+	* src/ui/edit/wire-canvas-item.c:
+	(bt_wire_canvas_item_set_property), (bt_wire_canvas_item_dispose):
+	  more weak refs and more ref-count debugging, one ref-count fix
+
+2007-02-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (on_song_segment_done),
+	(on_song_state_changed):
+	* src/ui/edit/edit-application.c: (bt_edit_application_new_song),
+	(bt_edit_application_load_song),
+	(bt_edit_application_set_property):
+	* src/ui/edit/main-menu.c: (on_song_changed):
+	* src/ui/edit/main-page-info.c: (on_song_changed):
+	* src/ui/edit/main-page-machines.c: (on_song_changed):
+	* src/ui/edit/main-page-patterns.c: (on_song_changed):
+	* src/ui/edit/main-page-sequence.c: (on_song_changed):
+	* src/ui/edit/main-page-waves.c: (on_song_changed):
+	* src/ui/edit/main-statusbar.c: (on_song_changed):
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+	  also handle song temporarily beeing NULL
+
+2007-02-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  also require gst-plgin-base, spotted by Ben Green
+
+	* src/ui/edit/edit-application.c: (bt_edit_application_load_song),
+	(bt_edit_application_set_property):
+	* src/ui/edit/main-page-info.c: (on_song_changed):
+	* src/ui/edit/main-page-machines.c: (machine_view_refresh),
+	(on_song_changed), (bt_main_page_machines_remove_machine_item),
+	(bt_main_page_machines_remove_wire_item):
+	* src/ui/edit/main-page-patterns.c: (machine_menu_add),
+	(machine_menu_refresh), (pattern_menu_refresh),
+	(on_machine_menu_changed), (on_song_changed):
+	* src/ui/edit/main-page-sequence.c: (sequence_table_init),
+	(on_song_changed):
+	* src/ui/edit/main-page-waves.c: (on_song_changed):
+	  more sensible debug logging
+
+2007-02-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/POTFILES.in:
+	  add new file to translatable sources.
+
+	* tests/lib/core/e-song.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-edit-application.c: (BT_START_TEST):
+	  increase test coverage by adding checks for unsaved status of a song
+
+2007-02-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	* src/lib/core/persistence.c: (bt_persistence_set_value),
+	(bt_persistence_get_value):
+	* src/lib/core/wire.c: (bt_wire_connect):
+	* src/ui/edit/main-page-sequence.c: (sequence_table_init):
+	  reset level-mapping hashtable, fixes #1666022
+
+2007-02-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/hal/halwatch.c: (device_added), (main):
+	  add new test app
+
+	* src/lib/core/Makefile.am:
+	* src/lib/core/machine.c: (bt_machine_insert_element),
+	(bt_machine_add_output_element):
+	  reestablish previous link, if we can't insert an element (workaround
+	  for #1663535)
+
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	  new stats
+
+2007-02-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c: (bt_sequence_get_bar_time):
+	  lower log
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_preset_box):
+	  fix width to avoid toolbar item as menu
+
+	* src/ui/edit/settings-dialog.c: (on_settings_list_size_request),
+	(bt_settings_dialog_init_ui):
+	  enhance layout (min height) and add icons
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/settings-page-controldevices-methods.h:
+	* src/ui/edit/settings-page-controldevices.c:
+	(on_device_menu_changed),
+	(bt_settings_page_controldevices_init_ui),
+	(bt_settings_page_controldevices_new),
+	(bt_settings_page_controldevices_get_property),
+	(bt_settings_page_controldevices_set_property),
+	(bt_settings_page_controldevices_dispose),
+	(bt_settings_page_controldevices_finalize),
+	(bt_settings_page_controldevices_init),
+	(bt_settings_page_controldevices_class_init),
+	(bt_settings_page_controldevices_get_type):
+	* src/ui/edit/settings-page-controldevices.h:
+	  start with controller configuration page
+
+2007-02-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	  cleanup crossrefs of the docs.
+
+	* src/lib/core/machine.c: (bt_machine_set_property):
+	* src/lib/core/sequence.c: (bt_sequence_remove_track_by_ix):
+	* src/lib/core/song-info.c: (bt_song_info_set_property),
+	(bt_song_info_init):
+	* src/lib/core/song-io.c: (bt_song_io_load):
+	* src/lib/core/song.c: (bt_song_set_unsaved):
+	* src/ui/edit/main-page-info.c: (bt_main_page_info_init_ui):
+	  add default author (fixes #1658187), better handling of song change
+	  notification (fixes #1658192).
+
+2007-02-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/wave-methods.h:
+	* src/lib/core/libbtcore/wavetable-methods.h:
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	* src/lib/core/wave.c: (bt_wave_new), (bt_wave_add_wavelevel),
+	(bt_wave_load_from_uri), (bt_wave_persistence_save),
+	(bt_wave_persistence_load), (bt_wave_get_property),
+	(bt_wave_set_property), (bt_wave_finalize), (bt_wave_class_init):
+	* src/lib/core/wavetable.c: (bt_wavetable_add_wave),
+	(bt_wavetable_remove_wave), (bt_wavetable_persistence_load):
+	* src/ui/edit/machine-properties-dialog.c: (preset_list_refresh),
+	(on_double_range_property_changed),
+	(on_float_range_property_changed), (on_preset_list_motion_notify),
+	(on_box_size_request),
+	(bt_machine_properties_dialog_init_preset_box):
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_init_ui):
+	* src/ui/edit/main-page-waves.c: (on_waves_list_cursor_changed),
+	(on_browser_toolbar_play_clicked),
+	(on_wavetable_toolbar_play_clicked),
+	(on_wavetable_toolbar_stop_clicked), (on_playbin_state_changed),
+	(on_wavetable_toolbar_clear_clicked),
+	(on_file_chooser_load_sample), (bt_main_page_waves_init_ui):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	* tests/songs/broken2.xml:
+	* tests/songs/simple1.xml:
+	  wavetable (and its ui) is now a bit more functional
+
+2007-02-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  finished monthly project news
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c: (bt_machine_get_peer),
+	(bt_machine_get_sink_peer), (bt_machine_get_source_peer),
+	(bt_machine_add_output_element), (bt_machine_enable_input_level),
+	(bt_machine_enable_output_level):
+	  properway to get src/sink pads, add output level element helper
+
+	* src/ui/edit/gtkvumeter.c: (gtk_vumeter_realize),
+	(gtk_vumeter_size_allocate), (gtk_vumeter_expose):
+	  improved the vumeter widget a bit, fix size allocation
+
+	* src/ui/edit/main-page-sequence.c: (on_song_level_change),
+	(sequence_table_refresh), (reset_level_meter),
+	(on_song_is_playing_notify), (on_song_changed),
+	(bt_main_page_sequence_dispose):
+	  added working level meters to sequence view
+
+2007-02-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  prepare next newsletter
+
+	* src/lib/core/sequence.c: (bt_sequence_remove_track_by_ix),
+	(bt_sequence_set_label), (bt_sequence_set_pattern):
+	  more song change notifies
+
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_get_current_pattern):
+	  plug ref-leak
+
+	* configure.ac:
+	* src/ui/edit/main-page-sequence.c: (on_header_size_allocate),
+	(on_song_level_change), (on_sequence_label_edited),
+	(sequence_pos_table_init), (remove_container_widget),
+	(sequence_table_init), (sequence_table_refresh),
+	(pattern_list_refresh), (on_label_menu_changed),
+	(on_sequence_table_key_release_event),
+	(on_sequence_table_scroll_event), (on_song_changed),
+	(bt_main_page_sequence_init_ui),
+	(bt_main_page_sequence_get_current_pos),
+	(bt_main_page_sequence_dispose):
+	  implement fake treeview header to make embedded widgets work, fill
+	  label-menu and make it work, add editing of labels, remove previous
+	  treeview widget hacks and checks for patch
+
+	* src/ui/edit/main-page-waves.c: (on_browser_toolbar_play_clicked),
+	(on_browser_toolbar_stop_clicked), (on_playbin_state_changed),
+	(bt_main_page_waves_init_ui), (bt_main_page_waves_new),
+	(bt_main_page_waves_dispose):
+	  initial sample playback in wavetable
+
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+	  formatting
+
+2007-02-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/sink-bin.c: (bt_sink_bin_determine_plugin_name):
+	* src/lib/core/tools.c: (bt_gst_registry_class_filter),
+	(bt_gst_registry_get_element_names_matching_all_categories):
+	  fix filter to treat klass as a list of categories
+
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_init_submenu):
+	* src/ui/edit/main-page-sequence.c: (on_header_parent_event),
+	(on_header_realize), (sequence_table_init),
+	(sequence_table_refresh), (on_sequence_table_button_press_event),
+	(on_sequence_table_scroll_event), (bt_main_page_sequence_init_ui):
+	* src/ui/edit/main-toolbar.c: (on_toolbar_style_changed),
+	(bt_main_toolbar_init_ui), (bt_main_toolbar_get_property),
+	(bt_main_toolbar_dispose), (bt_main_toolbar_class_init),
+	(bt_main_toolbar_get_type):
+	* src/ui/edit/main-toolbar.h:
+	* src/ui/edit/main-window.c: (bt_main_window_init_ui):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	  use new registry filter, try harder to tweak treeview headers
+
+2007-02-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  add hildon libs checks
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c: (bt_edit_application_new):
+	* src/ui/edit/main-menu.c: (on_menu_copy_activate),
+	(on_menu_delete_activate), (on_menu_settings_activate),
+	(on_menu_view_toolbar_toggled), (on_menu_view_tabs_toggled),
+	(on_menu_goto_machine_view_activate),
+	(on_menu_goto_pattern_view_activate),
+	(on_menu_goto_sequence_view_activate),
+	(on_menu_goto_waves_view_activate),
+	(on_menu_goto_info_view_activate), (on_menu_help_activate),
+	(on_menu_about_activate), (on_song_unsaved_changed),
+	(on_song_changed), (bt_main_menu_init_ui), (bt_main_menu_dispose),
+	(bt_main_menu_finalize), (bt_main_menu_init),
+	(bt_main_menu_class_init), (bt_main_menu_get_type):
+	* src/ui/edit/main-menu.h:
+	* src/ui/edit/main-pages.c: (bt_main_pages_init_tab),
+	(bt_main_pages_init_ui):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_init_ui),
+	(bt_main_toolbar_get_property), (bt_main_toolbar_class_init):
+	* src/ui/edit/main-window.c: (bt_main_window_init_ui),
+	(bt_main_window_get_type):
+	* src/ui/edit/main-window.h:
+	  do initial hildon ui porting
+
+2007-01-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/sink-bin.c: (bt_sink_bin_determine_plugin_name),
+	(bt_sink_bin_get_player_elements):
+	* src/lib/core/tools.c:
+	(bt_gst_element_factory_can_sink_media_type):
+	* src/ui/edit/main-page-sequence.c: (on_header_parent_set):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	  a bit better working registry trimming code
+
+2007-01-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c: (bt_sink_bin_determine_plugin_name):
+	* src/ui/edit/main-toolbar.c: (on_toolbar_style_changed):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	  commented out some not yet working code
+
+2007-01-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_new):
+	  handle error when listening to gconf path
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	* src/lib/core/song.c: (bt_song_stop):
+	* src/lib/core/wire.c: (bt_wire_unlink_machines),
+	(bt_wire_dispose):
+	  set elements to NULL before removing
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_toolbar_style_changed):
+	* src/ui/edit/main-page-machines.c: (on_toolbar_style_changed):
+	* src/ui/edit/main-page-sequence.c: (on_header_parent_event),
+	(on_header_parent_set), (sequence_table_refresh),
+	(bt_main_page_sequence_init_ui):
+	* src/ui/edit/main-page-waves.c: (on_toolbar_style_changed):
+	* src/ui/edit/main-toolbar.c: (on_toolbar_style_changed):
+	  fix null string usage in style_change(), try to find parent in
+	  treeview header widgets to forward events
+
+	* tests/bt-cmd-info.sh:
+	  remove a trailing ^
+
+
+2007-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  configure cleanups
+
+	* src/lib/core/song.c: (bt_song_write_to_xml_file):
+	  build fix for not having libgnome
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_toolbar_style_changed):
+	* src/ui/edit/main-page-machines.c: (on_toolbar_style_changed):
+	* src/ui/edit/main-page-waves.c: (on_toolbar_style_changed):
+	* src/ui/edit/main-toolbar.c: (on_toolbar_style_changed):
+	  attempt to fix crasher
+
+2007-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* autogen.sh:
+	  configure cleanups
+
+2007-01-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/cpu/cpuload.c: (main):
+	* src/lib/core/song.c: (bt_song_dispose):
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_convert):
+	  antic cleanups
+
+2007-01-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gobject/song.c: (bt_song_get_type):
+	* src/lib/core/application.c: (bt_application_get_type):
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_get_type):
+	* src/lib/core/machine.c: (bt_machine_get_type):
+	* src/lib/core/pattern.c: (bt_pattern_get_type):
+	* src/lib/core/persistence-location.c:
+	(bt_persistence_location_get_type):
+	* src/lib/core/persistence-selection.c:
+	(bt_persistence_selection_get_type):
+	* src/lib/core/persistence.c: (bt_persistence_get_type):
+	* src/lib/core/plainfile-settings.c:
+	(bt_plainfile_settings_get_type):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_get_type):
+	* src/lib/core/sequence.c: (bt_sequence_get_type):
+	* src/lib/core/settings.c: (bt_settings_get_type):
+	* src/lib/core/setup.c: (bt_setup_get_type):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_get_type):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_get_type):
+	* src/lib/core/song-info.c: (bt_song_info_get_type):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_get_type):
+	* src/lib/core/song-io.c: (bt_song_io_get_type):
+	* src/lib/core/song.c: (bt_song_update_playback_position),
+	(bt_song_get_type):
+	* src/lib/core/source-machine.c: (bt_source_machine_get_type):
+	* src/lib/core/wave.c: (bt_wave_get_type):
+	* src/lib/core/wavelevel.c: (bt_wavelevel_get_type):
+	* src/lib/core/wavetable.c: (bt_wavetable_get_type):
+	* src/lib/core/wire.c: (bt_wire_get_type):
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_play_song),
+	(bt_cmd_application_get_type):
+	* src/ui/edit/edit-application.c: (bt_edit_application_get_type):
+	* src/ui/edit/gtkvumeter.c: (gtk_vumeter_get_type):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_get_type):
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_get_type):
+	* src/ui/edit/machine-preferences-dialog.c:
+	(bt_machine_preferences_dialog_get_type):
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	(bt_machine_preset_properties_dialog_get_type):
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_preset_box),
+	(bt_machine_properties_dialog_get_type):
+	* src/ui/edit/main-menu.c: (bt_main_menu_get_type):
+	* src/ui/edit/main-page-info.c: (bt_main_page_info_get_type):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_get_type):
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_get_type):
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_get_type):
+	* src/ui/edit/main-page-waves.c: (bt_main_page_waves_get_type):
+	* src/ui/edit/main-pages.c: (bt_main_pages_get_type):
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_get_type):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_get_type):
+	* src/ui/edit/main-window.c: (bt_main_window_get_type):
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_get_type):
+	* src/ui/edit/pattern-view.c: (bt_pattern_view_get_type):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_get_type):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_get_type):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_get_type):
+	* src/ui/edit/ui-ressources.c: (bt_ui_ressources_get_type):
+	* src/ui/edit/volume-popup.c: (bt_volume_popup_get_type):
+	* src/ui/edit/wire-analysis-dialog.c:
+	(bt_wire_analysis_dialog_get_type):
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_get_type):
+	* tests/bt-test-plugin.c: (bt_test_mono_source_get_type),
+	(bt_test_poly_source_get_type):
+	* tests/bt-test-settings.c: (bt_test_settings_get_type):
+	  don't use static for local data that gets copied anyway
+
+2007-01-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* src/Makefile.am:
+	* src/lib/Makefile.am:
+	* src/lib/core/Makefile.am:
+	* src/ui/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	  added make help and make stats targets
+
+	* src/ui/edit/machine-properties-dialog.c: (preset_list_refresh),
+	(on_toolbar_preset_add_clicked), (on_toolbar_preset_edit_clicked),
+	(on_preset_list_motion_notify), (on_preset_list_selection_changed),
+	(bt_machine_properties_dialog_init_preset_box):
+	  added comment metadata stuff and treeview tooltips (not perfect yet)
+
+	* tests/bt-check.c: (check_make_widget_screenshot):
+	  make sure it draws before capturing
+
+2007-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (on_song_state_changed):
+	  less log spam
+
+	* src/ui/cmd/bt-cmd.c: (main):
+	  remove \n from log statement
+
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	  add dividers per test
+
+	* tests/songs/buzz2.xml:
+	  fix broken song
+
+2007-01-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-info.c: (bt_song_info_set_property):
+	  fix conditional to allow cvs version
+
+	* src/lib/core/song.c: (on_song_state_changed), (bt_song_play):
+	  do the tag writing earlier (needs to be before going to paused)
+
+2007-01-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	  use relative path
+
+	* tests/songs/melo5.xml:
+	  fix value range
+
+2007-01-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c: (bt_init_post):
+	  disabled the scheduler change again
+
+	* src/lib/core/song-info.c: (bt_song_info_persistence_load),
+	(bt_song_info_set_property):
+	  add BPM to the supported tags
+
+	* src/lib/core/song-io.c: (bt_song_io_load), (bt_song_io_save):
+	* src/ui/edit/edit-application.c: (bt_edit_application_new_song):
+	  fix warnings
+
+	* src/lib/core/song.c: (bt_song_send_tags):
+	  more logging
+
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_play_song):
+	  fix async handing in playback/encoding
+
+2007-01-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preset-properties-dialog-methods.h:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	(on_name_changed), (bt_machine_preset_properties_dialog_init_ui),
+	(bt_machine_preset_properties_dialog_new),
+	(bt_machine_preset_properties_dialog_get_property),
+	(bt_machine_preset_properties_dialog_set_property),
+	(bt_machine_preset_properties_dialog_dispose),
+	(bt_machine_preset_properties_dialog_class_init):
+	* src/ui/edit/machine-properties-dialog.c:
+	(preset_list_edit_preset_meta), (preset_list_refresh),
+	(on_toolbar_preset_add_clicked),
+	(on_toolbar_preset_remove_clicked),
+	(on_toolbar_preset_edit_clicked), (on_preset_list_row_activated):
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	(BT_START_TEST):
+	  make sure preset names are unique, preset iface correctly resolves
+	  names (we don't need to keep pointers)
+
+2007-01-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  january news
+
+	* po/POTFILES.in:
+	* src/lib/core/machine.c: (bt_machine_get_param_min_value),
+	(bt_machine_get_param_max_value):
+	  add float support
+
+	* src/lib/core/wave.c:
+	  more ideas
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-preset-properties-dialog-methods.h:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	(on_name_changed), (on_comment_changed),
+	(bt_machine_preset_properties_dialog_init_ui),
+	(bt_machine_preset_properties_dialog_new),
+	(bt_machine_preset_properties_dialog_apply),
+	(bt_machine_preset_properties_dialog_get_property),
+	(bt_machine_preset_properties_dialog_set_property),
+	(bt_machine_preset_properties_dialog_dispose),
+	(bt_machine_preset_properties_dialog_finalize),
+	(bt_machine_preset_properties_dialog_init),
+	(bt_machine_preset_properties_dialog_class_init),
+	(bt_machine_preset_properties_dialog_get_type):
+	* src/ui/edit/machine-preset-properties-dialog.h:
+	* src/ui/edit/machine-properties-dialog.c:
+	(preset_list_edit_preset_meta), (preset_list_refresh),
+	(on_float_range_property_notify),
+	(on_float_range_property_changed), (on_toolbar_preset_add_clicked),
+	(on_toolbar_preset_remove_clicked),
+	(on_toolbar_preset_edit_clicked), (on_preset_list_row_activated),
+	(make_float_range_widget),
+	(bt_machine_properties_dialog_init_preset_box),
+	(bt_machine_properties_dialog_init_ui):
+	  factor out preset property dialog, add float support
+
+	* src/ui/edit/main-page-patterns.c:
+	(on_context_menu_pattern_new_activate),
+	(on_context_menu_pattern_remove_activate):
+	  set transient window
+
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	* tests/m-bt-edit.c: (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	(test_setup), (test_teardown), (BT_START_TEST),
+	(bt_machine_preset_properties_dialog_example_case):
+	* tests/ui/edit/s-bt-machine-preset-properties-dialog.c:
+	(bt_machine_preset_properties_dialog_suite):
+	  add test for new preset property dialog
+
+2007-01-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	  make one debug log statement a bit more relaxed
+
+2007-01-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	  some more logs
+
+	* tests/Makefile.am:
+	  more doc comments
+
+	* tests/bt-check.c: (check_setup_test_server),
+	(check_setup_test_display):
+	* tests/bt-check.h:
+	  check if we can reuses state lock file (#1629058)
+
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	  remove log before testrun
+
+	* tests/lib/core/t-song-io.c: (BT_START_TEST):
+	  comment a failing test
+
+	* tests/m-bt-edit.c: (bt_edit_setup), (main):
+	  unify logging
+
+2007-01-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	  also log test runs
+
+2007-01-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wave.c:
+	* src/lib/core/wavetable.c: (bt_wavetable_persistence_load):
+	  add TODO about storing sample length
+
+	* src/ui/cmd/bt-cmd.c: (main):
+	* src/ui/edit/bt-edit.c: (main):
+	* tests/m-bt-cmd.c: (main):
+	* tests/m-bt-core.c: (main):
+	* tests/m-bt-edit.c: (bt_edit_setup), (main):
+	  do g_thread_init() as early as possible
+
+2007-01-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/POTFILES.in:
+	  fix tests
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-sequence.h:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-statusbar.h:
+	  some doc maintainance
+
+2006-12-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing),
+	(bt_edit_application_load_song):
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_rename_activate):
+	* src/ui/edit/machine-properties-dialog.c:
+	(preset_list_edit_preset_meta):
+	* src/ui/edit/main-page-sequence.c: (on_track_add_activated),
+	(on_track_remove_activated),
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_key_release_event),
+	(on_sequence_table_motion_notify_event),
+	(bt_main_page_sequence_get_current_pos):
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	  update patterns and focus column when adding/removing tracks, add
+	  todo comments for moving dialogs to separate classes, working default
+	  okay button in dialogs
+
+2006-12-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c: (bt_init_post):
+	  we should only switch the scheduler in the non debug version
+
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_cursor_changed_idle):
+	  fix cursor focus when expanding the sequence
+
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	  attempt to make okay button default
+
+2006-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/core.c: (bt_init_post):
+	  set scheduler to use soft-realtime scheduling
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/libbtcore/machine.h:
+	* src/lib/core/machine.c: (bt_machine_setup),
+	(bt_machine_has_patterns):
+	  add _has_patterns method
+
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	  fix detect for saving
+
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos),
+	(bt_song_update_play_seek_event), (bt_song_send_tags):
+	  add note about loop playback
+
+	* src/ui/cmd/cmd-application.c:
+	(bt_cmd_application_prepare_encoding):
+	  set extension to ogg in the default case
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	(bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/machine-properties-dialog.c: (make_int_range_widget),
+	(make_uint_range_widget), (bt_machine_properties_dialog_init_ui):
+	  use switch..case instead of lots of elseif's
+
+	* src/ui/edit/main-page-patterns.c: (machine_menu_refresh),
+	(context_menu_refresh), (on_machine_added), (on_machine_removed),
+	(on_context_menu_track_add_activate),
+	(on_context_menu_track_remove_activate):
+	  implement add/remove of tracks
+
+	* src/ui/edit/main-page-sequence.c: (on_track_add_activated):
+	  update pattern list when adding a machine
+
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-statusbar.c:
+	* tests/lib/core/e-machine.c: (BT_START_TEST),
+	(bt_machine_example_case):
+	* tests/lib/core/e-pattern.c: (BT_START_TEST):
+	  remove some obsolete todo's
+
+2006-12-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_get_property_meta_value):
+	  enum support
+
+	* src/lib/core/song-io.c: (bt_song_io_default_load),
+	(bt_song_io_default_save), (bt_song_io_class_init):
+	  rename _real_ to _default_
+
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_realize):
+	  try to fix title-positioning and clipping
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_int_range_global_property_format_value),
+	(on_double_range_property_notify), (on_int_range_property_notify),
+	(on_uint_range_property_notify),
+	(on_toolbar_preset_random_clicked), (on_preset_list_row_activated),
+	(bt_machine_properties_dialog_init_preset_box),
+	(bt_machine_properties_dialog_init_ui):
+	  added randomization to preset ui, double click to load presets, fix
+	  refresh of range labels on property notify
+
+2006-12-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c: (on_text_changed),
+	(preset_list_edit_preset_meta), (preset_list_refresh),
+	(on_toolbar_help_clicked), (on_toolbar_about_clicked),
+	(on_toolbar_show_hide_clicked), (on_toolbar_preset_add_clicked),
+	(on_toolbar_preset_remove_clicked),
+	(on_toolbar_preset_edit_clicked), (on_toolbar_style_changed),
+	(on_box_size_request),
+	(bt_machine_properties_dialog_init_preset_box),
+	(bt_machine_properties_dialog_init_ui):
+	  more work on the preset handling - toolbar functions and
+	  name_and_comment dialog
+
+2006-12-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-actions.c: (bt_machine_action_help),
+	(bt_machine_action_about):
+	* src/ui/edit/machine-actions.h:
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_help_activate), (on_context_menu_about_activate):
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_toolbar_help_clicked), (on_toolbar_about_clicked),
+	(bt_machine_properties_dialog_init_ui):
+	  add toolbar to machine property window, prepare preset handling
+
+2006-12-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/settings.c:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_ui):
+	  check if machine implements preset iface
+
+2006-12-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c: (bt_init_check):
+	  fix mem-leak
+
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing), (bt_edit_application_run_ui),
+	(bt_edit_application_load_song):
+	  add element check and warning dialog
+
+	* tests/bt-check.c: (check_setup_test_server):
+	  add more logging
+
+2006-12-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  new news
+
+	* tests/bt-check.c: (check_setup_test_server):
+	* tests/m-bt-edit.c: (main):
+	  first launch xvfb and then init gtk
+
+2006-12-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* tests/bt-check.c: (check_setup_test_server):
+	  handle xfont-path better (needs xset, but only works if x runs)
+
+2006-12-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c: (bt_init_check):
+	* src/lib/core/settings.c:
+	* src/lib/core/tools.c: (bt_gst_check_core_elements):
+	  add core element check to core with waning logging
+
+	* src/ui/edit/edit-application.c: (bt_edit_application_run_ui):
+	  notes about element check
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_ui):
+	  workaround for slider value -> dialog size wobble
+
+
+2006-11-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (on_song_state_changed), (bt_song_new),
+	(bt_song_dispose):
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-toolbar.c: (on_song_volume_slider_change),
+	(on_song_volume_changed), (on_channels_negotiated),
+	(on_song_changed), (bt_main_toolbar_dispose):
+	  disconnect from all handlers when destroying the song, fixes #1606098,
+	  listen to volume changes and update the main-slider
+
+2006-11-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/tools.c:
+	(bt_gst_registry_get_element_names_by_class),
+	(bt_gst_check_elements), (bt_gst_check_core_elements):
+	* src/ui/edit/machine-preferences-dialog.c:
+	(on_table_size_request), (bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/machine-properties-dialog.c: (on_box_size_request),
+	(bt_machine_properties_dialog_init_ui):
+	  set sensible size on machine preferences and parameter window,
+	  add tool function to check for gst elements
+
+2006-11-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c: (bt_setup_persistence_load):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	  fix detect function for native io, fixes #1595887
+
+2006-11-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/songs/buzz1.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz4.xml:
+	* tests/songs/buzz5.xml:
+	* tests/songs/buzz6.xml:
+	* tests/songs/buzz7.xml:
+	* tests/songs/buzz8.xml:
+	* tests/songs/buzz9.xml:
+	  remove global params that aren't there
+
+2006-11-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_help_activate),
+	(bt_machine_canvas_item_init_context_menu):
+	  added help to machine context menu
+
+2006-11-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  APP_DEBUG -> USE_DEBUG
+
+2006-11-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  release announcement
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	(on_table_size_request), (bt_machine_preferences_dialog_init_ui):
+	  hide gst_object.name from machine preferences, set a dynamic default
+	  height

@@ -1,0 +1,3039 @@
+=== release 0.3.0 ===
+
+2008-03-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	  Updating NEWS.
+
+	* docs/help/bt-edit/C/figures/page-info-view.png:
+	  New screenshot.
+
+	* src/lib/core/wire.c:
+	  Better logging.
+
+2008-03-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/figures/settings-shortcuts.png:
+	  New screenshot.
+
+	* docs/reference/README:
+	* docs/reference/bt-cmd/bt-cmd-sections.txt:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	  Remove obsolete entries.
+
+	* src/lib/core/Makefile.am:
+	* src/lib/core/application.c:
+	* src/lib/core/core.c:
+	* src/lib/core/core_private.h:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbtcore/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence-location.c:
+	* src/lib/core/persistence-selection.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/plainfile-settings.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/settings.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/tools.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/abs-range-control.c:
+	* src/lib/ic/control.c:
+	* src/lib/ic/device.c:
+	* src/lib/ic/ic.c:
+	* src/lib/ic/ic_private.h:
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/learn.c:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/midi-device.c:
+	* src/lib/ic/registry.c:
+	* src/lib/ic/trigger-control.c:
+	* src/ui/cmd/bt-cmd.h:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/pattern-editor.c:
+	  Restructure headers, so that we have no include config.h in a public
+	  installed header.
+
+2008-03-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* TODO:
+	* docs/help/bt-edit/C/Makefile.am:
+	* docs/help/bt-edit/C/bt-edit.xml:
+	* docs/help/bt-edit/C/figures/page-wavetable-view.png:
+	  Update docs.
+
+	* tests/bt-check.c:
+	  More comments. Disable theme tweaking and use default.
+
+2008-03-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/cpu/cpuload.c:
+	  This does not use gstreamer.
+
+	* design/cpu/fpu.c:
+	  Add fpu test.
+
+2008-03-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/Makefile.am:
+	* tests/bt-check.c:
+	  Experiment with the ui tests.
+
+	* tests/ui/edit/e-bt-machine-rename-dialog.c:
+	  Change name for nice screenshot.
+
+2008-03-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-menu.c:
+	  Filter out all elements with unsuitable pad counts.
+
+2008-03-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* autogen.sh:
+	  Supress automake portability warnings.
+
+	* src/ui/edit/bt-edit.desktop.in.in:
+	  Associate with all file types we handle.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Add idea.
+
+	* tests/Makefile.am:
+	  Readd tests.
+
+2008-03-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-menu.c:
+	  Also apply machine menu naming fix to effects.
+
+2008-03-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/Makefile.am:
+	* docs/help/bt-edit/Makefile.am:
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* po/de.po:
+	* src/ui/edit/Makefile.am:
+	* tests/Makefile.am:
+	  \o/ make distcheck works.
+
+2008-03-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/Makefile.am:
+	* po/POTFILES.in:
+	  More make distcheck fixes.
+
+2008-03-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/Makefile.am:
+	* docs/help/bt-edit/C/Makefile.am:
+	* po/POTFILES.in:
+	* po/de.po:
+	  Make distcheck fixing.
+
+	* src/lib/Makefile.am:
+	* src/lib/buzztard.applications.in:
+	* src/lib/buzztard.keys.in:
+	* src/lib/buzztard.mime:
+	  Remove old mime stuff.
+
+	* src/lib/buzztard.xml.in:
+	  Recognise our xml files as buzztard songs.
+
+2008-03-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	  Fix reparing controller queues when removing patterns.
+
+2008-03-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Fix song saving (gain attribute twice).
+
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Further tune the meters.
+
+2008-03-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* AUTHORS:
+	* Makefile.am:
+	* NEWS:
+	* configure.ac:
+	* docs/help/bt-edit/C/Makefile.am:
+	* docs/help/bt-edit/C/version.entities:
+	* po/de.po:
+	* src/lib/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/about-dialog.c:
+	* tests/Makefile.am:
+	  Preparing the release. Make distcheck fixes.
+
+2008-03-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	  Usinga a define for level meter range. Fixing flickering left-channel
+	  meter in toolbar.
+
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/volume-popup.c:
+	  Make popups bigger. Remove padding labels. Avoid label flicker of pan-
+	  popup.
+
+2008-03-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-cmd-info.sh:
+	* tests/xmlvalid.sh:
+	  Tiny test improvment.
+
+2008-03-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Sent news.
+
+	* src/ui/edit/pattern-editor.c:
+	  Add one idea comment.
+
+2008-03-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Fix the build.
+
+2008-03-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write newsletter.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Format value descriptions better.
+
+2008-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Fix typo.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Fix regression where sequence wasn't updated right.
+
+2008-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Document what we did.
+
+	* README:
+	  Kill some more CVS reference. tell about needed stuff to build from
+	  svn.
+
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	  More copy/paste preparation. Don't assert in patterns on some values.
+
+	* src/lib/core/sink-bin.c:
+	  Lower latency.
+
+	* src/lib/core/wire.c:
+	  idea about optimising number of queues used.
+
+	* src/ui/edit/main-menu.c:
+	  Move copy/paste preparation.
+
+	* src/ui/edit/main-page-patterns-methods.h:
+	* src/ui/edit/main-page-patterns.c:
+	  Show parameter descriptions where it applies.
+
+	* src/ui/edit/main-page-sequence-methods.h:
+	* src/ui/edit/main-page-sequence.c:
+	  Implement pos units and label menu updates. Keep refenrece on sequence
+	  to optimize acess.
+
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Write down ideas about improving the filtering.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Add todo section.
+
+2008-02-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/input/input.c:
+	  Add a missing description.
+
+	* src/lib/core/song.c:
+	  Fix playing again with pulseaudio.
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Faster level meters and more vivid spectrum. Wire-analyzers only
+	  handle their own mesaages.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Update cursor-pos before using it.
+
+	* src/ui/edit/pattern-editor.c:
+	  Disable color palette test.
+
+2008-02-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/song.c:
+	  Better detect unlinked elements.
+
+	* src/lib/core/wire.c:
+	  Release elements correctly.
+
+	* src/lib/core/sink-bin.c:
+	  Its microseconds and not nanoseconds. FIxes crasher on pulse.
+
+2008-02-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* README:
+	  Don't change XDG_HOME.
+
+	* src/lib/core/sink-bin.c:
+	  Reenable tempo changeing as the crash seems pulsesink specific. Needs
+	  more testing.
+
+2008-02-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Add another idea about playing a partially connected song.
+
+	* src/lib/core/sink-bin.c:
+	  Refactor tempo change handling (dies when changing the latency while
+	  playing).
+
+	* src/lib/core/wire.c:
+	  Configure queue to be small.
+
+2008-02-25  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/pattern-editor.c:
+          Add Ctrl variants of Home/End/PgUp/PgDn. Make horizontal scroll
+	  position follow the cursor.
+
+2008-02-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write notes.
+
+	* src/lib/core/sink-bin.c:
+	  Also configure latency.
+
+2008-02-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Tune the level meters to be more alive.
+
+	* src/ui/edit/pattern-editor.c:
+	  Clone font-size and use default monospace font.
+
+2008-02-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-menu.c:
+	  Use F1 for Help menu.
+
+	* src/ui/edit/main-toolbar.c:
+	  Tweak toolbar level meters and volume slider width more.
+
+2008-02-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/wire-pattern.c:
+	  Also treat "" as empty string and therefore 'no value'.
+
+	* src/ui/edit/main-toolbar.c:
+	  Make vu-meters and volume wider.
+
+2008-02-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Add element details.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Ideas about 'reset' and 'reset all' context menu entries.
+
+2008-02-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Set some minimal requsition to make the sequence header scrollable.
+
+2008-02-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  More viewport & scrolled window experiments.
+
+2008-02-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	  Corrected dialog sizing and layout.
+
+2008-02-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Try to make the sequence header scrollable too.
+
+2008-02-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Only take plugin name for missing machines (easier to supress
+	  duplicates).
+
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	  Try to improve dialog sizing (give space to the list).
+
+2008-02-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  News sent and new ones started.
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Fix crashers.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Make element names unique again.
+
+2008-02-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/libbtcore/wire-pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire-pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Finishing blend and adding randomize.
+
+	* src/lib/core/machine.c:
+	  Add ideas about improving handling of unlinked machines.
+
+2008-02-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/pattern-editor.c:
+	  Improve look on dark-themes.
+
+2008-02-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire-pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Blending is done for patterns, needs wire-patterns still. Also added
+	  design-ideas for copy/paste.
+
+2008-02-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  A bit more blend() implementation.
+
+2008-02-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-check.c:
+	* tests/ui/cmd/e-bt-cmd-application.c:
+	  Avoid using tmpnam() to silence gcc.
+
+2008-02-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write news.
+
+	* src/ui/edit/panorama-popup.c:
+	  Add bug comment.
+
+2008-01-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/pattern.h:
+	* src/lib/core/libbtcore/wire-pattern.h:
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/wire-pattern.c:
+	  Add signal for pattern-changed, so that we can update the controller
+	  chains, when we manipulate the whole pattern.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Prepare reading the selection and invoking blend().
+
+2008-01-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	  Unbreak sequence inserts.
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Use Ins/Del based shortcuts. Support insert/delete in group only.
+
+	* src/ui/edit/machine-menu.c:
+	  Drop 'bml' or 'ladspa' prefix from initial machine name.
+
+2008-01-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* tests/bt-cmd-info.sh:
+	* tests/songs/broken3.xml:
+	  Add one more test file.
+
+	* tests/m-bt-edit.c:
+	  Fix the ui tests.
+
+2008-01-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/pattern.c:
+	  A bit more code for blend().
+
+	* src/lib/core/wire.c:
+	  Serialize gain and pan for wires.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add gdk-syms for Ins/Del.
+
+2008-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	  Add new methods to docs.
+
+	* src/lib/core/pattern.c:
+	  Start with blend (interpolate).
+
+
+2008-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/libbtcore/wire-pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire-pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Add delete action for pattern and wire-pattern. Fix the GValue move
+	  logic in insert too.
+
+2008-01-26  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Initial selection support. Started read-only support for float columns.
+
+2008-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/wire-pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire-pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Handle voice and wire-params for inserts.
+
+2008-01-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Remove some debug logging.
+
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Ctrl-i and Ctrl-I work for global params. Need to do voice params and
+	  wire-params still.
+
+	* tests/lib/core/e-pattern.c:
+	  New test for insert into patterns.
+
+2008-01-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/pattern.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Start implementing the insert/delete for patterns. Not ready yet.
+
+	* src/lib/core/song-io.c:
+	* src/ui/edit/main-page-info.c:
+	  Fix bug uncovered by tests. Unsaved state was broken when loading
+	  further songs.
+
+2008-01-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-check.c:
+	* tests/songs/melo3.xml:
+	  Add a pattern to make sure we see something in the test screenshots.
+	* tests/ui/edit/e-bt-edit-application.c:
+	  More tests for multiple songs.
+
+2008-01-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Better stop the timeout handlers when destroying the object.
+
+2008-01-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/aspell.pws:
+	  Update wordlist.
+
+2008-01-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fix segfault, when adding tracks to paterns.
+
+2008-01-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Add queues to fix blocking issues we had with some buzz songs.
+
+2008-01-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Fix crasher found by the test suite.
+
+2008-01-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/de.po:
+	  Updated translations.
+
+2008-01-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/panorama-popup.h:
+	  Add two missing files.
+
+2008-01-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/link2.c:
+	  Updated test.
+
+	* src/lib/core/core.c:
+	* src/lib/core/sink-bin.c:
+	* tests/bt-check.c:
+	* tests/bt-test-plugin.c:
+	  New gstreamer-core API once again.
+
+2008-01-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/persistence.c:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-patterns.c:
+	  Add mappings for float and double parameters.
+
+2008-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	* NEWSLETTER:
+	  Release planning.
+
+2008-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Update user docs.
+
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Only show popup if we have panorama control. Remove some left-over
+	  debug prints,
+
+2008-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-machines-methods.h:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Added panorama popup (invoke with shift). Make panorama actually work.
+
+2008-01-18  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/pattern-editor.c:
+	  Make step size support more compatible. Check for Shift, Control
+	  and Alt modifiers only when detecting data entry.
+
+2008-01-18  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Add PageUp/PageDown support. Add step size (Ctrl+1..9). Ignore
+	  note/value entry when modifier keys are pressed.
+
+2008-01-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fix a leak. Fix build for old editor. Add more commenst for float and
+	  double mapping.
+
+2008-01-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  First attempt at working panorama mode. Also fixes broken playback
+	  from last (partial) commit.
+
+2008-01-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/core.c:
+	* src/lib/core/sink-bin.c:
+	* tests/bt-check.c:
+	* tests/bt-test-plugin.c:
+	  Try to better handle the gst-core deprecation :/
+
+2008-01-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c:
+	* src/lib/core/sink-bin.c:
+	* tests/bt-check.c:
+	* tests/bt-check.h:
+	* tests/bt-test-plugin.c:
+	* tests/m-bt-cmd.c:
+	* tests/m-bt-core.c:
+	* tests/m-bt-edit.c:
+	  Adjust to latest gst-core deprecations.
+
+2008-01-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	  Listen to wire-pattern additionas elsewhere too. FIxes the issue
+	  described in last,last changelog entry.
+
+2008-01-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c:
+	  Some ideas for denormal handling.
+
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Add a hack to keep the rowheader visible when scrolling.
+
+2008-01-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	  Fix NULL pointer access. There is still a bug when adding an pattern
+	  and edit wire data later on.
+
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Refactor wire gain handling. The wire-canvas item now shows real
+	  levels.
+
+2008-01-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Wrote and sent NEWS.
+
+	* src/lib/core/song.c:
+	  Comments about the CHildProxy problems.
+
+	* src/lib/core/wire.c:
+	  Plan the needed refactoring.
+
+	* src/ui/edit/wire-canvas-item.c:
+	  Add better wire visualisations (hard-coded values).
+
+
+2008-01-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Fix crash when freeing partialy constructed wire.
+
+2007-12-24  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/pattern-editor.c:
+	  Use hardware character codes for piano keys. Wider clicking range
+	  for note columns. Call callback after column change.
+
+2007-12-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Some thoughts about refactoring the gain-property.
+
+	* src/ui/edit/wire-canvas-item.c:
+	  Change the wire-knob shape and add rotated text for the level. No real
+	  volume value yet.
+
+2007-12-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/libbtcore/wire-pattern.h:
+	* src/lib/core/libbtcore/wire.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/marshal.list:
+	* src/lib/core/sequence.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/song.c:
+	* src/lib/core/tools.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Finalize the work of yesterday and watch for setup changes to update
+	  signal setup for wire-pattern changes.
+
+2007-12-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/libbtcore/wire.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/marshal.list:
+	* src/lib/core/sequence.c:
+	* src/lib/core/tools.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	  Yah, controller queues for wire-patterns. Means those pattern now also
+	  play. Wire-patterns also react to pattern resizes.
+
+2007-12-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Gather news.
+
+	* src/lib/core/machine.c:
+	  Improve linking elements.
+
+	* src/lib/core/sink-bin.c:
+	  Add a proxy property for master-volume and sync with sink-machines
+	  input-gain.
+
+	* src/lib/core/sink-machine.c:
+	  Activate input-gain and pass to sink-bin for master-volume.
+
+	* src/ui/edit/edit-application.c:
+	  We always have master-volume.
+
+2007-12-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-canvas-item.c:
+	  Howto for the wire gfx.
+
+2007-12-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Ideas about using childproxy.
+
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	  Ideas about supporting plugin-install feature.
+
+2007-12-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire-pattern.c:
+	  Keep the pattern property construct-only and implement deserializing
+	  more efficient.
+
+2007-12-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* TODO:
+	* docs/buzztard.xsd:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/wire-pattern.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Fixing param range in machine window. Add persistence for wire-
+	  patterns. Add some todo comments.
+
+2007-12-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Add cursor-location properties to editor. Now we have the parameter
+	  info back on the bottom-line.
+
+2007-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	* src/ui/edit/pattern-view.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/ui-ressources-methods.h:
+	  Add play-pos bar and octave settings to pattern-editor. Reorder
+	  methods keep style in sync with the rest of the project.
+
+2007-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Refactor and reduce the parameter handling code a bit. Now it uses
+	  less memory and makes some calls cheaper.
+
+2007-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	  Better way to support the depreacated tooltips API on older gtk+.
+
+2007-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/persistence.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Now enums work within their limmits. We need to clean this up :/.
+
+2007-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Boolean mapping fixes. More comments.
+
+2007-12-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	  Fix note columns and improve default value handling.
+
+2007-12-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  More thinking.
+
+2007-12-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Thinking.
+
+2007-12-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-docs.sgml:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbtcore/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/libbtcore/pattern.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/libbtcore/wire-pattern.h:
+	* src/lib/core/libbtcore/wire-pattern-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire.c:
+	* src/lib/core/wire-pattern.c:
+	  Add new wire-pattern class and do basic implementation. Its not yet
+	  saved with a song and event are not yet effective. Prepare for adding
+	  panning too. Also clean up some cruft.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fully switch to new pattern layout. Simplify type mapping code and
+	  achive better coverage.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Add ideas about clikcing in pattern-list.
+
+	* src/ui/edit/wire-canvas-item.c:
+	  Add ideas about better wire visuals.
+
+2007-12-13  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Changed from global+track-based to groups-based approach.
+	  Note column type fixes.
+
+2007-12-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  More comments :)
+
+2007-12-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Complete wrap the before/after code in #if 0/#else/#endif.
+
+2007-12-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/wire.c:
+	  Turn g_object_try_unref() into g_object_unref() where it makes no
+	  sense otherwise.
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Sketch ColumnGroup design for pattern editor.
+
+
+2007-12-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* TODO:
+	* src/lib/core/pattern.c:
+	* src/ui/edit/wire-canvas-item.c
+	  Design ideas regarding the wire-pattern handling.
+
+2007-12-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/tools.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Improve checking for gstreamer versions and add backwards
+	  compatibility mechanism.
+
+2007-12-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Updating.
+
+	* src/lib/core/pattern.c:
+	* src/ui/edit/pattern-editor.c:
+	  More notes about adding input-parameters to patterns.
+
+2007-12-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	  Yay! Scrolling works.
+
+2007-12-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Revert column_data change. Add converters for note data.
+
+2007-12-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Rewording to workaround one aspell warning.
+
+2007-12-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/persistence-location.h:
+	* src/lib/core/libbtcore/persistence-selection.h:
+	* src/lib/core/sequence.c:
+	* src/lib/core/song.c:
+	* tests/bt-check.c:
+	  Fix the tests.
+
+2007-12-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/persistence.c:
+	  Use non local variants to convert.
+
+	* src/ui/edit/main-page-patterns.c:
+	  First attempt to put real pattern data into the new widget.
+
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Add shading, add resizing.
+
+2007-12-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Updating.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Readd context menu for new widget. Hide left pos-bar for new widget.
+
+	* src/ui/edit/pattern-editor.c:
+	  TODO comments. Some renames and use G_OBJECT macros.
+
+2007-12-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/de.po:
+	* tests/povalid.sh:
+	  Update translation and fix test.
+
+2007-12-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	  Use new tooltip api conditionally.
+
+2007-12-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/ui/edit/e-bt-about-dialog.c:
+	  Add log line after dialog test like in other tests.
+
+2007-12-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	  Activating tests if new enough gtk-doc is available.
+
+	* po/de.po:
+	  Updating.
+
+2007-12-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/aspell.pws:
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  A few more spelling mistakes and doc additions.
+
+2007-12-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/help/bt-edit/Makefile.am:
+	* docs/help/bt-edit/C/aspell.pws
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Add spell checking rule and initial wordlist.
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Fix the build again.
+
+2007-12-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/application.c:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/song.c:
+	* src/lib/core/tools.c:
+	* tests/bt-check.c:
+	  We require glib-2.10. Remove older #ifdefs.
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Use glib-2.14 api to print help if available.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Add Insert/Delete rows in tracks.
+
+2007-12-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* ChangeLog:
+	  Add previous CHangelog entry.
+
+	* NEWSLETTER:
+	  Start collecting news.
+
+	* src/lib/core/pattern.c:
+	* src/lib/core/libbtcore/pattern.h:
+	  Fix mismatch of mute/break/bypass command.
+
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Better working insert/delete in sequence. Fix display of command-
+	  patterns. Fix label editing.
+
+2007-12-05  Krzysztof Foltman  <kfoltman@users.sourceforge.net>
+
+	* pattern-editor.h pattern-editor.c:
+	  add preliminary mouse support, calculate row width components, add a
+	  function to return total row width (for use as a scrollbar range)
+
+2007-12-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/buzztard.xsd:
+	  Fix ns-url.
+
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Add insert/delete for rows.
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	  Use g_ascii_ variant.
+
+2007-12-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Add new pattern-editor widget. Not fully working yet. Uncomment
+	  USE_PATTERN_EDITOR at the top of main-page-patterns.c to use.
+
+2007-12-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	* TODO:
+	* src/lib/core/sink-machine.c:
+	  Wrote and sent Newsletter. Some TODO cleanup and some new ideas.
+
+2007-11-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Workaround for the loop problem.
+
+2007-11-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  Fix configure magic, by also saving and setting cppflags.
+
+2007-11-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	  New sequence API (untested). More sketching for pattern counterpart.
+
+2007-11-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	  Don't active trigger and note cells in pattern view.
+
+2007-11-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/seek2.c:
+	  Small test change.
+
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	  Dump graph after loading if there where problems.
+
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-toolbar.c:
+	  Add a playback menu to work around the toolbar accelerator bug in gtk.
+
+2007-11-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Dump song-graph when linking fails.
+
+2007-11-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/seek1.c:
+	  Test improvments.
+
+	* docs/help/mk-shadow.sh:
+	  Better comments.
+
+	* src/lib/core/machine.c:
+	  Formatting.
+
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	  Sketch new API.
+
+2007-11-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Prepare news.
+
+	* src/ui/edit/pattern-view.c:
+	* src/ui/edit/sequence-view.c:
+	  Fix line overlays when view is scrolled horizontaly.
+
+2007-11-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/song.c:
+	  Use gst debug graphs if available.
+
+	* design/gst/link.c:
+	* design/gst/link2.c:
+	* design/gst/seek1.c:
+	* design/gst/seek2.c:
+	* design/gst/states.c:
+	  Most test tools to track regression.
+
+	* tests/bt-check.c:
+	  Further ideas for screenshooting.
+
+2007-11-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-toolbar.c:
+	  Better error debugging.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Dialog is now resizeable. Queue is leaky to not use too much CPU under
+	  high load.
+
+2007-11-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	  Configure audioconvert to not do dithering inbetween.
+
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Fix crasher when having empty preset list.
+
+2007-11-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Port to new preset API.
+
+	* tests/bt-cmd-convert.sh:
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	  Add trap for crashing tests.
+
+2007-11-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Adjust to latest spectrum changes.
+
+2007-11-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  That was too quick. Revert last change as its not copied yet.
+
+2007-11-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Don't leak preset list.
+
+2007-11-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Add workaround for http://bugzilla.gnome.org/show_bug.cgi?id=498010.
+
+2007-11-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Fix crasher when scrolling with the mouse scroll-wheel in sequence.
+
+2007-11-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/gconf-settings.c:
+	* src/ui/edit/main-window.c:
+	  Check path's in setings instead and do it for all of those.
+
+2007-11-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c:
+	  Reactivate metadata workaround.
+
+	* configure.ac:
+	* src/ui/edit/bt-edit.h:
+	  Conditionally include preset.h
+
+	* src/ui/edit/edit-application.c:
+	  Add warnings when saving to unknows extensions.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Check if current_machine != NULL
+
+2007-11-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  We sent news.
+
+	* buzztard.doap:
+	  Add my foaf id.
+
+	* src/ui/edit/main-window.c:
+	  Check existence of path from settings before using. Need to apply this
+	  in other places still.
+
+2007-11-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Fix selection with cursor up. Change pattern edit to use hardware
+	  keycodes to be keymap independent.
+
+2007-11-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Its time again.
+
+	* design/gst/make.sh:
+	* design/gst/seek1.c:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	  GStreamer CVS Head has a serios bug
+	  (http://bugzilla.gnome.org/show_bug.cgi?id=492729)
+
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Add some comments about props we should configure.
+
+2007-10-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Implement column reshuffling.
+
+2007-10-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* ChangeLog:
+	* NEWSLETTER:
+	* src/ui/edit/main-page-sequence.c:
+	  Add a few comment for adding columnt reshuffling in sequence.
+
+2007-10-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	  Fix doc build when building with coverage.
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Add new methods for moving columns in sequence.
+
+2007-10-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* ChangeLog:
+	* configure.ac:
+	  Fix gcov detection, spotted by Tim Janik.
+
+2007-09-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	* tests/lib/core/t-sink-machine.c:
+	  Better debug logs while hunting down a broken test.
+
+2007-09-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* configure.ac:
+	  Improved lcov detection.
+
+2007-09-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Start taking notes of new changes.
+
+	* src/lib/core/wire.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Also remember analysis window states. Fix blocking when opening
+	  ananyzer in not-playing state.
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Add widget names (for better screenshots).
+
+	* src/ui/edit/main-menu.c:
+	  More todo-items.
+
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-pages.c:
+	  Debug focus grabbing problem.
+
+	* src/ui/edit/main-window.c:
+	  Reformat.
+
+2007-09-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-io.c:
+	* src/ui/edit/main-window.c:
+	  Fix path handling for save/save-as. Fixes #1791086.
+
+2007-09-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Finished NEWS.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Remember open/close state for property windows.
+
+	* src/ui/edit/main-menu.c:
+	  Add todos.
+
+	* src/ui/edit/main-page-machines.c:
+	  Focus grab improvments. Get mouse pos to check if mouse it over
+	  canvas-item.
+
+2007-09-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Writing news
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	  More thought on live-connect for machines and wires.
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Allow to use the 'menu' key to open context menus.
+
+2007-09-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Improvle live analyzer linking and disconnecting.
+
+2007-09-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Remove early debug log (no category yet).
+
+2007-09-02  Patric Schmitz  <berzerka@users.sourceforge.net>
+
+	* src/lib/ic/midi-device.c:
+	(btic_midi_device_register_learned_control):
+	  register control only if it hasnt already been learned
+
+2007-09-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* autogen.sh:
+	  Sync with other modules.
+
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	  Example of how to refactor bt_xxx_new to have no side effects.
+
+	* src/ui/edit/render-progress.c:
+	  Set multiple settings at once.
+
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	  Remove unused code. Make messages in dialogs selectable.
+
+2007-09-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/acceltoolbar.c:
+	  Add another test app.
+
+2007-08-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/libbtic/Makefile.am:
+	  Add missing files to install.
+
+2007-08-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-toolbar.c:
+	  More attempts to get toolbar accelerators working.
+
+2007-08-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	  Add new docs.
+
+	* po/POTFILES.in:
+	* po/de.po:
+	  Update strings more (new file).
+
+2007-08-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/ui/edit/e-bt-render-dialog.c:
+	  Create song, to fix the failing test.
+
+2007-08-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/de.po:
+	  Update strings.
+
+2007-08-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-window.c:
+	  Use song-folder friom settings.
+
+	* src/ui/edit/render-dialog.c:
+	  More logs to nail down test failure.
+
+2007-08-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-test-settings.c:
+	  Also updating test settings.
+
+2007-08-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  More newsletter writing.
+
+	* buzztard.schemas.in:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbtcore/settings-private.h:
+	* src/lib/core/settings.c:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-directories-methods.h:
+	* src/ui/edit/settings-page-directories.c:
+	* src/ui/edit/settings-page-directories.h:
+	  Add new default directory settings. Use them for wavespage and for
+	  recording.
+
+	* src/lib/core/song.c:
+	* src/lib/core/wire.c:
+	  Some more comments and experiments.
+
+2007-08-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/render-progress.c:
+	  Restore song-unsaved state. Add track-name to tags. Remove okay button
+	  from progress dialog.
+
+2007-08-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Fix solo.
+
+	* src/lib/core/song.c:
+	  Activate song-graph dump, on error.
+
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-menu.c:
+	  Accelerators for tab-switching.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Fix ref-count regression.
+
+	* src/ui/edit/main-toolbar.c:
+	  Try accelerators.
+
+	* src/ui/edit/render-dialog.c:
+	  Some todos.
+
+2007-08-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Fix some focuc-grabbing bugs and window==NULL bugs. Add accel for
+	  sequence page. Comment about accels for comboboxes.
+
+2007-08-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-dialog.h:
+	* src/ui/edit/render-progress.c:
+	  Implement much more of the recording. Made choosing filename + format
+	  more comfortable.
+
+2007-08-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Comment how we could delay events.
+
+2007-08-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Handle new feature in spectrum element.
+
+	* tests/povalid.sh:
+	  Fix "bad file descriptor" error.
+
+	* tests/ui/edit/e-bt-wire-analysis-dialog.c:
+	  Don't fail test if we can't create dialog.
+
+2007-08-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Prepare news.
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Add workaround for gtk+ bug and make local shortcuts work.
+
+2007-08-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/accelpopup.c:
+	  More complex version with a fix.
+
+2007-08-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-rename-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/wire-analysis-dialog.c:
+	  If creating the dialogs fails don't call g_object_unref() as they are
+	  in floating state, call gtk_widget_destroy() instead. Should now
+	  really fix #1777669.
+
+2007-08-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/lib/ic/libbtic/learn.h:
+	* src/ui/edit/main-menu-methods.h:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/ui-ressources-methods.h:
+	* src/ui/edit/ui-ressources.c:
+	  Make docs clean. Add method to ui-ressources to get global accelerator
+	  map. Refactor code to use it.
+
+2007-08-22  Patric Schmitz  <berzerka@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	  another tiny doc fix
+
+2007-08-22  Patric Schmitz  <berzerka@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	  fixed gtk-doc (after refactoring learn-dialog)
+
+2007-08-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/Makefile.am:
+	  Testing new test ideas.
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Fix invalid xml.
+
+	* tests/xmlvalid.sh:
+	  Also test user docs. Allow to run standalone.
+
+	* tests/gtkdoccomplete.sh:
+	  Fix expression.
+
+2007-08-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/accelpopup.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Example for popup.
+
+2007-08-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-window.c:
+	  Try to add accelerators to popup menues.
+
+	* tests/povalid.sh:
+	  Fix redirection in script.
+
+2007-08-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/midi-device.c:
+	  Read single byte first and if its the begin of a message read two
+	  more. Also fix crasher by giving the address of the array and not the
+	  address of the address. Only emit controller-changed if it changed.
+	  Finaly remove endless while loop.
+
+2007-08-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  That was missing to fix #1777669.
+
+2007-08-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/ui/edit/e-bt-wire-analysis-dialog.c:
+	  Revert last change and try harder to fix #1777669.
+
+2007-08-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Don't touch wire if NULL. Should fix #1777669.
+
+2007-08-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Some more cleanup for the last change.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Add more log comments to trace crash if user has not spectrum element.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add todo comments.
+
+2007-08-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c:
+	* src/ui/edit/bt-edit.c:
+	  Make --version work without initializing other libs.
+	  Hopefully fixes #1777461.
+
+2007-08-17  Patric Schmitz  <berzerka@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* po/de.po:
+	* src/lib/ic/learn.c: (btic_learn_default_start),
+	(btic_learn_default_stop),
+	(btic_learn_default_register_learned_control):
+	* src/lib/ic/libbtic/learn.h:
+	* src/lib/ic/midi-device.c:
+	(btic_midi_device_register_learned_control),
+	(btic_midi_device_interface_init):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/interaction-controller-learn-dialog-methods.h:
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	(notify_device_controlchange), (on_dialog_response),
+	(bt_interaction_controller_learn_dialog_init_ui),
+	(bt_interaction_controller_learn_dialog_new),
+	(bt_interaction_controller_learn_dialog_get_property),
+	(bt_interaction_controller_learn_dialog_set_property),
+	(bt_interaction_controller_learn_dialog_dispose),
+	(bt_interaction_controller_learn_dialog_finalize),
+	(bt_interaction_controller_learn_dialog_init),
+	(bt_interaction_controller_learn_dialog_class_init),
+	(bt_interaction_controller_learn_dialog_get_type):
+	* src/ui/edit/interaction-controller-learn-dialog.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	(on_control_learn_activated),
+	(bt_interaction_controller_menu_init_control_menu):
+	* src/ui/edit/learn-dialog-methods.h:
+	* src/ui/edit/learn-dialog.c:
+	* src/ui/edit/learn-dialog.h:
+	  refactored learn-dialog -> interaction-controller-learn-dialog
+	  minor (mostly doc) fixes of the midi-device and learn implementation
+
+2007-08-16  Patric Schmitz  <berzerka@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_key_release_event):
+	  added ctrl-+/- hotkeys in pattern-edit dialog for new/delete pattern
+
+2007-08-16  Patric Schmitz  <berzerka@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* docs/reference/bt-ic/bt-ic.types:
+	  inserted the new classes into gtk-doc
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/device.c: (btic_device_class_init):
+	* src/lib/ic/input-device.c: (register_controls):
+	  made debug output print device-node
+	* src/lib/ic/learn.c: (btic_learn_default_start),
+	(btic_learn_default_stop),
+	(btic_learn_default_register_learned_control), (btic_learn_start),
+	(btic_learn_stop), (btic_learn_register_learned_control),
+	(btic_learn_base_init), (btic_learn_get_type):
+	  introduced the learn interface
+	* src/lib/ic/libbtic/device.h:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/learn-methods.h:
+	* src/lib/ic/libbtic/learn.h:
+	* src/lib/ic/midi-device.c: (io_handler),
+	(btic_midi_device_learn_start), (btic_midi_device_learn_stop),
+	(btic_midi_device_register_learned_control),
+	(btic_midi_device_start), (btic_midi_device_stop),
+	(btic_midi_device_get_property), (btic_midi_device_set_property),
+	(btic_midi_device_finalize), (btic_midi_device_init),
+	(btic_midi_device_class_init), (btic_midi_device_interface_init),
+	(btic_midi_device_get_type):
+	  made midi device and functional and implemented learn interface
+	* src/lib/ic/registry.c: (on_device_added):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	(on_control_learn_activated),
+	(bt_interaction_controller_menu_init_control_menu):
+	  added "Learn.." menu-entry for BtIcLearn devices
+	* src/ui/edit/learn-dialog-methods.h:
+	* src/ui/edit/learn-dialog.c: (notify_device_controlchange),
+	(on_dialog_response), (bt_learn_dialog_init_ui),
+	(bt_learn_dialog_new), (bt_learn_dialog_get_property),
+	(bt_learn_dialog_set_property), (bt_learn_dialog_dispose),
+	(bt_learn_dialog_finalize), (bt_learn_dialog_init),
+	(bt_learn_dialog_class_init), (bt_learn_dialog_get_type):
+	  implemented the learn popup-dialog
+	* src/ui/edit/learn-dialog.h:
+
+2007-08-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* po/POTFILES.in:
+	* po/de.po:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	  Fix warnings/tests on buildbot.
+
+2007-08-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/settings.c:
+	  Add ideas.
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Fix crashes when using machines with really big numbers. Fix combo-
+	  boxes.
+	* src/ui/edit/main-window.c:
+	  Set role for session manager.
+
+2007-08-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Wrote news.
+
+2007-08-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/bt-cmd-docs.sgml:
+	* docs/reference/bt-core/bt-core-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	  Add online locations.
+
+2007-08-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/volume-popup.c:
+	  Remove +/- buttons, but add a value label above. We probably need to
+	  subsclass the scale - its buggy and ugly.
+
+2007-08-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/interaction-controller-menu.c:
+	  Experiment with alternatives to avoid qdata for toplevel menu.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Include box-spacing.
+
+	* src/ui/edit/render-progress.c:
+	  Do a final progress-bar update.
+
+2007-08-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_toolbar_show_hide_clicked),
+	(bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_new):
+	  Have presets hidden by default and try to handle the window resizing a
+	  bit intelligent, when toggling the pane.
+
+	* src/ui/edit/volume-popup.c: (cb_dock_press),
+	(bt_volume_popup_new):
+	  Add a ruler.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	(bt_wire_analysis_dialog_init_ui):
+	  Tune the rulers a bit.
+
+2007-08-08  Patric Schmitz  <berzerka@users.sf.net>
+
+	* src/lib/ic/device.c: (btic_device_default_learn),
+	(btic_device_learn), (btic_device_class_init):
+	* src/lib/ic/libbtic/device.h:
+	  Added virtual 'learn' method to BtIcDevice base class
+
+2007-08-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/gtkdoccomplete.sh:
+	* tests/povalid.sh:
+	  Even better scripts :)
+
+2007-08-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/midi-device.c:
+	  Add links for midi device identification.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Fix sequence cell activate and better code reuse.
+
+	* tests/gtkdoccomplete.sh:
+	  Handle the no-gtk-doc case.
+
+2007-08-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/ui/edit/settings-dialog.h:
+	  Docs are clean again.
+
+	* po/de.po:
+	  Update.
+
+	* src/lib/ic/registry.c:
+	  Remove unused variable.
+
+	* tests/gtkdoccomplete.sh:
+	* tests/povalid.sh:
+	  More test scrip improvments.
+
+2007-08-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* tests/gtkdoccomplete.sh:
+	  Improve doc status reporting. Apply some doc fixes.
+
+	* src/lib/core/song.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	  Basic recording works form the ui.
+
+2007-08-06  Patric Schmitz  <berzerka@users.sf.net>
+
+	* src/lib/ic/registry.c: (on_device_added), (btic_registry_init):
+	  Made devices of category 'alsa' and type 'midi' be recognized
+
+2007-08-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  More details
+
+	* src/lib/core/machine.c:
+	* src/lib/ic/registry.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Save and load controller assignments with the song.
+
+	* tests/Makefile.am:
+	  Libc memory allocator testing idea.
+
+2007-08-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/ui/edit/interaction-controller-menu.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Implement 'unbind' and 'unbind-all' menu-actions for interaction
+	  controllers.
+
+2007-08-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/Makefile.am:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/machine.c: (free_control_data),
+	(on_boolean_control_notify), (on_uint_control_notify),
+	(on_double_control_notify), (bt_machine_bind_parameter_control),
+	(bt_machine_unbind_parameter_control):
+	* src/lib/ic/libbtic/ic.h:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/interaction-controller-menu.c:
+	(bt_interaction_controller_menu_init_ui):
+	* src/ui/edit/machine-properties-dialog.c: (on_control_bind),
+	(on_control_unbind), (on_double_range_button_press_event),
+	(on_uint_range_button_press_event),
+	(on_checkbox_button_press_event), (make_global_param_box),
+	(make_voice_param_box), (bt_machine_properties_dialog_finalize),
+	(bt_machine_properties_dialog_init):
+	* tests/lib/core/Makefile.am:
+	* tests/ui/cmd/Makefile.am:
+	  Refactor the interaction controller assignments from dialog to machine
+	  and simplify the code.
+
+	* src/ui/edit/main-page-patterns.c: (pattern_view_get_current_pos):
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_key_release_event):
+	  Fix crasher when switching to pattern-page with no pattern.
+
+2007-08-02  Patric Schmitz  <berzerka@users.sf.net>
+
+	* src/lib/ic/registry.c: (on_device_added):
+	  made generic "input" devices be used as btic-devices
+
+2007-08-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	  Use pwd instead of hardcoded path.
+	* tests/bt-check.c: (check_setup_test_display):
+	  Add some comments about the problems we face.
+
+2007-07-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c: (on_song_play_pos_notify),
+	(on_song_is_playing_notify), (bt_render_progress_run):
+	  Configure the sink-bin for rendering. Drive progressbar.
+
+2007-07-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write news.
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-menu.c: (on_menu_render_activate):
+	* src/ui/edit/render-dialog.c: (on_format_menu_changed),
+	(bt_render_dialog_init_ui), (bt_render_dialog_get_property):
+	* src/ui/edit/render-progress-methods.h:
+	* src/ui/edit/render-progress.c: (bt_render_progress_init_ui),
+	(bt_render_progress_new), (bt_render_progress_run),
+	(bt_render_progress_get_property),
+	(bt_render_progress_set_property), (bt_render_progress_dispose),
+	(bt_render_progress_finalize), (bt_render_progress_init),
+	(bt_render_progress_class_init), (bt_render_progress_get_type):
+	* src/ui/edit/render-progress.h:
+	  Prepare next dialog and data passing.
+
+2007-07-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_enable_input_level):
+	* src/ui/edit/wire-analysis-dialog.c:
+	(on_wire_analyzer_state_changed),
+	(bt_wire_analysis_dialog_init_ui):
+	  Make anayzer intervals the same. Disabled redraw when song pauses.
+
+	* src/ui/edit/render-dialog.c: (on_filename_changed),
+	(on_folder_changed), (bt_render_dialog_init_ui),
+	(bt_render_dialog_get_property), (bt_render_dialog_finalize),
+	(bt_render_dialog_class_init):
+	  Add properties to get the values.
+
+2007-07-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-machines.c: (machine_view_refresh):
+	* src/ui/edit/main-pages.c: (on_song_changed), (on_page_switched),
+	(bt_main_pages_init_ui), (bt_main_pages_dispose):
+	  Prepare remembering active tab for song.
+
+2007-07-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_rename_activate):
+	* src/ui/edit/machine-rename-dialog-methods.h:
+	* src/ui/edit/machine-rename-dialog.c: (on_name_changed),
+	(bt_machine_rename_dialog_init_ui), (bt_machine_rename_dialog_new),
+	(bt_machine_rename_dialog_apply),
+	(bt_machine_rename_dialog_get_property),
+	(bt_machine_rename_dialog_set_property),
+	(bt_machine_rename_dialog_dispose),
+	(bt_machine_rename_dialog_finalize),
+	(bt_machine_rename_dialog_init),
+	(bt_machine_rename_dialog_class_init),
+	(bt_machine_rename_dialog_get_type):
+	* src/ui/edit/machine-rename-dialog.h:
+	  Another dialog factored out.
+
+	* src/ui/edit/pattern-properties-dialog.c: (on_name_changed),
+	(bt_pattern_properties_dialog_init_ui):
+	  Simplify validation.
+
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_change):
+	  Lower prioriy.
+
+	* tests/bt-check.c: (check_make_widget_screenshot):
+	  Add more ideas.
+
+	* tests/bt-test-settings.c: (bt_test_settings_get_property):
+	  Add new settings.
+
+	* tests/m-bt-edit.c: (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-about-dialog.c:
+	(bt_about_dialog_example_case):
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	(bt_machine_preset_properties_dialog_example_case):
+	* tests/ui/edit/e-bt-machine-rename-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST),
+	(bt_machine_rename_dialog_example_case):
+	* tests/ui/edit/e-bt-missing-framework-elements-dialog.c:
+	(bt_missing_framework_elements_dialog_example_case):
+	* tests/ui/edit/e-bt-missing-song-elements-dialog.c:
+	(bt_missing_song_elements_dialog_example_case):
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_example_case):
+	* tests/ui/edit/e-bt-render-dialog.c:
+	(bt_render_dialog_example_case):
+	* tests/ui/edit/e-bt-settings-dialog.c:
+	(bt_settings_dialog_example_case):
+	* tests/ui/edit/s-bt-machine-rename-dialog.c:
+	(bt_machine_rename_dialog_suite):
+	  New test. Comment typo fixes.
+
+2007-07-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/POTFILES.in:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/about-dialog-methods.h:
+	* src/ui/edit/about-dialog.c: (on_about_dialog_url_clicked),
+	(bt_about_dialog_init_ui), (bt_about_dialog_new),
+	(bt_about_dialog_get_property), (bt_about_dialog_set_property),
+	(bt_about_dialog_dispose), (bt_about_dialog_finalize),
+	(bt_about_dialog_init), (bt_about_dialog_class_init),
+	(bt_about_dialog_get_type):
+	* src/ui/edit/about-dialog.h:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c: (bt_edit_application_show_about):
+	* src/ui/edit/main-menu.c: (on_menu_render_activate):
+	* src/ui/edit/pattern-properties-dialog.h:
+	* src/ui/edit/render-dialog.c: (bt_render_dialog_init_ui):
+	* src/ui/edit/render-dialog.h:
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_set_property):
+	* tests/m-bt-edit.c: (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-about-dialog.c: (test_setup), (test_teardown),
+	(BT_START_TEST), (bt_about_dialog_example_case):
+	* tests/ui/edit/e-bt-render-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST), (bt_render_dialog_example_case):
+	* tests/ui/edit/s-bt-about-dialog.c: (bt_about_dialog_suite):
+	* tests/ui/edit/s-bt-render-dialog.c: (bt_render_dialog_suite):
+	  About dialog factored out. Tests added for about dialog and renderer
+	  dialog. Fix switchin pages in settings dialog.
+
+2007-07-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_init):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing),
+	(bt_edit_application_load_song), (bt_edit_application_show_about):
+	* src/ui/edit/main-menu.c: (on_menu_render_activate),
+	(on_menu_settings_activate):
+	* src/ui/edit/main-page-patterns.c:
+	(on_context_menu_pattern_new_activate),
+	(on_context_menu_pattern_properties_activate),
+	(on_context_menu_pattern_copy_activate):
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	(bt_missing_framework_elements_dialog_init_ui):
+	* src/ui/edit/missing-song-elements-dialog-methods.h:
+	* src/ui/edit/missing-song-elements-dialog.c: (make_listview),
+	(bt_missing_song_elements_dialog_init_ui),
+	(bt_missing_song_elements_dialog_new),
+	(bt_missing_song_elements_dialog_get_property),
+	(bt_missing_song_elements_dialog_set_property),
+	(bt_missing_song_elements_dialog_dispose),
+	(bt_missing_song_elements_dialog_finalize),
+	(bt_missing_song_elements_dialog_init),
+	(bt_missing_song_elements_dialog_class_init),
+	(bt_missing_song_elements_dialog_get_type):
+	* src/ui/edit/missing-song-elements-dialog.h:
+	* src/ui/edit/tools.c:
+	* tests/Makefile.am:
+	* tests/m-bt-cmd.c: (bt_cmd_setup), (main):
+	* tests/m-bt-edit.c: (bt_edit_setup), (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-missing-song-elements-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST),
+	(bt_missing_song_elements_dialog_example_case):
+	* tests/ui/edit/s-bt-missing-song-elements-dialog.c:
+	(bt_missing_song_elements_dialog_suite):
+	  Make more dialogs transient. Factor out the missing-song-elements
+	  dialog and add test for it. Make ui tests use out test settings.
+
+2007-07-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gobject/song.c: (bt_song_class_init):
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c: (bt_pattern_class_init),
+	(bt_pattern_get_type):
+	* src/lib/core/persistence-location.c:
+	(bt_persistence_location_get_type):
+	* src/lib/core/persistence-selection.c:
+	(bt_persistence_selection_get_type):
+	* src/lib/core/plainfile-settings.c:
+	(bt_plainfile_settings_get_type):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_get_type):
+	* src/lib/core/sequence.c: (bt_sequence_get_type):
+	* src/lib/core/settings.c: (bt_settings_get_type):
+	* src/lib/core/setup.c: (bt_setup_class_init), (bt_setup_get_type):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_get_type):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_get_type):
+	* src/lib/core/song-info.c: (bt_song_info_get_type):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_get_type):
+	* src/lib/core/song-io.c: (bt_song_io_get_type):
+	* src/lib/core/song.c: (bt_song_get_type):
+	* src/lib/core/source-machine.c: (bt_source_machine_get_type):
+	* src/lib/core/wave.c: (bt_wave_get_type):
+	* src/lib/core/wavelevel.c: (bt_wavelevel_get_type):
+	* src/lib/core/wavetable.c: (bt_wavetable_get_type):
+	* src/lib/core/wire.c: (bt_wire_get_type):
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_get_type):
+	* src/ui/edit/bt-edit.c: (usage):
+	* src/ui/edit/edit-application.c: (bt_edit_application_get_type):
+	* src/ui/edit/interaction-controller-menu.c:
+	(bt_interaction_controller_menu_get_type):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_get_type):
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_get_type):
+	* src/ui/edit/main-menu.c: (bt_main_menu_get_type):
+	* src/ui/edit/main-page-info.c: (bt_main_page_info_get_type):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_get_type):
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_get_type):
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_get_type):
+	* src/ui/edit/main-pages.c: (bt_main_pages_get_type):
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_get_type):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_get_type):
+	* src/ui/edit/main-window.c: (bt_main_window_get_type):
+	* src/ui/edit/pattern-view.c: (bt_pattern_view_get_type):
+	* src/ui/edit/playback-controller-socket.c:
+	(bt_playback_controller_socket_get_type):
+	* src/ui/edit/render-dialog.c: (bt_render_dialog_init_ui),
+	(bt_render_dialog_get_type):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_get_type):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_get_type):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_get_type):
+	* src/ui/edit/settings-page-interaction-controller.c:
+	(bt_settings_page_interaction_controller_get_type):
+	* src/ui/edit/settings-page-playback-controller.c:
+	(bt_settings_page_playback_controller_get_type):
+	* src/ui/edit/ui-ressources.c: (bt_ui_ressources_get_type):
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_get_type):
+	* tests/bt-test-plugin.c: (bt_test_mono_source_get_type),
+	(bt_test_poly_source_get_type):
+	* tests/bt-test-settings.c: (bt_test_settings_get_type):
+	  Remove G_STRUCT_SIZE and G_ABS_STRUCT_OFFSET (was splint tuning and
+	  clobbering glib namespace).
+
+2007-07-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/render-dialog.c: (bt_render_dialog_init_ui):
+	  Turn box into table.
+
+2007-07-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/interaction-controller-menu.h:
+	* src/ui/edit/settings-dialog.c: (bt_settings_page_get_type),
+	(on_settings_list_cursor_changed), (bt_settings_dialog_init_ui),
+	(bt_settings_dialog_get_property),
+	(bt_settings_dialog_set_property), (bt_settings_dialog_class_init):
+	* src/ui/edit/settings-dialog.h:
+	* tests/ui/edit/e-bt-settings-dialog.c: (BT_START_TEST):
+	  Refactor for testing.
+
+2007-07-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h (BT_EDIT_H):
+	* src/ui/edit/main-menu.c (on_menu_render_activate,
+	  bt_main_menu_init_ui):
+	* src/ui/edit/render-dialog-methods.h (BT_RENDER_DIALOG_METHODS_H):
+	* src/ui/edit/render-dialog.c (BT_EDIT, BT_RENDER_DIALOG_C,
+	  RENDER_DIALOG_APP, _BtRenderDialogPrivate, dispose_has_run,
+	  parent_class, bt_render_dialog_init_ui, bt_render_dialog_new,
+	  bt_render_dialog_get_property, bt_render_dialog_set_property,
+	  bt_render_dialog_dispose, bt_render_dialog_finalize,
+	  bt_render_dialog_init, bt_render_dialog_class_init,
+	  bt_render_dialog_get_type):
+	* src/ui/edit/render-dialog.h (BT_RENDER_DIALOG_H,
+	  BT_TYPE_RENDER_DIALOG, BT_RENDER_DIALOG, BT_RENDER_DIALOG_CLASS,
+	  BT_IS_RENDER_DIALOG, BT_IS_RENDER_DIALOG_CLASS,
+	  BT_RENDER_DIALOG_GET_CLASS, BtRenderDialog, BtRenderDialogClass,
+	  BtRenderDialogPrivate, _BtRenderDialog, parent, priv,
+	  _BtRenderDialogClass, parent):
+	  Prepare new dialog.
+
+	* src/ui/edit/settings-dialog.c:
+	  Some thoughts abot cleaning this up for better testability.
+
+2007-07-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	(bt_missing_framework_elements_dialog_init_ui):
+	  Skip messages if all elemnts for that are already confirmed (and thus
+	  hidden).
+
+2007-07-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (bt_song_write_to_lowlevel_dot_file):
+	  Better dot generation.
+
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	(bt_missing_framework_elements_dialog_init_ui):
+	* tests/ui/edit/e-bt-missing-framework-elements-dialog.c:
+	(BT_START_TEST):
+	  Fix filtering and improve test.
+
+2007-07-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Remember changes.
+
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/ui/edit/tools.c: (bt_dialog_message), (bt_dialog_question),
+	(gtk_toolbar_get_style_from_string):
+	* src/ui/edit/tools.h:
+	  Disable dead code.
+
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui),
+	(bt_settings_dialog_get_property), (bt_settings_dialog_class_init):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	* src/ui/edit/settings-page-interaction-controller.c:
+	(bt_settings_page_interaction_controller_init_ui):
+	* src/ui/edit/settings-page-playback-controller.c:
+	(bt_settings_page_playback_controller_init_ui):
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_redraw),
+	(bt_wire_analysis_dialog_realize),
+	(bt_wire_analysis_dialog_expose), (on_wire_analyzer_change),
+	(bt_wire_analysis_dialog_init_ui),
+	(bt_wire_analysis_dialog_dispose):
+	* tests/bt-check.c: (check_setup_test_display):
+	* tests/m-bt-edit.c: (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-edit-application.c: (BT_START_TEST),
+	(bt_edit_application_example_case):
+	* tests/ui/edit/e-bt-machine-preferences-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST),
+	(bt_machine_preferences_dialog_example_case):
+	* tests/ui/edit/e-bt-settings-dialog.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-wire-analysis-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST),
+	(bt_wire_analysis_dialog_example_case):
+	* tests/ui/edit/s-bt-machine-preferences-dialog.c:
+	(bt_machine_preferences_dialog_suite):
+	* tests/ui/edit/s-bt-wire-analysis-dialog.c:
+	(bt_wire_analysis_dialog_suite):
+	  More dialog tests: setting pages, wire analysis, machine preferences.
+	  Make wire-analysis not spin CPU.
+
+2007-07-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_get_property_meta_value),
+	(bt_machine_init_global_params), (bt_machine_init_voice_params):
+	  Use new property meta flag to only check those where they are set.
+
+2007-07-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/m-bt-edit.c: (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-machine-properties-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST),
+	(bt_machine_properties_dialog_example_case):
+	* tests/ui/edit/e-bt-missing-framework-elements-dialog.c:
+	(test_setup), (test_teardown), (BT_START_TEST),
+	(bt_missing_framework_elements_dialog_example_case):
+	* tests/ui/edit/s-bt-machine-properties-dialog.c:
+	(bt_machine_properties_dialog_suite):
+	* tests/ui/edit/s-bt-missing-framework-elements-dialog.c:
+	(bt_missing_framework_elements_dialog_suite):
+	  Add two more UI tests (one is failing right now).
+
+2007-07-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* src/lib/core/machine.c:
+	  Formatting.
+
+	* configure.ac:
+	  Use pkg-config to locate check.
+
+	* po/de.po:
+	  Updated strings.
+
+	* tests/songs/test-simple1.xml:
+	  Make test song shorter.
+
+2007-07-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* tests/Makefile.am:
+	* tests/bt-cmd-cli.sh:
+	* tests/bt-edit-cli.sh:
+	* tests/ui/cmd/e-bt-cmd-application.c:
+	  Test the cli of the end-user applications.
+
+2007-07-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Run spellchecker.
+
+	* src/lib/core/sequence.c:
+	* src/lib/ic/abs-range-control.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	  Docu fixes.
+
+	* src/ui/edit/machine-properties-dialog.c: (make_global_param_box),
+	(make_voice_param_box), (on_machine_voices_notify),
+	(bt_machine_properties_dialog_init_ui):
+	  Handle voices dynamically. Fixes #1749283.
+
+2007-07-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write the news.
+
+	* src/lib/core/machine.c:
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value):
+	  Fix the build with DISABLE_DEPRECATED.
+
+	* src/ui/cmd/bt-cmd.c: (main):
+	  Formatting.
+
+2007-07-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_ui):
+	  Prepare to handle voices dynamically.
+
+2007-07-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_machine_voices_notify), (bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_dispose):
+	 We need to handle voices dynamically here (#1749283). Fix crash for now.
+
+2007-07-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c: (pattern_view_set_cursor_pos),
+	(on_pattern_table_key_release_event),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited):
+	  Fix handling of cursor_down after edit on last pattern row. Also
+	  refactor for better reuse. Fixes #1749732.
+
+2007-07-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Prepare overdue newsletter.
+
+	* src/lib/core/machine.c: (bt_machine_get_pattern_by_index):
+	  Fix assertion that should be none.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_ui):
+          Add TODO comments for dynamic voice handling in dialog.
+
+	* src/ui/edit/main-page-patterns.c: (pattern_view_get_cursor_pos),
+	(on_pattern_table_key_release_event),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited),
+	(on_base_octave_menu_changed), (bt_main_page_patterns_init_ui),
+	(bt_main_page_patterns_init):
+	  Add base octave handling.
+
+2007-07-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/persistence.c: (bt_persistence_set_value),
+	(bt_persistence_get_value):
+	  Better enum mapping.
+
+	* src/ui/edit/machine-properties-dialog.c: (make_checkbox_widget):
+	  Fix assertion.
+
+	* tests/bt-check.c: (check_setup_test_server),
+	(check_make_widget_screenshot):
+	  More attempts to make screenshots work on opensuse.
+
+2007-07-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value):
+	* src/lib/core/sequence.c:
+	(bt_sequence_get_number_of_pattern_uses),
+	(bt_sequence_set_pattern):
+	* src/ui/edit/pattern-properties-dialog.c: (on_name_changed):
+	  Lower debug level again.
+
+2007-07-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c: (pattern_view_get_cursor_pos),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited):
+	* src/ui/edit/main-page-sequence.c: (sequence_view_get_cursor_pos),
+	(sequence_view_get_current_pos),
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_button_press_event),
+	(bt_main_page_sequence_delete_selection):
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	  Finally fix one ui test crasher.
+
+2007-07-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/machine.c: (bt_machine_get_property_meta_value):
+	* src/lib/ic/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.desktop.in.in:
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_delete_activate):
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	* tests/bt-check.c: (check_setup_test_server):
+	* tests/lib/core/Makefile.am:
+	* tests/m-bt-cmd.c: (bt_cmd_setup), (bt_cmd_teardown):
+	* tests/m-bt-edit.c: (bt_edit_setup), (main):
+	* tests/ui/cmd/Makefile.am:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	(BT_START_TEST):
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-settings-dialog.c: (BT_START_TEST):
+	  More test fixes and some build improvments.
+
+2007-07-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_activate_controller),
+	(bt_machine_deactivate_controller), (bt_machine_resize_voices),
+	(bt_machine_get_voice_param_spec),
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value), (bt_machine_dispose):
+	* src/lib/core/pattern.c: (bt_pattern_set_global_event),
+	(bt_pattern_set_voice_event):
+	* src/lib/core/sequence.c:
+	(bt_sequence_repair_global_damage_entry),
+	(bt_sequence_repair_voice_damage_entry):
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_key_release_event):
+	  Fix some crashers when removing used-patterns. Implement deleting
+	  pattern event using '.' and space.
+
+2007-07-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_activate_controller),
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value):
+	  Quick fix + todo. More needed.
+
+2007-07-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/lib/core/t-core.c: (START_TEST), (bt_core_test_case):
+	  Add a test.
+
+2007-07-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* tests/Makefile.am:
+	* tests/m-bt-edit.c: (bt_edit_setup):
+	  Build fixes for coverage analysis. Fixes #1745546.
+
+2007-07-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_activate_controller),
+	(bt_machine_deactivate_controller), (bt_machine_resize_voices),
+	(bt_machine_init_global_params),
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value):
+	* src/ui/edit/machine-properties-dialog.c:
+	  Only params under control if they have control-changes.
+
+2007-06-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	* buzztard.doap:
+	* configure.ac:
+	* design/gui/treeview/treeview.c: (gst_trigger_switch_get_type),
+	(selection_cell_data_function), (init):
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/buzztard.keys.in:
+	* src/lib/buzztard.xml.in:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c: (bt_machine_resize_voices),
+	(bt_machine_get_property_meta_value),
+	(bt_machine_init_global_params), (bt_machine_init_voice_params),
+	(bt_machine_is_global_param_trigger),
+	(bt_machine_is_voice_param_trigger),
+	(bt_machine_is_global_param_no_value),
+	(bt_machine_is_voice_param_no_value),
+	(bt_machine_get_voice_param_spec),
+	(bt_machine_set_global_param_no_value),
+	(bt_machine_set_voice_param_no_value),
+	(bt_machine_get_param_min_value), (bt_machine_get_param_max_value),
+	(bt_machine_describe_global_param_value),
+	(bt_machine_describe_voice_param_value),
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value),
+	(bt_machine_persistence_load):
+	* src/lib/core/persistence.c: (bt_persistence_set_value),
+	(bt_persistence_get_value):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_record_format_get_type):
+	* src/lib/core/song-io.c: (bt_song_io_update_filename):
+	* src/lib/core/song.c: (bt_song_write_to_lowlevel_dot_file):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.desktop.in.in:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-preferences-dialog.c:
+	(on_combobox_property_notify), (on_combobox_property_changed),
+	(bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_uint_range_global_property_format_value),
+	(on_uint_range_voice_property_format_value),
+	(on_button_press_event), (on_button_release_event),
+	(on_double_range_button_press_event),
+	(on_uint_range_property_changed),
+	(on_uint_range_button_press_event),
+	(on_combobox_property_notify_idle), (on_combobox_property_changed),
+	(on_checkbox_button_press_event), (make_checkbox_widget),
+	(make_int_range_widget), (make_uint_range_widget),
+	(make_double_range_widget), (make_combobox_widget),
+	(bt_machine_properties_dialog_init_ui):
+	* src/ui/edit/main-page-patterns.c:
+	(generic_selection_cell_data_function),
+	(enum_selection_cell_data_function),
+	(on_pattern_table_key_release_event), (pattern_table_refresh):
+	* src/ui/edit/main-page-sequence.c: (on_bars_menu_changed),
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_key_release_event):
+	  Use triggerswitch from gst-buzztard (unfortunately using enums and
+	  controller requires gstreamer cvs (>0.10.13)). Some first changes for
+	  new controller api.
+
+2007-06-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  write news and add items for next news
+
+	* src/lib/core/machine.c (bt_machine_init_interfaces,
+	  bt_machine_get_voice_param_spec):
+	  warn for voices=0 and fix get_voice_param_spec impl.
+
+	* src/ui/edit/main-page-patterns.c (on_pattern_table_key_release_event,
+	  on_pattern_global_cell_edited, on_pattern_voice_cell_edited,
+	  pattern_table_refresh):
+	  pattern editing improvments (notes and boolean)
+
+	* src/ui/edit/main-page-sequence.c
+	  (on_sequence_table_key_release_event):
+	  reflow the code a bit
+
+2007-05-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_key_release_event):
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_key_release_event):
+	  Make the gtk+ workaround conditional.
+
+2007-05-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c (column_keymode,
+	  PATTERN_TABLE_PRE_CT, PATTERN_KEYMODE_NOTE, PATTERN_KEYMODE_BOOL,
+	  PATTERN_KEYMODE_NUMBER, pattern_table_refresh,
+	  bt_main_page_patterns_finalize):
+	* src/ui/edit/main-page-sequence.c (sequence_table_refresh):
+	  Fix array size bug (just worked by coincidence). Prepare keymode
+	  handling for pattern editing.
+
+2007-05-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c (pattern_table_refresh):
+	  More design for pattern edit key handlers.
+
+2007-05-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/lib/core/machine.c: (bt_machine_renegotiate_adder_format),
+	(bt_machine_set_property):
+	* src/ui/edit/main-page-patterns.c: (pattern_view_get_cursor_pos),
+	(pattern_view_get_current_pos),
+	(on_pattern_table_cursor_changed_idle),
+	(on_pattern_table_key_release_event):
+	* src/ui/edit/main-page-sequence-methods.h:
+	* src/ui/edit/main-page-sequence.c: (sequence_view_get_cursor_pos),
+	(sequence_view_get_current_pos), (on_bars_menu_changed),
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_key_release_event):
+	  Make two methods static. Rewrite treeview cursor navigation and
+	  selection.
+	* src/lib/core/wire.c:
+	  Add todo: about adding queue elements.
+
+2007-05-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c (bt_machine_get_voice_param_index):
+	* src/lib/core/wire.c (bt_wire_parent_class, bt_wire_get_peer_pad,
+	  bt_wire_get_src_peer_pad, bt_wire_get_sink_peer_pad,
+	  bt_wire_deactivate_analyzers, bt_wire_link_machines,
+	  bt_wire_unlink_machines):
+	  Also release request pads from tee. Fixes alot more playback errors.
+
+2007-05-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c (get_int_value,
+	  bt_machine_renegotiate_adder_format):
+	  Add two more @todo: comments.
+
+2007-05-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c: (get_int_value),
+	(bt_machine_renegotiate_adder_format):
+	* src/lib/core/setup.c: (bt_setup_add_wire),
+	(bt_setup_remove_wire):
+	* src/lib/core/wire.c: (bt_wire_connect), (bt_wire_dispose):
+	  Progress, the format negotiation seems to start to work.
+
+2007-05-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/fmtnego.c: (on_format_negotiated):
+	  Minor fix.
+	* design/gui/treeview/treeview.c: (destroy), (init), (done),
+	(main):
+	  New example for treeview experiments.
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Write more about the menu commands.
+
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c: (bt_machine_activate_adder),
+	(bt_machine_renegotiate_adder_format),
+	(bt_machine_persistence_load):
+	* src/lib/core/song.c: (bt_song_stop):
+	* src/lib/core/wire.c: (on_format_negotiated),
+	(bt_wire_link_machines), (bt_wire_connect):
+	  Disable negotiation hack for now.
+
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_key_release_event), (pattern_table_refresh):
+	  Idea about key-handling in pattern.
+
+2007-05-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/core.h (BT_CORE_H):
+	* src/lib/core/libbtcore/tools.h (BT_TOOLS_H):
+	* src/lib/core/machine.c (bt_machine_add_input_element,
+	  bt_machine_add_output_element):
+	* src/lib/core/tools.c (bt_gst_registry_class_filter,
+	  bt_gst_registry_get_element_names_matching_all_categories,
+	  bt_gst_element_factory_can_sink_media_type, bt_gst_check_elements,
+	  bt_gst_check_core_elements, bt_gst_element_dbg_pads, g_try_malloc0,
+	  bt_cpu_load_init, bt_cpu_load_get_current):
+	* src/lib/core/wire.c (bt_wire_parent_class, bt_wire_dispose,
+	  bt_wire_finalize, bt_wire_init, bt_wire_class_init):
+	  do not pollute gst_ namespace
+
+2007-05-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* ChangeLog:
+	* design/gst/fmtnego.c (SINK_NAME, SRC_NAME, WAIT_LENGTH, FmtData,
+	  fmtflt, type, channels, width, depth, message_received,
+	  on_format_negotiated, main):
+	  Format negotiation example.
+
+	* src/lib/core/libbtcore/machine-methods.h (BT_MACHINE_METHODS_H):
+	* src/lib/core/libbtcore/machine.h (parent, dst_elem,
+	  pattern_removed_event):
+	* src/lib/core/machine.c (bt_machine_resize_voices,
+	  bt_machine_has_active_spreader, bt_machine_renegotiate_adder_format):
+	* src/lib/core/wire.c (parent_class, on_format_negotiated,
+	  bt_wire_link_machines, bt_wire_get_src_peer_pad,
+	  bt_wire_unlink_machines, bt_wire_connect):
+	  fix pad leak, prepare for pad-negotation
+
+2007-05-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/dynlink.c (main):
+	* design/gst/fmtnego.c (SINK_NAME, SRC_NAME, WAIT_LENGTH,
+	  message_received, on_format_negotiated, main):
+	  New tryout app
+
+	* src/ui/edit/main-toolbar.c (on_channels_negotiated):
+	  Fix one caps leak
+
+2007-05-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/application.c (dispose_has_run, bt_application_init,
+	  bt_application_class_init):
+	* src/lib/core/libbtcore/core.h (G_OPTION_FLAG_NO_ARG,
+	  G_PARAM_STATIC_STRINGS, G_PARAM_STATIC_STRINGS):
+	* src/lib/core/machine.c (bt_machine_class_init):
+	* src/lib/core/pattern.c (bt_pattern_class_init):
+	* src/lib/core/sequence.c (bt_sequence_class_init):
+	* src/lib/core/settings.c (bt_settings_class_init):
+	* src/lib/core/setup.c (bt_setup_class_init):
+	* src/lib/core/sink-bin.c (bt_sink_bin_class_init):
+	* src/lib/core/song-info.c (bt_song_info_class_init):
+	* src/lib/core/song-io.c (bt_song_io_class_init):
+	* src/lib/core/song.c (bt_song_class_init):
+	* src/lib/core/wave.c (dispose_has_run, index, name, uri, bt_wave_new,
+	  bt_wave_add_wavelevel, bt_wave_load_from_uri,
+	  bt_wave_persistence_save, bt_wave_persistence_load,
+	  bt_wave_persistence_interface_init, bt_wave_init,
+	  bt_wave_class_init):
+	* src/lib/core/wavelevel.c (dispose_has_run, rate,
+	  bt_wavelevel_persistence_save, bt_wavelevel_persistence_load,
+	  bt_wavelevel_persistence_interface_init, bt_wavelevel_init,
+	  bt_wavelevel_class_init):
+	* src/lib/core/wavetable.c (bt_wavetable_class_init):
+	* src/lib/core/wire.c (parent_class, bt_wire_class_init):
+	* src/lib/ic/abs-range-control.c (btic_abs_range_control_class_init):
+	* src/lib/ic/control.c (btic_control_class_init):
+	* src/lib/ic/device.c (btic_device_class_init):
+	* src/lib/ic/input-device.c (btic_input_device_class_init):
+	* src/lib/ic/midi-device.c (btic_midi_device_class_init):
+	* src/lib/ic/registry.c (btic_registry_class_init):
+	* src/lib/ic/trigger-control.c (btic_trigger_control_class_init):
+	* src/ui/cmd/cmd-application.c (bt_cmd_application_class_init):
+	* src/ui/edit/edit-application.c (bt_edit_application_class_init):
+	* src/ui/edit/interaction-controller-menu.c
+	  (bt_interaction_controller_menu_class_init):
+	* src/ui/edit/machine-canvas-item.c
+	  (bt_machine_canvas_item_class_init):
+	* src/ui/edit/machine-menu.c (bt_machine_menu_class_init):
+	* src/ui/edit/machine-preferences-dialog.c
+	  (bt_machine_preferences_dialog_class_init):
+	* src/ui/edit/machine-preset-properties-dialog.c
+	  (bt_machine_preset_properties_dialog_class_init):
+	* src/ui/edit/machine-properties-dialog.c
+	  (bt_machine_properties_dialog_class_init):
+	* src/ui/edit/main-menu.c (bt_main_menu_class_init):
+	* src/ui/edit/main-page-info.c (dispose_has_run, on_page_switched_idle,
+	  bt_main_page_info_init_ui, bt_main_page_info_finalize,
+	  bt_main_page_info_init, bt_main_page_info_class_init):
+	* src/ui/edit/main-page-machines.c (dispose_has_run, toolbar, canvas,
+	  vadjustment, grid, zoom, zoom_out, context_menu, grid_density_menu,
+	  grid_density_group, grid_density, new_wire_dst, properties, mouse_y,
+	  update_machines_zoom, machine_view_refresh,
+	  bt_main_page_machines_draw_grid, bt_main_page_machines_add_wire,
+	  bt_main_page_machines_get_machine_canvas_item_at,
+	  bt_main_page_machines_check_wire, on_machine_added,
+	  on_toolbar_zoom_fit_clicked, on_vadjustment_changed,
+	  on_hadjustment_changed, on_canvas_event, on_toolbar_style_changed,
+	  bt_main_page_machines_init_grid_density_menu,
+	  bt_main_page_machines_init_ui,
+	  bt_main_page_machines_remove_machine_item,
+	  bt_main_page_machines_remove_wire_item,
+	  bt_main_page_machines_wire_volume_popup,
+	  bt_main_page_machines_dispose, bt_main_page_machines_init,
+	  bt_main_page_machines_class_init):
+	* src/ui/edit/main-page-patterns.c (bt_main_page_patterns_class_init):
+	* src/ui/edit/main-page-sequence.c (bt_main_page_sequence_class_init):
+	* src/ui/edit/main-page-waves.c (bt_main_page_waves_class_init):
+	* src/ui/edit/main-pages.c (dispose_has_run, bt_main_pages_init_tab,
+	  bt_main_pages_init_ui, bt_main_pages_finalize, bt_main_pages_init,
+	  bt_main_pages_class_init):
+	* src/ui/edit/main-statusbar.c (bt_main_statusbar_class_init):
+	* src/ui/edit/main-toolbar.c (bt_main_toolbar_class_init):
+	* src/ui/edit/main-window.c (dispose_has_run, statusbar,
+	  on_song_unsaved_changed, on_window_dnd_drop, bt_main_window_init_ui,
+	  bt_main_window_new, bt_main_window_check_quit,
+	  bt_main_window_open_song, bt_main_window_save_song_as,
+	  bt_main_window_init, bt_main_window_class_init):
+	* src/ui/edit/missing-framework-elements-dialog.c
+	  (bt_missing_framework_elements_dialog_class_init):
+	* src/ui/edit/pattern-properties-dialog.c
+	  (bt_pattern_properties_dialog_class_init):
+	* src/ui/edit/pattern-view.c (dispose_has_run, play_pos, row_height,
+	  parent_class, bt_pattern_view_realize, bt_pattern_view_unrealize,
+	  bt_pattern_view_expose_event, bt_pattern_view_dispose,
+	  bt_pattern_view_finalize, bt_pattern_view_init,
+	  bt_pattern_view_class_init):
+	* src/ui/edit/playback-controller-socket.c
+	  (client_cmd_parse_and_process,
+	  bt_playback_controller_socket_class_init):
+	* src/ui/edit/sequence-view.c (dispose_has_run, play_pos, loop_end,
+	  row_height, loop_pos_dash_list, bt_sequence_view_unrealize,
+	  bt_sequence_view_expose_event, bt_sequence_view_dispose,
+	  bt_sequence_view_finalize, bt_sequence_view_init,
+	  bt_sequence_view_class_init):
+	* src/ui/edit/settings-dialog.c (bt_settings_dialog_class_init):
+	* src/ui/edit/settings-page-audiodevices.c
+	  (bt_settings_page_audiodevices_class_init):
+	* src/ui/edit/settings-page-interaction-controller.c
+	  (bt_settings_page_interaction_controller_class_init):
+	* src/ui/edit/settings-page-playback-controller.c
+	  (bt_settings_page_playback_controller_class_init):
+	* src/ui/edit/wire-analysis-dialog.c
+	  (bt_wire_analysis_dialog_class_init):
+	* src/ui/edit/wire-canvas-item.c (dispose_has_run, wire, h, dst,
+	  triangle, context_menu, analysis_dialog, on_machine_removed,
+	  on_wire_position_changed, on_context_menu_disconnect_activate,
+	  on_context_menu_analysis_activate, bt_wire_canvas_item_new,
+	  bt_wire_canvas_item_dispose, bt_wire_canvas_item_realize,
+	  bt_wire_canvas_item_event, bt_wire_canvas_item_class_init):
+	  Make property strings static.
+
+2007-05-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c
+	  (bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/machine-properties-dialog.c (make_combobox_widget):
+	  Irks, fluidsynth has sparse enums. Do not crash for now, but we need a
+	  real fix for that.
+
+2007-05-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c (bt_sink_bin_clear, on_song_state_changed,
+	  bt_sink_bin_dispose):
+	* src/lib/core/song.c (bt_song_stop):
+	  Trying to fix a issue with sink-switching. Settings elements to NULL when
+	  releasing. There still seems to be a double ref.
+
+2007-05-03  Stefan Kost  <ensonic@users.sf.net>
+
+	patch by: Toni Graffy <oc2pus@arcor.de>
+
+	* src/ui/edit/main-page-sequence.c (sequence_table_init,
+	  on_song_changed):
+	  fix glib2.12 dependency
+
+2007-05-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/dynlink.c (SINK_NAME, PROC_NAME, SRC_NAME, WAIT_LENGTH,
+	  get_state, open_link, gst_pads_insert_link, gst_pads_remove_link,
+	  message_received, main):
+	  new design test
+
+	* src/lib/core/song.c (bt_song_send_tags, bt_song_get_type):
+	  send tags to all elements
+
+2007-05-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* ChangeLog:
+	  Released
