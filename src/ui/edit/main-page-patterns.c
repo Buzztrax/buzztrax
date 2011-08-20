@@ -147,6 +147,9 @@ struct _BtMainPagePatternsPrivate {
   gint pattern_menu_changed;
 
   gint wave_to_combopos[MAX_WAVETABLE_ITEMS + 2], combopos_to_wave[MAX_WAVETABLE_ITEMS + 2];
+
+  /* cached setup properties */
+  GHashTable *properties;
 };
 
 //-- the class
@@ -1261,26 +1264,35 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
   BtMachine *machine=NULL;
   GList *node,*list;
   BtMachineListModel *store;
-  gint index;
+  gint index=-1;
+  gint active=-1;
+  
 
   // create machine menu
   store=bt_machine_list_model_new((BtSetup *)setup);
-  index=gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store),NULL)-1;
   // connect signal handlers for pattern undo/redo
   g_object_get((gpointer)setup,"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
+    index++;
     //g_signal_connect(machine,"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
     g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
+    if(machine==self->priv->machine)
+      active=index;
   }
   g_list_free(list);
   g_signal_connect(store,"row-inserted",G_CALLBACK(on_machine_model_row_inserted),(gpointer)self);
   g_signal_connect(store,"row-deleted",G_CALLBACK(on_machine_model_row_deleted),(gpointer)self);
+  GST_INFO("machine menu refreshed, active item %d",active);
+  
+  if(active==-1) {
+    // use the last one, if there is no active one
+    active=index;
+  }  
 
-  GST_INFO("machine menu refreshed, active item %d",index);
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),(index!=-1));
   gtk_combo_box_set_model(self->priv->machine_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->machine_menu,index);
+  gtk_combo_box_set_active(self->priv->machine_menu,active);
   g_object_unref(store); // drop with comboxbox
 }
 
@@ -2286,6 +2298,24 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
     self->priv->pattern,G_OBJECT_REF_COUNT(self->priv->pattern));
   pattern=get_current_pattern(self);
   change_current_pattern(self,pattern);
+
+  if(self->priv->properties) {
+    gchar *prop,*pid;
+    gboolean have_val=FALSE;
+
+    g_object_get(pattern,"name",&pid,NULL);
+    if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"selected-pattern"))) {
+      have_val=TRUE;
+    }
+    if((!have_val) || (strcmp(prop,pid))) {
+      g_hash_table_insert(self->priv->properties,g_strdup("selected-pattern"),pid);
+      if(have_val)
+        bt_edit_application_set_song_unsaved(self->priv->app);
+    } else {
+      g_free(pid);
+    }
+  }
+
   g_object_try_unref(pattern);
   GST_INFO("ref'ed new pattern: %p,refs=%d",
     self->priv->pattern,G_OBJECT_REF_COUNT(self->priv->pattern));
@@ -2416,6 +2446,22 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   machine=get_current_machine(self);
   GST_DEBUG("machine_menu changed, new machine is %s",(machine?GST_OBJECT_NAME(machine):""));
   change_current_machine(self,machine);
+  if(self->priv->properties) {
+    gchar *prop,*mid;
+    gboolean have_val=FALSE;
+
+    g_object_get(self->priv->machine,"id",&mid,NULL);
+    if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"selected-machine"))) {
+      have_val=TRUE;
+    }
+    if((!have_val) || (strcmp(prop,mid))) {
+      g_hash_table_insert(self->priv->properties,g_strdup("selected-machine"),mid);
+      if(have_val)
+        bt_edit_application_set_song_unsaved(self->priv->app);
+    } else {
+      g_free(mid);
+    }
+  }
   
   // switch to last used base octave of that machine
   g_object_get(self->priv->machine,"properties",&properties,NULL);
@@ -2487,14 +2533,40 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSong *song;
   BtSetup *setup;
   BtWavetable *wavetable;
+  gchar *prop;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   g_object_get(self->priv->app,"song",&song,NULL);
-  if(!song) return;
+  if(!song)  {
+    self->priv->properties=NULL;
+    GST_INFO("song (null) has changed done");
+    return;
+  }
   GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
 
   g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
+  g_object_get(setup,"properties",&self->priv->properties,NULL);
+  
+  // get stored settings
+  if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"selected-machine"))) {
+    BtMachine *new_machine;
+
+    if((new_machine=bt_setup_get_machine_by_id(setup,prop))) {
+      g_object_try_unref(self->priv->machine);
+      self->priv->machine=new_machine;
+    }
+    
+  }
+  if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"selected-pattern"))) {
+    BtPattern *new_pattern;
+
+    if((new_pattern=bt_machine_get_pattern_by_id(self->priv->machine,prop))) {
+      g_object_try_unref(self->priv->pattern);
+      self->priv->pattern=new_pattern;
+    }
+  }
+  
   // update page
   machine_menu_refresh(self,setup);
   //pattern_menu_refresh(self); // should be triggered by machine_menu_refresh()

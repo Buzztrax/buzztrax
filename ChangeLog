@@ -1,5 +1,10 @@
 2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Remember machine and pattern when saving a song.
+
+2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/ui/edit/machine-rename-dialog.c:
 	* src/ui/edit/main-page-machines.c:
