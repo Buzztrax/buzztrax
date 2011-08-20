@@ -56,8 +56,8 @@ static gchar *tips[]={
   N_("You can get more help from the community on irc://irc.freenode.net/#buzztard."),
   N_("Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."),
   N_("Click the speaker icon in the pattern-view to hear notes as you enter them."),
-  N_("Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input.")
-  N_("The wire volume control pops up upon a click on the arrow box on the wire.")
+  N_("Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input."),
+  N_("The wire volume control pops up upon a click on the arrow box on the wire."),
   N_("The wire panoram/balance control pops up upon a shift+click on the arrow box on the wire if available.")
 };
 

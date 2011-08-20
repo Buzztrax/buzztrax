@@ -1,6 +1,11 @@
 2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/tip-dialog.c:
+	  Add the missing ',' for tips entries.
+
+2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/tip-dialog.c:
 	  Add more tips.
 
 2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
