@@ -193,18 +193,19 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   // FIXME: skip tracks with wrong machine (do a first run and build a list of tracks)
   for(i=0;i<length;i++) {
     for(j=0;j<tracks;j++) {
-      that_pattern=bt_sequence_get_pattern(model->priv->sequence,i,j);
-      if(that_pattern==pattern) {
-        iter.user_data=GUINT_TO_POINTER(i);
-        path=gtk_tree_path_new();
-        gtk_tree_path_append_index(path,i);
-        gtk_tree_model_row_changed(GTK_TREE_MODEL(model),path,&iter);
-        gtk_tree_path_free(path);
-        g_object_unref(that_pattern);
-        break;
-      }
-      else {
-        g_object_unref(that_pattern);
+      if((that_pattern=bt_sequence_get_pattern(model->priv->sequence,i,j))) {
+        if(that_pattern==pattern) {
+          iter.user_data=GUINT_TO_POINTER(i);
+          path=gtk_tree_path_new();
+          gtk_tree_path_append_index(path,i);
+          gtk_tree_model_row_changed(GTK_TREE_MODEL(model),path,&iter);
+          gtk_tree_path_free(path);
+          g_object_unref(that_pattern);
+          break;
+        }
+        else {
+          g_object_unref(that_pattern);
+        }
       }
     }
   }
