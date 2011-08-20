@@ -1,5 +1,10 @@
 2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Add more #ifdefs for list_store access.
+
+2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/sequence-grid-model.c:
 	  Handle pattern=NULL when updating after pattern renames.
 

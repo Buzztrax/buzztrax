@@ -3719,7 +3719,9 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
           for(j=selection_start_column-1;j<selection_end_column;j++) {
             GST_DEBUG("  delete sequence cell: %3ld,%3ld",j,i);
             sequence_changed|=bt_sequence_set_pattern_quick(self->priv->sequence,i,j,NULL);
+#ifndef USE_SEQUENCE_GRID_MODEL
             gtk_list_store_set(GTK_LIST_STORE(store),&iter,__BT_SEQUENCE_GRID_MODEL_N_COLUMNS+j," ",-1);
+#endif
           }
           if(!gtk_tree_model_iter_next(store,&iter)) {
             if(j<self->priv->selection_end_column) {
@@ -3842,7 +3844,9 @@ static gboolean sequence_deserialize_pattern_track(BtMainPageSequence *self,GtkT
 						str=NULL;
 					}
 					(*sequence_changed)|=bt_sequence_set_pattern_quick(sequence,row,track,pattern);
+#ifndef USE_SEQUENCE_GRID_MODEL
 					gtk_list_store_set(GTK_LIST_STORE(store),&iter,__BT_SEQUENCE_GRID_MODEL_N_COLUMNS+track,str,-1);
+#endif
 					GST_DEBUG("inserted %s @ %d,%d - changed=%d",str,row,track,sequence_changed);
 					g_object_try_unref(pattern);
 					g_free(str);
@@ -3894,7 +3898,9 @@ static gboolean sequence_deserialize_label_track(BtMainPageSequence *self,GtkTre
 				str=NULL;
 			}
 			bt_sequence_set_label(sequence,row,str);
+#ifndef USE_SEQUENCE_GRID_MODEL
 			gtk_list_store_set(GTK_LIST_STORE(store),&iter,BT_SEQUENCE_GRID_MODEL_LABEL,str,-1);
+#endif
 			GST_DEBUG("inserted %s @ %d",str,row);
 			if(!gtk_tree_model_iter_next(store,&iter)) {
 				GST_WARNING("  can't get next tree-iter");
