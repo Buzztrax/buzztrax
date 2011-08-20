@@ -37,6 +37,7 @@ Algorithm:
 - loop over pending_tips[] and build new presented-tips string
   to be stored in settings
 */
+/* @idea: have a links to related help topics */
 
 #define BT_EDIT
 #define BT_TIP_DIALOG_C
@@ -53,7 +54,11 @@ static gchar *tips[]={
   N_("You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."),
   N_("To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."),
   N_("You can get more help from the community on irc://irc.freenode.net/#buzztard."),
-  N_("Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column.")
+  N_("Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."),
+  N_("Click the speaker icon in the pattern-view to hear notes as you enter them."),
+  N_("Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input.")
+  N_("The wire volume control pops up upon a click on the arrow box on the wire.")
+  N_("The wire panoram/balance control pops up upon a shift+click on the arrow box on the wire if available.")
 };
 
 struct _BtTipDialogPrivate {

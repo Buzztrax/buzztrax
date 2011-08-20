@@ -1,5 +1,10 @@
 2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/tip-dialog.c:
+	  Add more tips.
+
+2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Remember machine and pattern when saving a song.
 
