@@ -1,5 +1,11 @@
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	* TODO:
+	  Collect NEWS. More planning comments.
+
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	  Take new grid-model into use.
 
@@ -173,7 +179,7 @@
 2011-08-11  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:
-	  Emit position-changed signal after undo of machien movement to update
+	  Emit position-changed signal after undo of machine movement to update
 	  the wire-line. Fixes #6
 
 2011-08-11  Stefan Sauer  <ensonic@users.sf.net>
@@ -289,8 +295,8 @@
 
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/sequence-grid-model.c:
-	  Improve the sequence grid model and take it conditionaly into use (off
-	  by default).
+	  Improve the sequence grid model and take it conditionally into use
+	  (off by default).
 
 2011-08-07  Stefan Sauer  <ensonic@users.sf.net>
 
@@ -312,14 +318,14 @@
 2011-08-05  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
-	  Remove fetchign and releasing the song here (not used).
+	  Remove fetching and releasing the song here (not used).
 
 2011-08-05  Stefan Sauer  <ensonic@users.sf.net>
 
 	* tests/bt-check.c:
 	* tests/bt-check.h:
 	* tests/ui/edit/e-bt-edit-application.c:
-	  Improve the screenshor code. We now have match flags and also can
+	  Improve the screenshot code. We now have match flags and also can
 	  match by containing label widgets. Also refactor the code more and add
 	  drop-shadow generation. No need to run external scripts anymore.
 

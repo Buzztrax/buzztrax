@@ -12,6 +12,9 @@ $Id$
   * load songs and lookup the parts
     (e.g. bt_machine_get_pattern_by_id)
   * add test for trigger params
+  * for ui tests we should have the main-loop under our control:
+    * check g_main_context_set_poll_func()g_main_context_set_poll_func
+    * or really *run* the main-loop (not just iterate)
 
 * new stats
   * http://www.chris-lott.org/resources/cmetrics/cyclo-2.0.tar.gz

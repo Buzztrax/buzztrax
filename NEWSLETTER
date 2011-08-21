@@ -2,6 +2,11 @@ svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
 2011/09 ========================================================================
 
+- use new sequence model (already deleted 170 lines of code)
+- more work on state persistence (selected machines, pattern, options) all
+  getting remembered with the song
+- song-dirty flag is getting combined from undo/redo stack and a dirty flag
+- startup time improvements
 
 2011/08 ========================================================================
 
