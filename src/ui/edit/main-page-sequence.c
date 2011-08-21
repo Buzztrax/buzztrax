@@ -81,7 +81,7 @@
  * - we should have a tables that maps keyval+state to one of the enums
  * - we should have a utility function to do the lookups
  * - we could have primary and secondary keys (keyval+state)
- * - each enry has a description (i18n)
+ * - each entry has a description (i18n)
  * - the whole group has a name (i18n)
  * - we can register the group to a binding manager
  * - the binding manager provides a ui to:
@@ -90,6 +90,9 @@
  */
 /* @todo: undo/redo
  * - finish add/remove tracks
+ */
+/* @todo: improve sequence-grid-model use
+ * - get rid of sequence_table_refresh_columns() calls (7)
  */
 
 #define BT_EDIT
@@ -101,36 +104,6 @@
 enum {
   MAIN_PAGE_SEQUENCE_CURSOR_ROW=1
 };
-
-/* try new sequence model
- * - todo:
- *   - kill sequence_table_refresh, where not needed anymore
- *     - 14 occurances
- *     -  2 in old code path
- *     - 12 in use
- *       - 5 add/remove track, swap track
- *       - 1 machine removal
- *         - we only need to update the columns -> refresh_columns()
- *         - ideally use gtk_tree_view_move_column_after()
- *       - 4 insert/delete (need signal from sequence to model)
- *       - 1 pattern removal
- *         - no need to do anything once the model notices  
- *       - 1 song-changed
- *         - thats the place where we recreate the model
- *   - we have split into refresh_model (should become a nop) and refresh_columns
- *   - remove sequence_model_recolorize() - already a dummy op
- *   - do we need to connect to "row-inserted"/"row-deleted"?
- * - done:
- *   - get rid of old column and pos-format enums
- *   - tell the model about bars changes
- *   - handle cursor-down expand
- *   - use the main-model for pos-menu
- *     - kill the extra enum for it
- *     - kill the manual label menu refresh
- *   - added row-changed signal in sequence
- *     (for refreshing after copy/paste/insert/delete)
- */
-#define USE_SEQUENCE_GRID_MODEL 1
 
 struct _BtMainPageSequencePrivate {
   /* used to validate if dispose has run */
@@ -277,8 +250,6 @@ static BtChangeLoggerMethods change_logger_methods[] = {
 
 static GQuark column_index_quark=0;
 
-static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *song);
-
 static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data);
 static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer user_data);
 
@@ -357,11 +328,7 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
   gulong row,column;
   gboolean shade;
   GdkColor *bg_col;
-#ifndef USE_SEQUENCE_GRID_MODEL
-  gchar *str;
-#else
   const gchar *str;
-#endif
 
   column=1+GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
 
@@ -385,9 +352,6 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
     "background-gdk",bg_col,
     "text",str,
      NULL);
-#ifndef USE_SEQUENCE_GRID_MODEL
-  g_free(str);
-#endif
 }
 
 static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
@@ -395,11 +359,7 @@ static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCell
   gulong row,column;
   gboolean shade;
   GdkColor *bg_col;
-#ifndef USE_SEQUENCE_GRID_MODEL
-  gchar *str;
-#else
   const gchar *str;
-#endif
 
   column=1+GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
 
@@ -423,9 +383,6 @@ static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCell
     "background-gdk",bg_col,
     "text",str,
      NULL);
-#ifndef USE_SEQUENCE_GRID_MODEL
-  g_free(str);
-#endif
 }
 
 static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
@@ -433,11 +390,7 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
   gulong row,column;
   gboolean shade;
   GdkColor *bg_col;
-#ifndef USE_SEQUENCE_GRID_MODEL
-  gchar *str;
-#else
   const gchar *str;
-#endif
 
   column=1+GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
 
@@ -461,9 +414,6 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
     "background-gdk",bg_col,
     "text",str,
      NULL);
-#ifndef USE_SEQUENCE_GRID_MODEL
-  g_free(str);
-#endif
 }
 
 //-- tree model helper
@@ -587,36 +537,6 @@ static GtkTreeModel *sequence_model_get_store(const BtMainPageSequence *self) {
 }
 
 /*
- * sequence_model_recolorize:
- * @self: the sequence subpage
- *
- * Apply alternate coloring for visible rows
- */
-static void sequence_model_recolorize(const BtMainPageSequence *self) {
-#ifndef USE_SEQUENCE_GRID_MODEL
-  GtkTreeModel *store;
-  GtkTreeIter iter;
-
-  GST_INFO("recolorize sequence tree view");
-
-  if((store=sequence_model_get_store(self))) {
-    if(gtk_tree_model_get_iter_first(store,&iter)) {
-      gboolean odd_row=FALSE;
-      do {
-        if(step_visible_filter(store,&iter,(gpointer)self)) {
-          gtk_list_store_set(GTK_LIST_STORE(store),&iter,BT_SEQUENCE_GRID_MODEL_SHADE,odd_row,-1);
-          odd_row=!odd_row;
-        }
-      } while(gtk_tree_model_iter_next(store,&iter));
-    }
-  }
-  else {
-    GST_WARNING("can't get tree model");
-  }
-#endif
-}
-
-/*
  * sequence_calculate_visible_lines:
  * @self: the sequence subpage
  *
@@ -641,31 +561,6 @@ static void sequence_calculate_visible_lines(const BtMainPageSequence *self) {
   g_object_set(self->priv->sequence_table,"visible-rows",visible_rows,"loop-start",loop_start,"loop-end",loop_end,NULL);
   g_object_set(self->priv->sequence_pos_table,"visible-rows",visible_rows,"loop-start",loop_start,"loop-end",loop_end,NULL);
 }
-
-#ifndef USE_SEQUENCE_GRID_MODEL
-static gchar *sequence_format_positions(const BtMainPageSequence *self,gulong pos) {
-  static gchar pos_str[20];
-
-  switch(self->priv->pos_format) {
-    case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS:
-      g_snprintf(pos_str,6,"%5lu",pos);
-      break;
-    case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME: {
-      gulong msec,sec,min;
-      const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
-
-      msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
-      min=(gulong)(msec/60000);msec-=(min*60000);
-      sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-      g_sprintf(pos_str,"%02lu:%02lu.%03lu",min,sec,msec);
-    } break;
-    default:
-      *pos_str='\0';
-      GST_WARNING("unimplemented time format %d",self->priv->pos_format);
-  }
-  return(pos_str);
-}
-#endif
 
 //-- gtk helpers
 
@@ -1127,10 +1022,6 @@ static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar
         GST_INFO("label changed");
         g_object_get(self->priv->sequence,"length",&old_length,NULL);
 
-#ifndef USE_SEQUENCE_GRID_MODEL
-        // need to change it in the model
-        gtk_list_store_set(GTK_LIST_STORE(store),&iter,BT_SEQUENCE_GRID_MODEL_LABEL,new_text,-1);
-#endif
         // update the sequence
         if(pos>=old_length) {
         	new_length=pos+self->priv->bars;
@@ -1158,20 +1049,10 @@ static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar
 
 static void on_pos_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  BtSequenceGridModel *store=BT_SEQUENCE_GRID_MODEL(sequence_model_get_store(self));
 
   self->priv->pos_format=gtk_combo_box_get_active(combo_box);
-#ifdef USE_SEQUENCE_GRID_MODEL
-  BtSequenceGridModel *store=BT_SEQUENCE_GRID_MODEL(sequence_model_get_store(self));
   g_object_set(store,"pos-format",self->priv->pos_format,NULL);
-#else
-  BtSong *song;
-  // reformat pos-column and label-menu (this is inefficient)
-  g_object_get(self->priv->app,"song",&song,NULL);
-  // @todo: inefficient (we ideally just want to poke new stings into the model)
-  sequence_table_refresh(self,song);
-  sequence_model_recolorize(self);
-  g_object_unref(song);
-#endif
   g_hash_table_insert(self->priv->properties,g_strdup("pos-format"),g_strdup(bt_persistence_strfmt_ulong(self->priv->pos_format)));
   bt_edit_application_set_song_unsaved(self->priv->app);
 }
@@ -1238,79 +1119,14 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
 }
   
 static void sequence_table_refresh_model(const BtMainPageSequence *self,const BtSong *song) {
-#ifndef USE_SEQUENCE_GRID_MODEL
-  BtPattern *pattern;
-  GtkListStore *store;
-  GType *store_types;
-  GtkTreeIter tree_iter;
-  gboolean free_str;
-  gchar *pos_str, *str;
-  gulong i,col_ct;
-  gulong j,timeline_ct,track_ct;
-#else
   BtSequenceGridModel *store;
-#endif
   GtkTreeModel *filtered_store;
 
   GST_INFO("refresh sequence table");
 
-#ifdef USE_SEQUENCE_GRID_MODEL
-   // @todo: in the future only do this when loading a new song
-   store=bt_sequence_grid_model_new(self->priv->sequence,self->priv->bars);
-   g_object_set(store,"length",self->priv->sequence_length,"pos-format",self->priv->pos_format,NULL);
-#else
-  g_object_get(self->priv->sequence,"length",&timeline_ct,"tracks",&track_ct,NULL);
-  GST_DEBUG("  size is lines=%2lu,tracks=%2lu",timeline_ct,track_ct);
-
-  // build model
-  GST_DEBUG("  build model");
-  col_ct=(__BT_SEQUENCE_GRID_MODEL_N_COLUMNS+track_ct);
-  store_types=(GType *)g_new(GType,col_ct);
-  store_types[BT_SEQUENCE_GRID_MODEL_SHADE]=G_TYPE_BOOLEAN;
-  store_types[BT_SEQUENCE_GRID_MODEL_POS  ]=G_TYPE_ULONG;
-  for(i=BT_SEQUENCE_GRID_MODEL_POSSTR;i<col_ct;i++) {
-    store_types[i]=G_TYPE_STRING;
-  }
-  store=gtk_list_store_newv(col_ct,store_types);
-  g_free(store_types);
-
-  // add patterns
-  for(i=0;i<self->priv->sequence_length;i++) {
-    gtk_list_store_append(store, &tree_iter);
-
-    pos_str=sequence_format_positions(self,i);
-    // set position, highlight-color
-    gtk_list_store_set(store,&tree_iter,
-      BT_SEQUENCE_GRID_MODEL_POS,i,
-      BT_SEQUENCE_GRID_MODEL_POSSTR,pos_str,
-      -1);
-    if(i<timeline_ct) {
-      // set label
-      str=bt_sequence_get_label(self->priv->sequence,i);
-      if(str) {
-        gtk_list_store_set(store,&tree_iter,BT_SEQUENCE_GRID_MODEL_LABEL,str,-1);
-        g_free(str);
-      }
-
-      // set patterns
-      for(j=0;j<track_ct;j++) {
-        free_str=FALSE;
-        if((pattern=bt_sequence_get_pattern(self->priv->sequence,i,j))) {
-          g_object_get(pattern,"name",&str,NULL);
-          free_str=TRUE;
-          g_object_unref(pattern);
-        }
-        else {
-          str=" ";
-        }
-        //GST_DEBUG("  %2d,%2d : adding \"%s\"",i,j,str);
-        gtk_list_store_set(store,&tree_iter,__BT_SEQUENCE_GRID_MODEL_N_COLUMNS+j,str,-1);
-        if(free_str)
-          g_free(str);
-      }
-    }
-  }
-#endif
+  // @todo: in the future only do this when loading a new song
+  store=bt_sequence_grid_model_new(self->priv->sequence,self->priv->bars);
+  g_object_set(store,"length",self->priv->sequence_length,"pos-format",self->priv->pos_format,NULL);
 
   // create a filtered model to realize step filtering
   filtered_store=gtk_tree_model_filter_new(GTK_TREE_MODEL(store),NULL);
@@ -1658,19 +1474,6 @@ static void sequence_table_refresh_columns(const BtMainPageSequence *self,const 
   else GST_WARNING("can't create treeview column");
 }
 
-/*
- * sequence_table_refresh:
- * @self:  the sequence page
- * @song: the newly created song
- *
- * rebuild the sequence table after a structural change
- */
-static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *song) {
-  sequence_table_refresh_model(self,song);
-  sequence_table_refresh_columns(self,song);
-}
-
-
 static void pattern_list_refresh(const BtMainPageSequence *self) {
   BtPatternListModel *store;
 
@@ -1877,13 +1680,7 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
         
         sequence_length=row;
         g_object_set(self->priv->sequence,"length",sequence_length,NULL);
-#ifndef USE_SEQUENCE_GRID_MODEL
-        // this triggers redraw
-        sequence_table_refresh(self,song);
-        sequence_view_set_cursor_pos(self);
-#endif
         sequence_calculate_visible_lines(self);
-        sequence_model_recolorize(self);        
       }
       else {
       	old_loop_end=loop_end;
@@ -1949,11 +1746,7 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
 
   // reinit the view
-#ifndef USE_SEQUENCE_GRID_MODEL
-  sequence_table_refresh_model(self,song);
-#endif
   sequence_table_refresh_columns(self,song);
-  sequence_model_recolorize(self);
 
   GST_INFO("machine %p,ref_count=%d sequence table update",machine,G_OBJECT_REF_COUNT(machine));
 
@@ -2133,11 +1926,7 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
 			g_object_get(self->priv->app,"song",&song,NULL);
 	
 			// reinit the view
-#ifndef USE_SEQUENCE_GRID_MODEL
-      sequence_table_refresh_model(self,song);
-#endif
       sequence_table_refresh_columns(self,song);
-			sequence_model_recolorize(self);
 	
 			if(self->priv->cursor_column>=number_of_tracks) {
 				// update cursor_column and focus cell
@@ -2171,11 +1960,7 @@ static void on_track_move_left_activated(GtkMenuItem *menuitem, gpointer user_da
   
       self->priv->cursor_column--;
       // reinit the view
-#ifndef USE_SEQUENCE_GRID_MODEL
-      sequence_table_refresh_model(self,song);
-#endif
       sequence_table_refresh_columns(self,song);
-      sequence_model_recolorize(self);
       sequence_view_set_cursor_pos(self);
 
       /* handle undo/redo */
@@ -2206,11 +1991,7 @@ static void on_track_move_right_activated(GtkMenuItem *menuitem, gpointer user_d
 
       self->priv->cursor_column++;
       // reinit the view
-#ifndef USE_SEQUENCE_GRID_MODEL
-      sequence_table_refresh_model(self,song);
-#endif
       sequence_table_refresh_columns(self,song);
-      sequence_model_recolorize(self);
       sequence_view_set_cursor_pos(self);
 
       /* handle undo/redo */
@@ -2301,13 +2082,10 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
       GtkTreeModelFilter *filtered_store;
 
       sequence_calculate_visible_lines(self);
-      sequence_model_recolorize(self);
       //GST_INFO("  bars = %d",self->priv->bars);
       if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
-#ifdef USE_SEQUENCE_GRID_MODEL
         BtSequenceGridModel *store=BT_SEQUENCE_GRID_MODEL(gtk_tree_model_filter_get_model(filtered_store));
         g_object_set(store,"bars",self->priv->bars,NULL);
-#endif
         gtk_tree_model_filter_refilter(filtered_store);
       }
       g_hash_table_insert(self->priv->properties,g_strdup("bars"),g_strdup(bt_persistence_strfmt_ulong(self->priv->bars)));
@@ -2390,35 +2168,12 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       // do we need to extend sequence?
       if(cursor_row>=last_bar) {
         GtkTreeModelFilter *filtered_store;
-#ifndef USE_SEQUENCE_GRID_MODEL
-        GtkTreeIter tree_iter;
-        GtkListStore *store;
-        gulong pos;
-        gchar *pos_str;
-
-        pos=self->priv->sequence_length;
-#else
         BtSequenceGridModel *store;
-#endif
+
         self->priv->sequence_length+=self->priv->bars;
 
-#ifndef USE_SEQUENCE_GRID_MODEL
-        store=GTK_LIST_STORE(sequence_model_get_store(self));
-        for(;pos<self->priv->sequence_length;pos++) {
-          gtk_list_store_append(store, &tree_iter);
-					pos_str=sequence_format_positions(self,pos);
-					// set position, highlight-color
-					gtk_list_store_set(store,&tree_iter,
-						BT_SEQUENCE_GRID_MODEL_POS,pos,
-						BT_SEQUENCE_GRID_MODEL_POSSTR,pos_str,
-						-1);
-        }
-#else
         store=BT_SEQUENCE_GRID_MODEL(sequence_model_get_store(self));
         g_object_set(store,"length",self->priv->sequence_length,NULL);
-#endif
-        // this is not optimal
-        sequence_model_recolorize(self);
 
         if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
           gtk_tree_model_filter_refilter(filtered_store);
@@ -2689,12 +2444,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         sequence_range_log_undo_redo(self,track,track,row,sequence_length-1,old_data->str,new_data->str);
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         // reinit the view
-#ifndef USE_SEQUENCE_GRID_MODEL
-        sequence_table_refresh(self,song);
-        //sequence_calculate_visible_lines(self);
-        sequence_model_recolorize(self);
-        sequence_view_set_cursor_pos(self);
-#endif
         res=TRUE;
       }
       else if(modifier==GDK_SHIFT_MASK) {
@@ -2719,15 +2468,7 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         self->priv->sequence_length+=self->priv->bars;
-#ifndef USE_SEQUENCE_GRID_MODEL
-        // reinit the view
-        sequence_table_refresh(self,song);
         sequence_calculate_visible_lines(self);
-        sequence_model_recolorize(self);
-        sequence_view_set_cursor_pos(self);
-#else
-        sequence_calculate_visible_lines(self);
-#endif
         res=TRUE;
       }
     }
@@ -2744,13 +2485,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         sequence_range_copy(self,track,track,row,sequence_length-1,new_data);
         sequence_range_log_undo_redo(self,track,track,row,sequence_length-1,old_data->str,new_data->str);
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
-#ifndef USE_SEQUENCE_GRID_MODEL
-        // reinit the view
-        sequence_table_refresh(self,song);
-        //sequence_calculate_visible_lines(self);
-        sequence_model_recolorize(self);
-        sequence_view_set_cursor_pos(self);
-#endif
         res=TRUE;
       }
       else if(modifier==GDK_SHIFT_MASK) {
@@ -2775,14 +2509,7 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         self->priv->sequence_length-=self->priv->bars;
         // reinit the view
-#ifndef USE_SEQUENCE_GRID_MODEL
-        sequence_table_refresh(self,song);
         sequence_calculate_visible_lines(self);
-        sequence_model_recolorize(self);
-        sequence_view_set_cursor_pos(self);
-#else
-        sequence_calculate_visible_lines(self);
-#endif
         res=TRUE;
       }
     }
@@ -2830,9 +2557,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
 
           if(gtk_tree_model_get_iter(GTK_TREE_MODEL(filtered_store),&filter_iter,path)) {
             GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
-#ifndef USE_SEQUENCE_GRID_MODEL
-            glong col=g_list_index(columns,(gpointer)column)-1;
-#endif
             GtkTreePath *cpath;
 
             g_list_free(columns);
@@ -2840,10 +2564,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
             //glong row;
             //gtk_tree_model_get(store,&iter,BT_SEQUENCE_GRID_MODEL_POS,&row,-1);
             //GST_INFO("  position is %d,%d -> ",row,col,__BT_SEQUENCE_GRID_MODEL_N_COLUMNS+col);
-
-#ifndef USE_SEQUENCE_GRID_MODEL
-            gtk_list_store_set(GTK_LIST_STORE(store),&iter,__BT_SEQUENCE_GRID_MODEL_N_COLUMNS+col,str,-1);
-#endif
 
             // move cursor down & set cell focus
             self->priv->cursor_row+=self->priv->bars;
@@ -3090,7 +2810,6 @@ static void bt_sequence_table_update_colors(const BtMainPageSequence *self) {
     self->priv->sink_bg1=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_DARK1);
     self->priv->sink_bg2=bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_DARK2);
   }
-  sequence_model_recolorize(self);
 }
 
 static void on_sequence_table_realize(GtkWidget *widget,gpointer user_data) {
@@ -3139,9 +2858,6 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   //g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_menu,NULL);
   machine_menu_refresh(self,setup);
 
-  // get song from app and then setup from song
-  g_object_get(self->priv->app,"song",&song,NULL);
-
 	/* handle undo/redo */
 	g_object_get(machine,"id",&mid,NULL);
 	g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
@@ -3166,8 +2882,9 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
 
   // reinit the view
-  sequence_table_refresh(self,song);
-  sequence_model_recolorize(self);
+  g_object_get(self->priv->app,"song",&song,NULL);
+  sequence_table_refresh_columns(self,song);
+  g_object_unref(song);
 
   g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
   if(self->priv->cursor_column>=number_of_tracks) {
@@ -3178,14 +2895,12 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   }
   update_after_track_changed(self);
 
-  g_object_unref(song);
   GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 }
 
 static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSequence *sequence=self->priv->sequence;
-  BtSong *song;
 
   GST_INFO("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 
@@ -3245,13 +2960,6 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
 
 		g_free(mid);g_free(pid);
 	}
-
-  // get song from app
-  g_object_get(self->priv->app,"song",&song,NULL);
-  // reinit the sequence view, FIXME: only when pattern was used
-  sequence_table_refresh(self,song);
-  sequence_model_recolorize(self);
-  g_object_unref(song);
 }
 
 static void on_song_info_bars_changed(const BtSongInfo *song_info,GParamSpec *arg,gpointer user_data) {
@@ -3308,7 +3016,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   // update page
   // update sequence and pattern list
-  sequence_table_refresh(self,song);
+  sequence_table_refresh_model(self,song);
+  sequence_table_refresh_columns(self,song);
   update_after_track_changed(self);
   machine_menu_refresh(self,setup);
   g_signal_connect(setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
@@ -3320,7 +3029,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   // update sequence view
   sequence_calculate_visible_lines(self);
-  sequence_model_recolorize(self);
   g_object_set(self->priv->sequence_table,"play-position",0.0,NULL);
   g_object_set(self->priv->sequence_pos_table,"play-position",0.0,NULL);
   // vumeters
@@ -3733,9 +3441,6 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
           for(j=selection_start_column-1;j<selection_end_column;j++) {
             GST_DEBUG("  delete sequence cell: %3ld,%3ld",j,i);
             sequence_changed|=bt_sequence_set_pattern_quick(self->priv->sequence,i,j,NULL);
-#ifndef USE_SEQUENCE_GRID_MODEL
-            gtk_list_store_set(GTK_LIST_STORE(store),&iter,__BT_SEQUENCE_GRID_MODEL_N_COLUMNS+j," ",-1);
-#endif
           }
           if(!gtk_tree_model_iter_next(store,&iter)) {
             if(j<self->priv->selection_end_column) {
@@ -3858,9 +3563,6 @@ static gboolean sequence_deserialize_pattern_track(BtMainPageSequence *self,GtkT
 						str=NULL;
 					}
 					(*sequence_changed)|=bt_sequence_set_pattern_quick(sequence,row,track,pattern);
-#ifndef USE_SEQUENCE_GRID_MODEL
-					gtk_list_store_set(GTK_LIST_STORE(store),&iter,__BT_SEQUENCE_GRID_MODEL_N_COLUMNS+track,str,-1);
-#endif
 					GST_DEBUG("inserted %s @ %d,%d - changed=%d",str,row,track,sequence_changed);
 					g_object_try_unref(pattern);
 					g_free(str);
@@ -3912,9 +3614,6 @@ static gboolean sequence_deserialize_label_track(BtMainPageSequence *self,GtkTre
 				str=NULL;
 			}
 			bt_sequence_set_label(sequence,row,str);
-#ifndef USE_SEQUENCE_GRID_MODEL
-			gtk_list_store_set(GTK_LIST_STORE(store),&iter,BT_SEQUENCE_GRID_MODEL_LABEL,str,-1);
-#endif
 			GST_DEBUG("inserted %s @ %d",str,row);
 			if(!gtk_tree_model_iter_next(store,&iter)) {
 				GST_WARNING("  can't get next tree-iter");
@@ -4193,11 +3892,7 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
         
         g_object_get(self->priv->app,"song",&song,NULL);
         // reinit the view
-#ifndef USE_SEQUENCE_GRID_MODEL
-        sequence_table_refresh_model(self,song);
-#endif
         sequence_table_refresh_columns(self,song);
-        sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
         g_object_unref(song);
       }
