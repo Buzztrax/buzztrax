@@ -457,8 +457,9 @@ BtMainWindow *bt_main_window_new(void) {
  * @title: the title of the message
  * @headline: the bold headline of the message
  *
- * Checks if there is an unsaved song and asks for confirmation to continue and
- * loose the changes.
+ * Checks if the current song is modified and asks for confirmation to continue
+ * (and loose the changes). It only considers the undo/redo stack and not minor
+ * changes such as switching tabs or selecting something.
  *
  * Returns: %TRUE if the user has confirmed to continue
  */
@@ -468,9 +469,13 @@ gboolean bt_main_window_check_unsaved_song(const BtMainWindow *self,const gchar 
 
   g_object_get(self->priv->app,"song",&song,NULL);
   if(song) {
+    BtChangeLog *change_log;
     gboolean unsaved;
 
-    g_object_get(song,"unsaved",&unsaved,NULL);
+    change_log=bt_change_log_new();
+    g_object_get(change_log,"can-undo",&unsaved,NULL);
+    g_object_unref(change_log);
+    //g_object_get(song,"unsaved",&unsaved,NULL);
     if(unsaved) {
       gchar *msg;
 

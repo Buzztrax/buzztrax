@@ -1,5 +1,11 @@
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-window.c:
+	   Only warn about unsaved songs when having things in the undo/redo
+	   stack.
+
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Fix NULL ptr access when removing last pattern for  a machine.
 
