@@ -924,7 +924,6 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
     set_disconnected(self,GST_BIN(machine));
 
     g_signal_emit((gpointer)self,signals[MACHINE_ADDED_EVENT], 0, machine);
-    bt_song_set_unsaved(self->priv->song,TRUE);
     GST_DEBUG("added machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
   }
   else {
@@ -969,7 +968,6 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
     bt_setup_update_pipeline(self);
 
     g_signal_emit((gpointer)self,signals[WIRE_ADDED_EVENT], 0, wire);
-    bt_song_set_unsaved(self->priv->song,TRUE);
     GST_DEBUG("added wire: %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
 
     g_object_unref(src);
@@ -1016,7 +1014,6 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
 
     }
     gst_object_unref(GST_OBJECT(machine));
-    bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
     GST_WARNING("trying to remove machine that is not in setup");
@@ -1069,8 +1066,6 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
       GST_OBJECT_FLAG_SET(wire,GST_OBJECT_FLOATING);
     }
     gst_object_unref(GST_OBJECT(wire));
-
-    bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
     GST_WARNING("trying to remove wire that is not in setup");

@@ -291,7 +291,6 @@ gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulon
     if(res) {
       // notify others that the data has been changed
       g_signal_emit((gpointer)self,signals[PARAM_CHANGED_EVENT],0,tick,self->priv->wire,param);
-      bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
   else {

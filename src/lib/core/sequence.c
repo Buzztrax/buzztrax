@@ -2272,7 +2272,6 @@ static void bt_sequence_set_property(GObject * const object, const guint propert
       if(length!=self->priv->length) {
         GST_DEBUG("set the length for sequence: %lu",self->priv->length);
         bt_sequence_resize_data_length(self,length);
-        bt_song_set_unsaved(self->priv->song,TRUE);
         if(self->priv->loop_end!=-1) {
           if(self->priv->loop_end>self->priv->length) {
             self->priv->play_end=self->priv->loop_end=self->priv->length;
@@ -2293,7 +2292,6 @@ static void bt_sequence_set_property(GObject * const object, const guint propert
       if(tracks!=self->priv->tracks) {
         GST_DEBUG("set the tracks for sequence: %lu -> %lu",tracks,self->priv->tracks);
         bt_sequence_resize_data_tracks(self,tracks);
-        bt_song_set_unsaved(self->priv->song,TRUE);
       }
     } break;
     case SEQUENCE_LOOP: {

@@ -1,5 +1,13 @@
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/wire-pattern.c:
+	  Remove more song_set_set_unsaved() calls.
+
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	* TODO:
 	  Collect NEWS. More planning comments.

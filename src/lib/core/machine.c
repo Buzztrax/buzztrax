@@ -1442,7 +1442,6 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
     else {
       GST_DEBUG("adding pattern %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
       g_signal_emit((gpointer)self,signals[PATTERN_ADDED_EVENT], 0, pattern);
-      bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
   else {
@@ -1475,7 +1474,6 @@ void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * c
     g_signal_emit((gpointer)self,signals[PATTERN_REMOVED_EVENT], 0, pattern);
     GST_DEBUG("removed pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
     g_object_unref((gpointer)pattern);
-    bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
     GST_WARNING_OBJECT(self,"trying to remove pattern that is not in machine");
@@ -3465,7 +3463,6 @@ static void bt_machine_set_property(GObject * const object, const guint property
         if(voices!=self->priv->voices) {
           GST_DEBUG_OBJECT(self,"set the voices for machine: %lu -> %lu",voices,self->priv->voices);
           bt_machine_resize_voices(self,voices);
-          bt_song_set_unsaved(self->priv->song,TRUE);
         }
       } else {
         GST_WARNING_OBJECT(self,"ignoring change in voices for monophonic machine");
