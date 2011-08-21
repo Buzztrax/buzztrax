@@ -1,5 +1,10 @@
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Fix NULL ptr access when removing last pattern for  a machine.
+
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-machines.c:
 	  Fix grouping of undo/redo for new machines.
 

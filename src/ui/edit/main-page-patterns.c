@@ -2300,20 +2300,26 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   change_current_pattern(self,pattern);
 
   if(self->priv->properties) {
-    gchar *prop,*pid;
+    gchar *prop,*pid=NULL;
     gboolean have_val=FALSE;
 
-    g_object_get(pattern,"name",&pid,NULL);
+    if(pattern)
+      g_object_get(pattern,"name",&pid,NULL);
     if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"selected-pattern"))) {
       have_val=TRUE;
     }
-    if((!have_val) || (strcmp(prop,pid))) {
-      g_hash_table_insert(self->priv->properties,g_strdup("selected-pattern"),pid);
-      if(have_val)
+    if(!pid) {
+      g_hash_table_remove(self->priv->properties,"selected-pattern");
+      if(have_val) // irks, this is also triggered by undo and thus keeping the song dirty
         bt_edit_application_set_song_unsaved(self->priv->app);
-    } else {
-      g_free(pid);
     }
+    else if((!have_val) || strcmp(prop,pid)) { 
+      g_hash_table_insert(self->priv->properties,g_strdup("selected-pattern"),pid);
+      if(have_val) // irks, this is also triggered by undo and thus keeping the song dirty
+        bt_edit_application_set_song_unsaved(self->priv->app);
+      pid=NULL;
+    }
+    g_free(pid);
   }
 
   g_object_try_unref(pattern);
@@ -2458,9 +2464,9 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
       g_hash_table_insert(self->priv->properties,g_strdup("selected-machine"),mid);
       if(have_val)
         bt_edit_application_set_song_unsaved(self->priv->app);
-    } else {
-      g_free(mid);
+      mid=NULL;
     }
+    g_free(mid);
   }
   
   // switch to last used base octave of that machine
