@@ -1,5 +1,14 @@
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/wave.c:
+	* src/lib/core/wavetable.c:
+	* src/ui/edit/main-page-waves.c:
+	  Move flagging wave related changes to UI. Flag more changes to be able
+	  to save afterwards. Add notes for undo/redo. Avoid signal loops.
+	  Fixes bug #21.
+
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-info.c:
 	  Small todo planning update.
 

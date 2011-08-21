@@ -128,7 +128,6 @@ gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * co
     
     self->priv->waves=g_list_append(self->priv->waves,g_object_ref((gpointer)wave));
     g_signal_emit((gpointer)self,signals[WAVE_ADDED_EVENT], 0, wave);
-    bt_song_set_unsaved(self->priv->song,TRUE);
     ret=TRUE;
   }
   else {
@@ -156,7 +155,6 @@ gboolean bt_wavetable_remove_wave(const BtWavetable * const self, const BtWave *
     self->priv->waves=g_list_remove(self->priv->waves,wave);
     g_signal_emit((gpointer)self,signals[WAVE_REMOVED_EVENT], 0, wave);
     g_object_unref((gpointer)wave);
-    bt_song_set_unsaved(self->priv->song,TRUE);
     ret=TRUE;
   }
   else {

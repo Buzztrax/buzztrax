@@ -554,7 +554,6 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
     ret=TRUE;
     self->priv->wavelevels=g_list_append(self->priv->wavelevels,g_object_ref((gpointer)wavelevel));
     //g_signal_emit((gpointer)self,signals[WAVELEVEL_ADDED_EVENT], 0, wavelevel);
-    bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
     GST_WARNING("trying to add wavelevel again");

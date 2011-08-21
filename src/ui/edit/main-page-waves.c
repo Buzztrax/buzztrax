@@ -35,6 +35,10 @@
  * - loading from online sample sites
  * - recording
  */
+/* @todo: undo/redo (search for bt_edit_application_set_song_unsaved
+ * - load/unload a wave
+ * - change wave-table properties
+ */
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_WAVES_C
@@ -579,6 +583,7 @@ static void on_wave_name_edited(GtkCellRendererText *cellrenderertext,gchar *pat
         g_object_set(wave,"name",new_text,NULL);
         gtk_list_store_set(GTK_LIST_STORE(store),&iter,WAVE_TABLE_NAME,new_text,-1);
         g_object_unref(wave);
+        bt_edit_application_set_song_unsaved(self->priv->app);
       }
     }
   }
@@ -599,6 +604,7 @@ static void on_wavelevel_root_note_edited(GtkCellRendererText *cellrenderertext,
       preview_update_seeks(self);
     }
     g_object_unref(wavelevel);
+    bt_edit_application_set_song_unsaved(self->priv->app);
   }
 }
 
@@ -617,6 +623,7 @@ static void on_wavelevel_rate_edited(GtkCellRendererText *cellrenderertext,gchar
       preview_update_seeks(self);
     }
     g_object_unref(wavelevel);
+    bt_edit_application_set_song_unsaved(self->priv->app);
   }
 }
 
@@ -649,6 +656,7 @@ static void on_wavelevel_loop_start_edited(GtkCellRendererText *cellrenderertext
     g_object_set(self->priv->waveform_viewer, "loop-begin", (gint64)loop_start, "loop-end", (gint64)loop_end, NULL);
     preview_update_seeks(self);
     g_object_unref(wavelevel);
+    bt_edit_application_set_song_unsaved(self->priv->app);
   }
 }
 
@@ -679,6 +687,7 @@ static void on_wavelevel_loop_end_edited(GtkCellRendererText *cellrenderertext,g
     g_object_set(self->priv->waveform_viewer, "loop-begin", (gint64)loop_start, "loop-end", (gint64)loop_end, NULL);
     preview_update_seeks(self);
     g_object_unref(wavelevel);
+    bt_edit_application_set_song_unsaved(self->priv->app);
   }
 }
 
@@ -692,6 +701,31 @@ static void on_wave_loading_done(BtWave *wave,gboolean success,gpointer user_dat
   else {
     // @todo: error message
     GST_WARNING("loading the wave failed");
+  }
+}
+
+static void on_volume_changed(GtkRange *range,gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  BtWave *wave;
+
+  if((wave=waves_list_get_current(self))) {
+    gdouble volume=gtk_range_get_value(range);
+    g_object_set(wave,"volume",volume,NULL);
+    g_object_unref(wave);
+    bt_edit_application_set_song_unsaved(self->priv->app);
+  }
+}
+
+static void on_loop_mode_changed(GtkComboBox *menu, gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  BtWave *wave;
+
+  if((wave=waves_list_get_current(self))) {
+    BtWaveLoopMode loop_mode=gtk_combo_box_get_active(self->priv->loop_mode);
+    g_object_set(wave,"loop-mode",loop_mode,NULL);
+    g_object_unref(wave);
+    preview_update_seeks(self);
+    bt_edit_application_set_song_unsaved(self->priv->app);
   }
 }
 
@@ -713,8 +747,12 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->volume),TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->loop_mode),TRUE);
     g_object_get(wave,"volume",&volume,"loop-mode",&loop_mode,NULL);
+    g_signal_handlers_block_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_volume_changed,(gpointer)self);
     gtk_range_set_value(GTK_RANGE(self->priv->volume),volume);
+    g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_volume_changed,(gpointer)self);
+    g_signal_handlers_block_matched(self->priv->loop_mode,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_loop_mode_changed,(gpointer)self);
     gtk_combo_box_set_active(self->priv->loop_mode,loop_mode);
+    g_signal_handlers_unblock_matched(self->priv->loop_mode,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_loop_mode_changed,(gpointer)self);
   }
   else {
     // disable toolbar buttons
@@ -762,29 +800,6 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
   }
   if(!drawn) {
     bt_waveform_viewer_set_wave(BT_WAVEFORM_VIEWER(self->priv->waveform_viewer), NULL, 0, 0);
-  }
-}
-
-static void on_volume_changed(GtkRange *range,gpointer user_data) {
-  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
-  BtWave *wave;
-
-  if((wave=waves_list_get_current(self))) {
-    gdouble volume=gtk_range_get_value(range);
-    g_object_set(wave,"volume",volume,NULL);
-    g_object_unref(wave);
-  }
-}
-
-static void on_loop_mode_changed(GtkComboBox *menu, gpointer user_data) {
-  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
-  BtWave *wave;
-
-  if((wave=waves_list_get_current(self))) {
-    BtWaveLoopMode loop_mode=gtk_combo_box_get_active(self->priv->loop_mode);
-    g_object_set(wave,"loop-mode",loop_mode,NULL);
-    g_object_unref(wave);
-    preview_update_seeks(self);
   }
 }
 
@@ -1004,6 +1019,7 @@ static void on_wavetable_toolbar_clear_clicked(GtkToolButton *button, gpointer u
 
     wave=bt_wavetable_get_wave_by_index(self->priv->wavetable,id);
     bt_wavetable_remove_wave(self->priv->wavetable,wave);
+    bt_edit_application_set_song_unsaved(self->priv->app);
     // update page
     waves_list_refresh(self);
     // release the references
@@ -1047,6 +1063,7 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     g_free(tmp_name);
     wave=bt_wave_new(song,name,uri,id,1.0,BT_WAVE_LOOP_MODE_OFF,0);
     // @idea: listen to status property on wave for loader updates
+    bt_edit_application_set_song_unsaved(self->priv->app);
 
     // listen to wave::loaded signal and refresh the wave list on success
     g_signal_connect(wave,"loading-done",G_CALLBACK(on_wave_loading_done),(gpointer)self);
