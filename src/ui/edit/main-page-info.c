@@ -28,11 +28,15 @@
 
 /* @todo
  * - use this tab as the first one?
- * - add time-stamps
- *   song created, song last changed
  * - add choice for metre (in german -> takt): beats (beats = bars / tpb)
  */
-
+/* @todo undo/redo
+ * - for text_view we would need to connect to insert_at_corsor and delete_from_cursor
+ *   signals to track changes
+ * - for text_enry the signals are inserted_text and deleted_text
+ * - optionally we just store the complete before/after
+ */
+ 
 #define BT_EDIT
 #define BT_MAIN_PAGE_INFO_C
 
