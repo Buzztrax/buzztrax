@@ -98,6 +98,7 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
   g_object_set(song_info,"name",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  bt_edit_application_set_song_unsaved(self->priv->app);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -114,6 +115,7 @@ static void on_genre_changed(GtkEditable *editable,gpointer user_data) {
   g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
   g_object_set(song_info,"genre",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  bt_edit_application_set_song_unsaved(self->priv->app);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -130,6 +132,7 @@ static void on_author_changed(GtkEditable *editable,gpointer user_data) {
   g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
   g_object_set(song_info,"author",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  bt_edit_application_set_song_unsaved(self->priv->app);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -146,6 +149,7 @@ static void on_bpm_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
   g_object_set(song_info,"bpm",gtk_spin_button_get_value_as_int(spinbutton),NULL);
+  bt_edit_application_set_song_unsaved(self->priv->app);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -166,6 +170,7 @@ static void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   beats = bars/tpb;
   tpb = gtk_spin_button_get_value_as_int(spinbutton);
   g_object_set(song_info,"tpb",tpb,"bars",beats*tpb,NULL);
+  bt_edit_application_set_song_unsaved(self->priv->app);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -185,6 +190,7 @@ static void on_beats_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   g_object_get(song_info,"tpb",&tpb,NULL);
   beats = gtk_spin_button_get_value_as_int(spinbutton);
   g_object_set(song_info,"bars",beats*tpb,NULL);
+  bt_edit_application_set_song_unsaved(self->priv->app);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);
@@ -208,6 +214,7 @@ static void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
   str=gtk_text_buffer_get_text(textbuffer,&beg_iter,&end_iter,FALSE);
   g_object_set(song_info,"info",str,NULL);
   g_free(str);
+  bt_edit_application_set_song_unsaved(self->priv->app);
   // release the references
   g_object_unref(song_info);
   g_object_unref(song);

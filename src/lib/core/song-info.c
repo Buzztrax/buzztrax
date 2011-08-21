@@ -317,7 +317,6 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
           self->priv->info=NULL;
           gst_tag_list_remove_tag(self->priv->taglist,GST_TAG_DESCRIPTION);
         }
-        bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the info for song_info: %s",self->priv->info);
       }
     } break;
@@ -333,7 +332,6 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
           self->priv->name=NULL;
           gst_tag_list_remove_tag(self->priv->taglist,GST_TAG_TITLE);
         }
-        bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the name for song_info: %s",self->priv->name);
       }
     } break;
@@ -349,7 +347,6 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
           self->priv->genre=NULL;
           gst_tag_list_remove_tag(self->priv->taglist,GST_TAG_GENRE);
         }
-        bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the genre for song_info: %s",self->priv->genre);
       }
     } break;
@@ -365,7 +362,6 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
           self->priv->author=NULL;
           gst_tag_list_remove_tag(self->priv->taglist,GST_TAG_ARTIST);
         }
-        bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the author for song_info: %s",self->priv->author);
       }
     } break;
@@ -377,7 +373,6 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_BEATS_PER_MINUTE, (gdouble)self->priv->beats_per_minute,NULL);
 #endif
         bt_song_info_tempo_changed(self);
-        bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the bpm for song_info: %lu",self->priv->beats_per_minute);
       }
     } break;
@@ -386,7 +381,6 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
       if(self->priv->ticks_per_beat!=val) {
         self->priv->ticks_per_beat = g_value_get_ulong(value);
         bt_song_info_tempo_changed(self);
-        bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the tpb for song_info: %lu",self->priv->ticks_per_beat);
       }
     } break;
@@ -395,7 +389,6 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
       if(self->priv->bars!=val) {
         self->priv->bars = g_value_get_ulong(value);
         bt_song_info_tempo_changed(self);
-        bt_song_set_unsaved(self->priv->song,TRUE);
         GST_DEBUG("set the bars for song_info: %lu",self->priv->bars);
       }
     } break;

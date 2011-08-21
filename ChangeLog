@@ -1,8 +1,14 @@
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/song-info.c:
+	* src/ui/edit/main-page-info.c:
+	  Move flagging info fields to the UI.
+
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c:
 	* src/ui/edit/main-toolbar.c:
-	  Move flaging loop related changes to the UI.
+	  Move flagging loop related changes to the UI.
 
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
