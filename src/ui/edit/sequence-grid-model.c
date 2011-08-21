@@ -39,7 +39,6 @@
  *   - todo in new code
  *     - move track left/right
  *     - cursor below the end-of song
- *     - insert delete rows (sequence should emit changed signal)
  *   - already handled in new code
  *     - loop-end changed
  *     - add/remove track
@@ -130,14 +129,14 @@ static gchar *format_position(const BtSequenceGridModel *model,gulong pos) {
   return(pos_str);
 }
 
-static void bt_sequence_grid_model_rows_changed(BtSequenceGridModel *model) {
+static void bt_sequence_grid_model_rows_changed(BtSequenceGridModel *model,gulong beg, gulong end) {
   GtkTreePath *path;
   GtkTreeIter iter;
   gulong i;
     
   // trigger row-changed for all rows
   iter.stamp=model->priv->stamp;
-  for(i=0;i<model->priv->visible_length;i++) {
+  for(i=beg;i<=end;i++) {
     iter.user_data=GUINT_TO_POINTER(i);
     path=gtk_tree_path_new();
     gtk_tree_path_append_index(path,i);
@@ -145,6 +144,11 @@ static void bt_sequence_grid_model_rows_changed(BtSequenceGridModel *model) {
     gtk_tree_path_free(path);
   }
 }
+
+static void bt_sequence_grid_model_all_rows_changed(BtSequenceGridModel *model) {
+  bt_sequence_grid_model_rows_changed(model,0,model->priv->visible_length-1);
+}
+
 
 static void update_length(BtSequenceGridModel *model,gulong old_length,gulong new_length) {
   GtkTreePath *path;
@@ -234,8 +238,14 @@ static void on_sequence_tracks_changed(BtSequence *sequence,GParamSpec *arg,gpoi
     GST_INFO("sequence tracks changed: %lu",model->priv->tracks);
   
     if(model->priv->visible_length)
-      bt_sequence_grid_model_rows_changed(model);
+      bt_sequence_grid_model_all_rows_changed(model);
   }
+}
+
+static void on_sequence_rows_changed(BtSequence *sequence,gulong beg,gulong end,gpointer user_data) {
+  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
+
+  bt_sequence_grid_model_rows_changed(model,beg,end);
 }
 
 static void on_sequence_pattern_added(BtSequence *sequence,BtPattern *pattern,gpointer user_data) {
@@ -274,6 +284,7 @@ BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence,gulong bars
   // follow sequence grid size changes
   g_signal_connect(sequence,"notify::length",G_CALLBACK(on_sequence_length_changed),(gpointer)self);
   g_signal_connect(sequence,"notify::tracks",G_CALLBACK(on_sequence_tracks_changed),(gpointer)self);
+  g_signal_connect(sequence,"rows-changed",G_CALLBACK(on_sequence_rows_changed),(gpointer)self);
   // track pattern first additions, last removal
   g_signal_connect(sequence,"pattern-added",G_CALLBACK(on_sequence_pattern_added),(gpointer)self);
   g_signal_connect(sequence,"pattern-removed",G_CALLBACK(on_sequence_pattern_removed),(gpointer)self);
@@ -498,13 +509,13 @@ static void bt_sequence_grid_model_set_property(GObject * const object, const gu
       BtSequenceGridModelPosFormat old_pos_format=self->priv->pos_format;      
       self->priv->pos_format=g_value_get_enum(value);
       if(self->priv->pos_format!=old_pos_format)
-        bt_sequence_grid_model_rows_changed(self);
+        bt_sequence_grid_model_all_rows_changed(self);
     } break;
     case SEQUENCE_GRID_MODEL_BARS: {
       gulong old_bars=self->priv->bars;
       self->priv->bars=g_value_get_ulong(value);
       if(self->priv->bars!=old_bars)
-        bt_sequence_grid_model_rows_changed(self);
+        bt_sequence_grid_model_all_rows_changed(self);
     } break;
     case SEQUENCE_GRID_MODEL_LENGTH: {
       gulong old_length=self->priv->visible_length;
@@ -529,6 +540,7 @@ static void bt_sequence_grid_model_finalize(GObject *object) {
 
     g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_length_changed,(gpointer)self);
     g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_tracks_changed,(gpointer)self);
+    g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_rows_changed,(gpointer)self);
     g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_pattern_added,(gpointer)self);
     g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_pattern_removed,(gpointer)self);
   }

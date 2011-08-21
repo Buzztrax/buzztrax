@@ -46,6 +46,7 @@
 enum {
   PATTERN_ADDED_EVENT,
   PATTERN_REMOVED_EVENT,
+  SEQUENCE_ROWS_CHANGED_EVENT,
   LAST_SIGNAL
 };
 /* @todo: sequence grid model needs to know about edits
@@ -1534,7 +1535,7 @@ void bt_sequence_set_label(const BtSequence * const self, const gulong time, con
   g_free(self->priv->labels[time]);
   self->priv->labels[time]=g_strdup(label);
 
-  bt_song_set_unsaved(self->priv->song,TRUE);
+  g_signal_emit((gpointer)self,signals[SEQUENCE_ROWS_CHANGED_EVENT],0,time,time);
 }
 
 /**
@@ -1612,6 +1613,7 @@ gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulo
     bt_sequence_invalidate_pattern_region(self,time,track,pattern);
     changed=TRUE;
   }
+  g_signal_emit((gpointer)self,signals[SEQUENCE_ROWS_CHANGED_EVENT],0,time,time);
   GST_DEBUG("done: %d",changed);
   return(changed);
 }
@@ -1634,7 +1636,6 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
   if(bt_sequence_set_pattern_quick(self,time,track,pattern)) {
     // repair damage
     bt_sequence_repair_damage(self);
-    bt_song_set_unsaved(self->priv->song,TRUE);
   }
 }
 
@@ -1776,6 +1777,8 @@ static void insert_rows(const BtSequence * const self, const gulong time, const 
 void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, const glong track, const gulong rows) {
   g_return_if_fail(BT_IS_SEQUENCE(self));
 
+  const gulong length=self->priv->length;
+
   GST_INFO("insert %lu rows at %lu,%ld", rows, time, track);
   
   if(track>-1) {
@@ -1784,7 +1787,6 @@ void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, c
   }
   else {
   	gulong j=0;
-  	const gulong length=self->priv->length;
 		gchar ** const labels=self->priv->labels;
 
 		// shift label down
@@ -1796,6 +1798,7 @@ void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, c
 			labels[time+j]=NULL;
 		}  	
   }
+	g_signal_emit((gpointer)self,signals[SEQUENCE_ROWS_CHANGED_EVENT],0,time,length);
 }
 
 /**
@@ -1830,6 +1833,7 @@ void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong ti
     insert_rows(self,time,j,rows);
   }
   bt_sequence_repair_damage(self);
+	g_signal_emit((gpointer)self,signals[SEQUENCE_ROWS_CHANGED_EVENT],0,time,length+rows);
 }
 
 /*
@@ -1907,6 +1911,8 @@ static void delete_rows(const BtSequence * const self, const gulong time, const 
 void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const glong track, const gulong rows) {
   g_return_if_fail(BT_IS_SEQUENCE(self));
 
+  const gulong length=self->priv->length;
+
   GST_INFO("delete %lu rows at %lu,%ld", rows, time, track);
 
   if(track>-1) {
@@ -1915,7 +1921,6 @@ void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, c
 	}
 	else {
 		gulong j=0;
-		const gulong length=self->priv->length;
 		gchar ** const labels=self->priv->labels;
 
 		// shift label up
@@ -1927,6 +1932,7 @@ void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, c
 			labels[j]=NULL;
 		}
 	}
+	g_signal_emit((gpointer)self,signals[SEQUENCE_ROWS_CHANGED_EVENT],0,time,rows);
 }
 
 /**
@@ -1965,6 +1971,7 @@ void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong ti
   g_object_set((gpointer)self,"length",length-rows,NULL);
 
   bt_sequence_repair_damage(self);
+	g_signal_emit((gpointer)self,signals[SEQUENCE_ROWS_CHANGED_EVENT],0,time,length-rows);
 }
 
 /**
@@ -2473,6 +2480,26 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
                                         G_TYPE_NONE, // return type
                                         1, // n_params
                                         BT_TYPE_PATTERN // param data
+                                        );
+
+  /**
+   * BtSequence::rows-changed:
+   * @self: the sequence object that emitted the signal
+   * @begin: start row that changed
+   * @end: last row that changed
+   *
+   * The content of the given rows in the sequence has changed. 
+   */
+  signals[SEQUENCE_ROWS_CHANGED_EVENT] = g_signal_new("rows-changed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        0,
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        bt_marshal_VOID__ULONG_ULONG,
+                                        G_TYPE_NONE, // return type
+                                        2, // n_params
+                                        G_TYPE_ULONG,G_TYPE_ULONG
                                         );
 
   g_object_class_install_property(gobject_class,SEQUENCE_SONG,

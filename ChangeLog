@@ -1,3 +1,14 @@
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	  Add a rows-changed signal to notify of edits.
+
+	* src/ui/edit/main-page-sequence.c:
+	  #ifdef out more of the refreshing code.
+
+	* src/ui/edit/sequence-grid-model.c:
+	  Use the new signal.
+
 2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
 
 	* ChangeLog-0.1:

@@ -127,6 +127,8 @@ enum {
  *   - use the main-model for pos-menu
  *     - kill the extra enum for it
  *     - kill the manual label menu refresh
+ *   - added row-changed signal in sequence
+ *     (for refreshing after copy/paste/insert/delete)
  */
 #define USE_SEQUENCE_GRID_MODEL 1
 
@@ -2687,10 +2689,12 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         sequence_range_log_undo_redo(self,track,track,row,sequence_length-1,old_data->str,new_data->str);
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         // reinit the view
+#ifndef USE_SEQUENCE_GRID_MODEL
         sequence_table_refresh(self,song);
         //sequence_calculate_visible_lines(self);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
+#endif
         res=TRUE;
       }
       else if(modifier==GDK_SHIFT_MASK) {
@@ -2715,11 +2719,15 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         self->priv->sequence_length+=self->priv->bars;
+#ifndef USE_SEQUENCE_GRID_MODEL
         // reinit the view
         sequence_table_refresh(self,song);
         sequence_calculate_visible_lines(self);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
+#else
+        sequence_calculate_visible_lines(self);
+#endif
         res=TRUE;
       }
     }
@@ -2736,11 +2744,13 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         sequence_range_copy(self,track,track,row,sequence_length-1,new_data);
         sequence_range_log_undo_redo(self,track,track,row,sequence_length-1,old_data->str,new_data->str);
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
+#ifndef USE_SEQUENCE_GRID_MODEL
         // reinit the view
         sequence_table_refresh(self,song);
         //sequence_calculate_visible_lines(self);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
+#endif
         res=TRUE;
       }
       else if(modifier==GDK_SHIFT_MASK) {
@@ -2765,10 +2775,14 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         self->priv->sequence_length-=self->priv->bars;
         // reinit the view
+#ifndef USE_SEQUENCE_GRID_MODEL
         sequence_table_refresh(self,song);
         sequence_calculate_visible_lines(self);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
+#else
+        sequence_calculate_visible_lines(self);
+#endif
         res=TRUE;
       }
     }
