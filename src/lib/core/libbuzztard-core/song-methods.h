@@ -30,8 +30,6 @@
 
 extern BtSong *bt_song_new(const BtApplication * const app);
 
-extern void bt_song_set_unsaved(const BtSong * const self, const gboolean unsaved);
-
 extern gboolean bt_song_play(const BtSong * const self);
 extern gboolean bt_song_stop(const BtSong * const self);
 extern gboolean bt_song_pause(const BtSong * const self);

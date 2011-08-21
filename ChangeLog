@@ -1,5 +1,23 @@
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/libbuzztard-core/song-methods.h:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c:
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/render-progress.c:
+	* tests/lib/core/e-song.c:
+	* tests/ui/edit/e-bt-edit-application.c:
+	  Big refactoring moving the unsaved state out of the core library to
+	  the application. This avoids such state tracking in the library, which
+	  might need to be done differently for different apps.
+
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/wave.c:
 	* src/lib/core/wavetable.c:
 	* src/ui/edit/main-page-waves.c:

@@ -584,19 +584,27 @@ static void on_song_file_name_changed(const BtSong *song,GParamSpec *arg,gpointe
   g_object_unref(song_info);
 }
 
-static void on_song_file_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+static void on_song_file_unsaved_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtChangeLog *self = BT_CHANGE_LOG(user_data);
+  BtSong *song;
   BtSongInfo *song_info;
   gboolean unsaved;
 
-  g_object_get((GObject*)song,"unsaved",&unsaved,"song-info",&song_info,NULL);
-  if(!unsaved) {
+  g_object_get((GObject*)app,"unsaved",&unsaved,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
+  if(!unsaved) {    
     GST_WARNING("reset log file");
     // truncate the log
     fclose(self->priv->log_file);
     open_and_init_log(self,song_info);
+  } 
+  else {
+    // this updates the time-stamp (we need that to show the since when we have
+    // unsaved changes, if some one closes the song)
+    g_object_set(song_info,"change-dts",NULL,NULL);
   }
   g_object_unref(song_info);
+  g_object_unref(song);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -627,7 +635,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // notify on name changes to move the log
   g_signal_connect(song, "notify::name", G_CALLBACK(on_song_file_name_changed), (gpointer)self);
   // notify on unsaved changed to truncate the log when unsaved==FALSE
-  g_signal_connect(song, "notify::unsaved", G_CALLBACK(on_song_file_unsaved_changed), (gpointer)self);
+  g_signal_connect(self->priv->app, "notify::unsaved", G_CALLBACK(on_song_file_unsaved_changed), (gpointer)self);
 
   // release the reference
   g_object_unref(song_info);
@@ -787,7 +795,7 @@ void bt_change_log_register(BtChangeLog *self,BtChangeLogger *logger) {
 void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data) {
   if(self->priv->changes) {
     BtChangeLogEntrySingle *cle;
-
+    
     // make new BtChangeLogEntry from the parameters
     cle=g_slice_new(BtChangeLogEntrySingle);
     cle->type=CHANGE_LOG_ENTRY_SINGLE;

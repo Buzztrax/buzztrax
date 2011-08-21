@@ -679,20 +679,6 @@ static void on_song_unsaved_changed(const GObject *object,GParamSpec *arg,gpoint
   gtk_widget_set_sensitive(self->priv->save_item,unsaved);
 }
 
-static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
-  BtMainMenu *self=BT_MAIN_MENU(user_data);
-  BtSong *song;
-
-  GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
-
-  g_object_get(self->priv->app,"song",&song,NULL);
-  if(!song) return;
-
-  on_song_unsaved_changed((GObject *)song,NULL,self);
-  g_signal_connect((gpointer)song, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
-  g_object_unref(song);
-}
-
 //-- helper methods
 
 static void bt_main_menu_init_ui(const BtMainMenu *self) {
@@ -1089,7 +1075,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
 #endif
 
   // register event handlers
-  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(self->priv->app, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
 
   change_log=bt_change_log_new();
   g_signal_connect(change_log, "notify::can-undo", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);

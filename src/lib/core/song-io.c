@@ -357,7 +357,6 @@ gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song) {
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
     GST_INFO("loading done");
-    bt_song_set_unsaved(song,FALSE);
     //DEBUG
     /*
     {
@@ -419,7 +418,6 @@ gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
   g_object_set((gpointer)song,"song-io",self,NULL);
   if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
-    bt_song_set_unsaved(song,FALSE);
   }
   g_object_set((gpointer)song,"song-io",NULL,NULL);
 

@@ -151,7 +151,7 @@ BT_START_TEST(test_new1) {
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   // song should be unchanged
-  g_object_get(song,"unsaved",&unsaved,NULL);
+  g_object_get(app,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
   g_object_unref(song);
   GST_INFO("song created");
@@ -187,7 +187,7 @@ BT_START_TEST(test_load1) {
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   // song should be unchanged
-  g_object_get(song,"unsaved",&unsaved,NULL);
+  g_object_get(app,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
   g_object_unref(song);
   GST_INFO("song loaded");
@@ -228,7 +228,7 @@ BT_START_TEST(test_load2) {
   g_object_get(app,"song",&song1,NULL);
   fail_unless(song1 != NULL, NULL);
   // song should be unchanged
-  g_object_get(song1,"unsaved",&unsaved,NULL);
+  g_object_get(app,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
   g_object_unref(song1);
   GST_INFO("song 1 loaded");
@@ -239,7 +239,7 @@ BT_START_TEST(test_load2) {
   fail_unless(song2 != NULL, NULL);
   fail_unless(song2 != song1, NULL);
   // song should be unchanged
-  g_object_get(song2,"unsaved",&unsaved,NULL);
+  g_object_get(app,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
   g_object_unref(song2);
   GST_INFO("song 2 loaded");
@@ -282,7 +282,7 @@ BT_START_TEST(test_load3) {
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   // song should be unchanged
-  g_object_get(song,"unsaved",&unsaved,NULL);
+  g_object_get(app,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
   g_object_unref(song);
   GST_INFO("song loaded");
@@ -294,7 +294,7 @@ BT_START_TEST(test_load3) {
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   // song should be unchanged
-  g_object_get(song,"unsaved",&unsaved,NULL);
+  g_object_get(app,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
   g_object_unref(song);
   GST_INFO("song loaded again");
@@ -405,7 +405,7 @@ BT_START_TEST(test_load_and_play1) {
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   // song should be unchanged
-  g_object_get(song,"unsaved",&unsaved,NULL);
+  g_object_get(app,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
   GST_INFO("song loaded");
 
@@ -450,7 +450,7 @@ BT_START_TEST(test_load_and_play2) {
   g_object_get(app,"song",&song1,NULL);
   fail_unless(song1 != NULL, NULL);
   // song should be unchanged
-  g_object_get(song1,"unsaved",&unsaved,NULL);
+  g_object_get(app,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
   g_object_unref(song1);
   GST_INFO("song 1 loaded");
@@ -461,7 +461,7 @@ BT_START_TEST(test_load_and_play2) {
   fail_unless(song2 != NULL, NULL);
   fail_unless(song2 != song1, NULL);
   // song should be unchanged
-  g_object_get(song2,"unsaved",&unsaved,NULL);
+  g_object_get(app,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
   GST_INFO("song 2 loaded");
 

@@ -25,6 +25,19 @@
  *
  * Opens the #BtMainWindow and provide application level function like load,
  * save, run and exit.
+ *
+ * It also provides functions to invoke some dialogs like about and tips.
+ *
+ * The application instance will have exactly one active 
+ * #BtEditApplication::song at a time. I tracks undo/redo-able changes to the
+ * song via #BtChangeLog and simple flagged changes via the
+ * #BtEditApplication::unsaved property.
+ */
+/* @todo: unsaved flagging
+ * - various parts in the UI call bt_edit_application_set_song_unsaved()
+ * - this sometimes happens as a side effect from doing something undo/redoable
+ * - can we include flagging unsaved in the changelog group, so hat if we undo
+ *   it the flagging gets undone?
  */
 
 #define BT_EDIT
@@ -39,7 +52,8 @@
 enum {
   EDIT_APPLICATION_SONG=1,
   EDIT_APPLICATION_MAIN_WINDOW,
-  EDIT_APPLICATION_IC_REGISTRY
+  EDIT_APPLICATION_IC_REGISTRY,
+  EDIT_APPLICATION_UNSAVED
 };
 
 // this needs to be here because of gtk-doc and unit-tests
@@ -56,8 +70,11 @@ struct _BtEditApplicationPrivate {
   /* the top-level window of our app */
   BtMainWindow *main_window;
 
-  /* editor change log */
+  /* editor change log for undo/redo */
   BtChangeLog *change_log;
+  /* flag for smaller changes to make the song-saveable */
+  gboolean unsaved;
+  gboolean need_dts_reset;
 
   /* remote playback controller */
   BtPlaybackControllerSocket *pb_controller;
@@ -86,6 +103,21 @@ static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer u
   g_object_set(statusbar,"status",str,NULL);
   g_object_unref(statusbar);
   g_free(str);
+}
+
+static void on_changelog_can_undo_changed(BtChangeLog *change_log,GParamSpec *arg,gpointer user_data) {
+  BtEditApplication *self=BT_EDIT_APPLICATION(user_data);
+
+  if(self->priv->need_dts_reset) {
+    BtSongInfo *song_info;
+
+    self->priv->need_dts_reset=FALSE;
+    g_object_get(self->priv->song,"song-info",&song_info,NULL);
+    // this updates the time-stamp (we need that to show the since when we have
+    // unsaved changes, if some one closes the song)
+    g_object_set(song_info,"change-dts",NULL,NULL);
+    g_object_unref(song_info);
+  }
 }
 
 //-- helper methods
@@ -272,7 +304,6 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
     if(bt_machine_enable_input_post_level(machine)) {
       GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(machine));
       // set new song in application
-      bt_song_set_unsaved(song,FALSE);
       g_object_set((gpointer)self,"song",song,NULL);
       res=TRUE;
     }
@@ -287,6 +318,9 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   }
   g_object_unref(machine);
   g_free(id);
+
+  self->priv->unsaved=FALSE;
+  g_object_notify(G_OBJECT(self),"unsaved");
 
   // release references
   g_object_unref(song_info);
@@ -375,6 +409,9 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     else {
       GST_ERROR("could not load song \"%s\"",file_name);
     }
+    self->priv->unsaved=FALSE;
+    g_object_notify(G_OBJECT(self),"unsaved");
+
     bt_edit_application_ui_unlock(self);
 
     // get missing element info
@@ -484,7 +521,10 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
       }
     }
     GST_INFO("saving done");
-
+    self->priv->unsaved=FALSE;
+    g_object_notify(G_OBJECT(self),"unsaved");
+    self->priv->need_dts_reset=TRUE;
+    
     bt_edit_application_ui_unlock(self);
 
     g_free(old_file_name);
@@ -689,9 +729,8 @@ void bt_edit_application_ui_unlock(const BtEditApplication *self) {
  * Returns: %TRUE if there are pending changes
  */
 gboolean bt_edit_application_is_song_unsaved(const BtEditApplication *self) {
-  gboolean unsaved;
+  gboolean unsaved=self->priv->unsaved;
 
-  g_object_get(self->priv->song,"unsaved",&unsaved,NULL);
   if(!unsaved)
     g_object_get(self->priv->change_log,"can-undo",&unsaved,NULL);
   return(unsaved);
@@ -704,7 +743,18 @@ gboolean bt_edit_application_is_song_unsaved(const BtEditApplication *self) {
  * Flag unsaved changes in the applications song.
  */
 void bt_edit_application_set_song_unsaved(const BtEditApplication *self) {
-  bt_song_set_unsaved(self->priv->song,TRUE);
+  /* this is not succesfully preventing setting the flag when we create an
+   * undo-able change
+  gboolean can_undo;
+
+  g_object_get(self->priv->change_log,"can-undo",&can_undo,NULL);
+  if((!self->priv->unsaved) && (!can_undo)) {
+  */
+  if(!self->priv->unsaved) {
+    self->priv->unsaved=TRUE;
+    g_object_notify(G_OBJECT(self),"unsaved");
+  }
+
 }
 
 //-- wrapper
@@ -725,6 +775,9 @@ static void bt_edit_application_get_property(GObject *object, guint property_id,
     } break;
     case EDIT_APPLICATION_IC_REGISTRY: {
       g_value_set_object(value, self->priv->ic_registry);
+    } break;
+    case EDIT_APPLICATION_UNSAVED: {
+      g_value_set_boolean(value, self->priv->unsaved);
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -760,6 +813,10 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
       self->priv->song=BT_SONG(g_value_dup_object(value));
       GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT_REF_COUNT(self->priv->song));
     } break;
+    case EDIT_APPLICATION_UNSAVED: {
+      self->priv->unsaved = g_value_get_boolean(value);
+      GST_INFO("set the unsaved flag for the song",self->priv->unsaved);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -784,6 +841,8 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     singleton->priv->ic_registry=btic_registry_new();
     // create the editor change log
     singleton->priv->change_log=bt_change_log_new();
+    g_signal_connect(singleton->priv->change_log,"notify::can-undo",G_CALLBACK(on_changelog_can_undo_changed),(gpointer)singleton);
+
     // create main window
     GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
     singleton->priv->main_window=bt_main_window_new();
@@ -880,5 +939,13 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
                                      "the interaction controller registry of this application",
                                      BTIC_TYPE_REGISTRY, /* object type */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,EDIT_APPLICATION_UNSAVED,
+                                  g_param_spec_boolean("unsaved",
+                                     "unsaved prop",
+                                     "tell whether the current state of the song has been saved",
+                                     TRUE,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
 }
 

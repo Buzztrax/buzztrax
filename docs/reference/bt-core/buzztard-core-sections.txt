@@ -389,7 +389,6 @@ BtSinkMachinePrivate
 BtSong
 BtSongClass
 bt_song_new
-bt_song_set_unsaved
 bt_song_play
 bt_song_stop
 bt_song_pause

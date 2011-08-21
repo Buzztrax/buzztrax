@@ -61,9 +61,6 @@
  * - see bt_song_change_play_rate()
  * - there is a problem with wrapping around in loop mode, when playing backwards
  */
-/* @todo: should we move the ::unsaved property to the edit-application?
- * - core should not care about it
- */
 #define BT_CORE
 #define BT_SONG_C
 
@@ -99,7 +96,6 @@ enum {
   SONG_SEQUENCE,
   SONG_SETUP,
   SONG_WAVETABLE,
-  SONG_UNSAVED,
   SONG_PLAY_POS,
   SONG_PLAY_RATE,
   SONG_IS_PLAYING,
@@ -116,9 +112,6 @@ struct _BtSongPrivate {
   BtSequence*  sequence;
   BtSetup*     setup;
   BtWavetable* wavetable;
-
-  /* whenever the song is changed, unsave should be set TRUE */
-  gboolean unsaved;
 
   /* the playback position of the song */
   gulong play_pos,play_end;
@@ -693,32 +686,6 @@ BtSong *bt_song_new(const BtApplication * const app) {
 }
 
 //-- methods
-
-/**
- * bt_song_set_unsaved:
- * @self: the song that should be changed
- * @unsaved: the new state of the songs unsaved flag
- *
- * The @unsaved flag marks a change that is not undo-able (or won't make sens to
- * undo). Editing apps that implement undo/redo should not set the flag. The
- * flag could be used if one e.g. does a zoom-in on the machine-view or changes
- * the step-resolution on the sequence-view.  
- *
- * Use this method instead of directly setting the state via g_object_set() to
- * avoid double notifies, if the state is unchanged.
- */
-void bt_song_set_unsaved(const BtSong * const self, const gboolean unsaved) {
-  g_return_if_fail(BT_IS_SONG(self));
-
-  if(self->priv->unsaved!=unsaved) {
-    self->priv->unsaved=unsaved;
-    // this updates the time-stamp (we need that to show the since when we have
-    // unsaved changes, if some one closes the song)
-    g_object_set(self->priv->song_info,"change-dts",NULL,NULL);
-    GST_INFO("unsaved = %d",unsaved);
-    g_object_notify(G_OBJECT(self),"unsaved");
-  }
-}
 
 /**
  * bt_song_play:
@@ -1449,9 +1416,6 @@ static void bt_song_get_property(GObject * const object, const guint property_id
     case SONG_WAVETABLE: {
       g_value_set_object(value, self->priv->wavetable);
     } break;
-    case SONG_UNSAVED: {
-      g_value_set_boolean(value, self->priv->unsaved);
-    } break;
     case SONG_PLAY_POS: {
       g_value_set_ulong(value, self->priv->play_pos);
     } break;
@@ -1489,10 +1453,6 @@ static void bt_song_set_property(GObject * const object, const guint property_id
       g_object_try_weak_ref(self->priv->master);
       g_object_get((gpointer)(self->priv->master),"machine",&self->priv->master_bin,NULL);
       GST_DEBUG("set the master for the song: %p (machine-refs: %d)",self->priv->master,G_OBJECT_REF_COUNT(self->priv->master));
-    } break;
-    case SONG_UNSAVED: {
-      self->priv->unsaved = g_value_get_boolean(value);
-      GST_WARNING("set the unsaved flag for the song: %d (please use bt_song_set_unsaved())",self->priv->unsaved);
     } break;
     case SONG_PLAY_POS: {
       self->priv->play_pos=bt_sequence_limit_play_pos(self->priv->sequence,g_value_get_ulong(value));
@@ -1713,13 +1673,6 @@ static void bt_song_class_init(BtSongClass * const klass) {
                                      "songs wavetable sub object",
                                      BT_TYPE_WAVETABLE, /* object type */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property(gobject_class,SONG_UNSAVED,
-                                  g_param_spec_boolean("unsaved",
-                                     "unsaved prop",
-                                     "tell whether the current state of the song has been saved",
-                                     TRUE,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_PLAY_POS,
                                   g_param_spec_ulong("play-pos",

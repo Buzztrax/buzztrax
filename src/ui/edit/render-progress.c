@@ -199,8 +199,8 @@ void bt_render_progress_run(const BtRenderProgress *self) {
   BtMachine *machine;
   gboolean unsaved;
 
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,"song-info",&song_info,"unsaved",&unsaved,"bin",&bin,NULL);
+  g_object_get(self->priv->app,"song",&song,"unsaved",&unsaved,NULL);
+  g_object_get(song,"setup",&setup,"song-info",&song_info,"bin",&bin,NULL);
 
   // lookup the audio-sink machine and change mode
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
@@ -268,7 +268,7 @@ void bt_render_progress_run(const BtRenderProgress *self) {
       g_object_set(song_info,"name",song_name,NULL);
       g_list_free(list);
       g_free(song_name);
-      bt_song_set_unsaved(song,unsaved);
+      g_object_set(self->priv->app,"unsaved",unsaved,NULL);
     }
 
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_error,NULL);

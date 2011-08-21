@@ -758,8 +758,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(song,"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   on_sequence_loop_notify(sequence,NULL,(gpointer)self);
   g_signal_connect(sequence,"notify::loop",G_CALLBACK(on_sequence_loop_notify),(gpointer)self);
-  on_song_unsaved_changed((GObject *)song,NULL,(gpointer)self);
-  g_signal_connect(song, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   //-- release the references
   gst_object_unref(bin);
   g_object_unref(sequence);
@@ -909,6 +907,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   // register event handlers
   g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(self->priv->app, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
 
   change_log=bt_change_log_new();
   g_signal_connect(change_log, "notify::can-undo", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);

@@ -206,22 +206,6 @@ static void on_song_unsaved_changed(const GObject *object,GParamSpec *arg,gpoint
   GST_INFO("song.unsaved has changed : song=%p, menu=%p, unsaved=%d",song,user_data,unsaved);
 }
 
-static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
-  BtMainWindow *self=BT_MAIN_WINDOW(user_data);
-  BtSong *song;
-
-  GST_INFO("song has changed : app=%p, window=%p",app,user_data);
-
-  // get song from app
-  g_object_get((gpointer)app,"song",&song,NULL);
-  if(!song) return;
-
-  on_song_unsaved_changed((GObject*)song,arg,self);
-  g_signal_connect(song, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
-  //-- release the references
-  g_object_unref(song);
-}
-
 static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gint y, GtkSelectionData *selection_data, guint info, guint t, gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   glong i=0;
@@ -367,12 +351,12 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
 
   GST_INFO("content created, app->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->app));
 
-  g_signal_connect(self->priv->app, "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect((gpointer)self,"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
   g_signal_connect((gpointer)self,"destroy",      G_CALLBACK(on_window_destroy),(gpointer)self);
   /* just for testing
   g_signal_connect((gpointer)self,"event",G_CALLBACK(on_window_event),(gpointer)self);
-  */
+  */         
+  g_signal_connect(self->priv->app, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
 
   change_log=bt_change_log_new();
   g_signal_connect(change_log, "notify::can-undo", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
@@ -475,7 +459,6 @@ gboolean bt_main_window_check_unsaved_song(const BtMainWindow *self,const gchar 
     change_log=bt_change_log_new();
     g_object_get(change_log,"can-undo",&unsaved,NULL);
     g_object_unref(change_log);
-    //g_object_get(song,"unsaved",&unsaved,NULL);
     if(unsaved) {
       gchar *msg;
 
@@ -1149,7 +1132,6 @@ static void bt_main_window_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
   //g_signal_handlers_disconnect_matched(self,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_window_delete_event,NULL);
   //g_signal_handlers_disconnect_matched(self,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_window_destroy,NULL);
   g_object_unref(self->priv->app);
