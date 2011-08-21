@@ -1,5 +1,13 @@
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-info.c:
+	  Store song_info in instance to avoid lookup for each edit.
+
+	* src/ui/edit/main-page-sequence.c:
+	  May on song_change code more robust for sequence ref in instance.
+
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/song-info.c:
 	* src/ui/edit/main-page-info.c:
 	  Move flagging info fields to the UI.

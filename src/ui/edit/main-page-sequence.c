@@ -2993,15 +2993,17 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   gchar *prop;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
+  g_object_try_unref(self->priv->sequence);
+
   // get song from app and then setup from song
   g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) {
+    self->priv->sequence=NULL;
     self->priv->properties=NULL;
     return;
   }
   GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
 
-  g_object_try_unref(self->priv->sequence);
   g_object_get(song,"song-info",&song_info,"setup",&setup,"sequence",&self->priv->sequence,"bin", &bin,NULL);
   g_object_get(self->priv->sequence,"length",&sequence_length,"properties",&self->priv->properties,NULL);
   // make sequence_length and step_filter_pos accord to song length

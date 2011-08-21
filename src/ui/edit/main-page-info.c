@@ -45,6 +45,9 @@ struct _BtMainPageInfoPrivate {
   /* the application */
   BtEditApplication *app;
 
+  /* the sequence we are showing */
+  BtSongInfo *song_info;
+
   /* name, genre, author of the song */
   GtkEntry *name,*genre,*author;
   
@@ -89,135 +92,79 @@ static void on_page_switched(GtkNotebook *notebook, GParamSpec *arg, gpointer us
 
 static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
-  BtSongInfo *song_info;
 
   GST_INFO("name changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
-  // get song from app
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_set(song_info,"name",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  g_object_set(self->priv->song_info,"name",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
   bt_edit_application_set_song_unsaved(self->priv->app);
-  // release the references
-  g_object_unref(song_info);
-  g_object_unref(song);
 }
 
 static void on_genre_changed(GtkEditable *editable,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
-  BtSongInfo *song_info;
 
   GST_INFO("genre changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
-  // get song from app
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_set(song_info,"genre",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  g_object_set(self->priv->song_info,"genre",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
   bt_edit_application_set_song_unsaved(self->priv->app);
-  // release the references
-  g_object_unref(song_info);
-  g_object_unref(song);
 }
 
 static void on_author_changed(GtkEditable *editable,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
-  BtSongInfo *song_info;
 
   GST_INFO("author changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
-  // get song from app
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_set(song_info,"author",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  g_object_set(self->priv->song_info,"author",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
   bt_edit_application_set_song_unsaved(self->priv->app);
-  // release the references
-  g_object_unref(song_info);
-  g_object_unref(song);
 }
 
 static void on_bpm_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
-  BtSongInfo *song_info;
 
   GST_INFO("bpm changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
-  // get song from app
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_set(song_info,"bpm",gtk_spin_button_get_value_as_int(spinbutton),NULL);
+  g_object_set(self->priv->song_info,"bpm",gtk_spin_button_get_value_as_int(spinbutton),NULL);
   bt_edit_application_set_song_unsaved(self->priv->app);
-  // release the references
-  g_object_unref(song_info);
-  g_object_unref(song);
 }
 
 static void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
-  BtSongInfo *song_info;
   gulong tpb,beats,bars;
 
   GST_INFO("tpb changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
-  // get song from app
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_get(song_info,"bars",&bars,"tpb",&tpb,NULL);
+  g_object_get(self->priv->song_info,"bars",&bars,"tpb",&tpb,NULL);
   beats = bars/tpb;
   tpb = gtk_spin_button_get_value_as_int(spinbutton);
-  g_object_set(song_info,"tpb",tpb,"bars",beats*tpb,NULL);
+  g_object_set(self->priv->song_info,"tpb",tpb,"bars",beats*tpb,NULL);
   bt_edit_application_set_song_unsaved(self->priv->app);
-  // release the references
-  g_object_unref(song_info);
-  g_object_unref(song);
 }
 
 static void on_beats_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
-  BtSongInfo *song_info;
   gulong tpb,beats;
 
   GST_INFO("beats changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
-  // get song from app
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
-  g_object_get(song_info,"tpb",&tpb,NULL);
+  g_object_get(self->priv->song_info,"tpb",&tpb,NULL);
   beats = gtk_spin_button_get_value_as_int(spinbutton);
-  g_object_set(song_info,"bars",beats*tpb,NULL);
+  g_object_set(self->priv->song_info,"bars",beats*tpb,NULL);
   bt_edit_application_set_song_unsaved(self->priv->app);
-  // release the references
-  g_object_unref(song_info);
-  g_object_unref(song);
 }
 
 static void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
-  BtSongInfo *song_info;
   gchar *str;
   GtkTextIter beg_iter,end_iter;
 
   GST_INFO("info changed : self=%p",self);
-  // get song from app
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"song-info",&song_info,NULL);
   // update info fields
   // get begin and end textiters :(, then get text
   gtk_text_buffer_get_iter_at_offset(textbuffer,&beg_iter,0);
   gtk_text_buffer_get_iter_at_offset(textbuffer,&end_iter,-1);
   str=gtk_text_buffer_get_text(textbuffer,&beg_iter,&end_iter,FALSE);
-  g_object_set(song_info,"info",str,NULL);
+  g_object_set(self->priv->song_info,"info",str,NULL);
   g_free(str);
   bt_edit_application_set_song_unsaved(self->priv->app);
-  // release the references
-  g_object_unref(song_info);
-  g_object_unref(song);
 }
 
 static void on_name_notify(const BtSongInfo *song_info,GParamSpec *arg,gpointer user_data) {
@@ -233,21 +180,25 @@ static void on_name_notify(const BtSongInfo *song_info,GParamSpec *arg,gpointer 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   BtSong *song;
-  BtSongInfo *song_info;
   GtkTextBuffer *buffer;
   gchar *name,*genre,*author,*create_dts,*change_dts;
   gulong bpm,tpb,bars;
   gchar *info;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
+  g_object_try_unref(self->priv->song_info);
+
   // get song from app
   g_object_get(self->priv->app,"song",&song,NULL);
-  if(!song) return;
+  if(!song) {
+    self->priv->song_info=NULL;
+    return;
+  }
   GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
 
-  g_object_get(song,"song-info",&song_info,NULL);
+  g_object_get(song,"song-info",&self->priv->song_info,NULL);
   // update info fields
-  g_object_get(song_info,
+  g_object_get(self->priv->song_info,
     "name",&name,"genre",&genre,"author",&author,"info",&info,
     "bpm",&bpm,"tpb",&tpb,"bars",&bars,
     "create-dts",&create_dts,"change-dts",&change_dts,
@@ -295,10 +246,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   gtk_text_buffer_set_text(buffer,safe_string(info),-1);g_free(info);
   g_signal_handlers_unblock_matched(buffer,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_info_changed,(gpointer)self);
 
-  g_signal_connect(song_info, "notify::name", G_CALLBACK(on_name_notify), (gpointer)self);
+  g_signal_connect(self->priv->song_info, "notify::name", G_CALLBACK(on_name_notify), (gpointer)self);
   
   // release the references
-  g_object_unref(song_info);
   g_object_unref(song);
   GST_INFO("song has changed done");
 }
@@ -502,6 +452,8 @@ static void bt_main_page_info_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
   
   GST_DEBUG("!!!! self=%p",self);
+
+  g_object_try_unref(self->priv->song_info);
 
   g_object_unref(self->priv->app);
 
