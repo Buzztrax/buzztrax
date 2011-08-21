@@ -3477,8 +3477,6 @@ static void bt_machine_set_property(GObject * const object, const guint property
     case MACHINE_STATE: {
       if(bt_machine_change_state(self,g_value_get_enum(value))) {
         GST_DEBUG_OBJECT(self,"set the state for machine: %d",self->priv->state);
-        // FIXME: if we make that controlable, we don't want to mark the song as changed
-        bt_song_set_unsaved(self->priv->song,TRUE);
       }
     } break;
     default: {

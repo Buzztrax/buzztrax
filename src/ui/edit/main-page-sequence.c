@@ -800,6 +800,12 @@ static void on_sequence_header_size_allocate(GtkWidget *widget,GtkAllocation *al
 }
 // DEBUG */
 
+static void on_machine_state_toggled(GtkToggleButton *togglebutton,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+
+  bt_edit_application_set_song_unsaved(self->priv->app);
+}
+
 static void on_mute_toggled(GtkToggleButton *togglebutton,gpointer user_data) {
   BtMachine *machine=BT_MACHINE(user_data);
 
@@ -1384,12 +1390,14 @@ static void sequence_table_refresh_columns(const BtMainPageSequence *self,const 
         button=make_mini_button("M",1.2, 1.0/1.25, 1.0/1.25,(state==BT_MACHINE_STATE_MUTE)); // red
         gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
         g_signal_connect(button,"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
+        g_signal_connect(button,"toggled",G_CALLBACK(on_machine_state_toggled),(gpointer)self);
         g_signal_connect(machine,"notify::state", G_CALLBACK(on_machine_state_changed_mute), (gpointer)button);
 
         if(BT_IS_SOURCE_MACHINE(machine)) {
           button=make_mini_button("S",1.0/1.2,1.0/1.2,1.1,(state==BT_MACHINE_STATE_SOLO)); // blue
           gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
           g_signal_connect(button,"toggled",G_CALLBACK(on_solo_toggled),(gpointer)machine);
+          g_signal_connect(button,"toggled",G_CALLBACK(on_machine_state_toggled),(gpointer)self);
           g_signal_connect(machine,"notify::state", G_CALLBACK(on_machine_state_changed_solo), (gpointer)button);
         }
 
@@ -1397,6 +1405,7 @@ static void sequence_table_refresh_columns(const BtMainPageSequence *self,const 
           button=make_mini_button("B",1.2,1.0/1.1,1.0/1.4,(state==BT_MACHINE_STATE_BYPASS)); // orange
           gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
           g_signal_connect(button,"toggled",G_CALLBACK(on_bypass_toggled),(gpointer)machine);
+          g_signal_connect(button,"toggled",G_CALLBACK(on_machine_state_toggled),(gpointer)self);
           g_signal_connect(machine,"notify::state", G_CALLBACK(on_machine_state_changed_bypass), (gpointer)button);
         }
         vumeter=GTK_VUMETER(gtk_vumeter_new(FALSE));

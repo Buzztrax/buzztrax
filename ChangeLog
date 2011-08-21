@@ -1,5 +1,12 @@
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Move flagging machine::state changes to the UI.
+
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	   Only warn about unsaved songs when having things in the undo/redo
 	   stack.
