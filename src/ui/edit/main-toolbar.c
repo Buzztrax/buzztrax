@@ -247,6 +247,7 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"sequence",&sequence,NULL);
   g_object_set(sequence,"loop",loop,NULL);
+  bt_edit_application_set_song_unsaved(self->priv->app);
   // release the references
   g_object_unref(sequence);
   g_object_unref(song);

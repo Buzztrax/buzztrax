@@ -2315,7 +2315,6 @@ static void bt_sequence_set_property(GObject * const object, const guint propert
         self->priv->play_end=self->priv->length;
         bt_sequence_limit_play_pos_internal(self);
       }
-      bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case SEQUENCE_LOOP_START: {
       self->priv->loop_start = g_value_get_long(value);
@@ -2335,7 +2334,6 @@ static void bt_sequence_set_property(GObject * const object, const guint propert
       GST_DEBUG("set the loop-start for sequence: %ld",self->priv->loop_start);
       self->priv->play_start=(self->priv->loop_start!=-1)?self->priv->loop_start:0;
       bt_sequence_limit_play_pos_internal(self);
-      bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case SEQUENCE_LOOP_END: {
       self->priv->loop_end = g_value_get_long(value);
@@ -2356,7 +2354,6 @@ static void bt_sequence_set_property(GObject * const object, const guint propert
       GST_DEBUG("set the loop-end for sequence: %ld",self->priv->loop_end);
       self->priv->play_end=(self->priv->loop_end!=-1)?self->priv->loop_end:self->priv->length;
       bt_sequence_limit_play_pos_internal(self);
-      bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

@@ -1,5 +1,11 @@
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	  Move flaging loop related changes to the UI.
+
+2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/main-page-sequence.c:
