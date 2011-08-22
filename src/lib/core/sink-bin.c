@@ -391,6 +391,7 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
       /*"slave-method",2,*/
       /*"provide-clock",FALSE, */
 #if GST_CHECK_VERSION(0,10,24)
+      /* this does not lockup anymore, but does not give us better latencies */
       /*"can-activate-pull",TRUE,*/
 #endif
       NULL);
@@ -1147,7 +1148,7 @@ static void bt_sink_bin_class_init(BtSinkBinClass * klass) {
                                      "master volume prop",
                                      "master volume for the song",
                                      0.0,
-                                     10.0,
+                                     1.0,
                                      1.0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS|GST_PARAM_CONTROLLABLE));
 

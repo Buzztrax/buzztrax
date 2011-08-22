@@ -83,7 +83,7 @@ static GQuark bus_msg_level_caps_changed_quark=0;
 
 static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data);
 static void reset_playback_rate(BtMainToolbar *self);
-static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data);
+static void on_song_volume_changed(GstElement *gain,GParamSpec *arg,gpointer user_data);
 
 //-- the class
 
@@ -567,11 +567,11 @@ static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
 
   // get value from HScale and change volume
   nvalue=volume_slider2real(gtk_range_get_value(GTK_RANGE(self->priv->volume)));
-  g_object_get(self->priv->gain,"volume",&ovalue,NULL);
+  g_object_get(self->priv->gain,"master-volume",&ovalue,NULL);
   if(fabs(nvalue-ovalue)>0.000001) {
     GST_DEBUG("volume-slider has changed : %f->%f",ovalue,nvalue);
     g_signal_handlers_block_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
-    g_object_set(self->priv->gain,"volume",nvalue,NULL);
+    g_object_set(self->priv->gain,"master-volume",nvalue,NULL);
     g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
     bt_edit_application_set_song_unsaved(self->priv->app);
   }
@@ -624,7 +624,7 @@ static gboolean on_song_volume_slider_release_event(GtkWidget *widget, GdkEventB
   return(FALSE);
 }
 
-static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data) {
+static void on_song_volume_changed(GstElement *gain,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gdouble nvalue,ovalue;
 
@@ -632,7 +632,7 @@ static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer u
   g_assert(self->priv->volume);
 
   // get value from Element and change HScale
-  g_object_get(self->priv->gain,"volume",&nvalue,NULL);
+  g_object_get(self->priv->gain,"master-volume",&nvalue,NULL);
   nvalue=volume_real2slider(nvalue);
   ovalue=gtk_range_get_value(GTK_RANGE(self->priv->volume));
   if(fabs(nvalue-ovalue)>0.000001) {
@@ -716,7 +716,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // get the input_level and input_gain properties from audio_sink
     g_object_try_weak_unref(self->priv->gain);
     g_object_try_weak_unref(self->priv->level);
-    g_object_get(self->priv->master,"input-post-level",&self->priv->level,"input-gain",&self->priv->gain,NULL);
+    g_object_get(self->priv->master,"input-post-level",&self->priv->level,"machine",&self->priv->gain,NULL);
     g_object_try_weak_ref(self->priv->gain);
     g_object_try_weak_ref(self->priv->level);
 
@@ -746,7 +746,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_signal_connect(self->priv->volume,"value_changed",G_CALLBACK(on_song_volume_slider_change),(gpointer)self);
     g_signal_connect(self->priv->volume,"button-press-event",G_CALLBACK(on_song_volume_slider_press_event),(gpointer)self);
     g_signal_connect(self->priv->volume,"button-release-event",G_CALLBACK(on_song_volume_slider_release_event),(gpointer)self);
-    g_signal_connect(self->priv->gain ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
+    //g_signal_connect(self->priv->gain ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
+    g_signal_connect(self->priv->gain ,"notify::master-volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
 
     gst_object_unref(self->priv->gain);
     gst_object_unref(self->priv->level);
