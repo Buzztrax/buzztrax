@@ -1702,10 +1702,12 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self,Gst
 static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *object,const gchar *pname,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *table,gulong row,ParamGroup *pg) {
   GtkWidget *label,*widget1,*widget2;
   GType base_type;
+  const gchar *tool_tip_text=g_param_spec_get_blurb(property);
 
   // set parameter name
   label=gtk_label_new(pname);
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_widget_set_tooltip_text(label,tool_tip_text);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, row, row+1, GTK_FILL,GTK_SHRINK, 2,1);
 
   base_type=bt_g_type_get_base_type(property->value_type);
@@ -1813,12 +1815,12 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
     } break;
   }
 
-  gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
+  gtk_widget_set_tooltip_text(widget1,tool_tip_text);
   if(!widget2) {
     gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, row, row+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   }
   else {
-    gtk_widget_set_tooltip_text(widget2,g_param_spec_get_blurb(property));
+    gtk_widget_set_tooltip_text(widget2,tool_tip_text);
     gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, row, row+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
     /* @todo how can we avoid the wobble here?
      * hack would be to set some 'good' default size

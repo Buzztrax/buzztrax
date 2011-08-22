@@ -290,6 +290,7 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
   // get machine properties
   if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machine)),&number_of_properties))) {
     gchar *signal_name;
+    gchar *tool_tip_text;
     GType param_type,base_type;
 
     GST_INFO("machine has %d properties",number_of_properties);
@@ -316,9 +317,12 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
         if(skip_property(machine,property)) continue;
 
         GST_INFO("property %p has name '%s'",property,property->name);
+        tool_tip_text=(gchar *)g_param_spec_get_blurb(property);
+
         // get name
         label=gtk_label_new(property->name);
         gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+        gtk_widget_set_tooltip_text(label,tool_tip_text);
         gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
 
         param_type=property->value_type;
@@ -437,12 +441,12 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             widget2=NULL;
           }
         }
-        gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
+        gtk_widget_set_tooltip_text(widget1,tool_tip_text);
         if(!widget2) {
           gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
         }
         else {
-          gtk_widget_set_tooltip_text(widget2,g_param_spec_get_blurb(property));
+          gtk_widget_set_tooltip_text(widget2,tool_tip_text);
           gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
           gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
         }
