@@ -229,11 +229,14 @@ static gboolean skip_property(GstElement *element,GParamSpec *pspec) {
   else if(pspec->owner_type==GST_TYPE_BASE_SRC) return(TRUE);
   else if(pspec->owner_type==GST_TYPE_BASE_TRANSFORM) return(TRUE);
   else if(pspec->owner_type==GST_TYPE_BASE_SINK) return(TRUE);
+  else if(pspec->owner_type==GST_TYPE_BIN) return(TRUE);
   // skip know interface properties (tempo, childbin)
   else if(pspec->owner_type==GSTBT_TYPE_CHILD_BIN) return(TRUE);
   else if(pspec->owner_type==GSTBT_TYPE_HELP) return(TRUE);
   else if(pspec->owner_type==GSTBT_TYPE_TEMPO) return(TRUE);
-
+  // skip properties that we ev. should remove
+  else if(!strncmp(pspec->name,"samplesperbuffer\0",17)) return(TRUE);
+  
   GST_INFO("property: %s, owner-type: %s",pspec->name,g_type_name(pspec->owner_type));
 
   return(FALSE);

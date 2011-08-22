@@ -1,5 +1,11 @@
 2011-08-22  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-preferences-dialog.c:
+	  Update the skip_property filter to hide more stuff from base classes
+	  and interfaces.
+
+2011-08-22  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-bin.c:
 	* src/ui/edit/main-toolbar.c:
 	  Fix master-volume synch between toolbar and master properties window.
