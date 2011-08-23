@@ -54,8 +54,7 @@ enum
   PROP_0,
   PROP_CAPS,
   PROP_DATA,
-  PROP_LENGTH,
-  PROP_SAMPLES_PER_BUFFER
+  PROP_LENGTH
 };
 
 
@@ -129,11 +128,6 @@ bt_memory_audio_src_class_init (BtMemoryAudioSrcClass * klass)
          "Length of the sample in number of samples",
          0, G_MAXLONG, 0,
          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  g_object_class_install_property(gobject_class, PROP_SAMPLES_PER_BUFFER,
-      g_param_spec_int("samplesperbuffer", "Samples per buffer",
-          "Number of samples in each outgoing buffer",
-          1, G_MAXINT, 1024,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   gstbasesrc_class->get_caps = GST_DEBUG_FUNCPTR (bt_memory_audio_src_get_caps);
   gstbasesrc_class->is_seekable = GST_DEBUG_FUNCPTR (bt_memory_audio_src_is_seekable);
@@ -411,9 +405,6 @@ bt_memory_audio_src_set_property (GObject * object, guint prop_id,
     case PROP_LENGTH:
       src->length = g_value_get_ulong(value);
       break;
-    case PROP_SAMPLES_PER_BUFFER:
-      src->samples_per_buffer = g_value_get_int(value);
-      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -435,9 +426,6 @@ bt_memory_audio_src_get_property (GObject * object, guint prop_id,
       break;
     case PROP_LENGTH:
       g_value_set_ulong(value, src->length);
-      break;
-    case PROP_SAMPLES_PER_BUFFER:
-      g_value_set_int(value, src->samples_per_buffer);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

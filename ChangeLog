@@ -1,3 +1,11 @@
+2011-08-23  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/btmemoryaudiosrc.c:
+	  Remove "samplesperbuffer" property - not used.
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	  No more need to supress "samplesperbuffer" properties.
+
 2011-08-22  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c:
