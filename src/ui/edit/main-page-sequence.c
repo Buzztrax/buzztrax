@@ -510,22 +510,6 @@ static gboolean sequence_view_get_current_pos(const BtMainPageSequence *self,gul
   return(res);
 }
 
-/*
-static gboolean sequence_model_get_iter_by_position(GtkTreeModel *store,GtkTreeIter *iter,gulong that_pos) {
-  gulong this_pos;
-  gboolean found=FALSE;
-
-  gtk_tree_model_get_iter_first(store,iter);
-  do {
-    gtk_tree_model_get(store,iter,BT_SEQUENCE_GRID_MODEL_POS,&this_pos,-1);
-    if(this_pos==that_pos) {
-      found=TRUE;break;
-    }
-  } while(gtk_tree_model_iter_next(store,iter));
-  return(found);
-}
-*/
-
 static GtkTreeModel *sequence_model_get_store(const BtMainPageSequence *self) {
   GtkTreeModel *store=NULL;
   GtkTreeModelFilter *filtered_store;
@@ -560,6 +544,18 @@ static void sequence_calculate_visible_lines(const BtMainPageSequence *self) {
   GST_INFO("visible_rows=%lu = %lu / %lu",visible_rows,sequence_length,self->priv->bars);
   g_object_set(self->priv->sequence_table,"visible-rows",visible_rows,"loop-start",loop_start,"loop-end",loop_end,NULL);
   g_object_set(self->priv->sequence_pos_table,"visible-rows",visible_rows,"loop-start",loop_start,"loop-end",loop_end,NULL);
+}
+
+static void sequence_update_model_length(const BtMainPageSequence *self) {
+  GtkTreeModelFilter *filtered_store;
+  
+  if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
+    BtSequenceGridModel *store=BT_SEQUENCE_GRID_MODEL(gtk_tree_model_filter_get_model(filtered_store));
+
+    g_object_set(store,"length",self->priv->sequence_length,NULL);
+    // somehow the treemodel filter doe not get the new rows otherwise
+    gtk_tree_model_filter_refilter(filtered_store);
+  }
 }
 
 //-- gtk helpers
@@ -1033,6 +1029,7 @@ static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar
         	new_length=pos+self->priv->bars;
           g_object_set(self->priv->sequence,"length",new_length,NULL);
           sequence_calculate_visible_lines(self);
+          sequence_update_model_length(self);
         }
         bt_sequence_set_label(self->priv->sequence,pos,new_text);
         
@@ -1091,6 +1088,7 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
   gtk_combo_box_set_focus_on_click(self->priv->pos_menu,FALSE);
   gtk_combo_box_append_text(self->priv->pos_menu,_("Ticks"));
   gtk_combo_box_append_text(self->priv->pos_menu,_("Time"));
+  gtk_combo_box_append_text(self->priv->pos_menu,_("Beats"));
   gtk_combo_box_set_active(self->priv->pos_menu,self->priv->pos_format);
   gtk_box_pack_start(GTK_BOX(self->priv->pos_header),GTK_WIDGET(self->priv->pos_menu),TRUE,TRUE,0);
   //gtk_widget_set_size_request(self->priv->pos_header,POSITION_CELL_WIDTH,-1);
@@ -2176,17 +2174,9 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
 
       // do we need to extend sequence?
       if(cursor_row>=last_bar) {
-        GtkTreeModelFilter *filtered_store;
-        BtSequenceGridModel *store;
-
         self->priv->sequence_length+=self->priv->bars;
+        sequence_update_model_length(self);
 
-        store=BT_SEQUENCE_GRID_MODEL(sequence_model_get_store(self));
-        g_object_set(store,"length",self->priv->sequence_length,NULL);
-
-        if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
-          gtk_tree_model_filter_refilter(filtered_store);
-        }
         gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
         gtk_widget_grab_focus_savely(GTK_WIDGET(self->priv->sequence_table));
       }
@@ -2452,7 +2442,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         sequence_range_copy(self,track,track,row,sequence_length-1,new_data);
         sequence_range_log_undo_redo(self,track,track,row,sequence_length-1,old_data->str,new_data->str);
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
-        // reinit the view
         res=TRUE;
       }
       else if(modifier==GDK_SHIFT_MASK) {
@@ -2477,7 +2466,9 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         self->priv->sequence_length+=self->priv->bars;
+        // udpate the view
         sequence_calculate_visible_lines(self);
+        sequence_update_model_length(self);
         res=TRUE;
       }
     }
@@ -2517,8 +2508,9 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         self->priv->sequence_length-=self->priv->bars;
-        // reinit the view
+        // update the view
         sequence_calculate_visible_lines(self);
+        sequence_update_model_length(self);
         res=TRUE;
       }
     }

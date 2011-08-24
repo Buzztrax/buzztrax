@@ -74,6 +74,7 @@ struct _BtSequenceGridModelPrivate {
   
   BtSequenceGridModelPosFormat pos_format;
   gulong bars;
+  gulong ticks_per_beat;
   
   GType param_types[N_COLUMNS];
   gulong length, tracks;
@@ -88,6 +89,7 @@ GType bt_sequence_grid_model_pos_format_get_type(void) {
     static const GEnumValue values[] = {
       { BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS,"BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS","ticks" },
       { BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME, "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME", "time"  },
+      { BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS, "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS", "beats"  },
       { 0, NULL, NULL},
     };
     type = g_enum_register_static("BtSequenceGridModelPosFormat", values);
@@ -115,6 +117,7 @@ static gchar *format_position(const BtSequenceGridModel *model,gulong pos) {
       break;
     case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME: {
       gulong msec,sec,min;
+      // this is cached in sequence and properly updated
       const GstClockTime bar_time=bt_sequence_get_bar_time(model->priv->sequence);
 
       msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
@@ -122,6 +125,20 @@ static gchar *format_position(const BtSequenceGridModel *model,gulong pos) {
       sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
       g_sprintf(pos_str,"%02lu:%02lu.%03lu",min,sec,msec);
     } break;
+    case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS: {
+      gulong beat, tick;
+      gint tick_chars;
+
+      beat=pos/model->priv->ticks_per_beat;
+      tick=pos-(beat*model->priv->ticks_per_beat);
+      if(model->priv->ticks_per_beat>=100)
+        tick_chars=3;
+      else if(model->priv->ticks_per_beat>=10)
+        tick_chars=2;
+      else
+        tick_chars=1;
+      g_sprintf(pos_str,"%lu.%0*lu",beat,tick_chars,tick);
+    } break; 
     default:
       *pos_str='\0';
       GST_WARNING("unimplemented time format %d",model->priv->pos_format);
@@ -215,6 +232,13 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   }
 }
 
+static void on_song_info_tpb_changed(BtSongInfo *song_info,GParamSpec *arg,gpointer user_data) {
+  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
+  
+  g_object_get(song_info,"tpb",&model->priv->ticks_per_beat,NULL);
+  bt_sequence_grid_model_all_rows_changed(model);
+}
+
 static void on_sequence_length_changed(BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
   BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
   gulong old_length=model->priv->length;
@@ -264,6 +288,8 @@ static void on_sequence_pattern_removed(BtSequence *sequence,BtPattern *pattern,
 
 BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence,gulong bars) {
   BtSequenceGridModel *self;
+  BtSong *song;
+  BtSongInfo *song_info;
 
   self=g_object_new(BT_TYPE_SEQUENCE_GRID_MODEL, NULL);
 
@@ -280,6 +306,13 @@ BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence,gulong bars
   // add enough rows for current length
   on_sequence_tracks_changed(sequence,NULL,(gpointer)self);
   on_sequence_length_changed(sequence,NULL,(gpointer)self);
+  
+  g_object_get(sequence,"song",&song,NULL);
+  g_object_get(song,"song-info",&song_info,NULL);
+  g_object_get(song_info,"tpb",&self->priv->ticks_per_beat,NULL);
+  g_signal_connect(song_info,"notify::tpb",G_CALLBACK(on_song_info_tpb_changed),(gpointer)self);
+  g_object_unref(song_info);
+  g_object_unref(song);  
 
   // follow sequence grid size changes
   g_signal_connect(sequence,"notify::length",G_CALLBACK(on_sequence_length_changed),(gpointer)self);
