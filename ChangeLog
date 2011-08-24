@@ -1,5 +1,16 @@
 2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	  Docuemnt the pos-format and label switcher header columns.
+
+2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Fix sequence length updates. Before the cursor could get stuck at the
+	  end and not be able to expand.
+
+2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-list-model.c:
 	  Fix null ptr access.
 

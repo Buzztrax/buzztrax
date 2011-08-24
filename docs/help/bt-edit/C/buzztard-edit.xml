@@ -759,6 +759,11 @@ i o p</keycap></screen></entry>
         sink) and a level-meter.
       </para>
       <para>
+        The sequence header for the label column offers shortcuts to jump to the
+        selected label. The header for the position column contain a selector
+        for the prefered position format.
+      </para>
+      <para>
         The context menu allow to add or remove tracks, move tracks left or
         right and open the machine <link linkend="bt-edit-dialog-machine-properties">properties</link>/
         <link linkend="bt-edit-dialog-machine-preferences">preferences</link> for the current track.
