@@ -1135,7 +1135,7 @@ static void _flip_column(const BtPattern * const self, const gulong start_tick, 
     property=bt_machine_get_voice_param_spec(self->priv->machine,
       (param-self->priv->global_params)%self->priv->voice_params);
   }
-  base_type=bt_g_type_get_base_type(property->value_type);
+  base_type=property->value_type;
 
   GST_INFO("flipping gvalue type %s",G_VALUE_TYPE_NAME(base_type));
 
@@ -1581,6 +1581,8 @@ static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPers
   }
   xmlFree(id);xmlFree(name);xmlFree(length_str);
 
+  GST_DEBUG("PERSISTENCE::pattern loading data");
+
   // load pattern data
   for(node=node->children;node;node=node->next) {
     if((!xmlNodeIsText(node)) && (!strncmp((gchar *)node->name,"tick\0",5))) {
@@ -1591,7 +1593,7 @@ static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPers
         if(!xmlNodeIsText(child_node)) {
           name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
           value=xmlGetProp(child_node,XML_CHAR_PTR("value"));
-          //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
+          //GST_LOG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
           if(!strncmp((char *)child_node->name,"globaldata\0",11)) {
             param=bt_pattern_get_global_param_index(self,(gchar *)name,&error);
             if(!error) {

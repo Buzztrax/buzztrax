@@ -692,7 +692,7 @@ static void _flip_column(const BtWirePattern * const self, const gulong start_ti
   GValue tmp={0,};
 
 	property=bt_wire_get_param_spec(self->priv->wire, param);
-  base_type=bt_g_type_get_base_type(property->value_type);
+  base_type=property->value_type;
 
   GST_INFO("flipping gvalue type %s",G_VALUE_TYPE_NAME(base_type));
   

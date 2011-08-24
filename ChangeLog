@@ -1,5 +1,11 @@
 2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire-pattern.c:
+	  Fix GValue type for flip operation.
+
+2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/buzztard-edit.xml:
 	  Mention note-off key (1) in manual.
 
