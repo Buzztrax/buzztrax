@@ -874,8 +874,6 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
    */
 
   const gdouble ticks_per_minute=(gdouble)(beats_per_minute*ticks_per_beat);
-  //self->priv->wait_per_position=((GST_SECOND*60)/(GstClockTime)ticks_per_minute);
-  //self->priv->wait_per_position=(GST_SECOND*60.0)/ticks_per_minute;
   self->priv->wait_per_position=(GstClockTime)(0.5+((GST_SECOND*60.0)/ticks_per_minute));
 
   // release the references
@@ -1978,7 +1976,7 @@ void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong ti
  * bt_sequence_update_tempo:
  * @self: the sequence
  *
- * Refresh sequence after tempo changes.
+ * Refresh sequence after tempo changes. Called from #BtSongInfo.
  */
 void bt_sequence_update_tempo(const BtSequence * const self) {
   g_return_if_fail(BT_IS_SEQUENCE(self));

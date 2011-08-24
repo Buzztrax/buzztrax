@@ -1,7 +1,12 @@
 2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/sequence.c:
+	  Add comments. Remove commented out code.
+
+2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/buzztard-edit.xml:
-	  Docuemnt the pos-format and label switcher header columns.
+	  Document the pos-format and label switcher header columns.
 
 2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
 
