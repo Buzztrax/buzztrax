@@ -1,5 +1,10 @@
 2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/song-info.c:
+	  Improve description.
+
+2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/sequence-grid-model.c:
 	* src/ui/edit/sequence-grid-model.h:

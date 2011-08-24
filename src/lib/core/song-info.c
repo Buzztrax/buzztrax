@@ -582,7 +582,7 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
   g_object_class_install_property(gobject_class,SONG_INFO_TPB,
                                   g_param_spec_ulong("tpb",
                                      "tpb prop",
-                                     "how many event fire in one fraction of a beat",
+                                     "event granularity in one beat",
                                      1,
                                      128,
                                      4,
