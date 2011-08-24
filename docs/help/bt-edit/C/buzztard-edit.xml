@@ -626,6 +626,11 @@ i o p</keycap></screen></entry>
               <entry>notes from two octaves above the base octave</entry>
             </row>
             <row>
+              <entry>note off</entry>
+              <entry><keycap>1</keycap></entry>
+              <entry>turns a playing note off</entry>
+            </row>
+            <row>
               <entry>clear value</entry>
               <entry><keycap>. (period)</keycap></entry>
               <entry>clears the field under the cursor</entry>
