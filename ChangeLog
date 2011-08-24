@@ -1,5 +1,10 @@
 2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-list-model.c:
+	  Fix null ptr access.
+
+2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/pattern.c:
 	* src/lib/core/wire-pattern.c:
 	  Fix GValue type for flip operation.

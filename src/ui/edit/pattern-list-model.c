@@ -368,6 +368,7 @@ static void bt_pattern_list_model_tree_model_get_value(GtkTreeModel *tree_model,
   g_return_if_fail(column<N_COLUMNS);
 
   g_value_init(value,model->priv->param_types[column]);
+
   if((pattern=g_sequence_get(iter->user_data))) {
 
     switch(column) {
@@ -381,7 +382,7 @@ static void bt_pattern_list_model_tree_model_get_value(GtkTreeModel *tree_model,
           /* treat internal patterns as always used */
           g_object_get(pattern,"is-internal",&is_used,NULL);
         }
-        if(!is_used) {
+        if(!is_used && model->priv->sequence) {
           is_used=bt_sequence_is_pattern_used(model->priv->sequence,pattern);
         }
         g_value_set_boolean(value,is_used);
@@ -394,7 +395,7 @@ static void bt_pattern_list_model_tree_model_get_value(GtkTreeModel *tree_model,
           /* treat internal patterns as always used */
           g_object_get(pattern,"is-internal",&is_used,NULL);
         }
-        if(!is_used) {
+        if(!is_used && model->priv->sequence) {
           is_used=bt_sequence_is_pattern_used(model->priv->sequence,pattern);
         }
         g_value_set_boolean(value,!is_used);
