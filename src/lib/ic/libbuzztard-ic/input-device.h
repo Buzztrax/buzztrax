@@ -49,13 +49,12 @@ struct _BtIcInputDevice {
   /*< private >*/
   BtIcInputDevicePrivate *priv;
 };
-/* structure of the registry class */
+
 struct _BtIcInputDeviceClass {
   const BtIcDeviceClass parent;
   
 };
 
-/* used by INPUTE_DEVICE_TYPE */
 GType btic_input_device_get_type(void) G_GNUC_CONST;
 
 BtIcInputDevice *btic_input_device_new(const gchar *udi,const gchar *name,const gchar *devnode);

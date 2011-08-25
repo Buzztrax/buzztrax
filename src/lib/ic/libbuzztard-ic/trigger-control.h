@@ -52,13 +52,12 @@ struct _BtIcTriggerControl {
   /*< private >*/
   BtIcTriggerControlPrivate *priv;
 };
-/* structure of the control class */
+
 struct _BtIcTriggerControlClass {
   const BtIcControlClass parent;
 
 };
 
-/* used by DEVICE_TYPE */
 GType btic_trigger_control_get_type(void) G_GNUC_CONST;
 
 BtIcTriggerControl *btic_trigger_control_new(const BtIcDevice *device,const gchar *name,guint id);

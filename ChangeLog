@@ -1,5 +1,19 @@
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/ic/libbuzztard-ic/abs-range-control.h:
+	* src/lib/ic/libbuzztard-ic/control.h:
+	* src/lib/ic/libbuzztard-ic/device.h:
+	* src/lib/ic/libbuzztard-ic/gudev-discoverer.h:
+	* src/lib/ic/libbuzztard-ic/hal-discoverer.h:
+	* src/lib/ic/libbuzztard-ic/ic.h:
+	* src/lib/ic/libbuzztard-ic/input-device.h:
+	* src/lib/ic/libbuzztard-ic/midi-device.h:
+	* src/lib/ic/libbuzztard-ic/registry.h:
+	* src/lib/ic/libbuzztard-ic/trigger-control.h:
+	  Remove some less helpful comments.
+
+2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core/song-io-native.h:
 	  Re-add extern in one place.
 

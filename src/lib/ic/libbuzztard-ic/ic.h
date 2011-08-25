@@ -30,8 +30,6 @@
 #include <gst/gst.h>
 
 //-- libbtic
-// method prototype includes do include the data defs themself
-
 #include "control.h"
 #include "abs-range-control.h"
 #include "trigger-control.h"

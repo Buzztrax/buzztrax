@@ -51,13 +51,12 @@ struct _BtIcRegistry {
   /*< private >*/
   BtIcRegistryPrivate *priv;
 };
-/* structure of the registry class */
+
 struct _BtIcRegistryClass {
   const GObjectClass parent;
   
 };
 
-/* used by REGISTRY_TYPE */
 GType btic_registry_get_type(void) G_GNUC_CONST;
 
 BtIcRegistry *btic_registry_new(void);

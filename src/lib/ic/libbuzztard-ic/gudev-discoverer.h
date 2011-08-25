@@ -54,7 +54,6 @@ struct _BtIcGudevDiscovererClass {
 
 };
 
-/* used by GUDEV_DISCOVERER_TYPE */
 GType btic_gudev_discoverer_get_type(void) G_GNUC_CONST;
 
 BtIcGudevDiscoverer *btic_gudev_discoverer_new(void);

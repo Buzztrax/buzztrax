@@ -51,13 +51,12 @@ struct _BtIcMidiDevice {
   /*< private >*/
   BtIcMidiDevicePrivate *priv;
 };
-/* structure of the registry class */
+
 struct _BtIcMidiDeviceClass {
   const BtIcDeviceClass parent;
   
 };
 
-/* used by INPUTE_DEVICE_TYPE */
 GType btic_midi_device_get_type(void) G_GNUC_CONST;
 
 BtIcMidiDevice *btic_midi_device_new(const gchar *udi,const gchar *name,const gchar *devnode);

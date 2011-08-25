@@ -91,7 +91,6 @@ struct _BtIcDeviceClass {
   btic_device_virtual_stop stop;
 };
 
-/* used by DEVICE_TYPE */
 GType btic_device_get_type(void) G_GNUC_CONST;
 
 void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control);

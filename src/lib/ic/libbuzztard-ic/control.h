@@ -49,13 +49,12 @@ struct _BtIcControl {
   /*< private >*/
   BtIcControlPrivate *priv;
 };
-/* structure of the control class */
+
 struct _BtIcControlClass {
   const GObjectClass parent;
 
 };
 
-/* used by DEVICE_TYPE */
 GType btic_control_get_type(void) G_GNUC_CONST;
 
 #endif // BTIC_CONTROL_H
