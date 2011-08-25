@@ -1,5 +1,10 @@
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/Makefile.am:
+	  Skip one more header.
+
+2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/Makefile.am:
 	* src/lib/core/libbuzztard-core/Makefile.am:
 	* src/lib/core/libbuzztard-core/application.h:
