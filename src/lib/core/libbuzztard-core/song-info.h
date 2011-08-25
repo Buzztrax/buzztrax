@@ -49,12 +49,13 @@ struct _BtSongInfo {
   /*< private >*/
   BtSongInfoPrivate *priv;
 };
-/* structure of the SongInfo class */
+
 struct _BtSongInfoClass {
   const GObjectClass parent;
 };
 
-/* used by SONG_INFO_TYPE */
 GType bt_song_info_get_type(void) G_GNUC_CONST;
+
+BtSongInfo *bt_song_info_new(const BtSong * const song);
 
 #endif // BT_SONG_INFO_H

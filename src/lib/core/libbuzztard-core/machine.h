@@ -24,7 +24,8 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include "pattern.h"
+
+#include <libbuzztard-ic/ic.h>
 
 #define BT_TYPE_MACHINE            (bt_machine_get_type ())
 #define BT_MACHINE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE, BtMachine))
@@ -59,7 +60,6 @@ struct _BtMachine {
   BtMachinePrivate *priv;
 };
 
-/* structure of the machine class */
 struct _BtMachineClass {
   const GstBinClass parent;
 
@@ -89,9 +89,105 @@ typedef enum {
   BT_MACHINE_STATE_COUNT
 } BtMachineState;
 
-/* used by MACHINE_TYPE */
 GType bt_machine_get_type(void) G_GNUC_CONST;
-/* used by MACHINE_STATE_TYPE */
 GType bt_machine_state_get_type(void) G_GNUC_CONST;
+
+gboolean bt_machine_enable_input_pre_level(BtMachine * const self);
+gboolean bt_machine_enable_input_post_level(BtMachine * const self);
+gboolean bt_machine_enable_output_pre_level(BtMachine * const self);
+gboolean bt_machine_enable_output_post_level(BtMachine * const self);
+gboolean bt_machine_enable_input_gain(BtMachine * const self);
+gboolean bt_machine_enable_output_gain(BtMachine * const self);
+
+gboolean bt_machine_activate_adder(BtMachine * const self);
+gboolean bt_machine_has_active_adder(const BtMachine * const self);
+gboolean bt_machine_activate_spreader(BtMachine * const self);
+gboolean bt_machine_has_active_spreader(const BtMachine * const self);
+
+// pattern handling
+
+#include "pattern.h"
+#include "wire.h"
+
+void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);
+void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern);
+
+BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
+BtPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name);
+BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
+
+gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self);
+gboolean bt_machine_has_patterns(const BtMachine * const self);
+
+// global and voice param handling
+
+gboolean bt_machine_is_polyphonic(const BtMachine * const self);
+
+gboolean bt_machine_is_global_param_trigger(const BtMachine * const self, const gulong index);
+gboolean bt_machine_is_voice_param_trigger(const BtMachine * const self, const gulong index);
+
+gboolean bt_machine_is_global_param_no_value(const BtMachine * const self, const gulong index, GValue * const value);
+gboolean bt_machine_is_voice_param_no_value(const BtMachine *const self, const gulong index, GValue * const value);
+
+GValue *bt_machine_get_global_param_no_value(const BtMachine * const self, const gulong index);
+GValue *bt_machine_get_voice_param_no_value(const BtMachine * const self, const gulong index);
+
+glong bt_machine_get_global_wave_param_index(const BtMachine * const self);
+glong bt_machine_get_voice_wave_param_index(const BtMachine * const self);
+
+void bt_machine_set_global_param_default(const BtMachine * const self, const gulong index);
+void bt_machine_set_voice_param_default(const BtMachine * const self, const gulong voice, const gulong index);
+void bt_machine_set_param_defaults(const BtMachine *const self);
+
+glong bt_machine_get_global_param_index(const BtMachine * const self, const gchar * const name, GError **error);
+glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar * const name, GError **error);
+
+GParamSpec *bt_machine_get_global_param_spec(const BtMachine * const self, const gulong index);
+GParamSpec *bt_machine_get_voice_param_spec(const BtMachine * const self, const gulong index);
+
+void bt_machine_get_global_param_details(const BtMachine * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
+void bt_machine_get_voice_param_details(const BtMachine * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
+
+GType bt_machine_get_global_param_type(const BtMachine * const self, const gulong index);
+GType bt_machine_get_voice_param_type(const BtMachine * const self, const gulong index);
+
+void bt_machine_set_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
+void bt_machine_set_voice_param_value(const BtMachine * const self, const gulong voice, const gulong index, GValue * const event);
+
+const gchar *bt_machine_get_global_param_name(const BtMachine * const self, const gulong index);
+const gchar *bt_machine_get_voice_param_name(const BtMachine * const self, const gulong index);
+
+gchar *bt_machine_describe_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
+gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const gulong index, GValue * const event);
+
+// controller handling
+
+void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue *value);
+void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong voice, const gulong param, const GstClockTime timestamp, GValue *value);
+
+//-- interaction control
+
+void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control);
+void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const char *property_name);
+void bt_machine_unbind_parameter_controls(const BtMachine * const self);
+
+//-- settings
+
+void bt_machine_randomize_parameters(const BtMachine * const self);
+void bt_machine_reset_parameters(const BtMachine * const self) ;
+
+//-- linking
+
+BtWire *bt_machine_get_wire_by_dst_machine(const BtMachine * const self, const BtMachine * const dst);
+
+//-- debug helper
+
+GList *bt_machine_get_element_list(const BtMachine * const self);
+void bt_machine_dbg_print_parts(const BtMachine * const self);
+#if 0
+void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self);
+void bt_machine_dbg_dump_voice_controller_queue(const BtMachine * const self);
+#endif
+
 
 #endif // BT_MACHINE_H

@@ -49,12 +49,23 @@ struct _BtWavetable {
   /*< private >*/
   BtWavetablePrivate *priv;
 };
-/* structure of the setup class */
+
 struct _BtWavetableClass {
   const GObjectClass parent;
 };
 
-/* used by WAVETABLE_TYPE */
 GType bt_wavetable_get_type(void) G_GNUC_CONST;
+
+#include "song.h"
+#include "wave.h"
+
+BtWavetable *bt_wavetable_new(const BtSong * const song);
+
+gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * const wave);
+gboolean bt_wavetable_remove_wave(const BtWavetable * const self, const BtWave * const wave);
+
+BtWave *bt_wavetable_get_wave_by_index(const BtWavetable * const self, const gulong index);
+
+void bt_wavetable_remember_missing_wave(const BtWavetable * const self, const gchar * const str);
 
 #endif // BT_WAVETABLE_H

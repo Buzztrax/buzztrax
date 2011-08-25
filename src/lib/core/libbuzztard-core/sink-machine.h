@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "machine.h"
+
 #define BT_TYPE_SINK_MACHINE            (bt_sink_machine_get_type ())
 #define BT_SINK_MACHINE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SINK_MACHINE, BtSinkMachine))
 #define BT_SINK_MACHINE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SINK_MACHINE, BtSinkMachineClass))
@@ -46,13 +48,10 @@ typedef struct _BtSinkMachineClass BtSinkMachineClass;
 struct _BtSinkMachine {
   const BtMachine parent;
 };
-/* structure of the sink_machine class */
+
 struct _BtSinkMachineClass {
   const BtMachineClass parent;
 };
-
-/* used by SINK_MACHINE_TYPE */
-GType bt_sink_machine_get_type(void) G_GNUC_CONST;
 
 /**
  * BtSinkMachinePatternIndex:
@@ -67,5 +66,9 @@ typedef enum {
   BT_SINK_MACHINE_PATTERN_INDEX_MUTE,
   BT_SINK_MACHINE_PATTERN_INDEX_OFFSET
 } BtSinkMachinePatternIndex;
+
+GType bt_sink_machine_get_type(void) G_GNUC_CONST;
+
+BtSinkMachine *bt_sink_machine_new(const BtSong * const song, const gchar * const id, GError **err);
 
 #endif // BT_SINK_MACHINE_H

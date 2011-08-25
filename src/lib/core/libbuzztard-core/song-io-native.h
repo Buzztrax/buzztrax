@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "song-io.h"
+
 #define BT_TYPE_SONG_IO_NATIVE            (bt_song_io_native_get_type ())
 #define BT_SONG_IO_NATIVE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_IO_NATIVE, BtSongIONative))
 #define BT_SONG_IO_NATIVE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_IO_NATIVE, BtSongIONativeClass))
@@ -57,7 +59,8 @@ struct _BtSongIONativeClass {
   /*< private >*/
 };
 
-/* used by SONG_IO_NATIVE_TYPE */
 GType bt_song_io_native_get_type(void) G_GNUC_CONST;
+
+BtSongIOModuleInfo bt_song_io_native_module_info;
 
 #endif // BT_SONG_IO_NATIVE_H

@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "settings.h"
+
 #define BT_TYPE_GCONF_SETTINGS            (bt_gconf_settings_get_type ())
 #define BT_GCONF_SETTINGS(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_GCONF_SETTINGS, BtGConfSettings))
 #define BT_GCONF_SETTINGS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_GCONF_SETTINGS, BtGConfSettingsClass))
@@ -49,13 +51,14 @@ struct _BtGConfSettings {
   /*< private >*/
   BtGConfSettingsPrivate *priv;
 };
-/* structure of the gconf-settings class */
+
 struct _BtGConfSettingsClass {
   const BtSettingsClass parent;
   
 };
 
-/* used by GCONF_SETTINGS_TYPE */
 GType bt_gconf_settings_get_type(void) G_GNUC_CONST;
+
+BtGConfSettings *bt_gconf_settings_new(void);
 
 #endif // BT_GCONF_SETTINGS_H

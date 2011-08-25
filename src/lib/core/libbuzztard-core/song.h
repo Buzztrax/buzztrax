@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "application.h"
+
 #define BT_TYPE_SONG            (bt_song_get_type ())
 #define BT_SONG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG, BtSong))
 #define BT_SONG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG, BtSongClass))
@@ -63,7 +65,20 @@ struct _BtSongClass {
   /*< private >*/
 };
 
-/* used by SONG_TYPE */
 GType bt_song_get_type(void) G_GNUC_CONST;
+
+BtSong *bt_song_new(const BtApplication * const app);
+
+gboolean bt_song_play(const BtSong * const self);
+gboolean bt_song_stop(const BtSong * const self);
+gboolean bt_song_pause(const BtSong * const self);
+gboolean bt_song_continue(const BtSong * const self);
+
+gboolean bt_song_update_playback_position(const BtSong * const self);
+
+// for debugging
+void bt_song_write_to_xml_file(const BtSong * const self);
+void bt_song_write_to_highlevel_dot_file(const BtSong * const self);
+void bt_song_write_to_lowlevel_dot_file(const BtSong * const self);
 
 #endif // BT_SONG_H

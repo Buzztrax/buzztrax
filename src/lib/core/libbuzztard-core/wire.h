@@ -23,7 +23,6 @@
 #define BT_WIRE_H
 
 #include <gst/gst.h>
-#include "wire-pattern.h"
 
 #define BT_TYPE_WIRE            (bt_wire_get_type ())
 #define BT_WIRE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_WIRE, BtWire))
@@ -50,7 +49,6 @@ struct _BtWire {
   BtWirePrivate *priv;
 };
 
-/* structure of the wire class */
 struct _BtWireClass {
   const GstBinClass parent;
 };
@@ -62,7 +60,27 @@ struct _BtWireClass {
  */
 #define BT_WIRE_MAX_NUM_PARAMS 2
 
-/* used by WIRE_TYPE */
 GType bt_wire_get_type(void) G_GNUC_CONST;
+
+#include "song.h"
+#include "wire-pattern.h"
+
+BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine, GError **err);
+
+gboolean bt_wire_reconnect(BtWire *self);
+
+void bt_wire_add_wire_pattern(const BtWire * const self, const BtPattern * const pattern, const BtWirePattern * const wire_pattern);
+BtWirePattern *bt_wire_get_pattern(const BtWire * const self, const BtPattern * const pattern);
+
+glong bt_wire_get_param_index(const BtWire *const self, const gchar * const name, GError **error);
+GParamSpec *bt_wire_get_param_spec(const BtWire * const self, const gulong index);
+GType bt_wire_get_param_type(const BtWire * const self, const gulong index);
+const gchar *bt_wire_get_param_name(const BtWire * const self, const gulong index);
+void bt_wire_get_param_details(const BtWire * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
+
+void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value);
+
+GList *bt_wire_get_element_list(const BtWire *self);
+void bt_wire_dbg_print_parts(const BtWire *self);
 
 #endif // BT_WIRE_H

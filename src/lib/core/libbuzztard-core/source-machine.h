@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "machine.h"
+
 #define BT_TYPE_SOURCE_MACHINE            (bt_source_machine_get_type ())
 #define BT_SOURCE_MACHINE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SOURCE_MACHINE, BtSourceMachine))
 #define BT_SOURCE_MACHINE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SOURCE_MACHINE, BtSourceMachineClass))
@@ -46,13 +48,10 @@ typedef struct _BtSourceMachineClass BtSourceMachineClass;
 struct _BtSourceMachine {
   const BtMachine parent;
 };
-/* structure of the source_machine class */
+
 struct _BtSourceMachineClass {
   const BtMachineClass parent;
 };
-
-/* used by SOURCE_MACHINE_TYPE */
-GType bt_source_machine_get_type(void) G_GNUC_CONST;
 
 /**
  * BtSourceMachinePatternIndex:
@@ -69,5 +68,9 @@ typedef enum {
   BT_SOURCE_MACHINE_PATTERN_INDEX_SOLO,
   BT_SOURCE_MACHINE_PATTERN_INDEX_OFFSET
 } BtSourceMachinePatternIndex;
+
+GType bt_source_machine_get_type(void) G_GNUC_CONST;
+
+BtSourceMachine *bt_source_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices, GError **err);
 
 #endif // BT_SOURCE_MACHINE_H

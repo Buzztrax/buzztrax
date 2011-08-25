@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "settings.h"
+
 #define BT_TYPE_PLAINFILE_SETTINGS            (bt_plainfile_settings_get_type ())
 #define BT_PLAINFILE_SETTINGS(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PLAINFILE_SETTINGS, BtPlainfileSettings))
 #define BT_PLAINFILE_SETTINGS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PLAINFILE_SETTINGS, BtPlainfileSettingsClass))
@@ -49,13 +51,14 @@ struct _BtPlainfileSettings {
   /*< private >*/
   BtPlainfileSettingsPrivate *priv;
 };
-/* structure of the gconf-settings class */
+
 struct _BtPlainfileSettingsClass {
   const BtSettingsClass parent;
   
 };
 
-/* used by PLAINFILE_SETTINGS_TYPE */
 GType bt_plainfile_settings_get_type(void) G_GNUC_CONST;
+
+BtPlainfileSettings *bt_plainfile_settings_new(void);
 
 #endif // BT_PLAINFILE_SETTINGS_H

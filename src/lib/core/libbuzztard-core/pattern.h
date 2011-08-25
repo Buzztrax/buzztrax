@@ -49,7 +49,7 @@ struct _BtPattern {
   /*< private >*/
   BtPatternPrivate *priv;
 };
-/* structure of the pattern class */
+
 struct _BtPatternClass {
   const GObjectClass parent;
 };
@@ -75,9 +75,52 @@ typedef enum {
   BT_PATTERN_CMD_BYPASS
 } BtPatternCmd;
 
-/* used by PATTERN_TYPE */
 GType bt_pattern_get_type(void) G_GNUC_CONST;
-/* used by PATTERN_CMD_TYPE */
 GType bt_pattern_cmd_get_type(void) G_GNUC_CONST;
+
+#include "machine.h"
+#include "song.h"
+
+BtPattern *bt_pattern_new(const BtSong * const song, const gchar * const id, const gchar * const name, const gulong length, const BtMachine * const machine);
+BtPattern *bt_pattern_new_with_event(const BtSong * const song, const BtMachine * const machine, const BtPatternCmd cmd);
+
+BtPattern *bt_pattern_copy(const BtPattern * const self);
+
+gulong bt_pattern_get_global_param_index(const BtPattern * const self, const gchar * const name, GError **error);
+gulong bt_pattern_get_voice_param_index(const BtPattern * const self, const gchar * const name, GError **error);
+
+GValue *bt_pattern_get_global_event_data(const BtPattern * const self, const gulong tick, const gulong param);
+GValue *bt_pattern_get_voice_event_data(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
+
+gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong tick, const gulong param, const gchar * const value);
+gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param, const gchar * const value);
+gchar *bt_pattern_get_global_event(const BtPattern * const self, const gulong tick, const gulong param);
+gchar *bt_pattern_get_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
+gboolean bt_pattern_test_global_event(const BtPattern * const self, const gulong tick, const gulong param);
+gboolean bt_pattern_test_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
+
+BtPatternCmd bt_pattern_get_cmd(const BtPattern * const self, const gulong tick);
+
+gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tick);
+
+void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param);
+void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick);
+void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, const gulong param);
+void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick);
+
+void bt_pattern_delete_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_pattern_delete_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+
+void bt_pattern_blend_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+void bt_pattern_flip_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_pattern_flip_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+void bt_pattern_randomize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_pattern_randomize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+
+void bt_pattern_serialize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data);
+void bt_pattern_serialize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick, GString *data);
+
+gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, const gchar *data);
 
 #endif /* BT_PATTERN_H */

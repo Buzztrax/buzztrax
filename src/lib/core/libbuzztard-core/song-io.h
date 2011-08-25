@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "song.h"
+
 #define BT_TYPE_SONG_IO             (bt_song_io_get_type ())
 #define BT_SONG_IO(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_IO, BtSongIO))
 #define BT_SONG_IO_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_IO, BtSongIOClass))
@@ -87,9 +89,6 @@ struct _BtSongIOClass {
   bt_song_io_virtual_save save;
 };
 
-/* used by SONG_IO_TYPE */
-GType bt_song_io_get_type(void) G_GNUC_CONST;
-
 /**
  * BtSongIOInit:
  *
@@ -143,5 +142,15 @@ typedef struct {
   BtSongIOInit init;
   BtSongIOFormatInfo formats[BT_SONG_IO_MODULE_INFO_MAX_FORMATS];
 } BtSongIOModuleInfo;
+
+GType bt_song_io_get_type(void) G_GNUC_CONST;
+
+BtSongIO *bt_song_io_from_file(const gchar * const file_name);
+BtSongIO *bt_song_io_from_data(gpointer *data, guint len, const gchar *media_type);
+
+const GList *bt_song_io_get_module_info_list(void);
+
+gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song);
+gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song);
 
 #endif // BT_SONG_IO_H

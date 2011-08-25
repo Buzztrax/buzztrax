@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+
 #include "machine.h"
 #include "wire.h"
 
@@ -52,13 +53,35 @@ struct _BtSetup {
   /*< private >*/
   BtSetupPrivate *priv;
 };
-/* structure of the setup class */
+
 struct _BtSetupClass {
   const GObjectClass parent;
 };
 
-/* used by SETUP_TYPE */
 GType bt_setup_get_type(void) G_GNUC_CONST;
 
+BtSetup *bt_setup_new(const BtSong * const song);
+
+gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * const machine);
+gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire);
+
+void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const machine);
+void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire);
+
+BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * const id);
+BtMachine *bt_setup_get_machine_by_type(const BtSetup * const self, const GType type);
+
+GList *bt_setup_get_machines_by_type(const BtSetup * const self, const GType type);
+
+BtWire *bt_setup_get_wire_by_src_machine(const BtSetup * const self, const BtMachine * const src);
+BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup * const self, const BtMachine * const dst);
+BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachine * const src, const BtMachine * const dst);
+
+GList *bt_setup_get_wires_by_src_machine(const BtSetup * const self, const BtMachine * const src);
+GList *bt_setup_get_wires_by_dst_machine(const BtSetup * const self, const BtMachine * const dst);
+
+gchar *bt_setup_get_unique_machine_id(const BtSetup * const self, const gchar * const base_name);
+
+void bt_setup_remember_missing_machine(const BtSetup * const self, const gchar * const str);
 
 #endif // BT_SETUP_H

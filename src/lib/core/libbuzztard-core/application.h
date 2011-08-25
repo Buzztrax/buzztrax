@@ -49,13 +49,12 @@ struct _BtApplication {
   /*< private >*/
   BtApplicationPrivate *priv;
 };
-/* structure of the application class */
+
 struct _BtApplicationClass {
   const GObjectClass parent;
   
 };
 
-/* used by APPLICATION_TYPE */
 GType bt_application_get_type(void) G_GNUC_CONST;
 
 #endif // BT_APPLICATION_H

@@ -1,3 +1,59 @@
+2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbuzztard-core/Makefile.am:
+	* src/lib/core/libbuzztard-core/application.h:
+	* src/lib/core/libbuzztard-core/childproxy.h:
+	* src/lib/core/libbuzztard-core/core.h:
+	* src/lib/core/libbuzztard-core/gconf-settings.h:
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/pattern.h:
+	* src/lib/core/libbuzztard-core/persistence.h:
+	* src/lib/core/libbuzztard-core/plainfile-settings.h:
+	* src/lib/core/libbuzztard-core/processor-machine.h:
+	* src/lib/core/libbuzztard-core/sequence.h:
+	* src/lib/core/libbuzztard-core/settings.h:
+	* src/lib/core/libbuzztard-core/setup.h:
+	* src/lib/core/libbuzztard-core/sink-machine.h:
+	* src/lib/core/libbuzztard-core/song-info.h:
+	* src/lib/core/libbuzztard-core/song-io-native-bzt.h:
+	* src/lib/core/libbuzztard-core/song-io-native-xml.h:
+	* src/lib/core/libbuzztard-core/song-io-native.h:
+	* src/lib/core/libbuzztard-core/song-io.h:
+	* src/lib/core/libbuzztard-core/song.h:
+	* src/lib/core/libbuzztard-core/source-machine.h:
+	* src/lib/core/libbuzztard-core/wave.h:
+	* src/lib/core/libbuzztard-core/wavelevel.h:
+	* src/lib/core/libbuzztard-core/wavetable.h:
+	* src/lib/core/libbuzztard-core/wire-pattern.h:
+	* src/lib/core/libbuzztard-core/wire.h:
+	* src/lib/core/libbuzztard-core/gconf-settings-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/wavelevel-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/song-io-native-xml-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/song-io-native-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/settings-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/plainfile-settings-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/wave-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/application-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/song-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/wire-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/sink-machine-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/sequence-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/wavetable-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/song-io-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/pattern-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/song-io-native-bzt-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/song-info-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/setup-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/source-machine-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/machine-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/sink-bin-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/processor-machine-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/wire-pattern-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/persistence-methods.h (deleted):
+	* src/lib/core/libbuzztard-core/childproxy-methods.h (deleted):
+	  Get rid of extra header files (part 2).
+
 2011-08-25  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/ic/Makefile.am:

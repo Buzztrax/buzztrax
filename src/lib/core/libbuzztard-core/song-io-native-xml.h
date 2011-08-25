@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "song-io-native.h"
+
 #define BT_TYPE_SONG_IO_NATIVE_XML            (bt_song_io_native_xml_get_type ())
 #define BT_SONG_IO_NATIVE_XML(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_IO_NATIVE_XML, BtSongIONativeXML))
 #define BT_SONG_IO_NATIVE_XML_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_IO_NATIVE_XML, BtSongIONativeXMLClass))
@@ -57,7 +59,6 @@ struct _BtSongIONativeXMLClass {
   /*< private >*/
 };
 
-/* used by SONG_IO_NATIVE_XML_TYPE */
 GType bt_song_io_native_xml_get_type(void) G_GNUC_CONST;
 
 #endif // BT_SONG_IO_NATIVE_XML_H

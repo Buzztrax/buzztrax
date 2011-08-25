@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "machine.h"
+
 #define BT_TYPE_PROCESSOR_MACHINE             (bt_processor_machine_get_type ())
 #define BT_PROCESSOR_MACHINE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachine))
 #define BT_PROCESSOR_MACHINE_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachineClass))
@@ -46,13 +48,10 @@ typedef struct _BtProcessorMachineClass BtProcessorMachineClass;
 struct _BtProcessorMachine {
   const BtMachine parent;
 };
-/* structure of the processor_machine class */
+
 struct _BtProcessorMachineClass {
   const BtMachineClass parent;
 };
-
-/* used by PROCESSOR_MACHINE_TYPE */
-GType bt_processor_machine_get_type(void) G_GNUC_CONST;
 
 /**
  * BtProcessorMachinePatternIndex:
@@ -69,5 +68,9 @@ typedef enum {
   BT_PROCESSOR_MACHINE_PATTERN_INDEX_BYPASS,
   BT_PROCESSOR_MACHINE_PATTERN_INDEX_OFFSET
 } BtProcessorMachinePatternIndex;
+
+GType bt_processor_machine_get_type(void) G_GNUC_CONST;
+
+BtProcessorMachine *bt_processor_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices, GError **err);
 
 #endif // BT_PROCESSOR_MACHINE_H

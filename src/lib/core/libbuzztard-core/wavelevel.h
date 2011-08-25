@@ -50,7 +50,7 @@ struct _BtWavelevel {
   /*< private >*/
   BtWavelevelPrivate *priv;
 };
-/* structure of the setup class */
+
 struct _BtWavelevelClass {
   const GObjectClass parent;
 };
@@ -62,7 +62,11 @@ struct _BtWavelevelClass {
  */
 #define BT_WAVELEVEL_DEFAULT_ROOT_NOTE (1+(4*16))
 
-/* used by WAVELEVEL_TYPE */
 GType bt_wavelevel_get_type(void) G_GNUC_CONST;
+
+#include "song.h"
+#include "wave.h"
+
+BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate, gconstpointer sample);
 
 #endif // BT_WAVELEVEL_H

@@ -60,6 +60,18 @@ struct _BtChildProxyInterface
 
 GType bt_child_proxy_get_type(void) G_GNUC_CONST;
 
+GObject *bt_child_proxy_get_child_by_name(BtChildProxy *parent,const gchar *name);
+GObject *bt_child_proxy_get_child_by_index(BtChildProxy *parent,guint index);
+guint bt_child_proxy_get_children_count(BtChildProxy *parent);
+
+gboolean bt_child_proxy_lookup(GObject *object,const gchar *name,GObject **target,GParamSpec **pspec);
+void bt_child_proxy_get_property(GObject *object,const gchar *name,GValue *value);
+void bt_child_proxy_get_valist(GObject *object,const gchar *first_property_name,va_list var_args);
+void bt_child_proxy_get(gpointer object,const gchar *first_property_name,...) G_GNUC_NULL_TERMINATED;
+void bt_child_proxy_set_property(GObject *object,const gchar *name,const GValue *value);
+void bt_child_proxy_set_valist(GObject *object,const gchar *first_property_name,va_list var_args);
+void bt_child_proxy_set(gpointer object,const gchar *first_property_name,...) G_GNUC_NULL_TERMINATED;
+
 G_END_DECLS
 
 #endif // BT_CHILD_PROXY_H */

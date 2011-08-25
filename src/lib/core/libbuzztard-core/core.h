@@ -47,39 +47,33 @@
 #include <libgstbuzztard/tempo.h>
 
 //-- libbtcore
-// method prototype includes include the data definitions themself
-#include "childproxy-methods.h"
-#include "persistence-methods.h"
+#include "childproxy.h"
+#include "persistence.h"
 
-#include "song-methods.h"
-#include "song-info-methods.h"
-#include "machine-methods.h"
-#include "processor-machine-methods.h"
-#include "sink-machine-methods.h"
-#include "source-machine-methods.h"
-#include "sink-bin-methods.h"
-#include "wire-methods.h"
-#include "wire-pattern-methods.h"
-#include "setup-methods.h"
-#include "pattern-methods.h"
-#include "sequence-methods.h"
-#include "song-io-methods.h"
-#include "song-io-native-methods.h"
-#include "song-io-native-bzt-methods.h"
-#include "song-io-native-xml-methods.h"
-#include "settings-methods.h"
-//#include "plainfile-settings-methods.h"
-#include "application-methods.h"
-#include "wave-methods.h"
-#include "wavelevel-methods.h"
-#include "wavetable-methods.h"
+#include "application.h"
+#include "gconf-settings.h"
+#include "machine.h"
+#include "pattern.h"
+#include "processor-machine.h"
+#include "sequence.h"
+#include "settings.h"
+#include "setup.h"
+#include "sink-bin.h"
+#include "sink-machine.h"
+#include "song-info.h"
+#include "song-io-native-bzt.h"
+#include "song-io-native-xml.h"
+#include "song-io-native.h"
+#include "song-io.h"
+#include "song.h"
+#include "source-machine.h"
+#include "wave.h"
+#include "wavelevel.h"
+#include "wavetable.h"
+#include "wire-pattern.h"
+#include "wire.h"
 
 #include "tools.h"
-
-// this does not hurt if gconf is off, but the 'ifdef breaks the build as we don't include config.h here
-//#ifdef USE_GCONF
-#include "gconf-settings-methods.h"
-//#endif
 
 //-- prototypes ----------------------------------------------------------------
 

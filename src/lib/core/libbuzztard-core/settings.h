@@ -54,7 +54,7 @@ typedef struct _BtSettingsClass BtSettingsClass;
 struct _BtSettings {
   const GObject parent;
 };
-/* structure of the settings class */
+
 struct _BtSettingsClass {
   const GObjectClass parent;
 
@@ -63,7 +63,11 @@ struct _BtSettingsClass {
   //gboolean (*set)(const gpointer self);
 };
 
-/* used by SETTINGS_TYPE */
 GType bt_settings_get_type(void) G_GNUC_CONST;
+
+BtSettings *bt_settings_make(void);
+
+void bt_settings_set_factory(BtSettingsFactory factory);
+gchar *bt_settings_determine_audiosink_name(const BtSettings * const self);
 
 #endif // BT_SETTINGS_H

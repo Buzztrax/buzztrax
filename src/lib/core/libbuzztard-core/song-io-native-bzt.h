@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "song-io-native.h"
+
 #define BT_TYPE_SONG_IO_NATIVE_BZT            (bt_song_io_native_bzt_get_type ())
 #define BT_SONG_IO_NATIVE_BZT(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_IO_NATIVE_BZT, BtSongIONativeBZT))
 #define BT_SONG_IO_NATIVE_BZT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_IO_NATIVE_BZT, BtSongIONativeBZTClass))
@@ -61,7 +63,9 @@ struct _BtSongIONativeBZTClass {
   /*< private >*/
 };
 
-/* used by SONG_IO_NATIVE_BZT_TYPE */
 GType bt_song_io_native_bzt_get_type(void) G_GNUC_CONST;
+
+gboolean bt_song_io_native_bzt_copy_to_fd(const BtSongIONativeBZT * const self, const gchar *file_name, gint fd);
+gboolean bt_song_io_native_bzt_copy_from_uri(const BtSongIONativeBZT * const self, const gchar *file_name, const gchar *uri);
 
 #endif // BT_SONG_IO_NATIVE_BZT_H
