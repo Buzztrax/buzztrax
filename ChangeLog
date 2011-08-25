@@ -1,5 +1,12 @@
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/cmd/Makefile.am:
+	* src/ui/cmd/cmd-application.h:
+	* src/ui/cmd/cmd-application-methods.h (deleted):
+	  Get rid of extra header files (part 3).
+
+2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/Makefile.am:
 	  Skip one more header.
 

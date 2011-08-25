@@ -49,13 +49,19 @@ struct _BtCmdApplication {
   /*< private >*/
   BtCmdApplicationPrivate *priv;
 };
-/* structure of the cmd-application class */
+
 struct _BtCmdApplicationClass {
   BtApplicationClass parent;
   
 };
 
-/* used by CMD_APPLICATION_TYPE */
 GType bt_cmd_application_get_type(void) G_GNUC_CONST;
+
+BtCmdApplication *bt_cmd_application_new(gboolean quiet);
+
+gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *input_file_name);
+gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name);
+gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name);
+gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name);
 
 #endif // BT_CMD_APPLICATION_H

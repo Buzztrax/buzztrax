@@ -16,7 +16,7 @@ libbtcmd_la_LIBDADD = \
     $(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS)
 libbtcmd_la_SOURCES   =	\
-	cmd-application.c cmd-application.h cmd-application-methods.h
+	cmd-application.c cmd-application.h
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/core \
