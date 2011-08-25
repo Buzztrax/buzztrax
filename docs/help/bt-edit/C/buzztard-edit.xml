@@ -1033,6 +1033,15 @@ i o p</keycap></screen></entry>
           </mediaobject>
         </screenshot>
       </figure>
+      <para>
+        The "beats per minute", "beats" and "ticks per beat" parameters control
+        the timing and meassure of the song. "Beats per minute" is the classic
+        "bpm" speed of the song. "beats" determines the beats per meassue and
+        "ticks per beat" the ganularity. If you like to use quarter notes,
+        "ticks per beats" need to be 4. Thus a straight four to the floor has
+        beats=4 and ticks-per-beat=4. A walz would use beats=3 and
+        ticks-per-beat=4.
+      </para>
     </sect3>
   </sect2>
 
