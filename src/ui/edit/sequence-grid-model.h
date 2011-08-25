@@ -65,6 +65,14 @@ enum {
 
 #define BT_TYPE_SEQUENCE_GRID_MODEL_POS_FORMAT   (bt_sequence_grid_model_pos_format_get_type())
 
+/**
+ * BtSequenceGridModelPosFormat:
+ * @BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS: show as number of ticks
+ * @BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME: show as "min:sec.msec"
+ * @BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS: show as "beats.ticks"
+ *
+ * Format type for time values in the sequencer.
+ */
 typedef enum {
   BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS=0,
   BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME,

@@ -29,9 +29,9 @@
  * It also provides functions to invoke some dialogs like about and tips.
  *
  * The application instance will have exactly one active 
- * #BtEditApplication::song at a time. I tracks undo/redo-able changes to the
+ * #BtEditApplication:song at a time. I tracks undo/redo-able changes to the
  * song via #BtChangeLog and simple flagged changes via the
- * #BtEditApplication::unsaved property.
+ * #BtEditApplication:unsaved property.
  */
 /* @todo: unsaved flagging
  * - various parts in the UI call bt_edit_application_set_song_unsaved()

@@ -40,7 +40,7 @@ HFILE_GLOB=$(top_srcdir)/src/ui/edit/*.h
 CFILE_GLOB=$(top_srcdir)/src/ui/edit/*.c
 
 # Header files to ignore when scanning.
-IGNORE_HFILES=config.h
+IGNORE_HFILES=marshal.h
 
 # Images to copy into HTML directory.
 HTML_IMAGES =

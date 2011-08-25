@@ -1567,7 +1567,7 @@ void bt_main_page_machines_delete_wire(const BtMainPageMachines *self, BtWire *w
  * @self: the machines page
  * @machine: the machine to renam
  *
- * Run the machine #BtMachineRename dialog.
+ * Run the machine #BtMachineRenameDialog.
  */
 void bt_main_page_machines_rename_machine(const BtMainPageMachines *self, BtMachine *machine) {
   GtkWidget *dialog=GTK_WIDGET(bt_machine_rename_dialog_new(machine));

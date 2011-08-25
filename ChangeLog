@@ -1,5 +1,17 @@
 2011-08-25  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/sequence-grid-model.h:
+	  Update API docs.
+
+2011-08-25  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-info.c:
 	  Clamp beat and tpb values to the paramspec bounds.
 

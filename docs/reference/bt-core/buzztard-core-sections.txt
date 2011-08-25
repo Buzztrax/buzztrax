@@ -91,7 +91,7 @@ bt_machine_get_unique_pattern_name
 bt_machine_has_patterns
 bt_machine_is_polyphonic
 bt_machine_is_global_param_trigger
-bt_machine_is_voice_param_trigger         
+bt_machine_is_voice_param_trigger
 bt_machine_is_global_param_no_value
 bt_machine_is_voice_param_no_value
 bt_machine_get_global_param_no_value
@@ -659,7 +659,6 @@ safe_string
 return_if_disposed
 return_val_if_disposed
 bt_cpu_load_get_current
-bt_default_caps
 bt_init_get_option_group
 bt_init_add_option_groups
 bt_init_check
@@ -670,7 +669,6 @@ bt_minor_version
 # glib extras
 G_POINTER_ALIAS
 G_OBJECT_REF_COUNT
-XML_CHAR_PTR
 g_object_try_ref
 g_object_try_unref
 g_object_try_weak_ref
