@@ -133,25 +133,46 @@ static void on_bpm_changed(GtkSpinButton *spinbutton,gpointer user_data) {
 static void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   gulong tpb,beats,bars;
+  GParamSpecULong *pspec;
+  GObjectClass *song_info_class;
 
   GST_INFO("tpb changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
+
+  song_info_class=g_type_class_ref(BT_TYPE_SONG_INFO);
+  pspec=(GParamSpecULong *)g_object_class_find_property(song_info_class,"bars");
+
   // update info fields
   g_object_get(self->priv->song_info,"bars",&bars,"tpb",&tpb,NULL);
-  beats = bars/tpb;
-  tpb = gtk_spin_button_get_value_as_int(spinbutton);
-  g_object_set(self->priv->song_info,"tpb",tpb,"bars",beats*tpb,NULL);
+  beats=bars/tpb;
+  tpb=gtk_spin_button_get_value_as_int(spinbutton);
+  bars=beats*tpb;
+  bars=CLAMP(bars,pspec->minimum,pspec->maximum);
+  tpb=bars/beats;
+  gtk_spin_button_set_value(spinbutton,tpb);
+
+  g_object_set(self->priv->song_info,"tpb",tpb,"bars",bars,NULL);
   bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
 static void on_beats_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  gulong tpb,beats;
+  gulong tpb,beats,bars;
+  GParamSpecULong *pspec;
+  GObjectClass *song_info_class;
+
+  song_info_class=g_type_class_ref(BT_TYPE_SONG_INFO);
+  pspec=(GParamSpecULong *)g_object_class_find_property(song_info_class,"bars");
 
   GST_INFO("beats changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
   // update info fields
   g_object_get(self->priv->song_info,"tpb",&tpb,NULL);
-  beats = gtk_spin_button_get_value_as_int(spinbutton);
-  g_object_set(self->priv->song_info,"bars",beats*tpb,NULL);
+  beats=gtk_spin_button_get_value_as_int(spinbutton);
+  bars=beats*tpb;
+  bars=CLAMP(bars,pspec->minimum,pspec->maximum);
+  beats=bars/tpb;
+  gtk_spin_button_set_value(spinbutton,beats);
+  
+  g_object_set(self->priv->song_info,"bars",bars,NULL);
   bt_edit_application_set_song_unsaved(self->priv->app);
 }
 
@@ -264,11 +285,16 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   GtkWidget *table;
   GtkWidget *scrolledwindow;
   GtkAdjustment *spin_adjustment;
+  GParamSpecULong *pspec,*pspec2;
+  GObjectClass *song_info_class;
   gchar *str;
+  gulong def,min,max;
 
   GST_DEBUG("!!!! self=%p",self);
 
   gtk_widget_set_name(GTK_WIDGET(self),"song information");
+  
+  song_info_class=g_type_class_ref(BT_TYPE_SONG_INFO);
 
   // first row of vbox
   frame=gtk_frame_new(NULL);
@@ -332,7 +358,8 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   label=gtk_label_new(_("beats per minute"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
-  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(130.0, 20.0, 300.0, 1.0, 5.0, 0.0));
+  pspec=(GParamSpecULong *)g_object_class_find_property(song_info_class,"bpm");
+  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(pspec->default_value, pspec->minimum, pspec->maximum, 1.0, 5.0, 0.0));
   self->priv->bpm=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->bpm), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(self->priv->bpm, "value-changed", G_CALLBACK(on_bpm_changed), (gpointer)self);
@@ -340,7 +367,13 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   label=gtk_label_new(_("beats"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
-  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(8.0, 1.0, 32.0, 1.0, 4.0, 0.0));
+  pspec=(GParamSpecULong *)g_object_class_find_property(song_info_class,"tpb");
+  pspec2=(GParamSpecULong *)g_object_class_find_property(song_info_class,"bars");
+  def=pspec2->default_value/pspec->default_value;
+  min=pspec2->minimum/pspec->maximum;
+  max=pspec2->maximum/pspec->minimum;
+  if(min<1) min=1;
+  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(def,min,max, 1.0, 4.0, 0.0));
   self->priv->beats=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->beats), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(self->priv->beats, "value-changed", G_CALLBACK(on_beats_changed), (gpointer)self);
@@ -348,7 +381,7 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   label=gtk_label_new(_("ticks per beat"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
-  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(8.0, 1.0, 64.0, 1.0, 4.0, 0.0));
+  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(pspec->default_value, pspec->minimum, pspec->maximum, 1.0, 4.0, 0.0));
   self->priv->tpb=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->tpb), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(self->priv->tpb, "value-changed", G_CALLBACK(on_tpb_changed), (gpointer)self);

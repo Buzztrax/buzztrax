@@ -1,5 +1,10 @@
 2011-08-25  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-info.c:
+	  Clamp beat and tpb values to the paramspec bounds.
+
+2011-08-25  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/buzztard-edit.xml:
 	  Explain extra sequence header combo boxes.
 
