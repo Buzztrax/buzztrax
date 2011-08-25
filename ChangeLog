@@ -1,5 +1,13 @@
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	  Sort entries.
+
+	* docs/reference/bt-core/buzztard-core.types.in:
+	  Add missing class.
+
+2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/ic/libbuzztard-ic/abs-range-control.h:
 	* src/lib/ic/libbuzztard-ic/control.h:
 	* src/lib/ic/libbuzztard-ic/device.h:

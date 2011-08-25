@@ -4,8 +4,8 @@ bt_application_get_type
 bt_child_proxy_get_type
 @GCONF_DOC_TYPES@bt_gconf_settings_get_type
 bt_machine_get_type
-bt_persistence_get_type
 bt_pattern_get_type
+bt_persistence_get_type
 %bt_plainfile_settings_get_type
 bt_processor_machine_get_type
 bt_sequence_get_type
@@ -16,11 +16,12 @@ bt_sink_machine_get_type
 bt_song_get_type
 bt_song_info_get_type
 bt_song_io_get_type
-bt_song_io_native_get_type
 bt_song_io_native_bzt_get_type
+bt_song_io_native_get_type
 bt_song_io_native_xml_get_type
 bt_source_machine_get_type
 bt_wave_get_type
 bt_wavelevel_get_type
 bt_wavetable_get_type
 bt_wire_get_type
+bt_wire_pattern_get_type
