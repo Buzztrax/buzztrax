@@ -1,5 +1,13 @@
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/libbuzztard-core/song-io-native.h:
+	  Re-add extern in one place.
+
+	* src/ui/cmd/bt-cmd.h:
+	  Add missing include change from last commit.
+
+2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/cmd/Makefile.am:
 	* src/ui/cmd/cmd-application.h:
 	* src/ui/cmd/cmd-application-methods.h (deleted):

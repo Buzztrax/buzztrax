@@ -61,6 +61,6 @@ struct _BtSongIONativeClass {
 
 GType bt_song_io_native_get_type(void) G_GNUC_CONST;
 
-BtSongIOModuleInfo bt_song_io_native_module_info;
+extern BtSongIOModuleInfo bt_song_io_native_module_info;
 
 #endif // BT_SONG_IO_NATIVE_H

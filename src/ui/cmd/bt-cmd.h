@@ -70,7 +70,7 @@
 //-- libbtcore
 #include <libbuzztard-core/core.h>
 
-#include "cmd-application-methods.h"
+#include "cmd-application.h"
 
 //-- misc
 #ifndef GST_CAT_DEFAULT
