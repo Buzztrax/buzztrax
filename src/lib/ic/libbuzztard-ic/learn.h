@@ -84,4 +84,11 @@ struct _BtIcLearnInterface {
 
 GType btic_learn_get_type(void) G_GNUC_CONST;
 
+gboolean btic_learn_start(const BtIcLearn *self);
+gboolean btic_learn_stop(const BtIcLearn *self);
+BtIcControl* btic_learn_register_learned_control(const BtIcLearn *self, const gchar *name);
+
+gboolean btic_learn_store_controller_map(const BtIcLearn *self);
+gboolean btic_learn_load_controller_map(const BtIcLearn *self);
+
 #endif // BTIC_LEARN_H

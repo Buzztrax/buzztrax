@@ -3,19 +3,19 @@
 SUBDIRS = libbuzztard-ic
 
 if USE_LINUX_INPUT
-LINUX_INPUT_SOURCES=input-device.c libbuzztard-ic/input-device.h libbuzztard-ic/input-device-methods.h
+LINUX_INPUT_SOURCES=input-device.c libbuzztard-ic/input-device.h
 else
 LINUX_INPUT_SOURCES=
 endif
 
 if USE_GUDEV
-GUDEV_SOURCES=gudev-discoverer.c libbuzztard-ic/gudev-discoverer.h libbuzztard-ic/gudev-discoverer-methods.h
+GUDEV_SOURCES=gudev-discoverer.c libbuzztard-ic/gudev-discoverer.h
 else
 GUDEV_SOURCES=
 endif
 
 if USE_HAL
-HAL_SOURCES=hal-discoverer.c libbuzztard-ic/hal-discoverer.h libbuzztard-ic/hal-discoverer-methods.h
+HAL_SOURCES=hal-discoverer.c libbuzztard-ic/hal-discoverer.h
 else
 HAL_SOURCES=
 endif
@@ -27,17 +27,17 @@ libbuzztard_ic_la_LDFLAGS = \
 	-version-info @BT_VERSION_INFO@
 libbuzztard_ic_la_SOURCES = \
 	ic.c libbuzztard-ic/ic.h \
-	registry.c libbuzztard-ic/registry.h libbuzztard-ic/registry-methods.h \
+	registry.c libbuzztard-ic/registry.h \
 	$(GUDEV_SOURCES) $(HAL_SOURCES) \
 	\
-	device.c libbuzztard-ic/device.h libbuzztard-ic/device-methods.h \
-	learn.c libbuzztard-ic/learn.h libbuzztard-ic/learn-methods.h \
+	device.c libbuzztard-ic/device.h \
+	learn.c libbuzztard-ic/learn.h \
 	$(LINUX_INPUT_SOURCES) \
-	midi-device.c libbuzztard-ic/midi-device.h libbuzztard-ic/midi-device-methods.h \
+	midi-device.c libbuzztard-ic/midi-device.h \
 	\
-	control.c libbuzztard-ic/control.h libbuzztard-ic/control-methods.h \
-	abs-range-control.c libbuzztard-ic/abs-range-control.h libbuzztard-ic/abs-range-control-methods.h \
-	trigger-control.c libbuzztard-ic/trigger-control.h libbuzztard-ic/trigger-control-methods.h
+	control.c libbuzztard-ic/control.h \
+	abs-range-control.c libbuzztard-ic/abs-range-control.h  \
+	trigger-control.c libbuzztard-ic/trigger-control.h
 libbuzztard_ic_la_CFLAGS = \
 	-I$(builddir)/libbuzztard-ic \
 	-I$(top_srcdir)/src/lib/core \

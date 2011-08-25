@@ -1,5 +1,31 @@
 2011-08-25  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/libbuzztard-ic/Makefile.am:
+	* src/lib/ic/libbuzztard-ic/abs-range-control.h:
+	* src/lib/ic/libbuzztard-ic/device.h:
+	* src/lib/ic/libbuzztard-ic/gudev-discoverer.h:
+	* src/lib/ic/libbuzztard-ic/hal-discoverer.h:
+	* src/lib/ic/libbuzztard-ic/ic.h:
+	* src/lib/ic/libbuzztard-ic/input-device.h:
+	* src/lib/ic/libbuzztard-ic/learn.h:
+	* src/lib/ic/libbuzztard-ic/midi-device.h:
+	* src/lib/ic/libbuzztard-ic/registry.h:
+	* src/lib/ic/libbuzztard-ic/trigger-control.h:
+	* src/lib/ic/libbuzztard-ic/input-device-methods.h (deleted):
+	* src/lib/ic/libbuzztard-ic/device-methods.h (deleted):
+	* src/lib/ic/libbuzztard-ic/learn-methods.h (deleted):
+	* src/lib/ic/libbuzztard-ic/hal-discoverer-methods.h (deleted):
+	* src/lib/ic/libbuzztard-ic/registry-methods.h (deleted):
+	* src/lib/ic/libbuzztard-ic/abs-range-control-methods.h (deleted):
+	* src/lib/ic/libbuzztard-ic/gudev-discoverer-methods.h (deleted):
+	* src/lib/ic/libbuzztard-ic/midi-device-methods.h (deleted):
+	* src/lib/ic/libbuzztard-ic/control-methods.h (deleted):
+	* src/lib/ic/libbuzztard-ic/trigger-control-methods.h (deleted):
+	  Get rid of extra header files (part 1).
+
+2011-08-25  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-core/Makefile.am:
 	* docs/reference/bt-core/buzztard-core-sections.txt:

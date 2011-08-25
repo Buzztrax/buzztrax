@@ -60,4 +60,6 @@ struct _BtIcMidiDeviceClass {
 /* used by INPUTE_DEVICE_TYPE */
 GType btic_midi_device_get_type(void) G_GNUC_CONST;
 
+BtIcMidiDevice *btic_midi_device_new(const gchar *udi,const gchar *name,const gchar *devnode);
+
 #endif // BTIC_MIDI_DEVICE_H

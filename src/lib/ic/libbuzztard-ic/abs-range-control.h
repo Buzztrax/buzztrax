@@ -26,6 +26,7 @@
 #include <glib-object.h>
 
 #include "control.h"
+#include "device.h"
 
 /* type macros */
 
@@ -59,5 +60,7 @@ struct _BtIcAbsRangeControlClass {
 
 /* used by DEVICE_TYPE */
 GType btic_abs_range_control_get_type(void) G_GNUC_CONST;
+
+BtIcAbsRangeControl *btic_abs_range_control_new(const BtIcDevice *device,const gchar *name,guint id,gint32 min,gint32 max,gint32 def);
 
 #endif // BTIC_ABS_RANGE_CONTROL_H

@@ -26,6 +26,7 @@
 #include <glib-object.h>
 
 #include "control.h"
+#include "device.h"
 
 /* type macros */
 
@@ -59,5 +60,7 @@ struct _BtIcTriggerControlClass {
 
 /* used by DEVICE_TYPE */
 GType btic_trigger_control_get_type(void) G_GNUC_CONST;
+
+BtIcTriggerControl *btic_trigger_control_new(const BtIcDevice *device,const gchar *name,guint id);
 
 #endif // BTIC_TRIGGER_CONTROL_H

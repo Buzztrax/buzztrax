@@ -32,12 +32,12 @@
 //-- libbtic
 // method prototype includes do include the data defs themself
 
-#include "control-methods.h"
-#include "abs-range-control-methods.h"
-#include "trigger-control-methods.h"
-#include "device-methods.h"
-#include "registry-methods.h"
-#include "learn-methods.h"
+#include "control.h"
+#include "abs-range-control.h"
+#include "trigger-control.h"
+#include "device.h"
+#include "registry.h"
+#include "learn.h"
 
 //-- prototypes ----------------------------------------------------------------
 

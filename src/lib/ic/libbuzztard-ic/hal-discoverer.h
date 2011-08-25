@@ -57,4 +57,6 @@ struct _BtIcHalDiscovererClass {
 /* used by HAL_DISCOVERER_TYPE */
 GType btic_hal_discoverer_get_type(void) G_GNUC_CONST;
 
+BtIcHalDiscoverer *btic_hal_discoverer_new(void);
+
 #endif // BTIC_HAL_DISCOVERER

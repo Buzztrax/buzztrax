@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "control.h"
+
 /* type macros */
 
 #define BTIC_TYPE_DEVICE            (btic_device_get_type ())
@@ -91,5 +93,11 @@ struct _BtIcDeviceClass {
 
 /* used by DEVICE_TYPE */
 GType btic_device_get_type(void) G_GNUC_CONST;
+
+void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control);
+BtIcControl *btic_device_get_control_by_id(const BtIcDevice *self,guint id);
+gboolean btic_device_has_controls(const BtIcDevice *self);
+gboolean btic_device_start(const BtIcDevice *self);
+gboolean btic_device_stop(const BtIcDevice *self);
 
 #endif // BTIC_DEVICE_H

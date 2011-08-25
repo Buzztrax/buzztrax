@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include "device.h"
+
 /* type macros */
 
 #define BTIC_TYPE_REGISTRY            (btic_registry_get_type ())
@@ -57,5 +59,10 @@ struct _BtIcRegistryClass {
 
 /* used by REGISTRY_TYPE */
 GType btic_registry_get_type(void) G_GNUC_CONST;
+
+BtIcRegistry *btic_registry_new(void);
+
+void btic_registry_remove_device_by_udi(const gchar *udi);
+void btic_registry_add_device(BtIcDevice *device);
 
 #endif // BTIC_REGISTRY_H

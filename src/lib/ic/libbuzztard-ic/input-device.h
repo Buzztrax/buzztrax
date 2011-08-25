@@ -58,4 +58,6 @@ struct _BtIcInputDeviceClass {
 /* used by INPUTE_DEVICE_TYPE */
 GType btic_input_device_get_type(void) G_GNUC_CONST;
 
+BtIcInputDevice *btic_input_device_new(const gchar *udi,const gchar *name,const gchar *devnode);
+
 #endif // BTIC_INPUT_DEVICE_H
