@@ -49,7 +49,7 @@ struct _BtUIResources {
   /*< private >*/
   BtUIResourcesPrivate *priv;
 };
-/* structure of the ui-resources class */
+
 struct _BtUIResourcesClass {
   GObjectClass parent;
 };
@@ -128,7 +128,19 @@ typedef enum {
   BT_UI_RES_COLOR_MACHINE_DARK2       /* --- */
 } BtUIResourcesMachineColors;
 
-/* used by UI_RESOURCES_TYPE */
 GType bt_ui_resources_get_type(void) G_GNUC_CONST;
+
+BtUIResources *bt_ui_resources_new(void);
+
+GdkPixbuf *bt_ui_resources_get_icon_pixbuf_by_machine(const BtMachine *machine);
+GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachine *machine, gdouble zoom);
+GtkWidget *bt_ui_resources_get_icon_image_by_machine(const BtMachine *machine);
+GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type);
+
+GdkColor *bt_ui_resources_get_gdk_color(BtUIResourcesColors color_type);
+void bt_ui_resources_get_rgb_color(BtUIResourcesColors color_type, gdouble *r, gdouble *g, gdouble *b);
+guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine,BtUIResourcesMachineColors color_type);
+
+GtkAccelGroup *bt_ui_resources_get_accel_group(void);
 
 #endif // BT_UI_RESOURCES_H

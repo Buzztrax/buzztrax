@@ -49,13 +49,21 @@ struct _BtMainPageSequence {
   /*< private >*/
   BtMainPageSequencePrivate *priv;
 };
-/* structure of the main-page-sequence class */
+
 struct _BtMainPageSequenceClass {
   GtkVBoxClass parent;
   
 };
 
-/* used by MAIN_PAGE_SEQUENCE_TYPE */
 GType bt_main_page_sequence_get_type(void) G_GNUC_CONST;
+
+#include "main-pages.h"
+
+BtMainPageSequence *bt_main_page_sequence_new(const BtMainPages *pages);
+
+void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self);
+void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self);
+void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self);
+void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self);
 
 #endif // BT_MAIN_PAGE_SEQUENCE_H

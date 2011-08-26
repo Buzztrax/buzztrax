@@ -49,13 +49,15 @@ struct _BtMissingFrameworkElementsDialog {
   /*< private >*/
   BtMissingFrameworkElementsDialogPrivate *priv;
 };
-/* structure of the machine-preset-properties-dialog class */
+
 struct _BtMissingFrameworkElementsDialogClass {
   GtkDialogClass parent;
 
 };
 
-/* used by MISSING_FRAMEWORK_ELEMENTS_DIALOG_TYPE */
 GType bt_missing_framework_elements_dialog_get_type(void) G_GNUC_CONST;
+
+BtMissingFrameworkElementsDialog *bt_missing_framework_elements_dialog_new(GList *core_elements,GList *edit_elements);
+void bt_missing_framework_elements_dialog_apply(const BtMissingFrameworkElementsDialog *self);
 
 #endif // BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG_H

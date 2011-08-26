@@ -49,7 +49,7 @@ struct _BtSequenceGridModel {
   /*< private >*/
   BtSequenceGridModelPrivate *priv;
 };
-/* structure of the ui-resources class */
+
 struct _BtSequenceGridModelClass {
   GObjectClass parent;
 };
@@ -82,5 +82,7 @@ typedef enum {
 
 GType bt_sequence_grid_model_get_type(void) G_GNUC_CONST;
 GType bt_sequence_grid_model_pos_format_get_type(void) G_GNUC_CONST;
+
+BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence,gulong bars);
 
 #endif // BT_SEQUENCE_GRID_MODEL_H

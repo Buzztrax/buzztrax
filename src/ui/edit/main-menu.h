@@ -53,17 +53,17 @@ struct _BtMainMenu {
   /*< private >*/
   BtMainMenuPrivate *priv;
 };
-/* structure of the main-menu class */
+
 struct _BtMainMenuClass {
 #ifndef USE_HILDON
   GtkMenuBarClass parent;
 #else
   GtkMenuClass parent;
 #endif
-
 };
 
-/* used by MAIN_MENU_TYPE */
 GType bt_main_menu_get_type(void) G_GNUC_CONST;
+
+BtMainMenu *bt_main_menu_new(void);
 
 #endif // BT_MAIN_MENU_H

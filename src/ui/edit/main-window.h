@@ -53,7 +53,7 @@ struct _BtMainWindow {
   /*< private >*/
   BtMainWindowPrivate *priv;
 };
-/* structure of the main-window class */
+
 struct _BtMainWindowClass {
 #ifndef USE_HILDON
   GtkWindowClass parent;
@@ -63,7 +63,19 @@ struct _BtMainWindowClass {
   
 };
 
-/* used by MAIN_WINDOW_TYPE */
 GType bt_main_window_get_type(void) G_GNUC_CONST;
+
+BtMainWindow *bt_main_window_new(void);
+
+gboolean bt_main_window_check_unsaved_song(const BtMainWindow *self,const gchar *title,const gchar *headline);
+gboolean bt_main_window_check_quit(const BtMainWindow *self);
+void bt_main_window_new_song(const BtMainWindow *self);
+void bt_main_window_open_song(const BtMainWindow *self);
+void bt_main_window_save_song(const BtMainWindow *self);
+void bt_main_window_save_song_as(const BtMainWindow *self);
+
+/* helper for simple message/question dialogs */
+void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);
+gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);
 
 #endif // BT_MAIN_WINDOW_H

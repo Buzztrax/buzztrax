@@ -49,13 +49,15 @@ struct _BtMachinePresetPropertiesDialog {
   /*< private >*/
   BtMachinePresetPropertiesDialogPrivate *priv;
 };
-/* structure of the machine-preset-properties-dialog class */
+
 struct _BtMachinePresetPropertiesDialogClass {
   GtkDialogClass parent;
   
 };
 
-/* used by MACHINE_PRESET_PROPERTIES_DIALOG_TYPE */
 GType bt_machine_preset_properties_dialog_get_type(void) G_GNUC_CONST;
+
+BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(GstElement *machine,gchar **name,gchar **comment);
+void bt_machine_preset_properties_dialog_apply(const BtMachinePresetPropertiesDialog *self);
 
 #endif // BT_MACHINE_PRESET_PROPERTIES_DIALOG_H

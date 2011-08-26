@@ -53,17 +53,8 @@
  * - do we want to handle the cursor like data changes?
  */
 
-#include <ctype.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <gdk/gdkkeysyms.h>
-
-#include "pattern-editor.h"
-#include "ui-resources-methods.h"
-#include "tools.h"
-
-#include "marshal.h"
+#define BT_EDIT
+#include "bt-edit.h"
 
 enum {
   PATTERN_EDITOR_PLAY_POSITION=1,

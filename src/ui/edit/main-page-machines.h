@@ -49,14 +49,11 @@ struct _BtMainPageMachines {
   /*< private >*/
   BtMainPageMachinesPrivate *priv;
 };
-/* structure of the main-page-machines class */
+
 struct _BtMainPageMachinesClass {
   GtkVBoxClass parent;
   
 };
-
-/* used by MAIN_PAGE_MACHINES_TYPE */
-GType bt_main_page_machines_get_type(void) G_GNUC_CONST;
 
 
 // machine view area (4:3 aspect ratio)
@@ -76,5 +73,22 @@ GType bt_main_page_machines_get_type(void) G_GNUC_CONST;
 #define MACHINE_VIEW_FONT_SIZE 6.5
 
 #define MACHINE_VIEW_WIRE_PAD_SIZE 6.0
+
+GType bt_main_page_machines_get_type(void) G_GNUC_CONST;
+
+#include "main-pages.h"
+
+BtMainPageMachines *bt_main_page_machines_new(const BtMainPages *pages);
+
+gboolean machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y);
+
+gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
+gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
+
+gboolean bt_main_page_machines_add_source_machine(const BtMainPageMachines *self, const gchar *id, const gchar *plugin_name);
+gboolean bt_main_page_machines_add_processor_machine(const BtMainPageMachines *self, const gchar *id, const gchar *plugin_name);
+void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMachine *machine);
+void bt_main_page_machines_delete_wire(const BtMainPageMachines *self, BtWire *wire);
+void bt_main_page_machines_rename_machine(const BtMainPageMachines *self, BtMachine *machine);
 
 #endif // BT_MAIN_PAGE_MACHINES_H

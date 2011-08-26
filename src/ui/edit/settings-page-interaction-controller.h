@@ -49,13 +49,14 @@ struct _BtSettingsPageInteractionController {
   /*< private >*/
   BtSettingsPageInteractionControllerPrivate *priv;
 };
-/* structure of the settings-dialog class */
+
 struct _BtSettingsPageInteractionControllerClass {
   GtkTableClass parent;
 
 };
 
-/* used by SETTINGS_PAGE_INTERACTION_CONTROLLER_TYPE */
 GType bt_settings_page_interaction_controller_get_type(void) G_GNUC_CONST;
+
+BtSettingsPageInteractionController *bt_settings_page_interaction_controller_new(void);
 
 #endif // BT_SETTINGS_PAGE_INTERACTION_CONTROLLER_H

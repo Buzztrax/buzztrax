@@ -49,13 +49,17 @@ struct _BtRenderProgress {
   /*< private >*/
   BtRenderProgressPrivate *priv;
 };
-/* structure of the render-progress class */
+
 struct _BtRenderProgressClass {
   GtkDialogClass parent;
 
 };
 
-/* used by RENDER_PROGRESS_TYPE */
 GType bt_render_progress_get_type(void) G_GNUC_CONST;
+
+#include "render-dialog.h"
+
+BtRenderProgress *bt_render_progress_new(BtRenderDialog *settings);
+void bt_render_progress_run(const BtRenderProgress *self);
 
 #endif // BT_RENDER_PROGRESS_H

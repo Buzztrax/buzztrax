@@ -49,13 +49,14 @@ struct _BtAboutDialog {
   /*< private >*/
   BtAboutDialogPrivate *priv;
 };
-/* structure of the about-dialog class */
+
 struct _BtAboutDialogClass {
   GtkAboutDialogClass parent;
   
 };
 
-/* used by ABOUT_DIALOG_TYPE */
 GType bt_about_dialog_get_type(void) G_GNUC_CONST;
+
+BtAboutDialog *bt_about_dialog_new(void);
 
 #endif // BT_ABOUT_DIALOG_H

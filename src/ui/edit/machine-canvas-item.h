@@ -49,12 +49,18 @@ struct _BtMachineCanvasItem {
   /*< private >*/
   BtMachineCanvasItemPrivate *priv;
 };
-/* structure of the main-pages class */
+
 struct _BtMachineCanvasItemClass {
   GnomeCanvasGroupClass parent;
 };
 
-/* used by MAIN_PAGES_TYPE */
 GType bt_machine_canvas_item_get_type(void) G_GNUC_CONST;
+
+#include "main-page-machines.h"
+
+BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_page_machines,BtMachine *machine,gdouble xpos,gdouble ypos,gdouble zoom);
+
+void bt_machine_show_properties_dialog(BtMachine *machine);
+void bt_machine_show_preferences_dialog(BtMachine *machine);
 
 #endif // BT_MACHINE_CANVAS_ITEM_H

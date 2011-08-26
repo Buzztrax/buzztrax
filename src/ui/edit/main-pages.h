@@ -49,14 +49,11 @@ struct _BtMainPages {
   /*< private >*/
   BtMainPagesPrivate *priv;
 };
-/* structure of the main-pages class */
+
 struct _BtMainPagesClass {
   GtkNotebookClass parent;
   
 };
-
-/* used by MAIN_PAGES_TYPE */
-GType bt_main_pages_get_type(void) G_GNUC_CONST;
 
 enum {
   BT_MAIN_PAGES_MACHINES_PAGE=0,
@@ -65,5 +62,9 @@ enum {
   BT_MAIN_PAGES_WAVES_PAGE,
   BT_MAIN_PAGES_INFO_PAGE
 };
+
+GType bt_main_pages_get_type(void) G_GNUC_CONST;
+
+BtMainPages *bt_main_pages_new(void);
 
 #endif // BT_MAIN_PAGES_H

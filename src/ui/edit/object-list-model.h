@@ -49,12 +49,15 @@ struct _BtObjectListModel {
   /*< private >*/
   BtObjectListModelPrivate *priv;
 };
-/* structure of the ui-resources class */
+
 struct _BtObjectListModelClass {
   GObjectClass parent;
 };
 
-
 GType bt_object_list_model_get_type(void) G_GNUC_CONST;
+
+BtObjectListModel *bt_object_list_model_new(gint n_columns,GType object_type,...);
+void bt_object_list_model_append(BtObjectListModel *model,GObject *object);
+GObject *bt_object_list_model_get_object(BtObjectListModel *model,GtkTreeIter *iter);
 
 #endif // BT_OBJECT_LIST_MODEL_H

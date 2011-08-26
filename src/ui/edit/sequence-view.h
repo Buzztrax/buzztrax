@@ -49,13 +49,14 @@ struct _BtSequenceView {
   /*< private >*/
   BtSequenceViewPrivate *priv;
 };
-/* structure of the sequence-view class */
+
 struct _BtSequenceViewClass {
   GtkTreeViewClass parent;
   
 };
 
-/* used by SEQUENCE_VIEW_TYPE */
 GType bt_sequence_view_get_type(void) G_GNUC_CONST;
+
+BtSequenceView *bt_sequence_view_new(void);
 
 #endif // BT_SEQUENCE_VIEW_H

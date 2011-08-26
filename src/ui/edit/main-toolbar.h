@@ -49,13 +49,14 @@ struct _BtMainToolbar {
   /*< private >*/
   BtMainToolbarPrivate *priv;
 };
-/* structure of the main-menu class */
+
 struct _BtMainToolbarClass {
   GtkToolbarClass parent;
   
 };
 
-/* used by MAIN_TOOLBAR_TYPE */
 GType bt_main_toolbar_get_type(void) G_GNUC_CONST;
+
+BtMainToolbar *bt_main_toolbar_new(void);
 
 #endif // BT_MAIN_TOOLBAR_H

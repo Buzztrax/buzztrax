@@ -49,13 +49,14 @@ struct _BtMissingSongElementsDialog {
   /*< private >*/
   BtMissingSongElementsDialogPrivate *priv;
 };
-/* structure of the machine-preset-properties-dialog class */
+
 struct _BtMissingSongElementsDialogClass {
   GtkDialogClass parent;
 
 };
 
-/* used by MISSING_SONG_ELEMENTS_DIALOG_TYPE */
 GType bt_missing_song_elements_dialog_get_type(void) G_GNUC_CONST;
+
+BtMissingSongElementsDialog *bt_missing_song_elements_dialog_new(GList *machines,GList *waves);
 
 #endif // BT_MISSING_SONG_ELEMENTS_DIALOG_H

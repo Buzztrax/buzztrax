@@ -49,13 +49,15 @@ struct _BtPatternPropertiesDialog {
   /*< private >*/
   BtPatternPropertiesDialogPrivate *priv;
 };
-/* structure of the pattern-properties-dialog class */
+
 struct _BtPatternPropertiesDialogClass {
   GtkDialogClass parent;
   
 };
 
-/* used by PATTERN_PROPERTIES_DIALOG_TYPE */
 GType bt_pattern_properties_dialog_get_type(void) G_GNUC_CONST;
+
+BtPatternPropertiesDialog *bt_pattern_properties_dialog_new(const BtPattern *pattern);
+void bt_pattern_properties_dialog_apply(const BtPatternPropertiesDialog *self);
 
 #endif // BT_PATTERN_PROPERTIES_DIALOG_H

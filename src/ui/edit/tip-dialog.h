@@ -56,4 +56,6 @@ struct _BtTipDialogClass {
 
 GType bt_tip_dialog_get_type(void) G_GNUC_CONST;
 
+BtTipDialog *bt_tip_dialog_new(void);
+
 #endif // BT_TIP_DIALOG_H

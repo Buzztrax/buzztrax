@@ -49,13 +49,14 @@ struct _BtSettingsPageShortcuts {
   /*< private >*/
   BtSettingsPageShortcutsPrivate *priv;
 };
-/* structure of the settings-dialog class */
+
 struct _BtSettingsPageShortcutsClass {
   GtkTableClass parent;
   
 };
 
-/* used by SETTINGS_PAGE_SHORTCUTS_TYPE */
 GType bt_settings_page_shortcuts_get_type(void) G_GNUC_CONST;
+
+BtSettingsPageShortcuts *bt_settings_page_shortcuts_new(void);
 
 #endif // BT_SETTINGS_PAGE_SHORTCUTS_H

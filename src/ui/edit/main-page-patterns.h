@@ -49,13 +49,24 @@ struct _BtMainPagePatterns {
   /*< private >*/
   BtMainPagePatternsPrivate *priv;
 };
-/* structure of the main-page-patterns class */
+
 struct _BtMainPagePatternsClass {
   GtkVBoxClass parent;
   
 };
 
-/* used by MAIN_PAGE_PATTERNS_TYPE */
 GType bt_main_page_patterns_get_type(void) G_GNUC_CONST;
+
+#include "main-pages.h"
+
+BtMainPagePatterns *bt_main_page_patterns_new(const BtMainPages *pages);
+
+void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern *pattern);
+void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine *machine);
+
+void bt_main_page_patterns_delete_selection(const BtMainPagePatterns *self);
+void bt_main_page_patterns_cut_selection(const BtMainPagePatterns *self);
+void bt_main_page_patterns_copy_selection(const BtMainPagePatterns *self);
+void bt_main_page_patterns_paste_selection(const BtMainPagePatterns *self);
 
 #endif // BT_MAIN_PAGE_PATTERNS_H

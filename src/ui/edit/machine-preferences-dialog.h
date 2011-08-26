@@ -49,13 +49,14 @@ struct _BtMachinePreferencesDialog {
   /*< private >*/
   BtMachinePreferencesDialogPrivate *priv;
 };
-/* structure of the machine-preferences-dialog class */
+
 struct _BtMachinePreferencesDialogClass {
   GtkWindowClass parent;
   
 };
 
-/* used by MACHINE_PREFERENCES_DIALOG_TYPE */
 GType bt_machine_preferences_dialog_get_type(void) G_GNUC_CONST;
+
+BtMachinePreferencesDialog *bt_machine_preferences_dialog_new(const BtMachine *machine);
 
 #endif // BT_MACHINE_PREFERENCES_DIALOG_H

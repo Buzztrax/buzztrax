@@ -49,7 +49,7 @@ struct _BtInteractionControllerMenu {
   /*< private >*/
   BtInteractionControllerMenuPrivate *priv;
 };
-/* structure of the machine-menu class */
+
 struct _BtInteractionControllerMenuClass {
   GtkMenuClass parent;
 
@@ -72,7 +72,8 @@ typedef enum {
 
 GType bt_interaction_controller_menu_type_get_type(void) G_GNUC_CONST;
 
-/* used by INTERACTION_CONTROLLER_MENU_TYPE */
 GType bt_interaction_controller_menu_get_type(void) G_GNUC_CONST;
+
+BtInteractionControllerMenu *bt_interaction_controller_menu_new(BtInteractionControllerMenuType type);
 
 #endif // BT_INTERACTION_CONTROLLER_MENU_H

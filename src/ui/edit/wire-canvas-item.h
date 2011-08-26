@@ -49,13 +49,14 @@ struct _BtWireCanvasItem {
   /*< private >*/
   BtWireCanvasItemPrivate *priv;
 };
-/* structure of the main-pages class */
+
 struct _BtWireCanvasItemClass {
   GnomeCanvasGroupClass parent;
   
 };
 
-/* used by MAIN_PAGES_TYPE */
 GType bt_wire_canvas_item_get_type(void) G_GNUC_CONST;
+
+BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_machines,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item);
 
 #endif // BT_WIRE_CANVAS_ITEM_H

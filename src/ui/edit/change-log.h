@@ -49,7 +49,7 @@ struct _BtChangeLog {
   /*< private >*/
   BtChangeLogPrivate *priv;
 };
-/* structure of the ui-resources class */
+
 struct _BtChangeLogClass {
   GObjectClass parent;
 };
@@ -62,7 +62,21 @@ struct _BtChangeLogFile {
   time_t mtime;
 };
 
-/* used by CHANGE_LOG_TYPE */
 GType bt_change_log_get_type(void) G_GNUC_CONST;
+
+#include "change-logger.h"
+
+BtChangeLog *bt_change_log_new(void);
+
+gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name);
+
+void bt_change_log_register(BtChangeLog *self,BtChangeLogger *logger);
+
+gboolean bt_change_log_is_active(BtChangeLog *self);
+void bt_change_log_add(BtChangeLog *self,BtChangeLogger *owner,gchar *undo_data,gchar *redo_data);
+void bt_change_log_undo(BtChangeLog *self);
+void bt_change_log_redo(BtChangeLog *self);
+void bt_change_log_start_group(BtChangeLog *self);
+void bt_change_log_end_group(BtChangeLog *self);
 
 #endif // BT_CHANGE_LOG_H

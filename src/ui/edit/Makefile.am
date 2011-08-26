@@ -22,62 +22,62 @@ libbtedit_la_LIBADD = \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
 	-lgstinterfaces-0.10
 libbtedit_la_SOURCES	= \
-	about-dialog.c about-dialog.h about-dialog-methods.h \
-	change-log.c change-log.h change-log-methods.h \
-	change-logger.c change-logger.h change-logger-methods.h \
-	crash-recover-dialog.c crash-recover-dialog.h crash-recover-dialog-methods.h \
-	edit-application.c edit-application.h edit-application-methods.h \
-	interaction-controller-menu.c interaction-controller-menu.h interaction-controller-menu-methods.h \
-	interaction-controller-learn-dialog.c interaction-controller-learn-dialog.h interaction-controller-learn-dialog-methods.h \
-	machine-canvas-item.c machine-canvas-item.h machine-canvas-item-methods.h\
-	machine-menu.c machine-menu.h machine-menu-methods.h \
+	about-dialog.c about-dialog.h \
+	change-log.c change-log.h \
+	change-logger.c change-logger.h \
+	crash-recover-dialog.c crash-recover-dialog.h \
+	edit-application.c edit-application.h \
+	interaction-controller-menu.c interaction-controller-menu.h \
+	interaction-controller-learn-dialog.c interaction-controller-learn-dialog.h \
+	machine-canvas-item.c machine-canvas-item.h \
+	machine-menu.c machine-menu.h \
 	machine-actions.c machine-actions.h \
-	machine-list-model.c machine-list-model.h machine-list-model-methods.h \
-	machine-preset-properties-dialog.c machine-preset-properties-dialog.h machine-preset-properties-dialog-methods.h \
-	machine-properties-dialog.c machine-properties-dialog.h machine-properties-dialog-methods.h \
-	machine-preferences-dialog.c machine-preferences-dialog.h machine-preferences-dialog-methods.h \
-	machine-rename-dialog.c machine-rename-dialog.h machine-rename-dialog-methods.h \
-	main-window.c main-window.h main-window-methods.h \
-	main-menu.c main-menu.h main-menu-methods.h \
-	main-toolbar.c main-toolbar.h main-toolbar-methods.h \
-	main-pages.c main-pages.h main-pages-methods.h \
-	main-page-machines.c main-page-machines.h main-page-machines-methods.h \
-	main-page-patterns.c main-page-patterns.h main-page-patterns-methods.h \
-	main-page-sequence.c main-page-sequence.h main-page-sequence-methods.h \
-	main-page-waves.c main-page-waves.h main-page-waves-methods.h \
-	main-page-info.c main-page-info.h main-page-info-methods.h \
-	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
-	missing-framework-elements-dialog.c missing-framework-elements-dialog.h missing-framework-elements-dialog-methods.h \
-	missing-song-elements-dialog.c missing-song-elements-dialog.h missing-song-elements-dialog-methods.h \
-	object-list-model.c object-list-model.h object-list-model-methods.h \
+	machine-list-model.c machine-list-model.h \
+	machine-preset-properties-dialog.c machine-preset-properties-dialog.h \
+	machine-properties-dialog.c machine-properties-dialog.h \
+	machine-preferences-dialog.c machine-preferences-dialog.h \
+	machine-rename-dialog.c machine-rename-dialog.h \
+	main-window.c main-window.h \
+	main-menu.c main-menu.h \
+	main-toolbar.c main-toolbar.h \
+	main-pages.c main-pages.h \
+	main-page-machines.c main-page-machines.h \
+	main-page-patterns.c main-page-patterns.h \
+	main-page-sequence.c main-page-sequence.h \
+	main-page-waves.c main-page-waves.h \
+	main-page-info.c main-page-info.h \
+	main-statusbar.c main-statusbar.h \
+	missing-framework-elements-dialog.c missing-framework-elements-dialog.h \
+	missing-song-elements-dialog.c missing-song-elements-dialog.h \
+	object-list-model.c object-list-model.h \
 	panorama-popup.c panorama-popup.h \
-	pattern-list-model.c pattern-list-model.h pattern-list-model-methods.h \
-	pattern-properties-dialog.c pattern-properties-dialog.h pattern-properties-dialog-methods.h \
-	playback-controller-socket.c playback-controller-socket.h playback-controller-socket-methods.h \
-	render-dialog.c render-dialog.h render-dialog-methods.h \
-	render-progress.c render-progress.h render-progress-methods.h \
-	sequence-grid-model.c sequence-grid-model.h sequence-grid-model-methods.h \
-	sequence-view.c sequence-view.h sequence-view-methods.h \
-	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
-	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
-	settings-page-directories.c settings-page-directories.h settings-page-directories-methods.h \
-	settings-page-interaction-controller.c settings-page-interaction-controller.h settings-page-interaction-controller-methods.h \
-	settings-page-playback-controller.c settings-page-playback-controller.h settings-page-playback-controller-methods.h \
-	settings-page-shortcuts.c settings-page-shortcuts.h settings-page-shortcuts-methods.h \
-	signal-analysis-dialog.c signal-analysis-dialog.h signal-analysis-dialog-methods.h \
-	tip-dialog.c tip-dialog.h tip-dialog-methods.h \
+	pattern-list-model.c pattern-list-model.h \
+	pattern-properties-dialog.c pattern-properties-dialog.h \
+	playback-controller-socket.c playback-controller-socket.h \
+	render-dialog.c render-dialog.h \
+	render-progress.c render-progress.h \
+	sequence-grid-model.c sequence-grid-model.h \
+	sequence-view.c sequence-view.h \
+	settings-dialog.c settings-dialog.h \
+	settings-page-audiodevices.c settings-page-audiodevices.h \
+	settings-page-directories.c settings-page-directories.h \
+	settings-page-interaction-controller.c settings-page-interaction-controller.h \
+	settings-page-playback-controller.c settings-page-playback-controller.h \
+	settings-page-shortcuts.c settings-page-shortcuts.h \
+	signal-analysis-dialog.c signal-analysis-dialog.h \
+	tip-dialog.c tip-dialog.h \
 	tools.c tools.h \
-	ui-resources.c ui-resources.h ui-resources-methods.h \
+	ui-resources.c ui-resources.h \
 	volume-popup.c volume-popup.h \
 	wave-viewer.c wave-viewer.h \
-	wire-canvas-item.c wire-canvas-item.h wire-canvas-item-methods.h \
+	wire-canvas-item.c wire-canvas-item.h \
 	\
 	pattern-editor.c pattern-editor.h \
 	gtkvumeter.c gtkvumeter.h \
 	\
 	btmemoryaudiosrc.c btmemoryaudiosrc.h \
 	\
-	marshal.c
+	$(BUILT_SOURCES)
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/core \

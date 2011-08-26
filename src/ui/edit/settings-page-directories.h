@@ -49,13 +49,14 @@ struct _BtSettingsPageDirectories {
   /*< private >*/
   BtSettingsPageDirectoriesPrivate *priv;
 };
-/* structure of the settings-dialog class */
+
 struct _BtSettingsPageDirectoriesClass {
   GtkTableClass parent;
   
 };
 
-/* used by SETTINGS_PAGE_DIRECTORIES_TYPE */
 GType bt_settings_page_directories_get_type(void) G_GNUC_CONST;
+
+BtSettingsPageDirectories *bt_settings_page_directories_new(void);
 
 #endif // BT_SETTINGS_PAGE_DIRECTORIES_H

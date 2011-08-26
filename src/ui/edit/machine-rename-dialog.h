@@ -49,13 +49,15 @@ struct _BtMachineRenameDialog {
   /*< private >*/
   BtMachineRenameDialogPrivate *priv;
 };
-/* structure of the machine-rename-dialog class */
+
 struct _BtMachineRenameDialogClass {
   GtkDialogClass parent;
   
 };
 
-/* used by MACHINE_RENAME_DIALOG_TYPE */
 GType bt_machine_rename_dialog_get_type(void) G_GNUC_CONST;
+
+BtMachineRenameDialog *bt_machine_rename_dialog_new(const BtMachine *machine);
+void bt_machine_rename_dialog_apply(const BtMachineRenameDialog *self);
 
 #endif // BT_MACHINE_RENAME_DIALOG_H

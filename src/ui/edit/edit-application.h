@@ -49,14 +49,36 @@ struct _BtEditApplication {
   /*< private >*/
   BtEditApplicationPrivate *priv;
 };
-/* structure of the edit-application class */
+
 struct _BtEditApplicationClass {
   BtApplicationClass parent;
 
   void (*song_changed)(const BtEditApplication *app, gpointer user_data);
 };
 
-/* used by EDIT_APPLICATION_TYPE */
 GType bt_edit_application_get_type(void) G_GNUC_CONST;
+
+BtEditApplication *bt_edit_application_new(void);
+
+gboolean bt_edit_application_new_song(const BtEditApplication *self);
+gboolean bt_edit_application_load_song(const BtEditApplication *self,const char *file_name);
+gboolean bt_edit_application_save_song(const BtEditApplication *self,const char *file_name);
+
+gboolean bt_edit_application_run(const BtEditApplication *self);
+gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const gchar *input_file_name);
+gboolean bt_edit_application_quit(const BtEditApplication *self);
+
+void bt_edit_application_show_about(const BtEditApplication *self);
+void bt_edit_application_show_tip(const BtEditApplication *self);
+
+void bt_edit_application_crash_log_recover(const BtEditApplication *self);
+
+void bt_edit_application_attach_child_window(const BtEditApplication *self, GtkWindow *window);
+
+void bt_edit_application_ui_lock(const BtEditApplication *self);
+void bt_edit_application_ui_unlock(const BtEditApplication *self);
+
+gboolean bt_edit_application_is_song_unsaved(const BtEditApplication *self);
+void bt_edit_application_set_song_unsaved(const BtEditApplication *self);
 
 #endif // BT_EDIT_APPLICATION_H

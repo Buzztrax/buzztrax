@@ -1,5 +1,100 @@
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/about-dialog.h:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/change-log.h:
+	* src/ui/edit/change-logger.h:
+	* src/ui/edit/crash-recover-dialog.h:
+	* src/ui/edit/edit-application.h:
+	* src/ui/edit/interaction-controller-learn-dialog.h:
+	* src/ui/edit/interaction-controller-menu.h:
+	* src/ui/edit/machine-canvas-item.h:
+	* src/ui/edit/machine-list-model.h:
+	* src/ui/edit/machine-menu.h:
+	* src/ui/edit/machine-preferences-dialog.h:
+	* src/ui/edit/machine-preset-properties-dialog.h:
+	* src/ui/edit/machine-properties-dialog.h:
+	* src/ui/edit/machine-rename-dialog.h:
+	* src/ui/edit/main-menu.h:
+	* src/ui/edit/main-page-info.h:
+	* src/ui/edit/main-page-machines.h:
+	* src/ui/edit/main-page-patterns.h:
+	* src/ui/edit/main-page-sequence.h:
+	* src/ui/edit/main-page-waves.h:
+	* src/ui/edit/main-pages.h:
+	* src/ui/edit/main-statusbar.h:
+	* src/ui/edit/main-toolbar.h:
+	* src/ui/edit/main-window.h:
+	* src/ui/edit/missing-framework-elements-dialog.h:
+	* src/ui/edit/missing-song-elements-dialog.h:
+	* src/ui/edit/object-list-model.h:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-list-model.h:
+	* src/ui/edit/pattern-properties-dialog.h:
+	* src/ui/edit/playback-controller-socket.h:
+	* src/ui/edit/render-dialog.h:
+	* src/ui/edit/render-progress.h:
+	* src/ui/edit/sequence-grid-model.h:
+	* src/ui/edit/sequence-view.h:
+	* src/ui/edit/settings-dialog.h:
+	* src/ui/edit/settings-page-audiodevices.h:
+	* src/ui/edit/settings-page-directories.h:
+	* src/ui/edit/settings-page-interaction-controller.h:
+	* src/ui/edit/settings-page-playback-controller.h:
+	* src/ui/edit/settings-page-shortcuts.h:
+	* src/ui/edit/signal-analysis-dialog.h:
+	* src/ui/edit/tip-dialog.h:
+	* src/ui/edit/ui-resources.h:
+	* src/ui/edit/wire-canvas-item.h:
+	* src/ui/edit/machine-preset-properties-dialog-methods.h (deleted):
+	* src/ui/edit/interaction-controller-learn-dialog-methods.h (deleted):
+	* src/ui/edit/machine-preferences-dialog-methods.h (deleted):
+	* src/ui/edit/machine-menu-methods.h (deleted):
+	* src/ui/edit/settings-page-directories-methods.h (deleted):
+	* src/ui/edit/tip-dialog-methods.h (deleted):
+	* src/ui/edit/about-dialog-methods.h (deleted):
+	* src/ui/edit/machine-list-model-methods.h (deleted):
+	* src/ui/edit/wire-canvas-item-methods.h (deleted):
+	* src/ui/edit/settings-page-audiodevices-methods.h (deleted):
+	* src/ui/edit/render-dialog-methods.h (deleted):
+	* src/ui/edit/sequence-view-methods.h (deleted):
+	* src/ui/edit/render-progress-methods.h (deleted):
+	* src/ui/edit/main-menu-methods.h (deleted):
+	* src/ui/edit/settings-dialog-methods.h (deleted):
+	* src/ui/edit/interaction-controller-menu-methods.h (deleted):
+	* src/ui/edit/pattern-properties-dialog-methods.h (deleted):
+	* src/ui/edit/settings-page-playback-controller-methods.h (deleted):
+	* src/ui/edit/main-pages-methods.h (deleted):
+	* src/ui/edit/main-page-machines-methods.h (deleted):
+	* src/ui/edit/missing-song-elements-dialog-methods.h (deleted):
+	* src/ui/edit/main-window-methods.h (deleted):
+	* src/ui/edit/main-page-sequence-methods.h (deleted):
+	* src/ui/edit/settings-page-interaction-controller-methods.h (deleted):
+	* src/ui/edit/machine-canvas-item-methods.h (deleted):
+	* src/ui/edit/sequence-grid-model-methods.h (deleted):
+	* src/ui/edit/signal-analysis-dialog-methods.h (deleted):
+	* src/ui/edit/playback-controller-socket-methods.h (deleted):
+	* src/ui/edit/change-logger-methods.h (deleted):
+	* src/ui/edit/change-log-methods.h (deleted):
+	* src/ui/edit/machine-rename-dialog-methods.h (deleted):
+	* src/ui/edit/pattern-list-model-methods.h (deleted):
+	* src/ui/edit/edit-application-methods.h (deleted):
+	* src/ui/edit/main-statusbar-methods.h (deleted):
+	* src/ui/edit/main-page-patterns-methods.h (deleted):
+	* src/ui/edit/missing-framework-elements-dialog-methods.h (deleted):
+	* src/ui/edit/main-page-waves-methods.h (deleted):
+	* src/ui/edit/main-toolbar-methods.h (deleted):
+	* src/ui/edit/machine-properties-dialog-methods.h (deleted):
+	* src/ui/edit/crash-recover-dialog-methods.h (deleted):
+	* src/ui/edit/settings-page-shortcuts-methods.h (deleted):
+	* src/ui/edit/object-list-model-methods.h (deleted):
+	* src/ui/edit/ui-resources-methods.h (deleted):
+	* src/ui/edit/main-page-info-methods.h (deleted):
+	  Get rid of extra header files (part 4).
+
+2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	  Sort entries.
 

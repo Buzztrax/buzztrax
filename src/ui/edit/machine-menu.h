@@ -49,13 +49,14 @@ struct _BtMachineMenu {
   /*< private >*/
   BtMachineMenuPrivate *priv;
 };
-/* structure of the machine-menu class */
+
 struct _BtMachineMenuClass {
   GtkMenuClass parent;
   
 };
 
-/* used by MACHINE_MENU_TYPE */
 GType bt_machine_menu_get_type(void) G_GNUC_CONST;
+
+BtMachineMenu *bt_machine_menu_new(const BtMainPageMachines *main_page_machines);
 
 #endif // BT_MACHINE_MENU_H

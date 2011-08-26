@@ -57,4 +57,6 @@ struct _BtCrashRecoverDialogClass {
 
 GType bt_crash_recover_dialog_get_type(void) G_GNUC_CONST;
 
+BtCrashRecoverDialog *bt_crash_recover_dialog_new(GList *crash_entries);
+
 #endif // BT_CRASH_RECOVER_DIALOG_H

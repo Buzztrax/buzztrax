@@ -49,7 +49,7 @@ struct _BtRenderDialog {
   /*< private >*/
   BtRenderDialogPrivate *priv;
 };
-/* structure of the render-dialog class */
+
 struct _BtRenderDialogClass {
   GtkDialogClass parent;
 
@@ -70,9 +70,9 @@ typedef enum {
 } BtRenderMode;
 
 
-/* used by RENDER_DIALOG_TYPE */
 GType bt_render_dialog_get_type(void) G_GNUC_CONST;
-/* used by RENDER_MODE_TYPE */
 GType bt_render_mode_get_type(void) G_GNUC_CONST;
+
+BtRenderDialog *bt_render_dialog_new(void);
 
 #endif // BT_RENDER_DIALOG_H

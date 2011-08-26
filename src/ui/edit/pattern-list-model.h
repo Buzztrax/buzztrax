@@ -49,7 +49,7 @@ struct _BtPatternListModel {
   /*< private >*/
   BtPatternListModelPrivate *priv;
 };
-/* structure of the ui-resources class */
+
 struct _BtPatternListModelClass {
   GObjectClass parent;
 };
@@ -63,5 +63,8 @@ enum {
 };
 
 GType bt_pattern_list_model_get_type(void) G_GNUC_CONST;
+
+BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *sequence,gboolean skip_internal);
+BtPattern *bt_pattern_list_model_get_object(BtPatternListModel *model,GtkTreeIter *iter);
 
 #endif // BT_PATTERN_LIST_MODEL_H

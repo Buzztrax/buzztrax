@@ -49,13 +49,14 @@ struct _BtSettingsPagePlaybackController {
   /*< private >*/
   BtSettingsPagePlaybackControllerPrivate *priv;
 };
-/* structure of the settings-dialog class */
+
 struct _BtSettingsPagePlaybackControllerClass {
   GtkTableClass parent;
 
 };
 
-/* used by SETTINGS_PAGE_PLAYBACK_CONTROLLER_TYPE */
 GType bt_settings_page_playback_controller_get_type(void) G_GNUC_CONST;
+
+BtSettingsPagePlaybackController *bt_settings_page_playback_controller_new(void);
 
 #endif // BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER_H

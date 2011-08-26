@@ -49,13 +49,14 @@ struct _BtSignalAnalysisDialog {
   /*< private >*/
   BtSignalAnalysisDialogPrivate *priv;
 };
-/* structure of the machine-preferences-dialog class */
+
 struct _BtSignalAnalysisDialogClass {
   GtkWindowClass parent;
   
 };
 
-/* used by SIGNAL_ANALYSIS_DIALOG_TYPE */
 GType bt_signal_analysis_dialog_get_type(void) G_GNUC_CONST;
+
+BtSignalAnalysisDialog *bt_signal_analysis_dialog_new(const GstBin *element);
 
 #endif // BT_SIGNAL_ANALYSIS_DIALOG_H

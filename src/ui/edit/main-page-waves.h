@@ -49,13 +49,16 @@ struct _BtMainPageWaves {
   /*< private >*/
   BtMainPageWavesPrivate *priv;
 };
-/* structure of the main-page-waves class */
+
 struct _BtMainPageWavesClass {
   GtkVBoxClass parent;
   
 };
 
-/* used by MAIN_PAGE_WAVES_TYPE */
 GType bt_main_page_waves_get_type(void) G_GNUC_CONST;
+
+#include "main-pages.h"
+
+BtMainPageWaves *bt_main_page_waves_new(const BtMainPages *pages);
 
 #endif // BT_MAIN_PAGE_WAVES_H

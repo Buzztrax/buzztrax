@@ -49,13 +49,14 @@ struct _BtPlaybackControllerSocket {
   /*< private >*/
   BtPlaybackControllerSocketPrivate *priv;
 };
-/* structure of the settings-dialog class */
+
 struct _BtPlaybackControllerSocketClass {
   GObjectClass parent;
   
 };
 
-/* used by PLAYBACK_CONTROLLER_SOCKET_TYPE */
 GType bt_playback_controller_socket_get_type(void) G_GNUC_CONST;
+
+BtPlaybackControllerSocket *bt_playback_controller_socket_new(void);
 
 #endif // BT_PLAYBACK_CONTROLLER_SOCKET_H

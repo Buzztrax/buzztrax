@@ -49,13 +49,16 @@ struct _BtMainPageInfo {
   /*< private >*/
   BtMainPageInfoPrivate *priv;
 };
-/* structure of the main-page-info class */
+
 struct _BtMainPageInfoClass {
   GtkVBoxClass parent;
   
 };
 
-/* used by MAIN_PAGE_INFO_TYPE */
 GType bt_main_page_info_get_type(void) G_GNUC_CONST;
+
+#include "main-pages.h"
+
+BtMainPageInfo *bt_main_page_info_new(const BtMainPages *pages);
 
 #endif // BT_MAIN_PAGE_INFO_H

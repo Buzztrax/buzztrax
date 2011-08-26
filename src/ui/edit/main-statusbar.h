@@ -49,7 +49,7 @@ struct _BtMainStatusbar {
   /*< private >*/
   BtMainStatusbarPrivate *priv;
 };
-/* structure of the main-menu class */
+
 struct _BtMainStatusbarClass {
   GtkHBoxClass parent;
   
@@ -62,7 +62,8 @@ struct _BtMainStatusbarClass {
  */
 #define BT_MAIN_STATUSBAR_DEFAULT _("Ready to rock!")
 
-/* used by MAIN_STATUSBAR_TYPE */
 GType bt_main_statusbar_get_type(void) G_GNUC_CONST;
+
+BtMainStatusbar *bt_main_statusbar_new(void);
 
 #endif // BT_MAIN_STATUSBAR_H

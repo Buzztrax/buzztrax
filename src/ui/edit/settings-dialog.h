@@ -49,7 +49,7 @@ struct _BtSettingsDialog {
   /*< private >*/
   BtSettingsDialogPrivate *priv;
 };
-/* structure of the settings-dialog class */
+
 struct _BtSettingsDialogClass {
   GtkDialogClass parent;
 
@@ -79,7 +79,8 @@ typedef enum {
 
 GType bt_settings_page_get_type(void) G_GNUC_CONST;
 
-/* used by SETTINGS_DIALOG_TYPE */
 GType bt_settings_dialog_get_type(void) G_GNUC_CONST;
+
+BtSettingsDialog *bt_settings_dialog_new(void);
 
 #endif // BT_SETTINGS_DIALOG_H

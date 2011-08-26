@@ -49,11 +49,13 @@ struct _BtInteractionControllerLearnDialog {
   /*< private >*/
   BtInteractionControllerLearnDialogPrivate *priv;
 };
-/* structure of the learn-dialog class */
+
 struct _BtInteractionControllerLearnDialogClass {
   GtkDialogClass parent;
 };
 
 GType bt_interaction_controller_learn_dialog_get_type(void) G_GNUC_CONST;
+
+BtInteractionControllerLearnDialog *bt_interaction_controller_learn_dialog_new(BtIcDevice *device);
 
 #endif // BT_INTERACTION_CONTROLLER_LEARN_DIALOG_H

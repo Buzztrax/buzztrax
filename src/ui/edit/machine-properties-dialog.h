@@ -49,13 +49,14 @@ struct _BtMachinePropertiesDialog {
   /*< private >*/
   BtMachinePropertiesDialogPrivate *priv;
 };
-/* structure of the machine-properties-dialog class */
+
 struct _BtMachinePropertiesDialogClass {
   GtkWindowClass parent;
   
 };
 
-/* used by MACHINE_PROPERTIES_DIALOG_TYPE */
 GType bt_machine_properties_dialog_get_type(void) G_GNUC_CONST;
+
+BtMachinePropertiesDialog *bt_machine_properties_dialog_new(const BtMachine *machine);
 
 #endif // BT_MACHINE_PROPERTIES_DIALOG_H

@@ -49,13 +49,14 @@ struct _BtSettingsPageAudiodevices {
   /*< private >*/
   BtSettingsPageAudiodevicesPrivate *priv;
 };
-/* structure of the settings-dialog class */
+
 struct _BtSettingsPageAudiodevicesClass {
   GtkTableClass parent;
   
 };
 
-/* used by SETTINGS_PAGE_AUDIODEVICES_TYPE */
 GType bt_settings_page_audiodevices_get_type(void) G_GNUC_CONST;
+
+BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new(void);
 
 #endif // BT_SETTINGS_PAGE_AUDIODEVICES_H

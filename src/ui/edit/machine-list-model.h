@@ -49,7 +49,7 @@ struct _BtMachineListModel {
   /*< private >*/
   BtMachineListModelPrivate *priv;
 };
-/* structure of the ui-resources class */
+
 struct _BtMachineListModelClass {
   GObjectClass parent;
 };
@@ -61,5 +61,8 @@ enum {
 };
 
 GType bt_machine_list_model_get_type(void) G_GNUC_CONST;
+
+BtMachineListModel *bt_machine_list_model_new(BtSetup *setup);
+BtMachine *bt_machine_list_model_get_object(BtMachineListModel *model,GtkTreeIter *iter);
 
 #endif // BT_MACHINE_LIST_MODEL_H
