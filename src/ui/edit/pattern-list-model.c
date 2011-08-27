@@ -250,6 +250,19 @@ static void on_sequence_pattern_usage_changed(BtSequence *sequence,BtPattern *pa
 
 //-- constructor methods
 
+/**
+ * bt_pattern_list_model_new:
+ * @machine: the machine
+ * @sequence: the sequence
+ * @skip_internal: wheter to include internal patterns or not
+ *
+ * Creates a list model of patterns for the @machne. The model is automatically
+ * updated when patterns are added, removed or changed. The @sequence is used to
+ * track the use of patterns.
+ *
+ * Returns: the pattern model.
+ */
+
 BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *sequence,gboolean skip_internal) {
   BtPatternListModel *self;
   BtPattern *pattern;
@@ -296,6 +309,13 @@ BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *seq
 
 //-- methods
 
+/**
+ * bt_pattern_list_model_get_object:
+ * @model: the model
+ * @iter: the iter
+ *
+ * The the #BtPattern for the iter.
+ */
 BtPattern *bt_pattern_list_model_get_object(BtPatternListModel *model,GtkTreeIter *iter) {
   return(g_sequence_get(iter->user_data));
 }

@@ -40,7 +40,8 @@ HFILE_GLOB=$(top_srcdir)/src/lib/core/libbuzztard-core/*.h
 CFILE_GLOB=$(top_srcdir)/src/lib/core/*.c
 
 # Header files to ignore when scanning.
-IGNORE_HFILES=core_private.h settings-private.h marshal.h
+IGNORE_HFILES=core_private.h settings-private.h marshal.h version.h \
+  plainfile-settings.h
 
 # Images to copy into HTML directory.
 HTML_IMAGES =

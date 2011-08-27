@@ -26,15 +26,24 @@
  * Provides an editor for the song meta data.
  */
 
-/* @todo
+/* @todo:
  * - use this tab as the first one?
  * - add choice for metre (in german -> takt): beats (beats = bars / tpb)
+ *   or at least show the resulting metre
  */
-/* @todo undo/redo
+/* @todo: undo/redo
  * - for text_view we would need to connect to insert_at_corsor and delete_from_cursor
  *   signals to track changes
  * - for text_enry the signals are inserted_text and deleted_text
  * - optionally we just store the complete before/after
+ */
+/* @todo: changing tpb, beats
+ * - when changing tpb and beats the playback-speed of the current song is
+ *   affected, we might want to offer a tool to resample the patterns.
+ * - it would probably be easier to have some buttons for 
+ *   1/4x 1/3x 1/2x 2x, 3x, 4x tick resolution
+ * - when lowering the tick resolution, we need to handle loss of notes
+ *   when doing 1/4 we would merge 4 rows into one keeping the first note found
  */
  
 #define BT_EDIT

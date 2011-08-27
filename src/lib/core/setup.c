@@ -23,10 +23,15 @@
  * @short_description: class with all machines and wires (#BtMachine and #BtWire)
  * for a #BtSong instance
  *
- * The setup manages virtual gear. That is used #BtMachines and the #BtWires
- * that connect them.
+ * The setup manages virtual gear in a #BtSong. This is a list of #BtMachines
+ * that are used and the #BtWires that connect them.
  *
- * It also manages the GStreamer #GstPipeline content.
+ * The setup manages the actual GStreamer #GstPipeline content. Fresly created
+ * machines are not yet added to the pipeline. Only once a subgraph from a
+ * source is fully connected to the sink, that subgraph is added o the pipeline.
+ *
+ * Applications can watch the GstObject:parent property to see wheter a machine
+ * is physically inserted into the processing pipeline. 
  */
 /* support dynamic (un)linking (while playing)
  *

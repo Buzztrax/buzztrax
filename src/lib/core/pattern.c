@@ -23,9 +23,15 @@
  * @short_description: class for an event pattern of a #BtMachine instance
  *
  * A pattern contains a grid of events. Events are parameter changes in
- * #BtMachine objects. The events are stored aas #GValues. Patterns can have
- * individual length, but a change in the number of voices (tracks) is reflected
- * in all patterns of a machine.
+ * #BtMachine objects. The events are stored as #GValues. Cells contaning %NULL
+ * have no event for the parameter at the time.
+ *
+ * Patterns can have individual length. The length is meassured in ticks. How
+ * much that is in e.g. milliseconds is determined by #BtSongInfo:bpm and 
+ * #BtSongInfo:tpm.
+ *
+ * The number of voices (tracks) is the same in all patterns of a machine. If
+ * the voices are changed on the machine patterns resize themself.
  *
  * The patterns are used in the #BtSequence to form the score of a song.
  */

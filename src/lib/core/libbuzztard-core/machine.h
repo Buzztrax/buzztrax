@@ -60,7 +60,15 @@ struct _BtMachine {
   BtMachinePrivate *priv;
 };
 
+/**
+ * BtMachineClass:
+ * @check_type: sanity check that the given input/output characteristics are
+ * okay for the implementation
+ *
+ * Base class for machines.
+ */
 struct _BtMachineClass {
+  /*< private >*/
   const GstBinClass parent;
 
   /*< public >*/

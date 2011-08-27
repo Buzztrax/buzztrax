@@ -1062,7 +1062,5 @@ bindtextdomain
 dgettext
 gettext
 textdomain
-# marshallers
-bt_marshal_VOID__OBJECT_OBJECT
 </SECTION>
 

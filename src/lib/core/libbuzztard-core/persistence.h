@@ -39,9 +39,19 @@
 typedef struct _BtPersistence BtPersistence; /* dummy object */
 typedef struct _BtPersistenceInterface BtPersistenceInterface;
 
+/**
+ * BtPersistenceInterface:
+ * @save: virtual method to serialize an object to an xml node
+ * @load: virtual method to deserialze an object from an xml node
+ *
+ * #BtPersistence interface
+ */
 struct _BtPersistenceInterface {
+  /*< private >*/
   const GTypeInterface parent;
 
+  /*< public >*/
+  /* virtual methods */
   xmlNodePtr (*save)(const BtPersistence * const self, xmlNodePtr const node);
   BtPersistence* (*load)(const GType type, const BtPersistence * const self, xmlNodePtr node, GError **err, va_list var_args);
 };

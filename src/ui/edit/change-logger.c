@@ -35,7 +35,19 @@
 G_DEFINE_INTERFACE (BtChangeLogger, bt_change_logger, 0);
 
 //-- common helper
-
+       
+/**
+ * bt_change_logger_match_method:
+ * @change_logger_methods: array of change log methods
+ * @data: the string to match agains
+ * @match_info: resulting parameter on a positive match
+ *
+ * Matches commands registered in the @change_logger_methods against @data. If
+ * a match is found the parameters are returned in @match_info.
+ *
+ * Returns: the command id from @change_logger_methods or -1 for no match. Free
+ * the match_info on positive matches. 
+ */
 gint bt_change_logger_match_method(BtChangeLoggerMethods *change_logger_methods,const gchar *data, GMatchInfo **match_info) {
   gint i=0,res=-1;
   BtChangeLoggerMethods *clm=change_logger_methods;

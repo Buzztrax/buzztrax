@@ -61,6 +61,16 @@ G_DEFINE_TYPE_WITH_CODE (BtObjectListModel, bt_object_list_model, G_TYPE_OBJECT,
 
 //-- constructor methods
 
+/**
+ * bt_object_list_model_new:
+ * @n_columns: number of columns
+ * @object_type: the #GType of the objects in the model
+ * @...: property names for the columns
+ *
+ * Creates a list model mapping object properties to model columns. 
+ *
+ * Returns: the model.
+ */
 BtObjectListModel *bt_object_list_model_new(gint n_columns,GType object_type,...) {
   BtObjectListModel *self;
   GObjectClass *klass;
@@ -98,6 +108,14 @@ void bt_object_list_model_prepend(BtObjectListModel *model,GObject *object) {
 }
 #endif
 
+/**
+ * bt_object_list_model_append:
+ * @model: the model
+ * @object: the object to append
+ *
+ * Append a new row to the @model. The @object has to have the same type as
+ * given to bt_object_list_model_new().
+ */
 void bt_object_list_model_append(BtObjectListModel *model,GObject *object) {
   GSequence *seq=model->priv->seq;
   GtkTreePath *path;
@@ -116,6 +134,13 @@ void bt_object_list_model_append(BtObjectListModel *model,GObject *object) {
   gtk_tree_path_free(path);
 }
 
+/**
+ * bt_object_list_model_get_object:
+ * @model: the model
+ * @iter: the iter
+ *
+ * The the #GObject for the iter.
+ */
 GObject *bt_object_list_model_get_object(BtObjectListModel *model,GtkTreeIter *iter) {
   return(g_sequence_get(iter->user_data));
 }

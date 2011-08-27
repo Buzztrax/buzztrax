@@ -27,8 +27,8 @@
  * recording a song to a file (rendering) in the form of meta-tags.
  *
  * Further there are fields that determine rythm and song-speed. The speed is
- * determined by BtSongInfo::bpm. The rythm is determined by BtSongInfo::bars
- * and BtSongInfo::tpb. If 'bars' is 16, than on can have 1/16 notes.
+ * determined by #BtSongInfo:bpm. The rythm is determined by #BtSongInfo:bars
+ * and #BtSongInfo:tpb. If 'bars' is 16, than on can have 1/16 notes.
  * And if 'ticks per beat' is 4 one will have 4 beats - a classic 4/4 meassure.
  * For a 3/4 meassure, 'bars' would be 12. Thus bars = beats * tpb.
  */
@@ -37,9 +37,7 @@
  *    string: "(C) YYYY <SONG_INFO_AUTHOR>"
  *  - license: GST_TAG_LICENSE (http://creativecommons.org/licenses/)
  *    - would be nice to use liblicense (not widely packaged :/)
- *
- * @todo: add sample-rate and channels properties
- *  - they will be set on sink-bin
+ *    - we'll have liblicense support in gst-0.10.36
  */
 
 #define BT_CORE

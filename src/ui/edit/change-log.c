@@ -660,6 +660,15 @@ BtChangeLog *bt_change_log_new(void) {
 
 //-- methods
 
+/**
+ * bt_change_log_is_active:
+ * @self: the changelog
+ *
+ * Checks if the changelog journalling is active. Should be checked before
+ * adding entries to avoid logging when e.g. loading a song.
+ *
+ * Returns: %TRUE if the log is active
+ */
 gboolean bt_change_log_is_active(BtChangeLog *self) {
   return(self->priv->is_active);
 }

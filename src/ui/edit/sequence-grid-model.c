@@ -34,7 +34,6 @@
  * - support reordering tracks without rebuilding the model
  *   - check on_track_move_left_activated()
  *   - maybe we need to emit notify::tracks when reordering too
- * - support insert/delete without rebuilding the model
  * - when do we refresh+recolorize in the old code
  *   - todo in new code
  *     - move track left/right
@@ -105,7 +104,6 @@ G_DEFINE_TYPE_WITH_CODE (BtSequenceGridModel, bt_sequence_grid_model, G_TYPE_OBJ
 			 G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL,
 						bt_sequence_grid_model_tree_model_init));
 
-
 //-- helper
 
 static gchar *format_position(const BtSequenceGridModel *model,gulong pos) {
@@ -165,7 +163,6 @@ static void bt_sequence_grid_model_rows_changed(BtSequenceGridModel *model,gulon
 static void bt_sequence_grid_model_all_rows_changed(BtSequenceGridModel *model) {
   bt_sequence_grid_model_rows_changed(model,0,model->priv->visible_length-1);
 }
-
 
 static void update_length(BtSequenceGridModel *model,gulong old_length,gulong new_length) {
   GtkTreePath *path;
@@ -286,6 +283,23 @@ static void on_sequence_pattern_removed(BtSequence *sequence,BtPattern *pattern,
 
 //-- constructor methods
 
+/**
+ * bt_sequence_grid_model_new:
+ * @sequence: the sequence
+ * @bars: the intial bar-filtering for the view
+ *
+ * Creates a grid model for the @sequence. The model is automatically updated on
+ * changes in the content. It also expands its length in sync to the sequence.
+ *
+ * To make the row-shading work, the application has to update 
+ * #BtSequenceGridModel:bars when it changed on the view.
+ *
+ * When setting #BtSequenceGridModel:length to a value greater than the real
+ * @sequence, the model will append dummy rows. This allows the cursor to go
+ * beyond the end to expand the sequence.
+ *
+ * Returns: the sequence model.
+ */
 BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence,gulong bars) {
   BtSequenceGridModel *self;
   BtSong *song;
@@ -326,10 +340,6 @@ BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence,gulong bars
 }
 
 //-- methods
-
-BtMachine *bt_sequence_grid_model_get_object(BtSequenceGridModel *model,GtkTreeIter *iter) {
-  return(g_sequence_get(iter->user_data));
-}
 
 //-- tree model interface
 

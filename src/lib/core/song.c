@@ -27,6 +27,12 @@
  *
  * To load or save a song, use a #BtSongIO object. These implement loading and
  * saving for different file-formats.
+ *
+ * One can seek in a song by setting the #BtSong:play-pos property. Likewise one
+ * can watch the property to display the playback position.
+ *
+ * The #BtSong:play-rate property can be used to change the playback speed and
+ * direction.
  */
 /* idle looping (needed for playing machines live)
  * - states:
@@ -692,7 +698,7 @@ BtSong *bt_song_new(const BtApplication * const app) {
  * @self: the song that should be played
  *
  * Starts to play the specified song instance from beginning.
- * This methods emits the "play" signal.
+ * This methods toggles the #BtSong:is-playing property.
  *
  * Returns: %TRUE for success
  */
@@ -834,7 +840,7 @@ gboolean bt_song_continue(const BtSong * const self) {
  * bt_song_update_playback_position:
  * @self: the song that should update its playback-pos counter
  *
- * Updates the playback-position counter to fire all notify::playback-pos
+ * Updates the playback-position counter to fire all #BtSong:play-pos notify
  * handlers.
  *
  * Returns: %FALSE if the song is not playing

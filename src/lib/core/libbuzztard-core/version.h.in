@@ -29,10 +29,4 @@
 #define BT_MINOR_VERSION @BT_MINOR_VERSION@
 #define BT_MICRO_VERSION @BT_MICRO_VERSION@
 
-#ifndef BT_CORE_C
-extern const unsigned int bt_major_version;
-extern const unsigned int bt_minor_version;
-extern const unsigned int bt_micro_version;
-#endif
-
 #endif // BT_VERSION

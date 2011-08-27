@@ -32,27 +32,23 @@ G_BEGIN_DECLS
 #define BT_IS_CHILD_PROXY(obj)	         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_CHILD_PROXY))
 #define BT_CHILD_PROXY_GET_INTERFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), BT_TYPE_CHILD_PROXY, BtChildProxyInterface))
 
-/**
- * BtChildProxy:
- *
- * Opaque #BtChildProxy data structure.
- */
 typedef struct _BtChildProxy BtChildProxy;    /* dummy object */
 typedef struct _BtChildProxyInterface BtChildProxyInterface;
 
 /**
  * BtChildProxyInterface:
- * @parent: parent interface type.
- * @get_child_by_index: virtual method to fetch the child
+ * @get_child_by_name: virtual method to fetch the child by name
+ * @get_child_by_index: virtual method to fetch the child by position
  * @get_children_count: virtual method to get the children count
  *
  * #BtChildProxy interface.
  */
-struct _BtChildProxyInterface
-{
+struct _BtChildProxyInterface {
+  /*< private >*/
   GTypeInterface parent;
 
-  /* methods */
+  /*< public >*/
+  /* virtual methods */
   GObject *(*get_child_by_name)(BtChildProxy *parent,const gchar *name);
   GObject *(*get_child_by_index) (BtChildProxy *parent,guint index);
   guint (*get_children_count) (BtChildProxy *parent);

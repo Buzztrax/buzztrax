@@ -78,10 +78,14 @@
 //-- prototypes ----------------------------------------------------------------
 
 #ifndef BT_CORE_C
-  extern GOptionGroup *bt_init_get_option_group(void);
-  extern void bt_init_add_option_groups(GOptionContext * const ctx);
-  extern gboolean bt_init_check(int *argc, char **argv[], GError **err);
-  extern void bt_init(int *argc, char **argv[]);
+GOptionGroup *bt_init_get_option_group(void);
+void bt_init_add_option_groups(GOptionContext * const ctx);
+gboolean bt_init_check(int *argc, char **argv[], GError **err);
+void bt_init(int *argc, char **argv[]);
+
+extern const unsigned int bt_major_version;
+extern const unsigned int bt_minor_version;
+extern const unsigned int bt_micro_version;
 #endif
 
 #endif // BT_CORE_H

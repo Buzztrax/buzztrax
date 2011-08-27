@@ -1,3 +1,30 @@
+2011-08-27  Stefan Sauer  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/lib/core/libbuzztard-core/childproxy.h:
+	* src/lib/core/libbuzztard-core/core.h:
+	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztard-core/persistence.h:
+	* src/lib/core/libbuzztard-core/version.h.in:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/settings.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song.c:
+	* src/lib/core/wire-pattern.c:
+	* src/ui/edit/change-log.c:
+	* src/ui/edit/change-logger.c:
+	* src/ui/edit/machine-list-model.c:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/object-list-model.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-list-model.c:
+	* src/ui/edit/sequence-grid-model.c:
+	  Improve and fix API docs.
+
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/Makefile.am:

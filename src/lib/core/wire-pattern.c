@@ -23,10 +23,14 @@
  * @short_description: class for an event pattern of a #BtMachine instance
  *
  * A wire-pattern contains a grid of events. Events are parameter changes in
- * #BtWire objects. The events are stored aas #GValues.
+ * #BtWire objects. The events are stored as #GValues. Cells contaning %NULL
+ * have no event for the parameter at the time.
  *
  * The wire-patterns are used in normal #BtPattern objects as a group for each
- * input.
+ * input of the #BtMachine that is the owner of the pattern.
+ *
+ * Wire-patterns synchronize their length to the length of the pattern they
+ * belong to.
  */
 /* we need wire_params (volume,panning ) per input
  * - only for processor machines sink machine patterns

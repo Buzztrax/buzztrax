@@ -28,10 +28,13 @@
  * capabillities the <code>configure</code> script find on the system one of the
  * subclasses (#BtGConfSettings,#BtPlainfileSettings) will be used.
  *
- * In any case it is always sufficient to talk to this class instance.
- * Single settings are accessed via normat g_object_get() and g_object_set() calls.
+ * In any case it is always sufficient to talk to this class instance. Single
+ * settings are accessed via normat g_object_get() and g_object_set() calls. If
+ * the backends supports it changes in the settings will be notified to the
+ * application by the GObject::notify signal.
  */
-/* @todo: how can we decouple application specific settings?
+/* @todo: how can we decouple application specific settings for core settings?
+ * We'd need to register schemas and create the GObject properties as needed.
  */
 #define BT_CORE
 #define BT_SETTINGS_C

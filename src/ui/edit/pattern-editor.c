@@ -1330,6 +1330,13 @@ bt_pattern_editor_class_init(BtPatternEditorClass *klass)
   widget_class->button_press_event = bt_pattern_editor_button_press;
   widget_class->button_release_event = bt_pattern_editor_button_release;
 
+  /**
+   * BtPatternEditor::set-scroll-adjustments:
+   * @hadjustment: horizontal adjustment
+   * @vadjustment: vertical adjust
+   *
+   * Internal signal for scrolling.
+   */
   widget_class->set_scroll_adjustments_signal = g_signal_new("set-scroll-adjustments",
 							     BT_TYPE_PATTERN_EDITOR,
 							     G_SIGNAL_RUN_LAST,

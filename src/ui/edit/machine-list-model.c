@@ -204,6 +204,15 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
 //-- constructor methods
 
+/**
+ * bt_machine_list_model_new:
+ * @setup: the setup
+ *
+ * Creates a list model of machines for the @setup. The model is automatically
+ * updated when machines are added, removed or changed.
+ *
+ * Returns: the machine model.
+ */
 BtMachineListModel *bt_machine_list_model_new(BtSetup *setup) {
   BtMachineListModel *self;
   BtMachine *machine;
@@ -234,6 +243,13 @@ BtMachineListModel *bt_machine_list_model_new(BtSetup *setup) {
 
 //-- methods
 
+/**
+ * bt_machine_list_model_get_object:
+ * @model: the model
+ * @iter: the iter
+ *
+ * The the #BtMachine for the iter.
+ */
 BtMachine *bt_machine_list_model_get_object(BtMachineListModel *model,GtkTreeIter *iter) {
   return(g_sequence_get(iter->user_data));
 }

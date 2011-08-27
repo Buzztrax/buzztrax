@@ -15,21 +15,21 @@
 <TITLE>BtApplication</TITLE>
 BtApplication
 <SUBSECTION Standard>
-BtApplicationClass
 BT_APPLICATION
-BT_IS_APPLICATION
 BT_APPLICATION_CLASS
+BT_APPLICATION_GET_CLASS
+BT_IS_APPLICATION
 BT_IS_APPLICATION_CLASS
 BT_TYPE_APPLICATION
-BT_APPLICATION_GET_CLASS
-bt_application_get_type
+BtApplicationClass
 BtApplicationPrivate
+bt_application_get_type
 </SECTION>
 
 <SECTION>
 <FILE>btchildproxy</FILE>
 <TITLE>BtChildProxy</TITLE>
-BtChildProxy
+BtChildProxyInterface
 bt_child_proxy_get
 bt_child_proxy_get_child_by_index
 bt_child_proxy_get_child_by_name
@@ -41,11 +41,10 @@ bt_child_proxy_set
 bt_child_proxy_set_property
 bt_child_proxy_set_valist
 <SUBSECTION Standard>
-BtChildProxyInterface
 BT_CHILD_PROXY
+BT_CHILD_PROXY_GET_INTERFACE
 BT_IS_CHILD_PROXY
 BT_TYPE_CHILD_PROXY
-BT_CHILD_PROXY_GET_INTERFACE
 bt_child_proxy_get_type
 </SECTION>
 
@@ -55,21 +54,22 @@ bt_child_proxy_get_type
 BtGConfSettings
 bt_gconf_settings_new
 <SUBSECTION Standard>
-BtGConfSettingsClass
 BT_GCONF_SETTINGS
-BT_IS_GCONF_SETTINGS
 BT_GCONF_SETTINGS_CLASS
+BT_GCONF_SETTINGS_GET_CLASS
+BT_IS_GCONF_SETTINGS
 BT_IS_GCONF_SETTINGS_CLASS
 BT_TYPE_GCONF_SETTINGS
-BT_GCONF_SETTINGS_GET_CLASS
-bt_gconf_settings_get_type
+BtGConfSettingsClass
 BtGConfSettingsPrivate
+bt_gconf_settings_get_type
 </SECTION>
 
 <SECTION>
 <FILE>btmachine</FILE>
 <TITLE>BtMachine</TITLE>
 BtMachine
+BtMachineClass
 BtMachineState
 bt_machine_activate_adder
 bt_machine_activate_spreader
@@ -128,17 +128,16 @@ bt_machine_dbg_dump_voice_controller_queue
 bt_machine_dbg_print_parts
 bt_machine_get_element_list
 <SUBSECTION Standard>
-BtMachineClass
-BT_MACHINE
 BT_IS_MACHINE
-BT_MACHINE_CLASS
 BT_IS_MACHINE_CLASS
+BT_MACHINE
+BT_MACHINE_CLASS
 BT_MACHINE_GET_CLASS
 BT_TYPE_MACHINE
 BT_TYPE_MACHINE_STATE
+BtMachinePrivate
 bt_machine_get_type
 bt_machine_state_get_type
-BtMachinePrivate
 </SECTION>
 
 <SECTION>
@@ -177,22 +176,23 @@ bt_pattern_test_global_event
 bt_pattern_test_voice_event
 bt_pattern_tick_has_data
 <SUBSECTION Standard>
-BtPatternClass
-BT_PATTERN
 BT_IS_PATTERN
-BT_PATTERN_CLASS
 BT_IS_PATTERN_CLASS
+BT_PATTERN
+BT_PATTERN_CLASS
 BT_PATTERN_GET_CLASS
 BT_TYPE_PATTERN
 BT_TYPE_PATTERN_CMD
-bt_pattern_get_type
-bt_pattern_cmd_get_type
+BtPatternClass
 BtPatternPrivate
+bt_pattern_cmd_get_type
+bt_pattern_get_type
 </SECTION>
 
 <SECTION>
 <FILE>btpersistence</FILE>
 <TITLE>BtPersistence</TITLE>
+BtPersistenceInterface
 bt_persistence_collect_hashtable_entries
 bt_persistence_get_value
 bt_persistence_load
@@ -208,30 +208,12 @@ bt_persistence_strfmt_long
 bt_persistence_strfmt_uchar
 bt_persistence_strfmt_ulong
 <SUBSECTION Standard>
-BtPersistence
-BtPersistenceInterface
-BT_TYPE_PERSISTENCE
-BT_PERSISTENCE
 BT_IS_PERSISTENCE
+BT_PERSISTENCE
 BT_PERSISTENCE_GET_INTERFACE
+BT_TYPE_PERSISTENCE
+BtPersistence
 bt_persistence_get_type
-</SECTION>
-
-<SECTION>
-<FILE>btplainfilesettings</FILE>
-<TITLE>BtPlainfileSettings</TITLE>
-BtPlainfileSettings
-bt_plainfile_settings_new
-<SUBSECTION Standard>
-BtPlainfileSettingsClass
-BT_PLAINFILE_SETTINGS
-BT_IS_PLAINFILE_SETTINGS
-BT_PLAINFILE_SETTINGS_CLASS
-BT_IS_PLAINFILE_SETTINGS_CLASS
-BT_TYPE_PLAINFILE_SETTINGS
-BT_PLAINFILE_SETTINGS_GET_CLASS
-bt_plainfile_settings_get_type
-BtPlainfileSettingsPrivate
 </SECTION>
 
 <SECTION>
@@ -241,15 +223,14 @@ BtProcessorMachine
 BtProcessorMachinePatternIndex
 bt_processor_machine_new
 <SUBSECTION Standard>
-BtProcessorMachineClass
-BT_PROCESSOR_MACHINE
 BT_IS_PROCESSOR_MACHINE
-BT_PROCESSOR_MACHINE_CLASS
 BT_IS_PROCESSOR_MACHINE_CLASS
+BT_PROCESSOR_MACHINE
+BT_PROCESSOR_MACHINE_CLASS
 BT_PROCESSOR_MACHINE_GET_CLASS
 BT_TYPE_PROCESSOR_MACHINE
+BtProcessorMachineClass
 bt_processor_machine_get_type
-BtProcessorMachinePrivate
 </SECTION>
 
 <SECTION>
@@ -281,15 +262,15 @@ bt_sequence_set_pattern
 bt_sequence_set_pattern_quick
 bt_sequence_update_tempo
 <SUBSECTION Standard>
-BtSequenceClass
-BT_SEQUENCE
 BT_IS_SEQUENCE
-BT_SEQUENCE_CLASS
 BT_IS_SEQUENCE_CLASS
+BT_SEQUENCE
+BT_SEQUENCE_CLASS
 BT_SEQUENCE_GET_CLASS
 BT_TYPE_SEQUENCE
-bt_sequence_get_type
+BtSequenceClass
 BtSequencePrivate
+bt_sequence_get_type
 </SECTION>
 
 <SECTION>
@@ -301,15 +282,14 @@ bt_settings_determine_audiosink_name
 bt_settings_make
 bt_settings_set_factory
 <SUBSECTION Standard>
-BtSettingsClass
-BT_SETTINGS
 BT_IS_SETTINGS
-BT_SETTINGS_CLASS
 BT_IS_SETTINGS_CLASS
-BT_TYPE_SETTINGS
+BT_SETTINGS
+BT_SETTINGS_CLASS
 BT_SETTINGS_GET_CLASS
+BT_TYPE_SETTINGS
+BtSettingsClass
 bt_settings_get_type
-BtSettingsPrivate
 </SECTION>
 
 <SECTION>
@@ -332,15 +312,15 @@ bt_setup_remember_missing_machine
 bt_setup_remove_machine
 bt_setup_remove_wire
 <SUBSECTION Standard>
-BtSetupClass
-BT_SETUP
 BT_IS_SETUP
-BT_SETUP_CLASS
 BT_IS_SETUP_CLASS
+BT_SETUP
+BT_SETUP_CLASS
 BT_SETUP_GET_CLASS
 BT_TYPE_SETUP
-bt_setup_get_type
+BtSetupClass
 BtSetupPrivate
+bt_setup_get_type
 </SECTION>
 
 <SECTION>
@@ -350,19 +330,19 @@ BtSinkBin
 BtSinkBinMode
 BtSinkBinRecordFormat
 <SUBSECTION Standard>
-BtSinkBinClass
-BT_SINK_BIN
 BT_IS_SINK_BIN
-BT_SINK_BIN_CLASS
 BT_IS_SINK_BIN_CLASS
+BT_SINK_BIN
+BT_SINK_BIN_CLASS
 BT_SINK_BIN_GET_CLASS
 BT_TYPE_SINK_BIN
 BT_TYPE_SINK_BIN_MODE
 BT_TYPE_SINK_BIN_RECORD_FORMAT
+BtSinkBinClass
+BtSinkBinPrivate
 bt_sink_bin_get_type
 bt_sink_bin_mode_get_type
 bt_sink_bin_record_format_get_type
-BtSinkBinPrivate
 </SECTION>
 
 <SECTION>
@@ -372,15 +352,14 @@ BtSinkMachine
 BtSinkMachinePatternIndex
 bt_sink_machine_new
 <SUBSECTION Standard>
-BtSinkMachineClass
-BT_SINK_MACHINE
 BT_IS_SINK_MACHINE
-BT_SINK_MACHINE_CLASS
 BT_IS_SINK_MACHINE_CLASS
+BT_SINK_MACHINE
+BT_SINK_MACHINE_CLASS
 BT_SINK_MACHINE_GET_CLASS
 BT_TYPE_SINK_MACHINE
+BtSinkMachineClass
 bt_sink_machine_get_type
-BtSinkMachinePrivate
 </SECTION>
 
 <SECTION>
@@ -399,14 +378,14 @@ bt_song_write_to_highlevel_dot_file
 bt_song_write_to_lowlevel_dot_file
 bt_song_write_to_xml_file
 <SUBSECTION Standard>
-BT_SONG
 BT_IS_SONG
-BT_SONG_CLASS
 BT_IS_SONG_CLASS
+BT_SONG
+BT_SONG_CLASS
 BT_SONG_GET_CLASS
 BT_TYPE_SONG
-bt_song_get_type
 BtSongPrivate
+bt_song_get_type
 </SECTION>
 
 <SECTION>
@@ -415,43 +394,42 @@ BtSongPrivate
 BtSongInfo
 bt_song_info_new
 <SUBSECTION Standard>
-BtSongInfoClass
-BT_SONG_INFO
 BT_IS_SONG_INFO
-BT_SONG_INFO_CLASS
 BT_IS_SONG_INFO_CLASS
+BT_SONG_INFO
+BT_SONG_INFO_CLASS
 BT_SONG_INFO_GET_CLASS
 BT_TYPE_SONG_INFO
-bt_song_info_get_type
+BtSongInfoClass
 BtSongInfoPrivate
+bt_song_info_get_type
 </SECTION>
 
 <SECTION>
 <FILE>btsongio</FILE>
 <TITLE>BtSongIO</TITLE>
+BT_SONG_IO_MODULE_INFO_MAX_FORMATS
 BtSongIO
 BtSongIOClass
-BtSongIOInit
 BtSongIOFormatInfo
+BtSongIOInit
 BtSongIOModuleInfo
 bt_song_io_from_data
 bt_song_io_from_file
 bt_song_io_get_module_info_list
 bt_song_io_load
 bt_song_io_save
-BT_SONG_IO_MODULE_INFO_MAX_FORMATS
-<SUBSECTION Virtual Methods>
 bt_song_io_virtual_load
 bt_song_io_virtual_save
 <SUBSECTION Standard>
-BT_SONG_IO
 BT_IS_SONG_IO
-BT_SONG_IO_CLASS
 BT_IS_SONG_IO_CLASS
+BT_SONG_IO
+BT_SONG_IO_CLASS
 BT_SONG_IO_GET_CLASS
 BT_TYPE_SONG_IO
-bt_song_io_get_type
 BtSongIOPrivate
+bt_song_io_get_type
 </SECTION>
 
 <SECTION>
@@ -461,14 +439,13 @@ BtSongIONative
 BtSongIONativeClass
 bt_song_io_native_module_info
 <SUBSECTION Standard>
-BT_SONG_IO_NATIVE
 BT_IS_SONG_IO_NATIVE
-BT_SONG_IO_NATIVE_CLASS
 BT_IS_SONG_IO_NATIVE_CLASS
+BT_SONG_IO_NATIVE
+BT_SONG_IO_NATIVE_CLASS
 BT_SONG_IO_NATIVE_GET_CLASS
 BT_TYPE_SONG_IO_NATIVE
 bt_song_io_native_get_type
-BtSongIONativePrivate
 </SECTION>
 
 <SECTION>
@@ -479,14 +456,14 @@ BtSongIONativeBZTClass
 bt_song_io_native_bzt_copy_from_uri
 bt_song_io_native_bzt_copy_to_fd
 <SUBSECTION Standard>
-BT_SONG_IO_NATIVE_BZT
 BT_IS_SONG_IO_NATIVE_BZT
-BT_SONG_IO_NATIVE_BZT_CLASS
 BT_IS_SONG_IO_NATIVE_BZT_CLASS
+BT_SONG_IO_NATIVE_BZT
+BT_SONG_IO_NATIVE_BZT_CLASS
 BT_SONG_IO_NATIVE_BZT_GET_CLASS
 BT_TYPE_SONG_IO_NATIVE_BZT
-bt_song_io_native_bzt_get_type
 BtSongIONativeBZTPrivate
+bt_song_io_native_bzt_get_type
 </SECTION>
 
 <SECTION>
@@ -495,14 +472,13 @@ BtSongIONativeBZTPrivate
 BtSongIONativeXML
 BtSongIONativeXMLClass
 <SUBSECTION Standard>
-BT_SONG_IO_NATIVE_XML
 BT_IS_SONG_IO_NATIVE_XML
-BT_SONG_IO_NATIVE_XML_CLASS
 BT_IS_SONG_IO_NATIVE_XML_CLASS
+BT_SONG_IO_NATIVE_XML
+BT_SONG_IO_NATIVE_XML_CLASS
 BT_SONG_IO_NATIVE_XML_GET_CLASS
 BT_TYPE_SONG_IO_NATIVE_XML
 bt_song_io_native_xml_get_type
-BtSongIONativeXMLPrivate
 </SECTION>
 
 <SECTION>
@@ -512,15 +488,14 @@ BtSourceMachine
 BtSourceMachinePatternIndex
 bt_source_machine_new
 <SUBSECTION Standard>
-BtSourceMachineClass
-BT_SOURCE_MACHINE
 BT_IS_SOURCE_MACHINE
-BT_SOURCE_MACHINE_CLASS
 BT_IS_SOURCE_MACHINE_CLASS
+BT_SOURCE_MACHINE
+BT_SOURCE_MACHINE_CLASS
 BT_SOURCE_MACHINE_GET_CLASS
 BT_TYPE_SOURCE_MACHINE
+BtSourceMachineClass
 bt_source_machine_get_type
-BtSourceMachinePrivate
 </SECTION>
 
 <SECTION>
@@ -532,35 +507,35 @@ bt_wave_add_wavelevel
 bt_wave_get_level_by_index
 bt_wave_new
 <SUBSECTION Standard>
-BtWaveClass
-BT_WAVE
 BT_IS_WAVE
-BT_WAVE_CLASS
 BT_IS_WAVE_CLASS
-BT_WAVE_GET_CLASS
 BT_TYPE_WAVE
-bt_wave_get_type
-BtWavePrivate
 BT_TYPE_WAVE_LOOP_MODE
+BT_WAVE
+BT_WAVE_CLASS
+BT_WAVE_GET_CLASS
+BtWaveClass
+BtWavePrivate
+bt_wave_get_type
 bt_wave_loop_mode_get_type
 </SECTION>
 
 <SECTION>
 <FILE>btwavelevel</FILE>
 <TITLE>BtWavelevel</TITLE>
+BT_WAVELEVEL_DEFAULT_ROOT_NOTE
 BtWavelevel
 bt_wavelevel_new
-BT_WAVELEVEL_DEFAULT_ROOT_NOTE
 <SUBSECTION Standard>
-BtWavelevelClass
-BT_WAVELEVEL
 BT_IS_WAVELEVEL
-BT_WAVELEVEL_CLASS
 BT_IS_WAVELEVEL_CLASS
-BT_WAVELEVEL_GET_CLASS
 BT_TYPE_WAVELEVEL
-bt_wavelevel_get_type
+BT_WAVELEVEL
+BT_WAVELEVEL_CLASS
+BT_WAVELEVEL_GET_CLASS
+BtWavelevelClass
 BtWavelevelPrivate
+bt_wavelevel_get_type
 </SECTION>
 
 <SECTION>
@@ -573,20 +548,21 @@ bt_wavetable_new
 bt_wavetable_remember_missing_wave
 bt_wavetable_remove_wave
 <SUBSECTION Standard>
-BtWavetableClass
-BT_WAVETABLE
 BT_IS_WAVETABLE
-BT_WAVETABLE_CLASS
 BT_IS_WAVETABLE_CLASS
-BT_WAVETABLE_GET_CLASS
 BT_TYPE_WAVETABLE
-bt_wavetable_get_type
+BT_WAVETABLE
+BT_WAVETABLE_CLASS
+BT_WAVETABLE_GET_CLASS
+BtWavetableClass
 BtWavetablePrivate
+bt_wavetable_get_type
 </SECTION>
 
 <SECTION>
 <FILE>btwire</FILE>
 <TITLE>BtWire</TITLE>
+BT_WIRE_MAX_NUM_PARAMS
 BtWire
 bt_wire_add_wire_pattern
 bt_wire_controller_change_value
@@ -598,19 +574,19 @@ bt_wire_get_param_type
 bt_wire_get_pattern
 bt_wire_new
 bt_wire_reconnect
-BT_WIRE_MAX_NUM_PARAMS
-<SUBSECTION Standard>
-BtWireClass
-BT_WIRE
-BT_IS_WIRE
-BT_WIRE_CLASS
-BT_IS_WIRE_CLASS
-BT_WIRE_GET_CLASS
-BT_TYPE_WIRE
-bt_wire_get_type
-BtWirePrivate
+<SUBSECTION Private>
 bt_wire_dbg_print_parts
 bt_wire_get_element_list
+<SUBSECTION Standard>
+BT_IS_WIRE
+BT_IS_WIRE_CLASS
+BT_TYPE_WIRE
+BT_WIRE
+BT_WIRE_CLASS
+BT_WIRE_GET_CLASS
+BtWireClass
+BtWirePrivate
+bt_wire_get_type
 </SECTION>
 
 <SECTION>
@@ -640,15 +616,15 @@ bt_wire_pattern_set_event
 bt_wire_pattern_test_event
 bt_wire_pattern_tick_has_data
 <SUBSECTION Standard>
-BtWirePatternClass
-BT_WIRE_PATTERN
 BT_IS_WIRE_PATTERN
-BT_WIRE_PATTERN_CLASS
 BT_IS_WIRE_PATTERN_CLASS
-BT_WIRE_PATTERN_GET_CLASS
 BT_TYPE_WIRE_PATTERN
-bt_wire_pattern_get_type
+BT_WIRE_PATTERN
+BT_WIRE_PATTERN_CLASS
+BT_WIRE_PATTERN_GET_CLASS
+BtWirePatternClass
 BtWirePatternPrivate
+bt_wire_pattern_get_type
 </SECTION>
 
 <SECTION>
@@ -656,38 +632,35 @@ BtWirePatternPrivate
 <TITLE>libbtcore</TITLE>
 BT_IS_GVALUE
 BT_IS_STRING
-safe_string
-return_if_disposed
-return_val_if_disposed
 bt_cpu_load_get_current
-bt_init_get_option_group
+bt_init
 bt_init_add_option_groups
 bt_init_check
-bt_init
+bt_init_get_option_group
 bt_major_version
 bt_micro_version
 bt_minor_version
+return_if_disposed
+return_val_if_disposed
+safe_string
 # glib extras
-G_POINTER_ALIAS
 G_OBJECT_REF_COUNT
+G_POINTER_ALIAS
+bt_g_type_get_base_type
 g_object_try_ref
 g_object_try_unref
 g_object_try_weak_ref
 g_object_try_weak_unref
-bt_g_type_get_base_type
 # gstreamer extras
-bt_gst_registry_get_element_factories_matching_all_categories
-bt_gst_registry_get_element_names_matching_all_categories
-bt_gst_check_elements
-bt_gst_check_core_elements
-bt_gst_element_factory_can_sink_media_type
-bt_gst_debug_pad_link_return
 bt_bin_activate_tee_chain
 bt_bin_deactivate_tee_chain
+bt_gst_check_core_elements
+bt_gst_check_elements
+bt_gst_debug_pad_link_return
+bt_gst_element_factory_can_sink_media_type
+bt_gst_registry_get_element_factories_matching_all_categories
+bt_gst_registry_get_element_names_matching_all_categories
 <SUBSECTION Standard>
-BT_MAJOR_VERSION
-BT_MICRO_VERSION
-BT_MINOR_VERSION
 # glib extras
 G_OPTION_FLAG_NO_ARG
 G_PARAM_STATIC_STRINGS
@@ -696,16 +669,5 @@ G_DEFINE_INTERFACE_WITH_CODE
 # gstreamer extras
 GST_CAT_DEFAULT
 GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS
-# gettext extras
-_
-N_
-bindtextdomain
-dgettext
-gettext
-textdomain
-# marshallers
-bt_marshal_VOID__ULONG_ULONG
-bt_marshal_VOID__ULONG_ULONG_ULONG
-bt_marshal_VOID__ULONG_OBJECT_ULONG
 </SECTION>
 

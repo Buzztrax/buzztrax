@@ -22,9 +22,12 @@
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
  *
- * The machine class cares about inserting additional low-level elemnts to do
+ * Machines are pieces in a #BtSong that generate, process or play media.
+ *
+ * The machine class takes care of inserting additional low-level elemnts to do
  * signal conversion etc.. Further it provides general facillities like
- * input/output level monitoring.
+ * input/output level monitoring. The resulting machine instance is a box
+ * containing several processing elements.
  *
  * A machine can have several #GstElements:
  * <variablelist>
@@ -57,7 +60,7 @@
  *    <listitem><simpara>distibutes signal to outgoing connections</simpara></listitem>
  *  </varlistentry>
  * </variablelist>
- * The adder and spreader elements are activated depending on element type..
+ * The adder and spreader elements are activated depending on element type.
  * The volume controls and level meters are activated as requested via the API.
  * It is recommended to only activate them, when needed. The instances are cached
  * after deactivation (so that they can be easily reactivated) and destroyed with
