@@ -764,7 +764,7 @@ i o p</keycap></screen></entry>
         for the prefered position format.
       </para>
       <para>
-        The context menu allow to add or remove tracks, move tracks left or
+        The context menu allows to add or remove tracks, move tracks left or
         right and open the machine <link linkend="bt-edit-dialog-machine-properties">properties</link>/
         <link linkend="bt-edit-dialog-machine-preferences">preferences</link> for the current track.
         For new generators a track is added automatically.
@@ -827,12 +827,13 @@ i o p</keycap></screen></entry>
             </row>
           </tbody>
         </tgroup>
-      </table>      
+      </table>
       <para>
-        To set play position click with left-mouse button in the first column at the
-        desired time location. To modify the loop start/end instead hold down
-        the <keycap>Ctrl</keycap> or <keycap>Win</keycap> (<keycap>Mod</keycap>)
-        key while clicking.
+        The cursor can move beyond the end of the pattern. The pattern gets
+        automatically expanded when entering a pattern beyond the current end of
+        the song. This works the same way for the label column on the left.
+        There descriptive labels for easier song-navigation can be entered as
+        text upon pressing enter.
       </para>
       <para>
         To expand the sequence, scroll down with the cursor and press
@@ -843,6 +844,12 @@ i o p</keycap></screen></entry>
         <keycombo><keycap>Ctrl</keycap><keycap>e</keycap></keycombo> will
         shorten the sequence. To set the loop-begin marker press
         <keycombo><keycap>Ctrl</keycap><keycap>b</keycap></keycombo>.
+      </para>
+      <para>
+        To set play position click with left-mouse button in the first column at the
+        desired time location. To modify the loop start/end instead hold down
+        the <keycap>Ctrl</keycap> or <keycap>Win</keycap> (<keycap>Mod</keycap>)
+        key while clicking.
       </para>
       <para>
         It is also possible to insert and delete full rows or just entries in a

@@ -1025,21 +1025,21 @@ static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar
         g_object_get(self->priv->sequence,"length",&old_length,NULL);
 
         // update the sequence
+
+        bt_change_log_start_group(self->priv->change_log);
+
         if(pos>=old_length) {
         	new_length=pos+self->priv->bars;
           g_object_set(self->priv->sequence,"length",new_length,NULL);
           sequence_calculate_visible_lines(self);
           sequence_update_model_length(self);
-        }
-        bt_sequence_set_label(self->priv->sequence,pos,new_text);
-        
-        bt_change_log_start_group(self->priv->change_log);
 
-        if(pos>=old_length) {
 					undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",old_length);
 					redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",new_length);
 					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        	
         }
+        bt_sequence_set_label(self->priv->sequence,pos,new_text);
+
 				undo_str = g_strdup_printf("set_labels %lu,%lu, ,%s",pos,pos,(old_text?old_text:" "));
 				redo_str = g_strdup_printf("set_labels %lu,%lu, ,%s",pos,pos,(new_text?new_text:" "));
 				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
@@ -2240,8 +2240,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
   if(sequence_view_get_current_pos(self,&row,&track)) {
     BtSong *song;
     gulong length,tracks;
-    gchar *str=NULL;
-    gboolean free_str=FALSE;
     gboolean change=FALSE;
     gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
 
@@ -2257,7 +2255,6 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
       // first column is label
       if((track>0) && (row<length)) {
       	if((res=change_pattern(self,NULL,row,track-1))) {
-					str=" ";
 					change=TRUE;
 					res=TRUE;
 				}
@@ -2517,21 +2514,38 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
 
     if((!res) && (event->keyval<='z') && ((modifier==0) || (modifier==GDK_SHIFT_MASK))) {
       // first column is label
-      if((track>0) && (row<length)) {
+      if(track>0) {
         gchar key=(gchar)(event->keyval&0xff);
         BtPattern *new_pattern;
         GtkTreeModel *store;
-
+        
         store=gtk_tree_view_get_model(self->priv->pattern_list);
         if((new_pattern=pattern_list_model_get_pattern_by_key(store,key))) {
-        	if((res=change_pattern(self,new_pattern,row,track-1))) {
-						g_object_get(new_pattern,"name",&str,NULL);
-						g_object_unref(new_pattern);
+          gulong new_length=0;
+          
+          bt_change_log_start_group(self->priv->change_log);
 
-						free_str=TRUE;
+          if(row>=length) {
+            gchar *undo_str,*redo_str;
+
+            new_length=row+self->priv->bars;
+            g_object_set(self->priv->sequence,"length",new_length,NULL);
+            sequence_calculate_visible_lines(self);
+            sequence_update_model_length(self);
+
+            undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",length);
+            redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",new_length);
+            bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        	
+          }
+  
+        	if((res=change_pattern(self,new_pattern,row,track-1))) {
 						change=TRUE;
 						res=TRUE;
 					}
+					
+					bt_change_log_end_group(self->priv->change_log);
+
+          g_object_unref(new_pattern);
         }
         else {
           GST_WARNING_OBJECT(self->priv->machine,"keyval '%c' not used by machine",key);
@@ -2539,59 +2553,29 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
       }
     }
 
-    // update tree-view model
+    // update cursor pos in tree-view model
     if(change) {
-      GtkTreeModelFilter *filtered_store;
-      GtkTreeModel *store;
+      GtkTreeViewColumn *column;
 
-      if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table))) &&
-        (store=gtk_tree_model_filter_get_model(filtered_store))
-      ) {
+      gtk_tree_view_get_cursor(self->priv->sequence_table,NULL,&column);
+      if(column) {
         GtkTreePath *path;
-        GtkTreeViewColumn *column;
 
-        gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
-        if(path && column) {
-          GtkTreeIter iter,filter_iter;
-
-          GST_INFO("  update model");
-
-          if(gtk_tree_model_get_iter(GTK_TREE_MODEL(filtered_store),&filter_iter,path)) {
-            GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
-            GtkTreePath *cpath;
-
-            g_list_free(columns);
-            gtk_tree_model_filter_convert_iter_to_child_iter(filtered_store,&iter,&filter_iter);
-            //glong row;
-            //gtk_tree_model_get(store,&iter,BT_SEQUENCE_GRID_MODEL_POS,&row,-1);
-            //GST_INFO("  position is %d,%d -> ",row,col,__BT_SEQUENCE_GRID_MODEL_N_COLUMNS+col);
-
-            // move cursor down & set cell focus
-            self->priv->cursor_row+=self->priv->bars;
-            if((cpath=gtk_tree_path_new_from_indices((self->priv->cursor_row/self->priv->bars),-1))) {
-              gtk_tree_view_set_cursor(self->priv->sequence_table,cpath,column,FALSE);
-              gtk_tree_path_free(cpath);
-            }
-          }
-          else {
-            GST_WARNING("  can't get tree-iter");
-          }
+        // move cursor down & set cell focus
+        self->priv->cursor_row+=self->priv->bars;
+        if((path=gtk_tree_path_new_from_indices((self->priv->cursor_row/self->priv->bars),-1))) {
+          gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
+          gtk_tree_path_free(path);
         }
-        else {
-          GST_WARNING("  can't evaluate cursor pos");
-        }
-
-        if(path) gtk_tree_path_free(path);
       }
       else {
-        GST_WARNING("  can't get tree-model");
+        GST_WARNING("  can't evaluate cursor pos");
       }
     }
     //else if(!select) GST_INFO("  nothing assgned to this key");
 
     // release the references
     g_object_unref(song);
-    if(free_str) g_free(str);
   }
   return(res);
 }
