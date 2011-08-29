@@ -2401,16 +2401,6 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 
   // remove all patterns to ensure we emit "pattern-removed" signals
-  /* @todo: we need to ensure this happens after the sequence handles
-   * on_machine_removed() otherwise the pattern removal clear the sequence
-   * - if there are no tracks, go ahead
-   * - if there are tracks, wait until they are gone?
-   *
-   * We prefer to remove the patterns here, as we also added them here.
-   * - maybe sequence can fire track-removed event and we connect to that here
-   *   - in the handler we need return unless it was the last track for the
-   *     machine
-   */
   g_object_get(machine,"patterns",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     pattern=BT_PATTERN(node->data);

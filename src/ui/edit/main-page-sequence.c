@@ -88,9 +88,6 @@
  *   - edit the bindings
  *   - save/load bindings to/from a named preset
  */
-/* @todo: undo/redo
- * - finish add/remove tracks
- */
 /* @todo: improve sequence-grid-model use
  * - get rid of sequence_table_refresh_columns() calls (7)
  */
@@ -1895,59 +1892,34 @@ static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
 
 static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  gulong number_of_tracks,sequence_length;
+  gulong number_of_tracks;
 
   // change number of tracks
-  g_object_get(self->priv->sequence,"tracks",&number_of_tracks,"length",&sequence_length,NULL);
+  g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
   if(number_of_tracks>0) {
-		BtMachine *machine;
-		gulong ix=self->priv->cursor_column-1;
+    BtSong *song;
 
-   	if((machine=bt_sequence_get_machine(self->priv->sequence,ix))) {
-   		BtSong *song;
-   		GString *old_data=g_string_new(NULL);
-			gchar *undo_str,*redo_str;
-			gchar *mid;
+    sequence_remove_track(self,self->priv->cursor_column-1);
+    
+    // reset selection
+    self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
 
-			g_object_get(machine,"id",&mid,NULL);
-		
-			/* handle undo/redo */                 
-			bt_change_log_start_group(self->priv->change_log);
-			undo_str = g_strdup_printf("add_track \"%s\",%lu",mid,ix);
-			redo_str = g_strdup_printf("rem_track %lu",ix);
-			bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-			
-			sequence_range_copy(self,ix+1,ix+1,0,sequence_length-1,old_data);
-			sequence_range_log_undo_redo(self,ix+1,ix+1,0,sequence_length-1,old_data->str,g_strdup(old_data->str));
-			g_string_free(old_data,TRUE);
+    // get song from app
+    g_object_get(self->priv->app,"song",&song,NULL);
 
-			bt_change_log_end_group(self->priv->change_log);
+    // reinit the view
+    sequence_table_refresh_columns(self,song);
 
-			GST_DEBUG("old cursor column: %ld, tracks: %lu",self->priv->cursor_column,number_of_tracks);
-			sequence_remove_track(self,self->priv->cursor_column-1);
-			
-			// reset selection
-			self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
-	
-			// get song from app
-			g_object_get(self->priv->app,"song",&song,NULL);
-	
-			// reinit the view
-      sequence_table_refresh_columns(self,song);
-	
-			if(self->priv->cursor_column>=number_of_tracks) {
-				// update cursor_column and focus cell
-				self->priv->cursor_column--;
-				sequence_view_set_cursor_pos(self);
-				GST_DEBUG("new cursor column: %ld",self->priv->cursor_column);
-			}
-	
-			update_after_track_changed(self);
-	
-			g_free(mid);
-			g_object_unref(song);
-			g_object_unref(machine);
-		}
+    if(self->priv->cursor_column>=number_of_tracks) {
+      // update cursor_column and focus cell
+      self->priv->cursor_column--;
+      sequence_view_set_cursor_pos(self);
+      GST_DEBUG("new cursor column: %ld",self->priv->cursor_column);
+    }
+
+    update_after_track_changed(self);
+
+    g_object_unref(song);
   }
 }
 
@@ -2826,44 +2798,21 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtSong *song;
   gulong number_of_tracks;
-	GString *old_data;
-	gchar *undo_str,*redo_str;
-	gchar *mid;
-	glong ix=0;
-	gulong sequence_length;
+  BtSong *song;
 
   g_return_if_fail(BT_IS_MACHINE(machine));
 
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 
   // reinit the menu
-  GST_DEBUG("menu item for machine %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
-  //g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_id_changed_menu,NULL);
   machine_menu_refresh(self,setup);
-
-	/* handle undo/redo */
-	g_object_get(machine,"id",&mid,NULL);
-	g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
-	bt_change_log_start_group(self->priv->change_log);
-	/* which order ? */
-  while(((ix=bt_sequence_get_track_by_machine(self->priv->sequence,machine,ix))>-1)) {
-  	old_data=g_string_new(NULL);
-  	undo_str = g_strdup_printf("add_track \"%s\",%lu",mid,(gulong)ix);
-	  redo_str = g_strdup_printf("rem_track %lu",(gulong)ix);
-	  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-	
-	  sequence_range_copy(self,ix+1,ix+1,0,sequence_length-1,old_data);
-	  sequence_range_log_undo_redo(self,ix+1,ix+1,0,sequence_length-1,old_data->str,g_strdup(old_data->str));
-	  g_string_free(old_data,TRUE);
-
-    bt_sequence_remove_track_by_ix(self->priv->sequence,ix);
-  }
-	bt_change_log_end_group(self->priv->change_log);
-	g_free(mid);
+  
+  // remove all tracks
+  bt_sequence_remove_track_by_machine(self->priv->sequence,machine);
 
   // reset selection
+  // @todo: only if it intersects with selection
   self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
 
   // reinit the view
@@ -2873,6 +2822,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
   g_object_get(self->priv->sequence,"tracks",&number_of_tracks,NULL);
   if(self->priv->cursor_column>=number_of_tracks) {
+    GST_DEBUG("old cursor column: %ld",self->priv->cursor_column);
     // update cursor_column and focus cell
     self->priv->cursor_column=number_of_tracks-1;
     sequence_view_set_cursor_pos(self);
@@ -2883,40 +2833,47 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 }
 
+static void on_track_removed(BtSequence *sequence,BtMachine *machine,gulong track,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	gulong sequence_length;
+	GString *old_data;
+	gchar *undo_str,*redo_str;
+	gchar *mid;
+
+  GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
+
+	/* handle undo/redo */
+	g_object_get(machine,"id",&mid,NULL);
+	g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
+	
+	bt_change_log_start_group(self->priv->change_log);
+
+  old_data=g_string_new(NULL);
+  undo_str = g_strdup_printf("add_track \"%s\",%lu",mid,(gulong)track);
+  redo_str = g_strdup_printf("rem_track %lu",(gulong)track);
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+  sequence_range_copy(self,track+1,track+1,0,sequence_length-1,old_data);
+  sequence_range_log_undo_redo(self,track+1,track+1,0,sequence_length-1,old_data->str,g_strdup(old_data->str));
+  g_string_free(old_data,TRUE);
+  
+  bt_change_log_end_group(self->priv->change_log);
+
+	g_free(mid);
+	
+	/* @todo: can't update the view here as the signal is emitted before making the change
+	 * to allow us saving the content, this means number-of-tracks is not changed either
+	 */
+
+  GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
+}
+
 static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSequence *sequence=self->priv->sequence;
 
   GST_INFO("pattern has been removed: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
 
-  /* this is racy if the sequence also listens for pattern_removed
-   * and clears the tracks - right now we don't do this automatic updates in
-   * the song anymore
-   *
-   * we also want to ensure, that we update the sequence_view *after* the changes
-   * which is hard to ensure if the song changes itself
-   */
-  /* FIXME: we don't want to do this when the machine gets removed, as then we
-   * save the content already when handling the track removal, in the current
-   * situation the track would then be saved empty
-   *
-   * solutions:
-   * - don't do main-page-patterns::on_machine_removed(), but emit signal in machine::dispose()
-   *   - we get bad undo/redo serialization (due to dispose_has_run)
-   * - use connect_after() for main-page-patterns::on_machine_removed()
-   *   - this isn't better, we want to completely avoid it, or serialize it
-   * - how could we handle the on_machine_removed first, handle undo/redo remove
-   *   the track(s), disconnect the on_pattern_removed handler and don't worry
-   *   - right now main-page-patterns.c::on_machine_removed() removes the patterns
-   *
-   * - the add/remove signal handlers could have an additional argument (explicit=TRUE/FALSE)
-   *   - when we dispose the song, all removed-handlers with have explicit=FALSE
-   *   - when e.g. removing a machine, machine-removed has explicit=TRUE and
-   *     pattern-removed has explicit=FALSE
-   *   - same could be done for adding - when adding a source machine
-   *     machine-added has explicit=TRUE, pattern-added will have explicit=FALSE
-   *   - we only do undo/redo for explicit actions 
-   */
   if(bt_sequence_is_pattern_used(sequence,pattern)) {
   	glong tick;
   	glong track=0;
@@ -3009,6 +2966,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   machine_menu_refresh(self,setup);
   g_signal_connect(setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
   g_signal_connect(setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
+  g_signal_connect(self->priv->sequence,"track-removed",G_CALLBACK(on_track_removed),(gpointer)self);
   gtk_combo_box_set_active(self->priv->pos_menu,self->priv->pos_format);
   // update toolbar          
   g_object_get(song_info,"bars",&bars,NULL);
@@ -3965,8 +3923,11 @@ static void bt_main_page_sequence_dispose(GObject *object) {
     g_object_unref(song_info);
     g_object_unref(song);
   }
-
-  g_object_try_unref(self->priv->sequence);
+  if(self->priv->sequence) {
+    BtSequence *sequence=self->priv->sequence;
+    g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_track_removed,(gpointer)self);
+    g_object_unref(sequence);
+  }
   self->priv->main_window=NULL;
 
   g_object_unref(self->priv->change_log);

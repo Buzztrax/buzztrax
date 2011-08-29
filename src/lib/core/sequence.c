@@ -35,6 +35,13 @@
  * It uses a damage-repair based two phase algorithm to update the controller
  * queues whenever patterns or the sequence changes.
  */
+/* @todo: introduce a BtTrack object
+ * - the sequence will have a list of tracks
+ * - each track has a machine and a array with patterns
+ * - this makes it easier to e.g. pass old track data to track-removed
+ * - also insert/delete can be done per track
+ * - need to be careful to make getting the pattern not slow
+ */
 
 #define BT_CORE
 #define BT_SEQUENCE_C
@@ -47,11 +54,10 @@ enum {
   PATTERN_ADDED_EVENT,
   PATTERN_REMOVED_EVENT,
   SEQUENCE_ROWS_CHANGED_EVENT,
+  TRACK_ADDED_EVENT,
+  TRACK_REMOVED_EVENT,
   LAST_SIGNAL
 };
-/* @todo: sequence grid model needs to know about edits
- * SEQUENCE_CHANGED_EVENT(track_start,track_end,tick_start,tick_end)
- */
 
 //-- property ids
 
@@ -1350,6 +1356,9 @@ gboolean bt_sequence_add_track(const BtSequence * const self, const BtMachine * 
 		memmove(&machines[pos+1],&machines[pos],count*sizeof(gpointer));
   }
   machines[pos]=g_object_ref((gpointer)machine);
+  
+  g_signal_emit((gpointer)self,signals[TRACK_ADDED_EVENT],0,machine,pos);
+  
   GST_INFO(".. added track for machine %p,ref_count=%d at position %lu",machine,G_OBJECT_REF_COUNT(machine),pos);
   return(TRUE);
 }
@@ -1375,7 +1384,10 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   g_return_val_if_fail(ix<tracks,FALSE);
 
   const gulong count=(tracks-1)-ix;
+  machine=machines[ix];
   GST_INFO("remove track %lu/%lu (shift %lu tracks)",ix,tracks,count);
+  
+  g_signal_emit((gpointer)self,signals[TRACK_REMOVED_EVENT],0,machine,ix);
 
   src=&self->priv->patterns[ix+1];
   dst=&self->priv->patterns[ix];
@@ -1392,8 +1404,6 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
     src=&src[tracks];
     dst=&dst[tracks];
   }
-
-  machine=machines[ix];
   if(count) {
     memmove(&machines[ix],&machines[ix+1],count*sizeof(gpointer));
   }
@@ -2481,7 +2491,9 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
    * @begin: start row that changed
    * @end: last row that changed
    *
-   * The content of the given rows in the sequence has changed. 
+   * The content of the given rows in the sequence has changed.
+   *
+   * Since: 0.6
    */
   signals[SEQUENCE_ROWS_CHANGED_EVENT] = g_signal_new("rows-changed",
                                         G_TYPE_FROM_CLASS(klass),
@@ -2493,6 +2505,50 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
                                         G_TYPE_NONE, // return type
                                         2, // n_params
                                         G_TYPE_ULONG,G_TYPE_ULONG
+                                        );
+
+  /**
+   * BtSequence::track-added:
+   * @self: the sequence object that emitted the signal
+   * @machine: the machine for the track
+   * @track: the track index
+   *
+   * A new track for @machine has been added with the @track index.
+   *
+   * Since: 0.6
+   */
+  signals[TRACK_ADDED_EVENT] = g_signal_new("track-added",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        0,
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        bt_marshal_VOID__OBJECT_ULONG,
+                                        G_TYPE_NONE, // return type
+                                        2, // n_params
+                                        BT_TYPE_MACHINE,G_TYPE_ULONG
+                                        );
+
+  /**
+   * BtSequence::track-removed:
+   * @self: the sequence object that emitted the signal
+   * @machine: the machine for the track
+   * @track: the track index
+   *
+   * A track for @machine has been removed at the @track index.
+   *
+   * Since: 0.6
+   */
+  signals[TRACK_REMOVED_EVENT] = g_signal_new("track-removed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        0,
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        bt_marshal_VOID__OBJECT_ULONG,
+                                        G_TYPE_NONE, // return type
+                                        2, // n_params
+                                        BT_TYPE_MACHINE,G_TYPE_ULONG
                                         );
 
   g_object_class_install_property(gobject_class,SEQUENCE_SONG,

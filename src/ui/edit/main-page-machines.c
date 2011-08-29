@@ -571,6 +571,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 
+#if 0
   // add undo/redo details
   if(bt_change_log_is_active(self->priv->change_log)) {
     GHashTable *properties;
@@ -611,6 +612,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
     g_free(mid);g_free(pname);
   }
+#endif
 
   if((item=g_hash_table_lookup(self->priv->machines,machine))) {
     GST_INFO("now removing machine-item : %p",item);
@@ -1517,17 +1519,110 @@ gboolean bt_main_page_machines_add_processor_machine(const BtMainPageMachines *s
 void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMachine *machine) {
   BtSong *song;
   BtSetup *setup;
+  BtMainWindow *main_window;
+  BtMainPageSequence *sequence_page;
+  GHashTable *properties;
+  gchar *undo_str,*redo_str;
+  gchar *mid,*pname;
+  guint type=0;
+  BtMachineState machine_state;
+  gulong voices;
+  gulong pattern_removed_id;
 
   g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
+  g_object_get(song,"setup",&setup,/*"sequence",&sequence,*/NULL);
 
-  GST_INFO("now removing machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+  GST_INFO("before removing machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
   bt_change_log_start_group(self->priv->change_log);
 
+  /* by doing undo/redo from setup:machine-removed it happens completely
+   * unconstrained, we need to enfore a certain order. Right now the log will
+   * reverse the actions. Thus we need to write out the object we remove and
+   * then within the things that get removed by that.
+   * Thus when removing X -
+   * 1) we need to log it directly and not in on_x_removed
+   * 2) trigger on_x_removed
+   * Still this won't let us control the order or serialisation of the children
+   *
+   * We can't control signal emission. Lile emitting the signal with details or
+   * simmilar approaches won't fix it nicely either.
+   * Somehow the handlers would need to describe their dependencies and then
+   * defer their execution. Which they can't as they don't know the context they
+   * are called from. A pre-delete signal would not solve it either.
+   *
+   * BtMainPageMachines:bt_main_page_machines_delete_machine -> BtSetup:machine-removed { 
+   *   BtMainPagePatterns:on_machine_removed -> BtMachine::pattern-removed { 
+   *     BtMainPageSequence:on_pattern_removed
+   *   }
+   *   BtMainPageSequence:on_machine_removed
+   *   BtWireCanvasItem:on_machine_removed -> BtSetup::wire-removed
+   * }
+   * Here we have the problem that we have two callbacks changing the sequence
+   * data. When removing a machine, we just want handler for machine-removed to
+   * do undo/redo, not e.g. pattern-removed.
+   *
+   * Should we store the signal in change log and check in signal handler if
+   * we should be logging?
+   *
+   * when handling the ui interaction:
+   * signal_id=g_signal_lookup("machine-removed",setup)
+   * bt_change_log_set_hint(change_log,signal_id);
+   *
+   * inside the signal handler:
+   * hint = g_signal_get_invocation_hint(object);
+   * if (bt_change_log_is_hint(change_log,hint->signal_id) {
+   *   // do undo/redo serialisation
+   * }
+   *
+   * For now we block conflicting handlers.
+   */
+
+  // remove patterns for machine, trigger setup::machine-removed
+  GST_INFO("removing the machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+
+  if(BT_IS_SOURCE_MACHINE(machine))
+    type=0;
+  else if(BT_IS_PROCESSOR_MACHINE(machine))
+    type=1;
+  g_object_get(machine,"id",&mid,"plugin-name",&pname,"properties",&properties,"state",&machine_state,"voices",&voices,NULL);
+
+  bt_change_log_start_group(self->priv->change_log);
+
+  undo_str = g_strdup_printf("add_machine %u,\"%s\",\"%s\"",type,mid,pname);
+  redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
+
+  undo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"xpos"));
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+  undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"ypos"));
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+  undo_str = g_strdup_printf("set_machine_property \"%s\",\"voices\",\"%lu\"",mid,voices);
+  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+
+  if(machine_state!=BT_MACHINE_STATE_NORMAL) {
+    GEnumClass *enum_class=g_type_class_peek_static(BT_TYPE_MACHINE_STATE);
+    GEnumValue *enum_value=g_enum_get_value(enum_class,machine_state);
+    undo_str = g_strdup_printf("set_machine_property \"%s\",\"state\",\"%s\"",mid,enum_value->value_nick);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+  }
+  // TODO: more status (open/close machine windows, machine parameters)
+  g_free(mid);g_free(pname);
+
+  // block machine:pattern-removed signal emission for sequence page to not clobber the sequence
+  // in theory we we don't need to block it, as we are removing the machine anyway and thus disconnecting
+  // but if we disconnect here, disconnecting them on the sequence page would fail
+  pattern_removed_id=g_signal_lookup("pattern-removed",BT_TYPE_MACHINE);
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  bt_child_proxy_get(main_window,"pages::sequence-page",&sequence_page,NULL);
+  g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,pattern_removed_id,0,NULL,NULL,(gpointer)sequence_page);
+  g_object_ref(machine);
   bt_setup_remove_machine(setup,machine);
-  // triggers setup:machine-removed -> self:on_machine_removed()
-  // dispose? -> triggers machine:pattern-removed
-  // ??? -> triggers setup:wire-removed -> self:on_wire_removed()
+  g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,pattern_removed_id,0,NULL,NULL,(gpointer)sequence_page);
+  g_object_unref(machine);
+  g_object_unref(sequence_page);
+  g_object_unref(main_window);
+
+  bt_change_log_end_group(self->priv->change_log);
 
   // this segfaults if the machine is finalized
   //GST_INFO("... machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));

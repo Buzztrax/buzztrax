@@ -1,5 +1,19 @@
 2011-08-29  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/marshal.list:
+	* src/lib/core/sequence.c:
+	  Add track-{added,removed} signals.
+
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Rework undo redo for machine-removed. After a lot of experiments, 
+	  leave a big comment in bt_main_page_machines_delete_machine() and
+	  explain the troubles. Use signal handler blocking as a solution until
+	  we have a better idea.
+
+2011-08-29  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	  Remove new lines in changelog caused by single pattern edits.
 
