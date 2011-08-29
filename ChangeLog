@@ -1,5 +1,10 @@
 2011-08-29  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/sequence-grid-model.c:
+	  Log improvements.
+
+2011-08-29  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/marshal.list:
 	* src/lib/core/sequence.c:
 	  Add track-{added,removed} signals.

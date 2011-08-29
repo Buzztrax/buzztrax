@@ -244,7 +244,7 @@ static void on_sequence_length_changed(BtSequence *sequence,GParamSpec *arg,gpoi
   if(model->priv->length!=old_length) {
     gulong old_visible_length=model->priv->visible_length;
     model->priv->visible_length=MAX(old_visible_length,model->priv->length);
-    GST_INFO("sequence length changed: %lu",model->priv->length);
+    GST_INFO("sequence length changed: %lu -> %lu",old_length,model->priv->length);
   
     update_length(model,old_visible_length,model->priv->visible_length);
   }
@@ -256,7 +256,7 @@ static void on_sequence_tracks_changed(BtSequence *sequence,GParamSpec *arg,gpoi
   
   g_object_get((gpointer)sequence,"tracks",&model->priv->tracks,NULL);
   if(model->priv->tracks!=old_tracks) {
-    GST_INFO("sequence tracks changed: %lu",model->priv->tracks);
+    GST_INFO("sequence tracks changed: %lu -> %lu",old_tracks,model->priv->tracks);
   
     if(model->priv->visible_length)
       bt_sequence_grid_model_all_rows_changed(model);
