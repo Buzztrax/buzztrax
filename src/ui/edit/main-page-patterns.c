@@ -1590,7 +1590,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       BtWirePattern *wire_pattern = bt_wire_get_pattern(wire,self->priv->pattern);
       BtMachine *smachine;
       GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
-      gchar *undo_str,*redo_str;
+      gchar *undo_str,*redo_str,*s,*p;
       gchar *smid,*dmid,*pid;
 
       if(!wire_pattern) {
@@ -1609,8 +1609,10 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       bt_wire_pattern_serialize_column(wire_pattern,row,row,param,old_data);
       bt_wire_pattern_set_event(wire_pattern,row,param,str);
       bt_wire_pattern_serialize_column(wire_pattern,row,row,param,new_data);
-      undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,dmid,pid,row,row,param,g_string_free(old_data,FALSE));
-      redo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,dmid,pid,row,row,param,g_string_free(new_data,FALSE));
+      s=g_string_free(old_data,FALSE);p=strchr(s,'\n');*p='\0';
+      undo_str=g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,dmid,pid,row,row,param,s);
+      s=g_string_free(new_data,FALSE);p=strchr(s,'\n');*p='\0';
+      redo_str=g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,dmid,pid,row,row,param,s);
       bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
       g_free(smid);g_free(dmid);g_free(pid);
       g_object_unref(smachine);
@@ -1619,7 +1621,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
     case PGT_GLOBAL: {
       // serialize action
       GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
-      gchar *undo_str,*redo_str;
+      gchar *undo_str,*redo_str,*s,*p;
       gchar *mid,*pid;
 
       g_object_get(machine,"id",&mid,NULL);
@@ -1628,8 +1630,10 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       bt_pattern_serialize_column(self->priv->pattern,row,row,param,old_data);
       bt_pattern_set_global_event(self->priv->pattern,row,param,str);
       bt_pattern_serialize_column(self->priv->pattern,row,row,param,new_data);
-      undo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,row,row,param,g_string_free(old_data,FALSE));
-      redo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,row,row,param,g_string_free(new_data,FALSE));
+      s=g_string_free(old_data,FALSE);p=strchr(s,'\n');*p='\0';
+      undo_str=g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,row,row,param,s);
+      s=g_string_free(new_data,FALSE);p=strchr(s,'\n');*p='\0';
+      redo_str=g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,row,row,param,s);
       bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
       g_free(mid);g_free(pid);
     } break;
@@ -1637,7 +1641,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       // serialize action
       GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
       guint voice = GPOINTER_TO_UINT(group->user_data);
-      gchar *undo_str,*redo_str;
+      gchar *undo_str,*redo_str,*s,*p;
       gchar *mid,*pid;
       gulong global_params,voice_params,param_offset;
 
@@ -1648,8 +1652,10 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       bt_pattern_serialize_column(self->priv->pattern,row,row,param_offset+param,old_data);
       bt_pattern_set_voice_event(self->priv->pattern,row,voice,param,str);
       bt_pattern_serialize_column(self->priv->pattern,row,row,param_offset+param,new_data);
-      undo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,row,row,voice,param,g_string_free(old_data,FALSE));
-      redo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,row,row,voice,param,g_string_free(new_data,FALSE));
+      s=g_string_free(old_data,FALSE);p=strchr(s,'\n');*p='\0';
+      undo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,row,row,voice,param,s);
+      s=g_string_free(new_data,FALSE);p=strchr(s,'\n');*p='\0';
+      redo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,row,row,voice,param,s);
       bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
       g_free(mid);g_free(pid);
     } break;

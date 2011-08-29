@@ -1,5 +1,10 @@
 2011-08-29  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c:
+	  Remove new lines in changelog caused by single pattern edits.
+
+2011-08-29  Stefan Sauer  <ensonic@users.sf.net>
+
 	patch by: davef1@users.sourceforge.net
 
 	* src/lib/ic/ic_private.h:
