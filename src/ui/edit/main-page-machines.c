@@ -156,6 +156,7 @@ enum {
   METHOD_SET_MACHINE_PROPERTY,
   METHOD_ADD_WIRE,
   METHOD_REM_WIRE,
+  METHOD_SET_WIRE_PROPERTY,
 };
 
 static BtChangeLoggerMethods change_logger_methods[] = {
@@ -164,6 +165,7 @@ static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_machine_property",21,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9]+)\",\"(.+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_wire",9,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("rem_wire",9,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("set_wire_property",18,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+),\"([-_a-zA-Z0-9]+)\",\"(.+)\"$"),
   { NULL, }
 };
 
@@ -571,49 +573,6 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT_REF_COUNT(machine));
 
-#if 0
-  // add undo/redo details
-  if(bt_change_log_is_active(self->priv->change_log)) {
-    GHashTable *properties;
-    gchar *undo_str,*redo_str;
-    gchar *mid,*pname;
-    guint type=0;
-    BtMachineState machine_state;
-    gulong voices;
-
-    if(BT_IS_SOURCE_MACHINE(machine))
-      type=0;
-    else if(BT_IS_PROCESSOR_MACHINE(machine))
-      type=1;
-    g_object_get(machine,"id",&mid,"plugin-name",&pname,"properties",&properties,"state",&machine_state,"voices",&voices,NULL);
-
-    bt_change_log_start_group(self->priv->change_log);
-
-    undo_str = g_strdup_printf("add_machine %u,\"%s\",\"%s\"",type,mid,pname);
-    redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
-    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-
-    undo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"xpos"));
-    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
-    undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"ypos"));
-    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
-    undo_str = g_strdup_printf("set_machine_property \"%s\",\"voices\",\"%lu\"",mid,voices);
-    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
-
-    if(machine_state!=BT_MACHINE_STATE_NORMAL) {
-      GEnumClass *enum_class=g_type_class_peek_static(BT_TYPE_MACHINE_STATE);
-      GEnumValue *enum_value=g_enum_get_value(enum_class,machine_state);
-      undo_str = g_strdup_printf("set_machine_property \"%s\",\"state\",\"%s\"",mid,enum_value->value_nick);
-      bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
-    }
-    // TODO: more status (open/close machine windows, machine parameters)
-
-    bt_change_log_end_group(self->priv->change_log);
-
-    g_free(mid);g_free(pname);
-  }
-#endif
-
   if((item=g_hash_table_lookup(self->priv->machines,machine))) {
     GST_INFO("now removing machine-item : %p",item);
     g_hash_table_remove(self->priv->machines,machine);
@@ -634,18 +593,31 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
   // add undo/redo details
   if(bt_change_log_is_active(self->priv->change_log)) {
     gchar *undo_str,*redo_str;
+    gchar *prop;
     BtMachine *src_machine,*dst_machine;
+    GHashTable *properties;
     gchar *smid,*dmid;
 
-    g_object_get(wire,"src",&src_machine,"dst",&dst_machine,NULL);
+    g_object_get(wire,"src",&src_machine,"dst",&dst_machine,"properties",&properties,NULL);
     g_object_get(src_machine,"id",&smid,NULL);
     g_object_get(dst_machine,"id",&dmid,NULL);
+    
+    bt_change_log_start_group(self->priv->change_log);
 
     undo_str = g_strdup_printf("add_wire \"%s\",\"%s\"",smid,dmid);
     redo_str = g_strdup_printf("rem_wire \"%s\",\"%s\"",smid,dmid);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-
+    
+    prop=(gchar *)g_hash_table_lookup(properties,"analyzers-shown");
+    if(prop && *prop=='1') {
+      undo_str = g_strdup_printf("set_wire_property \"%s\",\"%s\",\"analyzers-shown\",\"1\"",smid,dmid);
+      bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+    }
+    // TODO: volume and panorama
     g_free(smid);g_free(dmid);
+    
+    bt_change_log_end_group(self->priv->change_log);
+
     g_object_unref(dst_machine);
     g_object_unref(src_machine);
   }
@@ -1523,7 +1495,7 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
   BtMainPageSequence *sequence_page;
   GHashTable *properties;
   gchar *undo_str,*redo_str;
-  gchar *mid,*pname;
+  gchar *mid,*pname,*prop;
   guint type=0;
   BtMachineState machine_state;
   gulong voices;
@@ -1598,6 +1570,11 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
   bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
   undo_str = g_strdup_printf("set_machine_property \"%s\",\"voices\",\"%lu\"",mid,voices);
   bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+  prop=(gchar *)g_hash_table_lookup(properties,"properties-shown");
+  if(prop && *prop=='1') {
+    undo_str = g_strdup_printf("set_machine_property \"%s\",\"properties-shown\",\"1\"",mid);
+    bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+  }
 
   if(machine_state!=BT_MACHINE_STATE_NORMAL) {
     GEnumClass *enum_class=g_type_class_peek_static(BT_TYPE_MACHINE_STATE);
@@ -1605,7 +1582,7 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
     undo_str = g_strdup_printf("set_machine_property \"%s\",\"state\",\"%s\"",mid,enum_value->value_nick);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
   }
-  // TODO: more status (open/close machine windows, machine parameters)
+  // TODO: machine parameters
   g_free(mid);g_free(pname);
 
   // block machine:pattern-removed signal emission for sequence page to not clobber the sequence
@@ -1799,6 +1776,8 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
             g_signal_emit_by_name(item,"position-changed",0);
           }
           is_prop=TRUE;
+        } else if(!strcmp(key,"properties-shown")) {
+          is_prop=TRUE;
         } else if(!strcmp(key,"state")) {
           GEnumClass *enum_class=g_type_class_peek_static(BT_TYPE_MACHINE_STATE);
           GEnumValue *enum_value=g_enum_get_value_by_nick(enum_class,val);
@@ -1899,10 +1878,58 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       g_free(dmid);
       break;
     }
+    case METHOD_SET_WIRE_PROPERTY: {
+      gchar *smid,*dmid,*key,*val;
+      GHashTable *properties;
+
+      smid=g_match_info_fetch(match_info,1);
+      dmid=g_match_info_fetch(match_info,2);
+      key=g_match_info_fetch(match_info,3);
+      val=g_match_info_fetch(match_info,4);
+      g_match_info_free(match_info);
+
+      GST_DEBUG("-> [%s|%s|%s|%s]",smid,dmid,key,val);
+
+      g_object_get(self->priv->app,"song",&song,NULL);
+      g_object_get(song,"setup",&setup,NULL);
+      smachine=bt_setup_get_machine_by_id(setup, smid);
+      dmachine=bt_setup_get_machine_by_id(setup, dmid);
+
+      if(smachine && dmachine) {
+        if((wire=bt_setup_get_wire_by_machines(setup,smachine,dmachine))) {
+          gboolean is_prop=FALSE;
+  
+          g_object_get(wire,"properties",&properties,NULL);
+  
+          if(!strcmp(key,"analyzers-shown")) {
+            is_prop=TRUE;
+          }
+          else {
+            GST_WARNING("unhandled property '%s'",key);
+            res=FALSE;
+          }
+          if(is_prop && properties) {
+            // take ownership of the strings
+            g_hash_table_replace(properties,key,val);
+            key=val=NULL;
+          }
+          g_object_unref(wire);
+        }
+      }
+      g_object_try_unref(smachine);
+      g_object_try_unref(dmachine);
+      g_object_unref(setup);
+      g_object_unref(song);
+
+      g_free(smid);g_free(dmid);g_free(key);g_free(val);
+      break;
+    }          
     /* TODO:
     - machine parameters
     - volume/panorama
     - open/close machine/wire windows
+      - we can do it on remove, but we don't know about intermediate changes as
+        thats stll done on canvas-item classes
     */
     default:
       GST_WARNING("unhandled undo/redo method: [%s]",data);

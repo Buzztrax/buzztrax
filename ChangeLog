@@ -1,5 +1,10 @@
 2011-08-29  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  Prepare to handle more machine/wire state for undo/redo.
+
+2011-08-29  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/sequence-grid-model.c:
 	  Log improvements.
 
