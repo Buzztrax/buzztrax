@@ -388,7 +388,7 @@ static void bt_main_page_machines_draw_grid(const BtMainPageMachines *self) {
   // delete old grid-item and generate a new one (pushing it to bottom)
   if(self->priv->grid) gtk_object_destroy(GTK_OBJECT(self->priv->grid));
   self->priv->grid=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
-                           GNOME_TYPE_CANVAS_GROUP,"x",0,0,"y",0,0,NULL);
+                           GNOME_TYPE_CANVAS_GROUP,"x",0.0,"y",0.0,NULL);
   gnome_canvas_item_lower_to_bottom(self->priv->grid);
 
   if(!self->priv->grid_density) return;
