@@ -1,3 +1,11 @@
+2011-08-29  Stefan Sauer  <ensonic@users.sf.net>
+
+	patch by: davef1@users.sourceforge.net
+
+	* src/lib/ic/ic_private.h:
+	  Fix the build.
+	  
+
 2011-08-27  Stefan Sauer  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/buzztard-edit.xml:

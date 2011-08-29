@@ -86,16 +86,15 @@
 #include <libbuzztard-core/tools.h>
 
 #include <libbuzztard-ic/ic.h>
-#include "libbuzztard-ic/registry-methods.h"
 #if USE_GUDEV
-#include "libbuzztard-ic/gudev-discoverer-methods.h"
+#include "libbuzztard-ic/gudev-discoverer.h"
 #elif USE_HAL
-#include "libbuzztard-ic/hal-discoverer-methods.h"
+#include "libbuzztard-ic/hal-discoverer.h"
 #endif
 #ifdef HAVE_LINUX_INPUT_H
-#include "libbuzztard-ic/input-device-methods.h"
+#include "libbuzztard-ic/input-device.h"
 #endif
-#include "libbuzztard-ic/midi-device-methods.h"
+#include "libbuzztard-ic/midi-device.h"
 
 #include "version.h"
 
