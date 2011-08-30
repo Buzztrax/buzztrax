@@ -2417,16 +2417,81 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_list_free(list);
 }
 
-static void on_wire_added_or_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
+static void on_wire_added(BtSetup *setup,BtWire *wire,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMachine *this_machine,*that_machine;
 
+  if(!self->priv->pattern) return;
+  g_object_get(self->priv->pattern,"machine",&this_machine,NULL);
+  g_object_get(wire,"dst",&that_machine,NULL);
+  if(this_machine==that_machine) {
+    pattern_table_refresh(self);
+  }
+  g_object_unref(this_machine);
+  g_object_unref(that_machine);
+}
+
+static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMachine *this_machine,*that_machine;
+  
   if(!self->priv->pattern) return;
 
   g_object_get(self->priv->pattern,"machine",&this_machine,NULL);
   g_object_get(wire,"dst",&that_machine,NULL);
   if(this_machine==that_machine) {
     pattern_table_refresh(self);
+  }
+  
+  // add undo/redo details
+  if(bt_change_log_is_active(self->priv->change_log)) {
+    GList *list,*node;
+    BtMachine *smachine;
+    BtPattern *pattern;
+    BtWirePattern *wire_pattern;
+    gulong length;
+    gulong wire_params;
+    gchar *smid,*dmid;
+    
+    g_object_get(wire,"src",&smachine,"num-params",&wire_params,NULL);
+    g_object_get(smachine,"id",&smid,NULL);
+    g_object_get(that_machine,"id",&dmid,"patterns",&list,NULL);
+
+    for(node=list;node;node=g_list_next(node)) {
+      pattern=BT_PATTERN(node->data);
+      wire_pattern=bt_wire_get_pattern(wire,pattern);
+      if(wire_pattern) {
+        gchar *undo_str;
+        GString *data=g_string_new(NULL);
+        guint end;
+        gchar *str,*p,*pid;
+        guint i;
+  
+        g_object_get(pattern,"id",&pid,"length",&length,NULL);
+  
+        end=length-1;
+  
+        bt_wire_pattern_serialize_columns(wire_pattern,0,end,data);
+        str=data->str;
+        
+        bt_change_log_start_group(self->priv->change_log);       
+        for(i=0;i<wire_params;i++) {
+          p=strchr(str,'\n');*p='\0';
+          undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",0,%u,%u,%s",smid,dmid,pid,end,i,str);
+          str=&p[1];
+          bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+        }
+        bt_change_log_end_group(self->priv->change_log);
+  
+        g_string_free(data,TRUE);
+        g_free(pid);
+        g_object_unref(wire_pattern);
+      }
+      g_object_unref(pattern);
+    }
+    g_list_free(list);
+    g_free(smid);g_free(dmid);
+    g_object_unref(smachine);
   }
   g_object_unref(this_machine);
   g_object_unref(that_machine);
@@ -2575,8 +2640,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   wavetable_menu_refresh(self,wavetable);
   g_signal_connect(setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
   g_signal_connect(setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
-  g_signal_connect(setup,"wire-added",G_CALLBACK(on_wire_added_or_removed),(gpointer)self);
-  g_signal_connect(setup,"wire-removed",G_CALLBACK(on_wire_added_or_removed),(gpointer)self);
+  g_signal_connect(setup,"wire-added",G_CALLBACK(on_wire_added),(gpointer)self);
+  g_signal_connect(setup,"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
   g_signal_connect(wavetable,"wave-added",G_CALLBACK(on_wave_added_or_removed),(gpointer)self);
   g_signal_connect(wavetable,"wave-removed",G_CALLBACK(on_wave_added_or_removed),(gpointer)self);
   // subscribe to play-pos changes of song->sequence
@@ -3667,7 +3732,8 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 
     g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_added,NULL);
     g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_removed,NULL);
-    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_added_or_removed,NULL);
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_added,NULL);
+    g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_added,NULL);
     g_signal_handlers_disconnect_matched(wavetable,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wave_added_or_removed,NULL);
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_sequence_tick,NULL);
 
