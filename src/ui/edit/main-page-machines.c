@@ -839,6 +839,26 @@ static void on_toolbar_menu_clicked(GtkButton *button, gpointer user_data) {
   gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,1,gtk_get_current_event_time());
 }
 
+static void on_context_menu_unmute_all(GtkMenuItem *menuitem, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  GList *node,*list;
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+  
+  g_object_get(self->priv->app,"song",&song,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+  g_object_get(setup,"machines",&list,NULL);
+  for(node=list;node;node=g_list_next(node)) {
+    machine=BT_MACHINE(node->data);
+    // @todo: this also un-solos and un-bypasses
+    g_object_set(machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
+  }
+  g_list_free(list);
+  g_object_unref(setup);
+  g_object_unref(song);
+}
+
 static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gdouble vs,ve,vp,val,v;
@@ -1139,6 +1159,7 @@ static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachine
 
   menu_item=gtk_menu_item_new_with_label(_("Unmute all machines"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_unmute_all),(gpointer)self);
   /* @todo: implement me */
   gtk_widget_show(menu_item);
 }
