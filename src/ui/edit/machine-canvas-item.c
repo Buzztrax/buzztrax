@@ -52,20 +52,12 @@
  *   - playing multiple machines with a split keyboard would be nice too
  *
  * @todo: "remove and relink" is difficult if there are non empty wire patterns
- *   - those would need to be copies to new target machine(s) and we would need
+ *   - those would need to be copied to new target machine(s) and we would need
  *     to add more tracks for playing them.
  *   - we could ask the user if that is what he wants:
  *     - "don't remove"
  *     - "drop wire patterns"
  *     - "copy wire patterns"
- *
- * @todo: dialog manager
- *   - store preferences and properties dialog pointers not here, but in a
- *     app-wide dialog manager
- *   - this allows to:
- *     - show/hide the dialog also from e.g. the pattern/sequence page
- *     - makes it easier to show/hide all
- *     - makes it easier to store the state in the song
  *
  * @todo: gray out "properties"/"preferences" items in context menu if resulting
  * dialog would be empty
@@ -95,7 +87,10 @@ enum {
 enum {
   MACHINE_CANVAS_ITEM_MACHINES_PAGE=1,
   MACHINE_CANVAS_ITEM_MACHINE,
-  MACHINE_CANVAS_ITEM_ZOOM
+  MACHINE_CANVAS_ITEM_ZOOM,
+  MACHINE_CANVAS_ITEM_PROPERTIES_DIALOG,
+  MACHINE_CANVAS_ITEM_PREFERENCES_DIALOG,
+  MACHINE_CANVAS_ITEM_ANALYSIS_DIALOG
 };
 
 
@@ -167,6 +162,7 @@ G_DEFINE_TYPE (BtMachineCanvasItem, bt_machine_canvas_item, GNOME_TYPE_CANVAS_GR
 
 static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer user_data);
 static void on_machine_preferences_dialog_destroy(GtkWidget *widget, gpointer user_data);
+static void on_signal_analysis_dialog_destroy(GtkWidget *widget, gpointer user_data);
 
 //-- helper methods
 
@@ -257,6 +253,7 @@ static void show_machine_properties_dialog(BtMachineCanvasItem *self) {
     // remember open/closed state
     g_hash_table_insert(self->priv->properties,g_strdup("properties-shown"),g_strdup("1"));
     g_signal_connect(self->priv->properties_dialog,"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
+    g_object_notify((GObject *)self,"properties-dialog");
   }
   gtk_window_present(GTK_WINDOW(self->priv->properties_dialog));
 }
@@ -266,8 +263,22 @@ static void show_machine_preferences_dialog(BtMachineCanvasItem *self) {
     self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->machine));
     bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->preferences_dialog));
     g_signal_connect(self->priv->preferences_dialog,"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
+    g_object_notify((GObject *)self,"preferences-dialog");
   }
   gtk_window_present(GTK_WINDOW(self->priv->preferences_dialog));
+}
+
+static void show_machine_analyzer_dialog(BtMachineCanvasItem *self) {
+  if(!self->priv->analysis_dialog) {
+    self->priv->analysis_dialog=GTK_WIDGET(bt_signal_analysis_dialog_new(GST_BIN(self->priv->machine)));
+    bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
+    GST_INFO("analyzer dialog opened");
+    // remember open/closed state
+    g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
+    g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_signal_analysis_dialog_destroy),(gpointer)self);
+    g_object_notify((GObject *)self,"analysis-dialog");
+  }
+  gtk_window_present(GTK_WINDOW(self->priv->analysis_dialog));
 }
 
 
@@ -278,6 +289,7 @@ static void on_signal_analysis_dialog_destroy(GtkWidget *widget, gpointer user_d
 
   GST_INFO("signal analysis dialog destroy occurred");
   self->priv->analysis_dialog=NULL;
+  g_object_notify((GObject *)self,"analysis-dialog");
   // remember open/closed state
   g_hash_table_remove(self->priv->properties,"analyzer-shown");
 }
@@ -540,6 +552,7 @@ static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer use
 
   GST_INFO("machine properties dialog destroy occurred");
   self->priv->properties_dialog=NULL;
+  g_object_notify((GObject *)self,"properties-dialog");
   // remember open/closed state
   g_hash_table_remove(self->priv->properties,"properties-shown");
 }
@@ -549,6 +562,7 @@ static void on_machine_preferences_dialog_destroy(GtkWidget *widget, gpointer us
 
   GST_INFO("machine preferences dialog destroy occurred");
   self->priv->preferences_dialog=NULL;
+  g_object_notify((GObject *)self,"preferences-dialog");
 }
 
 static void on_context_menu_mute_toggled(GtkMenuItem *menuitem,gpointer user_data) {
@@ -627,21 +641,9 @@ static void on_context_menu_connect_activate(GtkMenuItem *menuitem,gpointer user
 
 static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-
-  GST_INFO("context_menu analysis item selected");
-  if(!self->priv->analysis_dialog) {
-    self->priv->analysis_dialog=GTK_WIDGET(bt_signal_analysis_dialog_new(GST_BIN(self->priv->machine)));
-    bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
-    GST_INFO("analyzer dialog opened");
-    // remember open/closed state
-    g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
-    g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_signal_analysis_dialog_destroy),(gpointer)self);
-  }
-  else {
-    gtk_window_present(GTK_WINDOW(self->priv->analysis_dialog));
-  }
+  
+  show_machine_analyzer_dialog(self);
 }
-
 
 static void on_context_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
@@ -833,6 +835,8 @@ BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_p
  * @machine: machine to show the dialog for
  *
  * Shows the machine properties dialog.
+ *
+ * Since: 0.6
  */
 void bt_machine_show_properties_dialog(BtMachine *machine) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(g_object_get_qdata((GObject *)machine,machine_canvas_item_quark));
@@ -845,11 +849,27 @@ void bt_machine_show_properties_dialog(BtMachine *machine) {
  * @machine: machine to show the dialog for
  *
  * Shows the machine preferences dialog.
+ *
+ * Since: 0.6
  */
 void bt_machine_show_preferences_dialog(BtMachine *machine) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(g_object_get_qdata((GObject *)machine,machine_canvas_item_quark));
 
   show_machine_preferences_dialog(self);
+}
+
+/**
+ * bt_machine_show_analyzer_dialog:
+ * @machine: machine to show the dialog for
+ *
+ * Shows the machine signal analysis dialog.
+ *
+ * Since: 0.6
+ */
+void bt_machine_show_analyzer_dialog(BtMachine *machine) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(g_object_get_qdata((GObject *)machine,machine_canvas_item_quark));
+
+  show_machine_analyzer_dialog(self);
 }
 
 //-- wrapper
@@ -870,6 +890,15 @@ static void bt_machine_canvas_item_get_property(GObject *object, guint property_
     } break;
     case MACHINE_CANVAS_ITEM_ZOOM: {
       g_value_set_double(value, self->priv->zoom);
+    } break;
+    case MACHINE_CANVAS_ITEM_PROPERTIES_DIALOG: {
+      g_value_set_object(value, self->priv->properties_dialog);
+    } break;
+    case MACHINE_CANVAS_ITEM_PREFERENCES_DIALOG: {
+      g_value_set_object(value, self->priv->preferences_dialog);
+    } break;
+    case MACHINE_CANVAS_ITEM_ANALYSIS_DIALOG: {
+      g_value_set_object(value, self->priv->analysis_dialog);
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -1355,5 +1384,26 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
                                      100.0,
                                      1.0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_PROPERTIES_DIALOG,
+                                  g_param_spec_object("properties-dialog",
+                                     "properties dialog prop",
+                                     "Get the the properties dialog if shown",
+                                     BT_TYPE_MACHINE_PROPERTIES_DIALOG,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_PREFERENCES_DIALOG,
+                                  g_param_spec_object("preferences-dialog",
+                                     "preferences dialog prop",
+                                     "Get the the preferences dialog if shown",
+                                     BT_TYPE_MACHINE_PREFERENCES_DIALOG,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_ANALYSIS_DIALOG,
+                                  g_param_spec_object("analysis-dialog",
+                                     "analysis dialog prop",
+                                     "Get the the analysis dialog if shown",
+                                     BT_TYPE_SIGNAL_ANALYSIS_DIALOG,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 

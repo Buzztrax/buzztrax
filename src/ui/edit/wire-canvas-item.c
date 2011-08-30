@@ -50,7 +50,8 @@ enum {
   WIRE_CANVAS_ITEM_W,
   WIRE_CANVAS_ITEM_H,
   WIRE_CANVAS_ITEM_SRC,
-  WIRE_CANVAS_ITEM_DST
+  WIRE_CANVAS_ITEM_DST,
+  WIRE_CANVAS_ITEM_ANALYSIS_DIALOG
 };
 
 // @todo what do we set here? canvas dimensions?
@@ -228,7 +229,7 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
     NULL);
 }
 
-static void show_wire_analyzer_dialog( BtWireCanvasItem *self) {
+static void show_wire_analyzer_dialog(BtWireCanvasItem *self) {
   if(!self->priv->analysis_dialog) {
     self->priv->analysis_dialog=GTK_WIDGET(bt_signal_analysis_dialog_new(GST_BIN(self->priv->wire)));
     bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
@@ -236,6 +237,7 @@ static void show_wire_analyzer_dialog( BtWireCanvasItem *self) {
     // remember open/closed state
     g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
     g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_signal_analysis_dialog_destroy),(gpointer)self);
+    g_object_notify((GObject *)self,"analysis-dialog");
   }
   gtk_window_present(GTK_WINDOW(self->priv->analysis_dialog));
 }
@@ -246,6 +248,7 @@ static void on_signal_analysis_dialog_destroy(GtkWidget *widget, gpointer user_d
 
   GST_INFO("signal analysis dialog destroy occurred");
   self->priv->analysis_dialog=NULL;
+  g_object_notify((GObject *)self,"analysis-dialog");
   // remember open/closed state
   g_hash_table_remove(self->priv->properties,"analyzer-shown");
 }
@@ -454,6 +457,9 @@ static void bt_wire_canvas_item_get_property(GObject *object, guint property_id,
     } break;
     case WIRE_CANVAS_ITEM_DST: {
       g_value_set_object(value, self->priv->dst);
+    } break;
+    case WIRE_CANVAS_ITEM_ANALYSIS_DIALOG: {
+      g_value_set_object(value, self->priv->analysis_dialog);
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -870,5 +876,12 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_ANALYSIS_DIALOG,
+                                  g_param_spec_object("analysis-dialog",
+                                     "analysis dialog prop",
+                                     "Get the the analysis dialog if shown",
+                                     BT_TYPE_SIGNAL_ANALYSIS_DIALOG,
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 

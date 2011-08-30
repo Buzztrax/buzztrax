@@ -62,5 +62,6 @@ BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_p
 
 void bt_machine_show_properties_dialog(BtMachine *machine);
 void bt_machine_show_preferences_dialog(BtMachine *machine);
+void bt_machine_show_analyzer_dialog(BtMachine *machine);
 
 #endif // BT_MACHINE_CANVAS_ITEM_H

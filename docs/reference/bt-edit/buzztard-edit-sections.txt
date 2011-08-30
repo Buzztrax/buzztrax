@@ -177,6 +177,7 @@ BtMachineCanvasItem
 bt_machine_canvas_item_new
 bt_machine_show_properties_dialog
 bt_machine_show_preferences_dialog
+bt_machine_show_analyzer_dialog
 <SUBSECTION Standard>
 BtMachineCanvasItemClass
 BT_MACHINE_CANVAS_ITEM
