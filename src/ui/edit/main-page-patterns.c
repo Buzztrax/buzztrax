@@ -585,7 +585,9 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
           g_object_get(wire,"src",&smachine,NULL);
           g_object_get(smachine,"id",&smid,NULL);
 
+          p=strchr(old_str,'\n');*p='\0';
           undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,mid,pid,beg,end,param,old_str);
+          p=strchr(new_str,'\n');*p='\0';
           redo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u,%s",smid,mid,pid,beg,end,param,new_str);
           bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 
@@ -595,14 +597,18 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
         }
       } break;
       case PGT_GLOBAL:
+        p=strchr(old_str,'\n');*p='\0';
         undo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,beg,end,param,old_str);
+        p=strchr(new_str,'\n');*p='\0';
         redo_str = g_strdup_printf("set_global_events \"%s\",\"%s\",%u,%u,%u,%s",mid,pid,beg,end,param,new_str);
         bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
         break;
       case PGT_VOICE: {
         guint voice = GPOINTER_TO_UINT(pc_group->user_data);
 
+        p=strchr(old_str,'\n');*p='\0';
         undo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,beg,end,voice,param,old_str);
+        p=strchr(new_str,'\n');*p='\0';
         redo_str = g_strdup_printf("set_voice_events \"%s\",\"%s\",%u,%u,%u,%u,%s",mid,pid,beg,end,voice,param,new_str);
         bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
       } break;

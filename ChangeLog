@@ -1,6 +1,11 @@
 2011-08-30  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
+	  Fix newlines in changelog after column edits.
+
+2011-08-30  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
 	  Undo/redo for wire-params on wire-removal.
 
 2011-08-30  Stefan Sauer  <ensonic@users.sf.net>
