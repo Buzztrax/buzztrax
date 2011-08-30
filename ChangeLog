@@ -1,5 +1,10 @@
 2011-08-30  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c:
+	  No need to log position on removal as we track position now.
+
+2011-08-30  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* src/ui/edit/main-page-machines.c:
 	* src/ui/edit/wire-canvas-item.c:

@@ -1564,10 +1564,6 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
   redo_str = g_strdup_printf("rem_machine \"%s\"",mid);
   bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 
-  undo_str = g_strdup_printf("set_machine_property \"%s\",\"xpos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"xpos"));
-  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
-  undo_str = g_strdup_printf("set_machine_property \"%s\",\"ypos\",\"%s\"",mid,(gchar *)g_hash_table_lookup(properties,"ypos"));
-  bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
   undo_str = g_strdup_printf("set_machine_property \"%s\",\"voices\",\"%lu\"",mid,voices);
   bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
   prop=(gchar *)g_hash_table_lookup(properties,"properties-shown");
@@ -1931,11 +1927,13 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       break;
     }          
     /* TODO:
-    - machine parameters
-    - volume/panorama
+    - machine parameters, wire parameters (volume/panorama)
+      - only write them out on realease to not blast to much crap into the log
     - open/close machine/wire windows
-      - we can do it on remove, but we don't know about intermediate changes as
-        thats stll done on canvas-item classes
+      - we do it on remove right, but we don't know about intermediate changes
+        as thats stll done on canvas-item classes
+      - the canvas-items could expose their dialogs as a read-only (widget)
+        property, then we can listen to the notify
     */
     default:
       GST_WARNING("unhandled undo/redo method: [%s]",data);
