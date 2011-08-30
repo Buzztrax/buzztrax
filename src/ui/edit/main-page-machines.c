@@ -80,6 +80,9 @@ struct _BtMainPageMachinesPrivate {
 
   /* the toolbar widget */
   GtkWidget *toolbar;
+  
+  /* the setup of machines and wires */
+  BtSetup *setup;
 
   /* canvas for machine view */
   GnomeCanvas *canvas;
@@ -303,7 +306,7 @@ static void machine_view_clear(const BtMainPageMachines *self) {
   GST_DEBUG("done");
 }
 
-static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
+static void machine_view_refresh(const BtMainPageMachines *self) {
   GHashTable *properties;
   BtMachineCanvasItem *src_machine_item,*dst_machine_item;
   BtMachine *machine,*src_machine,*dst_machine;
@@ -343,7 +346,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   GST_INFO("creating machine canvas items");
 
   // draw all machines
-  g_object_get((gpointer)setup,"machines",&list,NULL);
+  g_object_get(self->priv->setup,"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
     // get position
@@ -355,7 +358,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   g_list_free(list);
 
   // draw all wires
-  g_object_get((gpointer)setup,"wires",&list,NULL);
+  g_object_get(self->priv->setup,"wires",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     wire=BT_WIRE(node->data);
     // get positions of source and dest
@@ -431,7 +434,6 @@ static void bt_main_page_machines_draw_grid(const BtMainPageMachines *self) {
 
 static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
   BtSong *song;
-  BtSetup *setup;
   BtWire *wire;
   GError *err=NULL;
   BtMachine *src_machine,*dst_machine;
@@ -442,7 +444,6 @@ static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
   g_assert(self->priv->new_wire_dst);
 
   g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
   g_object_get(self->priv->new_wire_src,"machine",&src_machine,NULL);
   g_object_get(self->priv->new_wire_dst,"machine",&dst_machine,NULL);
 
@@ -472,7 +473,6 @@ static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
   g_object_unref(wire);
   g_object_unref(dst_machine);
   g_object_unref(src_machine);
-  g_object_unref(setup);
   g_object_unref(song);
 }
 
@@ -634,12 +634,14 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtSong *song;
-  BtSetup *setup;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
+  g_object_try_unref(self->priv->setup);
+
   // get song from app
   g_object_get(self->priv->app,"song",&song,NULL);
   if(!song) {
+    self->priv->setup=NULL;
     self->priv->properties=NULL;
     machine_view_clear(self);
     GST_INFO("song (null) has changed done");
@@ -647,23 +649,20 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   }
   GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
 
-  g_object_get(song,"setup",&setup,NULL);
-  g_object_get(setup,"properties",&self->priv->properties,NULL);
+  g_object_get(song,"setup",&self->priv->setup,NULL);
+  g_object_get(self->priv->setup,"properties",&self->priv->properties,NULL);
   // update page
-  machine_view_refresh(self,setup);
-  g_signal_connect(setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
-  g_signal_connect(setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
-  g_signal_connect(setup,"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
+  machine_view_refresh(self);
+  g_signal_connect(self->priv->setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
+  g_signal_connect(self->priv->setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
+  g_signal_connect(self->priv->setup,"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
   // release the reference
-  g_object_unref(setup);
   g_object_unref(song);
   GST_INFO("song has changed done");
 }
 
 static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  BtSong *song;
-  BtSetup *setup;
   BtMachine *machine;
   GHashTable *properties;
   GList *node,*list;
@@ -677,9 +676,7 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   gdouble old_zoom=self->priv->zoom;
 
   //calculate bounds
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  g_object_get(setup,"machines",&list,NULL);
+  g_object_get(self->priv->setup,"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
     // get position
@@ -692,8 +689,6 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
     GST_DEBUG("machines: x:%+6.4lf y:%+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",ma_x,ma_y,ma_xs,ma_xe,ma_ys,ma_ye);
   }
   g_list_free(list);
-  g_object_unref(setup);
-  g_object_unref(song);
   /* need to add machine extends + some space */
   GST_INFO("machines ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",ma_xs,ma_xe,ma_ys,ma_ye);
   ms=2*MACHINE_VIEW_MACHINE_SIZE_X;
@@ -842,21 +837,15 @@ static void on_toolbar_menu_clicked(GtkButton *button, gpointer user_data) {
 static void on_context_menu_unmute_all(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   GList *node,*list;
-  BtSong *song;
-  BtSetup *setup;
   BtMachine *machine;
   
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  g_object_get(setup,"machines",&list,NULL);
+  g_object_get(self->priv->setup,"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
     // @todo: this also un-solos and un-bypasses
     g_object_set(machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
   }
   g_list_free(list);
-  g_object_unref(setup);
-  g_object_unref(song);
 }
 
 static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
@@ -1160,7 +1149,6 @@ static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachine
   menu_item=gtk_menu_item_new_with_label(_("Unmute all machines"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_unmute_all),(gpointer)self);
-  /* @todo: implement me */
   gtk_widget_show(menu_item);
 }
 
@@ -1428,15 +1416,13 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
 
 static gboolean bt_main_page_machines_add_machine(const BtMainPageMachines *self, guint type, const gchar *id, const gchar *plugin_name) {
   BtSong *song;
-  BtSetup *setup;
   BtMachine *machine=NULL;
   gchar *uid;
   GError *err=NULL;
 
   g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
 
-  uid=bt_setup_get_unique_machine_id(setup,id);
+  uid=bt_setup_get_unique_machine_id(self->priv->setup,id);
   // try with 1 voice, if monophonic, voices will be reset to 0 in
   // bt_machine_init_voice_params()
   switch(type) {
@@ -1472,7 +1458,6 @@ static gboolean bt_main_page_machines_add_machine(const BtMainPageMachines *self
   g_object_unref(machine);
   g_free(uid);
 
-  g_object_unref(setup);
   g_object_unref(song);
 
   return(err==NULL);
@@ -1510,8 +1495,6 @@ gboolean bt_main_page_machines_add_processor_machine(const BtMainPageMachines *s
  * Remove a machine from the machine-page.
  */
 void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMachine *machine) {
-  BtSong *song;
-  BtSetup *setup;
   BtMainWindow *main_window;
   BtMainPageSequence *sequence_page;
   GHashTable *properties;
@@ -1521,9 +1504,6 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
   BtMachineState machine_state;
   gulong voices;
   gulong pattern_removed_id;
-
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,/*"sequence",&sequence,*/NULL);
 
   GST_INFO("before removing machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
   bt_change_log_start_group(self->priv->change_log);
@@ -1610,7 +1590,7 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
   bt_child_proxy_get(main_window,"pages::sequence-page",&sequence_page,NULL);
   g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,pattern_removed_id,0,NULL,NULL,(gpointer)sequence_page);
   g_object_ref(machine);
-  bt_setup_remove_machine(setup,machine);
+  bt_setup_remove_machine(self->priv->setup,machine);
   g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_ID|G_SIGNAL_MATCH_DATA,pattern_removed_id,0,NULL,NULL,(gpointer)sequence_page);
   g_object_unref(machine);
   g_object_unref(sequence_page);
@@ -1621,9 +1601,6 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
   // this segfaults if the machine is finalized
   //GST_INFO("... machine : %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
   bt_change_log_end_group(self->priv->change_log);
-
-  g_object_unref(setup);
-  g_object_unref(song);
 }
 
 /**
@@ -1634,21 +1611,12 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
  * Remove a wire from the machine-page (unlink the machines).
  */
 void bt_main_page_machines_delete_wire(const BtMainPageMachines *self, BtWire *wire) {
-  BtSong *song;
-  BtSetup *setup;
-
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-
   GST_INFO("now removing wire : %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
   bt_change_log_start_group(self->priv->change_log);
-  bt_setup_remove_wire(setup,wire);
+  bt_setup_remove_wire(self->priv->setup,wire);
   // this segfaults if the wire is finalized
   //GST_INFO("... wire : %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
   bt_change_log_end_group(self->priv->change_log);
-
-  g_object_unref(setup);
-  g_object_unref(song);
 }
 
 /**
@@ -1688,9 +1656,8 @@ void bt_main_page_machines_rename_machine(const BtMainPageMachines *self, BtMach
 
 static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger *owner,const gchar *data) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(owner);
-  gboolean res=FALSE;
   BtSong *song;
-  BtSetup *setup;
+  gboolean res=FALSE;
   BtMachine *machine,*smachine,*dmachine;
   BtWire *wire;
   GMatchInfo *match_info;
@@ -1741,16 +1708,11 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
 
       GST_DEBUG("-> [%s]",mid);
 
-      g_object_get(self->priv->app,"song",&song,NULL);
-      g_object_get(song,"setup",&setup,NULL);
-      if((machine=bt_setup_get_machine_by_id(setup, mid))) {
-        bt_setup_remove_machine(setup,machine);
+      if((machine=bt_setup_get_machine_by_id(self->priv->setup, mid))) {
+        bt_setup_remove_machine(self->priv->setup,machine);
         g_object_unref(machine);
         res=TRUE;
       }
-      g_object_unref(setup);
-      g_object_unref(song);
-
       g_free(mid);
       break;
     }
@@ -1765,9 +1727,7 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
 
       GST_DEBUG("-> [%s|%s|%s]",mid,key,val);
 
-      g_object_get(self->priv->app,"song",&song,NULL);
-      g_object_get(song,"setup",&setup,NULL);
-      if((machine=bt_setup_get_machine_by_id(setup, mid))) {
+      if((machine=bt_setup_get_machine_by_id(self->priv->setup,mid))) {
         BtMachineCanvasItem *item;
         gdouble pn,po;
         gboolean is_prop=FALSE;
@@ -1835,9 +1795,8 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       GST_DEBUG("-> [%s|%s]",smid,dmid);
 
       g_object_get(self->priv->app,"song",&song,NULL);
-      g_object_get(song,"setup",&setup,NULL);
-      smachine=bt_setup_get_machine_by_id(setup, smid);
-      dmachine=bt_setup_get_machine_by_id(setup, dmid);
+      smachine=bt_setup_get_machine_by_id(self->priv->setup, smid);
+      dmachine=bt_setup_get_machine_by_id(self->priv->setup, dmid);
 
       if(smachine && dmachine) {
         GHashTable *properties;
@@ -1861,7 +1820,6 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       }
       g_object_try_unref(smachine);
       g_object_try_unref(dmachine);
-      g_object_unref(setup);
       g_object_unref(song);
 
       g_free(smid);
@@ -1877,22 +1835,18 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
 
       GST_DEBUG("-> [%s|%s]",smid,dmid);
 
-      g_object_get(self->priv->app,"song",&song,NULL);
-      g_object_get(song,"setup",&setup,NULL);
-      smachine=bt_setup_get_machine_by_id(setup, smid);
-      dmachine=bt_setup_get_machine_by_id(setup, dmid);
+      smachine=bt_setup_get_machine_by_id(self->priv->setup, smid);
+      dmachine=bt_setup_get_machine_by_id(self->priv->setup, dmid);
 
       if(smachine && dmachine) {
-        if((wire=bt_setup_get_wire_by_machines(setup,smachine,dmachine))) {
-          bt_setup_remove_wire(setup,wire);
+        if((wire=bt_setup_get_wire_by_machines(self->priv->setup,smachine,dmachine))) {
+          bt_setup_remove_wire(self->priv->setup,wire);
           g_object_unref(wire);
           res=TRUE;
         }
       }
       g_object_try_unref(smachine);
       g_object_try_unref(dmachine);
-      g_object_unref(setup);
-      g_object_unref(song);
 
       g_free(smid);
       g_free(dmid);
@@ -1910,13 +1864,11 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
 
       GST_DEBUG("-> [%s|%s|%s|%s]",smid,dmid,key,val);
 
-      g_object_get(self->priv->app,"song",&song,NULL);
-      g_object_get(song,"setup",&setup,NULL);
-      smachine=bt_setup_get_machine_by_id(setup, smid);
-      dmachine=bt_setup_get_machine_by_id(setup, dmid);
+      smachine=bt_setup_get_machine_by_id(self->priv->setup, smid);
+      dmachine=bt_setup_get_machine_by_id(self->priv->setup, dmid);
 
       if(smachine && dmachine) {
-        if((wire=bt_setup_get_wire_by_machines(setup,smachine,dmachine))) {
+        if((wire=bt_setup_get_wire_by_machines(self->priv->setup,smachine,dmachine))) {
           gboolean is_prop=FALSE;
   
           g_object_get(wire,"properties",&properties,NULL);
@@ -1941,8 +1893,6 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       }
       g_object_try_unref(smachine);
       g_object_try_unref(dmachine);
-      g_object_unref(setup);
-      g_object_unref(song);
 
       g_free(smid);g_free(dmid);g_free(key);g_free(val);
       break;
@@ -1953,8 +1903,8 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
     - open/close machine/wire windows
       - we do it on remove right, but we don't know about intermediate changes
         as thats stll done on canvas-item classes
-      - the canvas-items could expose their dialogs as a read-only (widget)
-        property, then we can listen to the notify
+      - the canvas-items now expose their dialogs as a read-only (widget)
+        property, we can listen to the notify
     */
     default:
       GST_WARNING("unhandled undo/redo method: [%s]",data);
@@ -2030,6 +1980,8 @@ static void bt_main_page_machines_dispose(GObject *object) {
   //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
 
+  g_object_try_unref(self->priv->setup);
+  
   g_object_unref(self->priv->change_log);
   g_object_unref(self->priv->app);
 

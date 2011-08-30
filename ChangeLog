@@ -1,3 +1,8 @@
+2011-08-31  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-machines.c:
+	  Cache the setup in the instance to avoid lots of lookups.
+
 2011-08-30  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:
