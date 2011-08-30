@@ -982,6 +982,7 @@ bt_waveform_viewer_get_type
 <TITLE>BtWireCanvasItem</TITLE>
 BtWireCanvasItem
 bt_wire_canvas_item_new
+bt_wire_show_analyzer_dialog
 <SUBSECTION Standard>
 BtWireCanvasItemClass
 BT_WIRE_CANVAS_ITEM

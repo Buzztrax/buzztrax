@@ -95,10 +95,15 @@ struct _BtWireCanvasItemPrivate {
   gdouble offx,offy,dragx,dragy;
 };
 
+static GQuark wire_canvas_item_quark=0;
+
 //-- the class
 
 G_DEFINE_TYPE (BtWireCanvasItem, bt_wire_canvas_item, GNOME_TYPE_CANVAS_GROUP);
 
+//-- prototypes
+
+static void on_signal_analysis_dialog_destroy(GtkWidget *widget, gpointer user_data);
 
 //-- helper
 
@@ -223,6 +228,17 @@ static void wire_set_triangle_points(BtWireCanvasItem *self) {
     NULL);
 }
 
+static void show_wire_analyzer_dialog( BtWireCanvasItem *self) {
+  if(!self->priv->analysis_dialog) {
+    self->priv->analysis_dialog=GTK_WIDGET(bt_signal_analysis_dialog_new(GST_BIN(self->priv->wire)));
+    bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
+    GST_INFO("analyzer dialog opened");
+    // remember open/closed state
+    g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
+    g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_signal_analysis_dialog_destroy),(gpointer)self);
+  }
+  gtk_window_present(GTK_WINDOW(self->priv->analysis_dialog));
+}
 //-- event handler
 
 static void on_signal_analysis_dialog_destroy(GtkWidget *widget, gpointer user_data) {
@@ -298,18 +314,7 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
 static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
 
-  GST_INFO("context_menu analysis item selected");
-  if(!self->priv->analysis_dialog) {
-    self->priv->analysis_dialog=GTK_WIDGET(bt_signal_analysis_dialog_new(GST_BIN(self->priv->wire)));
-    bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(self->priv->analysis_dialog));
-    GST_INFO("analyzer dialog opened");
-    // remember open/closed state
-    g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
-    g_signal_connect(self->priv->analysis_dialog,"destroy",G_CALLBACK(on_signal_analysis_dialog_destroy),(gpointer)self);
-  }
-  else {
-    gtk_window_present(GTK_WINDOW(self->priv->analysis_dialog));
-  }
+  show_wire_analyzer_dialog(self);
 }
 
 static void on_gain_changed(GstElement *element, GParamSpec *arg, gpointer user_data) {
@@ -410,6 +415,20 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
 
 //-- methods
 
+/**
+ * bt_wire_show_analyzer_dialog:
+ * @wire: wire to show the dialog for
+ *
+ * Shows the wire analyzer dialog.
+ *
+ * Since: 0.6
+ */
+void bt_wire_show_analyzer_dialog(BtWire *wire) {
+  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(g_object_get_qdata((GObject *)wire,wire_canvas_item_quark));
+
+  show_wire_analyzer_dialog(self);
+}
+
 //-- wrapper
 
 //-- class internals
@@ -457,6 +476,7 @@ static void bt_wire_canvas_item_set_property(GObject *object, guint property_id,
       self->priv->wire=BT_WIRE(g_value_dup_object(value));
       if(self->priv->wire) {
         //GST_DEBUG("set the wire for wire_canvas_item: %p",self->priv->wire);
+        g_object_set_qdata((GObject *)self->priv->wire,wire_canvas_item_quark,(gpointer)self);
         g_object_get(self->priv->wire,"properties",&(self->priv->properties),NULL);
       }
     } break;
@@ -781,6 +801,8 @@ static void bt_wire_canvas_item_init(BtWireCanvasItem *self) {
 static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GnomeCanvasItemClass *citem_class=GNOME_CANVAS_ITEM_CLASS(klass);
+
+  wire_canvas_item_quark=g_quark_from_static_string("wire-canvas-item");
 
   g_type_class_add_private(klass,sizeof(BtWireCanvasItemPrivate));
 

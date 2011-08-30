@@ -1,3 +1,11 @@
+2011-08-30  Stefan Sauer  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/wire-canvas-item.c:
+	* src/ui/edit/wire-canvas-item.h:
+	  Undo/Redo for machine property window and wire analyzer window.
+
 2011-08-29  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:

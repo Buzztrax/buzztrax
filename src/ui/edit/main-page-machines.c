@@ -165,7 +165,7 @@ static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD("set_machine_property",21,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9]+)\",\"(.+)\"$"),
   BT_CHANGE_LOGGER_METHOD("add_wire",9,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD("rem_wire",9,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
-  BT_CHANGE_LOGGER_METHOD("set_wire_property",18,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+),\"([-_a-zA-Z0-9]+)\",\"(.+)\"$"),
+  BT_CHANGE_LOGGER_METHOD("set_wire_property",18,"\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9]+)\",\"(.+)\"$"),
   { NULL, }
 };
 
@@ -608,9 +608,9 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
     redo_str = g_strdup_printf("rem_wire \"%s\",\"%s\"",smid,dmid);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
     
-    prop=(gchar *)g_hash_table_lookup(properties,"analyzers-shown");
+    prop=(gchar *)g_hash_table_lookup(properties,"analyzer-shown");
     if(prop && *prop=='1') {
-      undo_str = g_strdup_printf("set_wire_property \"%s\",\"%s\",\"analyzers-shown\",\"1\"",smid,dmid);
+      undo_str = g_strdup_printf("set_wire_property \"%s\",\"%s\",\"analyzer-shown\",\"1\"",smid,dmid);
       bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
     }
     // TODO: volume and panorama
@@ -1777,6 +1777,9 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
           }
           is_prop=TRUE;
         } else if(!strcmp(key,"properties-shown")) {
+          if(*val=='1') {
+            bt_machine_show_properties_dialog(machine);
+          }
           is_prop=TRUE;
         } else if(!strcmp(key,"state")) {
           GEnumClass *enum_class=g_type_class_peek_static(BT_TYPE_MACHINE_STATE);
@@ -1901,7 +1904,10 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
   
           g_object_get(wire,"properties",&properties,NULL);
   
-          if(!strcmp(key,"analyzers-shown")) {
+          if(!strcmp(key,"analyzer-shown")) {
+            if(*val=='1') {
+              bt_wire_show_analyzer_dialog(wire);
+            }
             is_prop=TRUE;
           }
           else {
