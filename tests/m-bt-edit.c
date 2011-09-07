@@ -92,8 +92,6 @@ static void cleanup_cache_dir(void) {
 
 void bt_edit_setup(void) {
 
-  //g_type_init();
-
   gtk_init(&test_argc,&test_argvptr);
   bt_init(&test_argc,&test_argvptr);
   btic_init(&test_argc,&test_argvptr);
@@ -104,7 +102,6 @@ void bt_edit_setup(void) {
   theme=gtk_icon_theme_get_default()
   gtk_icon_theme_append_search_path(theme,....);
   */
-  g_set_application_name("Buzztard");
   bt_check_init();
   GST_INFO("................................................................................");
 
@@ -155,6 +152,7 @@ int main(int argc, char **argv) {
     g_thread_init(NULL);
   }
   g_type_init();
+  g_set_application_name("Buzztard");
   setup_log(argc,argv);
   setup_log_capture();
   test_argv[0]=test_arg0;

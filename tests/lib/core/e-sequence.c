@@ -363,6 +363,10 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
 }
 BT_END_TEST
 
+/* we moved these updates to the app, to give the undo/redo framework a chance
+ * to backup the data
+  */
+#ifdef __CHECK_DISABLED__
 BT_START_TEST(test_btsequence_update) {
   BtApplication *app;
   GError *err=NULL;
@@ -408,6 +412,7 @@ BT_START_TEST(test_btsequence_update) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
+#endif
 
 BT_START_TEST(test_btsequence_change_pattern) {
   BtApplication *app;
@@ -586,7 +591,7 @@ TCase *bt_sequence_example_case(void) {
   tcase_add_test(tc,test_btsequence_enlarge_track_vals);
   tcase_add_test(tc,test_btsequence_shrink_track);
   tcase_add_test(tc,test_btsequence_enlarge_both_vals);
-  tcase_add_test(tc,test_btsequence_update);
+  //tcase_add_test(tc,test_btsequence_update);
   tcase_add_test(tc,test_btsequence_change_pattern);
   tcase_add_test(tc,test_btsequence_ctrl_two_tracks);
   tcase_add_test(tc,test_btsequence_validate_loop);

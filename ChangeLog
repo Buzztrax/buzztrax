@@ -1,3 +1,12 @@
+2011-09-07  Stefan Sauer  <ensonic@users.sf.net>
+
+	* tests/lib/core/e-sequence.c:
+	  Disable a failing test and explain.
+
+	* tests/m-bt-edit.c:
+	  Move gset_appname() so that we don't call it multiple times when
+	  running with fork disabled.
+
 2011-08-31  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:
