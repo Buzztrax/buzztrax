@@ -545,7 +545,7 @@ static void sequence_calculate_visible_lines(const BtMainPageSequence *self) {
 
 static void sequence_update_model_length(const BtMainPageSequence *self) {
   GtkTreeModelFilter *filtered_store;
-  
+
   if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
     BtSequenceGridModel *store=BT_SEQUENCE_GRID_MODEL(gtk_tree_model_filter_get_model(filtered_store));
 
@@ -633,7 +633,7 @@ static void sequence_range_copy(const BtMainPageSequence *self,glong track_beg,g
 	glong i,j,col;
 	gchar *id,*str;
 	gulong sequence_length;
-	
+
 	g_object_get(sequence,"length",&sequence_length,NULL);
 
   /* label-track */
@@ -686,7 +686,7 @@ static void sequence_range_log_undo_redo(const BtMainPageSequence *self,glong tr
 	glong i,col;
 
 	bt_change_log_start_group(self->priv->change_log);
-	
+
   /* label-track */
 	col=track_beg;
 	if(col==0) {
@@ -697,7 +697,7 @@ static void sequence_range_log_undo_redo(const BtMainPageSequence *self,glong tr
 		redo_str = g_strdup_printf("set_labels %lu,%lu,%s",tick_beg,tick_end,new_str);
 		new_str=&p[1];
 		bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-		col++;		
+		col++;
 	}
 	/* machine-tracks */
 	for(i=col;i<=track_end;i++) {
@@ -1033,13 +1033,13 @@ static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar
 
 					undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",old_length);
 					redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",new_length);
-					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        	
+					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
         }
         bt_sequence_set_label(self->priv->sequence,pos,new_text);
 
 				undo_str = g_strdup_printf("set_labels %lu,%lu, ,%s",pos,pos,(old_text?old_text:" "));
 				redo_str = g_strdup_printf("set_labels %lu,%lu, ,%s",pos,pos,(new_text?new_text:" "));
-				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
+				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 				bt_change_log_end_group(self->priv->change_log);
       }
       g_free(old_text);
@@ -1118,7 +1118,7 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
 
   GST_DEBUG("    number of columns : %d",col_index);
 }
-  
+
 static void sequence_table_refresh_model(const BtMainPageSequence *self,const BtSong *song) {
   BtSequenceGridModel *store;
   GtkTreeModel *filtered_store;
@@ -1291,7 +1291,7 @@ static void sequence_table_refresh_columns(const BtMainPageSequence *self,const 
 
   // build dynamic sequence view
   GST_INFO("refresh sequence view");
-  
+
   g_object_get(self->priv->sequence,"tracks",&track_ct,NULL);
 
   // @todo: we'd like to update tjis instead of re-creating things
@@ -1626,36 +1626,36 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
       // set and read back, as sequence might clamp the value
       g_object_set(self->priv->sequence,"loop-start",row,NULL);
       g_object_get(self->priv->sequence,"loop-start",&loop_start,NULL);
-      
+
       if(loop_start!=old_loop_start) {
       	bt_change_log_start_group(self->priv->change_log);
 
 				undo_str = g_strdup_printf("set_sequence_property \"loop-start\",\"%ld\"",old_loop_start);
 				redo_str = g_strdup_printf("set_sequence_property \"loop-start\",\"%ld\"",loop_start);
 				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-      	
+
 				pos=(gdouble)loop_start/(gdouble)sequence_length;
 				g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
 				g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
-	
+
 				GST_INFO("adjusted loop-end = %ld -> %ld",old_loop_start,loop_start);
-	
+
 				g_object_get(self->priv->sequence,"loop-end",&old_loop_end,NULL);
 				if((old_loop_end!=-1) && (old_loop_end<=old_loop_start)) {
 					loop_end=loop_start+self->priv->bars;
 					g_object_set(self->priv->sequence,"loop-end",loop_end,NULL);
-	
+
 					undo_str = g_strdup_printf("set_sequence_property \"loop-end\",\"%ld\"",old_loop_end);
 					redo_str = g_strdup_printf("set_sequence_property \"loop-end\",\"%ld\"",loop_end);
 					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-	
+
 					GST_INFO("adjusted loop-end = %ld -> %ld",old_loop_end,loop_end);
-	
+
 					pos=(gdouble)loop_end/(gdouble)sequence_length;
 					g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);
 					g_object_set(self->priv->sequence_pos_table,"loop-end",pos,NULL);
 				}
-				
+
 				bt_change_log_end_group(self->priv->change_log);
 			}
       break;
@@ -1663,7 +1663,7 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
       // pos is beyond length or is on loop-end already -> adjust length
       if((row>sequence_length) || (row==loop_end)) {
         GST_INFO("adjusted length = %ld -> %ld",sequence_length,row);
-        
+
         bt_change_log_start_group(self->priv->change_log);
 
 				undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length);
@@ -1679,9 +1679,9 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
 					sequence_range_copy(self,0,number_of_tracks,row,sequence_length-1,old_data);
 					sequence_range_log_undo_redo(self,0,number_of_tracks,row,sequence_length-1,old_data->str,g_strdup(old_data->str));
 					g_string_free(old_data,TRUE);
-        }				
+        }
 				bt_change_log_end_group(self->priv->change_log);
-        
+
         sequence_length=row;
         g_object_set(self->priv->sequence,"length",sequence_length,NULL);
         sequence_calculate_visible_lines(self);
@@ -1700,20 +1700,20 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
 					undo_str = g_strdup_printf("set_sequence_property \"loop-end\",\"%ld\"",old_loop_end);
 					redo_str = g_strdup_printf("set_sequence_property \"loop-end\",\"%ld\"",loop_end);
 					bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-	
+
 					g_object_get(self->priv->sequence,"loop-start",&old_loop_start,NULL);
 					if((old_loop_start!=-1) && (old_loop_start>=loop_end)) {
 						loop_start=loop_end-self->priv->bars;
 						if(loop_start<0) loop_start=0;
 						g_object_set(self->priv->sequence,"loop-start",loop_start,NULL);
-	
+
 						undo_str = g_strdup_printf("set_sequence_property \"loop-start\",\"%ld\"",old_loop_start);
 						redo_str = g_strdup_printf("set_sequence_property \"loop-start\",\"%ld\"",loop_start);
 						bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 
 						GST_INFO("and adjusted loop-start = %ld",loop_start);
 					}
-					
+
 					bt_change_log_end_group(self->priv->change_log);
 				}
       }
@@ -1741,7 +1741,7 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
 
   // get song from app and then setup from song
   g_object_get(self->priv->app,"song",&song,NULL);
-	
+
   bt_sequence_add_track(self->priv->sequence,machine,pos);
 
   GST_INFO("machine %p,ref_count=%d track added",machine,G_OBJECT_REF_COUNT(machine));
@@ -1781,10 +1781,10 @@ static void sequence_remove_track(const BtMainPageSequence *self,gulong ix) {
 		g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
 		g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
 		GST_INFO("machine %p,ref_count=%d removing track",machine,G_OBJECT_REF_COUNT(machine));
-	
+
 		// remove the track where the cursor is
 		bt_sequence_remove_track_by_ix(self->priv->sequence,ix);
-	
+
 		g_object_unref(machine);
 	}
 }
@@ -1873,7 +1873,7 @@ static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
       g_object_get(self->priv->sequence,"tracks",&ix,NULL);
 
       sequence_add_track(self,machine,-1);
-      
+
 			g_object_get(machine,"id",&mid,NULL);
 
       /* handle undo/redo */
@@ -1881,7 +1881,7 @@ static void on_track_add_activated(GtkMenuItem *menu_item, gpointer user_data) {
 			redo_str = g_strdup_printf("add_track \"%s\",%lu",mid,ix);
 			bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 			g_free(mid);
-      
+
       g_object_unref(machine);
     }
     g_object_unref(setup);
@@ -1900,7 +1900,7 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
     BtSong *song;
 
     sequence_remove_track(self,self->priv->cursor_column-1);
-    
+
     // reset selection
     self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
 
@@ -1933,10 +1933,10 @@ static void on_track_move_left_activated(GtkMenuItem *menuitem, gpointer user_da
     if(bt_sequence_move_track_left(self->priv->sequence,track)) {
       BtSong *song;
       gchar *undo_str,*redo_str;
-      
+
       // get song from app
       g_object_get(self->priv->app,"song",&song,NULL);
-  
+
       self->priv->cursor_column--;
       // reinit the view
       sequence_table_refresh_columns(self,song);
@@ -2056,7 +2056,7 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
     gtk_tree_model_get(store,&iter,0,&str,-1);
     self->priv->bars=atoi(str);
     g_free(str);
-    
+
     if(self->priv->bars!=old_bars) {
       GtkTreeModelFilter *filtered_store;
 
@@ -2189,7 +2189,7 @@ static gboolean change_pattern(BtMainPageSequence *self, BtPattern *new_pattern,
 		}
 		undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,row,row,mid,(old_pid?old_pid:" "));
 		redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,row,row,mid,(new_pid?new_pid:" "));
-		bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        
+		bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 		g_free(mid);g_free(new_pid);g_free(old_pid);
 		g_object_unref(machine);
 		res=TRUE;
@@ -2425,14 +2425,14 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
 				sequence_range_copy(self,0,number_of_tracks,row,sequence_length-1,old_data);
         bt_sequence_insert_full_rows(self->priv->sequence,row,self->priv->bars);
         sequence_range_copy(self,0,number_of_tracks,row,sequence_length-1,new_data);
-        
+
         bt_change_log_start_group(self->priv->change_log);
         sequence_range_log_undo_redo(self,0,number_of_tracks,row,sequence_length-1,old_data->str,new_data->str);
 				undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length-self->priv->bars);
 				redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length);
-				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        	
+				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
         bt_change_log_end_group(self->priv->change_log);
-        
+
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         self->priv->sequence_length+=self->priv->bars;
         // udpate the view
@@ -2467,14 +2467,14 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
 				sequence_range_copy(self,0,number_of_tracks,row,sequence_length-1,old_data);
         bt_sequence_delete_full_rows(self->priv->sequence,row,self->priv->bars);
         sequence_range_copy(self,0,number_of_tracks,row,sequence_length-1,new_data);
-        
+
         bt_change_log_start_group(self->priv->change_log);
 				undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length);
 				redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",sequence_length-self->priv->bars);
-				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        	
+				bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
         sequence_range_log_undo_redo(self,0,number_of_tracks,row,sequence_length-1,old_data->str,new_data->str);
         bt_change_log_end_group(self->priv->change_log);
-        
+
 				g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
         self->priv->sequence_length-=self->priv->bars;
         // update the view
@@ -2490,11 +2490,11 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
         gchar key=(gchar)(event->keyval&0xff);
         BtPattern *new_pattern;
         GtkTreeModel *store;
-        
+
         store=gtk_tree_view_get_model(self->priv->pattern_list);
         if((new_pattern=pattern_list_model_get_pattern_by_key(store,key))) {
           gulong new_length=0;
-          
+
           bt_change_log_start_group(self->priv->change_log);
 
           if(row>=length) {
@@ -2507,14 +2507,14 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
 
             undo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",length);
             redo_str = g_strdup_printf("set_sequence_property \"length\",\"%ld\"",new_length);
-            bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);        	
+            bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
           }
-  
+
         	if((res=change_pattern(self,new_pattern,row,track-1))) {
 						change=TRUE;
 						res=TRUE;
 					}
-					
+
 					bt_change_log_end_group(self->priv->change_log);
 
           g_object_unref(new_pattern);
@@ -2807,7 +2807,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
   // reinit the menu
   machine_menu_refresh(self,setup);
-  
+
   // remove all tracks
   bt_sequence_remove_track_by_machine(self->priv->sequence,machine);
 
@@ -2845,7 +2845,7 @@ static void on_track_removed(BtSequence *sequence,BtMachine *machine,gulong trac
 	/* handle undo/redo */
 	g_object_get(machine,"id",&mid,NULL);
 	g_object_get(self->priv->sequence,"length",&sequence_length,NULL);
-	
+
 	bt_change_log_start_group(self->priv->change_log);
 
   old_data=g_string_new(NULL);
@@ -2856,11 +2856,11 @@ static void on_track_removed(BtSequence *sequence,BtMachine *machine,gulong trac
   sequence_range_copy(self,track+1,track+1,0,sequence_length-1,old_data);
   sequence_range_log_undo_redo(self,track+1,track+1,0,sequence_length-1,old_data->str,g_strdup(old_data->str));
   g_string_free(old_data,TRUE);
-  
+
   bt_change_log_end_group(self->priv->change_log);
 
 	g_free(mid);
-	
+
 	/* @todo: can't update the view here as the signal is emitted before making the change
 	 * to allow us saving the content, this means number-of-tracks is not changed either
 	 */
@@ -2879,10 +2879,10 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
   	glong track=0;
 		gchar *undo_str,*redo_str;
 		gchar *mid,*pid;
-  	
+
     g_object_get(machine,"id",&mid,NULL);
     g_object_get(pattern,"id",&pid,NULL);
-    
+
     GST_WARNING("pattern %s is used in sequence, doing undo/redo",pid);
 		/* save the cells that use the pattern */
 		bt_change_log_start_group(self->priv->change_log);
@@ -2892,7 +2892,7 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
         undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,tick,tick,mid,pid);
         redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,tick,tick,mid," ");
         bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
-        bt_sequence_set_pattern_quick(sequence,tick,track,NULL);        
+        bt_sequence_set_pattern_quick(sequence,tick,track,NULL);
         tick++;
       }
       track++;
@@ -2946,10 +2946,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
   self->priv->level_to_vumeter=g_hash_table_new_full(NULL,NULL,(GDestroyNotify)gst_object_unref,NULL);
 
-  // reset cursor pos                                                               
+  // reset cursor pos
   self->priv->cursor_column=1;
   self->priv->cursor_row=0;
-  
+
   // get stored settings
   if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"bars"))) {
     self->priv->bars=atol(prop);
@@ -2968,7 +2968,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"track-removed",G_CALLBACK(on_track_removed),(gpointer)self);
   gtk_combo_box_set_active(self->priv->pos_menu,self->priv->pos_format);
-  // update toolbar          
+  // update toolbar
   g_object_get(song_info,"bars",&bars,NULL);
   update_bars_menu(self,bars);
 
@@ -3490,9 +3490,9 @@ static gboolean sequence_deserialize_pattern_track(BtMainPageSequence *self,GtkT
 				BtPattern *pattern;
 				gint j=1;
 				gulong sequence_length;
-				
+
 				g_object_get(sequence,"length",&sequence_length,NULL);
-			
+
 				while((row<sequence_length) && fields[j] && *fields[j] && res) {
 					if(*fields[j]!=' ') {
 						pattern=bt_machine_get_pattern_by_id(machine,fields[j]);
@@ -3550,7 +3550,7 @@ static gboolean sequence_deserialize_label_track(BtMainPageSequence *self,GtkTre
 		gulong sequence_length;
 
 		g_object_get(sequence,"length",&sequence_length,NULL);
-		
+
 		while((row<sequence_length) && fields[j] && *fields[j] && res) {
 			if(*fields[j]!=' ') {
 				str=fields[j];
@@ -3570,7 +3570,7 @@ static gboolean sequence_deserialize_label_track(BtMainPageSequence *self,GtkTre
 	else {
 		GST_WARNING("  can't get tree-iter for row %ld",self->priv->cursor_row);
 		res=FALSE;
-	}          		
+	}
 
   return(res);
 }
@@ -3617,7 +3617,7 @@ static void sequence_clipboard_received_func(GtkClipboard *clipboard,GtkSelectio
         // process each line (= pattern column)
         while(lines[i] && *lines[i] && (self->priv->cursor_row+(i-1)<=end) && res) {
           fields=g_strsplit_set(lines[i],",",0);
-          
+
           if((self->priv->cursor_column+(i-2))>=0) {
           	res=sequence_deserialize_pattern_track(self,store,path,fields,(self->priv->cursor_column+i-2),self->priv->cursor_row,&sequence_changed);
 					}
@@ -3682,7 +3682,7 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
       s=g_match_info_fetch(match_info,3);e_row=atol(s);g_free(s);
       str=g_match_info_fetch(match_info,4);
       g_match_info_free(match_info);
-      
+
       GST_DEBUG("-> [%lu|%lu|%lu|%s]",track,s_row,e_row,str);
 
 			if((store=sequence_model_get_store(self))) {
@@ -3718,7 +3718,7 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
       s=g_match_info_fetch(match_info,2);e_row=atol(s);g_free(s);
       str=g_match_info_fetch(match_info,3);
       g_match_info_free(match_info);
-      
+
       GST_DEBUG("-> [%lu|%lu|%s]",s_row,e_row,str);
 
 			if((store=sequence_model_get_store(self))) {
@@ -3788,7 +3788,7 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
       if((machine=bt_setup_get_machine_by_id(setup,mid))) {
         sequence_add_track(self,machine,ix);
         g_object_unref(machine);
-        
+
         update_after_track_changed(self);
         res=TRUE;
       }
@@ -3805,7 +3805,7 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
 
       GST_DEBUG("-> [%lu]",ix);
     	sequence_remove_track(self,ix);
-    	
+
     	update_after_track_changed(self);
       res=TRUE;
       break;
@@ -3825,16 +3825,16 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
         if(bt_sequence_move_track_left(self->priv->sequence,ix_cur)) {
           self->priv->cursor_column--;
           res=TRUE;
-        }        
+        }
       } else {
         if(bt_sequence_move_track_right(self->priv->sequence,ix_cur)) {
           self->priv->cursor_column++;
           res=TRUE;
-        }        
+        }
       }
       if(res) {
         BtSong *song;
-        
+
         g_object_get(self->priv->app,"song",&song,NULL);
         // reinit the view
         sequence_table_refresh_columns(self,song);
@@ -3928,6 +3928,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
     g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_track_removed,(gpointer)self);
     g_object_unref(sequence);
   }
+  g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_changed,(gpointer)self);
   self->priv->main_window=NULL;
 
   g_object_unref(self->priv->change_log);
