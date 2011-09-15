@@ -41,8 +41,8 @@ struct _BtIcAbsRangeControlPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
-  gint32 value;
-  gint32 min,max,def;
+  glong value;
+  glong min,max,def;
 };
 
 //-- the class
@@ -68,7 +68,7 @@ G_DEFINE_TYPE (BtIcAbsRangeControl, btic_abs_range_control, BTIC_TYPE_CONTROL);
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtIcAbsRangeControl *btic_abs_range_control_new(const BtIcDevice *device,const gchar *name,guint id,gint32 min,gint32 max,gint32 def) {
+BtIcAbsRangeControl *btic_abs_range_control_new(const BtIcDevice *device,const gchar *name,guint id,glong min,glong max,glong def) {
   BtIcAbsRangeControl *self=BTIC_ABS_RANGE_CONTROL(g_object_new(BTIC_TYPE_ABS_RANGE_CONTROL,"device",device,"name",name,"id",id,"min",min,"max",max,"def",def,NULL));
   if(!self) {
     goto Error;

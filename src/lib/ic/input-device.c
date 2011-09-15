@@ -197,7 +197,8 @@ static gboolean register_abs_range_controls(const BtIcInputDevice * const self,i
         default:
           GST_INFO("Unknown absolute axis : 0x%02x ", ix);
       }
-      if(ioctl(fd, EVIOCGABS(ix), &abs_features)) {
+      memset(&abs_features, 0, sizeof(abs_features));
+      if(ioctl(fd, EVIOCGABS(ix), &abs_features) < 0) {
         GST_WARNING("evdev EVIOCGABS ioctl : %s",g_strerror(errno));
       }
       else {
@@ -211,7 +212,9 @@ static gboolean register_abs_range_controls(const BtIcInputDevice * const self,i
           // create controller instances and register them
           key=(((guint)EV_ABS)<<16)|(guint)ix;
           /*control = */btic_abs_range_control_new(BTIC_DEVICE(self),name,key,
-            abs_features.minimum,abs_features.maximum,abs_features.flat);
+            (glong)abs_features.minimum,
+            (glong)abs_features.maximum,
+            (glong)abs_features.flat);
         }
       }
     }

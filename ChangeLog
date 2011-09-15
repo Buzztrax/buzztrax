@@ -1,5 +1,12 @@
 2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/ic/abs-range-control.c:
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/libbuzztard-ic/abs-range-control.h:
+	  Use long for the parameters. Makes valgrind happy on 64 bit too.
+
+2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Improve valgrind detection.
 
