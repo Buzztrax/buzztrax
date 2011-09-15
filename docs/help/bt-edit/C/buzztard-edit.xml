@@ -159,7 +159,7 @@
         <listitem><para>can have multiple wire-analyzers open</para></listitem>
         <listitem><para>can be remote controlled with UPnP A/V software</para></listitem>
         <listitem><para>supports HID input devices for effect control (e.g. joysticks)</para></listitem>
-        <listitem><para>has unlimmited undo/redo support</para></listitem>
+        <listitem><para>has unlimited undo/redo support</para></listitem>
         <listitem><para>does journaling and crash recovery</para></listitem>
         <listitem><para>ships with a plugin that enables GStreamer based media players to play buzztard songs</para></listitem>
       </itemizedlist>
@@ -210,7 +210,7 @@
     <note>
       <para>
         Please note, that not all the elements in the list will work perfectly in
-        a live situation right now. Also useing livesrc and normal source does
+        a live situation right now. Also using livesrc and normal source does
         not work reliable right now. This will be address in a future versions
         of buzztard and gstreamer.
       </para>
@@ -232,7 +232,7 @@
       Now you should see something like this:
     </para>
     <para>
-      (FIXME: need screenshot)
+      (FIXME: need screen shot)
     </para>
     <para>
       Now lets give it a try. Activate the loop in the <link linkend="bt-edit-main-toolbar">toolbar</link>
@@ -277,7 +277,7 @@
       It works like it always worked in trackers - by using the computer keyboard.
       The two rows above the space key form one octave and the two rows above one octave above.
       The lower row is for while keys and the upper row for black keys, y/z &rrar; c, s &rrar; c#,
-      x %rrar; d, d &rrar; d#, c &rrar; e, f unused, v &rrar; f and so on.
+      x &rrar; d, d &rrar; d#, c &rrar; e, f unused, v &rrar; f and so on.
       Press Ctrl-2 to set cursor stepping to go down 2 rows on each edit and enter "yqy3ywyr".
       If you press play now, you should hear a simple melody.
     </para>
@@ -297,7 +297,7 @@
     </para>
     <para>
       Now switch to the <link linkend="bt-edit-main-view-machines">machine view</link>.
-      In oder to use samples we need to add a special generator that supports the
+      In order to use samples we need to add a special generator that supports the
       wavetable functionality. Lets use "Generators/BML/Mathilde-Tracker". This
       machine is part of the ported buzzmachine package. Link the machine to the
       master as usual. Now switch to the <link linkend="bt-edit-main-view-patterns">pattern editor</link>.
@@ -448,7 +448,7 @@
         pointer-shape in the middle of the wire open a volume popup. A click
         outside closes it again. Shift+left-click opens the panorama control.
         Only stereo links have a panorama control. For mono-to-stereo links it
-        acts as a panorama for strereo-to-stereo link it acts as a
+        acts as a panorama for stereo-to-stereo link it acts as a
         stereo-balance.
       </para>
       <para>
@@ -537,7 +537,7 @@
             <row>
               <entry>prev group</entry>
               <entry><keycombo><keycap>shift</keycap><keycap>tab</keycap></keycombo></entry>
-              <entry>moves the cursor to the preious group (wire, global, voices)</entry>
+              <entry>moves the cursor to the previous group (wire, global, voices)</entry>
             </row>
             <row>
               <entry>move page</entry>
@@ -673,7 +673,7 @@ i o p</keycap></screen></entry>
             <row>
               <entry>interpolate</entry>
               <entry><keycombo><keycap>ctrl</keycap><keycap>i</keycap></keycombo></entry>
-              <entry>enters values into the selected range that linearilly blend from the start to the end value</entry>
+              <entry>enters values into the selected range that linearly blend from the start to the end value</entry>
             </row>
             <row>
               <entry>randomize</entry>
@@ -719,7 +719,7 @@ i o p</keycap></screen></entry>
               <entry>select current wave</entry>
             </row>
             <row>
-              <entry>switch base ocate</entry>
+              <entry>switch base octave</entry>
               <entry><keycap>*,/ (keypad)</keycap></entry>
               <entry>lower/raise the base octave</entry>
             </row>
@@ -738,7 +738,7 @@ i o p</keycap></screen></entry>
         A song consists of several tracks (columns), where in each track patterns
         are played. There can be several tracks for the same machine. 
         The rows are time slots. The labels can show the time in different
-        formats suchs as ticks and time.
+        formats such as ticks and time.
       </para>
       <figure id="bt-edit-page-sequence-view-fig">
         <title>Sequence view</title>
@@ -761,7 +761,7 @@ i o p</keycap></screen></entry>
       <para>
         The sequence header for the label column offers shortcuts to jump to the
         selected label. The header for the position column contain a selector
-        for the prefered position format.
+        for the preferred position format.
       </para>
       <para>
         The context menu allows to add or remove tracks, move tracks left or
@@ -813,7 +813,7 @@ i o p</keycap></screen></entry>
             <row>
               <entry>mute</entry>
               <entry>all</entry>
-              <entry>silence the output, this is simillar to break, but would cut-off any sound immediately, use a break pattern to unmute</entry>
+              <entry>silence the output, this is similar to break, but would cut-off any sound immediately, use a break pattern to unmute</entry>
             </row>
             <row>
               <entry>bypass</entry>
@@ -1025,7 +1025,7 @@ i o p</keycap></screen></entry>
         timing resolutions and to enter information about the song.
         The meta data will be used for the tags when creating a final mix-down.
         The tags show up in your desktop media player or portable media player.
-        While the fileds are not mandatory, it is a good idea to fill them.
+        While the fields are not mandatory, it is a good idea to fill them.
       </para>
       <figure id="bt-edit-page-info-view-fig">
         <title>Info view</title>
@@ -1042,11 +1042,11 @@ i o p</keycap></screen></entry>
       </figure>
       <para>
         The "beats per minute", "beats" and "ticks per beat" parameters control
-        the timing and meassure of the song. "Beats per minute" is the classic
-        "bpm" speed of the song. "beats" determines the beats per meassue and
-        "ticks per beat" the ganularity. If you like to use quarter notes,
+        the timing and measure of the song. "Beats per minute" is the classic
+        "bpm" speed of the song. "beats" determines the beats per measure and
+        "ticks per beat" the granularity. If you like to use quarter notes,
         "ticks per beats" need to be 4. Thus a straight four to the floor has
-        beats=4 and ticks-per-beat=4. A walz would use beats=3 and
+        beats=4 and ticks-per-beat=4. A waltz would use beats=3 and
         ticks-per-beat=4.
       </para>
     </sect3>
@@ -1287,7 +1287,7 @@ i o p</keycap></screen></entry>
       </screenshot>
     </figure>
     <para>
-      Several such dialogs can be openend and the status is saved with the song.
+      Several such dialogs can be opened and the status is saved with the song.
     </para>
   </sect2>
   <sect2 id="bt-edit-dialog-machine-preferences">
@@ -1369,7 +1369,7 @@ i o p</keycap></screen></entry>
       the visualization of the spectrogram.
     </para>
     <para>
-      Several such dialogs can be openend and the status is saved with the song.
+      Several such dialogs can be opened and the status is saved with the song.
     </para>
     <figure id="bt-edit-dialog-signal-analysis-fig">
       <title>Signal analysis dialog</title>
@@ -1443,7 +1443,7 @@ i o p</keycap></screen></entry>
   <sect2 id="bt-edit-dialog-about">
     <title id="bt-edit-dialog-about.title">About dialog</title>
     <para>
-      This dialog shows a short info about the appliation, the license it is
+      This dialog shows a short info about the application, the license it is
       released under and gives credits to the contributors.
     </para>
     <figure id="bt-edit-dialog-about-fig">
@@ -1485,7 +1485,7 @@ i o p</keycap></screen></entry>
   <sect2 id="bt-edit-dialog-missing-song-elements">
     <title id="bt-edit-dialog-missing-song-elements.title">Missing song elements dialog</title>
     <para>
-      Songs have external dependecies, such as the machines (generators and
+      Songs have external dependencies, such as the machines (generators and
       effects) and sampled waveforms. In some song formats (e.g. .bzt) the
       waveforms are part of the song file, in others (e.g. .xml) only the path
       to the waveform file is stored. If loading a file detects that some
@@ -1519,7 +1519,7 @@ i o p</keycap></screen></entry>
       the changes on top of the last saved copy to get back to the state before
       failure.  When starting &app; it will check for such logs and if some are
       found present this dialog. Now one can choose to restore the changes or
-      delete them. The dialog is also availab le from the
+      delete them. The dialog is also available from the
       <link linkend="bt-edit-main-menu">file menu</link>.
     </para>
     <figure id="bt-edit-dialog-crash-recovery-fig">
