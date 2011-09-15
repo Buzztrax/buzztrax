@@ -1,5 +1,10 @@
 2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-menu.c:
+	  Use change_log from instance instead of getting a new one.
+
+2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-list-model.c:
 	* src/ui/edit/pattern-list-model.c:
 	  Remove weak pointers in dispose.

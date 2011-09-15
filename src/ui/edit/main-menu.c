@@ -691,7 +691,6 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
   guint ix;
-  BtChangeLog *change_log;
 
   // disable F10 keybinding to activate the menu
   gtk_settings=gtk_settings_get_for_screen(gdk_screen_get_default());
@@ -1077,9 +1076,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   // register event handlers
   g_signal_connect(self->priv->app, "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
 
-  change_log=bt_change_log_new();
-  g_signal_connect(change_log, "notify::can-undo", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
-  g_object_unref(change_log);
+  g_signal_connect(self->priv->change_log, "notify::can-undo", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
 }
 
 //-- constructor methods
