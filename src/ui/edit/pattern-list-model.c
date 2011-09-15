@@ -539,9 +539,11 @@ static void bt_pattern_list_model_finalize(GObject *object) {
       g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pattern_name_changed,(gpointer)self);
     }
     g_list_free(list);
+    g_object_remove_weak_pointer((GObject *)machine,(gpointer *)&self->priv->machine);
   }
   if(self->priv->sequence) { 
     g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_pattern_usage_changed,(gpointer)self);
+    g_object_remove_weak_pointer((GObject *)self->priv->sequence,(gpointer *)&self->priv->sequence);
   }
 
   g_sequence_free(self->priv->seq);

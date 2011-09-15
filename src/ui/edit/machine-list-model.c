@@ -425,6 +425,7 @@ static void bt_machine_list_model_finalize(GObject *object) {
       g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_id_changed,(gpointer)self);
     }
     g_list_free(list);
+    g_object_remove_weak_pointer((GObject *)setup,(gpointer *)&self->priv->setup);
   }
 
   g_sequence_free(self->priv->seq);
