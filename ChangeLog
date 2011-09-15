@@ -1,5 +1,10 @@
 2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  Improve valgrind detection.
+
+2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
+
 	* tests/bt-check.c:
 	  Raise the memory limmit for the tests from 256Mb to 1Gb. That fixes
 	  the tests on 64bit.

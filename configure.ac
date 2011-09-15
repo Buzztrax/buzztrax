@@ -208,12 +208,22 @@ AC_ARG_WITH([valgrind],
         [ac_cv_use_valgrind=$withval],
         [ac_cv_use_valgrind=no])
 AC_MSG_RESULT($ac_cv_use_valgrind)
-VALGRIND=$ac_cv_use_valgrind
+if test "x$ac_cv_use_valgrind" == "xyes"; then
+  AC_PATH_PROG(valgrind_path, [valgrind], [no])
+  if test "x$valgrind_path" != "xno"; then
+    valgrind_path=`dirname $valgrind_path`
+    VALGRIND=`dirname $valgrind_path`
+  else
+    VALGRIND="no"
+  fi
+else
+  VALGRIND=$ac_cv_use_valgrind
+fi
 AC_SUBST(VALGRIND)
 AM_CONDITIONAL(USE_VALGRIND, test "x$VALGRIND" != "xno")
 
 VALGRIND_CPPFLAGS=
-if test $ac_cv_use_valgrind != no; then
+if test "x$ac_cv_use_valgrind" != "xno"; then
    AC_DEFINE(HAVE_VALGRIND, 1, [Define to 1 if valgrind is to be used.])
    if test -f $ac_cv_use_valgrind/valgrind.h; then
       VALGRIND_CFLAGS=-I$ac_cv_use_valgrind
