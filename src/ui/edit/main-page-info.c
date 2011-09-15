@@ -499,6 +499,8 @@ static void bt_main_page_info_dispose(GObject *object) {
   
   GST_DEBUG("!!!! self=%p",self);
 
+  g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_changed,(gpointer)self);
+
   g_object_try_unref(self->priv->song_info);
 
   g_object_unref(self->priv->app);

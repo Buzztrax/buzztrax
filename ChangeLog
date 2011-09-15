@@ -1,5 +1,10 @@
 2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-info.c:
+	  Disconnect on_song_changed in dispose. Fixes the tests even more.
+
+2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Sent news.
 
