@@ -555,6 +555,10 @@ static void on_song_async_done(const GstBus * const bus, GstMessage *message, gc
   
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GST_INFO("async state-change done");
+    if(self->priv->paused_timeout_id) {
+      g_source_remove(self->priv->paused_timeout_id);
+      self->priv->paused_timeout_id=0;
+    }
     bt_song_update_playback_position(self);
   }
 }
@@ -738,7 +742,7 @@ gboolean bt_song_play(const BtSong * const self) {
   bt_song_send_tags(self);
 
   res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
-  GST_DEBUG("->PAUSED state change returned '%s'",gst_element_state_change_return_get_name(res));
+  GST_DEBUG("->PLAYING state change returned '%s'",gst_element_state_change_return_get_name(res));
   switch(res) {
     case GST_STATE_CHANGE_SUCCESS:
       break;
@@ -748,7 +752,7 @@ gboolean bt_song_play(const BtSong * const self) {
       return(FALSE);
       break;
     case GST_STATE_CHANGE_ASYNC:
-      GST_INFO("->PAUSED needs async wait");
+      GST_INFO("->PLAYING needs async wait");
       // start a short timeout that aborts playback if if get not started
       self->priv->paused_timeout_id=g_timeout_add(BT_SONG_STATE_CHANGE_TIMEOUT, on_song_paused_timeout, (gpointer)self);
       break;
