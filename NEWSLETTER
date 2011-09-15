@@ -1,12 +1,40 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
+2011/10 ========================================================================
+
+
+
 2011/09 ========================================================================
 
-- use new sequence model (already deleted 170 lines of code)
-- more work on state persistence (selected machines, pattern, options) all
-  getting remembered with the song
-- song-dirty flag is getting combined from undo/redo stack and a dirty flag
-- startup time improvements
+After lots of changes I have switched the code permanently to the new sequence
+model. It saves about 170 lines of code in the sequence-page source. There is
+some potential to save more though.
+
+I also did more work on state persistence. A song now contains more information
+(selected machines, pattern, options) and these things are restored when loading
+a song.
+
+Another good change was moving the song-unsaved flag from the song
+(core-library) to the edit application. This make the core library more light-
+weight. The editor application can now determine whether there is something to 
+save by combining the unsaved-flag and the undo/redo stack. The unsaved-flag is
+still needed as I feel not everything needs to go to the undo/redo stack (like
+selecting a machine). Undo/redo looks quite complete now. I found a solution for
+my last issue, although I am still not entirely happy with it.
+
+I also made a few startup time improvements. Found a weird issue with the
+interaction-controller library probing joystick devices. One ioctl on joy
+devices for hdaps devices is hanging for quite a bit.
+
+Finally I did a huge cleanup on or somewhat uncommon header file setup. We
+always had a header declaring the types and one the methods. This helped with
+include conflicts. But now we have 50% less files to care and I just needed 2
+forward declarations.
+
+Again several bugs were fixed. I will check remaining reported bugs and hope that
+everything is fine to consider releasing 0.6.
+
+253 files changed, 27205 insertions(+), 26602 deletions(-)
 
 2011/08 ========================================================================
 

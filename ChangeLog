@@ -1,7 +1,12 @@
+2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Sent news.
+
 2011-09-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c:
-	  Disconned on_song_changed in dispose. Fixes the tests.
+	  Disconnect on_song_changed in dispose. Fixes the tests.
 
 2011-09-14  Stefan Kost  <ensonic@users.sf.net>
 
@@ -14,7 +19,7 @@
 	  Disable a failing test and explain.
 
 	* tests/m-bt-edit.c:
-	  Move gset_appname() so that we don't call it multiple times when
+	  Move g_set_appname() so that we don't call it multiple times when
 	  running with fork disabled.
 
 2011-08-31  Stefan Sauer  <ensonic@users.sf.net>
