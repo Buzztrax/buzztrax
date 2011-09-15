@@ -64,7 +64,9 @@ void bt_check_init(void) {
     rl.rlim_cur = 20;
     if(setrlimit(RLIMIT_CPU,&rl)<0) perror("setrlimit(RLIMIT_CPU) failed");
     // limit process’s virtual memory in bytes
-    rl.rlim_cur = 1024 * 1024 * 256; // 256 Mb
+    // if we get failing tests and "mmap() failed: Cannot allocate memory"
+    // this limmit needs to be increased
+    rl.rlim_cur = 1024 * 1024 * 1024; // 1024 Mb = 1GB
     if(setrlimit(RLIMIT_AS,&rl)<0) perror("setrlimit(RLIMIT_AS) failed");
   }
 #endif

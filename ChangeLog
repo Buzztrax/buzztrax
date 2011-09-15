@@ -1,5 +1,17 @@
 2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
 
+	* tests/bt-check.c:
+	  Raise the memory limmit for the tests from 256Mb to 1Gb. That fixes
+	  the tests on 64bit.
+
+	* tests/m-bt-cmd.c:
+	* tests/m-bt-core.c:
+	* tests/m-bt-edit.c:
+	* tests/m-bt-ic.c:
+	  Cleanup the tests.
+
+2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/aspell.pws:
 	* docs/help/bt-edit/C/buzztard-edit.xml:
 	  Spell check docs.

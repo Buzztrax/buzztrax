@@ -91,7 +91,6 @@ static void cleanup_cache_dir(void) {
 }
 
 void bt_edit_setup(void) {
-
   gtk_init(&test_argc,&test_argvptr);
   bt_init(&test_argc,&test_argvptr);
   btic_init(&test_argc,&test_argvptr);
@@ -103,7 +102,6 @@ void bt_edit_setup(void) {
   gtk_icon_theme_append_search_path(theme,....);
   */
   bt_check_init();
-  GST_INFO("................................................................................");
 
   GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
    // set this to e.g. DEBUG to see more from gst in the log
@@ -113,20 +111,18 @@ void bt_edit_setup(void) {
   gst_debug_category_set_threshold(btic_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-
+  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);  
+  
+  /* cleanup cache dir before (first) test run */
+  cleanup_cache_dir();
   GST_INFO("................................................................................");
   check_setup_test_display();
   GST_INFO("................................................................................");
 
-  /* cleanup cache dir before (first) test run */
-  cleanup_cache_dir();
-  GST_INFO("................................................................................");
   /* set some good settings for the tests */
   settings=bt_settings_make();
   GST_INFO("tests have settings %p",settings);
   g_object_set(settings,"show-tips",FALSE,NULL);
-
-  GST_INFO("================================================================================");
 }
 
 void bt_edit_teardown(void) {
@@ -134,12 +130,12 @@ void bt_edit_teardown(void) {
     g_object_unref(settings);
     settings=NULL;
   }
+
   GST_INFO("................................................................................");
+  check_shutdown_test_display();
   /* cleanup cache dir after test run */
   cleanup_cache_dir();
   GST_INFO("................................................................................");
-  check_shutdown_test_display();
-  GST_INFO("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
 }
 
 /* start the test run */
@@ -158,10 +154,6 @@ int main(int argc, char **argv) {
   test_argv[0]=test_arg0;
   test_argv[1]=test_arg1;
   test_argvptr=test_argv;
-
-  //GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
-  //gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   check_setup_test_server();
 
@@ -188,7 +180,6 @@ int main(int argc, char **argv) {
   srunner_add_suite(sr, bt_settings_dialog_suite());
   srunner_add_suite(sr, bt_signal_analysis_dialog_suite());
   srunner_add_suite(sr, bt_tip_dialog_suite());
-  //srunner_set_fork_status(sr,CK_NOFORK);
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);

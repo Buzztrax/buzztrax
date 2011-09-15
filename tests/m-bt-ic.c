@@ -39,15 +39,6 @@ gchar **test_argvptr;
 
 /* common setup and teardown code */
 void bt_ic_setup(void) {
-  btic_init(&test_argc,&test_argvptr);
-  gst_init(NULL,NULL);
-  bt_check_init();
-
-  // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG);
-  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(btic_debug,GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 }
 
 void bt_ic_teardown(void) {
@@ -68,12 +59,19 @@ int main(int argc, char **argv) {
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
 
+  btic_init(&test_argc,&test_argvptr);
+  gst_init(NULL,NULL);
+  bt_check_init();
+
+  // set this to e.g. DEBUG to see more from gst in the log
+  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG);
+  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
+  gst_debug_category_set_threshold(btic_debug,GST_LEVEL_DEBUG);
+  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   sr=srunner_create(bt_ic_suite());
   srunner_add_suite(sr, bt_registry_suite());
-  // this make tracing errors with gdb easier (use env CK_FORK="no" gdb ...)
-  //srunner_set_fork_status(sr,CK_NOFORK);
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);

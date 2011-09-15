@@ -53,21 +53,9 @@ gchar **test_argvptr;
 
 /* common setup and teardown code */
 void bt_core_setup(void) {
-  // this unfortunately crashes (also with CK_FORK=no)
-  //g_mem_set_vtable(glib_mem_profiler_table);
-
-  bt_init(&test_argc,&test_argvptr);
-  bt_check_init();
-  
-  // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG);
-  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 }
 
 void bt_core_teardown(void) {
-  //g_mem_profile();
 }
 
 /* start the test run */
@@ -85,6 +73,14 @@ int main(int argc, char **argv) {
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
 
+  bt_init(&test_argc,&test_argvptr);
+  bt_check_init();
+  
+  // set this to e.g. DEBUG to see more from gst in the log
+  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG);
+  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
+  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   sr=srunner_create(bt_core_suite());
@@ -103,8 +99,6 @@ int main(int argc, char **argv) {
   srunner_add_suite(sr, bt_wire_suite());
   srunner_add_suite(sr, bt_wire_pattern_suite());
   srunner_add_suite(sr, bt_settings_suite());
-  // this make tracing errors with gdb easier (use env CK_FORK="no" gdb ...)
-  //srunner_set_fork_status(sr,CK_NOFORK);
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
