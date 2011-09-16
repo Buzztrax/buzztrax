@@ -1,6 +1,11 @@
 2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/change-log.c:
+	  But also don't use an invalidated filename.
+
+2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/change-log.c:
 	  Don't overwrite (and leak) the ptr array.
 
 2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
