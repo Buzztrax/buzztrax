@@ -1546,7 +1546,7 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
     self->priv->pattern_removed_handler=0;
   }
   if(machine) {
-    GST_INFO("ref new cur-machine: refs: %d",G_OBJECT_REF_COUNT(machine));
+    GST_INFO("ref new cur-machine: ref_ct: %d",G_OBJECT_REF_COUNT(machine));
     self->priv->pattern_removed_handler=g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
     // remember the new machine
     self->priv->machine=machine;

@@ -1,5 +1,11 @@
 2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Unify logging of ref_ct more to easy grepping.
+
+2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Make debugging code more clearly.
 
