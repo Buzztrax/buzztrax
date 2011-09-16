@@ -311,7 +311,7 @@ static void bt_machine_list_model_tree_model_get_value(GtkTreeModel *tree_model,
   if((machine=g_sequence_get(iter->user_data))) {
     switch(column) {
       case BT_MACHINE_MODEL_ICON:
-        g_value_set_object(value,bt_ui_resources_get_icon_pixbuf_by_machine(machine));
+        g_value_take_object(value,bt_ui_resources_get_icon_pixbuf_by_machine(machine));
         break;
       case BT_MACHINE_MODEL_LABEL:
         g_object_get_property((GObject *)machine,"id",value);
