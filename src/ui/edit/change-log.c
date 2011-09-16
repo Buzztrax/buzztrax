@@ -595,7 +595,7 @@ static void on_song_file_unsaved_changed(const BtEditApplication *app,GParamSpec
   if(!unsaved) {    
     GST_WARNING("reset log file");
     // truncate the log
-    fclose(self->priv->log_file);
+    close_and_free_log(self);
     open_and_init_log(self,song_info);
   } 
   else {
