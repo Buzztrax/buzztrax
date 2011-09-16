@@ -1,5 +1,19 @@
 2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Make debugging code more clearly.
+
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/ui-resources.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Unify logging of ref_ct more to easy grepping.
+
+2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/change-log.c:
 	  But also don't use an invalidated filename.
 

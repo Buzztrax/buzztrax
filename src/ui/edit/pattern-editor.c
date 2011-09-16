@@ -586,30 +586,30 @@ bt_pattern_editor_realize (GtkWidget *widget)
     (gdouble)PANGO_SCALE);
 
   /* calculate font-metrics */
-  pc = gtk_widget_get_pango_context (widget);
+  pc = gtk_widget_get_pango_context(widget);
   pfd = pango_font_description_new();
 
   //pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono,");
   //pango_font_description_set_absolute_size (pfd, 12 * PANGO_SCALE);
-  pango_font_description_set_family_static (pfd, "monospace,");
+  pango_font_description_set_family_static(pfd, "monospace,");
   if(pango_font_description_get_size_is_absolute(widget->style->font_desc)) {
-    pango_font_description_set_absolute_size (pfd,
-      pango_font_description_get_size (widget->style->font_desc));
+    pango_font_description_set_absolute_size(pfd,
+      pango_font_description_get_size(widget->style->font_desc));
   }
   else {
-    pango_font_description_set_size (pfd,
-      pango_font_description_get_size (widget->style->font_desc));
+    pango_font_description_set_size(pfd,
+      pango_font_description_get_size(widget->style->font_desc));
   }
-  pango_context_load_font (pc, pfd);
+  pango_context_load_font(pc, pfd);
 
-  pfm = pango_context_get_metrics (pc, pfd, NULL);
-  self->cw = pango_font_metrics_get_approximate_digit_width (pfm) / PANGO_SCALE;
-  self->ch = (pango_font_metrics_get_ascent (pfm) + pango_font_metrics_get_descent (pfm)) / PANGO_SCALE;
-  pango_font_metrics_unref (pfm);
+  pfm = pango_context_get_metrics(pc, pfd, NULL);
+  self->cw = pango_font_metrics_get_approximate_digit_width(pfm) / PANGO_SCALE;
+  self->ch = (pango_font_metrics_get_ascent(pfm) + pango_font_metrics_get_descent(pfm)) / PANGO_SCALE;
+  pango_font_metrics_unref(pfm);
 
-  self->pl = pango_layout_new (pc);
-  pango_layout_set_font_description (self->pl, pfd);
-  pango_font_description_free (pfd);
+  self->pl = pango_layout_new(pc);
+  pango_layout_set_font_description(self->pl, pfd);
+  pango_font_description_free(pfd);
 
   GST_WARNING("char size: %d x %d", self->cw, self->ch);
 }

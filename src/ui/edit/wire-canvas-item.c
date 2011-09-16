@@ -267,7 +267,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
     GST_INFO("the machine, this wire is connected to, has been removed");
     bt_setup_remove_wire(setup,self->priv->wire);
 
-    GST_INFO("... machine %p,ref_count=%d has been removed, src %p,ref=%d, dst %p,ref=%d",
+    GST_INFO("... machine %p,ref_ct=%d has been removed, src %p,ref=%d, dst %p,ref=%d",
       machine,G_OBJECT_REF_COUNT(machine),
       src,G_OBJECT_REF_COUNT(src),
       dst,G_OBJECT_REF_COUNT(dst)

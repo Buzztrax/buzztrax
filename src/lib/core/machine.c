@@ -99,6 +99,9 @@
 #include "core_private.h"
 #include <libbuzztard-ic/ic.h>
 
+// do sanity check for pattern lifecycle
+//#define CHECK_PATTERN_OWNERSHIP 1
+
 //-- signal ids
 
 enum {
@@ -1400,7 +1403,7 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self) {
 // pattern handling
 
 // DEBUG
-#ifdef USE_DEBUG
+#ifdef CHECK_PATTERN_OWNERSHIP
 static void check_pattern_ownership (gpointer data, GObject *obj) {
   BtMachine *self=BT_MACHINE(data);
 
@@ -1431,7 +1434,7 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
     self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref((gpointer)pattern));
 
     // DEBUG
-#ifdef USE_DEBUG
+#ifdef CHECK_PATTERN_OWNERSHIP
     g_object_weak_ref((GObject *)pattern,check_pattern_ownership,(gpointer)self);
 #endif
     // DEBUG
@@ -1466,7 +1469,7 @@ void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * c
 
   if((node=g_list_find(self->priv->patterns,pattern))) {
     // DEBUG
-#ifdef USE_DEBUG
+#ifdef CHECK_PATTERN_OWNERSHIP
     g_object_weak_unref((GObject *)pattern,check_pattern_ownership,(gpointer)self);
 #endif
     // DEBUG
@@ -3558,7 +3561,7 @@ static void bt_machine_dispose(GObject * const object) {
     for(node=self->priv->patterns;node;node=g_list_next(node)) {
       GST_DEBUG("removing pattern: %p,ref_count=%d",node->data,G_OBJECT_REF_COUNT(node->data));
       // DEBUG
-#ifdef USE_DEBUG
+#ifdef CHECK_PATTERN_OWNERSHIP
       g_object_weak_unref((GObject *)node->data,check_pattern_ownership,(gpointer)self);
 #endif
       // DEBUG
