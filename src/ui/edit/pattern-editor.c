@@ -617,7 +617,7 @@ bt_pattern_editor_realize (GtkWidget *widget)
 static void bt_pattern_editor_unrealize(GtkWidget *widget)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
-
+  
   g_object_unref (self->pl);
   self->pl = NULL;
 
@@ -629,6 +629,8 @@ static void bt_pattern_editor_unrealize(GtkWidget *widget)
     g_object_unref (self->vadj);
     self->vadj=NULL;
   }
+
+  GTK_WIDGET_CLASS(bt_pattern_editor_parent_class)->unrealize(widget);
 }
 
 /* @todo: speedup
