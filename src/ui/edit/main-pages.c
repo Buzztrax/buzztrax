@@ -165,25 +165,31 @@ static void bt_main_pages_init_ui(const BtMainPages *self) {
   // don't emit notify::page for each add
   g_object_freeze_notify((GObject *)self);
  
-  // add wigets for machine view
-  self->priv->machines_page=bt_main_page_machines_new(self);
-  bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->machines_page),_("machines"),"buzztard_tab_machines",_("machines used in the song and their wires"));
-
-  // add wigets for pattern view
-  self->priv->patterns_page=bt_main_page_patterns_new(self);
-  bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->patterns_page),_("patterns"),"buzztard_tab_patterns",_("event pattern editor"));
-
-  // add wigets for sequence view
-  self->priv->sequence_page=bt_main_page_sequence_new(self);
-  bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->sequence_page),_("sequence"),"buzztard_tab_sequence",_("song sequence editor"));
-
-  // add wigets for waves view
-  self->priv->waves_page=bt_main_page_waves_new(self);
-  bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->waves_page),_("wave table"),"buzztard_tab_waves",_("sample wave table editor"));
-
-  // add widgets for song info view
-  self->priv->info_page=bt_main_page_info_new(self);
-  bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->info_page),_("information"),"buzztard_tab_info",_("song meta data editor"));
+  if(!BT_EDIT_UI_CONFIG("no-machines-page")) {
+    // add wigets for machine view
+    self->priv->machines_page=bt_main_page_machines_new(self);
+    bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->machines_page),_("machines"),"buzztard_tab_machines",_("machines used in the song and their wires"));
+  }
+  if(!BT_EDIT_UI_CONFIG("no-patterns-page")) {
+    // add wigets for pattern view
+    self->priv->patterns_page=bt_main_page_patterns_new(self);
+    bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->patterns_page),_("patterns"),"buzztard_tab_patterns",_("event pattern editor"));
+  }
+  if(!BT_EDIT_UI_CONFIG("no-sequence-page")) {
+    // add wigets for sequence view
+    self->priv->sequence_page=bt_main_page_sequence_new(self);
+    bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->sequence_page),_("sequence"),"buzztard_tab_sequence",_("song sequence editor"));
+  }
+  if(!BT_EDIT_UI_CONFIG("no-wavetable-page")) {
+    // add wigets for waves view
+    self->priv->waves_page=bt_main_page_waves_new(self);
+    bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->waves_page),_("wave table"),"buzztard_tab_waves",_("sample wave table editor"));
+  }
+  if(!BT_EDIT_UI_CONFIG("no-info-page")) {
+    // add widgets for song info view
+    self->priv->info_page=bt_main_page_info_new(self);
+    bt_main_pages_add_tab(self,GTK_WIDGET(self->priv->info_page),_("information"),"buzztard_tab_info",_("song meta data editor"));
+  }
 
   // @idea add widgets for machine help view
   // GTK_STOCK_HELP icon

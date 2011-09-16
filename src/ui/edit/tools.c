@@ -261,3 +261,21 @@ void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri) {
   gnome_vfs_url_show(uri);
 #endif
 }
+
+/*
+ * bt_edit_ui_config:
+ * @str: token to check
+ *
+ * Allows to adhoc re-config the UI via BT_EDIT_UI_CFG environment variable.
+ *
+ * Return: %TRUE if the token is found in the env-var.
+ */
+#if USE_DEBUG
+gboolean bt_edit_ui_config(const gchar *str) {
+  const gchar *env=g_getenv("BT_EDIT_UI_CFG");
+  if (env && strstr(env, str)) {
+    return(TRUE);
+  }
+  return(FALSE);
+}
+#endif

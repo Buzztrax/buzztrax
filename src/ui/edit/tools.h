@@ -82,4 +82,13 @@ extern void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri);
 
 #endif
 
+/* debug helper */
+
+#if USE_DEBUG
+gboolean bt_edit_ui_config(const gchar *str);
+#define BT_EDIT_UI_CONFIG(str) bt_edit_ui_config(str)
+#else
+#define BT_EDIT_UI_CONFIG(str) FALSE
+#endif
+
 #endif // BT_EDIT_TOOLS_H

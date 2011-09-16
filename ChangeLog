@@ -1,5 +1,13 @@
 2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	  Add an env-var that allows us in debug mode to configure a few things
+	  in the UI for easier testing.
+
+2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/interaction-controller-learn-dialog.c:
 	* src/ui/edit/main-page-sequence.c:
 	  Unify logging of ref_ct more to easy grepping.
