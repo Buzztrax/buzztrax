@@ -294,7 +294,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   if(err==NULL) {
     GHashTable *properties;
 
-    GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(machine));
+    GST_DEBUG("sink-machine-ref_ct=%d",G_OBJECT_REF_COUNT(machine));
     g_object_get(machine,"properties",&properties,NULL);
     if(properties) {
       gchar str[G_ASCII_DTOSTR_BUF_SIZE];
@@ -302,7 +302,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
       g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
     }
     if(bt_machine_enable_input_post_level(machine)) {
-      GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(machine));
+      GST_DEBUG("sink-machine-ref_ct=%d",G_OBJECT_REF_COUNT(machine));
       // set new song in application
       g_object_set((gpointer)self,"song",song,NULL);
       res=TRUE;
@@ -310,7 +310,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
     else {
       GST_WARNING("Can't add input level/gain element in sink machine");
     }
-    GST_DEBUG("sink-machine-refs: %d",G_OBJECT_REF_COUNT(machine));
+    GST_DEBUG("sink-machine-ref_ct=%d",G_OBJECT_REF_COUNT(machine));
   }
   else {
     GST_WARNING("Can't create sink machine: %s",err->message);

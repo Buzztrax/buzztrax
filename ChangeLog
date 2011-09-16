@@ -1,5 +1,23 @@
 2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song.c:
+	* src/lib/core/source-machine.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	  Unify logging of ref_ct more to easy grepping.
+
+2011-09-16  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-pages.c:
 	* src/ui/edit/tools.c:
 	* src/ui/edit/tools.h:

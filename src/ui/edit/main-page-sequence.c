@@ -1538,7 +1538,7 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
   );
 
   if(self->priv->machine) {
-    GST_INFO("unref old cur-machine %p,refs=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
+    GST_INFO("unref old cur-machine %p,ref_ct=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
     g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_removed_handler);
     // unref the old machine
     g_object_unref(self->priv->machine);
@@ -1546,7 +1546,7 @@ static void update_after_track_changed(const BtMainPageSequence *self) {
     self->priv->pattern_removed_handler=0;
   }
   if(machine) {
-    GST_INFO("ref new cur-machine: ref_ct: %d",G_OBJECT_REF_COUNT(machine));
+    GST_INFO("ref new cur-machine: ref_ct=%d",G_OBJECT_REF_COUNT(machine));
     self->priv->pattern_removed_handler=g_signal_connect(machine,"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
     // remember the new machine
     self->priv->machine=machine;
@@ -3936,7 +3936,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   g_object_unref(self->priv->app);
 
   if(self->priv->machine) {
-    GST_INFO("unref old cur-machine: %p,refs=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
+    GST_INFO("unref old cur-machine: %p,ref_ct=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
     if(self->priv->pattern_removed_handler)
       g_signal_handler_disconnect(self->priv->machine,self->priv->pattern_removed_handler);
     g_object_unref(self->priv->machine);

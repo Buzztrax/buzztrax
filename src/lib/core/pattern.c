@@ -1730,7 +1730,7 @@ static void bt_pattern_set_property(GObject * const object, const guint property
         g_signal_connect(self->priv->machine,"notify::voices",G_CALLBACK(bt_pattern_on_voices_changed),(gpointer)self);
         // need to do that so that data is reallocated
         bt_pattern_on_voices_changed(self->priv->machine,NULL,(gpointer)self);
-        GST_DEBUG("set the machine for pattern: %p (machine-refs: %d)",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
+        GST_DEBUG("set the machine for pattern: %p (machine-ref_ct=%d)",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
       }
     } break;
     case PATTERN_IS_INTERNAL: {

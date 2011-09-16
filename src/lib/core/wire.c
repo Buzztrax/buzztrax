@@ -602,7 +602,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     return(res);
   }
 
-  GST_DEBUG("self=%p, src->refs=%d, dst->refs=%d",self,G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
+  GST_DEBUG("self=%p, src->ref_ct=%d, dst->ref_ct=%d",self,G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
   GST_DEBUG("trying to link machines : %p '%s' [%p %p] -> %p '%s' [%p %p]",
     src,GST_OBJECT_NAME(src),src->src_wires, src->dst_wires,
     dst,GST_OBJECT_NAME(dst),dst->dst_wires, dst->src_wires);
@@ -670,7 +670,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     }
   }
 
-  GST_DEBUG("link prepared, src->refs=%d, dst->refs=%d",G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
+  GST_DEBUG("link prepared, src->ref_ct=%d, dst->ref_ct=%d",G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
 
   if(!bt_wire_link_machines(self)) {
     GST_ERROR("linking machines failed : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
@@ -680,7 +680,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     // register params
     bt_wire_init_params(self);
   }
-  GST_DEBUG("linking machines succeeded, src->refs=%d, dst->refs=%d",G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
+  GST_DEBUG("linking machines succeeded, src->ref_ct=%d, dst->ref_ct=%d",G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
 
   res=TRUE;
 
@@ -1297,11 +1297,11 @@ static void bt_wire_set_property(GObject * const object, const guint property_id
     } break;
     case WIRE_SRC: {
       self->priv->src=BT_MACHINE(g_value_dup_object(value));
-      GST_DEBUG("set the source element for the wire: %p, ref_count=%d",self->priv->src,G_OBJECT_REF_COUNT(self->priv->src));
+      GST_DEBUG("set the source element for the wire: %p, ref_ct=%d",self->priv->src,G_OBJECT_REF_COUNT(self->priv->src));
     } break;
     case WIRE_DST: {
       self->priv->dst=BT_MACHINE(g_value_dup_object(value));
-      GST_DEBUG("set the target element for the wire: %p, ref_count=%d",self->priv->dst,G_OBJECT_REF_COUNT(self->priv->dst));
+      GST_DEBUG("set the target element for the wire: %p, ref_ct=%d",self->priv->dst,G_OBJECT_REF_COUNT(self->priv->dst));
     } break;
     case WIRE_NUM_PARAMS: {
       self->priv->num_params = g_value_get_ulong(value);
@@ -1364,10 +1364,10 @@ static void bt_wire_dispose(GObject * const object) {
 
   g_object_try_weak_unref(self->priv->song);
   //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
-  GST_DEBUG("  releasing the dst %p, dst->ref_count=%d",
+  GST_DEBUG("  releasing the dst %p, dst->ref_ct=%d",
     self->priv->dst,G_OBJECT_REF_COUNT(self->priv->dst));
   g_object_try_unref(self->priv->dst);
-  GST_DEBUG("  releasing the src %p, src->ref_count=%d",
+  GST_DEBUG("  releasing the src %p, src->ref_ct=%d",
     self->priv->src,G_OBJECT_REF_COUNT(self->priv->src));
   g_object_try_unref(self->priv->src);
 

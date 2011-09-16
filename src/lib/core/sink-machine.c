@@ -185,7 +185,7 @@ static void bt_sink_machine_constructed(GObject *object) {
     gst_object_unref(element);
     gst_object_unref(gain);
 
-    GST_INFO_OBJECT(self,"machine %p,ref_count=%d has been constructed",self,G_OBJECT_REF_COUNT(self));
+    GST_INFO_OBJECT(self,"machine %p,ref_ct=%d has been constructed",self,G_OBJECT_REF_COUNT(self));
 
     // add the machine to the setup of the song
     g_object_get(song,"setup",&setup,NULL);
@@ -193,7 +193,7 @@ static void bt_sink_machine_constructed(GObject *object) {
     g_object_unref(setup);
 
     g_object_unref(song);
-    GST_INFO_OBJECT(self,"machine %p,ref_count=%d has been added",self,G_OBJECT_REF_COUNT(self));
+    GST_INFO_OBJECT(self,"machine %p,ref_ct=%d has been added",self,G_OBJECT_REF_COUNT(self));
   }
 }
 

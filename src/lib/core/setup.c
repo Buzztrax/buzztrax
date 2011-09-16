@@ -921,7 +921,7 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
   g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
 
-  GST_DEBUG("added machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+  GST_DEBUG("added machine: %p,ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
 
   if(!g_list_find(self->priv->machines,machine)) {
     ret=TRUE;
@@ -929,7 +929,7 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
     set_disconnected(self,GST_BIN(machine));
 
     g_signal_emit((gpointer)self,signals[MACHINE_ADDED_EVENT], 0, machine);
-    GST_DEBUG("added machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+    GST_DEBUG("added machine: %p,ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
   }
   else {
     GST_WARNING("trying to add machine %p again",machine);
@@ -973,7 +973,7 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
     bt_setup_update_pipeline(self);
 
     g_signal_emit((gpointer)self,signals[WIRE_ADDED_EVENT], 0, wire);
-    GST_DEBUG("added wire: %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
+    GST_DEBUG("added wire: %p,ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
 
     g_object_unref(src);
     g_object_unref(dst);
@@ -997,17 +997,17 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
   g_return_if_fail(BT_IS_SETUP(self));
   g_return_if_fail(BT_IS_MACHINE(machine));
 
-  GST_DEBUG("trying to remove machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+  GST_DEBUG("trying to remove machine: %p,ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
 
   if((node=g_list_find(self->priv->machines,machine))) {
     self->priv->machines=g_list_delete_link(self->priv->machines,node);
     g_hash_table_remove(self->priv->connection_state,(gpointer)machine);
     g_hash_table_remove(self->priv->graph_depth,(gpointer)machine);
 
-    GST_DEBUG("signaling removal of machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+    GST_DEBUG("signaling removal of machine: %p,ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
     g_signal_emit((gpointer)self,signals[MACHINE_REMOVED_EVENT], 0, machine);
 
-    GST_DEBUG("removing machine: %p,ref_count=%d",machine,G_OBJECT_REF_COUNT(machine));
+    GST_DEBUG("removing machine: %p,ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
     // this triggers finalize if we don't have a ref
     if(GST_OBJECT_FLAG_IS_SET(machine,GST_OBJECT_FLOATING)) {
       gst_element_set_state(GST_ELEMENT(machine),GST_STATE_NULL);
@@ -1037,7 +1037,7 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
   g_return_if_fail(BT_IS_SETUP(self));
   g_return_if_fail(BT_IS_WIRE(wire));
 
-  GST_DEBUG("trying to remove wire: %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
+  GST_DEBUG("trying to remove wire: %p,ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
 
   if((node=g_list_find(self->priv->wires,wire))) {
     BtMachine *src,*dst;
@@ -1051,7 +1051,7 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
     g_object_unref(src);
     g_object_unref(dst);
 
-    GST_DEBUG("signaling removal of wire: %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
+    GST_DEBUG("signaling removal of wire: %p,ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
     g_signal_emit((gpointer)self,signals[WIRE_REMOVED_EVENT], 0, wire);
 
     set_disconnecting(self,GST_BIN(wire));
@@ -1060,7 +1060,7 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
     g_hash_table_remove(self->priv->connection_state,(gpointer)wire);
     g_hash_table_remove(self->priv->graph_depth,(gpointer)wire);
 
-    GST_DEBUG("removing wire: %p,ref_count=%d",wire,G_OBJECT_REF_COUNT(wire));
+    GST_DEBUG("removing wire: %p,ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
     // this triggers finalize if we don't have a ref
     if(GST_OBJECT_FLAG_IS_SET(wire,GST_OBJECT_FLOATING)) {
       gst_element_set_state(GST_ELEMENT(wire),GST_STATE_NULL);

@@ -710,7 +710,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     GstPad *pad;
     GstBus *bus;
 
-    GST_INFO("connect to input-level : song=%p,  master=%p (refs: %d)",song,self->priv->master,G_OBJECT_REF_COUNT(self->priv->master));
+    GST_INFO("connect to input-level : song=%p,  master=%p (ref_ct=%d)",song,self->priv->master,G_OBJECT_REF_COUNT(self->priv->master));
     g_object_try_weak_ref(self->priv->master);
 
     // get the input_level and input_gain properties from audio_sink

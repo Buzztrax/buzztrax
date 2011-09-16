@@ -2100,7 +2100,7 @@ static BtPattern *get_current_pattern(const BtMainPagePatterns *self) {
     if(gtk_combo_box_get_active_iter(self->priv->pattern_menu,&iter)) {
       store=gtk_combo_box_get_model(self->priv->pattern_menu);
       if((pattern=bt_pattern_list_model_get_object(BT_PATTERN_LIST_MODEL(store),&iter))) {
-        GST_DEBUG("  got pattern: %p,pattern-refs: %d",pattern,G_OBJECT_REF_COUNT(pattern));
+        GST_DEBUG("  got pattern: %p,pattern-ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
         return(g_object_ref(pattern));
       }
     }
@@ -2167,7 +2167,7 @@ static BtMachine *get_current_machine(const BtMainPagePatterns *self) {
   if(gtk_combo_box_get_active_iter(self->priv->machine_menu,&iter)) {
     store=gtk_combo_box_get_model(self->priv->machine_menu);
     if((machine=bt_machine_list_model_get_object(BT_MACHINE_LIST_MODEL(store),&iter))) {
-      GST_DEBUG("  got machine: %p,machine-refs: %d",machine,G_OBJECT_REF_COUNT(machine));
+      GST_DEBUG("  got machine: %p,machine-ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
       return(g_object_ref(machine));
     }
   }
@@ -2306,7 +2306,7 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtPattern *pattern;
 
   // refresh pattern view
-  GST_INFO("unref'ed old pattern: %p,refs=%d",
+  GST_INFO("unref'ed old pattern: %p,ref_ct=%d",
     self->priv->pattern,G_OBJECT_REF_COUNT(self->priv->pattern));
   pattern=get_current_pattern(self);
   change_current_pattern(self,pattern);
@@ -2335,7 +2335,7 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   }
 
   g_object_try_unref(pattern);
-  GST_INFO("ref'ed new pattern: %p,refs=%d",
+  GST_INFO("ref'ed new pattern: %p,ref_ct=%d",
     self->priv->pattern,G_OBJECT_REF_COUNT(self->priv->pattern));
 }
 

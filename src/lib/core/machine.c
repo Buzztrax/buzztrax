@@ -851,7 +851,7 @@ static gboolean bt_machine_init_core_machine(BtMachine * const self) {
   gboolean res=FALSE;
 
   if(!bt_machine_make_internal_element(self,PART_MACHINE,self->priv->plugin_name,self->priv->id)) goto Error;
-  GST_INFO("  instantiated machine %p, \"%s\", machine->ref_count=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT_REF_COUNT(self->priv->machines[PART_MACHINE]));
+  GST_INFO("  instantiated machine %p, \"%s\", machine->ref_ct=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT_REF_COUNT(self->priv->machines[PART_MACHINE]));
 
   res=TRUE;
 Error:
@@ -1443,10 +1443,10 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
     g_object_get((gpointer)pattern,"is-internal",&is_internal,NULL);
     if(is_internal) {
       self->priv->private_patterns++;
-      GST_DEBUG("adding internal pattern %p,ref_count=%d, nr=%u",pattern,G_OBJECT_REF_COUNT(pattern),self->priv->private_patterns);
+      GST_DEBUG("adding internal pattern %p,ref_ct=%d, nr=%u",pattern,G_OBJECT_REF_COUNT(pattern),self->priv->private_patterns);
     }
     else {
-      GST_DEBUG("adding pattern %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+      GST_DEBUG("adding pattern %p,ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
       g_signal_emit((gpointer)self,signals[PATTERN_ADDED_EVENT], 0, pattern);
     }
   }
@@ -1476,9 +1476,9 @@ void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * c
 
     self->priv->patterns=g_list_delete_link(self->priv->patterns,node);
 
-    GST_DEBUG("removing pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+    GST_DEBUG("removing pattern: %p,ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
     g_signal_emit((gpointer)self,signals[PATTERN_REMOVED_EVENT], 0, pattern);
-    GST_DEBUG("removed pattern: %p,ref_count=%d",pattern,G_OBJECT_REF_COUNT(pattern));
+    GST_DEBUG("removed pattern: %p,ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
     g_object_unref((gpointer)pattern);
   }
   else {
@@ -3321,17 +3321,17 @@ static void bt_machine_constructed(GObject *object) {
     goto Error;
   }
 
-  GST_DEBUG("machine-refs: %d",G_OBJECT_REF_COUNT(self));
+  GST_DEBUG("machine-ref_ct=%d",G_OBJECT_REF_COUNT(self));
 
   // register global params
   bt_machine_init_global_params(self);
   // register voice params
   bt_machine_init_voice_params(self);
 
-  GST_DEBUG("machine-refs: %d",G_OBJECT_REF_COUNT(self));
+  GST_DEBUG("machine-ref_ct=%d",G_OBJECT_REF_COUNT(self));
 
   // post sanity checks
-  GST_INFO("  added machine %p to bin, machine->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT_REF_COUNT(self->priv->machines[PART_MACHINE]));
+  GST_INFO("  added machine %p to bin, machine->ref_ct=%d",self->priv->machines[PART_MACHINE],G_OBJECT_REF_COUNT(self->priv->machines[PART_MACHINE]));
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
   if(!(self->priv->global_params+self->priv->voice_params)) {
     GST_WARNING_OBJECT(self,"  machine %s has no params",self->priv->id);
@@ -3343,7 +3343,7 @@ static void bt_machine_constructed(GObject *object) {
   pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE);
   g_object_unref(pattern);
 
-  GST_INFO_OBJECT(self,"machine %p,ref_count=%d has been constructed",self,G_OBJECT_REF_COUNT(self));
+  GST_INFO_OBJECT(self,"machine %p,ref_ct=%d has been constructed",self,G_OBJECT_REF_COUNT(self));
   return;
 Error:
   GST_WARNING_OBJECT(self,"failed to create machine: %s",self->priv->plugin_name);
@@ -3559,7 +3559,7 @@ static void bt_machine_dispose(GObject * const object) {
   if(self->priv->patterns) {
     GList* node;
     for(node=self->priv->patterns;node;node=g_list_next(node)) {
-      GST_DEBUG("removing pattern: %p,ref_count=%d",node->data,G_OBJECT_REF_COUNT(node->data));
+      GST_DEBUG("removing pattern: %p,ref_ct=%d",node->data,G_OBJECT_REF_COUNT(node->data));
       // DEBUG
 #ifdef CHECK_PATTERN_OWNERSHIP
       g_object_weak_unref((GObject *)node->data,check_pattern_ownership,(gpointer)self);
