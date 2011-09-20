@@ -296,6 +296,7 @@ BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *seq
   for(node=list;node;node=g_list_next(node)) {
     pattern=BT_PATTERN(node->data); // we take no extra ref on the patterns here
     bt_pattern_list_model_add(self,pattern);
+    g_object_unref(pattern);
   }
   g_list_free(list);
 
@@ -537,6 +538,7 @@ static void bt_pattern_list_model_finalize(GObject *object) {
     for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
       g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pattern_name_changed,(gpointer)self);
+      g_object_unref(pattern);
     }
     g_list_free(list);
     g_object_remove_weak_pointer((GObject *)machine,(gpointer *)&self->priv->machine);

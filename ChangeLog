@@ -1,5 +1,10 @@
 2011-09-20  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-list-model.c:
+	  Fix leak of pattern ref.
+
+2011-09-20  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	  Don't leak "since" string for unsaved-changes warning message.
 
