@@ -379,6 +379,7 @@ BtPattern *bt_pattern_new_with_event(const BtSong * const song, const BtMachine 
 
   // create the pattern
   self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"is-internal",TRUE,"id",id,"name",name,"machine",machine,"length",1L,NULL));
+  GST_DEBUG("created pattern: %p,ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
   event=bt_pattern_get_internal_event_data(self,0,0);
   g_value_init(event,BT_TYPE_PATTERN_CMD);
   g_value_set_enum(event,cmd);

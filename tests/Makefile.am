@@ -206,7 +206,7 @@ endif
 
 if USE_VALGRIND
 VALPREFIX = \
-	CK_FORK=no CK_DEFAULT_TIMEOUT=360 \
+	CK_FORK=no CK_DEFAULT_TIMEOUT=500 \
 	LANG=C XDG_CACHE_HOME=$(abs_builddir) \
 	G_SLICE=always-malloc G_DEBUG=gc-friendly \
 	GLIBCPP_FORCE_NEW=1 GLIBCXX_FORCE_NEW=1
@@ -217,9 +217,12 @@ VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztard.supp \
 	--suppressions=$(top_builddir)/gst.supp \
 	--suppressions=$(top_builddir)/gtk.supp
 VALSUPPRESSION = $(VALSUPPRESSIONDEF) $(VALSUPPRESSIONOWN)
-VALOPTIONS = -v --trace-children=yes --num-callers=30 --read-var-info=yes \
+VALOPTIONS = --trace-children=yes --num-callers=30 --read-var-info=yes \
   --tool=memcheck --leak-check=full --leak-resolution=high --track-origins=yes
 VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS) $(VALSUPPRESSION)
+
+# for file in /tmp/bt_core.valgrind.pid*; do grep -q "ERROR SUMMARY: 0 errors from 0 contexts" $file ; if test $? == 0; then rm $file; fi; done
+# grep -H "ERROR SUMMARY: " /tmp/bt_core.valgrind.pid* | uniq
 
 valgrind:: $(TESTS_BIN)
 	for i in $^; do \

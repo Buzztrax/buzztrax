@@ -294,7 +294,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   if(err==NULL) {
     GHashTable *properties;
 
-    GST_DEBUG("sink-machine-ref_ct=%d",G_OBJECT_REF_COUNT(machine));
+    GST_DEBUG("sink-machine=%p,ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
     g_object_get(machine,"properties",&properties,NULL);
     if(properties) {
       gchar str[G_ASCII_DTOSTR_BUF_SIZE];

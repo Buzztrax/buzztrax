@@ -1,5 +1,14 @@
 2011-09-20  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	* src/ui/edit/edit-application.c:
+	  Some logging cleanup.
+
+	* tests/Makefile.am:
+	  Small valgrind test tweaks.
+
+2011-09-20  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-list-model.c:
 	  Fix leak of pattern ref.
 
