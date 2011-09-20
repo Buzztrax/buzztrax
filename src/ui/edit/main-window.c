@@ -294,6 +294,7 @@ static gchar* bt_main_window_make_unsaved_changes_message(const BtSong *song) {
 
   g_free(dts);
   g_free(file_name);
+  g_free(since);
   g_object_unref(song_info);
 
   return(msg);
