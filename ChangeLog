@@ -1,5 +1,13 @@
 2011-09-21  Stefan Sauer  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Start writing down what we did this month.
+
+	* buzztard.supp:
+	  Update suppression file.
+
+2011-09-21  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/sequence-grid-model.c:
 	  Don't leak strings in the model and filters.

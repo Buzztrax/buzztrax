@@ -2,7 +2,10 @@ svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
 2011/10 ========================================================================
 
-
+- shooting yourself in the foot - using setrlimit(RLIMIT_AS,&rl) in tests and
+  wondering about "mmap() failed: Cannot allocate memory". Yes 64bit platforms
+  need more memory than 32bit ones.
+- lots of leak fixes, thanks to valgrind
 
 2011/09 ========================================================================
 

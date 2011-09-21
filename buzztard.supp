@@ -17,6 +17,13 @@
 {
    <insert a suppression name here>
    Memcheck:Leak
+   fun:realloc
+   fun:xrealloc
+}
+
+{
+   bash_1
+   Memcheck:Leak
    fun:malloc
    fun:xrealloc
    fun:__libc_start_main
@@ -24,7 +31,7 @@
 }
 
 {
-   <insert a suppression name here>
+   bash_2
    Memcheck:Leak
    fun:malloc
    fun:xmalloc
@@ -33,9 +40,63 @@
 }
 
 {
-   <insert a suppression name here>
+   gnome-canvas:leak_region
    Memcheck:Leak
-   fun:realloc
-   fun:xrealloc
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:gdk_region_new
+   fun:do_update
+   fun:idle_handler
 }
 
+{
+   rsvg:leak_hastable
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_hash_table_new_full
+   fun:rsvg_property_bag_new
+   fun:rsvg_start_element
+   fun:xmlParseStartTag
+}
+
+{
+   gtk:filechooser_leak_treepath
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:gtk_tree_path_new
+   fun:_gtk_tree_view_find_path
+   fun:gtk_tree_view_get_visible_range
+   fun:file_system_model_set
+   fun:_gtk_file_system_model_get_value
+}
+
+{
+   fontconfig:end_element
+   Memcheck:Leak
+   fun:malloc (vg_replace_malloc.c:236)
+   fun:FcPatternObjectInsertElt (fcpat.c:367)
+   fun:FcPatternObjectAddWithBinding (fcpat.c:507)
+   fun:FcPatternAppend (fcpat.c:983)
+   fun:FcParsePattern (fcxml.c:2001)
+   fun:0x94A6764: FcEndElement
+}
+
+{
+   gio:file_info
+   Memcheck:Leak
+  fun:malloc
+  fun:g_malloc
+  fun:g_slice_alloc
+  fun:g_slice_alloc0
+  fun:g_type_create_instance
+  fun:g_object_constructor
+  fun:g_object_newv
+  fun:g_object_new
+  fun:_g_local_file_info_get
+  fun:g_local_file_query_info
+}
