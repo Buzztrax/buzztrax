@@ -279,7 +279,9 @@ static gboolean label_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpoin
   gchar *label;
 
   // show only columns with labels
+  // @todo: have a boolean flag to avoid string copies
   gtk_tree_model_get(store,iter,BT_SEQUENCE_GRID_MODEL_LABEL,&label,-1);
+  g_free(label);
 
   if(label)
     return TRUE;
@@ -325,7 +327,7 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
   gulong row,column;
   gboolean shade;
   GdkColor *bg_col;
-  const gchar *str;
+  gchar *str;
 
   column=1+GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
 
@@ -349,6 +351,7 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
     "background-gdk",bg_col,
     "text",str,
      NULL);
+  g_free(str);
 }
 
 static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
@@ -356,7 +359,7 @@ static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCell
   gulong row,column;
   gboolean shade;
   GdkColor *bg_col;
-  const gchar *str;
+  gchar *str;
 
   column=1+GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
 
@@ -380,6 +383,7 @@ static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCell
     "background-gdk",bg_col,
     "text",str,
      NULL);
+  g_free(str);
 }
 
 static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
@@ -387,7 +391,7 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
   gulong row,column;
   gboolean shade;
   GdkColor *bg_col;
-  const gchar *str;
+  gchar *str;
 
   column=1+GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
 
@@ -411,6 +415,7 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
     "background-gdk",bg_col,
     "text",str,
      NULL);
+  g_free(str);
 }
 
 //-- tree model helper

@@ -426,7 +426,7 @@ static void bt_sequence_grid_model_tree_model_get_value(GtkTreeModel *tree_model
       break;
     case BT_SEQUENCE_GRID_MODEL_LABEL:
       if(tick<model->priv->length) {
-        g_value_set_string(value,bt_sequence_get_label(model->priv->sequence,tick));
+        g_value_take_string(value,bt_sequence_get_label(model->priv->sequence,tick));
       }
       break;
     default:
