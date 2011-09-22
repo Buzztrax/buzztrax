@@ -83,8 +83,8 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
 static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  GtkRecentInfo *info;
-  gchar *file_name;
+  GtkRecentInfo *info=NULL;
+  gchar *file_name=NULL;
   const gchar *uri;
 
   if(!(info=gtk_recent_chooser_get_current_item(chooser))) {
@@ -93,7 +93,7 @@ static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user
   }
 
   if(!bt_main_window_check_unsaved_song(self->priv->main_window,_("Load new song?"),_("Load new song?")))
-    return;
+    goto done;
 
   uri=gtk_recent_info_get_uri(info);
   file_name=g_filename_from_uri(uri,NULL,NULL);
@@ -107,6 +107,8 @@ static void on_menu_open_recent_activate(GtkRecentChooser *chooser,gpointer user
     g_free(msg);
   }
   g_free(file_name);
+done:
+  gtk_recent_info_unref(info);
 }
 
 static void on_menu_save_activate(GtkMenuItem *menuitem,gpointer user_data) {
