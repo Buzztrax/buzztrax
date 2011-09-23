@@ -451,21 +451,25 @@ BT_START_TEST(test_btcore_net_dynamic1) {
   if(bt_song_play(song)) {
     mark_point();
     sleep(1);
+    GST_DEBUG("song plays");
 
     /* try to create generator1 */
     gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0,&err));
     fail_unless(gen2!=NULL, NULL);
     fail_unless(err==NULL, NULL);
+    GST_DEBUG("generator added");
 
     /* try to link machines */
     wire2=bt_wire_new(song, gen2, sink,&err);
     fail_unless(wire2!=NULL, NULL);
     fail_unless(err==NULL, NULL);
+    GST_DEBUG("wire added");
 
     sleep(1);
 
     /* try to unlink machines */
     bt_setup_remove_wire(setup,wire1);
+    GST_DEBUG("wire removed");
 
     sleep(1);
 
@@ -549,21 +553,25 @@ BT_START_TEST(test_btcore_net_dynamic2) {
   if(bt_song_play(song)) {
     mark_point();
     sleep(1);
+    GST_DEBUG("song plays");
 
     /* try to create generator2 */
     gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0,&err));
     fail_unless(gen2!=NULL, NULL);
     fail_unless(err==NULL, NULL);
+    GST_DEBUG("generator added");
 
     /* try to create a wire from gen2 to proc */
     wire3=bt_wire_new(song,gen2,sink,&err);
     fail_unless(wire3!=NULL, NULL);
     fail_unless(err==NULL, NULL);
+    GST_DEBUG("wire added");
 
     sleep(1);
 
     /* try to unlink machines */
     bt_setup_remove_wire(setup,wire1);
+    GST_DEBUG("wire removed");
 
     sleep(1);
 

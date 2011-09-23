@@ -1,3 +1,10 @@
+2011-09-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	* tests/lib/core/e-network.c:
+	  Add more logging. Fix oder of changing the element state and locking to
+	  prevent lockup.
+
 2011-09-22  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-menu.c:

@@ -734,14 +734,15 @@ static void deactivate_element(const BtSetup * const self,gpointer *key) {
     gst_element_state_get_name(GST_STATE(key)),
     gst_element_state_get_name(GST_STATE_NULL));
 
-  gst_element_set_locked_state(GST_ELEMENT(key),TRUE);
   gst_element_set_state(GST_ELEMENT(key),GST_STATE_NULL);
+  gst_element_set_locked_state(GST_ELEMENT(key),TRUE);
 }
 
 static void sync_states(const BtSetup * const self) {
   GList *node;
-
+  
   if(self->priv->elements_to_play) {
+    GST_INFO("starting elements");
     for(node=self->priv->elements_to_play;node;node=g_list_next(node)) {
       activate_element(self,node->data);
     }
@@ -749,6 +750,7 @@ static void sync_states(const BtSetup * const self) {
     self->priv->elements_to_play=NULL;
   }
   if(self->priv->elements_to_stop) {
+    GST_INFO("stoping elements");
     for(node=self->priv->elements_to_stop;node;node=g_list_next(node)) {
       deactivate_element(self,node->data);
     }
