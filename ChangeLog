@@ -1,5 +1,10 @@
 2011-09-26  Stefan Sauer  <ensonic@users.sf.net>
 
+	* tests/lib/core/e-song-io-native.c:
+	  No need to create an extra test sample.
+
+2011-09-26  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/setup.c:
 	  A better fix for the lockup in when dynamically editing a song. The
 	  locked_state order did not help and eventually made it worse. The key

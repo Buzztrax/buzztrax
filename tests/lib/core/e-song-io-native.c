@@ -329,16 +329,12 @@ BT_START_TEST(test_btsong_io_write_song3) {
   gboolean res;
   gchar *song_path,*song_name;
   gchar **format,*formats[]={"xml","bzt",NULL};
-  gchar *ext_data_path,*ext_data_cmd,*ext_data_uri;
-  gint sys_res;
+  gchar *ext_data_path,*ext_data_uri;
   BtSettings *settings=bt_settings_make();
 
   /* make external data */
-  ext_data_path=g_build_filename(g_get_tmp_dir(),"bt-test-sample1.wav",NULL);
+  ext_data_path=g_build_filename(g_get_tmp_dir(),"test.wav",NULL);
   ext_data_uri=g_strconcat("file://",ext_data_path,NULL);
-  ext_data_cmd=g_strdup_printf("gst-launch-0.10 >/dev/null --gst-disable-registry-update audiotestsrc num-buffers=10 wave=7 ! wavenc ! filesink location=%s",ext_data_path);
-  sys_res=system(ext_data_cmd);
-  fail_unless(sys_res == 0, NULL);
 
   /* tweak the config */
   g_object_set(settings,"audiosink","fakesink",NULL);
@@ -401,7 +397,6 @@ BT_START_TEST(test_btsong_io_write_song3) {
 
   g_object_unref(settings);
   g_object_checked_unref(app);
-  g_free(ext_data_cmd);
   g_free(ext_data_uri);
   g_free(ext_data_path);
 }
