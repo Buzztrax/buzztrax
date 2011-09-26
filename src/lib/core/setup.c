@@ -529,9 +529,14 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
   if((src_pad=gst_pad_get_peer(dst_pad))) {
     if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/
       (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
-      //if(gst_pad_set_blocked_async(src_pad,TRUE,NULL,NULL)) {
-      if(gst_pad_set_blocked(src_pad,TRUE)) {
-        self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(self->priv->bin, GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME);
+      // this causes trouble if the pads are flushing
+      // and/or pad->mode=GST_ACTIVATE_NONE
+      if(!GST_OBJECT_FLAG_IS_SET (dst_pad, GST_PAD_FLUSHING)) {
+        //if(gst_pad_set_blocked_async(src_pad,TRUE,NULL,NULL)) {
+        if(gst_pad_set_blocked(src_pad,TRUE)) {
+          self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+        }
       }
     }
     gst_pad_unlink(src_pad,dst_pad);
@@ -641,7 +646,7 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
           wire_is_connected|=check_connected(self,src_machine,not_visited_machines,not_visited_wires,depth+2);
         }
       }
-      GST_INFO("wire target checked, connected=%d?",wire_is_connected);
+      GST_INFO_OBJECT(src_machine,"wire target checked, connected=%d?",wire_is_connected);
       if(!wire_is_connected) {
         set_disconnecting(self,GST_BIN(wire));
         set_disconnecting(self,GST_BIN(src_machine));
@@ -658,6 +663,9 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
       }
       is_connected|=wire_is_connected;
       g_object_unref(src_machine);
+    } 
+    else {
+      GST_INFO_OBJECT(src_machine,"wire target checked, connected=0?");
     }
     *not_visited_wires=g_list_remove(*not_visited_wires,(gconstpointer)wire);
   }
@@ -734,8 +742,8 @@ static void deactivate_element(const BtSetup * const self,gpointer *key) {
     gst_element_state_get_name(GST_STATE(key)),
     gst_element_state_get_name(GST_STATE_NULL));
 
-  gst_element_set_state(GST_ELEMENT(key),GST_STATE_NULL);
   gst_element_set_locked_state(GST_ELEMENT(key),TRUE);
+  gst_element_set_state(GST_ELEMENT(key),GST_STATE_NULL);
 }
 
 static void sync_states(const BtSetup * const self) {
@@ -1003,18 +1011,17 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
 
   if((node=g_list_find(self->priv->machines,machine))) {
     self->priv->machines=g_list_delete_link(self->priv->machines,node);
-    g_hash_table_remove(self->priv->connection_state,(gpointer)machine);
-    g_hash_table_remove(self->priv->graph_depth,(gpointer)machine);
 
     GST_DEBUG("signaling removal of machine: %p,ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
     g_signal_emit((gpointer)self,signals[MACHINE_REMOVED_EVENT], 0, machine);
 
+    g_hash_table_remove(self->priv->connection_state,(gpointer)machine);
+    g_hash_table_remove(self->priv->graph_depth,(gpointer)machine);
+
     GST_DEBUG("removing machine: %p,ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
     // this triggers finalize if we don't have a ref
-    if(GST_OBJECT_FLAG_IS_SET(machine,GST_OBJECT_FLOATING)) {
-      gst_element_set_state(GST_ELEMENT(machine),GST_STATE_NULL);
-    }
-    else {
+    gst_element_set_state(GST_ELEMENT(machine),GST_STATE_NULL);
+    if(!GST_OBJECT_FLAG_IS_SET(machine,GST_OBJECT_FLOATING)) {
       gst_object_ref(GST_OBJECT(machine));
       gst_bin_remove(self->priv->bin,GST_ELEMENT(machine));
       GST_OBJECT_FLAG_SET(machine,GST_OBJECT_FLOATING);
@@ -1044,8 +1051,6 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
   if((node=g_list_find(self->priv->wires,wire))) {
     BtMachine *src,*dst;
 
-    self->priv->wires=g_list_delete_link(self->priv->wires,node);
-
     // also remove from the convenience lists
     g_object_get((gpointer)wire,"src",&src,"dst",&dst,NULL);
     src->src_wires=g_list_remove(src->src_wires,wire);
@@ -1053,21 +1058,21 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
     g_object_unref(src);
     g_object_unref(dst);
 
-    GST_DEBUG("signaling removal of wire: %p,ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
-    g_signal_emit((gpointer)self,signals[WIRE_REMOVED_EVENT], 0, wire);
-
     set_disconnecting(self,GST_BIN(wire));
     bt_setup_update_pipeline(self);
+
+    self->priv->wires=g_list_delete_link(self->priv->wires,node);
+
+    GST_DEBUG("signaling removal of wire: %p,ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
+    g_signal_emit((gpointer)self,signals[WIRE_REMOVED_EVENT], 0, wire);
 
     g_hash_table_remove(self->priv->connection_state,(gpointer)wire);
     g_hash_table_remove(self->priv->graph_depth,(gpointer)wire);
 
     GST_DEBUG("removing wire: %p,ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
+    gst_element_set_state(GST_ELEMENT(wire),GST_STATE_NULL);
     // this triggers finalize if we don't have a ref
-    if(GST_OBJECT_FLAG_IS_SET(wire,GST_OBJECT_FLOATING)) {
-      gst_element_set_state(GST_ELEMENT(wire),GST_STATE_NULL);
-    }
-    else {
+    if(!GST_OBJECT_FLAG_IS_SET(wire,GST_OBJECT_FLOATING)) {
       gst_object_ref(GST_OBJECT(wire));
       gst_bin_remove(self->priv->bin,GST_ELEMENT(wire));
       GST_OBJECT_FLAG_SET(wire,GST_OBJECT_FLOATING);
