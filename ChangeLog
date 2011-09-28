@@ -1,5 +1,11 @@
 2011-09-28  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/wire.c:
+	  Don't do pad_blocking for deactive wires when add/remove wire-
+	  analyzers. Fixes #29
+
+2011-09-28  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/setup.c:
 	  Disable locking src-pads when removing elements. That is not needed,
 	  as we stop the elements anyway and also remove them.

@@ -247,10 +247,17 @@ static void bt_wire_init_params(const BtWire * const self) {
  */
 static void bt_wire_activate_analyzers(const BtWire * const self) {
   gboolean is_playing;
+  GstObject *parent;
 
   if(!self->priv->analyzers) return;
 
+  // need to do pad_blocking in playing if the wire is active
   g_object_get(self->priv->song,"is-playing",&is_playing,NULL);
+  if((parent=gst_object_get_parent((gpointer)self))) {
+    gst_object_unref(parent);
+  } else {
+    is_playing=FALSE;
+  }
   bt_bin_activate_tee_chain(GST_BIN(self),self->priv->machines[PART_TEE],self->priv->analyzers,is_playing);
 }
 
@@ -262,10 +269,17 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
  */
 static void bt_wire_deactivate_analyzers(const BtWire * const self) {
   gboolean is_playing;
+  GstObject *parent;
 
   if(!self->priv->analyzers) return;
 
+  // need to do pad_blocking in playing if the wire is active
   g_object_get(self->priv->song,"is-playing",&is_playing,NULL);
+  if((parent=gst_object_get_parent((gpointer)self))) {
+    gst_object_unref(parent);
+  } else {
+    is_playing=FALSE;
+  }
   bt_bin_deactivate_tee_chain(GST_BIN(self),self->priv->machines[PART_TEE],self->priv->analyzers,is_playing);
 }
 
