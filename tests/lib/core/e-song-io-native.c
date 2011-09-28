@@ -357,14 +357,21 @@ BT_START_TEST(test_btsong_io_write_song3) {
     wire=bt_wire_new(song, gen, sink,NULL);
     pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(gen));
     wave=bt_wave_new(song,"sample1",ext_data_uri,1,1.0,BT_WAVE_LOOP_MODE_OFF,0);
+    fail_unless(wave != NULL, NULL);
+    
+    GST_INFO("  song created");
 
     /* loading waves is async and we need to wait a bit
      * FIXME: we need to wait for wave:loading-done
      * (this might also cause hassle in the ui, if loading big samples and saving before they are loaded)
      */
     while(!bt_wave_get_level_by_index(wave,0)) {
+      // FIXME: bah, this can trigger random left-over callbacks from previous
+      // tests
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
     }
+    
+    GST_INFO("  wave loaded");
 
     /* save the song*/
     song_io=bt_song_io_from_file(song_path);
@@ -379,6 +386,8 @@ BT_START_TEST(test_btsong_io_write_song3) {
     g_object_unref(wave);
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
+    
+    GST_INFO("  song saved");
 
     /* load the song */
     song_io=bt_song_io_from_file(song_path);
@@ -386,6 +395,8 @@ BT_START_TEST(test_btsong_io_write_song3) {
     song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);
     fail_unless(res == TRUE, NULL);
+    
+    GST_INFO("  song re-loaded");
 
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
