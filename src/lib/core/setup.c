@@ -26,7 +26,7 @@
  * The setup manages virtual gear in a #BtSong. This is a list of #BtMachines
  * that are used and the #BtWires that connect them.
  *
- * The setup manages the actual GStreamer #GstPipeline content. Fresly created
+ * The setup manages the actual GStreamer #GstPipeline content. Freshly created
  * machines are not yet added to the pipeline. Only once a subgraph from a
  * source is fully connected to the sink, that subgraph is added o the pipeline.
  *
@@ -529,15 +529,18 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
   if((src_pad=gst_pad_get_peer(dst_pad))) {
     if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/
       (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
+      /*
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(self->priv->bin, GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME);
-      // this causes trouble if the pads are flushing
-      // and/or pad->mode=GST_ACTIVATE_NONE
-      if(!GST_OBJECT_FLAG_IS_SET (dst_pad, GST_PAD_FLUSHING)) {
-        //if(gst_pad_set_blocked_async(src_pad,TRUE,NULL,NULL)) {
+      // this causes trouble if the pads are flushing and/or pad->mode=GST_ACTIVATE_NONE
+      if(!GST_OBJECT_FLAG_IS_SET (dst_pad, GST_PAD_FLUSHING) && !GST_OBJECT_FLAG_IS_SET (src_pad, GST_PAD_FLUSHING)) {
+        // TODO: does it make any sense to block this pad if we are going to unref it below?
+        // - do we ev. use weak pointers to avoid trying to unblock pads in update_pipeline()
+        //   that have been disposed
         if(gst_pad_set_blocked(src_pad,TRUE)) {
           self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
         }
       }
+      */
     }
     gst_pad_unlink(src_pad,dst_pad);
     gst_element_release_request_pad(src_machine,src_pad);
@@ -823,7 +826,7 @@ static void update_pipeline(const BtSetup * const self) {
   g_object_get(self->priv->song,"sequence",&sequence,"play-pos",&play_pos,NULL);
   g_object_get(sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
   bar_time=bt_sequence_get_bar_time(sequence);
-  // configure self->priv->play_seek_event
+  // configure self->priv->play_seek_event (sent to newly activated elements)
   if (loop) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
@@ -842,8 +845,10 @@ static void update_pipeline(const BtSetup * const self) {
   g_hash_table_foreach(self->priv->connection_state,add_machine_in_pipeline,(gpointer)self);
   GST_INFO("add and link wires");
   g_hash_table_foreach(self->priv->connection_state,add_wire_in_pipeline,(gpointer)self);
+  // builds elements_to_{play|stop} lists
   GST_INFO("determine state change lists");
   g_hash_table_foreach(self->priv->connection_state,determine_state_change_lists,(gpointer)self);
+  // apply state changes for the above lists
   GST_INFO("sync states");
   sync_states(self);
   GST_INFO("unlink and remove wires");
