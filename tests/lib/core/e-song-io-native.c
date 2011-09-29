@@ -325,6 +325,7 @@ BT_START_TEST(test_btsong_io_write_song3) {
   BtWire *wire;
   BtPattern *pattern;
   BtWave *wave;
+  BtWavelevel *wave_level;
   BtSongIO *song_io;
   gboolean res;
   gchar *song_path,*song_name;
@@ -365,11 +366,12 @@ BT_START_TEST(test_btsong_io_write_song3) {
      * FIXME: we need to wait for wave:loading-done
      * (this might also cause hassle in the ui, if loading big samples and saving before they are loaded)
      */
-    while(!bt_wave_get_level_by_index(wave,0)) {
+    while(!(wave_level=bt_wave_get_level_by_index(wave,0))) {
       // FIXME: bah, this can trigger random left-over callbacks from previous
       // tests
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
     }
+    g_object_unref(wave_level);
     
     GST_INFO("  wave loaded");
 
