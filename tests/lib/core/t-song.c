@@ -96,6 +96,7 @@ BT_START_TEST(test_btsong_play1) {
   // returns TRUE even that the song is empty!
   res=bt_song_play(song);
   fail_unless(res==TRUE, NULL);
+  bt_song_stop(song);
 
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -118,6 +119,7 @@ BT_START_TEST(test_btsong_play2) {
   check_init_error_trapp("bt_song_play","BT_IS_SONG(self)");
   bt_song_play(NULL);
   fail_unless(check_has_error_trapped(),NULL);
+  bt_song_stop(song);
 
   g_object_checked_unref(song);
   g_object_checked_unref(app);

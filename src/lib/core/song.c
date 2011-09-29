@@ -795,6 +795,12 @@ gboolean bt_song_stop(const BtSong * const self) {
   GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
 #endif
 
+  // kill a pending timeout
+  if(self->priv->paused_timeout_id) {
+    g_source_remove(self->priv->paused_timeout_id);
+    self->priv->paused_timeout_id=0;
+  }
+
   // do not stop if not playing or not preparing
   if(self->priv->is_preparing) {
     self->priv->is_preparing=FALSE;

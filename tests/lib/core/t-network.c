@@ -65,6 +65,7 @@ BT_START_TEST(test_btcore_net1) {
   /* try to start playing the song */
   song_ret=bt_song_play(song);
   fail_unless(song_ret==TRUE, NULL);
+  bt_song_stop(song);
 
   g_object_unref(setup);
   g_object_checked_unref(song);
