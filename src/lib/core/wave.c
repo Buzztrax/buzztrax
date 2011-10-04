@@ -478,6 +478,7 @@ static gboolean bt_wave_save_to_fd(const BtWave * const self) {
 
   gst_object_unref(bus);
   gst_element_set_state(pipeline,GST_STATE_NULL);
+  gst_object_unref(pipeline);
 
   GST_INFO("sample saved");
 
