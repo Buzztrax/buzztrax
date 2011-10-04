@@ -87,16 +87,43 @@
 }
 
 {
+   freetype:hack_alloc
+   Memcheck:Leak
+   fun:malloc
+   fun:ft_mem_qalloc
+   fun:ft_mem_alloc
+}
+
+{
+   freetype:hack_realloc
+   Memcheck:Leak
+   fun:realloc
+   fun:ft_mem_qrealloc
+   fun:ft_mem_realloc
+}
+
+{
    gio:file_info
    Memcheck:Leak
-  fun:malloc
-  fun:g_malloc
-  fun:g_slice_alloc
-  fun:g_slice_alloc0
-  fun:g_type_create_instance
-  fun:g_object_constructor
-  fun:g_object_newv
-  fun:g_object_new
-  fun:_g_local_file_info_get
-  fun:g_local_file_query_info
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_slice_alloc0
+   fun:g_type_create_instance
+   fun:g_object_constructor
+   fun:g_object_newv
+   fun:g_object_new
+   fun:_g_local_file_info_get
+   fun:g_local_file_query_info
+}
+
+{
+   gio:mount_info
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_strdup
+   fun:g_mount_info_from_dbus 
+   obj:/usr/lib/libgvfscommon.so.*
+   fun:dbus_connection_dispatch
 }

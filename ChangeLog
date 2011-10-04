@@ -1,5 +1,10 @@
 2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* buzztard.supp:
+	  Update the suppression file.
+
+2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* tests/Makefile.am:
 	* tests/songs/buzz1.xml:
 	* tests/songs/buzz2.xml:
