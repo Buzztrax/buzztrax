@@ -193,6 +193,9 @@ static void on_song_unsaved_changed(const GObject *object,GParamSpec *arg,gpoint
 
   // compose title
   g_object_get(self->priv->app,"song",&song,NULL);
+  if(!song)
+    return;
+  
   g_object_get(song,"song-info",&song_info,NULL);
   g_object_get(song_info,"name",&name,NULL);
   // we don't use PACKAGE_NAME = 'buzztard' for the window title
@@ -572,6 +575,8 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   // reuse last folder (store in self, if we loaded something
   gtk_file_chooser_set_current_folder(self->priv->file_chooser,self->priv->last_folder?self->priv->last_folder:folder_name);
   gtk_file_chooser_add_shortcut_folder(self->priv->file_chooser,folder_name,NULL);
+  // @todo: if folder != default it would be nice to show the default as well, unfortunately we can't name the shortcuts
+  // - maybe we should only install real demo songs
   g_free(folder_name);
   g_object_unref(settings);
 
