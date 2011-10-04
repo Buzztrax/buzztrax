@@ -6,11 +6,11 @@
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
   <meta>
-    <info>a three voice melody</info>
-    <name>melo 5</name>
+    <info>a three voice melody and hihats</info>
+    <name>melo 6</name>
     <genre>chip-music</genre>
-    <create-dts>2006-01-12T22:10:56Z</create-dts>
-    <change-dts>2006-01-12T22:10:56Z</change-dts>
+    <create-dts>2011-10-04T21:44:56Z</create-dts>
+    <change-dts>2011-10-04T21:44:56Z</change-dts>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
@@ -136,6 +136,46 @@
           <property key="ypos" value="-0.5"/>
         </properties>
       </machine>
+
+      <machine type="source" id="hihat" plugin-name="simsyn" voices="0">
+        <globaldata name="wave" value="5"/>
+        <globaldata name="volume" value="0.6"/>
+        <globaldata name="decay" value="0.3"/>
+        <globaldata name="filter" value="2"/>
+        <globaldata name="cut-off" value="0.8"/>
+        <globaldata name="resonance" value="0.7"/>
+        <properties>
+          <property key="ypos" value="0.5"/>
+          <property key="xpos" value="0.0"/>
+        </properties>
+        <patterns>
+          <pattern id="hihat_hats" name="hats" length="16">
+            <tick time="2">
+              <globaldata name="note" value="c-4"/>
+              <globaldata name="decay" value="0.1"/>
+            </tick>
+            <tick time="6">
+              <globaldata name="note" value="c-4"/>
+            </tick>
+            <tick time="8">
+              <globaldata name="note" value="c-4"/>
+              <globaldata name="decay" value="0.35"/>
+            </tick>
+            <tick time="10">
+              <globaldata name="note" value="c-4"/>
+              <globaldata name="decay" value="0.1"/>
+            </tick>
+            <tick time="12">
+              <globaldata name="note" value="c-3"/>
+              <globaldata name="decay" value="0.02"/>
+            </tick>
+            <tick time="14">
+              <globaldata name="note" value="c-4"/>
+              <globaldata name="decay" value="0.1"/>
+            </tick>
+          </pattern>
+        </patterns>
+      </machine>
     </machines>
     
     <wires>
@@ -143,13 +183,14 @@
       <wire src="echo1" dst="audio_sink" gain="1.0"/>
       <wire src="beep2" dst="audio_sink" gain="1.0" panorama="-0.5"/>
       <wire src="beep3" dst="audio_sink" gain="1.0" panorama="+0.5"/>
+      <wire src="hihat" dst="audio_sink" gain="1.0"/>
     </wires>
   </setup>
   
-  <sequence loop="off" length="100" tracks="5">
+  <sequence loop="off" length="100" tracks="6">
     <labels>
       <label time="0" name="start"/>
-      <label time="63" name="end"/>
+      <label time="79" name="end"/>
     </labels>
     <tracks>
       <track index="0" machine="beep1">
@@ -171,7 +212,13 @@
         <position time="80" pattern="beep3::C-2_C-3"/>
       </track>
       <track index="3" machine="echo1"/>
-      <track index="4" machine="audio_sink"/>
+      <track index="4" machine="hihat">
+        <position time="16" pattern="hihat_hats"/>
+        <position time="32" pattern="hihat_hats"/>
+        <position time="48" pattern="hihat_hats"/>
+        <position time="64" pattern="hihat_hats"/>
+      </track>
+      <track index="5" machine="audio_sink"/>
     </tracks>
   </sequence>
 

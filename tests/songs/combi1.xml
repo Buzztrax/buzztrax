@@ -77,19 +77,18 @@
         </properties>
       </machine>
 
-      <machine type="source" id="beat" plugin-name="bml-Arguelles-GoaKick" voices="0">
+      <machine type="source" id="beat" plugin-name="bml-FSM-Kick" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.25"/>
         </properties>
         <patterns>
           <pattern id="beat_beats" name="beats" length="16">
-            <tick time="0">
-              <globaldata name="Trigger" value="10"/>
-              <globaldata name="Tone" value="40"/>
-            </tick>
-            <tick time="4"><globaldata name="Trigger" value="40"/></tick>
-            <tick time="8"><globaldata name="Trigger" value="80"/></tick>
+            <tick time="0"><voicedata name="Trigger" voice="0" value="60"/></tick>
+            <tick time="4"><voicedata name="Trigger" voice="0" value="40"/></tick>
+            <tick time="8"><voicedata name="Trigger" voice="0" value="100"/></tick>
+            <tick time="12"><voicedata name="Trigger" voice="0" value="100"/></tick>
+            <tick time="14"><voicedata name="Trigger" voice="0" value="60"/></tick>
           </pattern>
         </patterns>
       </machine>

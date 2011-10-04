@@ -6,9 +6,9 @@
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
   <meta>
-    <info>one buzz generator</info>
+    <info>a buzz generator followed by a buzz effect</info>
     <name>buzz 3</name>
-    <genre>dark-wave</genre>
+    <genre>demo</genre>
     <create-dts>2005-09-20T22:10:56Z</create-dts>
     <change-dts>2005-09-20T22:10:56Z</change-dts>
     <bpm>120</bpm>
@@ -18,34 +18,39 @@
   
   <setup>
     <machines>
+      
       <machine type="sink" id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.5"/>
         </properties>
       </machine>
-      
-      <machine type="source" id="gen" plugin-name="bml-Arguelles-Guru-2" voices="0">
+
+      <machine type="processor" id="filter" plugin-name="bml-Elak-SVF">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="0.2"/>
+        </properties>
+      </machine>
+
+      <machine type="source" id="infector" plugin-name="bml-FSM-Infector" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="gen_beeps" name="beeps" length="16">
+          <pattern id="infector_beeps" name="beeps" length="16">
             <tick time="0">
-              <globaldata name="Note" value="c-3"/>
-              <globaldata name="Length" value="80"/>
-              <globaldata name="Hi-Volume" value="32766"/>
-              <globaldata name="Flt-Decay" value="15"/>
+              <voicedata name="Note" voice="0" value="c-3"/>
             </tick>
             <tick time="4">
-              <globaldata name="Note" value="e-3"/>
+              <voicedata name="Note" voice="0" value="e-3"/>
             </tick>
             <tick time="8">
-              <globaldata name="Note" value="g-3"/>
+              <voicedata name="Note" voice="0" value="g-3"/>
             </tick>
             <tick time="10">
-              <globaldata name="Note" value="g-3"/>
+              <voicedata name="Note" voice="0" value="g-3"/>
             </tick>
           </pattern>
         </patterns>
@@ -53,19 +58,20 @@
     </machines>
     
     <wires>
-      <wire src="gen" dst="audio_sink" gain="1.0" panorama="-0.5"/>
+      <wire src="infector" dst="filter" gain="1.0" panorama="-0.5"/>
+      <wire src="filter" dst="audio_sink" gain="1.0" panorama="-0.5"/>
     </wires>    
   </setup>
-    
+  
   <sequence length="64" tracks="1">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>
     </labels>
     <tracks>
-      <track index="0" machine="gen">
-        <position time="0" pattern="gen_beeps"/>
-        <position time="32" pattern="gen_beeps"/>
+      <track index="0" machine="infector">
+        <position time="0" pattern="infector_beeps"/>
+        <position time="32" pattern="infector_beeps"/>
       </track>
     </tracks>
   </sequence>

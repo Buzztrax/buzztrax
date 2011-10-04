@@ -6,9 +6,9 @@
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
   <meta>
-    <info>a sine followed by an amp, both playing patterns</info>
-    <name>simple 2</name>
-    <genre>dark-wave</genre>
+    <info>a buzz generator followed by a buzz effect and a drum loop</info>
+    <name>buzz 5</name>
+    <genre>demo</genre>
     <create-dts>2005-09-20T22:10:56Z</create-dts>
     <change-dts>2005-09-20T22:10:56Z</change-dts>
     <bpm>120</bpm>
@@ -18,42 +18,83 @@
   
   <setup>
     <machines>
+      
       <machine type="sink" id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
-          <property key="ypos" value="0.5"/>
+          <property key="ypos" value="0.0"/>
         </properties>
       </machine>
 
-      <machine type="source" id="bass2" plugin-name="bml-Jeskola-Bass-2" voices="1">
+      <machine type="processor" id="filter" plugin-name="bml-Jeskola-NiNjA-dElaY" voices="1">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="0.2"/>
+        </properties>
+      </machine>
+
+      <machine type="source" id="infector" plugin-name="bml-FSM-Infector" voices="1">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="0.5"/>
+        </properties>
+        <patterns>
+          <pattern id="infector_beeps" name="beeps" length="16">
+            <tick time="0">
+              <voicedata name="Note" voice="0" value="c-3"/>
+            </tick>
+            <tick time="4">
+              <voicedata name="Note" voice="0" value="e-3"/>
+            </tick>
+            <tick time="8">
+              <voicedata name="Note" voice="0" value="g-3"/>
+            </tick>
+            <tick time="10">
+              <voicedata name="Note" voice="0" value="g-3"/>
+            </tick>
+          </pattern>
+        </patterns>
+      </machine>
+
+      <machine type="source" id="beats" plugin-name="bml-FSM-Kick" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="bass2_beeps" name="beeps" length="16">
-            <tick time="0"><voicedata name="Note" voice="0" value="c-2"/></tick>
-            <tick time="4"><voicedata name="Note" voice="0" value="e-2"/></tick>
-            <tick time="8"><voicedata name="Note" voice="0" value="g-2"/></tick>
+          <pattern id="beats_beats" name="beats" length="16">
+            <tick time="0"><voicedata name="Trigger" voice="0" value="60"/></tick>
+            <tick time="4"><voicedata name="Trigger" voice="0" value="40"/></tick>
+            <tick time="8"><voicedata name="Trigger" voice="0" value="100"/></tick>
+            <tick time="12"><voicedata name="Trigger" voice="0" value="100"/></tick>
+            <tick time="14"><voicedata name="Trigger" voice="0" value="60"/></tick>
           </pattern>
         </patterns>
       </machine>
     </machines>
     
     <wires>
-      <wire src="bass2" dst="audio_sink" gain="1.0" panorama="0.0"/>
+      <wire src="infector" dst="filter" gain="1.0" panorama="-0.5"/>
+      <wire src="filter" dst="audio_sink" gain="1.0" panorama="-0.5"/>
+      <wire src="beats" dst="audio_sink" gain="1.0" panorama="0.5"/>
     </wires>    
   </setup>
   
-  <sequence length="64" tracks="1">
+  <sequence length="64" tracks="2">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>
     </labels>
     <tracks>
-      <track index="0" machine="bass2">
-        <position time="0" pattern="bass2_beeps"/>
-        <position time="32" pattern="bass2_beeps"/>
+      <track index="0" machine="infector">
+        <position time="0" pattern="infector_beeps"/>
+        <position time="32" pattern="infector_beeps"/>
+      </track>
+      <track index="1" machine="beats">
+        <position time="0" pattern="beats_beats"/>
+        <position time="16" pattern="beats_beats"/>
+        <position time="32" pattern="beats_beats"/>
+        <position time="48" pattern="beats_beats"/>
       </track>
     </tracks>
   </sequence>

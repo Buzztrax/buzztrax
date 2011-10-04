@@ -1,5 +1,24 @@
 2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* tests/Makefile.am:
+	* tests/songs/buzz1.xml:
+	* tests/songs/buzz2.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz4.xml:
+	* tests/songs/buzz5.xml:
+	* tests/songs/buzz9.xml:
+	* tests/songs/combi1.xml:
+	* tests/songs/combi2.xml:
+	* tests/songs/combi3.xml:
+	* tests/songs/melo2.xml:
+	* tests/songs/melo5.xml:
+	* tests/songs/melo6.xml:
+	* tests/songs/melo6.xml (added):
+	  Tune the demo songs a bit. Replace some binary only buzz machines with
+	  ported machines.
+
+2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	  Don't deref song==NULL. Add a todo comment.
 	

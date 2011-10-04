@@ -116,7 +116,8 @@ songdata_DATA = \
 	songs/melo2.xml \
 	songs/melo3.xml \
 	songs/melo4.xml \
-	songs/melo5.xml
+	songs/melo5.xml \
+	songs/melo6.xml
 noinst_songdata = \
 	songs/broken1.xml \
 	songs/broken1.bzt \
