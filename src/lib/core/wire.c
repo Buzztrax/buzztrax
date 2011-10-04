@@ -194,6 +194,8 @@ static gboolean bt_wire_make_internal_element(const BtWire * const self, const B
   gboolean res=FALSE;
   const gchar * const parent_name=GST_OBJECT_NAME(self);
   gchar * const name=g_alloca(strlen(parent_name)+2+strlen(element_name));
+  
+  g_return_val_if_fail((self->priv->machines[part]==NULL),TRUE);
 
   // create internal element
   //strcat(name,parent_name);strcat(name,":");strcat(name,element_name);

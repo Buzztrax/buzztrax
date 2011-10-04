@@ -1,5 +1,12 @@
 2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	  Add assert to ensure that we don't create existing objects and leak
+	  the previous instances.
+
+2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* tests/lib/core/t-source-machine.c:
 	  Fix bogus test.
 
