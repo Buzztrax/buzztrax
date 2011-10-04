@@ -1,5 +1,31 @@
 2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* tests/lib/core/t-source-machine.c:
+	  Fix bogus test.
+
+2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
+
+	reviewed by: <delete if not using a buddy>
+	patch by: <delete if not someone else's patch>
+
+	* po/cs.po:
+	* po/da.po:
+	* po/de.po:
+	* po/fi.po:
+	* po/fr.po:
+	* po/id.po:
+	* po/nl.po:
+	* po/nn.po:
+	* po/vi.po:
+	* src/lib/core/machine.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wire.c:
+	* tests/lib/core/t-source-machine.c:
+	* tests/m-bt-core.c:
+
+2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Wrote and sent NEWS.
 

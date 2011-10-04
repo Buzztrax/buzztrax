@@ -74,7 +74,7 @@ BT_START_TEST(test_btsourcemachine_obj2) {
   song=bt_song_new(app);
 
   /* try to create a source machine with wrong plugin type (sink instead of source) */
-  machine=bt_source_machine_new(song,"id","autoaudio",1,&err);
+  machine=bt_source_machine_new(song,"id","autoaudiosink",1,&err);
   fail_unless(machine!=NULL, NULL);
   fail_unless(err!=NULL, NULL);
 
