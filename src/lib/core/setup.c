@@ -471,8 +471,10 @@ static gboolean link_wire(const BtSetup * const self,GstElement *wire,GstElement
     if((src_pad=gst_element_get_request_pad(GST_ELEMENT(src_machine),"src%d"))) {
       if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/
         (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
-        if(gst_pad_set_blocked(src_pad,TRUE)) {
-          self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+        if(gst_pad_is_active(src_pad)) {
+          if(gst_pad_set_blocked(src_pad,TRUE)) {
+            self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+          }
         }
       }
       if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
@@ -531,8 +533,10 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
       (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
       /*
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(self->priv->bin, GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME);
-      // this causes trouble if the pads are flushing and/or pad->mode=GST_ACTIVATE_NONE
-      if(!GST_OBJECT_FLAG_IS_SET (dst_pad, GST_PAD_FLUSHING) && !GST_OBJECT_FLAG_IS_SET (src_pad, GST_PAD_FLUSHING)) {
+      // this causes trouble if the pads are flushing and/or GST_PAD_ACTIVATE_MODE(pad)==GST_ACTIVATE_NONE
+      // check using gst_pad_is_active
+      //if(!GST_OBJECT_FLAG_IS_SET (dst_pad, GST_PAD_FLUSHING) && !GST_OBJECT_FLAG_IS_SET (src_pad, GST_PAD_FLUSHING)) {
+      if(gst_pad_is_active(src_pad)) {
         // TODO: does it make any sense to block this pad if we are going to unref it below?
         // - do we ev. use weak pointers to avoid trying to unblock pads in update_pipeline()
         //   that have been disposed
