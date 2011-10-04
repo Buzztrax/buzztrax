@@ -1,5 +1,10 @@
 2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* tests/songs/melo5.xml:
+	  Also commit song that I forgot to save.
+
+2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* buzztard.supp:
 	  Update the suppression file.
 
