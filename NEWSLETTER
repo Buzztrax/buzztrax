@@ -1,11 +1,53 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
+2011/11 ========================================================================
+
+* update the demo songs
+
 2011/10 ========================================================================
 
-- shooting yourself in the foot - using setrlimit(RLIMIT_AS,&rl) in tests and
-  wondering about "mmap() failed: Cannot allocate memory". Yes 64bit platforms
-  need more memory than 32bit ones.
-- lots of leak fixes, thanks to valgrind
+This month I focused on testing for the next release. My free time for the
+project was a big short anyway, as my family move to our new home and I had
+quite some janitorial work to do.
+
+One lesson learned for the start. Some time ago I had problems with tests going
+crazy and eating memory. This can bring down the whole system which is bad. My
+solution at this time setrlimit(RLIMIT_AS,&rl) to cap the memory usage. While
+that works, that is also one way to shoot yourself in the foot. I was wondering
+why tests that work flawlessly on 32bit systems fail with "mmap() failed: 
+Cannot allocate memory". Doh, 64bit platforms need more memory than 32bit ones.
+Now I raised the limits unconditionally and everything is working again. Would
+be good to check the difference to see how much more memory 64bit apps that in
+average - its not twice as much I think.
+
+I did lots of valgrinding and obviously found and squashed a few leaks. It would
+be really nice if each library would ship a suppression file as part of the dev
+package. The file could be installed to /usr/lib/valgrind/<package>.supp. The
+pkg-config file would have two variables: 'vg_supp' pointing to the suppression
+file and 'vg_env' setting extra environment variables easing valgrinding. This
+way one could just collect these from the libraries an application uses and be
+done. GObject based libs could suppress their singletons to improve the valgrind
+experience.
+
+From time to time potential users show up on irc and get scared when I ask them
+to build the latest version from the sources. In the need for having an easy way
+to offer testers and translators the latest version, I took a look at glick [1].
+It is actually pretty straight forward. The resulting glick files where
+initially somewhat large, but after pruning development files, they are just
+about 6 Mb. I have two of them online - one for 32bit [2] and one for 64bit [3]
+systems. How to use them? Just download and run them - they don't install
+anything. The only downside I can see so far is, that the glick bundle would use
+the same settings as the properly installed one, which could be harmful if
+different versions are run. Also the path to the example songs in the bundle is
+somewhat cryptic - /proc/self/fd/1023/share/buzztard/songs :/. Having better
+desktop integration of such bundles would be great too, but less see how glick
+evolves.
+
+50 files changed, 836 insertions(+), 373 deletions(-)
+
+[1] http://people.gnome.org/~alexl/glick/
+[2] http://www.hora-obscura.de/~ensonic/buzztard.x86_32.glick
+[3] http://www.hora-obscura.de/~ensonic/buzztard.x86_64.glick
 
 2011/09 ========================================================================
 

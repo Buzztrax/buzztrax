@@ -71,16 +71,17 @@ $Id$
   - links
     http://www.buzztard.org/index.php/Undo,_redo
     http://www.buzztard.org/index.php/Song_autosaving
-  - we do that on the ui level (also the hournalling and the replay of it)
+  - we do that on the ui level (also the journalling and the replay of it)
   - singleton journal object
     - each undo/redo capabale object registeres with its name there
     - on replay we can take the prefix og the entry and dispatch
     - on journalling we can probably add the prefix
     - it is a stack of journal entries
   - pending parts that need undo/redo
-    - sequence view:
-      - finish add/remove tracks
-        look at the comments in on_pattern_removed()
+    - machine view
+      - machine/wire parameters
+    - wavetable view
+    - info view
 
 * CPU load per machine
   - as we alway plug the tee-elements on each machine and each wire starts with
@@ -101,3 +102,11 @@ $Id$
   - the recorder would use it for extra speed
   - on slow platforms we could offer that in the UI (where)
     - the view menu?
+
+* eventually merge machine-rename dialog with machine properties
+* improve recording dialogs
+  - either integrate the progress bar into the recording settings
+    - gray out the dialog or progress-bar area depending on phase
+  - or use a notebook with hidden pages
+    - switch to 2nd page for rendering
+
