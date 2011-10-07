@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
   bt_check_init();
   
   // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG);
+  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_LOG);
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
@@ -103,6 +103,7 @@ int main(int argc, char **argv) {
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
 
+  bt_deinit();
   //g_mem_profile();
 
   return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE;

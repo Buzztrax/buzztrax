@@ -79,17 +79,13 @@ static gboolean bt_init_pre (void) {
   //-- initialize gobject
   g_type_init ();
 
-  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
   return TRUE;
 }
 
 static gboolean bt_init_post (void) {
   gboolean res=FALSE;
 
-  //-- initialize gstreamer
-  //gst_init(argc,argv);
   //-- initialize dynamic parameter control module
-  //gst_controller_init(argc,argv);
   gst_controller_init(NULL,NULL);
   gst_pb_utils_init();
 
@@ -296,3 +292,17 @@ void bt_init(int *argc, char **argv[]) {
   }
 }
 
+/**
+ * bt_deinit:
+ *
+ * It is normally not needed to call this function in a normal application
+ * as the resources will automatically be freed when the program terminates.
+ * This function is therefore mostly used by testsuites and other memory
+ * profiling tools.
+ */
+void bt_deinit(void) {
+  // release some static ressources
+  gst_caps_replace(&bt_default_caps,NULL);
+  // deinit libraries
+  gst_deinit();
+}

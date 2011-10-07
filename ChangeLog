@@ -1,5 +1,17 @@
 2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/core.c:
+	* src/lib/core/libbuzztard-core/core.h:
+	* src/lib/core/tools.c:
+	* tests/m-bt-cmd.c:
+	* tests/m-bt-core.c:
+	* tests/m-bt-edit.c:
+	  Improve valgrinding experience in the tests by explicitly cleaning up
+	  at the end of tests.
+
+2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
+
 	* buzztard.supp:
 	  Add a test function to the suppressions.
 

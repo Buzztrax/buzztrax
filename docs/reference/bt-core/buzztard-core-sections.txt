@@ -637,6 +637,7 @@ bt_init
 bt_init_add_option_groups
 bt_init_check
 bt_init_get_option_group
+bt_deinit
 bt_major_version
 bt_micro_version
 bt_minor_version

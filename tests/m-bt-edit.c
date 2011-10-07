@@ -185,6 +185,7 @@ int main(int argc, char **argv) {
   srunner_free(sr);
 
   check_shutdown_test_server();
+  bt_deinit();
 
   return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

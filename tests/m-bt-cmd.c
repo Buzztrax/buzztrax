@@ -78,5 +78,7 @@ int main(int argc, char **argv) {
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
 
+  bt_deinit();
+
   return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

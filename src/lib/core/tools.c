@@ -184,17 +184,19 @@ GList *bt_gst_check_core_elements(void) {
    * reset core_elements_checked to FALSE
    * There is gst_registry_get_feature_list_cookie() now
    */
-  if(!core_elements) {
+  if(!core_elements_checked) {
     core_elements=g_list_prepend(core_elements,"capsfilter");
     core_elements=g_list_prepend(core_elements,"queue");
     core_elements=g_list_prepend(core_elements,"tee");
     core_elements=g_list_prepend(core_elements,"audioconvert");
     core_elements=g_list_prepend(core_elements,"adder");
     core_elements=g_list_prepend(core_elements,"volume");
-  }
-  if(!core_elements_checked) {
     core_elements_checked=TRUE;
     res=bt_gst_check_elements(core_elements);
+    g_list_free(core_elements);
+    core_elements=res;
+  } else {
+    res = core_elements;
   }
   return(res);
 }
