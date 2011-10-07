@@ -1,5 +1,10 @@
 2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
 
+	* buzztard.supp:
+	  Add a test function to the suppressions.
+
+2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/setup.c:
 	  Cleanup docs and comments. Fix the graph depth for wires.
 

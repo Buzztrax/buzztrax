@@ -127,3 +127,14 @@
    obj:/usr/lib/libgvfscommon.so.*
    fun:dbus_connection_dispatch
 }
+
+{
+   buzztard:check
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_slist_prepend
+   fun:gst_debug_add_log_function
+   fun:main
+}
