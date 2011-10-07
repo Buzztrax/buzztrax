@@ -53,7 +53,7 @@ static void on_about_dialog_url_clicked(GtkAboutDialog *about, const gchar *link
 static void bt_about_dialog_init_ui(const BtAboutDialog *self) {
   GtkWidget *news,*news_view;
   const gchar *authors[] = {
-    "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
+    "Stefan 'ensonic' Sauer <ensonic@users.sf.net>",
     "Krzysztof Foltman <wdev@foltman.com>",
     "Thomas 'waffel' Wabner <waffel@users.sf.net>",
     "Patric Schmitz  <berzerka@users.sf.net>",
@@ -69,11 +69,11 @@ static void bt_about_dialog_init_ui(const BtAboutDialog *self) {
     NULL
   };
   /* Note to translators: put here your name and email so it will show up in
-   * the "about" box. Example: Stefan 'ensonic' Kost <ensonic@users.sf.net> */
+   * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net> */
   gchar *translators =_("translator-credits");
   
   gchar *copyright = g_alloca(strlen(_("Copyright \xc2\xa9 2003-%d Buzztard developer team"))+3);
-  sprintf(copyright,_("Copyright \xc2\xa9 2003-%d Buzztard developer team"),2009);
+  sprintf(copyright,_("Copyright \xc2\xa9 2003-%d Buzztard developer team"),2011);
 
   /* we can get logo via icon name, so this here is just for educational purpose
   GdkPixbuf *logo;
@@ -126,8 +126,18 @@ static void bt_about_dialog_init_ui(const BtAboutDialog *self) {
   gtk_text_view_set_editable(GTK_TEXT_VIEW(news), FALSE);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(news)),
-    _("Development version (do not translate this)"
-    //_(""
+    //"Development version (do not translate this)"
+    _("Main feature of this release is full undo/redo support. Related to it is the "
+      "journaling of edit action and the crash recovery. This way chances of losing "
+      "changes in the song are quite low. Other UI improvements are: tip of day, "
+      "improved spectrum analyzer, clipboard support, more commands in context menus "
+      "and many more). This release features a gstreamer decoder that enables playback "
+      "of buzztard songs in any gstreamer based media player. "
+      "We also kept the buzztard codebase clean and ported from deprecated APIs to the "
+      "successors (gnomevfs->gio, hal->gudev). The libraries and the applications got "
+      "performance improvements in many areas. "
+      "Also the docs have been improved a lot with tutorials, keyboard shortcut tables, "
+      "better coverage and man-pages. "
     ),-1);
 
   news_view = gtk_scrolled_window_new(NULL, NULL);

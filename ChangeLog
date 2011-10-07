@@ -1,5 +1,11 @@
 2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
 
+	* AUTHORS:
+	* src/ui/edit/about-dialog.c:
+	  More translation preps.
+
+2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
+
 	* README:
 	  Update README.
 
