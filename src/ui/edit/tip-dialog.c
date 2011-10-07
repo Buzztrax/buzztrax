@@ -47,7 +47,7 @@ Algorithm:
 static gchar *tips[]={
   N_("New machines are added in machine view from the context menu."),
   N_("Connect machines by holding the shift key and dragging a connection for the source to the target machine."),
-  N_("Songs can be recoderd as single waves per track to give it to remixers."),
+  N_("Songs can be recorded as single waves per track to give it to remixers."),
   N_("Fill the details on the info page. When recording songs, the metadata is added to the recording as tags."),
   N_("Use jackaudio sink in audio device settings to get lower latencies for live machine control."),
   N_("You can use input devices such as joysticks, beside midi devices to live control machine parameters."),
@@ -58,7 +58,7 @@ static gchar *tips[]={
   N_("Click the speaker icon in the pattern-view to hear notes as you enter them."),
   N_("Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input."),
   N_("The wire volume control pops up upon a click on the arrow box on the wire."),
-  N_("The wire panoram/balance control pops up upon a shift+click on the arrow box on the wire if available.")
+  N_("The wire panorama/balance control pops up upon a shift+click on the arrow box on the wire if available.")
 };
 
 struct _BtTipDialogPrivate {

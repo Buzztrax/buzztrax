@@ -1,5 +1,19 @@
 2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
 
+	* README:
+	  Update README.
+
+	* src/ui/edit/crash-recover-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/signal-analysis-dialog.c:
+	* src/ui/edit/tip-dialog.c:
+	  Spell check ui strings.
+
+2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/core.c:
 	* src/lib/core/libbuzztard-core/core.h:

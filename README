@@ -18,15 +18,16 @@ gst-plugins-base
 gst-plugins-good
 gst-plugins-bad
 gnome-canvas
-gnomevfs
 gst-buzztard (from buzztard svn, use same version as this module)
+gudev
+gsf
 
 Regarding gstreamer - the newer the better.
 
 = supported packages =
 check (http://check.sf.net - for unit tests)
 gconf (for persistent settings)
-hal (for interaction controller)
+udev (for interaction controller)
 
 = building from svn =
 To build use autogen.sh instead of configure. This accept the same options like

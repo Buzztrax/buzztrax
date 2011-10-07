@@ -830,7 +830,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   self->priv->play_button=tool_item;
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_FORWARD));
-  gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(tool_item),_("Fordward playback position of this song"));
+  gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(tool_item),_("Forward playback position of this song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   child=gtk_bin_get_child(GTK_BIN(tool_item));
   gtk_widget_set_events(child,gtk_widget_get_events(child)|GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);

@@ -1991,6 +1991,7 @@ static void on_wire_machine_id_changed(const BtMachine *machine,GParamSpec *arg,
   gchar *id,*title;
 
   g_object_get((GObject *)machine,"id",&id,NULL);
+  /* set group title */
   title=g_strdup_printf(_("%s wire properties"),id);
   gtk_expander_set_label(GTK_EXPANDER(user_data),title);
   g_free(id);g_free(title);

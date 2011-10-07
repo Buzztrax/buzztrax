@@ -1158,6 +1158,7 @@ static void bt_main_page_machines_init_grid_density_menu(const BtMainPageMachine
   // create grid-density menu with grid-density={off,low,mid,high}
   self->priv->grid_density_menu=GTK_MENU(g_object_ref_sink(gtk_menu_new()));
 
+  // background grid density
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Off"));
   self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
   if(self->priv->grid_density==0) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);

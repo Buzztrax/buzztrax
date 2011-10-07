@@ -761,6 +761,7 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   /* settings */
   table=gtk_table_new(2,2,FALSE);
 
+  /* scale: linear and logarithmic */
   combo=gtk_combo_box_new_text();
   gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("lin."));
   gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("log."));
@@ -772,10 +773,10 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   combo=gtk_combo_box_new_text();
   gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("single"));
   gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("double"));
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("tripple"));
+  gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("triple"));
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo),0);
   g_signal_connect(combo, "changed", G_CALLBACK(on_spectrum_frequency_precision_changed), (gpointer)self);
-  gtk_table_attach(GTK_TABLE(table),gtk_label_new(_("spectrum precission")), 0,1, 1,2, 0,0, 3,3);
+  gtk_table_attach(GTK_TABLE(table),gtk_label_new(_("spectrum precision")), 0,1, 1,2, 0,0, 3,3);
   gtk_table_attach(GTK_TABLE(table),combo, 1,2, 1,2, GTK_EXPAND|GTK_FILL,0, 3,3);
 
   gtk_box_pack_start(GTK_BOX(vbox), table, FALSE, FALSE, 0);

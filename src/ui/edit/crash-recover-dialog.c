@@ -149,8 +149,9 @@ static void on_recover_clicked(GtkButton *button, gpointer user_data) {
   /* close the recovery dialog */
   gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_CLOSE);
   if(res) {
+    /* the song recovery has been finished */ 
     bt_dialog_message(main_window,_("Recovery finished"),
-      _("The selected song has been recovered sucessful."),
+      _("The selected song has been recovered successful."),
       _("Please check the song and save it if everything is alright.")
     );
   } else {
