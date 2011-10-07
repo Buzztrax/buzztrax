@@ -42,14 +42,12 @@
  * When we remove a wire, we run check_connected(self,master,NULL,NULL).
  *
  * We don't need to handle the not_visited_* lists. Disconnected things are
- * never added (see update_bin_in_pipeline()). Instead we need a list of
- * blocked_pads.
+ * never added (see update_bin_in_pipeline()). 
  *
  * When adding/removing a bin while playing, block all src-pads that are
  * connected to existing elements when linking.
- * Once the deep scan of the graph is finished, we can unblock all remeberred
- * pads. We should probably also send a seek and a tag event to newly added
- * sources.
+ * Once the deep scan of the graph is finished, we can unblock all remebered
+ * pads. Also send a seek and a tag event to newly added sources.
  *
  * When dynamically adding/removing we ideally do not make any change to the
  * existing pipeline, but collect a list of machines and wires we want to
@@ -280,6 +278,13 @@ enum {
   SETUP_MISSING_MACHINES
 };
 
+/* state of elements in graph
+ *
+ * CS_DISCONNECTED -> CS_CONNECTING
+ *        ^                 |
+ *        |                 v
+ * CS_DISCONNECTING <- CS_CONNECTED
+ */
 typedef enum {
   /* start with 1, so that we can differentiate between NULL and DISCONNECTED
    * when doing g_hash_table_lookup */
@@ -628,7 +633,7 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
   for(node=dst_machine->dst_wires;node;node=g_list_next(node)) {
     wire=BT_WIRE(node->data);
 
-    SET_GRAPH_DEPTH(self,dst_machine,depth+1);
+    SET_GRAPH_DEPTH(self,wire,depth+1);
 
     // check if wire is marked for removal
     if(GET_CONNECTION_STATE(self,wire)!=CS_DISCONNECTING) {
@@ -935,8 +940,6 @@ static gboolean bt_setup_update_pipeline(const BtSetup * const self) {
 gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * const machine) {
   gboolean ret=FALSE;
 
-  // @todo add g_error stuff, to give the programmer more information, whats going wrong.
-
   g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
 
@@ -970,8 +973,6 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
  */
 gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire) {
   gboolean ret=FALSE;
-
-  // @todo: add g_error stuff, to give the programmer more information, whats going wrong.
 
   g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
   g_return_val_if_fail(BT_IS_WIRE(wire),FALSE);

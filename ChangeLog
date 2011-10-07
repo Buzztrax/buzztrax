@@ -1,3 +1,8 @@
+2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Cleanup docs and comments. Fix the graph depth for wires.
+
 2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:
