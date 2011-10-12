@@ -1,3 +1,13 @@
+2011-10-12  Stefan Sauer  <ensonic@users.sf.net>
+
+	* design/gst/dynlink.c:
+	  Cleanups.
+
+	* design/gst/dynlink2.c:
+	* design/gst/dynlink2.c (added):
+	  Another test program.
+	  
+
 2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
 
 	* AUTHORS:

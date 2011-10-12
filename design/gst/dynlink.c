@@ -7,11 +7,11 @@
 
 /* TODO:
  * - insert multiple elements
- * - handle new segment
+ * - handle newsegment
  * THOUGHTS
  * - what about making the fragment only one element (or bin)
  *   this is easier to sync with the pipeline state
- * - regading the tags, what about sending a tag-query downstream
+ * - regarding the tags, what about sending a tag-query downstream
  *   and doing send_event(new_elem,tag_event) before linking it in
  */
 
@@ -28,7 +28,7 @@
 /* live element (re)linking
  * We have a running pipeline with elements running_1...n and a pipeline
  * fragment with elements fragment_1..n. The point of operations is determined
- * by the src/sink pads of the elemnts.
+ * by the src/sink pads of the elements.
  *
  * If a fragments spans multiple elements, those already have to be linked.
  * The fragment-elements need to be in PAUSED (READY?) if to be inserted into a
@@ -120,7 +120,7 @@ open_link (GstPad *run_src, GstPad *run_sink, gboolean is_playing)
 /**
  *
  *
- * Insert elements or swapp out elements
+ * Insert elements or swap out elements
  *
  * we have: run_src ! run_sink
  * we have: run_src ! frag_1sink ! frag_2src ! run_sink
@@ -278,23 +278,24 @@ static void message_received (GstBus * bus, GstMessage * message, GstPipeline * 
 
 int main(int argc, char **argv) {
   GstElement *bin;
+  GstBus *bus;
+  GstClock *clock;
+  GstClockID clock_id;
+  GstClockReturn wait_ret;
   /* elements used in pipeline */
   GstElement *sink;
   GstElement *vol;
   GstElement *src1,*src2;
-  GstClock *clock;
-  GstClockID clock_id;
-  GstClockReturn wait_ret;
+  /* element pads */
   GstPad *src1_src,*src2_src;
   GstPad *sink_sink;
   GstPad *vol_src,*vol_sink;
-  GstBus *bus;
 
   /* init gstreamer */
   gst_init(&argc, &argv);
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
 
-  /* create a new bin to hold the elements */
+  /* create a new top-level pipeline to hold the elements */
   bin = gst_pipeline_new ("song");
   clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
 
