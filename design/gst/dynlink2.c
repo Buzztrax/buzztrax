@@ -2,9 +2,9 @@
  * test dynamic linking
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink2.c -o dynlink2
- * GST_DEBUG="*:3" ./dynlink2
+ * GST_DEBUG="*:2" ./dynlink2
  * GST_DEBUG_DUMP_DOT_DIR=$PWD ./dynlink2
- * for file in dyn_*.dot; do echo $file; dot -Tpng $file -o${file/dot/png}; done
+ * for file in dyn*.dot; do echo $file; dot -Tpng $file -o${file/dot/png}; done
  */
 
 /* high level default scenario:
@@ -18,7 +18,7 @@
  *   src2 ! sink: 4
  *   fx ! sink  : 8
  *             => 16 different combinations
- * but skip: 1, 2, 8
+ * but skip: 1, 2, 3, 5, 7, 8
  */
 
 #include <stdio.h>
@@ -27,6 +27,13 @@
 #define SINK_NAME "pulsesink"
 #define FX_NAME "volume"
 #define SRC_NAME "audiotestsrc"
+
+#define GST_CAT_DEFAULT bt_dynlink2
+GST_DEBUG_CATEGORY_STATIC(GST_CAT_DEFAULT);
+
+static GstDebugGraphDetails graph_details = 
+//  GST_DEBUG_GRAPH_SHOW_ALL & ~GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS;
+  GST_DEBUG_GRAPH_SHOW_ALL;
 
 typedef struct {
   GstBin *bin;
@@ -65,6 +72,9 @@ typedef struct {
   Wire    *w[M_][M_];
 } Graph;
 
+/* dot file index */
+static gint dfix = 0;
+
 /* setup helper */
 
 static Machine *make_machine (Graph *g, const gchar *elem_name, const gchar *bin_name) {
@@ -73,13 +83,13 @@ static Machine *make_machine (Graph *g, const gchar *elem_name, const gchar *bin
   m = g_new0 (Machine, 1);
   
   if (!(m->bin = (GstBin *) gst_bin_new (bin_name))) {
-    fprintf (stderr, "Can't create bin\n");exit (-1);
+    GST_ERROR ("Can't create bin");exit (-1);
   }
   gst_bin_add (g->bin, (GstElement *)m->bin);
   gst_element_set_locked_state ((GstElement *)m->bin, TRUE);
 
   if (!(m->elem = gst_element_factory_make (elem_name, NULL))) {
-    fprintf (stderr, "Can't create element %s\n", elem_name);exit (-1);
+    GST_ERROR ("Can't create element %s", elem_name);exit (-1);
   }
   gst_bin_add (m->bin, m->elem);
 
@@ -88,7 +98,7 @@ static Machine *make_machine (Graph *g, const gchar *elem_name, const gchar *bin
 
 static void add_tee (Machine *m) {
   if (!(m->tee = gst_element_factory_make ("tee", NULL))) {
-    fprintf (stderr, "Can't create element tee\n");exit (-1);
+    GST_ERROR ("Can't create element tee");exit (-1);
   }
   gst_bin_add (m->bin, m->tee);
   gst_element_link (m->elem, m->tee);
@@ -96,7 +106,7 @@ static void add_tee (Machine *m) {
 
 static void add_mix (Machine *m) {
   if (!(m->mix = gst_element_factory_make ("adder", NULL))) {
-    fprintf (stderr, "Can't create element adder\n");exit (-1);
+    GST_ERROR ("Can't create element adder");exit (-1);
   }
   gst_bin_add (m->bin, m->mix);
   gst_element_link (m->mix, m->elem);
@@ -133,13 +143,14 @@ static void post_link_add (GstPad *pad, gboolean blocked, gpointer user_data) {
   GstPadLinkReturn r;
   
   if (!blocked) {
-    fprintf (stderr, "Pad block before linking elements failed\n");
+    GST_ERROR ("Pad block before linking elements failed");
     return;
   }
   
-  printf ("  + link %s -> %s blocked\n", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
+  if (pad)
+    GST_WARNING ("+ link %s -> %s blocked", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
 
-  // link ghostpads
+  // link ghostpads (downstream)
   r = gst_pad_link (w->psg, w->dg);
   g_assert (r == GST_PAD_LINK_OK);
   r = gst_pad_link (w->sg, w->pdg);
@@ -147,11 +158,13 @@ static void post_link_add (GstPad *pad, gboolean blocked, gpointer user_data) {
 
   // change state (downstream) and unlock
   if (w->as) {
+    GST_WARNING ("+ %s", GST_OBJECT_NAME (ms->bin));
     gst_element_set_locked_state ((GstElement *)ms->bin, FALSE);
     gst_element_set_state ((GstElement *)ms->bin, GST_STATE_PLAYING);
   }
   gst_element_set_state ((GstElement *)w->bin, GST_STATE_PLAYING);
   if (w->ad) {
+    GST_WARNING ("+ %s", GST_OBJECT_NAME (md->bin));
     gst_element_set_locked_state ((GstElement *)md->bin, FALSE);
     gst_element_set_state ((GstElement *)md->bin, GST_STATE_PLAYING);
   }
@@ -160,7 +173,7 @@ static void post_link_add (GstPad *pad, gboolean blocked, gpointer user_data) {
   if (pad)
     gst_pad_set_blocked (pad, FALSE);
 
-  printf ("  + link %s -> %s done\n", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
+  GST_WARNING ("+ link %s -> %s done", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
 }
 
 static void link_add (Graph *g, gint s,  gint d) {
@@ -168,8 +181,8 @@ static void link_add (Graph *g, gint s,  gint d) {
   Machine *ms = g->m[s], *md = g->m[d];
   gchar w_name[50];
 
-  printf("  + link %s -> %s\n", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
-  sprintf (w_name, "%s -> %s", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
+  GST_WARNING ("+ link %s -> %s", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
+  sprintf (w_name, "%s - %s", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
   
   g->w[s][d] = w = g_new0 (Wire, 1);
   w->ms = ms;
@@ -178,10 +191,10 @@ static void link_add (Graph *g, gint s,  gint d) {
   w->ad = (md->pads == 0);
 
   if (!(w->bin = (GstBin *) gst_bin_new (w_name))) {
-    fprintf (stderr, "Can't create bin\n");exit (-1);
+    GST_ERROR ("Can't create bin");exit (-1);
   }
   if (!(w->q = gst_element_factory_make ("queue", NULL))) {
-    fprintf (stderr, "Can't create element queue\n");exit (-1);
+    GST_ERROR ("Can't create element queue");exit (-1);
   }
   gst_bin_add (w->bin, w->q);
   
@@ -224,7 +237,7 @@ static void link_add (Graph *g, gint s,  gint d) {
   // block w->psg
   // - before adding?, no, elements are in locked state
   // - before linking!
-  if (GST_STATE (g->bin) == GST_STATE_PLAYING) {
+  if (!w->as && GST_STATE (g->bin) == GST_STATE_PLAYING) {
     gst_pad_set_blocked_async (w->psg, TRUE, post_link_add, w);
   } else {
     post_link_add (NULL, TRUE, w);
@@ -236,26 +249,29 @@ static void post_link_rem (GstPad *pad, gboolean blocked, gpointer user_data) {
   Machine *ms = w->ms, *md = w->md;
 
   if (!blocked) {
-    fprintf (stderr, "Pad block before unlinking elements failed\n");
+    GST_ERROR ("Pad block before unlinking elements failed");
     return;
   }
   
-  printf ("  - link %s -> %s blocked\n", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
+  if (pad)
+    GST_WARNING ("- link %s -> %s blocked", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
   
-  // change state (downstream) and lock
+  // change state (upstream) and lock
   if (w->ad) {
+    GST_WARNING ("- %s", GST_OBJECT_NAME (md->bin));
     gst_element_set_state ((GstElement *)md->bin, GST_STATE_NULL);
     gst_element_set_locked_state ((GstElement *)md->bin, TRUE);
   }
   gst_element_set_state ((GstElement *)w->bin, GST_STATE_NULL);
   if (w->as) {
+    GST_WARNING ("- %s", GST_OBJECT_NAME (md->bin));
     gst_element_set_state ((GstElement *)ms->bin, GST_STATE_NULL);
     gst_element_set_locked_state ((GstElement *)ms->bin, TRUE);
   }
   
-  // unlink ghostpads 
-  gst_pad_unlink (w->psg, w->dg);
+  // unlink ghostpads (upstream)
   gst_pad_unlink (w->sg, w->pdg);
+  gst_pad_unlink (w->psg, w->dg);
 
   // remove from pipeline
   gst_object_ref (w->bin);
@@ -278,14 +294,14 @@ static void post_link_rem (GstPad *pad, gboolean blocked, gpointer user_data) {
   // if (pad)
   //   gst_pad_set_blocked (pad, FALSE);
 
-  printf ("  - link %s -> %s done\n", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
+  GST_WARNING ("- link %s -> %s done", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
 }
 
 static void link_rem (Graph *g, gint s,  gint d) {
   Wire *w = g->w[s][d];
   Machine *ms = g->m[s], *md = g->m[d];
   
-  printf ("  - link %s -> %s\n", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
+  GST_WARNING ("- link %s -> %s", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
 
   w->as = (ms->pads == 1);
   w->ad = (md->pads == 1);
@@ -300,11 +316,13 @@ static void link_rem (Graph *g, gint s,  gint d) {
 }
 
 static void change_links (Graph *g, gint o, gint n) {
-  gchar t[10];
+  gchar t[20];
   
-  printf ("change %02d -> %02d\n", o, n);
-  sprintf (t,"dyn_%02d_%02d", o, n);
-  GST_DEBUG_BIN_TO_DOT_FILE (g->bin, GST_DEBUG_GRAPH_SHOW_ALL & ~GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS, t); 
+  GST_WARNING ("== change %02d -> %02d ==", o, n);
+  sprintf (t,"dyn%02d_%02d_%02d", dfix, o, n);
+  GST_DEBUG_BIN_TO_DOT_FILE (g->bin, graph_details, t);
+  dfix++;
+
   // bit 1
   if ((o & 1) == 0 && (n & 1) != 0) {
     link_add (g, M_SRC1, M_FX);
@@ -346,13 +364,21 @@ static void message_received (GstBus * bus, GstMessage * message, GstPipeline * 
     gchar *sstr;
 
     sstr = gst_structure_to_string (s);
-    printf ("%s\n", sstr);
+    GST_WARNING ("%s", sstr);
     g_free (sstr);
   }
   else {
-    printf ("no message details\n");
+    GST_WARNING ("no message details");
   }
 }
+
+/*
+static void state_changed_message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
+  GstState oldstate,newstate,pending;
+
+  gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
+}
+*/
 
 /* test application */
 
@@ -360,12 +386,15 @@ int main(int argc, char **argv) {
   Graph *g;
   GstBus *bus;
   gint i, j, c;
+  gchar t[20];
 
   /* init gstreamer */
   gst_init(&argc, &argv);
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
   
-  puts ("setup");
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "dynlink2", 0, "dynamic linking test");
+  
+  GST_WARNING ("setup");
   
   g = g_new0 (Graph, 1);
 
@@ -376,6 +405,7 @@ int main(int argc, char **argv) {
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
   g_signal_connect (bus, "message::error", G_CALLBACK(message_received), g->bin);
   g_signal_connect (bus, "message::warning", G_CALLBACK(message_received), g->bin);
+  //g_signal_connect (bus, "message::state-changed", G_CALLBACK(state_changed_message_received), g->bin);
   
   /* make machines */
   g->m[M_SRC1] = make_src (g,"src1");
@@ -384,33 +414,41 @@ int main(int argc, char **argv) {
   g->m[M_SINK] = make_sink (g, "sink");
   
   /* configure the sources */
-  g_object_set (g->m[M_SRC1]->elem, "freq", 440.0, "wave", 2, NULL);
-  g_object_set (g->m[M_SRC2]->elem, "freq", 110.0, "wave", 1, NULL);
+  g_object_set (g->m[M_SRC1]->elem, "freq", (gdouble)440.0, "wave", 2, NULL);
+  g_object_set (g->m[M_SRC2]->elem, "freq", (gdouble)110.0, "wave", 1, NULL);
 
   /* do the initial link and play */
   link_add (g, M_SRC1, M_SINK);
   gst_element_set_state ((GstElement *)g->bin, GST_STATE_PLAYING);
+  // wait a bit
+  g_usleep (G_USEC_PER_SEC);
   
-  puts ("testing");
+  GST_WARNING ("testing");
+  sprintf (t,"dyn%02d_before", dfix);
+  GST_DEBUG_BIN_TO_DOT_FILE (g->bin, graph_details, t);
+  dfix++;
   
   /* run the dynlink variants */
   c = 1<<M_;
   for (j = 0, i = 1; i < c; i++) {
     // skip some partially connected setups
-    if ((i==1) || (i==2) || (i==8))
+    if ((i==1) || (i==2) || (i==3) || (i==5) || (i==7) || (i==8))
       continue;
     change_links (g, j, i);
     j = i;
   }
   for (j = c - 1, i = c - 2; i > -1; i--) {
     // skip some partially connected setups
-    if ((i==1) || (i==2) || (i==8))
+    if ((i==1) || (i==2) || (i==3) || (i==5) || (i==7) || (i==8))
       continue;
     change_links (g, j, i);
     j = i;
   }
 
-  puts ("cleanup");
+  sprintf (t,"dyn%02d_after", dfix);
+  GST_DEBUG_BIN_TO_DOT_FILE (g->bin, graph_details, t);
+  dfix++;
+  GST_WARNING ("cleanup");
 
   /* cleanup */
   gst_element_set_state ((GstElement *)g->bin, GST_STATE_NULL);
@@ -424,6 +462,6 @@ int main(int argc, char **argv) {
   }
   g_free (g);
   
-  puts ("done");
+  GST_WARNING ("done");
   exit (0);
 }

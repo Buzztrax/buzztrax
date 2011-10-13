@@ -1,3 +1,30 @@
+2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
+
+	* design/gst/dynlink2.c:
+	  Turn printf into locking.
+
+	* design/gst/dynlink2.sh:
+	* design/gst/dynlink2.sh (svn:executable):
+	* design/gst/dynlink2.sh (added):
+	  Add starter for convenience.
+
+2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
+
+	reviewed by: <delete if not using a buddy>
+	patch by: <delete if not someone else's patch>
+
+	* design/gst/dynlink2.c:
+	* po/cs.po:
+	* po/da.po:
+	* po/de.po:
+	* po/fi.po:
+	* po/fr.po:
+	* po/id.po:
+	* po/nl.po:
+	* po/nn.po:
+	* po/vi.po:
+	* src/lib/core/setup.c:
+
 2011-10-12  Stefan Sauer  <ensonic@users.sf.net>
 
 	* design/gst/dynlink.c:
