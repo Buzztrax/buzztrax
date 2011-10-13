@@ -1,6 +1,12 @@
 2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
 
 	* design/gst/dynlink2.c:
+	  Check more return codes. Cleanup the signal watch. Do a seek to
+	  kickstart the pipeline.
+
+2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
+
+	* design/gst/dynlink2.c:
 	  Turn printf into locking.
 
 	* design/gst/dynlink2.sh:

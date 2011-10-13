@@ -140,7 +140,8 @@ static Machine *make_sink (Graph *g, const gchar *m_name) {
 static void post_link_add (GstPad *pad, gboolean blocked, gpointer user_data) {
   Wire *w = (Wire *)user_data;
   Machine *ms = w->ms, *md = w->md;
-  GstPadLinkReturn r;
+  GstPadLinkReturn plr;
+  GstStateChangeReturn scr;
   
   if (!blocked) {
     GST_ERROR ("Pad block before linking elements failed");
@@ -151,22 +152,25 @@ static void post_link_add (GstPad *pad, gboolean blocked, gpointer user_data) {
     GST_WARNING ("+ link %s -> %s blocked", GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin));
 
   // link ghostpads (downstream)
-  r = gst_pad_link (w->psg, w->dg);
-  g_assert (r == GST_PAD_LINK_OK);
-  r = gst_pad_link (w->sg, w->pdg);
-  g_assert (r == GST_PAD_LINK_OK);
+  plr = gst_pad_link (w->psg, w->dg);
+  g_assert (plr == GST_PAD_LINK_OK);
+  plr = gst_pad_link (w->sg, w->pdg);
+  g_assert (plr == GST_PAD_LINK_OK);
 
   // change state (downstream) and unlock
   if (w->as) {
     GST_WARNING ("+ %s", GST_OBJECT_NAME (ms->bin));
     gst_element_set_locked_state ((GstElement *)ms->bin, FALSE);
-    gst_element_set_state ((GstElement *)ms->bin, GST_STATE_PLAYING);
+    scr = gst_element_set_state ((GstElement *)ms->bin, GST_STATE_PLAYING);
+    g_assert (scr != GST_STATE_CHANGE_FAILURE);
   }
-  gst_element_set_state ((GstElement *)w->bin, GST_STATE_PLAYING);
+  scr = gst_element_set_state ((GstElement *)w->bin, GST_STATE_PLAYING);
+  g_assert (scr != GST_STATE_CHANGE_FAILURE);
   if (w->ad) {
     GST_WARNING ("+ %s", GST_OBJECT_NAME (md->bin));
     gst_element_set_locked_state ((GstElement *)md->bin, FALSE);
-    gst_element_set_state ((GstElement *)md->bin, GST_STATE_PLAYING);
+    scr = gst_element_set_state ((GstElement *)md->bin, GST_STATE_PLAYING);
+    g_assert (scr != GST_STATE_CHANGE_FAILURE);
   }
 
   // unblock w->psg
@@ -247,6 +251,8 @@ static void link_add (Graph *g, gint s,  gint d) {
 static void post_link_rem (GstPad *pad, gboolean blocked, gpointer user_data) {
   Wire *w = (Wire *)user_data;
   Machine *ms = w->ms, *md = w->md;
+  gboolean plr;
+  GstStateChangeReturn scr;
 
   if (!blocked) {
     GST_ERROR ("Pad block before unlinking elements failed");
@@ -259,19 +265,24 @@ static void post_link_rem (GstPad *pad, gboolean blocked, gpointer user_data) {
   // change state (upstream) and lock
   if (w->ad) {
     GST_WARNING ("- %s", GST_OBJECT_NAME (md->bin));
-    gst_element_set_state ((GstElement *)md->bin, GST_STATE_NULL);
+    scr = gst_element_set_state ((GstElement *)md->bin, GST_STATE_NULL);
+    g_assert (scr != GST_STATE_CHANGE_FAILURE);
     gst_element_set_locked_state ((GstElement *)md->bin, TRUE);
   }
-  gst_element_set_state ((GstElement *)w->bin, GST_STATE_NULL);
+  scr = gst_element_set_state ((GstElement *)w->bin, GST_STATE_NULL);
+  g_assert (scr != GST_STATE_CHANGE_FAILURE);
   if (w->as) {
     GST_WARNING ("- %s", GST_OBJECT_NAME (md->bin));
-    gst_element_set_state ((GstElement *)ms->bin, GST_STATE_NULL);
+    scr = gst_element_set_state ((GstElement *)ms->bin, GST_STATE_NULL);
+    g_assert (scr != GST_STATE_CHANGE_FAILURE);
     gst_element_set_locked_state ((GstElement *)ms->bin, TRUE);
   }
   
   // unlink ghostpads (upstream)
-  gst_pad_unlink (w->sg, w->pdg);
-  gst_pad_unlink (w->psg, w->dg);
+  plr = gst_pad_unlink (w->sg, w->pdg);
+  g_assert (plr == TRUE);
+  plr = gst_pad_unlink (w->psg, w->dg);
+  g_assert (plr == TRUE);
 
   // remove from pipeline
   gst_object_ref (w->bin);
@@ -420,25 +431,29 @@ int main(int argc, char **argv) {
   /* do the initial link and play */
   link_add (g, M_SRC1, M_SINK);
   gst_element_set_state ((GstElement *)g->bin, GST_STATE_PLAYING);
+  
+  gst_element_seek_simple ((GstElement *)g->bin, GST_FORMAT_TIME, 
+      GST_SEEK_FLAG_FLUSH, G_GINT64_CONSTANT (0));
+  
   // wait a bit
   g_usleep (G_USEC_PER_SEC);
-  
+
   GST_WARNING ("testing");
   sprintf (t,"dyn%02d_before", dfix);
   GST_DEBUG_BIN_TO_DOT_FILE (g->bin, graph_details, t);
   dfix++;
   
   /* run the dynlink variants */
-  c = 1<<M_;
+  c = 1 << 4;
   for (j = 0, i = 1; i < c; i++) {
-    // skip some partially connected setups
+    /* skip some partially connected setups */
     if ((i==1) || (i==2) || (i==3) || (i==5) || (i==7) || (i==8))
       continue;
     change_links (g, j, i);
     j = i;
   }
   for (j = c - 1, i = c - 2; i > -1; i--) {
-    // skip some partially connected setups
+    /* skip some partially connected setups */
     if ((i==1) || (i==2) || (i==3) || (i==5) || (i==7) || (i==8))
       continue;
     change_links (g, j, i);
@@ -452,6 +467,7 @@ int main(int argc, char **argv) {
 
   /* cleanup */
   gst_element_set_state ((GstElement *)g->bin, GST_STATE_NULL);
+  gst_bus_remove_signal_watch (bus);
   gst_object_unref (GST_OBJECT (bus));
   gst_object_unref (GST_OBJECT (g->bin));
   for (i = 0; i < M_; i++) {
