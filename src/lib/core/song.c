@@ -779,7 +779,7 @@ gboolean bt_song_stop(const BtSong * const self) {
 
   GST_INFO("stopping playback, is_playing: %d, is_preparing: %d",self->priv->is_playing,self->priv->is_preparing);
 
-  if(!(self->priv->is_preparing || self->priv->is_playing)) {
+  if(!(self->priv->is_preparing || self->priv->is_playing) && (GST_STATE(self->priv->bin)==GST_STATE_NULL)) {
     GST_INFO("not playing");
     return(TRUE);
   }

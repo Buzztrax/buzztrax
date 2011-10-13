@@ -1,5 +1,11 @@
 2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Also stop if pipeline is not in NULL state. This helps to stop in
+	  error cases.
+
+2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Ensure unique machine names.
 
