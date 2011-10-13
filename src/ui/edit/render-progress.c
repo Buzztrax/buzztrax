@@ -120,20 +120,23 @@ static gboolean bt_render_progress_record(const BtRenderProgress *self, BtSong *
   g_free(info);
 
   bt_song_play(song);
+  bt_song_write_to_lowlevel_dot_file(song);
 
   // ugly, but we need to make sure we check the eror before running the dialog 
   while(gtk_events_pending()) gtk_main_iteration();
 
   if(!self->priv->has_error) {
-    gtk_dialog_run(GTK_DIALOG(self));
-    g_object_get(song,"is-playing",&is_playing,NULL);
-    if(!is_playing) {
-      res=TRUE;
-    }
-    else {
-      bt_song_stop(song);
+    gint ret=gtk_dialog_run(GTK_DIALOG(self));
+    if(ret!=GTK_RESPONSE_REJECT) {
+      g_object_get(song,"is-playing",&is_playing,NULL);
+      if(!is_playing) {
+        res=TRUE;
+      }
     }
   }
+
+  bt_song_stop(song);
+
   return(res);
 }
 
@@ -156,7 +159,6 @@ static void bt_render_progress_init_ui(const BtRenderProgress *self) {
   box=gtk_vbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
   gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(self))),box);
-
 
   self->priv->info=GTK_LABEL(gtk_label_new(""));
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->info),FALSE,FALSE,0);
@@ -222,6 +224,8 @@ void bt_render_progress_run(const BtRenderProgress *self) {
 
     g_object_set(sink_bin,
       "mode",BT_SINK_BIN_MODE_RECORD,
+      // hrmpf: this hangs :/
+      //"mode",BT_SINK_BIN_MODE_PLAY_AND_RECORD,
       "record-format",format,
       NULL);
     
@@ -234,7 +238,10 @@ void bt_render_progress_run(const BtRenderProgress *self) {
     g_object_set(convert,"dithering",2,"noise-shaping",3,NULL);
 
     if(mode==BT_RENDER_MODE_MIXDOWN) {
-      bt_render_progress_record(self,song,sink_bin,file_name);
+      if(!bt_render_progress_record(self,song,sink_bin,file_name)) {
+        GST_WARNING("recording canceled/failed");
+        g_unlink(file_name);
+      }
     }
     else {
       BtMachine *machine;
@@ -262,7 +269,11 @@ void bt_render_progress_run(const BtRenderProgress *self) {
         g_free(track_file_name);
 
         g_object_set(machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
-        if(!res) break;
+        if(!res) {
+          GST_WARNING("recording canceled/failed");
+          g_unlink(track_file_name);
+          break;
+        }
         track++;
       }
       g_object_set(song_info,"name",song_name,NULL);

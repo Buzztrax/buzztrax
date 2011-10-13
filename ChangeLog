@@ -1,5 +1,10 @@
 2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/render-progress.c:
+	  Improve error handling. Delete partial output files on error.
+
+2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-bin.c:
 	  Add a queue in record+play mode to play branch as well.
 
