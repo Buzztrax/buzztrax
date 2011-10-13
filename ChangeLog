@@ -1,5 +1,13 @@
 2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	  Add (commented out) hack to record in realtime.
+
+	* src/ui/edit/render-progress.c:
+	  Actually return the proper code on EOS to not always remove the file.
+
+2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/render-progress.c:
 	  Improve error handling. Delete partial output files on error.
 

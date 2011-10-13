@@ -78,7 +78,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   if((progress>=1.0) || self->priv->has_error) {
     progress=1.0;
     bt_song_stop(song);
-    gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_REJECT);
+    gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_NONE);
   }
   GST_INFO("progress %ld/%ld=%lf",pos,length,progress);
 
