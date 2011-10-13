@@ -421,6 +421,11 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
   }
   list=g_list_append(list,element);
 
+  /*
+  element=gst_element_factory_make("audioconvert","record-convert");
+  list=g_list_append(list,element);
+  */
+
   // generate recorder elements
   switch(self->priv->record_format) {
     case BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS:
@@ -504,7 +509,9 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
   }
   // create filesink, set location property
   element=gst_element_factory_make("filesink","filesink");
-  g_object_set(element,"location",self->priv->record_file_name,NULL);
+  g_object_set(element,
+    "location",self->priv->record_file_name,
+    NULL);
   list=g_list_append(list,element);
   return(list);
 Error:
@@ -668,8 +675,23 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     }
     case BT_SINK_BIN_MODE_PLAY_AND_RECORD:{
       // add player elems
-      GList * const list1=bt_sink_bin_get_player_elements(self);
+      GList *list1=bt_sink_bin_get_player_elements(self);
       if(list1) {
+        GstElement *element;
+
+        /*
+        element=gst_element_factory_make("audioconvert","play-convert");
+        list1=g_list_prepend(list1,element);
+        */
+
+        // start with a queue
+        element=gst_element_factory_make("queue","play-queue");
+        // @todo: if we have/require gstreamer-0.10.31 ret rid of the check
+        if(g_object_class_find_property(G_OBJECT_GET_CLASS(element),"silent")) {
+          g_object_set(element,"silent",TRUE,NULL);
+        }
+        list1=g_list_prepend(list1,element);
+
         bt_sink_bin_add_many(self,list1);
         bt_sink_bin_link_many(self,tee,list1);
         g_list_free(list1);
