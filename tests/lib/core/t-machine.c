@@ -142,23 +142,18 @@ BT_START_TEST(test_btmachine_state2) {
 
   /* create a new sine source machine */
   sine1=bt_source_machine_new(song,"sine1","audiotestsrc",0,&err);
-  bt_setup_add_machine(setup,BT_MACHINE(sine1));
 
   /* create a new sine source machine */
   sine2=bt_source_machine_new(song,"sine2","audiotestsrc",0,&err);
-  bt_setup_add_machine(setup,BT_MACHINE(sine2));
 
   /* create a new sink machine */
   sink=bt_sink_machine_new(song,"alsasink",&err);
-  bt_setup_add_machine(setup,BT_MACHINE(sink));
 
   /* create wire (sine1,src) */
   wire_sine1_sink=bt_wire_new(song,BT_MACHINE(sine1),BT_MACHINE(sink),&err);
-  bt_setup_add_wire(setup, wire_sine1_sink);
 
   /* create wire (sine2,src) */
   wire_sine2_sink=bt_wire_new(song,BT_MACHINE(sine2),BT_MACHINE(sink),&err);
-  bt_setup_add_wire(setup, wire_sine2_sink);
   mark_point();
 
   /* start setting the states */
@@ -178,6 +173,56 @@ BT_START_TEST(test_btmachine_state2) {
 }
 BT_END_TEST
 
+/*
+ * create two machines from the same type, rename them and then link them in
+ * checks that we ensure unique names
+ */
+BT_START_TEST(test_btmachine_names) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSetup *setup=NULL;
+  GError *err=NULL;
+  // machines
+  BtSourceMachine *sine1=NULL;
+  BtSourceMachine *sine2=NULL;
+  BtSinkMachine *sink=NULL;
+  // wires
+  BtWire *wire_sine1_sink=NULL;
+  BtWire *wire_sine2_sink=NULL;
+
+  /* create app and song */
+  app=bt_test_application_new();
+  song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+
+  /* create a new sine source machine */
+  sine1=bt_source_machine_new(song,"sine1","audiotestsrc",0,&err);
+  g_object_set(sine1, "id", "beep1", NULL);
+
+  /* create a new sine source machine */
+  sine2=bt_source_machine_new(song,"sine2","audiotestsrc",0,&err);
+  g_object_set(sine2, "id", "beep2", NULL);
+
+  /* create a new sink machine */
+  sink=bt_sink_machine_new(song,"alsasink",&err);
+  mark_point();
+
+  /* create wires */
+  wire_sine2_sink=bt_wire_new(song,BT_MACHINE(sine2),BT_MACHINE(sink),&err);
+  wire_sine1_sink=bt_wire_new(song,BT_MACHINE(sine1),BT_MACHINE(sink),&err);
+  mark_point();
+
+  g_object_unref(wire_sine1_sink);
+  g_object_unref(wire_sine2_sink);
+  g_object_unref(sink);
+  g_object_unref(sine2);
+  g_object_unref(sine1);
+  g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
 TCase *bt_machine_test_case(void) {
   TCase *tc = tcase_create("BtMachineTests");
 
@@ -185,6 +230,7 @@ TCase *bt_machine_test_case(void) {
   //tcase_add_test(tc, test_btmachine_abstract);
   tcase_add_test(tc, test_btmachine_state1);
   tcase_add_test(tc, test_btmachine_state2);
+  tcase_add_test(tc, test_btmachine_names);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

@@ -3445,14 +3445,11 @@ static void bt_machine_set_property(GObject * const object, const guint property
     case MACHINE_ID: {
       g_free(self->priv->id);
       self->priv->id = g_value_dup_string(value);
-      GST_DEBUG_OBJECT(self,"set the id for machine: %s",self->priv->id);
+      GST_INFO_OBJECT(self,"set the id for machine: %s",self->priv->id);
       if(self->priv->machines[PART_MACHINE]) {
-        GstObject *parent=gst_object_get_parent(GST_OBJECT(self->priv->machines[PART_MACHINE]));
+        GstObject *parent=gst_object_get_parent(GST_OBJECT(self));
         if(!parent) {
-          gchar *name=g_alloca(strlen(self->priv->id)+16);
-
-          g_sprintf(name,"%s_%p",self->priv->id,self);
-          gst_element_set_name(self->priv->machines[PART_MACHINE],name);
+          gst_element_set_name(self,self->priv->id);
         }
         else {
           gst_object_unref(parent);

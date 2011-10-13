@@ -1,5 +1,13 @@
 2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Ensure unique machine names.
+
+	* tests/lib/core/t-machine.c:
+	  Add a test for renaming failure.
+
+2011-10-13  Stefan Sauer  <ensonic@users.sf.net>
+
 	* design/gst/dynlink2.c:
 	  Check more return codes. Cleanup the signal watch. Do a seek to
 	  kickstart the pipeline.
