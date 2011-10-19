@@ -526,7 +526,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         // seek to start time
         GST_DEBUG_OBJECT(self->priv->master_bin,"seek event: %"GST_PTR_FORMAT,self->priv->play_seek_event);
         if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->play_seek_event)))) {
-          GST_WARNING("bin failed to handle seek event");
+          GST_WARNING_OBJECT(self->priv->master_bin, "bin failed to handle seek event");
         }
         break;
 #endif

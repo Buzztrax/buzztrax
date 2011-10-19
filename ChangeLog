@@ -1,5 +1,11 @@
 2011-10-19  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	* src/ui/edit/signal-analysis-dialog.c:
+	  Comments and logging.
+
+2011-10-19  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/wire.c:
 	  Lower latency.
 

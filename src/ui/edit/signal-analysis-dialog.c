@@ -50,6 +50,10 @@
  *     here)
  *   - we could always plug a tee in sink-bin and add the analyzers there
  */
+/* frequency spacing in a FFT is always linear:
+ * - for 44100 Hz and 256 bands, spacing is 22050/256 = ~86.13
+ * - log-grid should have lines at 1,2,5, 10,20,50, 100,200,500, ....
+ */
 #define BT_EDIT
 #define BT_SIGNAL_ANALYSIS_DIALOG_C
 
