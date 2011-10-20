@@ -1,5 +1,14 @@
 2011-10-20  Stefan Sauer  <ensonic@users.sf.net>
 
+	* design/gst/dynlink3.sh:
+	* design/gst/dynlink3.sh (svn:executable):
+	* design/gst/dynlink3.sh (added):
+	* design/gst/dynlink2.sh (added):
+	* design/gst/dynlink.sh (deleted):
+	  It is easier to have two scripts.
+
+2011-10-20  Stefan Sauer  <ensonic@users.sf.net>
+
 	* design/gst/dynlink.sh:
 	* design/gst/dynlink2.c:
 	* design/gst/dynlink3.c:
