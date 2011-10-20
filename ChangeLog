@@ -1,3 +1,13 @@
+2011-10-20  Stefan Sauer  <ensonic@users.sf.net>
+
+	* design/gst/dynlink.sh:
+	* design/gst/dynlink2.c:
+	* design/gst/dynlink3.c:
+	* design/gst/dynlink.sh (added):
+	* design/gst/dynlink3.c (added):
+	* design/gst/dynlink2.sh (deleted):
+	  More test code.
+
 2011-10-19  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:

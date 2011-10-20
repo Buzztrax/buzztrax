@@ -28,7 +28,7 @@
 #define FX_NAME "volume"
 #define SRC_NAME "audiotestsrc"
 
-#define GST_CAT_DEFAULT bt_dynlink2
+#define GST_CAT_DEFAULT bt_dynlink
 GST_DEBUG_CATEGORY_STATIC(GST_CAT_DEFAULT);
 
 static GstDebugGraphDetails graph_details = 
@@ -403,7 +403,7 @@ int main(int argc, char **argv) {
   gst_init(&argc, &argv);
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
   
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "dynlink2", 0, "dynamic linking test");
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "dynlink", 0, "dynamic linking test");
   
   GST_WARNING ("setup");
   
