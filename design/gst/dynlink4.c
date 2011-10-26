@@ -1,13 +1,13 @@
 /* $Id$
  * test dynamic linking
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink3.c -o dynlink3
- * gcc -Wall -g -DGST_USE_UNSTABLE_API `pkg-config gstreamer-0.11 --cflags --libs` dynlink3.c -o dynlink3
- * GST_DEBUG="*:2" ./dynlink3
- * GST_DEBUG_DUMP_DOT_DIR=$PWD ./dynlink3
+ * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink4.c -o dynlink4
+ * gcc -Wall -g -DGST_USE_UNSTABLE_API `pkg-config gstreamer-0.11 --cflags --libs` dynlink4.c -o dynlink4
+ * GST_DEBUG="*:2" ./dynlink4
+ * GST_DEBUG_DUMP_DOT_DIR=$PWD ./dynlink4
  * for file in dyn*.dot; do echo $file; dot -Tpng $file -o${file/dot/png}; done
  *
- * GST_DEBUG="*:5" GST_DEBUG_NO_COLOR=1 ./dynlink3 2>&1 | tee debug.log | grep "dynlink3.c:"
+ * GST_DEBUG="*:5" GST_DEBUG_NO_COLOR=1 ./dynlink4 2>&1 | tee debug.log | grep "dynlink4.c:"
  * sort debug.log >debug2.log
  */
 
@@ -236,6 +236,19 @@ post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
     GST_WARNING ("link %s -> %s blocked", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
 
+  /* do this in the blocked-callback for links to playing parts */
+  if (GST_STATE (md) == GST_STATE_PLAYING) {
+    w->peer_dst = gst_element_get_request_pad (md->mix, "sink%d");
+    g_assert (w->peer_dst);
+    w->peer_dst_ghost = gst_ghost_pad_new (NULL, w->peer_dst);
+    g_assert (w->peer_dst_ghost);
+    if (!w->ad) {
+      gst_pad_set_active (w->peer_dst_ghost, TRUE);
+    }
+    gst_element_add_pad ((GstElement *) md->bin, w->peer_dst_ghost);
+    md->pads++;
+  }
+
   /* link ghostpads (downstream) */
   plr = gst_pad_link (w->src_ghost, w->peer_dst_ghost);
   g_assert (plr == GST_PAD_LINK_OK);
@@ -331,15 +344,18 @@ link_add (Graph * g, gint s, gint d)
   gst_element_add_pad ((GstElement *) ms->bin, w->peer_src_ghost);
   ms->pads++;
 
-  w->peer_dst = gst_element_get_request_pad (md->mix, "sink%d");
-  g_assert (w->peer_dst);
-  w->peer_dst_ghost = gst_ghost_pad_new (NULL, w->peer_dst);
-  g_assert (w->peer_dst_ghost);
-  if (!w->ad) {
-    gst_pad_set_active (w->peer_dst_ghost, TRUE);
+  /* do this in the blocked-callback for links to playing parts */
+  if (GST_STATE (md) != GST_STATE_PLAYING) {
+    w->peer_dst = gst_element_get_request_pad (md->mix, "sink%d");
+    g_assert (w->peer_dst);
+    w->peer_dst_ghost = gst_ghost_pad_new (NULL, w->peer_dst);
+    g_assert (w->peer_dst_ghost);
+    if (!w->ad) {
+      gst_pad_set_active (w->peer_dst_ghost, TRUE);
+    }
+    gst_element_add_pad ((GstElement *) md->bin, w->peer_dst_ghost);
+    md->pads++;
   }
-  gst_element_add_pad ((GstElement *) md->bin, w->peer_dst_ghost);
-  md->pads++;
 
   /* create wire pads */
   w->src = gst_element_get_static_pad (w->queue, "src");
@@ -370,6 +386,8 @@ link_add (Graph * g, gint s, gint d)
 #else
     blocked = gst_pad_set_blocked_async (w->peer_dst, TRUE, post_link_add, w);
 #endif
+
+    // FIXME: need to kick start the playback here
 
     dump_pipeline (g, "wire_add_blocking");
   }
