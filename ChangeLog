@@ -1,5 +1,10 @@
 2011-10-26  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Update comments.
+
+2011-10-26  Stefan Sauer  <ensonic@users.sf.net>
+
 	* design/gst/controller.c:
 	* design/gst/dynlink2.c:
 	* design/gst/dynlink3.c:

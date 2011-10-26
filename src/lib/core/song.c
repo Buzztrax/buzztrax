@@ -260,19 +260,22 @@ static void bt_song_change_play_rate(const BtSong * const self) {
   GST_INFO("rate %lf, loop %d?",self->priv->play_rate,loop);
   bt_song_update_play_seek_event(self);
 
+  /* in 0.10.24 we do have step events (gst_event_new_step), they require an
+   * initial seek if the direction has changed */
+
   // changing the playback rate should mostly affect sinks
-  // still we need to flush to avoid adder locking up
+  // still we need to flush to avoid adder locking up (fixed in 0.10.35.1 - no?)
   // and we need to give the position to workaround basesrc starting from 0
   if (loop) {
     if(self->priv->play_rate>0.0) {
-      event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+      event=gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
           //GST_SEEK_FLAG_SEGMENT,
           GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
           GST_SEEK_TYPE_SET, loop_end*bar_time);
     }
     else {
-      event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+      event=gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
           //GST_SEEK_FLAG_SEGMENT,
           GST_SEEK_TYPE_SET, loop_start*bar_time,
@@ -281,14 +284,14 @@ static void bt_song_change_play_rate(const BtSong * const self) {
   }
   else {
     if(self->priv->play_rate>0.0) {
-      event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+      event=gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH,
           //GST_SEEK_FLAG_NONE,
           GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
           GST_SEEK_TYPE_SET, (length+1)*bar_time);
     }
     else {
-      event = gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
+      event=gst_event_new_seek(self->priv->play_rate, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH,
           //GST_SEEK_FLAG_NONE,
           GST_SEEK_TYPE_SET, G_GINT64_CONSTANT(0),
