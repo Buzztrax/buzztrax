@@ -689,6 +689,33 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
   return(is_connected);
 }
 
+static void update_play_seek_event(const BtSetup *self) {
+  BtSequence *sequence;
+  gboolean loop;
+  glong loop_end,length;
+  gulong play_pos;
+  GstClockTime bar_time;
+
+  bt_song_update_playback_position(self->priv->song);
+  g_object_get(self->priv->song,"sequence",&sequence,"play-pos",&play_pos,NULL);
+  g_object_get(sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
+  bar_time=bt_sequence_get_bar_time(sequence);
+  // configure self->priv->play_seek_event (sent to newly activated elements)
+  if (loop) {
+    self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_TYPE_SET, play_pos*bar_time,
+        GST_SEEK_TYPE_SET, (loop_end+0)*bar_time);
+  }
+  else {
+    self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH,
+        GST_SEEK_TYPE_SET, play_pos*bar_time,
+        GST_SEEK_TYPE_SET, (length+1)*bar_time);
+  }
+  g_object_unref(sequence);
+}
+
 static void add_machine_in_pipeline(gpointer key,gpointer value,gpointer user_data) {
   if((GPOINTER_TO_INT(value)==CS_CONNECTING) && BT_IS_MACHINE(key)) {
     const BtSetup * const self=BT_SETUP(user_data);
@@ -822,33 +849,11 @@ static void update_connection_states(gpointer key,gpointer value,gpointer user_d
 
 static void update_pipeline(const BtSetup * const self) {
   GSList *node;
-  BtSequence *sequence;
-  gboolean loop;
-  glong loop_end,length;
-  gulong play_pos;
-  GstClockTime bar_time;
 
   GST_INFO("updating pipeline ----------------------------------------");
 
   // query segment and position
-  bt_song_update_playback_position(self->priv->song);
-  g_object_get(self->priv->song,"sequence",&sequence,"play-pos",&play_pos,NULL);
-  g_object_get(sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
-  bar_time=bt_sequence_get_bar_time(sequence);
-  // configure self->priv->play_seek_event (sent to newly activated elements)
-  if (loop) {
-    self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, play_pos*bar_time,
-        GST_SEEK_TYPE_SET, (loop_end+0)*bar_time);
-  }
-  else {
-    self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH,
-        GST_SEEK_TYPE_SET, play_pos*bar_time,
-        GST_SEEK_TYPE_SET, (length+1)*bar_time);
-  }
-  g_object_unref(sequence);
+  update_play_seek_event(self);
 
   GST_INFO("add machines");
   g_hash_table_foreach(self->priv->connection_state,add_machine_in_pipeline,(gpointer)self);
@@ -1152,31 +1157,6 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
   GST_DEBUG("no machine found for id \"%s\"",id);
   return(NULL);
 }
-
-#if 0
-// @todo: remove this - its not used (besides in a test), the position is kind of internal
-/*
- * bt_setup_get_machine_by_index:
- * @self: the setup to search for the machine
- * @index: the list-position of the machine
- *
- * search the setup for a machine by the supplied index position.
- * The machine must have been added previously to this setup with bt_setup_add_machine().
- * Unref the machine, when done with it.
- *
- * Returns: #BtMachine instance or %NULL if not found
- */
-BtMachine *bt_setup_get_machine_by_index(const BtSetup * const self, const gulong index) {
-  BtMachine *machine;
-
-  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-
-  if((machine=g_list_nth_data(self->priv->machines,(guint)index))) {
-    return(g_object_ref(machine));
-  }
-  return(NULL);
-}
-#endif
 
 /**
  * bt_setup_get_machine_by_type:

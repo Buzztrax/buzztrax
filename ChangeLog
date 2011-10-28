@@ -1,3 +1,8 @@
+2011-10-28  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Refactor updating play_seek_event, remove dead code.
+
 2011-10-26  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:
