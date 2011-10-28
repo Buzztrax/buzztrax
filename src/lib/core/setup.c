@@ -542,9 +542,9 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
       // check using gst_pad_is_active
       //if(!GST_OBJECT_FLAG_IS_SET (dst_pad, GST_PAD_FLUSHING) && !GST_OBJECT_FLAG_IS_SET (src_pad, GST_PAD_FLUSHING)) {
       if(gst_pad_is_active(src_pad)) {
-        // TODO: does it make any sense to block this pad if we are going to unref it below?
-        // - do we ev. use weak pointers to avoid trying to unblock pads in update_pipeline()
-        //   that have been disposed
+        // if we remove the element the pads go flushing and that unblocks
+        // we ref the pad anyway to be able to unblock it later too
+        // otherwise we'd need week refs to zero/remove the element in the list
         if(gst_pad_set_blocked(src_pad,TRUE)) {
           self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
         }
@@ -754,35 +754,39 @@ static void determine_state_change_lists(gpointer key,gpointer value,gpointer us
   const BtSetup * const self=BT_SETUP(user_data);
 
   if(GPOINTER_TO_INT(value)==CS_CONNECTING) {
+    GST_DEBUG_OBJECT(GST_OBJECT(key),"added to play list with depth=%d",GET_GRAPH_DEPTH(self,key));
     self->priv->elements_to_play=g_list_insert_sorted_with_data(self->priv->elements_to_play,key,sort_by_graph_depth,(gpointer)self);
   }
   else if(GPOINTER_TO_INT(value)==CS_DISCONNECTING) {
+    GST_DEBUG_OBJECT(GST_OBJECT(key),"added to stop list with depth=%d",GET_GRAPH_DEPTH(self,key));
     self->priv->elements_to_stop=g_list_insert_sorted_with_data(self->priv->elements_to_stop,key,sort_by_graph_depth,(gpointer)self);
   }
 }
 
-static void activate_element(const BtSetup * const self,gpointer *key) {
-  GST_INFO_OBJECT(GST_OBJECT(key),"set from %s to %s",
-    gst_element_state_get_name(GST_STATE(key)),
-    gst_element_state_get_name(GST_STATE(GST_OBJECT_PARENT(GST_OBJECT(key)))));
-
+static void activate_element(const BtSetup * const self,gpointer key) {
   if(GST_STATE(GST_OBJECT_PARENT(GST_OBJECT(key)))==GST_STATE_PLAYING) {
+    GST_INFO_OBJECT(GST_OBJECT(key),"set from %s to %s",
+      gst_element_state_get_name(GST_STATE(key)),
+      gst_element_state_get_name(GST_STATE_PLAYING));
+  
     gst_element_set_state(GST_ELEMENT(key),GST_STATE_READY);
     if(!(gst_element_send_event(GST_ELEMENT(key),gst_event_ref(self->priv->play_seek_event)))) {
       GST_WARNING_OBJECT(key,"failed to handle seek event");
     }
     gst_element_set_state(GST_ELEMENT(key),GST_STATE_PLAYING);
   }
-  //gst_element_sync_state_with_parent(GST_ELEMENT(key));
 }
 
-static void deactivate_element(const BtSetup * const self,gpointer *key) {
-  GST_INFO_OBJECT(GST_OBJECT(key),"set from %s to %s",
-    gst_element_state_get_name(GST_STATE(key)),
-    gst_element_state_get_name(GST_STATE_NULL));
-
+static void deactivate_element(const BtSetup * const self,gpointer key) {
   gst_element_set_locked_state(GST_ELEMENT(key),TRUE);
-  gst_element_set_state(GST_ELEMENT(key),GST_STATE_NULL);
+
+  if(GST_STATE(GST_OBJECT_PARENT(GST_OBJECT(key)))==GST_STATE_PLAYING) {
+    GST_INFO_OBJECT(GST_OBJECT(key),"set from %s to %s",
+      gst_element_state_get_name(GST_STATE(key)),
+      gst_element_state_get_name(GST_STATE_PAUSED));
+
+    gst_element_set_state(GST_ELEMENT(key),GST_STATE_NULL);
+  }
 }
 
 static void sync_states(const BtSetup * const self) {
@@ -790,6 +794,14 @@ static void sync_states(const BtSetup * const self) {
   
   if(self->priv->elements_to_play) {
     GST_INFO("starting elements");
+#ifndef GST_DISABLE_DEBUG
+    for(node=self->priv->elements_to_play;node;node=g_list_next(node)) {
+      GST_INFO_OBJECT(GST_OBJECT(node->data),"will be set from %s to %s, depth=%d",
+        gst_element_state_get_name(GST_STATE(node->data)),
+        gst_element_state_get_name(GST_STATE(GST_OBJECT_PARENT(GST_OBJECT(node->data)))),
+        GET_GRAPH_DEPTH(self,node->data));
+    }
+#endif
     for(node=self->priv->elements_to_play;node;node=g_list_next(node)) {
       activate_element(self,node->data);
     }
@@ -798,6 +810,14 @@ static void sync_states(const BtSetup * const self) {
   }
   if(self->priv->elements_to_stop) {
     GST_INFO("stoping elements");
+#ifndef GST_DISABLE_DEBUG
+    for(node=self->priv->elements_to_stop;node;node=g_list_next(node)) {
+      GST_INFO_OBJECT(GST_OBJECT(node->data),"will be set from %s to %s, depth=%d",
+        gst_element_state_get_name(GST_STATE(node->data)),
+        gst_element_state_get_name(GST_STATE_PAUSED),
+        GET_GRAPH_DEPTH(self,node->data));
+    }
+#endif
     for(node=self->priv->elements_to_stop;node;node=g_list_next(node)) {
       deactivate_element(self,node->data);
     }
@@ -870,6 +890,9 @@ static void update_pipeline(const BtSetup * const self) {
   GST_INFO("remove machines");
   g_hash_table_foreach(self->priv->connection_state,del_machine_in_pipeline,(gpointer)self);
   // unblock src pads
+  // @todo: can this actually ever be >1? we update the pipeline on wire
+  // changes, we can only add or remove one wire at a time
+  // only the src-pad that is (dis)connected to/from the active part needs to be blocked
   GST_INFO("unblocking %d pads",g_slist_length(node=self->priv->blocked_pads));
   for(node=self->priv->blocked_pads;node;node=g_slist_next(node)) {
     gst_pad_set_blocked(GST_PAD(node->data),FALSE);
