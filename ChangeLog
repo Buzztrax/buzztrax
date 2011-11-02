@@ -1,3 +1,9 @@
+2011-11-02  Stefan Sauer  <ensonic@users.sf.net>
+
+	* design/gst/tonematrix.c:
+	* design/gst/tonematrix.c (added):
+	  Add a toy example.
+
 2011-10-28  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c:
