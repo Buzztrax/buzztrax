@@ -27,8 +27,6 @@ typedef struct {
   GType wave_enum_type;
   
   /* state */
-  guint scale;
-  guint bpm;
   guint matrix[16][16];
   guint blink;
 } App;
@@ -72,7 +70,8 @@ static void
 my_color_button_init(MyColorButton *color_button)
 {
   GList *c1 = gtk_container_get_children(GTK_CONTAINER(color_button));
-  
+
+  /* less spacing, maybe we should just clone it completely */
   gtk_container_set_border_width (GTK_CONTAINER(color_button), 0);
   if(c1) {
     GtkWidget *w1=GTK_WIDGET(c1->data);
@@ -88,6 +87,10 @@ my_color_button_init(MyColorButton *color_button)
       gtk_frame_set_shadow_type (GTK_FRAME (w2), GTK_SHADOW_IN);
     }
   }
+  
+  /* no drag amnd drop */
+  gtk_drag_source_unset(GTK_WIDGET(color_button));
+  gtk_drag_dest_unset(GTK_WIDGET(color_button));
 }
 
 static GtkWidget*
@@ -279,7 +282,7 @@ done_pipeline(App *app)
 
 /* gtk functions */
 
-/* this is a hack :/, 
+/* this is a hack :/
  * we would need to control some property on the sink and have a notify on it
  * - but that would not be thread safe either
  */
@@ -365,15 +368,9 @@ init_ui(App *app)
   vbox=gtk_vbox_new(FALSE,3);
   gtk_container_add(GTK_CONTAINER(app->window),vbox);
 
-  /* hbox with
-       combo for scale
-       spinner for tempo
-   */
+  /* hbox with: combo for scale, spinner for tempo */
   hbox=gtk_hbox_new(FALSE,3);
   gtk_container_add(GTK_CONTAINER(vbox),hbox);
-  
-  //gtk_container_add(GTK_CONTAINER(hbox), gtk_label_new ("scale"));
-  //gtk_container_add(GTK_CONTAINER(hbox), gtk_label_new ("tempo"));
   
   gtk_container_add(GTK_CONTAINER(hbox), gtk_label_new ("click the cells to trigger tones"));
   
@@ -421,9 +418,6 @@ main (gint argc, gchar **argv)
   gst_controller_init (&argc, &argv);
   gtk_init (&argc, &argv);
   
-  /* set defaults */
-  app.bpm=120;
-
   init_ui(&app);
   init_pipeline(&app);
   gtk_main();

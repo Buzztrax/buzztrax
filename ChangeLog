@@ -1,6 +1,11 @@
 2011-11-02  Stefan Sauer  <ensonic@users.sf.net>
 
 	* design/gst/tonematrix.c:
+	  Remove some cruft and add more comments.
+
+2011-11-02  Stefan Sauer  <ensonic@users.sf.net>
+
+	* design/gst/tonematrix.c:
 	* design/gst/tonematrix.c (added):
 	  Add a toy example.
 
