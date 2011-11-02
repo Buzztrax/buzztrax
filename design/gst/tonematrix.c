@@ -111,9 +111,7 @@ static void start_blink(App *app);
 
 static void
 message_received (GstBus *bus, GstMessage *message, App *app) {
-  const GstStructure *s;
-
-  s = gst_message_get_structure (message);
+  const GstStructure *s = gst_message_get_structure (message);
   g_print ("message from \"%s\" (%s): ",
       GST_STR_NULL (GST_ELEMENT_NAME (GST_MESSAGE_SRC (message))),
       gst_message_type_get_name (GST_MESSAGE_TYPE (message)));
@@ -159,8 +157,7 @@ static void state_changed(GstBus *bus, GstMessage *message, App *app) {
 static void
 set_loop(App *app)
 {
-  // TODO: calculate from bpm
-  // lets assume 4 seconds loop time for now
+  /* lets assume 4 seconds loop time for now (TODO: calculate from bpm) */
   app->loop_time = GST_SECOND * 4;
   app->step_time = app->loop_time / 16;
 }
@@ -171,8 +168,7 @@ set_tones(App *app)
   guint i,note;
   gdouble f[3*12], freq, step;
   guint scales[][7]={
-    /* c-dur */
-    {0,2,4,5,7,9,11},
+    {0,2,4,5,7,9,11}, /* c-dur */
   };
 
   /* calculate frequencies */
@@ -264,7 +260,6 @@ init_pipeline(App *app)
     }
     g_value_unset(&val);
   }
-  
   set_tones(app);
   
   /* play */
@@ -284,8 +279,7 @@ done_pipeline(App *app)
 
 /* this is a hack :/
  * we would need to control some property on the sink and have a notify on it
- * - but that would not be thread safe either
- */
+ * - but that would not be thread safe either */
 static gboolean
 on_blink(gpointer data)
 {
@@ -348,7 +342,7 @@ on_destroy(GtkWidget *widget,gpointer data)
 static void
 init_ui(App *app)
 {
-  GtkWidget *vbox, *hbox;
+  GtkWidget *hbox;
   GtkWidget *matrix, *trigger;
   guint i,j;
   
@@ -362,25 +356,13 @@ init_ui(App *app)
 
   /* the ui window */
   app->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title(GTK_WINDOW(app->window), "Tone Matrix");
+  gtk_window_set_title(GTK_WINDOW(app->window), "Tone Matrix: click the cells to trigger tones");
   g_signal_connect(G_OBJECT(app->window), "destroy",	G_CALLBACK (on_destroy), (gpointer)app);
 
-  vbox=gtk_vbox_new(FALSE,3);
-  gtk_container_add(GTK_CONTAINER(app->window),vbox);
-
-  /* hbox with: combo for scale, spinner for tempo */
   hbox=gtk_hbox_new(FALSE,3);
-  gtk_container_add(GTK_CONTAINER(vbox),hbox);
+  gtk_container_add(GTK_CONTAINER(app->window),hbox);
   
-  gtk_container_add(GTK_CONTAINER(hbox), gtk_label_new ("click the cells to trigger tones"));
-  
-  /* hbox with
-       table with tone trigger buttons + metronome
-       table with tone color->wave legend
-   */
-  hbox=gtk_hbox_new(FALSE,3);
-  gtk_container_add(GTK_CONTAINER(vbox),hbox);
-  
+  /* table with tone trigger buttons + metronome */  
   matrix=gtk_table_new(17,16,TRUE);
   gtk_container_add(GTK_CONTAINER(hbox),matrix);
   for (i=0; i<16; i++) {
@@ -398,6 +380,7 @@ init_ui(App *app)
     gtk_table_attach_defaults(GTK_TABLE(matrix),app->metro[j],j,j+1,16,17);
   }
 
+  /* table with tone color->wave legend */
   matrix=gtk_table_new(WAVES,2,TRUE);
   gtk_container_add(GTK_CONTAINER(hbox),matrix);
   for (i=0; i<WAVES; i++) {
