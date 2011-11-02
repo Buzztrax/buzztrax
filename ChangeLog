@@ -1,6 +1,11 @@
 2011-11-02  Stefan Sauer  <ensonic@users.sf.net>
 
 	* design/gst/tonematrix.c:
+	  Add tempo and scale controls.
+
+2011-11-02  Stefan Sauer  <ensonic@users.sf.net>
+
+	* design/gst/tonematrix.c:
 	  More de-crufting.
 
 2011-11-02  Stefan Sauer  <ensonic@users.sf.net>

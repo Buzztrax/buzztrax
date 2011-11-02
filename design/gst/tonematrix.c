@@ -22,13 +22,15 @@ typedef struct {
   /* gstreamer components */
   GstElement *bin;
   GstElement *src[16];
-  GstInterpolationControlSource *csrc[16];
+  GstInterpolationControlSource *csrc[2][16];
   GstClockTime loop_time, step_time;
   GType wave_enum_type;
   
   /* state */
   guint matrix[16][16];
   guint blink;
+  guint scale;
+  guint bpm;
 } App;
 
 
@@ -36,12 +38,11 @@ typedef struct {
 #define SET_COLOR(c,r,g,b) (c).pixel=0L; (c).red=(r)<<8; (c).green=(g)<<8; (c).blue=(b)<<8
 
 #define WAVES 6
-
 static struct {
   gint ix;
   gchar *name;
   GdkColor color;
-} WaveMap[WAVES] = {
+} waves[WAVES] = {
   { 4, "silence", MAKE_COLOR(0x00,0x00,0x00)},
   { 0, "sine", MAKE_COLOR(0x00,0x00,0x7F)},
   { 1, "square", MAKE_COLOR(0x00,0x00,0xFF)},
@@ -49,6 +50,37 @@ static struct {
   { 3, "triangle", MAKE_COLOR(0x7F,0xFF,0x00)},
   { 5, "white noise", MAKE_COLOR(0xFF,0xFF,0xFF)}  
 };
+
+enum {
+  TONE_C=0,
+  TONE_CIS,
+  TONE_D,
+  TONE_DIS,
+  TONE_E,
+  TONE_F,
+  TONE_FIS,
+  TONE_G,
+  TONE_GIS,
+  TONE_A,
+  TONE_AIS,
+  TONE_H
+};
+
+/* see http://en.wikipedia.org/wiki/Circle_of_fifths_text_table */
+#define SCALES 7
+static struct {
+  guint scale[7];
+  gchar *name;
+} scales[SCALES] = {
+  { {TONE_C,TONE_D,TONE_E,TONE_F,TONE_G,TONE_A,TONE_H}, "c-dur" },
+  { {TONE_CIS,TONE_D,TONE_E,TONE_FIS,TONE_G,TONE_A,TONE_H}, "d-dur" },
+  { {TONE_CIS,TONE_DIS,TONE_E,TONE_FIS,TONE_GIS,TONE_A,TONE_H}, "e-dur" },
+  { {TONE_C,TONE_D,TONE_E,TONE_F,TONE_G,TONE_A,TONE_AIS}, "f-dur" },
+  { {TONE_C,TONE_D,TONE_E,TONE_FIS,TONE_G,TONE_A,TONE_H}, "g-dur" },
+  { {TONE_CIS,TONE_D,TONE_E,TONE_FIS,TONE_GIS,TONE_A,TONE_H}, "a-dur" },
+  { {TONE_CIS,TONE_DIS,TONE_E,TONE_FIS,TONE_GIS,TONE_AIS,TONE_H}, "h-dur" },
+};
+
 
 static GQuark tpos,fpos;
 
@@ -123,7 +155,8 @@ message_received (GstBus *bus, GstMessage *message, App *app) {
   gtk_main_quit();
 }
 
-static void segment_done(GstBus *bus, GstMessage *message, App *app) {
+static void
+segment_done(GstBus *bus, GstMessage *message, App *app) {
   gst_element_send_event(app->bin,
       gst_event_new_seek(1.0, GST_FORMAT_TIME,
           GST_SEEK_FLAG_SEGMENT,
@@ -132,7 +165,8 @@ static void segment_done(GstBus *bus, GstMessage *message, App *app) {
   start_blink(app);
 }
 
-static void state_changed(GstBus *bus, GstMessage *message, App *app) {
+static void
+state_changed(GstBus *bus, GstMessage *message, App *app) {
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(app->bin)) {
     GstState oldstate,newstate,pending;
 
@@ -155,11 +189,48 @@ static void state_changed(GstBus *bus, GstMessage *message, App *app) {
 
 
 static void
-set_loop(App *app)
+set_tempo(App *app)
 {
+  guint i,j;
+  GValue val = { 0, };
+  GstClockTime st;
+  GstInterpolationControlSource *csrc;
+  gdouble vol;
+  
   /* lets assume 4 seconds loop time for now (TODO: calculate from bpm) */
-  app->loop_time = GST_SECOND * 4;
-  app->step_time = app->loop_time / 16;
+  //app->loop_time = GST_SECOND * 4;
+  app->loop_time = (GstClockTime)(0.5+((GST_SECOND*60.0*4.0)/(gdouble)app->bpm));
+  app->step_time = st = app->loop_time / 16;
+
+  for (i=0; i<16; i++) {
+    /* we can have 16 tones at a time, but as there is always some cancelation,
+     * lower the volume a bit less */
+    vol=1.0/10.0;
+
+    /* volume control */
+    csrc = app->csrc[0][i];
+    gst_interpolation_control_source_unset_all (csrc);
+    g_value_init (&val, G_TYPE_DOUBLE);
+    for (j=0;j<16;j++) {
+      g_value_set_double (&val, 0.0);
+      gst_interpolation_control_source_set (csrc, j*st, &val);
+      g_value_set_double (&val, vol);
+      gst_interpolation_control_source_set (csrc, (j+0.05)*st, &val);
+      g_value_set_double (&val, 0.0);
+      gst_interpolation_control_source_set (csrc, (j+0.90)*st, &val);
+    }
+    g_value_unset(&val);
+    
+    /* wave control */
+    csrc = app->csrc[1][i];
+    gst_interpolation_control_source_unset_all (csrc);
+    g_value_init (&val, app->wave_enum_type);
+    for (j=0;j<16;j++) {
+      g_value_set_enum (&val, waves[app->matrix[i][j]].ix);
+      gst_interpolation_control_source_set (csrc, j*st, &val);
+    }
+    g_value_unset(&val);
+  }
 }
 
 static void
@@ -167,9 +238,7 @@ set_tones(App *app)
 {
   guint i,note;
   gdouble f[3*12], freq, step;
-  guint scales[][7]={
-    {0,2,4,5,7,9,11}, /* c-dur */
-  };
+  guint *s=scales[app->scale].scale;
 
   /* calculate frequencies */
   step=pow(2.0,(1.0/12.0));
@@ -180,7 +249,7 @@ set_tones(App *app)
   }
   /* set frequencies for 16 tones for choosen scale */
   for (i=0; i<7; i++) {
-    note=scales[0][i];
+    note=s[i];
     g_object_set(G_OBJECT(app->src[i]), "freq", f[note], NULL);
     g_object_set(G_OBJECT(app->src[7+i]), "freq", f[12+note], NULL);
     if(14+i < 16)
@@ -193,12 +262,9 @@ init_pipeline(App *app)
 {
   GstBus *bus;
   GstElement *src,*mix,*sink;
-  GstInterpolationControlSource *csrc;
   GstController *ctrl;
-  GValue val = { 0, };
-  GstClockTime st;
-  guint i,j;
-  gdouble vol;
+  GstInterpolationControlSource *csrc;
+  guint i;
 
   app->bin = gst_pipeline_new ("song");
   
@@ -214,52 +280,25 @@ init_pipeline(App *app)
   gst_bin_add_many (GST_BIN(app->bin), mix, sink, NULL);
   gst_element_link (mix, sink);
   
-  set_loop(app);
-  st = app->step_time;
-  
   /* create sources and setup the controllers */
   for (i=0; i<16; i++) {
     app->src[i] = src = gst_element_factory_make ("audiotestsrc", NULL);
     gst_bin_add (GST_BIN(app->bin), src);
     gst_element_link (src, mix);
+    g_object_set(G_OBJECT(src), "samplesperbuffer", 128, NULL);
     
-    if(G_UNLIKELY(app->wave_enum_type==0)) {
-      /* grab the enum type after we make the first instance */
-      app->wave_enum_type=g_type_from_name("GstAudioTestSrcWave");
-      g_assert(app->wave_enum_type!=0);    
-    }
-    
-    /* we can have 16 tones at a time, but as there is always some cancelation,
-     * lower the volume a bit less */
-    vol=1.0/10.0;
-
     ctrl = gst_controller_new (G_OBJECT (src), "volume", "wave", NULL);
-    /* volume control */
-    csrc = gst_interpolation_control_source_new ();
+    app->csrc[0][i] = csrc = gst_interpolation_control_source_new ();
     gst_controller_set_control_source (ctrl, "volume", GST_CONTROL_SOURCE (csrc));
     gst_interpolation_control_source_set_interpolation_mode (csrc, GST_INTERPOLATE_LINEAR);
-    g_value_init (&val, G_TYPE_DOUBLE);
-    for (j=0;j<16;j++) {
-      g_value_set_double (&val, 0.0);
-      gst_interpolation_control_source_set (csrc, j*st, &val);
-      g_value_set_double (&val, vol);
-      gst_interpolation_control_source_set (csrc, (j+0.05)*st, &val);
-      g_value_set_double (&val, 0.0);
-      gst_interpolation_control_source_set (csrc, (j+0.90)*st, &val);
-    }
-    g_value_unset(&val);
-    
-    /* wave control */
-    app->csrc[i] = csrc = gst_interpolation_control_source_new ();
+    app->csrc[1][i] = csrc = gst_interpolation_control_source_new ();
     gst_controller_set_control_source (ctrl, "wave", GST_CONTROL_SOURCE (csrc));
     gst_interpolation_control_source_set_interpolation_mode (csrc, GST_INTERPOLATE_NONE);
-    g_value_init (&val, app->wave_enum_type);
-    for (j=0;j<16;j++) {
-      g_value_set_enum (&val, WaveMap[0].ix);
-      gst_interpolation_control_source_set (csrc, j*st, &val);
-    }
-    g_value_unset(&val);
+    
   }
+  /* grab the enum type after we make the first instance */
+  app->wave_enum_type=g_type_from_name("GstAudioTestSrcWave");
+  set_tempo(app);
   set_tones(app);
   
   /* play */
@@ -324,13 +363,37 @@ on_trigger(GtkButton *widget,gpointer data)
     app->matrix[j][i]=0;
 
   /* update cell color */
-  gtk_color_button_set_color(GTK_COLOR_BUTTON(widget), &WaveMap[app->matrix[j][i]].color);
+  gtk_color_button_set_color(GTK_COLOR_BUTTON(widget), &waves[app->matrix[j][i]].color);
   
   /* update controller */
   g_value_init(&val, app->wave_enum_type);
-  g_value_set_enum(&val, WaveMap[app->matrix[j][i]].ix);
-  gst_interpolation_control_source_set(app->csrc[j], i*app->step_time, &val);
+  g_value_set_enum(&val, waves[app->matrix[j][i]].ix);
+  gst_interpolation_control_source_set(app->csrc[1][j], i*app->step_time, &val);
   g_value_unset(&val);
+}
+
+static void
+on_scale_changed(GtkComboBox *widget,gpointer data)
+{
+  App *app = (App *)data;
+  gint active=gtk_combo_box_get_active(widget);
+  
+  if((active!=-1) && (active!=app->scale)) {
+    app->scale=active;
+    set_tones(app);
+  }
+}
+
+static void
+on_tempo_changed(GtkSpinButton *widget,gpointer data)
+{
+  App *app = (App *)data;
+  guint bpm=gtk_spin_button_get_value_as_int(widget);
+  
+  if(bpm!=app->bpm) {
+    app->bpm=bpm;
+    set_tempo(app);
+  }
 }
 
 static void
@@ -342,7 +405,8 @@ on_destroy(GtkWidget *widget,gpointer data)
 static void
 init_ui(App *app)
 {
-  GtkWidget *hbox;
+  GtkWidget *hbox,*vbox;
+  GtkWidget *scale,*tempo;
   GtkWidget *matrix, *trigger;
   guint i,j;
   
@@ -380,12 +444,32 @@ init_ui(App *app)
     gtk_table_attach_defaults(GTK_TABLE(matrix),app->metro[j],j,j+1,16,17);
   }
 
-  /* table with tone color->wave legend */
+  vbox=gtk_vbox_new(FALSE,3);
+  gtk_container_add(GTK_CONTAINER(hbox),vbox);
+  
+  gtk_box_pack_start(GTK_BOX(vbox),gtk_label_new("scale"),FALSE,FALSE,0);
+  scale=gtk_combo_box_new_text();
+  for (i=0; i<SCALES; i++) {
+    gtk_combo_box_append_text(GTK_COMBO_BOX(scale),scales[i].name);
+  }
+  gtk_combo_box_set_active(GTK_COMBO_BOX(scale),app->scale);
+  gtk_box_pack_start(GTK_BOX(vbox),scale,FALSE,FALSE,0);
+  g_signal_connect(G_OBJECT(scale), "changed", G_CALLBACK (on_scale_changed), (gpointer)app);
+  
+  gtk_box_pack_start(GTK_BOX(vbox),gtk_label_new("tempo"),FALSE,FALSE,0);
+  tempo=gtk_spin_button_new_with_range(60,200,5);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(tempo),app->bpm);
+  gtk_box_pack_start(GTK_BOX(vbox),tempo,FALSE,FALSE,0);
+  g_signal_connect(G_OBJECT(tempo), "value-changed", G_CALLBACK (on_tempo_changed), (gpointer)app);
+  
+  gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),FALSE,FALSE,0);
+  
+  /* table with options and tone color->wave legend */
   matrix=gtk_table_new(WAVES,2,TRUE);
-  gtk_container_add(GTK_CONTAINER(hbox),matrix);
+  gtk_container_add(GTK_CONTAINER(vbox),matrix);
   for (i=0; i<WAVES; i++) {
-    gtk_table_attach_defaults(GTK_TABLE(matrix),my_color_button_new_with_color(&WaveMap[i].color),0,1,i,i+1);
-    gtk_table_attach_defaults(GTK_TABLE(matrix),gtk_label_new (WaveMap[i].name),1,2,i,i+1);
+    gtk_table_attach_defaults(GTK_TABLE(matrix),my_color_button_new_with_color(&waves[i].color),0,1,i,i+1);
+    gtk_table_attach_defaults(GTK_TABLE(matrix),gtk_label_new (waves[i].name),1,2,i,i+1);
   }
 
   gtk_widget_show_all(app->window);
@@ -400,6 +484,9 @@ main (gint argc, gchar **argv)
   gst_init (&argc, &argv);
   gst_controller_init (&argc, &argv);
   gtk_init (&argc, &argv);
+  
+  /* defaults */
+  app.bpm=120;
   
   init_ui(&app);
   init_pipeline(&app);
