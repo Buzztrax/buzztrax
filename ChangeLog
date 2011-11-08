@@ -1,3 +1,9 @@
+2011-11-08  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/ic/input-device.c:
+	  Add a missing cast to avoid reinterpreting the values in a wrong way
+	  (caused skips in controller movements).
+
 2011-11-02  Stefan Sauer  <ensonic@users.sf.net>
 
 	* design/gst/tonematrix.c:

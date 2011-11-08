@@ -311,7 +311,7 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
             break;
           case EV_ABS:
             //GST_INFO("abs axis event: value %d, code 0x%x",ev.value,ev.code);
-            g_object_set(control,"value",ev.value,NULL);
+            g_object_set(control,"value",(glong)ev.value,NULL);
             break;
           default:
             GST_INFO("unhandled control event: type 0x%x, value %d, code 0x%x",ev.type,ev.value,ev.code);
