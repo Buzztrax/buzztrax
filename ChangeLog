@@ -1,3 +1,14 @@
+2011-11-15  Stefan Sauer  <ensonic@users.sf.net>
+
+	* design/gst/dynlink3.c:
+	* design/input/gstinput.c:
+	* design/input/uinput.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-bin.c:
+	* design/input/uinput.c (added):
+	* design/input/gstinput.c (added):
+	  More examples.
+
 2011-11-08  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/ic/input-device.c:

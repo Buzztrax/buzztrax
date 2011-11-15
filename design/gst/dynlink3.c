@@ -47,7 +47,7 @@
 #include <stdlib.h>
 #include <gst/gst.h>
 
-#define SINK_NAME "alsasink"
+#define SINK_NAME "pulsesink"
 #define FX_NAME "volume"
 #define SRC_NAME "audiotestsrc"
 
@@ -219,8 +219,8 @@ make_sink (Graph * g, const gchar * m_name)
 }
 
 #if GST_CHECK_VERSION(0,11,0)
-static GstProbeReturn
-post_link_add (GstPad *pad, GstProbeType type, gpointer type_data, gpointer user_data)
+static GstPadProbeReturn
+post_link_add (GstPad *pad, GstPadProbeType type, gpointer type_data, gpointer user_data)
 #else
 static void
 post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
@@ -284,7 +284,7 @@ post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
       g_timeout_add_seconds (1, (GSourceFunc) do_test_step, g);
 
 #if GST_CHECK_VERSION(0,11,0)
-  return GST_PROBE_REMOVE;
+  return GST_PAD_PROBE_REMOVE;
 #endif
 }
 
@@ -321,7 +321,13 @@ link_add (Graph * g, gint s, gint d)
   gst_bin_add (w->bin, w->queue);
 
   /* request machine pads */
-  w->peer_src = gst_element_get_request_pad (ms->tee, "src%d");
+  w->peer_src = gst_element_get_request_pad (ms->tee,
+#if GST_CHECK_VERSION(0,11,0)
+    "src_%u"
+#else
+    "src%d"
+#endif
+  );
   g_assert (w->peer_src);
   w->peer_src_ghost = gst_ghost_pad_new (NULL, w->peer_src);
   g_assert (w->peer_src_ghost);
@@ -331,7 +337,13 @@ link_add (Graph * g, gint s, gint d)
   gst_element_add_pad ((GstElement *) ms->bin, w->peer_src_ghost);
   ms->pads++;
 
-  w->peer_dst = gst_element_get_request_pad (md->mix, "sink%d");
+  w->peer_dst = gst_element_get_request_pad (md->mix, 
+#if GST_CHECK_VERSION(0,11,0)
+    "sink_%u"
+#else
+    "sink%d"
+#endif
+  );
   g_assert (w->peer_dst);
   w->peer_dst_ghost = gst_ghost_pad_new (NULL, w->peer_dst);
   g_assert (w->peer_dst_ghost);
@@ -366,7 +378,7 @@ link_add (Graph * g, gint s, gint d)
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
 #if GST_CHECK_VERSION(0,11,0)
-    blocked = (gst_pad_add_probe (w->peer_dst, GST_PROBE_TYPE_BLOCK, post_link_add, w, NULL) != 0);
+    blocked = (gst_pad_add_probe (w->peer_dst, GST_PAD_PROBE_TYPE_BLOCK, post_link_add, w, NULL) != 0);
 #else
     blocked = gst_pad_set_blocked_async (w->peer_dst, TRUE, post_link_add, w);
 #endif
@@ -394,7 +406,7 @@ link_add (Graph * g, gint s, gint d)
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
 #if GST_CHECK_VERSION(0,11,0)
-      post_link_add (NULL, GST_PROBE_TYPE_BLOCK, NULL, w);
+      post_link_add (NULL, GST_PAD_PROBE_TYPE_BLOCK, NULL, w);
 #else
       post_link_add (NULL, TRUE, w);
 #endif
@@ -402,8 +414,8 @@ link_add (Graph * g, gint s, gint d)
 }
 
 #if GST_CHECK_VERSION(0,11,0)
-static GstProbeReturn
-post_link_rem (GstPad *pad, GstProbeType type, gpointer type_data, gpointer user_data)
+static GstPadProbeReturn
+post_link_rem (GstPad *pad, GstPadProbeType type, gpointer type_data, gpointer user_data)
 #else
 static void
 post_link_rem (GstPad * pad, gboolean blocked, gpointer user_data)
@@ -470,7 +482,7 @@ post_link_rem (GstPad * pad, gboolean blocked, gpointer user_data)
     g_timeout_add_seconds (1, (GSourceFunc) do_test_step, g);
 
 #if GST_CHECK_VERSION(0,11,0)
-  return GST_PROBE_REMOVE;
+  return GST_PAD_PROBE_REMOVE;
 #endif
 }
 
@@ -493,7 +505,7 @@ link_rem (Graph * g, gint s, gint d)
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
 #if GST_CHECK_VERSION(0,11,0)
-    blocked = (gst_pad_add_probe (w->peer_dst, GST_PROBE_TYPE_BLOCK, post_link_rem, w, NULL) != 0);
+    blocked = (gst_pad_add_probe (w->peer_dst, GST_PAD_PROBE_TYPE_BLOCK, post_link_rem, w, NULL) != 0);
 #else
     blocked = gst_pad_set_blocked_async (w->peer_dst, TRUE, post_link_rem, w);
 #endif
@@ -503,7 +515,7 @@ link_rem (Graph * g, gint s, gint d)
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
 #if GST_CHECK_VERSION(0,11,0)
-    post_link_rem (NULL, GST_PROBE_TYPE_BLOCK, NULL, w);
+    post_link_rem (NULL, GST_PAD_PROBE_TYPE_BLOCK, NULL, w);
 #else
     post_link_rem (NULL, TRUE, w);
 #endif

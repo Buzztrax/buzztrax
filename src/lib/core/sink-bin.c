@@ -276,7 +276,7 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
       // - live playback
       // - changing properties
       // maybe we can make this an option (for fast machines)
-      // chunk>>=6;
+      chunk>>=6;
 
       GST_INFO("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
         chunk, (chunk/G_GINT64_CONSTANT(1000)));
@@ -512,7 +512,7 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
   g_object_set(element,
     "location",self->priv->record_file_name,
     // only for recording in in realtime and not as fast as we can
-    //"sync",TRUE,
+    "sync",TRUE,
     NULL);
   list=g_list_append(list,element);
   return(list);

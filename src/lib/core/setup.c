@@ -253,6 +253,17 @@
  *   to avoid this when loading songs.
  */
 
+/* dynamic changes:
+- we need to block the srcpad into adder
+- then when blocked, set all elements to NULL (going upstream)
+- unlink
+- then release the adder sinkpad to continue
+*/
+
+// uncomment to use pad-blocking, might do more harm than help
+// see gst-plugins-base/tests/examples/dynamic/sprinkl3.c
+//#define USE_PAD_BLOCK
+
 #define BT_CORE
 #define BT_SETUP_C
 
@@ -322,14 +333,18 @@ struct _BtSetupPrivate {
 
   /* state of elements (wires and machines) as BtSetupConnectionState */
   GHashTable *connection_state;
+  GList *machines_to_add,*wires_to_add,*machines_to_del,*wires_to_del;
   /* depth in the graph, master=0, wires odd, machines even numbers */
   GHashTable *graph_depth;
   /* list of blocked pads, to unlock after updates */
+#ifdef USE_PAD_BLOCK
   GSList *blocked_pads;
+#endif
   GList *elements_to_play,*elements_to_stop;
 
-  /* seek event for dynamically added elements */
+  /* see/newsegment event for dynamically added elements */
   GstEvent *play_seek_event;
+  GstEvent *play_newsegment_event;
 };
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -474,14 +489,16 @@ static gboolean link_wire(const BtSetup * const self,GstElement *wire,GstElement
   GST_INFO_OBJECT(dst_pad,"linking start of wire");
   if(!(peer=gst_pad_get_peer(dst_pad))) {
     if((src_pad=gst_element_get_request_pad(GST_ELEMENT(src_machine),"src%d"))) {
+#if USE_PAD_BLOCK
       if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/
         (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
         if(gst_pad_is_active(src_pad)) {
           if(gst_pad_set_blocked(src_pad,TRUE)) {
-            self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+            self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,gst_object_ref(src_pad));
           }
         }
       }
+#endif
       if(GST_PAD_LINK_FAILED(link_res=gst_pad_link(src_pad,dst_pad))) {
         GST_WARNING("Can't link start of wire : %s", bt_gst_debug_pad_link_return(link_res,src_pad,dst_pad));
         res = FALSE;
@@ -530,13 +547,29 @@ Error:
 static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *src_machine,GstElement *dst_machine) {
   GstPad *src_pad,*dst_pad;
 
+  // unlink end of wire
+  src_pad=gst_element_get_static_pad(wire,"src");
+  GST_INFO_OBJECT(src_pad,"unlinking end of wire");
+  if((dst_pad=gst_pad_get_peer(src_pad))) {
+    gst_pad_unlink(src_pad,dst_pad);
+    gst_pad_send_event(dst_pad, gst_event_new_eos());
+    GST_INFO_OBJECT(dst_pad,"sent eos event");
+    gst_element_release_request_pad(dst_machine,dst_pad);
+    // unref twice: one for gst_pad_get_peer() and once for the request_pad
+    gst_object_unref(dst_pad);gst_object_unref(dst_pad);
+  }
+  else {
+    GST_WARNING_OBJECT(src_pad, "wire is not linked to dst %s", GST_OBJECT_NAME(dst_machine));
+  }
+  gst_object_unref(src_pad);
+
   // unlink start of wire
   dst_pad=gst_element_get_static_pad(wire,"sink");
   GST_INFO_OBJECT(dst_pad,"unlinking start of wire");
   if((src_pad=gst_pad_get_peer(dst_pad))) {
+#ifdef USE_PAD_BLOCK
     if(/*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) ||*/
       (GST_STATE(src_machine)==GST_STATE_PLAYING)) {
-      /*
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(self->priv->bin, GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME);
       // this causes trouble if the pads are flushing and/or GST_PAD_ACTIVATE_MODE(pad)==GST_ACTIVATE_NONE
       // check using gst_pad_is_active
@@ -546,11 +579,11 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
         // we ref the pad anyway to be able to unblock it later too
         // otherwise we'd need week refs to zero/remove the element in the list
         if(gst_pad_set_blocked(src_pad,TRUE)) {
-          self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,src_pad);
+          self->priv->blocked_pads=g_slist_prepend(self->priv->blocked_pads,gst_object_ref(src_pad));
         }
       }
-      */
     }
+#endif
     gst_pad_unlink(src_pad,dst_pad);
     gst_element_release_request_pad(src_machine,src_pad);
     // unref twice: one for gst_pad_get_peer() and once for the request_pad
@@ -560,20 +593,6 @@ static void unlink_wire(const BtSetup * const self,GstElement *wire,GstElement *
     GST_WARNING_OBJECT(dst_pad, "wire is not linked to src %s", GST_OBJECT_NAME(src_machine));
   }
   gst_object_unref(dst_pad);
-
-  src_pad=gst_element_get_static_pad(wire,"src");
-  GST_INFO_OBJECT(src_pad,"unlinking end of wire");
-  if((dst_pad=gst_pad_get_peer(src_pad))) {
-    gst_pad_unlink(src_pad,dst_pad);
-    gst_pad_send_event(dst_pad, gst_event_new_eos ());
-    gst_element_release_request_pad(dst_machine,dst_pad);
-    // unref twice: one for gst_pad_get_peer() and once for the request_pad
-    gst_object_unref(dst_pad);gst_object_unref(dst_pad);
-  }
-  else {
-    GST_WARNING_OBJECT(src_pad, "wire is not linked to dst %s", GST_OBJECT_NAME(dst_machine));
-  }
-  gst_object_unref(src_pad);
 }
 
 /*
@@ -695,54 +714,32 @@ static void update_play_seek_event(const BtSetup *self) {
   glong loop_end,length;
   gulong play_pos;
   GstClockTime bar_time;
+  GstClockTime start, stop;
 
   bt_song_update_playback_position(self->priv->song);
   g_object_get(self->priv->song,"sequence",&sequence,"play-pos",&play_pos,NULL);
   g_object_get(sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
   bar_time=bt_sequence_get_bar_time(sequence);
+  start=play_pos*bar_time;
   // configure self->priv->play_seek_event (sent to newly activated elements)
   if (loop) {
-    self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+    stop=(loop_end+0)*bar_time;
+    self->priv->play_seek_event=gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, play_pos*bar_time,
-        GST_SEEK_TYPE_SET, (loop_end+0)*bar_time);
+        GST_SEEK_TYPE_SET, start, GST_SEEK_TYPE_SET, stop);
   }
   else {
-    self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+    stop=(length+1)*bar_time;
+    self->priv->play_seek_event=gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH,
-        GST_SEEK_TYPE_SET, play_pos*bar_time,
-        GST_SEEK_TYPE_SET, (length+1)*bar_time);
+        GST_SEEK_TYPE_SET, start, GST_SEEK_TYPE_SET, stop);
   }
+  self->priv->play_newsegment_event=gst_event_new_new_segment(FALSE, 1.0, GST_FORMAT_TIME,
+      start, stop, start);
   g_object_unref(sequence);
 }
 
-static void add_machine_in_pipeline(gpointer key,gpointer value,gpointer user_data) {
-  if((GPOINTER_TO_INT(value)==CS_CONNECTING) && BT_IS_MACHINE(key)) {
-    const BtSetup * const self=BT_SETUP(user_data);
-
-    GST_INFO_OBJECT(key,"add machine");
-    update_bin_in_pipeline(self,GST_BIN(key),TRUE,NULL);
-  }
-}
-
-static void add_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data) {
-  if((GPOINTER_TO_INT(value)==CS_CONNECTING) && BT_IS_WIRE(key)) {
-    const BtSetup * const self=BT_SETUP(user_data);
-    GstElement *src,*dst;
-
-    GST_INFO_OBJECT(key,"add & link wire");
-    update_bin_in_pipeline(self,GST_BIN(key),TRUE,NULL);
-
-    g_object_get(key,"src",&src,"dst",&dst,NULL);
-    link_wire(self,GST_ELEMENT(key),src,dst);
-    // @todo: what to do if it fails? We should always be able to link in theory
-    // maybe dump extensive diagnostics to add debugging
-    g_object_unref(src);
-    g_object_unref(dst);
-  }
-}
-
-static gint sort_by_graph_depth(gconstpointer e1, gconstpointer e2,gpointer user_data) {
+static gint sort_by_graph_depth_asc(gconstpointer e1, gconstpointer e2,gpointer user_data) {
   const BtSetup * const self=BT_SETUP(user_data);
   gint d1=GET_GRAPH_DEPTH(self,e1);
   gint d2=GET_GRAPH_DEPTH(self,e2);
@@ -750,28 +747,115 @@ static gint sort_by_graph_depth(gconstpointer e1, gconstpointer e2,gpointer user
   return(d1-d2);
 }
 
+static gint sort_by_graph_depth_desc(gconstpointer e1, gconstpointer e2,gpointer user_data) {
+  const BtSetup * const self=BT_SETUP(user_data);
+  gint d1=GET_GRAPH_DEPTH(self,e1);
+  gint d2=GET_GRAPH_DEPTH(self,e2);
+
+  return(d1-d2);
+}
+
+static void prepare_add_del(gpointer key,gpointer value,gpointer user_data) {
+  const BtSetup * const self=BT_SETUP(user_data);
+
+  if(GPOINTER_TO_INT(value)==CS_CONNECTING) {
+    if(BT_IS_MACHINE(key)) {
+      self->priv->machines_to_add=g_list_insert_sorted_with_data(self->priv->machines_to_add,key,sort_by_graph_depth_asc,(gpointer)self);
+    } else {
+      self->priv->wires_to_add=g_list_insert_sorted_with_data(self->priv->wires_to_add,key,sort_by_graph_depth_asc,(gpointer)self);
+    }
+  } else if(GPOINTER_TO_INT(value)==CS_DISCONNECTING) {
+    if(BT_IS_MACHINE(key)) {
+      self->priv->machines_to_del=g_list_insert_sorted_with_data(self->priv->machines_to_del,key,sort_by_graph_depth_desc,(gpointer)self);
+    } else {
+      self->priv->wires_to_del=g_list_insert_sorted_with_data(self->priv->wires_to_del,key,sort_by_graph_depth_desc,(gpointer)self);
+    }
+  }
+}
+
+static void add_machine_in_pipeline(gpointer key,gpointer user_data) {
+  const BtSetup * const self=BT_SETUP(user_data);
+
+  GST_INFO_OBJECT(key,"add machine");
+  update_bin_in_pipeline(self,GST_BIN(key),TRUE,NULL);
+}
+
+static void add_wire_in_pipeline(gpointer key,gpointer user_data) {
+  const BtSetup * const self=BT_SETUP(user_data);
+  GstElement *src,*dst;
+
+  GST_INFO_OBJECT(key,"add & link wire");
+  update_bin_in_pipeline(self,GST_BIN(key),TRUE,NULL);
+
+  g_object_get(key,"src",&src,"dst",&dst,NULL);
+  link_wire(self,GST_ELEMENT(key),src,dst);
+  // @todo: what to do if it fails? We should always be able to link in theory
+  // maybe dump extensive diagnostics to add debugging
+  g_object_unref(src);
+  g_object_unref(dst);
+}
+
+static void del_wire_in_pipeline(gpointer key,gpointer user_data) {
+  const BtSetup * const self=BT_SETUP(user_data);
+  GstElement *src,*dst;
+
+  GST_INFO_OBJECT(key,"remove & unlink wire");
+  g_object_get(key,"src",&src,"dst",&dst,NULL);
+  unlink_wire(self,GST_ELEMENT(key),src,dst);
+  g_object_unref(src);
+  g_object_unref(dst);
+
+  update_bin_in_pipeline(self,GST_BIN(key),FALSE,NULL);
+}
+
+static void del_machine_in_pipeline(gpointer key,gpointer user_data) {
+  const BtSetup * const self=BT_SETUP(user_data);
+
+  GST_INFO_OBJECT(key,"remove machine");
+  update_bin_in_pipeline(self,GST_BIN(key),FALSE,NULL);
+}
+
 static void determine_state_change_lists(gpointer key,gpointer value,gpointer user_data) {
   const BtSetup * const self=BT_SETUP(user_data);
 
   if(GPOINTER_TO_INT(value)==CS_CONNECTING) {
+    // list starts with elements close to the sink
     GST_DEBUG_OBJECT(GST_OBJECT(key),"added to play list with depth=%d",GET_GRAPH_DEPTH(self,key));
-    self->priv->elements_to_play=g_list_insert_sorted_with_data(self->priv->elements_to_play,key,sort_by_graph_depth,(gpointer)self);
+    self->priv->elements_to_play=g_list_insert_sorted_with_data(self->priv->elements_to_play,key,sort_by_graph_depth_asc,(gpointer)self);
   }
   else if(GPOINTER_TO_INT(value)==CS_DISCONNECTING) {
+    // list starts with elements away from the sink
     GST_DEBUG_OBJECT(GST_OBJECT(key),"added to stop list with depth=%d",GET_GRAPH_DEPTH(self,key));
-    self->priv->elements_to_stop=g_list_insert_sorted_with_data(self->priv->elements_to_stop,key,sort_by_graph_depth,(gpointer)self);
+    self->priv->elements_to_stop=g_list_insert_sorted_with_data(self->priv->elements_to_stop,key,sort_by_graph_depth_desc,(gpointer)self);
   }
 }
 
 static void activate_element(const BtSetup * const self,gpointer key) {
+  gst_element_set_locked_state(GST_ELEMENT(key),FALSE);
+
   if(GST_STATE(GST_OBJECT_PARENT(GST_OBJECT(key)))==GST_STATE_PLAYING) {
     GST_INFO_OBJECT(GST_OBJECT(key),"set from %s to %s",
       gst_element_state_get_name(GST_STATE(key)),
       gst_element_state_get_name(GST_STATE_PLAYING));
   
-    gst_element_set_state(GST_ELEMENT(key),GST_STATE_READY);
-    if(!(gst_element_send_event(GST_ELEMENT(key),gst_event_ref(self->priv->play_seek_event)))) {
-      GST_WARNING_OBJECT(key,"failed to handle seek event");
+    if(BT_IS_SOURCE_MACHINE(key)) {
+      // @todo: this is causing the lockups in the tests under valgrind
+      // it is not the flush-flag of the seek
+      // collect-pads needs a newsegment to define the segment on the pad for the clipfunc
+      // seek in read will ensure it, but is somewhat non-standard
+      // as a downside, we run into trouble at segment done
+      // we're trying to address that with the newsegment below, 
+      // but that only needs to be send to the active part we're linking to 
+      gst_element_set_state(GST_ELEMENT(key),GST_STATE_READY);
+      if(!(gst_element_send_event(GST_ELEMENT(key),gst_event_ref(self->priv->play_seek_event)))) {
+        GST_WARNING_OBJECT(key,"failed to handle seek event");
+      }
+      GST_INFO_OBJECT(key,"sent seek event");
+    } else {
+      if(!(gst_element_send_event(GST_ELEMENT(key),gst_event_ref(self->priv->play_newsegment_event)))) {
+        GST_WARNING_OBJECT(key,"failed to handle newsegment event");
+      }
+      GST_INFO_OBJECT(key,"sent newsegment event");
     }
     gst_element_set_state(GST_ELEMENT(key),GST_STATE_PLAYING);
   }
@@ -785,7 +869,7 @@ static void deactivate_element(const BtSetup * const self,gpointer key) {
       gst_element_state_get_name(GST_STATE(key)),
       gst_element_state_get_name(GST_STATE_PAUSED));
 
-    gst_element_set_state(GST_ELEMENT(key),GST_STATE_NULL);
+    gst_element_set_state(GST_ELEMENT(key),GST_STATE_READY);
   }
 }
 
@@ -826,30 +910,6 @@ static void sync_states(const BtSetup * const self) {
   }
 }
 
-static void del_wire_in_pipeline(gpointer key,gpointer value,gpointer user_data) {
-  if((GPOINTER_TO_INT(value)==CS_DISCONNECTING) && BT_IS_WIRE(key)) {
-    const BtSetup * const self=BT_SETUP(user_data);
-    GstElement *src,*dst;
-
-    GST_INFO_OBJECT(key,"remove & unlink wire");
-    g_object_get(key,"src",&src,"dst",&dst,NULL);
-    unlink_wire(self,GST_ELEMENT(key),src,dst);
-    g_object_unref(src);
-    g_object_unref(dst);
-
-    update_bin_in_pipeline(self,GST_BIN(key),FALSE,NULL);
-  }
-}
-
-static void del_machine_in_pipeline(gpointer key,gpointer value,gpointer user_data) {
-  if((GPOINTER_TO_INT(value)==CS_DISCONNECTING) && BT_IS_MACHINE(key)) {
-    const BtSetup * const self=BT_SETUP(user_data);
-
-    GST_INFO_OBJECT(key,"remove machine");
-    update_bin_in_pipeline(self,GST_BIN(key),FALSE,NULL);
-  }
-}
-
 static void update_connection_states(gpointer key,gpointer value,gpointer user_data) {
   const BtSetup * const self=BT_SETUP(user_data);
 
@@ -862,23 +922,41 @@ static void update_connection_states(gpointer key,gpointer value,gpointer user_d
     set_connected(self,GST_BIN(key));
   }
   else if(GPOINTER_TO_INT(value)==CS_DISCONNECTING) {
-    gst_element_set_locked_state(GST_ELEMENT(key), FALSE);
     set_disconnected(self,GST_BIN(key));
   }
 }
 
 static void update_pipeline(const BtSetup * const self) {
-  GSList *node;
-
   GST_INFO("updating pipeline ----------------------------------------");
+  
+  // do *one* g_hash_table_foreach and topologically sort machines and wires into 4 lists
+  g_hash_table_foreach(self->priv->connection_state,prepare_add_del,(gpointer)self);
+  GST_INFO("adding m=%d, w=%d and removing m=%d, w=%d",
+    g_list_length(self->priv->machines_to_add),g_list_length(self->priv->wires_to_add),
+    g_list_length(self->priv->machines_to_del),g_list_length(self->priv->wires_to_del));
 
   // query segment and position
   update_play_seek_event(self);
 
+  // {add|del}_wire_in_pipeline can add pads to the self->priv->blocked_pads list
+  // from {link|unlink}_wire. this is more complicated that it needs to be.
+  //
+  // 1.) when (un)linking a sink pad on an active element hat operates in
+  //     push mode, we only need to block the most downstream src-pad
+  //     (either g_list_first(wires_to_add):src or g_list_last(wires_to_del):src)
+  // 2.) when (un)linking a src pad on an active element hat operates in push
+  //     mode, we only need to block the pad itself
+  //
+  // 3.) we either add or remove stuff on exactly on pad at a time in practise
+  //
+  // this should make it easier to split the update into two parts to correctly
+  // handle the async pad blocking
   GST_INFO("add machines");
-  g_hash_table_foreach(self->priv->connection_state,add_machine_in_pipeline,(gpointer)self);
+  g_list_foreach(self->priv->machines_to_add,add_machine_in_pipeline,(gpointer)self);
   GST_INFO("add and link wires");
-  g_hash_table_foreach(self->priv->connection_state,add_wire_in_pipeline,(gpointer)self);
+  g_list_foreach(self->priv->wires_to_add,add_wire_in_pipeline,(gpointer)self);
+  
+  // if we have blocked pads, we would need to ensure here, that the blocking is done
   // builds elements_to_{play|stop} lists
   GST_INFO("determine state change lists");
   g_hash_table_foreach(self->priv->connection_state,determine_state_change_lists,(gpointer)self);
@@ -886,24 +964,39 @@ static void update_pipeline(const BtSetup * const self) {
   GST_INFO("sync states");
   sync_states(self);
   GST_INFO("unlink and remove wires");
-  g_hash_table_foreach(self->priv->connection_state,del_wire_in_pipeline,(gpointer)self);
+  g_list_foreach(self->priv->wires_to_del,del_wire_in_pipeline,(gpointer)self);
   GST_INFO("remove machines");
-  g_hash_table_foreach(self->priv->connection_state,del_machine_in_pipeline,(gpointer)self);
+  g_list_foreach(self->priv->machines_to_del,del_machine_in_pipeline,(gpointer)self);
+
+  // free the lists  
+  g_list_free(self->priv->machines_to_add);
+  self->priv->machines_to_add=NULL;
+  g_list_free(self->priv->wires_to_add);
+  self->priv->wires_to_add=NULL;
+  g_list_free(self->priv->machines_to_del);
+  self->priv->machines_to_del=NULL;
+  g_list_free(self->priv->wires_to_del);
+  self->priv->wires_to_del=NULL;
+  
+#ifdef USE_PAD_BLOCK
   // unblock src pads
   // @todo: can this actually ever be >1? we update the pipeline on wire
   // changes, we can only add or remove one wire at a time
   // only the src-pad that is (dis)connected to/from the active part needs to be blocked
-  GST_INFO("unblocking %d pads",g_slist_length(node=self->priv->blocked_pads));
+  GST_INFO("unblocking %d pads",g_slist_length(self->priv->blocked_pads));
+  GSList *node;
   for(node=self->priv->blocked_pads;node;node=g_slist_next(node)) {
     gst_pad_set_blocked(GST_PAD(node->data),FALSE);
+    gst_object_unref(GST_OBJECT(node->data));
   }
   g_slist_free(self->priv->blocked_pads);
   self->priv->blocked_pads=NULL;
+#endif
   GST_INFO("update connection states");
   g_hash_table_foreach(self->priv->connection_state,update_connection_states,(gpointer)self);
   GST_INFO("pipeline updated ----------------------------------------");
-  gst_event_unref(self->priv->play_seek_event);
-  self->priv->play_seek_event=NULL;
+  gst_event_replace(&self->priv->play_seek_event,NULL);
+  gst_event_replace(&self->priv->play_newsegment_event,NULL);
 }
 
 /*
