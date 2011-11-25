@@ -220,7 +220,7 @@ make_sink (Graph * g, const gchar * m_name)
 
 #if GST_CHECK_VERSION(0,11,0)
 static GstPadProbeReturn
-post_link_add (GstPad *pad, GstPadProbeType type, gpointer type_data, gpointer user_data)
+post_link_add (GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
 #else
 static void
 post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
@@ -406,7 +406,7 @@ link_add (Graph * g, gint s, gint d)
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
 #if GST_CHECK_VERSION(0,11,0)
-      post_link_add (NULL, GST_PAD_PROBE_TYPE_BLOCK, NULL, w);
+      post_link_add (NULL, NULL, w);
 #else
       post_link_add (NULL, TRUE, w);
 #endif
@@ -415,7 +415,7 @@ link_add (Graph * g, gint s, gint d)
 
 #if GST_CHECK_VERSION(0,11,0)
 static GstPadProbeReturn
-post_link_rem (GstPad *pad, GstPadProbeType type, gpointer type_data, gpointer user_data)
+post_link_rem (GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
 #else
 static void
 post_link_rem (GstPad * pad, gboolean blocked, gpointer user_data)
@@ -515,7 +515,7 @@ link_rem (Graph * g, gint s, gint d)
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
 #if GST_CHECK_VERSION(0,11,0)
-    post_link_rem (NULL, GST_PAD_PROBE_TYPE_BLOCK, NULL, w);
+    post_link_rem (NULL, NULL, w);
 #else
     post_link_rem (NULL, TRUE, w);
 #endif
