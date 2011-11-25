@@ -130,9 +130,18 @@ analyzer_result (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
       gst_structure_get_uint(face, "width", &w);
       gst_structure_get_uint(face, "height", &h);
       
-      printf ("face 1/%d, values: %u,%u : %u,%u\n", faces, x,y,w,h);
+      //printf ("face 1/%d, values: %u,%u : %u,%u\n", faces, x,y,w,h);
       
-      // need to have image resolution
+      // synthesize events
+      memset(&event, 0, sizeof(event));
+      gettimeofday(&event.time, NULL);
+      event.type = EV_ABS;
+      event.code = ABS_X;
+      event.value = (guint64)(x - w/2) * G_MAXINT32 / (320 - w );
+      write(ufile, &event, sizeof(event));
+      event.code = ABS_Y;
+      event.value = (guint64)(y - h/2) * (G_MAXINT32 / ( 240 - h));
+      write(ufile, &event, sizeof(event));
     }
   }
 }
@@ -141,10 +150,10 @@ gint
 main(gint argc, gchar **argv) {
   struct uinput_user_dev uinp;
   GstElement *bin;
-  GstElement *src, *cf, *analyzer, *sink;
+  GstElement *e,*elems[10];
   GstCaps *caps;
   GstBus *bus;
-  guint i;
+  guint i, ne = 0;
 
   gst_init(&argc, &argv);
   
@@ -212,43 +221,46 @@ main(gint argc, gchar **argv) {
 
   switch (av_mode) {
     case MODE_AUDIO:
-      src = gst_element_factory_make("autoaudiosrc",NULL);
+      elems[ne++] = gst_element_factory_make("autoaudiosrc",NULL);
       break;
     case MODE_VIDEO:
-      src = gst_element_factory_make("autovideosrc",NULL);
-      cf = gst_element_factory_make("capsfilter",NULL);
+      elems[ne++] = gst_element_factory_make("autovideosrc",NULL);
+      elems[ne++] = e = gst_element_factory_make("capsfilter",NULL);
       caps = gst_caps_from_string("video/x-raw-yuv,width=320,height=240");
-      g_object_set(cf, "caps", caps, NULL);
+      g_object_set(e, "caps", caps, NULL);
       gst_caps_unref(caps);
+      elems[ne++] = gst_element_factory_make("colorspace",NULL);
       break;
   }
   switch (mode) {
     case MODE_AUDIO_LEVEL:
-      analyzer = gst_element_factory_make("level",NULL);
+      elems[ne++] = gst_element_factory_make("level",NULL);
       break;
     case MODE_VIDEO_BRIGHTNESS:
-      analyzer = gst_element_factory_make("videoanalyse",NULL);
+      elems[ne++] = gst_element_factory_make("videoanalyse",NULL);
       break;
     case MODE_VIDEO_FACEDETECT:
       // need some blur/denoise
-      analyzer = gst_element_factory_make("facedetect",NULL);
-      g_object_set(analyzer, 
+      elems[ne++] = e = gst_element_factory_make("facedetect",NULL);
+      g_object_set(e, 
         "flags", 1, 
+        "display", FALSE,
         "scale-factor", (gdouble)1.3, 
         "min-neighbors", 5, 
-        "min-size-width", 80, 
-        "min-size-height", 80,
+        "min-size-width", 60, 
+        "min-size-height", 60,
         NULL);
       break;
   }
-  if (!cf)
-    cf = gst_element_factory_make("identity",NULL);
-  sink = gst_element_factory_make("fakesink",NULL);
+  elems[ne++] = gst_element_factory_make("fakesink",NULL);
 
-  gst_bin_add_many (GST_BIN (bin), src, cf, analyzer, sink, NULL);
-  if (!gst_element_link_many (src, cf, analyzer, sink, NULL)) {
-    GST_WARNING ("Can't link elements");
-    return -1;
+  gst_bin_add (GST_BIN (bin), elems[0]);
+  for (i = 1; i < ne; i++) {
+    gst_bin_add (GST_BIN (bin), elems[i]);
+    if (!gst_element_link (elems[i-1], elems[i])) {
+      GST_WARNING ("Can't link elements");
+      return -1;
+    }
   }
 
   // run mainloop
