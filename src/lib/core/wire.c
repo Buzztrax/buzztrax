@@ -938,7 +938,7 @@ void bt_wire_get_param_details(const BtWire * const self, const gulong index, GP
  */
 void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value) {
   GObject *param_parent=NULL;
-  gchar *param_name;
+  const gchar *param_name;
   GstInterpolationControlSource *cs;
 
   g_return_if_fail(BT_IS_WIRE(self));

@@ -2341,7 +2341,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
   GObject *param_parent;
   GValue def_value={0,};
   GstInterpolationControlSource *cs;
-  gchar *param_name;
+  const gchar *param_name;
 
   g_return_if_fail(BT_IS_MACHINE(self));
   g_return_if_fail(param<self->priv->global_params);
@@ -2448,7 +2448,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
   GObject *param_parent;
   GValue def_value={0,};
   GstInterpolationControlSource *cs;
-  gchar *param_name;
+  const gchar *param_name;
 
   g_return_if_fail(BT_IS_MACHINE(self));
   g_return_if_fail(param<self->priv->voice_params);
