@@ -168,6 +168,7 @@
         <listitem><para>has only marginal MIDI support</para></listitem>
         <listitem><para>has no pattern recording yet</para></listitem>
         <listitem><para>does not support machine templates</para></listitem>
+        <listitem><para>adding and removing machines while playing might still hang</para></listitem>
       </itemizedlist>
     </para>
   </sect2>
@@ -191,7 +192,7 @@
   <title id="bt-edit-tutorial.title">Getting started</title>
   <para>
     The below tutorials will introduce <application>&app;</application> by going though a few
-	examples. Each example will introduce new features.
+    examples. Each example will introduce new features.
   </para>
 
   <sect2 id="bt-edit-tutorial-lifefx">
@@ -336,7 +337,7 @@
     On the very top of the window is <link linkend="bt-edit-main-menu">the menu bar</link>.
     Below one finds <link linkend="bt-edit-main-toolbar">the toolbar</link>.
     And below again are tabs to switch between various <link linkend="bt-edit-main-views">views</link>.
-	Each view is for editing certain aspects of the song.
+    Each view is for editing certain aspects of the song.
     On the bottom is a <link linkend="bt-edit-main-statusbar">status bar</link>.
   </para>
 
@@ -1410,8 +1411,8 @@ i o p</keycap></screen></entry>
     <title id="bt-edit-dialog-song-recording.title">Song recording dialog</title>
     <para>
       &app; can render a song as a mix-down or a series of files per generator.
-      The mix-down is idea to share or publish the song. In both ways the recordings
-      can be encoded and muxed in several formats.
+      The mix-down is ideal to share or publish the song. In both cases the
+      recordings can be encoded and muxed in several formats.
     </para>
     <figure id="bt-edit-dialog-song-recording-settings-fig">
       <title>Song recording settings dialog</title>

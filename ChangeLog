@@ -1,5 +1,10 @@
 2011-11-29  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/buzztard-edit.xml:
+	 Small doc update.
+
+2011-11-29  Stefan Sauer  <ensonic@users.sf.net>
+
 	* design/gst/dynlink3.c:
 	* design/gst/dynlink3.sh:
 	  Add more checks for return values.
