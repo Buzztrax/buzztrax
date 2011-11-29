@@ -1,8 +1,8 @@
 /* $Id$
  * test dynamic linking
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink3.c -o dynlink3
- * gcc -Wall -g -DGST_USE_UNSTABLE_API `pkg-config gstreamer-0.11 --cflags --libs` dynlink3.c -o dynlink3
+ * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink3.c -o dynlink3-0.10
+ * gcc -Wall -g -DGST_USE_UNSTABLE_API `pkg-config gstreamer-0.11 --cflags --libs` dynlink3.c -o dynlink3-0.11
  * GST_DEBUG="*:2" ./dynlink3
  * GST_DEBUG_DUMP_DOT_DIR=$PWD ./dynlink3
  * for file in dyn*.dot; do echo $file; dot -Tpng $file -o${file/dot/png}; done
@@ -160,7 +160,10 @@ make_machine (Graph * g, const gchar * elem_name, const gchar * bin_name)
     GST_ERROR ("Can't create element %s", elem_name);
     exit (-1);
   }
-  gst_bin_add (m->bin, m->elem);
+  if (!gst_bin_add (m->bin, m->elem)) {
+    GST_ERROR ("Can't add element %s to bin", elem_name);
+    exit (-1);
+  }
 
   return (m);
 }
@@ -172,8 +175,14 @@ add_tee (Machine * m)
     GST_ERROR ("Can't create element tee");
     exit (-1);
   }
-  gst_bin_add (m->bin, m->tee);
-  gst_element_link (m->elem, m->tee);
+  if (!gst_bin_add (m->bin, m->tee)) {
+    GST_ERROR ("Can't add element tee to bin");
+    exit (-1);
+  }
+  if (!gst_element_link (m->elem, m->tee)) {
+    GST_ERROR ("Can't link %s ! tee", GST_OBJECT_NAME (m->elem));
+    exit (-1);
+  }
 }
 
 static void
@@ -183,8 +192,14 @@ add_mix (Machine * m)
     GST_ERROR ("Can't create element adder");
     exit (-1);
   }
-  gst_bin_add (m->bin, m->mix);
-  gst_element_link (m->mix, m->elem);
+  if (!gst_bin_add (m->bin, m->mix)) {
+    GST_ERROR ("Can't add element adder to bin");
+    exit (-1);
+  }
+  if (!gst_element_link (m->mix, m->elem)) {
+    GST_ERROR ("Can't link %s ! tee", GST_OBJECT_NAME (m->elem));
+    exit (-1);
+  }
 }
 
 static Machine *
@@ -251,20 +266,22 @@ post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
       GstFormat fmt = GST_FORMAT_TIME;
       gint64 pos;
 
-      gst_element_query_position ((GstElement *) g->bin, &fmt, &pos);
-
-      /* seek on src to tell it about new segment
-       * the flushing seek will? unlock the pad */
+      if (gst_element_query_position ((GstElement *) g->bin, &fmt, &pos)) {
+        /* seek on src to tell it about new segment
+         * the flushing seek will? unlock the pad */
 #if 0
-      GST_WARNING ("seek on %s", GST_OBJECT_NAME (ms->bin));
-      gst_element_seek_simple ((GstElement *) w->bin, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH, pos);
+        GST_WARNING ("seek on %s", GST_OBJECT_NAME (ms->bin));
+        gst_element_seek_simple ((GstElement *) w->bin, GST_FORMAT_TIME,
+            GST_SEEK_FLAG_FLUSH, pos);
 #else
-      GST_WARNING ("seek on %s", GST_OBJECT_NAME (w->src_ghost));
-      gst_pad_send_event (w->src_ghost, gst_event_new_seek (1.0, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH,
-          GST_SEEK_TYPE_SET, pos, GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE));
+        GST_WARNING ("seek on %s", GST_OBJECT_NAME (w->src_ghost));
+        gst_pad_send_event (w->src_ghost, gst_event_new_seek (1.0, GST_FORMAT_TIME,
+            GST_SEEK_FLAG_FLUSH,
+            GST_SEEK_TYPE_SET, pos, GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE));
 #endif
+      } else {
+        GST_WARNING("position query failed");
+      }
   
       scr = gst_element_set_state ((GstElement *) ms->bin, GST_STATE_PLAYING);
       g_assert (scr != GST_STATE_CHANGE_FAILURE);
@@ -318,7 +335,10 @@ link_add (Graph * g, gint s, gint d)
     GST_ERROR ("Can't create element queue");
     exit (-1);
   }
-  gst_bin_add (w->bin, w->queue);
+  if (!gst_bin_add (w->bin, w->queue)) {
+    GST_ERROR ("Can't add element queue to bin");
+    exit (-1);
+  }
 
   /* request machine pads */
   w->peer_src = gst_element_get_request_pad (ms->tee,
@@ -332,9 +352,14 @@ link_add (Graph * g, gint s, gint d)
   w->peer_src_ghost = gst_ghost_pad_new (NULL, w->peer_src);
   g_assert (w->peer_src_ghost);
   if (!w->as) {
-    gst_pad_set_active (w->peer_src_ghost, TRUE);
+    if (!gst_pad_set_active (w->peer_src_ghost, TRUE)) {
+      GST_WARNING_OBJECT (w->peer_src_ghost, "could not activate");
+    }
   }
-  gst_element_add_pad ((GstElement *) ms->bin, w->peer_src_ghost);
+  if (!gst_element_add_pad ((GstElement *) ms->bin, w->peer_src_ghost)) {
+    GST_ERROR_OBJECT (ms->bin, "Failed to add src ghost pad to element bin");
+    exit (-1);  
+  }
   ms->pads++;
 
   w->peer_dst = gst_element_get_request_pad (md->mix, 
@@ -348,9 +373,14 @@ link_add (Graph * g, gint s, gint d)
   w->peer_dst_ghost = gst_ghost_pad_new (NULL, w->peer_dst);
   g_assert (w->peer_dst_ghost);
   if (!w->ad) {
-    gst_pad_set_active (w->peer_dst_ghost, TRUE);
+    if (!gst_pad_set_active (w->peer_dst_ghost, TRUE)) {
+      GST_WARNING_OBJECT (w->peer_dst_ghost, "could not activate");
+    }
   }
-  gst_element_add_pad ((GstElement *) md->bin, w->peer_dst_ghost);
+  if (!gst_element_add_pad ((GstElement *) md->bin, w->peer_dst_ghost)) {
+    GST_ERROR_OBJECT (md->bin, "Failed to add sink ghost pad to element bin");
+    exit (-1);  
+  }
   md->pads++;
 
   /* create wire pads */
@@ -358,15 +388,24 @@ link_add (Graph * g, gint s, gint d)
   g_assert (w->src);
   w->src_ghost = gst_ghost_pad_new (NULL, w->src);
   g_assert (w->src_ghost);
-  gst_element_add_pad ((GstElement *) w->bin, w->src_ghost);
+  if (!gst_element_add_pad ((GstElement *) w->bin, w->src_ghost)) {
+    GST_ERROR_OBJECT (md->bin, "Failed to add src ghost pad to wire bin");
+    exit (-1);  
+  }
   w->dst = gst_element_get_static_pad (w->queue, "sink");
   g_assert (w->dst);
   w->dst_ghost = gst_ghost_pad_new (NULL, w->dst);
   g_assert (w->dst_ghost);
-  gst_element_add_pad ((GstElement *) w->bin, w->dst_ghost);
+  if (!gst_element_add_pad ((GstElement *) w->bin, w->dst_ghost)) {
+    GST_ERROR_OBJECT (md->bin, "Failed to add sink ghost pad to wire bin");
+    exit (-1);  
+  }
 
   /* add wire to pipeline */
-  gst_bin_add (g->bin, (GstElement *) w->bin);
+  if(!gst_bin_add (g->bin, (GstElement *) w->bin)) {
+    GST_ERROR_OBJECT (w->bin, "Can't add wire bin to pipeline");
+    exit (-1);
+  }
   
   plr = gst_pad_link (w->peer_src_ghost, w->dst_ghost);
   g_assert (plr == GST_PAD_LINK_OK);
@@ -454,7 +493,9 @@ post_link_rem (GstPad * pad, gboolean blocked, gpointer user_data)
 
   /* remove from pipeline */
   gst_object_ref (w->bin);
-  gst_bin_remove ((GstBin *) GST_OBJECT_PARENT (w->bin), (GstElement *) w->bin);
+  if(!gst_bin_remove (w->g->bin, (GstElement *) w->bin)) {
+    GST_WARNING_OBJECT(w->bin, "cannot remove wire bin from pipeline");
+  }
 
   /* release request pads */
   gst_element_remove_pad ((GstElement *) ms->bin, w->peer_src_ghost);

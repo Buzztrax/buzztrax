@@ -1,3 +1,9 @@
+2011-11-29  Stefan Sauer  <ensonic@users.sf.net>
+
+	* design/gst/dynlink3.c:
+	* design/gst/dynlink3.sh:
+	  Add more checks for return values.
+
 2011-11-27  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:
