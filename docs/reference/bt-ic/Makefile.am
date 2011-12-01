@@ -36,8 +36,28 @@ FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/ \
 HFILE_GLOB=$(top_srcdir)/src/lib/ic/libbuzztard-ic/*.h
 CFILE_GLOB=$(top_srcdir)/src/lib/ic/*.c
 
+if USE_LINUX_INPUT
+LINUX_INPUT_FILES=
+else
+LINUX_INPUT_FILES=input-device.h
+endif
+
+if USE_GUDEV
+GUDEV_FILES=
+else
+GUDEV_FILES=gudev-discoverer.h
+endif
+
+if USE_HAL
+HAL_FILES=
+else
+HAL_FILES=hal-discoverer.h
+endif
+
 # Header files to ignore when scanning.
-IGNORE_HFILES=ic_private.h
+IGNORE_HFILES=ic_private.h \
+  $(GUDEV_FILES) $(HAL_FILES) \
+  $(LINUX_INPUT_FILES)
 
 # Images to copy into HTML directory.
 HTML_IMAGES =

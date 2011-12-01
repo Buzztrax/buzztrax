@@ -3,21 +3,21 @@
 SUBDIRS = libbuzztard-ic
 
 if USE_LINUX_INPUT
-LINUX_INPUT_SOURCES=input-device.c libbuzztard-ic/input-device.h
+LINUX_INPUT_FILES=input-device.c libbuzztard-ic/input-device.h
 else
-LINUX_INPUT_SOURCES=
+LINUX_INPUT_FILES=
 endif
 
 if USE_GUDEV
-GUDEV_SOURCES=gudev-discoverer.c libbuzztard-ic/gudev-discoverer.h
+GUDEV_FILES=gudev-discoverer.c libbuzztard-ic/gudev-discoverer.h
 else
-GUDEV_SOURCES=
+GUDEV_FILES=
 endif
 
 if USE_HAL
-HAL_SOURCES=hal-discoverer.c libbuzztard-ic/hal-discoverer.h
+HAL_FILES=hal-discoverer.c libbuzztard-ic/hal-discoverer.h
 else
-HAL_SOURCES=
+HAL_FILES=
 endif
 
 lib_LTLIBRARIES = libbuzztard-ic.la
@@ -28,11 +28,11 @@ libbuzztard_ic_la_LDFLAGS = \
 libbuzztard_ic_la_SOURCES = \
 	ic.c libbuzztard-ic/ic.h \
 	registry.c libbuzztard-ic/registry.h \
-	$(GUDEV_SOURCES) $(HAL_SOURCES) \
+	$(GUDEV_FILES) $(HAL_FILES) \
 	\
 	device.c libbuzztard-ic/device.h \
 	learn.c libbuzztard-ic/learn.h \
-	$(LINUX_INPUT_SOURCES) \
+	$(LINUX_INPUT_FILES) \
 	midi-device.c libbuzztard-ic/midi-device.h \
 	\
 	control.c libbuzztard-ic/control.h \

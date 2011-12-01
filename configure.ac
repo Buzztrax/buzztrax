@@ -334,13 +334,16 @@ PKG_CHECK_MODULES(GUDEV_DEPS, gudev-1.0, [
     AM_CONDITIONAL(USE_GUDEV, true)
     use_gudev=yes
     GUDEV_DOC_TYPES=
+    GUDEV_DOC_SECTIONS=
   ],[
     AM_CONDITIONAL(USE_GUDEV, false)
     use_gudev=no
     GUDEV_DOC_TYPES=%
+    GUDEV_DOC_SECTIONS=#
   ]
 )
 AC_SUBST(GUDEV_DOC_TYPES)
+AC_SUBST(GUDEV_DOC_SECTIONS)
 
 PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
   AC_DEFINE(USE_HAL, [1], [Define to 1 if we can use hal libraries])
@@ -350,18 +353,22 @@ PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
       AM_CONDITIONAL(USE_HAL, true)
       use_hal=yes
       HAL_DOC_TYPES=
+      HAL_DOC_SECTIONS=
     else
       AM_CONDITIONAL(USE_HAL, false)
       use_hal=no
       HAL_DOC_TYPES=%
+      HAL_DOC_SECTIONS=#
     fi
   ],[
     AM_CONDITIONAL(USE_HAL, false)
     use_hal=no
     HAL_DOC_TYPES=%
+    HAL_DOC_SECTIONS=#
   ]
 )
 AC_SUBST(HAL_DOC_TYPES)
+AC_SUBST(HAL_DOC_SECTIONS)
 
 
 PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
@@ -511,13 +518,16 @@ AC_CHECK_HEADERS([linux/input.h],
   [
     have_linux_input_h=yes
     LINUX_INPUT_DOC_TYPES=
+    LINUX_INPUT_DOC_SECTIONS=
   ],
   [
     have_linux_input_h=no
     LINUX_INPUT_DOC_TYPES=%
+    LINUX_INPUT_DOC_SECTIONS=#
   ]
 )
 AC_SUBST(LINUX_INPUT_DOC_TYPES)
+AC_SUBST(LINUX_INPUT_DOC_SECTIONS)
 AM_CONDITIONAL(USE_LINUX_INPUT, test x$have_linux_input_h = xyes)
 
 dnl check for SSE intrisics
@@ -598,6 +608,7 @@ AC_CONFIG_FILES(Makefile \
       docs/reference/bt-edit/Makefile \
       docs/reference/bt-ic/Makefile \
       docs/reference/bt-ic/buzztard-ic.types \
+      docs/reference/bt-ic/buzztard-ic-sections.txt \
   pixmaps/Makefile \
     pixmaps/hicolor/Makefile \
     pixmaps/gnome/Makefile \

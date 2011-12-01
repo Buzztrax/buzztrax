@@ -1,5 +1,16 @@
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* docs/reference/bt-ic/Makefile.am:
+	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
+	* docs/reference/bt-ic/buzztard-ic-sections.txt.in:
+	* src/lib/ic/Makefile.am:
+	* docs/reference/bt-ic/buzztard-ic-sections.txt.in (added):
+	* docs/reference/bt-ic/buzztard-ic-sections.txt (deleted):
+	  Make doc sections fully conditional.
+
+2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	  Doc maintenance.
