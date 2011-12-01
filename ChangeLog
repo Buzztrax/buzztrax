@@ -1,3 +1,11 @@
+2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c:
+	  Add a ref to a commit that helps us a bit.
+
+	* tests/lib/core/e-network.c:
+	  Split the dynamic linking tests.
+
 2011-11-29  Stefan Sauer  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/buzztard-edit.xml:

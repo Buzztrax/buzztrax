@@ -842,10 +842,11 @@ static void activate_element(const BtSetup * const self,gpointer key) {
       // @todo: this is causing the lockups in the tests under valgrind
       // it is not the flush-flag of the seek
       // collect-pads needs a newsegment to define the segment on the pad for the clipfunc
-      // seek in read will ensure it, but is somewhat non-standard
+      // seek in ready will ensure it, but is somewhat non-standard
       // as a downside, we run into trouble at segment done
       // we're trying to address that with the newsegment below, 
-      // but that only needs to be send to the active part we're linking to 
+      // but that only needs to be send to the active part we're linking to
+      // see adder-patch, gst-plugins-base: 0cce8ab97d614ef53970292bd403e7f4460d79f9
       gst_element_set_state(GST_ELEMENT(key),GST_STATE_READY);
       if(!(gst_element_send_event(GST_ELEMENT(key),gst_event_ref(self->priv->play_seek_event)))) {
         GST_WARNING_OBJECT(key,"failed to handle seek event");
