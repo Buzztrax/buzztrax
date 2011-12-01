@@ -19,7 +19,7 @@ xmllint $XML_OPTS $srcdir/../docs/buzztard.xsd
 if [ $? -ne 0 ]; then exit 1; fi
 
 # do schema validation
-xmllint $XML_OPTS --schema ../docs/buzztard.xsd $E_SONGS
+xmllint $XML_OPTS --schema $srcdir/../docs/buzztard.xsd $E_SONGS
 if [ $? -ne 0 ]; then exit 1; fi
 
 # test the docs

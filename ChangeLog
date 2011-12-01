@@ -1,5 +1,11 @@
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* tests/bt-edit-cli.sh:
+	* tests/xmlvalid.sh:
+	  Test script cleanups.
+
+2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/libbuzztard-core/song.h:
 	  Forgot to save the file. This belongs to last commit.
 
