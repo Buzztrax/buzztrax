@@ -77,7 +77,6 @@ gboolean bt_song_continue(const BtSong * const self);
 gboolean bt_song_update_playback_position(const BtSong * const self);
 
 // for debugging
-void bt_song_write_to_xml_file(const BtSong * const self);
 void bt_song_write_to_highlevel_dot_file(const BtSong * const self);
 void bt_song_write_to_lowlevel_dot_file(const BtSong * const self);
 

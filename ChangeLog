@@ -1,5 +1,10 @@
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/libbuzztard-core/song.h:
+	  Forgot to save the file. This belongs to last commit.
+
+2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/buzztard-core-sections.txt:
 	* src/lib/core/song.c:
 	  The xml pipeline stuff is deprecated upstream and removed in 0.11. Its
