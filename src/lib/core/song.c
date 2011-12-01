@@ -893,43 +893,6 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
 }
 
 /**
- * bt_song_write_to_xml_file:
- * @self: the song that should be written
- *
- * To aid debugging applications one can use this method to write out the whole
- * network of gstreamer elements that form the song into an XML file.
- * The file will be written to '/tmp' and will be named according the 'name'
- * property of the #BtSongInfo.
- * This XML file can be loaded into gst-editor.
- */
-void bt_song_write_to_xml_file(const BtSong * const self) {
-#ifndef GST_DISABLE_LOADSAVE
-  FILE *out;
-  BtSongInfo * const song_info;
-  gchar * const song_name;
-  char ts[10];
-  time_t t;
-
-  g_return_if_fail(BT_IS_SONG(self));
-
-  g_object_get((gpointer)self,"song-info",&song_info,NULL);
-  g_object_get(song_info,"name",&song_name,NULL);
-  gchar * const file_name=g_alloca(strlen(song_name)+20);
-  // not overwrite files during a run by adding current time
-  t = time(NULL);
-  strftime(ts, sizeof(ts), "%T", localtime(&t));
-  g_sprintf(file_name,"/tmp/%s_%s.xml",song_name,ts);
-
-  if((out=fopen(file_name,"wb"))) {
-    gst_xml_write_file(GST_ELEMENT(self->priv->bin),out);
-    fclose(out);
-  }
-  g_free(song_name);
-  g_object_unref(song_info);
-#endif
-}
-
-/**
  * bt_song_write_to_highlevel_dot_file:
  * @self: the song that should be written
  *
@@ -1512,10 +1475,6 @@ static void bt_song_dispose(GObject * const object) {
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
-
-  //DEBUG
-  //bt_song_write_to_xml_file(self);
-  //DEBUG
 
   GST_DEBUG("!!!! self=%p",self);
   

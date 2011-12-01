@@ -376,7 +376,6 @@ bt_song_update_playback_position
 <SUBSECTION Private>
 bt_song_write_to_highlevel_dot_file
 bt_song_write_to_lowlevel_dot_file
-bt_song_write_to_xml_file
 <SUBSECTION Standard>
 BT_IS_SONG
 BT_IS_SONG_CLASS

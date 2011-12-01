@@ -1,5 +1,12 @@
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* src/lib/core/song.c:
+	  The xml pipeline stuff is deprecated upstream and removed in 0.11. Its
+	  also of limited use, so remove it too.
+
+2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/setup.c:
 	  Add a ref to a commit that helps us a bit.
 
