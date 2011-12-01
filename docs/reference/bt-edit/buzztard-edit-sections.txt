@@ -1020,6 +1020,8 @@ gtk_vumeter_get_type
 <SECTION>
 <FILE>btedit</FILE>
 <TITLE>btedit</TITLE>
+bt_edit_ui_config
+# gtk extras
 add_pixmap_directory
 gtk_image_new_from_filename
 gdk_pixbuf_new_from_filename
@@ -1032,6 +1034,7 @@ GNOME_CANVAS_BROKEN_PROPERTIES
 BOX_BORDER
 SCREEN_BORDER_HEIGHT
 <SUBSECTION Standard>
+BT_EDIT_UI_CONFIG
 # gtk extras
 GTK_CHECK_CAST
 GTK_CHECK_CLASS_CAST

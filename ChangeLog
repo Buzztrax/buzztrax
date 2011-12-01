@@ -1,5 +1,10 @@
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	  Doc maintenance.
+
+2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
+
 	* tests/bt-edit-cli.sh:
 	* tests/xmlvalid.sh:
 	  Test script cleanups.
