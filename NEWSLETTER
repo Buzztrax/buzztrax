@@ -1,8 +1,49 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
-2011/11 ========================================================================
+2012/01 ========================================================================
 
-* update the demo songs
+
+
+2011/12 ========================================================================
+
+Over the last 2 month I did quite a bit of work on the GStreamer side. Right now
+we're working on 0.10 and 0.11 in parallel. I worked on the audiovisualizers and
+opencv elements in 0.10. I added a freeverb port to 0.10. In 0.11 I updated the
+controller susbsystem. If is now a lot easier to use and faster too. I also
+ported the audiovisualizers and fixed a few elements here and there.
+
+In the beginning of November I gave a seminar about mobile multimedia using
+GStreamer. For that I wanted to have a few more examples. I have been polishing
+some examples in GStreamer and adding some more (simple audio-mixer with xfade).
+One example is a nice showcase for how easy you can do some things. It is called
+tonematrix [1]. It is 497 lines of c, including comments, a GTK ui with an own
+widget and the whole GStreamer handling. The toy supports different sounds,
+different speeds and different scales.
+
+Buzztard allows live control of audio elements. Right now can use midi and hid
+devices. The software that exposes the wiimote as a hid device uses uinput. This
+is a kernel device with a simple api that allows user-space apps to create hid
+devices. I wrote a small toy (280 lines of c) that can use different GStreamer
+pipelines containing analyzer elements and map the detected features to virtual
+joystick controls [2]. The simplest example is to map the loudness of the
+mic-input to the x-axis. A similar example is to map the brightness of the
+camera input to a joystick axis. Then you can control e.g. the filter-cutoff of
+a synthesizer by shielding the light from the camera sensor. Now the fun starts
+with the recently improved facedetect plugin in GStreamer. This can not only
+detect the faces, but also the positions of eyes, nose and mouth within the face.
+Unfortunately the detection is not very stable when drawing faces. The idea here
+obviously is to make grimaces and control sound with that. A very expressive
+performance :)
+
+I also spend a lot of time to track down issues with dynamic linking. A few more
+fixes are done on buzztard side and GStreamer side. I think on the buzztard side
+things are good for a release. Everything is reviewed (docs, demo-songs, ...)
+and make distcheck passes :)
+
+57 files changed, 4323 insertions(+), 374 deletions(-)
+
+[1] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/design/gst/tonematrix.c?revision=3655&view=markup
+[2] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/design/input/gstinput.c?revision=3655&view=markup
 
 2011/10 ========================================================================
 
