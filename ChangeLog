@@ -1,5 +1,10 @@
 2011-12-03  Stefan Sauer  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  Fix deprecation flags.
+
+2011-12-03  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/about-dialog.c:
 	  And two more deprecated functions replaced.
 
