@@ -155,6 +155,7 @@ clean-local:
 	  $(top_builddir)/tests/songs/*.txt \
 	  $(top_builddir)/tests/songs/*.ogg \
 	  $(abs_builddir)/buzztard/*.log \
+	  $(top_builddir)/tests/event-sound-cache.tdb.* \
 	  /tmp/test.wav
 	-rmdir $(abs_builddir)/buzztard
 

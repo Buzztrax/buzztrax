@@ -1,3 +1,10 @@
+2011-12-02  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	* tests/Makefile.am:
+	  Fix left over files (make distcheck warnings).
+
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
 
 	* configure.ac:
