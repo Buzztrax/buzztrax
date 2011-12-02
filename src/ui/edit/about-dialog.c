@@ -44,9 +44,11 @@ G_DEFINE_TYPE (BtAboutDialog, bt_about_dialog, GTK_TYPE_ABOUT_DIALOG);
 
 //-- event handler
 
+#if !GTK_CHECK_VERSION(2,18,0)
 static void on_about_dialog_url_clicked(GtkAboutDialog *about, const gchar *link, gpointer user_data) {
   gtk_show_uri_simple(GTK_WIDGET(about),link);
 }
+#endif
 
 //-- helper methods
 
@@ -117,8 +119,12 @@ static void bt_about_dialog_init_ui(const BtAboutDialog *self) {
     NULL);
 
   // install hooks for hyper-links
+#if !GTK_CHECK_VERSION(2,18,0)
+  // since 2.18 it calls gtk_show_uri() by default and
+  // since 2.24 the hook functions are deprecated
   gtk_about_dialog_set_email_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
   gtk_about_dialog_set_url_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
+#endif
 
   // add the NEWS directly below copyright
   news = gtk_text_view_new();
