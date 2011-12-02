@@ -1,5 +1,12 @@
 2011-12-03  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/about-dialog.c:
+	* src/ui/edit/crash-recover-dialog.c:
+	* src/ui/edit/tip-dialog.c:
+	  Remove 3 function that got deprecated without replacement in gtk 2.24.
+
+2011-12-03  Stefan Sauer  <ensonic@users.sf.net>
+
 	* po/cs.po:
 	* po/da.po:
 	* po/de.po:

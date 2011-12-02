@@ -209,8 +209,6 @@ static void bt_tip_dialog_init_ui(const BtTipDialog *self) {
   g_signal_connect(btn, "clicked", G_CALLBACK(on_refresh_clicked), (gpointer)self);
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(self))),btn,FALSE,FALSE,0);
 
-  gtk_dialog_set_has_separator(GTK_DIALOG(self),TRUE);
-
   on_refresh_clicked(GTK_BUTTON(btn),(gpointer)self);
 }
 

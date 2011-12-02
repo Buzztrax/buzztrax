@@ -146,8 +146,6 @@ static void bt_about_dialog_init_ui(const BtAboutDialog *self) {
   gtk_container_add(GTK_CONTAINER(news_view), news);
 
   gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(self))), news_view, TRUE, TRUE, 0);
-
-  gtk_dialog_set_has_separator(GTK_DIALOG(self), TRUE);
 }
 
 //-- constructor methods
