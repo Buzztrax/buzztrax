@@ -94,7 +94,7 @@ static void on_samplerate_menu_changed(GtkComboBox *combo_box, gpointer user_dat
   gulong index,rate;
 
   index=gtk_combo_box_get_active(self->priv->samplerate_menu);
-  rate=atoi(gtk_combo_box_get_active_text(self->priv->samplerate_menu));
+  rate=atoi(gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(self->priv->samplerate_menu)));
   GST_INFO("sample-rate changed : index=%lu, rate=%lu",index,rate);
 
   g_object_get(self->priv->app,"settings",&settings,NULL);

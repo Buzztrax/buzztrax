@@ -1,5 +1,10 @@
 2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/settings-page-audiodevices.c:
+	  Replace more deprecated combo_box test api.
+
+2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/sequence-view.c:
 	  Convert from gdk to cairo.
 
