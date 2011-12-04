@@ -58,10 +58,7 @@ struct _BtSequenceViewPrivate {
 
   /* cache some ressources */
   GdkWindow *window;
-  GdkGC *play_pos_gc,*loop_pos_gc,*end_pos_gc;
 };
-
-static gint8 loop_pos_dash_list[]= {4};
 
 #define AREA_REDRAW 1
 
@@ -115,33 +112,6 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
   // first let the parent realize itslf
   GTK_WIDGET_CLASS(bt_sequence_view_parent_class)->realize(widget);
   self->priv->window=gtk_tree_view_get_bin_window(GTK_TREE_VIEW(self));
-
-  // allocation graphical contexts for drawing the overlay lines
-  self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
-  gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
-  gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-
-  self->priv->loop_pos_gc=gdk_gc_new(self->priv->window);
-  gdk_gc_set_rgb_fg_color(self->priv->loop_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_LOOPLINE));
-  gdk_gc_set_line_attributes(self->priv->loop_pos_gc,2,GDK_LINE_ON_OFF_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
-  gdk_gc_set_dashes(self->priv->loop_pos_gc,0,loop_pos_dash_list,1);
-
-  self->priv->end_pos_gc=gdk_gc_new(self->priv->window);
-  gdk_gc_set_rgb_fg_color(self->priv->end_pos_gc,bt_ui_resources_get_gdk_color(BT_UI_RES_COLOR_ENDLINE));
-  gdk_gc_set_line_attributes(self->priv->end_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-}
-
-static void bt_sequence_view_unrealize(GtkWidget *widget) {
-  BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
-
-  // first let the parent unrealize itslf
-  GTK_WIDGET_CLASS(bt_sequence_view_parent_class)->unrealize(widget);
-
-  g_object_unref(self->priv->play_pos_gc);
-  self->priv->play_pos_gc=NULL;
-
-  g_object_unref(self->priv->loop_pos_gc);
-  self->priv->loop_pos_gc=NULL;
 }
 
 static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *event) {
@@ -160,6 +130,9 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
     gint w,y;
     gdouble h;
     GdkRectangle vr;
+    cairo_t *c = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+    gdouble cr,cg,cb;
+    gdouble loop_pos_dash_list[]= {4.0 };
 
     if(G_UNLIKELY(!self->priv->row_height)) {
       GtkTreePath *path;
@@ -187,27 +160,44 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
     // draw play-pos
     y=(gint)(self->priv->play_pos*h)-vr.y;
     if((y>=0) && (y<vr.height)) {
-      gdk_draw_line(self->priv->window,self->priv->play_pos_gc,vr.x+0,y,vr.x+w,y);
+      bt_ui_resources_get_rgb_color(BT_UI_RES_COLOR_PLAYLINE,&cr,&cg,&cb);
+      cairo_set_source_rgb(c, cr, cg, cb);
+      cairo_set_line_width(c, 2.0);
+      cairo_move_to(c, vr.x+0, y);
+      cairo_line_to(c, vr.x+w, y);
+      cairo_stroke(c);
     }
 
     // draw song-end
     y=(gint)(h)-(1+vr.y);
     if((y>=0) && (y<vr.height)) {
-      gdk_draw_line(self->priv->window,self->priv->end_pos_gc,vr.x+0,y,vr.x+w,y);
+      bt_ui_resources_get_rgb_color(BT_UI_RES_COLOR_ENDLINE,&cr,&cg,&cb);
+      cairo_set_source_rgb(c, cr, cg, cb);
+      cairo_set_line_width(c, 2.0);
+      cairo_move_to(c, vr.x+0, y);
+      cairo_line_to(c, vr.x+w, y);
+      cairo_stroke(c);
     }
 
     // draw loop-start/-end
+    bt_ui_resources_get_rgb_color(BT_UI_RES_COLOR_LOOPLINE,&cr,&cg,&cb);
+    cairo_set_source_rgb(c, cr, cg, cb);
+    cairo_set_dash(c, loop_pos_dash_list, 1, 0.0);
     // draw these always from 0 as they are dashed and we can't adjust the start of the dash pattern
     y=(gint)(self->priv->loop_start*h)-vr.y;
     if((y>=0) && (y<vr.height)) {
-      //gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,vr.x+0,y,vr.x+w,y);
-      gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,vr.x+w,y);
+      cairo_move_to(c, 0, y);
+      cairo_line_to(c, vr.x+w, y);
+      cairo_stroke(c);
     }
     y=(gint)(self->priv->loop_end*h)-(1+vr.y);
     if((y>=0) && (y<vr.height)) {
-      //gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,vr.x+0,y,vr.x+w,y);
-      gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,vr.x+w,y);
+      cairo_move_to(c, 0, y);
+      cairo_line_to(c, vr.x+w, y);
+      cairo_stroke(c);
     }
+    
+    cairo_destroy(c);
   }
   return(FALSE);
 }
@@ -260,9 +250,6 @@ static void bt_sequence_view_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_unref(self->priv->play_pos_gc);
-  g_object_try_unref(self->priv->loop_pos_gc);
-  g_object_try_unref(self->priv->end_pos_gc);
   g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(bt_sequence_view_parent_class)->dispose(object);
@@ -284,7 +271,6 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
   gobject_class->dispose      = bt_sequence_view_dispose;
 
   gtkwidget_class->realize = bt_sequence_view_realize;
-  gtkwidget_class->unrealize = bt_sequence_view_unrealize;
   gtkwidget_class->expose_event = bt_sequence_view_expose_event;
 
 
