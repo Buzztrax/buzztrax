@@ -1,5 +1,15 @@
 2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	* tests/m-bt-cmd.c:
+	* tests/m-bt-core.c:
+	* tests/m-bt-edit.c:
+	* tests/m-bt-ic.c:
+	  Enclose deprecated g_thread api in ifdefs.
+
+2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* design/gobject/gobjectnotify.c:
 	* design/hal/halwatch.c:
 	  Update test apps. g_thread_init() is deprecated in glib 2.31 and was

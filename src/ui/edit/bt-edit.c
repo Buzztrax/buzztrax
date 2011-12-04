@@ -85,10 +85,12 @@ int main(int argc, char **argv) {
     {NULL}
   };
   
+#if !GLIB_CHECK_VERSION (2, 31, 0) 
   // initialize as soon as possible
   if(!g_thread_supported()) {
     g_thread_init(NULL);
   }
+#endif
 
   // load our custom gtk-theming
 #ifndef USE_HILDON

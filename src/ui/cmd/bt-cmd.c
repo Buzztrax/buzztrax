@@ -83,10 +83,12 @@ int main(int argc, char **argv) {
   options[3].arg_data=&input_file_name;
   options[4].arg_data=&output_file_name;
 
+#if !GLIB_CHECK_VERSION (2, 31, 0) 
   // initialize as soon as possible
   if(!g_thread_supported()) {
     g_thread_init(NULL);
   }
+#endif
 
   // init libraries
   ctx = g_option_context_new(NULL);
