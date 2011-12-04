@@ -52,9 +52,6 @@ int main(int argc, char **argv) {
   DBusConnection *dbus_conn;
   GMainLoop *loop;
   
-  //g_thread_init (NULL);
-  //g_thread_init (NULL);
-  
   /* init dbus */
   dbus_error_init(&dbus_error);
   dbus_conn=dbus_bus_get(DBUS_BUS_SYSTEM,&dbus_error);

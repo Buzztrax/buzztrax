@@ -127,11 +127,8 @@ main(int argc, char **argv)
   GObject *obj;
   gulong i;  
   
-//  if(!g_thread_supported())
-//    g_thread_init(NULL);
   g_type_init();
-  
-  
+
   for(i=0;i<(1<<20);i++) {
     obj=g_object_new(GST_TYPE_PRESET_TEST,"test",i,NULL);
     g_object_unref(obj);

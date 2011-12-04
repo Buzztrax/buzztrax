@@ -1,5 +1,12 @@
 2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* design/gobject/gobjectnotify.c:
+	* design/hal/halwatch.c:
+	  Update test apps. g_thread_init() is deprecated in glib 2.31 and was
+	  already commented out in the examples.
+
+2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/sequence-view.c:
 	  Use the right window for the overlay lines.
 
