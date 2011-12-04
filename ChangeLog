@@ -1,5 +1,10 @@
 2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/volume-popup.c:
+	  Fix wrong gtk_widget_hide_all() replacement.
+
+2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-preferences-dialog.c:
 	* src/ui/edit/machine-properties-dialog.c:
 	* src/ui/edit/main-menu.c:

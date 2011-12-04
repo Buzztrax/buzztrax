@@ -200,7 +200,7 @@ void bt_volume_popup_hide(BtVolumePopup *self) {
   gdk_pointer_ungrab(GDK_CURRENT_TIME);
   gtk_grab_remove(GTK_WIDGET(self));
 
-  gtk_widget_all(GTK_WIDGET(self));
+  gtk_widget_hide(GTK_WIDGET(self));
 }
 
 //-- wrapper
