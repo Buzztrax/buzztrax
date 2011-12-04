@@ -1,5 +1,12 @@
 2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/tools.h:
+	  My editors save-all is broekn, great. Too more files belonging to the
+	  commit two down below.
+
+2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/volume-popup.c:
 	  Fix wrong gtk_widget_hide_all() replacement.
 

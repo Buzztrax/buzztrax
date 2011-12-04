@@ -204,7 +204,7 @@ void bt_panorama_popup_hide(BtPanoramaPopup *self) {
   gdk_pointer_ungrab(GDK_CURRENT_TIME);
   gtk_grab_remove(GTK_WIDGET(self));
 
-  gtk_widget_all(GTK_WIDGET(self));
+  gtk_widget_hide(GTK_WIDGET(self));
 }
 
 //-- wrapper
