@@ -1,5 +1,10 @@
 2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/ruler.c:
+	  Fix the widgets.
+
+2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/gtkvumeter.c:
 	* src/ui/edit/hruler.c:

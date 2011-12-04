@@ -243,7 +243,7 @@ bt_ruler_get_property (GObject * object, guint prop_id, GValue * value, GParamSp
 void
 bt_ruler_set_metric (BtRuler * ruler, GtkMetricType metric)
 {
-  g_return_if_fail (GTK_IS_RULER (ruler));
+  g_return_if_fail (BT_IS_RULER (ruler));
 
   ruler->metric = (BtRulerMetric *) & ruler_metrics[metric];
 
@@ -266,7 +266,7 @@ GtkMetricType
 bt_ruler_get_metric (BtRuler * ruler) {
   gint i;
 
-  g_return_val_if_fail (GTK_IS_RULER (ruler), 0);
+  g_return_val_if_fail (BT_IS_RULER (ruler), 0);
 
   for (i = 0; i < G_N_ELEMENTS (ruler_metrics); i++)
     if (ruler->metric == &ruler_metrics[i])
@@ -291,7 +291,7 @@ bt_ruler_get_metric (BtRuler * ruler) {
 void
 bt_ruler_set_range (BtRuler * ruler, gdouble lower, gdouble upper, gdouble position, gdouble max_size)
 {
-  g_return_if_fail (GTK_IS_RULER (ruler));
+  g_return_if_fail (BT_IS_RULER (ruler));
 
   g_object_freeze_notify (G_OBJECT (ruler));
   if (ruler->lower != lower) {
@@ -332,7 +332,7 @@ bt_ruler_set_range (BtRuler * ruler, gdouble lower, gdouble upper, gdouble posit
 void 
 bt_ruler_get_range (BtRuler * ruler, gdouble * lower, gdouble * upper, gdouble * position, gdouble * max_size)
 {
-  g_return_if_fail (GTK_IS_RULER (ruler));
+  g_return_if_fail (BT_IS_RULER (ruler));
 
   if (lower)
     *lower = ruler->lower;
@@ -347,7 +347,7 @@ bt_ruler_get_range (BtRuler * ruler, gdouble * lower, gdouble * upper, gdouble *
 void 
 bt_ruler_draw_ticks (BtRuler * ruler)
 {
-  g_return_if_fail (GTK_IS_RULER (ruler));
+  g_return_if_fail (BT_IS_RULER (ruler));
 
   if (BT_RULER_GET_CLASS (ruler)->draw_ticks)
     BT_RULER_GET_CLASS (ruler)->draw_ticks (ruler);
@@ -356,7 +356,7 @@ bt_ruler_draw_ticks (BtRuler * ruler)
 void 
 bt_ruler_draw_pos (BtRuler * ruler)
 {
-  g_return_if_fail (GTK_IS_RULER (ruler));
+  g_return_if_fail (BT_IS_RULER (ruler));
 
   if (BT_RULER_GET_CLASS (ruler)->draw_pos)
     BT_RULER_GET_CLASS (ruler)->draw_pos (ruler);
