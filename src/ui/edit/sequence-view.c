@@ -127,10 +127,9 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
    * row zero spanners can be drawn on top of the column headers.
    */
   if(self->priv->window==event->window) {
-    gint w,y;
-    gdouble h;
+    gdouble w,h,y;
     GdkRectangle vr;
-    cairo_t *c = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+    cairo_t *c = gdk_cairo_create(self->priv->window);
     gdouble cr,cg,cb;
     gdouble loop_pos_dash_list[]= {4.0 };
 
@@ -154,45 +153,45 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
     //w=vr.width;
     //h=(gint)(self->priv->play_pos*(double)vr.height);
 
-    w=widget->allocation.width;
+    w=(gdouble)widget->allocation.width;
     h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
 
     // draw play-pos
-    y=(gint)(self->priv->play_pos*h)-vr.y;
+    y=(self->priv->play_pos*h)-vr.y;
     if((y>=0) && (y<vr.height)) {
       bt_ui_resources_get_rgb_color(BT_UI_RES_COLOR_PLAYLINE,&cr,&cg,&cb);
-      cairo_set_source_rgb(c, cr, cg, cb);
+      cairo_set_source_rgba(c, cr, cg, cb, 1.0);
       cairo_set_line_width(c, 2.0);
-      cairo_move_to(c, vr.x+0, y);
+      cairo_move_to(c, vr.x+0.0, y);
       cairo_line_to(c, vr.x+w, y);
       cairo_stroke(c);
     }
 
     // draw song-end
-    y=(gint)(h)-(1+vr.y);
+    y=h-(1+vr.y);
     if((y>=0) && (y<vr.height)) {
       bt_ui_resources_get_rgb_color(BT_UI_RES_COLOR_ENDLINE,&cr,&cg,&cb);
-      cairo_set_source_rgb(c, cr, cg, cb);
+      cairo_set_source_rgba(c, cr, cg, cb, 1.0);
       cairo_set_line_width(c, 2.0);
-      cairo_move_to(c, vr.x+0, y);
+      cairo_move_to(c, vr.x+0.0, y);
       cairo_line_to(c, vr.x+w, y);
       cairo_stroke(c);
     }
 
     // draw loop-start/-end
     bt_ui_resources_get_rgb_color(BT_UI_RES_COLOR_LOOPLINE,&cr,&cg,&cb);
-    cairo_set_source_rgb(c, cr, cg, cb);
+    cairo_set_source_rgba(c, cr, cg, cb, 1.0);
     cairo_set_dash(c, loop_pos_dash_list, 1, 0.0);
     // draw these always from 0 as they are dashed and we can't adjust the start of the dash pattern
-    y=(gint)(self->priv->loop_start*h)-vr.y;
+    y=(self->priv->loop_start*h)-vr.y;
     if((y>=0) && (y<vr.height)) {
-      cairo_move_to(c, 0, y);
+      cairo_move_to(c, 0.0, y);
       cairo_line_to(c, vr.x+w, y);
       cairo_stroke(c);
     }
-    y=(gint)(self->priv->loop_end*h)-(1+vr.y);
+    y=(self->priv->loop_end*h)-(1+vr.y);
     if((y>=0) && (y<vr.height)) {
-      cairo_move_to(c, 0, y);
+      cairo_move_to(c, 0.0, y);
       cairo_line_to(c, vr.x+w, y);
       cairo_stroke(c);
     }

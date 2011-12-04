@@ -1,5 +1,10 @@
 2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/sequence-view.c:
+	  Use the right window for the overlay lines.
+
+2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/tools.h:
 	  And commit the replacement api.
 
