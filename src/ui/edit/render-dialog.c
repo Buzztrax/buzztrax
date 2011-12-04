@@ -289,11 +289,11 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
 
   // query supported formats from sinkbin
-  self->priv->format_menu=widget=gtk_combo_box_new_text();
+  self->priv->format_menu=widget=gtk_combo_box_text_new();
   enum_class=g_type_class_peek_static(BT_TYPE_SINK_BIN_RECORD_FORMAT);
   for(i=enum_class->minimum;i<=enum_class->maximum;i++) {
     if((enum_value=g_enum_get_value(enum_class,i))) {
-      gtk_combo_box_append_text(GTK_COMBO_BOX(widget),enum_value->value_nick);
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(widget),enum_value->value_nick);
     }
   }
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS);
@@ -306,11 +306,11 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 3, 4, GTK_FILL,GTK_SHRINK, 2,1);
 
   // query supported formats from sinkbin
-  widget=gtk_combo_box_new_text();
+  widget=gtk_combo_box_text_new();
   enum_class=g_type_class_peek_static(BT_TYPE_RENDER_MODE);
   for(i=enum_class->minimum;i<=enum_class->maximum;i++) {
     if((enum_value=g_enum_get_value(enum_class,i))) {
-      gtk_combo_box_append_text(GTK_COMBO_BOX(widget),enum_value->value_nick);
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(widget),enum_value->value_nick);
     }
   }
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),BT_RENDER_MODE_MIXDOWN);

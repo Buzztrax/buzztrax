@@ -156,7 +156,7 @@ static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
   bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(settings));
   gtk_widget_show_all(settings);
   if(gtk_dialog_run(GTK_DIALOG(settings))==GTK_RESPONSE_ACCEPT) {
-    gtk_widget_hide_all(settings);
+    gtk_widget_hide(settings);
     progress=GTK_WIDGET(bt_render_progress_new(BT_RENDER_DIALOG(settings)));
     gtk_window_set_transient_for(GTK_WINDOW(progress),GTK_WINDOW(self->priv->main_window));
     gtk_widget_show_all(progress);

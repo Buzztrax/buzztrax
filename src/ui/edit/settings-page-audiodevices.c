@@ -154,7 +154,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   label=gtk_label_new(_("Sink"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
-  self->priv->audiosink_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
+  self->priv->audiosink_menu=GTK_COMBO_BOX(gtk_combo_box_text_new());
 
   /* @idea: we could use a real combo and use markup in the cells, to have the
    * description in small font below the sink name */
@@ -163,11 +163,11 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
     str=g_strdup_printf(_("system default: %s (%s)"),
       system_audiosink_name,
       (factory?gst_element_factory_get_description(factory):"-"));
-    gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->audiosink_menu),str);
     g_free(str);
   }
   else {
-    gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),_("system default: -"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->audiosink_menu),_("system default: -"));
   }
 
   audiosink_factories=bt_gst_registry_get_element_factories_matching_all_categories("Sink/Audio");
@@ -271,7 +271,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
             if(!strcmp(audiosink_name,name)) audiosink_index=ct;
           }
           str=g_strdup_printf("%s (%s)",name,gst_element_factory_get_description(factory));
-          gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
+          gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->audiosink_menu),str);
           g_free(str);
           // add this to instance list
           self->priv->audiosink_names=g_list_append(self->priv->audiosink_names,(gpointer)name);
@@ -296,15 +296,15 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
 
-  self->priv->samplerate_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"8000");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"11025");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"16000");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"22050");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"32000");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"44100");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"48000");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->samplerate_menu),"96000");
+  self->priv->samplerate_menu=GTK_COMBO_BOX(gtk_combo_box_text_new());
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->samplerate_menu),"8000");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->samplerate_menu),"11025");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->samplerate_menu),"16000");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->samplerate_menu),"22050");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->samplerate_menu),"32000");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->samplerate_menu),"44100");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->samplerate_menu),"48000");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->samplerate_menu),"96000");
   switch(sample_rate) {
     case 8000:  sampling_rate_index=0;break;
     case 11025: sampling_rate_index=1;break;
@@ -324,9 +324,9 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 3, 4, GTK_FILL,GTK_SHRINK, 2,1);
 
-  self->priv->channels_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->channels_menu),_("mono"));
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->channels_menu),_("stereo"));
+  self->priv->channels_menu=GTK_COMBO_BOX(gtk_combo_box_text_new());
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->channels_menu),_("mono"));
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->channels_menu),_("stereo"));
   gtk_combo_box_set_active(self->priv->channels_menu,(channels-1));
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->channels_menu), 2, 3, 3, 4, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(self->priv->channels_menu, "changed", G_CALLBACK(on_channels_menu_changed), (gpointer)self);

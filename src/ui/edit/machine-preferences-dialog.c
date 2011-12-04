@@ -404,7 +404,7 @@ static void bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDial
             for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
               if((enum_value=g_enum_get_value(enum_class, value))) {
                 //GST_INFO("enum value: %d, '%s', '%s'",enum_value->value,enum_value->value_name,enum_value->value_nick);
-                //gtk_combo_box_append_text(GTK_COMBO_BOX(widget1),enum_value->value_nick);
+                //gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(widget1),enum_value->value_nick);
                 gtk_list_store_append(store,&iter);
                 gtk_list_store_set(store,&iter,
                   0,enum_value->value,

@@ -357,7 +357,7 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 3, 4, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->date_created=GTK_ENTRY(gtk_entry_new());
   gtk_editable_set_editable(GTK_EDITABLE(self->priv->date_created),FALSE);
-  GTK_WIDGET_UNSET_FLAGS(self->priv->date_created,GTK_CAN_FOCUS);
+  gtk_widget_set_can_focus(GTK_WIDGET(self->priv->date_created),FALSE);
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->date_created), 1, 2, 3, 4, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   // second column
@@ -400,7 +400,7 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 3, 4, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->date_changed=GTK_ENTRY(gtk_entry_new());
   gtk_editable_set_editable(GTK_EDITABLE(self->priv->date_changed),FALSE);
-  GTK_WIDGET_UNSET_FLAGS(self->priv->date_changed,GTK_CAN_FOCUS);
+  gtk_widget_set_can_focus(GTK_WIDGET(self->priv->date_changed),FALSE);
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->date_changed), 1, 2, 3, 4, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   // @idea have another field with subticks (GstController parameter smoothing)

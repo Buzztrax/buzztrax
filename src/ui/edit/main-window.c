@@ -692,7 +692,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   self->priv->file_chooser=GTK_FILE_CHOOSER(self->priv->dialog);
 
   // set filters and build format selector
-  format_chooser=gtk_combo_box_new_text();
+  format_chooser=gtk_combo_box_text_new();
   filter_all=gtk_file_filter_new();
   gtk_file_filter_set_name(filter_all,"all supported files");
   plugins=bt_song_io_get_module_info_list();
@@ -725,7 +725,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       }
 #endif
       gtk_file_chooser_add_filter(self->priv->file_chooser,filter);
-      gtk_combo_box_append_text(GTK_COMBO_BOX(format_chooser),info->formats[ix].name);
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(format_chooser),info->formats[ix].name);
       GST_DEBUG("add filter %p for %s/%s/%s",
         filter,
         info->formats[ix].name,

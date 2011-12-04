@@ -125,7 +125,7 @@ struct _BtMainPageSequencePrivate {
   GtkComboBox *label_menu;
 
   /* pos unit selection menu */
-  GtkComboBox *pos_menu;
+  GtkWidget *pos_menu;
   BtSequenceGridModelPosFormat pos_format;
 
   /* the sequence table */
@@ -1086,13 +1086,13 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
   gtk_box_pack_start(GTK_BOX(self->priv->pos_header),label,TRUE,FALSE,0);
 
-  self->priv->pos_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
-  gtk_combo_box_set_focus_on_click(self->priv->pos_menu,FALSE);
-  gtk_combo_box_append_text(self->priv->pos_menu,_("Ticks"));
-  gtk_combo_box_append_text(self->priv->pos_menu,_("Time"));
-  gtk_combo_box_append_text(self->priv->pos_menu,_("Beats"));
-  gtk_combo_box_set_active(self->priv->pos_menu,self->priv->pos_format);
-  gtk_box_pack_start(GTK_BOX(self->priv->pos_header),GTK_WIDGET(self->priv->pos_menu),TRUE,TRUE,0);
+  self->priv->pos_menu=gtk_combo_box_text_new();
+  gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(self->priv->pos_menu),FALSE);
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->pos_menu),_("Ticks"));
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->pos_menu),_("Time"));
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->pos_menu),_("Beats"));
+  gtk_combo_box_set_active(GTK_COMBO_BOX(self->priv->pos_menu),self->priv->pos_format);
+  gtk_box_pack_start(GTK_BOX(self->priv->pos_header),self->priv->pos_menu,TRUE,TRUE,0);
   //gtk_widget_set_size_request(self->priv->pos_header,POSITION_CELL_WIDTH,-1);
   g_signal_connect(self->priv->pos_menu,"changed",G_CALLBACK(on_pos_menu_changed), (gpointer)self);
   gtk_widget_show_all(self->priv->pos_header);
@@ -2973,7 +2973,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(setup,"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
   g_signal_connect(setup,"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"track-removed",G_CALLBACK(on_track_removed),(gpointer)self);
-  gtk_combo_box_set_active(self->priv->pos_menu,self->priv->pos_format);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(self->priv->pos_menu),self->priv->pos_format);
   // update toolbar
   g_object_get(song_info,"bars",&bars,NULL);
   update_bars_menu(self,bars);

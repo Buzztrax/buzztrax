@@ -766,18 +766,18 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   table=gtk_table_new(2,2,FALSE);
 
   /* scale: linear and logarithmic */
-  combo=gtk_combo_box_new_text();
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("lin."));
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("log."));
+  combo=gtk_combo_box_text_new();
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo),_("lin."));
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo),_("log."));
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo),0);
   g_signal_connect(combo, "changed", G_CALLBACK(on_spectrum_frequency_mapping_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),gtk_label_new(_("frequency mapping")), 0,1, 0,1, 0,0, 3,3);
   gtk_table_attach(GTK_TABLE(table),combo, 1,2, 0,1, GTK_EXPAND|GTK_FILL,0, 3,3);
 
-  combo=gtk_combo_box_new_text();
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("single"));
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("double"));
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo),_("triple"));
+  combo=gtk_combo_box_text_new();
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo),_("single"));
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo),_("double"));
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo),_("triple"));
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo),0);
   g_signal_connect(combo, "changed", G_CALLBACK(on_spectrum_frequency_precision_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),gtk_label_new(_("spectrum precision")), 0,1, 1,2, 0,0, 3,3);

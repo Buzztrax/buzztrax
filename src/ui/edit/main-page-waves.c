@@ -66,7 +66,7 @@ struct _BtMainPageWavesPrivate {
   GtkTreeView *waves_list;
   /* and their parameters */
   GtkHScale *volume;
-  GtkComboBox *loop_mode;
+  GtkWidget *loop_mode;
 
   /* the list of wavelevels */
   GtkTreeView *wavelevels_list;
@@ -721,7 +721,7 @@ static void on_loop_mode_changed(GtkComboBox *menu, gpointer user_data) {
   BtWave *wave;
 
   if((wave=waves_list_get_current(self))) {
-    BtWaveLoopMode loop_mode=gtk_combo_box_get_active(self->priv->loop_mode);
+    BtWaveLoopMode loop_mode=gtk_combo_box_get_active(GTK_COMBO_BOX(self->priv->loop_mode));
     g_object_set(wave,"loop-mode",loop_mode,NULL);
     g_object_unref(wave);
     preview_update_seeks(self);
@@ -745,13 +745,13 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
     gtk_widget_set_sensitive(self->priv->wavetable_clear,TRUE);
     // enable and update properties
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->volume),TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->loop_mode),TRUE);
+    gtk_widget_set_sensitive(self->priv->loop_mode,TRUE);
     g_object_get(wave,"volume",&volume,"loop-mode",&loop_mode,NULL);
     g_signal_handlers_block_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_volume_changed,(gpointer)self);
     gtk_range_set_value(GTK_RANGE(self->priv->volume),volume);
     g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_volume_changed,(gpointer)self);
     g_signal_handlers_block_matched(self->priv->loop_mode,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_loop_mode_changed,(gpointer)self);
-    gtk_combo_box_set_active(self->priv->loop_mode,loop_mode);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(self->priv->loop_mode),loop_mode);
     g_signal_handlers_unblock_matched(self->priv->loop_mode,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_loop_mode_changed,(gpointer)self);
   }
   else {
@@ -760,7 +760,7 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
     gtk_widget_set_sensitive(self->priv->wavetable_clear,FALSE);
     // disable properties
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->volume),FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->loop_mode),FALSE);
+    gtk_widget_set_sensitive(self->priv->loop_mode,FALSE);
   }
   on_wavelevels_list_cursor_changed(self->priv->wavelevels_list, self);
 }
@@ -1206,18 +1206,18 @@ static void bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainP
   g_signal_connect(self->priv->volume, "value-changed", G_CALLBACK(on_volume_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->volume), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   gtk_table_attach(GTK_TABLE(table),gtk_label_new(_("Loop")), 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
-  self->priv->loop_mode=GTK_COMBO_BOX(gtk_combo_box_new_text());
+  self->priv->loop_mode=gtk_combo_box_text_new();
   // g_type_class_peek_static() returns NULL :/
   enum_class=g_type_class_ref(BT_TYPE_WAVE_LOOP_MODE);
   for(i=enum_class->minimum;i<=enum_class->maximum;i++) {
     if((enum_value=g_enum_get_value(enum_class,i))) {
-      gtk_combo_box_append_text(self->priv->loop_mode,enum_value->value_name);
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(self->priv->loop_mode),enum_value->value_name);
     }
   }
   g_type_class_unref(enum_class);
-  gtk_combo_box_set_active(self->priv->loop_mode,BT_WAVE_LOOP_MODE_OFF);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(self->priv->loop_mode),BT_WAVE_LOOP_MODE_OFF);
   g_signal_connect(self->priv->loop_mode, "changed", G_CALLBACK(on_loop_mode_changed), (gpointer)self);
-  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->loop_mode), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),self->priv->loop_mode, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   gtk_box_pack_start(GTK_BOX(box),table,FALSE,FALSE,0);
 
   //     vbox (file browser)

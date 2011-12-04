@@ -82,6 +82,12 @@ extern void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri);
 
 #endif
 
+#if !GTK_CHECK_VERSION(2,24,0)
+#define GTK_COMBO_BOX_TEXT(w) GTK_COMBO_BOX_TEXT(w)
+#define gtk_combo_box_text_new gtk_combo_box_new_text
+#define gtk_combo_box_text_append_text(w,t) gtk_combo_box_append_text((w),(t))
+#endif
+
 /* debug helper */
 
 #if USE_DEBUG

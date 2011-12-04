@@ -1275,7 +1275,7 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   // generate an antialiased canvas
-  gtk_widget_push_colormap(gdk_rgb_get_colormap());
+  gtk_widget_push_colormap(gdk_screen_get_system_colormap(gdk_screen_get_default()));
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
   /* the non antialisaed (and faster) version
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new());
