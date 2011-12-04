@@ -1,5 +1,32 @@
 2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/hruler.c:
+	* src/ui/edit/hruler.h:
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/ruler.c:
+	* src/ui/edit/ruler.h:
+	* src/ui/edit/signal-analysis-dialog.c:
+	* src/ui/edit/volume-popup.c:
+	* src/ui/edit/vruler.c:
+	* src/ui/edit/vruler.h:
+	* src/ui/edit/hruler.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/vruler.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/hruler.c (svn:keywords, svn:eol-style):
+	* src/ui/edit/vruler.c (svn:keywords, svn:eol-style):
+	* src/ui/edit/ruler.c (svn:keywords, svn:eol-style):
+	* src/ui/edit/ruler.h (svn:keywords, svn:eol-style):
+	* src/ui/edit/ruler.h (added):
+	* src/ui/edit/vruler.c (added):
+	* src/ui/edit/vruler.h (added):
+	* src/ui/edit/hruler.c (added):
+	* src/ui/edit/hruler.h (added):
+	* src/ui/edit/ruler.c (added):
+	  Add a copy of gtk's former ruler widget.
+
+2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/panorama-popup.c:
 	* src/ui/edit/tools.h:
 	  My editors save-all is broekn, great. Too more files belonging to the

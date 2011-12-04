@@ -36,7 +36,7 @@
  */
 
 #include <math.h>
-#include <gtk/gtk.h>
+
 #include "gtkvumeter.h"
 
 #if !GTK_CHECK_VERSION(2,20,0)

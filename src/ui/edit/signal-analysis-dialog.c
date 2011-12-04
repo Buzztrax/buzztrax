@@ -58,6 +58,7 @@
 #define BT_SIGNAL_ANALYSIS_DIALOG_C
 
 #include "bt-edit.h"
+#include "hruler.h"
 
 //-- property ids
 
@@ -327,22 +328,22 @@ static gboolean redraw_spectrum(gpointer user_data) {
 }
 
 static void update_spectrum_ruler(const BtSignalAnalysisDialog *self) {
-  GtkRuler *ruler=GTK_RULER(self->priv->spectrum_ruler);
+  BtRuler *ruler=BT_RULER(self->priv->spectrum_ruler);
 
-  gtk_ruler_set_range(ruler,0.0,self->priv->srate/20.0,-10.0,200.0);
+  bt_ruler_set_range(ruler,0.0,self->priv->srate/20.0,-10.0,200.0);
 
 #if 0
   // gtk_ruler_set_metric needs an enum value :/
   // we can't register own types and there is no setter for custom metrics either
   if(self->priv->frq_map==MAP_LIN) {
-    //gtk_ruler_set_metric(ruler,&ruler_metrics[0]);
+    //bt_ruler_set_metric(ruler,&ruler_metrics[0]);
   }
   else {
     static const GtkRulerMetric ruler_metrics[] =
     {
       {"Frequency", "Hz", 1.0, { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 }, { 1, 2, 4, 8, 16 }},
     };
-    //gtk_ruler_set_metric(ruler,&ruler_metrics[0]);
+    //bt_ruler_set_metric(ruler,&ruler_metrics[0]);
   }
 #endif
 }
@@ -721,8 +722,8 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
 
   /* add scales for spectrum analyzer drawable */
   /* @todo: we need to use a gtk_table() and also add a vruler with levels */
-  ruler=gtk_hruler_new();
-  GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
+  ruler=bt_hruler_new();
+  BT_RULER_GET_CLASS(ruler)->draw_pos = NULL;
   gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(vbox), ruler, FALSE, FALSE,0);
   self->priv->spectrum_ruler=ruler;
@@ -740,16 +741,16 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
 
   /* add scales for level meter */
   hbox = gtk_hbox_new(FALSE, 0);
-  ruler=gtk_hruler_new();
-  gtk_ruler_set_range(GTK_RULER(ruler),100.0,0.0,-10.0,30.0);
-  //gtk_ruler_set_metric(GTK_RULER(ruler),&ruler_metrics[0]);
-  GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
+  ruler=bt_hruler_new();
+  bt_ruler_set_range(BT_RULER(ruler),100.0,0.0,-10.0,30.0);
+  //bt_ruler_set_metric(BT_RULER(ruler),&ruler_metrics[0]);
+  BT_RULER_GET_CLASS(ruler)->draw_pos = NULL;
   gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
-  ruler=gtk_hruler_new();
-  gtk_ruler_set_range(GTK_RULER(ruler),0.0,100.5,-10.0,30.0);
-  //gtk_ruler_set_metric(GTK_RULER(ruler),&ruler_metrics[0]);
-  GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
+  ruler=bt_hruler_new();
+  bt_ruler_set_range(BT_RULER(ruler),0.0,100.5,-10.0,30.0);
+  //bt_ruler_set_metric(BT_RULER(ruler),&ruler_metrics[0]);
+  BT_RULER_GET_CLASS(ruler)->draw_pos = NULL;
   gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
