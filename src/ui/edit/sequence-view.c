@@ -74,14 +74,14 @@ G_DEFINE_TYPE (BtSequenceView, bt_sequence_view, GTK_TYPE_TREE_VIEW);
 static void bt_sequence_view_invalidate(const BtSequenceView *self, gdouble old_pos, gdouble new_pos) {
   gdouble h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
   GdkRectangle vr;
-  gint y;
+  gdouble y;
   
   gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(self),&vr);
 
-  y=(gint)(old_pos*h)-vr.y;
-  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,2);
-  y=(gint)(new_pos*h)-vr.y;
-  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,2);
+  y=0.5+floor((old_pos*h)-vr.y);
+  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,3);
+  y=0.5+floor((new_pos*h)-vr.y);
+  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,3);
 }
 
 //-- constructor methods
@@ -157,7 +157,7 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
     h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
 
     // draw play-pos
-    y=(self->priv->play_pos*h)-vr.y;
+    y=0.5 + floor((self->priv->play_pos*h)-vr.y);
     if((y>=0) && (y<vr.height)) {
       bt_ui_resources_get_rgb_color(BT_UI_RES_COLOR_PLAYLINE,&cr,&cg,&cb);
       cairo_set_source_rgba(c, cr, cg, cb, 1.0);
