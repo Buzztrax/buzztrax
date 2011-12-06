@@ -3158,7 +3158,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
     "fixed-height-mode",TRUE,
     "headers-visible", FALSE,
     NULL);
-  gtk_widget_set_events(GTK_WIDGET(self->priv->sequence_pos_table),gtk_widget_get_events(GTK_WIDGET(self->priv->sequence_pos_table))|GDK_POINTER_MOTION_HINT_MASK);
+  gtk_widget_add_events(GTK_WIDGET(self->priv->sequence_pos_table),GDK_POINTER_MOTION_HINT_MASK);
   // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_pos_table),POSITION_CELL_WIDTH,40);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_pos_table);
@@ -3220,7 +3220,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
     "headers-visible", FALSE,
     NULL);
   //GST_DEBUG("sequence-view events = 0x%x",gtk_widget_get_events(GTK_WIDGET(self->priv->sequence_table)));
-  gtk_widget_set_events(GTK_WIDGET(self->priv->sequence_table),gtk_widget_get_events(GTK_WIDGET(self->priv->sequence_table))|GDK_POINTER_MOTION_HINT_MASK);
+  gtk_widget_add_events(GTK_WIDGET(self->priv->sequence_table),GDK_POINTER_MOTION_HINT_MASK);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   sequence_table_init(self);

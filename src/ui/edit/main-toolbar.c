@@ -818,7 +818,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(tool_item),_("Rewind playback position of this song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   child=gtk_bin_get_child(GTK_BIN(tool_item));
-  gtk_widget_set_events(child,gtk_widget_get_events(child)|GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
+  gtk_widget_add_events(child,GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
   g_signal_connect(child,"button-press-event",G_CALLBACK(on_toolbar_rewind_pressed),(gpointer)self);
   g_signal_connect(child,"button-release-event",G_CALLBACK(on_toolbar_rewind_released),(gpointer)self);
 
@@ -833,7 +833,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(tool_item),_("Forward playback position of this song"));
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   child=gtk_bin_get_child(GTK_BIN(tool_item));
-  gtk_widget_set_events(child,gtk_widget_get_events(child)|GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
+  gtk_widget_add_events(child,GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
   g_signal_connect(child,"button-press-event",G_CALLBACK(on_toolbar_forward_pressed),(gpointer)self);
   g_signal_connect(child,"button-release-event",G_CALLBACK(on_toolbar_forward_released),(gpointer)self);
 

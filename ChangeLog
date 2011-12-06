@@ -1,5 +1,12 @@
 2011-12-06  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/signal-analysis-dialog.c:
+	  Use gtk_widget_add_events instead of calling set+get.
+
+2011-12-06  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/panorama-popup.c:
 	* src/ui/edit/ruler.c:
 	* src/ui/edit/ruler.h:

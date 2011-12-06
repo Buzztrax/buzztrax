@@ -742,7 +742,7 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   /* add spectrum canvas */
   self->priv->spectrum_drawingarea=gtk_drawing_area_new();
   gtk_widget_set_size_request(self->priv->spectrum_drawingarea, self->priv->spect_bands, self->priv->spect_height);
-  gtk_widget_set_events(GTK_WIDGET(self->priv->spectrum_drawingarea),gtk_widget_get_events(GTK_WIDGET(self->priv->spectrum_drawingarea))|GDK_POINTER_MOTION_MASK);
+  gtk_widget_add_events(GTK_WIDGET(self->priv->spectrum_drawingarea),GDK_POINTER_MOTION_MASK);
   g_signal_connect(G_OBJECT (self->priv->spectrum_drawingarea), "size-allocate",
       G_CALLBACK(on_size_allocate), (gpointer) self);
   g_signal_connect(self->priv->spectrum_drawingarea, "motion-notify-event", G_CALLBACK(on_spectrum_drawingarea_motion_notify_event), (gpointer)self);
