@@ -330,10 +330,11 @@ static gboolean redraw_spectrum(gpointer user_data) {
 static void update_spectrum_ruler(const BtSignalAnalysisDialog *self) {
   BtRuler *ruler=BT_RULER(self->priv->spectrum_ruler);
 
-  bt_ruler_set_range(ruler,0.0,self->priv->srate/20.0,-10.0,200.0);
+  bt_ruler_set_range(ruler,0.0,self->priv->srate/2.0,0.0,30.0);
 
 #if 0
   // gtk_ruler_set_metric needs an enum value :/
+  // also for log/lin we need a mapping function instead
   // we can't register own types and there is no setter for custom metrics either
   if(self->priv->frq_map==MAP_LIN) {
     //bt_ruler_set_metric(ruler,&ruler_metrics[0]);
@@ -637,6 +638,16 @@ static void on_spectrum_frequency_precision_changed(GtkComboBox *combo, gpointer
   update_spectrum_analyzer(self);
 }
 
+static gboolean on_spectrum_drawingarea_motion_notify_event(GtkWidget *widget,GdkEventMotion *event,gpointer user_data) {
+  BtSignalAnalysisDialog *self=BT_SIGNAL_ANALYSIS_DIALOG(user_data);
+  gdouble pos;
+
+  pos=(event->x*(gdouble)self->priv->srate)/((gdouble)self->priv->spect_bands*2.0);
+  g_object_set(self->priv->spectrum_ruler, "position", pos, NULL);
+
+  return(FALSE);
+}  
+
 //-- helper methods
 
 /*
@@ -723,7 +734,6 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   /* add scales for spectrum analyzer drawable */
   /* @todo: we need to use a gtk_table() and also add a vruler with levels */
   ruler=bt_hruler_new();
-  BT_RULER_GET_CLASS(ruler)->draw_pos = NULL;
   gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(vbox), ruler, FALSE, FALSE,0);
   self->priv->spectrum_ruler=ruler;
@@ -732,8 +742,10 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   /* add spectrum canvas */
   self->priv->spectrum_drawingarea=gtk_drawing_area_new();
   gtk_widget_set_size_request(self->priv->spectrum_drawingarea, self->priv->spect_bands, self->priv->spect_height);
+  gtk_widget_set_events(GTK_WIDGET(self->priv->spectrum_drawingarea),gtk_widget_get_events(GTK_WIDGET(self->priv->spectrum_drawingarea))|GDK_POINTER_MOTION_MASK);
   g_signal_connect(G_OBJECT (self->priv->spectrum_drawingarea), "size-allocate",
       G_CALLBACK(on_size_allocate), (gpointer) self);
+  g_signal_connect(self->priv->spectrum_drawingarea, "motion-notify-event", G_CALLBACK(on_spectrum_drawingarea_motion_notify_event), (gpointer)self);
   gtk_box_pack_start(GTK_BOX(vbox), self->priv->spectrum_drawingarea, TRUE, TRUE, 0);
 
   /* spacer */
@@ -744,13 +756,13 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   ruler=bt_hruler_new();
   bt_ruler_set_range(BT_RULER(ruler),100.0,0.0,-10.0,30.0);
   //bt_ruler_set_metric(BT_RULER(ruler),&ruler_metrics[0]);
-  BT_RULER_GET_CLASS(ruler)->draw_pos = NULL;
+  g_object_set(ruler,"draw-pos",FALSE,NULL);
   gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
   ruler=bt_hruler_new();
   bt_ruler_set_range(BT_RULER(ruler),0.0,100.5,-10.0,30.0);
   //bt_ruler_set_metric(BT_RULER(ruler),&ruler_metrics[0]);
-  BT_RULER_GET_CLASS(ruler)->draw_pos = NULL;
+  g_object_set(ruler,"draw-pos",FALSE,NULL);
   gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);

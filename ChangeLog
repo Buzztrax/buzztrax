@@ -1,9 +1,20 @@
+2011-12-06  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/panorama-popup.c:
+	* src/ui/edit/ruler.c:
+	* src/ui/edit/ruler.h:
+	* src/ui/edit/signal-analysis-dialog.c:
+	* src/ui/edit/volume-popup.c:
+	  Add a draw-pos property in our own ruler to get rid of the class
+	  method hack. Use the new property to only show the pos-marker in
+	  spectrum-view. Clean up the metrics to deal with out unit-range.
+
 2011-12-05  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/sequence-view.c:
-	  Improve positioning of the playline to avoid cairo spreading the line over
-	  pixel boundaries. Also make invalidation area 1 pixel taller to fix left-
-	  over lines when seeking backwards.
+	  Improve positioning of the playline to avoid cairo spreading the line
+	  over pixel boundaries. Also make invalidation area 1 pixel taller to
+	  fix left-over lines when seeking backwards.
 
 2011-12-04  Stefan Sauer  <ensonic@users.sf.net>
 

@@ -154,7 +154,7 @@ bt_panorama_popup_new(GtkAdjustment *adj) {
    */
   bt_ruler_set_range(BT_RULER(ruler),-120.0,120.0,000.0,30.0);
   gtk_widget_set_size_request(ruler,-1,30);
-  BT_RULER_GET_CLASS(ruler)->draw_pos = NULL;
+  g_object_set(ruler,"draw-pos",FALSE,NULL);
   gtk_table_attach_defaults(GTK_TABLE(table), ruler, 1,2, 0,1);
 
 

@@ -37,8 +37,6 @@
 
 #define RULER_WIDTH           14
 #define MINIMUM_INCR          5
-#define MAXIMUM_SUBDIVIDE     5
-#define MAXIMUM_SCALES        10
 
 #define ROUND(x) ((int) ((x) + 0.5))
 
@@ -50,7 +48,8 @@ enum
   PROP_UPPER,
   PROP_POSITION,
   PROP_MAX_SIZE,
-  PROP_METRIC
+  PROP_METRIC,
+  PROP_DRAW_POS
 };
 
 struct _BtRulerPrivate
@@ -77,12 +76,18 @@ static void bt_ruler_real_draw_pos (BtRuler * ruler);
 
 
 static const BtRulerMetric ruler_metrics[] = {
-  {"Pixel", "Pi", 1.0, {1, 2, 5, 10, 25, 50, 100, 250, 500, 1000}, {1, 5, 10,
-            50, 100}},
-  {"Inches", "In", 72.0, {1, 2, 4, 8, 16, 32, 64, 128, 256, 512}, {1, 2, 4, 8,
-            16}},
-  {"Centimeters", "Cn", 28.35, {1, 2, 5, 10, 25, 50, 100, 250, 500, 1000}, {1,
-            5, 10, 50, 100}},
+  {"Pixel", "Pi", 1.0, 
+    {1, 2, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000}, 
+    {1, 5, 10, 50, 100, 500, 1000, 5000}
+  },
+  {"Inches", "In", 72.0, 
+    {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096}, 
+    {1, 2, 4, 8, 16, 32, 64, 128}
+  },
+  {"Centimeters", "Cn", 28.35, 
+    {1, 2, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000}, 
+    {1, 5, 10, 50, 100, 500, 1000, 5000}
+  },
 };
 
 
@@ -149,6 +154,12 @@ bt_ruler_class_init (BtRulerClass * class)
           "The metric used for the ruler",
           GTK_TYPE_METRIC_TYPE, GTK_PIXELS, G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class,
+      PROP_DRAW_POS,
+      g_param_spec_boolean ("draw-pos",
+          "Draw position",
+          "Wheter the position should be marked at the ruler",
+          TRUE, G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 static void
@@ -172,6 +183,7 @@ bt_ruler_init (BtRuler * ruler)
   ruler->upper = 0;
   ruler->position = 0;
   ruler->max_size = 0;
+  ruler->draw_pos = TRUE;
 
   bt_ruler_set_metric (ruler, GTK_PIXELS);
 }
@@ -205,6 +217,9 @@ bt_ruler_set_property (GObject * object, guint prop_id, const GValue * value, GP
     case PROP_METRIC:
       bt_ruler_set_metric (ruler, g_value_get_enum (value));
       break;
+    case PROP_DRAW_POS:
+      ruler->draw_pos = g_value_get_boolean (value);
+      break;
     default:G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
   }
@@ -233,6 +248,9 @@ bt_ruler_get_property (GObject * object, guint prop_id, GValue * value, GParamSp
       break;
     case PROP_METRIC:
       g_value_set_enum (value, bt_ruler_get_metric (ruler));
+      break;
+    case PROP_DRAW_POS:
+      g_value_set_boolean (value, ruler->draw_pos);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -358,7 +376,7 @@ bt_ruler_draw_pos (BtRuler * ruler)
 {
   g_return_if_fail (BT_IS_RULER (ruler));
 
-  if (BT_RULER_GET_CLASS (ruler)->draw_pos)
+  if (ruler->draw_pos &&  BT_RULER_GET_CLASS (ruler)->draw_pos)
     BT_RULER_GET_CLASS (ruler)->draw_pos (ruler);
 }
 
@@ -605,24 +623,24 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
   if (ruler->priv->orientation == GTK_ORIENTATION_HORIZONTAL) {
     text_width = strlen (unit_str) * digit_height + 1;
 
-    for (scale = 0; scale < MAXIMUM_SCALES; scale++)
+    for (scale = 0; scale < BT_RULER_MAXIMUM_SCALES; scale++)
       if (ruler->metric->ruler_scale[scale] * fabs (increment) > 2 * text_width)
         break;
   } else {
     text_height = strlen (unit_str) * digit_height + 1;
 
-    for (scale = 0; scale < MAXIMUM_SCALES; scale++)
+    for (scale = 0; scale < BT_RULER_MAXIMUM_SCALES; scale++)
       if (ruler->metric->ruler_scale[scale] * fabs (increment) >
           2 * text_height)
         break;
   }
 
-  if (scale == MAXIMUM_SCALES)
-    scale = MAXIMUM_SCALES - 1;
+  if (scale == BT_RULER_MAXIMUM_SCALES)
+    scale = BT_RULER_MAXIMUM_SCALES - 1;
 
   /* drawing starts here */
   length = 0;
-  for (i = MAXIMUM_SUBDIVIDE - 1; i >= 0; i--) {
+  for (i = BT_RULER_MAXIMUM_SUBDIVIDE - 1; i >= 0; i--) {
     subd_incr = (gdouble) ruler->metric->ruler_scale[scale] /
         (gdouble) ruler->metric->subdivide[i];
     if (subd_incr * fabs (increment) <= MINIMUM_INCR)
