@@ -63,8 +63,8 @@ struct _BtRuler
 
   GdkPixmap *backing_store;
   BtRulerMetric *metric;
-  gint xsrc;
-  gint ysrc;
+  gint xsrc, ysrc;
+  gint w, h;
   gint slider_size;
   gboolean draw_pos;
 

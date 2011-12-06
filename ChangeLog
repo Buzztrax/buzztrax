@@ -1,6 +1,13 @@
 2011-12-06  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/ruler.c:
+	* src/ui/edit/ruler.h:
+	  Remember backing-store width and height - no need to used deprecated
+	  gdk api to fetch it.
+
+2011-12-06  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/ruler.c:
 	  Cleanup the drawing code and add more docs.
 
 2011-12-06  Stefan Sauer  <ensonic@users.sf.net>

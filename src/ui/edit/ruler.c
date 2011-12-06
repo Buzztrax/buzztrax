@@ -24,10 +24,15 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-/* since the code was deprecated and removed from gtk+ this copy contains fixes
- * for these bugs:
+/*
+ * Since the code was deprecated and removed from gtk+ in commit
+ * e0fb7a86e59278dccd7c276c754f9e8b7fdab0d5
+ * on Wed Nov 24 16:44:16 2010 +0100
+ * the code was revived here. this copy contains fixes for these bugs:
  * https://bugzilla.gnome.org/show_bug.cgi?id=145491
  * https://bugzilla.gnome.org/show_bug.cgi?id=151944
+ *
+ * plus extra clean-up and features.
  *
  * some features/api discussion at http://live.gnome.org/GTK%2B/GtkRuler
  */
@@ -36,9 +41,6 @@
 
 #include <math.h>
 #include <string.h>
-
-#undef GDK_DISABLE_DEPRECATED /* We need gdk_drawable_get_size() */
-//#undef GTK_DISABLE_DEPRECATED
 
 #include "ruler.h"
 
@@ -521,23 +523,19 @@ static void
 bt_ruler_make_pixmap (BtRuler * ruler)
 {
   GtkWidget *widget = GTK_WIDGET (ruler);
-  gint width;
-  gint height;
 
   if (ruler->backing_store) {
-    gdk_drawable_get_size (ruler->backing_store, &width, &height);
-    if ((width == widget->allocation.width)
-        && (height == widget->allocation.height))
+    if ((ruler->w == widget->allocation.width)
+        && (ruler->h == widget->allocation.height))
       return;
-
+    /* size has changed */
     g_object_unref (ruler->backing_store);
   }
 
-  ruler->backing_store = gdk_pixmap_new (widget->window,
-      widget->allocation.width, widget->allocation.height, -1);
-
-  ruler->xsrc = 0;
-  ruler->ysrc = 0;
+  ruler->w = widget->allocation.width;
+  ruler->h = widget->allocation.height;
+  ruler->backing_store = gdk_pixmap_new (widget->window, ruler->w, ruler->h, -1);
+  ruler->xsrc = ruler->ysrc = 0;
 }
 
 static void
