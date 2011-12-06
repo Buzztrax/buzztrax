@@ -1,5 +1,10 @@
 2011-12-06  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/ruler.c:
+	  Cleanup the drawing code and add more docs.
+
+2011-12-06  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/main-toolbar.c:
 	* src/ui/edit/signal-analysis-dialog.c:

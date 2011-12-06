@@ -24,6 +24,14 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
+/* since the code was deprecated and removed from gtk+ this copy contains fixes
+ * for these bugs:
+ * https://bugzilla.gnome.org/show_bug.cgi?id=145491
+ * https://bugzilla.gnome.org/show_bug.cgi?id=151944
+ *
+ * some features/api discussion at http://live.gnome.org/GTK%2B/GtkRuler
+ */
+
 #include "config.h"
 
 #include <math.h>
@@ -84,7 +92,7 @@ static const BtRulerMetric ruler_metrics[] = {
     {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096}, 
     {1, 2, 4, 8, 16, 32, 64, 128}
   },
-  {"Centimeters", "Cn", 28.35, 
+  {"Centimeters", "Cm", 28.35, 
     {1, 2, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000}, 
     {1, 5, 10, 50, 100, 500, 1000, 5000}
   },
@@ -539,8 +547,7 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
   cairo_t *cr;
   gint i, j;
   gint width, height;
-  gint xthickness;
-  gint ythickness;
+  gint xthickness, ythickness;
   gint length, ideal_length;
   gdouble lower, upper;         /* Upper and lower limits, in ruler units */
   gdouble increment;            /* Number of pixels per unit */
@@ -555,12 +562,14 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
   gint pos;
   PangoLayout *layout;
   PangoRectangle logical_rect, ink_rect;
+  GtkOrientation orientation;
 
   if (!gtk_widget_is_drawable (widget))
     return;
 
   xthickness = widget->style->xthickness;
   ythickness = widget->style->ythickness;
+  orientation = ruler->priv->orientation;
 
   layout = gtk_widget_create_pango_layout (widget, "012456789");
   pango_layout_get_extents (layout, &ink_rect, &logical_rect);
@@ -568,7 +577,7 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
   digit_height = PANGO_PIXELS (ink_rect.height) + 2;
   digit_offset = ink_rect.y;
 
-  if (ruler->priv->orientation == GTK_ORIENTATION_HORIZONTAL) {
+  if (orientation == GTK_ORIENTATION_HORIZONTAL) {
     width = widget->allocation.width;
     height = widget->allocation.height - ythickness * 2;
   } else {
@@ -576,26 +585,21 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
     height = widget->allocation.width - ythickness * 2;
   }
 
-#define DETAILE(private) (private->orientation == GTK_ORIENTATION_HORIZONTAL ? "hruler" : "vruler");
-
   gtk_paint_box (widget->style, ruler->backing_store,
       GTK_STATE_NORMAL, GTK_SHADOW_OUT,
       NULL, widget,
-      ruler->priv->orientation == GTK_ORIENTATION_HORIZONTAL ?
-      "hruler" : "vruler",
+      orientation == GTK_ORIENTATION_HORIZONTAL ?"hruler" : "vruler",
       0, 0, widget->allocation.width, widget->allocation.height);
 
   cr = gdk_cairo_create (ruler->backing_store);
   gdk_cairo_set_source_color (cr, &widget->style->fg[widget->state]);
 
-  if (ruler->priv->orientation == GTK_ORIENTATION_HORIZONTAL) {
-    cairo_rectangle (cr,
-        xthickness,
-        height + ythickness, widget->allocation.width - 2 * xthickness, 1);
+  if (orientation == GTK_ORIENTATION_HORIZONTAL) {
+    cairo_rectangle (cr, xthickness, height + ythickness, 
+        widget->allocation.width - 2 * xthickness, 1);
   } else {
-    cairo_rectangle (cr,
-        height + xthickness,
-        ythickness, 1, widget->allocation.height - 2 * ythickness);
+    cairo_rectangle (cr, height + xthickness, ythickness, 
+        1, widget->allocation.height - 2 * ythickness);
   }
 
   upper = ruler->upper / ruler->metric->pixels_per_unit;
@@ -620,7 +624,7 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
   scale = ceil (ruler->max_size / ruler->metric->pixels_per_unit);
   g_snprintf (unit_str, sizeof (unit_str), "%d", scale);
 
-  if (ruler->priv->orientation == GTK_ORIENTATION_HORIZONTAL) {
+  if (orientation == GTK_ORIENTATION_HORIZONTAL) {
     text_width = strlen (unit_str) * digit_height + 1;
 
     for (scale = 0; scale < BT_RULER_MAXIMUM_SCALES; scale++)
@@ -664,7 +668,7 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
     for (cur = start; cur <= end; cur += subd_incr) {
       pos = ROUND ((cur - lower) * increment);
 
-      if (ruler->priv->orientation == GTK_ORIENTATION_HORIZONTAL) {
+      if (orientation == GTK_ORIENTATION_HORIZONTAL) {
         cairo_rectangle (cr, pos, height + ythickness - length, 1, length);
       } else {
         cairo_rectangle (cr, height + xthickness - length, pos, length, 1);
@@ -674,7 +678,7 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
       if (i == 0) {
         g_snprintf (unit_str, sizeof (unit_str), "%d", (gint) cur);
 
-        if (ruler->priv->orientation == GTK_ORIENTATION_HORIZONTAL) {
+        if (orientation == GTK_ORIENTATION_HORIZONTAL) {
           pango_layout_set_text (layout, unit_str, -1);
           pango_layout_get_extents (layout, &logical_rect, NULL);
 
@@ -720,79 +724,77 @@ static void
 bt_ruler_real_draw_pos (BtRuler * ruler)
 {
   GtkWidget *widget = GTK_WIDGET (ruler);
-  gint x, y;
   gint width, height;
+  gint xthickness, ythickness;
   gint bs_width, bs_height;
-  gint xthickness;
-  gint ythickness;
-  gdouble increment;
+  GtkOrientation orientation;
 
-  if (gtk_widget_is_drawable (widget)) {
-    xthickness = widget->style->xthickness;
-    ythickness = widget->style->ythickness;
-    width = widget->allocation.width;
-    height = widget->allocation.height;
+  if (!gtk_widget_is_drawable (widget))
+    return;
 
-    if (ruler->priv->orientation == GTK_ORIENTATION_HORIZONTAL) {
-      height -= ythickness * 2;
+  xthickness = widget->style->xthickness;
+  ythickness = widget->style->ythickness;
+  width = widget->allocation.width;
+  height = widget->allocation.height;
+  orientation = ruler->priv->orientation;
 
-      bs_width = height / 2 + 2;
-      bs_width |= 1;            /* make sure it's odd */
-      bs_height = bs_width / 2 + 1;
-    } else {
-      width -= xthickness * 2;
+  if (orientation == GTK_ORIENTATION_HORIZONTAL) {
+    height -= ythickness * 2;
 
-      bs_height = width / 2 + 2;
-      bs_height |= 1;           /* make sure it's odd */
-      bs_width = bs_height / 2 + 1;
-    }
+    bs_width = height / 2 + 2;
+    bs_width |= 1;            /* make sure it's odd */
+    bs_height = bs_width / 2 + 1;
+  } else {
+    width -= xthickness * 2;
 
-    if ((bs_width > 0) && (bs_height > 0)) {
-      cairo_t *cr = gdk_cairo_create (widget->window);
+    bs_height = width / 2 + 2;
+    bs_height |= 1;           /* make sure it's odd */
+    bs_width = bs_height / 2 + 1;
+  }
 
-      /*  If a backing store exists, restore the ruler  */
-      if (ruler->backing_store) {
-        cairo_t *cr = gdk_cairo_create (widget->window);
+  if ((bs_width > 0) && (bs_height > 0)) {
+    cairo_t *cr = gdk_cairo_create (widget->window);
+    gint x, y;
+    gdouble increment;
 
-        gdk_cairo_set_source_pixmap (cr, ruler->backing_store, 0, 0);
-        cairo_rectangle (cr, ruler->xsrc, ruler->ysrc, bs_width, bs_height);
-        cairo_fill (cr);
-
-        cairo_destroy (cr);
-      }
-
-      if (ruler->priv->orientation == GTK_ORIENTATION_HORIZONTAL) {
-        increment = (gdouble) width / (ruler->upper - ruler->lower);
-
-        x = ROUND ((ruler->position - ruler->lower) * increment) + (xthickness -
-            bs_width) / 2 - 1;
-        y = (height + bs_height) / 2 + ythickness;
-      } else {
-        increment = (gdouble) height / (ruler->upper - ruler->lower);
-
-        x = (width + bs_width) / 2 + xthickness;
-        y = ROUND ((ruler->position - ruler->lower) * increment) + (ythickness -
-            bs_height) / 2 - 1;
-      }
-
-      gdk_cairo_set_source_color (cr, &widget->style->fg[widget->state]);
-
-      cairo_move_to (cr, x, y);
-
-      if (ruler->priv->orientation == GTK_ORIENTATION_HORIZONTAL) {
-        cairo_line_to (cr, x + bs_width / 2.0, y + bs_height);
-        cairo_line_to (cr, x + bs_width, y);
-      } else {
-        cairo_line_to (cr, x + bs_width, y + bs_height / 2.0);
-        cairo_line_to (cr, x, y + bs_height);
-      }
-
+    /*  If a backing store exists, restore the ruler  */
+    if (ruler->backing_store) {
+      gdk_cairo_set_source_pixmap (cr, ruler->backing_store, 0, 0);
+      cairo_rectangle (cr, ruler->xsrc, ruler->ysrc, bs_width, bs_height);
       cairo_fill (cr);
-
-      cairo_destroy (cr);
-
-      ruler->xsrc = x;
-      ruler->ysrc = y;
     }
+
+    if (orientation == GTK_ORIENTATION_HORIZONTAL) {
+      increment = (gdouble) width / (ruler->upper - ruler->lower);
+
+      x = ROUND ((ruler->position - ruler->lower) * increment) + (xthickness -
+          bs_width) / 2 - 1;
+      y = (height + bs_height) / 2 + ythickness;
+    } else {
+      increment = (gdouble) height / (ruler->upper - ruler->lower);
+
+      x = (width + bs_width) / 2 + xthickness;
+      y = ROUND ((ruler->position - ruler->lower) * increment) + (ythickness -
+          bs_height) / 2 - 1;
+    }
+
+    gdk_cairo_set_source_color (cr, &widget->style->fg[widget->state]);
+
+    cairo_move_to (cr, x, y);
+
+    if (orientation == GTK_ORIENTATION_HORIZONTAL) {
+      cairo_line_to (cr, x + bs_width / 2.0, y + bs_height);
+      cairo_line_to (cr, x + bs_width, y);
+    } else {
+      cairo_line_to (cr, x + bs_width, y + bs_height / 2.0);
+      cairo_line_to (cr, x, y + bs_height);
+    }
+
+    cairo_fill (cr);
+
+    cairo_destroy (cr);
+
+    ruler->xsrc = x;
+    ruler->ysrc = y;
   }
 }
