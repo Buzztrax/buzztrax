@@ -681,30 +681,78 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
  */
 static gboolean bt_machine_make_internal_element(const BtMachine * const self,const BtMachinePart part,const gchar * const factory_name,const gchar * const element_name) {
   gboolean res=FALSE;
+  GstElement *m;
   const gchar * const parent_name=GST_OBJECT_NAME(self);
   gchar * const name=g_alloca(strlen(parent_name)+2+strlen(element_name));
+  gpointer item;
 
   g_return_val_if_fail((self->priv->machines[part]==NULL),TRUE);
   
   // create internal element
   //strcat(name,parent_name);strcat(name,":");strcat(name,element_name);
   g_sprintf(name,"%s:%s",parent_name,element_name);
-  if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
+  if(!(self->priv->machines[part]=m=gst_element_factory_make(factory_name,name))) {
     GST_WARNING_OBJECT(self,"failed to create %s from factory %s",element_name,factory_name);goto Error;
   }
 
   // disable deep notify
   {
-    GObjectClass *gobject_class=G_OBJECT_GET_CLASS(self->priv->machines[part]);
+    GObjectClass *gobject_class=G_OBJECT_GET_CLASS(m);
     GObjectClass *parent_class=g_type_class_peek_static(G_TYPE_OBJECT);
     gobject_class->dispatch_properties_changed=parent_class->dispatch_properties_changed;
   }
-
+  
   // get the pads
-  if(src_pn[part])
-    self->priv->src_pads[part]=gst_element_get_static_pad(self->priv->machines[part],src_pn[part]);
-  if(sink_pn[part])
-    self->priv->sink_pads[part]=gst_element_get_static_pad(self->priv->machines[part],sink_pn[part]);
+  if(src_pn[part]) {
+    if(!(self->priv->src_pads[part]=gst_element_get_static_pad(m,src_pn[part]))) {
+      GstIterator *it=gst_element_iterate_src_pads(m);
+      gboolean done=FALSE;
+     
+      while (!done) {
+        switch (gst_iterator_next (it, &item)) {
+          case GST_ITERATOR_RESYNC:
+            gst_iterator_resync(it);
+            break;
+          case GST_ITERATOR_OK:
+            self->priv->src_pads[part]=GST_PAD(item);
+            /* fall through */
+          case GST_ITERATOR_ERROR:
+          case GST_ITERATOR_DONE:
+            done=TRUE;
+            break;
+        }
+      }
+      gst_iterator_free(it);
+      if(!self->priv->src_pads[part]) {
+        GST_WARNING_OBJECT(m,"element has no src pads");
+      }
+    }
+  }
+  if(sink_pn[part]) {
+    if(!(self->priv->sink_pads[part]=gst_element_get_static_pad(m,sink_pn[part]))) {
+      GstIterator *it=gst_element_iterate_sink_pads(m);
+      gboolean done=FALSE;
+      
+      while (!done) {
+        switch (gst_iterator_next (it, &item)) {
+          case GST_ITERATOR_RESYNC:
+            gst_iterator_resync(it);
+            break;
+          case GST_ITERATOR_OK:
+            self->priv->sink_pads[part]=GST_PAD(item);
+            /* fall through */
+          case GST_ITERATOR_ERROR:
+          case GST_ITERATOR_DONE:
+            done=TRUE;
+            break;
+        }
+      }
+      gst_iterator_free(it);
+      if(!self->priv->sink_pads[part]) {
+        GST_WARNING_OBJECT(m,"element has no sink pads");
+      }
+    }
+  }
 
   gst_bin_add(GST_BIN(self),self->priv->machines[part]);
   res=TRUE;

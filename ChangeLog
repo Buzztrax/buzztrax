@@ -1,5 +1,11 @@
 2011-12-07  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	  Some elements (like ladspa) don't use "src" and "sink" as pad-names.
+	  Scanning the pads lists in that case.
+
+2011-12-07  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-editor.c:
 	  Map keypad numbers to regular numbers.
 
