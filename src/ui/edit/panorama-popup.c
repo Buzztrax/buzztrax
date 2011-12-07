@@ -35,7 +35,7 @@
 #define PANORAMA_POPUP_C
 
 #include "bt-edit.h"
-#include "hruler.h"
+#include "ruler.h"
 
 //-- the class
 
@@ -146,7 +146,7 @@ bt_panorama_popup_new(GtkAdjustment *adj) {
 
 
   // add ruler
-  ruler=bt_hruler_new();
+  ruler=bt_ruler_new(GTK_ORIENTATION_HORIZONTAL,FALSE);
   /* we use -X instead of 0.0 because of:
    * http://bugzilla.gnome.org/show_bug.cgi?id=465041
    * @todo: take slider knob size into account
@@ -154,7 +154,6 @@ bt_panorama_popup_new(GtkAdjustment *adj) {
    */
   bt_ruler_set_range(BT_RULER(ruler),-120.0,120.0,000.0,30.0);
   gtk_widget_set_size_request(ruler,-1,30);
-  g_object_set(ruler,"draw-pos",FALSE,NULL);
   gtk_table_attach_defaults(GTK_TABLE(table), ruler, 1,2, 0,1);
 
 

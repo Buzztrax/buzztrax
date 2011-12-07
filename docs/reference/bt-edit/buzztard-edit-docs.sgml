@@ -126,6 +126,7 @@
     <chapter>
       <title>Widget Class Reference</title>
       <xi:include href="xml/btpatterneditor.xml" />
+      <xi:include href="xml/btruler.xml" />
       <xi:include href="xml/btwaveformviewer.xml" />
       <xi:include href="xml/gtkvumeter.xml" />
     </chapter>

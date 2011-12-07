@@ -58,7 +58,7 @@
 #define BT_SIGNAL_ANALYSIS_DIALOG_C
 
 #include "bt-edit.h"
-#include "hruler.h"
+#include "ruler.h"
 
 //-- property ids
 
@@ -733,7 +733,7 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
 
   /* add scales for spectrum analyzer drawable */
   /* @todo: we need to use a gtk_table() and also add a vruler with levels */
-  ruler=bt_hruler_new();
+  ruler=bt_ruler_new(GTK_ORIENTATION_HORIZONTAL,TRUE);
   gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(vbox), ruler, FALSE, FALSE,0);
   self->priv->spectrum_ruler=ruler;
@@ -753,16 +753,14 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
 
   /* add scales for level meter */
   hbox = gtk_hbox_new(FALSE, 0);
-  ruler=bt_hruler_new();
+  ruler=bt_ruler_new(GTK_ORIENTATION_HORIZONTAL,FALSE);
   bt_ruler_set_range(BT_RULER(ruler),100.0,0.0,-10.0,30.0);
   //bt_ruler_set_metric(BT_RULER(ruler),&ruler_metrics[0]);
-  g_object_set(ruler,"draw-pos",FALSE,NULL);
   gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
-  ruler=bt_hruler_new();
+  ruler=bt_ruler_new(GTK_ORIENTATION_HORIZONTAL,FALSE);
   bt_ruler_set_range(BT_RULER(ruler),0.0,100.5,-10.0,30.0);
   //bt_ruler_set_metric(BT_RULER(ruler),&ruler_metrics[0]);
-  g_object_set(ruler,"draw-pos",FALSE,NULL);
   gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);

@@ -109,8 +109,7 @@ GtkMetricType bt_ruler_get_metric (BtRuler *ruler);
 void          bt_ruler_set_range  (BtRuler *ruler, gdouble lower, gdouble upper, gdouble position, gdouble max_size);
 void          bt_ruler_get_range  (BtRuler *ruler, gdouble *lower, gdouble *upper, gdouble *position, gdouble *max_size);
 
-void          bt_ruler_draw_ticks (BtRuler       *ruler);
-void          bt_ruler_draw_pos   (BtRuler       *ruler);
+GtkWidget    *bt_ruler_new        (GtkOrientation orientation, gboolean draw_pos);
 
 G_END_DECLS
 

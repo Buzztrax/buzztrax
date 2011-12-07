@@ -730,6 +730,31 @@ BtRenderProgressPrivate
 
 
 <SECTION>
+<FILE>btruler</FILE>
+<TITLE>BtRuler</TITLE>
+BtRuler
+gtk_vumeter_new
+bt_ruler_set_metric
+bt_ruler_get_metric
+bt_ruler_set_range
+bt_ruler_get_range
+<SUBSECTION Standard>
+BtRulerClass
+BtRulerPrivate
+BtRulerMetric
+BT_RULER_MAXIMUM_SCALES
+BT_RULER_MAXIMUM_SUBDIVIDE
+BT_RULER
+BT_IS_RULER
+BT_RULER_CLASS
+BT_IS_RULER_CLASS
+BT_RULER_GET_CLASS
+BT_TYPE_RULER
+bt_ruler_get_type
+</SECTION>
+
+
+<SECTION>
 <FILE>btsequencegridmodel</FILE>
 <TITLE>BtSequenceGridModel</TITLE>
 BtSequenceGridModel

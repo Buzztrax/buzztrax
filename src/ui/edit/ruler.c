@@ -35,6 +35,23 @@
  * plus extra clean-up and features.
  *
  * some features/api discussion at http://live.gnome.org/GTK%2B/GtkRuler
+ *
+ * TODO:
+ * - make other instance vars private
+ * - use GtkAdjustment
+ * - add non-linear tick mapping
+ * - consider removing max-size parameter (use size-request instead)
+ */
+/**
+ * SECTION:btruler
+ * @Short_description: A ruler widget
+ *
+ * The Ruler widget is utilized around other widgets such as a text widget or a
+ * graph. The ruler is used to show the location of the mouse on the window and
+ * to show the size of the window in specified units. The available units of
+ * measurement are GTK_PIXELS, GTK_INCHES and GTK_CENTIMETERS.
+ * GTK_PIXELS is the default unit of measurement. The ruler widget can be
+ * oriented vertically or horizontally.
  */
 
 #include "config.h"
@@ -372,7 +389,24 @@ bt_ruler_get_range (BtRuler * ruler, gdouble * lower, gdouble * upper, gdouble *
     *max_size = ruler->max_size;
 }
 
-void 
+/**
+ * bt_ruler_new:
+ * @orientation: wheter the ruler is vertcal or horizontal
+ * @draw_pos wheter the uler will show a position marker
+ *
+ * Creates a new ruler
+ *
+ * Returns: a new #BtRuler.
+ */
+GtkWidget *
+bt_ruler_new (GtkOrientation orientation, gboolean draw_pos)
+{
+  return g_object_new (BT_TYPE_RULER, "orientation", orientation, "draw-pos", draw_pos, NULL);
+}
+
+/* vmethods */
+
+static void 
 bt_ruler_draw_ticks (BtRuler * ruler)
 {
   g_return_if_fail (BT_IS_RULER (ruler));
@@ -381,7 +415,7 @@ bt_ruler_draw_ticks (BtRuler * ruler)
     BT_RULER_GET_CLASS (ruler)->draw_ticks (ruler);
 }
 
-void 
+static void 
 bt_ruler_draw_pos (BtRuler * ruler)
 {
   g_return_if_fail (BT_IS_RULER (ruler));
@@ -389,7 +423,6 @@ bt_ruler_draw_pos (BtRuler * ruler)
   if (ruler->draw_pos &&  BT_RULER_GET_CLASS (ruler)->draw_pos)
     BT_RULER_GET_CLASS (ruler)->draw_pos (ruler);
 }
-
 
 static void
 bt_ruler_realize (GtkWidget * widget)

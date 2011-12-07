@@ -31,7 +31,7 @@
 #define VOLUME_POPUP_C
 
 #include "bt-edit.h"
-#include "vruler.h"
+#include "ruler.h"
 
 //-- the class
 
@@ -140,7 +140,7 @@ bt_volume_popup_new(GtkAdjustment *adj) {
 
 
   // add ruler
-  ruler=bt_vruler_new();
+  ruler=bt_ruler_new(GTK_ORIENTATION_VERTICAL,FALSE);
   /* we use -X instead of 0.0 because of:
    * http://bugzilla.gnome.org/show_bug.cgi?id=465041
    * @todo: take slider knob size into account

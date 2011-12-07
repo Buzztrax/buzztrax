@@ -848,7 +848,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             break;
           }
           if (self->digit == 0 && event->hardware_keycode <= 255) {
-            // FIXME: use event->hardware_keycode because of y<>z
+            // use event->hardware_keycode because of y<>z
             p = strchr(notenames, (char)event->hardware_keycode);
             if (p) {
               gint value = 1 + (p - notenames) + 16 * self->octave;
