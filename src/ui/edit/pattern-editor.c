@@ -796,10 +796,14 @@ bt_pattern_editor_key_press (GtkWidget *widget,
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
 
   if (self->num_groups) {
+    // map keypad numbers to ordinary numbers
+    if (event->keyval >= GDK_KP_0 && event->keyval <=  GDK_KP_9) {
+      event->keyval -= ( GDK_KP_0 - '0');
+    }
+
     if (!(event->state & (GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD1_MASK)) &&
       (event->keyval >= 32 && event->keyval < 127) &&
-      self->callbacks->set_data_func)
-    {
+      self->callbacks->set_data_func) {
       BtPatternEditorColumn *col = &self->groups[self->group].columns[self->parameter];
       if (event->keyval == '.') {
         self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, col->def);
@@ -812,72 +816,73 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         static const gchar notenames[] = "\x34\x27\x35\x28\x36\x37\x2a\x38\x2b\x39\x2c\x3a\x3a\x3a\x3a\x3a\x18\x0b\x19\x0c\x1a\x1b\x0e\x1c\x0f\x1d\x10\x1e\x1e\x1e\x1e\x1e\x1f\x12\x20\x13\x21";
         gfloat oldvalue = self->callbacks->get_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter);
         const gchar *p;
+
         switch(col->type) {
-        case PCT_FLOAT:
-          // no editing yet
-          break;
-        case PCT_SWITCH:
-          if (event->keyval == '0' || event->keyval == '1') {
-            self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, event->keyval - '0');
-            advance(self);
-          }
-          break;
-        case PCT_BYTE:
-        case PCT_WORD:
-          p = strchr(hexdigits, (char)event->keyval);
-          if (p) {
-            gint value = (gint)oldvalue;
-            if (oldvalue == col->def)
-              value = 0;
-            gint shift = 4*(((col->type == PCT_BYTE) ? 1 : 3) - self->digit);
-            value = (value &~(15 << shift)) | ((p - hexdigits) << shift);
-            if (value < col->min) value = col->min;
-            if (value > col->max) value = col->max;
-
-            self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
-            bt_pattern_editor_refresh_cell (self);
-            advance(self);
-          }
-          break;
-        case PCT_NOTE:
-          if (self->digit == 0 && event->keyval == '1') {
-            // note off
-            self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, 255);
-            bt_pattern_editor_refresh_cell (self);
-            advance(self);
+          case PCT_FLOAT:
+            // no editing yet
             break;
-          }
-          if (self->digit == 0 && event->hardware_keycode <= 255) {
-            // use event->hardware_keycode because of y<>z
-            p = strchr(notenames, (char)event->hardware_keycode);
-            if (p) {
-              gint value = 1 + (p - notenames) + 16 * self->octave;
-              if (value < col->min) value = col->min;
-              if (value > col->max) value = col->max;
-
-              if (value >= col->min && value <= col->max && (value & 15) <= 12) {
-                self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
-                bt_pattern_editor_refresh_cell (self);
-                advance(self);
-              }
+          case PCT_SWITCH:
+            if (event->keyval == '0' || event->keyval == '1') {
+              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, event->keyval - '0');
+              advance(self);
             }
-          }
-          if (self->digit == 1) {
-            if (isdigit(event->keyval)) {
+            break;
+          case PCT_BYTE:
+          case PCT_WORD:
+            p = strchr(hexdigits, (char)event->keyval);
+            if (p) {
               gint value = (gint)oldvalue;
               if (oldvalue == col->def)
-                value = 1;
-              value = (value & 15) | ((event->keyval - '0') << 4);
-
-              // note range = 1..12 and not 0..11
-              if (value >= col->min && value <= col->max && (value & 15) <= 12) {
-                self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
-                bt_pattern_editor_refresh_cell (self);
-                advance(self);
+                value = 0;
+              gint shift = 4*(((col->type == PCT_BYTE) ? 1 : 3) - self->digit);
+              value = (value &~(15 << shift)) | ((p - hexdigits) << shift);
+              if (value < col->min) value = col->min;
+              if (value > col->max) value = col->max;
+  
+              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
+              bt_pattern_editor_refresh_cell (self);
+              advance(self);
+            }
+            break;
+          case PCT_NOTE:
+            if (self->digit == 0 && event->keyval == '1') {
+              // note off
+              self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, 255);
+              bt_pattern_editor_refresh_cell (self);
+              advance(self);
+              break;
+            }
+            if (self->digit == 0 && event->hardware_keycode <= 255) {
+              // use event->hardware_keycode because of y<>z
+              p = strchr(notenames, (char)event->hardware_keycode);
+              if (p) {
+                gint value = 1 + (p - notenames) + 16 * self->octave;
+                if (value < col->min) value = col->min;
+                if (value > col->max) value = col->max;
+  
+                if (value >= col->min && value <= col->max && (value & 15) <= 12) {
+                  self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
+                  bt_pattern_editor_refresh_cell (self);
+                  advance(self);
+                }
               }
             }
-          }
-          break;
+            if (self->digit == 1) {
+              if (isdigit(event->keyval)) {
+                gint value = (gint)oldvalue;
+                if (oldvalue == col->def)
+                  value = 1;
+                value = (value & 15) | ((event->keyval - '0') << 4);
+  
+                // note range = 1..12 and not 0..11
+                if (value >= col->min && value <= col->max && (value & 15) <= 12) {
+                  self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->group, self->parameter, self->digit, value);
+                  bt_pattern_editor_refresh_cell (self);
+                  advance(self);
+                }
+              }
+            }
+            break;
         }
       }
     }

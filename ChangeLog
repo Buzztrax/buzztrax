@@ -1,5 +1,10 @@
 2011-12-07  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-editor.c:
+	  Map keypad numbers to regular numbers.
+
+2011-12-07  Stefan Sauer  <ensonic@users.sf.net>
+
 	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
 	* docs/reference/bt-edit/buzztard-edit-sections.txt:
 	* docs/reference/bt-edit/buzztard-edit.types:
