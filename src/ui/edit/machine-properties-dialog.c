@@ -116,7 +116,7 @@ typedef struct {
 } G_STMT_END
 
 #define FREE_NOTIFY_IDLE_DATA(data) G_STMT_START { \
-  g_object_remove_weak_pointer(data->user_data,&data->user_data); \
+  if(data->user_data) g_object_remove_weak_pointer(data->user_data,&data->user_data); \
   g_slice_free(BtNotifyIdleData,data); \
 } G_STMT_END
 
