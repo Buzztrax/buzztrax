@@ -1,5 +1,13 @@
 2011-12-08  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Check the right var in g_return_if_fail().
+
+	* src/ui/edit/main-toolbar.c:
+	  Stop the playback-pos timer when song is stopped.
+
+2011-12-08  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	  Don't unref the weak pointer if the object is gone already.
 

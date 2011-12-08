@@ -860,7 +860,7 @@ gboolean bt_song_continue(const BtSong * const self) {
  */
 gboolean bt_song_update_playback_position(const BtSong * const self) {
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
-  g_assert(GST_IS_BIN(self->priv->bin));
+  g_assert(GST_IS_BIN(self->priv->master_bin));
   g_assert(GST_IS_QUERY(self->priv->position_query));
   //GST_INFO("query playback-pos");
 

@@ -134,6 +134,10 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
 
     GST_INFO("song stop event occurred: %p",g_thread_self());
     // stop update timer and reset trick playback
+    if(self->priv->playback_update_id) {
+      g_source_remove(self->priv->playback_update_id);
+      self->priv->playback_update_id=0;
+    }
     bt_song_update_playback_position(song);
     reset_playback_rate(self);
     // disable stop button
