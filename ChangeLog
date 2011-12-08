@@ -1,5 +1,10 @@
 2011-12-08  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c:
+	  Fix the enum blending logic even more.
+
+2011-12-08  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/persistence.c:
 	* src/ui/edit/main-page-patterns.c:
 	  Support the enum note type.

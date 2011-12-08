@@ -1059,17 +1059,27 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
     case G_TYPE_ENUM:{
       GParamSpecEnum *p=G_PARAM_SPEC_ENUM (property);
       GEnumClass *e=p->enum_class;
-			gdouble val1,val2,step;
-      gint v;
+			gdouble step;
+      gint v,v1,v2;
       
-      val1=g_enum_get_value(e,g_value_get_enum(beg))->value;
-      val2=g_enum_get_value(e,g_value_get_enum(end))->value;
-      step=(val2-val1)/(gdouble)ticks;
+      // we need the index of the enum value and the number of values inbetween
+      v=g_value_get_enum(beg);
+      for(v1=0;v1<e->n_values;v1++) {
+        if (e->values[v1].value==v)
+          break;
+      }
+      v=g_value_get_enum(end);
+      for(v2=0;v2<e->n_values;v2++) {
+        if (e->values[v2].value==v)
+          break;
+      }
+      step=(gdouble)(v2-v1)/(gdouble)ticks;
+      //GST_DEBUG("v1 = %d, v2=%d, step=%lf",v1,v2,step);
 
       for(i=0;i<ticks;i++) {
         if(!BT_IS_GVALUE(beg))
           g_value_init(beg,property->value_type);
-        v=(gint)(val1+(step*i));
+        v=(gint)(v1+(step*i));
 				// handle sparse enums
         g_value_set_enum(beg,e->values[v].value);
         beg+=params;
