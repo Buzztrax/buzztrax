@@ -1,5 +1,10 @@
 2011-12-08  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/ui/edit/sequence-view.c:
+	  Remove leftover define.
+
+2011-12-08  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
 	  Check the right var in g_return_if_fail().
 

@@ -60,8 +60,6 @@ struct _BtSequenceViewPrivate {
   GdkWindow *window;
 };
 
-#define AREA_REDRAW 1
-
 //-- the class
 
 G_DEFINE_TYPE (BtSequenceView, bt_sequence_view, GTK_TYPE_TREE_VIEW);
