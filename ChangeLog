@@ -1,3 +1,9 @@
+2011-12-08  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/lib/ic/control.c:
+	* src/ui/edit/main-page-patterns.c:
+	  Use new enums from gst-buzztard.
+
 2011-12-07  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

@@ -1751,7 +1751,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       col->type=PCT_NOTE;
       col->min=0;
       col->max=((16*9)+12);
-      col->def=GSTBT_TONE_CONVERSION_NOTE_NO;
+      col->def=GSTBT_NOTE_NONE;
       col->user_data=g_new(BtPatternEditorColumnConverters,1);
       pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->val_to_float=note_val_to_float;

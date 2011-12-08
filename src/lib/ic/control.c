@@ -28,7 +28,7 @@
  *
  * @todo: new subclasses:
  * - BTIC_CONTROL_KEY (midi keyboard, computer keyboard)
- *   - value would be a guint with the key-number (see GSTBT_TONE_CONVERSION_NOTE_*)
+ *   - value would be a guint with the key-number (see GSTBT_NOTE_*)
  *   - if a midi keyboard is polyphonic, should it register multiple controls?
  *   - when we bind it, we need to smartly assign the controls to voices
  *     - if a synth has 4 voices we assign key0->voice0, key1->voice1, ...
