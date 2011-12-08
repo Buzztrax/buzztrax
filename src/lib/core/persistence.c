@@ -291,9 +291,21 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
       g_value_set_string(gvalue,svalue);
     } break;
     case G_TYPE_ENUM: {
-      const gint val=svalue?atoi(svalue):0;
-      //GST_INFO("-> %d",val);
-      g_value_set_enum(gvalue,val);
+      if(G_VALUE_TYPE(gvalue)==GSTBT_TYPE_NOTE) {
+        GEnumClass *enum_class=g_type_class_peek_static(GSTBT_TYPE_NOTE);
+        GEnumValue *enum_value;
+        gint val=0;
+        
+        if((enum_value=g_enum_get_value_by_nick(enum_class,svalue))) {
+          val=enum_value->value;
+        }
+        //GST_INFO("mapping '%s' -> %d", svalue, val);
+        g_value_set_enum(gvalue,val);
+      } else {
+        const gint val=svalue?atoi(svalue):0;
+        //GST_INFO("-> %d",val);
+        g_value_set_enum(gvalue,val);
+      }
     } break;
     case G_TYPE_INT: {
       const gint val=svalue?atoi(svalue):0;
@@ -365,7 +377,19 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
       res=g_value_dup_string(gvalue);
       break;
     case G_TYPE_ENUM:
-      res=g_strdup_printf("%d",g_value_get_enum(gvalue));
+      if(G_VALUE_TYPE(gvalue)==GSTBT_TYPE_NOTE) {
+        GEnumClass *enum_class=g_type_class_peek_static(GSTBT_TYPE_NOTE);
+        GEnumValue *enum_value;
+        gint val=g_value_get_enum(gvalue);
+
+        if((enum_value=g_enum_get_value(enum_class,val))) {
+          res=g_strdup(enum_value->value_nick);
+        } else {
+          res=g_strdup("");
+        }
+      } else {
+        res=g_strdup_printf("%d",g_value_get_enum(gvalue));
+      }
       break;
     case G_TYPE_INT:
       res=g_strdup_printf("%d",g_value_get_int(gvalue));
