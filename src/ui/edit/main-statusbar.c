@@ -116,6 +116,9 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   GST_DEBUG("tick update");
 
   g_object_get((gpointer)song,"sequence",&sequence,"play-pos",&pos,NULL);
+  if(!sequence)
+    return;
+
   //GST_INFO("sequence tick received : %d",pos);
   bar_time=bt_sequence_get_bar_time(sequence);
 
