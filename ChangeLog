@@ -1,3 +1,8 @@
+2011-12-12  Stefan Sauer  <ensonic@users.sf.net>
+
+	* tests/lib/core/t-sink-machine.c:
+	  Add two more tests.
+
 2011-12-08  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/ui/edit/sequence-view.c:

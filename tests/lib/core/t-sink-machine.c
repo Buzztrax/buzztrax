@@ -155,6 +155,34 @@ BT_START_TEST(test_btsinkmachine_settings4) {
 }
 BT_END_TEST;
 
+// test attribute handling in sink names
+BT_START_TEST(test_btsinkmachine_settings5) {
+  BtApplication *app=NULL;
+  GError *err=NULL;
+  BtSong *song=NULL;
+  BtSinkMachine *machine=NULL;
+  BtSettings *settings=bt_settings_make();
+
+  /* create  app, song and get settings */
+  app=bt_test_application_new();
+  song=bt_song_new(app);
+  mark_point();
+
+  g_object_set(settings,"audiosink","doesnotexistssink",NULL);
+  mark_point();
+
+  machine=bt_sink_machine_new(song,"master",&err);
+  fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  g_object_unref(settings);
+  g_object_unref(machine);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST;
+
+
 // test if the song play routine works with fakesink
 BT_START_TEST(test_btsinkmachine_play1) {
   BtApplication *app=NULL;
@@ -219,6 +247,37 @@ BT_START_TEST(test_btsinkmachine_play2) {
 }
 BT_END_TEST
 
+// test if the song play routine handles sink with wrong parameters
+BT_START_TEST(test_btsinkmachine_play3) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSongIO *loader=NULL;
+  gboolean load_ret = FALSE;
+  gboolean res;
+  BtSettings *settings=bt_settings_make();
+
+  g_object_set(settings,"audiosink","doesnotexistssink",NULL);
+
+  /* create  app and song */
+  app=bt_test_application_new();
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
+  fail_unless(loader != NULL, NULL);
+  load_ret = bt_song_io_load(loader,song);
+  fail_unless(load_ret, NULL);
+
+  res=bt_song_play(song);
+  fail_unless(res, NULL);
+  sleep(1);
+  bt_song_stop(song);
+
+  g_object_unref(settings);
+  g_object_checked_unref(loader);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
 
 TCase *bt_sink_machine_test_case(void) {
   TCase *tc = tcase_create("BtSinkMachineTests");
@@ -227,8 +286,10 @@ TCase *bt_sink_machine_test_case(void) {
   tcase_add_test(tc,test_btsinkmachine_settings2);
   tcase_add_test(tc,test_btsinkmachine_settings3);
   tcase_add_test(tc,test_btsinkmachine_settings4);
+  tcase_add_test(tc,test_btsinkmachine_settings5);
   tcase_add_test(tc,test_btsinkmachine_play1);
   tcase_add_test(tc,test_btsinkmachine_play2);
+  tcase_add_test(tc,test_btsinkmachine_play3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
