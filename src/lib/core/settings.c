@@ -1,4 +1,4 @@
-/* $Id$
+  /* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -49,6 +49,68 @@ static BtSettings *singleton=NULL;
 //-- the class
 
 G_DEFINE_ABSTRACT_TYPE (BtSettings, bt_settings, G_TYPE_OBJECT);
+
+//-- helper
+
+static gchar *parse_and_check_audio_sink(gchar *plugin_name) {
+  gchar *sink_name,*eon;
+  
+  if(!plugin_name)
+    return(NULL);
+
+  GST_DEBUG("plugin name is: '%s'", plugin_name);
+
+  // this can be a whole pipeline like "audioconvert ! osssink sync=false"
+  // seek for the last '!'
+  if(!(sink_name=strrchr(plugin_name,'!'))) {
+    sink_name=plugin_name;
+  }
+  else {
+    // skip '!' and spaces
+    sink_name++;
+    while(*sink_name==' ') sink_name++;
+  }
+  // if there is a space following put '\0' in there
+  if((eon=strstr(sink_name," "))) {
+    *eon='\0';
+  }
+  if ((sink_name!=plugin_name) || eon) {
+    // no g_free() to partial memory later
+    gchar * const temp=plugin_name;
+    plugin_name=g_strdup(sink_name);
+    g_free(temp);
+  }
+  if (BT_IS_STRING(plugin_name)) {
+    GstPluginFeature *f;
+    gboolean invalid=FALSE;
+
+    if ((f=gst_registry_lookup_feature(gst_registry_get_default(), plugin_name))) {
+      if(GST_IS_ELEMENT_FACTORY(f)) {
+        gboolean can_int_caps,can_float_caps;
+
+        can_int_caps=bt_gst_element_factory_can_sink_media_type((GstElementFactory *)f,"audio/x-raw-int");
+        can_float_caps=bt_gst_element_factory_can_sink_media_type((GstElementFactory *)f,"audio/x-raw-float");
+        if(!(can_int_caps || can_float_caps)) {
+          GST_INFO("audiosink '%s' has no compatible caps", plugin_name);
+          invalid=TRUE;
+        }  
+      } else {
+        GST_INFO("audiosink '%s' not an element factory", plugin_name);
+        invalid=TRUE;
+      }
+      gst_object_unref(f);
+    }
+    else {
+      GST_INFO("audiosink '%s' not in registry", plugin_name);
+      invalid=TRUE;
+    }
+    if(invalid) {
+      g_free(plugin_name);
+      plugin_name=NULL;
+    }
+  }
+  return(plugin_name);
+}
 
 //-- constructor methods
 
@@ -124,41 +186,15 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
 
   if(BT_IS_STRING(audiosink_name)) {
     GST_INFO("get audiosink from config");
-    plugin_name=audiosink_name;
+    plugin_name=parse_and_check_audio_sink(audiosink_name);
     audiosink_name=NULL;
   }
-  else if(BT_IS_STRING(system_audiosink_name)) {
+  if(!plugin_name && BT_IS_STRING(system_audiosink_name)) {
     GST_INFO("get audiosink from system config");
-    plugin_name=system_audiosink_name;
+    plugin_name=parse_and_check_audio_sink(system_audiosink_name);
     system_audiosink_name=NULL;
   }
-  if(plugin_name) {
-    gchar *sink_name,*eon;
-
-    GST_DEBUG("plugin name is: '%s'", plugin_name);
-
-    // this can be a whole pipeline like "audioconvert ! osssink sync=false"
-    // seek for the last '!'
-    if(!(sink_name=strrchr(plugin_name,'!'))) {
-      sink_name=plugin_name;
-    }
-    else {
-      // skip '!' and spaces
-      sink_name++;
-      while(*sink_name==' ') sink_name++;
-    }
-    // if there is a space following put '\0' in there
-    if((eon=strstr(sink_name," "))) {
-      *eon='\0';
-    }
-    if ((sink_name!=plugin_name) || eon) {
-      // no g_free() to partial memory later
-      gchar * const temp=plugin_name;
-      plugin_name=g_strdup(sink_name);
-      g_free(temp);
-    }
-  }
-  if (!BT_IS_STRING(plugin_name)) {
+  if(!plugin_name) {
     // @todo: try autoaudiosink (if it exists)
     // iterate over gstreamer-audiosink list and choose element with highest rank
     const GList *node;
@@ -172,8 +208,9 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
 
     for(node=audiosink_factories;node;node=g_list_next(node)) {
       GstElementFactory * const factory=node->data;
+      const gchar *feature_name = gst_plugin_feature_get_name((GstPluginFeature *)factory);
 
-      GST_INFO("  probing audio sink: \"%s\"",gst_plugin_feature_get_name((GstPluginFeature *)factory));
+      GST_INFO("  probing audio sink: \"%s\"",feature_name);
 
       // can the sink accept raw audio?
       can_int_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-int");
@@ -181,14 +218,16 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
       if(can_int_caps || can_float_caps) {
         // get element max(rank)
         cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
-        GST_INFO("  trying audio sink: \"%s\" with rank: %d",gst_plugin_feature_get_name((GstPluginFeature *)factory),cur_rank);
+        GST_INFO("  trying audio sink: \"%s\" with rank: %d",feature_name,cur_rank);
         if((cur_rank>=max_rank) || (!plugin_name)) {
-          plugin_name=g_strdup(node->data);
+          g_free(plugin_name);
+          plugin_name=g_strdup(feature_name);
           max_rank=cur_rank;
+          GST_INFO("  audio sink \"%s\" is current best sink", plugin_name);
         }
       }
       else {
-        GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",gst_plugin_feature_get_name((GstPluginFeature *)factory));
+        GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",feature_name);
       }
     }
     gst_plugin_feature_list_free(audiosink_factories);

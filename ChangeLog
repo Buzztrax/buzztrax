@@ -1,5 +1,14 @@
 2011-12-12  Stefan Sauer  <ensonic@users.sf.net>
 
+	* src/lib/core/settings.c:
+	  Fix choosing a default audiosink. First we were leaking strings. Next
+	  we were copying the feature to the name. Also make the procedure
+	  smarter - if the plugin in the settings does not exists or is
+	  incompatible, disregard it. This improves the situation that might
+	  happen after a distro upgrade.
+
+2011-12-12  Stefan Sauer  <ensonic@users.sf.net>
+
 	* tests/lib/core/t-sink-machine.c:
 	  Add two more tests.
 
