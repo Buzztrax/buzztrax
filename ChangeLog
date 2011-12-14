@@ -1,3 +1,14 @@
+2011-12-14  Stefan Sauer  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* tests/Makefile.am:
+	  Split BT_LIBS into BT_LDFLAGS and BT_LIBS. Sanitize link order.
+
+
 2011-12-12  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/core/settings.c:

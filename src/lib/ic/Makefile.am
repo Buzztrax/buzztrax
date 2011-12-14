@@ -21,8 +21,10 @@ HAL_FILES=
 endif
 
 lib_LTLIBRARIES = libbuzztard-ic.la
-libbuzztard_ic_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS)
+libbuzztard_ic_la_LIBADD = \
+	$(BASE_DEPS_LIBS) $(BT_LIBS)
 libbuzztard_ic_la_LDFLAGS = \
+	$(BT_LDFLAGS) \
 	-export-symbols-regex ^_?\(btic_\|BtIc\|BTIC_\).* \
 	-version-info @BT_VERSION_INFO@
 libbuzztard_ic_la_SOURCES = \

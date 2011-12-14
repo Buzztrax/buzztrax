@@ -28,6 +28,8 @@ AM_CPPFLAGS = \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
+AM_LDFLAGS = $(BT_LDFLAGS)
+
 .PHONY: help todo stats splint
 
 todo::

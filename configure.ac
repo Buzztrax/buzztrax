@@ -574,9 +574,10 @@ BT_INCLUDEDIR='-I${includedir}'
 dnl -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
 BT_CFLAGS="$ARCH_CFLAGS $ARCH_CPPFLAGS $DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
-BT_LIBS="$DEBUG_LDFLAGS $FEATURE_LIBS $COVERAGE_LIBS"
+BT_LIBS="$COVERAGE_LIBS"
+BT_LDFLAGS="$DEBUG_LDFLAGS"
 if test "x${enable_Bsymbolic}" == "xyes"; then
-  BT_LIBS="$BT_LIBS -Wl,-Bsymbolic-functions"
+  BT_LDFLAGS="$BT_LDFLAGS -Wl,-Bsymbolic-functions"
 fi
 
 dnl check for desktop and mimetype utilities
@@ -589,6 +590,7 @@ AC_SUBST(BT_INCLUDEDIR)
 AC_SUBST(BT_CFLAGS)
 AC_SUBST(BT_LIBDIR)
 AC_SUBST(BT_LIBS)
+AC_SUBST(BT_LDFLAGS)
 AC_SUBST(BASE_DEPS_LIBS)
 AC_SUBST(BASE_DEPS_CFLAGS)
 AC_SUBST(GUI_DEPS_LIBS)

@@ -41,7 +41,12 @@ noinst_PROGRAMS=$(TESTS_BIN)
 	gst-launch-0.10 -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=$@
 
 noinst_LTLIBRARIES = libbt-check.la
-libbt_check_la_LIBADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
+libbt_check_la_LIBADD = \
+	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
+libbt_check_LDFLAGS = \
+	$(BT_LDFLAGS) \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
 libbt_check_la_SOURCES = \
 	bt-check.c bt-check.h \
 	bt-test-application.c bt-test-application.h \
@@ -53,7 +58,9 @@ bt_core_LDADD = \
 	$(top_builddir)/tests/lib/core/libbtcore-check.la \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
-bt_core_LDFLAGS = -Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
+bt_core_LDFLAGS =  \
+	$(BT_LDFLAGS) \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
 bt_core_SOURCES= \
 	m-bt-core.c
 
@@ -62,7 +69,9 @@ bt_ic_LDADD = \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
-bt_ic_LDFLAGS = -Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/ic/.libs
+bt_ic_LDFLAGS =  \
+	$(BT_LDFLAGS) \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/ic/.libs
 bt_ic_SOURCES= \
 	m-bt-ic.c
 
@@ -70,7 +79,9 @@ bt_cmd_LDADD = \
 	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
-bt_cmd_LDFLAGS = -Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
+bt_cmd_LDFLAGS =  \
+	$(BT_LDFLAGS) \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
 bt_cmd_SOURCES= \
 	m-bt-cmd.c
 
@@ -79,7 +90,8 @@ bt_edit_LDADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
-bt_edit_LDFLAGS = \
+bt_edit_LDFLAGS =  \
+	$(BT_LDFLAGS) \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/ic/.libs
 bt_edit_SOURCES= \
@@ -96,6 +108,7 @@ AM_CPPFLAGS = \
 	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)\
 	@VALGRIND_CFLAGS@
+
 endif
 
 songdatadir = $(datadir)/$(PACKAGE)/songs

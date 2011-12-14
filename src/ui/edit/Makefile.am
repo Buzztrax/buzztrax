@@ -93,6 +93,8 @@ AM_CPPFLAGS = \
 	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
+AM_LDFLAGS = $(BT_LDFLAGS)
+
 desktopdir = ${with_desktop_dir}/applications
 desktop_in_files = buzztard-edit.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
