@@ -1,3 +1,14 @@
+2011-12-19  Stefan Sauer  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/dec/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* tests/Makefile.am:
+	  Add LIBM check and link it where needed.
+
 2011-12-14  Stefan Sauer  <ensonic@users.sf.net>
 
 	* configure.ac:

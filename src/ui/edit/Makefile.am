@@ -19,7 +19,7 @@ noinst_HEADERS			= marshal.h
 libbtedit_la_LIBADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
-	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
 	-lgstinterfaces-0.10
 libbtedit_la_SOURCES	= \
 	about-dialog.c about-dialog.h \

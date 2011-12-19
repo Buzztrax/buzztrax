@@ -57,7 +57,7 @@ libbt_check_la_DEPENDENCIES = /tmp/test.wav
 bt_core_LDADD = \
 	$(top_builddir)/tests/lib/core/libbtcore-check.la \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
-	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
+	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_core_LDFLAGS =  \
 	$(BT_LDFLAGS) \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
@@ -68,7 +68,7 @@ bt_ic_LDADD = \
 	$(top_builddir)/tests/lib/ic/libbtic-check.la \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
-	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
+	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_ic_LDFLAGS =  \
 	$(BT_LDFLAGS) \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/ic/.libs
@@ -78,7 +78,7 @@ bt_ic_SOURCES= \
 bt_cmd_LDADD = \
 	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
-	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
+	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_cmd_LDFLAGS =  \
 	$(BT_LDFLAGS) \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
@@ -89,7 +89,7 @@ bt_edit_LDADD = \
 	$(top_builddir)/tests/ui/edit/libbt-edit-check.la \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
-	libbt-check.la $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
+	libbt-check.la $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_edit_LDFLAGS =  \
 	$(BT_LDFLAGS) \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs \

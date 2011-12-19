@@ -546,6 +546,10 @@ AM_C_PROTOTYPES
 test "x$U" != "x" && AC_MSG_ERROR(Compiler not ANSI compliant)
 AC_C_CONST
 
+dnl check for libraries
+AC_CHECK_LIBM
+AC_SUBST(LIBM)
+
 dnl Checks for library functions.
 dnl libc functions
 AC_CHECK_FUNCS( sched_setscheduler)

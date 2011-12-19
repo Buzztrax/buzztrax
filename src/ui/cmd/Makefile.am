@@ -14,7 +14,7 @@ noinst_LTLIBRARIES      = libbtcmd.la
 libbtcmd_la_LIBDADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
     $(top_builddir)/src/lib/ic/libbuzztard-ic.la \
-	$(BASE_DEPS_LIBS) $(BT_LIBS)
+	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbtcmd_la_SOURCES   =	\
 	cmd-application.c cmd-application.h
 

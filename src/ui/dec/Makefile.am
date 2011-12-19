@@ -18,7 +18,7 @@ libbuzztarddec_la_CFLAGS = \
 libbuzztarddec_la_LIBADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
     $(top_builddir)/src/lib/ic/libbuzztard-ic.la \
-    $(BASE_DEPS_LIBS)
+    $(BASE_DEPS_LIBS) $(LIBM)
 libbuzztarddec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libbuzztarddec_la_LIBTOOLFLAGS = --tag=disable-static
 

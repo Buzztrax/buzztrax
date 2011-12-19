@@ -14,7 +14,7 @@ BUILT_SOURCES = marshal.h marshal.c
 lib_LTLIBRARIES = libbuzztard-core.la
 libbuzztard_core_la_LIBADD = \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
-	$(BASE_DEPS_LIBS) $(BT_LIBS) \
+	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
 	-lgstaudio-0.10 -lgstpbutils-0.10
 libbuzztard_core_la_LDFLAGS = \
 	$(BT_LDFLAGS) \
