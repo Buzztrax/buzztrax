@@ -1,3 +1,10 @@
+2011-12-20  Stefan Sauer  <ensonic@users.sf.net>
+
+	* po/LINGUAS:
+	* po/zh_CN.po:
+	* po/zh_CN.po (added):
+	  Add new translation.
+
 2011-12-19  Stefan Sauer  <ensonic@users.sf.net>
 
 	* configure.ac:
