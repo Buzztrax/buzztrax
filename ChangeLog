@@ -1,5 +1,10 @@
 2011-12-22  Stefan Sauer  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Collect NEWS.
+
+2011-12-22  Stefan Sauer  <ensonic@users.sf.net>
+
 	* src/ui/edit/ruler.c:
 	  Experiments with log rulers.
 

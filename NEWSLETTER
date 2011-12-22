@@ -2,7 +2,11 @@ svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
 2012/01 ========================================================================
 
-
+* able to build without using deprecated gtk api
+* own ruler widgets with less hacks
+* no more string parameters for notes, this is faster and let us do e.g. 
+  blending of note ranges
+* bugfixes (fluidsynth, ladspa, ...)
 
 2011/12 ========================================================================
 
