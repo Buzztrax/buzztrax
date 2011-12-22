@@ -571,13 +571,24 @@ bt_ruler_make_pixmap (BtRuler * ruler)
   ruler->xsrc = ruler->ysrc = 0;
 }
 
+// we need to use a differet mechanism to pick ticks that get labels
+//#define USE_LOG10 
+
+#ifdef USE_LOG10
+static gdouble
+map_log10 (gdouble in,gdouble upper,gdouble end)
+{
+  return (end/log10(upper)) * log10(1.0+(in*upper)/end);
+}
+#endif
+
 static void
 bt_ruler_real_draw_ticks (BtRuler * ruler)
 {
   GtkWidget *widget = GTK_WIDGET (ruler);
   cairo_t *cr;
   gint i, j;
-  gint width, height;
+  gint width, height, ruler_size;
   gint xthickness, ythickness;
   gint length, ideal_length;
   gdouble lower, upper;         /* Upper and lower limits, in ruler units */
@@ -609,10 +620,10 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
   digit_offset = ink_rect.y;
 
   if (orientation == GTK_ORIENTATION_HORIZONTAL) {
-    width = widget->allocation.width;
+    ruler_size = width = widget->allocation.width;
     height = widget->allocation.height - ythickness * 2;
   } else {
-    width = widget->allocation.height;
+    ruler_size = width = widget->allocation.height;
     height = widget->allocation.width - ythickness * 2;
   }
 
@@ -698,6 +709,10 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
 
     for (cur = start; cur <= end; cur += subd_incr) {
       pos = ROUND ((cur - lower) * increment);
+      
+#ifdef USE_LOG10
+      pos = map_log10 (pos, ruler->upper, ruler_size);
+#endif
 
       if (orientation == GTK_ORIENTATION_HORIZONTAL) {
         cairo_rectangle (cr, pos, height + ythickness - length, 1, length);
@@ -755,7 +770,7 @@ static void
 bt_ruler_real_draw_pos (BtRuler * ruler)
 {
   GtkWidget *widget = GTK_WIDGET (ruler);
-  gint width, height;
+  gint width, height, ruler_size;
   gint xthickness, ythickness;
   gint bs_width, bs_height;
   GtkOrientation orientation;
@@ -770,12 +785,14 @@ bt_ruler_real_draw_pos (BtRuler * ruler)
   orientation = ruler->priv->orientation;
 
   if (orientation == GTK_ORIENTATION_HORIZONTAL) {
+    ruler_size = width;
     height -= ythickness * 2;
 
     bs_width = height / 2 + 2;
     bs_width |= 1;            /* make sure it's odd */
     bs_height = bs_width / 2 + 1;
   } else {
+    ruler_size = height;
     width -= xthickness * 2;
 
     bs_height = width / 2 + 2;
@@ -785,7 +802,7 @@ bt_ruler_real_draw_pos (BtRuler * ruler)
 
   if ((bs_width > 0) && (bs_height > 0)) {
     cairo_t *cr = gdk_cairo_create (widget->window);
-    gint x, y;
+    gint x, y, pos;
     gdouble increment;
 
     /*  If a backing store exists, restore the ruler  */
@@ -795,18 +812,20 @@ bt_ruler_real_draw_pos (BtRuler * ruler)
       cairo_fill (cr);
     }
 
+    pos = ruler->position;
+#ifdef USE_LOG10
+    pos = map_log10 (pos, ruler->upper, ruler_size);
+#endif
     if (orientation == GTK_ORIENTATION_HORIZONTAL) {
       increment = (gdouble) width / (ruler->upper - ruler->lower);
 
-      x = ROUND ((ruler->position - ruler->lower) * increment) + (xthickness -
-          bs_width) / 2 - 1;
+      x = ROUND ((pos - ruler->lower) * increment) + (xthickness - bs_width) / 2 - 1;
       y = (height + bs_height) / 2 + ythickness;
     } else {
       increment = (gdouble) height / (ruler->upper - ruler->lower);
 
       x = (width + bs_width) / 2 + xthickness;
-      y = ROUND ((ruler->position - ruler->lower) * increment) + (ythickness -
-          bs_height) / 2 - 1;
+      y = ROUND ((pos - ruler->lower) * increment) + (ythickness - bs_height) / 2 - 1;
     }
 
     gdk_cairo_set_source_color (cr, &widget->style->fg[widget->state]);

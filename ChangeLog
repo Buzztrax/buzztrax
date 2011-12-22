@@ -1,3 +1,8 @@
+2011-12-22  Stefan Sauer  <ensonic@users.sf.net>
+
+	* src/ui/edit/ruler.c:
+	  Experiments with log rulers.
+
 2011-12-20  Stefan Sauer  <ensonic@users.sf.net>
 
 	* po/LINGUAS:
