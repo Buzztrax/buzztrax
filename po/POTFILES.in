@@ -7,6 +7,8 @@ src/lib/core/song-io-native.c
 src/lib/core/song-io-native-bzt.c
 src/lib/core/song-io-native-xml.c
 src/lib/core/song-info.c
+src/lib/core/songio/bsl/buzztard-songio-buzz.desktop.in
+src/lib/core/songio/bsl/song-io-buzz.c
 src/lib/ic/ic.c
 src/ui/cmd/bt-cmd.c
 src/ui/cmd/cmd-application.c

@@ -1,6 +1,6 @@
 ## $Id$
 
-SUBDIRS = libbuzztard-core
+SUBDIRS = libbuzztard-core songio
 
 if USE_GCONF
 GCONF_SETTINGS_SRC = gconf-settings.c libbuzztard-core/gconf-settings.h

@@ -626,6 +626,8 @@ AC_CONFIG_FILES(Makefile \
       src/lib/core/libbuzztard-core.pc \
         src/lib/core/libbuzztard-core/Makefile \
         src/lib/core/libbuzztard-core/version.h \
+        src/lib/core/songio/Makefile \
+          src/lib/core/songio/bsl/Makefile \
       src/lib/ic/Makefile \
 	  src/lib/ic/libbuzztard-ic.pc \
         src/lib/ic/libbuzztard-ic/Makefile \
@@ -638,6 +640,7 @@ AC_CONFIG_FILES(Makefile \
   tests/bt-cfg.sh \
     tests/lib/Makefile \
       tests/lib/core/Makefile \
+        tests/lib/core/songio/bsl/bt-cfg.sh \
       tests/lib/ic/Makefile \
     tests/ui/Makefile \
       tests/ui/cmd/Makefile \

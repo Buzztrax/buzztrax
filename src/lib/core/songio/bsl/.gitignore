@@ -1,0 +1,8 @@
+version.h
+Makefile.in
+Makefile
+*.la
+*.lo
+.libs
+.deps
+

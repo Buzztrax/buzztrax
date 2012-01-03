@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="audio/x-bmw">
+    <glob pattern="*.bmw"/>
+    <magic priority="80">
+      <match type="string" value="Buzz" offset="0:0"/>
+    </magic>
+    <comment>Buzz song without waves</comment>
+  </mime-type>
+  <mime-type type="audio/x-bmx">
+    <glob pattern="*.bmx"/>
+    <magic priority="80">
+      <match type="string" value="Buzz" offset="0:0"/>
+    </magic>
+    <comment>Buzz song with waves</comment>
+  </mime-type>
+</mime-info>
