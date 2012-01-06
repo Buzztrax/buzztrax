@@ -588,7 +588,7 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
   GtkWidget *widget = GTK_WIDGET (ruler);
   cairo_t *cr;
   gint i, j;
-  gint width, height, ruler_size;
+  gint width, height;
   gint xthickness, ythickness;
   gint length, ideal_length;
   gdouble lower, upper;         /* Upper and lower limits, in ruler units */
@@ -605,6 +605,9 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
   PangoLayout *layout;
   PangoRectangle logical_rect, ink_rect;
   GtkOrientation orientation;
+#ifdef USE_LOG10
+  gint ruler_size;
+#endif
 
   if (!gtk_widget_is_drawable (widget))
     return;
@@ -620,10 +623,16 @@ bt_ruler_real_draw_ticks (BtRuler * ruler)
   digit_offset = ink_rect.y;
 
   if (orientation == GTK_ORIENTATION_HORIZONTAL) {
-    ruler_size = width = widget->allocation.width;
+#ifdef USE_LOG10
+    ruler_size =
+#endif
+    width = widget->allocation.width;
     height = widget->allocation.height - ythickness * 2;
   } else {
-    ruler_size = width = widget->allocation.height;
+#ifdef USE_LOG10
+    ruler_size =
+#endif
+    width = widget->allocation.height;
     height = widget->allocation.width - ythickness * 2;
   }
 
@@ -770,10 +779,13 @@ static void
 bt_ruler_real_draw_pos (BtRuler * ruler)
 {
   GtkWidget *widget = GTK_WIDGET (ruler);
-  gint width, height, ruler_size;
+  gint width, height;
   gint xthickness, ythickness;
   gint bs_width, bs_height;
   GtkOrientation orientation;
+#ifdef USE_LOG10
+  gint ruler_size;
+#endif
 
   if (!gtk_widget_is_drawable (widget))
     return;
@@ -785,14 +797,18 @@ bt_ruler_real_draw_pos (BtRuler * ruler)
   orientation = ruler->priv->orientation;
 
   if (orientation == GTK_ORIENTATION_HORIZONTAL) {
+#ifdef USE_LOG10
     ruler_size = width;
+#endif
     height -= ythickness * 2;
 
     bs_width = height / 2 + 2;
     bs_width |= 1;            /* make sure it's odd */
     bs_height = bs_width / 2 + 1;
   } else {
+#ifdef USE_LOG10
     ruler_size = height;
+#endif
     width -= xthickness * 2;
 
     bs_height = width / 2 + 2;
