@@ -1,8 +1,11 @@
-version.h
-Makefile.in
-Makefile
-*.la
-*.lo
 .libs
 .deps
-
+*.o
+*.lo
+*.la
+*.da
+*.bbg
+Makefile
+Makefile.in
+buzztard-songio-buzz.desktop
+buzztard-songio-buzz.xml

@@ -15,6 +15,7 @@ boldquot.sed
 Rules-quot
 POTFILES
 Makevars.template
+Makefile.in.in~
 Makefile.in.in
 Makefile.in
 Makefile

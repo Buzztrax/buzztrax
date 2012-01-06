@@ -1,5 +1,6 @@
 .libs
 .deps
+*.o
 *.lo
 *.la
 *.da

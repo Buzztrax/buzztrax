@@ -27,7 +27,6 @@ GTAGS
 GPATH
 GRTAGS
 intltool*
-m4
 mkinstalldirs
 coverage
 buzztard.schemas
