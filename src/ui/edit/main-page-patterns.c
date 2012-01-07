@@ -313,15 +313,15 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
       // get parameter description
       if(property) {
         blurb=g_param_spec_get_blurb(property);
-        if(desc) {
-          str=g_strdup_printf("%s%s%s",blurb,(*desc?": ":""),desc);
-          g_free(desc);
+        if(desc && *desc) {
+          str=g_strdup_printf("%s: %s: %s",property->name,blurb,desc);
         }
         else {
-          str=g_strdup(blurb);
+          str=g_strdup_printf("%s: %s",property->name,blurb);
         }
       }
       bt_child_proxy_set(main_window,"statusbar::status",(str?str:BT_MAIN_STATUSBAR_DEFAULT),NULL);
+      g_free(desc);
       g_free(str);
     }
     else {
