@@ -1,5 +1,3 @@
-# $Id$
-
 .PHONY: clean
 
 TARGETS = main

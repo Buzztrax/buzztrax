@@ -1,5 +1,4 @@
-/** $Id$
- * network 
+/* network 
  *   we need a helper to link two elements
  *   elements are identified by their ID, connections by src.ID,dst.ID
  *   we need to store for each element, if it already has an adder, or a oneton element

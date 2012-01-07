@@ -1,5 +1,3 @@
-## $Id$
-
 iconthemedir=$(datadir)/icons/hicolor
 gtk_update_icon_cache = gtk-update-icon-cache -f -t $(iconthemedir)
 

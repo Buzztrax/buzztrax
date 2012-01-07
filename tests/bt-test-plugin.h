@@ -1,6 +1,4 @@
-/* $Id$
- *
- * Buzztard
+/* Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * gstreamer test plugin for unit tests

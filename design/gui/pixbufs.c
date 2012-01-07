@@ -1,5 +1,4 @@
-/** $Id$
- * test svg pixbufs
+/* test svg pixbufs
  *
  * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` pixbufs.c -o pixbufs
  *

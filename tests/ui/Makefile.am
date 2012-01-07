@@ -1,5 +1,3 @@
-## $Id$
-
 SUBDIRS = cmd edit
 
 .PHONY: splint 

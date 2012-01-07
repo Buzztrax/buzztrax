@@ -1,5 +1,3 @@
-## $Id$
-
 libbtcoredir = $(includedir)/libbuzztard-core
 libbtcore_HEADERS = \
 	core.h \

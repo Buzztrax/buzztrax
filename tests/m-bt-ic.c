@@ -1,6 +1,4 @@
-/* $Id$
- *
- * Buzztard
+/* Buzztard
  * Copyright (C) 2011 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * interaction controller library unit tests

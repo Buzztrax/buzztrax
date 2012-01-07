@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 # test validity of xml files
 
 if [ -z $srcdir ]; then

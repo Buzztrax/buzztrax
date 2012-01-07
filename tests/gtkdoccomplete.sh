@@ -1,6 +1,4 @@
 #!/bin/sh
-# $Id$
-
 res=0
 fails=0
 checks=0

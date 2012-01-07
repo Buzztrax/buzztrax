@@ -1,5 +1,4 @@
-/* $Id$
- * test gobject construction/destruction order
+/* test gobject construction/destruction order
  *
  * building:
  * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` gobjectlife.c -o gobjectlife

@@ -1,5 +1,4 @@
-/** $Id$
- * test level meter drawing
+/* test level meter drawing
  *
  * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` -I../../src/ui/edit/ levelmeter.c ../../src/ui/edit/gtkvumeter.c -o levelmeter
  */

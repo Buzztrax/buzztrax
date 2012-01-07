@@ -1,5 +1,4 @@
-/* $Id$
- * test gstreamer refcounts
+/* test gstreamer refcounts
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` ref.c -o ref
  *

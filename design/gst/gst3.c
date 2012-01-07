@@ -1,5 +1,4 @@
-/** $Id$
- * example that tries using a bin for the machine
+/* example that tries using a bin for the machine
  */
  
 #include <stdio.h>

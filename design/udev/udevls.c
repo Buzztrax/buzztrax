@@ -1,5 +1,4 @@
-/* $Id$
- * list udev devices for a certain category
+/* list udev devices for a certain category
  *
  * building:
  * gcc -Wall -g `pkg-config glib-2.0 gudev-1.0 --cflags --libs` udevls.c -o udevls

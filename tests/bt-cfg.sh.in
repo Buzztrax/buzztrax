@@ -1,6 +1,4 @@
 #!/bin/sh
-# $Id$
-
 TESTSONGDIR="@top_srcdir@/tests/songs"
 TESTRESULTDIR="@top_builddir@/tests/songs"
 

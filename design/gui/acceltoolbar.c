@@ -1,5 +1,4 @@
-/** $Id$
- * test accelerators for toolbar items
+/* test accelerators for toolbar items
  *
  * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` acceltoolbar.c -o acceltoolbar
  */

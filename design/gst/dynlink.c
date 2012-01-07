@@ -1,5 +1,4 @@
-/** $Id$
- * test dynamic linking
+/* test dynamic linking
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink.c -o dynlink
  * GST_DEBUG="*:3" ./dynlink

@@ -1,5 +1,3 @@
-## $Id$
-
 SUBDIRS = hicolor gnome
 
 ## FIXME: move those to theme icons

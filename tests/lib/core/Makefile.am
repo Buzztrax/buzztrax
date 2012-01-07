@@ -1,5 +1,3 @@
-## $Id$
-
 noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtcore_check_la_SOURCES = m-bt-core.h \

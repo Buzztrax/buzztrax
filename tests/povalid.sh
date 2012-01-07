@@ -1,5 +1,4 @@
 #!/bin/bash
-# $Id$
 # test po i18n files
 
 if [ -z $srcdir ]; then

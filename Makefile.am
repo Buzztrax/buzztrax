@@ -1,5 +1,3 @@
-## $Id$
-
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) pixmaps po docs
 

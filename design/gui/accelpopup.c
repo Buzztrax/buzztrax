@@ -1,5 +1,4 @@
-/** $Id$
- * test popup menus with accelerator keys
+/* test popup menus with accelerator keys
  *
  * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` accelpopup.c -o accelpopup
  */

@@ -1,5 +1,3 @@
-## $Id$
-
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
   TESTS_BIN = bt_core bt_ic bt_cmd bt_edit

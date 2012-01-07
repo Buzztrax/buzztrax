@@ -1,6 +1,4 @@
-/** $Id$
- *
- * Build a pipeline with audiotestsource->alsasink
+/* Build a pipeline with audiotestsource->alsasink
  * and sweep frequency and volume
  * Use seeks to play partially or as a loop
  *

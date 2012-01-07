@@ -1,6 +1,4 @@
-/** $Id$
- *
- * Build a pipeline with testaudiosource->alsasink and sweep frequency and
+/* Build a pipeline with testaudiosource->alsasink and sweep frequency and
  * volume. Use seeks to play partially or as a loop and adds a tee + analyzers.
  * 
  *

@@ -1,5 +1,4 @@
-/** $Id$
- * test mute, solo, bypass stuff in gst
+/* test mute, solo, bypass stuff in gst
  * - alternatively use a silence for src1 and src2
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states1a.c -o states1a

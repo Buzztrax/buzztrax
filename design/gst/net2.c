@@ -1,5 +1,4 @@
-/** $Id$
- * this is beta code !
+/* this is beta code !
  *  - it does not free any memory ;-)
  *  - it contains hardcoded stuff
  */

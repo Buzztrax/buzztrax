@@ -1,6 +1,4 @@
-/** $Id$
- *
- * Build a pipeline with two mixed audiotestsrc elements
+/* Build a pipeline with two mixed audiotestsrc elements
  * and sweep frequency and volume
  *
  * Use different seek variants

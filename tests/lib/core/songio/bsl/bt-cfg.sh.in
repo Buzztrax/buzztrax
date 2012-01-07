@@ -1,4 +1,2 @@
 #!/bin/sh
-# $Id$
-
 BINDIR="@prefix@/bin"

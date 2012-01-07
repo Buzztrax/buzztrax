@@ -1,5 +1,4 @@
-/** $Id$
- * test mute, solo, bypass stuff in gst
+/* test mute, solo, bypass stuff in gst
  * - just unlink muted element
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states1c.c -o states1c

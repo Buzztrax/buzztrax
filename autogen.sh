@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 # Run this to generate all the initial makefiles, etc.
 
 DIE=0

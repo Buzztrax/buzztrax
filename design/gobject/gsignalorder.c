@@ -1,5 +1,4 @@
-/* $Id$
- * test glib signal calling order
+/* test glib signal calling order
  *
  * building:
  * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` gsignalorder.c -o gsignalorder

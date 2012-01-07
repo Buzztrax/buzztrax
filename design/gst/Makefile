@@ -1,5 +1,3 @@
-# $Id$
-
 .PHONY: clean
 
 #TARGETS = gst1 gst2 gst3 net1 net2 browser

@@ -1,5 +1,4 @@
-/** $Id$
- * test for elements in registry
+/* test for elements in registry
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` registry.c -o registry
  * ./registry

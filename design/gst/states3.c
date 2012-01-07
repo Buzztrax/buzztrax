@@ -1,5 +1,4 @@
-/** $Id$
- * test mute, solo, bypass stuff in gst
+/* test mute, solo, bypass stuff in gst
  * - swaps two sources
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states3.c -o states3

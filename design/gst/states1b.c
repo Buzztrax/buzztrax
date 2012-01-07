@@ -1,5 +1,4 @@
-/** $Id$
- * test mute, solo, bypass stuff in gst
+/* test mute, solo, bypass stuff in gst
  * - just keep muted elements outgoing pad blocked
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states1b.c -o states1b

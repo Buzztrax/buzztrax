@@ -1,5 +1,4 @@
-/* $Id$
- * initial seek to set the duration example
+/* initial seek to set the duration example
  *
  * gcc -Wall -g `pkg-config --cflags --libs gstreamer-0.10` seekinit.c -o seekinit
  *

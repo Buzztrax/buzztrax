@@ -1,5 +1,4 @@
-/** $Id$
- * small example on how to use clocks
+/* small example on how to use clocks
  */
  
 #include <stdio.h>

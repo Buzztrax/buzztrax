@@ -1,6 +1,4 @@
-/* $Id$
- *
- * GNOME Volume Applet
+/* GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
  *               2006 Stefan Kost <ensonic@users.sf.net>
  *

@@ -1,5 +1,4 @@
-/** $Id$
- * test hal device monitoring
+/* test hal device monitoring
  *
  * gcc -Wall -g `pkg-config glib-2.0 dbus-glib-1 hal --cflags --libs` halwatch.c -o halwatch
  */

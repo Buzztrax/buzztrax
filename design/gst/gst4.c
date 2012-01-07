@@ -1,5 +1,4 @@
-/** $Id$
- * try to reproduce what I belive is a bug in gst
+/* try to reproduce what I belive is a bug in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.8 --cflags --libs` gst4.c -o gst4
  */

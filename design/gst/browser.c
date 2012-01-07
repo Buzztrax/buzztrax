@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /* prints all available gst plugins to the console 
 */
 

@@ -1,4 +1,4 @@
-/** $Id$ */
+/* gstreamer synth example  */
  
 #include <stdio.h>
 

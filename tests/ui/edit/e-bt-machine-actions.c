@@ -1,6 +1,4 @@
-/* $Id$
- *
- * Buzztard
+/* Buzztard
  * Copyright (C) 2010 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or

@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 # run buzztard-cmd --command=info on all my buzz songs
 
 if [ -z "$BSL_SONG_PATH" ]; then

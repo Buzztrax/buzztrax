@@ -1,5 +1,4 @@
-/* $Id$
- * test dynamic linking
+/* test dynamic linking
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink4.c -o dynlink4
  * gcc -Wall -g -DGST_USE_UNSTABLE_API `pkg-config gstreamer-0.11 --cflags --libs` dynlink4.c -o dynlink4

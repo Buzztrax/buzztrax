@@ -1,5 +1,3 @@
-## $Id$
-
 SUBDIRS = libbuzztard-core songio
 
 if USE_GCONF

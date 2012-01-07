@@ -1,4 +1,4 @@
-* $Id$ :mode=outline:collapseFolds=1:folding=indent:
+* :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * every source and processor machine gets a 2d pan widget

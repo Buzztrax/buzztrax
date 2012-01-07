@@ -1,5 +1,3 @@
-## $Id$
-
 SUBDIRS = libbuzztard-ic
 
 if USE_LINUX_INPUT

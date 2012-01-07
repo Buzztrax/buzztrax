@@ -1,5 +1,4 @@
-/* $Id$
- * test gobject setter/getters
+/* test gobject setter/getters
  *
  * building:
  * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` gobjectprops.c -o gobjectprops

@@ -1,4 +1,3 @@
-# $Id$
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template

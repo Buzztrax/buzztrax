@@ -1,5 +1,4 @@
-/** $Id$
- * test pattern editor layout using gtkextra2
+/* test pattern editor layout using gtkextra2
  *
  * gcc -Wall -g `pkg-config gtk+-2.0 gtkextra-2.0 --cflags --libs` pated.c -o pated
  */

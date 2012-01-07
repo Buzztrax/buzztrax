@@ -1,6 +1,4 @@
-/* $Id$
- *
- * GtkVumeter
+/* GtkVumeter
  * Copyright (C) 2003 Todd Goyen <wettoad@knighthoodofbuh.org>
  *               2007 Buzztard team <buzztard-devel@lists.sf.net>
  *

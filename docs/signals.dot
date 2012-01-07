@@ -1,5 +1,4 @@
-/* $Id$
- * compile with:
+/* compile with:
  *   dot -Tpng signals.dot -o signals.png
  */
 digraph M {

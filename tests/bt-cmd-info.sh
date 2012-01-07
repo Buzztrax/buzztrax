@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 # run buzztard-cmd --command=info on all example and test for crashes
 
 . ./bt-cfg.sh

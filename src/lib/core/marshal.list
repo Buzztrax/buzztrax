@@ -1,4 +1,3 @@
-# $Id$
 # extra signal marshallers
 
 VOID:OBJECT,ULONG

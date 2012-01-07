@@ -1,5 +1,4 @@
-/* $Id$
- * test timing quantization
+/* test timing quantization
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` timing.c -o timing
  *

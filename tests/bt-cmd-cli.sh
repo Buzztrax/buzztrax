@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 # run buzztard-cmd commandline options
 
 . ./bt-cfg.sh

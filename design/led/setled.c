@@ -1,5 +1,4 @@
-/* $Id$
- * test moditying keyboard leds
+/* test moditying keyboard leds
  *
  * building:
  * gcc -Wall -g `pkg-config glib-2.0 --cflags --libs` setled.c -o setled

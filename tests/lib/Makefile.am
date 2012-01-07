@@ -1,5 +1,3 @@
-## $Id$
-
 SUBDIRS = core ic
 
 .PHONY: splint 

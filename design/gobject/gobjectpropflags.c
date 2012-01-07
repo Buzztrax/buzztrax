@@ -1,5 +1,4 @@
-/* $Id$
- * test gobject property flags
+/* test gobject property flags
  *
  * building:
  * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` gobjectpropflags.c -o gobjectpropflags

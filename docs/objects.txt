@@ -1,4 +1,4 @@
-//$Id$ :mode=c:collapseFolds=1:folding=indent:
+// :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 // to find out which types exist do

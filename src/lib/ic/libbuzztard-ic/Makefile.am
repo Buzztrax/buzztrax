@@ -1,5 +1,3 @@
-## $Id$
-
 if USE_LINUX_INPUT
 LINUX_INPUT_SOURCES=input-device.h
 else

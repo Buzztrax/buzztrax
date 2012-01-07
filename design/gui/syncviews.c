@@ -1,5 +1,4 @@
-/** $Id$
- * test synchonized scrolling of two treeviews
+/* test synchonized scrolling of two treeviews
  *
  * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` syncviews.c -o syncviews
  */

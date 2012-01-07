@@ -1,5 +1,3 @@
-dnl $Id$
-
 dnl
 dnl current  : the interface         : MAJOR + MINOR
 dnl revision : of the same interface : MICRO

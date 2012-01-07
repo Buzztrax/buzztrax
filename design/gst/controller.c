@@ -1,5 +1,4 @@
-/* $Id$:
- * more complex controller example
+/* more complex controller example
  *
  * gcc -Wall -g `pkg-config --cflags --libs gstreamer-0.10 gstreamer-controller-0.10 libgstbuzztard` controller.c -o controller
  */

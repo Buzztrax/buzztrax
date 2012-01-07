@@ -1,5 +1,4 @@
-/** $Id$
- * test state changing in gst
+/* test state changing in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states2.c -o states2
  */

@@ -1,5 +1,4 @@
-/** $Id$
- * test own treemodel and cellrenderers
+/* test own treemodel and cellrenderers
  *
  * http://scentric.net/tutorial/
  *

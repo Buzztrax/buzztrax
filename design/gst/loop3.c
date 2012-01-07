@@ -1,5 +1,4 @@
-/** $Id$
- * test seemles looping in gstreamer
+/* test seemles looping in gstreamer
  *
  * In buzztard the loops are not smooth. The code below tries to reproduce the
  * issue. This emulates the whole stucture in buzztard, loop2.c has a cut-down
