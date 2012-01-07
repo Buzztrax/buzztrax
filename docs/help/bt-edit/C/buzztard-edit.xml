@@ -1259,7 +1259,8 @@ i o p</keycap></screen></entry>
       for each voice (for polyphonic machines). Effects and the master also have
       a group for each input allowing to change volume and panorama. These are
       the same parameters that can be changed on the wire in the
-      <link linkend="bt-edit-main-view-machines">machine view</link>.
+      <link linkend="bt-edit-main-view-machines">machine view</link>. Each group
+      has a context menu, e.g. to copy the settings for the group.
     </para>
     <para>
       Each parameter has a context menu. The menu allows to bind the parameter
