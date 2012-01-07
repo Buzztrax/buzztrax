@@ -1,12 +1,25 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
+2012/02 ========================================================================
+
+* move from svn to git
+* move bsl into buzztard
+
 2012/01 ========================================================================
 
-* able to build without using deprecated gtk api
-* own ruler widgets with less hacks
-* no more string parameters for notes, this is faster and let us do e.g. 
-  blending of note ranges
-* bugfixes (fluidsynth, ladspa, ...)
+Finally after a long time, I managed to release a 0.6 of buzztard. So far only
+one regresion was found and bml-0.6.1 was released to fix it.
+
+A few things happened before the release still. At first after updating my
+distro, I made a lot of changes to avoid deprecated gtk+ api. For now we ship
+a copy of the ruler widget (that got removed in 3.0). The internal ruler widget
+is a lot saner than the upstream one too. 
+
+Another big change was to move from string parameter for notes to an enum. This
+is faster and lets us do things like blending of note ranges or transposing.
+
+I also made quite a few bug-fixes - laspa effects work again, fluidsynth fixes,
+etc.
 
 2011/12 ========================================================================
 
