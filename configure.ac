@@ -12,7 +12,7 @@ dnl
 
 dnl Initialise the autoconf/automake tool
 AC_PREREQ(2.61)
-AC_INIT([buzztard],[0.6.0],[buzztard-devel@lists.sourceforge.net])
+AC_INIT([buzztard],[0.7.0],[buzztard-devel@lists.sourceforge.net])
 # we can't do -Werror, because
 # - we use gnu make extensions
 # - we override uninstallcheck var
