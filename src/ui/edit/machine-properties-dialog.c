@@ -1501,7 +1501,7 @@ static void on_window_show(GtkWidget *widget,gpointer user_data) {
 
 //-- helper methods
 
-static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
+static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *vlabel,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gint value;
@@ -1519,13 +1519,15 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,Gs
   g_signal_connect(widget, "value-changed", G_CALLBACK(on_int_range_property_changed), (gpointer)machine);
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(vlabel,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(vlabel,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
   g_signal_connect(label,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
 
-static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
+static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *vlabel,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   guint value;
@@ -1543,13 +1545,15 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,G
   g_signal_connect(widget,"value-changed",G_CALLBACK(on_uint_range_property_changed), (gpointer)machine);
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(vlabel,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(vlabel,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
   g_signal_connect(label,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
 
-static GtkWidget *make_uint64_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *entry) {
+static GtkWidget *make_uint64_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *entry,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   guint64 value;
@@ -1570,11 +1574,13 @@ static GtkWidget *make_uint64_range_widget(const BtMachinePropertiesDialog *self
   g_signal_connect(entry,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(entry,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
   g_signal_connect(entry,"changed",G_CALLBACK(on_uint64_entry_property_changed), (gpointer)machine);
+  g_signal_connect(label,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
 
-static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
+static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *vlabel,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gfloat step,value;
@@ -1595,13 +1601,15 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
   g_signal_connect(widget, "value-changed", G_CALLBACK(on_float_range_property_changed), (gpointer)machine);
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(vlabel,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(vlabel,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
   g_signal_connect(label,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
 
-static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
+static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *vlabel,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gdouble step,value;
@@ -1622,6 +1630,8 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   g_signal_connect(widget, "value-changed", G_CALLBACK(on_double_range_property_changed), (gpointer)machine);
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(vlabel,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(vlabel,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
   g_signal_connect(label,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
@@ -1634,7 +1644,7 @@ static void find_internal_combobox_widget (GtkWidget *widget, gpointer user_data
   if (GTK_IS_TOGGLE_BUTTON(widget)) *child=widget;
 }
 
-static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max) {
+static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
   GtkWidget *widget, *child;
   gchar *signal_name;
   GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
@@ -1697,10 +1707,13 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self,Gst
   g_signal_connect(child,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(child,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
+  g_signal_connect(label,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+
   return(widget);
 }
 
-static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property) {
+static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gboolean value;
@@ -1716,7 +1729,8 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self,Gst
   g_signal_connect(widget, "toggled", G_CALLBACK(on_checkbox_property_toggled), (gpointer)machine);
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_trigger_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
-
+  g_signal_connect(label,"button-press-event",G_CALLBACK(on_trigger_button_press_event), (gpointer)machine);
+  g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
   return(widget);
 }
 
@@ -1727,6 +1741,8 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
 
   // set parameter name
   label=gtk_label_new(pname);
+  gtk_label_set_single_line_mode(GTK_LABEL(label),TRUE);
+  gtk_label_set_selectable(GTK_LABEL(label),TRUE);
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_widget_set_tooltip_text(label,tool_tip_text);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, row, row+1, GTK_FILL,GTK_SHRINK, 2,1);
@@ -1750,34 +1766,34 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
       widget2=NULL;
       break;
     case G_TYPE_BOOLEAN:
-      widget1=make_checkbox_widget(self,object,property);
+      widget1=make_checkbox_widget(self,object,property,label);
       widget2=NULL;
       break;
     case G_TYPE_INT:
       widget2=gtk_label_new(NULL);
-      widget1=make_int_range_widget(self,object,property,range_min,range_max,widget2);
+      widget1=make_int_range_widget(self,object,property,range_min,range_max,widget2,label);
       break;
     case G_TYPE_UINT:
       widget2=gtk_label_new(NULL);
-      widget1=make_uint_range_widget(self,object,property,range_min,range_max,widget2);
+      widget1=make_uint_range_widget(self,object,property,range_min,range_max,widget2,label);
       break;
     case G_TYPE_UINT64:
       widget2=gtk_entry_new();
-      widget1=make_uint64_range_widget(self,object,property,range_min,range_max,widget2);
+      widget1=make_uint64_range_widget(self,object,property,range_min,range_max,widget2,label);
       break;
     case G_TYPE_FLOAT:
       widget2=gtk_label_new(NULL);
-      widget1=make_float_range_widget(self,object,property,range_min,range_max,widget2);
+      widget1=make_float_range_widget(self,object,property,range_min,range_max,widget2,label);
       break;
     case G_TYPE_DOUBLE:
       widget2=gtk_label_new(NULL);
-      widget1=make_double_range_widget(self,object,property,range_min,range_max,widget2);
+      widget1=make_double_range_widget(self,object,property,range_min,range_max,widget2,label);
       break;
     case G_TYPE_ENUM:
       if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH)
-        widget1=make_checkbox_widget(self,object,property);
+        widget1=make_checkbox_widget(self,object,property,label);
       else
-        widget1=make_combobox_widget(self,object,property,range_min,range_max);
+        widget1=make_combobox_widget(self,object,property,range_min,range_max,label);
       widget2=NULL;
       break;
     default: {
@@ -1789,10 +1805,11 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
   if(range_min) { g_free(range_min);range_min=NULL; }
   if(range_max) { g_free(range_max);range_max=NULL; }
 
+  gtk_widget_set_name(GTK_WIDGET(label),property->name);
+  g_object_set_qdata(G_OBJECT(label),widget_parent_quark,(gpointer)self);
   gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
   g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
   if(widget2) {
-    gtk_widget_add_events(GTK_WIDGET(widget2),GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
     gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
     g_object_set_qdata(G_OBJECT(widget1),wdget_peer_quark,(gpointer)widget2);
     g_object_set_qdata(G_OBJECT(widget2),widget_parent_quark,(gpointer)self);
