@@ -3,7 +3,9 @@
 libdir = ${exec_prefix}/lib/buzztard-songio
 
 lib_LTLIBRARIES = libbtbsl.la
-libbtbsl_la_LIBADD = $(BASE_DEPS_LIBS) $(LIBINTL)
+libbtbsl_la_LIBADD = \
+	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+  $(BASE_DEPS_LIBS) $(LIBINTL)
 libbtbsl_la_LDFLAGS = -module -avoid-version
 libbtbsl_la_SOURCES = \
 	bsl.c bsl.h \
@@ -16,6 +18,7 @@ libbtbsl_la_CFLAGS = \
 
 AM_CPPFLAGS = \
 	-I$(srcdir) \
+	-I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)/buzztard\" \
