@@ -1628,8 +1628,14 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   return(widget);
 }
 
+static void find_internal_combobox_widget (GtkWidget *widget, gpointer user_data) {
+  GtkWidget **child=(GtkWidget **)user_data;
+  
+  if (GTK_IS_TOGGLE_BUTTON(widget)) *child=widget;
+}
+
 static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self,GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max) {
-  GtkWidget *widget;
+  GtkWidget *widget, *child;
   gchar *signal_name;
   GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
   GEnumClass *enum_class=enum_property->enum_class;
@@ -1681,8 +1687,15 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self,Gst
   g_sprintf(signal_name,"notify::%s",property->name);
   g_signal_connect(machine, signal_name, G_CALLBACK(on_combobox_property_notify), (gpointer)widget);
   g_signal_connect(widget, "changed", G_CALLBACK(on_combobox_property_changed), (gpointer)machine);
-  //g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
-  //g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  
+  // combobox is a GtkBin and it uses a GtkToggleButton that is not really exposed
+  gtk_container_forall(GTK_CONTAINER(widget),find_internal_combobox_widget,&child);
+  GST_DEBUG("combobox child: %p,%s",child,G_OBJECT_TYPE_NAME(child));
+  gtk_widget_add_events(child,GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
+  gtk_widget_set_name(child,property->name);
+  g_object_set_qdata(G_OBJECT(child),widget_parent_quark,(gpointer)self);
+  g_signal_connect(child,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(child,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
@@ -1779,10 +1792,6 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
   gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
   g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
   if(widget2) {
-    g_object_set(widget2,
-        "selectable",TRUE,
-        "single-line-mode",TRUE,
-        NULL);
     gtk_widget_add_events(GTK_WIDGET(widget2),GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
     gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
     g_object_set_qdata(G_OBJECT(widget1),wdget_peer_quark,(gpointer)widget2);
@@ -1843,6 +1852,7 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
     if(GTK_IS_LABEL(widget2)) {
       gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
       gtk_label_set_single_line_mode(GTK_LABEL(widget2),TRUE);
+      gtk_label_set_selectable(GTK_LABEL(widget2),TRUE);
       gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
     }
     gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, row, row+1, GTK_FILL,GTK_SHRINK, 2,1);
