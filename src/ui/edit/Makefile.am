@@ -4,7 +4,7 @@ bin_PROGRAMS=buzztard-edit
 
 buzztard_edit_LDADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
-    $(top_builddir)/src/lib/ic/libbuzztard-ic.la \
+	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	libbtedit.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
 	-lgstinterfaces-0.10
