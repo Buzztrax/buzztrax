@@ -1519,6 +1519,8 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,Gs
   g_signal_connect(widget, "value-changed", G_CALLBACK(on_int_range_property_changed), (gpointer)machine);
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(label,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
@@ -1541,6 +1543,8 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,G
   g_signal_connect(widget,"value-changed",G_CALLBACK(on_uint_range_property_changed), (gpointer)machine);
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(label,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
@@ -1563,6 +1567,8 @@ static GtkWidget *make_uint64_range_widget(const BtMachinePropertiesDialog *self
   g_signal_connect(widget,"value-changed",G_CALLBACK(on_uint64_range_property_changed), (gpointer)machine);
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(entry,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(entry,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
   g_signal_connect(entry,"changed",G_CALLBACK(on_uint64_entry_property_changed), (gpointer)machine);
 
   return(widget);
@@ -1589,6 +1595,8 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
   g_signal_connect(widget, "value-changed", G_CALLBACK(on_float_range_property_changed), (gpointer)machine);
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(label,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
@@ -1614,6 +1622,8 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   g_signal_connect(widget, "value-changed", G_CALLBACK(on_double_range_property_changed), (gpointer)machine);
   g_signal_connect(widget,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
   g_signal_connect(widget,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
+  g_signal_connect(label,"button-press-event",G_CALLBACK(on_range_button_press_event), (gpointer)machine);
+  g_signal_connect(label,"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
@@ -1769,6 +1779,11 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
   gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
   g_object_set_qdata(G_OBJECT(widget1),widget_parent_quark,(gpointer)self);
   if(widget2) {
+    g_object_set(widget2,
+        "selectable",TRUE,
+        "single-line-mode",TRUE,
+        NULL);
+    gtk_widget_add_events(GTK_WIDGET(widget2),GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
     gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
     g_object_set_qdata(G_OBJECT(widget1),wdget_peer_quark,(gpointer)widget2);
     g_object_set_qdata(G_OBJECT(widget2),widget_parent_quark,(gpointer)self);
