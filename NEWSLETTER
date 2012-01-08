@@ -2,8 +2,9 @@ svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
 2012/02 ========================================================================
 
-* move from svn to git
+* move from svn to git, ohloh updated, git hooks installed
 * move bsl into buzztard
+* a few ui, docs and tips updates from user feedback
 
 2012/01 ========================================================================
 
