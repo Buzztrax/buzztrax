@@ -29,7 +29,6 @@
 #define VOLUME_POPUP_C
 
 #include "bt-edit.h"
-#include "ruler.h"
 
 //-- the class
 
@@ -43,7 +42,8 @@ cb_scale_changed(GtkRange *range, gpointer  user_data)
   GtkLabel *label=GTK_LABEL(user_data);
   gchar str[6];
 
-  g_sprintf(str,"%3d %%",(gint)(100.0*gtk_range_get_value(range)));
+  // FIXME: workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
+  g_sprintf(str,"%3d %%",400-(gint)(gtk_range_get_value(range)));
   gtk_label_set_text(label,str);
 }
 
@@ -113,7 +113,7 @@ cb_dock_press(GtkWidget * widget, GdkEventButton * event, gpointer data)
  */
 GtkWidget *
 bt_volume_popup_new(GtkAdjustment *adj) {
-  GtkWidget *table, *scale, *frame,*ruler/*,*rbox,*pad*/, *label;
+  GtkWidget *box, *scale, *frame, *label;
   BtVolumePopup *self;
 
   self = g_object_new(BT_TYPE_VOLUME_POPUP, "type", GTK_WINDOW_POPUP, NULL);
@@ -121,37 +121,49 @@ bt_volume_popup_new(GtkAdjustment *adj) {
   frame = gtk_frame_new(NULL);
   gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
 
-  table = gtk_table_new(2,2, FALSE);
-
+  box = gtk_vbox_new(FALSE, 0);
 
   label=gtk_label_new("");
-  gtk_table_attach_defaults(GTK_TABLE(table), label, 0,2, 0,1);
+  gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), gtk_hseparator_new(), FALSE, FALSE, 0);
 
   scale=gtk_vscale_new(adj);
   self->scale=GTK_RANGE(scale);
   gtk_widget_set_size_request(scale, -1, 200);
+  // FIXME: workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
+  //gtk_range_set_inverted(self->scale, TRUE);
   gtk_scale_set_draw_value(GTK_SCALE(scale), FALSE);
-  gtk_range_set_inverted(self->scale, TRUE);
+#if 0
+  gtk_scale_add_mark(GTK_SCALE(scale), 0.0, GTK_POS_LEFT, "<small>0 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), 25.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 50.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 75.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 100.0, GTK_POS_LEFT, "<small>100 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), 150.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 200.0, GTK_POS_LEFT, "<small>200 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), 250.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 300.0, GTK_POS_LEFT, "<small>300 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), 350.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0, GTK_POS_LEFT, "<small>400 %</small>");
+#else
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-0.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-25.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-50.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-75.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-100.0, GTK_POS_LEFT, "<small>100 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-150.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-200.0, GTK_POS_LEFT, "<small>200 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-250.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-300.0, GTK_POS_LEFT, "<small>300 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-350.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-400.0, GTK_POS_LEFT, "<small>400 %</small>");
+#endif
+
   g_signal_connect(self->scale, "value-changed", G_CALLBACK(cb_scale_changed), label);
   cb_scale_changed(self->scale,label);
-  gtk_table_attach_defaults(GTK_TABLE(table), scale, 1,2, 1,2);
+  gtk_box_pack_start(GTK_BOX(box), scale, TRUE, TRUE, 0);
 
-
-  // add ruler
-  ruler=bt_ruler_new(GTK_ORIENTATION_VERTICAL,FALSE);
-  /* we use -X instead of 0.0 because of:
-   * http://bugzilla.gnome.org/show_bug.cgi?id=465041
-   * @todo: take slider knob size into account
-   * gtk_widget_style_get(scale,"slider-length",slider_length,NULL);
-   */
-  bt_ruler_set_range(BT_RULER(ruler),435.0,-35.0,100.0,30.0);
-  gtk_widget_set_size_request(ruler,30,-1);
-  g_object_set(ruler,"draw-pos",FALSE,NULL);
-  gtk_table_attach_defaults(GTK_TABLE(table), ruler, 0,1, 1,2);
-
-
-  gtk_container_add(GTK_CONTAINER(frame), table);
-
+  gtk_container_add(GTK_CONTAINER(frame), box);
   gtk_container_add(GTK_CONTAINER(self), frame);
   gtk_widget_show_all(frame);
 

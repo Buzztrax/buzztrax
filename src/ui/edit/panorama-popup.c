@@ -33,7 +33,6 @@
 #define PANORAMA_POPUP_C
 
 #include "bt-edit.h"
-#include "ruler.h"
 
 //-- the class
 
@@ -48,7 +47,7 @@ cb_scale_changed(GtkRange *range, gpointer  user_data)
   GtkLabel *label=GTK_LABEL(user_data);
   gchar str[6];
 
-  g_sprintf(str,"%3d %%",(gint)(100.0*gtk_range_get_value(range)));
+  g_sprintf(str,"%3d %%",(gint)(gtk_range_get_value(range)));
   gtk_label_set_text(label,str);
 }
 
@@ -118,7 +117,7 @@ cb_dock_press(GtkWidget * widget, GdkEventButton * event, gpointer data)
  */
 GtkWidget *
 bt_panorama_popup_new(GtkAdjustment *adj) {
-  GtkWidget *table, *scale, *frame,*ruler, *label;
+  GtkWidget *box, *scale, *frame, *label;
   BtPanoramaPopup *self;
 
   self = g_object_new(BT_TYPE_PANORAMA_POPUP, "type", GTK_WINDOW_POPUP, NULL);
@@ -126,37 +125,32 @@ bt_panorama_popup_new(GtkAdjustment *adj) {
   frame = gtk_frame_new(NULL);
   gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
 
-  table = gtk_table_new(2,2, FALSE);
-
+  box = gtk_hbox_new(FALSE, 0);
 
   label=gtk_label_new("");
   gtk_widget_set_size_request(label, 40, -1);
-  gtk_table_attach_defaults(GTK_TABLE(table), label, 0,1, 0,2);
+  gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
 
   scale=gtk_hscale_new(adj);
   self->scale=GTK_RANGE(scale);
   gtk_widget_set_size_request(scale, 200, -1);
   gtk_scale_set_draw_value(GTK_SCALE(scale), FALSE);
-  gtk_range_set_inverted(self->scale, FALSE);
+  gtk_scale_add_mark(GTK_SCALE(scale), -100.0, GTK_POS_BOTTOM, "<small>100 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), -75.0, GTK_POS_BOTTOM, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), -50.0, GTK_POS_BOTTOM, "<small>50 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), -25.0, GTK_POS_BOTTOM, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 0.0, GTK_POS_BOTTOM, "<small>0 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), 25.0, GTK_POS_BOTTOM, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 50.0, GTK_POS_BOTTOM, "<small>50 %</small>");
+  gtk_scale_add_mark(GTK_SCALE(scale), 75.0, GTK_POS_BOTTOM, NULL);
+  gtk_scale_add_mark(GTK_SCALE(scale), 100.0, GTK_POS_BOTTOM, "<small>100 %</small>");
+
   g_signal_connect(self->scale, "value-changed", G_CALLBACK(cb_scale_changed), label);
   cb_scale_changed(self->scale,label);
-  gtk_table_attach_defaults(GTK_TABLE(table), scale, 1,2, 1,2);
+  gtk_box_pack_start(GTK_BOX(box), scale, TRUE, TRUE, 0);
 
-
-  // add ruler
-  ruler=bt_ruler_new(GTK_ORIENTATION_HORIZONTAL,FALSE);
-  /* we use -X instead of 0.0 because of:
-   * http://bugzilla.gnome.org/show_bug.cgi?id=465041
-   * @todo: take slider knob size into account
-   * gtk_widget_style_get(scale,"slider-length",slider_length,NULL);
-   */
-  bt_ruler_set_range(BT_RULER(ruler),-120.0,120.0,000.0,30.0);
-  gtk_widget_set_size_request(ruler,-1,30);
-  gtk_table_attach_defaults(GTK_TABLE(table), ruler, 1,2, 0,1);
-
-
-  gtk_container_add(GTK_CONTAINER(frame), table);
-
+  gtk_container_add(GTK_CONTAINER(frame), box);
   gtk_container_add(GTK_CONTAINER(self), frame);
   gtk_widget_show_all(frame);
 

@@ -1093,13 +1093,14 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 
 static void on_volume_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  gdouble gain = gtk_adjustment_get_value (adj);
+  // FIXME: workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
+  gdouble gain = 4.0 - (gtk_adjustment_get_value (adj) / 100.0);
   g_object_set(self->priv->wire_gain,"volume",gain,NULL);
 }
 
 static void on_panorama_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  gfloat pan = (gfloat)gtk_adjustment_get_value (adj);
+  gfloat pan = (gfloat)gtk_adjustment_get_value (adj) / 100.0;
   g_object_set(self->priv->wire_pan,"panorama",pan,NULL);
 }
 
@@ -1300,12 +1301,12 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   g_signal_connect(self->priv->hadjustment,"value-changed",G_CALLBACK(on_hadjustment_changed),(gpointer)self);
 
   // create volume popup
-  self->priv->vol_popup_adj=gtk_adjustment_new(1.0, 0.0, 4.0, 0.05, 0.1, 0.0);
+  self->priv->vol_popup_adj=gtk_adjustment_new(100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
   g_signal_connect(self->priv->vol_popup_adj,"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
 
   // create panorama popup
-  self->priv->pan_popup_adj=gtk_adjustment_new(0.0, -1.0, 1.0, 0.05, 0.1, 0.0);
+  self->priv->pan_popup_adj=gtk_adjustment_new(0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup=BT_PANORAMA_POPUP(bt_panorama_popup_new(GTK_ADJUSTMENT(self->priv->pan_popup_adj)));
   g_signal_connect(self->priv->pan_popup_adj,"value-changed",G_CALLBACK(on_panorama_popup_changed),(gpointer)self);
 
@@ -1366,7 +1367,8 @@ gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self,
   g_object_get(wire,"gain",&self->priv->wire_gain,NULL);
   /* set initial value */
   g_object_get(self->priv->wire_gain,"volume",&gain,NULL);
-  gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj),gain);
+  // FIXME: workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
+  gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj),(4.0-gain)*100.0);
 
   /* show directly over mouse-pos */
   /* @todo: move it so that the knob is under the mouse */
@@ -1403,7 +1405,7 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
   if(self->priv->wire_pan) {
     /* set initial value */
     g_object_get(self->priv->wire_pan,"panorama",&pan,NULL);
-    gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->pan_popup_adj),(gdouble)pan);
+    gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->pan_popup_adj),(gdouble)pan*100.0);
 
     /* show directly over mouse-pos */
     /* @todo: move it so that the knob is under the mouse */
