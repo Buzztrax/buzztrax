@@ -42,18 +42,6 @@ extern void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri);
 
 /* gtk+ compatibillity */
 
-#if !GTK_CHECK_VERSION(2,14,0)
-
-#define gtk_dialog_get_content_area(dialog) (dialog->vbox)
-#define gtk_dialog_get_action_area(dialog) (dialog->action_area)
-
-#define gtk_widget_get_window(widget) (widget->window)
-
-#define gtk_selection_data_get_data(sdata) (sdata->data);
-#define gtk_selection_data_get_target(sdata) (sdata->taget);
-
-#endif
-
 #if !GTK_CHECK_VERSION(2,18,0)
 
 #define gtk_widget_get_allocation(widget, alloc) memcpy(alloc,&(widget->allocation),sizeof(GtkAllocation))

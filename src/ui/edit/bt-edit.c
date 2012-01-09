@@ -141,15 +141,6 @@ int main(int argc, char **argv) {
     VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
 #endif
 
-#if !GTK_CHECK_VERSION(2,14,0)
-  GST_DEBUG("init gnome-vfs"); // move to UI if we have
-  //-- initialize gnome-vfs
-  if (!gnome_vfs_init ()) {
-    GST_WARNING("gnome vfs failed to initialize");
-    goto Done;
-  }
-#endif
-
   GST_INFO("starting: thread=%p",g_thread_self());
   
 #if 0
@@ -199,9 +190,6 @@ int main(int argc, char **argv) {
   GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
   g_object_unref(app);
 
-#if !GTK_CHECK_VERSION(2,14,0)
-Done:
-#endif
   g_free(command);
   g_free(input_file_name);
   g_option_context_free(ctx);

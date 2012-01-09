@@ -103,10 +103,6 @@
 
 //-- librsvg
 //#include <librsvg/rsvg.h>
-//-- gnome-vfs
-#ifdef USE_GNOMEVFS
-#include <libgnomevfs/gnome-vfs.h>
-#endif
 //-- hildon
 #ifdef USE_HILDON
 #include <hildon/hildon.h>
