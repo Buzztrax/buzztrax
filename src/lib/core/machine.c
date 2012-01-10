@@ -2633,6 +2633,18 @@ ON_CONTROL_NOTIFY(uint64,UInt64)
 ON_CONTROL_NOTIFY(float,Float)
 ON_CONTROL_NOTIFY(double,Double)
 
+static void on_enum_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
+  BtControlData *data=(BtControlData *)(user_data);
+  GParamSpecEnum *p=(GParamSpecEnum *)data->pspec;
+  GEnumClass *e=p->enum_class;
+  glong svalue,min,max;
+  gint dvalue;
+
+  g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
+  dvalue=(gint)((svalue-min)*((gdouble)(e->n_values)/(gdouble)(max-min)));
+  g_object_set(data->object,((GParamSpec *)p)->name,e->values[dvalue].value,NULL);
+}
+
 /**
  * bt_machine_bind_parameter_control:
  * @self: machine
@@ -2697,6 +2709,9 @@ void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *
       break;
     case G_TYPE_DOUBLE:
       data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_double_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_ENUM:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_enum_control_notify),(gpointer)data);
       break;
     default:
       GST_WARNING_OBJECT(self,"unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(pspec));
