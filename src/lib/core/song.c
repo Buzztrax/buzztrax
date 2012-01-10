@@ -588,7 +588,7 @@ static void on_song_latency(const GstBus * const bus, GstMessage *message, gcons
 static void on_song_request_state(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
   
-  if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
+  //if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GstState state;
 
     gst_message_parse_request_state(message,&state);
@@ -596,19 +596,22 @@ static void on_song_request_state(const GstBus * const bus, GstMessage *message,
     
     switch(state) {
       case GST_STATE_NULL:
-      case GST_STATE_READY:
-      case GST_STATE_PAUSED:
         bt_song_stop(self);
         break;
+      case GST_STATE_READY:
+      case GST_STATE_PAUSED:
+        bt_song_pause(self); // FIXME: this is not visible in the UI
+        break;
       case GST_STATE_PLAYING:
-        bt_song_play(self);
+        if (self->priv->is_playing)
+          bt_song_continue(self);
+        else
+          bt_song_play(self);
         break;
       default:
         break;
     }
-
-    //gst_bin_recalculate_latency(self->priv->bin);
-  }
+  //}
 }
 
 static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
