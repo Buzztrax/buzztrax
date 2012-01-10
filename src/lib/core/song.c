@@ -575,6 +575,16 @@ static void on_song_clock_lost(const GstBus * const bus, GstMessage *message, gc
   }
 }
 
+static void on_song_latency(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  const BtSong * const self = BT_SONG(user_data);
+  
+  if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
+    GST_INFO("latency changed, redistributing ...");
+
+    gst_bin_recalculate_latency(self->priv->bin);
+  }
+}
+
 static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event_and_play_pos(BT_SONG(user_data));
 }
@@ -1348,6 +1358,7 @@ static void bt_song_constructed(GObject *object) {
     g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
     g_signal_connect(bus, "message::async-done", G_CALLBACK(on_song_async_done), (gpointer)self);
     g_signal_connect(bus, "message::clock-lost", G_CALLBACK(on_song_clock_lost), (gpointer)self);
+    g_signal_connect(bus, "message::latency", G_CALLBACK(on_song_latency), (gpointer)self);
     gst_object_unref(bus);
   }
 
@@ -1496,6 +1507,7 @@ static void bt_song_dispose(GObject * const object) {
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_eos,(gpointer)self);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_async_done,(gpointer)self);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_clock_lost,(gpointer)self);
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_latency,(gpointer)self);
     gst_bus_remove_signal_watch(bus);
     gst_object_unref(bus);
   }
