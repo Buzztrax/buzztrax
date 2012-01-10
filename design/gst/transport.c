@@ -77,7 +77,7 @@ main (gint argc, gchar **argv)
   sink = gst_element_factory_make ("jackaudiosink", NULL);
   gst_bin_add_many (GST_BIN (bin), src, sink, NULL);
   gst_element_link (src, sink);
-  gst_element_set_state (bin, GST_STATE_PLAYING);
+  gst_element_set_state (bin, GST_STATE_PAUSED);
   
   event_loop (bin);
   
