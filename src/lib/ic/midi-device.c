@@ -71,11 +71,18 @@ G_DEFINE_TYPE_WITH_CODE (BtIcMidiDevice, btic_midi_device, BTIC_TYPE_DEVICE,
 
 #define MIDI_CMD_MASK           0xf0
 #define MIDI_CH_MASK            0x0f
+#define MIDI_NOTE_OFF           0x80
+#define MIDI_NOTE_ON            0x90
+#define MIDI_AFTER_TOUCH        0xa0
 #define MIDI_CONTROL_CHANGE     0xb0
 #define MIDI_PITCH_WHEEL_CHANGE 0xe0
 #define MIDI_SYS_EX_START       0xf0
 #define MIDI_SYS_EX_END         0xf7
 #define MIDI_NON_REALTIME       0x7e
+
+#define MIDI_CTRL_PITCH_WHEEL   128
+#define MIDI_CTRL_NOTE_KEY      129
+#define MIDI_CTRL_NOTE_VELOCITY 130
 
 //-- helper
 
@@ -123,6 +130,38 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
       // http://www.midi.org/techspecs/midimessages.php
       // http://www.cs.cf.ac.uk/Dave/Multimedia/node158.html
       switch(cmd) {
+        case MIDI_NOTE_ON:
+          g_io_channel_read_chars(self->priv->io_channel,(gchar *) midi_data, 2-have_read, &bytes_read, &error);
+          if(error) {
+            GST_WARNING("iochannel error when reading: %s",error->message);
+            g_error_free(error);
+          }
+          else {
+            /* this CMD drived two controllers, key and velocity, thus we need
+             * to do the lean in two steps */
+            gboolean learn_1st=FALSE;
+            GST_DEBUG("note-on: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
+
+            key=MIDI_CTRL_NOTE_KEY;
+            if((control=btic_device_get_control_by_id(BTIC_DEVICE(self),key))) {
+              g_object_set(control,"value",(gint32)(midi_event[1]),NULL);
+            } else {
+              if(G_UNLIKELY(self->priv->learn_mode)) {
+                update_learn_info(self,"note-key",key,7);
+                learn_1st=TRUE;
+              }
+            }
+            key=MIDI_CTRL_NOTE_VELOCITY;
+            if((control=btic_device_get_control_by_id(BTIC_DEVICE(self),key))) {
+              g_object_set(control,"value",(gint32)(midi_event[2]),NULL);
+            } else {
+              if(G_UNLIKELY(self->priv->learn_mode) && !learn_1st) {
+                update_learn_info(self,"note-velocity",key,7);
+              }
+            }
+            prev_cmd=midi_event[0];
+          }
+          break;
         case MIDI_CONTROL_CHANGE:
           g_io_channel_read_chars(self->priv->io_channel,(gchar *) midi_data, 2-have_read, &bytes_read, &error);
           if(error) {
@@ -154,7 +193,7 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
           else {
             GST_DEBUG("pitch-wheel-change: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
 
-            key=128;
+            key=MIDI_CTRL_PITCH_WHEEL;
             if(G_UNLIKELY(self->priv->learn_mode)) {
               update_learn_info(self,"pitch-wheel-change",key,14);
             }
