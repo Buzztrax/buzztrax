@@ -69,16 +69,17 @@ G_DEFINE_TYPE_WITH_CODE (BtIcMidiDevice, btic_midi_device, BTIC_TYPE_DEVICE,
 
 //-- defines
 
-#define MIDI_CMD_MASK           0xf0
-#define MIDI_CH_MASK            0x0f
-#define MIDI_NOTE_OFF           0x80
-#define MIDI_NOTE_ON            0x90
-#define MIDI_AFTER_TOUCH        0xa0
-#define MIDI_CONTROL_CHANGE     0xb0
-#define MIDI_PITCH_WHEEL_CHANGE 0xe0
-#define MIDI_SYS_EX_START       0xf0
-#define MIDI_SYS_EX_END         0xf7
-#define MIDI_NON_REALTIME       0x7e
+#define MIDI_CMD_MASK            0xf0
+#define MIDI_CH_MASK             0x0f
+#define MIDI_NOTE_OFF            0x80
+#define MIDI_NOTE_ON             0x90
+#define MIDI_POLY_AFTER_TOUCH    0xa0
+#define MIDI_CONTROL_CHANGE      0xb0
+#define MIDI_CHANNEL_AFTER_TOUCH 0xd0
+#define MIDI_PITCH_WHEEL_CHANGE  0xe0
+#define MIDI_SYS_EX_START        0xf0
+#define MIDI_SYS_EX_END          0xf7
+#define MIDI_NON_REALTIME        0x7e
 
 #define MIDI_CTRL_PITCH_WHEEL   128
 #define MIDI_CTRL_NOTE_KEY      129
@@ -96,6 +97,11 @@ static void update_learn_info(BtIcMidiDevice *self,gchar *name,guint key,guint b
 }
 
 //-- handler
+
+static void log_io_error(GError *error, gchar *event) {
+  GST_WARNING("iochannel error when reading '%s': %s",event,error->message);
+  g_error_free(error);
+}
 
 static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer user_data) {
   BtIcMidiDevice *self=BTIC_MIDI_DEVICE(user_data);
@@ -130,12 +136,19 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
       // http://www.midi.org/techspecs/midimessages.php
       // http://www.cs.cf.ac.uk/Dave/Multimedia/node158.html
       switch(cmd) {
+        case MIDI_NOTE_OFF:
+          g_io_channel_read_chars(self->priv->io_channel,(gchar *) midi_data, 2-have_read, &bytes_read, &error);
+          if(error)
+            log_io_error(error,"NOTE-OFF");
+          else {
+            GST_DEBUG("note-off: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
+            prev_cmd=midi_event[0];
+          }
+          break;
         case MIDI_NOTE_ON:
           g_io_channel_read_chars(self->priv->io_channel,(gchar *) midi_data, 2-have_read, &bytes_read, &error);
-          if(error) {
-            GST_WARNING("iochannel error when reading: %s",error->message);
-            g_error_free(error);
-          }
+          if(error)
+            log_io_error(error,"NOTE-ON");
           else {
             /* this CMD drived two controllers, key and velocity, thus we need
              * to do the lean in two steps */
@@ -164,10 +177,8 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
           break;
         case MIDI_CONTROL_CHANGE:
           g_io_channel_read_chars(self->priv->io_channel,(gchar *) midi_data, 2-have_read, &bytes_read, &error);
-          if(error) {
-            GST_WARNING("iochannel error when reading: %s",error->message);
-            g_error_free(error);
-          }
+          if(error)
+            log_io_error(error,"CONTROL-CHANGE");
           else {
             GST_DEBUG("control-change: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
 
@@ -186,10 +197,8 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
           break;
         case MIDI_PITCH_WHEEL_CHANGE:
           g_io_channel_read_chars(self->priv->io_channel, (gchar *)midi_data, 2-have_read, &bytes_read, &error);
-          if(error) {
-            GST_WARNING("iochannel error when reading: %s",error->message);
-            g_error_free(error);
-          }
+          if(error)
+            log_io_error(error,"PITCH-WHEEL-CHANGE");
           else {
             GST_DEBUG("pitch-wheel-change: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
 
