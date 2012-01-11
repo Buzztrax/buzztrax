@@ -79,6 +79,11 @@ G_DEFINE_TYPE_WITH_CODE (BtIcMidiDevice, btic_midi_device, BTIC_TYPE_DEVICE,
 #define MIDI_PITCH_WHEEL_CHANGE  0xe0
 #define MIDI_SYS_EX_START        0xf0
 #define MIDI_SYS_EX_END          0xf7
+#define MIDI_TIMING_CLOCK        0xf8
+#define MIDI_TRANSPORT_START     0xfa
+#define MIDI_TRANSPORT_CONTINUE  0xfb
+#define MIDI_TRANSPORT_STOP      0xfc
+#define MIDI_ACTIVE_SENSING      0xfe
 #define MIDI_NON_REALTIME        0x7e
 
 #define MIDI_CTRL_PITCH_WHEEL   128
@@ -213,6 +218,8 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
             }
             prev_cmd=midi_event[0];
           }
+          break;
+        case 0xf0: /* system common/realtime */
           break;
         default:
           GST_LOG("unhandled message: %02x",midi_event[0]);
