@@ -56,6 +56,7 @@
  *   - use a pad-probe like master_volume_sync_handler (consider reusing) to sync them
  *   - the gtk-ui can have two on-screen leds
  *   - sink-bin could use the keyboard leds to indicate them (with #ifdef LINUX)
+ *     - need root permissions :/
  */
 
 #define BT_CORE
@@ -789,6 +790,9 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
 #if 0
     /* we need a way to kick start the audiosink and actualy open the device
      * so that we show up in pulseaudio or qjackctrl
+     * - this should be happen in READY
+     * - right now we don't even add the sink initially (when song is empty)
+     *   - we only add connected parts
      */
     gst_element_set_state(audio_sink, GST_STATE_PAUSED);
     {
