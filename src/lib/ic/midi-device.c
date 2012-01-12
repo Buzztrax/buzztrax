@@ -156,7 +156,25 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
             log_io_error(error,"NOTE-ON");
           else {
             /* this CMD drived two controllers, key and velocity, thus we need
-             * to do the lean in two steps */
+             * to do the lean in two steps
+             * TODO(ensonic): maybe we can add a callback and a extra info message
+             * to update_learn_info. The info message can tell, that this will name
+             * multiple controllers. The callback can actually register them.
+             * TODO(ensonic): we could also define one regular abs-range controller
+             * for each key - then we can play drums with the key - each drum
+             * controlled by one key. The downside is, that this will cause the
+             * controller menu to explode.
+             *
+             * Maybe we should change the machine-window to have tabs:
+             * - properties
+             * - interactions
+             * - settings (the preferences)
+             * This would fold the preferences window into the machine-window as
+             * a tab. The 'interaction' tab would have a list/tree of parameters
+             * and a list/tree of controls. The control list could show if a
+             * control is bound already (e.g. to another machine). We would need
+             * a drawable between the lists to show the connections with lines.
+             */
             gboolean learn_1st=FALSE;
             GST_DEBUG("note-on: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
 
