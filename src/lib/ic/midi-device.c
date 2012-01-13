@@ -170,10 +170,20 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
              * - interactions
              * - settings (the preferences)
              * This would fold the preferences window into the machine-window as
-             * a tab. The 'interaction' tab would have a list/tree of parameters
+             * a tab. The downside is that some of the toolbar items (about and
+             * help) would be related to all tabs, while the preset, randomize,
+             * reset ones would be related to the properties tab only.
+             * The 'interaction' tab would have a list/tree of parameters
              * and a list/tree of controls. The control list could show if a
              * control is bound already (e.g. to another machine). We would need
              * a drawable between the lists to show the connections with lines.
+             * 
+             * An alternative would be to only list the devices in the
+             * controller menu. When selecting a device we ensure its running
+             * and set the learn mode. As soon as controls changed, we list them
+             * and let the user pick one. For each control we could show where
+             * it is bound currently. If we go that route, we would actually not
+             * need the controller profiles.
              */
             gboolean learn_1st=FALSE;
             GST_DEBUG("note-on: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
