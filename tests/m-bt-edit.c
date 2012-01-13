@@ -95,7 +95,7 @@ void bt_edit_setup(void) {
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
   /* @todo: we need to ensure icons are found when running uninstalled
    * one problem is that we have them under "pixmaps" and not "icons"
-   * maybe we should rename in svn
+   * maybe we should rename in the repo
   theme=gtk_icon_theme_get_default()
   gtk_icon_theme_append_search_path(theme,....);
   */
