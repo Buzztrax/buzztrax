@@ -16,7 +16,7 @@ gst-plugins-base
 gst-plugins-good
 gst-plugins-bad
 gnome-canvas
-gst-buzztard (from buzztard svn, use same version as this module)
+gst-buzztard (from buzztard git, use same version as this module)
 gudev
 gsf
 
@@ -27,10 +27,10 @@ check (http://check.sf.net - for unit tests)
 gconf (for persistent settings)
 udev (for interaction controller)
 
-= building from svn =
+= building from git =
 To build use autogen.sh instead of configure. This accept the same options like
 configure. Later one can use autoregen.sh to rerun the bootstrapping.
-To build from SVN one needs gconf2-dev (see #1530372), gtk-doc and cvs (for
+To build from git one needs gconf2-dev (see #1530372), gtk-doc and cvs (for
 autopoint from gettext) installed.
 
 = directories =
