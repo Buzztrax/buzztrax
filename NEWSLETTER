@@ -2,14 +2,44 @@ svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 
 2012/02 ========================================================================
 
-* move from svn to git, ohloh updated, git hooks installed
-* move bsl into buzztard
-* a few ui, docs and tips updates from user feedback
+The first big change after releasing 0.6 was to move from svn to git.
+SourceForge offers git since a while, but does not provide any tips how to do
+the transition. Fortunately it is a popular topic though. I used svn2git for the
+main conversion. I fixed the author tags from svn commit messages (Patch-by:)
+manually using git rebase -i as I could not get a filter-branch script for it to
+work. A few times gitk got confused and I had to remove my .git/gitk.cache, one
+symptom are missing tags. I updated the enlistments on ohloh and tweaked the git
+hooks to have the same functionality as before.
+
+A first code wise change was to move the bsl module into the buzztard one. It is
+a small module for the buzztard song-loader plugin and it is not needed if you
+don't want to load buzz songs. But it is small and has no further dependencies
+and thus it is easier to just include it. Especially as we plan to add other 
+loaders in the coming cycle(s).
+
+In the editor I bumped the required gtk version to get rid of some #ifdef and be
+able to use newer API. I replaced the ruler widgets in volume and panorama 
+popups with with scale markers. Those look nicer and take the scale handle size
+into account. Unfortunately they were almost untested. I made the needed patches
+for gtk-2-24, gtk-3-2 and gtk-HEAD. I could also made workarounds for the issue
+for the time being. So for the time being, don't use inverted ranges on you scale
+and don't use an adjustment with fractions (use 0 .. 100 instead of 0.0 to 1.0).
+
+Most of the work went in the the interaction controller. The controller
+assignment in the UI is a bit more discoverable (content menu not only on main
+widgets, but alos on the label and value label). Controllers can be assigned to
+cobmoboxes too (mapped to enums). We have controllers for note-on midi messages
+and the velocity that comes with it now.
+
+There were also a few smaller changes for user feedback on docs and new tips.
+
+[1] https://bugzilla.gnome.org/show_bug.cgi?id=667598
+[2] https://bugzilla.gnome.org/show_bug.cgi?id=667590
 
 2012/01 ========================================================================
 
 Finally after a long time, I managed to release a 0.6 of buzztard. So far only
-one regresion was found and bml-0.6.1 was released to fix it.
+one regression was found and bml-0.6.1 was released to fix it.
 
 A few things happened before the release still. At first after updating my
 distro, I made a lot of changes to avoid deprecated gtk+ api. For now we ship
@@ -21,6 +51,8 @@ is faster and lets us do things like blending of note ranges or transposing.
 
 I also made quite a few bug-fixes - laspa effects work again, fluidsynth fixes,
 etc.
+
+Now I look forward to a lot of new changes in 0.7.X.
 
 2011/12 ========================================================================
 
