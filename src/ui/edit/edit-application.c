@@ -63,7 +63,7 @@ struct _BtEditApplicationPrivate {
 
   /* the currently loaded song */
   BtSong *song;
-  /* shared ui ressources */
+  /* shared ui resources */
   BtUIResources *ui_resources;
   /* the top-level window of our app */
   BtMainWindow *main_window;
@@ -249,7 +249,7 @@ Error:
  *
  * Create a new instance on first call and return a reference later on.
  *
- * Returns: the new signleton instance
+ * Returns: the new singleton instance
  */
 BtEditApplication *bt_edit_application_new(void) {
   return(BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL)));
@@ -470,12 +470,12 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
     /* save file saving (bak files)
      * save
      *   new file (!old_file_name)
-     *     choosen file-name already exist
+     *     chosen file-name already exist
      *       - move to <existing>.bak
      *       - save newfile
      *       - if saving failed, move <existing>.bak back
      *       - if saving worked, delete <existing>.bak
-     *     choosen file-name does not exist
+     *     chosen file-name does not exist
      *       - save newfile
      *   existing file
      *     - move to <existing>.bak
@@ -485,12 +485,12 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
      *   new file (!old_file_name)
      *     like save of a new-file
      *   existing file
-     *     choosen file-name already exist
+     *     chosen file-name already exist
      *       - like save of an existing file
-     *     choosen file-name does not exist
+     *     chosen file-name does not exist
      *       - save newfile
      *
-     * - check how other apps do it (check if inodes change if various scenarious)
+     * - check how other apps do it (check if inodes change if various scenarios)
      * - when loading a file, should we keep the file-handle open, so then when
      *   saving, we can just update it?
      *   - this can help with the wavetable (only updated changed wavetable slots)
@@ -507,7 +507,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
       if(!old_file_name || strcmp(old_file_name,file_name)) {
         // saving worked, we remove the bak file as
         // - there was no old_file_name and/or
-        // - user has choosen to overwrite this file
+        // - user has chosen to overwrite this file
         g_unlink(bak_file_name);
       }
     }
@@ -590,7 +590,7 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
  * bt_edit_application_quit:
  * @self: the application instance to quit
  *
- * End the application. Eventualy asks the user for confirmation.
+ * End the application. Eventually asks the user for confirmation.
  *
  * Returns: %TRUE it ending the application was confirmed
  */
@@ -741,7 +741,7 @@ gboolean bt_edit_application_is_song_unsaved(const BtEditApplication *self) {
  * Flag unsaved changes in the applications song.
  */
 void bt_edit_application_set_song_unsaved(const BtEditApplication *self) {
-  /* this is not succesfully preventing setting the flag when we create an
+  /* this is not successfully preventing setting the flag when we create an
    * undo-able change
   gboolean can_undo;
 
@@ -831,7 +831,7 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
 
     //GST_DEBUG("<<<");
     GST_INFO("new edit app instantiated");
-    // create or ref the shared ui ressources
+    // create or ref the shared ui resources
     singleton->priv->ui_resources=bt_ui_resources_new();
     // create the playback controller
     singleton->priv->pb_controller=bt_playback_controller_socket_new();
@@ -867,7 +867,7 @@ static void bt_edit_application_dispose(GObject *object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  /* This should destory the window as this is a child of the app.
+  /* This should destroy the window as this is a child of the app.
    * Problem 1: On the other hand, this *NEVER* gets called as long as the window keeps its
    * strong reference to the app.
    * Solution 1: Only use weak refs when reffing upstream objects
@@ -886,7 +886,7 @@ static void bt_edit_application_dispose(GObject *object) {
     //main-menu.c::on_menu_quit_activate
     gtk_widget_destroy(GTK_WIDGET(self->priv->main_window));
     // we get this if we unref
-    // GLib-GObject-WARNING **: instance of invalid non-instantiatable type `<invalid>'
+    // GLib-GObject-WARNING **: instance of invalid non-instantiable type `<invalid>'
     //////g_object_unref(self->priv->main_window);
   }
 

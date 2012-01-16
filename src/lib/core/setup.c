@@ -28,7 +28,7 @@
  * machines are not yet added to the pipeline. Only once a subgraph from a
  * source is fully connected to the sink, that subgraph is added o the pipeline.
  *
- * Applications can watch the GstObject:parent property to see wheter a machine
+ * Applications can watch the GstObject:parent property to see whether a machine
  * is physically inserted into the processing pipeline. 
  */
 /* support dynamic (un)linking (while playing)
@@ -44,7 +44,7 @@
  *
  * When adding/removing a bin while playing, block all src-pads that are
  * connected to existing elements when linking.
- * Once the deep scan of the graph is finished, we can unblock all remebered
+ * Once the deep scan of the graph is finished, we can unblock all remembered
  * pads. Also send a seek and a tag event to newly added sources.
  *
  * When dynamically adding/removing we ideally do not make any change to the
@@ -216,7 +216,7 @@
  * We could have an alternative data-structure in setup:
  * struct Connection[num_src][num_dst]
  * but its not giving much benefit actually
- * We could print the song-graph as a matrix for debuging purposes
+ * We could print the song-graph as a matrix for debugging purposes
  *
  * --
  *
@@ -658,7 +658,7 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
       g_object_get(wire,"src",&src_machine,NULL);
       if(BT_IS_SOURCE_MACHINE(src_machine)) {
         SET_GRAPH_DEPTH(self,src_machine,depth+2);
-        /* for source machine we can stop the recurssion */
+        /* for source machine we can stop the recursion */
         wire_is_connected=TRUE;
         *not_visited_machines=g_list_remove(*not_visited_machines,(gconstpointer)src_machine);
       }
@@ -892,7 +892,7 @@ static void sync_states(const BtSetup * const self) {
     self->priv->elements_to_play=NULL;
   }
   if(self->priv->elements_to_stop) {
-    GST_INFO("stoping elements");
+    GST_INFO("stopping elements");
 #ifndef GST_DISABLE_DEBUG
     for(node=self->priv->elements_to_stop;node;node=g_list_next(node)) {
       GST_INFO_OBJECT(GST_OBJECT(node->data),"will be set from %s to %s, depth=%d",
@@ -946,7 +946,7 @@ static void update_pipeline(const BtSetup * const self) {
   // 2.) when (un)linking a src pad on an active element hat operates in push
   //     mode, we only need to block the pad itself
   //
-  // 3.) we either add or remove stuff on exactly on pad at a time in practise
+  // 3.) we either add or remove stuff on exactly on pad at a time in practice
   //
   // this should make it easier to split the update into two parts to correctly
   // handle the async pad blocking
@@ -1888,7 +1888,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
 
   g_object_class_install_property(gobject_class,SETUP_SONG,
                                   g_param_spec_object("song",
-                                     "song contruct prop",
+                                     "song construct prop",
                                      "Set song object, the setup belongs to",
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));

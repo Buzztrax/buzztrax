@@ -56,11 +56,11 @@ GST_STATIC_PAD_TEMPLATE ("sink%d",
  * @err: inform about failed instance creation
  *
  * Create a new instance.
- * The machine is automaticly added to the setup from the given song object. You
- * don't need to add the machine with
+ * The machine is automatically added to the setup from the given song object.
+ * You don't need to add the machine with
  * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
  * The element used for this machine is #BtSinkBin which is configured according
- * to the use-case (playback, recordfing). The playback device is taken from the
+ * to the use-case (playback, recording). The playback device is taken from the
  * #BtSettings.
  *
  * Returns: the new instance or %NULL in case of an error

@@ -20,11 +20,11 @@
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
  *
- * The sink-bin provides switchable play and record facillities.
- * It also provides controlable master-volume.
+ * The sink-bin provides switchable play and record facilities.
+ * It also provides controllable master-volume.
  *
  * In play and record modes it plugs a chain of elements. In combined play and
- * record mode it uses a tee and plugs both pipleines.
+ * record mode it uses a tee and plugs both pipelines.
  */
 
 /* @todo: detect supported encoders
@@ -38,7 +38,7 @@
  * @todo: add properties for bpm and master volume,
  * - bpm
  *   - tempo-iface is implemented, but is hidden from the ui
- *     (the iface properties are not controlable)
+ *     (the iface properties are not controllable)
  *   - we could have separate properties and forward the changes
  *
  * @todo: for upnp it would be nice to stream on-demand
@@ -47,10 +47,10 @@
  *   - channels can be used in the capsfilter
  *   - sampling rate could be used there too
  *   - both should be sink-bin properties, so that we can configure them
- *     externaly
+ *     externally
  *
  * @todo: add a metronome
- *   - add a (controlable) gboolean "metronome-beat", "metronome-tick" properties
+ *   - add a (controllable) gboolean "metronome-beat", "metronome-tick" properties
  *   - add controller pattern to make them emit notifies
  *     - need to update on length changes and bpm/tpb changes
  *   - use a pad-probe like master_volume_sync_handler (consider reusing) to sync them
@@ -67,7 +67,7 @@
 
 /* define this to get diagnostics of the sink data flow */
 //#define BT_MONITOR_SINK_DATA_FLOW
-/* define this to verify continuos timestamps */
+/* define this to verify continuous timestamps */
 //#define BT_MONITOR_TIMESTAMPS
 
 /* this requires gstreamer-0.10.16 */
@@ -94,7 +94,7 @@ struct _BtSinkBinPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
-  /* change configuration at next convinient point? */
+  /* change configuration at next convenient point? */
   gboolean pending_update;
 
   /* mode of operation */
@@ -788,7 +788,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
 #endif
 	  GST_INFO_OBJECT(self,"kick and lock audio sink");
 #if 0
-    /* we need a way to kick start the audiosink and actualy open the device
+    /* we need a way to kick start the audiosink and actually open the device
      * so that we show up in pulseaudio or qjackctrl
      * - this should be happen in READY
      * - right now we don't even add the sink initially (when song is empty)
@@ -956,7 +956,7 @@ static void bt_sink_bin_get_property(GObject * const object, const guint propert
     case SINK_BIN_ANALYZERS: {
       g_value_set_pointer(value, self->priv->analyzers);
     } break;
-	// tempo iface
+    // tempo iface
     case SINK_BIN_TEMPO_BPM:
       g_value_set_ulong(value, self->priv->beats_per_minute);
       break;
