@@ -19,6 +19,7 @@ libbtbsl_la_CFLAGS = \
 AM_CPPFLAGS = \
 	-I$(srcdir) \
 	-I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)/buzztard\" \
