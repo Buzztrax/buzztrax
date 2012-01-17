@@ -10,18 +10,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <gtk/gtk.h>
 #include <glib.h>
+#include <gtk/gtk.h>
 
 static void destroy (GtkWidget *widget,gpointer data) {
   gtk_main_quit ();
 }
 
-static GtkWidget* make_scale(GtkObject *adj, gint o) {
+static GtkWidget *make_scale(GtkAdjustment *adj, gint o) {
   if (o) {
-    return gtk_vscale_new ((GtkAdjustment *)adj);
+    return gtk_vscale_new (adj);
   } else {
-    return gtk_hscale_new ((GtkAdjustment *)adj);
+    return gtk_hscale_new (adj);
   }
 }
 
@@ -53,7 +53,7 @@ gint main (gint argc, gchar **argv) {
   if (v==0 || v==1) {
     frame = gtk_frame_new ("0.0 -> 1.0");
 
-    scale = make_scale (gtk_adjustment_new (0.0, 0.0, 1.0, 0.01, 0.05, 0.0), o);
+    scale = make_scale ((GtkAdjustment *)gtk_adjustment_new (0.0, 0.0, 1.0, 0.01, 0.05, 0.0), o);
     gtk_scale_add_mark (GTK_SCALE (scale),  0.0,  GTK_POS_BOTTOM, "0 %");
     gtk_scale_add_mark (GTK_SCALE (scale),  0.25, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (GTK_SCALE (scale),  0.5,  GTK_POS_BOTTOM, "50 %");
@@ -66,7 +66,7 @@ gint main (gint argc, gchar **argv) {
   if (v==0 || v==2) {
     frame = gtk_frame_new ("-1.0 -> 1.0");
 
-    scale = make_scale (gtk_adjustment_new (0.0, -1.0, 1.0, 0.01, 0.05, 0.0), o);
+    scale = make_scale ((GtkAdjustment *)gtk_adjustment_new (0.0, -1.0, 1.0, 0.01, 0.05, 0.0), o);
     gtk_scale_add_mark (GTK_SCALE (scale), -1.0,  GTK_POS_BOTTOM, "-100 %");
     gtk_scale_add_mark (GTK_SCALE (scale), -0.75, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (GTK_SCALE (scale), -0.5,  GTK_POS_BOTTOM, NULL);
@@ -83,7 +83,7 @@ gint main (gint argc, gchar **argv) {
   if (v==0 || v==3) {
     frame = gtk_frame_new ("1.0 -> 0.0");
 
-    scale = make_scale (gtk_adjustment_new (0.0, 0.0, 1.0, 0.01, 0.05, 0.0), o);
+    scale = make_scale ((GtkAdjustment *)gtk_adjustment_new (0.0, 0.0, 1.0, 0.01, 0.05, 0.0), o);
     gtk_range_set_inverted (GTK_RANGE (scale), TRUE);
     gtk_scale_add_mark (GTK_SCALE (scale),  0.0,  GTK_POS_BOTTOM, "0 %");
     gtk_scale_add_mark (GTK_SCALE (scale),  0.25, GTK_POS_BOTTOM, NULL);
@@ -97,7 +97,7 @@ gint main (gint argc, gchar **argv) {
   if (v==0 || v==4) {
     frame = gtk_frame_new ("1.0 -> -1.0");
 
-    scale = make_scale (gtk_adjustment_new (0.0, -1.0, 1.0, 0.01, 0.05, 0.0), o);
+    scale = make_scale ((GtkAdjustment *)gtk_adjustment_new (0.0, -1.0, 1.0, 0.01, 0.05, 0.0), o);
     gtk_range_set_inverted (GTK_RANGE (scale), TRUE);
     gtk_scale_add_mark (GTK_SCALE (scale), -1.0,  GTK_POS_BOTTOM, "-100 %");
     gtk_scale_add_mark (GTK_SCALE (scale), -0.75, GTK_POS_BOTTOM, NULL);
