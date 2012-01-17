@@ -102,10 +102,11 @@ if [ -n "$DOMAINS_UPDATED" ]; then
   echo "Source: http://translationproject.org/latest/$PACKAGE/"
   echo
   if [ -n "$DOMAINS_TO_ADD" ]; then
-    CMD_STRING="svn add"
+    CMD_STRING="git add"
     for d in $DOMAINS_TO_ADD; do
       CMD_STRING="$CMD_STRING po/$d.po"
     done
+    CMD_STRING="$CMD_STRING; git commit -m \"add new translations\""
     echo "Please run"
     echo
     echo "  $CMD_STRING"
