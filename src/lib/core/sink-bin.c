@@ -325,11 +325,18 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
 
 static gboolean bt_sink_bin_add_many(const BtSinkBin * const self, GList * const list) {
   const GList *node;
+  GstElement *elem;
 
   GST_DEBUG("add elements: list=%p",list);
 
   for(node=list;node;node=node->next) {
-    gst_bin_add(GST_BIN(self),GST_ELEMENT(node->data));
+    elem=GST_ELEMENT_CAST(node->data);
+    GST_DEBUG_OBJECT(elem,"  adding elem=%p (ref_ct=%d),'%s'",
+        elem,(G_OBJECT_REF_COUNT(elem)),GST_OBJECT_NAME(elem));
+    if(!gst_bin_add(GST_BIN(self),elem)) {
+      GST_WARNING_OBJECT(self,"can't add element: elem=%s, parent=%s",
+        GST_OBJECT_NAME(elem),GST_OBJECT_NAME(GST_OBJECT_PARENT(elem)));
+    }
   }
   return(TRUE);
 }
@@ -610,12 +617,12 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     return(FALSE);
   }
 
-  GST_INFO("clearing sink-bin");
+  GST_INFO_OBJECT(self,"clearing sink-bin");
 
   // remove existing children
   bt_sink_bin_clear(self);
 
-  GST_INFO("initializing sink-bin");
+  GST_INFO_OBJECT(self,"initializing sink-bin");
 
   self->priv->caps_filter=gst_element_factory_make("capsfilter","sink-format");
   bt_sink_bin_format_update(self);
@@ -1011,7 +1018,7 @@ static void bt_sink_bin_set_property(GObject * const object, const guint propert
 
       g_object_try_weak_unref(self->priv->gain);
       self->priv->gain = GST_ELEMENT(g_value_get_object(value));
-      GST_DEBUG("Set initial master volume: %lf",self->priv->volume);
+      GST_DEBUG_OBJECT(self->priv->gain,"Set master gain element: %p",self->priv->gain);
       g_object_try_weak_ref(self->priv->gain);
       g_object_set(self->priv->gain,"volume",self->priv->volume,NULL);
       sink_pad=gst_element_get_static_pad(self->priv->gain,"sink");
@@ -1118,7 +1125,7 @@ static void bt_sink_bin_init(BtSinkBin *self) {
   gst_element_add_pad(GST_ELEMENT(self),self->priv->sink);
   bt_sink_bin_update(self);
 
-  GST_INFO("done");
+  GST_INFO_OBJECT(self,"done");
 }
 
 static void bt_sink_bin_class_init(BtSinkBinClass * klass) {
