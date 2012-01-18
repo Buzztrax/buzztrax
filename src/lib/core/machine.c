@@ -223,6 +223,16 @@ typedef struct {
   gulong handler_id;
 } BtControlData;
 
+#if 0
+typedef struct {
+  const BtIcControl *control;
+  BtMachine *machine;
+  GParamSpec *pspec;
+  gulong handler_id;
+  gint voice_ct;
+} BtPolyControlData;
+#endif
+
 static GQuark error_domain=0;
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -2723,6 +2733,97 @@ void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *
   }
 }
 
+#if 0
+
+static void on_enum_poly_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
+  BtPolyControlData *data=(BtPolyControlData *)(user_data);
+  GstObject *object;
+  GParamSpecEnum *p=(GParamSpecEnum *)data->pspec;
+  GEnumClass *e=p->enum_class;
+  glong svalue,min,max;
+  gint dvalue;
+
+  g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
+  dvalue=(gint)((svalue-min)*((gdouble)(e->n_values)/(gdouble)(max-min)));
+  
+  object=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(data->machine),data->voice_ct);
+  g_object_set(object,((GParamSpec *)p)->name,e->values[dvalue].value,NULL);
+  data->voice_ct=(data->voice_ct+1)%data->machine->priv->voices;
+}
+
+
+void bt_machine_bind_poly_parameter_control(const BtMachine * const self, const gchar *property_name, BtIcControl *control) {
+  BtPolyControlData *data;
+  GstObject *object;
+  GParamSpec *pspec;
+  BtIcDevice *device;
+  gboolean new_data=FALSE;
+
+  object=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self),0);
+  pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
+
+  data=(BtControlData *)g_hash_table_lookup(self->priv->control_data,(gpointer)pspec);
+  if(!data) {
+    new_data=TRUE;
+    data=g_new(BtPolyControlData,1);
+    data->voice_ct=0;
+    data->machine=self;
+    data->pspec=pspec;
+  }
+  else {
+    // stop the old device
+    g_object_get((gpointer)(data->control),"device",&device,NULL);
+    btic_device_stop(device);
+    g_object_unref(device);
+    // disconnect old signal handler
+    g_signal_handler_disconnect((gpointer)data->control,data->handler_id);
+    g_object_unref((gpointer)(data->control));
+  }
+  data->control=g_object_ref(control);
+  // start the new device
+  g_object_get((gpointer)(data->control),"device",&device,NULL);
+  btic_device_start(device);
+  g_object_unref(device);
+  /* @todo: controls need flags to indicate whether they are absolute or relative
+   * we conect a different handler for relative ones that add/sub values to current value
+   */
+  // connect signal handler
+  switch(bt_g_type_get_base_type(pspec->value_type)) {
+    case G_TYPE_BOOLEAN:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_boolean_poly_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_INT:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_int_poly_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_UINT:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_uint_poly_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_INT64:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_int64_poly_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_UINT64:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_uint64_poly_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_FLOAT:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_float_poly_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_DOUBLE:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_double_poly_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_ENUM:
+      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_enum_poly_control_notify),(gpointer)data);
+      break;
+    default:
+      GST_WARNING_OBJECT(self,"unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(pspec));
+      break;
+  }
+
+  if(new_data) {
+    g_hash_table_insert(self->priv->control_data,(gpointer)pspec,(gpointer)data);
+  }
+}
+#endif
+
 /**
  * bt_machine_unbind_parameter_control:
  * @self: machine
@@ -3151,7 +3252,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
               bt_machine_set_global_param_default(self,
               bt_machine_get_global_param_index(self,(gchar *)name,NULL));
             }
-            GST_INFO("initialized global machine data for param %ld: %s",param, name);
+            GST_INFO_OBJECT(self,"initialized global machine data for param %ld: %s",param, name);
           }
           else {
             GST_WARNING_OBJECT(self,"error while loading global machine data for param %ld: %s",param,error->message);
@@ -3178,7 +3279,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
               g_value_unset(&value);
               g_object_unref(machine_voice);
             }
-            GST_INFO("initialized voice machine data for param %ld: %s",param, name);
+            GST_INFO_OBJECT(self,"initialized voice machine data for param %ld: %s",param, name);
           }
           else {
             GST_WARNING_OBJECT(self,"error while loading voice machine data for param %ld, voice %ld: %s",param,voice,error->message);
