@@ -81,12 +81,18 @@
 #endif
 
 /* @todo: if we could only go to ready when doing STOP, we could keep the
- * jack linkage alive (see #ifdef USE_READY_FOR_STOPPED)
+ * jack linkage alive (see #ifdef USE_READY_FOR_STOPPED). Also see the change in
+ * setup.c
  * todo:
  * - need to set elements to NULL before removing
  * problems:
  * - jack loops last segment it received
  *   http://bugzilla.gnome.org/show_bug.cgi?id=582167
+ * - we still don't see buzztard in qjackctl when creating a new song
+ * - the client name increases every time we load a song
+ *   (buzztard, buzztard-01, ... )
+ *   - the pipeline object belongs to the app an should not change
+ *   - but we create new songs with new master instances on load
  */
 //#define USE_READY_FOR_STOPPED 1
 
@@ -1408,6 +1414,12 @@ static void bt_song_constructed(GObject *object) {
   GST_DEBUG("  tempo-signals connected");
 
   bt_song_update_play_seek_event_and_play_pos(BT_SONG(self));
+
+#ifdef USE_READY_FOR_STOPPED
+  if(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY)==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to ready state");
+  }
+#endif
   GST_INFO("  new song created: %p",self);
 }
 
