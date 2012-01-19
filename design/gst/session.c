@@ -7,12 +7,12 @@
 #include <stdlib.h>
 #include <gst/gst.h>
 
-
 static gboolean
 event_loop (GstElement * bin)
 {
-  GstBus *bus = gst_element_get_bus (GST_ELEMENT (bin));
+  GstBus *bus = gst_element_get_bus (bin);
   GstMessage *message = NULL;
+  gboolean res=FALSE;
 
   while (TRUE) {
     message = gst_bus_poll (bus, GST_MESSAGE_ANY, -1);    
@@ -22,7 +22,8 @@ event_loop (GstElement * bin)
     switch (message->type) {
       case GST_MESSAGE_EOS:
         gst_message_unref (message);
-        return TRUE;
+        res=TRUE;
+        goto Done;
       case GST_MESSAGE_WARNING:
       case GST_MESSAGE_ERROR: {
         GError *gerror;
@@ -33,20 +34,25 @@ event_loop (GstElement * bin)
         gst_message_unref (message);
         g_error_free (gerror);
         g_free (debug);
-        return FALSE;
+        res=TRUE;
+        goto Done;
       }
       default:
         gst_message_unref (message);
         break;
     }
   }
+Done:
+  gst_object_unref(bus);
+  return res;
 }
 
 static gboolean
 kick_start_loop (GstElement * bin)
 {
-  GstBus *bus = gst_element_get_bus (GST_ELEMENT (bin));
+  GstBus *bus = gst_element_get_bus (bin);
   GstMessage *message = NULL;
+  gboolean res=FALSE;
 
   while (TRUE) {
     message = gst_bus_poll (bus, GST_MESSAGE_ANY, -1);
@@ -65,7 +71,7 @@ kick_start_loop (GstElement * bin)
         }
         gst_message_unref (message);
         if(res) 
-          return TRUE;
+          goto Done;
         break;
       }
       case GST_MESSAGE_WARNING:
@@ -78,13 +84,17 @@ kick_start_loop (GstElement * bin)
         gst_message_unref (message);
         g_error_free (gerror);
         g_free (debug);
-        return FALSE;
+        res=FALSE;
+        goto Done;
       }
       default:
         gst_message_unref (message);
         break;
     }
   }
+Done:
+  gst_object_unref(bus);
+  return res;
 }
 
 
@@ -130,10 +140,7 @@ main (gint argc, gchar **argv)
   // create audio session sink and remove floating ref
   audio_sink = gst_object_ref (gst_element_factory_make (sink_name, NULL));
   gst_object_sink (audio_sink);
-  gst_element_set_state (audio_sink, GST_STATE_READY);
-  gst_element_set_locked_state (audio_sink, TRUE);
 
-#if 1
   bin = gst_pipeline_new ("song");
   src = gst_element_factory_make ("audiotestsrc", NULL);
   sink = gst_object_ref (audio_sink);
@@ -147,7 +154,6 @@ main (gint argc, gchar **argv)
   gst_element_set_locked_state (audio_sink, TRUE);
   gst_element_set_state (bin, GST_STATE_NULL);
   g_object_unref (bin);
-#endif
 
   puts("prepared, press key to continue");
   c=get_key();
