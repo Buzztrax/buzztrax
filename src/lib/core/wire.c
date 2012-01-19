@@ -457,7 +457,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
 
   GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
   if(!skip_convert) {
-    GST_WARNING_OBJECT(self,"adding converter");
+    GST_INFO_OBJECT(self,"adding converter");
     if(!machines[PART_CONVERT]) {
       bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
       // this is off by default anyway

@@ -732,7 +732,7 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
       }
       gst_iterator_free(it);
       if(!self->priv->src_pads[part]) {
-        GST_WARNING_OBJECT(m,"element has no src pads");
+        GST_DEBUG_OBJECT(m,"element has no src pads");
       }
     }
   }
@@ -757,7 +757,7 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
       }
       gst_iterator_free(it);
       if(!self->priv->sink_pads[part]) {
-        GST_WARNING_OBJECT(m,"element has no sink pads");
+        GST_DEBUG_OBJECT(m,"element has no sink pads");
       }
     }
   }
@@ -1343,7 +1343,7 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
       }
     }
     else {
-      GST_WARNING_OBJECT(self,"adding converter");
+      GST_INFO_OBJECT(self,"adding converter");
       if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
       if(!BT_IS_SINK_MACHINE(self)) {
         // only do this for the final mix, if at all
@@ -3626,13 +3626,13 @@ static void bt_machine_set_property(GObject * const object, const guint property
     case MACHINE_VOICES: {
       const gulong voices=self->priv->voices;
       self->priv->voices = g_value_get_ulong(value);
-      if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
-        if(voices!=self->priv->voices) {
+      if(voices!=self->priv->voices) {
+        if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
           GST_DEBUG_OBJECT(self,"set the voices for machine: %lu -> %lu",voices,self->priv->voices);
           bt_machine_resize_voices(self,voices);
+        } else if (self->priv->voices > 1) {
+          GST_WARNING_OBJECT(self,"ignoring change in voices  %lu -> %lu for monophonic machine",voices,self->priv->voices);
         }
-      } else {
-        GST_WARNING_OBJECT(self,"ignoring change in voices for monophonic machine");
       }
     } break;
     case MACHINE_GLOBAL_PARAMS: {
