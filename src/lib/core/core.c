@@ -81,8 +81,6 @@ static gboolean bt_init_pre (void) {
 }
 
 static gboolean bt_init_post (void) {
-  gboolean res=FALSE;
-
   //-- initialize dynamic parameter control module
   gst_controller_init(NULL,NULL);
   gst_pb_utils_init();
@@ -154,8 +152,9 @@ static gboolean bt_init_post (void) {
   _mm_setcsr(_mm_getcsr() | 0x8040); // set DAZ and FZ bits
 #endif
 
-  res=TRUE;
-  return(res);
+  bt_initialized=TRUE;
+
+  return(TRUE);
 }
 
 static gboolean parse_goption_arg(const gchar * opt, const gchar * arg, gpointer data, GError ** err)
@@ -232,7 +231,6 @@ void bt_init_add_option_groups(GOptionContext * const ctx) {
  */
 gboolean bt_init_check(int *argc, char **argv[], GError **err) {
   GOptionContext *ctx;
-  gboolean res;
 
   if(bt_initialized) {
     //g_print("already initialized Buzztard core");
@@ -241,23 +239,10 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
 
   ctx = g_option_context_new(NULL);
   bt_init_add_option_groups(ctx);
-  res = g_option_context_parse(ctx, argc, argv, err);
+  bt_initialized = g_option_context_parse(ctx, argc, argv, err);
   g_option_context_free(ctx);
 
-  if(res) {
-    // check for missing core elements (borked gstreamer install)
-    GList *missing;
-
-    if((missing=bt_gst_check_core_elements())) {
-      GList *node;
-      for(node=missing;node;node=g_list_next(node)) {
-        GST_WARNING("missing core element '%s'",(gchar *)node->data);
-      }
-    }
-    bt_initialized=TRUE;
-  }
-
-  return(res);
+  return(bt_initialized);
 }
 
 /**
