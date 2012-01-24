@@ -673,8 +673,10 @@ static void bt_cmd_application_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+#if THREADED_MAIN
   // this would exit the mainloop from a different thread :/
   //g_main_loop_quit(self->priv->loop);
+#endif
   g_main_loop_unref(self->priv->loop);
 
   G_OBJECT_CLASS(bt_cmd_application_parent_class)->finalize(object);
@@ -685,7 +687,9 @@ static void bt_cmd_application_init(BtCmdApplication *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_CMD_APPLICATION, BtCmdApplicationPrivate);
 
   self->priv->loop=g_main_loop_new(NULL,FALSE);
+#if THREADED_MAIN
   //self->priv->loop_thread=g_thread_create((GThreadFunc)g_main_loop_run,self->priv->loop,FALSE,NULL);
+#endif
 }
 
 static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
