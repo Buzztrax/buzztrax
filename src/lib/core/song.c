@@ -80,22 +80,6 @@
 #define BT_SONG_STATE_CHANGE_TIMEOUT (60*1000)
 #endif
 
-/* @todo: if we could only go to ready when doing STOP, we could keep the
- * jack linkage alive (see #ifdef USE_READY_FOR_STOPPED). Also see the change in
- * setup.c
- * todo:
- * - need to set elements to NULL before removing
- * problems:
- * - jack loops last segment it received
- *   http://bugzilla.gnome.org/show_bug.cgi?id=582167
- * - we still don't see buzztard in qjackctl when creating a new song
- * - the client name increases every time we load a song
- *   (buzztard, buzztard-01, ... )
- *   - the pipeline object belongs to the app an should not change
- *   - but we create new songs with new master instances on load
- */
-//#define USE_READY_FOR_STOPPED 1
-
 //-- property ids
 
 enum {
@@ -516,7 +500,6 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     GST_INFO("state change on the bin: %s -> %s",
       gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
-#ifndef USE_READY_FOR_STOPPED
       /* - if we do this in READY_TO_PAUSED, we get two PAUSED -> PAUSED transitions
        * - seeking in READY won't work for video
        * - seeking in PAUSED would discard prerolled data
@@ -536,7 +519,6 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
           GST_WARNING_OBJECT(self->priv->master_bin, "bin failed to handle seek event");
         }
         break;
-#endif
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
         if(!self->priv->is_playing) {
           GST_INFO("playback started");
@@ -700,17 +682,10 @@ static gboolean bt_song_idle_stop(const BtSong * const self) {
 
   GST_INFO("stopping idle loop");
 
-#ifdef USE_READY_FOR_STOPPED
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to null state");
-    return(FALSE);
-  }
-#else
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to null state");
     return(FALSE);
   }
-#endif
   GST_DEBUG("state change returned %d",res);
   self->priv->is_idle_active=FALSE;
   return(TRUE);
@@ -765,24 +740,8 @@ gboolean bt_song_play(const BtSong * const self) {
   GST_INFO("prepare playback");
   // update play-pos
   bt_song_update_play_seek_event_and_play_pos(self);
-
-#ifdef USE_READY_FOR_STOPPED
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to ready state");
-  }
-  // code from GST_STATE_CHANGE_NULL_TO_READY in on_song_state_changed()
-  // we're prepared to play
-  self->priv->is_preparing=FALSE;
-  // this should be sequence->play_start
-  self->priv->play_pos=0;
-  GST_DEBUG("seek event");
-  if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->play_seek_event)))) {
-    GST_WARNING("bin failed to handle seek event");
-  }
-#else
   // prepare playback
   self->priv->is_preparing=TRUE;
-#endif
 
   // send tags
   bt_song_send_tags(self);
@@ -834,12 +793,10 @@ gboolean bt_song_stop(const BtSong * const self) {
     GST_WARNING("can't go to ready state");
   }
   GST_DEBUG("->READY state change returned '%s'",gst_element_state_change_return_get_name(res));
-#ifndef USE_READY_FOR_STOPPED
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to NULL state");
   }
   GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
-#endif
 
   // kill a pending timeout
   if(self->priv->paused_timeout_id) {
@@ -1414,12 +1371,6 @@ static void bt_song_constructed(GObject *object) {
   GST_DEBUG("  tempo-signals connected");
 
   bt_song_update_play_seek_event_and_play_pos(BT_SONG(self));
-
-#ifdef USE_READY_FOR_STOPPED
-  if(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY)==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to ready state");
-  }
-#endif
   GST_INFO("  new song created: %p",self);
 }
 

@@ -663,6 +663,8 @@ static void bt_cmd_application_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+  bt_sink_bin_global_cleanup();
+
   G_OBJECT_CLASS(bt_cmd_application_parent_class)->dispose(object);
 }
 

@@ -75,6 +75,102 @@
 #define GST_TIME_AS_USECONDS(time) ((time) / G_GINT64_CONSTANT (1000))
 #endif
 
+//-- session handling
+
+/* We'd like to have a persistent presence in qjackctrl.
+ * It turns out that what you see in qjackctrl are the ports and those are 
+ * showing up from individual sinks and sources, the client is reused already.
+ * So we need to keep the actual element alive!
+ * We also need a hack to make it show up initially.
+ *
+ * TODO(ensonic): try this for pulsesink too?
+ * TODO(ensonic): other modules might want the instance too
+ *                (e.g. to change settings)
+ */
+static GstElement *audio_sink = NULL;
+
+void bt_sink_bin_global_cleanup(void) {
+  if(audio_sink) {
+    GST_WARNING("forgetting session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
+    gst_element_set_state(audio_sink,GST_STATE_NULL);
+    gst_object_unref(audio_sink);
+    audio_sink=NULL;
+  }
+}
+
+static GstElement *bt_sink_bin_global_setup(gchar *plugin_name) {
+  if(!strcmp(plugin_name,"jackaudiosink")) {
+    if(!audio_sink) {
+      GstElement *bin;
+      GstElement *sink,*src;
+      GstBus *bus;
+      GstMessage *message;
+      gboolean loop=TRUE;
+  
+      // create audio sink and drop floating ref
+      audio_sink=gst_object_ref(gst_element_factory_make(plugin_name,"player"));
+      gst_object_sink(audio_sink);
+      GST_WARNING("created session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
+  
+      bin = gst_pipeline_new("__kickstart__");
+      bus = gst_element_get_bus(bin);
+      src = gst_element_factory_make("audiotestsrc", NULL);
+      sink = gst_object_ref(audio_sink);
+      gst_bin_add_many(GST_BIN (bin), src, sink, NULL);
+      gst_element_link(src, sink);
+      gst_element_set_state(bin, GST_STATE_PAUSED);
+      
+      while(loop) {
+        message=gst_bus_poll(bus,GST_MESSAGE_ANY,-1);
+        switch (message->type) {
+          case GST_MESSAGE_STATE_CHANGED:
+            if(GST_MESSAGE_SRC(message) == GST_OBJECT(bin)) {
+              GstState oldstate,newstate;
+    
+              gst_message_parse_state_changed(message,&oldstate,&newstate,NULL);
+              if(GST_STATE_TRANSITION(oldstate,newstate)==GST_STATE_CHANGE_READY_TO_PAUSED)
+                loop=FALSE;
+            }
+            break;
+          case GST_MESSAGE_ERROR:
+            loop=FALSE;
+            break;
+          default:
+            break;
+        }
+        gst_message_unref(message);
+      }
+      gst_object_unref(bus);
+      
+      gst_element_set_state(bin, GST_STATE_READY);
+      gst_element_set_locked_state(audio_sink, TRUE);
+      gst_element_set_state(bin, GST_STATE_NULL);
+      gst_object_unref(bin);
+  
+    }
+    else {
+      GstObject *parent;
+      // we know that we're not playing anymore, but due to ref-counting the
+      // audio_sink might be still plugged, if so steal it!
+      if((parent=gst_object_get_parent(GST_OBJECT(audio_sink)))) {
+        gst_bin_remove(GST_BIN(parent),audio_sink);
+        gst_element_set_state(audio_sink, GST_STATE_READY);
+        gst_element_set_locked_state(audio_sink, TRUE);
+        gst_object_unref(parent);
+        GST_WARNING("stole session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
+      }
+      else {
+        GST_WARNING("reuse session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
+      }
+    }
+    return(audio_sink);
+  }
+  else {
+    bt_sink_bin_global_cleanup();
+    return(gst_element_factory_make(plugin_name,"player"));
+  }
+}
+
 //-- property ids
 
 enum {
@@ -371,18 +467,15 @@ static void bt_sink_bin_missing_element(const BtSinkBin * const self, const gcha
 static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   GList *list=NULL;
   gchar *plugin_name;
+  GstElement *element;
 
   GST_DEBUG("get playback elements");
 
   if(!(plugin_name=bt_settings_determine_audiosink_name(self->priv->settings))) {
     return(NULL);
   }
-  GstElement * const element=gst_element_factory_make(plugin_name,"player");
-  if(!element) {
-    /* @todo: if this fails
-     * - check if it was audiosink in settings and if so, unset it and retry
-     * - else check if it was system-audiosink and if so, what?
-     */
+  if(!(element=bt_sink_bin_global_setup(plugin_name))) {
+    /* bt_settings_determine_audiosink_name() does all kind of sanity checks already */
     GST_WARNING("Can't instantiate '%s' element",plugin_name);goto Error;
   }
   if(GST_IS_BASE_SINK(element)) {
@@ -602,7 +695,7 @@ static gboolean bt_sink_bin_format_update(const BtSinkBin * const self) {
  * Returns: %TRUE for success
  */
 static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
-  GstElement *audio_resample,*tee,*audio_sink;
+  GstElement *audio_resample,*tee;
   GstState state;
   gboolean defer=FALSE;
 
@@ -782,8 +875,8 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     }
   }
 
-  if((audio_sink=gst_bin_get_by_name(GST_BIN(self),"player"))) {
 #ifdef BT_MONITOR_SINK_DATA_FLOW	 
+  if(audio_sink) {
     GstPad *sink_pad=gst_element_get_static_pad(audio_sink,"sink");	 
  	 
     if(sink_pad) {	 
@@ -791,29 +884,9 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       gst_pad_add_data_probe(sink_pad,G_CALLBACK(sink_probe),(gpointer)self);	 
  	 
       gst_object_unref(sink_pad);	 
-    }	 
-#endif
-	  GST_INFO_OBJECT(self,"kick and lock audio sink");
-#if 0
-    /* we need a way to kick start the audiosink and actually open the device
-     * so that we show up in pulseaudio or qjackctrl
-     * - this should be happen in READY
-     * - right now we don't even add the sink initially (when song is empty)
-     *   - we only add connected parts
-     */
-    gst_element_set_state(audio_sink, GST_STATE_PAUSED);
-    {
-      GstPad *p=GST_PAD_PEER(GST_BASE_SINK_PAD(audio_sink));
-      GstBuffer *b;
-
-      gst_pad_alloc_buffer_and_set_caps(p,G_GUINT64_CONSTANT(0),1,GST_PAD_CAPS(p),&b);
-      gst_pad_push(p,b);
     }
-#endif
-    gst_element_set_state(audio_sink, GST_STATE_READY);
-    gst_element_set_locked_state(audio_sink, TRUE);
-    gst_object_unref(audio_sink);
   }
+#endif
 
   GST_INFO("done");
   return(TRUE);
@@ -899,7 +972,6 @@ static gboolean master_volume_sync_handler(GstPad *pad,GstBuffer *buffer, gpoint
 
 static GstStateChangeReturn bt_sink_bin_change_state(GstElement * element, GstStateChange transition) {
   const BtSinkBin * const self = BT_SINK_BIN(element);
-  GstElement *audio_sink;
   GstStateChangeReturn res;
 
   GST_INFO_OBJECT(self,"state change on the sink-bin: %s -> %s",
@@ -915,18 +987,16 @@ static GstStateChangeReturn bt_sink_bin_change_state(GstElement * element, GstSt
         bt_sink_bin_update(self);
       }
       else {
-        if((audio_sink=gst_bin_get_by_name(GST_BIN(self),"player"))) {
+        if(audio_sink) {
           GST_DEBUG_OBJECT(self,"lock audio sink");
           gst_element_set_locked_state(audio_sink, TRUE);
-          gst_object_unref(audio_sink);
         }
       }
       break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
-      if((audio_sink=gst_bin_get_by_name(GST_BIN(self),"player"))) {
+      if(audio_sink) {
         GST_DEBUG_OBJECT(self,"unlock audio sink");
         gst_element_set_locked_state(audio_sink, FALSE);
-        gst_object_unref(audio_sink);
       }
       break;
     default:
@@ -1052,7 +1122,6 @@ static void bt_sink_bin_set_property(GObject * const object, const guint propert
 static void bt_sink_bin_dispose(GObject * const object) {
   const BtSinkBin * const self = BT_SINK_BIN(object);
   GstStateChangeReturn res;
-  GstElement *audio_sink;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -1079,14 +1148,7 @@ static void bt_sink_bin_dispose(GObject * const object) {
 
   GST_INFO("self->sink=%p, refct=%d",self->priv->sink,G_OBJECT_REF_COUNT(self->priv->sink));
   gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
-
   GST_INFO("sink-bin : children=%d",GST_BIN_NUMCHILDREN(self));
-  if((audio_sink=gst_bin_get_by_name(GST_BIN(self),"player"))) {
-    GST_DEBUG_OBJECT(self,"unlock audio sink before dispose");
-    gst_element_set_locked_state(audio_sink, FALSE);
-    gst_element_set_state(audio_sink, GST_STATE_NULL);
-    gst_object_unref(audio_sink);
-  }
 
   GST_INFO("chaining up");
   G_OBJECT_CLASS(bt_sink_bin_parent_class)->dispose(object);
@@ -1107,6 +1169,8 @@ static void bt_sink_bin_finalize(GObject * const object) {
 static void bt_sink_bin_init(BtSinkBin *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_BIN, BtSinkBinPrivate);
 
+  GST_INFO("!!!! self=%p",self);
+
   // watch settings changes
   self->priv->settings=bt_settings_make();
   //GST_DEBUG("listen to settings changes (%p)",self->priv->settings);
@@ -1125,7 +1189,7 @@ static void bt_sink_bin_init(BtSinkBin *self) {
   gst_element_add_pad(GST_ELEMENT(self),self->priv->sink);
   bt_sink_bin_update(self);
 
-  GST_INFO_OBJECT(self,"done");
+  GST_INFO("done");
 }
 
 static void bt_sink_bin_class_init(BtSinkBinClass * klass) {

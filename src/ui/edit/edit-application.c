@@ -895,6 +895,8 @@ static void bt_edit_application_dispose(GObject *object) {
   g_object_try_unref(self->priv->pb_controller);
   g_object_try_unref(self->priv->ic_registry);
   g_object_try_unref(self->priv->change_log);
+  
+  bt_sink_bin_global_cleanup();
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(bt_edit_application_parent_class)->dispose(object);

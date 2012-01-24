@@ -102,4 +102,6 @@ GType bt_sink_bin_mode_get_type(void) G_GNUC_CONST;
 /* used by SINK_BIN_RECORD_FORMAT_TYPE */
 GType bt_sink_bin_record_format_get_type(void) G_GNUC_CONST;
 
+void bt_sink_bin_global_cleanup(void);
+
 #endif // BT_SINK_BIN_H
