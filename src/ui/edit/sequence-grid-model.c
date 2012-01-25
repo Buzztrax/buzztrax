@@ -208,7 +208,7 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   iter.stamp=model->priv->stamp;
 
   // find all affected rows and signal updates
-  // FIXME: skip tracks with wrong machine (do a first run and build a list of tracks)
+  // FIXME(ensonic): skip tracks with wrong machine (do a first run and build a list of tracks)
   for(i=0;i<length;i++) {
     for(j=0;j<tracks;j++) {
       if((that_pattern=bt_sequence_get_pattern(model->priv->sequence,i,j))) {

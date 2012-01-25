@@ -192,7 +192,7 @@ struct statfs;
                        "call " __ASM_NAME("__wine_call_from_32_regs") "\n\t" \
                        ".long " __ASM_NAME(#fn) "\n\t" \
                        ".byte " #args "," #pop_args )
-/* FIXME: add support for other CPUs */
+/* FIXME(ensonic): add support for other CPUs */
 #endif  /* __i386__ */
 
 

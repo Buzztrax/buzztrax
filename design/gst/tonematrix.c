@@ -197,7 +197,7 @@ set_tempo(App *app)
   GstInterpolationControlSource *csrc;
   gdouble vol;
   
-  /* lets assume 4 seconds loop time for now (TODO: calculate from bpm) */
+  /* lets assume 4 seconds loop time for now (TODO(ensonic): calculate from bpm) */
   //app->loop_time = GST_SECOND * 4;
   app->loop_time = (GstClockTime)(0.5+((GST_SECOND*60.0*4.0)/(gdouble)app->bpm));
   app->step_time = st = app->loop_time / 16;

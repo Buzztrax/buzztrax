@@ -588,7 +588,7 @@ static void on_song_request_state(const GstBus * const bus, GstMessage *message,
         break;
       case GST_STATE_READY:
       case GST_STATE_PAUSED:
-        bt_song_pause(self); // FIXME: this is not visible in the UI
+        bt_song_pause(self); // FIXME(ensonic): this is not visible in the UI
         break;
       case GST_STATE_PLAYING:
         if (self->priv->is_playing)
@@ -1054,7 +1054,7 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
   g_object_get(self->priv->song_info,"name",&song_name,NULL);
   g_strcanon(song_name, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
 
-  // @todo: check g_getenv("GST_DEBUG_DUMP_DOT_DIR") for the path
+  // TODO(ensonic): check g_getenv("GST_DEBUG_DUMP_DOT_DIR") for the path
   // and skip if ""
   gchar * const file_name=g_alloca(strlen(song_name)+10);
   g_sprintf(file_name,"/tmp/%s_lowlevel.dot",song_name);
@@ -1222,7 +1222,7 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
 //-- child proxy interface
 
 #if 0
-/* @todo: this only works if I turn the children into GstObject
+/* TODO(ensonic): this only works if I turn the children into GstObject
  * the reason is that gst_child_proxy_get_child_by_name() is not a virtual method
  * in the below case we could still map names to objects
  */
@@ -1278,7 +1278,7 @@ static xmlNodePtr bt_song_persistence_save(const BtPersistence * const persisten
 
 static BtPersistence *bt_song_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
   const BtSong * const self = BT_SONG(persistence);
-  // @todo: this is a bit inconsistent
+  // TODO(ensonic): this is a bit inconsistent
   // gtk is getting labels with progressbar, we could use this then
   //const gchar * const msg=_("Loading file: '%s'");
   //gchar * const status=g_alloca(1+strlen(msg)+40);
@@ -1314,7 +1314,7 @@ static BtPersistence *bt_song_persistence_load(const GType type, const BtPersist
   return(BT_PERSISTENCE(persistence));
 Error:
   if(node) {
-    /* @todo: set the GError? */
+    /* TODO(ensonic): set the GError? */
     GST_WARNING("failed to load %s",(gchar *)node->name);
   }
   return(NULL);

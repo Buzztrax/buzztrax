@@ -55,7 +55,7 @@ struct _BtMainPageMachinesClass {
 
 
 // machine view area (4:3 aspect ratio)
-// @todo: should we check screens aspect ratio?
+// TODO(ensonic): should we check screens aspect ratio?
 #define MACHINE_VIEW_ZOOM_X (400.0*1.2)
 #define MACHINE_VIEW_ZOOM_Y (300.0*1.2)
 #define MACHINE_VIEW_ZOOM_FC  1.0

@@ -180,7 +180,7 @@ BT_START_TEST(test_btsong_play1) {
   res=bt_song_play(song);
   fail_unless(res, NULL);
   
-  // @todo: this needs a mainloop!
+  // TODO(ensonic): this needs a mainloop!
   sleep(1);
   // this song is very short!
   //g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
@@ -189,7 +189,7 @@ BT_START_TEST(test_btsong_play1) {
   //fail_unless(play_signal_invoked, NULL);
   bt_song_stop(song);
 
-  // @todo: this needs a mainloop!
+  // TODO(ensonic): this needs a mainloop!
   sleep(1);
 
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
@@ -226,7 +226,7 @@ BT_START_TEST(test_btsong_play2) {
     res=bt_song_play(song);
     fail_unless(res, NULL);
   
-    // @todo: this needs a mainloop!
+    // TODO(ensonic): this needs a mainloop!
     sleep(1);
     //fail_unless(play_signal_invoked, NULL);
     bt_song_stop(song);
@@ -263,7 +263,7 @@ BT_START_TEST(test_btsong_play3) {
   res=bt_song_play(song);
   fail_unless(res, NULL);
 
-  // @todo: this needs a mainloop!
+  // TODO(ensonic): this needs a mainloop!
   sleep(2);
   
   // change audiosink
@@ -305,7 +305,7 @@ BT_START_TEST(test_btsong_play4) {
   res=bt_song_play(song);
   fail_unless(res, NULL);
 
-  // @todo: this needs a mainloop!
+  // TODO(ensonic): this needs a mainloop!
   sleep(2);
   //fail_unless(play_signal_invoked, NULL);
   bt_song_stop(song);
@@ -394,7 +394,7 @@ BT_START_TEST(test_btsong_idle1) {
 
   g_object_set(G_OBJECT(song),"is-idle",TRUE,NULL);
   
-  // @todo: this needs a mainloop!
+  // TODO(ensonic): this needs a mainloop!
   sleep(2);
   g_object_set(G_OBJECT(song),"is-idle",FALSE,NULL);
 
@@ -424,14 +424,14 @@ BT_START_TEST(test_btsong_idle2) {
 
   g_object_set(G_OBJECT(song),"is-idle",TRUE,NULL);
 
-  // @todo: this needs a mainloop!
+  // TODO(ensonic): this needs a mainloop!
   sleep(1);
   
   // start regular playback, this should stop the idle loop
   res=bt_song_play(song);
   fail_unless(res, NULL);
 
-  // @todo: this needs a mainloop!
+  // TODO(ensonic): this needs a mainloop!
   sleep(1);
 
   // this song is very short!
@@ -441,7 +441,7 @@ BT_START_TEST(test_btsong_idle2) {
 
   bt_song_stop(song);
 
-  // @todo: this needs a mainloop!
+  // TODO(ensonic): this needs a mainloop!
   sleep(1);
   
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,"is-idle",&is_idle,NULL);

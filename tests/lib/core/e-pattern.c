@@ -289,7 +289,7 @@ BT_START_TEST(test_btpattern_enlarge_length) {
   app=bt_test_application_new();
   song=bt_song_new(app);
   /* try to create a source machine */
-  // @todo try "bml-ErsKick" before and fall back to "buzztard-test-mono-source" as long as we don't have multi-voice machine in gst
+  // TODO(ensonic): try "bml-ErsKick" before and fall back to "buzztard-test-mono-source" as long as we don't have multi-voice machine in gst
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
   fail_unless(machine!=NULL, NULL);
   fail_unless(err==NULL, NULL);

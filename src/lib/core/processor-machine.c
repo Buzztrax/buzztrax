@@ -129,7 +129,7 @@ static BtPersistence *bt_processor_machine_persistence_load(const GType type, co
       }
       param_name=va_arg(va,gchar*);
     }
-    // @todo: we also need the parameters the parent-class would parse
+    // TODO(ensonic): we also need the parameters the parent-class would parse
     // as a a quick hack copied the code from the parent class into the subclasses
     // see : http://www.buzztard.org/index.php/Gobject_serialisation#Dealing_with_inheritance
 
@@ -141,7 +141,7 @@ static BtPersistence *bt_processor_machine_persistence_load(const GType type, co
     self=BT_PROCESSOR_MACHINE(persistence);
     result=BT_PERSISTENCE(persistence);
 
-    // @todo: isn't plugin-name construct-only
+    // TODO(ensonic): isn't plugin-name construct-only
     g_object_set(self,"plugin-name",plugin_name,"voices",voices,NULL);
   }
   xmlFree(id);

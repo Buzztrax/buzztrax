@@ -22,12 +22,12 @@
  *
  * Edit and manage keyboard shortcut schemes.
  */
-/* @todo: we need a shortcut scheme management (buzz,fasttracker,..)
+/* TODO(ensonic): we need a shortcut scheme management (buzz,fasttracker,..)
  * - select current scheme
  * - save edited scheme under new/current name
  * - check the midi-profiles in lib/ic/learn.c for the gkeyfile handling
  */
-/* @todo: we need a way to edit the current scheme
+/* TODO(ensonic): we need a way to edit the current scheme
  * - we can look at the shortcut editor code from the gnome-control-center
  *   http://git.gnome.org/browse/gnome-control-center/tree/capplets/keybindings?h=gnome-2-32
  * - we need to ensure that keys are unique and not otherwise bound
@@ -77,7 +77,7 @@ static void bt_settings_page_shortcuts_init_ui(const BtSettingsPageShortcuts *se
   gtk_table_attach(GTK_TABLE(self),label, 0, 3, 0, 1,  GTK_FILL|GTK_EXPAND, GTK_SHRINK, 2,1);
   gtk_table_attach(GTK_TABLE(self),spacer, 0, 1, 1, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
 
-  /* FIXME: */
+  /* FIXME(ensonic): */
   label=gtk_label_new("no keyboard settings yet");
   gtk_misc_set_alignment(GTK_MISC(label),0.5,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 3, 1, 4, GTK_FILL,GTK_FILL, 2,1);

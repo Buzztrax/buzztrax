@@ -23,7 +23,7 @@
  * Provides the main application menu.
  */
 
-/* @todo main-menu tasks
+/* TODO(ensonic): main-menu tasks
  *  - enable/disable edit menu entries based on selection and focus
  */
 
@@ -406,7 +406,7 @@ static void on_menu_fullscreen_toggled(GtkMenuItem *menuitem,gpointer user_data)
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   gboolean fullscreen;
 
-  /* @idea: reflow things a bit for full-screen:
+  /* IDEA(ensonic): reflow things a bit for full-screen:
    * - hide menu bar and have a menu-button on toolbar
    *   - we are a menu-bar, for this we would need to be a menu
    * - have a right justified label on toolbar to show window title
@@ -664,7 +664,7 @@ static void on_menu_debug_update_registry(GtkMenuItem *menuitem,gpointer user_da
     GST_WARNING("failed to update registry");
   }
   else {
-    // @todo: update machine menu
+    // TODO(ensonic): update machine menu
   }
 
   bt_edit_application_ui_unlock(self->priv->app);
@@ -740,7 +740,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
     }
   }
 #if !GLIB_CHECK_VERSION(2,22,2)
-  /* FIXME: workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236
+  /* FIXME(ensonic): workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236
    * - see also main-window.c
    * - git describe e63262d49d40a36060613fb1d0ed468ca5dddc19
    * - people need to clear old $HOME/.recently-used.xbel entries
@@ -858,8 +858,8 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"toggled",G_CALLBACK(on_menu_view_tabs_toggled),(gpointer)self);
 
-  /* @todo 'Machine properties' show/hide toggle */
-  /* @todo 'Analyzer windows' show/hide toggle */
+  /* TODO(ensonic): 'Machine properties' show/hide toggle */
+  /* TODO(ensonic): 'Analyzer windows' show/hide toggle */
 
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Fullscreen"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/FullScreen");
@@ -904,7 +904,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_goto_info_view_activate),(gpointer)self);
 
-  /* @todo zoom menu items
+  /* TODO(ensonic): zoom menu items
    *  machine view:  zoom-in/zoom-out/zoom-fit
    *  sequence vide: zoom-in/zoom-out
    *
@@ -951,13 +951,13 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_stop_activate),(gpointer)self);
 
-  /* @todo toggle loop item
+  /* TODO(ensonic): toggle loop item
    * - we only have:
    *   gtk_image_menu_item_new_from_stock - not a toggle
    *   gtk_check_menu_item_new_with_mnemonic - no image
    */
 
-  /* @todo: tools menu
+  /* TODO(ensonic): tools menu
    * 'normalize song'
    * - dummy render with master->input-pre-gain, adjust master volume
    * 'cleanup'
@@ -988,7 +988,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_join_irc),(gpointer)self);
 
-  /* @todo 'translate application' -> link to translator project
+  /* TODO(ensonic): 'translate application' -> link to translator project
    * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-translate.png
    */
 
@@ -1015,7 +1015,7 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
   menu=gtk_menu_new();
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
 
-  /* @todo: add toggle for keep image (no by default) */
+  /* TODO(ensonic): add toggle for keep image (no by default) */
   item=gtk_menu_item_new_with_mnemonic("Graph details");
   gtk_container_add(GTK_CONTAINER(menu),item);
   submenu=gtk_menu_new();

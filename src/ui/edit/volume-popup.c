@@ -23,7 +23,7 @@
  *
  * Shows a popup window containing a vertical slider
  */
-/* @todo: use gtk_scale_add_mark() in gtk-2.16 instead of the ruler.
+/* TODO(ensonic): use gtk_scale_add_mark() in gtk-2.16 instead of the ruler.
  */
 #define BT_EDIT
 #define VOLUME_POPUP_C
@@ -42,7 +42,7 @@ cb_scale_changed(GtkRange *range, gpointer  user_data)
   GtkLabel *label=GTK_LABEL(user_data);
   gchar str[6];
 
-  // FIXME: workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
+  // FIXME(ensonic): workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
   g_sprintf(str,"%3d %%",400-(gint)(gtk_range_get_value(range)));
   gtk_label_set_text(label,str);
 }
@@ -130,7 +130,7 @@ bt_volume_popup_new(GtkAdjustment *adj) {
   scale=gtk_vscale_new(adj);
   self->scale=GTK_RANGE(scale);
   gtk_widget_set_size_request(scale, -1, 200);
-  // FIXME: workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
+  // FIXME(ensonic): workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
   //gtk_range_set_inverted(self->scale, TRUE);
   gtk_scale_set_draw_value(GTK_SCALE(scale), FALSE);
 #if 0

@@ -309,7 +309,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   g_assert(BT_IS_WIRE(self));
 
   if(!machines[PART_QUEUE]) {
-    /* @todo: use the queue on demand.
+    /* TODO(ensonic): use the queue on demand.
      * if(bt_machine_activate_spreader(src)
      *    add the queue.
      * else
@@ -320,8 +320,8 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
      */
     if(!bt_wire_make_internal_element(self,PART_QUEUE,"queue","queue")) return(FALSE);
     // configure the queue
-    // @idea: if machine on source side is a live-source, should be keep the queue larger?
-    // @todo: if we have/require gstreamer-0.10.31 ret rid of the check
+    // IDEA(ensonic): if machine on source side is a live-source, should be keep the queue larger?
+    // TODO(ensonic): if we have/require gstreamer-0.10.31 ret rid of the check
     if(g_object_class_find_property(G_OBJECT_GET_CLASS(machines[PART_QUEUE]),"silent")) {
       g_object_set(G_OBJECT(machines[PART_QUEUE]),
         "max-size-buffers",1,
@@ -350,7 +350,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   g_object_get(dst,"machine",&dst_machine,NULL);
   if((pad=gst_element_get_static_pad(dst_machine,"sink"))) {
     // this does not work for unlinked pads
-    // @todo: if we link multiple machines to one, we could cache this
+    // TODO(ensonic): if we link multiple machines to one, we could cache this
     // it seems to be responsible for ~14% of the loading time
     // - checking template caps it not enough - as the machine could have
     //   negotiated to mono
@@ -735,7 +735,7 @@ BtWire *bt_wire_new(const BtSong * const song, const BtMachine * const src_machi
 gboolean bt_wire_reconnect(BtWire * const self) {
   g_return_val_if_fail(BT_IS_WIRE(self),FALSE);
 
-  // @todo: should not be needed anymore as we have ghostpads!
+  // TODO(ensonic): should not be needed anymore as we have ghostpads!
   GST_DEBUG("relinking machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src),GST_OBJECT_NAME(self->priv->dst));
   bt_wire_unlink_machines(self);
   return(bt_wire_link_machines(self));
@@ -932,7 +932,7 @@ void bt_wire_get_param_details(const BtWire * const self, const gulong index, GP
  * Depending on wheter the given value is NULL, sets or unsets the controller
  * value for the specified param and at the given time.
  */
-/* @todo: we have no default value handling here (see machine)
+/* TODO(ensonic): we have no default value handling here (see machine)
  */
 void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value) {
   GObject *param_parent=NULL;
@@ -974,7 +974,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
         self->priv->wire_control_sources[param]=cs;
       }
 
-      // @todo: is this needed, we're in add=TRUE after all
+      // TODO(ensonic): is this needed, we're in add=TRUE after all
       g_object_try_unref(self->priv->wire_controller[param]);
       self->priv->wire_controller[param]=ctrl;
     }
@@ -1354,7 +1354,7 @@ static void bt_wire_dispose(GObject * const object) {
   }
 
   // remove the GstElements from the bin
-  // @todo: is this actually needed?
+  // TODO(ensonic): is this actually needed?
   bt_wire_unlink_machines(self); // removes helper elements if in use
   bt_wire_deactivate_analyzers(self);
 

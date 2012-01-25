@@ -32,13 +32,13 @@
  * #BtEditApplication checks for left-over logs at startup and uses
  * #BtCrashRecoverDialog to offer a list of recoverable songs to the user.
  */
-/* @todo: we should also check for pending logs when opening a file!
+/* TODO(ensonic): we should also check for pending logs when opening a file!
  * - need to keep the change-log entries as a hash-table and offer api to check
  *   for it and if wanted replay
  * - bt_change_log_recover calls bt_edit_application_load_song
  *   - maybe we need to refactor this a bit
  */
-/* @todo: using groups
+/* TODO(ensonic): using groups
  * - start and stop the group in the UI-callback that causes e.g. deleting an
  *   item
  * - make sure all on_xxx_remove handler are called before closing the group
@@ -275,7 +275,7 @@ static void log_change_log_entry(BtChangeLog *self,BtChangeLogEntry *cle) {
       GST_DEBUG("logging change %p",cle);
       // owners are the editor objects where the change was made
       fprintf(self->priv->log_file,"%s::%s\n",G_OBJECT_TYPE_NAME(cles->owner),cles->redo_data);
-      // @idea: should we fdatasync(fileno(self->priv->log_file)); from time to time
+      // IDEA(ensonic): should we fdatasync(fileno(self->priv->log_file)); from time to time
       break;
     }
     case CHANGE_LOG_ENTRY_GROUP: {
@@ -687,7 +687,7 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
   gboolean copy=FALSE;
 
   if((log_file=fopen(log_name,"rt"))) {
-    gchar linebuf[10000]; /* @todo: a line can be a full column */
+    gchar linebuf[10000]; /* TODO(ensonic): a line can be a full column */
     gchar *redo_data;
     BtChangeLogger *logger;
     guint lines=0,lines_ok=0;
@@ -714,7 +714,7 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
       }
     }
     else {
-      /* @todo: we need to either copy the log data to the new log or use the
+      /* TODO(ensonic): we need to either copy the log data to the new log or use the
        * previous log as the current one, otherwise we loose the changes */
       copy=TRUE;
     }
@@ -757,7 +757,7 @@ gboolean bt_change_log_recover(BtChangeLog *self,const gchar *log_name) {
     fclose(log_file);
     if(res) {
       GList *node;
-      /* @todo: defer removing the old log to saving the song
+      /* TODO(ensonic): defer removing the old log to saving the song
        *   -> on_song_file_unsaved_changed()
        *   - ev. need to store recovered_log_name in self, so that we can check
        *     it om _unsaved_changed()

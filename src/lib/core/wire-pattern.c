@@ -40,7 +40,7 @@
  *   - mono-to-suround (1->4): 2 parameters
  *   - stereo-to-surround (2->4): 1 parameter
  */
-/* @todo: BtWirePattern is not a good name :/
+/* TODO(ensonic): BtWirePattern is not a good name :/
  * - maybe we can make BtPattern a base class and also have BtMachinePattern
  */
 #define BT_CORE
@@ -606,7 +606,7 @@ static void _blend_column(const BtWirePattern * const self, const gulong start_t
   
   GST_INFO("blending gvalue type %s",G_VALUE_TYPE_NAME(end));
   
-  // @todo: should this honour the cursor stepping? e.g. enter only every second value
+  // TODO(ensonic): should this honour the cursor stepping? e.g. enter only every second value
   
   switch(base_type) {
   	_BLEND(int,INT)
@@ -792,8 +792,8 @@ static void _randomize_column(const BtWirePattern * const self, const gulong sta
   
   GST_INFO("blending gvalue type %s",g_type_name(property->value_type));
   
-  // @todo: should this honour the cursor stepping? e.g. enter only every second value
-  // @todo: if beg and end are not empty, shall we use them as upper and lower
+  // TODO(ensonic): should this honour the cursor stepping? e.g. enter only every second value
+  // TODO(ensonic): if beg and end are not empty, shall we use them as upper and lower
   // bounds instead of the pspec values (ev. have a flag on the function)
 
   switch(base_type) {

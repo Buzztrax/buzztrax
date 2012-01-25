@@ -24,15 +24,15 @@
  * Provides volume control on the wires, as well as a menu to disconnect wires
  * and to launch the analyzer screen.
  */
-/* @todo: mixer strip
+/* TODO(ensonic): mixer strip
  *   - right now a click on the triangle pops up the volume or panorama slider
  *   - it could popup a whole mixer strip (with level meters)
  *
- * @todo: add "insert effect" to context menu
+ * TODO(ensonic): add "insert effect" to context menu
  *   - could use the machine menu and work simillar to connect menu on canvas
  *   - would turn existing wire into 2nd wire to preserve wirepatterns
  *
- * @todo: dialog manager
+ * TODO(ensonic): dialog manager
  *   - see machine-canvas-item.c
  */
 #define BT_EDIT
@@ -52,7 +52,7 @@ enum {
   WIRE_CANVAS_ITEM_ANALYSIS_DIALOG
 };
 
-// @todo what do we set here? canvas dimensions?
+// TODO(ensonic): what do we set here? canvas dimensions?
 #define BT_WIRE_MAX_EXTEND 100000.0
 
 struct _BtWireCanvasItemPrivate {
@@ -354,7 +354,7 @@ static void on_wire_pan_changed(GstElement *element, GParamSpec *arg, gpointer u
 
   g_object_get(self->priv->wire,"pan",&self->priv->wire_pan,NULL);
   g_signal_connect(self->priv->wire_pan,"notify::panorama",G_CALLBACK(on_pan_changed),(gpointer)self);
-  // @todo: need to change colors of the pan-icon
+  // TODO(ensonic): need to change colors of the pan-icon
 }
 
 //-- helper methods
@@ -387,7 +387,7 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
 
   w=(pos_xe-pos_xs);
   h=(pos_ye-pos_ys);
-  /* @todo: if we clip agains BT_WIRE_MAX_EXTEND here, the wire will look bad */
+  /* TODO(ensonic): if we clip agains BT_WIRE_MAX_EXTEND here, the wire will look bad */
 
   self=BT_WIRE_CANVAS_ITEM(gnome_canvas_item_new(gnome_canvas_root(canvas),
                             BT_TYPE_WIRE_CANVAS_ITEM,

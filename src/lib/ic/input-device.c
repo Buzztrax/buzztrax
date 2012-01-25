@@ -235,7 +235,7 @@ static gboolean register_controls(const BtIcInputDevice * const self) {
   GST_INFO("opened device : %s",self->priv->devnode);
 
   // query capabillities and register controllers
-  // FIXME: doing that for e.g. js0/js1 fails slowly 
+  // FIXME(ensonic): doing that for e.g. js0/js1 fails slowly 
   memset(evtype_bitmask, 0, sizeof(evtype_bitmask));
   if(ioctl(fd, EVIOCGBIT(0, sizeof(evtype_bitmask)), evtype_bitmask) < 0) {
     GST_WARNING("evdev ioctl : %s",g_strerror(errno));

@@ -24,18 +24,18 @@
  * Provides an editor for the song meta data.
  */
 
-/* @todo:
+/* TODO(ensonic):
  * - use this tab as the first one?
  * - add choice for metre (in german -> takt): beats (beats = bars / tpb)
  *   or at least show the resulting metre
  */
-/* @todo: undo/redo
+/* TODO(ensonic): undo/redo
  * - for text_view we would need to connect to insert_at_corsor and delete_from_cursor
  *   signals to track changes
  * - for text_enry the signals are inserted_text and deleted_text
  * - optionally we just store the complete before/after
  */
-/* @todo: changing tpb, beats
+/* TODO(ensonic): changing tpb, beats
  * - when changing tpb and beats the playback-speed of the current song is
  *   affected, we might want to offer a tool to resample the patterns.
  * - it would probably be easier to have some buttons for 

@@ -24,7 +24,7 @@
  * It is implemented as a singleton.
  */
 
-/* @todo: manage GdkColor entries and guint colors (via gdk_color.pixel)
+/* TODO(ensonic): manage GdkColor entries and guint colors (via gdk_color.pixel)
  */
 
 #define BT_EDIT
@@ -95,7 +95,7 @@ static void bt_ui_resources_init_colors(BtUIResources *self) {
   g_object_get(settings, "gtk-icon-theme-name", &icon_theme_name, NULL);
   GST_INFO("Icon Theme: %s",icon_theme_name);
 
-  /* @todo: can we get some colors from the theme ?
+  /* TODO(ensonic): can we get some colors from the theme ?
    * gtk_widget_style_get(widget,
    *   "cursor-color",&self->priv->colors[ix],
    *   "secondary-cursor-color",&self->priv->colors[ix],

@@ -23,7 +23,7 @@
  *
  * Displays the machine setup and wires on a canvas.
  */
-/* @todo: multiselect
+/* TODO(ensonic): multiselect
  * - when clicking on the background
  *   - remove old selection if any
  *   - start new selection (semi-transparent rect)
@@ -33,7 +33,7 @@
  * - move machines when moving the selection
  * - selected machines have a glowing border (would need another set of images)
  */
-/* @todo: move functions in context menu
+/* TODO(ensonic): move functions in context menu
  * - machines
  *   - clone machine (no patterns)
  *   - remove & relink (remove machine and relink wires)
@@ -46,7 +46,7 @@
  *   - insert machine (like menu on canvas)
  *     - what to do with wire-patterns?
  */
-/* @todo: easier machine manipulation
+/* TODO(ensonic): easier machine manipulation
  * linking the machines with "shift" pressed comes from buzz and is hard to
  * discover. We now have a "connect machines" item in the conect menut, but
  * what about these:
@@ -58,7 +58,7 @@
  *     Eventualy change the mouse-cursor when hovering over the zones.
  * Option '2' looks nice and would also help on touch-screens.
  */
-/* @todo: click in the background to pan canvas around
+/* TODO(ensonic): click in the background to pan canvas around
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
@@ -232,7 +232,7 @@ static void machine_item_moved(const BtMainPageMachines *self, BtMachineCanvasIt
   g_object_unref(machine);
 }
 
-// @todo: this method probably should go to BtMachine, but on the other hand it is GUI related
+// TODO(ensonic): this method probably should go to BtMachine, but on the other hand it is GUI related
 gboolean machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
   gboolean res=FALSE;
   gchar *prop;
@@ -371,7 +371,7 @@ static void machine_view_refresh(const BtMainPageMachines *self) {
     wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,src_machine_item,dst_machine_item);
     g_object_unref(src_machine);
     g_object_unref(dst_machine);
-    // @todo: get "analyzer-window-state" and if set,
+    // TODO(ensonic): get "analyzer-window-state" and if set,
     // get xpos, ypos and open window
   }
   g_list_free(list);
@@ -611,7 +611,7 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
       undo_str = g_strdup_printf("set_wire_property \"%s\",\"%s\",\"analyzer-shown\",\"1\"",smid,dmid);
       bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
     }
-    // TODO: volume and panorama
+    // TODO(ensonic): volume and panorama
     g_free(smid);g_free(dmid);
     
     bt_change_log_end_group(self->priv->change_log);
@@ -840,7 +840,7 @@ static void on_context_menu_unmute_all(GtkMenuItem *menuitem, gpointer user_data
   g_object_get(self->priv->setup,"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
-    // @todo: this also un-solos and un-bypasses
+    // TODO(ensonic): this also un-solos and un-bypasses
     g_object_set(machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
   }
   g_list_free(list);
@@ -1005,7 +1005,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&mouse_x,&mouse_y);
         self->priv->new_wire_points->coords[2]=mouse_x;
         self->priv->new_wire_points->coords[3]=mouse_y;
-        // @idea: the green is a bit bright, use ui_resources?, also what about having both colors in self->priv (should save the canvas the color parsing)
+        // IDEA(ensonic): the green is a bit bright, use ui_resources?, also what about having both colors in self->priv (should save the canvas the color parsing)
         color="red";
         if((self->priv->new_wire_dst=bt_main_page_machines_get_machine_canvas_item_at(self,mouse_x,mouse_y))) {
           if(bt_main_page_machines_check_wire(self)) {
@@ -1093,7 +1093,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 
 static void on_volume_popup_changed(GtkAdjustment *adj, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  // FIXME: workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
+  // FIXME(ensonic): workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
   gdouble gain = 4.0 - (gtk_adjustment_get_value (adj) / 100.0);
   g_object_set(self->priv->wire_gain,"volume",gain,NULL);
 }
@@ -1367,11 +1367,11 @@ gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self,
   g_object_get(wire,"gain",&self->priv->wire_gain,NULL);
   /* set initial value */
   g_object_get(self->priv->wire_gain,"volume",&gain,NULL);
-  // FIXME: workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
+  // FIXME(ensonic): workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
   gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj),(4.0-gain)*100.0);
 
   /* show directly over mouse-pos */
-  /* @todo: move it so that the knob is under the mouse */
+  /* TODO(ensonic): move it so that the knob is under the mouse */
   //gint mid; // works only after t has once been shown, but we know the height
   //mid=GTK_WIDGET(self->priv->vol_popup)->allocation.height / 2;
   //gtk_window_move(GTK_WINDOW(self->priv->vol_popup),xpos,ypos-mid);
@@ -1408,7 +1408,7 @@ gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *sel
     gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->pan_popup_adj),(gdouble)pan*100.0);
 
     /* show directly over mouse-pos */
-    /* @todo: move it so that the knob is under the mouse */
+    /* TODO(ensonic): move it so that the knob is under the mouse */
     gtk_window_move(GTK_WINDOW(self->priv->pan_popup),xpos,ypos);
     bt_panorama_popup_show(self->priv->pan_popup);
   }
@@ -1580,7 +1580,7 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
     undo_str = g_strdup_printf("set_machine_property \"%s\",\"state\",\"%s\"",mid,enum_value->value_nick);
     bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
   }
-  // TODO: machine parameters
+  // TODO(ensonic): machine parameters
   g_free(mid);g_free(pname);
 
   // block machine:pattern-removed signal emission for sequence page to not clobber the sequence
@@ -1898,7 +1898,7 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
       g_free(smid);g_free(dmid);g_free(key);g_free(val);
       break;
     }          
-    /* TODO:
+    /* TODO(ensonic):
     - machine parameters, wire parameters (volume/panorama)
       - only write them out on realease to not blast to much crap into the log
     - open/close machine/wire windows

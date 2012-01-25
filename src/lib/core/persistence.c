@@ -26,7 +26,7 @@
  * deserialize a whole object hierarchy.
  *
  */
-/* @idea: what if we pass an object instance (ctx) to bt_persistence_{load,save}
+/* IDEA(ensonic): what if we pass an object instance (ctx) to bt_persistence_{load,save}
  * instead of the xmlNodePtr.
  * - loading
  *   const gchar *          bt_persistence_context_get_attribute (BtPersistenceContext *ctx, const gchar *name);

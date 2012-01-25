@@ -77,7 +77,7 @@ BT_START_TEST(test_editing) {
   // send a '0' key-press
   check_send_key((GtkWidget *)pattern_page,'0');
 
-  // @TODO: assert some pattern changes
+  // TODO(ensonic): assert some pattern changes
 
   g_object_unref(pattern_page);
   g_object_unref(src_machine);

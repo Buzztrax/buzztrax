@@ -246,7 +246,7 @@
  *      (but in the future we will always play)
  *     - we can run it before playing
  */
-/* @todo:
+/* TODO(ensonic):
  * - each time we/add remove a wire, we update the whole graph. Would be nice
  *   to avoid this when loading songs.
  */
@@ -501,7 +501,7 @@ static gboolean link_wire(const BtSetup * const self,GstElement *wire,GstElement
         GST_WARNING("Can't link start of wire : %s", bt_gst_debug_pad_link_return(link_res,src_pad,dst_pad));
         res = FALSE;
         gst_element_release_request_pad(src_machine,src_pad);
-        // @todo: unblock the pad
+        // TODO(ensonic): unblock the pad
       }
     }
     else {
@@ -787,7 +787,7 @@ static void add_wire_in_pipeline(gpointer key,gpointer user_data) {
 
   g_object_get(key,"src",&src,"dst",&dst,NULL);
   link_wire(self,GST_ELEMENT(key),src,dst);
-  // @todo: what to do if it fails? We should always be able to link in theory
+  // TODO(ensonic): what to do if it fails? We should always be able to link in theory
   // maybe dump extensive diagnostics to add debugging
   g_object_unref(src);
   g_object_unref(dst);
@@ -837,7 +837,7 @@ static void activate_element(const BtSetup * const self,gpointer key) {
       gst_element_state_get_name(GST_STATE_PLAYING));
   
     if(BT_IS_SOURCE_MACHINE(key)) {
-      // @todo: this is causing the lockups in the tests under valgrind
+      // TODO(ensonic): this is causing the lockups in the tests under valgrind
       // it is not the flush-flag of the seek
       // collect-pads needs a newsegment to define the segment on the pad for the clipfunc
       // seek in ready will ensure it, but is somewhat non-standard
@@ -979,7 +979,7 @@ static void update_pipeline(const BtSetup * const self) {
   
 #ifdef USE_PAD_BLOCK
   // unblock src pads
-  // @todo: can this actually ever be >1? we update the pipeline on wire
+  // TODO(ensonic): can this actually ever be >1? we update the pipeline on wire
   // changes, we can only add or remove one wire at a time
   // only the src-pad that is (dis)connected to/from the active part needs to be blocked
   GST_INFO("unblocking %d pads",g_slist_length(self->priv->blocked_pads));
@@ -1243,7 +1243,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
       //     default: value==data.compare_value;
       //   }
       //-> what about: gst_value_compare()
-      // @todo method puts key into a gvalue and gets the param-spec by name, then calls generalized search
+      // TODO(ensonic): method puts key into a gvalue and gets the param-spec by name, then calls generalized search
       //-> what about: g_param_values_cmp()
     }
 
@@ -1324,7 +1324,7 @@ GList *bt_setup_get_machines_by_type(const BtSetup * const self, const GType typ
   return(machines);
 }
 
-// @todo: remove this, use machine->dst_wires list instead
+// TODO(ensonic): remove this, use machine->dst_wires list instead
 /**
  * bt_setup_get_wire_by_src_machine:
  * @self: the setup to search for the wire
@@ -1342,7 +1342,7 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup * const self, const BtMac
   return(bt_setup_get_wire_by_machine_type(self,src,"src"));
 }
 
-// @todo: remove this, use machine->src_wires list instead
+// TODO(ensonic): remove this, use machine->src_wires list instead
 /**
  * bt_setup_get_wire_by_dst_machine:
  * @self: the setup to search for the wire
@@ -1360,7 +1360,7 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *const self, const BtMach
   return(bt_setup_get_wire_by_machine_type(self,dst,"dst"));
 }
 
-// @todo: remove this, use bt_machine_get_wire_by_dst_machine() instead
+// TODO(ensonic): remove this, use bt_machine_get_wire_by_dst_machine() instead
 /**
  * bt_setup_get_wire_by_machines:
  * @self: the setup to search for the wire
@@ -1387,7 +1387,7 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
 
   // check if src links to dst
   // ideally we would search the shorter of the lists
-  // FIXME: this also does not really need the setup object ...
+  // FIXME(ensonic): this also does not really need the setup object ...
   // -> change to
   // bt_machine_get_wire_by_{src,dst}(machine,peer_machine);
   for(node=src->src_wires;node;node=g_list_next(node)) {
@@ -1418,7 +1418,7 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
   return(NULL);
 }
 
-// @todo: remove this, use machine->dst_wires list instead
+// TODO(ensonic): remove this, use machine->dst_wires list instead
 /**
  * bt_setup_get_wires_by_src_machine:
  * @self: the setup to search for the wire
@@ -1435,7 +1435,7 @@ GList *bt_setup_get_wires_by_src_machine(const BtSetup * const self, const BtMac
   return(bt_setup_get_wires_by_machine_type(self,src,"src"));
 }
 
-// @todo: remove this, use machine->src_wires list instead
+// TODO(ensonic): remove this, use machine->src_wires list instead
 /**
  * bt_setup_get_wires_by_dst_machine:
  * @self: the setup to search for the wire
@@ -1560,7 +1560,7 @@ static BtPersistence *bt_setup_persistence_load(const GType type, const BtPersis
         //bt_song_io_native_load_setup_machines(self,song,node->children);
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
-            /* @todo: it would be smarter to have nodes name like "sink-machine"
+            /* TODO(ensonic): it would be smarter to have nodes name like "sink-machine"
              * and do type=g_type_from_name((gchar *)child_node->name);
              */
             if(!strncmp((gchar *)child_node->name,"machine\0",8)) {
@@ -1603,7 +1603,7 @@ static BtPersistence *bt_setup_persistence_load(const GType type, const BtPersis
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
             GError *err=NULL;
-            // @todo: rework construction
+            // TODO(ensonic): rework construction
             BtWire * const wire=BT_WIRE(bt_persistence_load(BT_TYPE_WIRE,NULL,child_node,&err,"song",self->priv->song,NULL));
             if(err!=NULL) {
               failed_parts=TRUE;
@@ -1649,13 +1649,13 @@ static void bt_setup_get_property(GObject * const object, const guint property_i
       g_value_set_object(value, self->priv->song);
     } break;
     case SETUP_MACHINES: {
-      /* @todo: this is not good, lists returned by bt_setup_get_xxx_by_yyy
+      /* TODO(ensonic): this is not good, lists returned by bt_setup_get_xxx_by_yyy
        * returns a new list where one has to unref the elements
        */
       g_value_set_pointer(value,g_list_copy(self->priv->machines));
     } break;
     case SETUP_WIRES: {
-      /* @todo: this is not good, lists returned by bt_setup_get_xxx_by_yyy
+      /* TODO(ensonic): this is not good, lists returned by bt_setup_get_xxx_by_yyy
        * returns a new list where one has to unref the elements
        */
       g_value_set_pointer(value,g_list_copy(self->priv->wires));

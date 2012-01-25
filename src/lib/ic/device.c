@@ -29,7 +29,7 @@
  * btic_device_get_control_by_id() or iterating the list in 
  * BtIcDevice::controls.
  */
-/* @todo: need abstract _start() and _stop() method, whenever we bind/unbind a
+/* TODO(ensonic): need abstract _start() and _stop() method, whenever we bind/unbind a
  *        control we need to call _start/_stop on the respective device. The
  *        methods inc/dec a counter and if the counter is >0 we run the
  *        g_io_channel
@@ -71,7 +71,7 @@ static gint sort_by_name(const gpointer obj1,const gpointer obj2) {
 	gchar *str1c,*str2c;
 	gint res;
 
-  // @todo: this is fragmenting memory :/
+  // TODO(ensonic): this is fragmenting memory :/
   // - we could atleast have a compare func in control
 	g_object_get(obj1,"name",&str1,NULL);
 	g_object_get(obj2,"name",&str2,NULL);

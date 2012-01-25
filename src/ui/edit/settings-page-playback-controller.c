@@ -22,7 +22,7 @@
  *
  * Lists available playback controllers and allows to configure them.
  */
-/* @todo: add a list of playback controlers:
+/* TODO(ensonic): add a list of playback controlers:
  *   - upnp coherence/gupnp
  *   - alsa midi MC
  *   - jack midi MC

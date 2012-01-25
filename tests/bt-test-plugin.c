@@ -26,7 +26,7 @@
  * one for its voices. Thus prefix the parameter names with 'g-' for 'global'
  * (in the monophonic class) and 'v-' for 'voice' in the poly class.
  */
-/* @todo:
+/* TODO(ensonic):
  * - implement the tempo, property-meta ifaces in the test machines
  * - add a trigger param to the machines
  * - the trigger param counts how often it gets triggered

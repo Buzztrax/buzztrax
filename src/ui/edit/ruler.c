@@ -36,7 +36,7 @@
  *
  * some features/api discussion at http://live.gnome.org/GTK%2B/GtkRuler
  *
- * TODO:
+ * TODO(ensonic):
  * - make other instance vars private
  * - use GtkAdjustment
  * - add non-linear tick mapping

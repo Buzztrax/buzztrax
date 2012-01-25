@@ -104,7 +104,7 @@ static BtPersistence *bt_sink_machine_persistence_load(const GType type, const B
 
     G_VA_COPY(va,var_args);
     // we need to get parameters from var_args
-    // @todo: this is duplicated code among the subclasses
+    // TODO(ensonic): this is duplicated code among the subclasses
     param_name=va_arg(va,gchar*);
     while(param_name) {
       if(!strcmp(param_name,"song")) {

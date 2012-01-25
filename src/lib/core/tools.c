@@ -178,7 +178,7 @@ GList *bt_gst_check_core_elements(void) {
   static GList *res=NULL;
   static gboolean core_elements_checked=FALSE;
 
-  /* @todo: if registry ever gets a 'changed' signal, we need to connect to that and
+  /* TODO(ensonic): if registry ever gets a 'changed' signal, we need to connect to that and
    * reset core_elements_checked to FALSE
    * There is gst_registry_get_feature_list_cookie() now
    */
@@ -510,7 +510,7 @@ static void GST_GNUC_CONSTRUCTOR bt_cpu_load_init(void) {
   treal_last=gst_util_get_timestamp();
   //clk=sysconf(_SC_CLK_TCK);
 
-  /* @todo: we might need to handle multi core cpus and divide by num-cores
+  /* TODO(ensonic): we might need to handle multi core cpus and divide by num-cores
    * http://lxr.linux.no/linux/include/linux/cpumask.h
 #ifndef WIN32
    num_cpus = sysconf (_SC_NPROCESSORS_ONLN);

@@ -28,17 +28,17 @@
  *
  * The dialog is not modal.
  */
-/* @idea: nice monitoring ideas:
+/* IDEA(ensonic): nice monitoring ideas:
  * http://www.music-software-reviews.com/adobe_audition_2.html
  *
- * @todo: shall we add a volume and panorama control to the dialog as well?
+ * TODO(ensonic): shall we add a volume and panorama control to the dialog as well?
  * - volume to the right of the spectrum
  * - panorama below the spectrum
  *
- * @idea: use own ruler widget or patch up the existing one
+ * IDEA(ensonic): use own ruler widget or patch up the existing one
  * http://live.gnome.org/GTK%2B/GtkRuler
  *
- * @idea: it would be nice to use this on the sink-machine as well.
+ * IDEA(ensonic): it would be nice to use this on the sink-machine as well.
  * - need to change it to "analysis-dialog"
  * - the constructor needs variants for machines and wires or we just pass it a
  *   and require that the bin has a "ananlyzers" property
@@ -64,7 +64,7 @@ enum {
   SIGNAL_ANALYSIS_DIALOG_ELEMENT=1
 };
 
-/* @todo: add more later:
+/* TODO(ensonic): add more later:
  * waveform (oszilloscope)
  * panorama (spacescope)
  */
@@ -209,7 +209,7 @@ static gboolean redraw_level(gpointer user_data) {
     cairo_rectangle(cr, (middle-1)+peak1, 0, 2, LEVEL_HEIGHT);
     cairo_fill(cr);
 
-    /* @todo: if stereo draw pan-meter (L-R, R-L) */
+    /* TODO(ensonic): if stereo draw pan-meter (L-R, R-L) */
 
     cairo_destroy(cr);
     gdk_window_end_paint(window);
@@ -688,7 +688,7 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
-  /* @todo: create and set *proper* window icon (analyzer, scope)
+  /* TODO(ensonic): create and set *proper* window icon (analyzer, scope)
   if((window_icon=bt_ui_resources_get_pixbuf_by_wire(self->priv->element))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
@@ -704,7 +704,7 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   // leave the choice of width to gtk
   gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
 
-  // TODO: different names for wire or sink machine
+  // TODO(ensonic): different names for wire or sink machine
   if(BT_IS_WIRE(self->priv->element)) {
     BtMachine *src_machine,*dst_machine;
     gchar *src_id,*dst_id;
@@ -730,7 +730,7 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   vbox=gtk_vbox_new(FALSE, 0);
 
   /* add scales for spectrum analyzer drawable */
-  /* @todo: we need to use a gtk_table() and also add a vruler with levels */
+  /* TODO(ensonic): we need to use a gtk_table() and also add a vruler with levels */
   ruler=bt_ruler_new(GTK_ORIENTATION_HORIZONTAL,TRUE);
   gtk_widget_set_size_request(ruler,-1,30);
   gtk_box_pack_start(GTK_BOX(vbox), ruler, FALSE, FALSE,0);
@@ -797,7 +797,7 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   gtk_container_set_border_width(GTK_CONTAINER(self), 6);
   gtk_container_add(GTK_CONTAINER(self), vbox);
 
-  /* @todo: better error handling
+  /* TODO(ensonic): better error handling
    * - don't fail if we miss only spectrum or level
    * - also don't return false, but instead add a label with the error message
    */

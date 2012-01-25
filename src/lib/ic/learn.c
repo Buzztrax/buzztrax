@@ -154,7 +154,7 @@ gboolean btic_learn_store_controller_map(const BtIcLearn *self) {
     control=BTIC_CONTROL(node->data);
     
     g_object_get(control,"name",&control_name,"id",&control_id,"min",&min_val,"max",&max_val,"def",&def_val,NULL);
-    // @todo: we ignore the type right now
+    // TODO(ensonic): we ignore the type right now
     g_key_file_set_string(out,control_name,"type","abs-range");
     g_key_file_set_integer(out,control_name,"id",control_id);
     g_key_file_set_integer(out,control_name,"min-val",min_val);
@@ -245,7 +245,7 @@ gboolean btic_learn_load_controller_map(const BtIcLearn *self) {
     if(groups[i][0] == '_')
       continue;
 
-    // @todo: we ignore the type right now (field "type")
+    // TODO(ensonic): we ignore the type right now (field "type")
     control_id=g_key_file_get_integer(in,groups[i],"id",NULL);
     min_val=g_key_file_get_integer(in,groups[i],"min-val",NULL);
     max_val=g_key_file_get_integer(in,groups[i],"max-val",NULL);

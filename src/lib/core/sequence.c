@@ -33,7 +33,7 @@
  * It uses a damage-repair based two phase algorithm to update the controller
  * queues whenever patterns or the sequence changes.
  */
-/* @todo: introduce a BtTrack object
+/* TODO(ensonic): introduce a BtTrack object
  * - the sequence will have a list of tracks
  * - each track has a machine and a array with patterns
  * - this makes it easier to e.g. pass old track data to track-removed
@@ -107,7 +107,7 @@ struct _BtSequencePrivate {
    * each entry (per machine) has another GHashTable
    *   each entry (per parameter) has another GHashTable
    *     with time:changed
-   * @todo: there is quite some overhead because of the nested HashTables
+   * TODO(ensonic): there is quite some overhead because of the nested HashTables
    * and because of repeted lookups in repair_{global,voice,wire}_damage_entry:
    * - maybe we could have this instead:
    *   each entry (per machine) has another GHashTable
@@ -518,7 +518,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   gulong start=0,length;
 
   GST_DEBUG("invalidate pattern %p region for tick=%5lu, track=%3lu",pattern,time,track);
-  /* @todo: if we load a song and thus set a lot of patterns, this is called a
+  /* TODO(ensonic): if we load a song and thus set a lot of patterns, this is called a
    * lot. While doing this, there are a few thing that don't change. If we set
    * 100 patterns for one machine, we query, the machine, its parameters and its
    * list of incoming wires (and its pattern) again and again.
@@ -700,7 +700,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
 static GstClockTime bt_sequence_get_tick_time(const BtSequence * const self,const gulong tick) {
   GstClockTime timestamp=bt_sequence_get_bar_time(self)*tick;
 #if 0
-  /* @todo: get this from settings and follow changes */
+  /* TODO(ensonic): get this from settings and follow changes */
   guint sample_rate=GST_AUDIO_DEF_RATE;
   guint64 samples=gst_util_uint64_scale(timestamp,(guint64)sample_rate,GST_SECOND);
 
@@ -1307,7 +1307,7 @@ BtMachine *bt_sequence_get_machine(const BtSequence * const self,const gulong tr
 }
 
 /*
-@todo shouldn't we better make self->priv->tracks a readonly property and offer methods to insert/remove tracks
+TODO(ensonic): shouldn't we better make self->priv->tracks a readonly property and offer methods to insert/remove tracks
 as it should not be allowed to change the machine later on
 */
 
@@ -1654,7 +1654,7 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
  *
  * Returns: the length of one sequence bar in microseconds
  */
-/* @todo rename to bt_sequence_get_tick_duration(), or turn into property ?*/
+/* TODO(ensonic): rename to bt_sequence_get_tick_duration(), or turn into property ?*/
 GstClockTime bt_sequence_get_bar_time(const BtSequence * const self) {
   g_return_val_if_fail(BT_IS_SEQUENCE(self),0.0);
 
@@ -1997,7 +1997,7 @@ void bt_sequence_update_tempo(const BtSequence * const self) {
   GST_INFO("updating gst-controller queues");
   bt_sequence_calculate_wait_per_position(self);
 
-  /* @todo: this is very slow */
+  /* TODO(ensonic): this is very slow */
   for(i=0;i<length;i++) {
     for(j=0;j<tracks;j++) {
       if(*pattern) {
@@ -2270,7 +2270,7 @@ static void bt_sequence_set_property(GObject * const object, const guint propert
       //GST_DEBUG("set the song for sequence: %p",self->priv->song);
     } break;
     case SEQUENCE_LENGTH: {
-      // @todo remove or better stop the song
+      // TODO(ensonic): remove or better stop the song
       // if(self->priv->is_playing) bt_sequence_stop(self);
       // prepare new data
       const gulong length=self->priv->length;
@@ -2290,7 +2290,7 @@ static void bt_sequence_set_property(GObject * const object, const guint propert
       }
     } break;
     case SEQUENCE_TRACKS: {
-      // @todo remove or better stop the song
+      // TODO(ensonic): remove or better stop the song
       //if(self->priv->is_playing) bt_sequence_stop(self);
       // prepare new data
       const gulong tracks=self->priv->tracks;

@@ -18,11 +18,11 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-/* @todo: add properties:
+/* TODO(ensonic): add properties:
  *   - vertical : gboolean, readonly
  *   - min,max,rms,peak : gint, read/write
  *   - scale_type : enum, read/write
- * @todo: revisit cairo usage
+ * TODO(ensonic): revisit cairo usage
  *   - http://www.cairographics.org/FAQ/#sharp_lines
  */
 /**
@@ -267,7 +267,7 @@ static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter,
         gdouble log_level, log_max;
 
         log_level = log10((level - min + 1)/(max - min + 1));
-        log_max = log10(1/(max - min + 1)); /* FIXME: could be cached */
+        log_max = log10(1/(max - min + 1)); /* FIXME(ensonic): could be cached */
         draw_level = length - log_level/log_max * length;
     }
 

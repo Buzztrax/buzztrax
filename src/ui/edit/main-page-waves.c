@@ -23,17 +23,17 @@
  * Manage a list of audio clips files. Provides an embeded file browser to load
  * files. A waveform viewer can show the selected clip.
  */
-/* @todo: need envelop editor and everything for it
- * @todo: add shortcuts to play current sample (in browser)
+/* TODO(ensonic): need envelop editor and everything for it
+ * TODO(ensonic): add shortcuts to play current sample (in browser)
  * - look at gtk_file_chooser_set_preview_widget() and/or
  *   selection-changed/update-preview signals
- * @todo: gray wavetable entries for unused waves
+ * TODO(ensonic): gray wavetable entries for unused waves
  */
-/* @todo: move file-chooser widget to a notebook, to have extra tabs for
+/* TODO(ensonic): move file-chooser widget to a notebook, to have extra tabs for
  * - loading from online sample sites
  * - recording
  */
-/* @todo: undo/redo (search for bt_edit_application_set_song_unsaved
+/* TODO(ensonic): undo/redo (search for bt_edit_application_set_song_unsaved
  * - load/unload a wave
  * - change wave-table properties
  */
@@ -697,7 +697,7 @@ static void on_wave_loading_done(BtWave *wave,gboolean success,gpointer user_dat
     GST_DEBUG("loading done, refreshing");
   }
   else {
-    // @todo: error message
+    // TODO(ensonic): error message
     GST_WARNING("loading the wave failed");
   }
 }
@@ -1060,7 +1060,7 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     if((ext=strrchr(name,'.'))) *ext='\0';
     g_free(tmp_name);
     wave=bt_wave_new(song,name,uri,id,1.0,BT_WAVE_LOOP_MODE_OFF,0);
-    // @idea: listen to status property on wave for loader updates
+    // IDEA(ensonic): listen to status property on wave for loader updates
     bt_edit_application_set_song_unsaved(self->priv->app);
 
     // listen to wave::loaded signal and refresh the wave list on success

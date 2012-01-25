@@ -23,7 +23,7 @@
  * A dialog to inform about missing core and application elements.
  */
 /*
- * @todo: support gst-codec-install
+ * TODO(ensonic): support gst-codec-install
  * Since gst-plugin-base-0.10.15 there is gst_install_plugins_supported().
  * If is supported we could do:
  *

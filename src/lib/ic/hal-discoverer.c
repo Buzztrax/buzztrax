@@ -62,7 +62,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
 
   for(n=0;cap[n];n++) {
     // midi devices seem to appear only as oss under hal?
-    // @todo: try alsa.sequencer
+    // TODO(ensonic): try alsa.sequencer
     if(!strcmp(cap[n],"alsa.sequencer")) {
       temp=libhal_device_get_property_string(ctx,udi,"info.parent",NULL);
       parent_udi=libhal_device_get_property_string(ctx,temp,"info.parent",NULL);

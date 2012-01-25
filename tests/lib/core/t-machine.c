@@ -224,7 +224,7 @@ BT_END_TEST
 TCase *bt_machine_test_case(void) {
   TCase *tc = tcase_create("BtMachineTests");
 
-  // @todo try catching the critical log
+  // TODO(ensonic): try catching the critical log
   //tcase_add_test(tc, test_btmachine_abstract);
   tcase_add_test(tc, test_btmachine_state1);
   tcase_add_test(tc, test_btmachine_state2);

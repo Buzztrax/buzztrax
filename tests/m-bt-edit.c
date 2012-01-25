@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* @todo: try gdk_error_trap_push() to use FORK mode and trap XErrors
+/* TODO(ensonic): try gdk_error_trap_push() to use FORK mode and trap XErrors
  */
 
 #define BT_CHECK
@@ -93,7 +93,7 @@ void bt_edit_setup(void) {
   bt_init(&test_argc,&test_argvptr);
   btic_init(&test_argc,&test_argvptr);
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
-  /* @todo: we need to ensure icons are found when running uninstalled
+  /* TODO(ensonic): we need to ensure icons are found when running uninstalled
    * one problem is that we have them under "pixmaps" and not "icons"
    * maybe we should rename in the repo
   theme=gtk_icon_theme_get_default()

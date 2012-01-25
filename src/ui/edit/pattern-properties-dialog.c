@@ -185,7 +185,7 @@ static void bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog
   label=gtk_label_new(_("voices"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
-  // @todo get min/max number of voices
+  // TODO(ensonic): get min/max number of voices
   spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(1.0, 1.0, 16.0, 1.0, 4.0, 0.0));
   widget=gtk_spin_button_new(spin_adjustment,(gdouble)(self->priv->voices),0);
   if(bt_machine_is_polyphonic(self->priv->machine)) {

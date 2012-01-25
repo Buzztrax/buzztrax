@@ -27,7 +27,7 @@
  * record mode it uses a tee and plugs both pipelines.
  */
 
-/* @todo: detect supported encoders
+/* TODO(ensonic): detect supported encoders
  * get gst mimetype from the extension
  * and then look at all encoders which supply that mimetype
  * check elements in "codec/encoder/audio", "codec/muxer/audio"
@@ -35,21 +35,21 @@
  * gst_element_factory_can_src_caps()
  * problem here is that we need extra option for each encoder (e.g. quality)
  *
- * @todo: add properties for bpm and master volume,
+ * TODO(ensonic): add properties for bpm and master volume,
  * - bpm
  *   - tempo-iface is implemented, but is hidden from the ui
  *     (the iface properties are not controllable)
  *   - we could have separate properties and forward the changes
  *
- * @todo: for upnp it would be nice to stream on-demand
+ * TODO(ensonic): for upnp it would be nice to stream on-demand
  *
- * @todo: add parameters for sampling rate and channels
+ * TODO(ensonic): add parameters for sampling rate and channels
  *   - channels can be used in the capsfilter
  *   - sampling rate could be used there too
  *   - both should be sink-bin properties, so that we can configure them
  *     externally
  *
- * @todo: add a metronome
+ * TODO(ensonic): add a metronome
  *   - add a (controllable) gboolean "metronome-beat", "metronome-tick" properties
  *   - add controller pattern to make them emit notifies
  *     - need to update on length changes and bpm/tpb changes
@@ -367,7 +367,7 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
       // configure buffer size (e.g.  GST_SECONG*60/120*4
       gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
 
-      // FIXME: having a smaller chunk size helps with latency:
+      // FIXME(ensonic): having a smaller chunk size helps with latency:
       // - live playback
       // - changing properties
       // maybe we can make this an option (for fast machines)
@@ -509,12 +509,12 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
 
   GST_DEBUG("get record elements");
 
-  // @todo: check extension ?
-  // @todo: need to lookup encoders by caps
+  // TODO(ensonic): check extension ?
+  // TODO(ensonic): need to lookup encoders by caps
 
   // start with a queue
   element=gst_element_factory_make("queue","record-queue");
-  // @todo: if we have/require gstreamer-0.10.31 ret rid of the check
+  // TODO(ensonic): if we have/require gstreamer-0.10.31 ret rid of the check
   if(g_object_class_find_property(G_OBJECT_GET_CLASS(element),"silent")) {
     g_object_set(element,"silent",TRUE,NULL);
   }
@@ -550,7 +550,7 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
       // lame ! id3mux ! filesink location="song.mp3"
       if(!(element=gst_element_factory_make("lamemp3enc","lame"))) {
         if(!(element=gst_element_factory_make("lame","lame"))) {
-          // FIXME: for some reason this does not show up on the bus
+          // FIXME(ensonic): for some reason this does not show up on the bus
           /*GstCaps *caps=gst_caps_from_string("audio/mpeg, mpegversion=1, layer=3");
 
           gst_element_post_message(GST_ELEMENT(self),
@@ -787,7 +787,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
 
         // start with a queue
         element=gst_element_factory_make("queue","play-queue");
-        // @todo: if we have/require gstreamer-0.10.31 ret rid of the check
+        // TODO(ensonic): if we have/require gstreamer-0.10.31 ret rid of the check
         if(g_object_class_find_property(G_OBJECT_GET_CLASS(element),"silent")) {
           g_object_set(element,"silent",TRUE,NULL);
         }
@@ -953,7 +953,7 @@ static void on_channels_changed(const BtSettings * const settings, GParamSpec * 
   GST_INFO("channels have changed");
   g_object_get((gpointer)settings,"channels",&self->priv->channels,NULL);
   bt_sink_bin_format_update(self);
-  // @todo: this would render all panorama/balance elements useless and also
+  // TODO(ensonic): this would render all panorama/balance elements useless and also
   // affect wire patterns - how do we want to handle it
 }
 
@@ -1024,7 +1024,7 @@ static void bt_sink_bin_get_property(GObject * const object, const guint propert
     } break;
     case SINK_BIN_MASTER_VOLUME: {
       if(self->priv->gain) {
-        // FIXME: do we need a notify (or weak ptr) to update this?
+        // FIXME(ensonic): do we need a notify (or weak ptr) to update this?
         g_object_get(self->priv->gain,"volume",&self->priv->volume,NULL);
         GST_DEBUG("Get master volume: %lf",self->priv->volume);
       }

@@ -24,14 +24,14 @@
  * A dialog to configure static settings of a #BtMachine.
  */
 
-/* @todo: filter certain properties (tempo iface, ...)
+/* TODO(ensonic): filter certain properties (tempo iface, ...)
  *
- * @todo: we have a few notifies, but not for all types
+ * TODO(ensonic): we have a few notifies, but not for all types
  * - do we need them at all? who else could change things?
  *
- * @todo: we should only be able to have one preferences for each machien type
+ * TODO(ensonic): we should only be able to have one preferences for each machien type
  *
- * @todo: save the chosen settings somewhere
+ * TODO(ensonic): save the chosen settings somewhere
  * - gconf would need some sort of schema
  */
 
@@ -200,7 +200,7 @@ static void on_table_size_request(GtkWidget *widget,GtkRequisition *requisition,
   if(height>available_heigth) {
     height=available_heigth;
   }
-  // @todo: is the '2' some border or padding
+  // TODO(ensonic): is the '2' some border or padding
   gtk_widget_set_size_request(parent,width,height + 2);
 }
 

@@ -498,7 +498,7 @@ void bt_main_window_new_song(const BtMainWindow *self) {
     return;
 
   if(!bt_edit_application_new_song(self->priv->app)) {
-    // @todo show error message (from where? and which error?)
+    // TODO(ensonic): show error message (from where? and which error?)
   }
 }
 
@@ -573,7 +573,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   // reuse last folder (store in self, if we loaded something
   gtk_file_chooser_set_current_folder(self->priv->file_chooser,self->priv->last_folder?self->priv->last_folder:folder_name);
   gtk_file_chooser_add_shortcut_folder(self->priv->file_chooser,folder_name,NULL);
-  // @todo: if folder != default it would be nice to show the default as well, unfortunately we can't name the shortcuts
+  // TODO(ensonic): if folder != default it would be nice to show the default as well, unfortunately we can't name the shortcuts
   // - maybe we should only install real demo songs
   g_free(folder_name);
   g_object_unref(settings);
@@ -932,7 +932,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   g_free(old_file_name);
 }
 
-// @todo use GtkMessageDialog for the next two
+// TODO(ensonic): use GtkMessageDialog for the next two
 
 /**
  * bt_dialog_message:
@@ -961,7 +961,7 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   box=gtk_hbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 
-  // @todo: when to use GTK_STOCK_DIALOG_WARNING ?
+  // TODO(ensonic): when to use GTK_STOCK_DIALOG_WARNING ?
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
 

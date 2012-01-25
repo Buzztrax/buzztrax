@@ -134,23 +134,4 @@ CLEANFILES = marshal.c marshal.h \
   $(typelibs_DATA) $(TXML) \
   $(BUILT_GIRSOURCES)
 
-.PHONY: help todo stats splint
-
-todo::
-	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
-	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
-
-stats:: tags
-	@echo "files by size:"
-	@find . \( -name "*.c" -o -name "*.h" \) -printf "%s %p\n" | sort -rn
-	@echo
-	@echo "files by tags:"
-	@for file in *.c; do size=`grep $${file} tags | wc -l`;echo $${size} $${file}; done | sort -rn
-
-splint::
-	splint +posixlib -weak -I$(top_builddir) -I$(top_srcdir)/src/lib/ic $(libbtcore_la_SOURCES)
-
-help::
-	@echo "make todo                    -- generate a list of TODO items in the form of gcc error/warnings"
-	@echo "make stats                   -- run source code stats"
-	@echo "make splint                  -- run splint source code checks"
+include $(top_srcdir)/common.mak

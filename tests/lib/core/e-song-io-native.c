@@ -126,7 +126,7 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   // 1 x setup, 1 x wire, 1 x sequence
   assert_machine_refcount(setup,"sine1",3);
 
-  /* @todo: check more refcounts (wires)
+  /* TODO(ensonic): check more refcounts (wires)
    * grep ".ref-count=" /tmp/bt_core.log
    */
 
@@ -361,11 +361,11 @@ BT_START_TEST(test_btsong_io_write_song3) {
     GST_INFO("  song created");
 
     /* loading waves is async and we need to wait a bit
-     * FIXME: we need to wait for wave:loading-done
+     * FIXME(ensonic): we need to wait for wave:loading-done
      * (this might also cause hassle in the ui, if loading big samples and saving before they are loaded)
      */
     while(!(wave_level=bt_wave_get_level_by_index(wave,0))) {
-      // FIXME: bah, this can trigger random left-over callbacks from previous
+      // FIXME(ensonic): bah, this can trigger random left-over callbacks from previous
       // tests
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
     }

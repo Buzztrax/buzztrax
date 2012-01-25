@@ -386,7 +386,7 @@ link_add (Graph * g, gint s, gint d)
     blocked = gst_pad_set_blocked_async (w->peer_dst, TRUE, post_link_add, w);
 #endif
 
-    // FIXME: need to kick start the playback here
+    // FIXME(ensonic): need to kick start the playback here
 
     dump_pipeline (g, "wire_add_blocking");
   }

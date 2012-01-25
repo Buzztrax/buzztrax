@@ -67,7 +67,7 @@
  * Furthermore the machine handles a list of #BtPattern instances. These contain
  * event patterns that form a #BtSequence.
  */
-/* @todo: we need BtParameterGroup object with an implementation for the
+/* TODO(ensonic): we need BtParameterGroup object with an implementation for the
  * global and one for the voice parameters. Then the machine would have a
  * self->priv->global_params and self->priv->voice_params
  * bt_machine_init_global_params()
@@ -78,15 +78,15 @@
  * Do we want one ParameterGroup per voice or just one for all voices?
  * bt_machine_set_voice_param_value() and bt_machine_voice_controller_change_value() are voice specific
  *
- * @todo: API cleanup
+ * TODO(ensonic): API cleanup
  * - need coherent api to create machine parts
  *   - export the enum ?
  *
- * @todo: cache the GstControlSource objects?
+ * TODO(ensonic): cache the GstControlSource objects?
  * - we look them up a lot, its a linear search in a list, locking and ref/unref
  * - one for each param and again each voice
  *
- * @todo: we could determine the pad-names for parts and use gst_element_{link,unlink}_pads
+ * TODO(ensonic): we could determine the pad-names for parts and use gst_element_{link,unlink}_pads
  * - we get a little speedup if the pad-names are known
  * - passing NULL for a pad-name is ok
  */
@@ -395,7 +395,7 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
         gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(element),FALSE);
       }
       else {
-        // @todo: disconnect its source and sink + set this machine to playing
+        // TODO(ensonic): disconnect its source and sink + set this machine to playing
         GST_INFO("element does not support passthrough");
       }
     } break;
@@ -437,7 +437,7 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
         gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(element),TRUE);
       }
       else {
-        // @todo set this machine to paused + connect its source and sink
+        // TODO(ensonic): set this machine to paused + connect its source and sink
         GST_INFO("element does not support passthrough");
       }
     } break;
@@ -583,7 +583,7 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
   const gulong voice_params=self->priv->voice_params;
   GST_INFO("changing machine %s:%p voices from %ld to %ld",self->priv->id,self->priv->machines[PART_MACHINE],old_voices,new_voices);
 
-  // @todo GSTBT_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
+  // TODO(ensonic): GSTBT_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
   if((!self->priv->machines[PART_MACHINE]) || (!GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]))) {
     GST_WARNING_OBJECT(self,"machine %s:%p is NULL or not polyphonic!",self->priv->id,self->priv->machines[PART_MACHINE]);
     return;
@@ -642,7 +642,7 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
     g_value_init(value,property->value_type);
     switch(bt_g_type_get_base_type(property->value_type)) {
       case G_TYPE_BOOLEAN:
-        // @todo: this does not work, for no_value it results in
+        // TODO(ensonic): this does not work, for no_value it results in
         // g_value_set_boolean(value,255);
         // which is the same as TRUE
         g_value_set_boolean(value,GPOINTER_TO_INT(qdata));
@@ -944,7 +944,7 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     gulong bpm,tpb;
 
     g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
-    // @todo handle stpb later (subtick per beat)
+    // TODO(ensonic): handle stpb later (subtick per beat)
     g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
     gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,-1);
 
@@ -2452,7 +2452,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
           self->priv->global_control_sources[param]=cs;
         }
 
-        // @todo: is this needed, we're in add=TRUE after all
+        // TODO(ensonic): is this needed, we're in add=TRUE after all
         g_object_try_unref(self->priv->global_controller);
         self->priv->global_controller=ctrl;
 
@@ -2561,7 +2561,7 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
           self->priv->voice_control_sources[voice*self->priv->voice_params+param]=cs;
         }
 
-        // @todo: is this needed, we're in add=TRUE after all
+        // TODO(ensonic): is this needed, we're in add=TRUE after all
         g_object_try_unref(self->priv->voice_controllers[voice]);
         self->priv->voice_controllers[voice]=ctrl;
 
@@ -2694,7 +2694,7 @@ void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *
   g_object_get((gpointer)(data->control),"device",&device,NULL);
   btic_device_start(device);
   g_object_unref(device);
-  /* @todo: controls need flags to indicate whether they are absolute or relative
+  /* TODO(ensonic): controls need flags to indicate whether they are absolute or relative
    * we conect a different handler for relative ones that add/sub values to current value
    */
   // connect signal handler
@@ -2784,7 +2784,7 @@ void bt_machine_bind_poly_parameter_control(const BtMachine * const self, const 
   g_object_get((gpointer)(data->control),"device",&device,NULL);
   btic_device_start(device);
   g_object_unref(device);
-  /* @todo: controls need flags to indicate whether they are absolute or relative
+  /* TODO(ensonic): controls need flags to indicate whether they are absolute or relative
    * we conect a different handler for relative ones that add/sub values to current value
    */
   // connect signal handler
@@ -3113,8 +3113,8 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
     xmlNewProp(node,XML_CHAR_PTR("state"),XML_CHAR_PTR(bt_persistence_strfmt_enum(BT_TYPE_MACHINE_STATE,self->priv->state)));
 
-    // @todo: also store non-controllable parameters (preferences) <prefsdata name="" value="">
-    // @todo: skip parameters which are default values (is that really a good idea?)
+    // TODO(ensonic): also store non-controllable parameters (preferences) <prefsdata name="" value="">
+    // TODO(ensonic): skip parameters which are default values (is that really a good idea?)
     machine=GST_OBJECT(self->priv->machines[PART_MACHINE]);
     for(i=0;i<global_params;i++) {
       // skip trigger parameters and parameters that are also used as voice params
@@ -3238,7 +3238,7 @@ static BtPersistence *bt_machine_persistence_load(const GType type, const BtPers
     
     for(node=node->children;node;node=node->next) {
       if(!xmlNodeIsText(node)) {
-        // @todo: load prefsdata
+        // TODO(ensonic): load prefsdata
         if(!strncmp((gchar *)node->name,"globaldata\0",11)) {
           name=xmlGetProp(node,XML_CHAR_PTR("name"));
           value_str=xmlGetProp(node,XML_CHAR_PTR("value"));

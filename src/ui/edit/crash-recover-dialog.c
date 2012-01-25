@@ -153,7 +153,7 @@ static void on_recover_clicked(GtkButton *button, gpointer user_data) {
       _("Please check the song and save it if everything is alright.")
     );
   } else {
-    /* FIXME: the log is still there
+    /* FIXME(ensonic): the log is still there
      * - this dialog should be a warning
      * - ev. we want to suggest to ask for support
      */
@@ -197,7 +197,7 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
   gtk_window_set_title(GTK_WINDOW(self),_("Unsaved song recovery"));
 
   // add dialog commision widgets (okay)
-  // FIXME: add Okay, Cancel, Delete
+  // FIXME(ensonic): add Okay, Cancel, Delete
   // select song + okay -> recover
   // select song + delete -> remove log
   gtk_dialog_add_buttons(GTK_DIALOG(self),

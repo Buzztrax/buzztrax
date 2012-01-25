@@ -96,7 +96,7 @@ struct _BtSongIOClass {
  */
 typedef gboolean (*BtSongIOInit)(void);
 
-/* @todo: additional fields:
+/* TODO(ensonic): additional fields:
  * - wheter it support load/save? (we have vmethods
  * - some flags?
  *

@@ -92,7 +92,7 @@ static void const *GetWave(CHostCallbacks *self, int const i) {
   return(&res[i]);
 }
 
-// @todo: this is still racy if multiple levels are used
+// TODO(ensonic): this is still racy if multiple levels are used
 
 static void const *GetWaveLevel(CHostCallbacks *self, int const i, int const level) {
   // 200 is WAVE_MAX

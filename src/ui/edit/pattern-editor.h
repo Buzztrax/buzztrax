@@ -114,7 +114,7 @@ typedef struct _BtPatternEditorColumnGroup BtPatternEditorColumnGroup;
  * Data format conversion callbacks.
  */
 struct _BtPatternEditorCallbacks {
-  /* FIXME: what about supplying
+  /* FIXME(ensonic): what about supplying
    * - BtPatternEditorColumn instead of BtPatternEditorColumn->user_data
    * - BtPatternEditorColumnGroup instead of track;
    */

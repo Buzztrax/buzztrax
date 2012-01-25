@@ -24,7 +24,7 @@
  * Provides an editor for #BtPattern instances.
  */
 
-/* @todo: main-page-patterns tasks
+/* TODO(ensonic): main-page-patterns tasks
  * - shortcuts
  *   - on_pattern_table_key_press_event()
  *   - Ctrl-S : Smooth
@@ -1391,7 +1391,7 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
 }
 
 /* - we are using GValue directly for reading out the patterns
- * - @todo: for changes from the pattern editor we still convert the float
+ * - TODO(ensonic): for changes from the pattern editor we still convert the float
  *   values to strings and then to GValues.
  */
 typedef struct {
@@ -1472,7 +1472,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
 
         g_object_get(machine,"machine",&element,NULL);
 
-        /* @todo: buzz machines need set, tick, unset */
+        /* TODO(ensonic): buzz machines need set, tick, unset */
         if(group->type==PGT_GLOBAL) {
           GST_INFO("play global trigger: %f,'%s'",value,str);
           switch(col->type) {
@@ -1866,7 +1866,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       ((BtPatternEditorColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
       pcc->min=g_value_get_float(min_val);
       pcc->max=g_value_get_float(max_val);
-      /* @todo: need scaling
+      /* TODO(ensonic): need scaling
        * - in case of
        *   wire.volume: 0.0->0x0000, 1.0->0x4000, 2.0->0x8000, 4.0->0xFFFF+1
        *    (see case G_TYPE_DOUBLE:)
@@ -2602,7 +2602,7 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
 
   if(pos<sequence_length) {
     // check all tracks
-    // @todo: what if the pattern is played on multiple tracks ?
+    // TODO(ensonic): what if the pattern is played on multiple tracks ?
     // we'd need to draw several lines
     for(i=0;((i<tracks) && !found);i++) {
       machine=bt_sequence_get_machine(sequence,i);
@@ -3252,9 +3252,9 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_machine_preferences_activate),(gpointer)self);
 
   // --
-  // @todo solo, mute, bypass
+  // TODO(ensonic): solo, mute, bypass
   // --
-  // @todo cut, copy, paste
+  // TODO(ensonic): cut, copy, paste
 
   // register event handlers
   g_signal_connect((gpointer)(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
@@ -3332,7 +3332,7 @@ void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine
 static void pattern_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,guint info,gpointer data) {
   GST_INFO("get clipboard data, info=%d, data=%p",info,data);
   GST_INFO("sending : [%s]",data);
-  // @todo: do we need to format differently depending on info?
+  // TODO(ensonic): do we need to format differently depending on info?
   if(gtk_selection_data_get_target(selection_data)==pattern_atom) {
     gtk_selection_data_set(selection_data,pattern_atom,8,(guchar *)data,strlen(data));
   }

@@ -23,7 +23,7 @@
  * The library offers base objects such as #BtApplication and #BtSong.
  */
 
-/* @todo add check_version stuff like in gstreamer */
+/* TODO(ensonic): add check_version stuff like in gstreamer */
 
 #define BT_CORE
 #define BT_CORE_C
@@ -88,7 +88,7 @@ static gboolean bt_init_post (void) {
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 
 #if GST_CHECK_VERSION(0,10,16)
-  /* @todo: requires gst-0.10.16 */
+  /* TODO(ensonic): requires gst-0.10.16 */
   extern gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin);
   gst_plugin_register_static(GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
@@ -145,7 +145,7 @@ static gboolean bt_init_post (void) {
 #endif
 
 #if HAVE_XMMINTRIN_H
-  // @todo: we need to probe the CPU capabilities
+  // TODO(ensonic): we need to probe the CPU capabilities
   // see http://www.mail-archive.com/linux-audio-dev@music.columbia.edu/msg19520.html
   //   [linux-audio-dev] Channels and best practice
   // _MM_FLUSH_ZERO_ON = FZ
@@ -165,7 +165,7 @@ static gboolean parse_goption_arg(const gchar * opt, const gchar * arg, gpointer
     g_printf("libbtcore-%d.%d.%d from "PACKAGE_STRING"\n",BT_MAJOR_VERSION,BT_MINOR_VERSION,BT_MICRO_VERSION);
   }
   else {
-    // @todo: need to set error here
+    // TODO(ensonic): need to set error here
     ret=FALSE;
   }
 

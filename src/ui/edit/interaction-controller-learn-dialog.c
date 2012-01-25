@@ -22,8 +22,8 @@
  *
  * A dialog to prompt the user for an interaction controller assignment.
  */
-/* @todo: having okay & assign would be nice
- * @todo: having a way to train multiple controllers would be nice
+/* TODO(ensonic): having okay & assign would be nice
+ * TODO(ensonic): having a way to train multiple controllers would be nice
  * - we could have: okay, okay & assign, okay & learn more, cancel
  */
 #define BT_EDIT

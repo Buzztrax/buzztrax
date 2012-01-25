@@ -101,7 +101,7 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
       return;
     }
 
-    /* FIXME: this is a udev bug, the address changes and this causes valgrind
+    /* FIXME(ensonic): this is a udev bug, the address changes and this causes valgrind
      * warnings: http://www.pastie.org/1589552
      * we copy it for now */
     if (devnode) devnode=g_strdup(devnode);
@@ -147,7 +147,7 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
       full_name=name;
     }
 
-    /* FIXME: we got different names with HAL (we save those in songs :/):
+    /* FIXME(ensonic): we got different names with HAL (we save those in songs :/):
     * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3400
     * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3363
     */
@@ -182,7 +182,7 @@ static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpo
       GST_DEBUG("unknown device found, not added: name=%s",name);
     }
 
-    /* FIXME: see above */
+    /* FIXME(ensonic): see above */
     g_free((gchar *)devnode);
   }
 }

@@ -148,7 +148,7 @@ BT_START_TEST(test_btsong_play3) {
   res=bt_song_play(song);
   fail_unless(res, NULL);
 
-  // @todo: this needs a mainloop!
+  // TODO(ensonic): this needs a mainloop!
   sleep(1);
   //fail_unless(play_signal_invoked, NULL);
   

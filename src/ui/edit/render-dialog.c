@@ -22,12 +22,12 @@
  *
  * Provides UI to access the song recording
  */
-/* @todo:
+/* TODO(ensonic):
  * - use chooserbutton to choose name too
  *   (arg, the chooser button cannot do save_as)
  * - use song-name based file-name by default
  *
- * @todo: more options
+ * TODO(ensonic): more options
  * - have dithering and noise shaping options here
  */
 
@@ -315,7 +315,7 @@ static void bt_render_dialog_init_ui(const BtRenderDialog *self) {
   g_signal_connect(widget, "changed", G_CALLBACK(on_mode_menu_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 3, 4, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
-  /* @todo: add more widgets
+  /* TODO(ensonic): add more widgets
     o write project file
       o none, jokosher, ardour, ...
   */

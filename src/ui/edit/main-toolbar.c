@@ -24,9 +24,14 @@
  * meters and volume control.
  */
 
-/* @todo should we separate the toolbars?
+/* TODO(ensonic): should we separate the toolbars?
  * - common - load, save, ...
  * - volume - gain, levels
+ *
+ * TODO(ensonic): transport mode selection 
+ * - if the audio-sink supports transport controls we want to show a combobox to
+ *   let the user choose between {-,m,s} = {off,master,slave}
+ * - does this need to be stored? settings?
  */
 #define BT_EDIT
 #define BT_MAIN_TOOLBAR_C
@@ -371,7 +376,7 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
   GST_INFO("received %s bus message from %s",
     GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
-  // @todo: check domain and code
+  // TODO(ensonic): check domain and code
   gst_message_parse_error(message, &err, &dbg);
   GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
 
@@ -405,7 +410,7 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
   GST_INFO("received %s bus message from %s",
     GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
-  // @todo: check domain and code
+  // TODO(ensonic): check domain and code
   gst_message_parse_warning(message, &err, &dbg);
   GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s)", err->message, (dbg ? dbg : "no details"));
 
@@ -612,10 +617,10 @@ static gboolean on_song_volume_slider_release_event(GtkWidget *widget, GdkEventB
         bt_machine_get_global_param_index(self->priv->master,"master-volume",NULL));
 
       /*
-       * @todo: it should actualy postpone the disable to the next timestamp
+       * TODO(ensonic): it should actualy postpone the disable to the next timestamp
        * (not possible right now).
        *
-       * @idea: can we have a livecontrolsource that subclasses interpolationcs
+       * IDEA(ensonic): can we have a livecontrolsource that subclasses interpolationcs
        * - when enabling, if would need to delay the enabled to the next control-point
        * - it would need to peek at the control-point list :/
        */

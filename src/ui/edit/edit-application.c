@@ -31,7 +31,7 @@
  * song via #BtChangeLog and simple flagged changes via the
  * #BtEditApplication:unsaved property.
  */
-/* @todo: unsaved flagging
+/* TODO(ensonic): unsaved flagging
  * - various parts in the UI call bt_edit_application_set_song_unsaved()
  * - this sometimes happens as a side effect from doing something undo/redoable
  * - can we include flagging unsaved in the changelog group, so hat if we undo
@@ -94,7 +94,7 @@ static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer u
   BtMainStatusbar *statusbar;
   gchar *str;
 
-  /* @idea: bind properties */
+  /* IDEA(ensonic): bind properties */
   g_object_get(self->priv->main_window,"statusbar",&statusbar,NULL);
   g_object_get(songio,"status",&str,NULL);
   GST_INFO("songio_status has changed : \"%s\"",safe_string(str));
@@ -137,7 +137,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
   if((missing_core_elements=bt_gst_check_core_elements())) {
     missing=TRUE;res=FALSE;
   }
-  // @todo check recording 'formats' -> rendering (core?)
+  // TODO(ensonic): check recording 'formats' -> rendering (core?)
   edit_elements=g_list_prepend(NULL,"level");
   if((missing_elements=bt_gst_check_elements(edit_elements))) {
     missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
@@ -580,7 +580,7 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
     GST_WARNING("loading song failed");
     // start normaly
     bt_edit_application_run(self);
-    // @todo show error message
+    // TODO(ensonic): show error message
   }
   GST_INFO("application.load_and_run finished");
   return(res);

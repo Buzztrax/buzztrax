@@ -24,7 +24,7 @@
  * Provides an editor for #BtSequence instances.
  */
 
-/* @todo: main-page-sequence tasks
+/* TODO(ensonic): main-page-sequence tasks
  * - add third view for eating remaining space
  *   - or block cursor moving there
  * - shortcuts
@@ -42,13 +42,13 @@
  *   - go to next occurence when double clicking a pattern
  *   - show tick-length in pattern list (needs column in model)
  */
-/* @todo: we should have a track-changed signal ((current-track property)
+/* TODO(ensonic): we should have a track-changed signal ((current-track property)
  *  - allows pattern to sync with selected machine and not passively syncing
  *    (bt_main_page_patterns_show_machine())
  *  - we already have a cursor-row property and we could add a cursor-column
  *    property too (and get the notify::cursor-column for free)
  */
-/* @todo: handle pattern name changes
+/* TODO(ensonic): handle pattern name changes
  *   - when pattern gets renamed
  *     - we need to update the pattern list (if shown) - done
  *     - we need to update the sequence (if pattern is used)
@@ -56,16 +56,16 @@
  *       - right now we only watch for pattern add/remove for current track
  *       - we need to avoid to add the handler multiple times
  */
-/* @idea: add a follow playback checkbox to toolbar to en/disable sequence scrolling
+/* IDEA(ensonic): add a follow playback checkbox to toolbar to en/disable sequence scrolling
  *   - the scrolling causes quite some repaints and thus slowness
  *   - it would be good if we could deoouple the scolling and the events, so
  *     that we e.g. scroll 10 times a second to the latest position
  */
-/* @idea: bold row,label for cursor row
+/* IDEA(ensonic): bold row,label for cursor row
  *   - makes it easier to follow position in wide sequences
  *     (same needed for pattern view)
  */
-/* @idea: have a split horizontal command
+/* IDEA(ensonic): have a split horizontal command
  *   - we would share the hadjustment, but have separate vadjustments
  *   - the label-menu would require that we have a focused view
  */
@@ -74,7 +74,7 @@
  *   - cells are asked to do prelight, even if they wouldn't draw anything else
  *     http://www.gtk.org/plan/meetings/20041025.txt
  */
-/* @idea: programmable keybindings
+/* IDEA(ensonic): programmable keybindings
  * - we should define an enum for the key commands
  * - we should have a tables that maps keyval+state to one of the enums
  * - we should have a utility function to do the lookups
@@ -86,7 +86,7 @@
  *   - edit the bindings
  *   - save/load bindings to/from a named preset
  */
-/* @todo: improve sequence-grid-model use
+/* TODO(ensonic): improve sequence-grid-model use
  * - get rid of sequence_table_refresh_columns() calls (7)
  */
 
@@ -277,7 +277,7 @@ static gboolean label_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpoin
   gchar *label;
 
   // show only columns with labels
-  // @todo: have a boolean flag to avoid string copies
+  // TODO(ensonic): have a boolean flag to avoid string copies
   gtk_tree_model_get(store,iter,BT_SEQUENCE_GRID_MODEL_LABEL,&label,-1);
   g_free(label);
 
@@ -455,7 +455,7 @@ static gboolean sequence_view_set_cursor_pos(const BtMainPageSequence *self) {
   GtkTreePath *path;
   gboolean res=FALSE;
 
-  // @todo: http://bugzilla.gnome.org/show_bug.cgi?id=498010, fixed in 2008
+  // TODO(ensonic): http://bugzilla.gnome.org/show_bug.cgi?id=498010, fixed in 2008
   if(!GTK_IS_TREE_VIEW(self->priv->sequence_table) || !gtk_tree_view_get_model(self->priv->sequence_table)) return(FALSE);
 
   if((path=gtk_tree_path_new_from_indices((self->priv->cursor_row/self->priv->bars),-1))) {
@@ -1128,7 +1128,7 @@ static void sequence_table_refresh_model(const BtMainPageSequence *self,const Bt
 
   GST_INFO("refresh sequence table");
 
-  // @todo: in the future only do this when loading a new song
+  // TODO(ensonic): in the future only do this when loading a new song
   store=bt_sequence_grid_model_new(self->priv->sequence,self->priv->bars);
   g_object_set(store,"length",self->priv->sequence_length,"pos-format",self->priv->pos_format,NULL);
 
@@ -1238,7 +1238,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 
   gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(self->priv->label_menu),TRUE,TRUE,0);
 
-  /* FIXME: specifying 0, instead of -1, should yield 'as small as possible'
+  /* FIXME(ensonic): specifying 0, instead of -1, should yield 'as small as possible'
    * in reality it result in distorted overlapping widgets :(
    */
   gtk_widget_set_size_request(header,SEQUENCE_CELL_WIDTH,-1);
@@ -1297,7 +1297,7 @@ static void sequence_table_refresh_columns(const BtMainPageSequence *self,const 
 
   g_object_get(self->priv->sequence,"tracks",&track_ct,NULL);
 
-  // @todo: we'd like to update tjis instead of re-creating things
+  // TODO(ensonic): we'd like to update tjis instead of re-creating things
   // reset columns
   sequence_table_clear(self);
   // add initial columns
@@ -1345,7 +1345,7 @@ static void sequence_table_refresh_columns(const BtMainPageSequence *self,const 
       }
       g_object_get(machine,"id",&str,level_name,&level,NULL);
 
-      // @todo: add context menu like that in the machine_view to the header
+      // TODO(ensonic): add context menu like that in the machine_view to the header
 
       // create header widget
       header=gtk_hbox_new(FALSE,HEADER_SPACING);
@@ -1384,7 +1384,7 @@ static void sequence_table_refresh_columns(const BtMainPageSequence *self,const 
 
         g_hash_table_insert(machine_usage,machine,machine);
         // add M/S/B butons and connect signal handlers
-        // @todo: use colors from ui-resources
+        // TODO(ensonic): use colors from ui-resources
         button=make_mini_button("M",1.2, 1.0/1.25, 1.0/1.25,(state==BT_MACHINE_STATE_MUTE)); // red
         gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
         g_signal_connect(button,"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
@@ -1503,7 +1503,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     GST_INFO("refreshed pattern list for machine : %p,ref_ct=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
   }
   else {
-    // FIXME, do we need a dummy store? - yes for the column headers
+    // FIXME(ensonic): do we need a dummy store? - yes for the column headers
     //store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_BOOLEAN,G_TYPE_STRING);
     store=NULL;
     GST_INFO("no machine for cursor_column: %ld",self->priv->cursor_column);
@@ -1618,7 +1618,7 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
   g_object_get(self->priv->sequence,"length",&sequence_length,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
   if(row==-1) row=sequence_length;
   // use a keyboard qualifier to set loop_start and end
-  /* @todo should the sequence-view listen to notify::xxx ? */
+  /* TODO(ensonic): should the sequence-view listen to notify::xxx ? */
   switch(type) {
     case SEQUENCE_VIEW_POS_PLAY:
       if(play_pos!=row) {
@@ -1780,7 +1780,7 @@ static void sequence_remove_track(const BtMainPageSequence *self,gulong ix) {
 
 	if((machine=bt_sequence_get_machine(self->priv->sequence,ix))) {
 		// even though we can have multiple tracks per machine, we can disconnect them all, as we rebuild the treeview anyway
-		// FIXME: be careful when using the new sequence model
+		// FIXME(ensonic): be careful when using the new sequence model
 		g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
 		g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
 		g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
@@ -2816,7 +2816,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   bt_sequence_remove_track_by_machine(self->priv->sequence,machine);
 
   // reset selection
-  // @todo: only if it intersects with selection
+  // TODO(ensonic): only if it intersects with selection
   self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
 
   // reinit the view
@@ -2865,7 +2865,7 @@ static void on_track_removed(BtSequence *sequence,BtMachine *machine,gulong trac
 
 	g_free(mid);
 
-	/* @todo: can't update the view here as the signal is emitted before making the change
+	/* TODO(ensonic): can't update the view here as the signal is emitted before making the change
 	 * to allow us saving the content, this means number-of-tracks is not changed either
 	 */
 
@@ -3129,7 +3129,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   g_signal_connect(menu_item,"activate",G_CALLBACK(on_context_menu_machine_preferences_activate),(gpointer)self);
 
   // --
-  // @todo cut, copy, paste
+  // TODO(ensonic): cut, copy, paste
 
 
   // add a hpaned
@@ -3336,7 +3336,7 @@ BtMainPageSequence *bt_main_page_sequence_new(const BtMainPages *pages) {
 static void sequence_clipboard_get_func(GtkClipboard *clipboard,GtkSelectionData *selection_data,guint info,gpointer data) {
   GST_INFO("get clipboard data, info=%d, data=%p",info,data);
   GST_INFO("sending : [%s]",data);
-  // FIXME: do we need to format differently depending on info?
+  // FIXME(ensonic): do we need to format differently depending on info?
   if(selection_data->target==sequence_atom) {
     gtk_selection_data_set(selection_data,sequence_atom,8,(guchar *)data,strlen(data));
   }
@@ -3823,7 +3823,7 @@ static gboolean bt_main_page_sequence_change_logger_change(const BtChangeLogger 
 
       GST_DEBUG("-> [%lu|%lu]",ix_cur,ix_new);
       // we only move right/left by one right now
-      // @todo: but maybe better change that sequence API, then one function
+      // TODO(ensonic): but maybe better change that sequence API, then one function
       // would be all we need
       if(ix_cur>ix_new) {
         if(bt_sequence_move_track_left(self->priv->sequence,ix_cur)) {

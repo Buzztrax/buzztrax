@@ -4,7 +4,7 @@
  * GST_DEBUG="*:3" ./dynlink
  */
 
-/* TODO:
+/* TODO(ensonic):
  * - insert multiple elements
  * - handle newsegment
  * THOUGHTS
@@ -96,7 +96,7 @@ open_link (GstPad *run_src, GstPad *run_sink, gboolean is_playing)
       gst_pad_unlink (run_src, run_src_peer);
   }
   if (run_sink && run_src_peer != run_sink) {
-    /* TODO: flush data
+    /* TODO(ensonic): flush data
     if (is_playing) {
       pad_probe_on(run_sink_peer);
       gst_pad_send_event(run_src_peer, gst_event_new_eos());
@@ -174,7 +174,7 @@ gst_pads_insert_link (GstPad *run_src, GstPad *frag_sink, GstPad *frag_src, GstP
     }
     gst_event_unref (event);
   */
-  /* FIXME: this is not sufficient (assumes one element) */
+  /* FIXME(ensonic): this is not sufficient (assumes one element) */
   GstElement *new_elem = NULL;
   if (frag_sink) {
     new_elem=GST_ELEMENT(gst_pad_get_parent (frag_sink));

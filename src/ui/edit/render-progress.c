@@ -22,7 +22,7 @@
  *
  * Song recording status dialog.
  */
-/* @todo: 
+/* TODO(ensonic): 
  * turn off-level meters (and ev. open wire-analysis windows) to speed up recording
  */
 #define BT_EDIT
@@ -227,7 +227,7 @@ void bt_render_progress_run(const BtRenderProgress *self) {
       "record-format",format,
       NULL);
     
-    /* @todo: configure dithering/noise-shaping
+    /* TODO(ensonic): configure dithering/noise-shaping
      * - should sink-bin do it so that we get this also when recording from
      *   the commandline (need some extra cmdline options for it :/
      * - we could also put it to the options

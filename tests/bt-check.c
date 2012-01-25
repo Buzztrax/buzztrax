@@ -35,7 +35,7 @@
 
 void bt_check_init(void) {
 #if GST_CHECK_VERSION(0,10,16)
-  /* @todo: requires gst-0.10.16 */
+  /* TODO(ensonic): requires gst-0.10.16 */
   extern gboolean bt_test_plugin_init (GstPlugin * plugin);
   gst_plugin_register_static(GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
@@ -680,7 +680,7 @@ static gboolean check_readwrite_property(GParamSpec *paramspec, GObject *toCheck
  * object. Depending on the flags and the type of the properties, tests include
  * read/write and boundary checks.
  *
- * TODO:
+ * TODO(ensonic):
  * - tests limmits for integer/float props
  * - write twice to gobject props (to check if they unref the old one)
  * - test more type
@@ -969,7 +969,7 @@ void check_shutdown_test_display(void) {
         default_display,gdk_display_get_name(default_display));
     gdk_display_manager_set_default_display(display_manager,default_display);
     GST_INFO("display has been restored");
-    // TODO: here it hangs, hmm not anymore
+    // TODO(ensonic): here it hangs, hmm not anymore
     //gdk_display_close(test_display);
     /* gdk_display_close() does basically the following (which still hangs):
     //g_object_run_dispose (G_OBJECT (test_display));
@@ -992,7 +992,7 @@ void check_shutdown_test_server(void) {
     wait_for_server=TRUE;
     GST_INFO("shuting down test server");
 
-    // kill the testing server - @todo try other signals (SIGQUIT, SIGTERM).
+    // kill the testing server - TODO(ensonic): try other signals (SIGQUIT, SIGTERM).
     kill(server_pid, SIGINT);
     // wait for the server to finish (use waitpid() here ?)
     while(wait_for_server && wait_count) {
@@ -1086,8 +1086,8 @@ static void add_shadow_and_save(cairo_surface_t *image, gchar *filename, gint iw
   cairo_surface_destroy(shadow);
 }
 
-/* @todo: remember all names to build an index.html with a table and all images */
-/* @todo: create diff images
+/* TODO(ensonic): remember all names to build an index.html with a table and all images */
+/* TODO(ensonic): create diff images
  * - check if we have a ref image, skip otherwise
  * - should we have ref images in repo?
  * - own diff
@@ -1098,7 +1098,7 @@ static void add_shadow_and_save(cairo_surface_t *image, gchar *filename, gint iw
  * - need to make a html with table containing
  *   [ name, ref image, cur image, diff image ]
  */
-/* @todo: write a html image map for selected regions
+/* TODO(ensonic): write a html image map for selected regions
  * - allows xrefs to the related part in the docs
  * - having tooltips on images wuld be cool
  */
@@ -1265,7 +1265,7 @@ void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar 
     if((child=find_child(widget,r))) {
       // for label matches we look for a sensible parent
       if(r->match&BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_LABEL) {
-        // TODO: should the region include gtk_label_get_mnemonic_widget()?
+        // TODO(ensonic): should the region include gtk_label_get_mnemonic_widget()?
         if((parent=gtk_widget_get_ancestor(child,GTK_TYPE_BUTTON))) {
           child=parent;
         }
@@ -1287,7 +1287,7 @@ void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar 
       /* it seems that the API docs are lying and the allocations are relative to
        * the toplevel and not their parent
        */
-      // @todo: if we don't snapshot a top-level, we need to subtract the offset
+      // TODO(ensonic): if we don't snapshot a top-level, we need to subtract the offset
       gtk_widget_get_allocation(child,&a);
       wx=a.x*f;wy=a.y*f;ww=a.width*f;wh=a.height*f;
       GST_INFO("found widget at: %d,%d with %dx%d pixel size",a.x,a.y,a.width,a.height);

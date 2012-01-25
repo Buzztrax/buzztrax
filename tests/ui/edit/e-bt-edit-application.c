@@ -834,7 +834,7 @@ BT_START_TEST(test_machine_view_edit3) {
   // (ev. run for all combinations - if a test using all pages fails?)
   gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
   gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
-  // FIXME: having the sequence page enabled/disabled makes a difference
+  // FIXME(ensonic): having the sequence page enabled/disabled makes a difference
   //  between ref-leak and too many unrefs
   //gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
   //gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);

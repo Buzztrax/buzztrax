@@ -81,7 +81,7 @@ static gboolean watch_gstreamer(const BtGConfSettings * const self) {
   else {
     self->priv->watch_gstreamer=TRUE;
 
-    /* @todo: also listen to BT_GCONF_PATH_GSTREAMER"/audiosink" */
+    /* TODO(ensonic): also listen to BT_GCONF_PATH_GSTREAMER"/audiosink" */
   }
   return res;
 }

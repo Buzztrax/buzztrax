@@ -22,7 +22,7 @@
  *
  * List available GStreamer audio devices. User can pick and configure one.
  */
-/* @todo: add device selection
+/* TODO(ensonic): add device selection
  * - we already have the property probing code
  * - we need to add device selection (combobox)
  * - needs a way to store at least the current device
@@ -34,7 +34,7 @@
  * - we should probably parse the system-audiosink settings more to eventualy
  *   get the device from the setting
  */
-/* @todo: show the latency
+/* TODO(ensonic): show the latency
  * - gst_base_sink_get_latency()
  *   - when is that available?
  * - we have the latency caused by the fragment-size and depth of graph
@@ -154,7 +154,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->audiosink_menu=GTK_COMBO_BOX(gtk_combo_box_text_new());
 
-  /* @idea: we could use a real combo and use markup in the cells, to have the
+  /* IDEA(ensonic): we could use a real combo and use markup in the cells, to have the
    * description in small font below the sink name */
   if(system_audiosink_name) {
     GstElementFactory * const factory=gst_element_factory_find(system_audiosink_name);
@@ -169,9 +169,9 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   }
 
   audiosink_factories=bt_gst_registry_get_element_factories_matching_all_categories("Sink/Audio");
-  // @todo: sort list alphabetically ?
+  // TODO(ensonic): sort list alphabetically ?
 
-  /* @todo: use GST_IS_BIN(gst_element_factory_get_element_type(factory)) to skip bins
+  /* TODO(ensonic): use GST_IS_BIN(gst_element_factory_get_element_type(factory)) to skip bins
    * add autoaudiosink as the first and make it default
    *   but then again bins seem to be filtered out already, by below
    *
@@ -329,7 +329,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->channels_menu), 2, 3, 3, 4, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(self->priv->channels_menu, "changed", G_CALLBACK(on_channels_menu_changed), (gpointer)self);
 
-  /* @todo: add audiosink parameters
+  /* TODO(ensonic): add audiosink parameters
    * e.g. device-name
    * GstBaseSink: preroll-queue-len (buffers), max-lateness (ns)
    * GstBaseAudioSink: buffer-time (ms), latency-time (ms)

@@ -24,7 +24,7 @@
  * it has been moved.
  */
 
-/* @todo more graphics:
+/* TODO(ensonic): more graphics:
  * - use svg gfx (design/gui/svgcanvas.c )
  *   - need to have prerenderend images for current zoom level
  *     - idealy have them in ui-resources, in order to have them shared
@@ -41,15 +41,15 @@
  *   - use transparency for mute/bypass, solo would switch all other sources to
  *     muted, can't differenciate mute from bypass on an fx
  *
- * @todo: add insert before/after to context menu (see wire-canvas item)
+ * TODO(ensonic): add insert before/after to context menu (see wire-canvas item)
  *
- * @todo: play machines live (midi keyboard for playing notes and triggers)
+ * TODO(ensonic): play machines live (midi keyboard for playing notes and triggers)
  *   - for source-machine context menu add
  *     - one item "play with > [list of keyboard]"
  *     - one more item to disconnect
  *   - playing multiple machines with a split keyboard would be nice too
  *
- * @todo: "remove and relink" is difficult if there are non empty wire patterns
+ * TODO(ensonic): "remove and relink" is difficult if there are non empty wire patterns
  *   - those would need to be copied to new target machine(s) and we would need
  *     to add more tracks for playing them.
  *   - we could ask the user if that is what he wants:
@@ -57,11 +57,11 @@
  *     - "drop wire patterns"
  *     - "copy wire patterns"
  *
- * @todo: gray out "properties"/"preferences" items in context menu if resulting
+ * TODO(ensonic): gray out "properties"/"preferences" items in context menu if resulting
  * dialog would be empty
  * - can't do that yet as it is code in the dialog that implements the logic
  *
- * @todo; make the properties dialog a readable gobject property
+ * TODO(ensonic): make the properties dialog a readable gobject property
  * - then we can go over all of them from machine page and show/hide them
  */
 

@@ -30,7 +30,7 @@
  * And if 'ticks per beat' is 4 one will have 4 beats - a classic 4/4 meassure.
  * For a 3/4 meassure, 'bars' would be 12. Thus bars = beats * tpb.
  */
-/* @todo: add more metadata
+/* TODO(ensonic): add more metadata
  *  - copyright: GST_TAG_COPYRIGHT
  *    string: "(C) YYYY <SONG_INFO_AUTHOR>"
  *  - license: GST_TAG_LICENSE (http://creativecommons.org/licenses/)

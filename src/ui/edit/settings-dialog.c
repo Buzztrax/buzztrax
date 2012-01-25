@@ -125,7 +125,7 @@ static void on_settings_list_size_request(GtkWidget *widget,GtkRequisition *requ
     // lets hope that 32 gives enough space for window-decoration + panels
     height=max_height-32;
   }
-  // @todo: is the '2' some border or padding
+  // TODO(ensonic): is the '2' some border or padding
   gtk_widget_set_size_request(parent,-1,height + 2);
 }
 
@@ -248,7 +248,7 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_label_new(_("Playback Controller")));
 
   // add notebook page #4
-  // @todo: maybe turn that into a theme page (theme-name + colors + icons?)
+  // TODO(ensonic): maybe turn that into a theme page (theme-name + colors + icons?)
   page=gtk_vbox_new(FALSE,0);
   gtk_widget_set_name(GTK_WIDGET(page),"color settings");
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no color settings yet"));
@@ -271,7 +271,7 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_DIRECTORIES),
   gtk_label_new(_("Directories")));
 
-  /* @todo more settings
+  /* TODO(ensonic): more settings
    * - fonts
    *   - font + size for machine view canvas
    *   - font sizes for table-headings (as pango markup sizes)

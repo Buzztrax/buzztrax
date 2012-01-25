@@ -26,7 +26,7 @@ Suite *bt_settings_suite(void) {
 
   // setup/teardown provides different environments for each run
   suite_add_tcase(s,bt_gconf_settings_test_case());
-  // @todo: run it again when we have an implementation for the plainfile_settings
+  // TODO(ensonic): run it again when we have an implementation for the plainfile_settings
   //suite_add_tcase(s,bt_gconf_settings_test_case());
   return(s);
 }

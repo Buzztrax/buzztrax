@@ -31,7 +31,7 @@
  * the backends supports it changes in the settings will be notified to the
  * application by the GObject::notify signal.
  */
-/* @todo: how can we decouple application specific settings for core settings?
+/* TODO(ensonic): how can we decouple application specific settings for core settings?
  * We'd need to register schemas and create the GObject properties as needed.
  */
 #define BT_CORE
@@ -193,7 +193,7 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
     system_audiosink_name=NULL;
   }
   if(!plugin_name) {
-    // @todo: try autoaudiosink (if it exists)
+    // TODO(ensonic): try autoaudiosink (if it exists)
     // iterate over gstreamer-audiosink list and choose element with highest rank
     const GList *node;
     GList * const audiosink_factories=bt_gst_registry_get_element_factories_matching_all_categories("Sink/Audio");

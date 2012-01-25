@@ -100,7 +100,7 @@ static void bt_plainfile_settings_set_property(GObject * const object, const gui
     case BT_SETTINGS_AUDIOSINK: {
       gchar * const prop=g_value_dup_string(value);
       GST_DEBUG("application writes audiosink plainfile_settings : %s",prop);
-      // @todo set property value
+      // TODO(ensonic): set property value
       g_free(prop);
     } break;
      default: {

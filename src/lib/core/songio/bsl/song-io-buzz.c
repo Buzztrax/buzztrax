@@ -742,7 +742,7 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
 
     data_size=read_dword(self);
     if(data_size) {
-      /* @todo this contains machine specific init data
+      /* TODO(ensonic): this contains machine specific init data
        * we need to pass data_size + fileposition to bsl
        * g_object_set(machine, "blob-size", data_size, "blob-data", data, NULL);
        *
@@ -978,7 +978,7 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
         GST_DEBUG("    global-param %d (name=%s,type=%d,flag=%d)",j,param->name,param->type,param->flags);
         if((param->type==PT_NOTE) || (param->type==PT_SWITCH) || (param->type==PT_BYTE) || (param->type==PT_ENUM)) {
           val=(guint16)read_byte(self);
-          // @todo: note params need to be converted:
+          // TODO(ensonic): note params need to be converted:
           // valuestr=gstbt_tone_conversion_note_number_2_string(par);
         }
         else if(param->type==PT_WORD) {
@@ -1052,7 +1052,7 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
           GST_DEBUG("    voice-param %d (name=%s,type=%d,flag=%d)",k,param->name,param->type,param->flags);
           if((param->type==PT_NOTE) || (param->type==PT_SWITCH) || (param->type==PT_BYTE) || (param->type==PT_ENUM)) {
             val=(guint16)read_byte(self);
-            // @todo: note params need to be converted
+            // TODO(ensonic): note params need to be converted
             //if(track && (param->flags&PF_STATE) && (param->type!=PT_NOTE)) {
           }
           else if(param->type==PT_WORD) {
@@ -1142,7 +1142,7 @@ static gboolean read_conn_section(const BtSongIOBuzz *self,const BtSong *song) {
         GstElement *a_elem,*p_elem;
         GST_INFO("  creating wire %u, src=%p, dst=%p, amp=%u, pan=%u",i,src,dst,amp,pan);
         g_object_get(wire,"gain",&a_elem,"pan",&p_elem,NULL);
-        // @todo: buzz says 0x0=0% ... 0x4000=100%
+        // TODO(ensonic): buzz says 0x0=0% ... 0x4000=100%
         // does this ev. take number of connections into account?
         g_object_set(a_elem,"volume",(gdouble)amp/16384.0,NULL);
         if(p_elem) {
@@ -1241,7 +1241,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
           wire_pattern=NULL;
           wire_params=0;
         }
-        /* @todo: we might want to release the wire-pattern, if it was empty */
+        /* TODO(ensonic): we might want to release the wire-pattern, if it was empty */
         for(k=0;((k<number_of_ticks) && !self->priv->io_error);k++) {
           amp=read_word(self);
           pan=read_word(self);
@@ -1250,7 +1250,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
           if(wire_params>0) {
             if(amp!=0xFFFF) {
               GST_INFO("    wire-pattern data 0x%04x",amp);
-              // @todo: buzz says 0x0=0% ... 0x4000=100%
+              // TODO(ensonic): buzz says 0x0=0% ... 0x4000=100%
               g_ascii_dtostr(value,G_ASCII_DTOSTR_BUF_SIZE,(gdouble)amp/16384.0);
               bt_wire_pattern_set_event(wire_pattern,k,0,value);
             }
@@ -1286,7 +1286,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
                 valuestr=strcpy(value,"1");
               }
               else valuestr="";
-              // @todo: what about switch-off (0), switch-no (255)
+              // TODO(ensonic): what about switch-off (0), switch-no (255)
               GST_LOG("mapped global switch from %d to '%s'",par,valuestr);
             }
             else if (param->type==PT_ENUM) {
@@ -1366,7 +1366,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
                   valuestr=strcpy(value,"1");
                 }
                 else valuestr="";
-                // @todo: what about switch-off (0), switch-no (255)
+                // TODO(ensonic): what about switch-off (0), switch-no (255)
                 GST_LOG("mapped voice switch from %d to '%s'",par,valuestr);
               }
               else if (param->type==PT_ENUM) {

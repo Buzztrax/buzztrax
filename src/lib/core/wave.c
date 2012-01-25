@@ -22,10 +22,10 @@
  *
  * Represents one instrument. Contains one or more #BtWavelevels.
  */
-/* @todo: save sample file length and/or md5sum in file:
+/* TODO(ensonic): save sample file length and/or md5sum in file:
  * - if we miss files, we can do a xsesame search and use the details to verify
  * - when loading, we might also use the details as a sanity check
- * @idea: record wave-entries
+ * IDEA(ensonic): record wave-entries
  * - record wave from alsasrc
  *   - like we load & decode to tempfile, use this to record a sound
  *   - needs some dedicated ui for choosing the input, and format (m/s)
@@ -35,13 +35,13 @@
  *       there
  * - all recording features need some error handling when saving to plain xml
  *   song (no waves included)
- * @todo: bpm support
+ * TODO(ensonic): bpm support
  * - listen for tags when loading and show BPM for waves if we have it
  * -if we don't have bpm, but have the bpm detect plugin, offer detection in
  *   context menu
  * - if we have bpm and its different from song-bpm offer adjust in the contect
  *   menu to change base_notes to match it
- * @todo: when loading a wave from filesystem we need to somehow also make a
+ * TODO(ensonic): when loading a wave from filesystem we need to somehow also make a
  * copy of the original file to ensure that we can save it
  */
 #define BT_CORE
@@ -186,7 +186,7 @@ static void wave_loader_free(const BtWave *self) {
 }
 
 static void on_wave_loader_new_pad(GstElement *bin,GstPad *pad,gboolean islast,gpointer user_data) {
-  // @todo: if we pass the pad in user_data we can use gst_pad_link()
+  // TODO(ensonic): if we pass the pad in user_data we can use gst_pad_link()
   if(!gst_element_link(bin,GST_ELEMENT(user_data))) {
     GST_WARNING("Can't link output of wave decoder to converter.");
   }
@@ -334,7 +334,7 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
   }
   g_signal_connect(dec,"new-decoded-pad",G_CALLBACK(on_wave_loader_new_pad),(gpointer)conv);
 
-  /* @todo: during loading wave-data (into wavelevels)
+  /* TODO(ensonic): during loading wave-data (into wavelevels)
    * - use statusbar for loader progress ("status" property like in song_io)
    * - should we do some size checks to avoid unpacking the audio track of a full
    *   video on a machine with low memory
@@ -663,7 +663,7 @@ static BtPersistence *bt_wave_persistence_load(const GType type, const BtPersist
       param_name=va_arg(var_args,gchar*);
     }
 
-    /* @todo: ugly hack, don't pass uri_str yet, this would trigger loading
+    /* TODO(ensonic): ugly hack, don't pass uri_str yet, this would trigger loading
      * which we do below (see also: bt_wave_constructed) */
     self=bt_wave_new(song,(gchar*)name,NULL,index,volume,loop_mode,0);
     result=BT_PERSISTENCE(self);
@@ -789,7 +789,7 @@ static void bt_wave_constructed(GObject *object) {
 
   // some SongIO loaders load the wave themself and set the data
   if(self->priv->uri) {
-    // @todo: move stuff from bt_wave_persistence_load() into bt_wave_load_from_uri()
+    // TODO(ensonic): move stuff from bt_wave_persistence_load() into bt_wave_load_from_uri()
     // try to load wavedata
     if(!bt_wave_load_from_uri(self,self->priv->uri)) {
       GST_WARNING("Can't load wavedata from %s",self->priv->uri);

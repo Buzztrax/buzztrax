@@ -25,12 +25,12 @@
  * allows to editing and manage presets for machines that support them.
  */
 
-/* @todo: play machines
+/* TODO(ensonic): play machines
  * - we want to assign a note-controller to a machines note-trigger property
  *   and boolean-trigger controller to machines trigger properties
  *   - right now we don't show widgets for these
  *
- * @todo: add copy and paste (pattern data)
+ * TODO(ensonic): add copy and paste (pattern data)
  * - context menu for controls, "copy/paste value", "copy/paste  group", "copy/paste  all"
  * - context menu for expanders "copy/paste  group"
  */
@@ -145,7 +145,7 @@ static void free_param_group(gpointer data) {
 }
 
 #if 0
-// FIXME: parent is per parameter, we want the wire, machine or voice
+// FIXME(ensonic): parent is per parameter, we want the wire, machine or voice
 static ParamGroup *find_param_group_by_parent(gpointer key,gpointer value,gpointer user_data) {
   return (((ParamGroup *)value)->parent==user_data);
 }
@@ -422,7 +422,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
   if(!data)
     return;
 
-  /* FIXME: need to build an array[number_of_groups]
+  /* FIXME(ensonic): need to build an array[number_of_groups]
    * wire-groups (machine->dst_wires), global-group, voices-groups (0...)
    */
   groups=g_slice_alloc0(sizeof(gpointer)*number_of_groups);
@@ -472,7 +472,7 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
         // switch to next group or stop
         if(g<number_of_groups) {
           g++;p=0;
-          // FIXME: need array with group order
+          // FIXME(ensonic): need array with group order
           //pg=&self->priv->param_groups[g];
         }
         else {
@@ -650,7 +650,7 @@ static gchar* on_uint64_range_voice_property_format_value(GtkScale *scale, gdoub
   return(str);
 }
 
-// @todo: should we have this in btmachine.c?
+// TODO(ensonic): should we have this in btmachine.c?
 static void bt_machine_update_default_param_value(BtMachine *self,GstObject *param_parent, const gchar *property_name) {
   GstController *ctrl;
 
@@ -687,10 +687,10 @@ static void bt_machine_update_default_param_value(BtMachine *self,GstObject *par
     }
     g_object_unref(element);
 
-    /* @todo: it should actualy postpone the disable to the next timestamp
+    /* TODO(ensonic): it should actualy postpone the disable to the next timestamp
      * (not possible right now).
      *
-     * @idea: can we have a livecontrolsource that subclasses interpolationcs
+     * IDEA(ensonic): can we have a livecontrolsource that subclasses interpolationcs
      * - when enabling, if would need to delay the enabled to the next control-point
      * - it would need to peek at the control-point list :/
      */
@@ -751,7 +751,7 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
         gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
         gtk_widget_show(menu_item);
 
-        // @todo: copy parameter/group/all?
+        // TODO(ensonic): copy parameter/group/all?
         menu_item=gtk_image_menu_item_new_with_label(_("Copy parameter"));
         image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
@@ -821,7 +821,7 @@ static gboolean on_group_button_press_event(GtkWidget *widget, GdkEventButton *e
       pg=g_hash_table_lookup(self->priv->param_groups,widget);
 
       // create context menu
-      // @todo: do we leak that menu here? - gtk_widget_destroy() afterwards?
+      // TODO(ensonic): do we leak that menu here? - gtk_widget_destroy() afterwards?
       if(!self->priv->group_menu) {
         self->priv->group_menu=menu=GTK_MENU(g_object_ref_sink(gtk_menu_new()));
 
@@ -1489,7 +1489,7 @@ static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gp
   if(height>available_heigth) {
     height=available_heigth;
   }
-  // @todo: is the '2' some border or padding
+  // TODO(ensonic): is the '2' some border or padding
   gtk_widget_set_size_request(parent,width,height + 2);
 }
 
@@ -1511,7 +1511,7 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self,Gs
   widget=gtk_hscale_new_with_range(g_value_get_int(range_min),g_value_get_int(range_max),1.0);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
   gtk_range_set_value(GTK_RANGE(widget),value);
-  // @todo add numerical entry as well ?
+  // TODO(ensonic): add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
@@ -1537,7 +1537,7 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self,G
   widget=gtk_hscale_new_with_range(g_value_get_uint(range_min),g_value_get_uint(range_max),1.0);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
   gtk_range_set_value(GTK_RANGE(widget),value);
-  // @todo add numerical entry as well ?
+  // TODO(ensonic): add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
@@ -1563,7 +1563,7 @@ static GtkWidget *make_uint64_range_widget(const BtMachinePropertiesDialog *self
   widget=gtk_hscale_new_with_range((gdouble)g_value_get_uint64(range_min),(gdouble)g_value_get_uint64(range_max),1.0);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
   gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
-  // @todo add numerical entry as well ?
+  // TODO(ensonic): add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
@@ -1593,7 +1593,7 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
   widget=gtk_hscale_new_with_range(value_min,value_max,step);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
   gtk_range_set_value(GTK_RANGE(widget),value);
-  // @todo add numerical entry as well ?
+  // TODO(ensonic): add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
@@ -1622,7 +1622,7 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   widget=gtk_hscale_new_with_range(value_min,value_max,step);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
   gtk_range_set_value(GTK_RANGE(widget),value);
-  // @todo add numerical entry as well ?
+  // TODO(ensonic): add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
@@ -1861,7 +1861,7 @@ static void make_param_control(const BtMachinePropertiesDialog *self,GstObject *
   else {
     gtk_widget_set_tooltip_text(widget2,tool_tip_text);
     gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, row, row+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-    /* @todo how can we avoid the wobble here?
+    /* TODO(ensonic): how can we avoid the wobble here?
      * hack would be to set some 'good' default size
      * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
      */
@@ -2197,10 +2197,10 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   else GST_WARNING("can't create treeview column");
 
   // add list data
-  /* @todo: need a presets-changed signal refresh the list
+  /* TODO(ensonic): need a presets-changed signal refresh the list
    * - then we can also remove the preset_list_refresh() calls in the callback
    *   that change the presets
-   * @todo: need a presets-changed signal on the class level
+   * TODO(ensonic): need a presets-changed signal on the class level
    * - if we have two instances running, the other wants to reload the list
    */
   preset_list_refresh(self);
@@ -2298,7 +2298,7 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_reset_clicked),(gpointer)self);
 
-  // @todo: add copy/paste buttons
+  // TODO(ensonic): add copy/paste buttons
 
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_INDEX));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Show/Hide preset pane"));
@@ -2312,7 +2312,7 @@ static void bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog
     gchar *prop;
     gboolean hidden=TRUE;
 
-    /* @todo: add settings for "show presets by default" */
+    /* TODO(ensonic): add settings for "show presets by default" */
     g_object_get(self->priv->machine,"properties",&properties,NULL);
     if((prop=(gchar *)g_hash_table_lookup(properties,"presets-shown"))) {
       if(atoi(prop)) {

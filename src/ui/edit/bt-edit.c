@@ -43,7 +43,7 @@
 
 static void usage(int argc, char **argv, GOptionContext *ctx) {
 #if GLIB_CHECK_VERSION(2,14,0)
-// @idea: show as dialog?
+// IDEA(ensonic): show as dialog?
   gchar *help=g_option_context_get_help(ctx, TRUE, NULL);
   puts(help);
   g_free(help);

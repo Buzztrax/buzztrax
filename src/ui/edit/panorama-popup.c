@@ -26,7 +26,7 @@
 /* @bug: http://bugzilla.gnome.org/show_bug.cgi?id=511470
  * level of range widgets are draw always from left-to-right for some themes.
  *
- * @todo: use gtk_scale_add_mark() in gtk-2.16 instead of the ruler.
+ * TODO(ensonic): use gtk_scale_add_mark() in gtk-2.16 instead of the ruler.
  */
 
 #define BT_EDIT

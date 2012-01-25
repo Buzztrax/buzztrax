@@ -994,7 +994,7 @@ TCase *bt_setup_test_case(void) {
   tcase_add_test(tc,test_btsetup_obj18);
   tcase_add_test(tc,test_btsetup_wire1);
   tcase_add_test(tc,test_btsetup_wire2);
-  // @todo make test work
+  // TODO(ensonic): make test work
   //tcase_add_test(tc,test_btsetup_wire3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);

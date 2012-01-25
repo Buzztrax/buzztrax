@@ -24,7 +24,7 @@
  * Provides an editor widget for #BtPattern instances.
  */
 
-/* @todo:
+/* TODO(ensonic):
  * - block operations
  *       o copy
  *       o paste
@@ -40,7 +40,7 @@
  *   - having some 1 pixel padding left/right of groups would look better
  *     the group gap is one whole character anyway
  *
- * @idea: use gtk_widget_error_bell (widget); when hitting borders with cursor
+ * IDEA(ensonic): use gtk_widget_error_bell (widget); when hitting borders with cursor
  */
 /* for more performance, we need to render to memory surfaces and blit them when
  * scolling
@@ -631,7 +631,7 @@ static void bt_pattern_editor_unrealize(GtkWidget *widget)
   GTK_WIDGET_CLASS(bt_pattern_editor_parent_class)->unrealize(widget);
 }
 
-/* @todo: speedup
+/* TODO(ensonic): speedup
  * - refactor layout and redrawing
  *   - calculate layout in bt_pattern_editor_size_allocate() and cache (what exactly)
  *   - only redraw in expose
@@ -718,7 +718,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   if(self->play_pos>=0.0) {
     gdouble h=(gdouble)(bt_pattern_editor_get_col_height(self)-self->colhdr_height);
     y=self->colhdr_height+(gint)(self->play_pos*h) - self->ofs_y;
-    // @todo: check rect.y, rect.height
+    // TODO(ensonic): check rect.y, rect.height
     cairo_set_source_rgb(cr,self->play_pos_color[0],self->play_pos_color[1],self->play_pos_color[2]);
     cairo_set_line_width(cr, 2.0);
     cairo_move_to(cr,0,y);
@@ -730,7 +730,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   cairo_destroy(cr);
 
   if (G_UNLIKELY(self->size_changed)) {
-    // do this for resize the after the first redraw (see @todo above)
+    // do this for resize the after the first redraw (see TODO(ensonic): above)
     self->size_changed=FALSE;
     gtk_widget_queue_resize_no_redraw (widget);
   }
@@ -982,7 +982,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           if (!modifier) {
             if (self->row > 0) {
               bt_pattern_editor_refresh_cursor(self);
-              /* @todo: should we tell pattern editor about the meassure
+              /* TODO(ensonic): should we tell pattern editor about the meassure
                * g_object_get(song_info,"bars",&bars,NULL); for 4/4 => 16
                */
               if (control)
@@ -1001,7 +1001,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           if (!modifier) {
             if (self->row < self->num_rows - 1) {
               bt_pattern_editor_refresh_cursor(self);
-              /* @todo: see Page_Up */
+              /* TODO(ensonic): see Page_Up */
               self->row = control ? self->num_rows - 1 : self->row + 16;
               if (self->row > self->num_rows - 1)
                 self->row = self->num_rows - 1;

@@ -49,7 +49,7 @@ static void init() {
 
   /* from theme */
 
-  /* @todo: docs recommend to listen to GtkWidget::style-set and update icon or
+  /* TODO(ensonic): docs recommend to listen to GtkWidget::style-set and update icon or
    * do gdk_pixbuf_copy() to avoid gtk keeping icon-theme loaded if it changes
   */
   pixbuf=gtk_icon_theme_load_icon(it,img_name,size,0,&error);

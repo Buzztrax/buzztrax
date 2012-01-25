@@ -170,7 +170,7 @@ gboolean bt_song_io_native_bzt_copy_from_uri(const BtSongIONativeBZT * const sel
 
     GST_INFO("src uri : %s",uri);
 
-    // @idea: what about using gio here
+    // IDEA(ensonic): what about using gio here
     src_file_name=g_filename_from_uri(uri,NULL,NULL);
     if(src_file_name) {
       if(g_file_get_contents(src_file_name,&bytes,&size,&err)) {

@@ -33,7 +33,7 @@
  *
  * The patterns are used in the #BtSequence to form the score of a song.
  */
-/* @todo:
+/* TODO(ensonic):
  * - BtWirePattern is not a good name :/
  *   - maybe we can make BtPattern a base class and also have BtMachinePattern
  * - pattern editing
@@ -115,7 +115,7 @@ static guint signals[LAST_SIGNAL]={0,};
 
 /* Internal parameters:
  * - BtPatternCmd
- * @todo we need more params:
+ * TODO(ensonic): we need more params:
  * - BtMachineState
  *   - the machine state (BtMachineState: normal, mute, solo, bypass)
  */
@@ -1045,7 +1045,7 @@ static void _blend_column(const BtPattern * const self, const gulong start_tick,
 
   GST_INFO("blending gvalue type %s",G_VALUE_TYPE_NAME(end));
 
-  // @todo: should this honour the cursor stepping? e.g. enter only every second value
+  // TODO(ensonic): should this honour the cursor stepping? e.g. enter only every second value
 
   switch(base_type) {
   	_BLEND(int,INT)
@@ -1254,8 +1254,8 @@ static void _randomize_column(const BtPattern * const self, const gulong start_t
 
   GST_INFO("blending gvalue type %s",g_type_name(property->value_type));
 
-  // @todo: should this honour the cursor stepping? e.g. enter only every second value
-  // @todo: if beg and end are not empty, shall we use them as upper and lower
+  // TODO(ensonic): should this honour the cursor stepping? e.g. enter only every second value
+  // TODO(ensonic): if beg and end are not empty, shall we use them as upper and lower
   // bounds instead of the pspec values (ev. have a flag on the function)
 
   switch(base_type) {
@@ -1501,7 +1501,7 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
 
   GST_DEBUG("PERSISTENCE::pattern");
 
-  // @todo: hack, command-patterns start with "   "
+  // TODO(ensonic): hack, command-patterns start with "   "
   if(self->priv->name[0]==' ') return((xmlNodePtr)1);
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("pattern"),NULL))) {

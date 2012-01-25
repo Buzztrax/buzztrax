@@ -22,9 +22,9 @@
  *
  * Abstract base class for controls.
  */
-/* @todo: need flags=BTIC_CONTROL_ABS,BTIC_CONTROL_TRIGGER,... to quickly filter
+/* TODO(ensonic): need flags=BTIC_CONTROL_ABS,BTIC_CONTROL_TRIGGER,... to quickly filter
  *
- * @todo: new subclasses:
+ * TODO(ensonic): new subclasses:
  * - BTIC_CONTROL_KEY (midi keyboard, computer keyboard)
  *   - value would be a guint with the key-number (see GSTBT_NOTE_*)
  *   - if a midi keyboard is polyphonic, should it register multiple controls?

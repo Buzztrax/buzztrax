@@ -84,7 +84,7 @@ G_DEFINE_ABSTRACT_TYPE (BtSongIO, bt_song_io, G_TYPE_OBJECT);
 static void bt_song_io_register_plugins(void) {
   GDir *dir;
 
-  /* @idea: the plugin list now has structures
+  /* IDEA(ensonic): the plugin list now has structures
    * so that we could keep the modules handle.
    * we need this to close the plugins at sometime ... (do we?)
    */
@@ -144,7 +144,7 @@ static void bt_song_io_register_plugins(void) {
 }
 
 
-/* @todo add proper mime-type detection (gio) */
+/* TODO(ensonic): add proper mime-type detection (gio) */
 #if 0
   GFile *file;
   GFileInfo *info;

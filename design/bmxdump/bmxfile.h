@@ -300,7 +300,7 @@ struct BmxPattSection
     word numberOfTracks;
     char* name;
     word length;
-    // FIXME: missing pattern data!
+    // FIXME(ensonic): missing pattern data!
 };
 
 

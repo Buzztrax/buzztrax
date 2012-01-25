@@ -35,7 +35,7 @@ Algorithm:
 - loop over pending_tips[] and build new presented-tips string
   to be stored in settings
 */
-/* @idea: have a links to related help topics */
+/* IDEA(ensonic): have a links to related help topics */
 
 #define BT_EDIT
 #define BT_TIP_DIALOG_C

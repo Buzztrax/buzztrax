@@ -23,7 +23,7 @@
  * Each wave table entry can constist of multiple #BtWaves, were each of the
  * waves has a #BtWavelevel with the data for a note range.
  */
-/* @todo: defer freeing waves if playing
+/* TODO(ensonic): defer freeing waves if playing
  * - buzzmachines don't ref waves
  * - we can replace waves in the wavetable, but we should put the old ones in a to-be-freed list
  * - on song::stop we clear them
@@ -57,7 +57,7 @@ struct _BtWavetablePrivate {
   /* the song the wavetable belongs to */
   G_POINTER_ALIAS(BtSong *,song);
 
-  /* @idea: change to GPtrArray, the baseptr does not change when modifying and
+  /* IDEA(ensonic): change to GPtrArray, the baseptr does not change when modifying and
    * we can save the 'index' field in BtWave
    */
   GList *waves;         // each entry points to a BtWave
@@ -119,7 +119,7 @@ gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * co
       GST_DEBUG("replacing old wave with same id");
       self->priv->waves=g_list_remove(self->priv->waves,other_wave);
       //g_signal_emit((gpointer)self,signals[WAVE_REMOVED_EVENT], 0, wave);
-      /* @todo: if song::is-playing==TRUE add this to a  self->priv->old_waves
+      /* TODO(ensonic): if song::is-playing==TRUE add this to a  self->priv->old_waves
        * and wait for song::is-playing==FALSE and free then */
       g_object_unref(other_wave);
     }

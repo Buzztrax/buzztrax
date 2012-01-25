@@ -23,7 +23,7 @@
  * A dialog to inform about missing song machine and wave elements.
  */
 /*
- * @todo: support gst-codec-install (see missing-framework-elements-dialog.c)
+ * TODO(ensonic): support gst-codec-install (see missing-framework-elements-dialog.c)
  */
 #define BT_EDIT
 #define BT_MISSING_SONG_ELEMENTS_DIALOG_C

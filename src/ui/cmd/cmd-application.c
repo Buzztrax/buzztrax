@@ -23,7 +23,7 @@
  * This class implements the body of the buzztard commandline tool.
  * It provides application level function like play, convert and encode songs.
  */
-/* @todo: shouldn't we start a mainloop, then launch
+/* TODO(ensonic): shouldn't we start a mainloop, then launch
  * bt_cmd_application_play_song() in an idle callback, hookup the state-change
  * and the eos to quit the mainloop and run a timer for the play position prints
  * (if not in quite mode)
@@ -90,7 +90,7 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
   GST_INFO("received %s bus message from %s",
     GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
-  // @todo: check domain and code
+  // TODO(ensonic): check domain and code
   gst_message_parse_error(message, &err, &dbg);
   GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
 
@@ -108,7 +108,7 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
   GST_INFO("received %s bus message from %s",
     GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
-  // @todo: check domain and code
+  // TODO(ensonic): check domain and code
   gst_message_parse_warning(message, &err, &dbg);
   GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s)", err->message, (dbg ? dbg : "no details"));
 
@@ -174,7 +174,7 @@ static void bt_cmd_application_idle_play_song(const BtCmdApplication *self) {
   g_signal_connect((gpointer)song, "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   if(bt_song_play(song)) {
     GST_INFO("playing is starting, is_playing=%d",is_playing);
-    /* FIXME: this is a bad idea, now that we have a main loop
+    /* FIXME(ensonic): this is a bad idea, now that we have a main loop
      * we should start a g_timeout_add() from on_song_is_playing_notify()
      * and quit the main-loop there on eos
      */
@@ -269,7 +269,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
 
     g_object_get(machine,"machine",&sink_bin,"adder-convert",&convert,NULL);
 
-    /* @todo eventually have a method for the sink bin to only update once
+    /* TODO(ensonic): eventually have a method for the sink bin to only update once
      * after the changes, right now keep the order as it is, as sink-bin only
      * effectively switches once the file-name is set as well
      */
@@ -479,7 +479,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_fprintf(output_file,"song.setup.number_of_wires: %u\n",g_list_length(wires));
     for(node=machines;node;node=g_list_next(node)) {
       g_object_get(node->data,"patterns",&patterns,NULL);
-      // @todo: this include internal ones
+      // TODO(ensonic): this include internal ones
       n_patterns+=g_list_length(patterns);
       g_list_foreach(patterns,(GFunc)g_object_unref,NULL);
       g_list_free(patterns);

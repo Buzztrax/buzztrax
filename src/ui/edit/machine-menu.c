@@ -77,7 +77,7 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 
 static gint bt_machine_menu_compare(GstPluginFeature *f1, GstPluginFeature *f2) {
 #if 0
-  // @todo: this is fragmenting memory :/
+  // TODO(ensonic): this is fragmenting memory :/
   gchar *str1c=g_utf8_casefold(gst_plugin_feature_get_name(f1),-1);
   gchar *str2c=g_utf8_casefold(gst_plugin_feature_get_name(f2),-1);
   gint res=g_utf8_collate(str1c,str2c);
@@ -141,7 +141,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     factory=node->data;
     factory_name=gst_plugin_feature_get_name((GstPluginFeature *)factory);
 
-    // @todo: we could also hide elements without controlable parameters,
+    // TODO(ensonic): we could also hide elements without controlable parameters,
     // that derive from basesrc, but not from pushsrc
     // this could help to hide "dtmfsrc" and "sfsrc"
     // for this it would be helpful to get a src/sink hint from the previous function
