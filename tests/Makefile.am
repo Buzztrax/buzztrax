@@ -170,18 +170,20 @@ clean-local:
 	  /tmp/test.wav
 	-rmdir $(abs_builddir)/buzztard
 
-# run any given test by running make <test>.check
+# make check           -- run all checks
+# make (test).check    -- run the given check once
+#	make (test).check BT_CHECKS="test5*" -- run the given testcase(s) only
 %.check: %
 	@$(TESTS_ENVIRONMENT)	\
 	./$*
 
-# gdb any given test by running make <test>.gdb
+# make (test).gdb      -- start up gdb for the given test
 %.gdb: %
 	@CK_FORK=no		\
 	$(TESTS_ENVIRONMENT)	\
 	gdb ./$*
 
-# refdbg any given test by running make <test>.refdbg
+# make (test).refdbg   -- start up refdbg for the given test
 %.refdbg: %
 	@CK_FORK=no		\
 	$(TESTS_ENVIRONMENT)	\
@@ -202,6 +204,7 @@ if USE_BCOV
 ## LD_PRELOAD=../src/lib/core/.libs/libbuzztard-core.so.0.6.0 CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so.0.6.0 ./.libs/bt_cmd
 ## LD_PRELOAD=../src/lib/core/.libs/libbuzztard-core.so CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so ./.libs/bt_cmd
 ## CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so ./.libs/bt_cmd
+# make coverage        -- generate coverage report from make check run
 coverage:: $(TESTS_BIN)
 	echo "command make check" >.bcovdump.all; \
 	echo "date "`date` >>.bcovdump.all; \
@@ -234,16 +237,17 @@ VALOPTIONS = --trace-children=yes --num-callers=30 --read-var-info=yes \
   --tool=memcheck --leak-check=full --leak-resolution=high --track-origins=yes
 VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS) $(VALSUPPRESSION)
 
-# for file in /tmp/bt_core.valgrind.pid*; do grep -q "ERROR SUMMARY: 0 errors from 0 contexts" $file ; if test $? == 0; then rm $file; fi; done
-# grep -H "ERROR SUMMARY: " /tmp/bt_core.valgrind.pid* | uniq
+## for file in /tmp/bt_core.valgrind.pid*; do grep -q "ERROR SUMMARY: 0 errors from 0 contexts" $file ; if test $? == 0; then rm $file; fi; done
+## grep -H "ERROR SUMMARY: " /tmp/bt_core.valgrind.pid* | uniq
 
+# make valgrind        -- valgrind all tests
 valgrind:: $(TESTS_BIN)
 	for i in $^; do \
 	  rm -rf /tmp/$$i.valgrind.pid*; \
 	  $(VALCMD) --log-file=/tmp/$$i_valgrind.pid%p ./$$i; \
 	done
 
-# valgrind any given test by running make <test>.valgrind
+# make (test).valgrind -- valgrind the given test"
 %.valgrind: %
 	rm -rf /tmp/$*.valgrind.pid*; \
 	$(VALCMD) --log-file=/tmp/$*.valgrind.pid%p ./$*;
@@ -253,20 +257,11 @@ splint::
 	splint +posixlib -weak -I$(top_builddir) $(AM_CPPFLAGS) $(buzztard_SOURCES) $(bt_cmd_SOURCES) $(bt_edit_SOURCES)
 	for dir in $(SUBDIRS); do $(MAKE) -C $$dir splint ; done
 
-##find . -name "*.c" -exec grep -A7 -Hn "#ifdef __CHECK_DISABLED__" {}; echo "--" \;
-##grep -r -A7 -Hn --include="*.c" --color=auto "#ifdef __CHECK_DISABLED__" .
-todo::
-	grep -r -A1 -B6 -Hn --include="*.c" --color=auto "#ifdef __CHECK_DISABLED__" .
+# make test-status     -- show info about disabled tests
+test-status::
+	@grep -r -A2 -B6 -Hn --include="*.c" "#ifdef __CHECK_DISABLED__" . | grep -e '\.c-[0-9][0-9]*-\(\/\/\|\/\*\|\ \*\|ST\)' 
+	@echo "number of disabled tests"
+	@grep -r -Hn --include="*.c" --color=auto "#ifdef __CHECK_DISABLED__" . | wc -l
 
-help::
-	@echo "make check                   -- run all checks"
-	@echo "make (test).check            -- run the given check once"
-	@echo
-	@echo "make (test).gdb              -- start up gdb for the given test"
-	@echo
-	@echo "make valgrind                -- valgrind all tests"
-	@echo "make (test).valgrind         -- valgrind the given test"
-	@echo
-	@echo "make todo                    -- check for todos in tests"
-	@echo
-	@echo "BT_CHECKS=\"(testname)\" make (test).check -- run the given testcase only"
+include $(top_srcdir)/common.mak
+

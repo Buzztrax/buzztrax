@@ -907,6 +907,7 @@ BT_END_TEST
  * <reason ?>
  */
 #ifdef __CHECK_DISABLED__
+// test graph cycles
 BT_START_TEST(test_btsetup_wire3) {
   BtApplication *app=NULL;
   BtSong *song=NULL;

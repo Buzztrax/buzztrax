@@ -363,8 +363,9 @@ BT_END_TEST
 
 /* we moved these updates to the app, to give the undo/redo framework a chance
  * to backup the data
-  */
+ */
 #ifdef __CHECK_DISABLED__
+// test that removing patterns updates the sequence
 BT_START_TEST(test_btsequence_update) {
   BtApplication *app;
   GError *err=NULL;
