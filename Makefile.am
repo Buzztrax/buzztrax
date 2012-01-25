@@ -65,8 +65,9 @@ distuninstallcheck_listfiles += | grep -v '/share/mime'
 distuninstallcheck_listfiles += | grep -v 'icon-theme.cache'
 
 
-.PHONY: help coverage valgrind dict todo stats splint
+.PHONY: coverage valgrind dict cc10 cc20
 
+# make coverage        -- run all checks and generate html coverage report (only availble when built using --enable-coverage)
 if USE_LCOV
 coverage::
 	mkdir -p ./coverage
@@ -84,39 +85,23 @@ coverage::
 	bcov-report -i $(abs_top_builddir)/src tests/.bcovdump.all ./coverage
 endif
 
+# make valgrind        -- run all checks under valgrind
 if USE_VALGRIND
 valgrind::
 	$(MAKE) -C tests valgrind
 endif
 
+# make dict            -- create an aspell dictionary from tags
 dict:: tags
 	echo "personal_ws" >$(PACKAGE).aspell_dict
 	@find . -name tags -exec grep -v "$\!" {} \; | cut -f1 | sort | uniq >>$(PACKAGE).aspell_dict
 
-todo::
-	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
-	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
-
-stats::
-	@find . \( -name "*.c" -o -name "*.h" \) -printf "%s %p\n" | sort -n
-
-splint::
-	for dir in $(SRCDIRS); do $(MAKE) -C $$dir splint ; done
-
 # -k2 in sort for Tranditional McCabe Cyclomatic Complexity
-cc10:
+# make cc10            -- report McCabe Cyclomatic Complexity
+# make cc20            -- report McCabe Cyclomatic Complexity
+cc10::
 	@pmccabe `find src -name '*.c'` | sort -nr | awk '($$1 > 10)'
-
-cc20:
+cc20::
 	@pmccabe `find src -name '*.c'` | sort -nr | awk '($$1 > 20)'
 
-help::
-	@echo "make coverage                -- run all checks and generate html coverage report"
-	@echo "                                only availble when built using --enable-coverage"
-	@echo "make valgrind                -- run all checks under valgrind"
-	@echo
-	@echo "make dict                    -- create an aspell dictionary from tags"
-	@echo
-	@echo "make todo                    -- generate a list of TODO items in the form of gcc error/warnings"
-	@echo "make stats                   -- run source code stats"
-	@echo "make splint                  -- run splint source code checks"
+include $(top_srcdir)/common.mak

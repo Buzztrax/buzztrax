@@ -16,7 +16,4 @@ AM_CPPFLAGS = \
 	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
-.PHONY: splint
-
-splint::
-	splint +posixlib -weak -I$(top_builddir) $(AM_CPPFLAGS) $(libbt_cmd_check_la_SOURCES)
+include $(top_srcdir)/common.mak

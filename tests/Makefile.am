@@ -198,7 +198,7 @@ clean-local:
 ##	echo "build with --enable-debug=yes"
 ##	echo "========================================"
 
-.PHONY: splint coverage valgrind todo
+.PHONY: coverage valgrind test-status
 
 if USE_BCOV
 ## LD_PRELOAD=../src/lib/core/.libs/libbuzztard-core.so.0.6.0 CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so.0.6.0 ./.libs/bt_cmd
@@ -253,10 +253,6 @@ valgrind:: $(TESTS_BIN)
 	$(VALCMD) --log-file=/tmp/$*.valgrind.pid%p ./$*;
 endif
 
-splint::
-	splint +posixlib -weak -I$(top_builddir) $(AM_CPPFLAGS) $(buzztard_SOURCES) $(bt_cmd_SOURCES) $(bt_edit_SOURCES)
-	for dir in $(SUBDIRS); do $(MAKE) -C $$dir splint ; done
-
 # make test-status     -- show info about disabled tests
 test-status::
 	@grep -r -A2 -B6 -Hn --include="*.c" "#ifdef __CHECK_DISABLED__" . | grep -e '\.c-[0-9][0-9]*-\(\/\/\|\/\*\|\ \*\|ST\)' 
@@ -264,4 +260,3 @@ test-status::
 	@grep -r -Hn --include="*.c" --color=auto "#ifdef __CHECK_DISABLED__" . | wc -l
 
 include $(top_srcdir)/common.mak
-

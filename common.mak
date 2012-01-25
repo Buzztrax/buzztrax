@@ -1,6 +1,6 @@
 ## common makefile targets
 
-.PHONY: todo stats help
+.PHONY: todo stats splint help
 
 # make todo            -- generate a list of TODO items in the form of gcc error/warnings/notes"
 todo::
@@ -15,6 +15,17 @@ stats:: tags
 	@echo
 	@echo "files by tags:"
 	@for file in *.c; do size=`grep $${file} tags | wc -l`;echo $${size} $${file}; done | sort -rn
+
+## need all -I -D flags
+## ideally we use a gcc wrapper to dump the cpp flags for each file we compile
+## and use that, that'd be also useful for clang
+# make splint          -- check sources using splint
+splint::
+	@if test -n "*.c"; then \
+	  iflags=`grep -o -e '\-I[a-zA-Z0-9/.-]* ' Makefile | xargs echo`; \
+	  splint +posixlib -weak $$iflags *.c *.h; \
+	fi
+	@for dr in $(SUBDIRS); do $(MAKE) -C $$dir splint ; done
 
 # make help            -- this list
 help::
