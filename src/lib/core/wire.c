@@ -315,9 +315,11 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
      * else
      *    remove the queue
      *
-     * problem:
-     *   - we need to relink all outgoing wires for this src when adding or
-     *     removing a wire
+     * - we need to relink all outgoing wires for this src when adding or
+     *   removing a wire
+     * - maybe we can keep the queue elements and whenever we link/unlink a
+     *   wire, we check update the other wires. The update would link/unlink the
+     *   queue. See also the idle-loop section in song.c.
      */
     if(!bt_wire_make_internal_element(self,PART_QUEUE,"queue","queue")) return(FALSE);
     // configure the queue

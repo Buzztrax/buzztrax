@@ -60,6 +60,12 @@
  *     if(!is_playing)
  *       bt_song_idle_stop();
  *   }
+ *
+ * - unfortunately we have high latencies in live playback. This is due to the
+ *   queues in the wires (see bt_wire_link_machines()). Ideally we skip the
+ *   queue for one of wires connected to a src. We could optimize the live
+ *   latencies of one machine, by disabling most of the wires on its way. That
+ *   will not help though, when we play several machines live (using keyboards)
  */
 /* fast seeking
  * - see bt_song_change_play_rate()
