@@ -133,7 +133,7 @@ enum {
 
 // adder, capsfiter, level, volume are gap-aware
 typedef enum {
-  /* utillity elements to allow multiple inputs */
+  /* utillity element to allow multiple inputs */
   PART_ADDER=0,
   /* helper to enforce common format for adder inputs */
   PART_CAPS_FILTER,
@@ -149,7 +149,7 @@ typedef enum {
   PART_OUTPUT_PRE_LEVEL,
   PART_OUTPUT_GAIN,
   PART_OUTPUT_POST_LEVEL,
-  /* utillity elements to allow multiple outputs */
+  /* utillity element to allow multiple outputs */
   PART_SPREADER,
   /* how many elements are used */
   PART_COUNT
