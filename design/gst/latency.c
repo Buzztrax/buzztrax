@@ -45,13 +45,13 @@
  *
  * - make audiosink a parameter
  *   - ev. parse is using parse launch (needed to do "alsasink device=plughw:0")
- *   - gst_parse_bin_from_description(elem_name,FALSE;NULL) in make_machine()
+ *   - gst_parse_bin_from_description(elem_name,FALSE,NULL) in make_machine()
  *     if elem_name contains spaces
  *     - need to grab the sink from the bin to have the ptr in m->elem (there
  *       must be only one child!
  * - make blocksize divide a parameter
  * - run with various parameters from a meta-script
- * - try pull based scheduling!
+ * - try pull based scheduling! (can-activate-pull)
  */
 
 #include <stdio.h>
@@ -120,7 +120,17 @@ make_machine (Graph * g, const gchar * elem_name, const gchar * bin_name)
 
   m = g_new0 (Machine, 1);
   m->g = g;
-
+  
+#if 1
+  if (!(m->bin = (GstBin *) gst_parse_bin_from_description (elem_name, FALSE, NULL))) {
+    GST_ERROR ("Can't create bin");
+    exit (-1);
+  }
+  gst_object_set_name ((GstObject *) m->bin, bin_name);
+  gst_bin_add (g->bin, (GstElement *) m->bin);
+  
+  m->elem = m->bin->children->data;
+#else
   if (!(m->bin = (GstBin *) gst_bin_new (bin_name))) {
     GST_ERROR ("Can't create bin");
     exit (-1);
@@ -132,6 +142,7 @@ make_machine (Graph * g, const gchar * elem_name, const gchar * bin_name)
     exit (-1);
   }
   gst_bin_add (m->bin, m->elem);
+#endif
   
   return (m);
 }

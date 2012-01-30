@@ -6,12 +6,13 @@ else
   base="latency"
 fi
 
-dbg="$base.dbg"
-data="$base.dat"
-out="$base.png"
+dbg="${base}.dbg"
+data="${base}.dat"
+out="${base}.png"
+mkdir -p $base
 
-title=`grep "µs = " $dbg | cut -c89-`
-target=`echo $title | cut -d' ' -f5 | cut -d= -f2`
+title=`grep "µs=" $dbg | cut -c89-`
+target=`echo $title | cut -d':' -f2 | cut -d' ' -f5 | cut -d= -f2`
 grep ":data_probe:" $dbg | cut -c94- >$data
 
 cat <<EOF
@@ -30,7 +31,7 @@ EOF
 
 cut -d' ' -f1 $data | sort | uniq | while read pad; do
   pname=`echo $pad | tr ':' '_' | sed 's/[<>]//g'`
-  pdata="${pname}_${data}"
+  pdata="${base}/${pname}.dat"
   grep "$pad" "$data" | cut -d' ' -f2- >$pdata
   echo "\"$pdata\" using 1:2 with lines title \"$pname\", \\"
 done
