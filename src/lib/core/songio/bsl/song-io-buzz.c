@@ -996,10 +996,10 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
         }
         if(val!=param->defvalue && val!=param->novalue) {
           GST_DEBUG("      min/max-value check: %d <= %u <= %d?",param->minvalue,val,param->maxvalue);
-          if(val<param->minvalue) {
+          if((param->minvalue!=-1) && (val<param->minvalue)) {
             val=param->minvalue;
           }
-          else if(val>param->maxvalue) {
+          if((param->maxvalue!=-1) && (val>param->maxvalue)) {
             val=param->maxvalue;
           }
         }
@@ -1072,10 +1072,12 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
           }
           if(val!=param->defvalue && val!=param->novalue) {
             GST_DEBUG("      min/max-value check: %d <= %u <= %d?",param->minvalue,val,param->maxvalue);
-            if(val<param->minvalue)
+            if((param->minvalue!=-1) && (val<param->minvalue)) {
               val=param->minvalue;
-            else if(val>param->maxvalue)
+            }
+            if((param->maxvalue!=-1) && (val>param->maxvalue)) {
               val=param->maxvalue;
+            }
           }
           mach->track_parameter_state[j][k]=val;
 
