@@ -586,6 +586,7 @@ static void fill_machine_parameter(const BtSongIOBuzz *self,BmxParameter *param,
 
   param->type=GPOINTER_TO_INT(g_param_spec_get_qdata(pspec,gst_bml_property_meta_quark_type));
   if(no_para) {
+    GST_DEBUG("file BmxParameter from machine qdata");
     param->minvalue=GPOINTER_TO_INT(g_param_spec_get_qdata(pspec,gstbt_property_meta_quark_min_val));
     param->maxvalue=GPOINTER_TO_INT(g_param_spec_get_qdata(pspec,gstbt_property_meta_quark_max_val));
     param->defvalue=GPOINTER_TO_INT(g_param_spec_get_qdata(pspec,gstbt_property_meta_quark_def_val));
@@ -594,6 +595,7 @@ static void fill_machine_parameter(const BtSongIOBuzz *self,BmxParameter *param,
   }
   else {
     gint val;
+    GST_DEBUG("sync BmxParameter with machine qdata");
     val=GPOINTER_TO_INT(g_param_spec_get_qdata(pspec,gstbt_property_meta_quark_min_val));
     if(val!=param->minvalue) {
       GST_WARNING("file has diffent min-value for parameter %s, file=%u != machine=%d",param->name,param->minvalue,val);
@@ -986,17 +988,19 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
         }
         if(param->flags&PF_STATE) {
           // only trigger params need no_val handling
-          GST_DEBUG("      no-value check: %u == no-value %u ? => def-value %u",val,param->novalue,param->defvalue);
+          GST_DEBUG("      no-value check: %u == no-value %d ? => def-value %d",val,param->novalue,param->defvalue);
           if (val==param->novalue) {
             val=param->defvalue;
           }
         }
         if(val!=param->defvalue && val!=param->novalue) {
-          GST_DEBUG("      min/max-value check: %u <= %u <= %u?",param->minvalue,val,param->maxvalue);
-          if(val<param->minvalue)
+          GST_DEBUG("      min/max-value check: %d <= %u <= %d?",param->minvalue,val,param->maxvalue);
+          if(val<param->minvalue) {
             val=param->minvalue;
-          else if(val>param->maxvalue)
+          }
+          else if(val>param->maxvalue) {
             val=param->maxvalue;
+          }
         }
         mach->global_parameter_state[j]=val;
 
@@ -1060,13 +1064,13 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
           }
           if(param->flags&PF_STATE) {
             // only trigger params need no_val handling
-            GST_DEBUG("      no-value check: %u == no-value %u ? => def-value %u",val,param->novalue,param->defvalue);
+            GST_DEBUG("      no-value check: %u == no-value %d ? => def-value %d",val,param->novalue,param->defvalue);
             if (val==param->novalue) {
               val=param->defvalue;
             }
           }
           if(val!=param->defvalue && val!=param->novalue) {
-            GST_DEBUG("      min/max-value check: %u <= %u <= %u?",param->minvalue,val,param->maxvalue);
+            GST_DEBUG("      min/max-value check: %d <= %u <= %d?",param->minvalue,val,param->maxvalue);
             if(val<param->minvalue)
               val=param->minvalue;
             else if(val>param->maxvalue)
@@ -1076,7 +1080,7 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
 
           // set parameter
           if(track && (param->flags&PF_STATE) && (k<number_of_track_params)) {
-            GST_DEBUG("    voice-param %d (name=%s), %u",k,param->name,val);
+            GST_DEBUG("    voice-param %d (name=%s), %d",k,param->name,val);
             g_object_set(track,param->name,val,NULL);
           }
         }

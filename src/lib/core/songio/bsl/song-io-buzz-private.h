@@ -54,14 +54,14 @@ typedef struct {
   guint16 **track_parameter_state;
 } BmxMachSection;
 
-typedef struct {
+typedef struct { // almost like CMachineParameter
   guint8 type;
   gchar *name;
-  guint minvalue;
-  guint maxvalue;
-  guint novalue;
-  guint flags;
-  guint defvalue;
+  gint minvalue;
+  gint maxvalue;
+  gint novalue;
+  gint flags;
+  gint defvalue;
 } BmxParameter;
 
 typedef struct {
