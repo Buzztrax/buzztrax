@@ -560,7 +560,7 @@ static BmxParameter *read_parameters(const BtSongIOBuzz *self,guint32 number,gui
     param->novalue=read_int(self);
     param->flags=read_int(self);
     param->defvalue=read_int(self);
-    GST_DEBUG("%u : %s : min/max/no/def = %d,%d,%d,%d",j,param->name
+    GST_DEBUG("%u : %s : min/max/no/def = %d,%d,%d,%d",j,param->name,
       param->minvalue,param->maxvalue,param->novalue,param->defvalue);
   }
   return(params);
