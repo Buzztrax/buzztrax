@@ -1004,7 +1004,7 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
         //if(element && (param->flags&PF_STATE) && (param->type!=PT_NOTE)) {
         if(element && (param->flags&PF_STATE) && (j<number_of_global_params)) {
           if(mach->type) {
-            GST_DEBUG("    global-param %d (name=%s), %d",j,param->name,val);
+            GST_DEBUG("    global-param %d (name=%s), %u",j,param->name,val);
             g_object_set(element,param->name,val,NULL);
           }
         }
@@ -1075,8 +1075,8 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
           mach->track_parameter_state[j][k]=val;
 
           // set parameter
-          if(track && (param->flags&PF_STATE) && (j<number_of_track_params)) {
-            GST_DEBUG("    voice-param %d (name=%s), %d",k,param->name,val);
+          if(track && (param->flags&PF_STATE) && (k<number_of_track_params)) {
+            GST_DEBUG("    voice-param %d (name=%s), %u",k,param->name,val);
             g_object_set(track,param->name,val,NULL);
           }
         }

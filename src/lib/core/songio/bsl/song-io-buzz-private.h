@@ -57,11 +57,11 @@ typedef struct {
 typedef struct {
   guint8 type;
   gchar *name;
-  gint minvalue;
-  gint maxvalue;
-  gint novalue;
-  gint flags;
-  gint defvalue;
+  guint minvalue;
+  guint maxvalue;
+  guint novalue;
+  guint flags;
+  guint defvalue;
 } BmxParameter;
 
 typedef struct {
