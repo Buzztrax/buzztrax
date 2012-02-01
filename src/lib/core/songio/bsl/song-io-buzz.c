@@ -560,7 +560,8 @@ static BmxParameter *read_parameters(const BtSongIOBuzz *self,guint32 number,gui
     param->novalue=read_int(self);
     param->flags=read_int(self);
     param->defvalue=read_int(self);
-    GST_DEBUG("%d : %s",j,param->name);
+    GST_DEBUG("%u : %s : min/max/no/def = %d,%d,%d,%d",j,param->name
+      param->minvalue,param->maxvalue,param->novalue,param->defvalue);
   }
   return(params);
 }
@@ -635,7 +636,7 @@ static gboolean read_section_table(const BtSongIOBuzz *self) {
     read_section_name(self,entry->name);
     entry->offset=read_dword(self);
     entry->size=read_dword(self);
-    GST_INFO("  section %2d : %c%c%c%c off=%d size=%d",i,entry->name[0],entry->name[1],entry->name[2],entry->name[3],entry->offset,entry->size);
+    GST_INFO("  section %2u : %c%c%c%c off=%d size=%d",i,entry->name[0],entry->name[1],entry->name[2],entry->name[3],entry->offset,entry->size);
   }
   return(result);
 }
@@ -681,7 +682,7 @@ static gboolean read_para_section(const BtSongIOBuzz *self,const BtSong *song) {
     para->number_of_global_params=read_dword(self);
     para->number_of_track_params=read_dword(self);
 
-    GST_INFO("  %d : \"%s\" \"%s\" : %d, %d",i,para->name,para->long_name,para->number_of_global_params,para->number_of_track_params);
+    GST_INFO("  %u : \"%s\" \"%s\" : %d, %d",i,para->name,para->long_name,para->number_of_global_params,para->number_of_track_params);
 
     para->global_params=read_parameters(self,para->number_of_global_params,entry->size);
     para->track_params=read_parameters(self,para->number_of_track_params,entry->size);
