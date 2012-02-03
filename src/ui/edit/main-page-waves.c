@@ -689,19 +689,6 @@ static void on_wavelevel_loop_end_edited(GtkCellRendererText *cellrenderertext,g
   }
 }
 
-static void on_wave_loading_done(BtWave *wave,gboolean success,gpointer user_data) {
-  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
-
-  if(success) {
-    waves_list_refresh(self);
-    GST_DEBUG("loading done, refreshing");
-  }
-  else {
-    // TODO(ensonic): error message
-    GST_WARNING("loading the wave failed");
-  }
-}
-
 static void on_volume_changed(GtkRange *range,gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   BtWave *wave;
@@ -804,7 +791,6 @@ static void on_wavelevels_list_cursor_changed(GtkTreeView *treeview,gpointer use
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   BtSong *song;
-  BtWave *wave;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
@@ -814,11 +800,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   g_object_try_unref(self->priv->wavetable);
   g_object_get(song,"wavetable",&self->priv->wavetable,NULL);
-  // update page
-  if((wave=waves_list_get_current(self))) {
-    g_signal_connect(wave,"loading-done",G_CALLBACK(on_wave_loading_done),(gpointer)self);
-    g_object_unref(wave);
-  }
   waves_list_refresh(self);
   on_wavelevels_list_cursor_changed(self->priv->waves_list,self);
   // release the references
@@ -1060,11 +1041,8 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
     if((ext=strrchr(name,'.'))) *ext='\0';
     g_free(tmp_name);
     wave=bt_wave_new(song,name,uri,id,1.0,BT_WAVE_LOOP_MODE_OFF,0);
-    // IDEA(ensonic): listen to status property on wave for loader updates
     bt_edit_application_set_song_unsaved(self->priv->app);
-
-    // listen to wave::loaded signal and refresh the wave list on success
-    g_signal_connect(wave,"loading-done",G_CALLBACK(on_wave_loading_done),(gpointer)self);
+    waves_list_refresh(self);
 
     // release the references
     g_object_unref(wave);
