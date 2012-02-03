@@ -181,7 +181,7 @@ BT_START_TEST(test_btsong_play1) {
   fail_unless(res, NULL);
   
   // TODO(ensonic): this needs a mainloop!
-  sleep(1);
+  g_usleep(G_USEC_PER_SEC/10);
   // this song is very short!
   //g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
   //fail_unless(is_playing, NULL);
@@ -190,7 +190,7 @@ BT_START_TEST(test_btsong_play1) {
   bt_song_stop(song);
 
   // TODO(ensonic): this needs a mainloop!
-  sleep(1);
+  g_usleep(G_USEC_PER_SEC/10);
 
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
   fail_unless(!is_playing, NULL);
@@ -227,7 +227,7 @@ BT_START_TEST(test_btsong_play2) {
     fail_unless(res, NULL);
   
     // TODO(ensonic): this needs a mainloop!
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
     //fail_unless(play_signal_invoked, NULL);
     bt_song_stop(song);
     //play_signal_invoked=FALSE;
@@ -264,7 +264,7 @@ BT_START_TEST(test_btsong_play3) {
   fail_unless(res, NULL);
 
   // TODO(ensonic): this needs a mainloop!
-  sleep(2);
+  g_usleep(G_USEC_PER_SEC/10);
   
   // change audiosink
   g_object_set(settings,"audiosink","fakesink",NULL);
@@ -306,7 +306,7 @@ BT_START_TEST(test_btsong_play4) {
   fail_unless(res, NULL);
 
   // TODO(ensonic): this needs a mainloop!
-  sleep(2);
+  g_usleep(G_USEC_PER_SEC/10);
   //fail_unless(play_signal_invoked, NULL);
   bt_song_stop(song);
 
@@ -395,7 +395,7 @@ BT_START_TEST(test_btsong_idle1) {
   g_object_set(G_OBJECT(song),"is-idle",TRUE,NULL);
   
   // TODO(ensonic): this needs a mainloop!
-  sleep(2);
+  g_usleep(G_USEC_PER_SEC/10);
   g_object_set(G_OBJECT(song),"is-idle",FALSE,NULL);
 
   g_object_checked_unref(loader);
@@ -425,14 +425,14 @@ BT_START_TEST(test_btsong_idle2) {
   g_object_set(G_OBJECT(song),"is-idle",TRUE,NULL);
 
   // TODO(ensonic): this needs a mainloop!
-  sleep(1);
+  g_usleep(G_USEC_PER_SEC/10);
   
   // start regular playback, this should stop the idle loop
   res=bt_song_play(song);
   fail_unless(res, NULL);
 
   // TODO(ensonic): this needs a mainloop!
-  sleep(1);
+  g_usleep(G_USEC_PER_SEC/10);
 
   // this song is very short!
   //g_object_get(G_OBJECT(song),"is-playing",&is_playing,"is-idle",&is_idle,NULL);
@@ -442,7 +442,7 @@ BT_START_TEST(test_btsong_idle2) {
   bt_song_stop(song);
 
   // TODO(ensonic): this needs a mainloop!
-  sleep(1);
+  g_usleep(G_USEC_PER_SEC/10);
   
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,"is-idle",&is_idle,NULL);
   fail_unless(!is_playing, NULL);

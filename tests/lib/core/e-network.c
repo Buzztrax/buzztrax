@@ -100,7 +100,7 @@ BT_START_TEST(test_btcore_net_static1) {
   /* try to start playing the song */
   if(bt_song_play(song)) {
     mark_point();
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
     /* stop the song */
     bt_song_stop(song);
   } else {
@@ -177,7 +177,7 @@ BT_START_TEST(test_btcore_net_static2) {
   /* try to start playing the song */
   if(bt_song_play(song)) {
     mark_point();
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
     /* stop the song */
     bt_song_stop(song);
   } else {
@@ -270,7 +270,7 @@ BT_START_TEST(test_btcore_net_static3) {
   /* try to start playing the song */
   if(bt_song_play(song)) {
     mark_point();
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
     /* stop the song */
     bt_song_stop(song);
   } else {
@@ -361,7 +361,7 @@ BT_START_TEST(test_btcore_net_static4) {
   /* try to start playing the song */
   if(bt_song_play(song)) {
     mark_point();
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
     /* stop the song */
     bt_song_stop(song);
   } else {
@@ -382,7 +382,7 @@ BT_START_TEST(test_btcore_net_static4) {
   /* try to start playing the song again */
   if(bt_song_play(song)) {
     mark_point();
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
     /* stop the song */
     bt_song_stop(song);
   } else {
@@ -447,7 +447,7 @@ BT_START_TEST(test_btcore_net_dynamic_add_src) {
   /* try to start playing the song */
   if(bt_song_play(song)) {
     mark_point();
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
     GST_DEBUG("song plays");
 
     /* try to create generator1 */
@@ -462,7 +462,7 @@ BT_START_TEST(test_btcore_net_dynamic_add_src) {
     fail_unless(err==NULL, NULL);
     GST_DEBUG("wire added");
 
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
 
     /* stop the song */
     bt_song_stop(song);
@@ -541,14 +541,14 @@ BT_START_TEST(test_btcore_net_dynamic_rem_src) {
   /* try to start playing the song */
   if(bt_song_play(song)) {
     mark_point();
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
     GST_DEBUG("song plays");
 
     /* try to unlink machines */
     bt_setup_remove_wire(setup,wire2);
     GST_DEBUG("wire removed");
 
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
 
     /* stop the song */
     bt_song_stop(song);
@@ -618,7 +618,7 @@ BT_START_TEST(test_btcore_net_dynamic_add_proc) {
   /* try to start playing the song */
   if(bt_song_play(song)) {
     mark_point();
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
     GST_DEBUG("song plays");
 
     /* try to create a processor with volume */
@@ -636,7 +636,7 @@ BT_START_TEST(test_btcore_net_dynamic_add_proc) {
     fail_unless(wire3!=NULL, NULL);
     fail_unless(err==NULL, NULL);
 
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
 
     /* stop the song */
     bt_song_stop(song);
@@ -722,7 +722,7 @@ BT_START_TEST(test_btcore_net_dynamic_rem_proc) {
   /* try to start playing the song */
   if(bt_song_play(song)) {
     mark_point();
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
     GST_DEBUG("song plays");
 
     /* try to unlink machines */
@@ -732,7 +732,7 @@ BT_START_TEST(test_btcore_net_dynamic_rem_proc) {
     bt_setup_remove_wire(setup,wire3);
     GST_DEBUG("wire 2 removed");
 
-    sleep(1);
+    g_usleep(G_USEC_PER_SEC/10);
 
     /* stop the song */
     bt_song_stop(song);

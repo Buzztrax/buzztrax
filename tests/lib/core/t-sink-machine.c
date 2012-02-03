@@ -203,7 +203,7 @@ BT_START_TEST(test_btsinkmachine_play1) {
 
   res=bt_song_play(song);
   fail_unless(res, NULL);
-  sleep(1);
+  g_usleep(G_USEC_PER_SEC/10);
   bt_song_stop(song);
 
   g_object_unref(settings);
@@ -235,7 +235,7 @@ BT_START_TEST(test_btsinkmachine_play2) {
 
   res=bt_song_play(song);
   fail_unless(res, NULL);
-  sleep(1);
+  g_usleep(G_USEC_PER_SEC/10);
   bt_song_stop(song);
 
   g_object_unref(settings);
@@ -267,7 +267,7 @@ BT_START_TEST(test_btsinkmachine_play3) {
 
   res=bt_song_play(song);
   fail_unless(res, NULL);
-  sleep(1);
+  g_usleep(G_USEC_PER_SEC/10);
   bt_song_stop(song);
 
   g_object_unref(settings);

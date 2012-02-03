@@ -149,7 +149,7 @@ BT_START_TEST(test_btsong_play3) {
   fail_unless(res, NULL);
 
   // TODO(ensonic): this needs a mainloop!
-  sleep(1);
+  g_usleep(G_USEC_PER_SEC/10);
   //fail_unless(play_signal_invoked, NULL);
   
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple2.xml"));

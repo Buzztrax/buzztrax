@@ -141,7 +141,7 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
 }
 BT_END_TEST
 
-/* for testing we use autoaudiosink and that slows down loging files here :/ */
+/* for testing we use autoaudiosink and that slows down logging files here :/ */
 BT_START_TEST(test_btsong_io_native_song_refcounts) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
@@ -323,7 +323,6 @@ BT_START_TEST(test_btsong_io_write_song3) {
   BtWire *wire;
   BtPattern *pattern;
   BtWave *wave;
-  BtWavelevel *wave_level;
   BtSongIO *song_io;
   gboolean res;
   gchar *song_path,*song_name;
@@ -359,19 +358,6 @@ BT_START_TEST(test_btsong_io_write_song3) {
     fail_unless(wave != NULL, NULL);
     
     GST_INFO("  song created");
-
-    /* loading waves is async and we need to wait a bit
-     * FIXME(ensonic): we need to wait for wave:loading-done
-     * (this might also cause hassle in the ui, if loading big samples and saving before they are loaded)
-     */
-    while(!(wave_level=bt_wave_get_level_by_index(wave,0))) {
-      // FIXME(ensonic): bah, this can trigger random left-over callbacks from previous
-      // tests
-      while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
-    }
-    g_object_unref(wave_level);
-    
-    GST_INFO("  wave loaded");
 
     /* save the song*/
     song_io=bt_song_io_from_file(song_path);
