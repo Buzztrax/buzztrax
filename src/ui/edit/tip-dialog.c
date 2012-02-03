@@ -35,7 +35,11 @@ Algorithm:
 - loop over pending_tips[] and build new presented-tips string
   to be stored in settings
 */
-/* IDEA(ensonic): have a links to related help topics */
+/* IDEA(ensonic): have a links to related help topics
+ * IDEA(ensonic): make this less annoying:
+ *   - an info-banner that has an auto-hide
+ *   - a tips page in the docs 
+ */
 
 #define BT_EDIT
 #define BT_TIP_DIALOG_C
@@ -57,7 +61,8 @@ static gchar *tips[]={
   N_("Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input."),
   N_("The wire volume control pops up upon a click on the arrow box on the wire."),
   N_("The wire panorama/balance control pops up upon a shift+click on the arrow box on the wire if available."),
-  N_("One can copy settings from the machine window (from the context menu of a group) and paste them to patterns and the other way around.")
+  N_("One can copy settings from the machine window (from the context menu of a group) and paste them to patterns and the other way around."),
+  N_("Install extra machines from http://buzzmachines.sf.net.")
 };
 
 struct _BtTipDialogPrivate {
