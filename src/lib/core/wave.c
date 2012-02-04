@@ -342,10 +342,10 @@ Error:
  */
 static gboolean bt_wave_save_to_fd(const BtWave * const self) {
   gboolean res=TRUE;
-  GstElement *pipeline;
+  GstElement *pipeline=NULL;
   GstElement *src,*fmt,*enc,*sink;
   BtWavelevel *wavelevel;
-  GstBus *bus;
+  GstBus *bus=NULL;
   GstCaps *caps;
   //gchar *fn_wav;
   gulong srate,length,size,written;
