@@ -283,9 +283,7 @@ static void bt_audio_session_init(BtAudioSession *self) {
 
   GST_INFO("!!!! self=%p",self);
   
-  // FIXME(ensonic): swicth back once we properly hooked it up to the UI
-  //self->priv->transport_mode = BT_AUDIO_SESSION_TRANSPORT_MODE_AUTONOMOUS;
-  self->priv->transport_mode = BT_AUDIO_SESSION_TRANSPORT_MODE_SLAVE;
+  self->priv->transport_mode = BT_AUDIO_SESSION_TRANSPORT_MODE_AUTONOMOUS;
 
   GST_INFO("done");
 }
