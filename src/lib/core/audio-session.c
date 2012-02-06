@@ -114,8 +114,7 @@ static void bt_audio_session_setup(void) {
       gst_object_sink(audio_sink);
       GST_WARNING("created session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
       
-      // FIXME(ensonic): use transport_mode
-      g_object_set(audio_sink,"transport",2,NULL);
+      g_object_set(audio_sink,"transport",singleton->priv->transport_mode,NULL);
 
       // we need this hack to make the ports show up
       bin = gst_pipeline_new("__kickstart__");
@@ -233,6 +232,9 @@ static void bt_audio_session_set_property(GObject * const object, const guint pr
   switch (property_id) {
     case AUDIO_SESSION_TRANSPORT_MODE:
       self->priv->transport_mode=g_value_get_enum(value);
+      if (self->priv->audio_sink) {
+        g_object_set(self->priv->audio_sink,"transport",self->priv->transport_mode,NULL);
+      }
       break;
     case AUDIO_SESSION_AUDIO_SINK_NAME:
       g_free(self->priv->audio_sink_name);
@@ -280,6 +282,10 @@ static void bt_audio_session_init(BtAudioSession *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_AUDIO_SESSION, BtAudioSessionPrivate);
 
   GST_INFO("!!!! self=%p",self);
+  
+  // FIXME(ensonic): swicth back once we properly hooked it up to the UI
+  //self->priv->transport_mode = BT_AUDIO_SESSION_TRANSPORT_MODE_AUTONOMOUS;
+  self->priv->transport_mode = BT_AUDIO_SESSION_TRANSPORT_MODE_SLAVE;
 
   GST_INFO("done");
 }
