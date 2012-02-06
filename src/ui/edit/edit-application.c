@@ -79,6 +79,9 @@ struct _BtEditApplicationPrivate {
 
   /* interaction controller registry */
   BtIcRegistry *ic_registry;
+  
+  /* persistent audio session */
+  BtAudioSession *audio_session;
 };
 
 static BtEditApplication *singleton=NULL;
@@ -840,6 +843,8 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     // create the editor change log
     singleton->priv->change_log=bt_change_log_new();
     g_signal_connect(singleton->priv->change_log,"notify::can-undo",G_CALLBACK(on_changelog_can_undo_changed),(gpointer)singleton);
+    // create the audio_session
+    singleton->priv->audio_session=bt_audio_session_new();
 
     // create main window
     GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
@@ -895,8 +900,7 @@ static void bt_edit_application_dispose(GObject *object) {
   g_object_try_unref(self->priv->pb_controller);
   g_object_try_unref(self->priv->ic_registry);
   g_object_try_unref(self->priv->change_log);
-  
-  bt_sink_bin_global_cleanup();
+  g_object_try_unref(self->priv->audio_session);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(bt_edit_application_parent_class)->dispose(object);

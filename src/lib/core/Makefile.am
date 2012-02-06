@@ -25,6 +25,7 @@ libbuzztard_core_la_SOURCES = \
 	buzzcallbacks.c \
 	\
 	application.c libbuzztard-core/application.h\
+	audio-session.c libbuzztard-core/audio-session.h \
 	childproxy.c libbuzztard-core/childproxy.h\
 	$(GCONF_SETTINGS_SRC) \
 	machine.c libbuzztard-core/machine.h \

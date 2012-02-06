@@ -5,6 +5,7 @@ libbtcore_HEADERS = \
 	version.h \
 	\
 	application.h \
+	audio-session.h \
 	childproxy.h \
 	gconf-settings.h\
 	machine.h \

@@ -49,6 +49,7 @@
 #include "persistence.h"
 
 #include "application.h"
+#include "audio-session.h"
 #include "gconf-settings.h"
 #include "machine.h"
 #include "pattern.h"

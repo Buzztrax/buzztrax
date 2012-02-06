@@ -75,102 +75,6 @@
 #define GST_TIME_AS_USECONDS(time) ((time) / G_GINT64_CONSTANT (1000))
 #endif
 
-//-- session handling
-
-/* We'd like to have a persistent presence in qjackctrl.
- * It turns out that what you see in qjackctrl are the ports and those are 
- * showing up from individual sinks and sources, the client is reused already.
- * So we need to keep the actual element alive!
- * We also need a hack to make it show up initially.
- *
- * TODO(ensonic): try this for pulsesink too?
- * TODO(ensonic): other modules might want the instance too
- *                (e.g. to change settings)
- */
-static GstElement *audio_sink = NULL;
-
-void bt_sink_bin_global_cleanup(void) {
-  if(audio_sink) {
-    GST_WARNING("forgetting session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
-    gst_element_set_state(audio_sink,GST_STATE_NULL);
-    gst_object_unref(audio_sink);
-    audio_sink=NULL;
-  }
-}
-
-static GstElement *bt_sink_bin_global_setup(gchar *plugin_name) {
-  if(!strcmp(plugin_name,"jackaudiosink")) {
-    if(!audio_sink) {
-      GstElement *bin;
-      GstElement *sink,*src;
-      GstBus *bus;
-      GstMessage *message;
-      gboolean loop=TRUE;
-  
-      // create audio sink and drop floating ref
-      audio_sink=gst_object_ref(gst_element_factory_make(plugin_name,"player"));
-      gst_object_sink(audio_sink);
-      GST_WARNING("created session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
-  
-      bin = gst_pipeline_new("__kickstart__");
-      bus = gst_element_get_bus(bin);
-      src = gst_element_factory_make("audiotestsrc", NULL);
-      sink = gst_object_ref(audio_sink);
-      gst_bin_add_many(GST_BIN (bin), src, sink, NULL);
-      gst_element_link(src, sink);
-      gst_element_set_state(bin, GST_STATE_PAUSED);
-      
-      while(loop) {
-        message=gst_bus_poll(bus,GST_MESSAGE_ANY,-1);
-        switch (message->type) {
-          case GST_MESSAGE_STATE_CHANGED:
-            if(GST_MESSAGE_SRC(message) == GST_OBJECT(bin)) {
-              GstState oldstate,newstate;
-    
-              gst_message_parse_state_changed(message,&oldstate,&newstate,NULL);
-              if(GST_STATE_TRANSITION(oldstate,newstate)==GST_STATE_CHANGE_READY_TO_PAUSED)
-                loop=FALSE;
-            }
-            break;
-          case GST_MESSAGE_ERROR:
-            loop=FALSE;
-            break;
-          default:
-            break;
-        }
-        gst_message_unref(message);
-      }
-      gst_object_unref(bus);
-      
-      gst_element_set_state(bin, GST_STATE_READY);
-      gst_element_set_locked_state(audio_sink, TRUE);
-      gst_element_set_state(bin, GST_STATE_NULL);
-      gst_object_unref(bin);
-  
-    }
-    else {
-      GstObject *parent;
-      // we know that we're not playing anymore, but due to ref-counting the
-      // audio_sink might be still plugged, if so steal it!
-      if((parent=gst_object_get_parent(GST_OBJECT(audio_sink)))) {
-        gst_bin_remove(GST_BIN(parent),audio_sink);
-        gst_element_set_state(audio_sink, GST_STATE_READY);
-        gst_element_set_locked_state(audio_sink, TRUE);
-        gst_object_unref(parent);
-        GST_WARNING("stole session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
-      }
-      else {
-        GST_WARNING("reuse session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
-      }
-    }
-    return(audio_sink);
-  }
-  else {
-    bt_sink_bin_global_cleanup();
-    return(gst_element_factory_make(plugin_name,"player"));
-  }
-}
-
 //-- property ids
 
 enum {
@@ -373,7 +277,8 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElemen
       // maybe we can make this an option (for fast machines)
       chunk>>=6;
 
-      GST_INFO("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
+      GST_INFO_OBJECT(sink,
+        "changing audio chunk-size to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
         chunk, (chunk/G_GINT64_CONSTANT(1000)));
       g_object_set(sink,
         "latency-time",chunk,
@@ -468,13 +373,21 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   GList *list=NULL;
   gchar *plugin_name;
   GstElement *element;
+  BtAudioSession *audio_session;
 
   GST_DEBUG("get playback elements");
 
   if(!(plugin_name=bt_settings_determine_audiosink_name(self->priv->settings))) {
     return(NULL);
   }
-  if(!(element=bt_sink_bin_global_setup(plugin_name))) {
+  audio_session=bt_audio_session_new();
+  g_object_set(audio_session,"audio-sink-name",plugin_name,NULL);
+  g_object_get(audio_session,"audio-sink",&element,NULL);
+  g_object_unref(audio_session);
+  if(!element) {
+    gst_element_factory_make(plugin_name,"player");
+  }
+  if(!element) {
     /* bt_settings_determine_audiosink_name() does all kind of sanity checks already */
     GST_WARNING("Can't instantiate '%s' element",plugin_name);goto Error;
   }
@@ -972,6 +885,7 @@ static gboolean master_volume_sync_handler(GstPad *pad,GstBuffer *buffer, gpoint
 
 static GstStateChangeReturn bt_sink_bin_change_state(GstElement * element, GstStateChange transition) {
   const BtSinkBin * const self = BT_SINK_BIN(element);
+  BtAudioSession *audio_session=bt_audio_session_new();
   GstStateChangeReturn res;
 
   GST_INFO_OBJECT(self,"state change on the sink-bin: %s -> %s",
@@ -987,21 +901,16 @@ static GstStateChangeReturn bt_sink_bin_change_state(GstElement * element, GstSt
         bt_sink_bin_update(self);
       }
       else {
-        if(audio_sink) {
-          GST_DEBUG_OBJECT(self,"lock audio sink");
-          gst_element_set_locked_state(audio_sink, TRUE);
-        }
+        g_object_set(audio_session,"audio-locked",TRUE,NULL);
       }
       break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
-      if(audio_sink) {
-        GST_DEBUG_OBJECT(self,"unlock audio sink");
-        gst_element_set_locked_state(audio_sink, FALSE);
-      }
+      g_object_set(audio_session,"audio-locked",FALSE,NULL);
       break;
     default:
       break;
   }
+  g_object_unref(audio_session);
   return(res);
 }
 
