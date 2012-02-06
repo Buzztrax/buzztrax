@@ -38,6 +38,7 @@ Algorithm:
 /* IDEA(ensonic): have a links to related help topics
  * IDEA(ensonic): make this less annoying:
  *   - an info-banner that has an auto-hide
+ *   - show as the default status-bar text after startup (with a tip-icon)
  *   - a tips page in the docs 
  */
 

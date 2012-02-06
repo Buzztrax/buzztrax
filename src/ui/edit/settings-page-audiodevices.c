@@ -26,21 +26,27 @@
  * - we already have the property probing code
  * - we need to add device selection (combobox)
  * - needs a way to store at least the current device
- *   - add a setting: BT_SETTINGS_AUDIOSINK_DEVIDE of type string
+ *   - add a setting: BT_SETTINGS_AUDIOSINK_DEVICE of type string
  *   - set it as "alsa=hw:0.0"
  *   - this goes to BT_GCONF_PATH_BUZZTARD"/audiosink-device/alsa=hw:0.0
  *   - these keys are not in the schema
  * - needs changes in sink-bin to use the setting
  * - we should probably parse the system-audiosink settings more to eventualy
  *   get the device from the setting
+ * - this is all not so relevant for jack and for pulseaudio?
  */
 /* TODO(ensonic): show the latency
  * - gst_base_sink_get_latency()
- *   - when is that available?
+ *   - when is that available? - 
+ *   - we might not be able to swap the sink immediately
  * - we have the latency caused by the fragment-size and depth of graph
- *   - thus it is different for each machine
+ *   - thus it is different for each graph level
+ *   - the min/max latency depends on the songs bpm,tpb and graph-depth
+ *     - we could show that on the info-page instead
  * - the latency from changing a parameter until we hear something is what
  *   the user is interested in 
+ * => we want to check how much ahead of the pipeline clock the data is processed
+ *    - compare timestamps we set on buffers in chain functions with the clock
  */
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_AUDIODEVICES_C

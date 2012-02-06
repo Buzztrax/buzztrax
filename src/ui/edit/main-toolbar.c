@@ -31,7 +31,11 @@
  * TODO(ensonic): transport mode selection 
  * - if the audio-sink supports transport controls we want to show a combobox to
  *   let the user choose between {-,m,s} = {off,master,slave}
+ *   - ardour calls it positional sync source and supports {internal, mtc, jack}
  * - does this need to be stored? settings?
+ *   only do it in the settings for a start?
+ * - we could also show this unconditionally and set the mode on sink-bin
+ *   - use use the static sink-bin API
  */
 #define BT_EDIT
 #define BT_MAIN_TOOLBAR_C
