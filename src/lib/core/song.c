@@ -586,21 +586,16 @@ static void on_song_request_state(const GstBus * const bus, GstMessage *message,
     GstState state;
 
     gst_message_parse_request_state(message,&state);
-    GST_INFO("requesting state-change to '%s'",gst_element_state_get_name(state));
+    GST_WARNING("requesting state-change to '%s'",gst_element_state_get_name(state));
     
     switch(state) {
       case GST_STATE_NULL:
-        bt_song_stop(self);
-        break;
       case GST_STATE_READY:
       case GST_STATE_PAUSED:
-        bt_song_pause(self); // FIXME(ensonic): this is not visible in the UI
+        bt_song_stop(self);
         break;
       case GST_STATE_PLAYING:
-        if (self->priv->is_playing)
-          bt_song_continue(self);
-        else
-          bt_song_play(self);
+        bt_song_play(self);
         break;
       default:
         break;
@@ -809,6 +804,13 @@ gboolean bt_song_stop(const BtSong * const self) {
     g_source_remove(self->priv->paused_timeout_id);
     self->priv->paused_timeout_id=0;
   }
+  
+  // this is needed to make e.g. request_state messages to work
+  GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
+  if (bus) {
+    gst_bus_set_flushing(bus,FALSE);
+  }
+  gst_object_unref(bus);
 
   // do not stop if not playing or not preparing
   if(self->priv->is_preparing) {
