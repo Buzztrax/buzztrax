@@ -5,7 +5,7 @@ controller
 gst?
 fmtnego
 latency
-latency_*.*
+latency*.*
 latency_*/
 link?
 loop?
