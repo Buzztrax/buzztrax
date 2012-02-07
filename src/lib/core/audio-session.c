@@ -230,12 +230,6 @@ static void bt_audio_session_set_property(GObject * const object, const guint pr
   return_if_disposed();
 
   switch (property_id) {
-    case AUDIO_SESSION_TRANSPORT_MODE:
-      self->priv->transport_mode=g_value_get_enum(value);
-      if (self->priv->audio_sink) {
-        g_object_set(self->priv->audio_sink,"transport",self->priv->transport_mode,NULL);
-      }
-      break;
     case AUDIO_SESSION_AUDIO_SINK_NAME:
       g_free(self->priv->audio_sink_name);
       self->priv->audio_sink_name = g_value_dup_string(value);
@@ -244,8 +238,14 @@ static void bt_audio_session_set_property(GObject * const object, const guint pr
     case AUDIO_SESSION_AUDIO_LOCKED:
       if (self->priv->audio_sink) {
         gboolean state=g_value_get_boolean(value);
-        GST_DEBUG_OBJECT(self,"%slock audio sink",(state?"":"un"));
+        GST_WARNING_OBJECT(self,"%slock audio sink",(state?"":"un"));
         gst_element_set_locked_state(self->priv->audio_sink,state);
+      }
+      break;
+    case AUDIO_SESSION_TRANSPORT_MODE:
+      self->priv->transport_mode=g_value_get_enum(value);
+      if (self->priv->audio_sink) {
+        g_object_set(self->priv->audio_sink,"transport",self->priv->transport_mode,NULL);
       }
       break;
     default:
