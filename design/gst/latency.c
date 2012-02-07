@@ -32,6 +32,8 @@
  * - total_latency = (1 + nr_of_queues) * latency
  * - using a smaller blocksize (half of latency) mitigates the problem somewhat
  * - when using fakesink, our probes are not getting called ?
+ * - alsasink fails with some (bpm,tpb) settings (125,4) and then the clock
+ *   returns 0 all the time
  */
 /* todo:
  * - test how many buffers we do with the clock not yet running for each sink
@@ -50,8 +52,7 @@
  *     - need to grab the sink from the bin to have the ptr in m->elem (there
  *       must be only one child!
  * - make blocksize divide a parameter
- * - run with various parameters from a meta-script
- * - try pull based scheduling! (can-activate-pull)
+ * - try various sampling rates, right now it is 44100
  */
 
 #include <stdio.h>
@@ -354,7 +355,7 @@ state_changed_message_received (GstBus * bus, GstMessage * message, Graph * g)
     gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
     switch (GST_STATE_TRANSITION (oldstate, newstate)) {
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-        GST_DEBUG_BIN_TO_DOT_FILE (g->bin, GST_DEBUG_GRAPH_SHOW_ALL & ~GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS, "latency");
+        GST_DEBUG_BIN_TO_DOT_FILE (g->bin, GST_DEBUG_GRAPH_SHOW_ALL, "latency");
         GST_INFO ("reached playing");
         break;
       default:
@@ -409,8 +410,9 @@ main (int argc, char **argv)
     }
   }
   chunk=(GST_SECOND*G_GINT64_CONSTANT(60))/(guint64)(bpm*tpb);
-  blocksize=((2*chunk*44100)/GST_SECOND);
-  GST_INFO("%s: bpm=%u, tpb=%u, audio-chunk-size=%"G_GUINT64_FORMAT" µs=%"G_GUINT64_FORMAT" ms",
+  //blocksize=((2*chunk*44100)/GST_SECOND);
+  blocksize=((chunk*44100)/GST_SECOND);
+  GST_INFO("%s| bpm=%u, tpb=%u, audio-chunk-size=%"G_GUINT64_FORMAT" µs=%"G_GUINT64_FORMAT" ms",
     sink_name, bpm, tpb, GST_TIME_AS_USECONDS(chunk), GST_TIME_AS_MSECONDS(chunk));
 
 
@@ -439,12 +441,12 @@ main (int argc, char **argv)
     NULL);
 
   /* simple setup */
-#if 0
+#if 1
   link_add (g, M_SRC1, M_SINK);
 #endif
 
   /* setup with fx */
-#if 1
+#if 0
   g->m[M_FX1] = make_fx (g, FX_NAME, "fx1");
 
   link_add (g, M_SRC1, M_FX1);
@@ -470,6 +472,7 @@ main (int argc, char **argv)
     "latency-time",  GST_TIME_AS_USECONDS(chunk),
     "buffer-time", GST_TIME_AS_USECONDS(chunk<<1),
     // no observable effect
+    "provide-clock", TRUE,
     "blocksize", blocksize,
     "sync", TRUE,
     NULL);
