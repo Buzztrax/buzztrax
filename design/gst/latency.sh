@@ -1,9 +1,9 @@
 #!/bin/sh
 
 if [ -n "$1" ]; then
-  base=$1
+  base="latencies/$1"
 else
-  base="latency"
+  base="latencies/unknown"
 fi
 
 dbg="${base}.dbg"
