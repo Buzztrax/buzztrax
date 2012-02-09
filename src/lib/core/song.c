@@ -806,11 +806,13 @@ gboolean bt_song_stop(const BtSong * const self) {
   }
   
   // this is needed to make e.g. request_state messages to work
+  /* unfortunately we seem to get state-change messages at random times then :/
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
   if (bus) {
     gst_bus_set_flushing(bus,FALSE);
   }
   gst_object_unref(bus);
+  */
 
   // do not stop if not playing or not preparing
   if(self->priv->is_preparing) {
