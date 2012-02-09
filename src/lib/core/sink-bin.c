@@ -267,7 +267,7 @@ static void bt_sink_bin_deactivate_analyzers(const BtSinkBin * const self) {
 static void bt_sink_bin_configure_latency(const BtSinkBin * const self) {
   GstElement *sink=self->priv->audio_sink;
   if(GST_IS_BASE_AUDIO_SINK(sink)) {
-    if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
+    if(self->priv->beats_per_minute && self->priv->ticks_per_beat && self->priv->subticks_per_tick) {
       // we configure stpb in machine.c
       const gdouble div=60.0/self->priv->subticks_per_tick;
       // configure buffer size (e.g.  GST_SECONG*60/120*4

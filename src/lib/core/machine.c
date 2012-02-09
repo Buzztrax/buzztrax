@@ -945,6 +945,7 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     glong stpb;
 
     g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
+    g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
     // TODO(ensonic): handle stpb (subticks per beat)
     // - we'd like to set stpb=1 for non interactive playback and recording
     // - we'd like to set stpb>1 for:
@@ -952,7 +953,6 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     //   - open machine windows (with controllers assigned)
     // start with a reasonable good value for now
     stpb=16/tpb; 
-    g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
     gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,stpb);
 
     g_signal_connect(song_info,"notify::bpm",G_CALLBACK(bt_machine_on_bpm_changed),(gpointer)self);
