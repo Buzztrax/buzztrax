@@ -385,7 +385,8 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   g_object_get(audio_session,"audio-sink",&element,NULL);
   g_object_unref(audio_session);
   if(!element) {
-    gst_element_factory_make(plugin_name,"player");
+    GST_WARNING("No session sink for '%s'",plugin_name);
+    element=gst_element_factory_make(plugin_name,"player");
   }
   if(!element) {
     /* bt_settings_determine_audiosink_name() does all kind of sanity checks already */
